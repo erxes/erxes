@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -52,7 +52,7 @@
 - Inventory out and internal movement rows show active unit cost and amount as read-only values; inventory sale unit price remains editable because it is the sale price, while its generated inventory and cost-of-goods rows retain the fetched active cost across sale quantity edits and are costed by the backend on save.
 - Inventory income, out, move, sale, and sale-return bulk product additions fetch journal-specific fill data once, then append rows with the same price, cost, amount, and weight rules as single-row product selection.
 - Inventory internal movement rows can toggle detailed view to edit source branch/department on the outgoing detail and destination branch/department on the generated incoming detail.
-- Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
+- Accounting sync settings include a deal movement rule page that captures the target sales stage, source/destination inventory accounts, default source/destination branch and department, and whether deal/product branch and department apply to the movement source or destination; the rule table's account, branch, and department cells are inline-editable and persist immediately through `useSyncConfigValueUpdate`, which queues each config's edits so overlapping cell changes are sent sequentially and merged onto the latest pending value instead of overwriting each other; deal movement check/resync uses its own `/accounting/check-sync/deal-movement` route and rule picker.
 - The inventory cost adjustment journal has an independent form, supports single or bulk product selection, hides quantity input, shows current remainder and unit cost, accepts a per-unit cost delta, calculates the after-adjustment unit cost, and submits cost-only rows.
 - Safe remainder counting opens one import sheet with separate TXT and CSV tabs; TXT and CSV rows with blank total cost default counted total cost from active unit cost and counted quantity, while CSV accepts explicit `totalCost` and legacy `unitCost` aliases.
 - Settings expose `Бараа материал` alongside Accounting and `Үндсэн хөрөнгө` as an independent entry at `/accounting/settings/inventories`, with its own `Ажил` sidebar item at `/accounting/settings/inventories/jobs`. Users can create, edit, list, and delete production-stage jobs with `Орц бараа` and `Гарц бараа`, units, quantities, output cost-allocation ratios, and duration.
@@ -211,6 +211,7 @@
 - New and editable execution forms offer draft-save and save-with-transactions actions through explicit button clicks only; field changes, blur, Enter and incidental form submits must not persist anything. A posted draft-save confirms, saves current actuals, then undoes its journals; undo persists the resulting draft status. Save-with-transactions updates an already posted execution without posting twice, or posts a saved draft using its returned id. Both paths refresh the list. Once a save has persisted, a later failure closes to the refreshed list rather than allowing a stale-state retry. List post actions are hidden when posted or already linked to a parent.
 
 - Execution job-id filtering uses the searchable shared job command content, not an id text input. The filter offers active and inactive master jobs, stores only `jobId` in the URL, and resolves the selected code/name for its chip; creation still offers active jobs only. Saved job-name text filtering remains separate.
+- Execution job selectors follow the product selector's shared `Command`/`Combobox` structure: secondary search, 300px scrollable list, `Combobox.Value` with a muted monospace code badge and a truncating name, and `Combobox.Check`. Selected trigger captions also use `Combobox.Value`; full option captions remain available in `title`. Long job names must not wrap into neighboring fixed-height options or displace the selection check.
 
 - Execution list filters are URL-owned through `useJobExecutionFilters`: search/status, exact job id, saved job name, input/output product, labor/overhead name, and each side's account/branch/department. The same variables drive initial queries and fetch-more; use localized shared filter dialogs/selectors rather than standalone filter inputs. Account filter choices use readable inventory accounts.
 
@@ -247,7 +248,7 @@
   sidebar. The plugin owns its settings at `/accounting/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends
@@ -307,6 +308,7 @@
 - Inventory out and internal movement forms must not allow unit cost or cost amount edits; changing product, account, quantity, or source location must refresh active cost, and editing an existing movement must exclude both its source and generated destination transactions from that lookup.
 - Inventory internal movement detailed view must keep source branch/department on the outgoing detail and destination branch/department on the generated incoming detail; saved incoming detail locations must remain visible and must not be overwritten by root destination values unless the user changes them.
 - Deal movement sync settings must use inventory journal accounts for both source and destination accounts, and the deal-location side selector must determine only which side receives product/deal branch and department; the other side remains the configured default source or destination.
+- Sync config tables (`SyncConfigTable`) wrap `RecordTable` in `RecordTable.Scroll` so wide rule tables scroll horizontally. Editable inline cells there must pass the stored id through `value` (never `branchIds`/`departmentIds`, which the select providers ignore) and save via `useSyncConfigValueUpdate`, which merges the single changed key into the row's config `value`, keeps its `subId`, and refetches `AccountingsConfigs`.
 - Regular deal check/resync must not show `syncDealMovement` rules; `/accounting/check-sync/deal-movement` is the only check/resync route that exposes deal movement rules.
 - Inventory move, sale, and sale-return follow details must retain each source detail `_id` as `originId`; quantity edits update only that source row's generated follow details, preserve every other row's fetched active cost, and ignore transient current-cost responses that do not contain the selected product.
 - Inventory split previews must create one `invOut` and one `invIncome` follow transaction per source transaction, keep both `originId` values pointed at the source transaction, give the pair one shared pointer distinct from the source transaction pointer, include only enabled split details, preserve total cost, derive converted count and unit price from the ratio, and use destination account/location for internal movements.

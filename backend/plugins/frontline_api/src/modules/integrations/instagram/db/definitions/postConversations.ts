@@ -13,6 +13,7 @@ export const postConversationSchema = schemaWrapper(
     content: String,
     customerId: { type: String, optional: true },
     permalink_url: String,
+    metadataPending: Boolean,
     attachments: [String],
   }),
 );

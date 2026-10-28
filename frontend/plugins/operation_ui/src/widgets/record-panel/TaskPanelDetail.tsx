@@ -1,3 +1,4 @@
+import type { ApolloCache } from '@apollo/client';
 import { compactList } from '@/operation/utils/cursorList';
 import { DateSelectTask } from '@/task/components/task-selects/DateSelectTask';
 import { SelectAssigneeTask } from '@/task/components/task-selects/SelectAssigneeTask';
@@ -24,6 +25,12 @@ import {
 import { RecordContactsField } from './RecordContactsField';
 
 const SCOPE = 'side-panel-task';
+
+// Contacts' task lists change with a task's customer / company; the old
+// contact's list is not mounted while the task is open, so it is evicted.
+const evictContactTaskLists = (cache: ApolloCache<unknown>) => {
+  cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTasks' });
+};
 
 const TaskNameField = ({ task }: { task: ITask }) => {
   const { t } = useTranslation('operation');
@@ -164,23 +171,29 @@ export const TaskPanelDetail = ({ taskId }: { taskId: string }) => {
             })}
           />
         </PanelField>
-        <PanelField label={t('customers', 'Customers')}>
+        <PanelField label={t('customer', 'Customer')}>
           <RecordContactsField
             kind="customer"
             value={task.customerId}
             scope={`${SCOPE}.customer`}
             onValueChange={(customerId) =>
-              updateTask({ variables: { _id, customerId } })
+              updateTask({
+                variables: { _id, customerId },
+                update: evictContactTaskLists,
+              })
             }
           />
         </PanelField>
-        <PanelField label={t('companies', 'Companies')}>
+        <PanelField label={t('company', 'Company')}>
           <RecordContactsField
             kind="company"
             value={task.companyId}
             scope={`${SCOPE}.company`}
             onValueChange={(companyId) =>
-              updateTask({ variables: { _id, companyId } })
+              updateTask({
+                variables: { _id, companyId },
+                update: evictContactTaskLists,
+              })
             }
           />
         </PanelField>

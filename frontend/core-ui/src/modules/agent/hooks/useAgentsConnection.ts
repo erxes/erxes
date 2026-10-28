@@ -15,6 +15,18 @@ export interface IUseAgentsConnectionResult {
 }
 
 /**
+ * The connection an unselected chat turn runs on: the entry the server marks
+ * `isDefault`, else the first saved one (older responses, same fallback as
+ * the backend).
+ */
+export const findDefaultAgentsConnection = <
+  T extends { isDefault?: boolean | null },
+>(
+  connections: readonly T[],
+): T | undefined =>
+  connections.find((connection) => connection.isDefault) ?? connections[0];
+
+/**
  * Loads the acting user's configured BYOK connections (one entry per
  * provider). The backend never returns the stored API keys; `hasKey` only
  * reports whether one is stored.

@@ -6,14 +6,18 @@ import {
   collectAgentsPageSelections,
   AgentsPageSelectionError,
 } from '@/agents/pageSelections';
+import {
+  AgentsMentionError,
+  applyAgentsMentions,
+  collectAgentsMentions,
+  resolveAgentsMentions,
+  rewriteAgentsMentionText,
+} from '@/agents/mentions';
 import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import type { MastraMemory } from '@mastra/core/memory' with {
   'resolution-mode': 'import',
 };
 import type { DurableAgent } from '@mastra/core/agent/durable' with {
-  'resolution-mode': 'import',
-};
-import type { MastraModelOutput } from '@mastra/core/stream' with {
   'resolution-mode': 'import',
 };
 import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
@@ -26,14 +30,23 @@ import {
   extractUserFromHeader,
   getSubdomain,
 } from 'erxes-api-shared/utils';
+import { AGENTS_MAX_STEPS, buildAgentsModelSettings } from '@/agents/agent';
 import {
   isAgentsThinkingLevel,
-  AGENTS_MAX_STEPS,
-  buildAgentsModelSettings,
+  normalizeThinkingLevel,
   type IAgentsThinkingLevel,
-} from '@/agents/agent';
+} from '@/agents/modelThinking';
+import type { IAgentsConnections } from '@/agents/@types/connection';
+import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { getAgentsRuntime } from '@/agents/memory';
-import { isAgentsRunAlive } from '@/agents/runLiveness';
+import { describeUnreadableKey } from '@/agents/providerModels';
+import { openSecret } from '@/agents/secretBox';
+import { probeAgentsRun } from '@/agents/runLiveness';
+import {
+  agentsRunInterruptedError,
+  describeAgentsStreamError,
+  pipeAgentsStream,
+} from '@/agents/agentsStream';
 import { publishAgentsThreadsChanged } from '@/agents/threadsEvents';
 import {
   AgentsMessageEditError,
@@ -178,40 +191,41 @@ const resolveOwnedThreadId = async ({
 };
 
 /**
- * Resolves the acting user's stored BYOK connection, shared by chat and
+ * Resolves the acting user's stored BYOK connections, shared by chat and
  * approve. Without one the user is told exactly what is missing; the key
  * itself is never echoed into the error.
  */
 const resolveUserConnections = async (
   models: IModels,
   userId: string,
-): Promise<IAiAgentConnection[]> => {
+): Promise<IAgentsConnections> => {
   const doc = await models.AgentsConnection.getConnections(userId);
 
   if (!doc || doc.connections.length === 0) {
     throw new HttpError(400, 'Add your API key to start using Agents.');
   }
 
-  return doc.connections;
+  return doc;
 };
 
 /**
  * Picks the connection a turn runs on: the body's provider when given
- * (validated against the user's stored entries), otherwise the first
- * configured provider. An explicit `model` overrides the stored one for
- * this turn only and is never persisted.
+ * (validated against the user's stored entries), otherwise the user's
+ * default (`findDefaultConnection`: the explicit default while it is still
+ * saved, else the first saved provider). An explicit `model` overrides the
+ * stored one for this turn only and is never persisted.
  */
-const pickConnection = (
-  connections: IAiAgentConnection[],
+export const pickConnection = (
+  stored: Pick<IAgentsConnections, 'connections' | 'defaultProvider'>,
   provider?: string,
   model?: string,
 ): IAiAgentConnection => {
   const requestedProvider = provider?.trim();
   const selected = requestedProvider
-    ? connections.find(
+    ? stored.connections.find(
         (connection) => connection.provider === requestedProvider,
       )
-    : connections[0];
+    : findDefaultConnection(stored);
 
   if (!selected) {
     throw new HttpError(
@@ -225,11 +239,27 @@ const pickConnection = (
   return requestedModel ? { ...selected, model: requestedModel } : selected;
 };
 
+/**
+ * Rejects a connection whose stored key this server cannot open (missing, or
+ * sealed under another secret) with the same key-free reason the model list
+ * shows, instead of failing later inside the run.
+ */
+const assertUsableConnectionKey = (connection: IAiAgentConnection): void => {
+  const stored = connection.config?.apiKey;
+
+  if (!openSecret(stored)) {
+    throw new HttpError(400, describeUnreadableKey(connection.provider, stored));
+  }
+};
+
 const parseThinkingLevel = (value: unknown): IAgentsThinkingLevel =>
   isAgentsThinkingLevel(value) ? value : 'off';
 
-/** Bounds reconnects to orphaned running snapshots with no live producer. */
-const AGENTS_RECONNECT_IDLE_TIMEOUT_MS = 60_000;
+/**
+ * How often a quiet reconnect re-checks its run's producer. A live producer
+ * re-arms the wait; a dead one is reported once its native lease lapses.
+ */
+const AGENTS_RECONNECT_IDLE_TIMEOUT_MS = 10_000;
 
 /**
  * Reads the tenant's feature flags so chat stamps them into the
@@ -367,56 +397,6 @@ const buildPageContextText = (context: {
     : '';
 
   return `${PAGE_CONTEXT_PREFIX} The user is viewing ${context.path}.${record}`;
-};
-
-/**
- * Readable client-facing message for a failed model stream. Mastra's
- * `@mastra/ai-sdk` adapter may hand `onError` a plain serialized error
- * object (`{ name, message, stack }`) rather than an `Error` instance, so
- * both shapes are unwrapped. Provider errors (rate limits, unsupported
- * parameters, invalid keys) carry actionable text and no secrets — the
- * API key never appears in an error body — so the message is forwarded
- * instead of a generic dead end.
- */
-const describeStreamError = (error: unknown): string => {
-  const message =
-    error instanceof Error
-      ? error.message
-      : typeof error === 'object' &&
-          error !== null &&
-          'message' in error &&
-          typeof error.message === 'string'
-        ? error.message
-        : '';
-
-  return message.trim() || 'The model failed to generate a response.';
-};
-
-/**
- * Pipes a MastraModelOutput to the response as an AI SDK v7 UI message
- * stream, exposing the conversation id before streaming starts so clients
- * can continue the same thread on their next request.
- */
-const pipeModelOutput = async (
-  res: express.Response,
-  threadId: string,
-  output: MastraModelOutput,
-): Promise<void> => {
-  res.setHeader('X-Agents-Thread-Id', threadId);
-
-  // 'ai' and '@mastra/ai-sdk' are ESM-only; load them dynamically from
-  // CommonJS.
-  const { pipeUIMessageStreamToResponse } = await import('ai');
-  const { toAISdkStream } = await import('@mastra/ai-sdk');
-
-  pipeUIMessageStreamToResponse({
-    response: res,
-    stream: toAISdkStream(output, {
-      from: 'agent',
-      version: 'v7',
-      onError: (error) => describeStreamError(error),
-    }),
-  });
 };
 
 /** Which suspension kind a resume route decides. */
@@ -718,15 +698,37 @@ router.post('/agents/chat', async (req, res) => {
     const files = collectAgentsAttachments(
       Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
     );
-
+    // A turn without a usable connection is rejected before any gateway
+    // work: no mention lookup runs for a request that cannot reach a model.
     const models = await generateModels(identity.subdomain);
-    const connections = await resolveUserConnections(models, identity.userId);
+    const storedConnections = await resolveUserConnections(
+      models,
+      identity.userId,
+    );
     const connection = pickConnection(
-      connections,
+      storedConnections,
       body.provider,
       body.model,
     );
-    const thinkingLevel = parseThinkingLevel(body.thinkingLevel);
+    assertUsableConnectionKey(connection);
+
+    const requestedMentions = collectAgentsMentions(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+    );
+    // Verified as the acting user before any storage, rewind or model work.
+    const mentions = await resolveAgentsMentions(identity, requestedMentions);
+    const mentionText = rewriteAgentsMentionText(
+      Array.isArray(newestMessage.parts) ? newestMessage.parts : [],
+      requestedMentions,
+      mentions,
+    );
+    // Only levels the selected model supports reach the provider (clamped to
+    // the nearest one; unknown models keep the original five levels).
+    const thinkingLevel = normalizeThinkingLevel(
+      connection.provider,
+      connection.model,
+      parseThinkingLevel(body.thinkingLevel),
+    );
     const runSettings = await resolveRunSettings(models);
     const runtime = await getAgentsRuntime(identity.subdomain);
     const { threadId, isNew } = await resolveOwnedThreadId({
@@ -735,11 +737,24 @@ router.post('/agents/chat', async (req, res) => {
       requestedThreadId: body.threadId,
     });
 
-    const preparedMessage = await prepareAgentsFileMessage(
-      identity.subdomain,
-      { id: typeof newestMessage.id === 'string' ? newestMessage.id : randomUUID(), role: 'user', parts: newestMessage.parts },
-      files,
-      selections,
+    const preparedMessage = applyAgentsMentions(
+      await prepareAgentsFileMessage(
+        identity.subdomain,
+        {
+          id:
+            typeof newestMessage.id === 'string'
+              ? newestMessage.id
+              : randomUUID(),
+          role: 'user',
+          parts: (mentions.length
+            ? mentionText.parts
+            : newestMessage.parts) as UIMessage['parts'],
+        },
+        files,
+        selections,
+      ),
+      mentions,
+      mentionText.displayText,
     );
 
     // Page context is a model-only hint: a delimited text part prepended to
@@ -798,6 +813,7 @@ router.post('/agents/chat', async (req, res) => {
       modelSettings: buildAgentsModelSettings(
         connection.provider,
         thinkingLevel,
+        connection.model,
       ),
       memory: {
         thread: threadId,
@@ -827,10 +843,11 @@ router.post('/agents/chat', async (req, res) => {
         })
       : await start();
 
-    await pipeModelOutput(res, threadId, result.output);
+    await pipeAgentsStream(res, threadId, result.output);
   } catch (error) {
     if (
       error instanceof AgentsPageSelectionError ||
+      error instanceof AgentsMentionError ||
       error instanceof AgentsFileBindError ||
       error instanceof AgentsMessageEditError
     ) {
@@ -927,7 +944,7 @@ router.post('/agents/approve', async (req, res) => {
           ...(reason ? { reason } : {}),
         });
 
-    await pipeModelOutput(res, threadId, output);
+    await pipeAgentsStream(res, threadId, output);
   } catch (error) {
     const status = errorStatus(error);
 
@@ -1016,7 +1033,7 @@ router.post('/agents/answer', async (req, res) => {
       buildResumeOptions({ suspended, identity, threadId, res }),
     );
 
-    await pipeModelOutput(res, threadId, output);
+    await pipeAgentsStream(res, threadId, output);
   } catch (error) {
     const status = errorStatus(error);
 
@@ -1095,20 +1112,37 @@ router.post('/agents/chat/reconnect', async (req, res) => {
       return;
     }
 
+    // A stored running status is only discovery data: check the producer
+    // first, so a run orphaned by a restart is reported at once (and settled
+    // without replaying its tools) instead of after an idle wait.
+    const scope = { runId, threadId, resourceId: identity.userId };
+    const state = await probeAgentsRun(runtime, scope);
+
+    if (state === 'interrupted') {
+      res.status(409).json(agentsRunInterruptedError());
+      return;
+    }
+
+    if (state === 'inactive') {
+      res.status(204).end();
+      return;
+    }
+
     // Pipe the observed output through the same AI SDK v7 SSE pipeline.
     // Pass onSuspended so a run that suspends after reconnect ends the
     // HTTP response (headersSent is true during SSE; check writableEnded).
-    // Native ownership/lease liveness keeps slow live runs open, while a
-    // producerless running snapshot is settled without replaying its tools.
+    // Native ownership/lease liveness keeps slow live runs open; a producer
+    // that dies while observed ends the stream with the restart error.
+    let producerGone = false;
     const observed = await runtime.agent.observe(runId, {
       idleTimeoutMs: AGENTS_RECONNECT_IDLE_TIMEOUT_MS,
       // Backend errors propagate: Mastra preserves the observer during a
       // transient storage/Redis failure instead of declaring a live run dead.
-      isAlive: () => isAgentsRunAlive(runtime, {
-        runId,
-        threadId,
-        resourceId: identity.userId,
-      }),
+      isAlive: async () => {
+        const next = await probeAgentsRun(runtime, scope);
+        producerGone = next === 'interrupted';
+        return next === 'live';
+      },
       onSuspended: () => {
         if (!res.writableEnded) {
           res.end();
@@ -1116,7 +1150,13 @@ router.post('/agents/chat/reconnect', async (req, res) => {
       },
     });
 
-    await pipeModelOutput(res, threadId, observed.output);
+    await pipeAgentsStream(res, threadId, observed.output, {
+      observed: true,
+      describeError: (error) =>
+        producerGone
+          ? JSON.stringify(agentsRunInterruptedError())
+          : describeAgentsStreamError(error),
+    });
   } catch (error) {
     const status = errorStatus(error);
 

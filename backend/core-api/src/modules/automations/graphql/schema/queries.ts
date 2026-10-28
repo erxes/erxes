@@ -59,6 +59,9 @@ const queries = `
   automationConstants: JSON
   automationSetPropertyTargets(sourceType: String!): JSON
   automationNodeOutput(nodeType: String!, config: JSON): JSON
+  automationNodeCatalog: JSON
+  automationNodeSchema(type: String!): JSON
+  automationValidate(_id: String, status: String, triggers: [TriggerInput], actions: [ActionInput], workflows: [WorkflowInput]): JSON
   automationReferenceFields(type: String!, field: String!): JSON
   automationBotsConstants:JSON
   automationsAiAgents(kind:String):JSON

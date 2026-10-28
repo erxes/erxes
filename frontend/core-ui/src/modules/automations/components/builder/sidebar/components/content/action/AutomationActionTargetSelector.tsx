@@ -25,13 +25,18 @@ export const AutomationActionTargetSelector = ({
     return null;
   }
 
+  // A split's target decides what it compares, so it is named for that.
+  const isSplit = activeNode.type === 'split';
+
   return (
     <Form.Field
       name={`${configFieldNamePrefix}.targetActionId`}
       control={control}
       render={({ field }) => (
         <Form.Item className="px-4 mb-2">
-          <Form.Label>{t('sidebar-select-target')}</Form.Label>
+          <Form.Label>
+            {t(isSplit ? 'split-branch-on' : 'sidebar-select-target')}
+          </Form.Label>
           <Select
             value={field.value ?? list[0]?.id}
             onValueChange={(value) => handleChangeTarget(value, field.onChange)}
@@ -51,7 +56,11 @@ export const AutomationActionTargetSelector = ({
             </Select.Content>
           </Select>
           <Form.Description>
-            {t('sidebar-select-target-description')}
+            {t(
+              isSplit
+                ? 'split-branch-on-description'
+                : 'sidebar-select-target-description',
+            )}
           </Form.Description>
           <Form.Message />
         </Form.Item>

@@ -1,4 +1,6 @@
 import { SelectPriority } from '@/operation/components/SelectPriority';
+import { compactList } from '@/operation/utils/cursorList';
+import { TASK_CONTENT_TYPE } from '@/task/constants';
 import { TeamInline } from '@/team/components/TeamInline';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
@@ -8,6 +10,7 @@ import {
   PANEL_TEXT_FIELD_CLASS_NAME,
   PanelDescriptionField,
   PanelField,
+  TagsSelect,
 } from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
 
@@ -35,6 +38,7 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
     description?: string;
     customerId?: string | null;
     companyId?: string | null;
+    tagIds?: string[];
   }) =>
     updateTriage({
       variables: { _id, input },
@@ -71,7 +75,18 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
         <PanelField label={t('team')} cell={false}>
           <TeamInline teamId={teamId} className="h-7 px-2 font-normal" />
         </PanelField>
-        <PanelField label={t('customers', 'Customers')}>
+        <PanelField label={t('tags')}>
+          <TagsSelect.InlineCell
+            type={TASK_CONTENT_TYPE}
+            mode="multiple"
+            scope={`${SCOPE}.tags`}
+            value={compactList(triage.tagIds)}
+            onValueChange={(tagIds) =>
+              update({ tagIds: Array.isArray(tagIds) ? tagIds : [tagIds] })
+            }
+          />
+        </PanelField>
+        <PanelField label={t('customer', 'Customer')}>
           <RecordContactsField
             kind="customer"
             value={triage.customerId}
@@ -79,7 +94,7 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
             onValueChange={(customerId) => update({ customerId })}
           />
         </PanelField>
-        <PanelField label={t('companies', 'Companies')}>
+        <PanelField label={t('company', 'Company')}>
           <RecordContactsField
             kind="company"
             value={triage.companyId}

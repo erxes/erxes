@@ -66,9 +66,16 @@ jest.mock(
   '@/side-panel/components/SidePanelLayout',
   () => ({
     SidePanelLayout: () => <aside data-testid="relation-panel" />,
+    SidePanelRecord: () => null,
   }),
   { virtual: true },
 );
+// Only the record-view context is used; loading the whole ui-modules barrel
+// would build every shared GraphQL document against the erxes-ui stub above.
+jest.mock('ui-modules', () => {
+  const { createContext } = jest.requireActual<typeof import('react')>('react');
+  return { RecordViewContext: createContext(null) };
+});
 it('keeps the side panel beside the navigation/workspace column, outside the animated page', () => {
   render(<DefaultLayout />);
   const layout = screen.getByTestId('layout');

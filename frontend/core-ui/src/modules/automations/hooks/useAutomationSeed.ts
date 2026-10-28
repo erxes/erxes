@@ -1,3 +1,4 @@
+import { getDefaultAiAgentMemoryConfig } from '@/automations/components/builder/nodes/actions/aiAgent/states/aiAgentForm';
 import { AUTOMATION_CONSTANTS } from '@/automations/graphql/automationQueries';
 import { ConstantsQueryResponse } from '@/automations/types';
 import { TAutomationBuilderForm } from '@/automations/utils/automationFormDefinitions';
@@ -71,6 +72,27 @@ const layoutSeedActions = (actions: TAutomationSeedAction[]) => {
   return positions;
 };
 
+type TAiAgentGoalType = NonNullable<
+  Parameters<typeof getDefaultAiAgentMemoryConfig>[0]
+>;
+
+const isAiAgentGoalType = (value: unknown): value is TAiAgentGoalType =>
+  value === 'generateText' ||
+  value === 'splitTopic' ||
+  value === 'classification';
+
+// Fills what the node's form would on open, so a seeded node saves and runs the
+// same as one built by hand without being opened first.
+const withFormDefaults = (type: string, config: Record<string, unknown>) =>
+  type === 'aiAgent' && !config.memory
+    ? {
+        ...config,
+        memory: getDefaultAiAgentMemoryConfig(
+          isAiAgentGoalType(config.goalType) ? config.goalType : undefined,
+        ),
+      }
+    : config;
+
 /**
  * A seeded flow opens only when every node is a registered action and every
  * connection lands on a node of the flow; otherwise the trigger opens alone.
@@ -98,7 +120,7 @@ const buildSeedActions = (
 
   return seedActions.map((action, index) => {
     const constant = constants[index] as IAutomationsActionConfigConstants;
-    const config = action.config || {};
+    const config = withFormDefaults(constant.type, action.config || {});
 
     return {
       id: action.id,

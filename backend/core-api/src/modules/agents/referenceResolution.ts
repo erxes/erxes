@@ -29,6 +29,7 @@ const fieldsByType: Record<
   brand: ['name'],
   deal: ['name', 'boardId'],
   conversation: ['content'],
+  automation: ['name'],
 };
 const scalarSelection = (type: GraphQLObjectType, names: string[]): string[] =>
   names.filter((name) => {

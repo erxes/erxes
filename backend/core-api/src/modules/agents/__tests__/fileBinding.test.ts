@@ -3,6 +3,11 @@ import type { UIMessage } from 'ai' with { 'resolution-mode': 'import' };
 import { Readable } from 'stream';
 import { readFileStreamFromStorage } from 'erxes-api-shared/utils';
 
+// The shared core-modules barrel loads Mongoose models built from the mocked
+// utils; the agents module only needs the agent contract from it.
+jest.mock('erxes-api-shared/core-modules', () =>
+  jest.requireActual('erxes-api-shared/core-modules/agent'),
+);
 jest.mock('erxes-api-shared/utils', () => ({
   readFileStreamFromStorage: jest.fn(),
   readFileFromStorage: jest.fn(async () => { throw new Error('Storage unavailable'); }),

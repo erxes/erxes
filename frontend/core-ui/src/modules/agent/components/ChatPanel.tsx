@@ -6,19 +6,30 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type Ref,
 } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { useAgentsConnection } from '../hooks/useAgentsConnection';
+import {
+  findDefaultAgentsConnection,
+  useAgentsConnection,
+} from '../hooks/useAgentsConnection';
+import { useAgentsModelVerify } from '../hooks/useAgentsModelVerify';
 import { useAgentsModels } from '../hooks/useAgentsModels';
+import { findModelThinking } from '../utils/thinkingLevels';
 import type { IUseAgentsChatResult } from '../hooks/useAgentsChat';
 import { agentsFilesPart } from '../agentsFiles';
 import { pageSelectionsPart } from '../pageSelections';
+import { agentMentionsPartsForText } from '../agentMentions';
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
-import { Composer } from './Composer';
-import { modelSelectionValue, ModelPicker } from './ModelPicker';
+import { Composer, type IComposerAttachHandle } from './Composer';
+import {
+  modelSelectionValue,
+  ModelPicker,
+  parseModelSelection,
+} from './ModelPicker';
 import { MessageList } from './MessageList';
 import { ThinkingPicker } from './ThinkingPicker';
 import {
@@ -27,20 +38,7 @@ import {
   type AgentChatWidth,
 } from '../utils/chatWidth';
 import { useAgentSuggestions } from '../constants/agentSuggestions';
-
-/** Extracts a readable message from a transport error (JSON or plain). */
-const describeError = (error: Error): string => {
-  try {
-    const parsed = JSON.parse(error.message) as { error?: string };
-    if (typeof parsed.error === 'string' && parsed.error) {
-      return parsed.error;
-    }
-  } catch {
-    // Not a JSON body; use the raw message.
-  }
-
-  return error.message || 'Something went wrong.';
-};
+import { describeAgentsChatError } from '../streamHealth';
 
 export interface IChatPanelProps {
   chat: IUseAgentsChatResult;
@@ -50,6 +48,8 @@ export interface IChatPanelProps {
   width?: AgentChatWidth;
   /** Composer page-context chip row (side panel only). */
   contextRow?: ReactNode;
+  /** Receives the composer's attach handle for panel-wide drop. */
+  attachRef?: Ref<IComposerAttachHandle>;
 }
 
 /**
@@ -68,6 +68,7 @@ export const ChatPanel = ({
   className,
   width = 'full',
   contextRow,
+  attachRef,
 }: IChatPanelProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const suggestions = useAgentSuggestions();
@@ -90,10 +91,16 @@ export const ChatPanel = ({
 
   const { connections, loading: connectionsLoading } = useAgentsConnection();
   const models = useAgentsModels();
-
-  // The server default (Auto) runs the first configured provider's stored
-  // model; showing it keeps the default from being hidden.
-  const autoModel = connections[0]?.model;
+  const verifyModel = useAgentsModelVerify();
+  // The picker shows the levels of the model a turn runs on (the selection,
+  // or the server default connection); the server clamps what is sent.
+  const defaultConnection = findDefaultAgentsConnection(connections);
+  const modelThinking = findModelThinking(
+    models.providerModels,
+    chat.modelId
+      ? { provider: chat.modelProvider, model: chat.modelId }
+      : defaultConnection,
+  );
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
@@ -154,6 +161,12 @@ export const ChatPanel = ({
     [addToolApprovalResponse],
   );
 
+  const errorText = error
+    ? describeAgentsChatError(error, (key, defaultValue) =>
+        t(key, defaultValue),
+      )
+    : undefined;
+
   const errorBanner = error ? (
     <div className="flex items-start gap-2 border-b border-destructive/30 bg-destructive/10 px-3 py-2 text-[13px] text-destructive sm:text-sm">
       <BotBadge
@@ -162,7 +175,7 @@ export const ChatPanel = ({
         frozenAt={POSES.exclaim}
         className="mt-0.5"
       />
-      <p className="min-w-0 flex-1 break-words">{describeError(error)}</p>
+      <p className="min-w-0 flex-1 break-words">{errorText}</p>
       {canReconnect ? (
         <Button
           variant="ghost"
@@ -214,29 +227,25 @@ export const ChatPanel = ({
       <ModelPicker
         models={models}
         value={modelSelectionValue(chat.modelProvider, chat.modelId)}
-        autoModel={autoModel}
-        defaultModels={connections}
+        savedModels={connections}
+        onVerifyModel={verifyModel}
         onChange={(value) => {
           if (!value) {
             chat.selectModel('', '');
             return;
           }
 
-          const separatorIndex = value.indexOf('|');
+          const choice = parseModelSelection(value);
 
-          if (separatorIndex === -1) {
-            return;
+          if (choice) {
+            chat.selectModel(choice.provider, choice.model);
           }
-
-          chat.selectModel(
-            value.slice(0, separatorIndex),
-            value.slice(separatorIndex + 1),
-          );
         }}
       />
       <ThinkingPicker
         value={chat.thinkingLevel}
         onChange={chat.selectThinkingLevel}
+        thinking={modelThinking}
       />
     </>
   );
@@ -247,12 +256,14 @@ export const ChatPanel = ({
       disabled={loadingThread || noConnection}
       draftScope={threadId ?? 'new'}
       onSend={(text, files, selections = []) => {
-        if (files.length > 0 || selections.length > 0) {
+        const mentionParts = agentMentionsPartsForText(text);
+        if (files.length > 0 || selections.length > 0 || mentionParts.length) {
           void sendMessage({
             parts: [
               { type: 'text', text },
               ...(files.length ? [agentsFilesPart(files)] : []),
               ...(selections.length ? [pageSelectionsPart(selections)] : []),
+              ...mentionParts,
             ],
           });
           return;
@@ -263,6 +274,7 @@ export const ChatPanel = ({
       onStop={stop}
       pickers={pickers}
       contextRow={contextRow}
+      attachRef={attachRef}
     />
   );
 
@@ -349,7 +361,7 @@ export const ChatPanel = ({
           canReconnect ||
           noConnection
         }
-        error={error ? describeError(error) : undefined}
+        error={errorText}
       />
       {/* `pb` keeps the composer clear of the iOS home indicator without
             adding dead space on every other device. */}

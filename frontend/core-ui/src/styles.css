@@ -316,6 +316,156 @@
   --level: 16px;
 }
 
+.document-block-editor > .bn-container {
+  display: flex;
+  align-items: flex-start;
+}
+.document-block-editor > .bn-container > .bn-editor {
+  flex: 1;
+  min-width: 0;
+}
+.document-block-editor .document-comments-sidebar {
+  flex: none;
+  min-width: 0;
+  width: 320px;
+  max-width: 40%;
+  padding: 12px;
+}
+.document-block-editor .bn-threads-sidebar {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 2px;
+  overflow: visible;
+}
+.document-comments-sidebar .erxes-comment-card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.document-comments-sidebar .erxes-comment-card[data-selected='true'] {
+  border-color: var(--erxes-block-primary);
+  box-shadow: var(--shadow-focus);
+}
+.document-comments-sidebar .erxes-comment-card textarea {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.document-comments-sidebar .bn-action-toolbar {
+  flex-wrap: wrap;
+}
+
+.erxes-blocknote {
+  --erxes-block-background: var(--background);
+  --erxes-block-foreground: var(--foreground);
+  --erxes-block-card: var(--background);
+  --erxes-block-card-foreground: var(--foreground);
+  --erxes-block-primary: var(--primary);
+  --erxes-block-primary-foreground: var(--primary-foreground);
+  --erxes-block-accent: var(--accent);
+  --erxes-block-accent-foreground: var(--accent-foreground);
+  --erxes-block-muted: var(--muted);
+  --erxes-block-muted-foreground: var(--muted-foreground);
+  --erxes-block-destructive: var(--destructive);
+  --erxes-block-destructive-foreground: var(--destructive-foreground);
+  --erxes-block-border: var(--border);
+  --erxes-block-input: var(--input);
+  --erxes-block-ring: var(--ring);
+}
+.erxes-block-controls {
+  --background: var(--erxes-block-background);
+  --foreground: var(--erxes-block-foreground);
+  --card: var(--erxes-block-card);
+  --card-foreground: var(--erxes-block-card-foreground);
+  --primary: var(--erxes-block-primary);
+  --primary-foreground: var(--erxes-block-primary-foreground);
+  --accent: var(--erxes-block-accent);
+  --accent-foreground: var(--erxes-block-accent-foreground);
+  --muted: var(--erxes-block-muted);
+  --muted-foreground: var(--erxes-block-muted-foreground);
+  --destructive: var(--erxes-block-destructive);
+  --destructive-foreground: var(--erxes-block-destructive-foreground);
+  --border: var(--erxes-block-border);
+  --input: var(--erxes-block-input);
+  --ring: var(--erxes-block-ring);
+}
+
+.erxes-comment-card {
+  background-color: var(--erxes-block-background);
+  color: var(--erxes-block-foreground);
+  isolation: isolate;
+}
+
+.erxes-comment-card button.erxes-comment-save {
+  min-height: 2rem;
+  height: auto;
+  padding: 0.375rem 1rem;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 500;
+  border-width: 1px;
+  border-style: solid;
+  background-color: var(--erxes-block-primary);
+  border-color: var(--erxes-block-primary);
+  color: var(--erxes-block-primary-foreground);
+}
+
+.erxes-comment-card textarea {
+  padding: 0.75rem;
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+.erxes-comment-card textarea.bn-comment-editor:focus {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.erxes-comment-card button.erxes-comment-icon,
+.erxes-comment-card button.erxes-comment-secondary {
+  height: 1.75rem;
+  padding: 0.25rem 0.75rem;
+  border-width: 0;
+  background-color: transparent;
+  color: var(--erxes-block-foreground);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+  font-weight: 500;
+}
+.erxes-comment-card button.erxes-comment-icon {
+  width: 1.75rem;
+  padding: 0.25rem;
+}
+.erxes-comment-card button.erxes-comment-icon:hover,
+.erxes-comment-card button.erxes-comment-secondary:hover {
+  background-color: var(--erxes-block-accent);
+}
+
+.erxes-comment-card .bn-comment-actions-wrapper {
+  padding-top: 0.25rem;
+}
+
+.erxes-comment-card button.erxes-comment-reaction {
+  height: 1.75rem;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--erxes-block-border);
+  border-radius: 9999px;
+  background-color: var(--erxes-block-background);
+  color: var(--erxes-block-foreground);
+}
+.erxes-comment-card button.erxes-comment-reaction[aria-pressed='true'] {
+  border-color: transparent;
+  background-color: var(--erxes-block-accent);
+  color: var(--erxes-block-primary);
+}
+.erxes-comment-card button.erxes-comment-reaction:hover {
+  background-color: var(--erxes-block-accent);
+}
+
 /* Sidebar body (plugin ./sidebar remotes, core modules): top-level groups use
    0.5rem padding on all sides; nested groups (like sales board rows) keep theirs */
 [data-navigation-context]
@@ -394,13 +544,44 @@
   .agent-session-enter {
     animation: agent-message-arrive 160ms ease-out both;
   }
+  .agent-chip-enter {
+    animation: agent-chip-arrive 180ms ease-out both;
+  }
   .agent-send {
     transition: transform 140ms ease-out;
   }
   .agent-send:not(:disabled):hover { transform: translateY(-1px); }
   .agent-send:not(:disabled):active { transform: scale(0.97); }
+  .agent-activity-enter {
+    animation: agent-activity-enter 220ms ease-out both;
+  }
+  .agent-activity-exit {
+    animation: agent-activity-exit 220ms ease-in both;
+  }
+  .agent-ask-settle {
+    animation: agent-ask-settle 220ms ease-out both;
+  }
+  .agent-timeline-content[data-state='open'] {
+    animation: agent-message-arrive 160ms ease-out both;
+  }
+}
+@keyframes agent-ask-settle {
+  from { opacity: 0; transform: translateY(4px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes agent-activity-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes agent-activity-exit {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-5px); }
 }
 @keyframes agent-message-arrive {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes agent-chip-arrive {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

@@ -6,6 +6,7 @@ import { useAutomationSeed } from '@/automations/hooks/useAutomationSeed';
 import { IAutomation } from '@/automations/types';
 import { useQuery } from '@apollo/client';
 import { PageContainer, Spinner } from 'erxes-ui';
+import { useState } from 'react';
 import { useParams } from 'react-router';
 import { ApprovalLockScreen, useApprovalLockState } from 'ui-modules';
 
@@ -38,6 +39,14 @@ export const AutomationDetailPage = () => {
       (isEdit && (lockLoading || !lockState)) ||
       (lockState?.locked === true && !lockState.hasAccess),
   });
+
+  const [revision, setRevision] = useState(0);
+
+  // The builder reads its defaults once, so refetched data needs a remount.
+  const refetchDetail = async () => {
+    await refetch();
+    setRevision((current) => current + 1);
+  };
 
   // The builder reads its default values once, so it must not mount before the
   // seed resolves.
@@ -72,11 +81,12 @@ export const AutomationDetailPage = () => {
 
   return (
     <PageContainer>
-      {/* Remount per automation: the builder reads its defaults only once. */}
+      {/* Remount per automation and refetch: defaults are read once. */}
       <AutomationBuilder
-        key={id ?? 'new'}
+        key={`${id ?? 'new'}:${revision}`}
         detail={detail}
         seed={id ? undefined : seed}
+        refetchDetail={id ? refetchDetail : undefined}
       />
     </PageContainer>
   );

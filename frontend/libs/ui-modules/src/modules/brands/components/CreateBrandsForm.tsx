@@ -7,11 +7,10 @@ import { z } from 'zod';
 import { Button, Form, Input, Separator } from 'erxes-ui';
 import { useSelectBrandsContext } from '../hooks/useSelectBrandsContext';
 import { useBrandsAdd } from '../hooks/useBrandsAdd';
+import { IBrand } from '../types/brand';
 
 const formSchema = z.object({
-  title: z.string().min(1),
-  code: z.string().min(1),
-  parentId: z.string().optional(),
+  name: z.string().min(1),
 });
 
 export const CreateBrandForm = () => {
@@ -19,24 +18,17 @@ export const CreateBrandForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: newBrandName,
-      code: '',
-      parentId: '',
+      name: newBrandName,
     },
   });
   const { addBrand, loading } = useBrandsAdd();
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     addBrand({
-      variables: {
-        ...values,
-      },
-      onCompleted({ BrandsAdd }) {
+      variables: values,
+      onCompleted({ brandsAdd }: { brandsAdd: IBrand }) {
         setNewBrandName('');
-        onSelect({
-          _id: BrandsAdd._id,
-          ...values,
-        });
+        onSelect(brandsAdd);
       },
       onError(error) {
         form.setError('root', {
@@ -48,30 +40,31 @@ export const CreateBrandForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={(event) => {
+          // The popover is portaled, but React still bubbles submit to the
+          // host form this picker sits in.
+          event.stopPropagation();
+          form.handleSubmit(onSubmit)(event);
+        }}
+      >
         <div className="flex flex-col gap-3 p-3 pb-10">
           <Form.Field
             control={form.control}
-            name="title"
+            name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>Title</Form.Label>
+                <Form.Label>Name</Form.Label>
                 <Input {...field} />
                 <Form.Message />
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>Code</Form.Label>
-                <Input {...field} />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          {form.formState.errors.root && (
+            <p className="text-sm text-destructive">
+              {form.formState.errors.root.message}
+            </p>
+          )}
         </div>
         <Separator />
         <div className="p-3">

@@ -2,6 +2,7 @@ import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActi
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { IconBrandGithub } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
+import { PrintDocument } from 'ui-modules';
 
 // A task's actions in the side panel's top bar.
 export const TaskPanelActions = ({ taskId }: { taskId: string }) => {
@@ -29,6 +30,7 @@ export const TaskPanelActions = ({ taskId }: { taskId: string }) => {
           </a>
         </Button>
       )}
+      <PrintDocument items={[{ _id: task._id }]} contentType="operation:task" />
       <TaskDetailActions taskId={task._id} />
     </>
   );

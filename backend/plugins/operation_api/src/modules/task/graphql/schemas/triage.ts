@@ -17,6 +17,7 @@ export const types = `
     githubRepoName: String
     customerId: String
     companyId: String
+    tagIds: [String]
   }
 
   input ITriageAddInput {
@@ -27,6 +28,7 @@ export const types = `
     status: Int
     customerId: String
     companyId: String
+    tagIds: [String]
   }
 
   input ITriageUpdateInput {
@@ -37,6 +39,7 @@ export const types = `
     status: Int
     customerId: String
     companyId: String
+    tagIds: [String]
   }
 
   type TriageListResponse {

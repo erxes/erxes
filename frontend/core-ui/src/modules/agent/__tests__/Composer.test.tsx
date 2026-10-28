@@ -6,10 +6,12 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { createRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { randomUUID } from 'crypto';
-import { Composer } from '../components/Composer';
+import { toast } from 'erxes-ui';
+import { Composer, type IComposerAttachHandle } from '../components/Composer';
 import { uploadAgentsFile } from '../uploadAgentsFile';
+import { resizeAgentsImage } from '../utils/resizeAgentsImage';
 import type { IAgentsFileMeta } from '../agentsFiles';
 import type { IPageElementPickerProps } from '../components/PageElementPicker';
 jest.mock('../components/PageElementPicker', () => ({
@@ -34,6 +36,8 @@ jest.mock('../components/PageElementPicker', () => ({
   ),
 }));
 
+jest.mock('erxes-ui/lib', () => ({ cn: () => '' }), { virtual: true });
+jest.mock('erxes-ui/hooks/use-upload-new', () => ({}), { virtual: true });
 jest.mock(
   'erxes-ui',
   () => {
@@ -41,6 +45,13 @@ jest.mock(
       children;
 
     return {
+      // The platform's real file helpers, from erxes-ui source.
+      formatBytes: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).formatBytes,
+      getFileIcon: jest.requireActual(
+        '../../../../../libs/erxes-ui/src/components/upload-new',
+      ).getFileIcon,
       toast: jest.fn(),
       Spinner: () => <span />,
       Button: ({
@@ -69,8 +80,13 @@ jest.mock(
 jest.mock('../uploadAgentsFile', () => ({
   uploadAgentsFile: jest.fn(),
 }));
+jest.mock('../utils/resizeAgentsImage', () => ({
+  resizeAgentsImage: jest.fn(),
+}));
 
 const upload = jest.mocked(uploadAgentsFile);
+const resize = jest.mocked(resizeAgentsImage);
+const notify = jest.mocked(toast);
 const meta = (name: string): IAgentsFileMeta => ({
   name,
   url: `${name}-key`,
@@ -96,6 +112,8 @@ beforeAll(() =>
 );
 beforeEach(() => {
   upload.mockReset();
+  resize.mockReset();
+  notify.mockReset();
   URL.createObjectURL = jest.fn(() => 'blob:selection');
   URL.revokeObjectURL = jest.fn();
 });
@@ -336,4 +354,185 @@ it('keeps selection context separate from file slots and clears it on thread cha
   fireEvent.click(screen.getByRole('button', { name: 'Select on page' }));
   rerender(<Composer {...props} draftScope="c" />);
   expect(screen.queryByRole('button', { name: 'Capture sample' })).toBeNull();
+});
+
+const echoUpload = async (file: File): Promise<IAgentsFileMeta> => ({
+  name: file.name,
+  url: `${file.name}-key`,
+  type: file.type,
+  size: file.size,
+});
+const paste = (files: File[], types: string[] = ['Files']) =>
+  fireEvent.paste(screen.getByRole('textbox', { name: 'Message' }), {
+    clipboardData: { files, types },
+  });
+
+it('attaches pasted screenshots with a thumbnail and sends them', async () => {
+  upload.mockImplementation(echoUpload);
+  const onSend = jest.fn();
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={onSend}
+      onStop={jest.fn()}
+    />,
+  );
+  paste([new File(['png'], 'image.png', { type: 'image/png' })]);
+  expect(upload).toHaveBeenCalledTimes(1);
+  const pasted = upload.mock.calls[0][0];
+  expect(pasted.name).toMatch(/^pasted-image-\d{8}-\d{6}\.png$/);
+  await waitFor(() => expect(sendButton().disabled).toBe(false));
+  const list = screen.getByRole('list', { name: 'Attachments' });
+  expect(list.querySelector('img')?.getAttribute('src')).toBe('blob:selection');
+  expect(list.textContent).toContain('Image · 3 bytes');
+  fireEvent.click(sendButton());
+  expect(onSend).toHaveBeenCalledWith('Uploaded files', [
+    expect.objectContaining({ name: pasted.name, type: 'image/png' }),
+  ]);
+  expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:selection');
+});
+
+it('leaves rich text pastes to the textarea', () => {
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={jest.fn()}
+      onStop={jest.fn()}
+    />,
+  );
+  const event = paste(
+    [new File(['png'], 'image.png', { type: 'image/png' })],
+    ['text/plain', 'text/html', 'Files'],
+  );
+  expect(event).toBe(true);
+  expect(upload).not.toHaveBeenCalled();
+});
+
+it('explains pasted files while a response is streaming', () => {
+  render(
+    <Composer
+      status="streaming"
+      disabled={false}
+      onSend={jest.fn()}
+      onStop={jest.fn()}
+    />,
+  );
+  paste([new File(['png'], 'image.png', { type: 'image/png' })]);
+  expect(upload).not.toHaveBeenCalled();
+  expect(notify).toHaveBeenCalledWith(
+    expect.objectContaining({ title: 'Files not attached' }),
+  );
+});
+
+it('exposes availability and attaches dropped files through the handle', async () => {
+  upload.mockImplementation(echoUpload);
+  const attachRef = createRef<IComposerAttachHandle>();
+  const props = {
+    disabled: false,
+    onSend: jest.fn(),
+    onStop: jest.fn(),
+    attachRef,
+  };
+  const { rerender } = render(<Composer {...props} status="ready" />);
+  expect(attachRef.current?.availability()).toBe('ready');
+  act(() =>
+    attachRef.current?.attachFiles([
+      new File(['zip'], 'archive.zip', { type: 'application/zip' }),
+      ...['1', '2', '3', '4', '5', '6'].map(
+        (name) => new File(['x'], `${name}.txt`, { type: 'text/plain' }),
+      ),
+    ]),
+  );
+  expect(upload).toHaveBeenCalledTimes(5);
+  expect(notify).toHaveBeenCalledWith(
+    expect.objectContaining({
+      title: 'Some files were not attached',
+      description: expect.stringContaining(
+        "archive.zip isn't a supported type",
+      ),
+      variant: 'destructive',
+    }),
+  );
+  expect(notify.mock.calls[0][0].description).toContain("6.txt wasn't added");
+  expect(attachRef.current?.availability()).toBe('full');
+  rerender(<Composer {...props} status="streaming" />);
+  expect(attachRef.current?.availability()).toBe('disabled');
+  rerender(<Composer {...props} status="ready" disabled />);
+  expect(attachRef.current?.availability()).toBe('disabled');
+  await act(async () => {
+    await Promise.resolve();
+  });
+});
+
+it('retries a failed upload with the original file', async () => {
+  upload.mockRejectedValueOnce(new Error('Network down'));
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={jest.fn()}
+      onStop={jest.fn()}
+    />,
+  );
+  pick('notes.txt');
+  await waitFor(() =>
+    expect(screen.getByRole('alert').textContent).toBe('Network down'),
+  );
+  expect(sendButton().disabled).toBe(true);
+  upload.mockImplementation(echoUpload);
+  fireEvent.click(screen.getByRole('button', { name: 'Retry notes.txt' }));
+  expect(upload).toHaveBeenCalledTimes(2);
+  expect(upload.mock.calls[1][0].name).toBe('notes.txt');
+  await waitFor(() => expect(sendButton().disabled).toBe(false));
+  expect(screen.queryByRole('alert')).toBeNull();
+});
+
+it('does not offer retry for validation errors', () => {
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={jest.fn()}
+      onStop={jest.fn()}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText('Choose attachments'), {
+    target: { files: [new File([], 'empty.txt', { type: 'text/plain' })] },
+  });
+  expect(screen.getByRole('alert').textContent).toBe('File is empty.');
+  expect(screen.queryByRole('button', { name: 'Retry empty.txt' })).toBeNull();
+});
+
+it('downscales large images before uploading them', async () => {
+  const resized = new File(['small'], 'photo.jpg', { type: 'image/jpeg' });
+  resize.mockResolvedValue(resized);
+  upload.mockImplementation(echoUpload);
+  const onSend = jest.fn();
+  render(
+    <Composer
+      status="ready"
+      disabled={false}
+      onSend={onSend}
+      onStop={jest.fn()}
+    />,
+  );
+  fireEvent.change(screen.getByLabelText('Choose attachments'), {
+    target: {
+      files: [
+        new File([new Uint8Array(3 * 1024 * 1024)], 'photo.png', {
+          type: 'image/png',
+        }),
+      ],
+    },
+  });
+  expect(resize).toHaveBeenCalledTimes(1);
+  await waitFor(() => expect(sendButton().disabled).toBe(false));
+  expect(upload.mock.calls[0][0]).toBe(resized);
+  expect(screen.getByText('photo.jpg')).toBeTruthy();
+  fireEvent.click(sendButton());
+  expect(onSend).toHaveBeenCalledWith('Uploaded files', [
+    { name: 'photo.jpg', url: 'photo.jpg-key', type: 'image/jpeg', size: 5 },
+  ]);
 });

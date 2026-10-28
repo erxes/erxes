@@ -77,7 +77,7 @@ beforeEach(() => {
 });
 
 const renderChip = (
-  ref: { type: 'deal' | 'customer'; id: string; label: string },
+  ref: { type: 'deal' | 'customer' | 'automation'; id: string; label: string },
   remotes: string[] = [],
   trusted = true,
 ) => {
@@ -161,6 +161,16 @@ describe('AgentReferenceChip', () => {
     await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
     const destination = mockNavigate.mock.calls[0][0] as { search: string };
     expect(new URLSearchParams(destination.search).get('panel')).toBe('/chat');
+  });
+
+  it('opens the builder of an automation the assistant saved', async () => {
+    hasModulePermission.mockReturnValue(true);
+    renderChip({ type: 'automation', id: 'auto1', label: 'Welcome' });
+    fireEvent.click(screen.getByRole('button', { name: /welcome/i }));
+    await waitFor(() =>
+      expect(mockNavigate).toHaveBeenCalledWith('/automations/edit/auto1'),
+    );
+    expect(hasModulePermission).toHaveBeenCalledWith('automations');
   });
 });
 

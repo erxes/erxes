@@ -54,6 +54,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority,
     projectLeadId,
     projectMilestoneName,
+    customerId,
+    companyId,
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -75,6 +77,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority: number;
     projectLeadId: string;
     projectMilestoneName: string;
+    customerId: string;
+    companyId: string;
   }>([
     'searchValue',
     'assignee',
@@ -96,6 +100,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     'projectPriority',
     'projectLeadId',
     'projectMilestoneName',
+    'customerId',
+    'companyId',
   ]);
   const currentUser = useAtomValue(currentUserState);
 
@@ -126,6 +132,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority: projectPriority,
     projectLeadId: projectLeadId,
     projectMilestoneName: projectMilestoneName,
+    customerId,
+    companyId,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&

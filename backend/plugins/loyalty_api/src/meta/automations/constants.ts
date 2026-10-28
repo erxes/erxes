@@ -2,6 +2,12 @@ import {
   AutomationConstants,
   TAutomationRuntimeOutputDefinition,
 } from 'erxes-api-shared/core-modules';
+import {
+  adjustScoreActionConfigSchema,
+  awardSpinActionConfigSchema,
+  issueVoucherActionConfigSchema,
+  setTierActionConfigSchema,
+} from './configSchemas';
 import { TierChangedTarget } from './types';
 
 const TIER_CHANGED_OUTPUT: TAutomationRuntimeOutputDefinition<TierChangedTarget> =
@@ -45,6 +51,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconTagPlus',
       label: 'Issue voucher',
       description: 'Issue a voucher',
+      configSchema: issueVoucherActionConfigSchema,
     },
     {
       moduleName: 'score',
@@ -52,6 +59,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconMoneybagPlus',
       label: 'Adjust score',
       description: 'Give loyalty points for a purchase',
+      configSchema: adjustScoreActionConfigSchema,
       // Filled by the trigger's own plugin (its `actionInputs`); points paid
       // with are recorded by the selling side, not by this action.
       inputs: [
@@ -66,6 +74,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconStairs',
       label: 'Set tier',
       description: "Set a loyalty tier on the owner's account",
+      configSchema: setTierActionConfigSchema,
       // With amount bands the tier comes from the purchase; the trigger's own
       // plugin fills it (its `actionInputs`).
       inputs: [{ key: 'totalAmount', label: 'Total amount', type: 'number' }],
@@ -76,6 +85,7 @@ export const LOYALTIES_AUTOMATIONS_CONSTANTS: AutomationConstants = {
       icon: 'IconTrophy',
       label: 'Award spin',
       description: 'Give a spin reward',
+      configSchema: awardSpinActionConfigSchema,
     },
   ],
 };

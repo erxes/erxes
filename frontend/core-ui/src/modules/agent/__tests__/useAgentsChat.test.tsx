@@ -4,6 +4,7 @@ import { act, renderHook } from '@testing-library/react';
 import { randomUUID } from 'crypto';
 import { useAgentsChat } from '../hooks/useAgentsChat';
 import type { IAgentsRequestSelection } from '../transport';
+import { AgentsStreamStalledError } from '../streamHealth';
 
 jest.mock('ai', () => ({
   isToolUIPart: () => false,
@@ -13,9 +14,18 @@ jest.mock('@ai-sdk/react', () => ({
   useChat: jest.fn(),
   Chat: jest.fn(() => ({ stop: jest.fn() })),
 }));
+// A real normalized cache behind a minimal client, so reads, evictions and
+// prefetches behave as they do against the app's Apollo client.
+const mockApolloClient = {
+  cache: undefined as unknown as InMemoryCache,
+  readQuery: (options: Parameters<InMemoryCache['readQuery']>[0]) =>
+    mockApolloClient.cache.readQuery(options),
+  query: jest.fn(async () => ({ data: undefined })),
+};
 jest.mock('@apollo/client', () => ({
   ...jest.requireActual('@apollo/client'),
   useLazyQuery: jest.fn(),
+  useApolloClient: () => mockApolloClient,
 }));
 let mockPendingMessage: (message: import('ai').UIMessage) => void;
 let mockSetActiveRunId: (runId: string | undefined) => void;
@@ -44,7 +54,8 @@ jest.mock('../mapStoredMessages', () => ({
 }));
 
 import { Chat, useChat } from '@ai-sdk/react';
-import { useLazyQuery } from '@apollo/client';
+import { InMemoryCache, useLazyQuery } from '@apollo/client';
+import { AGENTS_THREAD_DETAIL } from '../graphql/threads';
 
 const load = jest.fn();
 const setMessages = jest.fn();
@@ -78,6 +89,7 @@ beforeAll(() =>
 beforeEach(() => {
   sessionStorage.clear();
   jest.clearAllMocks();
+  mockApolloClient.cache = new InMemoryCache();
   (useLazyQuery as jest.Mock).mockReturnValue([load]);
   (useChat as jest.Mock).mockReturnValue({
     messages: [],
@@ -110,6 +122,25 @@ it.each(['off', 'minimal', 'low', 'medium', 'high'] as const)(
     expect(mockGetRequestSelection().thinkingLevel).toBe(level);
   },
 );
+
+it('sends the chosen level as chosen and leaves model clamping to the server', () => {
+  const { result } = renderHook(() => useAgentsChat());
+
+  // k3.1-pro rejects Off; the server clamps it, so the client never rewrites
+  // what it sends or reports a model's levels for a second clamp.
+  act(() => result.current.selectModel('kimi-code', 'k3.1-pro'));
+  act(() => result.current.selectThinkingLevel('off'));
+
+  expect(mockGetRequestSelection()).toMatchObject({
+    provider: 'kimi-code',
+    model: 'k3.1-pro',
+    thinkingLevel: 'off',
+  });
+  expect(result.current).not.toHaveProperty('setThinkingLevels');
+
+  act(() => result.current.selectThinkingLevel('max'));
+  expect(mockGetRequestSelection().thinkingLevel).toBe('max');
+});
 
 it('keeps the latest selected thread when an older request resolves last', async () => {
   const a = deferred();
@@ -328,6 +359,62 @@ it('detaches the old stream without forgetting its durable run, then reattaches 
   expect(result.current.canReconnect).toBe(true);
 });
 
+it('asks the server once whether a run survived a stalled stream', async () => {
+  const resume = jest.fn(async () => undefined);
+  const chat = {
+    messages: [],
+    status: 'ready',
+    error: undefined as Error | undefined,
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  };
+  (useChat as jest.Mock).mockImplementation(() => chat);
+  load.mockResolvedValue(detail('thread'));
+  const { result, rerender } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('thread'));
+  act(() => mockSetActiveRunId('run-1'));
+  expect(resume).not.toHaveBeenCalled();
+
+  chat.status = 'error';
+  chat.error = new AgentsStreamStalledError();
+  await act(async () => rerender());
+  expect(resume).toHaveBeenCalledTimes(1);
+
+  // The reconnect itself stalls again: the banner offers Reconnect instead
+  // of looping.
+  chat.error = new AgentsStreamStalledError();
+  await act(async () => rerender());
+  expect(resume).toHaveBeenCalledTimes(1);
+  expect(result.current.canReconnect).toBe(true);
+});
+
+it('does not reconnect after other errors', async () => {
+  const resume = jest.fn(async () => undefined);
+  (useChat as jest.Mock).mockReturnValue({
+    messages: [],
+    status: 'error',
+    error: new Error('Provider rate limit'),
+    sendMessage: noop,
+    setMessages,
+    clearError: noop,
+    stop,
+    addToolApprovalResponse: noop,
+    resumeStream: resume,
+    regenerate: noop,
+  });
+  load.mockResolvedValue(detail('thread'));
+  const { result, rerender } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('thread'));
+  act(() => mockSetActiveRunId('run-1'));
+  await act(async () => rerender());
+  expect(resume).not.toHaveBeenCalled();
+});
+
 it('reopens the reported stored user/reply pair without manufacturing a second pair', async () => {
   const resume = jest.fn(async () => undefined);
   (useChat as jest.Mock).mockReturnValue({
@@ -381,4 +468,229 @@ it('reopens the reported stored user/reply pair without manufacturing a second p
     expect.objectContaining({ id: 'sdk-user', role: 'user' }),
   ]);
   expect(resume).toHaveBeenCalledTimes(1);
+});
+
+describe('cached thread switching', () => {
+  const storedMessage = (id: string, text: string) => ({
+    __typename: 'AgentsMessage',
+    id,
+    role: 'assistant',
+    createdAt: '2026-10-26T00:00:00.000Z',
+    content: { parts: [{ type: 'text', text }] },
+  });
+  const storedDetail = (threadId: string, messages: unknown[]) => ({
+    agentsThreadDetail: {
+      __typename: 'AgentsThreadDetail',
+      thread: {
+        __typename: 'AgentsThread',
+        id: threadId,
+        title: threadId,
+        createdAt: '2026-10-26T00:00:00.000Z',
+        updatedAt: '2026-10-26T00:00:00.000Z',
+      },
+      messages,
+    },
+  });
+  const cacheThread = (threadId: string, messages: unknown[]) =>
+    mockApolloClient.cache.writeQuery({
+      query: AGENTS_THREAD_DETAIL,
+      variables: { threadId },
+      data: storedDetail(threadId, messages),
+    });
+  const isCached = (threadId: string) =>
+    mockApolloClient.cache.readQuery({
+      query: AGENTS_THREAD_DETAIL,
+      variables: { threadId },
+    }) !== null;
+  const network = () => {
+    const requests = new Map<string, ReturnType<typeof deferred>>();
+    load.mockImplementation(
+      ({ variables }: { variables: { threadId: string } }) => {
+        const request = deferred();
+        requests.set(variables.threadId, request);
+        return request.promise;
+      },
+    );
+    return requests;
+  };
+  const finishRun = (isAbort = false) => {
+    const options = (Chat as jest.Mock).mock.calls.at(-1)?.[0] as {
+      onFinish: (input: unknown) => void;
+    };
+    options.onFinish({ message: { parts: [] }, isAbort, isDisconnect: false });
+  };
+
+  it('renders a cached transcript at once, without a loading state or waiting on the network', async () => {
+    const cachedMessages = [storedMessage('m1', 'Cached reply')];
+    cacheThread('a', cachedMessages);
+    network();
+    const loading: boolean[] = [];
+    const { result } = renderHook(() => {
+      const chat = useAgentsChat();
+      loading.push(chat.loadingThread);
+      return chat;
+    });
+
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+
+    expect(loading).not.toContain(true);
+    expect(result.current.threadId).toBe('a');
+    expect(setMessages).toHaveBeenCalledTimes(1);
+    expect(setMessages.mock.calls[0][0]).toEqual(cachedMessages);
+    // The background revalidation is still pending.
+    expect(load).toHaveBeenCalledWith(
+      expect.objectContaining({ fetchPolicy: 'network-only' }),
+    );
+  });
+
+  it('shows the loading state only when nothing is cached', async () => {
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    let opening!: Promise<void>;
+    await act(async () => {
+      opening = result.current.openThread('a');
+    });
+    expect(result.current.loadingThread).toBe(true);
+    await act(async () => {
+      requests.get('a')?.resolve({
+        data: storedDetail('a', [storedMessage('m1', 'Hi')]),
+      });
+      await opening;
+    });
+    expect(result.current.loadingThread).toBe(false);
+  });
+
+  it('replaces the transcript when the background refresh has newer messages', async () => {
+    const cachedMessages = [storedMessage('m1', 'Cached reply')];
+    const freshMessages = [
+      ...cachedMessages,
+      storedMessage('m2', 'Reply finished elsewhere'),
+    ];
+    cacheThread('a', cachedMessages);
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    await act(async () => {
+      requests.get('a')?.resolve({ data: storedDetail('a', freshMessages) });
+    });
+
+    expect(setMessages).toHaveBeenCalledTimes(2);
+    expect(setMessages.mock.calls[1][0]).toEqual(freshMessages);
+  });
+
+  it('keeps the transcript when the background refresh is unchanged', async () => {
+    const cachedMessages = [storedMessage('m1', 'Cached reply')];
+    cacheThread('a', cachedMessages);
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    await act(async () => {
+      requests.get('a')?.resolve({ data: storedDetail('a', cachedMessages) });
+    });
+
+    expect(setMessages).toHaveBeenCalledTimes(1);
+  });
+
+  it('never overwrites a turn that started before the refresh landed', async () => {
+    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    act(() => mockSetActiveRunId('new-run'));
+    await act(async () => {
+      requests.get('a')?.resolve({
+        data: storedDetail('a', [storedMessage('m2', 'Older server copy')]),
+      });
+    });
+
+    expect(setMessages).toHaveBeenCalledTimes(1);
+    // The new run makes the cached copy stale.
+    expect(isCached('a')).toBe(false);
+  });
+
+  it('drops a refresh that lands after the user switched to another thread', async () => {
+    cacheThread('a', [storedMessage('a1', 'A')]);
+    cacheThread('b', [storedMessage('b1', 'B')]);
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    const refreshA = requests.get('a');
+    await act(async () => {
+      await result.current.openThread('b');
+    });
+    await act(async () => {
+      refreshA?.resolve({
+        data: storedDetail('a', [storedMessage('a2', 'Newer A')]),
+      });
+    });
+
+    expect(result.current.threadId).toBe('b');
+    expect(setMessages.mock.calls.map((call) => call[0][0].id)).toEqual([
+      'a1',
+      'b1',
+    ]);
+  });
+
+  it('reads the network for a thread with a stored active run, even when cached', async () => {
+    const resume = jest.fn(async () => undefined);
+    (useChat as jest.Mock).mockReturnValue({
+      messages: [],
+      status: 'ready',
+      sendMessage: noop,
+      setMessages,
+      clearError: noop,
+      stop,
+      addToolApprovalResponse: noop,
+      resumeStream: resume,
+      regenerate: noop,
+    });
+    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
+    sessionStorage.setItem('agents-active-run:a', 'live-run');
+    const requests = network();
+    const { result } = renderHook(() => useAgentsChat());
+    let opening!: Promise<void>;
+    await act(async () => {
+      opening = result.current.openThread('a');
+    });
+
+    expect(result.current.loadingThread).toBe(true);
+    expect(setMessages).not.toHaveBeenCalled();
+    await act(async () => {
+      requests.get('a')?.resolve({
+        data: storedDetail('a', [
+          // The mapper is mocked as identity: give the reconnect path parts.
+          { ...storedMessage('m1', 'Cached reply'), parts: [] },
+        ]),
+      });
+      await opening;
+    });
+    expect(result.current.loadingThread).toBe(false);
+    expect(resume).toHaveBeenCalledTimes(1);
+  });
+
+  it('evicts the cached transcript when a turn completes', async () => {
+    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
+    network();
+    const { result } = renderHook(() => useAgentsChat());
+    await act(async () => {
+      await result.current.openThread('a');
+    });
+    expect(isCached('a')).toBe(true);
+
+    act(() => finishRun());
+
+    expect(isCached('a')).toBe(false);
+  });
+  // Leaving a thread re-reads it into the cache: covered against a real
+  // Apollo client and server link in `threadDetailCache.test.tsx`.
 });

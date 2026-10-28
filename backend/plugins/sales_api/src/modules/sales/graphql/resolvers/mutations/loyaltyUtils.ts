@@ -130,8 +130,8 @@ export const checkPricing = async (
     input: {
       prioritizeRule: 'exclude',
       totalAmount,
-      departmentId: deal.departmentIds?.[0] || '',
       branchId: deal.branchIds?.[0] || '',
+      departmentId: deal.departmentIds?.[0] || '',
       pipelineId: stage.pipelineId,
       customerType,
       customerId: pricingCustomerId,

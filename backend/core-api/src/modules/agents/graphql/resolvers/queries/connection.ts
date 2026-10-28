@@ -1,6 +1,10 @@
 import type { IContext } from '~/connectionResolvers';
 import { openSecret } from '@/agents/secretBox';
-import type { IAgentsConnectionEntry } from '@/agents/@types/connection';
+import type {
+  IAgentsConnectionEntry,
+  IAgentsConnections,
+} from '@/agents/@types/connection';
+import { findDefaultConnection } from '@/agents/db/models/Connection';
 
 /**
  * Maps one stored connection entry to the public GraphQL shape. The API key
@@ -9,15 +13,34 @@ import type { IAgentsConnectionEntry } from '@/agents/@types/connection';
 export const toPublicConnection = (
   connection: IAgentsConnectionEntry,
   updatedAt?: Date,
+  isDefault = false,
 ) => ({
   provider: connection.provider,
   model: connection.model,
+  isDefault,
   // hasKey reflects decryptability — a sealed value that can no longer be
   // opened (e.g. rotated JWT secret) reads as "no key" so the UI asks the
   // user to re-enter it.
   hasKey: openSecret(connection.config?.apiKey) !== null,
   updatedAt,
 });
+
+/** Every saved entry in stored order, with the effective default marked. */
+export const toPublicConnections = (
+  doc: (Pick<IAgentsConnections, 'connections' | 'defaultProvider'> & {
+    updatedAt?: Date;
+  }) | null,
+) => {
+  const defaultConnection = findDefaultConnection(doc);
+
+  return (doc?.connections ?? []).map((connection) =>
+    toPublicConnection(
+      connection,
+      doc?.updatedAt,
+      connection.provider === defaultConnection?.provider,
+    ),
+  );
+};
 
 export const agentsConnectionsQueries = {
   /**
@@ -32,8 +55,6 @@ export const agentsConnectionsQueries = {
       ctx.user._id,
     );
 
-    return (doc?.connections ?? []).map((connection) =>
-      toPublicConnection(connection, doc?.updatedAt),
-    );
+    return toPublicConnections(doc);
   },
 };
