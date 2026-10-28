@@ -42,6 +42,14 @@ function buildTaskQuery(
   }
 
   if (
+    filters.teamId &&
+    filters.projectId &&
+    filters.projectId !== 'no-project'
+  ) {
+    delete query.teamId;
+  }
+
+  if (
     filters.userId &&
     !filters.teamId &&
     !filters.assigneeId &&

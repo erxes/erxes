@@ -2,9 +2,8 @@ import { PageSubHeader } from 'erxes-ui';
 import { TASK_DATE_RANGE_KEYS } from '@/task/utils/dateFilters';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
-import { useTasksVariables } from '@/task/hooks/useGetTasks';
-import { useAtomValue } from 'jotai';
-import { Can, currentUserState, Export, Import } from 'ui-modules';
+import { useTaskListScope, useTasksVariables } from '@/task/hooks/useGetTasks';
+import { Can, Export, Import } from 'ui-modules';
 
 /** Renders the import button for the tasks list. */
 export const TasksImportButton = () => {
@@ -28,10 +27,8 @@ interface TasksExportButtonProps {
 export const TasksExportButton = ({
   isCreatedView = false,
 }: TasksExportButtonProps) => {
-  const currentUser = useAtomValue(currentUserState);
-  const variables = useTasksVariables(
-    isCreatedView ? { createdBy: currentUser?._id } : undefined,
-  );
+  const scope = useTaskListScope(isCreatedView);
+  const variables = useTasksVariables(scope);
 
   /** Returns the active filter values from the current tasks query variables. */
   const getFilters = () => {
