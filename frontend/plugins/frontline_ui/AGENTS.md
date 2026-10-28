@@ -200,6 +200,21 @@
   (row action and command bar), the Channel and Tags column edits and channel
   moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) all refetch `FormsTotalCount`,
   so the counts never need a manual refresh.
+- The call report's **Integrations** filter labels each option with the
+  owning inbox integration's `name` from `callReportIntegrations`, falling
+  back to the formatted phone only when the name is empty. Several call
+  integrations can share one phone (one per queue), so a phone-only label
+  shows identical rows. `deduplicateIntegrations` in
+  `src/modules/report/call/utils.ts` keys by `inboxId`, merges phones and
+  keeps the first non-empty name.
+- `SipProvider` never lets JsSIP wait for ICE gathering to finish on its own.
+  Every `newRTCSession` subscribes to the session's `icecandidate` event and
+  calls its `ready()` as soon as a `relay` candidate arrives, or one second
+  after the last candidate otherwise, so the answer or offer SDP leaves at
+  once. Without this, Windows hosts with Hyper-V `vEthernet` or VPN adapters
+  keep ringing 40–50 seconds after Answer while the browser times out on
+  interfaces that never reply to STUN/TURN. Keep the early `ready()` when
+  changing call setup.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,

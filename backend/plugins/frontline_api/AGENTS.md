@@ -993,6 +993,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
   filtered to the integration's operators. It returns `[]` when the PBX has no
   accounts and throws when the PBX request fails, never a string.
+- GraphQL `callReportIntegrations` lists the `calls_integrations` rows the
+  user may report on (`_id`, `inboxId`, `name`, `phone`, `queues`), sorted by
+  phone. `name` is the owning inbox integration's name read from
+  `integrations` by `inboxId`, the same join `callUserIntegrations` makes, and
+  is `''` when that inbox row is gone. Several call integrations can share one
+  phone, so the name is what tells them apart.
 - GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
   `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
