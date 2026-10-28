@@ -198,11 +198,12 @@ export const useSidePanel = () => {
 
   const openPath = (nextPath: string, options?: IOpenRecordOptions) => {
     if (nextPath === path) return;
-    const nextHistory = options?.replace
-      ? history
-      : options?.stack && path
-      ? [...history, path].slice(-MAX_PANEL_HISTORY)
-      : [];
+    let nextHistory: string[] = [];
+    if (options?.replace) {
+      nextHistory = history;
+    } else if (options?.stack && path) {
+      nextHistory = [...history, path].slice(-MAX_PANEL_HISTORY);
+    }
     if (!options?.stack && !options?.replace)
       setSession((session) => session + 1);
     navigate(nextPath, nextHistory, !!options?.replace);

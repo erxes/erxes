@@ -5,8 +5,10 @@ import {
   ComponentProps,
   createContext,
   forwardRef,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -160,18 +162,22 @@ const ModulePanelRoot = ({
       });
   }, [retained, path, setEntries, maxWidth, defaultWidth]);
 
+  const onClose = useCallback(() => actions.current.changeOpen(false), []);
+  const onOpen = useCallback(() => actions.current.changeOpen(true), []);
+  const contextValue = useMemo(
+    () => ({
+      path,
+      name: qualifiedName,
+      open: retained,
+      allowed,
+      onClose,
+      onOpen,
+    }),
+    [path, qualifiedName, retained, allowed, onClose, onOpen],
+  );
   const Root = focus ? FocusSheet : Sheet;
   return (
-    <ModulePanelContext.Provider
-      value={{
-        path,
-        name: qualifiedName,
-        open: retained,
-        allowed,
-        onClose: () => changeOpen(false),
-        onOpen: () => changeOpen(true),
-      }}
-    >
+    <ModulePanelContext.Provider value={contextValue}>
       <Root open={retained} onOpenChange={changeOpen} modal={false}>
         {children}
       </Root>
@@ -179,16 +185,68 @@ const ModulePanelRoot = ({
   );
 };
 
-const ModulePanelView = forwardRef<
-  HTMLDivElement,
-  ComponentProps<typeof Sheet.View> & {
-    loading?: boolean;
-    error?: boolean;
-    notFound?: boolean;
-    errorState?: React.ReactNode;
-    notFoundState?: React.ReactNode;
+type TModulePanelViewProps = ComponentProps<typeof Sheet.View> & {
+  loading?: boolean;
+  error?: boolean;
+  notFound?: boolean;
+  errorState?: React.ReactNode;
+  notFoundState?: React.ReactNode;
+};
+
+const ModulePanelMessage = ({ title }: { title: string }) => (
+  <Empty>
+    <Empty.Header>
+      <Empty.Title>{title}</Empty.Title>
+    </Empty.Header>
+  </Empty>
+);
+
+const ModulePanelStatus = ({
+  allowed,
+  loading,
+  error,
+  errorState,
+  notFoundState,
+  onClose,
+}: Pick<
+  TModulePanelViewProps,
+  'loading' | 'error' | 'errorState' | 'notFoundState'
+> & {
+  allowed: boolean;
+  onClose: () => void;
+}) => {
+  const panel = useSidePanel();
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  let title: string;
+  let content: React.ReactNode;
+
+  if (!allowed) {
+    title = t('access-denied', 'Access denied');
+    content = <ModulePanelMessage title={title} />;
+  } else if (loading) {
+    title = t('loading', 'Loading…');
+    content = <Spinner containerClassName="py-12" />;
+  } else if (error) {
+    title = t('error', 'Unable to load editor');
+    content = errorState || <ModulePanelMessage title={title} />;
+  } else {
+    title = t('not-found-title', 'Nothing here');
+    content = notFoundState || <ModulePanelMessage title={title} />;
   }
->(
+
+  return (
+    <>
+      <RecordSidePanel.Header
+        title={title}
+        onClose={onClose}
+        onBack={panel.canGoBack ? panel.back : undefined}
+      />
+      {content}
+    </>
+  );
+};
+
+const ModulePanelView = forwardRef<HTMLDivElement, TModulePanelViewProps>(
   (
     {
       className,
@@ -202,8 +260,6 @@ const ModulePanelView = forwardRef<
     ref,
   ) => {
     const context = useContext(ModulePanelContext);
-    const panel = useSidePanel();
-    const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
     const targets = useAtomValue(modulePanelTargetsState);
     const target = context && targets[context.path];
     if (!context?.open || !target) return null;
@@ -219,52 +275,14 @@ const ModulePanelView = forwardRef<
             )}
           >
             {!context.allowed || loading || error || notFound ? (
-              <>
-                <RecordSidePanel.Header
-                  title={
-                    !context.allowed
-                      ? t('access-denied', 'Access denied')
-                      : loading
-                      ? t('loading', 'Loading…')
-                      : error
-                      ? t('error', 'Unable to load editor')
-                      : t('not-found-title', 'Nothing here')
-                  }
-                  onClose={context.onClose}
-                  onBack={panel.canGoBack ? panel.back : undefined}
-                />
-                {!context.allowed ? (
-                  <Empty>
-                    <Empty.Header>
-                      <Empty.Title>
-                        {t('access-denied', 'Access denied')}
-                      </Empty.Title>
-                    </Empty.Header>
-                  </Empty>
-                ) : loading ? (
-                  <Spinner containerClassName="py-12" />
-                ) : error ? (
-                  errorState || (
-                    <Empty>
-                      <Empty.Header>
-                        <Empty.Title>
-                          {t('error', 'Unable to load editor')}
-                        </Empty.Title>
-                      </Empty.Header>
-                    </Empty>
-                  )
-                ) : (
-                  notFoundState || (
-                    <Empty>
-                      <Empty.Header>
-                        <Empty.Title>
-                          {t('not-found-title', 'Nothing here')}
-                        </Empty.Title>
-                      </Empty.Header>
-                    </Empty>
-                  )
-                )}
-              </>
+              <ModulePanelStatus
+                allowed={context.allowed}
+                loading={loading}
+                error={error}
+                errorState={errorState}
+                notFoundState={notFoundState}
+                onClose={context.onClose}
+              />
             ) : (
               children
             )}

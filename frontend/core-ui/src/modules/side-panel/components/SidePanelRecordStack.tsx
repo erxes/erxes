@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai';
-import { ComponentType, useState } from 'react';
+import { ComponentType, useMemo, useState } from 'react';
 import {
   IRecordViewProps,
   parseSidePanelRecord,
@@ -30,6 +30,16 @@ const RecordEntry = ({
 }) => {
   const currentDraft = useAtomValue(sidePanelDraftState);
   const [draft] = useState(() => currentDraft);
+  const { contentType, contentId } = props.record;
+  const recordContext = useMemo(
+    () => ({
+      contentType,
+      contentId,
+      tab: initialTab,
+      draftId: contentId === 'new' ? entryPath.split('/').at(-1) : undefined,
+    }),
+    [contentType, contentId, initialTab, entryPath],
+  );
 
   return (
     <div
@@ -40,16 +50,7 @@ const RecordEntry = ({
     >
       <SidePanelDraftContext.Provider value={draft}>
         <SidePanelRecordPathContext.Provider value={entryPath}>
-          <PanelRecordContext.Provider
-            value={{
-              ...props.record,
-              tab: initialTab,
-              draftId:
-                props.record.contentId === 'new'
-                  ? entryPath.split('/').at(-1)
-                  : undefined,
-            }}
-          >
+          <PanelRecordContext.Provider value={recordContext}>
             <View {...props} />
           </PanelRecordContext.Provider>
         </SidePanelRecordPathContext.Provider>
@@ -92,8 +93,9 @@ export const SidePanelRecordStack = ({
     <>
       {paths.map((entry, index) => {
         const record = parseSidePanelRecord(entry);
-        if (!record)
-          return isModulePanelPath(entry) ? (
+        if (!record && !isModulePanelPath(entry)) return null;
+        if (!record) {
+          return (
             <div
               key={`${session}:${index}:${entry}`}
               hidden={index !== paths.length - 1}
@@ -107,7 +109,8 @@ export const SidePanelRecordStack = ({
             >
               <CoreModulePanelSlot path={entry} onClose={onClose} />
             </div>
-          ) : null;
+          );
+        }
 
         return (
           <RecordEntry

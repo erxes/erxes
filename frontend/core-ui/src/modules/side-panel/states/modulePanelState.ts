@@ -20,16 +20,24 @@ export const getModulePanelRecordView = (path: string) => {
   if (!isModulePanelPath(path)) return null;
   try {
     const name = decodeURIComponent(path.slice('/module/'.length));
-    const match = /^([^/]+:[^/]+)\/([^/]+)\/tab:([^/]+)\//.exec(name);
-    const draft = /\/draft:([^/]*)\//.exec(name);
-    return match
-      ? {
-          contentType: match[1],
-          contentId: match[2],
-          tab: match[3],
-          draftId: draft?.[1] || 'new',
-        }
-      : null;
+    const parts = name.split('/');
+    const [contentType, contentId, tabSegment] = parts;
+    if (
+      !contentType.slice(1, -1).includes(':') ||
+      !contentId ||
+      !tabSegment?.startsWith('tab:') ||
+      tabSegment.length === 4 ||
+      parts.length < 4
+    ) {
+      return null;
+    }
+    const draft = parts.slice(1, -1).find((part) => part.startsWith('draft:'));
+    return {
+      contentType,
+      contentId,
+      tab: tabSegment.slice(4),
+      draftId: draft?.slice('draft:'.length) || 'new',
+    };
   } catch {
     return null;
   }

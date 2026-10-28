@@ -7,7 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
 import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
@@ -201,10 +201,12 @@ const PinnedModuleTab = ({
   onUnavailable: (moduleKey: string) => void;
 }) => {
   const [folded, setFolded] = useState(false);
+  const overview = useMemo(
+    () => ({ folded, setFolded, access }),
+    [folded, setFolded, access],
+  );
   return entry.kind === 'section' ? (
-    <ContactOverviewSectionContext.Provider
-      value={{ folded, setFolded, access }}
-    >
+    <ContactOverviewSectionContext.Provider value={overview}>
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <RenderPluginsComponent
           pluginName={`${entry.module.pluginName}_ui`}
