@@ -18,12 +18,14 @@ export const useReportsRealtime = (): void => {
       refetchReportQueries(client, scopes, signal),
     );
     refreshRef.current = refresh;
-    // Reconcile updates missed while this browser was asleep or offline.
+    // Recover missed notifications even while the browser stays online and visible.
+    const interval = window.setInterval(reconcile, 60_000);
     window.addEventListener('online', reconcile);
     document.addEventListener('visibilitychange', reconcile);
     reconcile();
 
     return () => {
+      window.clearInterval(interval);
       refreshRef.current = undefined;
       refresh.dispose();
       window.removeEventListener('online', reconcile);
