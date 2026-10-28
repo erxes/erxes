@@ -6,7 +6,7 @@ import { IconGitBranch } from '@tabler/icons-react';
 import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { BranchForm } from '../BranchForm';
+import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
 import { SubmitHandler } from 'react-hook-form';
 import { TBranchForm } from '@/settings/structure/types/branch';
 import { useBranchEdit } from '@/settings/structure/hooks/useBranchActions';

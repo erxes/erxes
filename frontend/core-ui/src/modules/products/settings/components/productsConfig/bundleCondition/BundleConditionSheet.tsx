@@ -8,7 +8,7 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BundleConditionForm } from './BundleConditionForm';
+import { BundleConditionForm } from '@/products/settings/components/productsConfig/bundleCondition/BundleConditionForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 

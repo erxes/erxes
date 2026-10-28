@@ -12,13 +12,13 @@ import {
 import { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useProductFileLinks } from '../hooks/useProductFiles';
-import { useAddProduct } from '../hooks/useProductsAdd';
-import { IProductFormValues } from '../types';
-import { AddProductFormAttachmentsAndExtra } from './ProductAttachments';
-import { AddProductFormCustomFields } from './ProductCustomFields';
-import { AddProductFormFieldsDetail } from './ProductFieldsDetail';
-import type { SubUomItem } from './SubUomRow';
+import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
+import { useAddProduct } from 'ui-modules/modules/products/hooks/useProductsAdd';
+import { IProductFormValues } from 'ui-modules/modules/products/types';
+import { AddProductFormAttachmentsAndExtra } from 'ui-modules/modules/products/components/ProductAttachments';
+import { AddProductFormCustomFields } from 'ui-modules/modules/products/components/ProductCustomFields';
+import { AddProductFormFieldsDetail } from 'ui-modules/modules/products/components/ProductFieldsDetail';
+import type { SubUomItem } from 'ui-modules/modules/products/components/SubUomRow';
 
 export function AddProductForm({
   embed,

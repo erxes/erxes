@@ -13,10 +13,10 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { useUnitForm } from '../../hooks/useUnitForm';
-import { useUnitAdd } from '../../hooks/useUnitActions';
-import { TUnitForm, UnitHotKeyScope } from '../../types/unit';
-import { UnitForm } from './UnitForm';
+import { useUnitForm } from '@/settings/structure/hooks/useUnitForm';
+import { useUnitAdd } from '@/settings/structure/hooks/useUnitActions';
+import { TUnitForm, UnitHotKeyScope } from '@/settings/structure/types/unit';
+import { UnitForm } from '@/settings/structure/components/units/UnitForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateUnit = () => {

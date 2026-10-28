@@ -24,21 +24,21 @@ import {
 import { useFormWidgetTabs } from '@/widgets/hooks/useFormWidgetTabs';
 import { ProductPanelNew } from '@/products/components/ProductPanelNew';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
-import { ProductPanelIdContext } from '../contexts/ProductPanelIdContext';
-import { useProductDetailWithQuery } from '../hooks/useProductDetailWithQuery';
-import { useProductCustomFieldEdit } from '../hooks/useProductCustomFieldEdit';
+import { ProductPanelIdContext } from '@/products/product-detail/contexts/ProductPanelIdContext';
+import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
+import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
 import {
   useProductFormData,
   getProductFormDefaultValues,
-} from '../hooks/useProductFormData';
+} from '@/products/product-detail/hooks/useProductFormData';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
   ProductFormSchema,
   ProductFormValues,
 } from '@/products/constants/ProductFormSchema';
-import { productCustomActivities } from './ProductActivityRows';
-import { ProductDetailFields } from './ProductDetailFields';
-import { ProductDetailSimilarity } from './ProductDetailSimilarity';
+import { productCustomActivities } from '@/products/product-detail/components/ProductActivityRows';
+import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
+import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
 
 export const ProductRecordPanel = (props: IRecordViewProps) => (
   <ProductPanelIdContext.Provider value={props.record.contentId}>

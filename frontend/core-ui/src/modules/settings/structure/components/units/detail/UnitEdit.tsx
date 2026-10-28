@@ -9,7 +9,7 @@ import { useUnitEdit } from '@/settings/structure/hooks/useUnitActions';
 import { useUnitForm } from '@/settings/structure/hooks/useUnitForm';
 import { TUnitForm } from '@/settings/structure/types/unit';
 import { IconUsersGroup } from '@tabler/icons-react';
-import { UnitForm } from '../UnitForm';
+import { UnitForm } from '@/settings/structure/components/units/UnitForm';
 import { Can } from 'ui-modules';
 
 export const UnitEdit = () => {

@@ -3,7 +3,7 @@ import { useQueryState } from 'erxes-ui';
 import { PrimitiveAtom, useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { IFieldGroup } from '../types/Properties';
+import { IFieldGroup } from '@/properties/types/Properties';
 
 const CORE_PROPERTY_PANEL_GROUP = gql`
   query corePropertyPanelGroup($params: FieldGroupParams) {

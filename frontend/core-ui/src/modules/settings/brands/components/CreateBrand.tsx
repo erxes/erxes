@@ -13,11 +13,11 @@ import {
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useBrandsForm } from '../hooks/useBrandsForm';
-import { useBrandsAdd } from '../hooks/useBrandsAdd';
+import { useBrandsForm } from '@/settings/brands/hooks/useBrandsForm';
+import { useBrandsAdd } from '@/settings/brands/hooks/useBrandsAdd';
 import { SubmitHandler } from 'react-hook-form';
-import { BrandsForm } from './BrandsForm';
-import { BrandsHotKeyScope, TBrandsForm } from '../types';
+import { BrandsForm } from '@/settings/brands/components/BrandsForm';
+import { BrandsHotKeyScope, TBrandsForm } from '@/settings/brands/types';
 import { useTranslation } from 'react-i18next';
 
 export const CreateBrand = () => {

@@ -6,7 +6,7 @@ import {
   toFormWidgetForm,
 } from 'ui-modules';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { useFormWidgetsModules } from './useFormWidgets';
+import { useFormWidgetsModules } from '@/widgets/hooks/useFormWidgets';
 
 export const useFormWidgetTabs = <T extends FieldValues>({
   contentType,

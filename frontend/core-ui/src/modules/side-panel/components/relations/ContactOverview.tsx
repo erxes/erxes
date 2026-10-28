@@ -10,8 +10,8 @@ import {
 import { IContactWidgetModule } from '@/side-panel/hooks/useContactWidgetModules';
 import { contactOverviewFoldedState } from '@/side-panel/states/contactOverviewState';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { TContactOverviewEntry } from './contactOverviewEntries';
-import { ContactOverviewCustomize } from './ContactOverviewCustomize';
+import { TContactOverviewEntry } from '@/side-panel/components/relations/contactOverviewEntries';
+import { ContactOverviewCustomize } from '@/side-panel/components/relations/ContactOverviewCustomize';
 
 type TContactType = 'core:customer' | 'core:company';
 

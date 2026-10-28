@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   modulePanelEntriesState,
   modulePanelTargetsState,
-} from '../states/modulePanelState';
+} from '@/side-panel/states/modulePanelState';
 
 export const CoreModulePanelSlot = ({
   path,

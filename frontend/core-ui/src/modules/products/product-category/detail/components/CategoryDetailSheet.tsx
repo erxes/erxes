@@ -17,16 +17,16 @@ import {
   type ProductAttachmentItem,
   toProductAttachmentItem,
 } from 'ui-modules';
-import { renderingCategoryDetailAtom } from '../../states/ProductCategory';
-import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
-import { CategoriesUpdateCoreFields } from './CategoryUpdateCoreFields';
-import { useProductCategoriesEdit } from '../hooks/useUpdateCategory';
+import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
+import { CategoryHotKeyScope } from '@/products/product-category/types/CategoryHotKeyScope';
+import { CategoriesUpdateCoreFields } from '@/products/product-category/detail/components/CategoryUpdateCoreFields';
+import { useProductCategoriesEdit } from '@/products/product-category/detail/hooks/useUpdateCategory';
 import {
   productFormSchema,
   ProductFormValues,
-} from '../../add-category/components/formSchema';
-import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
-import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
+} from '@/products/product-category/add-category/components/formSchema';
+import { CategoryUpdateMoreFields } from '@/products/product-category/detail/components/CategoryUpdateMoreFields';
+import { useProductCategoryDetail } from '@/products/product-category/detail/hooks/useCategoryDetail';
 import { useTranslation } from 'react-i18next';
 
 export const CategoryDetailSheet = () => {

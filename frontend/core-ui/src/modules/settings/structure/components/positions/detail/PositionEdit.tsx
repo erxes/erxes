@@ -9,7 +9,7 @@ import { usePositionDetailsById } from '@/settings/structure/hooks/usePositionDe
 import { usePositionEdit } from '@/settings/structure/hooks/usePositionActions';
 import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
 import { TPositionForm } from '@/settings/structure/types/position';
-import { PositionForm } from '../PositionForm';
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
 import { Can } from 'ui-modules';
 
 export const PositionEdit = () => {

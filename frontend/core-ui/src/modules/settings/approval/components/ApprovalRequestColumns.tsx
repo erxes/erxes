@@ -20,7 +20,7 @@ import { ApprovalRequest, useSidePanel } from 'ui-modules';
 import {
   APPROVAL_REQUEST_STATUS_META,
   getApprovalRequestUserName,
-} from './approvalRequestUtils';
+} from '@/settings/approval/components/approvalRequestUtils';
 
 const ApprovalRequestDetailsCell = ({
   id,

@@ -15,11 +15,11 @@ import type { TFunction } from 'i18next';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, FIELD_TYPES_OBJECT, useSystemFieldsLayout } from 'ui-modules';
-import { useEditPropertySystemField } from '../../hooks/useEditPropertySystemField';
-import { usePropertySystemFields } from '../../hooks/usePropertySystemFields';
-import { IPropertySystemField } from '../../types/Properties';
-import { PropertySystemFieldLogicSheet } from '../PropertySystemFieldLogicSheet';
-import { SystemFieldsLayoutSheet } from '../SystemFieldsLayoutSheet';
+import { useEditPropertySystemField } from '@/properties/hooks/useEditPropertySystemField';
+import { usePropertySystemFields } from '@/properties/hooks/usePropertySystemFields';
+import { IPropertySystemField } from '@/properties/types/Properties';
+import { PropertySystemFieldLogicSheet } from '@/properties/components/PropertySystemFieldLogicSheet';
+import { SystemFieldsLayoutSheet } from '@/properties/components/SystemFieldsLayoutSheet';
 
 type TSystemFieldRow = IPropertySystemField & { _id: string };
 

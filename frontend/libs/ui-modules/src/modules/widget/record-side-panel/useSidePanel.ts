@@ -10,9 +10,9 @@ import {
   useRef,
 } from 'react';
 import { matchPath } from 'react-router-dom';
-import { TRelationEntity } from '../utils';
-import { SIDE_PANEL_WIDTH } from './RecordSidePanel';
-import { SidePanelNavigatorContext } from './recordView';
+import { TRelationEntity } from 'ui-modules/modules/widget/utils';
+import { SIDE_PANEL_WIDTH } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanel';
+import { SidePanelNavigatorContext } from 'ui-modules/modules/widget/record-side-panel/recordView';
 
 // The side panel keeps its own route in the URL, beside the page's:
 // `/contacts/customers?panel=/detail/customer/<id>`, so it can be linked,

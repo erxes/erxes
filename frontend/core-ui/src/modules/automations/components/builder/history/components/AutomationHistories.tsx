@@ -14,7 +14,7 @@ import { AutomationHistoriesRecordTableFilter } from '@/automations/components/b
 import { AutomationHistorySplitPanel } from '@/automations/components/builder/history/components/AutomationHistorySplitPanel';
 import { AutomationHistoryViewModeToggle } from '@/automations/components/builder/history/components/AutomationHistoryViewOptions';
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
-import { AutomationHistoryPanel } from './AutomationHistoryDetail';
+import { AutomationHistoryPanel } from '@/automations/components/builder/history/components/AutomationHistoryDetail';
 import { useTranslation } from 'react-i18next';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 

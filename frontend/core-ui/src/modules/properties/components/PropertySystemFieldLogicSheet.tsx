@@ -3,8 +3,8 @@ import { Button, Spinner, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Can, IPropertyForm, PropertyFormLogicFields } from 'ui-modules';
-import { useEditPropertySystemField } from '../hooks/useEditPropertySystemField';
-import { IPropertySystemField } from '../types/Properties';
+import { useEditPropertySystemField } from '@/properties/hooks/useEditPropertySystemField';
+import { IPropertySystemField } from '@/properties/types/Properties';
 
 const SystemFieldLogicForm = ({
   field,

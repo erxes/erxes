@@ -10,12 +10,12 @@ import {
   RecordSidePanel,
   usePermissionCheck,
 } from 'ui-modules';
-import { AddCPUserForm } from '../../components/AddCPUserForm';
-import { CPUserPanelIdContext } from '../../contexts/CPUserPanelIdContext';
-import { useClientPortalUser } from '../../hooks/useClientPortalUser';
-import { CPUserDetailFields } from './CPUserDetailFields';
-import { CPUserDetailGeneral } from './CPUserDetailGeneral';
-import { CPUserDetailNotifications } from './CPUserDetailNotifications';
+import { AddCPUserForm } from '@/contacts/client-portal-users/components/AddCPUserForm';
+import { CPUserPanelIdContext } from '@/contacts/client-portal-users/contexts/CPUserPanelIdContext';
+import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
+import { CPUserDetailFields } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailFields';
+import { CPUserDetailGeneral } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailGeneral';
+import { CPUserDetailNotifications } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserDetailNotifications';
 
 export const CPUserRecordPanel = (props: IRecordViewProps) => (
   <CPUserPanelIdContext.Provider value={props.record.contentId}>

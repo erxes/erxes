@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import {
   BroadcastStepsProvider,
   useBroadcastSteps,
-} from '../../context/BroadcastStepsContext';
-import { TBroadcastStepsOptions } from '../../hooks/useBroadcastStepsState';
-import { BroadcastPreview } from '../BroadcastPreview';
-import { BroadcastScheduleField } from './BroadcastScheduleField';
-import { BroadcastStepActions } from './BroadcastStepActions';
-import { BroadcastStepContent } from './BroadcastStepContent';
+} from '@/broadcast/context/BroadcastStepsContext';
+import { TBroadcastStepsOptions } from '@/broadcast/hooks/useBroadcastStepsState';
+import { BroadcastPreview } from '@/broadcast/components/BroadcastPreview';
+import { BroadcastScheduleField } from '@/broadcast/components/steps/BroadcastScheduleField';
+import { BroadcastStepActions } from '@/broadcast/components/steps/BroadcastStepActions';
+import { BroadcastStepContent } from '@/broadcast/components/steps/BroadcastStepContent';
 
 export const BroadcastSteps = (options: TBroadcastStepsOptions) => (
   <BroadcastStepsProvider {...options}>

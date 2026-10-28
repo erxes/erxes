@@ -6,8 +6,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
 import { useProductConditionsRemove } from '@/products/settings/hooks/useProductConditionsRemove';
-import { ConditionForm } from './ConditionForm';
-import { IProductCondition } from './types';
+import { ConditionForm } from '@/products/settings/components/productsConfig/condition/ConditionForm';
+import { IProductCondition } from '@/products/settings/components/productsConfig/condition/types';
 
 const ConditionMoreColumn = ({
   row,

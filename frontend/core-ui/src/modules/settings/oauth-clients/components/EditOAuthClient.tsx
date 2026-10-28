@@ -3,17 +3,17 @@ import { useTranslation } from 'react-i18next';
 import { IconApi } from '@tabler/icons-react';
 import { Button, Form, Spinner, useToast, useQueryState } from 'erxes-ui';
 import { useQuery } from '@apollo/client';
-import { CORE_OAUTH_CLIENT_PANEL_DETAIL } from '../graphql/queries/getOAuthClientPanel';
+import { CORE_OAUTH_CLIENT_PANEL_DETAIL } from '@/settings/oauth-clients/graphql/queries/getOAuthClientPanel';
 import React from 'react';
 import { SubmitHandler } from 'react-hook-form';
 import { useAtom } from 'jotai';
-import { editingOAuthClientAtom } from '../state';
-import { useOAuthClientsForm } from '../hooks/useOAuthClientsForm';
-import { useOAuthClientsEdit } from '../hooks/useOAuthClientsEdit';
-import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
-import { IOAuthClientApp } from '../types';
-import { OAuthClientForm } from './OAuthClientForm';
-import { OAuthClientSecretDialog } from './OAuthClientSecretDialog';
+import { editingOAuthClientAtom } from '@/settings/oauth-clients/state';
+import { useOAuthClientsForm } from '@/settings/oauth-clients/hooks/useOAuthClientsForm';
+import { useOAuthClientsEdit } from '@/settings/oauth-clients/hooks/useOAuthClientsEdit';
+import { TOAuthClientsForm } from '@/settings/oauth-clients/hooks/useOAuthClientsForm';
+import { IOAuthClientApp } from '@/settings/oauth-clients/types';
+import { OAuthClientForm } from '@/settings/oauth-clients/components/OAuthClientForm';
+import { OAuthClientSecretDialog } from '@/settings/oauth-clients/components/OAuthClientSecretDialog';
 
 const getDefaultAccessTokenLifetime = (
   oauthClientApp?: IOAuthClientApp | null,

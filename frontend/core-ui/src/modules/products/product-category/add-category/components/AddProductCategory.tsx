@@ -9,11 +9,14 @@ import {
   useFieldGroups,
   useFields,
 } from 'ui-modules';
-import { productFormSchema, ProductFormValues } from './formSchema';
-import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm';
-import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
-import { ProductCategoryAddMoreFields } from './CategoryAddMoreFields';
-import { useAddCategory } from '../hooks/useAddCategory';
+import {
+  productFormSchema,
+  ProductFormValues,
+} from '@/products/product-category/add-category/components/formSchema';
+import { CategoryAddSheetHeader } from '@/products/product-category/components/AddProductCategoryForm';
+import { ProductCategoriesAddCoreFields } from '@/products/product-category/add-category/components/CategoryAddCoreFields';
+import { ProductCategoryAddMoreFields } from '@/products/product-category/add-category/components/CategoryAddMoreFields';
+import { useAddCategory } from '@/products/product-category/add-category/hooks/useAddCategory';
 import { useTranslation } from 'react-i18next';
 
 export function AddCategoryForm({

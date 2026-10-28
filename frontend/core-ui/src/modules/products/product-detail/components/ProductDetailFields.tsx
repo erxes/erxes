@@ -1,9 +1,9 @@
-import { ProductDetailGeneral } from './ProductDetailGeneral';
-import { ProductDetailBarcode } from './ProductDetailBarcode';
-import { ProductDetailUom } from './ProductDetailUom';
-import { ProductDetailAttachment } from './ProductDetailAttachment';
-import { ProductDetailInfo } from './ProductDetailInfo';
-import { ProductDetail } from '../types/detailTypes';
+import { ProductDetailGeneral } from '@/products/product-detail/components/ProductDetailGeneral';
+import { ProductDetailBarcode } from '@/products/product-detail/components/ProductDetailBarcode';
+import { ProductDetailUom } from '@/products/product-detail/components/ProductDetailUom';
+import { ProductDetailAttachment } from '@/products/product-detail/components/ProductDetailAttachment';
+import { ProductDetailInfo } from '@/products/product-detail/components/ProductDetailInfo';
+import { ProductDetail } from '@/products/product-detail/types/detailTypes';
 
 export const ProductDetailFields = ({
   productDetail,

@@ -15,14 +15,14 @@ import {
   Can,
 } from 'ui-modules';
 import { IconLock } from '@tabler/icons-react';
-import { BROADCAST_APPROVAL_CONTENT_TYPE } from '../../constants';
-import { useBroadcastCampaignActions } from '../../hooks/useBroadcastCampaignActions';
+import { BROADCAST_APPROVAL_CONTENT_TYPE } from '@/broadcast/constants';
+import { useBroadcastCampaignActions } from '@/broadcast/hooks/useBroadcastCampaignActions';
 import {
   BroadcastDetailProvider,
   useBroadcastDetail,
-} from '../../context/BroadcastDetailContext';
-import { BroadcastScheduleDialog } from '../common/BroadcastScheduleDialog';
-import { BroadcastDetail } from './BroadcastDetail';
+} from '@/broadcast/context/BroadcastDetailContext';
+import { BroadcastScheduleDialog } from '@/broadcast/components/common/BroadcastScheduleDialog';
+import { BroadcastDetail } from '@/broadcast/components/detail/BroadcastDetail';
 import { useTranslation } from 'react-i18next';
 
 export const BroadcastDetailSheet = () => {

@@ -10,9 +10,9 @@ import {
   SegmentUnsavedBadge,
   useSegmentDetail,
 } from 'ui-modules';
-import { SegmentAutomationCreateButton } from './SegmentAutomationCreateButton';
-import { SegmentAutomations } from './SegmentAutomations';
-import { SegmentDetailSidebar } from './SegmentDetailSidebar';
+import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
+import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
+import { SegmentDetailSidebar } from '@/segments/components/SegmentDetailSidebar';
 
 type Props = {
   onRefresh: () => void;

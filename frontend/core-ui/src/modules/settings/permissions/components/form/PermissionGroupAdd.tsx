@@ -7,7 +7,7 @@ import { useAddPermissionGroup } from '@/settings/permissions/hooks/useAddPermis
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { Button, toast } from 'erxes-ui';
 import React, { useCallback, useState } from 'react';
-import { PermissionGroupForm } from './PermissionGroupForm';
+import { PermissionGroupForm } from '@/settings/permissions/components/form/PermissionGroupForm';
 
 export const PermissionGroupAdd = ({
   text,

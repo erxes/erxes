@@ -11,9 +11,9 @@ import {
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IBundleRule } from './types';
+import { IBundleRule } from '@/products/settings/components/productsConfig/bundleRule/types';
 import { useBundleRulesRemove } from '@/products/settings/hooks/useBundleRulesRemove';
-import { BundleRuleForm } from './BundleRuleForm';
+import { BundleRuleForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleForm';
 import { Can } from 'ui-modules';
 
 export const BundleRuleMoreColumn = (

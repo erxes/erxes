@@ -4,11 +4,11 @@ import { IconApi, IconPlus } from '@tabler/icons-react';
 import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { useOAuthClientsForm } from '../hooks/useOAuthClientsForm';
-import { useOAuthClientsAdd } from '../hooks/useOAuthClientsAdd';
-import { TOAuthClientsForm } from '../hooks/useOAuthClientsForm';
-import { OAuthClientForm } from './OAuthClientForm';
-import { OAuthClientSecretDialog } from './OAuthClientSecretDialog';
+import { useOAuthClientsForm } from '@/settings/oauth-clients/hooks/useOAuthClientsForm';
+import { useOAuthClientsAdd } from '@/settings/oauth-clients/hooks/useOAuthClientsAdd';
+import { TOAuthClientsForm } from '@/settings/oauth-clients/hooks/useOAuthClientsForm';
+import { OAuthClientForm } from '@/settings/oauth-clients/components/OAuthClientForm';
+import { OAuthClientSecretDialog } from '@/settings/oauth-clients/components/OAuthClientSecretDialog';
 
 export const CreateOAuthClient = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });

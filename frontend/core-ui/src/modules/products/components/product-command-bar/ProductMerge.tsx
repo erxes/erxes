@@ -13,7 +13,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, IProduct } from 'ui-modules';
-import { productsMutations, productsQueries } from '../../graphql';
+import { productsMutations, productsQueries } from '@/products/graphql';
 
 type MergeField = {
   key: string;
@@ -262,7 +262,6 @@ const ProductMergeBody = ({
       values[field.key] = hasValue(a) ? a : b;
     }
     return values;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productA?._id, productB?._id]);
 
   const [value, setValue] = useState<Record<string, any>>(initValues);

@@ -4,7 +4,7 @@ import { Button } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
-import { ConditionForm } from './ConditionForm';
+import { ConditionForm } from '@/products/settings/components/productsConfig/condition/ConditionForm';
 
 export const ConditionSheet = () => {
   const { t } = useTranslation('product');

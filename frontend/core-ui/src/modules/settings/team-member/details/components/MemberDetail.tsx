@@ -1,12 +1,12 @@
 import { CoreFocusPanel } from '@/side-panel/components/CoreModulePanel';
 import { Separator, useQueryState } from 'erxes-ui';
-import { MemberDetailGeneral } from './MemberDetailGeneral';
-import { useUserDetail } from '../../hooks/useUserDetail';
-import { MemberDetailSidebar } from './MemberDetailSidebar';
-import { MemberDetailMainContents } from './MemberDetailMainContents';
-import { MemberDetailErrorState } from './MemberDetailErrorState';
+import { MemberDetailGeneral } from '@/settings/team-member/details/components/MemberDetailGeneral';
+import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
+import { MemberDetailSidebar } from '@/settings/team-member/details/components/MemberDetailSidebar';
+import { MemberDetailMainContents } from '@/settings/team-member/details/components/MemberDetailMainContents';
+import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { PrintDocument } from 'ui-modules';
-import { MemberDetailEmptyState } from './MemberDetailEmptyState';
+import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
 import { useTranslation } from 'react-i18next';
 
 export const MemberDetail = () => {

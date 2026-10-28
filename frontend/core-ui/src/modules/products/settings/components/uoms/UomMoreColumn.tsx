@@ -6,8 +6,8 @@ import { ColumnDef } from '@tanstack/table-core';
 import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { Can, IUom } from 'ui-modules';
-import { useUomsRemove } from '../../hooks/useUomsRemove';
-import { UomForm } from './UomForm';
+import { useUomsRemove } from '@/products/settings/hooks/useUomsRemove';
+import { UomForm } from '@/products/settings/components/uoms/UomForm';
 
 export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   const uom = props.row.original;

@@ -16,9 +16,9 @@ import {
   type IRecordViewProps,
   RecordSidePanel,
 } from 'ui-modules';
-import { CORE_APPROVAL_REQUEST_PANEL } from '../graphql/approvalRequestPanel';
+import { CORE_APPROVAL_REQUEST_PANEL } from '@/settings/approval/graphql/approvalRequestPanel';
 import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
-import { getApprovalRequestUserName } from './approvalRequestUtils';
+import { getApprovalRequestUserName } from '@/settings/approval/components/approvalRequestUtils';
 
 const findDecisionUserName = ({
   requester,

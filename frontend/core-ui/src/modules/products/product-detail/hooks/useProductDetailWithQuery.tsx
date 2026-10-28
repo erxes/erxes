@@ -1,10 +1,10 @@
 import { QueryHookOptions } from '@apollo/client';
 import { useEffect } from 'react';
 import { toast, useQueryState } from 'erxes-ui';
-import { useProductDetail } from './useProductDetail';
+import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import { useTranslation } from 'react-i18next';
-import { useProductPanelId } from '../contexts/ProductPanelIdContext';
+import { useProductPanelId } from '@/products/product-detail/contexts/ProductPanelIdContext';
 
 export const useProductDetailWithQuery = (options?: QueryHookOptions) => {
   const { t } = useTranslation('product', {

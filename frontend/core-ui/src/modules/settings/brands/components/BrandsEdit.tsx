@@ -4,11 +4,11 @@ import { IconChessKnight } from '@tabler/icons-react';
 import { Button, Form, Spinner, useQueryState, useToast } from 'erxes-ui';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useBrandsForm } from '../hooks/useBrandsForm';
+import { useBrandsForm } from '@/settings/brands/hooks/useBrandsForm';
 import { SubmitHandler } from 'react-hook-form';
-import { BrandsForm } from './BrandsForm';
-import { useBrandsEdit } from '../hooks/useBrandsEdit';
-import { TBrandsForm } from '../types';
+import { BrandsForm } from '@/settings/brands/components/BrandsForm';
+import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
+import { TBrandsForm } from '@/settings/brands/types';
 import { ApolloError } from '@apollo/client';
 import { useBrandById } from '@/settings/brands/hooks/useBrandById';
 

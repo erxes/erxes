@@ -1,6 +1,6 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { useFilesPage } from '../context/FilesPageContext';
-import { FilesPreviewPanel } from './FilesPreviewPanel';
+import { useFilesPage } from '@/files/context/FilesPageContext';
+import { FilesPreviewPanel } from '@/files/components/FilesPreviewPanel';
 
 export const FilesPreviewSheet = () => {
   const { previewFile, previewLoading, previewError, setPreviewFile } =

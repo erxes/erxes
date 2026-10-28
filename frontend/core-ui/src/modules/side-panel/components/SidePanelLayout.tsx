@@ -10,28 +10,28 @@ import { useAtom, useAtomValue } from 'jotai';
 import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
-import { AssistantPanel } from './chat/AssistantPanel';
-import { SidePanelRecordStack } from './SidePanelRecordStack';
+import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
+import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
 import {
   isModulePanelPath,
   modulePanelEntriesState,
-} from '../states/modulePanelState';
-import { ContactOverview } from './relations/ContactOverview';
+} from '@/side-panel/states/modulePanelState';
+import { ContactOverview } from '@/side-panel/components/relations/ContactOverview';
 import {
   buildContactOverviewEntries,
   TContactOverviewEntry,
-} from './relations/contactOverviewEntries';
+} from '@/side-panel/components/relations/contactOverviewEntries';
 import { contactOverviewLayoutState } from '@/side-panel/states/contactOverviewState';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { SidePanelRelations } from './relations/SidePanelRelations';
+import { SidePanelRelations } from '@/side-panel/components/relations/SidePanelRelations';
 import { useContactWidgetModules } from '@/side-panel/hooks/useContactWidgetModules';
-import { CompanyPanelDetail } from './details/CompanyPanelDetail';
-import { CompanyPanelProperties } from './details/CompanyPanelProperties';
-import { CompanyPanelNew } from './details/CompanyPanelNew';
-import { CustomerPanelDetail } from './details/CustomerPanelDetail';
-import { CustomerPanelNew } from './details/CustomerPanelNew';
-import { CustomerPanelProperties } from './details/CustomerPanelProperties';
-import { PluginRecordPanel } from './PluginRecordPanel';
+import { CompanyPanelDetail } from '@/side-panel/components/details/CompanyPanelDetail';
+import { CompanyPanelProperties } from '@/side-panel/components/details/CompanyPanelProperties';
+import { CompanyPanelNew } from '@/side-panel/components/details/CompanyPanelNew';
+import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPanelDetail';
+import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelNew';
+import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
+import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import {
   ActivityLogs,

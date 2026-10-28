@@ -1,5 +1,5 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { PRODUCT_CATEGORY_CREATE_PANEL } from '../constants/categoryPanel';
+import { PRODUCT_CATEGORY_CREATE_PANEL } from '@/products/product-category/constants/categoryPanel';
 import { IconPlus } from '@tabler/icons-react';
 
 import {
@@ -10,8 +10,8 @@ import {
   useSetHotkeyScope,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { AddCategoryForm } from '../add-category/components/AddProductCategory';
-import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
+import { AddCategoryForm } from '@/products/product-category/add-category/components/AddProductCategory';
+import { CategoryHotKeyScope } from '@/products/product-category/types/CategoryHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 

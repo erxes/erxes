@@ -19,7 +19,7 @@ import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/productTypes';
 import { useProductLastCodeByCategory } from 'ui-modules/modules/products/hooks/useProducts';
 import { SuggestedProductCodeInput } from 'ui-modules/modules/products/components/SuggestedProductCodeInput';
-import { useProductDetail } from '../hooks/useProductDetail';
+import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
 
 export const ProductDetailGeneral = ({
   compact = false,

@@ -26,10 +26,10 @@ import {
   IPackageProduct,
   PACKAGE_STATUSES,
   PACKAGE_STATUS_OPTIONS,
-} from '../types/Package';
-import { useAddPackage } from '../hooks/usePackageMutations';
-import { usePricing } from '../hooks/usePricing';
-import { PackageProductPicker } from './PackageProductPicker';
+} from '@/products/packages/types/Package';
+import { useAddPackage } from '@/products/packages/hooks/usePackageMutations';
+import { usePricing } from '@/products/packages/hooks/usePricing';
+import { PackageProductPicker } from '@/products/packages/components/PackageProductPicker';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),

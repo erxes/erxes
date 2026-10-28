@@ -1,8 +1,8 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useConfirm } from 'erxes-ui';
-import { useFieldGroupEdit } from '../hooks/useFieldGroupEdit';
-import { activePropertyState } from '../states/activePropertyState';
-import { useGroupPanelSelection } from '../hooks/useGroupPanelSelection';
+import { useFieldGroupEdit } from '@/properties/hooks/useFieldGroupEdit';
+import { activePropertyState } from '@/properties/states/activePropertyState';
+import { useGroupPanelSelection } from '@/properties/hooks/useGroupPanelSelection';
 import { useTranslation } from 'react-i18next';
 import { IPropertyGroupForm, PropertyGroupForm } from 'ui-modules';
 

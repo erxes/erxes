@@ -4,7 +4,7 @@ import { SelectCompany } from 'ui-modules/modules/contacts';
 import { useTranslation } from 'react-i18next';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { useFormContext } from 'react-hook-form';
-import { ProductConditionsField } from './ProductConditionsField';
+import { ProductConditionsField } from '@/products/product-detail/components/ProductConditionsField';
 
 export function ProductDetailInfo({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });

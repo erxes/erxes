@@ -11,9 +11,9 @@ import {
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IProductRule } from './types';
+import { IProductRule } from '@/products/settings/components/productsConfig/productRule/types';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
-import { ProductRuleForm } from './ProductRuleForm';
+import { ProductRuleForm } from '@/products/settings/components/productsConfig/productRule/ProductRuleForm';
 import { Can } from 'ui-modules';
 
 export const ProductRuleMoreColumn = (

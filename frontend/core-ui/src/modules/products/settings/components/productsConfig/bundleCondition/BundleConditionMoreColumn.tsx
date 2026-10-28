@@ -11,9 +11,9 @@ import {
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IBundleCondition } from './types';
+import { IBundleCondition } from '@/products/settings/components/productsConfig/bundleCondition/types';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
-import { BundleConditionForm } from './BundleConditionForm';
+import { BundleConditionForm } from '@/products/settings/components/productsConfig/bundleCondition/BundleConditionForm';
 import { Can } from 'ui-modules';
 
 export const BundleConditionMoreColumn = (

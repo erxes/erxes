@@ -1,7 +1,7 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { cn } from 'erxes-ui';
 import { ReactNode } from 'react';
-import { IBroadcastMethodEnum } from '../../types';
+import { IBroadcastMethodEnum } from '@/broadcast/types';
 
 /** The sheet a campaign is written in, whether it is new or being edited. */
 export const BroadcastStepsSheetView = ({

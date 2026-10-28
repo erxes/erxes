@@ -1,12 +1,12 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { useMultiQueryState } from 'erxes-ui';
-import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
-import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
-import { useBroadcastSegmentSeed } from '../hooks/useBroadcastSegmentSeed';
-import { BroadcastMethod } from './list/BroadcastMethod';
-import { BroadcastSteps } from './steps/BroadcastSteps';
-import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
+import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
+import { useBroadcastScheduleRange } from '@/broadcast/hooks/useBroadcastScheduleRange';
+import { useBroadcastSegmentSeed } from '@/broadcast/hooks/useBroadcastSegmentSeed';
+import { BroadcastMethod } from '@/broadcast/components/list/BroadcastMethod';
+import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
+import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
 
 /**
  * Creating a campaign, opened by choosing a method.

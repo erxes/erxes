@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 import {
   APPROVAL_REQUESTS_CURSOR_SESSION_KEY,
   useApprovalRequests,
-} from '../hooks/useApprovalRequests';
-import { useApprovalRequestStatus } from './ApprovalRequestStatusSelect';
-import { approvalRequestColumns } from './ApprovalRequestColumns';
+} from '@/settings/approval/hooks/useApprovalRequests';
+import { useApprovalRequestStatus } from '@/settings/approval/components/ApprovalRequestStatusSelect';
+import { approvalRequestColumns } from '@/settings/approval/components/ApprovalRequestColumns';
 import { EmptyState } from '@/settings/components/EmptyState';
 
 export const ApprovalRequestsRecordTable = () => {

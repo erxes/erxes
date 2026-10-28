@@ -13,7 +13,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInView } from 'react-intersection-observer';
 import { useDebounce } from 'use-debounce';
-import { SIMILARITY_SEARCH_PRODUCTS } from '../graphql/queries';
+import { SIMILARITY_SEARCH_PRODUCTS } from '@/products/bulk-similarity/graphql/queries';
 
 export interface ChoosableProduct {
   _id: string;

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { IconFolderPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { TemplateCategoryForm } from './TemplateCategoryForm';
+import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
 import { useTranslation } from 'react-i18next';
 
 export const TemplateCategorySheet = ({

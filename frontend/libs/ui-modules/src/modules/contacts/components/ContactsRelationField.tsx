@@ -16,11 +16,11 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSidePanel } from '../../widget/record-side-panel/useSidePanel';
-import { useCompanyInline } from '../hooks/useCompanyInline';
-import { useCustomerInline } from '../hooks/useCustomers';
-import { SelectCompany } from './SelectCompany';
-import { SelectCustomer } from './SelectCustomer';
+import { useSidePanel } from 'ui-modules/modules/widget/record-side-panel/useSidePanel';
+import { useCompanyInline } from 'ui-modules/modules/contacts/hooks/useCompanyInline';
+import { useCustomerInline } from 'ui-modules/modules/contacts/hooks/useCustomers';
+import { SelectCompany } from 'ui-modules/modules/contacts/components/SelectCompany';
+import { SelectCustomer } from 'ui-modules/modules/contacts/components/SelectCustomer';
 
 type TContactKind = 'customer' | 'company';
 

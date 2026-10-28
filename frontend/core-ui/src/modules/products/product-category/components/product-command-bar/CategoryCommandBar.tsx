@@ -1,11 +1,11 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
-import { CategoriesDelete } from './delete/CategoryDelete';
+import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
 import { useState } from 'react';
 import { Can, useSidePanel } from 'ui-modules';
 import { CoreTemplatePanel } from '@/templates/components/CoreTemplatePanel';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
-import { PRODUCT_CATEGORY_CREATE_PANEL } from '../../constants/categoryPanel';
+import { PRODUCT_CATEGORY_CREATE_PANEL } from '@/products/product-category/constants/categoryPanel';
 import { useTranslation } from 'react-i18next';
 
 export const CategoryCommandBar = () => {

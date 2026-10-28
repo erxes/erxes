@@ -8,7 +8,7 @@ import {
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UomForm } from './UomForm';
+import { UomForm } from '@/products/settings/components/uoms/UomForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 

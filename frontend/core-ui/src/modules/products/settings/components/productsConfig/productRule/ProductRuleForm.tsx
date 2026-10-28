@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { SelectCategory, SelectProduct, SelectTags } from 'ui-modules';
 import { useProductRulesAdd } from '@/products/settings/hooks/useProductRulesAdd';
 import { useProductRulesEdit } from '@/products/settings/hooks/useProductRulesEdit';
-import { IProductRule } from './types';
+import { IProductRule } from '@/products/settings/components/productsConfig/productRule/types';
 
 const productRuleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),

@@ -7,8 +7,8 @@ import {
   LayoutEditor,
   useSystemFieldsLayout,
 } from 'ui-modules';
-import { usePropertySystemFields } from '../hooks/usePropertySystemFields';
-import { useSystemFieldsLayoutSave } from '../hooks/useSystemFieldsLayoutSave';
+import { usePropertySystemFields } from '@/properties/hooks/usePropertySystemFields';
+import { useSystemFieldsLayoutSave } from '@/properties/hooks/useSystemFieldsLayoutSave';
 
 export const SystemFieldsLayoutSheet = ({
   contentType,

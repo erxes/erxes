@@ -7,10 +7,10 @@ import {
   useFileDownload,
   useFilesUpload,
 } from 'ui-modules';
-import { useFilesPage } from '../context/FilesPageContext';
-import { useFilesActions } from './useFilesActions';
-import { useFilesShare } from './useFilesShare';
-import { useFilesVersions } from './useFilesVersions';
+import { useFilesPage } from '@/files/context/FilesPageContext';
+import { useFilesActions } from '@/files/hooks/useFilesActions';
+import { useFilesShare } from '@/files/hooks/useFilesShare';
+import { useFilesVersions } from '@/files/hooks/useFilesVersions';
 
 export type TFilesPreviewTab = 'preview' | 'versions';
 

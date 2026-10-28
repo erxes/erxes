@@ -3,7 +3,7 @@ import { CellContext } from '@tanstack/react-table';
 import { TextOverflowTooltip, Badge, RecordTableInlineCell } from 'erxes-ui';
 import { useState } from 'react';
 import { Can, IUom } from 'ui-modules';
-import { UomForm } from './UomForm';
+import { UomForm } from '@/products/settings/components/uoms/UomForm';
 
 export const UomNameColumnCell = (props: CellContext<IUom, unknown>) => {
   const uom = props.row.original;

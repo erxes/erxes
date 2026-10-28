@@ -11,7 +11,7 @@ import {
   useRef,
   useCallback,
 } from 'react';
-import { TFilesItem, useFilesSelection } from '../hooks/useFilesSelection';
+import { TFilesItem, useFilesSelection } from '@/files/hooks/useFilesSelection';
 import {
   FILES_BY_IDS,
   IFile,

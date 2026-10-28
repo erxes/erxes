@@ -15,10 +15,10 @@ import { Badge, Button, cn, DropdownMenu, Separator, Tabs } from 'erxes-ui';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilePreview, FileTypeIcon } from 'ui-modules';
-import { useFilesPreviewPanel } from '../hooks/useFilesPreviewPanel';
-import { FilesPublicLinkBadge } from './FilesPublicLinkBadge';
-import { FilesSharedWith } from './FilesSharedWith';
-import { FilesVersionsList } from './FilesVersionsList';
+import { useFilesPreviewPanel } from '@/files/hooks/useFilesPreviewPanel';
+import { FilesPublicLinkBadge } from '@/files/components/FilesPublicLinkBadge';
+import { FilesSharedWith } from '@/files/components/FilesSharedWith';
+import { FilesVersionsList } from '@/files/components/FilesVersionsList';
 
 export const FilesPreviewPanel = () => {
   const { t } = useTranslation('files');

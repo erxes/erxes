@@ -12,14 +12,17 @@ import {
 import { useEffect } from 'react';
 import { ApolloError } from '@apollo/client';
 import { SubmitHandler } from 'react-hook-form';
-import { useDepartmentForm } from '../../hooks/useDepartmentForm';
+import { useDepartmentForm } from '@/settings/structure/hooks/useDepartmentForm';
 import {
   useDepartmentAdd,
   useDepartmentEdit,
-} from '../../hooks/useDepartmentActions';
-import { useDepartmentCreateSheet } from '../../hooks/useStructureCreateSheet';
-import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
-import { DepartmentForm } from './DepartmentForm';
+} from '@/settings/structure/hooks/useDepartmentActions';
+import { useDepartmentCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
+import {
+  DepartmentHotKeyScope,
+  TDepartmentForm,
+} from '@/settings/structure/types/department';
+import { DepartmentForm } from '@/settings/structure/components/departments/DepartmentForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateDepartment = () => {

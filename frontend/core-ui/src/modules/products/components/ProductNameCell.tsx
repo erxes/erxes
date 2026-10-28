@@ -1,5 +1,5 @@
 import { Cell } from '@tanstack/react-table';
-import { renderingProductDetailAtom } from '../states/productDetailStates';
+import { renderingProductDetailAtom } from '@/products/states/productDetailStates';
 import { IProduct } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
 import { useSidePanel } from 'ui-modules';

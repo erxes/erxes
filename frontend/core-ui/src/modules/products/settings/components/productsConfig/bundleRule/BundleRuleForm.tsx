@@ -6,10 +6,13 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useBundleRulesAdd } from '@/products/settings/hooks/useBundleRulesAdd';
 import { useBundleRulesEdit } from '@/products/settings/hooks/useBundleRulesEdit';
-import { IBundleRule, IBundleRuleItem } from './types';
+import {
+  IBundleRule,
+  IBundleRuleItem,
+} from '@/products/settings/components/productsConfig/bundleRule/types';
 import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react';
 import { useState } from 'react';
-import { BundleRuleItemForm } from './BundleRuleItemForm';
+import { BundleRuleItemForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleItemForm';
 
 const bundleRuleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),

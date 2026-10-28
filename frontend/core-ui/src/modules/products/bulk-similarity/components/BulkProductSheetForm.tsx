@@ -3,16 +3,19 @@ import { Button, Form, InfoCard, toast } from 'erxes-ui';
 import { IconLoader2 } from '@tabler/icons-react';
 import { FieldErrors, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useBulkProductForm } from '../hooks/useBulkProductForm';
-import { useBulkRows } from '../hooks/useBulkRows';
-import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
-import { IBulkSaveInput, IProductSimilarity } from '../types';
-import { BulkBaseInfo } from './BulkBaseInfo';
-import { GeneratedProductsTable } from './GeneratedProductsTable';
+import { useBulkProductForm } from '@/products/bulk-similarity/hooks/useBulkProductForm';
+import { useBulkRows } from '@/products/bulk-similarity/hooks/useBulkRows';
+import { BulkSimilarityFormValues } from '@/products/bulk-similarity/constants/bulkSimilaritySchema';
+import {
+  IBulkSaveInput,
+  IProductSimilarity,
+} from '@/products/bulk-similarity/types';
+import { BulkBaseInfo } from '@/products/bulk-similarity/components/BulkBaseInfo';
+import { GeneratedProductsTable } from '@/products/bulk-similarity/components/GeneratedProductsTable';
 import {
   VariantFieldAddButton,
   VariantFieldPicker,
-} from './VariantFieldPicker';
+} from '@/products/bulk-similarity/components/VariantFieldPicker';
 
 interface BulkProductSheetFormProps {
   open: boolean;

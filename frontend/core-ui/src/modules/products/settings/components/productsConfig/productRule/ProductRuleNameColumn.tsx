@@ -1,9 +1,9 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { CellContext } from '@tanstack/react-table';
 import { RecordTableInlineCell, TextOverflowTooltip, Badge } from 'erxes-ui';
-import { IProductRule } from './types';
+import { IProductRule } from '@/products/settings/components/productsConfig/productRule/types';
 import { useState } from 'react';
-import { ProductRuleForm } from './ProductRuleForm';
+import { ProductRuleForm } from '@/products/settings/components/productsConfig/productRule/ProductRuleForm';
 import { Can } from 'ui-modules';
 
 const ProductRuleNameColumnCell = (

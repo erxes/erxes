@@ -1,4 +1,4 @@
-import { AUTOMATION_HISTORY_PANEL } from '../historyPanel';
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   AutomationExecutionBackButton,

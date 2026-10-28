@@ -1,11 +1,11 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { PRODUCT_DETAIL_QUERY } from '../graphql/queries/productDetailQueries';
+import { PRODUCT_DETAIL_QUERY } from '@/products/product-detail/graphql/queries/productDetailQueries';
 import { useSetAtom } from 'jotai';
-import { renderingProductDetailAtom } from '../../states/productDetailStates';
+import { renderingProductDetailAtom } from '@/products/states/productDetailStates';
 import { useQueryState } from 'erxes-ui';
-import { PRODUCT_QUERY_KEY } from '../../constants/productQueryKey';
-import { ProductDetail } from '../types/detailTypes';
-import { useProductPanelId } from '../contexts/ProductPanelIdContext';
+import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
+import { ProductDetail } from '@/products/product-detail/types/detailTypes';
+import { useProductPanelId } from '@/products/product-detail/contexts/ProductPanelIdContext';
 
 type ProductDetailQueryData = {
   productDetail: ProductDetail | null;

@@ -2,7 +2,7 @@ import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTemplateCategoryDetail } from '@/templates/hooks/useTemplateCategoryDetail';
 import { IconLoader2 } from '@tabler/icons-react';
 import { useQueryState, useToast } from 'erxes-ui';
-import { TemplateCategoryForm } from './TemplateCategoryForm';
+import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
 import { useTranslation } from 'react-i18next';
 
 export const TemplateCategoryDetailSheet = () => {

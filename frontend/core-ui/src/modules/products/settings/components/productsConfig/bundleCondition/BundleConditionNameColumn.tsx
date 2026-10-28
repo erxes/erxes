@@ -2,8 +2,8 @@ import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { CellContext } from '@tanstack/react-table';
 import { Badge, RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
 import { useState } from 'react';
-import { BundleConditionForm } from './BundleConditionForm';
-import { IBundleCondition } from './types';
+import { BundleConditionForm } from '@/products/settings/components/productsConfig/bundleCondition/BundleConditionForm';
+import { IBundleCondition } from '@/products/settings/components/productsConfig/bundleCondition/types';
 import { Can } from 'ui-modules';
 
 export const BundleConditionNameColumnCell = (

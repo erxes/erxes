@@ -1,7 +1,7 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { Button } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useBroadcastSteps } from '../../context/BroadcastStepsContext';
+import { useBroadcastSteps } from '@/broadcast/context/BroadcastStepsContext';
 
 export const BroadcastStepActions = () => {
   const { t } = useTranslation('broadcasts');

@@ -1,11 +1,11 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { Spinner } from 'erxes-ui';
-import { useGroupPanelSelection } from '../hooks/useGroupPanelSelection';
+import { useGroupPanelSelection } from '@/properties/hooks/useGroupPanelSelection';
 import { useTranslation } from 'react-i18next';
 import { buildGroupRows, LayoutEditor, useFields } from 'ui-modules';
-import { useGroupLayoutSave } from '../hooks/useGroupLayoutSave';
-import { activeLayoutGroupState } from '../states/activeLayoutGroupState';
-import { IFieldGroup } from '../types/Properties';
+import { useGroupLayoutSave } from '@/properties/hooks/useGroupLayoutSave';
+import { activeLayoutGroupState } from '@/properties/states/activeLayoutGroupState';
+import { IFieldGroup } from '@/properties/types/Properties';
 
 export const PropertyGroupLayoutSheet = () => {
   const { group, close, loading, error } = useGroupPanelSelection(

@@ -20,9 +20,9 @@ import {
 } from 'ui-modules/modules/contacts/contexts/SelectCompanyContext';
 import { useEffect, useMemo, useState } from 'react';
 
-import { CompaniesInline } from './CompaniesInline';
-import { AddCompany } from './AddCompany';
-import { ICompany } from '../types';
+import { CompaniesInline } from 'ui-modules/modules/contacts/components/CompaniesInline';
+import { AddCompany } from 'ui-modules/modules/contacts/components/AddCompany';
+import { ICompany } from 'ui-modules/modules/contacts/types';
 import { useCompanies } from 'ui-modules/modules/contacts/hooks/useCompanies';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';

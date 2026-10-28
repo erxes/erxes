@@ -23,18 +23,18 @@ import {
   TagBadge,
   type ProductAttachmentItem,
 } from 'ui-modules';
-import { usePackageDetail } from '../hooks/usePackageDetail';
+import { usePackageDetail } from '@/products/packages/hooks/usePackageDetail';
 import {
   useChangePackageStatus,
   useEditPackage,
-} from '../hooks/usePackageMutations';
-import { usePricing } from '../hooks/usePricing';
+} from '@/products/packages/hooks/usePackageMutations';
+import { usePricing } from '@/products/packages/hooks/usePricing';
 import {
   IPackage,
   IPackageProduct,
   PACKAGE_STATUS_OPTIONS,
-} from '../types/Package';
-import { PackageProductPicker } from './PackageProductPicker';
+} from '@/products/packages/types/Package';
+import { PackageProductPicker } from '@/products/packages/components/PackageProductPicker';
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <label className="font-medium text-sm">{children}</label>

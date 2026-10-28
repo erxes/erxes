@@ -4,11 +4,11 @@ import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
 import { useBroadcastMessage } from '@/broadcast/hooks/useBroadcastMessage';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { messageToFormValues } from '@/broadcast/utils/messageToFormValues';
-import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
+import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
 import { Skeleton, useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BroadcastErrorState } from './list/BroadcastStates';
+import { BroadcastErrorState } from '@/broadcast/components/list/BroadcastStates';
 
 type TBroadcastEditQueryParams = {
   editMessageId: string;

@@ -4,7 +4,7 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { useSetAtom } from 'jotai';
-import { needsToRefreshState } from '../states/needsToRefresh';
+import { needsToRefreshState } from '@/properties/states/needsToRefresh';
 import { IPropertyForm, PropertyForm, useAddProperty } from 'ui-modules';
 
 export const AddProperty = () => {

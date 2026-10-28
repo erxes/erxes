@@ -3,7 +3,7 @@ import { IconAlertTriangle } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useConditionForm } from '@/products/settings/hooks/useConditionForm';
-import { IProductCondition } from './types';
+import { IProductCondition } from '@/products/settings/components/productsConfig/condition/types';
 
 export const ConditionForm = ({
   condition,

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useBundleConditionAdd } from '@/products/settings/hooks/useBundleConditionAdd';
 import { useBundleConditionEdit } from '@/products/settings/hooks/useBundleConditionEdit';
-import { IBundleCondition } from './types';
+import { IBundleCondition } from '@/products/settings/components/productsConfig/bundleCondition/types';
 
 const bundleConditionFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),

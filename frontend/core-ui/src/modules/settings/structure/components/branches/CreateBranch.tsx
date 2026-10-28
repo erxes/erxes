@@ -11,12 +11,18 @@ import {
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ApolloError } from '@apollo/client';
-import { BranchHotKeyScope, TBranchForm } from '../../types/branch';
-import { BranchForm } from './BranchForm';
-import { useBranchForm } from '../../hooks/useBranchForm';
+import {
+  BranchHotKeyScope,
+  TBranchForm,
+} from '@/settings/structure/types/branch';
+import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
+import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
 import { SubmitHandler } from 'react-hook-form';
-import { useBranchAdd, useBranchEdit } from '../../hooks/useBranchActions';
-import { useBranchCreateSheet } from '../../hooks/useStructureCreateSheet';
+import {
+  useBranchAdd,
+  useBranchEdit,
+} from '@/settings/structure/hooks/useBranchActions';
+import { useBranchCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {

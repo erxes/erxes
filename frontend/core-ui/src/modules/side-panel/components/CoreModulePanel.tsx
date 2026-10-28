@@ -12,7 +12,7 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { PanelRecordContext } from '../contexts/PanelRecordContext';
+import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 import {
   SidePanelDraftContext,
   RecordSidePanel,
@@ -24,7 +24,7 @@ import {
   getModulePanelPath,
   modulePanelEntriesState,
   modulePanelTargetsState,
-} from '../states/modulePanelState';
+} from '@/side-panel/states/modulePanelState';
 
 type TModulePanelProps = ComponentProps<typeof Sheet> & {
   name: string;

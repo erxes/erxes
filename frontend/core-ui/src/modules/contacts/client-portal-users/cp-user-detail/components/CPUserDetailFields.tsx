@@ -6,9 +6,9 @@ import {
   usePermissionCheck,
   useSidePanel,
 } from 'ui-modules';
-import { useClientPortalUser } from '../../hooks/useClientPortalUser';
-import { TextFieldCPUser } from './TextFieldCPUser';
-import { useCPUserEdit } from '../../hooks/useCPUserEdit';
+import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
+import { TextFieldCPUser } from '@/contacts/client-portal-users/cp-user-detail/components/TextFieldCPUser';
+import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
 import { useTranslation } from 'react-i18next';
 
 export const CPUserDetailFields = () => {

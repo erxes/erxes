@@ -15,7 +15,7 @@ import {
 } from 'ui-modules';
 import { useFormWidgetTabs } from '@/widgets/hooks/useFormWidgetTabs';
 import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
-import { productsQueries } from '../graphql';
+import { productsQueries } from '@/products/graphql';
 
 export const ProductPanelNew = () => {
   const { t } = useTranslation('product', { keyPrefix: 'add' });

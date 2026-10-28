@@ -12,9 +12,9 @@ import {
 import {
   getModulePanelRecordView,
   isModulePanelPath,
-} from '../states/modulePanelState';
-import { CoreModulePanelSlot } from './CoreModulePanelSlot';
-import { PanelRecordContext } from '../contexts/PanelRecordContext';
+} from '@/side-panel/states/modulePanelState';
+import { CoreModulePanelSlot } from '@/side-panel/components/CoreModulePanelSlot';
+import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 
 const RecordEntry = ({
   active,

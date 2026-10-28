@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Spinner, Table } from 'erxes-ui';
 
-import { GET_DEPARTMENT_MEMBERS } from '../../graphql';
+import { GET_DEPARTMENT_MEMBERS } from '@/settings/structure/graphql';
 import { useState } from 'react';
 import { IUser, MembersInline } from 'ui-modules';
 

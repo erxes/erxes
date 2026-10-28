@@ -4,8 +4,8 @@ import { Button, Checkbox, Form, Input, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { IUom } from 'ui-modules';
-import { useUomsAdd } from '../../hooks/useUomsAdd';
-import { useUomsEdit } from '../../hooks/useUomsEdit';
+import { useUomsAdd } from '@/products/settings/hooks/useUomsAdd';
+import { useUomsEdit } from '@/products/settings/hooks/useUomsEdit';
 import { useTranslation } from 'react-i18next';
 
 const TIMELY_OPTIONS = [

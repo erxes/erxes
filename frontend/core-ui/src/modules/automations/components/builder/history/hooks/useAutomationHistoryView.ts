@@ -5,7 +5,7 @@ import {
 import { useQueryState } from 'erxes-ui';
 import { useSidePanel } from 'ui-modules';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
-import { AUTOMATION_HISTORY_PANEL } from '../historyPanel';
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
 import {
   AutomationHistorySplitDirection,
   AutomationHistoryViewMode,

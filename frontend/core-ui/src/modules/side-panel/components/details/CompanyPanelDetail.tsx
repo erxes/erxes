@@ -15,8 +15,8 @@ import {
   PanelFieldTrigger,
   PrintDocument,
 } from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
-import { ContactPanelRelations } from './ContactPanelRelations';
+import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
+import { ContactPanelRelations } from '@/side-panel/components/details/ContactPanelRelations';
 
 const SCOPE = 'side-panel-company';
 

@@ -13,10 +13,13 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { usePositionForm } from '../../hooks/usePositionForm';
-import { usePositionAdd } from '../../hooks/usePositionActions';
-import { PositionHotKeyScope, TPositionForm } from '../../types/position';
-import { PositionForm } from './PositionForm';
+import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
+import { usePositionAdd } from '@/settings/structure/hooks/usePositionActions';
+import {
+  PositionHotKeyScope,
+  TPositionForm,
+} from '@/settings/structure/types/position';
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreatePosition = () => {
