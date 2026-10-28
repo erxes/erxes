@@ -22,7 +22,7 @@ import {
 } from '../hooks/useIntegrations';
 import { useParams } from 'react-router-dom';
 import { useIntegrationEditField } from '@/integrations/hooks/useIntegrationEdit';
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { InboxHotkeyScope } from '@/inbox/types/InboxHotkeyScope';
 import clsx from 'clsx';
 import { IntegrationType } from '@/types/Integration';
@@ -32,6 +32,9 @@ import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveInteg
 import { IconMessagesOff, IconTrash } from '@tabler/icons-react';
 import { INTEGRATIONS } from '../constants/integrations';
 import { useTranslation } from 'react-i18next';
+import { useAtomValue } from 'jotai';
+import { IntegrationRecordRow } from '@/integrations/components/IntegrationRecordRow';
+import { removingIntegrationIdsAtom } from '@/integrations/states/integrationRemoveStates';
 
 const FacebookIntegrationBotCell = lazy(() =>
   import(
@@ -94,7 +97,7 @@ export const IntegrationsRecordTable = () => {
       <RecordTable.Body>
         <RecordTable.CursorBackwardSkeleton handleFetchMore={handleFetchMore} />
         {loading && <RecordTable.RowSkeleton rows={40} />}
-        <RecordTable.RowList />
+        <RecordTable.RowList Row={IntegrationRecordRow} />
         <RecordTable.CursorForwardSkeleton handleFetchMore={handleFetchMore} />
       </RecordTable.Body>
     </RecordTable>
@@ -228,6 +231,7 @@ const NameField = ({ cell }: { cell: CellContext<IIntegration, unknown> }) => {
     channelId: channelId ?? '',
     brandId,
   });
+  const isRemoving = useAtomValue(removingIntegrationIdsAtom).includes(_id);
   const handleSave = () => {
     editIntegrationField(
       {
@@ -238,6 +242,15 @@ const NameField = ({ cell }: { cell: CellContext<IIntegration, unknown> }) => {
       cell.row.original.name === name,
     );
   };
+  if (isRemoving) {
+    return (
+      <RecordTableInlineCell className="gap-2">
+        <Spinner size="sm" />
+        <span className="truncate">{name}</span>
+      </RecordTableInlineCell>
+    );
+  }
+
   if (cell.row.original.kind === IntegrationType.CALL) {
     return <RecordTableInlineCell>{name}</RecordTableInlineCell>;
   }
@@ -276,121 +289,125 @@ export const useIntegrationTypeColumns = (
   });
   const { integrationType } = useParams();
 
-  return [
-    integrationMoreColumn(withSelection),
-    ...(withSelection
-      ? [RecordTable.checkboxColumn as ColumnDef<IIntegration>]
-      : []),
-    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
-    integrationType === IntegrationType.FACEBOOK_POST
-      ? [
-          {
-            id: 'page',
-            header: () => <RecordTable.InlineHead label={t('page')} />,
-            cell: (cell: CellContext<IIntegration, unknown>) => (
-              <RecordTableInlineCell className="gap-2">
-                {(cell.row.original.facebookPage ?? []).map(
-                  (page) =>
-                    page && (
-                      <FacebookPageLink
-                        key={page.pageId}
-                        pageId={page.pageId}
-                        name={page.name}
-                      />
-                    ),
-                )}
-              </RecordTableInlineCell>
-            ),
-            size: 240,
-          } as ColumnDef<IIntegration>,
-        ]
-      : []),
-    {
-      id: 'name',
-      accessorKey: 'name',
-      header: () => <RecordTable.InlineHead label={t('name')} />,
-      cell: (cell: CellContext<IIntegration, unknown>) => (
-        <NameField cell={cell} />
-      ),
-      size: 300,
-    },
-    {
-      id: 'isActive',
-      accessorKey: 'isActive',
-      header: () => <RecordTable.InlineHead label={t('status')} />,
-      cell: (cell: CellContext<IIntegration, unknown>) => {
-        const status = cell.getValue() as boolean;
-        return (
-          <RecordTableInlineCell>
+  // A new `cell` function is a new component type: unstable columns remount cells.
+  return useMemo(
+    () => [
+      integrationMoreColumn(withSelection),
+      ...(withSelection
+        ? [RecordTable.checkboxColumn as ColumnDef<IIntegration>]
+        : []),
+      ...(integrationType === IntegrationType.FACEBOOK_MESSENGER ||
+      integrationType === IntegrationType.FACEBOOK_POST
+        ? [
+            {
+              id: 'page',
+              header: () => <RecordTable.InlineHead label={t('page')} />,
+              cell: (cell: CellContext<IIntegration, unknown>) => (
+                <RecordTableInlineCell className="gap-2">
+                  {(cell.row.original.facebookPage ?? []).map(
+                    (page) =>
+                      page && (
+                        <FacebookPageLink
+                          key={page.pageId}
+                          pageId={page.pageId}
+                          name={page.name}
+                        />
+                      ),
+                  )}
+                </RecordTableInlineCell>
+              ),
+              size: 240,
+            } as ColumnDef<IIntegration>,
+          ]
+        : []),
+      {
+        id: 'name',
+        accessorKey: 'name',
+        header: () => <RecordTable.InlineHead label={t('name')} />,
+        cell: (cell: CellContext<IIntegration, unknown>) => (
+          <NameField cell={cell} />
+        ),
+        size: 300,
+      },
+      {
+        id: 'isActive',
+        accessorKey: 'isActive',
+        header: () => <RecordTable.InlineHead label={t('status')} />,
+        cell: (cell: CellContext<IIntegration, unknown>) => {
+          const status = cell.getValue() as boolean;
+          return (
+            <RecordTableInlineCell>
+              <Badge
+                className="text-xs capitalize mx-auto"
+                variant={status ? 'success' : 'destructive'}
+              >
+                {status ? t('active', 'Active') : t('inactive', 'Inactive')}
+              </Badge>
+            </RecordTableInlineCell>
+          );
+        },
+        size: 100,
+      },
+      {
+        id: 'healthStatus',
+        accessorKey: 'healthStatus',
+        header: () => <RecordTable.InlineHead label={t('health-status')} />,
+        cell: (cell: CellContext<IIntegration, unknown>) => {
+          const { healthStatus } = cell.row.original;
+          const status = healthStatus?.status;
+          const error = healthStatus?.error;
+
+          if (!status) {
+            return <RecordTableInlineCell />;
+          }
+
+          const badge = (
             <Badge
               className="text-xs capitalize mx-auto"
-              variant={status ? 'success' : 'destructive'}
+              variant={status === 'healthy' ? 'success' : 'destructive'}
             >
-              {status ? t('active', 'Active') : t('inactive', 'Inactive')}
+              {status}
             </Badge>
-          </RecordTableInlineCell>
-        );
+          );
+
+          return (
+            <RecordTableInlineCell>
+              {error ? (
+                <Tooltip.Provider>
+                  <Tooltip delayDuration={0}>
+                    <Tooltip.Trigger asChild>
+                      <span className="mx-auto">{badge}</span>
+                    </Tooltip.Trigger>
+                    <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words">
+                      {error}
+                    </Tooltip.Content>
+                  </Tooltip>
+                </Tooltip.Provider>
+              ) : (
+                badge
+              )}
+            </RecordTableInlineCell>
+          );
+        },
+        size: 120,
       },
-      size: 100,
-    },
-    {
-      id: 'healthStatus',
-      accessorKey: 'healthStatus',
-      header: () => <RecordTable.InlineHead label={t('health-status')} />,
-      cell: (cell: CellContext<IIntegration, unknown>) => {
-        const { healthStatus } = cell.row.original;
-        const status = healthStatus?.status;
-        const error = healthStatus?.error;
-
-        if (!status) {
-          return <RecordTableInlineCell />;
-        }
-
-        const badge = (
-          <Badge
-            className="text-xs capitalize mx-auto"
-            variant={status === 'healthy' ? 'success' : 'destructive'}
-          >
-            {status}
-          </Badge>
-        );
-
-        return (
-          <RecordTableInlineCell>
-            {error ? (
-              <Tooltip.Provider>
-                <Tooltip delayDuration={0}>
-                  <Tooltip.Trigger asChild>
-                    <span className="mx-auto">{badge}</span>
-                  </Tooltip.Trigger>
-                  <Tooltip.Content className="max-w-80 whitespace-pre-wrap break-words">
-                    {error}
-                  </Tooltip.Content>
-                </Tooltip>
-              </Tooltip.Provider>
-            ) : (
-              badge
-            )}
-          </RecordTableInlineCell>
-        );
-      },
-      size: 120,
-    },
-    ...(integrationType === IntegrationType.FACEBOOK_MESSENGER
-      ? [
-          {
-            id: 'bot',
-            header: () => <RecordTable.InlineHead label={t('bot')} />,
-            cell: (cell: CellContext<IIntegration, unknown>) => (
-              <Suspense fallback={<RecordTableInlineCell />}>
-                <FacebookIntegrationBotCell
-                  integrationId={cell.row.original._id}
-                />
-              </Suspense>
-            ),
-            size: 220,
-          } as ColumnDef<IIntegration>,
-        ]
-      : []),
-  ];
+      ...(integrationType === IntegrationType.FACEBOOK_MESSENGER
+        ? [
+            {
+              id: 'bot',
+              header: () => <RecordTable.InlineHead label={t('bot')} />,
+              cell: (cell: CellContext<IIntegration, unknown>) => (
+                <Suspense fallback={<RecordTableInlineCell />}>
+                  <FacebookIntegrationBotCell
+                    integrationId={cell.row.original._id}
+                  />
+                </Suspense>
+              ),
+              size: 220,
+            } as ColumnDef<IIntegration>,
+          ]
+        : []),
+    ],
+    [integrationType, t, withSelection],
+  );
 };

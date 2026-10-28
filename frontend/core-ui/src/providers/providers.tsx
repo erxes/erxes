@@ -52,7 +52,9 @@ export const Providers = () => {
               RecordPickerWidget={RecordPickerWidgetsComponent}
               recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
             >
-              <Suspense fallback={<Spinner withMascot />}>
+              <Suspense
+                fallback={<Spinner withMascot containerClassName="h-svh" />}
+              >
                 <Outlet />
               </Suspense>
             </SafeRecordPickerWidgetProvider>

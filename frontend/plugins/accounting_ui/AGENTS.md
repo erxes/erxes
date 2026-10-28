@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -210,6 +210,7 @@
 - New and editable execution forms offer draft-save and save-with-transactions actions through explicit button clicks only; field changes, blur, Enter and incidental form submits must not persist anything. A posted draft-save confirms, saves current actuals, then undoes its journals; undo persists the resulting draft status. Save-with-transactions updates an already posted execution without posting twice, or posts a saved draft using its returned id. Both paths refresh the list. Once a save has persisted, a later failure closes to the refreshed list rather than allowing a stale-state retry. List post actions are hidden when posted or already linked to a parent.
 
 - Execution job-id filtering uses the searchable shared job command content, not an id text input. The filter offers active and inactive master jobs, stores only `jobId` in the URL, and resolves the selected code/name for its chip; creation still offers active jobs only. Saved job-name text filtering remains separate.
+- Execution job selectors follow the product selector's shared `Command`/`Combobox` structure: secondary search, 300px scrollable list, `Combobox.Value` with a muted monospace code badge and a truncating name, and `Combobox.Check`. Selected trigger captions also use `Combobox.Value`; full option captions remain available in `title`. Long job names must not wrap into neighboring fixed-height options or displace the selection check.
 
 - Execution list filters are URL-owned through `useJobExecutionFilters`: search/status, exact job id, saved job name, input/output product, labor/overhead name, and each side's account/branch/department. The same variables drive initial queries and fetch-more; use localized shared filter dialogs/selectors rather than standalone filter inputs. Account filter choices use readable inventory accounts.
 
@@ -246,7 +247,7 @@
   sidebar. The plugin owns its settings at `/accounting/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `AccountingSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends

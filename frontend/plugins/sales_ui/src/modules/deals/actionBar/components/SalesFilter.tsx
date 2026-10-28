@@ -21,6 +21,7 @@ import {
   SelectMember,
   SelectProduct,
   SelectStage,
+  SelectTags,
 } from 'ui-modules';
 
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
@@ -169,6 +170,7 @@ const SalesFilterBar = ({
     userIds,
     priority,
     labelIds,
+    tagIds,
     productId,
   } = queries || {};
 
@@ -271,6 +273,14 @@ const SalesFilterBar = ({
       {labelIds && (
         <SelectLabels.FilterBar filterKey="labelIds" mode="multiple" />
       )}
+      {tagIds && (
+        <SelectTags.FilterBar
+          mode="multiple"
+          filterKey="tagIds"
+          tagType="sales:deal"
+          label={t('by-tag', 'By Tag')}
+        />
+      )}
       {productId && (
         <SelectProduct.FilterBar
           filterKey="productId"
@@ -344,6 +354,10 @@ const SalesFilterView = ({
               value="labelIds"
               label={t('by-label', 'By Label')}
             />
+            <SelectTags.FilterItem
+              value="tagIds"
+              label={t('by-tag', 'By Tag')}
+            />
             {view === 'list' && (
               <Filter.Item value="stageId">
                 <IconStack2 />
@@ -379,6 +393,11 @@ const SalesFilterView = ({
       <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
+      <SelectTags.FilterView
+        mode="multiple"
+        filterKey="tagIds"
+        tagType="sales:deal"
+      />
       {view === 'list' && (
         <SelectStage.FilterView
           queryKey="stageId"

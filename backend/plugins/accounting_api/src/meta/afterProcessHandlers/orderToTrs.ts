@@ -32,7 +32,6 @@ export const orderToTrs = async ({
   allowRealJobProduction?: boolean;
   order: any;
   config: {
-    dateRule: 'alwaysNow' | 'syncedDateOrNow';
     saleAccountId: string;
     saleOutAccountId: string;
     saleCostAccountId: string;
@@ -51,11 +50,17 @@ export const orderToTrs = async ({
   };
 }) => {
   const activeProductsData = order.items;
+  if (!order.paidDate) {
+    throw new Error('POS order paidDate is required for accounting sync.');
+  }
   if (!activeProductsData?.length) {
-    return;
+    throw new Error('POS order has no items to sync to accounting.');
   }
 
-  let date = new Date();
+  const date = new Date(order.paidDate);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('POS order paidDate is invalid.');
+  }
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -69,9 +74,6 @@ export const orderToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    if (config.dateRule === 'syncedDateOrNow') {
-      date = oldTrs[0].date;
-    }
     const oldSaleTr = oldTrs[0];
     mainId = oldSaleTr?._id || mainId;
     ptrId = oldSaleTr?.ptrId || ptrId;

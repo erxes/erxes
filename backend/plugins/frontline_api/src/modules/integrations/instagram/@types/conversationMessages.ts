@@ -14,6 +14,7 @@ export type IInstagramMessageReplyTo = Pick<IMessageReplyTo, 'messageId'>;
 
 export interface IInstagramConversationMessage {
   mid: string;
+  inboxSyncPending?: boolean;
   conversationId: string;
   content: string;
   // from inbox

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -99,6 +99,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
+- The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
@@ -272,7 +273,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   sidebar. The plugin owns its settings at `/sales/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `SalesSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends

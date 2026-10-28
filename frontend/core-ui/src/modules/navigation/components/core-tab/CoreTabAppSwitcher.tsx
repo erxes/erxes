@@ -66,7 +66,6 @@ const CoreTabAppSwitcherItem = ({
     >
       <Icon className="size-4 shrink-0" />
       <span className="flex-1 truncate text-left">{activity.label}</span>
-      {/* Hover hint that the item can be dragged to reorder. */}
       <IconGripVertical
         aria-hidden
         className={cn(
@@ -78,7 +77,6 @@ const CoreTabAppSwitcherItem = ({
   );
 };
 
-/** One section of the switcher; its items can be dragged to reorder them. */
 const CoreTabAppSwitcherGroup = ({
   activeActivityId,
   activities,
@@ -146,10 +144,6 @@ const CoreTabAppSwitcherGroup = ({
   );
 };
 
-/**
- * Lists the user's favorites, then every plugin and core module; the tab row
- * only fits so many. Apps are dragged within their group to set their order.
- */
 export const CoreTabAppSwitcher = ({
   activeActivityId,
   activities,
@@ -174,7 +168,6 @@ export const CoreTabAppSwitcher = ({
     order,
   );
 
-  // Stores both groups' full order, so ids not yet ordered get a fixed place.
   const moveActivity = (fromId: string, toId: string) =>
     setOrder(
       moveAppTab(
@@ -210,7 +203,10 @@ export const CoreTabAppSwitcher = ({
         side="bottom"
         sideOffset={8}
       >
-        <ScrollArea className="min-h-0 flex-auto">
+        <ScrollArea
+          className="min-h-0 flex-auto"
+          viewportClassName="[&>div]:block! [&>div]:min-w-0"
+        >
           <CoreTabFavoritesSection onNavigate={() => setOpen(false)} />
           <CoreTabAppSwitcherGroup
             activeActivityId={activeActivityId}

@@ -14,6 +14,7 @@ export const UPDATE_TRIAGE_MUTATION = gql(`
       priority
       customerId
       companyId
+      tagIds
     }
   }
 `);
