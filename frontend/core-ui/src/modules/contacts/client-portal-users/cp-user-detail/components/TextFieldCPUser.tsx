@@ -1,5 +1,6 @@
 import { TextField } from 'erxes-ui';
 import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
+import { usePermissionCheck } from 'ui-modules';
 
 type EditableField =
   | 'email'
@@ -24,6 +25,7 @@ export function TextFieldCPUser({
   placeholder,
 }: TextFieldCPUserProps) {
   const { cpUserEdit } = useCPUserEdit();
+  const { hasActionPermission } = usePermissionCheck();
 
   const onSave = (newValue: string) => {
     cpUserEdit({
@@ -31,5 +33,9 @@ export function TextFieldCPUser({
     });
   };
 
-  return <TextField value={value} placeholder={placeholder} onSave={onSave} />;
+  return hasActionPermission('clientPortalManage') ? (
+    <TextField value={value} placeholder={placeholder} onSave={onSave} />
+  ) : (
+    <span>{value || '-'}</span>
+  );
 }

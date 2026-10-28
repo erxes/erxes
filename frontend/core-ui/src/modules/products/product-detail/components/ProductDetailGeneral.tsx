@@ -7,7 +7,6 @@ import {
   Label,
   NumberInput,
   Select,
-  useQueryState,
 } from 'erxes-ui';
 import {
   SelectCategory,
@@ -17,22 +16,24 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
-import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/productTypes';
 import { useProductLastCodeByCategory } from 'ui-modules/modules/products/hooks/useProducts';
 import { SuggestedProductCodeInput } from 'ui-modules/modules/products/components/SuggestedProductCodeInput';
-import { useProductDetail } from '../hooks/useProductDetail';
+import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
 
-export const ProductDetailGeneral = () => {
+export const ProductDetailGeneral = ({
+  compact = false,
+}: {
+  compact?: boolean;
+}) => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const form = useFormContext<ProductFormValues>();
-  const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const productType = form.watch('type');
   const categoryId = form.watch('categoryId');
   const code = form.watch('code');
-  const { productDetail } = useProductDetail();
+  const { productDetail, productId } = useProductDetail();
   const { suggestedCode } = useProductLastCodeByCategory(
     code?.trim() ? undefined : categoryId,
   );
@@ -40,7 +41,7 @@ export const ProductDetailGeneral = () => {
   return (
     <InfoCard title={t('product-information')}>
       <InfoCard.Content>
-        <div className="grid grid-cols-2 gap-4">
+        <div className={compact ? 'grid gap-3' : 'grid grid-cols-2 gap-4'}>
           <Form.Field
             control={form.control}
             name="categoryId"

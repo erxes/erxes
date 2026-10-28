@@ -5,7 +5,6 @@ import {
   Button,
   readImage,
   useConfirm,
-  useQueryState,
   useToast,
 } from 'erxes-ui';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
@@ -15,6 +14,7 @@ import { ApolloError, useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { CPUserSetPasswordDialog } from '@/contacts/client-portal-users/cp-user-detail/components/CPUserSetPasswordDialog';
+import { Can, useSidePanel } from 'ui-modules';
 
 function displayName(
   user: {
@@ -33,7 +33,8 @@ function displayName(
 
 export function CPUserDetailGeneral() {
   const { cpUser } = useClientPortalUser();
-  const [cpUserId, setCpUserId] = useQueryState<string>('cpUserId');
+  const cpUserId = cpUser?._id;
+  const { back, canGoBack, close } = useSidePanel();
   const [setPasswordOpen, setSetPasswordOpen] = useState(false);
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -68,7 +69,8 @@ export function CPUserDetailGeneral() {
           });
         },
         onCompleted: () => {
-          setCpUserId(null);
+          if (canGoBack) back();
+          else close();
           toast({
             title: t('success', { defaultValue: 'Success' }),
             variant: 'success',
@@ -101,8 +103,8 @@ export function CPUserDetailGeneral() {
 
   return (
     <>
-      <div className="py-5 px-8 flex flex-col gap-6">
-        <div className="flex gap-2 items-center flex-col lg:flex-row">
+      <div className="p-3 flex flex-col gap-3">
+        <div className="flex flex-wrap gap-2 items-center">
           <Avatar size="lg" className="h-12 w-12">
             <Avatar.Image src={readImage(avatar)} />
             <Avatar.Fallback>
@@ -147,28 +149,30 @@ export function CPUserDetailGeneral() {
               </Badge>
             </div>
           </div>
-          <div className="flex gap-2 shrink-0">
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setSetPasswordOpen(true)}
-            >
-              <IconKey className="w-4 h-4" />
-              {t('clientPortalUser.set-password', {
-                defaultValue: 'Set password',
-              })}
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="text-destructive"
-              onClick={handleDelete}
-              disabled={removeLoading}
-            >
-              <IconTrash className="w-4 h-4" />
-              {t('delete', { defaultValue: 'Delete' })}
-            </Button>
-          </div>
+          <Can action="clientPortalManage">
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setSetPasswordOpen(true)}
+              >
+                <IconKey className="w-4 h-4" />
+                {t('clientPortalUser.set-password', {
+                  defaultValue: 'Set password',
+                })}
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="text-destructive"
+                onClick={handleDelete}
+                disabled={removeLoading}
+              >
+                <IconTrash className="w-4 h-4" />
+                {t('delete', { defaultValue: 'Delete' })}
+              </Button>
+            </div>
+          </Can>
         </div>
       </div>
       <CPUserSetPasswordDialog

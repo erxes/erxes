@@ -1,14 +1,14 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BundleRuleForm } from './BundleRuleForm';
+import { BundleRuleForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 
@@ -43,21 +43,23 @@ export const BundleRuleSheet = () => {
   );
 
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="bundleRulesManage"
+      name={'products/settings/productsConfig/bundleRule/BundleRuleSheet'}
       onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="bundleRulesManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
             {t('add-bundle-rule')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -72,7 +74,7 @@ export const BundleRuleSheet = () => {
             }
           }}
         />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

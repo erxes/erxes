@@ -1,13 +1,9 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { CellContext } from '@tanstack/react-table';
-import {
-  Badge,
-  RecordTableInlineCell,
-  Sheet,
-  TextOverflowTooltip,
-} from 'erxes-ui';
+import { Badge, RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
 import { useState, type FC } from 'react';
-import { BundleRuleForm } from './BundleRuleForm';
-import { IBundleRule } from './types';
+import { BundleRuleForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleForm';
+import { IBundleRule } from '@/products/settings/components/productsConfig/bundleRule/types';
 import { Can } from 'ui-modules';
 
 export const BundleRuleNameColumnCell: FC<CellContext<IBundleRule, unknown>> = (
@@ -18,21 +14,27 @@ export const BundleRuleNameColumnCell: FC<CellContext<IBundleRule, unknown>> = (
 
   return (
     <RecordTableInlineCell>
-      <Sheet open={open} onOpenChange={setOpen} modal>
+      <CoreModulePanel
+        requiredPermission="bundleRulesManage"
+        name={`products/settings/productsConfig/bundleRule/BundleRuleNameColumn/${bundleRule._id}`}
+        open={open}
+        onOpenChange={setOpen}
+        modal
+      >
         <Can action="bundleRulesManage">
-          <Sheet.Trigger asChild>
+          <CoreModulePanel.Trigger asChild>
             <Badge variant="secondary" className="cursor-pointer">
               <TextOverflowTooltip value={props.getValue() as string} />
             </Badge>
-          </Sheet.Trigger>
+          </CoreModulePanel.Trigger>
         </Can>
-        <Sheet.View className="p-0 sm:max-w-lg">
+        <CoreModulePanel.View className="p-0 sm:max-w-lg">
           <BundleRuleForm
             bundleRule={bundleRule}
             onOpenChange={(isOpen) => setOpen(isOpen)}
           />
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </RecordTableInlineCell>
   );
 };

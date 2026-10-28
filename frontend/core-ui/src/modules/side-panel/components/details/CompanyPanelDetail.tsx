@@ -15,7 +15,8 @@ import {
   PanelFieldTrigger,
   PrintDocument,
 } from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
+import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
+import { ContactPanelRelations } from '@/side-panel/components/details/ContactPanelRelations';
 
 const SCOPE = 'side-panel-company';
 
@@ -146,6 +147,10 @@ const CompanyFields = () => {
           placeholder={t('code', 'Code')}
         />
       </PanelField>
+      <ContactPanelRelations
+        contentType="core:company"
+        contentId={company._id}
+      />
       <PanelField label={t('website', 'Website')}>
         <CompanyTextField
           company={company}
