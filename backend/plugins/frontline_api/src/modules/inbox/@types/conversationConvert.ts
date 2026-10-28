@@ -12,7 +12,8 @@ export interface IConversationConvert {
   assignedUserIds?: string[];
   labelIds?: string[];
   tagIds?: string[];
-  entityIds?: string[];
+  branchIds?: string[];
+  departmentIds?: string[];
   startDate?: Date;
   closeDate?: Date;
   attachments?: IAttachment[];

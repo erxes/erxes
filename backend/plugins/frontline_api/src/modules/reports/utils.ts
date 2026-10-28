@@ -410,8 +410,8 @@ export function buildTicketMatch(filters: IReportFilters) {
     }
   }
 
-  if (filters.entityIds?.length) {
-    match.entityIds = { $in: filters.entityIds };
+  if (filters.branchIds?.length) {
+    match.branchId = { $in: filters.branchIds };
   }
 
   for (const propertyFilter of filters.propertyValueFilters || []) {
@@ -611,7 +611,7 @@ const REPORT_CHART_FILTER_KEYS = [
   'tagIds',
   'customerIds',
   'companyIds',
-  'entityIds',
+  'branchIds',
   'pageIds',
   'searchValue',
   'propertyIds',

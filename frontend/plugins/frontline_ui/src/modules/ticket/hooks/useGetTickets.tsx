@@ -49,7 +49,8 @@ export const useTicketsVariables = (
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
-    entityIds,
+    branchIds,
+    departmentIds,
     propertiesData,
   } = useNonNullMultiQueryState<{
     searchValue: string;
@@ -64,7 +65,8 @@ export const useTicketsVariables = (
     startDateStartDate: string;
     targetDateStartDate: string;
     statusChangedStartDate: string;
-    entityIds: string[];
+    branchIds: string[];
+    departmentIds: string[];
     propertiesData: string;
   }>([
     'searchValue',
@@ -79,7 +81,8 @@ export const useTicketsVariables = (
     'startDateStartDate',
     'targetDateStartDate',
     'statusChangedStartDate',
-    'entityIds',
+    'branchIds',
+    'departmentIds',
     'propertiesData',
   ]);
 
@@ -110,7 +113,8 @@ export const useTicketsVariables = (
     statusChangedStartDate: parseDateRangeFromString(statusChangedStartDate)
       ?.from,
     statusChangedEndDate: parseDateRangeFromString(statusChangedStartDate)?.to,
-    entityIds: entityIds || undefined,
+    branchIds: branchIds || undefined,
+    departmentIds: departmentIds || undefined,
     propertiesData: propertiesData || undefined,
     ...variables,
   };

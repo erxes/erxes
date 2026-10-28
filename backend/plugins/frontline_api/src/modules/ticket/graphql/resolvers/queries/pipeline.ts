@@ -5,10 +5,6 @@ import {
 } from '@/ticket/@types/pipeline';
 import { FilterQuery } from 'mongoose';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
-import {
-  getPrincipalEntityIds,
-  usablePipelinesFilter,
-} from '@/ticket/utils/ticketVisibility';
 
 export const pipelineQueries = {
   getTicketPipeline: async (
@@ -26,7 +22,7 @@ export const pipelineQueries = {
     {
       filter = {} as TicketsPipelineFilter,
     }: { filter?: TicketsPipelineFilter },
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
     const filterQuery: FilterQuery<ITicketPipelineDocument> = {};
 
@@ -47,13 +43,11 @@ export const pipelineQueries = {
     }
 
     if (filter.applyVisibilityFilter) {
-      Object.assign(
-        filterQuery,
-        usablePipelinesFilter(
-          user._id,
-          await getPrincipalEntityIds(subdomain, user._id),
-        ),
-      );
+      filterQuery.$or = [
+        { visibility: { $ne: 'private' } },
+        { userId: user._id },
+        { memberIds: user._id },
+      ];
     }
 
     return await cursorPaginate<ITicketPipelineDocument>({

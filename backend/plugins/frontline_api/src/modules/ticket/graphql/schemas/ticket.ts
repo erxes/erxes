@@ -22,7 +22,8 @@ export const types = `
     pipelineId: String
     statusId: String
     priority: Int
-    entityIds: [String]
+    branchId: String
+    departmentId: String
     labelIds: [String]
     tagIds: [String]
     assigneeId: String
@@ -72,7 +73,8 @@ export const types = `
     targetDateEndDate: Date
     statusChangedStartDate: Date
     statusChangedEndDate: Date
-    entityIds: [String]
+    branchIds: [String]
+    departmentIds: [String]
     propertiesData: String
     statusId: String
     priority: Int
@@ -128,7 +130,8 @@ const createTicketParams = `
   statusId: String!
   stageId: String
   priority: Int
-  entityIds: [String]
+  branchId: String
+  departmentId: String
   labelIds: [String]
   tagIds: [String]
   startDate: Date
@@ -151,7 +154,8 @@ const updateTicketParams = `
   pipelineId: String
   statusId: String
   priority: Int
-  entityIds: [String]
+  branchId: String
+  departmentId: String
   labelIds: [String]
   tagIds: [String]
   assigneeId: String

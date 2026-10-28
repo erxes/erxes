@@ -6,15 +6,16 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
 import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
-  IPipelineAccess,
   IVisibilityPipeline,
   buildVisibilityCondition,
   canSeeAllPipelineTickets,
-  canUsePipeline,
-  getPrincipalEntityIds,
-  getVisibleEntityIds,
+  getSupervisedDepartmentIds,
   isPipelineRestricted,
 } from '@/ticket/utils/ticketVisibility';
+
+const isPipelineHidden = (pipeline: any, userId?: string) =>
+  pipeline.visibility === 'private' &&
+  !(!!userId && (pipeline.memberIds || []).includes(userId));
 
 export const generateFilter = async (
   filter: any,
@@ -42,36 +43,28 @@ export const generateFilter = async (
 
   const userId = user?._id;
 
-  let visibleEntityIds: string[] | undefined;
-  let principalEntityIds: string[] | undefined;
-
-  const isPipelineHidden = async (pipeline: IPipelineAccess) => {
-    if (canUsePipeline(pipeline, userId, [])) {
-      return false;
-    }
-
-    if (!userId) {
-      return true;
-    }
-
-    principalEntityIds ??= await getPrincipalEntityIds(subdomain, userId);
-
-    return !canUsePipeline(pipeline, userId, principalEntityIds);
-  };
+  let supervisedDepartmentIds: string[] | undefined;
 
   const visibilityFor = async (pipeline: IVisibilityPipeline) => {
     if (
       subdomain &&
       user &&
-      visibleEntityIds === undefined &&
-      pipeline.isCheckEntity &&
+      supervisedDepartmentIds === undefined &&
+      pipeline.isCheckDepartment &&
       isPipelineRestricted(pipeline) &&
       !canSeeAllPipelineTickets(pipeline, user)
     ) {
-      visibleEntityIds = await getVisibleEntityIds(subdomain, user._id);
+      supervisedDepartmentIds = await getSupervisedDepartmentIds(
+        subdomain,
+        user._id,
+      );
     }
 
-    return buildVisibilityCondition(pipeline, user, visibleEntityIds || []);
+    return buildVisibilityCondition(
+      pipeline,
+      user,
+      supervisedDepartmentIds || [],
+    );
   };
 
   if (filter.pipelineId && !skipPipelineVisibility) {
@@ -83,7 +76,7 @@ export const generateFilter = async (
       throw new Error('Pipeline not found');
     }
 
-    if (await isPipelineHidden(pipeline)) {
+    if (isPipelineHidden(pipeline, userId)) {
       throw new Error(
         'Access denied: You do not have access to this private pipeline',
       );
@@ -104,7 +97,7 @@ export const generateFilter = async (
     const restrictedConditions: FilterQuery<ITicketDocument>[] = [];
 
     for (const pipeline of pipelines) {
-      if (await isPipelineHidden(pipeline)) {
+      if (isPipelineHidden(pipeline, userId)) {
         hiddenPipelineIds.push(pipeline._id);
         continue;
       }
@@ -218,8 +211,12 @@ export const generateFilter = async (
         : filter.assigneeId;
   }
 
-  if (filter.entityIds?.length) {
-    filterQuery.entityIds = { $in: filter.entityIds };
+  if (filter.branchIds?.length) {
+    filterQuery.branchId = { $in: filter.branchIds };
+  }
+
+  if (filter.departmentIds?.length) {
+    filterQuery.departmentId = { $in: filter.departmentIds };
   }
 
   if (filter.propertiesData) {

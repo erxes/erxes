@@ -2,7 +2,11 @@ import { Form, Switch } from 'erxes-ui';
 import { ControllerRenderProps } from 'react-hook-form';
 import { PermissionState } from '@/pipelines/types';
 
-type PermissionRuleName = 'dayAfterCreated' | 'structureOnly' | 'myTicketsOnly';
+type PermissionRuleName =
+  | 'dayAfterCreated'
+  | 'branchOnly'
+  | 'myTicketsOnly'
+  | 'departmentOnly';
 
 interface PermissionRuleProps {
   field: ControllerRenderProps<PermissionState, PermissionRuleName>;

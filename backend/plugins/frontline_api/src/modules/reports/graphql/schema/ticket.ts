@@ -35,7 +35,7 @@ export const types = `
     companyIds: [String]
     customerIds: [String]
     frequency: String
-    entityIds: [String]
+    branchIds: [String]
     pageIds: [String]
     searchValue: String
     propertyIds: [String]
@@ -122,7 +122,8 @@ export const types = `
     statusName: String
     createdByName: String
     channelName: String
-    entityNames: String
+    branchName: String
+    departmentName: String
     propertiesData: JSON
   }
 `;

@@ -30,7 +30,8 @@ const TYPE_LABEL = new Map(
 const SYSTEM_KIND: Record<string, string> = {
   priority: 'Select',
   assigneeId: 'Member',
-  entityIds: 'Structure',
+  branchId: 'Branch',
+  departmentId: 'Department',
   startDate: 'Date',
   targetDate: 'Date',
   tagIds: 'Tags',

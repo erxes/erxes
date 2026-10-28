@@ -8,7 +8,8 @@ const MAX_ITEMS_PER_ROW = 4;
 export const TICKET_CREATE_LAYOUT_SYSTEM_CODES = [
   'priority',
   'assigneeId',
-  'entityIds',
+  'branchId',
+  'departmentId',
   'startDate',
   'targetDate',
   'tagIds',

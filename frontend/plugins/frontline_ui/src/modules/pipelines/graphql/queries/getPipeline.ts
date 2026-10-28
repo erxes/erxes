@@ -14,14 +14,16 @@ export const GET_PIPELINE = gql(`
       state
       isCheckDate
       isCheckUser
-      isCheckEntity
+      isCheckDepartment
+      isCheckBranch
       isHideName
       excludeCheckUserIds
       numberConfig
       numberSize
       nameConfig
       lastNum
-      sharedEntityIds
+      departmentIds
+      branchIds
       tagId
       createdUser {
         _id

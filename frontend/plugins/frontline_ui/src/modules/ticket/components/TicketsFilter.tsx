@@ -26,14 +26,12 @@ import { fetchedTicketsState } from '@/ticket/states/fetchedTicketState';
 import {
   PropertiesFilter,
   SegmentsFilter,
-  SelectStructureEntities,
+  SelectBranches,
+  SelectDepartments,
 } from 'ui-modules';
 
 const TicketsFilterPopover = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const { t: tStructure } = useTranslation('common', {
-    keyPrefix: 'structure-entities',
-  });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -46,7 +44,8 @@ const TicketsFilterPopover = () => {
     startDateStartDate: string;
     targetDateStartDate: string;
     statusChangedStartDate: string;
-    entityIds: string[];
+    branchIds: string[];
+    departmentIds: string[];
     propertiesData: string;
   }>([
     'searchValue',
@@ -60,7 +59,8 @@ const TicketsFilterPopover = () => {
     'startDateStartDate',
     'targetDateStartDate',
     'statusChangedStartDate',
-    'entityIds',
+    'branchIds',
+    'departmentIds',
     'propertiesData',
   ]);
   const hasFilters = Object.values(queries || {}).some(
@@ -83,7 +83,8 @@ const TicketsFilterPopover = () => {
     propertiesData,
   } = queries || {};
   const segments = JSON.stringify(queries?.segments);
-  const entityIds = JSON.stringify(queries?.entityIds);
+  const branchIds = JSON.stringify(queries?.branchIds);
+  const departmentIds = JSON.stringify(queries?.departmentIds);
 
   useEffect(() => {
     setFetchedTickets([]);
@@ -99,7 +100,8 @@ const TicketsFilterPopover = () => {
     startDateStartDate,
     targetDateStartDate,
     statusChangedStartDate,
-    entityIds,
+    branchIds,
+    departmentIds,
     propertiesData,
     setFetchedTickets,
   ]);
@@ -140,9 +142,13 @@ const TicketsFilterPopover = () => {
                     {t('status-label', 'Status')}
                   </Filter.Item>
                 )}
-                <SelectStructureEntities.FilterItem
-                  value="entityIds"
-                  label={tStructure('structure')}
+                <SelectBranches.FilterItem
+                  value="branchIds"
+                  label={t('branch-label', 'Branch')}
+                />
+                <SelectDepartments.FilterItem
+                  value="departmentIds"
+                  label={t('department-label', 'Department')}
                 />
                 <PropertiesFilter />
                 <Command.Separator className="my-1" />
@@ -168,9 +174,10 @@ const TicketsFilterPopover = () => {
           <SelectAssigneeTicket.FilterView />
           <SelectPriorityTicket.FilterView />
           <SelectStateTicket.FilterView />
-          <SelectStructureEntities.FilterView
+          <SelectBranches.FilterView mode="multiple" filterKey="branchIds" />
+          <SelectDepartments.FilterView
             mode="multiple"
-            filterKey="entityIds"
+            filterKey="departmentIds"
           />
           <PropertiesFilter.View contentType="frontline:ticket" />
           <SegmentsFilter.View contentType="frontline:tickets.tickets" />
@@ -240,9 +247,6 @@ const TicketsFilterPopover = () => {
 
 export const TicketsFilter = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const { t: tStructure } = useTranslation('common', {
-    keyPrefix: 'structure-entities',
-  });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -351,10 +355,15 @@ export const TicketsFilter = () => {
           </Filter.BarName>
           <SelectAssigneeTicket.FilterBar />
         </Filter.BarItem>
-        <SelectStructureEntities.FilterBar
+        <SelectBranches.FilterBar
           mode="multiple"
-          filterKey="entityIds"
-          label={tStructure('structure')}
+          filterKey="branchIds"
+          label={t('branch-label', 'Branch')}
+        />
+        <SelectDepartments.FilterBar
+          mode="multiple"
+          filterKey="departmentIds"
+          label={t('department-label', 'Department')}
         />
         <PropertiesFilter.Bar contentType="frontline:ticket" />
       </Filter.Bar>

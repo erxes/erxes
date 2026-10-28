@@ -94,8 +94,14 @@ export const properties: IPropertyMeta = {
           visibleToCreateByDefault: true,
         },
         {
-          code: 'entityIds',
-          name: 'Structure',
+          code: 'branchId',
+          name: 'Branch',
+          type: 'relation',
+          visibleToCreateByDefault: true,
+        },
+        {
+          code: 'departmentId',
+          name: 'Department',
           type: 'relation',
           visibleToCreateByDefault: true,
         },

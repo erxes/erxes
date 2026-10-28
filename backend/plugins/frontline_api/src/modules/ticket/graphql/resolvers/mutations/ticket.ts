@@ -9,7 +9,7 @@ export const ticketMutations = {
     params: ITicketUpdate,
     { models, user, subdomain }: IContext,
   ) => {
-    const permissionValidator = createPermissionValidator(models, subdomain);
+    const permissionValidator = createPermissionValidator(models);
 
     const pipelineId =
       params.pipelineId ||
@@ -71,9 +71,9 @@ export const ticketMutations = {
   removeTicket: async (
     _parent: undefined,
     { _id }: { _id: string[] },
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) => {
-    const permissionValidator = createPermissionValidator(models, subdomain);
+    const permissionValidator = createPermissionValidator(models);
 
     const tickets = await models.Ticket.find({
       _id: { $in: _id },

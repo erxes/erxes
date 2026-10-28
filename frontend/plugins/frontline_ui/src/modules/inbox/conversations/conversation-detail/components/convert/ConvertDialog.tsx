@@ -14,7 +14,7 @@ import {
 import { useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { SelectMember, SelectStructureEntities } from 'ui-modules';
+import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { useConversationContext } from '@/inbox/conversations/hooks/useConversationContext';
 import { useConversationConvertToCard } from '@/inbox/conversations/hooks/useConversationConvertToCard';
 import { useConvertSystemFields } from '@/inbox/conversations/hooks/useConvertSystemFields';
@@ -47,9 +47,6 @@ const ConvertForm = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
-  const { t: tStructure } = useTranslation('common', {
-    keyPrefix: 'structure-entities',
-  });
   const { _id, assignedUserId, assignedUserIds, integration } =
     useConversationContext();
   const { convertToCard, loading } = useConversationConvertToCard();
@@ -79,7 +76,8 @@ const ConvertForm = ({
       name: '',
       assignedUserIds:
         assignedUserIds ?? (assignedUserId ? [assignedUserId] : []),
-      entityIds: [],
+      branchIds: [],
+      departmentIds: [],
       attachments: [],
       description: '',
       tagIds: [],
@@ -119,7 +117,8 @@ const ConvertForm = ({
 
     const details = supportsDetails
       ? {
-          entityIds: data.entityIds,
+          branchIds: data.branchIds,
+          departmentIds: data.departmentIds,
           attachments: data.attachments,
         }
       : {};
@@ -210,16 +209,28 @@ const ConvertForm = ({
             />
             {supportsDetails && (
               <>
-                <ConvertIdsField
-                  form={form}
-                  name="entityIds"
-                  label={tStructure('structure')}
-                  multiple
-                >
-                  {(selectProps) => (
-                    <SelectStructureEntities.FormItem {...selectProps} />
-                  )}
-                </ConvertIdsField>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <ConvertIdsField
+                    form={form}
+                    name="branchIds"
+                    label={t('branch-label', 'Branch')}
+                    multiple={multipleSelect}
+                  >
+                    {(selectProps) => (
+                      <SelectBranches.FormItem {...selectProps} />
+                    )}
+                  </ConvertIdsField>
+                  <ConvertIdsField
+                    form={form}
+                    name="departmentIds"
+                    label={t('department-label', 'Department')}
+                    multiple={multipleSelect}
+                  >
+                    {(selectProps) => (
+                      <SelectDepartments.FormItem {...selectProps} />
+                    )}
+                  </ConvertIdsField>
+                </div>
                 <Form.Field
                   name="attachments"
                   control={form.control}

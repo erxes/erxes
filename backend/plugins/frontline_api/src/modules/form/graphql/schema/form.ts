@@ -39,7 +39,7 @@ export const types = `
     leadData: JSON
     callout: Callout
     languageCode: String
-    sharedEntityIds: [String]
+    departmentIds: [String]
     tagIds: [String]
     tags: [Tag]
     channelId: String
@@ -144,7 +144,7 @@ const commonFields = `
   visibility: String
   leadData: JSON
   languageCode: String
-  sharedEntityIds: [String]
+  departmentIds: [String]
   tagIds: [String]
   integrationId: String
 `;

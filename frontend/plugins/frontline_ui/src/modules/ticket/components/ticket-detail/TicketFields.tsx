@@ -3,12 +3,13 @@ import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useGetTicketStatusById } from '@/status/hooks/useGetTicketStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { SelectStructureTicket } from '@/ticket/components/ticket-selects/SelectStructureTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import { useTicketPermissions } from '@/ticket/hooks/useTicketPermissions';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
@@ -47,9 +48,6 @@ const LockedField = ({
 
 export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const { t: tStructure } = useTranslation('common', {
-    keyPrefix: 'structure-entities',
-  });
   const {
     _id: ticketId,
     priority,
@@ -60,7 +58,8 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     pipelineId,
     statusId,
     channelId,
-    entityIds,
+    branchId,
+    departmentId,
     tagIds,
     attachments,
     startDate,
@@ -228,11 +227,18 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
               disabled
             />
           </LockedField>
-          <SelectStructureTicket
+          <SelectBranchTicket
             id={ticketId}
-            value={compactList(entityIds)}
+            value={branchId || ''}
             variant="detail"
-            label={tStructure('structure')}
+            label={t('branch-label')}
+            disabled={!canEditTicket}
+          />
+          <SelectDepartmentTicket
+            id={ticketId}
+            value={departmentId || ''}
+            variant="detail"
+            label={t('department-label')}
             disabled={!canEditTicket}
           />
           <SelectStatusTicket

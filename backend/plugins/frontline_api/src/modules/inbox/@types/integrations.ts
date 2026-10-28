@@ -197,7 +197,7 @@ export interface IIntegration {
   uiOptions?: IUiOptions;
   isActive?: boolean;
   isConnected?: boolean;
-  sharedEntityIds?: string[];
+  departmentIds?: string[];
   visibility?: string;
   configId?: string;
   ticketConfigIds?: string[];

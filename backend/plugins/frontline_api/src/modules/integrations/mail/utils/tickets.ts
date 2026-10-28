@@ -112,7 +112,6 @@ export const createTicketFromMail = async ({
 
 export const findViewableTicket = async (
   models: IModels,
-  subdomain: string,
   user: IUserDocument,
   ticketId: string,
 ): Promise<ITicketDocument> => {
@@ -120,7 +119,6 @@ export const findViewableTicket = async (
 
   const { canViewTicket } = await createPermissionValidator(
     models,
-    subdomain,
   ).getTicketPermissions(ticket.pipelineId, ticket.statusId, user);
 
   if (!canViewTicket) {
