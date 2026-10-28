@@ -77,6 +77,14 @@ const OAuthClientsSettings = lazy(() =>
   ),
 );
 
+const ExtensionsSettings = lazy(() =>
+  import('~/pages/settings/workspace/ExtensionsSettingsPage').then(
+    (module) => ({
+      default: module.ExtensionsSettingsPage,
+    }),
+  ),
+);
+
 const ProductsSettingsRoutes = lazy(() =>
   import('@/products/settings/components/ProductSettingsRoutes').then(
     (module) => ({
@@ -262,6 +270,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.OAuthClients}
           element={<OAuthClientsSettings />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Extensions}
+          element={<ExtensionsSettings />}
         />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}
