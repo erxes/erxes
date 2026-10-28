@@ -1,6 +1,5 @@
 import type { IContext, IModels } from '~/connectionResolvers';
 import { visibleChannelsFilter } from '@/channel/utils';
-import { visibleIntegrationsFilter } from '@/inbox/utils/integrationVisibility';
 
 export const assertMailSenderAccess = async ({
   models,
@@ -25,7 +24,21 @@ export const assertMailSenderAccess = async ({
     kind: 'mail',
     isActive: { $ne: false },
     channelId: { $in: channelIds },
-    ...(await visibleIntegrationsFilter(subdomain, user)),
+    ...(user.isOwner
+      ? {}
+      : {
+          $or: [
+            { visibility: { $exists: false } },
+            { visibility: 'public' },
+            {
+              visibility: 'private',
+              $or: [
+                { createdUserId: user._id },
+                { departmentIds: { $in: user.departmentIds ?? [] } },
+              ],
+            },
+          ],
+        }),
   });
 
   if (

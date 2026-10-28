@@ -1,9 +1,5 @@
 import { IModels } from '~/connectionResolvers';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import {
-  canUsePipeline,
-  getPrincipalEntityIds,
-} from '@/ticket/utils/ticketVisibility';
 
 export class PermissionError extends Error {
   constructor(message: string) {
@@ -52,10 +48,7 @@ const resolveStatusPermissions = (
 };
 
 export class PermissionValidator {
-  constructor(
-    private models: IModels,
-    private subdomain?: string,
-  ) {}
+  constructor(private models: IModels) {}
 
   async getHiddenStatusIds(
     userId: string,
@@ -117,20 +110,18 @@ export class PermissionValidator {
       throw new PermissionError('Pipeline not found');
     }
 
-    if (
-      canUsePipeline(pipeline, user._id, []) ||
-      canUsePipeline(
-        pipeline,
-        user._id,
-        await getPrincipalEntityIds(this.subdomain, user._id),
-      )
-    ) {
+    if (pipeline.userId === user._id) {
       return;
     }
 
-    throw new PermissionError(
-      'Access denied: You do not have permission to access this pipeline',
-    );
+    if (pipeline.visibility === 'private') {
+      const isMember = (pipeline.memberIds || []).includes(user._id);
+      if (!isMember) {
+        throw new PermissionError(
+          'Access denied: You do not have permission to access this pipeline',
+        );
+      }
+    }
   }
 
   async getTicketPermissions(
@@ -296,9 +287,6 @@ export class PermissionValidator {
   }
 }
 
-export const createPermissionValidator = (
-  models: IModels,
-  subdomain?: string,
-) => {
-  return new PermissionValidator(models, subdomain);
+export const createPermissionValidator = (models: IModels) => {
+  return new PermissionValidator(models);
 };

@@ -42,7 +42,7 @@ describe('pipeline create form layout', () => {
   test('refuses a row wider than four fields', async () => {
     await expect(
       validatePipelineCreateLayout('sub', [
-        ['priority', 'assigneeId', 'entityIds', 'startDate', 'tagIds'],
+        ['priority', 'assigneeId', 'branchId', 'departmentId', 'tagIds'],
       ]),
     ).rejects.toThrow('at most 4');
   });

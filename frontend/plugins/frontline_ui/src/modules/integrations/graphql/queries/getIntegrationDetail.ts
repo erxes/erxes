@@ -20,7 +20,7 @@ export const GET_INTEGRATION_DETAIL = gql(`
         name
       }
       brandId
-      sharedEntityIds
+      departmentIds
       details
       facebookPage {
         pageId

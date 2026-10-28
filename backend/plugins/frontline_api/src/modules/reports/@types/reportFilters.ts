@@ -28,7 +28,7 @@ export type IReportFilters = {
   companyIds?: string[];
   customerIds?: string[];
   frequency?: string;
-  entityIds?: string[];
+  branchIds?: string[];
   pageIds?: string[];
   searchValue?: string;
   propertyIds?: string[];

@@ -126,7 +126,7 @@ const command = async () => {
         numberOfPages,
         buttonText,
         tagIds,
-        sharedEntityIds: departmentIds,
+        departmentIds,
         languageCode,
         visibility,
         status: status || 'active',

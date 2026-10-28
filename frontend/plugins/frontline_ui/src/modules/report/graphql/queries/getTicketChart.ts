@@ -81,7 +81,8 @@ export const GET_TICKET_LIST = gql(`
         tagIds
         pipelineId
         channelId
-        entityIds
+        branchId
+        departmentId
         createdBy
         propertiesData
       }
@@ -147,7 +148,8 @@ export const GET_TICKET_EXPORT = gql(`
       statusName
       createdByName
       channelName
-      entityNames
+      branchName
+      departmentName
       propertiesData
     }
   }

@@ -33,7 +33,8 @@ const convertParams = `
   assignedUserIds: [String]
   labelIds: [String]
   tagIds: [String]
-  entityIds: [String]
+  branchIds: [String]
+  departmentIds: [String]
   startDate: Date
   closeDate: Date
   attachments: [AttachmentInput]

@@ -9,9 +9,11 @@ export const ADD_PIPELINE = gql(`
     $excludeCheckUserIds: [String]
     $isCheckDate: Boolean
     $isCheckUser: Boolean
-    $isCheckEntity: Boolean
+    $isCheckDepartment: Boolean
+    $isCheckBranch: Boolean
     $isHideName: Boolean
-    $sharedEntityIds: [String]
+    $departmentIds: [String]
+    $branchIds: [String]
     $numberConfig: String
     $numberSize: String
     $nameConfig: String
@@ -26,9 +28,11 @@ export const ADD_PIPELINE = gql(`
       excludeCheckUserIds: $excludeCheckUserIds
       isCheckDate: $isCheckDate
       isCheckUser: $isCheckUser
-      isCheckEntity: $isCheckEntity
+      isCheckDepartment: $isCheckDepartment
+      isCheckBranch: $isCheckBranch
       isHideName: $isHideName
-      sharedEntityIds: $sharedEntityIds
+      departmentIds: $departmentIds
+      branchIds: $branchIds
       numberConfig: $numberConfig
       numberSize: $numberSize
       nameConfig: $nameConfig

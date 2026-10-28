@@ -5,7 +5,8 @@ export const LAYOUT_PROPERTY_PREFIX = 'property:';
 export const TICKET_CREATE_LAYOUT_SYSTEM_CODES = [
   'priority',
   'assigneeId',
-  'entityIds',
+  'branchId',
+  'departmentId',
   'startDate',
   'targetDate',
   'tagIds',
@@ -16,7 +17,7 @@ export type TTicketLayoutSystemCode =
 
 // What a pipeline without its own layout shows: the form as it always was.
 export const DEFAULT_TICKET_CREATE_LAYOUT: string[][] = [
-  ['priority', 'assigneeId', 'entityIds'],
+  ['priority', 'assigneeId', 'branchId', 'departmentId'],
   ['startDate', 'targetDate', 'tagIds'],
 ];
 
@@ -26,10 +27,8 @@ export const TICKET_LAYOUT_SYSTEM_LABELS: Record<
 > = {
   priority: { key: 'priority', fallback: 'Priority' },
   assigneeId: { key: 'assignee', fallback: 'Assignee' },
-  entityIds: {
-    key: 'common:structure-entities.structure',
-    fallback: 'Structure',
-  },
+  branchId: { key: 'branch-label', fallback: 'Branch' },
+  departmentId: { key: 'department-label', fallback: 'Department' },
   startDate: { key: 'start-date', fallback: 'Start date' },
   targetDate: { key: 'target-date', fallback: 'Target date' },
   tagIds: { key: 'tags', fallback: 'Tags' },

@@ -83,7 +83,7 @@ export const types = `
     form : Form
 
     visibility: String
-    sharedEntityIds: [String]
+    departmentIds: [String]
 
     details: JSON
     callData: CloudflareCallsData

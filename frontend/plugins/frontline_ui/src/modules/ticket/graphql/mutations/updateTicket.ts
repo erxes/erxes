@@ -9,7 +9,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
     $pipelineId: String
     $statusId: String
     $priority: Int
-    $entityIds: [String]
+    $branchId: String
+    $departmentId: String
     $labelIds: [String]
     $tagIds: [String]
     $assigneeId: String
@@ -29,7 +30,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
       pipelineId: $pipelineId
       statusId: $statusId
       priority: $priority
-      entityIds: $entityIds
+      branchId: $branchId
+      departmentId: $departmentId
       labelIds: $labelIds
       tagIds: $tagIds
       assigneeId: $assigneeId
@@ -46,7 +48,8 @@ export const UPDATE_TICKET_MUTATION = gql(`
       description
       statusId
       priority
-      entityIds
+      branchId
+      departmentId
       labelIds
       tagIds
       assigneeId

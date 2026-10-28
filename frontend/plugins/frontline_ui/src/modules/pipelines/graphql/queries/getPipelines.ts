@@ -13,14 +13,16 @@ export const GET_TICKET_PIPELINES = gql(`
         state
         isCheckDate
         isCheckUser
-        isCheckEntity
+        isCheckDepartment
+        isCheckBranch
         isHideName
         excludeCheckUserIds
         numberConfig
         numberSize
         nameConfig
         lastNum
-        sharedEntityIds
+        departmentIds
+        branchIds
         tagId
         createdUser {
           _id

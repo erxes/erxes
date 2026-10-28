@@ -1,7 +1,8 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
+import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
-import { SelectStructureTicket } from '@/ticket/components/ticket-selects/SelectStructureTicket';
 import { SelectTagsTicket } from '@/ticket/components/ticket-selects/SelectTagsTicket';
 import {
   TICKET_LAYOUT_SYSTEM_LABELS,
@@ -51,11 +52,18 @@ export const TicketCreateSystemField = ({
               onValueChange={(value: string) => field.onChange(value)}
             />
           )}
-          {code === 'entityIds' && (
-            <SelectStructureTicket.FormItem
+          {code === 'branchId' && (
+            <SelectBranchTicket.FormItem
               label={label}
-              value={field.value as string[] | undefined}
-              onValueChange={(value) => field.onChange(value)}
+              value={(field.value as string) || ''}
+              onValueChange={(value) => field.onChange(value || undefined)}
+            />
+          )}
+          {code === 'departmentId' && (
+            <SelectDepartmentTicket.FormItem
+              label={label}
+              value={(field.value as string) || ''}
+              onValueChange={(value) => field.onChange(value || undefined)}
             />
           )}
           {(code === 'startDate' || code === 'targetDate') && (
