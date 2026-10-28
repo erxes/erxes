@@ -115,18 +115,22 @@ export const FormSelectEbarimtProductRule = <T extends FieldValues>({
     <Form.Field
       name={name}
       control={control}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{label}</Form.Label>
-          <Form.Control>
-            <SelectEbarimtProductRules
-              value={field.value || []}
-              kind={kind}
-              onValueChange={field.onChange}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+      render={({ field, fieldState }) => (
+        <div className="flex flex-col gap-1.5 pt-1">
+          <span className="text-xs font-medium text-accent-foreground">
+            {label}
+          </span>
+          <SelectEbarimtProductRules
+            value={field.value || []}
+            kind={kind}
+            onValueChange={field.onChange}
+          />
+          {fieldState.error && (
+            <span className="text-xs text-destructive">
+              {fieldState.error.message}
+            </span>
+          )}
+        </div>
       )}
     />
   );

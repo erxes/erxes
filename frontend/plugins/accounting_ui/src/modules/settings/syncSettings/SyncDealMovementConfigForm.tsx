@@ -2,18 +2,23 @@ import { useTranslation } from 'react-i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { TR_STATUSES } from '@/transactions/types/constants';
-import { Form, Select } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import {
+  PANEL_INPUT_CLASS_NAME,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 import { z } from 'zod';
 import {
-  SyncConfigFormFooter,
   SyncConfigGeneralFields,
   SyncConfigPipelineSection,
   usePipelineReset,
 } from './SyncConfigFormSections';
-import { SyncSettingSection } from './SyncSettingSection';
+import { SyncPanelFormRow, SyncSettingSection } from './SyncSettingSection';
 import { useEffect } from 'react';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SettingsPanelSelect } from '@/settings/components/panel/SettingsPanelFields';
 
 export const syncDealMovementConfigFormSchema = z.object({
   title: z.string(),
@@ -47,18 +52,15 @@ const InventoryAccountField = ({
     <Form.Field
       control={form.control}
       name={name}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{label}</Form.Label>
-          <Form.Control>
-            <SelectAccount.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-              defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+      render={({ field, fieldState }) => (
+        <SyncPanelFormRow label={label} error={fieldState.error?.message}>
+          <SelectAccount.FormItem
+            value={field.value}
+            onValueChange={field.onChange}
+            className={PANEL_INPUT_CLASS_NAME}
+            defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+          />
+        </SyncPanelFormRow>
       )}
     />
   );
@@ -84,35 +86,35 @@ const LocationFields = ({
       <Form.Field
         control={form.control}
         name={branchName}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{branchLabel}</Form.Label>
-            <Form.Control>
-              <SelectBranches.FormItem
-                mode="single"
-                value={field.value ?? ''}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <SyncPanelFormRow
+            label={branchLabel}
+            error={fieldState.error?.message}
+          >
+            <SelectBranches.FormItem
+              mode="single"
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </SyncPanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={departmentName}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{departmentLabel}</Form.Label>
-            <Form.Control>
-              <SelectDepartments.FormItem
-                mode="single"
-                value={field.value ?? ''}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <SyncPanelFormRow
+            label={departmentLabel}
+            error={fieldState.error?.message}
+          >
+            <SelectDepartments.FormItem
+              mode="single"
+              value={field.value ?? ''}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </SyncPanelFormRow>
         )}
       />
     </>
@@ -129,31 +131,22 @@ const DealLocationSideField = ({
     <Form.Field
       control={form.control}
       name="dealLocationSide"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {t('side-using-the-deal-branch-and-department')}
-          </Form.Label>
-          <Form.Control>
-            <Select
-              value={field.value}
-              onValueChange={(value) =>
-                field.onChange(value as ConfigFormValues['dealLocationSide'])
-              }
-            >
-              <Select.Trigger>
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Content>
-                <Select.Item value="source">{t('source-side')}</Select.Item>
-                <Select.Item value="destination">
-                  {t('destination-side')}
-                </Select.Item>
-              </Select.Content>
-            </Select>
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
+      render={({ field, fieldState }) => (
+        <SyncPanelFormRow
+          label={t('side-using-the-deal-branch-and-department')}
+          error={fieldState.error?.message}
+        >
+          <SettingsPanelSelect<ConfigFormValues['dealLocationSide']>
+            value={field.value}
+            placeholder={t('side-using-the-deal-branch-and-department')}
+            options={[
+              { value: 'source', label: t('source-side') },
+              { value: 'destination', label: t('destination-side') },
+            ]}
+            onValueChange={field.onChange}
+            className={PANEL_INPUT_CLASS_NAME}
+          />
+        </SyncPanelFormRow>
       )}
     />
   );
@@ -163,10 +156,12 @@ export const SyncDealMovementConfigForm = ({
   form,
   onSubmit,
   loading,
+  onCancel,
 }: {
   form: UseFormReturn<ConfigFormValues>;
   onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
   const { boardId, pipelineId } = usePipelineReset(form);
@@ -181,58 +176,55 @@ export const SyncDealMovementConfigForm = ({
   }, [form]);
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col flex-1 min-h-0 bg-background"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
-          <SyncSettingSection title={t('general')}>
-            <SyncConfigGeneralFields control={form.control} />
-          </SyncSettingSection>
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      saving={loading}
+    >
+      <SyncSettingSection title={t('general')}>
+        <SyncConfigGeneralFields control={form.control} />
+      </SyncSettingSection>
 
-          <SyncConfigPipelineSection
-            boardId={boardId}
-            pipelineId={pipelineId}
-            form={form}
-          />
+      <SyncConfigPipelineSection
+        boardId={boardId}
+        pipelineId={pipelineId}
+        form={form}
+      />
 
-          <SyncSettingSection title={t('account')}>
-            <InventoryAccountField
-              form={form}
-              name="sourceAccountId"
-              label={t('source-inventory-account')}
-            />
-            <InventoryAccountField
-              form={form}
-              name="destinationAccountId"
-              label={t('destination-inventory-account')}
-            />
-          </SyncSettingSection>
+      <SyncSettingSection title={t('account')}>
+        <InventoryAccountField
+          form={form}
+          name="sourceAccountId"
+          label={t('source-inventory-account')}
+        />
+        <InventoryAccountField
+          form={form}
+          name="destinationAccountId"
+          label={t('destination-inventory-account')}
+        />
+      </SyncSettingSection>
 
-          <SyncSettingSection title={t('default-source-location')}>
-            <LocationFields
-              form={form}
-              branchName="defaultSourceBranchId"
-              departmentName="defaultSourceDepartmentId"
-              branchLabel={t('source-branch')}
-              departmentLabel={t('source-department')}
-            />
-          </SyncSettingSection>
+      <SyncSettingSection title={t('default-source-location')}>
+        <LocationFields
+          form={form}
+          branchName="defaultSourceBranchId"
+          departmentName="defaultSourceDepartmentId"
+          branchLabel={t('source-branch')}
+          departmentLabel={t('source-department')}
+        />
+      </SyncSettingSection>
 
-          <SyncSettingSection title={t('default-destination-location')}>
-            <LocationFields
-              form={form}
-              branchName="defaultDestinationBranchId"
-              departmentName="defaultDestinationDepartmentId"
-              branchLabel={t('destination-branch')}
-              departmentLabel={t('destination-department')}
-            />
-            <DealLocationSideField form={form} />
-          </SyncSettingSection>
-        </div>
-        <SyncConfigFormFooter loading={loading} />
-      </form>
-    </Form>
+      <SyncSettingSection title={t('default-destination-location')}>
+        <LocationFields
+          form={form}
+          branchName="defaultDestinationBranchId"
+          departmentName="defaultDestinationDepartmentId"
+          branchLabel={t('destination-branch')}
+          departmentLabel={t('destination-department')}
+        />
+        <DealLocationSideField form={form} />
+      </SyncSettingSection>
+    </SettingsPanelDraftForm>
   );
 };
