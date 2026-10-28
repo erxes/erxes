@@ -246,7 +246,10 @@ export const FormFieldDetail = ({
                       (previous) =>
                         previous && {
                           ...previous,
-                          expectedType: previous.expectedType ?? previous.type,
+                          expectedType:
+                            type === originalType
+                              ? undefined
+                              : previous.expectedType ?? previous.type,
                           type,
                           validation:
                             type === originalType

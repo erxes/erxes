@@ -19,7 +19,11 @@ import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
 import { useFormConversionTranslation } from '../conversionTranslations';
 
-type FormField = { tempFieldId?: string } & Record<string, unknown>;
+type FormField = {
+  tempFieldId?: string;
+  type?: string;
+  expectedType?: string;
+} & Record<string, unknown>;
 
 const buildEditFieldsVariables = (
   id: string,
@@ -67,7 +71,14 @@ export const useFormMutate = () => {
 
     try {
       if (id) {
-        const converting = formFields.some((field) => field.expectedType);
+        const fieldVariables = buildEditFieldsVariables(
+          id,
+          formFields,
+          (formDetail?.fields ?? []).filter(isDefined),
+        );
+        const converting = fieldVariables.updatedFields.some(
+          (field) => field.expectedType && field.expectedType !== field.type,
+        );
         if (!converting)
           await editForm({
             variables: {
@@ -78,11 +89,7 @@ export const useFormMutate = () => {
           });
         await fieldsBulkAction({
           variables: {
-            ...buildEditFieldsVariables(
-              id,
-              formFields,
-              (formDetail?.fields ?? []).filter(isDefined),
-            ),
+            ...fieldVariables,
             ...(converting
               ? {
                   formChanges: {

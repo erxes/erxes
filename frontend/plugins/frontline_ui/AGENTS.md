@@ -1248,8 +1248,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   carry `expectedType`; incompatible answers, linked custom fields and stale
   edits are rejected by `frontline_api`. Changing type resets the validator;
   returning to the original type restores its stored validation and validator,
-  including legacy `input` fields.
-  any newly selected validator is also checked against saved answers. Other
+  including legacy `input` fields, and clears `expectedType`. Only a changed
+  type on an existing field selects the atomic conversion save path.
+  Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
   pending checks cannot enable it; loading failures for the stored form also
@@ -1263,7 +1264,8 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   submission to avoid rescanning large forms on every keystroke. Server
   deadlines leave the draft intact and offer retry. Conversion messages and
   field-type labels use the plugin-owned `frontline-form-conversion` English
-  and Mongolian namespace; server error reasons are translated by code.
+  and Mongolian namespace, loaded from `modules/forms/locales/conversion.*.json`;
+  server error reasons are translated by code.
   Saving awaits the field mutation before clearing the draft, then invalidates
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.

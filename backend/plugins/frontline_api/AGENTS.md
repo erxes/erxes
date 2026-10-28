@@ -48,6 +48,8 @@
   `formChanges` on `frontlineFieldsBulkAction` commits metadata with all field
   writes; ordinary forms remain usable on standalone MongoDB, while conversion
   checks/saves return `TRANSACTIONS_REQUIRED` there.
+  An `expectedType` equal to the submitted type is not a conversion, but still
+  participates in stale-field validation.
   `modules/form/formWriteGuard.ts` scans on the primary outside the short
   transaction and commits only against the unchanged `conversionRevision` with no live
   submissions. Widget and legacy submission writers acquire renewable admission
@@ -1487,6 +1489,8 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   ticket configs and only name, description, attachments, tags and properties.
 - Widget resolvers never log request arguments or customer documents: they
   carry visitors' emails, phones and custom data.
+  `cpWidgetsSaveLead` delegates to `widgetsSaveLead` for the same validation,
+  guarded persistence and customer mapping, with its own client-portal wrapper.
 - The widget API has no endpoint that sends email to caller-chosen recipients
   or with caller-chosen content (`widgetsSendEmail` was removed as an open
   relay). Any widget email goes to the session's own customer with server-side

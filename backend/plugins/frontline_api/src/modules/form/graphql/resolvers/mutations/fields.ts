@@ -172,7 +172,9 @@ export const fieldMutations = {
       if (formChanges) throw new Error('Form changes require a form');
       return applyFieldsBulkAction(args, context);
     }
-    const converting = updatedFields.some((field) => field.expectedType);
+    const converting = updatedFields.some(
+      (field) => field.expectedType && field.expectedType !== field.type,
+    );
     if (converting || formChanges) {
       await checkPermission('formsEdit');
       await requireFormTransactions(models);
