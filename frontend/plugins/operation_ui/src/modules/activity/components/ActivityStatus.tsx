@@ -46,14 +46,20 @@ export const ActivityStatus = ({
     if (isTask(contentDetail)) {
       const status = getTaskStatus(value);
       return (
-        <Badge variant="secondary" className="capitalize">
+        <Badge
+          variant="secondary"
+          className="min-w-0 max-w-full whitespace-normal capitalize"
+        >
           <StatusInlineIcon statusType={status?.type} color={status?.color} />
           {status?.label}
         </Badge>
       );
     } else {
       return (
-        <Badge variant="secondary" className="capitalize">
+        <Badge
+          variant="secondary"
+          className="min-w-0 max-w-full whitespace-normal capitalize"
+        >
           <StatusInlineIcon statusType={value} />
           <StatusInlineLabel statusType={value} />
         </Badge>
@@ -62,7 +68,7 @@ export const ActivityStatus = ({
   };
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('changed-status')}
       {renderStatusBadge(previousValue)}
       {t('to')}
