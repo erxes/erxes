@@ -15,10 +15,11 @@ import {
   NavigationMenuGroup,
   NavigationMenuLinkItem,
   Sidebar,
-  Skeleton,
   TextOverflowTooltip,
+  cn,
   useToast,
 } from 'erxes-ui';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -26,10 +27,11 @@ type Pos = NonNullable<ReturnType<typeof useGetPos>['pos']>[number];
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <Skeleton key={i} className="w-full h-4" />
-      ))}
+    <div className="flex flex-col gap-1">
+      <Sidebar.MenuSkeleton className="h-7" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7" />
     </div>
   );
 }
@@ -42,81 +44,108 @@ function PosItem({ pos }: posItemProps) {
   const { pathname } = useLocation();
 
   const isPosActive = pathname.includes(`/sales/pos/${pos._id}`);
+  const [open, setOpen] = useState(isPosActive);
+
+  useEffect(() => {
+    if (isPosActive) setOpen(true);
+  }, [isPosActive]);
 
   return (
-    <Collapsible className="group/collapsible" defaultOpen={isPosActive}>
+    <Collapsible
+      className="group/collapsible"
+      open={open}
+      onOpenChange={setOpen}
+    >
       <Sidebar.Group className="p-0">
-        <div className="w-full relative group/trigger hover:cursor-pointer">
+        <div
+          className={cn(
+            'group/pos-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+            isPosActive && 'bg-foreground/5 hover:bg-foreground/5',
+          )}
+        >
           <Collapsible.Trigger asChild>
-            <div className="w-full flex items-center justify-between">
-              <Button
-                variant="ghost"
-                className="px-2 flex min-w-0 justify-start rounded-lg"
-              >
-                <IconComponent
-                  name={undefined}
-                  className="text-accent-foreground"
-                />
-                <TextOverflowTooltip
-                  className="font-sans font-semibold normal-case flex-1 min-w-0"
-                  value={pos.name ?? undefined}
-                />
-                <span className="ml-auto flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none text-muted-foreground">
-                  <IconChevronRight className="size-3.5!" />
-                </span>
-              </Button>
-              <div className="size-5 min-w-5 mr-2"></div>
-            </div>
+            <Button
+              variant="ghost"
+              className="px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent"
+            >
+              <IconComponent
+                name={undefined}
+                className="text-accent-foreground"
+              />
+              <TextOverflowTooltip
+                className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
+                value={pos.name ?? undefined}
+              />
+            </Button>
           </Collapsible.Trigger>
           <PosActionsMenu pos={pos} />
+          <Collapsible.Trigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              tabIndex={-1}
+              aria-hidden
+              className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground"
+            >
+              <span className="flex transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+                <IconChevronRight className="size-3.5!" />
+              </span>
+            </Button>
+          </Collapsible.Trigger>
         </div>
-        <Collapsible.Content className="pt-1 ">
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              <NavigationMenuLinkItem
-                name={t('pos-orders')}
-                className="pl-6 font-medium"
-                icon={IconClipboard}
-                path={`sales/pos/${pos._id}/orders`}
-              />
-              <NavigationMenuLinkItem
-                name={t('pos-covers')}
-                path={`sales/pos/${pos._id}/covers`}
-                className="pl-6 font-medium"
-                icon={IconChecklist}
-              />
-              <NavigationMenuLinkItem
-                name={t('pos-by-items')}
-                path={`sales/pos/${pos._id}/by-items`}
-                className="pl-6 font-medium"
-                icon={IconChecklist}
-              />
-              <NavigationMenuLinkItem
-                name={t('pos-items')}
-                className="pl-6 font-medium"
-                icon={IconClipboard}
-                path={`sales/pos/${pos._id}/items`}
-              />
-              <NavigationMenuLinkItem
-                name={t('pos-summary')}
-                path={`sales/pos/${pos._id}/summary`}
-                className="pl-6 font-medium"
-                icon={IconChecklist}
-              />
-              <NavigationMenuLinkItem
-                name={t('pos-orders-by-customer')}
-                path={`sales/pos/${pos._id}/orders-by-customer`}
-                className="pl-6 font-medium"
-                icon={IconChecklist}
-              />
-              {/* <NavigationMenuLinkItem
+        <Collapsible.Content forceMount className="group/pos-content">
+          <div className="grid transition-[grid-template-rows,opacity,visibility] duration-200 ease-out group-data-[state=closed]/pos-content:invisible group-data-[state=closed]/pos-content:grid-rows-[0fr] group-data-[state=closed]/pos-content:opacity-0 group-data-[state=open]/pos-content:grid-rows-[1fr] motion-reduce:transition-none">
+            <div className="min-h-0 overflow-hidden">
+              <div className="pt-1">
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    <NavigationMenuLinkItem
+                      name={t('pos-orders')}
+                      className="pl-6 font-medium"
+                      icon={IconClipboard}
+                      path={`sales/pos/${pos._id}/orders`}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-covers')}
+                      path={`sales/pos/${pos._id}/covers`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-by-items')}
+                      path={`sales/pos/${pos._id}/by-items`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-items')}
+                      className="pl-6 font-medium"
+                      icon={IconClipboard}
+                      path={`sales/pos/${pos._id}/items`}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-summary')}
+                      path={`sales/pos/${pos._id}/summary`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    <NavigationMenuLinkItem
+                      name={t('pos-orders-by-customer')}
+                      path={`sales/pos/${pos._id}/orders-by-customer`}
+                      className="pl-6 font-medium"
+                      icon={IconChecklist}
+                    />
+                    {/* <NavigationMenuLinkItem
                 name="POS orders by subscription"
                 path={`sales/pos/${pos._id}/orders-by-subscription`}
                 className="pl-6 font-medium"
                 icon={IconChecklist}
               /> */}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </div>
+            </div>
+          </div>
         </Collapsible.Content>
       </Sidebar.Group>
     </Collapsible>
@@ -179,10 +208,8 @@ const PosActionsMenu = ({ pos }: { pos: Pos }) => {
         <Button
           variant="ghost"
           size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
+          className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/pos-row:opacity-100 group-focus-within/pos-row:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
+          aria-label={t('go-to-pos-settings')}
         >
           <IconDotsVertical className="size-4" />
         </Button>

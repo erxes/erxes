@@ -4,6 +4,7 @@ import {
   Editor,
   Form,
   Input,
+  Label,
   ScrollArea,
   Sheet,
   Spinner,
@@ -14,11 +15,14 @@ import {
   SelectCompany,
   SelectCustomer,
   SelectMember,
+  SelectStage,
   isFieldVisibleByLogic,
   useFields,
 } from 'ui-modules';
 
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
+import { dealCreateDefaultValuesState } from '@/deals/states/dealCreateSheetState';
+import { useAtom } from 'jotai';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { useForm } from 'react-hook-form';
@@ -57,6 +61,17 @@ export function AddCardForm({
     },
   });
   const { addDeals, loading } = useDealsAdd();
+  const [createDefaults, setCreateDefaults] = useAtom(
+    dealCreateDefaultValuesState,
+  );
+  const stagePipelineId =
+    !showWorkflowFields && typeof createDefaults?.pipelineId === 'string'
+      ? createDefaults.pipelineId
+      : undefined;
+  const selectedStageId =
+    typeof createDefaults?.stageId === 'string'
+      ? createDefaults.stageId
+      : undefined;
 
   const updateCustomFieldValue = useCallback(
     (fieldId: string, value: unknown) => {
@@ -158,6 +173,23 @@ export function AddCardForm({
               <div className="grid grid-cols-2 gap-4">
                 {showWorkflowFields && (
                   <WorkflowFields control={form.control} />
+                )}
+                {stagePipelineId && (
+                  <Form.Item className="col-span-2">
+                    <Label>{t('select-stage')}</Label>
+                    <SelectStage.FormItem
+                      mode="single"
+                      pipelineId={stagePipelineId}
+                      value={selectedStageId}
+                      onValueChange={(value) => {
+                        if (typeof value !== 'string') return;
+                        setCreateDefaults({
+                          ...createDefaults,
+                          stageId: value,
+                        });
+                      }}
+                    />
+                  </Form.Item>
                 )}
                 <Form.Field
                   control={form.control}
