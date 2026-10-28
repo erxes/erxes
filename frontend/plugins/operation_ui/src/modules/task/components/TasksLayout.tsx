@@ -3,7 +3,8 @@ import { TASK_DATE_RANGE_KEYS } from '@/task/utils/dateFilters';
 import { TasksFilter } from '@/task/components/TasksFilter';
 import { TasksView, TasksViewControl } from '@/task/components/TasksView';
 import { useTasksVariables } from '@/task/hooks/useGetTasks';
-import { Can, Export, Import } from 'ui-modules';
+import { useAtomValue } from 'jotai';
+import { Can, currentUserState, Export, Import } from 'ui-modules';
 
 /** Renders the import button for the tasks list. */
 export const TasksImportButton = () => {
@@ -19,9 +20,18 @@ export const TasksImportButton = () => {
   );
 };
 
+interface TasksExportButtonProps {
+  isCreatedView?: boolean;
+}
+
 /** Renders the export button for the tasks list, wired up to the current filter state. */
-export const TasksExportButton = () => {
-  const variables = useTasksVariables();
+export const TasksExportButton = ({
+  isCreatedView = false,
+}: TasksExportButtonProps) => {
+  const currentUser = useAtomValue(currentUserState);
+  const variables = useTasksVariables(
+    isCreatedView ? { createdBy: currentUser?._id } : undefined,
+  );
 
   /** Returns the active filter values from the current tasks query variables. */
   const getFilters = () => {
@@ -30,6 +40,7 @@ export const TasksExportButton = () => {
 
     const directKeys = [
       'name',
+      'userId',
       'assigneeId',
       'teamId',
       'status',

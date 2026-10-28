@@ -41,6 +41,15 @@ function buildTaskQuery(
     }
   }
 
+  if (
+    filters.userId &&
+    !filters.teamId &&
+    !filters.assigneeId &&
+    !filters.projectId
+  ) {
+    query.assigneeId = filters.userId;
+  }
+
   if (filters.priority != null) {
     query.priority = Number(filters.priority);
   }
