@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-10-07`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -48,6 +48,9 @@
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
   `invoiceEdit` mutation.
+- The widget renders Pocket payments with a dedicated `PocketForm` that shows
+  the QR and, on mobile, a "Pocket апп-аар төлөх" button linking to the
+  `deeplink` returned by Pocket's `createInvoice`, which opens the Pocket app.
 
 ## Architecture
 
@@ -64,7 +67,7 @@
 | tRPC             | `src/trpc/`                                           | Service-to-service payment/invoice procedures                        |
 | Workers          | `src/workers/payments.ts`                             | BullMQ consumer for this plugin's `payments` queue                   |
 | Permissions      | `src/meta/permissions.ts`                             | `invoice` permission module, actions, and default permission groups  |
-
+| Widget Pocket UI | `src/widget/src/components/payments/PocketForm.tsx`   | Pocket QR plus mobile-only deeplink button; chosen in `PaymentDialog` |
 ## Contracts
 
 ### Provides
@@ -130,7 +133,11 @@
 - Because this plugin now declares permissions, core lists `payment` in
   `pluginsWithPermissions`. Non-owner users need `payment:admin`,
   `payment:viewer`, or an equivalent custom group to see payment surfaces at all.
-
+- In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
+  `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
+  does not return, so Pocket users on mobile would see neither a QR nor a way to
+  open the app. The deeplink button is shown only when `useIsMobile()` is true
+  and `response.deeplink` exists; the QR is always shown as a fallback.
 ## Validation
 
 - `pnpm nx run payment_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
@@ -147,3 +154,6 @@
 - Smoke: scan a paid ticket with its matching `eventSlug` (succeeds), then scan
   an unused ticket with a different `eventSlug` and confirm it is rejected and
   remains unused.
+- Smoke: open a Pocket invoice in the widget on desktop (QR shown, no button),
+  then on a phone with Pocket installed (QR plus button; tapping it opens
+  Pocket with the correct merchant and amount).
