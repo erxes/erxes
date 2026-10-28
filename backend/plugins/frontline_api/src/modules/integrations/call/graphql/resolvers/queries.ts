@@ -40,9 +40,6 @@ const callQueries = {
   },
 
   async callUserIntegrations(_root, _args, { models, user }: IContext) {
-    // const isAdmin =
-    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
-    // return models.CallIntegrations.getIntegrations(user._id, isAdmin);
     const integrations = await models.CallIntegrations.getIntegrations(
       user._id,
     );
@@ -111,8 +108,6 @@ const callQueries = {
     { integrationId },
     { models, user }: IContext,
   ) {
-    // const isAdmin =
-    //   user.isOwner || user.permissionGroupIds?.includes('frontline:admin');
     const integration = await models.CallIntegrations.getIntegration(
       user._id,
       integrationId,

@@ -13,12 +13,12 @@ import type { ITicketStatusPermissionChoice } from '@/status/types';
 export interface PermissionState {
   _id: string;
   dayAfterCreated: boolean;
-  branchOnly: boolean;
+  structureOnly: boolean;
   myTicketsOnly: boolean;
-  departmentOnly: boolean;
   selectedUsers: string[];
   visibility: 'public' | 'private';
   memberIds: string[];
+  sharedEntityIds: string[];
 }
 
 export type IPipeline = NonNullable<

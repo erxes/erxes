@@ -28,10 +28,10 @@ export const UPDATE_PIPELINE_FORM_SCHEMA = PIPELINE_FORM_BASE_SCHEMA.extend({
 
 export const UPDATE_PIPELINE_PERMISSIONS_FORM_SCHEMA = z.object({
   dayAfterCreated: z.boolean(),
-  branchOnly: z.boolean(),
+  structureOnly: z.boolean(),
   myTicketsOnly: z.boolean(),
-  departmentOnly: z.boolean(),
   selectedUsers: z.array(z.string()),
   visibility: z.enum(['public', 'private']),
   memberIds: z.array(z.string()),
+  sharedEntityIds: z.array(z.string()),
 });

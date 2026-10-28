@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -86,9 +86,11 @@
   team posts a reply the portal can see, and one when the ticket moves to a
   new status. Each is filed as a client portal notification against
   `frontline:ticket`, so the help center can link straight back to the ticket.
-- A ticket holds a single `branchId` / `departmentId`, settable on both
-  `createTicket` and `updateTicket`; changing them can move the ticket out of
-  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline.
+- A ticket belongs to structure nodes through `entityIds`, settable on both
+  `createTicket` and `updateTicket`; `Ticket.addTicket` defaults an empty list
+  to the creator's primary node from core `structureEntities.userContext`.
+  Changing them can move the ticket out of view on an `isCheckEntity`
+  pipeline.
 - `src/migrations/migrateForms.ts` copies a v2 form field into
   `frontline_form_fields` when its `contentType` is `form` or its
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
@@ -101,13 +103,13 @@
   `DRY_RUN=false`. New tickets get `priority` from the v2 label
   (`low`/`minor` 1, `normal`/`medium` 2, `high`/`major` 3, `critical`/`urgent`
   4), `statusType` from the migrated status, all `assignedUserIds` as
-  `assignedMembers`, the first `departmentIds`/`branchIds` entry as
-  `departmentId`/`branchId`, and `propertiesData` parsed against
+  `assignedMembers`, every v2 `departmentIds`/`branchIds` entry as
+  `entityIds`, and `propertiesData` parsed against
   `properties_fields`/`properties_groups` by `_id` (option values lowercased to
   match migrated options, `date` → `Date`, `number` → `Number`, multiple-group
   rows under `toPropertyGroupKey`; free text keeps its case). Already-migrated
   tickets are repaired in place: only empty `priority`/`statusType`/
-  `assignedMembers`/`departmentId`/`branchId` are filled, and `propertiesData`
+  `assignedMembers`/`entityIds` are filled, and `propertiesData`
   is replaced only while it is empty or still the raw v2 copy, so values edited
   in v3 are kept. It reports property field ids with no definition and fields
   whose `contentType` is not `frontline:ticket` (the ticket detail only lists
@@ -1083,9 +1085,9 @@ agentExtension?, callbackWindowMinutes?, breachLimit?)` — inbound-only service
   a frontend constant, not rows in this collection.
 - GraphQL `reportTicketExport(filters)` — every matching ticket, unpaged, with
   ids resolved to display names (`assigneeName`, `createdByName`,
-  `pipelineName`, `statusName`, `channelName`, `branchName`, `departmentName`,
-  `tagNames`) plus raw `number` and `propertiesData`. Users, tags, branches and
-  departments resolve through core tRPC `find`; statuses and channels through
+  `pipelineName`, `statusName`, `channelName`, `entityNames`, `tagNames`) plus
+  raw `number` and `propertiesData`. Users, tags and structure entities resolve
+  through core tRPC `find`; statuses and channels through
   this plugin's models. Property values are returned raw; the UI maps option
   labels.
 - GraphQL (client portal, `forClientPortal`): `facebookGetPosts(channelIds:
@@ -1134,16 +1136,15 @@ errors }` — `missingInErxes` is the number of Meta posts this deployment has
   `[TicketStatusChoice!]!`; `value`, `label` and `type` are non-null. The
   accessible variant fills only `value`, `label`, `color`, `type`,
   `canMoveMemberIds` and `canEditMemberIds`; the pipeline variant adds
-  `memberIds`, `departmentIds` and `visibilityType`.
+  `memberIds`, `sharedEntityIds` and `visibilityType`.
 - `TicketStatus.type` and `order` are non-null. `Status.updateStatus` drops a
   null `type` or `order` from its `$set`, so `updateTicketStatus` can never
   clear them; keep that guard if the method changes.
-- `ITicketFilter.branchIds: [String]` / `departmentIds: [String]` — the ticket
-  list's branch and department filters. `generateFilter` turns a non-empty list
-  into `branchId` / `departmentId` `$in`, and the `ticketListChanged`
-  subscription drops tickets outside the same lists so live updates match the
-  query. They narrow on top of pipeline `isCheckBranch` / `isCheckDepartment`
-  visibility, never replace it.
+- `ITicketFilter.entityIds: [String]` — the ticket list's structure filter.
+  `generateFilter` turns a non-empty list into `entityIds` `$in`, and the
+  `ticketListChanged` subscription drops tickets outside it so live updates
+  match the query. It narrows on top of pipeline `isCheckEntity` visibility,
+  never replaces it.
 - `ITicketFilter.propertiesData: String` — the encoded property conditions
   (`fieldId:operator:value;…`) the shared `PropertiesFilter` writes. Both
   `generateFilter` and the `ticketListChanged` subscription build them with
@@ -1543,17 +1544,22 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   request inserted instead of failing, and deletes only a row it created
   itself. Every new Call Pro conversation stores `callProPhone`, so the caller
   number shows even when no customer is linked.
-- Pipeline `isCheckUser` / `isCheckDepartment` / `isCheckBranch` filter which
-  tickets a user sees; they never block opening a pipeline or creating a ticket
-  in it (v2 parity). `validatePipelineAccess` only enforces private-pipeline
-  membership. `buildVisibilityCondition` in
-  `src/modules/ticket/utils/ticketVisibility.ts` exempts `role: 'system'`,
-  `isOwner` and `excludeCheckUserIds` users; everyone else sees the OR of own
-  (`createdBy`), assigned (`assigneeId`), own-department / own-branch tickets,
-  and tickets of departments they supervise (core `departments.findWithChild`
-  by `supervisorId`, intersected with the pipeline's `departmentIds`).
-  `isCheckDate` stays an extra AND condition. `generateFilter` needs the
-  request `subdomain` to resolve supervised departments.
+- Pipeline `isCheckUser` / `isCheckEntity` filter which tickets a user sees;
+  they never block opening a pipeline or creating a ticket in it (v2 parity).
+  `buildVisibilityCondition` in `src/modules/ticket/utils/ticketVisibility.ts`
+  exempts `role: 'system'`, `isOwner` and `excludeCheckUserIds` users; everyone
+  else sees the OR of own (`createdBy`), assigned (`assigneeId`) and tickets
+  whose `entityIds` meet the user's `principalEntityIds` (membership nodes and
+  their ancestors) or seat `boundaryEntityIds` from core
+  `structureEntities.userContext`. `isCheckDate` stays an extra AND condition.
+  `generateFilter` needs the request `subdomain` to resolve that context.
+- A private pipeline is usable by its creator (`userId`), `memberIds`, and
+  members at or below a `sharedEntityIds` node. `canUsePipeline` /
+  `usablePipelinesFilter` hold that rule for `generateFilter`,
+  `getTicketPipelines` and `PermissionValidator.validatePipelineAccess`; pass
+  the request `subdomain` to `createPermissionValidator` or shared nodes are
+  ignored. Private integrations follow the same rule through
+  `visibleIntegrationsFilter` (`createdUserId` or `sharedEntityIds`).
 - Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
   apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so

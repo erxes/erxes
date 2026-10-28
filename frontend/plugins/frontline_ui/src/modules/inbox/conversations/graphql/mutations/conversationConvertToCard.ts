@@ -7,8 +7,7 @@ export const CONVERSATION_CONVERT_TO_CARD = gql(`
     $itemName: String
     $stageId: String
     $assignedUserIds: [String]
-    $branchIds: [String]
-    $departmentIds: [String]
+    $entityIds: [String]
     $description: String
     $customFieldsData: JSON
     $attachments: [AttachmentInput]
@@ -23,8 +22,7 @@ export const CONVERSATION_CONVERT_TO_CARD = gql(`
       itemName: $itemName
       stageId: $stageId
       assignedUserIds: $assignedUserIds
-      branchIds: $branchIds
-      departmentIds: $departmentIds
+      entityIds: $entityIds
       description: $description
       customFieldsData: $customFieldsData
       attachments: $attachments

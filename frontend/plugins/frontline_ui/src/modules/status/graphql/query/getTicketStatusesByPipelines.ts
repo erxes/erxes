@@ -11,7 +11,7 @@ export const GET_TICKET_STATUS_BY_PIPELINE = gql(`
       memberIds
       canMoveMemberIds
       canEditMemberIds
-      departmentIds
+      sharedEntityIds
     }
   }
 `);

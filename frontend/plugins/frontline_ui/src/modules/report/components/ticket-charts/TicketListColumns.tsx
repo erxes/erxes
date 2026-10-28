@@ -1,9 +1,8 @@
 import { Badge, RecordTable, RecordTableInlineCell, isDefined } from 'erxes-ui';
 import {
-  BranchesInline,
-  DepartmentsInline,
   IField,
   MembersInline,
+  StructureEntitiesInline,
   TagBadge,
   useFields,
 } from 'ui-modules';
@@ -22,6 +21,7 @@ import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { PriorityBadge } from '@/ticket/components/ticket-selects/PriorityInline';
 import { useGetChannels } from '@/channels/hooks/useGetChannels';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
+import { compactList } from '@/shared/utils/cursorList';
 
 const isPropertyRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -81,8 +81,7 @@ const TICKET_EXPORT_VALUES: Partial<
   channel: (ticket) => ticket.channelName ?? '',
   pipeline: (ticket) => ticket.pipelineName ?? '',
   tags: (ticket) => (ticket.tagNames ?? []).join(', '),
-  branchId: (ticket) => ticket.branchName ?? '',
-  departmentId: (ticket) => ticket.departmentName ?? '',
+  entityIds: (ticket) => ticket.entityNames ?? '',
   startDate: (ticket) => formatDateValue(ticket.startDate, EXPORT_DATE_FORMAT),
   targetDate: (ticket) =>
     formatDateValue(ticket.targetDate, EXPORT_DATE_FORMAT),
@@ -308,6 +307,9 @@ export const useTicketExportColumns = () => {
 
 export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  const { t: tStructure } = useTranslation('common', {
+    keyPrefix: 'structure-entities',
+  });
   const { channels } = useGetChannels();
   const { fields } = useFields({ contentType: 'frontline:ticket' });
 
@@ -498,34 +500,18 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
         },
       },
       {
-        id: 'branchId',
-        header: t('branch-label', 'Branch'),
-        accessorKey: 'branchId',
+        id: 'entityIds',
+        header: tStructure('structure'),
+        accessorKey: 'entityIds',
         size: 160,
         cell: ({ cell }) => {
-          const branchId = cell.getValue() as string | undefined;
-          return (
-            <RecordTableInlineCell className="text-xs">
-              {branchId ? (
-                <BranchesInline branchIds={[branchId]} />
-              ) : (
-                <EmptyValue />
-              )}
-            </RecordTableInlineCell>
+          const entityIds = compactList(
+            cell.getValue() as TicketListItem['entityIds'],
           );
-        },
-      },
-      {
-        id: 'departmentId',
-        header: t('department-label', 'Department'),
-        accessorKey: 'departmentId',
-        size: 160,
-        cell: ({ cell }) => {
-          const departmentId = cell.getValue() as string | undefined;
           return (
             <RecordTableInlineCell className="text-xs">
-              {departmentId ? (
-                <DepartmentsInline departmentIds={[departmentId]} />
+              {entityIds.length ? (
+                <StructureEntitiesInline entityIds={entityIds} />
               ) : (
                 <EmptyValue />
               )}
@@ -607,5 +593,5 @@ export const useTicketListColumns = (): ColumnDef<TicketListItem>[] => {
       },
       ...propertyColumns,
     ];
-  }, [t, channels, fields]);
+  }, [t, tStructure, channels, fields]);
 };

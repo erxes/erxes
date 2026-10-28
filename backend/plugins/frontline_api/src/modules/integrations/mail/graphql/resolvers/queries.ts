@@ -80,11 +80,11 @@ export const mailQueries = {
   async mailPipelineIntegration(
     _root: undefined,
     { pipelineId }: { pipelineId: string },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('showIntegrations');
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipelineId,
       user,
     );
@@ -99,7 +99,7 @@ export const mailQueries = {
   ) {
     await checkPermission('showTickets');
 
-    const ticket = await findViewableTicket(models, user, ticketId);
+    const ticket = await findViewableTicket(models, subdomain, user, ticketId);
 
     const integration = await findPipelineIntegration(
       models,

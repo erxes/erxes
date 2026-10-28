@@ -11,7 +11,7 @@ export interface IStatus {
   memberIds?: string[];
   canMoveMemberIds?: string[];
   canEditMemberIds?: string[];
-  departmentIds?: string[];
+  sharedEntityIds?: string[];
   state?: string;
   probability?: number;
 }
@@ -28,7 +28,7 @@ export interface IStatusEditInput extends IStatus {
   memberIds?: string[];
   canMoveMemberIds?: string[];
   canEditMemberIds?: string[];
-  departmentIds?: string[];
+  sharedEntityIds?: string[];
   state?: string;
   probability?: number;
 }

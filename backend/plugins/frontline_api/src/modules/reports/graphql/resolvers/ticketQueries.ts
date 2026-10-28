@@ -871,9 +871,10 @@ export const reportTicketQueries = {
     const pipelineIds = uniqueIds('pipelineId');
     const statusIds = uniqueIds('statusId');
     const channelIds = uniqueIds('channelId');
-    const branchIds = uniqueIds('branchId');
-    const departmentIds = uniqueIds('departmentId');
     const allTagIds = [...new Set(tickets.flatMap((t: any) => t.tagIds || []))];
+    const allEntityIds = [
+      ...new Set(tickets.flatMap((t: any) => t.entityIds || [])),
+    ];
 
     const findInCore = (module: string, ids: unknown[]) =>
       ids.length
@@ -888,36 +889,30 @@ export const reportTicketQueries = {
           })
         : [];
 
-    const [
-      members,
-      pipelines,
-      tags,
-      statuses,
-      channels,
-      branches,
-      departments,
-    ] = await Promise.all([
-      findInCore('users', memberIds),
-      pipelineIds.length
-        ? models.Pipeline.find({ _id: { $in: pipelineIds } }).lean()
-        : [],
-      findInCore('tags', allTagIds),
-      statusIds.length
-        ? models.Status.find({ _id: { $in: statusIds } }, { name: 1 }).lean()
-        : [],
-      channelIds.length
-        ? models.Channels.find({ _id: { $in: channelIds } }, { name: 1 }).lean()
-        : [],
-      findInCore('branches', branchIds),
-      findInCore('departments', departmentIds),
-    ]);
+    const [members, pipelines, tags, statuses, channels, entities] =
+      await Promise.all([
+        findInCore('users', memberIds),
+        pipelineIds.length
+          ? models.Pipeline.find({ _id: { $in: pipelineIds } }).lean()
+          : [],
+        findInCore('tags', allTagIds),
+        statusIds.length
+          ? models.Status.find({ _id: { $in: statusIds } }, { name: 1 }).lean()
+          : [],
+        channelIds.length
+          ? models.Channels.find(
+              { _id: { $in: channelIds } },
+              { name: 1 },
+            ).lean()
+          : [],
+        findInCore('structureEntities', allEntityIds),
+      ]);
 
     const toNameMap = (docs: any[], key: string) =>
       new Map(docs.map((doc: any) => [doc._id.toString(), doc[key]]));
     const statusNameMap = toNameMap(statuses as any[], 'name');
     const channelMap = toNameMap(channels as any[], 'name');
-    const branchMap = toNameMap(branches as any[], 'title');
-    const departmentMap = toNameMap(departments as any[], 'title');
+    const entityMap = toNameMap(entities as any[], 'title');
 
     const memberMap = new Map(
       (members as any[]).map((m: any) => [
@@ -976,12 +971,10 @@ export const reportTicketQueries = {
       channelName: ticket.channelId
         ? channelMap.get(ticket.channelId.toString()) || ''
         : '',
-      branchName: ticket.branchId
-        ? branchMap.get(ticket.branchId.toString()) || ''
-        : '',
-      departmentName: ticket.departmentId
-        ? departmentMap.get(ticket.departmentId.toString()) || ''
-        : '',
+      entityNames: (ticket.entityIds || [])
+        .map((id: string) => entityMap.get(id) || '')
+        .filter(Boolean)
+        .join(', '),
       propertiesData: ticket.propertiesData || {},
     }));
   },

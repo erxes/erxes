@@ -12,7 +12,7 @@ export const UPDATE_TICKET_STATUS = gql(`
     $memberIds: [String]
     $canMoveMemberIds: [String]
     $canEditMemberIds: [String]
-    $departmentIds: [String]
+    $sharedEntityIds: [String]
     $state: String
     $probability: Float
   ) {
@@ -27,7 +27,7 @@ export const UPDATE_TICKET_STATUS = gql(`
       memberIds: $memberIds
       canMoveMemberIds: $canMoveMemberIds
       canEditMemberIds: $canEditMemberIds
-      departmentIds: $departmentIds
+      sharedEntityIds: $sharedEntityIds
       state: $state
       probability: $probability
     ) {
@@ -44,7 +44,7 @@ export const UPDATE_TICKET_STATUS = gql(`
       memberIds
       canMoveMemberIds
       canEditMemberIds
-      departmentIds
+      sharedEntityIds
       state
       probability
     }

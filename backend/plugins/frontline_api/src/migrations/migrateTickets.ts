@@ -328,8 +328,7 @@ function buildTicketFields(
     statusType: statusType ?? 0,
     assigneeId: assignedMembers[0],
     assignedMembers,
-    departmentId: doc.departmentIds?.[0],
-    branchId: doc.branchIds?.[0],
+    entityIds: [...(doc.departmentIds || []), ...(doc.branchIds || [])],
     propertiesData: toPropertiesData(doc.customFieldsData, propertyContext),
   };
 }
@@ -353,12 +352,8 @@ function buildRepair(
     set.assignedMembers = fields.assignedMembers;
   }
 
-  if (!existing.departmentId && fields.departmentId) {
-    set.departmentId = fields.departmentId;
-  }
-
-  if (!existing.branchId && fields.branchId) {
-    set.branchId = fields.branchId;
+  if (!existing.entityIds?.length && fields.entityIds.length) {
+    set.entityIds = fields.entityIds;
   }
 
   const untouchedProperties =
@@ -414,16 +409,17 @@ async function migratePipelines(): Promise<void> {
           tagId: doc.tagId,
           isCheckDate: doc.isCheckDate,
           isCheckUser: doc.isCheckUser,
-          isCheckDepartment: doc.isCheckDepartment,
-          isCheckBranch: doc.isCheckBranch,
+          isCheckEntity: !!(doc.isCheckDepartment || doc.isCheckBranch),
           isHideName: doc.isHideName,
           excludeCheckUserIds: doc.excludeCheckUserIds || [],
           numberConfig: doc.numberConfig,
           numberSize: doc.numberSize,
           nameConfig: doc.nameConfig,
           lastNum: doc.lastNum,
-          departmentIds: doc.departmentIds || [],
-          branchIds: doc.branchIds || [],
+          sharedEntityIds: [
+            ...(doc.departmentIds || []),
+            ...(doc.branchIds || []),
+          ],
           createdAt: doc.createdAt || new Date(),
           updatedAt: doc.modifiedAt || doc.createdAt || new Date(),
         },
@@ -519,7 +515,7 @@ async function migrateStatuses(): Promise<void> {
             memberIds: stage.memberIds || [],
             canMoveMemberIds: stage.canMoveMemberIds || [],
             canEditMemberIds: stage.canEditMemberIds || [],
-            departmentIds: stage.departmentIds || [],
+            sharedEntityIds: stage.departmentIds || [],
             state: stage.status === 'archived' ? 'archived' : 'active',
             createdAt: stage.createdAt || new Date(),
             updatedAt: stage.modifiedAt || stage.createdAt || new Date(),
@@ -576,8 +572,7 @@ async function migrateTickets(): Promise<void> {
           priority: 1,
           statusType: 1,
           assignedMembers: 1,
-          departmentId: 1,
-          branchId: 1,
+          entityIds: 1,
           propertiesData: 1,
         },
       },
@@ -635,8 +630,7 @@ async function migrateTickets(): Promise<void> {
             statusType: fields.statusType,
             assigneeId: fields.assigneeId,
             assignedMembers: fields.assignedMembers,
-            departmentId: fields.departmentId,
-            branchId: fields.branchId,
+            entityIds: fields.entityIds,
             createdBy: doc.userId,
             userId: doc.userId,
             attachments: doc.attachments || [],

@@ -18,8 +18,7 @@ export const TICKET_FIELDS = gql(`
     createdBy
     updatedAt
     channelId
-    branchId
-    departmentId
+    entityIds
     statusChangedDate
     number
     pipelineId

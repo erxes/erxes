@@ -125,7 +125,7 @@ const ticketHandler: IConvertTargetHandler = {
       throw new Error('Ticket pipeline not found');
     }
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipeline._id,
       user,
     );
@@ -145,8 +145,7 @@ const ticketHandler: IConvertTargetHandler = {
         description: doc.description,
         priority: toPriorityNumber(doc.priority),
         assigneeId: assignedUserIds[0],
-        branchId: doc.branchIds?.[0],
-        departmentId: doc.departmentIds?.[0],
+        entityIds: doc.entityIds,
         labelIds: doc.labelIds,
         tagIds: doc.tagIds,
         startDate: doc.startDate,
@@ -233,8 +232,7 @@ const dealHandler: IConvertTargetHandler = {
         priority: DEAL_PRIORITIES[toPriorityNumber(doc.priority)],
         labelIds: doc.labelIds,
         tagIds: doc.tagIds,
-        branchIds: doc.branchIds,
-        departmentIds: doc.departmentIds,
+        entityIds: doc.entityIds,
         startDate: doc.startDate,
         closeDate: doc.closeDate,
         attachments: doc.attachments,

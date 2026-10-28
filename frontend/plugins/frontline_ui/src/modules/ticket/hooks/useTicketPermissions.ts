@@ -7,7 +7,7 @@ export interface IStatusPermissions {
   memberIds?: (string | null)[] | null;
   canMoveMemberIds?: (string | null)[] | null;
   canEditMemberIds?: (string | null)[] | null;
-  departmentIds?: (string | null)[] | null;
+  sharedEntityIds?: (string | null)[] | null;
   visibilityType?: string | null;
 }
 

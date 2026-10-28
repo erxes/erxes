@@ -28,7 +28,7 @@ export const types = `
     tagIds: [String]
     customerIds: [String]
     companyIds: [String]
-    branchIds: [String]
+    entityIds: [String]
     pageIds: [String]
     searchValue: String
     propertyIds: [String]

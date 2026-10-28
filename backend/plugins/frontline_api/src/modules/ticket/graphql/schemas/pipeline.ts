@@ -12,16 +12,14 @@ export const types = `
     state: String
     isCheckDate: Boolean
     isCheckUser: Boolean
-    isCheckDepartment: Boolean
-    isCheckBranch: Boolean
+    isCheckEntity: Boolean
     isHideName: Boolean
     excludeCheckUserIds: [String]
     numberConfig: String
     numberSize: String
     nameConfig: String
     lastNum: String
-    departmentIds: [String]
-    branchIds: [String]
+    sharedEntityIds: [String]
     tagId: String
     createdAt: Date
     updatedAt: Date
@@ -83,15 +81,13 @@ const pipelineParams = `
     order: Int
     isCheckDate: Boolean
     isCheckUser: Boolean
-    isCheckDepartment: Boolean
-    isCheckBranch: Boolean
+    isCheckEntity: Boolean
     isHideName: Boolean
     excludeCheckUserIds: [String]
-    branchIds: [String]
     numberConfig: String
     numberSize: String
     nameConfig: String
-    departmentIds: [String],
+    sharedEntityIds: [String],
     visibility: String,
     memberIds :[String]
     createLayout: [[String!]!]
