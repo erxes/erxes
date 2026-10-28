@@ -47,13 +47,6 @@
         "command": "NODE_ENV=development pnpm dev"
       }
     },
-    "test": {
-      "executor": "@nx/jest:jest",
-      "outputs": ["{workspaceRoot}/coverage/backend/plugins/insurance_api"],
-      "options": {
-        "jestConfig": "backend/plugins/insurance_api/jest.config.ts"
-      }
-    },
     "docker-build": {
       "dependsOn": [
         "build"

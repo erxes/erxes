@@ -96,6 +96,5 @@
 - `pnpm nx build insurance_ui`
 - `pnpm nx run insurance_ui:codegen --skip-nx-cache`
 - `pnpm nx run insurance_ui:codegen:watch` (after `codegen`, which composes the schema the watcher reads)
-- `pnpm nx test insurance_ui --passWithNoTests` (Jest is configured; there are currently no test files).
 - `pnpm exec tsc -p frontend/plugins/insurance_ui/tsconfig.app.json --noEmit` (distinguish plugin diagnostics from diagnostics in shared libraries).
 - Smoke scenario: open the insurance navigation and verify insurance type, product, risk, vendor, customer, region, and contract routes load through the remote.

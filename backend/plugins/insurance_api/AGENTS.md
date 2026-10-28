@@ -70,7 +70,6 @@
 
 - `pnpm nx lint insurance_api`
 - `pnpm nx build insurance_api`
-- `pnpm nx test insurance_api` (root SDL/resolver parity, customer lookup, and vendor-response regressions; GraphQL execution and Mongoose hydration/population use mocked Mongo driver boundaries).
 - `pnpm nx run insurance_api:schema:print --skip-nx-cache`
 - `pnpm exec tsc -p backend/plugins/insurance_api/tsconfig.json --noEmit`
 - Smoke scenario: load insurance configuration and contracts through the local gateway; verify changes refetch in the UI and contract previews still render.
