@@ -2,9 +2,10 @@ import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { InsuranceProduct } from '~/modules/insurance/types';
+import { Cell } from '@tanstack/table-core';
 
 interface ProductsMoreColumnProps {
-  cell: any;
+  cell: Cell<InsuranceProduct, unknown>;
   onEdit: (product: InsuranceProduct) => void;
   onDelete: (product: InsuranceProduct) => void;
 }
@@ -15,7 +16,7 @@ export const ProductsMoreColumn = ({
   onDelete,
 }: ProductsMoreColumnProps) => {
   const { t } = useTranslation('insurance');
-  const product = cell.row.original as InsuranceProduct;
+  const product = cell.row.original;
 
   return (
     <DropdownMenu>

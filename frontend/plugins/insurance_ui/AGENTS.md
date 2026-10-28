@@ -6,7 +6,7 @@
 - **Project:** `insurance_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/insurance_ui`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
