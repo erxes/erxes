@@ -29,7 +29,7 @@ const reportChartFiltersSchema = new Schema(
     tagIds: { type: [String], default: undefined },
     customerIds: { type: [String], default: undefined },
     companyIds: { type: [String], default: undefined },
-    branchIds: { type: [String], default: undefined },
+    entityIds: { type: [String], default: undefined },
     pageIds: { type: [String], default: undefined },
     searchValue: { type: String },
     propertyIds: { type: [String], default: undefined },

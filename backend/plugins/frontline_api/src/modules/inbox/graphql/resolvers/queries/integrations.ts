@@ -10,6 +10,7 @@ import { IIntegrationDocument } from '@/inbox/@types/integrations';
 import { ICursorPaginateParams } from 'erxes-api-shared/core-types';
 import { ChannelScopes, IChannelDocument } from '@/channel/@types/channel';
 import { visibleChannelsFilter } from '@/channel/utils';
+import { visibleIntegrationsFilter } from '@/inbox/utils/integrationVisibility';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { IModels } from '~/connectionResolvers';
 import { FilterQuery } from 'mongoose';
@@ -132,29 +133,10 @@ export const integrationQueries = {
     if (!user) {
       throw new Error('User not authenticated');
     }
-    let query = {
+    const query = {
       ...(await generateFilterQuery({ subdomain, ...args })),
+      ...(await visibleIntegrationsFilter(subdomain, user)),
     };
-    if (!user.isOwner) {
-      query = {
-        ...query,
-        $or: [
-          { visibility: { $exists: null } },
-          { visibility: 'public' },
-          {
-            $and: [
-              { visibility: 'private' },
-              {
-                $or: [
-                  { createdUserId: user._id },
-                  { departmentIds: { $in: user?.departmentIds || [] } },
-                ],
-              },
-            ],
-          },
-        ],
-      };
-    }
 
     if (args.kind === 'lead') {
       return models.Integrations.findLeadIntegrations(query, args);

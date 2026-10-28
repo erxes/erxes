@@ -71,14 +71,9 @@ export const TICKET_SEGMENT_FIELDS: SegmentFieldMeta[] = [
   }),
 
   SegmentField.lookup({
-    key: 'branchId',
-    label: 'Branch',
-    query: { name: 'branchesMain', labelField: 'title' },
-  }),
-  SegmentField.lookup({
-    key: 'departmentId',
-    label: 'Department',
-    query: { name: 'departmentsMain', labelField: 'title' },
+    key: 'entityIds',
+    label: 'Structure',
+    query: { name: 'structureEntities', labelField: 'title' },
   }),
   SegmentField.text({ key: 'labelIds', label: 'Labels' }),
   SegmentField.lookup({

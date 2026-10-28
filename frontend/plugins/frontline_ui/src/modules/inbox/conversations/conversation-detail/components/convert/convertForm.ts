@@ -46,8 +46,7 @@ export const buildConvertSchema = (type: ConversationConvertType) =>
     stageId: z.string().min(1, CONVERT_TYPE_OPTIONS[type].stageMessage),
     name: z.string().trim().min(1, 'Name is required'),
     assignedUserIds: z.array(z.string()),
-    branchIds: z.array(z.string()),
-    departmentIds: z.array(z.string()),
+    entityIds: z.array(z.string()),
     attachments: z.array(
       z.object({
         url: z.string(),
@@ -86,10 +85,7 @@ export const hasConvertSystemFieldValue = (value: unknown) =>
     ? value.length > 0
     : value !== undefined && value !== null && value !== '';
 
-export type TConvertIdsFieldName =
-  | 'assignedUserIds'
-  | 'branchIds'
-  | 'departmentIds';
+export type TConvertIdsFieldName = 'assignedUserIds' | 'entityIds';
 
 export const toSingleValue = (value?: string[] | string | null) =>
   (Array.isArray(value) ? value[0] : value) || '';

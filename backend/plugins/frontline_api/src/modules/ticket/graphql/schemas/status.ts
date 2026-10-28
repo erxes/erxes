@@ -14,7 +14,7 @@ export const types = `
     memberIds: [String]
     canMoveMemberIds: [String]
     canEditMemberIds: [String]
-    departmentIds: [String]
+    sharedEntityIds: [String]
     state: String
     probability: Float
   }
@@ -33,7 +33,7 @@ export const types = `
     memberIds: [String]
     canMoveMemberIds: [String]
     canEditMemberIds: [String]
-    departmentIds: [String]
+    sharedEntityIds: [String]
   }
 
 
@@ -52,7 +52,7 @@ const statusParams = `
   memberIds: [String]
   canMoveMemberIds: [String]
   canEditMemberIds: [String]
-  departmentIds: [String]
+  sharedEntityIds: [String]
   state: String
   probability: Float
 `;

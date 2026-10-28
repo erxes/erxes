@@ -265,7 +265,7 @@ export const mailMutations = {
   ) {
     await checkPermission('integrationsEdit');
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipelineId,
       user,
     );
@@ -276,11 +276,11 @@ export const mailMutations = {
   async mailPipelineUpdate(
     _root: undefined,
     { pipelineId, ...settings }: { pipelineId: string } & IPipelineMailSettings,
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('integrationsEdit');
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipelineId,
       user,
     );
@@ -291,11 +291,11 @@ export const mailMutations = {
   async mailPipelineForwardVerified(
     _root: undefined,
     { pipelineId }: { pipelineId: string },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('integrationsEdit');
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipelineId,
       user,
     );
@@ -306,11 +306,11 @@ export const mailMutations = {
   async mailPipelineDisconnect(
     _root: undefined,
     { pipelineId }: { pipelineId: string },
-    { models, user, checkPermission }: IContext,
+    { models, subdomain, user, checkPermission }: IContext,
   ) {
     await checkPermission('integrationsEdit');
 
-    await createPermissionValidator(models).validatePipelineAccess(
+    await createPermissionValidator(models, subdomain).validatePipelineAccess(
       pipelineId,
       user,
     );
@@ -339,7 +339,7 @@ export const mailMutations = {
 
     const note = await models.Note.getNote(noteId);
 
-    await findViewableTicket(models, user, note.contentId);
+    await findViewableTicket(models, subdomain, user, note.contentId);
 
     if (!note.mailMessageId) {
       throw new Error(

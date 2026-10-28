@@ -11,6 +11,7 @@ import { createActivity } from '~/modules/ticket/utils/ticket';
 import { createNotifications } from '~/utils/notifications';
 import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { createPermissionValidator } from '@/ticket/utils/permissionValidator';
+import { getCreatorEntityIds } from '@/ticket/utils/ticketVisibility';
 import {
   isClosingStatus,
   notifyTicketOwner,
@@ -109,6 +110,10 @@ export const loadTicketClass = (
       }
 
       doc.createdBy = userId;
+
+      if (!doc.entityIds?.length) {
+        doc.entityIds = await getCreatorEntityIds(subdomain, userId);
+      }
 
       const ticket = await models.Ticket.create({
         ...doc,

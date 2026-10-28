@@ -1,19 +1,18 @@
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
-import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
-import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
+import { SelectStructureTicket } from '@/ticket/components/ticket-selects/SelectStructureTicket';
 import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
 import { ITicket, TicketHotKeyScope } from '@/ticket/types';
+import { compactList } from '@/shared/utils/cursorList';
 import {
   IconAlertSquareRounded,
   IconCalendarFilled,
-  IconFolder,
-  IconGitBranch,
+  IconHierarchy,
   IconLabelFilled,
   IconProgressCheck,
   IconUser,
@@ -85,6 +84,9 @@ const TicketNameCell = ({ cell }: CellContext<ITicket, unknown>) => {
 
 export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
+  const { t: tStructure } = useTranslation('common', {
+    keyPrefix: 'structure-entities',
+  });
   const checkBoxColumn = RecordTable.checkboxColumn as ColumnDef<ITicket>;
 
   return [
@@ -197,47 +199,23 @@ export const useTicketsColumns = (): ColumnDef<ITicket>[] => {
       size: 170,
     },
     {
-      id: 'branchId',
+      id: 'entityIds',
       header: () => (
         <RecordTable.InlineHead
-          label={t('branch-label', 'Branch')}
-          icon={IconGitBranch}
+          label={tStructure('structure')}
+          icon={IconHierarchy}
         />
       ),
       cell: ({ cell }) => {
         return (
-          <SelectBranchTicket
+          <SelectStructureTicket
             variant="table"
             id={cell.row.original._id}
-            value={cell.row.original.branchId || ''}
+            value={compactList(cell.row.original.entityIds)}
             scope={clsx(
               TicketHotKeyScope.TicketTableCell,
               cell.row.original._id,
-              'Branch',
-            )}
-          />
-        );
-      },
-      size: 170,
-    },
-    {
-      id: 'departmentId',
-      header: () => (
-        <RecordTable.InlineHead
-          label={t('department-label', 'Department')}
-          icon={IconFolder}
-        />
-      ),
-      cell: ({ cell }) => {
-        return (
-          <SelectDepartmentTicket
-            variant="table"
-            id={cell.row.original._id}
-            value={cell.row.original.departmentId || ''}
-            scope={clsx(
-              TicketHotKeyScope.TicketTableCell,
-              cell.row.original._id,
-              'Department',
+              'Structure',
             )}
           />
         );

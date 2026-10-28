@@ -224,13 +224,10 @@ export default {
             if (filter.channelId && ticket.channelId !== filter.channelId)
               return false;
             if (
-              filter.branchIds?.length &&
-              !filter.branchIds.includes(ticket.branchId)
-            )
-              return false;
-            if (
-              filter.departmentIds?.length &&
-              !filter.departmentIds.includes(ticket.departmentId)
+              filter.entityIds?.length &&
+              !(ticket.entityIds || []).some((id: string) =>
+                filter.entityIds.includes(id),
+              )
             )
               return false;
 

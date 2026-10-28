@@ -18,7 +18,7 @@ export const statusSchema = new Schema(
     memberIds: [{ type: String }],
     canMoveMemberIds: [{ type: String }],
     canEditMemberIds: [{ type: String }],
-    departmentIds: [{ type: String }],
+    sharedEntityIds: [{ type: String }],
 
     state: { type: String },
     probability: { type: Number },

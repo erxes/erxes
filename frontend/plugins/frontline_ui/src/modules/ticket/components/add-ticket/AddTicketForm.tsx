@@ -68,8 +68,7 @@ export const AddTicketForm = ({
     name: '',
     priority: 0,
     assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
-    branchId: undefined,
-    departmentId: undefined,
+    entityIds: undefined,
     startDate: undefined,
     targetDate: undefined,
   };

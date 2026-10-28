@@ -1,6 +1,6 @@
 import { Combobox, Form, PopoverScoped, ToggleGroup } from 'erxes-ui';
 import { Control, useWatch } from 'react-hook-form';
-import { SelectMember } from 'ui-modules';
+import { SelectMember, SelectStructureEntities } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { PermissionState } from '@/pipelines/types';
 
@@ -10,6 +10,9 @@ interface PipelineVisibilityProps {
 
 export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
+  const { t: tStructure } = useTranslation('common', {
+    keyPrefix: 'structure-entities',
+  });
   const visibility = useWatch({ control, name: 'visibility' });
 
   return (
@@ -41,6 +44,25 @@ export const PipelineVisibility = ({ control }: PipelineVisibilityProps) => {
           </Form.Item>
         )}
       />
+
+      {visibility === 'private' && (
+        <Form.Field
+          control={control}
+          name="sharedEntityIds"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{tStructure('structure')}</Form.Label>
+              <SelectStructureEntities.FormItem
+                mode="multiple"
+                value={field.value || []}
+                onValueChange={(value) =>
+                  field.onChange(Array.isArray(value) ? value : [])
+                }
+              />
+            </Form.Item>
+          )}
+        />
+      )}
 
       {visibility === 'private' && (
         <Form.Field

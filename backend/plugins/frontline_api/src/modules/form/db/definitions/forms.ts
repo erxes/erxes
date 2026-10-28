@@ -21,7 +21,7 @@ export interface IForm {
   buttonText?: string;
   tagIds?: string[];
 
-  departmentIds?: string[];
+  sharedEntityIds?: string[];
   languageCode?: string;
   visibility?: string;
   status?: string;
@@ -317,10 +317,10 @@ export const formSchema = schemaWrapper(
     channelId: field({ type: String, optional: true, label: 'Channel' }),
 
     leadData: field({ type: leadDataSchema, label: 'Lead data' }),
-    departmentIds: field({
+    sharedEntityIds: field({
       type: [String],
       optional: true,
-      label: 'Departments',
+      label: 'Shared with',
     }),
     languageCode: field({ type: String, optional: true, label: 'Language' }),
     visibility: field({ type: String, optional: true, label: 'Visibility' }),

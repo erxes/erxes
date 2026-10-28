@@ -71,7 +71,7 @@ export const statusQueries = {
           memberIds,
           canMoveMemberIds,
           canEditMemberIds,
-          departmentIds,
+          sharedEntityIds,
           visibilityType,
         }) => ({
           label: name,
@@ -81,7 +81,7 @@ export const statusQueries = {
           memberIds,
           canMoveMemberIds,
           canEditMemberIds,
-          departmentIds,
+          sharedEntityIds,
           visibilityType,
         }),
       );

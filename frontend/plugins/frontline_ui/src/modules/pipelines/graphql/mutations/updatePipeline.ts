@@ -8,11 +8,11 @@ export const UPDATE_PIPELINE = gql(`
     $order: Int
     $excludeCheckUserIds: [String]
     $isCheckDate: Boolean
-    $isCheckBranch: Boolean
     $isCheckUser: Boolean
-    $isCheckDepartment: Boolean
+    $isCheckEntity: Boolean
     $visibility: String
     $memberIds: [String]
+    $sharedEntityIds: [String]
     $numberConfig: String
     $numberSize: String
     $nameConfig: String
@@ -25,11 +25,11 @@ export const UPDATE_PIPELINE = gql(`
       order: $order
       excludeCheckUserIds: $excludeCheckUserIds
       isCheckDate: $isCheckDate
-      isCheckBranch: $isCheckBranch
       isCheckUser: $isCheckUser
-      isCheckDepartment: $isCheckDepartment
+      isCheckEntity: $isCheckEntity
       visibility: $visibility
       memberIds: $memberIds
+      sharedEntityIds: $sharedEntityIds
       numberConfig: $numberConfig
       numberSize: $numberSize
       nameConfig: $nameConfig
@@ -45,11 +45,11 @@ export const UPDATE_PIPELINE = gql(`
       pipelineId
       excludeCheckUserIds
       isCheckDate
-      isCheckBranch
       isCheckUser
-      isCheckDepartment
+      isCheckEntity
       visibility
       memberIds
+      sharedEntityIds
       numberConfig
       numberSize
       nameConfig

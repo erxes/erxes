@@ -14,16 +14,14 @@ export interface ITicketPipeline {
   state?: string;
   isCheckDate?: boolean;
   isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  isCheckBranch?: boolean;
+  isCheckEntity?: boolean;
   isHideName?: boolean;
   excludeCheckUserIds?: string[];
   numberConfig?: string;
   numberSize?: string;
   nameConfig?: string;
   lastNum?: string;
-  departmentIds?: string[];
-  branchIds?: string[];
+  sharedEntityIds?: string[];
   tagId?: string;
   visibility?: string;
   memberIds?: string[];

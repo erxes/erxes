@@ -1,21 +1,16 @@
 import { ITicketDocument } from '@/ticket/@types/ticket';
 import { IUserDocument } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getStructureUserContext } from 'erxes-api-shared/core-modules';
 import { FilterQuery } from 'mongoose';
 
 export interface IVisibilityPipeline {
   isCheckUser?: boolean;
-  isCheckDepartment?: boolean;
-  isCheckBranch?: boolean;
+  isCheckEntity?: boolean;
   isCheckDate?: boolean;
   excludeCheckUserIds?: string[];
-  departmentIds?: string[];
 }
 
-type TVisibilityUser = Pick<
-  IUserDocument,
-  '_id' | 'role' | 'isOwner' | 'departmentIds' | 'branchIds'
->;
+type TVisibilityUser = Pick<IUserDocument, '_id' | 'role' | 'isOwner'>;
 
 const startOfToday = () => {
   const start = new Date();
@@ -32,12 +27,12 @@ export const canSeeAllPipelineTickets = (
   (pipeline.excludeCheckUserIds || []).includes(user._id);
 
 export const isPipelineRestricted = (pipeline: IVisibilityPipeline): boolean =>
-  !!(pipeline.isCheckUser || pipeline.isCheckDepartment || pipeline.isCheckBranch);
+  !!(pipeline.isCheckUser || pipeline.isCheckEntity);
 
 export const buildVisibilityCondition = (
   pipeline: IVisibilityPipeline,
   user: TVisibilityUser | undefined,
-  supervisedDepartmentIds: string[] = [],
+  visibleEntityIds: string[] = [],
 ): FilterQuery<ITicketDocument> | null => {
   const userId = user?._id;
 
@@ -66,24 +61,8 @@ export const buildVisibilityCondition = (
       );
     }
 
-    const userDepartmentIds = user.departmentIds || [];
-
-    if (pipeline.isCheckDepartment && userDepartmentIds.length) {
-      orClauses.push({ departmentId: { $in: userDepartmentIds } });
-
-      const supervisedOnPipeline = supervisedDepartmentIds.filter((id) =>
-        (pipeline.departmentIds || []).includes(id),
-      );
-
-      if (supervisedOnPipeline.length) {
-        orClauses.push({ departmentId: { $in: supervisedOnPipeline } });
-      }
-    }
-
-    const userBranchIds = user.branchIds || [];
-
-    if (pipeline.isCheckBranch && userBranchIds.length) {
-      orClauses.push({ branchId: { $in: userBranchIds } });
+    if (pipeline.isCheckEntity && visibleEntityIds.length) {
+      orClauses.push({ entityIds: { $in: visibleEntityIds } });
     }
 
     conditions.push({ $or: orClauses });
@@ -100,19 +79,63 @@ export const buildVisibilityCondition = (
   return conditions.length === 1 ? conditions[0] : { $and: conditions };
 };
 
-export const getSupervisedDepartmentIds = async (
+export const getVisibleEntityIds = async (
   subdomain: string,
   userId: string,
 ): Promise<string[]> => {
-  const departments: { _id: string }[] = await sendTRPCMessage({
+  const { entityIds, boundaryEntityIds } = await getStructureUserContext(
     subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'departments',
-    action: 'findWithChild',
-    input: { query: { supervisorId: userId }, fields: { _id: 1 } },
-    defaultValue: [],
-  });
+    userId,
+  );
 
-  return (departments || []).map(({ _id }) => _id);
+  return [...new Set([...entityIds, ...boundaryEntityIds])];
+};
+
+export interface IPipelineAccess {
+  visibility?: string;
+  userId?: string;
+  memberIds?: string[];
+  sharedEntityIds?: string[];
+}
+
+export const getPrincipalEntityIds = async (
+  subdomain: string | undefined,
+  userId: string,
+): Promise<string[]> =>
+  subdomain
+    ? (await getStructureUserContext(subdomain, userId)).principalEntityIds
+    : [];
+
+export const canUsePipeline = (
+  pipeline: IPipelineAccess,
+  userId: string | undefined,
+  principalEntityIds: string[],
+): boolean =>
+  pipeline.visibility !== 'private' ||
+  (!!userId &&
+    (pipeline.userId === userId ||
+      (pipeline.memberIds || []).includes(userId) ||
+      (pipeline.sharedEntityIds || []).some((id) =>
+        principalEntityIds.includes(id),
+      )));
+
+export const usablePipelinesFilter = (
+  userId: string,
+  principalEntityIds: string[],
+) => ({
+  $or: [
+    { visibility: { $ne: 'private' } },
+    { userId },
+    { memberIds: userId },
+    { sharedEntityIds: { $in: principalEntityIds } },
+  ],
+});
+
+export const getCreatorEntityIds = async (
+  subdomain: string,
+  userId: string,
+): Promise<string[]> => {
+  const { primaryEntityId } = await getStructureUserContext(subdomain, userId);
+
+  return primaryEntityId ? [primaryEntityId] : [];
 };

@@ -5,6 +5,9 @@ import { visibleChannelsFilter } from '@/channel/utils';
 jest.mock('~/connectionResolvers', () => ({}));
 jest.mock('@/integrations/facebook/commonUtils', () => ({}));
 jest.mock('@/channel/utils', () => ({ visibleChannelsFilter: jest.fn() }));
+jest.mock('@/inbox/utils/integrationVisibility', () => ({
+  visibleIntegrationsFilter: jest.fn(),
+}));
 jest.mock('erxes-api-shared/utils', () => ({ markResolvers: jest.fn() }));
 
 const integrations = [

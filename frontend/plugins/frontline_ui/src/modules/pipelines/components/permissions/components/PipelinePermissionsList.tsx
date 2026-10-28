@@ -80,7 +80,7 @@ const VisibilityRuleRow = ({
         control={control}
         name={rule.name}
         render={({ field }) => (
-          <PermissionRule field={field} label={t(rule.label)} />
+          <PermissionRule field={field} label={t(rule.label, rule.fallback)} />
         )}
       />
 
@@ -230,12 +230,12 @@ export const PipelinePermissionsList = memo(() => {
     defaultValues: {
       _id: pipelineId,
       dayAfterCreated: false,
-      branchOnly: false,
+      structureOnly: false,
       myTicketsOnly: false,
-      departmentOnly: false,
       selectedUsers: [],
       visibility: 'public',
       memberIds: [],
+      sharedEntityIds: [],
     },
   });
 
@@ -268,13 +268,13 @@ export const PipelinePermissionsList = memo(() => {
       const formValues: PermissionState = {
         _id: pipeline._id || '',
         dayAfterCreated: pipeline.isCheckDate || false,
-        branchOnly: pipeline.isCheckBranch || false,
+        structureOnly: pipeline.isCheckEntity || false,
         myTicketsOnly: pipeline.isCheckUser || false,
-        departmentOnly: pipeline.isCheckDepartment || false,
         selectedUsers: compactList(pipeline.excludeCheckUserIds),
         visibility:
           pipeline.visibility?.trim() === 'private' ? 'private' : 'public',
         memberIds: compactList(pipeline.memberIds),
+        sharedEntityIds: compactList(pipeline.sharedEntityIds),
       };
 
       if (!initialValuesRef.current) {
@@ -298,6 +298,7 @@ export const PipelinePermissionsList = memo(() => {
       currentVisibility === 'public'
     ) {
       form.setValue('memberIds', []);
+      form.setValue('sharedEntityIds', []);
       form.setValue('selectedUsers', []);
     }
 
@@ -311,14 +312,15 @@ export const PipelinePermissionsList = memo(() => {
 
     const hasChanges =
       formValues.dayAfterCreated !== initialValues.dayAfterCreated ||
-      formValues.branchOnly !== initialValues.branchOnly ||
+      formValues.structureOnly !== initialValues.structureOnly ||
       formValues.myTicketsOnly !== initialValues.myTicketsOnly ||
-      formValues.departmentOnly !== initialValues.departmentOnly ||
       formValues.visibility !== initialValues.visibility ||
       JSON.stringify(formValues.selectedUsers) !==
         JSON.stringify(initialValues.selectedUsers) ||
       JSON.stringify(formValues.memberIds) !==
-        JSON.stringify(initialValues.memberIds);
+        JSON.stringify(initialValues.memberIds) ||
+      JSON.stringify(formValues.sharedEntityIds) !==
+        JSON.stringify(initialValues.sharedEntityIds);
 
     if (hasChanges) {
       isUpdatingRef.current = true;
@@ -328,11 +330,11 @@ export const PipelinePermissionsList = memo(() => {
           _id: pipeline._id,
           excludeCheckUserIds: formValues.selectedUsers,
           isCheckDate: formValues.dayAfterCreated,
-          isCheckBranch: formValues.branchOnly,
+          isCheckEntity: formValues.structureOnly,
           isCheckUser: formValues.myTicketsOnly,
-          isCheckDepartment: formValues.departmentOnly,
           visibility: formValues.visibility,
           memberIds: formValues.memberIds,
+          sharedEntityIds: formValues.sharedEntityIds,
         },
       })
         .then(() => {

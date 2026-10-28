@@ -13,8 +13,7 @@ export interface IConversationConvertVariables {
   itemName: string;
   stageId: string;
   assignedUserIds?: string[];
-  branchIds?: string[];
-  departmentIds?: string[];
+  entityIds?: string[];
   description?: string;
   customFieldsData?: Record<string, unknown>;
   attachments?: IConversationConvertAttachment[];
