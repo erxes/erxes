@@ -1,3 +1,12 @@
+
+
+## [3.4.4](https://github.com/erxes/erxes/compare/3.4.3...3.4.4) (2026-10-28)
+
+
+### Features
+
+* change relation ([c80eeb9](https://github.com/erxes/erxes/commit/c80eeb9c421b93f2f533a5a9253476637e41644a))
+
 # Changelog
 
 ## [3.4.3](https://github.com/erxes/erxes/compare/3.4.2...3.4.3) (2026-10-27)

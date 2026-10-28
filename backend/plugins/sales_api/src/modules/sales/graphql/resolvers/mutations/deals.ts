@@ -207,8 +207,6 @@ export const dealMutations: Record<string, Resolver> = {
       })),
     };
 
-    delete doc.sourceConversationIds;
-
     for (const param of [
       'productsData',
       'paymentsData',

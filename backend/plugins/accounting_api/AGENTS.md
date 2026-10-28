@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -163,6 +163,7 @@
 - Fixed asset adjustment headers and depreciation details are one feature: keep both schemas in `db/definitions/adjustFixedAsset.ts`, both model loaders in `db/models/AdjustFixedAssets.ts`, their types in `@types/adjustFixedAsset.ts`, and their queries and SDL in the corresponding `adjustFixedAssets.ts` / `adjustFixedAsset.ts` files. Details belong to the parent adjustment and have no independent lifecycle. Keep `adjust_fixed_assets`, `adjust_fxa_details`, permissions and public GraphQL field names stable.
 
 - Deal → transaction handlers (`meta/afterProcessHandlers/dealToTrs.ts`, `dealToMovementTrs.ts`) take the deal owner from `getDealOwner` (`meta/afterProcessHandlers/utils.ts`): its company, else its customer, read from the deal's own `customerId` / `companyId` (no relations). Keep the completeness check local; this code runs under tests that mock `erxes-api-shared/utils`.
+- Manual deal sync retains nullable `companyId` and `customerId` in its Sales tRPC document type. Sale, payment and receivable rows share the selected deal owner; movement resync replaces the previous transaction owner with the current deal owner. Returns retain the original sale transaction owner.
 - Transaction model callers supply complete follow rows to `commonRemove` and its validators for every journal. Group update/removal reuse the loaded parent/group rows; single removal loads its source's follows before dispatch. Journal removal handlers consume that context without fallback follow lookups.
 - Inventory outgoing adjustment groups and their records are processed sequentially through promise chains. Preserve record order, apply the outgoing cache write before reallocating execution income, and check pointers only after the affected transaction totals have been recalculated.
 - Real-job production preparation delegates each inventory location to the module-level `costProductionGroup` helper. Keep location and row processing sequential, share the plan's output arrays across groups, and keep lexical function nesting at five levels or fewer.

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -370,7 +370,7 @@
   the settings status sheet's `StatusNameColorField`, which takes the
   caller's `form`, and adds a type field) and selects the new record once its list
   has refetched. Create is on only where `allowCreate` is passed: every
-  `FormItem` variant (add ticket, conversation convert, help center drawer,
+  `FormItem` variant (add ticket, help center drawer,
   pipeline config, automation create-ticket action) and the status select's
   root (ticket detail, card, table). Pipeline needs a channel, status a
   pipeline, and the status option also `ticketStatusesManage`. No create
@@ -411,16 +411,9 @@
   switch (default off).
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
-- The conversation header carries a **Convert** menu. Each entry opens
-  `ConvertDialog`, a centred dialog laid out like the 1.x convert modal: the
-  target fields (ticket: channel → pipeline → status; deal: board → pipeline →
-  stage), then name, assigned to, branch and department (single for a ticket,
-  multiple for a deal), attachments, description and the Settings → Properties
-  fields. A conversation converts to a ticket or a deal only; there is no task
-  target, because operation's own `tasks` relation widget in the conversation
-  sidebar creates and lists related tasks. Saving calls
-  `conversationConvertToCard`; once a kind exists the entry becomes
-  `Go to a …` and navigates to the item's URL.
+- Conversations have no Convert menu. Tickets and deals are created from
+  their own apps or from the conversation rail's Tickets / Deals tabs, and
+  keep only the customer (`customerId`), never the conversation.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -731,7 +724,6 @@ owns the setup form and connection actions.
 | Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
 | Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
-| Conversation convert      | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
 | Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
@@ -873,11 +865,16 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `useSidePanel().openRecord` in `ConversationSideWidget`. The
-  conversation's right rail (`SideMenu`) holds a customer button, which closes
-  any open rail tab and opens the conversation's customer in the app side panel
+- `ui-modules`: `useSidePanel().openRecord`, `useRelationWidget` and
+  `getRelationWidgetLabel` in `ConversationSideWidget`. The conversation's
+  right rail (`SideMenu`) holds a customer button, which closes any open rail
+  tab and opens the conversation's customer in the app side panel
   (`core:customer`, where its linked records, Tracked data included, are
-  shown), and the conversation Properties tab. No relation widgets are rendered
+  shown); a **Tickets** tab (frontline `ticket`) and a **Deals** tab (sales
+  `deals`) — the relation widgets rendered with the conversation's
+  `customerId`, so they list and create that customer's tickets and deals —
+  shown only when the conversation has a customer and the plugin is enabled;
+  and the conversation Properties tab. No other relation widgets are rendered
   beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
@@ -984,12 +981,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   the Facebook board's data. `reportFacebookPosts` pages on the server
   (`limit` + `page` in the filter), every other card pages client-side through
   `useChartPagination`.
-- `frontline_api` GraphQL `conversationConvertToCard` and
-  `conversationConvertedItems` — the conversation Convert menu.
-- `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
-  `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
-  the Convert menu's visibility; `useFields`, `PropertyFormField` and
-  `isFieldVisibleByLogic` — convert-time properties.
 - `react-i18next` with the `frontline` namespace. The ticket note surfaces use
   keys the gateway locales do not carry yet, so they render their inline
   English fallback: `write-a-message`, `add-note`, `ticket-reply-portal-only`,
@@ -1306,34 +1297,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `formSetSetupAtom` reads it null-safely, falls back to the default
   `Initial step` when it has no steps, and places a field without
   `pageNumber` on page 1 — never dereference `payload.leadData` directly.
-- The Convert menu shows the deal entry only when the `sales` plugin config is
-  loaded, and each entry only with its create action (`createTicket`,
-  `dealsAdd`) on top of `conversationConvertToCard`.
-- The convert dialog keeps its own open state and never touches
-  `ticketCreateSheetState` / `ticketCreateDefaultValuesState`, which the ticket
-  relation widget in the same sidebar drives. Its ticket pickers reuse
-  `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
-  status pickers watch `channelId` / `pipelineId` on whatever form they are
-  given, so a form using them must name those fields exactly that.
-- Convert-time properties come only from Settings → Properties, the same way
-  for every kind: `frontline:ticket` or `sales:deal` fields
-  whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
-  passes, rendered per field group under a `Properties` heading at the bottom
-  of the dialog. Ticket pipeline property selection does not filter them.
-  Multi-row groups are not offered at convert time. The values are sent as
-  `customFieldsData` without empty entries.
-- Convert-time system fields come from core `propertySystemFields` (the Settings
-  → Properties "Basic information" group) through `FrontlineConvertSystemFields`.
-  Priority, tags, start date and due date render only when their system field
-  has `Visible to create` on and its display logic passes; `Required` blocks
-  submit while empty. `useConvertSystemFields` resolves which keys show;
-  `getConvertSystemFieldCode` maps a form key to the kind's code, and only
-  `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
-  `targetDate` on tickets and tasks). Name, stage,
-  assignee, branch, department, attachments and description stay always shown.
-- A successful convert refetches `ConversationConvertedItems` and evicts
-  cached `getTickets` / `deals` lists, so the menu and the customer's lists
-  update without a reload. Convert makes no relation.
 - Any new call atom created with `atomWithStorage` must also be reset in
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset
@@ -2701,10 +2664,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   at once, shows up under the destination channel, and is still there after a
   reload. Select two forms and move them from the command bar; selecting forms
   from two channels on `/frontline/forms` must leave that button disabled.
-- Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
-  `…a deal` and `…a task`; each save shows a success toast, the entry turns
-  into `Go to a …`, and the customer button's side panel lists the new item
-  under Tickets/Deals/Tasks.
+- Smoke (conversation rail): open a conversation that has a customer; the
+  rail shows Tickets and Deals tabs listing that customer's tickets and deals,
+  and "+" in each creates one already linked to the customer.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a client portal on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -497,6 +497,7 @@
   `posInEbarimt` eBarimt settings.
 - Loyalty-facing sales deal payloads through published target/reference
   contracts, not loyalty internals.
+- Deals keep their customer (`customerId`), never the inbox conversation they came from: there is no `sourceConversationIds` field, no conversation convert (`salesConvertToInfo` and the "converted" activity log are gone), and the create-deal automations attach the triggering conversation's customer. Stored `sourceConversationIds` values are left in place but nothing reads them.
 
 ## Data and State
 

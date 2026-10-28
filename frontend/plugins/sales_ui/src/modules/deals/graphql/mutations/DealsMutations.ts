@@ -27,7 +27,6 @@ export const ADD_DEALS = gql(`
     $isComplete: Boolean
     $status: String
     $priority: String
-    $sourceConversationIds: [String]
     $propertiesData: JSON
     $tagIds: [String]
     $branchIds: [String]
@@ -59,7 +58,6 @@ export const ADD_DEALS = gql(`
       isComplete: $isComplete
       status: $status
       priority: $priority
-      sourceConversationIds: $sourceConversationIds
       propertiesData: $propertiesData
       tagIds: $tagIds
       branchIds: $branchIds
@@ -96,7 +94,6 @@ export const EDIT_DEALS = gql(`
     $isComplete: Boolean
     $status: String
     $priority: String
-    $sourceConversationIds: [String]
     $propertiesData: JSON
     $tagIds: [String]
     $branchIds: [String]
@@ -128,7 +125,6 @@ export const EDIT_DEALS = gql(`
       isComplete: $isComplete
       status: $status
       priority: $priority
-      sourceConversationIds: $sourceConversationIds
       propertiesData: $propertiesData
       tagIds: $tagIds
       branchIds: $branchIds

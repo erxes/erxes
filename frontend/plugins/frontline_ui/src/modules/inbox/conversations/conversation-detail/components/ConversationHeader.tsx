@@ -43,7 +43,6 @@ import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { ConversationSharedEmail } from '@/inbox/conversations/conversation-detail/components/ConversationSharedEmail';
-import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useRef, useState } from 'react';
 import {
@@ -479,7 +478,6 @@ export const ConversationHeader = () => {
       <div className="ml-auto flex min-w-0 items-center gap-3">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
-        <ConversationConvert />
         {isCompact ? (
           <ConversationActionsDropdown showAssignee={hideAssignee} />
         ) : (

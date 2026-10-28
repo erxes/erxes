@@ -64,6 +64,7 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
     debtAccountId = '',
     allowRealJobProduction = false,
     hasProducts = true,
+    owner: { companyId?: string | null; customerId?: string | null } = {},
   ) => {
     const config: Parameters<typeof dealToTrs>[0]['config'] = {
       dateRule: 'alwaysNow',
@@ -107,6 +108,7 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
         ...context,
         deal: {
           _id: 'deal',
+          ...owner,
           productsData: hasProducts
             ? [
                 {
@@ -177,6 +179,32 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       details: [{ accountId: 'cash-account', amount: 100 }],
     });
   });
+
+  if (source === 'deal') {
+    it.each([
+      [{ companyId: 'company', customerId: 'customer' }, 'company', 'company'],
+      [{ companyId: null, customerId: 'customer' }, 'customer', 'customer'],
+      [{ companyId: 'company', customerId: null }, 'company', 'company'],
+      [{ companyId: null, customerId: null }, 'customer', undefined],
+    ] as const)(
+      'copies direct deal owner %j to sale, payment and receivable rows',
+      async (owner, customerType, customerId) => {
+        const docs = await sync(
+          60,
+          'cash-account',
+          'debt-account',
+          false,
+          true,
+          owner,
+        );
+        expect(docs).toHaveLength(3);
+        for (const doc of docs) {
+          expect(doc.customerType).toBe(customerType);
+          expect(doc.customerId).toBe(customerId);
+        }
+      },
+    );
+  }
 
   it('propagates transaction errors to the sync caller', async () => {
     createPTransaction.mockRejectedValueOnce(

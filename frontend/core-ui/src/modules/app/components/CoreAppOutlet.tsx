@@ -7,6 +7,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
+import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
 import {
   findAppActivityByPath,
   isOrganizationSettingsPath,
@@ -46,7 +47,7 @@ export const CoreAppOutlet = () => {
   if (isOrganizationSettingsPath(pathname)) {
     return (
       <AppLayout
-        id="core:settings"
+        id={SETTINGS_TAB_ID}
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
