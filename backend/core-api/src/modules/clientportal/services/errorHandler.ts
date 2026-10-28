@@ -1,3 +1,5 @@
+import { ExpectedError } from 'erxes-api-shared/utils';
+
 class BaseError extends Error {
   constructor(name: string, message: string) {
     super(message);
@@ -11,9 +13,9 @@ export class AuthenticationError extends BaseError {
   }
 }
 
-export class ValidationError extends BaseError {
+export class ValidationError extends ExpectedError {
   constructor(message: string) {
-    super('ValidationError', message);
+    super(message, 'VALIDATION_ERROR');
   }
 }
 
