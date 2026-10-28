@@ -1,18 +1,22 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, ScrollArea, Sheet, Form, useToast } from 'erxes-ui';
+import { Button, ScrollArea, Form, useToast } from 'erxes-ui';
 import { ApolloError } from '@apollo/client';
 import {
   type ProductAttachmentItem,
   useFieldGroups,
   useFields,
 } from 'ui-modules';
-import { productFormSchema, ProductFormValues } from './formSchema';
-import { CategoryAddSheetHeader } from '../../components/AddProductCategoryForm';
-import { ProductCategoriesAddCoreFields } from './CategoryAddCoreFields';
-import { ProductCategoryAddMoreFields } from './CategoryAddMoreFields';
-import { useAddCategory } from '../hooks/useAddCategory';
+import {
+  productFormSchema,
+  ProductFormValues,
+} from '@/products/product-category/add-category/components/formSchema';
+import { CategoryAddSheetHeader } from '@/products/product-category/components/AddProductCategoryForm';
+import { ProductCategoriesAddCoreFields } from '@/products/product-category/add-category/components/CategoryAddCoreFields';
+import { ProductCategoryAddMoreFields } from '@/products/product-category/add-category/components/CategoryAddMoreFields';
+import { useAddCategory } from '@/products/product-category/add-category/hooks/useAddCategory';
 import { useTranslation } from 'react-i18next';
 
 export function AddCategoryForm({
@@ -100,7 +104,7 @@ export function AddCategoryForm({
         className="flex overflow-hidden flex-col h-full"
       >
         <CategoryAddSheetHeader />
-        <Sheet.Content className="overflow-hidden flex-auto">
+        <CoreModulePanel.Content className="overflow-hidden flex-auto">
           <ScrollArea className="h-full">
             <div className="p-5">
               <ProductCategoriesAddCoreFields form={form} />
@@ -113,9 +117,9 @@ export function AddCategoryForm({
               />
             </div>
           </ScrollArea>
-        </Sheet.Content>
+        </CoreModulePanel.Content>
 
-        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+        <CoreModulePanel.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button
             type="button"
             variant="ghost"
@@ -131,7 +135,7 @@ export function AddCategoryForm({
           >
             {editLoading ? t('saving') : t('save')}
           </Button>
-        </Sheet.Footer>
+        </CoreModulePanel.Footer>
       </form>
     </Form>
   );

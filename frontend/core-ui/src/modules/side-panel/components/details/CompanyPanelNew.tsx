@@ -12,6 +12,7 @@ import {
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 import { useDebounce } from 'use-debounce';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -66,7 +67,8 @@ type TCompanyForm = z.infer<typeof companySchema>;
  */
 export const CompanyPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { openRecord, back, canGoBack, close } = useSidePanel();
+  const { back, canGoBack, close } = useSidePanel();
+  const onCreated = useCreatedPanelRecord('core:company');
   const client = useApolloClient();
   const { companiesAdd, loading } = useAddCompany();
   const form = useForm<TCompanyForm>({
@@ -109,10 +111,7 @@ export const CompanyPanelNew = () => {
       onCompleted: ({ companiesAdd: created }) => {
         // Company lists read again, the new one included.
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'companies' });
-        openRecord(
-          { contentType: 'core:company', contentId: created._id },
-          { replace: true },
-        );
+        onCreated(created._id);
       },
     });
 

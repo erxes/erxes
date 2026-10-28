@@ -7,11 +7,10 @@ import {
   useFileDownload,
   useFilesUpload,
 } from 'ui-modules';
-import { useFilesPage } from '../context/FilesPageContext';
-import { useFilesActions } from './useFilesActions';
-import { useFilesPreviewMode } from './useFilesPreviewMode';
-import { useFilesShare } from './useFilesShare';
-import { useFilesVersions } from './useFilesVersions';
+import { useFilesPage } from '@/files/context/FilesPageContext';
+import { useFilesActions } from '@/files/hooks/useFilesActions';
+import { useFilesShare } from '@/files/hooks/useFilesShare';
+import { useFilesVersions } from '@/files/hooks/useFilesVersions';
 
 export type TFilesPreviewTab = 'preview' | 'versions';
 
@@ -54,7 +53,6 @@ export const useFilesPreviewPanel = () => {
   } = useFilesPage();
   const [tab, setTab] = useState<TFilesPreviewTab>('preview');
   const { remove } = useFilesActions();
-  const { isSplit, toggleMode } = useFilesPreviewMode();
   const { download } = useFileDownload();
   const { upload } = useFilesUpload();
   // Functional update: the upload may finish after the sheet changed.
@@ -73,8 +71,6 @@ export const useFilesPreviewPanel = () => {
 
   return {
     file: previewFile,
-    isSplit,
-    toggleMode,
     tone: previewFile ? toneOf(previewFile.mimeType) : '',
     meta: previewFile
       ? metaOf(

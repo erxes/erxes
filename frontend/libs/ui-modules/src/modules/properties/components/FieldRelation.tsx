@@ -1,5 +1,5 @@
 import { SelectCompany, SelectCustomer } from 'ui-modules/modules/contacts';
-import { SpecificFieldProps } from './Field';
+import { SpecificFieldProps } from 'ui-modules/modules/properties/components/Field';
 import { ComponentType, useState } from 'react';
 import { SelectProduct } from 'ui-modules/modules/products';
 import {
@@ -16,6 +16,13 @@ type RelationSelectProps = {
 };
 
 const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
+
+const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
+  inCell ? (
+    <SelectMember.InlineCell {...props} {...COMMON_PROPS} />
+  ) : (
+    <SelectMember {...props} {...COMMON_PROPS} />
+  );
 
 const RELATION_SELECT_BY_TYPE: Record<
   string,
@@ -39,12 +46,8 @@ const RELATION_SELECT_BY_TYPE: Record<
     ) : (
       <SelectProduct {...props} {...COMMON_PROPS} />
     ),
-  'core:teamMembers': ({ inCell, ...props }) =>
-    inCell ? (
-      <SelectMember.InlineCell {...props} {...COMMON_PROPS} />
-    ) : (
-      <SelectMember {...props} {...COMMON_PROPS} />
-    ),
+  'core:user': MemberRelation,
+  'core:teamMembers': MemberRelation,
   'core:branch': ({ inCell, ...props }) =>
     inCell ? (
       <SelectBranches.InlineCell {...props} {...COMMON_PROPS} />
@@ -83,7 +86,7 @@ export const FieldRelation = ({
       inCell={inCell}
       onValueChange={(val = null) => {
         setCurrentValue(val);
-        val !== value && handleChange(val);
+        if (val !== value) handleChange(val);
       }}
     />
   );

@@ -1,20 +1,14 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconChessKnight } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Sheet,
-  Spinner,
-  useQueryState,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Spinner, useQueryState, useToast } from 'erxes-ui';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { useBrandsForm } from '../hooks/useBrandsForm';
+import { useBrandsForm } from '@/settings/brands/hooks/useBrandsForm';
 import { SubmitHandler } from 'react-hook-form';
-import { BrandsForm } from './BrandsForm';
-import { useBrandsEdit } from '../hooks/useBrandsEdit';
-import { TBrandsForm } from '../types';
+import { BrandsForm } from '@/settings/brands/components/BrandsForm';
+import { useBrandsEdit } from '@/settings/brands/hooks/useBrandsEdit';
+import { TBrandsForm } from '@/settings/brands/types';
 import { ApolloError } from '@apollo/client';
 import { useBrandById } from '@/settings/brands/hooks/useBrandById';
 
@@ -81,7 +75,8 @@ export const BrandsEdit = () => {
   }, [brand, methods]);
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'settings/brands/BrandsEdit'}
       open={!!brandId}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -90,21 +85,21 @@ export const BrandsEdit = () => {
         }
       }}
     >
-      <Sheet.View className="p-0">
+      <CoreModulePanel.View className="p-0">
         <Form {...methods}>
           <form
             className="flex flex-col gap-0 size-full"
             onSubmit={handleSubmit(submitHandler)}
           >
-            <Sheet.Header>
+            <CoreModulePanel.Header>
               <IconChessKnight />
-              <Sheet.Title>{t('edit-brand')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+              <CoreModulePanel.Title>{t('edit-brand')}</CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full flex flex-col px-5 py-4">
               <BrandsForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button
                 variant={'secondary'}
                 onClick={() => {
@@ -117,10 +112,10 @@ export const BrandsEdit = () => {
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? <Spinner /> : t('update')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

@@ -95,7 +95,10 @@ type QueryValues<T extends QueryTypes> = {
 
 export function useMultiQueryState<T extends QueryTypes>(
   queryKeys: (keyof T)[],
-): [QueryValues<T>, (values: Partial<QueryValues<T>>) => void] {
+): [
+  QueryValues<T>,
+  (values: Partial<QueryValues<T>>, options?: { replace?: boolean }) => void,
+] {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const parseQueryValue = <K extends keyof T>(
@@ -124,7 +127,10 @@ export function useMultiQueryState<T extends QueryTypes>(
     return acc;
   }, {} as QueryValues<T>);
 
-  const setQueries = (values: Partial<QueryValues<T>>) => {
+  const setQueries = (
+    values: Partial<QueryValues<T>>,
+    options?: { replace?: boolean },
+  ) => {
     const nextParams = getSearchParamsDraft();
     let hasChanges = false;
 
@@ -146,7 +152,7 @@ export function useMultiQueryState<T extends QueryTypes>(
     if (!hasChanges) return;
 
     updateSearchParamsDraft(nextParams);
-    setSearchParams(nextParams, { replace: true });
+    setSearchParams(nextParams, { replace: options?.replace ?? true });
   };
 
   return [queries, setQueries];

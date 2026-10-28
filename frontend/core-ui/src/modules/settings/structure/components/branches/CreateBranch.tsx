@@ -1,22 +1,28 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconGitBranch, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
   Spinner,
   useScopedHotkeys,
   useToast,
 } from 'erxes-ui';
 import { useEffect } from 'react';
 import { ApolloError } from '@apollo/client';
-import { BranchHotKeyScope, TBranchForm } from '../../types/branch';
-import { BranchForm } from './BranchForm';
-import { useBranchForm } from '../../hooks/useBranchForm';
+import {
+  BranchHotKeyScope,
+  TBranchForm,
+} from '@/settings/structure/types/branch';
+import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
+import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
 import { SubmitHandler } from 'react-hook-form';
-import { useBranchAdd, useBranchEdit } from '../../hooks/useBranchActions';
-import { useBranchCreateSheet } from '../../hooks/useStructureCreateSheet';
+import {
+  useBranchAdd,
+  useBranchEdit,
+} from '@/settings/structure/hooks/useBranchActions';
+import { useBranchCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateBranch = () => {
@@ -84,19 +90,21 @@ export const CreateBranch = () => {
     });
   };
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="branchesManage"
+      name={'settings/structure/branches/CreateBranch'}
       onOpenChange={(open) => (open ? openSheet() : closeSheet())}
       open={isOpen}
     >
       <Can action="branchesManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus /> {t('create-branch')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -107,27 +115,27 @@ export const CreateBranch = () => {
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconGitBranch size={16} />
                 {t('create-branch-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <BranchForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={closeSheet}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? <Spinner /> : t('create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

@@ -1,14 +1,14 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ProductRuleForm } from './ProductRuleForm';
+import { ProductRuleForm } from '@/products/settings/components/productsConfig/productRule/ProductRuleForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 
@@ -43,21 +43,23 @@ export const ProductRuleSheet = () => {
   );
 
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="productRulesManage"
+      name={'products/settings/productsConfig/productRule/ProductRuleSheet'}
       onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="productRulesManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
             {t('add-product-rule')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -72,7 +74,7 @@ export const ProductRuleSheet = () => {
             }
           }}
         />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

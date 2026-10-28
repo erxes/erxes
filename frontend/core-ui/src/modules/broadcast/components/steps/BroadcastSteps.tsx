@@ -1,14 +1,15 @@
-import { Resizable, Sheet } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Resizable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   BroadcastStepsProvider,
   useBroadcastSteps,
-} from '../../context/BroadcastStepsContext';
-import { TBroadcastStepsOptions } from '../../hooks/useBroadcastStepsState';
-import { BroadcastPreview } from '../BroadcastPreview';
-import { BroadcastScheduleField } from './BroadcastScheduleField';
-import { BroadcastStepActions } from './BroadcastStepActions';
-import { BroadcastStepContent } from './BroadcastStepContent';
+} from '@/broadcast/context/BroadcastStepsContext';
+import { TBroadcastStepsOptions } from '@/broadcast/hooks/useBroadcastStepsState';
+import { BroadcastPreview } from '@/broadcast/components/BroadcastPreview';
+import { BroadcastScheduleField } from '@/broadcast/components/steps/BroadcastScheduleField';
+import { BroadcastStepActions } from '@/broadcast/components/steps/BroadcastStepActions';
+import { BroadcastStepContent } from '@/broadcast/components/steps/BroadcastStepContent';
 
 export const BroadcastSteps = (options: TBroadcastStepsOptions) => (
   <BroadcastStepsProvider {...options}>
@@ -22,15 +23,15 @@ const BroadcastStepsHeader = () => {
   const { messageId } = useBroadcastSteps();
 
   return (
-    <Sheet.Header>
-      <Sheet.Title>
+    <CoreModulePanel.Header>
+      <CoreModulePanel.Title>
         {t(messageId ? 'steps.edit-title' : 'steps.new-title')}
-      </Sheet.Title>
+      </CoreModulePanel.Title>
       <div className="ml-auto mr-2 flex items-center gap-2">
         <BroadcastScheduleField />
       </div>
-      <Sheet.Close />
-    </Sheet.Header>
+      <CoreModulePanel.Close />
+    </CoreModulePanel.Header>
   );
 };
 
@@ -51,9 +52,9 @@ const BroadcastStepsLayout = () => {
         defaultSize={isWorkflow ? 26 : 40}
         minSize={isWorkflow ? 20 : 35}
       >
-        <Sheet.Content className="grow overflow-hidden flex flex-col">
+        <CoreModulePanel.Content className="grow overflow-hidden flex flex-col">
           <BroadcastStepContent />
-        </Sheet.Content>
+        </CoreModulePanel.Content>
         <BroadcastStepActions />
       </Resizable.Panel>
 

@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
@@ -33,7 +34,6 @@ import {
   Dialog,
   DropdownMenu,
   IconComponent,
-  Sheet,
 } from 'erxes-ui';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -246,29 +246,36 @@ const WorkflowSelectedNodes = ({
 
 const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
   const { t } = useTranslation('automations');
+  const { workflowId } = useWorkflowNodeContext();
   const [open, setOpen] = useState(false);
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={`automations/workflow/${workflowId}`}
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <CoreModulePanel.Trigger asChild>
         <Button variant="ghost" size="icon">
           <IconArrowsMaximize className="size-4" />
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 md:w-[calc(80vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-        <Sheet.Header className="h-auto py-2">
+      </CoreModulePanel.Trigger>
+      <CoreModulePanel.View className="p-0 md:w-[calc(80vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
+        <CoreModulePanel.Header className="h-auto py-2">
           <div>
-            <Sheet.Title>{t('workflow-label')}</Sheet.Title>
-            <Sheet.Description>
+            <CoreModulePanel.Title>{t('workflow-label')}</CoreModulePanel.Title>
+            <CoreModulePanel.Description>
               {t('workflow-select-action-description')}
-            </Sheet.Description>
+            </CoreModulePanel.Description>
           </div>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content>
+          <CoreModulePanel.Close />
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content>
           {open && <WorkflowActionMapper id={data.automationId} />}
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+        </CoreModulePanel.Content>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 

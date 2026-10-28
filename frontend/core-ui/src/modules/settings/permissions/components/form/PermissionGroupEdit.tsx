@@ -1,10 +1,14 @@
+import {
+  CoreFocusPanel,
+  CoreModulePanel,
+} from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { useEditPermissionGroup } from '@/settings/permissions/hooks/useEditPermissionGroup';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
 import { IPermissionGroup } from '@/settings/permissions/types';
-import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
+import { Button, toast } from 'erxes-ui';
 import { useCallback, useState } from 'react';
-import { PermissionGroupForm } from './PermissionGroupForm';
+import { PermissionGroupForm } from '@/settings/permissions/components/form/PermissionGroupForm';
 
 export const PermissionGroupEdit = ({
   group,
@@ -51,19 +55,23 @@ export const PermissionGroupEdit = ({
   };
 
   return (
-    <FocusSheet open={open} onOpenChange={setOpen}>
+    <CoreFocusPanel
+      name={`settings/permissions/${group._id}/edit`}
+      open={open}
+      onOpenChange={setOpen}
+    >
       {trigger ? (
-        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
+        <CoreModulePanel.Trigger asChild>{trigger}</CoreModulePanel.Trigger>
       ) : (
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button variant="ghost" size="sm">
             {t('edit')}
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       )}
-      <FocusSheet.View>
-        <FocusSheet.Header title={t('edit-permission-group')} />
-        <FocusSheet.Content>
+      <CoreFocusPanel.View>
+        <CoreFocusPanel.Header title={t('edit-permission-group')} />
+        <CoreFocusPanel.Content>
           <PermissionGroupForm
             key={group._id}
             defaultValues={defaultValues}
@@ -72,8 +80,8 @@ export const PermissionGroupEdit = ({
             isSubmitting={loading}
             mode="edit"
           />
-        </FocusSheet.Content>
-      </FocusSheet.View>
-    </FocusSheet>
+        </CoreFocusPanel.Content>
+      </CoreFocusPanel.View>
+    </CoreFocusPanel>
   );
 };
