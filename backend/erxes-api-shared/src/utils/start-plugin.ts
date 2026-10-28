@@ -48,7 +48,11 @@ import {
   expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { extractUserFromHeader } from './headers';
+import {
+  assertInternalHeaderSignatureConfig,
+  extractUserFromHeader,
+  identityHeadersGuard,
+} from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
 import {
@@ -172,6 +176,8 @@ export async function startPlugin(
   } = configs || {};
   const PORT = process.env.PORT ? Number(process.env.PORT) : port;
 
+  assertInternalHeaderSignatureConfig();
+
   Sentry.getGlobalScope().setTags({
     plugin: name,
     service: name,
@@ -190,6 +196,10 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
+
+  // Ignore gateway identity headers whose signature does not verify
+  // (INTERNAL_HEADER_SIGNATURE=enforce) before any route reads them.
+  app.use(identityHeadersGuard);
 
   // for health check
   app.get('/health', async (_req, res) => {

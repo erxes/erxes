@@ -10,9 +10,11 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
+  assertInternalHeaderSignatureConfig,
   closeMongooose,
   createTRPCContext,
   getSubdomain,
+  identityHeadersGuard,
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
@@ -47,6 +49,9 @@ Sentry.getGlobalScope().setTags({
 
 dotenv.config();
 
+// Refuse to start when signature enforcement cannot verify anything.
+assertInternalHeaderSignatureConfig();
+
 const collectionToContentType = new Map<string, string>(
   coreLogsConfig.contentTypes.map((c) => [
     c.collectionName,
@@ -75,6 +80,10 @@ app.use(
 );
 
 app.use(cookieParser());
+
+// Ignore gateway identity headers whose signature does not verify
+// (INTERNAL_HEADER_SIGNATURE=enforce) before any route reads them.
+app.use(identityHeadersGuard);
 
 const corsOptions = {
   credentials: true,

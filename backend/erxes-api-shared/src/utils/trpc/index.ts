@@ -4,11 +4,17 @@ import {
   TRPCRequestOptions,
 } from '@trpc/client';
 import * as trpcExpress from '@trpc/server/adapters/express';
-import { IncomingHttpHeaders } from 'http';
 import { getPlugin, isEnabled } from '../service-discovery';
 import { generateRequestProcess, getEnv } from '../utils';
 import { setEventHandlerRuntimeContext } from '../../core-modules/common/eventHandlers/runtimeContext';
 import { createInternalHTTPBatchLink } from './httpBatchLink';
+import {
+  decodeTRPCContextHeader,
+  getTRPCContextHeaders,
+  isTRPCContextHeaderTrusted,
+} from './context-header';
+
+export * from './context-header';
 
 export type MessageProps = {
   subdomain: string;
@@ -58,49 +64,6 @@ export interface RPError {
 export type RPResult = RPSuccess | RPError;
 export type RP = (params: InterMessage) => RPResult | Promise<RPResult>;
 
-export const trpcContextHeaderName = 'x-trpc-context';
-
-export function encodeTRPCContextHeader(
-  subdomain: string,
-  method: 'query' | 'mutation',
-  context: CommonTRPCContext | undefined,
-): string {
-  const contextData = {
-    subdomain,
-    method,
-    ...context,
-  };
-  const contextJson = JSON.stringify(contextData);
-  return Buffer.from(contextJson, 'utf8').toString('base64');
-}
-
-/**
- * Decode the base64 JSON tRPC context header into tenant, method, and caller
- * context. Returns null when the header is absent or malformed. Note: the
- * header is an encoding, not an authentication credential.
- */
-export function decodeTRPCContextHeader(headers: IncomingHttpHeaders): {
-  subdomain: string;
-  method: 'query' | 'mutation';
-  context: CommonTRPCContext;
-} | null {
-  const contextHeader = headers[trpcContextHeaderName];
-  if (!contextHeader) {
-    return null;
-  }
-  if (Array.isArray(contextHeader)) {
-    throw new Error(`Multiple ${trpcContextHeaderName} headers`);
-  }
-  try {
-    const contextJson = Buffer.from(contextHeader, 'base64').toString('utf-8');
-    const decoded = JSON.parse(contextJson);
-    const { subdomain, method, ...context } = decoded;
-    return { subdomain, method, context };
-  } catch (error) {
-    return null;
-  }
-}
-
 export const sendTRPCMessage = async ({
   subdomain,
   pluginName,
@@ -126,19 +89,16 @@ export const sendTRPCMessage = async ({
   const VERSION = getEnv({ name: 'VERSION' });
 
   let client;
+  const requestMethod = method;
 
   try {
-    // Encode context into header
-    const contextHeader = encodeTRPCContextHeader(subdomain, method, context);
-
     if (VERSION && VERSION === 'saas') {
       client = createTRPCUntypedClient({
         links: [
           createInternalHTTPBatchLink({
             url: `https://${subdomain}.next.erxes.io/gateway/pl:${pluginName}/trpc`,
-            headers: () => ({
-              [trpcContextHeaderName]: contextHeader,
-            }),
+            headers: () =>
+              getTRPCContextHeaders(subdomain, requestMethod, context),
           }),
         ],
       });
@@ -159,9 +119,8 @@ export const sendTRPCMessage = async ({
         links: [
           createInternalHTTPBatchLink({
             url: `${pluginInfo.address}/trpc`,
-            headers: () => ({
-              [trpcContextHeaderName]: contextHeader,
-            }),
+            headers: () =>
+              getTRPCContextHeaders(subdomain, requestMethod, context),
           }),
         ],
       });
@@ -238,7 +197,11 @@ export const createTRPCContext =
     const reqContext = decoded?.context;
     const method = decoded?.method || 'query';
 
-    if (!subdomain || (method === 'mutation' && !reqContext)) {
+    if (
+      !subdomain ||
+      (method === 'mutation' && !reqContext) ||
+      !isTRPCContextHeaderTrusted(req.headers)
+    ) {
       throw new Error('Invalid context');
     }
 

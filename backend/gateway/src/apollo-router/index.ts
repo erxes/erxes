@@ -12,6 +12,7 @@ import {
   supergraphPath,
 } from '~/apollo-router/paths';
 import supergraphCompose from '~/apollo-router/supergraph-compose';
+import { getRouterHeadersConfig } from '~/apollo-router/headers';
 
 dotenv.config();
 
@@ -170,9 +171,16 @@ const downloadRouter = async () => {
   }
 };
 
-const createRouterConfig = async () => {
+export const createRouterConfig = async () => {
   if (NODE_ENV === 'production' && fs.existsSync(routerConfigPath)) {
-    // Don't rewrite in production if it exists. Delete and restart to update the config
+    // Keep an existing production config (operators may have edited it), but
+    // always refresh the header rules so it never forwards client headers the
+    // allow-list excludes.
+    const existing = yaml.parse(fs.readFileSync(routerConfigPath, 'utf8'));
+    fs.writeFileSync(
+      routerConfigPath,
+      yaml.stringify({ ...existing, headers: getRouterHeadersConfig() }),
+    );
     return;
   }
 
@@ -210,17 +218,7 @@ const createRouterConfig = async () => {
     cors: {
       allow_credentials: true,
     },
-    headers: {
-      all: {
-        request: [
-          {
-            propagate: {
-              matching: '.*',
-            },
-          },
-        ],
-      },
-    },
+    headers: getRouterHeadersConfig(),
     supergraph: {
       listen: `127.0.0.1:${apolloRouterPort}`,
       introspection:

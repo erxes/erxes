@@ -2,6 +2,11 @@ import * as dotenv from 'dotenv';
 import { Express } from 'express';
 import { createProxyMiddleware, fixRequestBody } from 'http-proxy-middleware';
 import { Agent, ServerResponse } from 'http';
+import {
+  getPlugin,
+  identitySignatureHeaderName,
+  signIdentityHeaders,
+} from 'erxes-api-shared/utils';
 import { apolloRouterPort } from '~/apollo-router';
 import { ErxesProxyTarget } from '~/proxy/targets';
 
@@ -32,7 +37,9 @@ export const proxyReq = (proxyReq, req: any) => {
     }
   };
 
-  safeSetHeader('hostname', req.hostname || '');
+  // Same precedence as `getSubdomain`, so services resolve the tenant the
+  // gateway authenticated the request against.
+  safeSetHeader('hostname', String(req.headers.hostname || req.hostname || ''));
   safeSetHeader('userid', req.user?._id || '');
 
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
@@ -73,6 +80,18 @@ export const proxyReq = (proxyReq, req: any) => {
     'x-forwarded-proto',
     req.protocol || (req.socket?.encrypted ? 'https' : 'http'),
   );
+
+  // Sign the identity headers exactly as they leave the gateway, so services
+  // can tell them apart from forged ones (see INTERNAL_HEADER_SIGNATURE).
+  if (!proxyReq.headersSent) {
+    const signature = signIdentityHeaders(proxyReq.getHeaders());
+
+    if (signature) {
+      proxyReq.setHeader(identitySignatureHeaderName, signature);
+    } else {
+      proxyReq.removeHeader(identitySignatureHeaderName);
+    }
+  }
 
   if (!proxyReq.headersSent) {
     fixRequestBody(proxyReq, req);
@@ -128,6 +147,39 @@ export const proxyError = (error, req: any, res?: any) => {
     });
   }
 };
+
+// `/pl:<service>/*` forwards to that service's own HTTP routes. Requests have
+// already passed userMiddleware, so they carry only gateway-minted identity.
+export function applyPluginProxy(app: Express) {
+  app.use('/pl:serviceName', async (req, res) => {
+    try {
+      const serviceName: string = req.params.serviceName.replace(':', '');
+
+      const service = await getPlugin(serviceName);
+
+      const targetUrl = service.address;
+
+      if (targetUrl) {
+        // Proxy the request to the target service using the custom headers
+        return createProxyMiddleware({
+          target: targetUrl,
+          changeOrigin: true, // Change the origin header to the target URL's origin
+          on: {
+            proxyReq,
+          },
+          pathRewrite: {
+            [`^/pl:${serviceName}`]: '/', // Rewriting the path if needed
+          },
+        })(req, res); // Forward the request to the target service
+      } else {
+        // Service not found, return 404
+        res.status(404).send('Service not found');
+      }
+    } catch {
+      res.status(500).send('Error fetching services');
+    }
+  });
+}
 
 export function applyProxiesCoreless(app: Express) {
   app.use(

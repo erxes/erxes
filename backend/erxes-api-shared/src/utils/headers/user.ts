@@ -1,9 +1,15 @@
 import { IncomingHttpHeaders } from 'http';
+import {
+  clientPortalHeaderName,
+  cpUserHeaderName,
+  userHeaderName,
+  userIdHeaderName,
+} from './names';
+import { isIdentityHeaderTrusted } from './signature';
 
-export const userHeaderName = 'user';
-export const clientPortalHeaderName = 'clientportal';
-export const cpUserHeaderName = 'cpuser';
-
+// Identity headers are trusted only when their gateway signature verifies
+// (or, in report mode, when the unsigned value is tolerated). An untrusted
+// header reads as unauthenticated.
 export function extractUserFromHeader(headers: IncomingHttpHeaders): any {
   const userHeader = headers[userHeaderName];
   if (!userHeader) {
@@ -11,6 +17,9 @@ export function extractUserFromHeader(headers: IncomingHttpHeaders): any {
   }
   if (Array.isArray(userHeader)) {
     throw new Error(`Multiple user headers`);
+  }
+  if (!isIdentityHeaderTrusted(headers)) {
+    return null;
   }
   const userJson = Buffer.from(userHeader, 'base64').toString('utf-8');
   return JSON.parse(userJson);
@@ -25,6 +34,9 @@ export function extractCPUserFromHeader(headers: IncomingHttpHeaders): any {
 
   if (Array.isArray(cpUserHeader)) {
     throw new Error(`Multiple cp user headers`);
+  }
+  if (!isIdentityHeaderTrusted(headers)) {
+    return null;
   }
   const cpUserJson = Buffer.from(cpUserHeader, 'base64').toString('utf-8');
   return JSON.parse(cpUserJson);
@@ -41,6 +53,9 @@ export function extractClientPortalFromHeader(
 
   if (Array.isArray(clientPortalHeader)) {
     throw new Error(`Multiple client portal headers`);
+  }
+  if (!isIdentityHeaderTrusted(headers)) {
+    return null;
   }
   const clientPortalJson = Buffer.from(clientPortalHeader, 'base64').toString(
     'utf-8',
@@ -87,7 +102,7 @@ export function setUserHeader(headers: IncomingHttpHeaders, user: any) {
     user._id,
     compactUserForHeader(user),
   );
-  headers['userid'] = user._id || '';
+  headers[userIdHeaderName] = user._id || '';
 }
 
 export function setCPUserHeader(headers: IncomingHttpHeaders, cpUser: any) {

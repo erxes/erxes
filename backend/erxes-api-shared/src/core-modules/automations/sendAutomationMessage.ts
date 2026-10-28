@@ -2,10 +2,7 @@ import { TCreatedVia } from '../../core-types/common';
 import { sendWorkerQueue } from '../../utils/mq-worker';
 import type { DefaultJobOptions } from 'bullmq';
 import { createTRPCUntypedClient, httpBatchLink } from '@trpc/client';
-import {
-  encodeTRPCContextHeader,
-  trpcContextHeaderName,
-} from '../../utils/trpc';
+import { getTRPCContextHeaders } from '../../utils/trpc';
 import { redis } from '../../utils/redis';
 
 type TSendAutomationTriggerProps = {
@@ -54,19 +51,11 @@ export const sendAutomationTrigger = (
           );
         }
 
-        const contextHeader = encodeTRPCContextHeader(
-          subdomain,
-          'mutation',
-          {},
-        );
-
         const client = createTRPCUntypedClient({
           links: [
             httpBatchLink({
               url: trpcUrl,
-              headers: () => ({
-                [trpcContextHeaderName]: contextHeader,
-              }),
+              headers: () => getTRPCContextHeaders(subdomain, 'mutation', {}),
             }),
           ],
         });
@@ -141,19 +130,11 @@ export const sendAutomationRun = (
           );
         }
 
-        const contextHeader = encodeTRPCContextHeader(
-          subdomain,
-          'mutation',
-          {},
-        );
-
         const client = createTRPCUntypedClient({
           links: [
             httpBatchLink({
               url: trpcUrl,
-              headers: () => ({
-                [trpcContextHeaderName]: contextHeader,
-              }),
+              headers: () => getTRPCContextHeaders(subdomain, 'mutation', {}),
             }),
           ],
         });
@@ -204,13 +185,7 @@ export const sendAutomationDeferredCompletion = async (
     links: [
       httpBatchLink({
         url: `${address}/trpc`,
-        headers: () => ({
-          [trpcContextHeaderName]: encodeTRPCContextHeader(
-            subdomain,
-            'mutation',
-            {},
-          ),
-        }),
+        headers: () => getTRPCContextHeaders(subdomain, 'mutation', {}),
       }),
     ],
   });
