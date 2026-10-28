@@ -1,7 +1,7 @@
 import { IModels } from '~/connectionResolvers';
 import {
   buildImportUpdateDoc,
-  readImportBulkOutcome,
+  runImportBulkWrite,
 } from '~/meta/import-export/utils';
 import { prepareCompanyDoc } from './utils';
 
@@ -78,25 +78,17 @@ export async function processCompanyRows(
     }
 
     if (operations.length > 0) {
-      // unordered so one refused row does not abandon the rest of the batch
-      const result = await models.Companies.bulkWrite(operations, {
-        ordered: false,
-      });
+      const outcomes = await runImportBulkWrite(models.Companies, operations);
 
       for (const [row, meta] of rowToMetaMap.entries()) {
-        const isInsert = !meta._id;
-        const { error, insertedId } = readImportBulkOutcome({
-          bulkResult: result,
-          operationIndex: meta.operationIndex,
-          isInsert,
-        });
+        const { error, insertedId } = outcomes[meta.operationIndex];
 
         if (error) {
           errorRows.push({ ...row, error });
           continue;
         }
 
-        successRows.push({ ...row, _id: isInsert ? insertedId : meta._id });
+        successRows.push({ ...row, _id: meta._id ?? insertedId });
       }
     }
 

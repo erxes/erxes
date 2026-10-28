@@ -263,40 +263,6 @@ export const buildImportUpdateDoc = (
   return updateDoc;
 };
 
-/**
- * Read what a bulkWrite actually did with one operation.
- *
- * Mongoose reports per-write failures — a rejected enum, a failed cast, a
- * duplicate key — in `mongoose.results` rather than throwing, so a caller that
- * only looks at `insertedIds` counts rejected rows as successes and loses the
- * message explaining why the row was refused.
- */
-export const readImportBulkOutcome = ({
-  bulkResult,
-  operationIndex,
-  isInsert,
-}: {
-  bulkResult: any;
-  operationIndex: number;
-  isInsert: boolean;
-}): { error?: string; insertedId?: unknown } => {
-  const failure = bulkResult?.mongoose?.results?.[operationIndex];
-
-  if (failure) {
-    return { error: failure.message || String(failure) };
-  }
-
-  if (!isInsert) {
-    return {};
-  }
-
-  const insertedIds = bulkResult?.insertedIds || {};
-  const insertedId =
-    insertedIds[operationIndex] ?? insertedIds[String(operationIndex)];
-
-  return insertedId ? { insertedId } : { error: 'Insert was not acknowledged' };
-};
-
 type TMongooseBulkWriteInfo = {
   validationErrors: Error[];
   results: Array<Error | mongo.WriteError | null>;
