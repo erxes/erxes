@@ -12,6 +12,7 @@ export * from './redis';
 export * from './saas';
 export * from './sanitize';
 export * from './service-discovery';
+export * from './service-role';
 export * from './start-plugin';
 export * from './trpc';
 export * from './trpc/sendCoreModuleProducer';

@@ -77,12 +77,14 @@ startPlugin({
   onServerInit: async (app) => {
     await initCallApp(app);
     // initDiscord();
+  },
+
+  onWorkerInit: async () => {
     startFacebookCommentOutboxWorker();
     startFacebookInputTimeoutWorker();
     startCustomDomainWorker();
     startScheduledPublishWorker();
   },
-
   apolloServerContext: async (subdomain, context) => {
     const models = await generateModels(subdomain, context);
 

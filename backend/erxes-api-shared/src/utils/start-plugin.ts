@@ -17,7 +17,10 @@ import { DocumentNode, GraphQLScalarType } from 'graphql';
 import * as http from 'http';
 import * as path from 'path';
 import rateLimit from 'express-rate-limit';
-import { startPayments } from '../common-modules/payment/worker';
+import {
+  registerPayments,
+  startPaymentsWorker,
+} from '../common-modules/payment/worker';
 import type { IContactFieldsMeta } from '../core-modules/contact-fields';
 import {
   type IAgentPluginMeta,
@@ -39,7 +42,10 @@ import {
 } from '../core-modules';
 import { AutomationConfigs } from '../core-modules/automations/types';
 import type { ImportExportConfigs } from '../core-modules/import-export/types';
-import { startImportExportWorker } from '../core-modules/import-export/worker';
+import {
+  mountImportExportRoute,
+  startImportExportWorkers,
+} from '../core-modules/import-export/worker';
 import { IMainContext, IPermissionConfig } from '../core-types';
 import {
   generateApolloContext,
@@ -56,6 +62,7 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
 } from './service-discovery';
+import { readServiceRole } from './service-role';
 import { createTRPCContext } from './trpc';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
@@ -132,7 +139,11 @@ type ConfigTypes = {
     req: ApiRequest,
     res: ApiResponse,
   ) => Promise<IMainContext>;
+  // Runs with SERVICE_ROLE all | api.
   onServerInit?: (app: express.Express) => Promise<void>;
+  // Queue consumers; runs with SERVICE_ROLE all | worker. Workers left in
+  // onServerInit keep running in the api process.
+  onWorkerInit?: () => Promise<void>;
   middlewares?: any;
   apiHandlers?: ApiHandler[];
   hasSubscriptions?: boolean;
@@ -148,38 +159,18 @@ type ConfigTypes = {
   meta?: IMeta;
 };
 
-export async function startPlugin(
-  configs: ConfigTypes,
-): Promise<express.Express> {
-  const {
-    //common
-    name,
-    port,
-    // api configs
+const mountApiRoutes = (
+  app: express.Express,
+  {
     corsOptions = {},
     expressRouter,
     middlewares,
     apiHandlers,
-    // graphql
     hasSubscriptions,
     subscriptionPluginPath,
-    graphql,
-    apolloServerContext,
     trpcAppRouter,
-    onServerInit,
-    // meta
-    meta,
-  } = configs || {};
-  const PORT = process.env.PORT ? Number(process.env.PORT) : port;
-
-  Sentry.getGlobalScope().setTags({
-    plugin: name,
-    service: name,
-  });
-
-  const app = express();
-  applyTrustProxy(app);
-  app.disable('x-powered-by');
+  }: ConfigTypes,
+) => {
   app.use(cors(corsOptions));
   app.use(
     express.json({
@@ -190,11 +181,6 @@ export async function startPlugin(
     }),
   );
   app.use(cookieParser());
-
-  // for health check
-  app.get('/health', async (_req, res) => {
-    res.end('ok');
-  });
 
   app.get('/debug-sentry', () => {
     throw new Error('Sentry test error: ' + new Date().toISOString());
@@ -293,15 +279,146 @@ export async function startPlugin(
 
     next();
   });
+};
 
-  // Error handling middleware
-  // app.use((error: any, _req: any, res: any) => {
-  //   const msg = filterXSS(error.message);
+const mountGraphql = async (
+  app: express.Express,
+  httpServer: http.Server,
+  { graphql, apolloServerContext }: ConfigTypes,
+) => {
+  const { typeDefs, resolvers } = await graphql();
 
-  //   // debugError(`Error: ${msg}`);
+  const apolloServer = new ApolloServer({
+    schema: buildSubgraphSchema([
+      {
+        typeDefs,
+        resolvers: wrapApolloResolvers(resolvers as any),
+      },
+    ]),
 
-  //   res.status(500).send(msg);
-  // });
+    // for graceful shutdown
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      expectedErrorPlugin,
+    ],
+  });
+
+  await apolloServer.start();
+
+  app.use(
+    '/graphql',
+    expressMiddleware(apolloServer, {
+      context: generateApolloContext<IMainContext>(apolloServerContext),
+    }),
+  );
+};
+
+// Publishes the plugin's meta to service discovery and mounts its producer routes.
+const initMetaProducers = async (
+  app: express.Express,
+  name: string,
+  meta: IMeta,
+) => {
+  const {
+    automations,
+    segments,
+    afterProcess,
+    notifications,
+    payments,
+    beforeResolvers,
+    references,
+    importExport,
+    approval,
+    properties,
+    agent,
+  } = meta;
+
+  for (const { skill, reason } of validateAgentPluginMeta(agent).rejections) {
+    console.warn(
+      `[agent] ${name} ${
+        skill ? `skill "${skill}"` : 'metadata'
+      } ignored: ${reason}`,
+    );
+  }
+
+  if (beforeResolvers) {
+    await startBeforeResolvers(app, name, beforeResolvers);
+  }
+
+  if (afterProcess) {
+    await startAfterProcess(app, name, afterProcess);
+  }
+
+  if (references) {
+    await initRecordReferences(app, name, references);
+  }
+
+  if (approval) {
+    await initApproval(app, name, approval);
+  }
+
+  if (automations) {
+    await startAutomations(app, name, automations);
+  }
+
+  if (segments) {
+    await initSegmentProducers(app, name, segments);
+  }
+
+  if (properties?.valueUsage) {
+    initPropertyProducers(app, properties.valueUsage);
+  }
+
+  if (notifications) {
+    await initializePluginConfig(name, 'notifications', notifications);
+  }
+
+  if (importExport) {
+    mountImportExportRoute({ pluginName: name, config: importExport, app });
+  }
+
+  if (payments) {
+    await registerPayments(name, payments);
+  }
+};
+
+const startMetaWorkers = async (name: string, meta: IMeta) => {
+  const { importExport, payments } = meta;
+
+  if (importExport) {
+    startImportExportWorkers({ pluginName: name, config: importExport });
+  }
+
+  if (payments) {
+    await startPaymentsWorker(name, payments);
+  }
+};
+
+export async function startPlugin(
+  configs: ConfigTypes,
+): Promise<express.Express> {
+  const { name, port, hasSubscriptions, onServerInit, onWorkerInit, meta } =
+    configs || {};
+  const PORT = process.env.PORT ? Number(process.env.PORT) : port;
+  const { role, runsApi, runsWorkers } = readServiceRole();
+
+  Sentry.getGlobalScope().setTags({
+    plugin: name,
+    service: runsApi ? name : `${name}-worker`,
+  });
+
+  const app = express();
+  applyTrustProxy(app);
+  app.disable('x-powered-by');
+
+  // for health check; a worker answers nothing else
+  app.get('/health', async (_req, res) => {
+    res.end('ok');
+  });
+
+  if (runsApi) {
+    mountApiRoutes(app, configs);
+  }
 
   const httpServer = http.createServer(
     { maxHeaderSize: MAX_HEADER_BYTES },
@@ -343,133 +460,59 @@ export async function startPlugin(
     process.on(sig, async () => {
       await closeHttpServer();
       await closeMongooose();
-      await leaveServiceDiscovery();
+
+      // A worker never joined the gateway.
+      if (runsApi) {
+        await leaveServiceDiscovery();
+      }
+
       process.exit(0);
     });
   });
 
-  const generateApolloServer = async () => {
-    // const services = await getServices();
-    // debugInfo(`Enabled services .... ${JSON.stringify(services)}`);
-
-    const { typeDefs, resolvers } = await graphql();
-
-    return new ApolloServer({
-      schema: buildSubgraphSchema([
-        {
-          typeDefs,
-          resolvers: wrapApolloResolvers(resolvers as any),
-        },
-      ]),
-
-      // for graceful shutdown
-      plugins: [
-        ApolloServerPluginDrainHttpServer({ httpServer }),
-        expectedErrorPlugin,
-      ],
-    });
-  };
-
-  const apolloServer = await generateApolloServer();
-  await apolloServer.start();
-
-  app.use(
-    '/graphql',
-    expressMiddleware(apolloServer, {
-      context: generateApolloContext<IMainContext>(apolloServerContext),
-    }),
-  );
+  if (runsApi) {
+    await mountGraphql(app, httpServer, configs);
+  }
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve),
   );
 
-  console.log(
-    `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
-  );
+  if (runsApi) {
+    console.log(
+      `🚀 ${name} graphql api ready at http://localhost:${PORT}/graphql`,
+    );
 
-  await joinErxesGateway({
-    name,
-    port: PORT,
-    hasSubscriptions,
-    meta,
-  });
+    await joinErxesGateway({
+      name,
+      port: PORT,
+      hasSubscriptions,
+      meta,
+    });
 
-  if (meta) {
-    const {
-      automations,
-      segments,
-      afterProcess,
-      notifications,
-      payments,
-      beforeResolvers,
-      references,
-      importExport,
-      approval,
-      properties,
-      agent,
-    } = meta || {};
-
-    for (const { skill, reason } of validateAgentPluginMeta(agent).rejections) {
-      console.warn(
-        `[agent] ${name} ${
-          skill ? `skill "${skill}"` : 'metadata'
-        } ignored: ${reason}`,
-      );
+    if (meta) {
+      await initMetaProducers(app, name, meta);
     }
 
-    if (beforeResolvers) {
-      await startBeforeResolvers(app, name, beforeResolvers);
+    if (onServerInit) {
+      onServerInit(app);
     }
-
-    if (afterProcess) {
-      await startAfterProcess(app, name, afterProcess);
-    }
-
-    if (references) {
-      await initRecordReferences(app, name, references);
-    }
-
-    if (approval) {
-      await initApproval(app, name, approval);
-    }
-
-    if (automations) {
-      await startAutomations(app, name, automations);
-    }
-
-    if (segments) {
-      await initSegmentProducers(app, name, segments);
-    }
-
-    if (properties?.valueUsage) {
-      initPropertyProducers(app, properties.valueUsage);
-    }
-
-    if (notifications) {
-      await initializePluginConfig(name, 'notifications', notifications);
-    }
-
-    if (importExport) {
-      startImportExportWorker({
-        pluginName: name,
-        config: importExport,
-        app,
-      });
-    }
-
-    if (payments) {
-      await startPayments(name, payments);
-    }
-  } // end meta if
-
-  if (onServerInit) {
-    onServerInit(app);
+  } else {
+    // The gateway routes to the plugin's Service name, not to this pod.
+    console.log(
+      `[${name}] SERVICE_ROLE=${role}: not joining the gateway; keep this pod out of the api Service selector`,
+    );
   }
 
-  //   applyInspectorEndpoints(name);
+  if (runsWorkers) {
+    if (meta) {
+      await startMetaWorkers(name, meta);
+    }
 
-  //   debugInfo(`${name} server is running on port: ${PORT}`);
+    if (onWorkerInit) {
+      await onWorkerInit();
+    }
+  }
 
   Sentry.setupExpressErrorHandler(app);
 

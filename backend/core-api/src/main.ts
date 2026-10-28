@@ -17,6 +17,7 @@ import {
   joinErxesGateway,
   leaveErxesGateway,
   MAX_HEADER_BYTES,
+  readServiceRole,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
 import express, { Express } from 'express';
@@ -40,7 +41,6 @@ import {
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
-import { readServiceRole } from './serviceRole';
 
 const PLUGIN_NAME = 'core';
 

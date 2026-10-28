@@ -4,14 +4,13 @@ import {
   redis
 } from '../../utils';
 
+/** The api half: tells service discovery which payment methods the plugin handles. */
+export const registerPayments = async (pluginName: string, config: any) =>
+  initializePluginConfig(pluginName, 'payments', config);
 
-export const startPayments = async (
-  pluginName: string,
-  config: any,
-) => {
-  await initializePluginConfig(pluginName, 'payments', config);
-
-  return new Promise<void>((resolve, reject) => {
+/** The worker half: consumes the plugin's payments queue. */
+export const startPaymentsWorker = (pluginName: string, config: any) =>
+  new Promise<void>((resolve, reject) => {
     try {
       createMQWorkerWithListeners(
         pluginName,
@@ -50,4 +49,9 @@ export const startPayments = async (
       reject(error);
     }
   });
+
+/** Both halves in one process. */
+export const startPayments = async (pluginName: string, config: any) => {
+  await registerPayments(pluginName, config);
+  await startPaymentsWorker(pluginName, config);
 };
