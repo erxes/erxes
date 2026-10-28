@@ -138,7 +138,7 @@
 - Module Federation exposes defined in `module-federation.config.ts`.
 - Accounting routes exposed through `src/modules/AccountingMain.tsx` and navigation registered from `src/config.tsx`.
 - Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.
-- `widgets.recordPanels` entries for every `SETTINGS_PANEL_CONTENT_TYPES` value with `properties: false`, `draftTitle: true`, and the `./recordPanel` expose; core routes `?panel=/detail/<contentType>/<id|new>` to it.
+- `widgets.recordPanels` entries for every `SETTINGS_PANEL_CONTENT_TYPES` value with `properties: false`, `draftTitle: true`, and the `./recordPanel` expose; core routes `?panel=/detail/<contentType>/<id|new>` to it. The expose has only the named `RecordPanel` export (no default export); the host resolver picks it by the PascalCase module name.
 - Export actions for `accounting:account.transactions` on `/accounting/main` and `/accounting/records`.
 
 ### Consumes

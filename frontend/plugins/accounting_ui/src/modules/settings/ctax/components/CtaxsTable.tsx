@@ -35,7 +35,7 @@ export const CtaxMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: t('are-you-sure-delete-this-account'),
+      message: t('are-you-sure-delete-this-city-tax-row'),
       options: {
         okLabel: t('delete'),
         cancelLabel: t('cancel'),

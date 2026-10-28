@@ -75,5 +75,3 @@ export const RecordPanel = ({
 
   return <Detail contentType={contentType} contentId={contentId} />;
 };
-
-export default RecordPanel;

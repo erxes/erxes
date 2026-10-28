@@ -72,7 +72,7 @@ const CtaxRowPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
 
   return (
     <SettingsPanelRemoveAction
-      message={t('are-you-sure-delete-this-account')}
+      message={t('are-you-sure-delete-this-city-tax-row')}
       loading={loading}
       onRemove={(onCompleted) =>
         removeCtaxRows({
