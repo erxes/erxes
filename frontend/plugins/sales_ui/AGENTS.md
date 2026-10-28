@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-05`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -95,6 +95,9 @@
 
 ## Local Invariants
 
+- Deal payment `useCheckOwnerScore` normalizes the JSON score response to a
+  number before display, payment limits, and QR approval calculations;
+  numeric strings must never concatenate with saved payment amounts.
 - Property choices must come only from Core `sales:deal` fields.
 - Deal property detail must filter by the deal's `pipelineId` selection.
 - Pipeline and POS mutations must refresh or update Apollo state immediately.
@@ -121,6 +124,9 @@
 ## Validation
 
 - `pnpm nx build sales_ui`
+- Score payment smoke scenario: with a customer score stored as the string
+  `"1000"` and no saved score payment, click the score payment input and verify
+  it fills at most 1,000, including after QR approval.
 - Deal product smoke scenario: open a deal's Products tab, toggle expanded view,
   filter products, edit a row, add products, save, close the expanded view, and
   verify the inline table shows the same state.

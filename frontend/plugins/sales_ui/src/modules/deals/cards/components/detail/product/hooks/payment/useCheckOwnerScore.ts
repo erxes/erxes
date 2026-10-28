@@ -6,7 +6,7 @@ export const useCheckOwnerScore = (options: QueryHookOptions) => {
     ...options,
   });
   return {
-    checkOwnerScore: data?.checkOwnerScore,
+    checkOwnerScore: Number(data?.checkOwnerScore) || 0,
     refetch,
     loading,
   };
