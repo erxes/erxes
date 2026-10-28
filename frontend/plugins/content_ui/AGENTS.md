@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -83,6 +83,9 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- Post and page edit payloads always send the gallery (`images`/`pageImages`),
+  `documents`, and `attachments` lists, even when empty: the backend applies
+  edits with `$set`, so an omitted list keeps its removed files.
 - CMS posts store interoperable HTML with the non-lossy BlockNote document in
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.

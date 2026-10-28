@@ -633,10 +633,13 @@ export function PageDrawer({
       parentId: data.parentId || undefined,
       status: data.status || 'active',
       thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
-      pageImages: imagesPayload.length ? imagesPayload : undefined,
+      // On edit, send empty lists so removing every file clears the field via $set
+      pageImages: isEditing || imagesPayload.length ? imagesPayload : undefined,
       videoUrl: data.videoUrl,
-      documents: documentsPayload.length ? documentsPayload : undefined,
-      attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+      documents:
+        isEditing || documentsPayload.length ? documentsPayload : undefined,
+      attachments:
+        isEditing || attachmentsPayload.length ? attachmentsPayload : undefined,
       customFieldsData: data.customFieldsData || [],
     };
 
