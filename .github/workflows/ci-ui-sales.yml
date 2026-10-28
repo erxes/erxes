@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - fix/3.2.7.1-erkhet-remainders
     tags:
       - '[0-9]*'
     paths:
@@ -48,7 +49,7 @@ jobs:
           version: 9
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install ${{ github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' && '--frozen-lockfile' || '' }}
 
       - name: Set environment variables
         run: |
@@ -57,13 +58,15 @@ jobs:
       - name: Build sales UI
         run: |
           export NX_DAEMON=false
-          pnpm nx build sales_ui ${{ github.ref_name == '3.2.7.1' && '--excludeTaskDependencies' || '' }}
+          pnpm nx build sales_ui ${{ (github.ref_name == '3.2.7.1' || github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders') && '--excludeTaskDependencies' || '' }}
 
       - name: Sync to Cloudflare R2
-        if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))) || github.event_name == 'workflow_call'
+        if: (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/fix/3.2.7.1-erkhet-remainders' || startsWith(github.ref, 'refs/tags/'))) || github.event_name == 'workflow_call'
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             FOLDER="${{ github.ref_name }}"
+          elif [[ "${{ github.ref }}" == 'refs/heads/fix/3.2.7.1-erkhet-remainders' ]]; then
+            FOLDER="3.2.7.1"
           elif [[ -n "${{ inputs.version }}" ]]; then
             FOLDER="${{ inputs.version }}"
           else
