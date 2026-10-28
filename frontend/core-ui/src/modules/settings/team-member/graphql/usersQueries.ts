@@ -12,6 +12,7 @@ const GET_USER = gql`
       username
       email
       isOwner
+      isActive
       positionIds
       permissionGroupIds
       score

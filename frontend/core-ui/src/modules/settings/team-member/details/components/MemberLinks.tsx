@@ -38,7 +38,6 @@ export const MemberLinks = () => {
           return (
             <PanelField
               key={field.name}
-              cell={false}
               label={
                 <span className="flex items-center gap-1.5">
                   <field.Icon className="size-3.5 flex-none" />
@@ -48,6 +47,7 @@ export const MemberLinks = () => {
             >
               <div className="flex items-center gap-1">
                 <MemberPanelTextField
+                  scope={`links.${field.name}`}
                   value={value}
                   placeholder={field.label}
                   onSave={(next) =>

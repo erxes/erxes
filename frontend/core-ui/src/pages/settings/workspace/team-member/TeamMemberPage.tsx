@@ -2,19 +2,47 @@ import { TeamMemberFilterBar } from '@/settings/team-member/components/header/Te
 import { TeamMemberTable } from '@/settings/team-member/components/TeamMemberTable';
 import { useQueryState } from 'erxes-ui';
 import { ResetPasswordDialog } from '@/settings/team-member/details/components/ResetPasswordDialog';
-import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
+import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router';
+import { getSidePanelRecordPath, SIDE_PANEL_QUERY_KEY } from 'ui-modules';
+
+const useOpenMemberFromQuery = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const userId = searchParams.get('user_id');
+
+  useEffect(() => {
+    if (!userId) {
+      return;
+    }
+
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.delete('user_id');
+        next.set(
+          SIDE_PANEL_QUERY_KEY,
+          getSidePanelRecordPath({
+            contentType: USER_CONTENT_TYPE,
+            contentId: userId,
+          }),
+        );
+        return next;
+      },
+      { replace: true },
+    );
+  }, [userId, setSearchParams]);
+};
 
 export function TeamMemberPage() {
-  const [userId] = useQueryState<string>('user_id');
   const [resetId] = useQueryState('reset_password_id');
 
+  useOpenMemberFromQuery();
+
   return (
-    <div className="w-full overflow-hidden flex">
-      <div className="flex-1 min-w-0 overflow-hidden flex flex-col">
-        <TeamMemberFilterBar />
-        <TeamMemberTable />
-      </div>
-      {!!userId && <MemberDetail key={userId} />}
+    <div className="w-full overflow-hidden flex flex-col">
+      <TeamMemberFilterBar />
+      <TeamMemberTable />
       {!!resetId && <ResetPasswordDialog />}
     </div>
   );

@@ -28,6 +28,8 @@ import { CustomerPanelNew } from './details/CustomerPanelNew';
 import { CustomerPanelProperties } from './details/CustomerPanelProperties';
 import { PluginRecordPanel } from './PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
+import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
   ActivityLogs,
   AddInternalNote,
@@ -528,6 +530,16 @@ export const SidePanelLayout = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
 
   const renderRoute = () => {
+    if (record?.contentType === USER_CONTENT_TYPE) {
+      return (
+        <MemberDetail
+          key={`${record.contentType}:${record.contentId}`}
+          onBack={onBack}
+          onClose={close}
+        />
+      );
+    }
+
     if (record) {
       return (
         <SidePanelRecord

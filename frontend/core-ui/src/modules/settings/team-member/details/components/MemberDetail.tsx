@@ -2,6 +2,7 @@ import { memberCustomActivities } from '@/settings/team-member/details/component
 import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
+import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
 import { MemberPanelDetail } from '@/settings/team-member/details/components/MemberPanelDetail';
 import { MembersPermissions } from '@/settings/team-member/details/components/MembersPermissions';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
@@ -21,15 +22,12 @@ import {
   Spinner,
   useQueryState,
 } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router';
 import {
   ActivityLogs,
   FieldsInDetail,
   IRecordSidePanelTab,
   RecordSidePanel,
-  sidePanelWidthState,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'overview';
@@ -40,21 +38,22 @@ const MemberPanelScroll = ({ children }: { children: React.ReactNode }) => (
   </ScrollArea>
 );
 
-export const MemberDetail = () => {
+export const MemberDetail = ({
+  onBack,
+  onClose,
+}: {
+  onBack?: () => void;
+  onClose: () => void;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const [, setSearchParams] = useSearchParams();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const [width, setWidth] = useAtom(sidePanelWidthState);
   const { error, userDetail, loading } = useUserDetail();
 
-  const onClose = () =>
-    setSearchParams((previous) => {
-      const next = new URLSearchParams(previous);
-      next.delete('user_id');
-      next.delete('tab');
-      return next;
-    });
+  const handleClose = () => {
+    setSelectedTab(null);
+    onClose();
+  };
 
   const renderHeading = () => {
     if (!userDetail) {
@@ -177,9 +176,15 @@ export const MemberDetail = () => {
   const { title, avatar } = renderHeading();
 
   return (
-    <RecordSidePanel width={width} onWidthChange={setWidth}>
-      <RecordSidePanel.Header avatar={avatar} title={title} onClose={onClose} />
+    <>
+      <RecordSidePanel.Header
+        avatar={avatar}
+        title={title}
+        actions={userDetail && <MemberPanelActions user={userDetail} />}
+        onBack={onBack}
+        onClose={handleClose}
+      />
       {renderBody()}
-    </RecordSidePanel>
+    </>
   );
 };

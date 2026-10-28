@@ -2,20 +2,31 @@ import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarFie
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { IUserDetailsType } from '@/settings/team-member/types';
+import { format } from 'date-fns';
 import {
   Avatar,
   DatePicker,
-  Input,
+  formatPhoneNumber,
   PhoneInput,
+  Popover,
   readImage,
+  RecordTableInlineCell,
   ScrollArea,
   Textarea,
+  TextField,
   toast,
 } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { currentUserState, PanelField, PrintDocument } from 'ui-modules';
+import {
+  currentUserState,
+  PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelField,
+  PanelFieldTrigger,
+} from 'ui-modules';
+
+const SCOPE = 'team-member-panel';
 
 type TUserDetails = IUserDetailsType & { __typename?: string };
 
@@ -26,46 +37,31 @@ type TDetailsChange = {
 };
 
 export const MemberPanelTextField = ({
+  scope,
   value,
   placeholder,
   disabled,
   onSave,
 }: {
+  scope: string;
   value: string;
   placeholder: string;
   disabled?: boolean;
   onSave: (value: string) => void;
-}) => {
-  const [editingValue, setEditingValue] = useState(value);
-
-  useEffect(() => {
-    setEditingValue(value);
-  }, [value]);
-
-  return (
-    <Input
-      value={editingValue}
-      placeholder={placeholder}
-      disabled={disabled}
-      className="h-8 rounded-sm text-sm shadow-xs"
-      onChange={(event) => setEditingValue(event.currentTarget.value)}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter') {
-          event.preventDefault();
-          event.currentTarget.blur();
-        }
-        if (event.key === 'Escape') {
-          setEditingValue(value);
-        }
-      }}
-      onBlur={() => {
-        if (editingValue !== value) {
-          onSave(editingValue);
-        }
-      }}
-    />
-  );
-};
+}) => (
+  <TextField
+    scope={`${SCOPE}.${scope}`}
+    value={value}
+    placeholder={placeholder}
+    className={PANEL_TEXT_FIELD_CLASS_NAME}
+    disabled={disabled}
+    onSave={onSave}
+  >
+    {!value && (
+      <span className="shrink-0 text-muted-foreground">{placeholder}</span>
+    )}
+  </TextField>
+);
 
 const useMemberDetailsEdit = (_id: string, details?: TUserDetails) => {
   const { usersEdit } = useUserEdit();
@@ -84,27 +80,35 @@ const MemberDateField = ({
   value?: Date | string;
   onSave: (date: Date | null) => void;
 }) => {
+  const [open, setOpen] = useState(false);
   const saved = value ? new Date(value) : undefined;
+  const [date, setDate] = useState(saved);
 
   return (
-    <DatePicker
-      value={saved}
-      defaultMonth={saved}
-      variant="outline"
-      mode="single"
-      placeholder="YYYY-MM-DD"
-      className="h-8 w-full rounded-sm text-sm"
-      popoverContentProps={{
-        onOpenAutoFocus: (event) => event.preventDefault(),
-      }}
-      onChange={(next) => {
-        const date = (next as Date | undefined) || undefined;
-
-        if (date?.getTime() !== saved?.getTime()) {
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (!next && date?.getTime() !== saved?.getTime()) {
           onSave(date || null);
         }
       }}
-    />
+    >
+      <PanelFieldTrigger>
+        {date ? (
+          format(date, 'yyyy/MM/dd')
+        ) : (
+          <span className="text-muted-foreground">YYYY/MM/DD</span>
+        )}
+      </PanelFieldTrigger>
+      <RecordTableInlineCell.Content className="w-auto">
+        <DatePicker
+          defaultMonth={date}
+          value={date}
+          onChange={(next) => setDate(next as Date | undefined)}
+        />
+      </RecordTableInlineCell.Content>
+    </Popover>
   );
 };
 
@@ -116,6 +120,7 @@ const MemberPhoneField = ({
   onSave: (phone: string | null) => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
+  const [open, setOpen] = useState(false);
   const [phone, setPhone] = useState(value);
   const [isValid, setIsValid] = useState(true);
 
@@ -128,6 +133,7 @@ const MemberPhoneField = ({
 
     if (normalized && !isValid) {
       toast({ title: t('invalid-phone-number'), variant: 'destructive' });
+      setPhone(value);
       return;
     }
 
@@ -135,19 +141,34 @@ const MemberPhoneField = ({
   };
 
   return (
-    <PhoneInput
-      value={phone}
-      className="h-8 bg-transparent text-sm"
-      onChange={(next) => setPhone(next)}
-      onEnter={save}
-      onBlur={save}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') {
+    <Popover
+      open={open}
+      onOpenChange={(next) => {
+        setOpen(next);
+        if (next) {
           setPhone(value);
+        } else {
+          save();
         }
       }}
-      onValidationChange={setIsValid}
-    />
+    >
+      <PanelFieldTrigger>
+        {value ? (
+          formatPhoneNumber({ value: `+${value}` })
+        ) : (
+          <span className="text-muted-foreground">{t('phone')}</span>
+        )}
+      </PanelFieldTrigger>
+      <RecordTableInlineCell.Content>
+        <PhoneInput
+          value={phone}
+          className="bg-background"
+          onChange={(next) => setPhone(next)}
+          onEnter={() => setOpen(false)}
+          onValidationChange={setIsValid}
+        />
+      </RecordTableInlineCell.Content>
+    </Popover>
   );
 };
 
@@ -169,7 +190,7 @@ const MemberDescriptionField = ({
       <Textarea
         value={description}
         placeholder={t('description')}
-        className="min-h-20 rounded-sm text-sm shadow-xs"
+        className="min-h-20 rounded-sm text-xs shadow-none"
         onChange={(event) => setDescription(event.currentTarget.value)}
         onKeyDown={(event) => {
           if (event.key === 'Escape') {
@@ -211,8 +232,9 @@ export const MemberPanelDetail = () => {
   const canEditProfile = !!currentUser?.isOwner;
 
   const renderDetailField = (code: TDetailCode, label: string) => (
-    <PanelField label={label} cell={false}>
+    <PanelField label={label}>
       <MemberPanelTextField
+        scope={code}
         value={details?.[code] || ''}
         placeholder={label}
         disabled={code !== 'shortName' && !canEditProfile}
@@ -241,47 +263,47 @@ export const MemberPanelDetail = () => {
             </div>
           </PanelField>
         )}
-        <div className="py-2">
-          <PrintDocument items={[{ _id }]} contentType="core:user" />
-        </div>
         {renderDetailField('firstName', nameT('first-name', 'First name'))}
         {renderDetailField('middleName', nameT('middle-name', 'Middle name'))}
         {renderDetailField('lastName', nameT('last-name', 'Last name'))}
         {renderDetailField('shortName', t('short-name'))}
-        <PanelField label={t('email')} cell={false}>
+        <PanelField label={t('email')}>
           <MemberPanelTextField
+            scope="email"
             value={email || ''}
             placeholder={t('add-primary-email')}
             onSave={(next) => usersEdit({ variables: { _id, email: next } })}
           />
         </PanelField>
-        <PanelField label={t('phone')} cell={false}>
+        <PanelField label={t('phone')}>
           <MemberPhoneField
             value={details?.operatorPhone || ''}
             onSave={(operatorPhone) => editDetails({ operatorPhone })}
           />
         </PanelField>
-        <PanelField label={t('username')} cell={false}>
+        <PanelField label={t('username')}>
           <MemberPanelTextField
+            scope="username"
             value={username || ''}
             placeholder={t('username')}
             onSave={(next) => usersEdit({ variables: { _id, username: next } })}
           />
         </PanelField>
-        <PanelField label={t('birthday')} cell={false}>
+        <PanelField label={t('birthday')}>
           <MemberDateField
             value={details?.birthDate}
             onSave={(birthDate) => editDetails({ birthDate })}
           />
         </PanelField>
-        <PanelField label={t('joined-date')} cell={false}>
+        <PanelField label={t('joined-date')}>
           <MemberDateField
             value={details?.workStartedDate}
             onSave={(workStartedDate) => editDetails({ workStartedDate })}
           />
         </PanelField>
-        <PanelField label={t('score')} cell={false}>
+        <PanelField label={t('score')}>
           <MemberPanelTextField
+            scope="score"
             value={score === undefined || score === null ? '' : String(score)}
             placeholder={t('add-score')}
             onSave={(next) => {
