@@ -83,10 +83,12 @@ export const getVisibleEntityIds = async (
   subdomain: string,
   userId: string,
 ): Promise<string[]> => {
-  const { principalEntityIds, boundaryEntityIds } =
-    await getStructureUserContext(subdomain, userId);
+  const { entityIds, boundaryEntityIds } = await getStructureUserContext(
+    subdomain,
+    userId,
+  );
 
-  return [...new Set([...principalEntityIds, ...boundaryEntityIds])];
+  return [...new Set([...entityIds, ...boundaryEntityIds])];
 };
 
 export interface IPipelineAccess {

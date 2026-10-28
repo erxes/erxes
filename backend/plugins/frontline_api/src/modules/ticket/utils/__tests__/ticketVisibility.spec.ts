@@ -35,24 +35,24 @@ const memoryCollection = (docs: TDoc[]) => {
 
 const CONTEXTS: Record<string, IStructureUserContext> = {
   member: {
-    primaryEntityId: 'salesEast',
-    entityIds: ['salesEast'],
-    principalEntityIds: ['root', 'sales', 'salesEast'],
-    boundaryEntityIds: ['salesEast'],
+    primaryEntityId: 'store',
+    entityIds: ['store'],
+    principalEntityIds: ['root', 'district', 'store'],
+    boundaryEntityIds: ['store'],
     boundaryUserIds: ['member'],
   },
   outsider: {
-    primaryEntityId: 'support',
-    entityIds: ['support'],
-    principalEntityIds: ['root', 'support'],
-    boundaryEntityIds: ['support'],
+    primaryEntityId: 'otherDistrict',
+    entityIds: ['otherDistrict'],
+    principalEntityIds: ['root', 'otherDistrict'],
+    boundaryEntityIds: ['otherDistrict'],
     boundaryUserIds: ['outsider'],
   },
   lead: {
-    primaryEntityId: 'sales',
-    entityIds: ['sales'],
-    principalEntityIds: ['root', 'sales'],
-    boundaryEntityIds: ['sales', 'salesEast'],
+    primaryEntityId: 'district',
+    entityIds: ['district'],
+    principalEntityIds: ['root', 'district'],
+    boundaryEntityIds: ['district', 'store'],
     boundaryUserIds: ['lead', 'member'],
   },
 };
@@ -64,23 +64,32 @@ const pipelines: TDoc[] = [
     _id: 'private',
     channelId: 'channel',
     visibility: 'private',
-    sharedEntityIds: ['sales'],
+    sharedEntityIds: ['district'],
   },
 ];
 
 const tickets: TDoc[] = [
-  { _id: 'atSalesEast', pipelineId: 'checked', entityIds: ['salesEast'] },
-  { _id: 'atSales', pipelineId: 'checked', entityIds: ['sales'] },
-  { _id: 'atSupport', pipelineId: 'checked', entityIds: ['support'] },
+  { _id: 'atStore', pipelineId: 'checked', entityIds: ['store'] },
+  { _id: 'atDistrict', pipelineId: 'checked', entityIds: ['district'] },
+  { _id: 'atRoot', pipelineId: 'checked', entityIds: ['root'] },
+  {
+    _id: 'atOtherDistrict',
+    pipelineId: 'checked',
+    entityIds: ['otherDistrict'],
+  },
   { _id: 'unassigned', pipelineId: 'checked', entityIds: [] },
   {
     _id: 'createdByMember',
     pipelineId: 'checked',
-    entityIds: ['support'],
+    entityIds: ['otherDistrict'],
     createdBy: 'member',
   },
-  { _id: 'openPipeline', pipelineId: 'open', entityIds: ['support'] },
-  { _id: 'privatePipeline', pipelineId: 'private', entityIds: ['support'] },
+  { _id: 'openPipeline', pipelineId: 'open', entityIds: ['otherDistrict'] },
+  {
+    _id: 'privatePipeline',
+    pipelineId: 'private',
+    entityIds: ['otherDistrict'],
+  },
 ].map((ticket) => ({ channelId: 'channel', createdBy: 'author', ...ticket }));
 
 const models = {
@@ -116,31 +125,32 @@ beforeEach(() => {
 });
 
 describe('ticket visibility on a structure-checked pipeline', () => {
-  test('a member sees tickets at their node and at an ancestor node', async () => {
+  test('a store member sees tickets at their store, never at the district or root above it', async () => {
     await expect(
       visibleTickets(asUser('member'), { pipelineId: 'checked' }),
-    ).resolves.toEqual(['atSales', 'atSalesEast', 'createdByMember']);
+    ).resolves.toEqual(['atStore', 'createdByMember']);
   });
 
-  test('an outsider sees only tickets of their own branch of the tree', async () => {
+  test('an outsider sees only tickets at their own node', async () => {
     await expect(
       visibleTickets(asUser('outsider'), { pipelineId: 'checked' }),
-    ).resolves.toEqual(['atSupport', 'createdByMember']);
+    ).resolves.toEqual(['atOtherDistrict', 'createdByMember']);
   });
 
-  test('a seat covering the nodes below also shows their tickets', async () => {
+  test('a seat with below coverage at the district sees the district and its stores, not the root', async () => {
     await expect(
       visibleTickets(asUser('lead'), { pipelineId: 'checked' }),
-    ).resolves.toEqual(['atSales', 'atSalesEast']);
+    ).resolves.toEqual(['atDistrict', 'atStore']);
   });
 
   test('the owner sees every ticket', async () => {
     await expect(
       visibleTickets(asUser('owner', true), { pipelineId: 'checked' }),
     ).resolves.toEqual([
-      'atSales',
-      'atSalesEast',
-      'atSupport',
+      'atDistrict',
+      'atOtherDistrict',
+      'atRoot',
+      'atStore',
       'createdByMember',
       'unassigned',
     ]);
@@ -150,15 +160,14 @@ describe('ticket visibility on a structure-checked pipeline', () => {
     await expect(
       visibleTickets(asUser('member'), { channelId: 'channel' }),
     ).resolves.toEqual([
-      'atSales',
-      'atSalesEast',
+      'atStore',
       'createdByMember',
       'openPipeline',
       'privatePipeline',
     ]);
   });
 
-  test('a private pipeline shared with an ancestor node is open to its members only', async () => {
+  test('a private pipeline shared with an ancestor node is open to members below it only', async () => {
     await expect(
       visibleTickets(asUser('member'), { pipelineId: 'private' }),
     ).resolves.toEqual(['privatePipeline']);
@@ -167,15 +176,15 @@ describe('ticket visibility on a structure-checked pipeline', () => {
     ).rejects.toThrow('Access denied');
     await expect(
       visibleTickets(asUser('outsider'), { channelId: 'channel' }),
-    ).resolves.toEqual(['atSupport', 'createdByMember', 'openPipeline']);
+    ).resolves.toEqual(['atOtherDistrict', 'createdByMember', 'openPipeline']);
   });
 
   test('the structure filter narrows to the chosen nodes', async () => {
     await expect(
       visibleTickets(asUser('owner', true), {
         pipelineId: 'checked',
-        entityIds: ['sales', 'support'],
+        entityIds: ['district', 'otherDistrict'],
       }),
-    ).resolves.toEqual(['atSales', 'atSupport', 'createdByMember']);
+    ).resolves.toEqual(['atDistrict', 'atOtherDistrict', 'createdByMember']);
   });
 });

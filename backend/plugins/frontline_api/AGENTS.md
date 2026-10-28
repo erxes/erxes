@@ -1549,9 +1549,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   `buildVisibilityCondition` in `src/modules/ticket/utils/ticketVisibility.ts`
   exempts `role: 'system'`, `isOwner` and `excludeCheckUserIds` users; everyone
   else sees the OR of own (`createdBy`), assigned (`assigneeId`) and tickets
-  whose `entityIds` meet the user's `principalEntityIds` (membership nodes and
-  their ancestors) or seat `boundaryEntityIds` from core
-  `structureEntities.userContext`. `isCheckDate` stays an extra AND condition.
+  whose `entityIds` meet the user's active membership `entityIds` or seat
+  `boundaryEntityIds` from core `structureEntities.userContext`. Records never
+  match ancestors: `principalEntityIds` (membership nodes plus ancestors) is
+  only for container `sharedEntityIds`. `isCheckDate` stays an extra AND condition.
   `generateFilter` needs the request `subdomain` to resolve that context.
 - A private pipeline is usable by its creator (`userId`), `memberIds`, and
   members at or below a `sharedEntityIds` node. `canUsePipeline` /
