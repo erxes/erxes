@@ -104,6 +104,7 @@ export async function processUserRows(
       if (doc.departmentIds) extraSet.departmentIds = doc.departmentIds;
       if (doc.branchIds) extraSet.branchIds = doc.branchIds;
       if (doc.positionIds) extraSet.positionIds = doc.positionIds;
+      if (doc.propertiesData) extraSet.propertiesData = doc.propertiesData;
 
       try {
           if (Object.keys(extraSet).length)
