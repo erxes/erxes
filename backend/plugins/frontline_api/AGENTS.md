@@ -27,6 +27,41 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
+- Form fields can convert between supported basic/customer types in place.
+  `modules/form/fieldConversion.ts` validates every saved answer against the
+  target type and selected validator before any bulk field write, rejects linked
+  custom fields, incompatible conditional rules and duplicate customer mappings,
+  and checks `expectedType` for stale edits. Field IDs and stored
+  answers are preserved; existing customer profiles are not backfilled.
+  `frontlineFormFieldConversionCheck` requires `formsEdit` and inspects the
+  draft before confirmation. Checks use the submission index
+  `{formId: 1, formFieldId: 1, _id: 1}`, yield between bounded batches, and
+  stop after ten seconds without changing fields. The review returns at most
+  20 previews of 200 characters; literal search covers full saved answers.
+  Custom validation patterns are compiled once per scan and evaluated in
+  bounded VM executions. Preview results never authorize a save: the bulk
+  mutation checks the current answers again.
+  Date compatibility requires both strict ISO validation and a parseable date;
+  conditional-rule checks merge partial field updates with stored definitions.
+  Conversion saves use the same replica-set/mongos capability check and
+  `withTransaction` session pattern as core's document-ID migration. Optional
+  `formChanges` on `frontlineFieldsBulkAction` commits metadata with all field
+  writes; ordinary forms remain usable on standalone MongoDB, while conversion
+  checks/saves return `TRANSACTIONS_REQUIRED` there.
+  `modules/form/formWriteGuard.ts` scans on the primary outside the short
+  transaction and commits only against the unchanged `conversionRevision` with no live
+  submissions. Widget and legacy submission writers acquire renewable admission
+  tokens before validation/external calls, then fence their database writes in
+  a transaction. Tokens expire after two minutes and expired writers cannot
+  commit; cleanup failures never turn a committed answer into a retry error.
+  Database-only callbacks may retry for up to ten seconds; customer RPC,
+  conversations and automation side effects must remain outside them.
+  Every participating field/submission database write must use its session;
+  adding a new writer requires the same guard. Direct database scripts bypass
+  this protocol and must run separately from conversion. All submission-writer
+  replicas must be upgraded before conversion is used during a rollout.
+  Incoming form submissions use the stored field type and validation so a
+  previously opened widget cannot keep the old customer mapping after conversion.
 - Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, scheduled article publishing,

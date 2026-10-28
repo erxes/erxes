@@ -1,6 +1,10 @@
 import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
+import {
+  withFormSubmissionGuard,
+  type FormSubmissionGuard,
+} from '~/modules/form/formWriteGuard';
 import { IContext, IModels } from '~/connectionResolvers';
 import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
@@ -110,6 +114,7 @@ function isCustomField(type: string): boolean {
 async function saveFormSubmissions(
   models: IModels,
   { submissions, formId, customerId, conversationId },
+  guard: FormSubmissionGuard,
 ) {
   const groupId = nanoid();
   const submissionDocs = submissions.map((submission) => {
@@ -130,7 +135,9 @@ async function saveFormSubmissions(
     };
   });
 
-  await models.FormSubmissions.insertMany(submissionDocs);
+  await guard.commit((session) =>
+    models.FormSubmissions.insertMany(submissionDocs, { session }),
+  );
 
   return groupId;
 }
@@ -253,246 +260,254 @@ export const widgetFormMutation: Record<
   ) {
     const { submissions, formId } = args;
 
-    const form = await models.Forms.getForm(formId);
-    const errors = await models.Forms.validateForm(formId, submissions);
-    if (errors.length > 0) return { status: 'error', errors };
+    return withFormSubmissionGuard(models, formId, async (guard) => {
+      const form = await models.Forms.getForm(formId);
+      const errors = await models.Forms.validateForm(formId, submissions);
+      if (errors.length > 0) return { status: 'error', errors };
 
-    let integration: any = null;
+      let integration: any = null;
 
-    if (form?.integrationId) {
-      integration = await models.Integrations.findOne({
-        _id: form.integrationId,
-      });
-    }
-
-    const customerfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'customer',
-      },
-    });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
-    const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-
-    const customerDoc: any = {};
-    const companyDoc: any = {};
-    const customFieldsData: ICustomField[] = [];
-    const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
-    const submissionValues: Record<string, unknown> = {};
-
-    for (const submission of submissions) {
-      const submissionType = submission.type || '';
-      const value = submission.value || '';
-      submissionValues[submission._id] = submission.value;
-
-      if (submissionType.includes('customerLinks')) {
-        customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
-      }
-
-      if (submissionType === 'pronoun') {
-        customerDoc.pronoun = mapPronounToCode(value);
-      }
-
-      if (submissionType.startsWith('core:customer:')) {
-        const fieldName = submissionType.slice('core:customer:'.length);
-        handleCoreCustomerField(fieldName, value, customerDoc);
-      } else if (customerSchemaLabels.some((e) => e.name === submissionType)) {
-        if (submissionType === 'avatar' && value.length > 0) {
-          customerDoc.avatar = value[0].url;
-        } else {
-          customerDoc[submissionType] = value;
-        }
-      }
-
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
-      }
-
-      if (submission.associatedFieldId && isCustomField(submissionType)) {
-        const field = await models.Fields.findOne({
-          _id: submission.associatedFieldId,
+      if (form?.integrationId) {
+        integration = await models.Integrations.findOne({
+          _id: form.integrationId,
         });
-        if (!field) continue;
-
-        const targetData = customFieldsData;
-        targetData.push({ field: submission.associatedFieldId, value });
       }
-    }
 
-    let customerQry: any = args.cachedCustomerId
-      ? { _id: args.cachedCustomerId }
-      : null;
-
-    const { saveAsCustomer } = form.leadData || {};
-
-    if (saveAsCustomer) {
-      if (args.cachedCustomerId) {
-        customerQry = { _id: args.cachedCustomerId };
-      } else if (customerDoc.email) {
-        customerQry = { customerPrimaryEmail: customerDoc.email };
-      } else if (customerDoc.phone) {
-        customerQry = { customerPrimaryPhone: customerDoc.phone };
-      } else {
-        customerQry = null;
-      }
-    }
-
-    if (form.leadData?.clearCacheAfterSave) {
-      if (customerDoc.email) {
-        customerQry = { customerPrimaryEmail: customerDoc.email };
-      } else if (customerDoc.phone) {
-        customerQry = { customerPrimaryPhone: customerDoc.phone };
-      } else {
-        customerQry = null;
-      }
-    }
-
-    let customer: any = null;
-
-    if (customerQry) {
-      customer = await sendTRPCMessage({
+      const customerfields = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: { query: customerQry },
-        defaultValue: null,
+        module: 'fields',
+        action: 'getFieldList',
+        input: {
+          moduleType: 'contact',
+          collectionType: 'customer',
+        },
       });
-    }
-    if (!customer) {
-      customer = await sendTRPCMessage({
+      const companyfields = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'createCustomer',
+        method: 'query',
+        module: 'fields',
+        action: 'getFieldList',
         input: {
-          doc: {
-            ...customerDoc,
-            emails: customerDoc.email ? [customerDoc.email] : [],
-            phones: customerDoc.phone ? [customerDoc.phone] : [],
-            primaryEmail: saveAsCustomer ? customerDoc.email : null,
-            primaryPhone: saveAsCustomer ? customerDoc.phone : null,
-            state: saveAsCustomer ? 'customer' : 'lead',
-            links: customerLinks,
-            customFieldsData,
-            integrationId: integration?._id,
-            relatedIntegrationIds: integration?._id ? [integration._id] : [],
-            scopeBrandIds: form.channelId ? [form.channelId] : [],
-          },
+          moduleType: 'contact',
+          collectionType: 'company',
         },
-        defaultValue: null,
       });
 
-      if (!customer) {
-        throw new Error('Failed to create customer');
-      }
+      const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
+        name: f.name,
+        label: f.label || f.name,
+      }));
+      const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
+        name: f.name,
+        label: f.label || f.name,
+      }));
 
-      await models.Forms.increaseContactsGathered(form._id);
-    } else {
-      const doc = updateCustomerDoc(
-        customer,
-        customerDoc,
-        form,
-        integration,
-        customFieldsData,
-        customerLinks,
-      );
+      const customerDoc: any = {};
+      const companyDoc: any = {};
+      const customFieldsData: ICustomField[] = [];
+      const customerLinks: ILink = {};
+      const companyLinks: ILink = {};
+      const submissionValues: Record<string, unknown> = {};
 
-      if (doc.email) {
-        if (saveAsCustomer) {
-          doc.primaryEmail = doc.email;
+      for (const submission of submissions) {
+        const submissionType = submission.type || '';
+        const value = submission.value || '';
+        submissionValues[submission._id] = submission.value;
+
+        if (submissionType.includes('customerLinks')) {
+          customerLinks[getSocialLinkKey(submissionType)] = value;
+        } else if (submissionType.includes('companyLinks')) {
+          companyLinks[getSocialLinkKey(submissionType)] = value;
         }
-        delete doc.email;
+
+        if (submissionType === 'pronoun') {
+          customerDoc.pronoun = mapPronounToCode(value);
+        }
+
+        if (submissionType.startsWith('core:customer:')) {
+          const fieldName = submissionType.slice('core:customer:'.length);
+          handleCoreCustomerField(fieldName, value, customerDoc);
+        } else if (
+          customerSchemaLabels.some((e) => e.name === submissionType)
+        ) {
+          if (submissionType === 'avatar' && value.length > 0) {
+            customerDoc.avatar = value[0].url;
+          } else {
+            customerDoc[submissionType] = value;
+          }
+        }
+
+        if (submissionType.includes('company_')) {
+          handleCompanyFields(submissionType, value, companyDoc);
+        }
+
+        if (companySchemaLabels.some((e) => e.name === submissionType)) {
+          companyDoc[submissionType] = value;
+        }
+
+        if (submission.associatedFieldId && isCustomField(submissionType)) {
+          const field = await models.Fields.findOne({
+            _id: submission.associatedFieldId,
+          });
+          if (!field) continue;
+
+          const targetData = customFieldsData;
+          targetData.push({ field: submission.associatedFieldId, value });
+        }
       }
 
-      if (doc.phone) {
-        if (saveAsCustomer) {
-          doc.primaryPhone = doc.phone;
-        }
-        delete doc.phone;
-      }
+      let customerQry: any = args.cachedCustomerId
+        ? { _id: args.cachedCustomerId }
+        : null;
+
+      const { saveAsCustomer } = form.leadData || {};
 
       if (saveAsCustomer) {
-        doc.state = 'customer';
+        if (args.cachedCustomerId) {
+          customerQry = { _id: args.cachedCustomerId };
+        } else if (customerDoc.email) {
+          customerQry = { customerPrimaryEmail: customerDoc.email };
+        } else if (customerDoc.phone) {
+          customerQry = { customerPrimaryPhone: customerDoc.phone };
+        } else {
+          customerQry = null;
+        }
       }
 
-      const updatedCustomer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'updateCustomer',
-        input: {
-          _id: customer._id,
-          doc,
-        },
-        defaultValue: null,
+      if (form.leadData?.clearCacheAfterSave) {
+        if (customerDoc.email) {
+          customerQry = { customerPrimaryEmail: customerDoc.email };
+        } else if (customerDoc.phone) {
+          customerQry = { customerPrimaryPhone: customerDoc.phone };
+        } else {
+          customerQry = null;
+        }
+      }
+
+      let customer: any = null;
+
+      if (customerQry) {
+        customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { query: customerQry },
+          defaultValue: null,
+        });
+      }
+      if (!customer) {
+        customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'createCustomer',
+          input: {
+            doc: {
+              ...customerDoc,
+              emails: customerDoc.email ? [customerDoc.email] : [],
+              phones: customerDoc.phone ? [customerDoc.phone] : [],
+              primaryEmail: saveAsCustomer ? customerDoc.email : null,
+              primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+              state: saveAsCustomer ? 'customer' : 'lead',
+              links: customerLinks,
+              customFieldsData,
+              integrationId: integration?._id,
+              relatedIntegrationIds: integration?._id ? [integration._id] : [],
+              scopeBrandIds: form.channelId ? [form.channelId] : [],
+            },
+          },
+          defaultValue: null,
+        });
+
+        if (!customer) {
+          throw new Error('Failed to create customer');
+        }
+
+        await models.Forms.increaseContactsGathered(form._id);
+      } else {
+        const doc = updateCustomerDoc(
+          customer,
+          customerDoc,
+          form,
+          integration,
+          customFieldsData,
+          customerLinks,
+        );
+
+        if (doc.email) {
+          if (saveAsCustomer) {
+            doc.primaryEmail = doc.email;
+          }
+          delete doc.email;
+        }
+
+        if (doc.phone) {
+          if (saveAsCustomer) {
+            doc.primaryPhone = doc.phone;
+          }
+          delete doc.phone;
+        }
+
+        if (saveAsCustomer) {
+          doc.state = 'customer';
+        }
+
+        const updatedCustomer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateCustomer',
+          input: {
+            _id: customer._id,
+            doc,
+          },
+          defaultValue: null,
+        });
+        customer = updatedCustomer || customer;
+      }
+
+      const { conversation } = await createConversationAndMessage(models, {
+        customerId: customer._id,
+        integrationId: integration?._id,
+        content: form.title,
+        formWidgetData: submissions,
+        status: 'new',
       });
-      customer = updatedCustomer || customer;
-    }
+      const conversationId = conversation?._id || '';
 
-    const { conversation } = await createConversationAndMessage(models, {
-      customerId: customer._id,
-      integrationId: integration?._id,
-      content: form.title,
-      formWidgetData: submissions,
-      status: 'new',
+      const submissionGroupId = await saveFormSubmissions(
+        models,
+        {
+          submissions,
+          formId,
+          customerId: customer._id,
+          conversationId,
+        },
+        guard,
+      );
+
+      sendFormSubmittedTrigger(subdomain, {
+        _id: submissionGroupId,
+        formId,
+        channelId: form.channelId,
+        customerId: customer._id,
+        conversationId: conversationId || null,
+        fieldValues: submissionValues,
+      });
+
+      return {
+        status: 'ok',
+        customerId: customer._id,
+        conversationId: conversationId || null,
+      };
     });
-    const conversationId = conversation?._id || '';
-
-    const submissionGroupId = await saveFormSubmissions(models, {
-      submissions,
-      formId,
-      customerId: customer._id,
-      conversationId,
-    });
-
-    sendFormSubmittedTrigger(subdomain, {
-      _id: submissionGroupId,
-      formId,
-      channelId: form.channelId,
-      customerId: customer._id,
-      conversationId: conversationId || null,
-      fieldValues: submissionValues,
-    });
-
-    return {
-      status: 'ok',
-      customerId: customer._id,
-      conversationId: conversationId || null,
-    };
   },
 
   async cpWidgetsSaveLead(
@@ -507,247 +522,255 @@ export const widgetFormMutation: Record<
   ) {
     const { submissions, formId } = args;
 
-    const form = await models.Forms.getForm(formId);
-    const errors = await models.Forms.validateForm(formId, submissions);
-    if (errors.length > 0) return { status: 'error', errors };
+    return withFormSubmissionGuard(models, formId, async (guard) => {
+      const form = await models.Forms.getForm(formId);
+      const errors = await models.Forms.validateForm(formId, submissions);
+      if (errors.length > 0) return { status: 'error', errors };
 
-    let integration: any = null;
+      let integration: any = null;
 
-    if (form?.integrationId) {
-      integration = await models.Integrations.findOne({
-        _id: form.integrationId,
-      });
-    }
-
-    const customerfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'customer',
-      },
-    });
-    const companyfields = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'fields',
-      action: 'getFieldList',
-      input: {
-        moduleType: 'contact',
-        collectionType: 'company',
-      },
-    });
-
-    const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-    const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
-      name: f.name,
-      label: f.label || f.name,
-    }));
-
-    const customerDoc: any = {};
-    const companyDoc: any = {};
-    const customFieldsData: ICustomField[] = [];
-    const customerLinks: ILink = {};
-    const companyLinks: ILink = {};
-    const submissionValues: Record<string, unknown> = {};
-
-    for (const submission of submissions) {
-      const submissionType = submission.type || '';
-      const value = submission.value || '';
-      submissionValues[submission._id] = submission.value;
-
-      if (submissionType.includes('customerLinks')) {
-        customerLinks[getSocialLinkKey(submissionType)] = value;
-      } else if (submissionType.includes('companyLinks')) {
-        companyLinks[getSocialLinkKey(submissionType)] = value;
-      }
-
-      if (submissionType === 'pronoun') {
-        customerDoc.pronoun = mapPronounToCode(value);
-      }
-
-      if (submissionType.startsWith('core:customer:')) {
-        const fieldName = submissionType.slice('core:customer:'.length);
-        handleCoreCustomerField(fieldName, value, customerDoc);
-      } else if (customerSchemaLabels.some((e) => e.name === submissionType)) {
-        if (submissionType === 'avatar' && value.length > 0) {
-          customerDoc.avatar = value[0].url;
-        } else {
-          customerDoc[submissionType] = value;
-        }
-      }
-
-      if (submissionType.includes('company_')) {
-        handleCompanyFields(submissionType, value, companyDoc);
-      }
-
-      if (companySchemaLabels.some((e) => e.name === submissionType)) {
-        companyDoc[submissionType] = value;
-      }
-
-      if (submission.associatedFieldId && isCustomField(submissionType)) {
-        const field = await models.Fields.findOne({
-          _id: submission.associatedFieldId,
+      if (form?.integrationId) {
+        integration = await models.Integrations.findOne({
+          _id: form.integrationId,
         });
-        if (!field) continue;
-
-        const targetData = customFieldsData;
-        targetData.push({ field: submission.associatedFieldId, value });
       }
-    }
 
-    let customerQry: any = args.cachedCustomerId
-      ? { _id: args.cachedCustomerId }
-      : null;
-
-    const { saveAsCustomer } = form.leadData || {};
-
-    if (saveAsCustomer) {
-      if (args.cachedCustomerId) {
-        customerQry = { _id: args.cachedCustomerId };
-      } else if (customerDoc.email) {
-        customerQry = { customerPrimaryEmail: customerDoc.email };
-      } else if (customerDoc.phone) {
-        customerQry = { customerPrimaryPhone: customerDoc.phone };
-      } else {
-        customerQry = null;
-      }
-    }
-
-    if (form.leadData?.clearCacheAfterSave) {
-      if (customerDoc.email) {
-        customerQry = { customerPrimaryEmail: customerDoc.email };
-      } else if (customerDoc.phone) {
-        customerQry = { customerPrimaryPhone: customerDoc.phone };
-      } else {
-        customerQry = null;
-      }
-    }
-
-    let customer: any = null;
-
-    console.log('Customer __Query:', customerQry, customerDoc);
-    if (customerQry) {
-      customer = await sendTRPCMessage({
+      const customerfields = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
         method: 'query',
-        module: 'customers',
-        action: 'findOne',
-        input: { query: customerQry },
-        defaultValue: null,
+        module: 'fields',
+        action: 'getFieldList',
+        input: {
+          moduleType: 'contact',
+          collectionType: 'customer',
+        },
       });
-    }
-    if (!customer) {
-      customer = await sendTRPCMessage({
+      const companyfields = await sendTRPCMessage({
         subdomain,
         pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'createCustomer',
+        method: 'query',
+        module: 'fields',
+        action: 'getFieldList',
         input: {
-          doc: {
-            ...customerDoc,
-            emails: customerDoc.email ? [customerDoc.email] : [],
-            phones: customerDoc.phone ? [customerDoc.phone] : [],
-            primaryEmail: saveAsCustomer ? customerDoc.email : null,
-            primaryPhone: saveAsCustomer ? customerDoc.phone : null,
-            state: saveAsCustomer ? 'customer' : 'lead',
-            links: customerLinks,
-            customFieldsData,
-            integrationId: integration?._id,
-            relatedIntegrationIds: integration?._id ? [integration._id] : [],
-            scopeBrandIds: form.channelId ? [form.channelId] : [],
-          },
+          moduleType: 'contact',
+          collectionType: 'company',
         },
-        defaultValue: null,
       });
 
-      if (!customer) {
-        throw new Error('Failed to create customer');
-      }
+      const customerSchemaLabels: SchemaLabel[] = customerfields.map((f) => ({
+        name: f.name,
+        label: f.label || f.name,
+      }));
+      const companySchemaLabels: SchemaLabel[] = companyfields.map((f) => ({
+        name: f.name,
+        label: f.label || f.name,
+      }));
 
-      await models.Forms.increaseContactsGathered(form._id);
-    } else {
-      const doc = updateCustomerDoc(
-        customer,
-        customerDoc,
-        form,
-        integration,
-        customFieldsData,
-        customerLinks,
-      );
+      const customerDoc: any = {};
+      const companyDoc: any = {};
+      const customFieldsData: ICustomField[] = [];
+      const customerLinks: ILink = {};
+      const companyLinks: ILink = {};
+      const submissionValues: Record<string, unknown> = {};
 
-      if (doc.email) {
-        if (saveAsCustomer) {
-          doc.primaryEmail = doc.email;
+      for (const submission of submissions) {
+        const submissionType = submission.type || '';
+        const value = submission.value || '';
+        submissionValues[submission._id] = submission.value;
+
+        if (submissionType.includes('customerLinks')) {
+          customerLinks[getSocialLinkKey(submissionType)] = value;
+        } else if (submissionType.includes('companyLinks')) {
+          companyLinks[getSocialLinkKey(submissionType)] = value;
         }
-        delete doc.email;
+
+        if (submissionType === 'pronoun') {
+          customerDoc.pronoun = mapPronounToCode(value);
+        }
+
+        if (submissionType.startsWith('core:customer:')) {
+          const fieldName = submissionType.slice('core:customer:'.length);
+          handleCoreCustomerField(fieldName, value, customerDoc);
+        } else if (
+          customerSchemaLabels.some((e) => e.name === submissionType)
+        ) {
+          if (submissionType === 'avatar' && value.length > 0) {
+            customerDoc.avatar = value[0].url;
+          } else {
+            customerDoc[submissionType] = value;
+          }
+        }
+
+        if (submissionType.includes('company_')) {
+          handleCompanyFields(submissionType, value, companyDoc);
+        }
+
+        if (companySchemaLabels.some((e) => e.name === submissionType)) {
+          companyDoc[submissionType] = value;
+        }
+
+        if (submission.associatedFieldId && isCustomField(submissionType)) {
+          const field = await models.Fields.findOne({
+            _id: submission.associatedFieldId,
+          });
+          if (!field) continue;
+
+          const targetData = customFieldsData;
+          targetData.push({ field: submission.associatedFieldId, value });
+        }
       }
 
-      if (doc.phone) {
-        if (saveAsCustomer) {
-          doc.primaryPhone = doc.phone;
-        }
-        delete doc.phone;
-      }
+      let customerQry: any = args.cachedCustomerId
+        ? { _id: args.cachedCustomerId }
+        : null;
+
+      const { saveAsCustomer } = form.leadData || {};
 
       if (saveAsCustomer) {
-        doc.state = 'customer';
+        if (args.cachedCustomerId) {
+          customerQry = { _id: args.cachedCustomerId };
+        } else if (customerDoc.email) {
+          customerQry = { customerPrimaryEmail: customerDoc.email };
+        } else if (customerDoc.phone) {
+          customerQry = { customerPrimaryPhone: customerDoc.phone };
+        } else {
+          customerQry = null;
+        }
       }
 
-      const updatedCustomer = await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'customers',
-        action: 'updateCustomer',
-        input: {
-          _id: customer._id,
-          doc,
-        },
-        defaultValue: null,
+      if (form.leadData?.clearCacheAfterSave) {
+        if (customerDoc.email) {
+          customerQry = { customerPrimaryEmail: customerDoc.email };
+        } else if (customerDoc.phone) {
+          customerQry = { customerPrimaryPhone: customerDoc.phone };
+        } else {
+          customerQry = null;
+        }
+      }
+
+      let customer: any = null;
+
+      console.log('Customer __Query:', customerQry, customerDoc);
+      if (customerQry) {
+        customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'query',
+          module: 'customers',
+          action: 'findOne',
+          input: { query: customerQry },
+          defaultValue: null,
+        });
+      }
+      if (!customer) {
+        customer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'createCustomer',
+          input: {
+            doc: {
+              ...customerDoc,
+              emails: customerDoc.email ? [customerDoc.email] : [],
+              phones: customerDoc.phone ? [customerDoc.phone] : [],
+              primaryEmail: saveAsCustomer ? customerDoc.email : null,
+              primaryPhone: saveAsCustomer ? customerDoc.phone : null,
+              state: saveAsCustomer ? 'customer' : 'lead',
+              links: customerLinks,
+              customFieldsData,
+              integrationId: integration?._id,
+              relatedIntegrationIds: integration?._id ? [integration._id] : [],
+              scopeBrandIds: form.channelId ? [form.channelId] : [],
+            },
+          },
+          defaultValue: null,
+        });
+
+        if (!customer) {
+          throw new Error('Failed to create customer');
+        }
+
+        await models.Forms.increaseContactsGathered(form._id);
+      } else {
+        const doc = updateCustomerDoc(
+          customer,
+          customerDoc,
+          form,
+          integration,
+          customFieldsData,
+          customerLinks,
+        );
+
+        if (doc.email) {
+          if (saveAsCustomer) {
+            doc.primaryEmail = doc.email;
+          }
+          delete doc.email;
+        }
+
+        if (doc.phone) {
+          if (saveAsCustomer) {
+            doc.primaryPhone = doc.phone;
+          }
+          delete doc.phone;
+        }
+
+        if (saveAsCustomer) {
+          doc.state = 'customer';
+        }
+
+        const updatedCustomer = await sendTRPCMessage({
+          subdomain,
+          pluginName: 'core',
+          method: 'mutation',
+          module: 'customers',
+          action: 'updateCustomer',
+          input: {
+            _id: customer._id,
+            doc,
+          },
+          defaultValue: null,
+        });
+        customer = updatedCustomer || customer;
+      }
+
+      const { conversation } = await createConversationAndMessage(models, {
+        customerId: customer._id,
+        integrationId: integration?._id,
+        content: form.title,
+        formWidgetData: submissions,
+        status: 'new',
       });
-      customer = updatedCustomer || customer;
-    }
+      const conversationId = conversation?._id || '';
 
-    const { conversation } = await createConversationAndMessage(models, {
-      customerId: customer._id,
-      integrationId: integration?._id,
-      content: form.title,
-      formWidgetData: submissions,
-      status: 'new',
+      const submissionGroupId = await saveFormSubmissions(
+        models,
+        {
+          submissions,
+          formId,
+          customerId: customer._id,
+          conversationId,
+        },
+        guard,
+      );
+
+      sendFormSubmittedTrigger(subdomain, {
+        _id: submissionGroupId,
+        formId,
+        channelId: form.channelId,
+        customerId: customer._id,
+        conversationId: conversationId || null,
+        fieldValues: submissionValues,
+      });
+
+      return {
+        status: 'ok',
+        customerId: customer._id,
+        conversationId: conversationId || null,
+      };
     });
-    const conversationId = conversation?._id || '';
-
-    const submissionGroupId = await saveFormSubmissions(models, {
-      submissions,
-      formId,
-      customerId: customer._id,
-      conversationId,
-    });
-
-    sendFormSubmittedTrigger(subdomain, {
-      _id: submissionGroupId,
-      formId,
-      channelId: form.channelId,
-      customerId: customer._id,
-      conversationId: conversationId || null,
-      fieldValues: submissionValues,
-    });
-
-    return {
-      status: 'ok',
-      customerId: customer._id,
-      conversationId: conversationId || null,
-    };
   },
 };
 
