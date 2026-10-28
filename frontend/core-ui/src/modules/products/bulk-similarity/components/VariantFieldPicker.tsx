@@ -19,7 +19,7 @@ import {
   useFieldGroups,
   useFields,
 } from 'ui-modules';
-import { useVariantFields } from '../hooks/useVariantFields';
+import { useVariantFields } from '@/products/bulk-similarity/hooks/useVariantFields';
 
 const CONTENT_TYPE = 'core:product';
 const FIELDS_LIMIT = 100;
@@ -213,7 +213,10 @@ const AddFieldSheet = ({
           <IconPlus className="size-4" />
         </Button>
       </CoreModulePanel.Trigger>
-      <CoreModulePanel.View className="flex flex-col p-0 sm:max-w-md">
+      <CoreModulePanel.View
+        className="flex flex-col p-0 sm:max-w-md"
+        loading={!createGroup && (loading || groupsLoading)}
+      >
         <CoreModulePanel.Header className="gap-3">
           {createGroup && (
             <Button
@@ -244,6 +247,7 @@ const AddFieldSheet = ({
             groupId={createGroup}
             refetchFields={refetchFields}
             onCreated={handleCreated}
+            onCancel={() => setCreateGroup(null)}
           />
         ) : (
           <CoreModulePanel.Content className="flex-auto p-5 overflow-auto">
@@ -336,10 +340,12 @@ const CreatePropertyForm = ({
   groupId,
   refetchFields,
   onCreated,
+  onCancel,
 }: {
   groupId: string;
   refetchFields: () => Promise<unknown>;
   onCreated: (fieldId: string, value: string) => void;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { addProperty, loading } = useAddProperty();
@@ -348,7 +354,6 @@ const CreatePropertyForm = ({
     addProperty({
       variables: {
         ...data,
-        groupId: groupId || undefined,
         contentType: CONTENT_TYPE,
       },
       onCompleted: async (res) => {
@@ -377,15 +382,21 @@ const CreatePropertyForm = ({
           <PropertyForm
             onSubmit={handleSubmit}
             loading={loading}
+            contentType={CONTENT_TYPE}
+            onCancel={onCancel}
             disableType
             defaultValues={{
               icon: '123',
               name: '',
               type: 'multiSelect',
+              groupId,
               isSearchable: false,
+              isVisible: true,
+              isVisibleToCreate: false,
+              isRequired: false,
+              isVisibleInCard: false,
               description: '',
               code: '',
-              validation: '',
               options: [],
             }}
           />
