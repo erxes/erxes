@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express';
 import { getConfig } from '@/integrations/instagram/commonUtils';
 import { receiveComment } from '@/integrations/instagram/controller/receiveComment';
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
@@ -8,6 +9,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { IModels } from '~/connectionResolvers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { getErrorMessage } from '@/integrations/utils';
+import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 
 const hasValidWebhookSignature = (
   rawBody: Buffer | string | undefined,
@@ -101,59 +103,61 @@ const processIncomingMessage = async (
   subdomain: string,
   messageData: IMessageData,
 ) => {
-  try {
-    const integration = await models.InstagramIntegrations.findOne({
-      instagramPageId: messageData.recipient?.id,
-    });
-    if (integration) {
-      await receiveMessage(models, subdomain, integration, messageData);
-    }
-  } catch (error) {
-    debugError(`Error processing message: ${getErrorMessage(error)}`);
+  const integration = await models.InstagramIntegrations.findOne({
+    instagramPageId: messageData.recipient?.id,
+    kind: INTEGRATION_KINDS.MESSENGER,
+  });
+  if (integration) {
+    await receiveMessage(models, subdomain, integration, messageData);
   }
 };
 
-export const instagramWebhook = async (req, res) => {
-  const subdomain = isDev ? 'localhost' : getSubdomain(req);
+type InstagramWebhookBody = {
+  object: string;
+  entry?: Array<{
+    id: string;
+    messaging?: IMessageData[];
+    standby?: IMessageData[];
+    changes?: Array<{
+      field: string;
+      value: Parameters<typeof receiveComment>[2];
+    }>;
+  }>;
+};
 
-  debugInstagram(`Received webhook request for subdomain: ${subdomain}`);
-  const models = await generateModels(subdomain);
-  const appSecret = await getConfig(models, 'INSTAGRAM_APP_SECRET');
-  const signature = req.get('x-hub-signature-256');
-  if (!hasValidWebhookSignature(req.rawBody, signature, appSecret)) {
-    return res.status(401).send('Invalid webhook signature');
-  }
-  const data = req.body;
-  debugInstagram('Received webhook data:' + JSON.stringify(data));
-
-  if (data.object !== 'instagram') {
-    return res.send('OK');
-  }
-
-  for (const entry of data.entry) {
-    for (const messageData of [
-      ...(entry.messaging || []),
-      ...(entry.standby || []),
-    ]) {
-      await processIncomingMessage(models, subdomain, messageData);
+export const instagramWebhook = async (
+  req: Request<Record<string, string>, string, InstagramWebhookBody> & {
+    rawBody?: Buffer | string;
+  },
+  res: Response<string>,
+) => {
+  try {
+    const subdomain = isDev ? 'localhost' : getSubdomain(req);
+    const models = await generateModels(subdomain);
+    const appSecret = await getConfig(models, 'INSTAGRAM_APP_SECRET');
+    const signature = req.get('x-hub-signature-256');
+    if (!hasValidWebhookSignature(req.rawBody, signature, appSecret)) {
+      return res.status(401).send('Invalid webhook signature');
     }
+    const data = req.body;
+    if (data.object !== 'instagram') return res.send('OK');
 
-    if (entry.changes) {
-      for (const event of entry.changes) {
+    for (const entry of data.entry || []) {
+      for (const messageData of [
+        ...(entry.messaging || []),
+        ...(entry.standby || []),
+      ]) {
+        await processIncomingMessage(models, subdomain, messageData);
+      }
+      for (const event of entry.changes || []) {
         if (event.field === 'comments') {
-          debugInstagram(
-            `Received comment data ${JSON.stringify(event.value)}`,
-          );
-          try {
-            await receiveComment(models, subdomain, event.value, entry.id);
-            debugInstagram(`Successfully saved ${JSON.stringify(event.value)}`);
-          } catch (e) {
-            debugError(`Error processing comment: ${e.message}`);
-          }
+          await receiveComment(models, subdomain, event.value, entry.id);
         }
       }
     }
+    return res.send('success');
+  } catch (error: unknown) {
+    debugError(`Error processing Instagram webhook: ${getErrorMessage(error)}`);
+    return res.status(500).send('Instagram webhook processing failed');
   }
-
-  return res.send('success');
 };

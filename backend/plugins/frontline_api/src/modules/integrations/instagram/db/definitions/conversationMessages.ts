@@ -11,6 +11,9 @@ export const conversationMessageSchema = schemaWrapper(
   new Schema({
     _id: mongooseStringRandomId,
     mid: { type: String, label: 'Instagram message id' },
+    inboxSyncPending: Boolean,
+    processingToken: String,
+    processingUntil: Date,
     content: { type: String },
     attachments: [attachmentSchema],
     conversationId: { type: String, index: true },
@@ -39,4 +42,5 @@ export const conversationMessageSchema = schemaWrapper(
 );
 
 conversationMessageSchema.index({ conversationId: 1, createdAt: -1 });
+conversationMessageSchema.index({ conversationId: 1, mid: 1 });
 conversationMessageSchema.index({ customerId: 1, createdAt: -1 });

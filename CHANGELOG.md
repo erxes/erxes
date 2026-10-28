@@ -1,4 +1,16 @@
+# Changelog
 
+## [3.4.3](https://github.com/erxes/erxes/compare/3.4.2...3.4.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **accounting:** from sales data save fix date and some ([701c424](https://github.com/erxes/erxes/commit/701c424c08bc5b4e7539ad64b8bf95acc8f4bf24))
+* **content:** clear removed CMS documents and attachments on save ([#10008](https://github.com/erxes/erxes/issues/10008)) ([d4af96b](https://github.com/erxes/erxes/commit/d4af96bfd52e7afadf10a294ed48ac7f0683988e))
+* **facebook:** make userId optional in repair method and related interfaces ([022899f](https://github.com/erxes/erxes/commit/022899f3bed87881c7198902889c80626d50054f))
+* **frontline:** restore Instagram Messenger and Post delivery  ([8a8ceeb](https://github.com/erxes/erxes/commit/8a8ceeb7241a70fe01f845b3425a6e169d13726c))
+* posclient front theme similiraty ([d3c9341](https://github.com/erxes/erxes/commit/d3c934189d148b933adc2acfe3a6750baf38a1a1))
+* **posclient:** show searched products that are not similarity stars ([a1d94d5](https://github.com/erxes/erxes/commit/a1d94d5ee18e19055b5a137f3e615b2169bd1cd8))
 
 ## [3.4.2](https://github.com/erxes/erxes/compare/3.4.1...3.4.2) (2026-10-27)
 
@@ -77,7 +89,7 @@
 * Revert "feat(core-ui): group notifications by author and add status tabs (#9912)" (#9915) ([e6fac5a](https://github.com/erxes/erxes/commit/e6fac5a4602cae22ad18c3feedf5af04cb9fad62)), closes [#9912](https://github.com/erxes/erxes/issues/9912) [#9915](https://github.com/erxes/erxes/issues/9915)
 * Revert "feat(core): add provider-first workspace connections (#9905)" (#9914) ([9ebe4f8](https://github.com/erxes/erxes/commit/9ebe4f84a0b61bcedfd7413d109ca797dfe3ede2)), closes [#9905](https://github.com/erxes/erxes/issues/9905) [#9914](https://github.com/erxes/erxes/issues/9914)
 
-# Changelog
+
 
 ## [3.3.7](https://github.com/erxes/erxes/compare/3.3.4...3.3.7) (2026-10-22)
 

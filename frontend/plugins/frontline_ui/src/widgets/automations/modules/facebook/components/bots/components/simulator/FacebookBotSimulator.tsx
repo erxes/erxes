@@ -218,13 +218,14 @@ export const FacebookBotSimulator = () => {
               ? getFacebookPageUrl(facebookMessengerBot.pageId)
               : undefined
           }
-          isMenuOpen={isMenuOpen}
+          hasMenu={preview.items.length > 0}
+          isMenuOpen={isMenuOpen && preview.items.length > 0}
           onToggleMenu={() => setMenuOpen((open) => !open)}
           composerValue={composerValue}
           onComposerChange={setComposerValue}
           overlay={
             <>
-              {isMenuOpen && (
+              {isMenuOpen && preview.items.length > 0 && (
                 <PersistentMenuSheet
                   items={preview.items}
                   device={device}
@@ -233,9 +234,9 @@ export const FacebookBotSimulator = () => {
                   onSelect={setSelectedItemKey}
                 />
               )}
-              {view === 'welcome' && !isMenuOpen && (
+              {view === 'welcome' && (!isMenuOpen || !preview.items.length) && (
                 <GetStartedButton
-                  title={preview.items[0].title}
+                  title={preview.getStartedTitle}
                   isSelected={selectedItemKey === GET_STARTED_KEY}
                   onSelect={() => setSelectedItemKey(GET_STARTED_KEY)}
                 />
@@ -670,10 +671,14 @@ const SimulatorNotices = ({
     return (
       <p className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
         <IconInfoCircle className="size-3.5 shrink-0" />
-        {t('menu-preview-note', {
-          defaultValue:
-            'Facebook always adds Get Started as the first menu action.',
-        })}
+        {itemCount
+          ? t('menu-preview-note', {
+              defaultValue: 'erxes adds Get Started as the first menu action.',
+            })
+          : t('menu-preview-empty-note', {
+              defaultValue:
+                'No persistent menu, so Messenger shows no ☰ button.',
+            })}
       </p>
     );
   }
