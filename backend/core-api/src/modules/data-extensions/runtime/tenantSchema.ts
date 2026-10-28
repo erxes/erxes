@@ -2,17 +2,17 @@ import { GraphQLSchema } from 'graphql';
 import {
   DATA_EXTENSION_RECORD_TYPES,
   DATA_EXTENSIONS_ENGINE_VERSION,
-  getDataExtensionModels,
   getDataExtensionSchemaVersion,
   IDataExtensionModels,
   IDataExtensionRecordType,
   loadDataExtensionSnapshot,
 } from 'erxes-api-shared/core-modules';
-import { createGenerateModels, isEnabled } from 'erxes-api-shared/utils';
-import { ownerResolvers } from '~/owners';
-import { buildTenantSchema } from '~/schema/buildSchema';
-import { recordSchemaBuild } from '~/metrics';
-import { SchemaCache } from '~/schema/cache';
+import { isEnabled } from 'erxes-api-shared/utils';
+import { generateModels } from '~/connectionResolvers';
+import { ownerResolvers } from '~/modules/data-extensions/runtime/owners';
+import { buildTenantSchema } from '~/modules/data-extensions/runtime/schema/buildSchema';
+import { recordSchemaBuild } from '~/modules/data-extensions/runtime/metrics';
+import { SchemaCache } from '~/modules/data-extensions/runtime/schema/cache';
 
 const readNumber = (name: string, fallback: number) => {
   const value = Number(process.env[name]);
@@ -25,16 +25,12 @@ const VERSION_CACHE_MAX = 10000;
 const OWNERS_TTL_MS = 30000;
 
 export const schemaCache = new SchemaCache<GraphQLSchema>({
-  maxEntries: readNumber('DATA_EXTENSIONS_SCHEMA_CACHE_MAX', 200),
+  maxEntries: readNumber('DATA_EXTENSIONS_SCHEMA_CACHE_MAX', 100),
   idleTtlMs: readNumber('DATA_EXTENSIONS_SCHEMA_IDLE_MS', 15 * 60 * 1000),
   maxAgeMs: readNumber('DATA_EXTENSIONS_SCHEMA_MAX_AGE_MS', 10 * 60 * 1000),
   maxConcurrentBuilds: readNumber('DATA_EXTENSIONS_MAX_BUILDS', 4),
   maxQueuedBuilds: readNumber('DATA_EXTENSIONS_MAX_QUEUED_BUILDS', 50),
 });
-
-const generateModels = createGenerateModels<IDataExtensionModels>((db) =>
-  getDataExtensionModels(db),
-);
 
 const versions = new Map<string, { version: number; readAt: number }>();
 

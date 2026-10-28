@@ -3,8 +3,11 @@
 Tenant-defined fields and relations on records that erxes modules already
 own. Values live on the owner record under `dataExtensions`; definitions live
 in the tenant database (`data_extensions_fields`,
-`data_extensions_schema_versions`); `backend/services/data-extensions-api`
-serves a GraphQL schema generated per tenant at `/data-extensions/graphql`.
+`data_extensions_schema_versions`); core-api's runtime
+(`core-api/src/modules/data-extensions/runtime`) serves a GraphQL schema
+generated per tenant at `/data-extensions/graphql`, behind the gateway's
+signed route. Core-owned records are read and written in process; other
+owners are called over signed tRPC.
 
 ## Pieces in this folder
 

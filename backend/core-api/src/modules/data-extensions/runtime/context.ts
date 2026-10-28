@@ -5,7 +5,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { GraphQLError } from 'graphql';
-import { LIMITS } from '~/limits';
+import { LIMITS } from '~/modules/data-extensions/runtime/limits';
 
 export interface IRequestContext {
   subdomain: string;

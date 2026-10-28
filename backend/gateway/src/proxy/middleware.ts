@@ -5,7 +5,6 @@ import {
   cpUserHeaderName,
   erxesSubdomainHeaderName,
   getSubdomain,
-  redis,
   setUserHeader,
   userHeaderName,
 } from 'erxes-api-shared/utils';
@@ -180,30 +179,15 @@ export function applyProxyToCore(app: Express, targets: ErxesProxyTarget[]) {
   );
 }
 
-const DATA_EXTENSIONS_SERVICE_KEY = 'erxes-service-data-extensions';
-const DATA_EXTENSIONS_ADDRESS_TTL_MS = 30_000;
+/** Core serves the Data Extensions API, so the route follows core's address. */
+const coreAddress = (targets: ErxesProxyTarget[]) => {
+  const core = targets.find((target) => target.name === 'core');
 
-let dataExtensionsAddress: { value: string; readAt: number } | null = null;
-
-const resolveDataExtensionsTarget = async () => {
-  if (
-    dataExtensionsAddress &&
-    Date.now() - dataExtensionsAddress.readAt < DATA_EXTENSIONS_ADDRESS_TTL_MS
-  ) {
-    return dataExtensionsAddress.value;
+  if (!core) {
+    throw new Error('core service not found');
   }
 
-  const registered = await redis.get(DATA_EXTENSIONS_SERVICE_KEY);
-  const value =
-    registered || (NODE_ENV === 'production' ? '' : 'http://localhost:3330');
-
-  if (!value) {
-    throw new Error('Data Extensions service is not registered');
-  }
-
-  dataExtensionsAddress = { value, readAt: Date.now() };
-
-  return value;
+  return NODE_ENV === 'production' ? core.address : 'http://localhost:3300';
 };
 
 /**
@@ -250,14 +234,21 @@ const forwardVerifiedIdentity = (
   next();
 };
 
-/** Tenant-generated Data Extensions schemas, served outside the router. */
-export function applyDataExtensionsProxy(app: Express) {
+/**
+ * Tenant-generated Data Extensions schemas, served by core outside the
+ * router. Only the GraphQL route is public: other `/data-extensions/*` paths
+ * (core's internal metrics) are refused instead of reaching core.
+ */
+export function applyDataExtensionsProxy(
+  app: Express,
+  targets: ErxesProxyTarget[],
+) {
   app.use(
     '/data-extensions/graphql',
     forwardVerifiedIdentity,
     createProxyMiddleware({
-      router: resolveDataExtensionsTarget,
-      pathRewrite: () => '/graphql',
+      target: coreAddress(targets),
+      pathRewrite: () => '/data-extensions/graphql',
       agent: proxyAgent,
       proxyTimeout: PROXY_IDLE_TIMEOUT_MS,
       on: {
@@ -267,4 +258,8 @@ export function applyDataExtensionsProxy(app: Express) {
       },
     }),
   );
+
+  app.use('/data-extensions', (_req: Request, res: Response) => {
+    res.status(404).json({ error: 'Not found' });
+  });
 }

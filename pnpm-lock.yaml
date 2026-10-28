@@ -1571,15 +1571,6 @@ importers:
         specifier: ^3.23.8
         version: 3.23.8
 
-  backend/services/data-extensions-api:
-    dependencies:
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../erxes-api-shared
-      tslib:
-        specifier: ^2.6.3
-        version: 2.8.1
-
   backend/services/logs:
     dependencies:
       erxes-api-shared:

@@ -1,0 +1,53 @@
+name: CI Data Extensions
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/core-api/src/modules/data-extensions/**'
+      - 'backend/erxes-api-shared/src/core-modules/data-extensions/**'
+      - 'backend/gateway/src/proxy/**'
+      - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
+      - '.github/workflows/ci-data-extensions.yml'
+  pull_request:
+    paths:
+      - 'backend/core-api/src/modules/data-extensions/**'
+      - 'backend/erxes-api-shared/src/core-modules/data-extensions/**'
+      - 'backend/gateway/src/proxy/**'
+      - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
+      - '.github/workflows/ci-data-extensions.yml'
+
+env:
+  NX_DAEMON: false
+
+# Data Extensions ships inside core-api (built and published by CI Core-api);
+# this runs its tests, which no image build does.
+jobs:
+  data-extensions-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Test core module (shared)
+        run: pnpm exec jest -c backend/erxes-api-shared/jest.config.ts backend/erxes-api-shared/src/core-modules/data-extensions
+
+      - name: Test runtime (core-api)
+        run: pnpm exec jest -c backend/core-api/jest.config.ts backend/core-api/src/modules/data-extensions
+
+      - name: Test UI module
+        run: pnpm exec jest -c frontend/libs/ui-modules/jest.config.ts frontend/libs/ui-modules/src/modules/data-extensions

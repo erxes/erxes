@@ -37,6 +37,7 @@ import initImportExport from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
+import { dataExtensionsRouter } from '~/modules/data-extensions/runtime/router';
 
 const PLUGIN_NAME = 'core';
 
@@ -61,6 +62,9 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 applyTrustProxy(app);
+
+// Ahead of core's body parsers so the route keeps its own, smaller limit.
+app.use(dataExtensionsRouter);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));

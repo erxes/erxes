@@ -25,7 +25,7 @@ import {
   IDataExtensionRecord,
   IDataExtensionRecordType,
 } from 'erxes-api-shared/core-modules';
-import { IRequestContext } from '~/context';
+import { IRequestContext } from '~/modules/data-extensions/runtime/context';
 
 const parseDate = (value: unknown): string => {
   const date =
@@ -516,8 +516,12 @@ export const buildTenantSchema = ({
               : GraphQLID,
             description:
               field.relation.side === 'source'
-                ? `Id${isList(field) ? 's' : ''} of the ${targetLabel} to link. Send null to unlink.`
-                : `Id${isList(field) ? 's' : ''} of the ${targetLabel} that should link here; replaces the current links. Send null to unlink all.`,
+                ? `Id${
+                    isList(field) ? 's' : ''
+                  } of the ${targetLabel} to link. Send null to unlink.`
+                : `Id${
+                    isList(field) ? 's' : ''
+                  } of the ${targetLabel} that should link here; replaces the current links. Send null to unlink all.`,
           }
         : {
             type: valueType(field.type) as GraphQLInputType,
@@ -572,7 +576,14 @@ export const buildTenantSchema = ({
       const toAdd = desired.filter((id) => !current.includes(id));
 
       if (toRemove.length) {
-        await owners.link(context, holder, stored.key, toRemove, recordId, 'remove');
+        await owners.link(
+          context,
+          holder,
+          stored.key,
+          toRemove,
+          recordId,
+          'remove',
+        );
       }
 
       if (toAdd.length) {

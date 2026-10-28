@@ -111,7 +111,7 @@ propertiesData? } })`
   and `dataExtensions.records.link({ recordType, key, ids, targetId, action })`
   and `dataExtensions.records.search({ recordType, searchValue?, limit? })`
   for `operation:task|triage|project|milestone|team|cycle|status|note`. Every
-  call must carry a `proof` the `data-extensions-api` runtime signs (with
+  call must carry a `proof` the Data Extensions runtime in core-api signs (with
   `JWT_TOKEN_SECRET`) for this tenant, actor and exact input after checking
   the caller's Operation permissions; unsigned calls are refused. Patches are
   validated against the definitions active at commit time.

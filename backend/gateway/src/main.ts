@@ -247,7 +247,7 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
-    applyDataExtensionsProxy(app);
+    applyDataExtensionsProxy(app, global.currentTargets);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
 

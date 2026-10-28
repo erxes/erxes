@@ -12,8 +12,11 @@ import {
   IDataExtensionField,
   IDataExtensionRecord,
 } from 'erxes-api-shared/core-modules';
-import { IRequestContext } from '~/context';
-import { maxAliasesRule, maxDepthRule } from '~/limits';
+import { IRequestContext } from '~/modules/data-extensions/runtime/context';
+import {
+  maxAliasesRule,
+  maxDepthRule,
+} from '~/modules/data-extensions/runtime/limits';
 import { buildTenantSchema, IOwnerResolvers } from './buildSchema';
 
 const field = (
@@ -340,7 +343,11 @@ describe('relations', () => {
     owners.load = async (context, descriptor, ids) =>
       descriptor.recordType === 'operation:task'
         ? ids.map((id) =>
-            id === task._id ? task : id === 'task-2' ? { ...task, _id: id } : null,
+            id === task._id
+              ? task
+              : id === 'task-2'
+              ? { ...task, _id: id }
+              : null,
           )
         : loadCompanies(context, descriptor, ids);
 
@@ -470,7 +477,9 @@ describe('relations', () => {
     const { context, checked } = createContext();
     const result = await execute({
       schema,
-      document: parse(`{ companySearch(searchValue: "ac", limit: 5) { _id primaryName } }`),
+      document: parse(
+        `{ companySearch(searchValue: "ac", limit: 5) { _id primaryName } }`,
+      ),
       contextValue: context,
     });
 

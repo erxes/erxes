@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Request, Response, Router } from 'express';
 import {
   execute,
   GraphQLError,
@@ -6,92 +6,25 @@ import {
   specifiedRules,
   validate,
 } from 'graphql';
-import * as http from 'http';
 import {
   DATA_EXTENSIONS_PROOF_HEADERS,
   gatewayProofPayload,
   verifyDataExtensionsProof,
 } from 'erxes-api-shared/core-modules';
+import { extractUserFromHeader, userHeaderName } from 'erxes-api-shared/utils';
+import { createRequestContext } from '~/modules/data-extensions/runtime/context';
 import {
-  applyTrustProxy,
-  closeMongooose,
-  createHealthRoute,
-  extractUserFromHeader,
-  isDev,
-  keyForConfig,
-  redis,
-  userHeaderName,
-} from 'erxes-api-shared/utils';
-import { createRequestContext } from '~/context';
-import { LIMITS, maxAliasesRule, maxDepthRule } from '~/limits';
-import { metricsSnapshot } from '~/metrics';
-import { getTenantSchema, schemaCache } from '~/tenantSchema';
-
-const { LOAD_BALANCER_ADDRESS, MONGO_URL } = process.env;
-
-const port = process.env.PORT ? Number(process.env.PORT) : 3330;
-const serviceName = 'data-extensions';
+  LIMITS,
+  maxAliasesRule,
+  maxDepthRule,
+} from '~/modules/data-extensions/runtime/limits';
+import { metricsSnapshot } from '~/modules/data-extensions/runtime/metrics';
+import {
+  getTenantSchema,
+  schemaCache,
+} from '~/modules/data-extensions/runtime/tenantSchema';
 
 const requestStats = { total: 0, errors: 0, totalMs: 0 };
-
-const app = express();
-applyTrustProxy(app);
-app.use(express.json({ limit: LIMITS.bodyBytes }));
-
-// Body-parser failures (too large, malformed JSON) answer as GraphQL errors
-// instead of Express's HTML page.
-app.use(
-  (
-    error: Error & { status?: number; type?: string },
-    _req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    if (!error) {
-      return next();
-    }
-
-    const tooLarge = error.type === 'entity.too.large';
-
-    requestStats.errors++;
-
-    return res.status(tooLarge ? 413 : 400).json({
-      errors: [
-        {
-          message: tooLarge
-            ? `Request body is larger than ${LIMITS.bodyBytes}`
-            : 'Request body must be valid JSON',
-          extensions: { code: tooLarge ? 'PAYLOAD_TOO_LARGE' : 'BAD_REQUEST' },
-        },
-      ],
-    });
-  },
-);
-
-app.get('/health', createHealthRoute(serviceName));
-
-app.get('/metrics', (_req, res) => {
-  const memory = process.memoryUsage();
-
-  res.json({
-    uptimeSeconds: Math.round(process.uptime()),
-    memory: {
-      rss: memory.rss,
-      heapUsed: memory.heapUsed,
-      heapTotal: memory.heapTotal,
-      external: memory.external,
-    },
-    schemaCache: schemaCache.stats(),
-    ...metricsSnapshot(),
-    requests: {
-      total: requestStats.total,
-      errors: requestStats.errors,
-      averageMs: requestStats.total
-        ? Math.round(requestStats.totalMs / requestStats.total)
-        : 0,
-    },
-  });
-});
 
 const sendErrors = (res: Response, status: number, errors: GraphQLError[]) => {
   requestStats.errors++;
@@ -106,8 +39,8 @@ const singleHeader = (req: Request, name: string) => {
 
 /**
  * Accepts identity only when the gateway's Data Extensions route signed it.
- * The generic plugin proxy forwards client headers unchanged, so an unsigned
- * `user` header is never trusted here.
+ * The gateway's generic proxy forwards client headers unchanged, so an
+ * unsigned `user` header is never trusted here.
  */
 const readVerifiedCaller = (req: Request) => {
   const userHeader = singleHeader(req, userHeaderName);
@@ -138,7 +71,7 @@ const readVerifiedCaller = (req: Request) => {
   }
 };
 
-app.post('/graphql', async (req: Request, res: Response) => {
+const handleGraphql = async (req: Request, res: Response) => {
   const startedAt = Date.now();
   requestStats.total++;
 
@@ -220,33 +153,76 @@ app.post('/graphql', async (req: Request, res: Response) => {
   } finally {
     requestStats.totalMs += Date.now() - startedAt;
   }
-});
+};
+
+/**
+ * Body-parser failures (too large, malformed JSON) answer as GraphQL errors
+ * instead of Express's HTML page.
+ */
+const handleBodyError = (
+  error: Error & { status?: number; type?: string },
+  _req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (!error) {
+    return next();
+  }
+
+  const tooLarge = error.type === 'entity.too.large';
+
+  return sendErrors(res, tooLarge ? 413 : 400, [
+    new GraphQLError(
+      tooLarge
+        ? `Request body is larger than ${LIMITS.bodyBytes}`
+        : 'Request body must be valid JSON',
+      { extensions: { code: tooLarge ? 'PAYLOAD_TOO_LARGE' : 'BAD_REQUEST' } },
+    ),
+  ]);
+};
+
+/**
+ * Process-local counters for monitoring inside the cluster. The gateway does
+ * not forward `/data-extensions/*` other than the GraphQL route, so this is
+ * not reachable from outside.
+ */
+const handleMetrics = (_req: Request, res: Response) => {
+  const memory = process.memoryUsage();
+
+  res.json({
+    uptimeSeconds: Math.round(process.uptime()),
+    memory: {
+      rss: memory.rss,
+      heapUsed: memory.heapUsed,
+      heapTotal: memory.heapTotal,
+      external: memory.external,
+    },
+    schemaCache: schemaCache.stats(),
+    ...metricsSnapshot(),
+    requests: {
+      total: requestStats.total,
+      errors: requestStats.errors,
+      averageMs: requestStats.total
+        ? Math.round(requestStats.totalMs / requestStats.total)
+        : 0,
+    },
+  });
+};
 
 const sweepTimer = setInterval(() => schemaCache.sweep(), 60 * 1000);
 sweepTimer.unref();
 
-const httpServer = http.createServer(app);
+/**
+ * The tenant-generated Data Extensions API, served by core. Mount it before
+ * core's own body parsers so its smaller body limit applies.
+ */
+export const dataExtensionsRouter: Router = express.Router();
 
-httpServer.listen(port, async () => {
-  await redis.set(
-    keyForConfig(serviceName),
-    JSON.stringify({ dbConnectionString: MONGO_URL }),
-  );
+dataExtensionsRouter.post(
+  '/data-extensions/graphql',
+  express.json({ limit: LIMITS.bodyBytes }),
+  handleBodyError,
+  handleGraphql,
+);
 
-  const address =
-    LOAD_BALANCER_ADDRESS ||
-    `http://${isDev ? 'localhost' : 'data-extensions-api'}:${port}`;
-
-  await redis.set(`erxes-service-${serviceName}`, address);
-
-  console.log(`erxes-service-${serviceName} joined with ${address}`);
-});
-
-(['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((signal) => {
-  process.on(signal, async () => {
-    clearInterval(sweepTimer);
-    await new Promise<void>((resolve) => httpServer.close(() => resolve()));
-    await closeMongooose();
-    process.exit(0);
-  });
-});
+dataExtensionsRouter.get('/data-extensions/metrics', handleMetrics);
