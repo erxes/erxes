@@ -4,6 +4,7 @@ import {
   IconId,
   IconLink,
   IconLayoutSidebarRight,
+  IconVariable,
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useAtom } from 'jotai';
@@ -31,6 +32,7 @@ import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import {
   ActivityLogs,
   AddInternalNote,
+  DataExtensionRecordFields,
   IRecordSidePanelTab,
   NEW_RECORD_ID,
   RecordSidePanel,
@@ -40,12 +42,14 @@ import {
   TRelationEntity,
   useCompanyDetail,
   useCustomerDetail,
+  useDataExtensionRecordTypes,
   useRelationWidgetTabs,
   useSidePanel,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'detail';
 const PROPERTIES_TAB = 'properties';
+const DATA_EXTENSIONS_TAB = 'data-extensions';
 const RELATIONS_TAB = 'relations';
 const ACTIVITY_TAB = 'activity';
 
@@ -228,6 +232,15 @@ const SidePanelSavedRecord = ({
   const panelPluginName = coreViews ? null : pluginName;
   const { title, avatar } = useRecordHeading(record, panelPluginName);
   const views = coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+  // Data Extension fields of any record type registered for this content
+  // type, the same for core and plugin records.
+  const { t: tDataExtensions } = useTranslation('dataExtensions');
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const hasDataExtensions = recordTypes.some(
+    (recordType) =>
+      recordType.fieldCount &&
+      recordType.contentTypes.includes(record.contentType),
+  );
   const relationTabs = useRelationWidgetTabs({
     ...record,
     // Linked customers and companies are in a contact's Detail tab already.
@@ -317,6 +330,26 @@ const SidePanelSavedRecord = ({
                 },
               ]
             : []),
+        ]
+      : []),
+    ...(hasDataExtensions
+      ? [
+          {
+            value: DATA_EXTENSIONS_TAB,
+            label: tDataExtensions('section.title'),
+            icon: IconVariable,
+            content: (
+              <div className="flex flex-col flex-1 min-h-0">
+                <ScrollArea className="flex-1 min-h-0">
+                  <DataExtensionRecordFields
+                    contentType={record.contentType}
+                    recordId={record.contentId}
+                    className="p-4"
+                  />
+                </ScrollArea>
+              </div>
+            ),
+          },
         ]
       : []),
     ...pinnedTabs,

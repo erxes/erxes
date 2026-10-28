@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import {
+  DataExtensionCreateFields,
   COMPANY_BUSINESS_TYPES,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   PANEL_INPUT_CLASS_NAME,
@@ -261,6 +262,11 @@ export const CompanyPanelNew = () => {
               )}
             />
           </div>
+          <DataExtensionCreateFields
+            recordType="core:company"
+            layout="stack"
+            className="mt-3"
+          />
         </PanelFormLayout>
       </form>
     </Form>

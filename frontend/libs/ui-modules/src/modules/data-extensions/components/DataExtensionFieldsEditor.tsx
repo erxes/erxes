@@ -26,6 +26,7 @@ export const DataExtensionFieldsEditor = ({
   editableLinks,
   disabled,
   idPrefix = 'data-extensions-value',
+  layout = 'grid',
 }: {
   fields: IDataExtensionField[];
   values: Record<string, DataExtensionValue>;
@@ -36,8 +37,14 @@ export const DataExtensionFieldsEditor = ({
   editableLinks?: string[];
   disabled?: boolean;
   idPrefix?: string;
+  /** `stack` puts every field on its own row, for narrow panels. */
+  layout?: 'grid' | 'stack';
 }) => (
-  <div className="grid gap-5 sm:grid-cols-2">
+  <div
+    className={
+      layout === 'stack' ? 'flex flex-col gap-4' : 'grid gap-5 sm:grid-cols-2'
+    }
+  >
     {fields.map((field) => {
       const inputId = `${idPrefix}-${field.key}`;
 
@@ -45,7 +52,7 @@ export const DataExtensionFieldsEditor = ({
         <div
           key={field._id}
           className={
-            WIDE_TYPES.includes(field.type)
+            layout === 'grid' && WIDE_TYPES.includes(field.type)
               ? 'flex flex-col gap-2 sm:col-span-2'
               : 'flex flex-col gap-2'
           }

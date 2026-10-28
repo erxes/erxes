@@ -22,6 +22,7 @@ import { useEffect, useRef } from 'react';
 import { Path, PathValue, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
+  DataExtensionCreateFields,
   ContactsRelationField,
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
@@ -274,6 +275,11 @@ export const TaskPanelNew = () => {
               scope={`${SCOPE}.description`}
             />
           </div>
+          <DataExtensionCreateFields
+            recordType="operation:task"
+            layout="stack"
+            className="mt-3"
+          />
         </PanelFormLayout>
       </form>
     </Form>

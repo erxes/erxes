@@ -21,10 +21,13 @@ import { DataExtensionFieldsEditor } from './DataExtensionFieldsEditor';
 export const DataExtensionCreateFields = ({
   recordType,
   className,
+  layout,
 }: {
   /** Registry name, e.g. `core:company`. */
   recordType: string;
   className?: string;
+  /** `stack` for narrow forms such as the side panel. */
+  layout?: 'grid' | 'stack';
 }) => {
   const { t } = useTranslation('dataExtensions');
   const { fields } = useDataExtensionFields({ recordType });
@@ -68,6 +71,7 @@ export const DataExtensionCreateFields = ({
         fields={fields}
         values={values}
         idPrefix={`data-extensions-new-${recordType.replace(':', '-')}`}
+        layout={layout}
         onChange={(key, value) =>
           setValues((current) => ({ ...current, [key]: value }))
         }

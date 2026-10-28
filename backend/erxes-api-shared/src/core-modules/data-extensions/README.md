@@ -102,10 +102,10 @@ it up automatically. Write a test that a legacy update keeps
 The same way Twenty does, from metadata and the tenant endpoint only:
 
 - `contentTypes` in the registry entry says which erxes screens show the
-  record type. The core `dataExtensions` relation widget is registered for
-  every content type that has fields, so detail pages that render relation
-  widgets list and edit them with no page code. Each field saves on its own
-  through the generated `<type>DataExtensionsPatch`.
+  record type. Core's record side panel adds a Custom fields tab to any
+  record whose content type has fields, so a module needs no detail code.
+  Each field saves on its own through the generated
+  `<type>DataExtensionsPatch` (`DataExtensionRecordFields`).
 - `createMutations` names the module mutations that create the record. A
   create form only mounts `DataExtensionCreateFields` with its record type;
   the host Apollo link (`createDataExtensionsCreateLink`) writes the typed

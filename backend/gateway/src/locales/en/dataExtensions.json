@@ -244,8 +244,5 @@
   "delete-confirm-description-relation": "This removes both sides of the relation and every link stored under {{key}}. It cannot be undone. Archive instead if you may need the links later.",
   "inline": {
     "saved": "Saved"
-  },
-  "widget": {
-    "manage": "Manage"
   }
 }
