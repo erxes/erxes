@@ -190,6 +190,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   not returned, the POS when scoped, dated by `paidDate`; both sum
   `totalAmount`). Sales never names those plugins; tab labels come from their
   config.
+- The POS items Export (`pages/PosItemsPage.tsx`) takes its filters from `usePosItemsVariables({ posId })`, the same variables the table uses, so `/sales/pos/:posId/items` exports only that POS.
 
 ## Architecture
 

@@ -108,58 +108,46 @@ const DEFAULT_FIELDS = [
   'totalAmount',
 ];
 
+/**
+ * One page of POS order items for the export pipeline.
+ *
+ * Rows are order items, not orders, so each row's `_id` is its position in
+ * the export. The pipeline hands the last one back as `cursor`, which is the
+ * offset of the next page; a page shorter than `limit` ends the export.
+ */
 export async function getPosItemsExportData(
-  args: GetExportDataArgs,
+  args: GetExportDataArgs | GetExportData,
   { models, subdomain }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
   const {
     limit = 5000,
+    cursor,
     filters,
     ids,
     selectedFields,
-  } = (args?.data ?? args) as GetExportData;
+  } = 'data' in args ? args.data : args;
 
   if (!models) {
     throw new Error('Models not available in context');
   }
 
-  if (ids && ids.length > 0 && filters) {
-    (filters as Record<string, unknown>).ids = ids;
-  }
+  const perPage = Math.min(limit, 5000);
+  const offset = Number(cursor) || 0;
 
-  const allOrders: IOrderRecord[] = [];
-  let page = 1;
-  const perPage = 500;
-  const maxLimit = Math.min(limit, 5000);
-
-  while (allOrders.length < maxLimit) {
-    const params: Record<string, unknown> = {
-      ...(filters ?? {}),
-      perPage: Math.min(perPage, maxLimit - allOrders.length),
-      page: page++,
-    };
-
-    if (ids && ids.length > 0) {
-      params.ids = ids;
-    }
-
-    const batch = (await posOrderRecordsQuery(
-      models,
-      subdomain,
-      params,
-    )) as IOrderRecord[];
-    if (!Array.isArray(batch) || batch.length === 0) break;
-    allOrders.push(...batch);
-    if (batch.length < perPage) break;
-  }
+  const orders = (await posOrderRecordsQuery(models, subdomain, {
+    ...(filters ?? {}),
+    ...(ids && ids.length > 0 ? { ids } : {}),
+    perPage,
+    page: Math.floor(offset / perPage) + 1,
+  })) as IOrderRecord[];
 
   const fields =
     selectedFields && selectedFields.length > 0
       ? selectedFields
       : DEFAULT_FIELDS;
 
-  return allOrders.map((order) => {
-    const row: ExportRow = {};
+  return orders.map((order, index) => {
+    const row: ExportRow = { _id: String(offset + index + 1) };
     for (const field of fields) {
       row[field] = extractOrderField(order, field);
     }
