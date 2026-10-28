@@ -1,24 +1,17 @@
 import type { TFunction } from 'i18next';
 import { ColumnDef, Row } from '@tanstack/table-core';
-import {
-  RecordTable,
-  RecordTableInlineCell,
-  Skeleton,
-  Table,
-  useQueryState,
-} from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import { RecordTable, RecordTableInlineCell, Skeleton, Table } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconRefreshOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { AddAccountingConfig } from '@/settings/syncSettings/AddAccountingConfig';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
-import { accountingConfigDetailAtom } from '@/settings/states/accountingConfigState';
 import { IConfig } from '@/settings/types/Config';
 import { useAccountingConfigs } from '@/settings/hooks/useAccountingConfigs';
 import { useAccountingConfigEdit } from '@/settings/hooks/useAccountingConfigEdit';
-import { EditAccountingConfig } from '@/settings/syncSettings/EditAccountingConfig';
+import { getSyncConfigContentType } from '@/settings/constants/settingsPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 type TPendingSyncConfigUpdate = {
   value: Record<string, unknown>;
@@ -86,15 +79,11 @@ export const SyncLinkCell = ({
   row: Row<IConfig>;
   renderVal: string;
 }) => {
-  const [, setOpen] = useQueryState<string>('configId', { defaultValue: '' });
-  const setAccountDetail = useSetAtom(accountingConfigDetailAtom);
+  const { openDetail } = useSettingsPanel(
+    getSyncConfigContentType(row.original.code),
+  );
   return (
-    <RecordTableInlineCell
-      onClick={() => {
-        setAccountDetail(row.original.value);
-        setOpen(row.original._id);
-      }}
-    >
+    <RecordTableInlineCell onClick={() => openDetail(row.original._id)}>
       {renderVal}
     </RecordTableInlineCell>
   );
@@ -165,7 +154,6 @@ export const SyncConfigTable = ({
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>
-      <EditAccountingConfig code={code} />
       {isEmpty && (
         <AccountingEmptyState
           overlay

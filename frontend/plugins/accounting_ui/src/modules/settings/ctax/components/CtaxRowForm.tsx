@@ -1,4 +1,3 @@
-import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
 import {
   TCtaxRowForm,
@@ -6,49 +5,33 @@ import {
   CTAX_KIND_LABELS,
   CtaxStatus,
   CTAX_STATUS_LABELS,
-} from '../types/CtaxRow';
-import { Button, Form, Sheet, Spinner } from 'erxes-ui';
-import { TaxRowCommonFields } from '~/modules/settings/components/TaxRowCommonFields';
+} from '@/settings/ctax/types/CtaxRow';
+import { TaxRowCommonFields } from '@/settings/components/TaxRowCommonFields';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 
 export const CtaxRowForm = ({
   form,
   onSubmit,
-  loading,
+  onCancel,
+  saving,
 }: {
   form: UseFormReturn<TCtaxRowForm>;
   onSubmit: (data: TCtaxRowForm) => void;
-  loading: boolean;
-}) => {
-  const { t } = useTranslation('accounting');
-  return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col flex-1 bg-background min-h-0"
-      >
-        <div className="p-3 flex-1 min-h-0 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-4">
-            <TaxRowCommonFields
-              control={form.control}
-              kinds={Object.values(CtaxKind)}
-              kindLabels={CTAX_KIND_LABELS}
-              statuses={Object.values(CtaxStatus)}
-              statusLabels={CTAX_STATUS_LABELS}
-              statusColSpan
-            />
-          </div>
-        </div>
-        <Sheet.Footer className="shrink-0 border-t bg-background">
-          <Sheet.Close asChild>
-            <Button variant="outline" size="lg">
-              {t('cancel-label')}
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" disabled={loading} size="lg">
-            {loading ? <Spinner /> : t('save')}
-          </Button>
-        </Sheet.Footer>
-      </form>
-    </Form>
-  );
-};
+  onCancel: () => void;
+  saving: boolean;
+}) => (
+  <SettingsPanelDraftForm
+    form={form}
+    onSubmit={onSubmit}
+    onCancel={onCancel}
+    saving={saving}
+  >
+    <TaxRowCommonFields
+      control={form.control}
+      kinds={Object.values(CtaxKind)}
+      kindLabels={CTAX_KIND_LABELS}
+      statuses={Object.values(CtaxStatus)}
+      statusLabels={CTAX_STATUS_LABELS}
+    />
+  </SettingsPanelDraftForm>
+);
