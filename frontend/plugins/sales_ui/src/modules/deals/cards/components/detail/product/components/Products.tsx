@@ -11,9 +11,11 @@ import { ProductsPayment } from './ProductPayment';
 export const Products = ({
   deal,
   refetch,
+  compact,
 }: {
   deal: IDealDetail;
   refetch: () => void;
+  compact?: boolean;
 }) => {
   const [activeTab, setActiveTab] = useState<string>('product');
   const { t } = useTranslation('sales');
@@ -38,6 +40,7 @@ export const Products = ({
             pipelineId={deal.pipelineId || deal.pipeline?._id}
             refetch={refetch}
             tickUsed={deal.stage?.defaultTick ?? true}
+            compact={compact}
           />
         </Tabs.Content>
         <Tabs.Content

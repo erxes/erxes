@@ -1,5 +1,15 @@
 import type { DealProductData } from '@/deals/utils/dealJson';
-import { IconBuildingSkyscraper, IconGitBranch } from '@tabler/icons-react';
+import {
+  IconArrowsLeftRight,
+  IconBuildingSkyscraper,
+  IconCurrency,
+  IconCurrencyDollar,
+  IconGitBranch,
+  IconPentagonNumber1,
+  IconReceipt2,
+  IconReceiptTax,
+  IconRuler,
+} from '@tabler/icons-react';
 import {
   Checkbox,
   CurrencyCode,
@@ -442,7 +452,9 @@ export const ProductDepartmentField = ({
 export const taxPercent = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'taxPercent',
   accessorKey: 'taxPercent',
-  header: () => <RecordTable.InlineHead label={t('tax-percent')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconReceiptTax} label={t('tax-percent')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -461,7 +473,7 @@ export const taxPercent = (t: TFunction): ColumnDef<DealProductData> => ({
 export const tax = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'tax',
   accessorKey: 'tax',
-  header: () => <RecordTable.InlineHead label={t('tax')} />,
+  header: () => <RecordTable.InlineHead icon={IconReceipt2} label={t('tax')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -480,7 +492,9 @@ export const tax = (t: TFunction): ColumnDef<DealProductData> => ({
 export const currency = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'currency',
   accessorKey: 'currency',
-  header: () => <RecordTable.InlineHead label={t('currency')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrency} label={t('currency')} />
+  ),
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -497,7 +511,7 @@ export const currency = (t: TFunction): ColumnDef<DealProductData> => ({
 export const baseUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uom',
   accessorKey: 'uom',
-  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  header: () => <RecordTable.InlineHead icon={IconRuler} label={t('uom')} />,
   cell: ({ cell }) => {
     return (
       <RecordTableInlineCell>
@@ -513,7 +527,7 @@ export const baseUom = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoUom = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.uom',
   accessorFn: (row) => getProductUomInfo(row).uom,
-  header: () => <RecordTable.InlineHead label={t('uom')} />,
+  header: () => <RecordTable.InlineHead icon={IconRuler} label={t('uom')} />,
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomField product={row.original} />
@@ -525,7 +539,12 @@ export const uomInfoUom = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.ratio',
   accessorFn: (row) => getProductUomInfo(row).ratio,
-  header: () => <RecordTable.InlineHead label={t('ratio', 'Ratio')} />,
+  header: () => (
+    <RecordTable.InlineHead
+      icon={IconArrowsLeftRight}
+      label={t('ratio')}
+    />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <TextOverflowTooltip
@@ -539,7 +558,9 @@ export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoUnitPrice = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.unitPrice',
   accessorFn: (row) => getProductUomInfo(row).unitPrice,
-  header: () => <RecordTable.InlineHead label={t('unit-price')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconCurrencyDollar} label={t('unit-price')} />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomInfoNumberField product={row.original} field="unitPrice" />
@@ -551,7 +572,9 @@ export const uomInfoUnitPrice = (t: TFunction): ColumnDef<DealProductData> => ({
 export const uomInfoQuantity = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.quantity',
   accessorFn: (row) => getProductUomInfo(row).quantity,
-  header: () => <RecordTable.InlineHead label={t('quantity')} />,
+  header: () => (
+    <RecordTable.InlineHead icon={IconPentagonNumber1} label={t('quantity')} />
+  ),
   cell: ({ row }) => (
     <RecordTableInlineCell>
       <ProductUomInfoNumberField product={row.original} field="quantity" />

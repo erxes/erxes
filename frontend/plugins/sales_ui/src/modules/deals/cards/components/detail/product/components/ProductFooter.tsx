@@ -43,11 +43,11 @@ const formatTotal = (total: TotalByCurrency) => {
   }
 
   return (
-    <div className="flex flex-wrap gap-x-3 gap-y-1">
+    <div className="flex flex-wrap justify-end gap-x-3 gap-y-1">
       {Object.entries(total).map(([currency, value]) => (
         <span
           key={currency}
-          className="font-semibold tabular-nums text-foreground"
+          className="whitespace-nowrap font-semibold tabular-nums text-foreground"
         >
           {value.toLocaleString()} {currency}
         </span>
@@ -233,90 +233,105 @@ export const ProductFooter = ({
   const { t } = useTranslation('sales');
 
   return (
-    <div className="z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
+    <div className="@container z-10 shrink-0 border-t bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/85">
       {(showAdvancedView || showTaxView) && currencies.length > 0 && (
         <div className="max-h-44 divide-y overflow-y-auto overscroll-contain border-b bg-muted/15 px-4">
           {currencies.map((currency) => (
             <div
               key={currency}
-              className="flex flex-wrap items-center gap-x-5 gap-y-2 py-2"
+              className="flex flex-col gap-1.5 py-2 @2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:gap-x-5 @2xl:gap-y-2"
             >
               <span className="min-w-12 text-xs font-semibold uppercase tracking-wide text-foreground">
                 {currency}
               </span>
 
               {showAdvancedView && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t('set-handle-discount', 'Set handle discount')}
-                  </span>
-                  <Input
-                    id={`discount-percent-${currency}`}
-                    className="h-8 w-20 tabular-nums"
-                    inputMode="numeric"
-                    placeholder={t('set-percent', 'Set percent')}
-                    value={getHandleDiscountPercentInput(currency)}
-                    onChange={(event) =>
-                      handleDiscountPercentDraftChange(
-                        currency,
-                        event.currentTarget.value,
-                      )
-                    }
-                  />
-                  <span className="text-xs text-muted-foreground">%</span>
-                  <Input
-                    id={`discount-amount-${currency}`}
-                    className="h-8 w-32 tabular-nums"
-                    inputMode="numeric"
-                    placeholder={t('set-amount', 'Set amount')}
-                    value={getHandleDiscountAmountInput(currency)}
-                    onChange={(event) =>
-                      handleDiscountAmountDraftChange(
-                        currency,
-                        event.currentTarget.value,
-                      )
-                    }
-                  />
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {t('total-discount')}
-                  </span>
-                  <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
-                    {formatPercent(discount[currency]?.percent)}%
-                  </span>
-                  <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
-                    {formatDiscountAmount(discount[currency]?.value)} {currency}
-                  </span>
+                <div className="flex flex-col gap-1.5 @2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:gap-2">
+                  <div className="flex items-center justify-between gap-2 @2xl:justify-start">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {t('set-handle-discount')}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        id={`discount-percent-${currency}`}
+                        className="h-8 w-16 text-right tabular-nums @2xl:w-20 @2xl:text-left"
+                        inputMode="numeric"
+                        placeholder="0"
+                        value={getHandleDiscountPercentInput(currency)}
+                        onChange={(event) =>
+                          handleDiscountPercentDraftChange(
+                            currency,
+                            event.currentTarget.value,
+                          )
+                        }
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                      <Input
+                        id={`discount-amount-${currency}`}
+                        className="h-8 w-28 text-right tabular-nums @2xl:w-32 @2xl:text-left"
+                        inputMode="numeric"
+                        placeholder={t('set-amount')}
+                        value={getHandleDiscountAmountInput(currency)}
+                        onChange={(event) =>
+                          handleDiscountAmountDraftChange(
+                            currency,
+                            event.currentTarget.value,
+                          )
+                        }
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 @2xl:justify-start">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {t('total-discount')}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
+                        {formatPercent(discount[currency]?.percent)}%
+                      </span>
+                      <span className="rounded-sm bg-background px-2 py-1 text-xs font-semibold tabular-nums text-foreground shadow-xs">
+                        {formatDiscountAmount(discount[currency]?.value)}{' '}
+                        {currency}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               )}
 
               {showTaxView && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <Label
-                    htmlFor={`tax-percent-${currency}`}
-                    className="text-xs font-medium text-muted-foreground"
-                  >
-                    {t('total-tax')}
-                  </Label>
-                  <NumberInput
-                    id={`tax-percent-${currency}`}
-                    className="h-8 w-20 tabular-nums"
-                    value={roundPercent(tax[currency]?.percent)}
-                    onChange={(value) =>
-                      handlePercentChange(
-                        currency,
-                        Math.min(100, Math.max(0, Math.round(value))),
-                        'tax',
-                      )
-                    }
-                  />
-                  <span className="text-xs text-muted-foreground">%</span>
-                  <span className="text-xs text-muted-foreground">
-                    {t('amount')}
-                  </span>
-                  <span className="font-medium tabular-nums text-muted-foreground text-xs">
-                    {Math.round(tax[currency]?.value || 0).toLocaleString()}{' '}
-                    {currency}
-                  </span>
+                <div className="flex flex-col gap-1.5 @2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:gap-2">
+                  <div className="flex items-center justify-between gap-2 @2xl:justify-start">
+                    <Label
+                      htmlFor={`tax-percent-${currency}`}
+                      className="text-xs font-medium text-muted-foreground"
+                    >
+                      {t('total-tax')}
+                    </Label>
+                    <div className="flex items-center gap-2">
+                      <NumberInput
+                        id={`tax-percent-${currency}`}
+                        className="h-8 w-16 text-right tabular-nums @2xl:w-20 @2xl:text-left"
+                        value={roundPercent(tax[currency]?.percent)}
+                        onChange={(value) =>
+                          handlePercentChange(
+                            currency,
+                            Math.min(100, Math.max(0, Math.round(value))),
+                            'tax',
+                          )
+                        }
+                      />
+                      <span className="text-xs text-muted-foreground">%</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 @2xl:justify-start">
+                    <span className="text-xs text-muted-foreground">
+                      {t('amount')}
+                    </span>
+                    <span className="font-medium tabular-nums text-muted-foreground text-xs">
+                      {Math.round(tax[currency]?.value || 0).toLocaleString()}{' '}
+                      {currency}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -324,22 +339,22 @@ export const ProductFooter = ({
         </div>
       )}
 
-      <div className="flex flex-col gap-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <div className="flex items-baseline gap-2">
+      <div className="flex flex-col gap-3 px-4 py-3 @2xl:flex-row @2xl:items-center @2xl:justify-between">
+        <div className="flex flex-col gap-1 @2xl:flex-row @2xl:flex-wrap @2xl:items-center @2xl:gap-x-6 @2xl:gap-y-2">
+          <div className="flex items-baseline justify-between gap-2 @2xl:justify-start">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t('products')}
             </span>
             <span className="font-semibold tabular-nums">{productsCount}</span>
           </div>
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline justify-between gap-2 @2xl:justify-start">
             <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t('amount')}
             </span>
             {formatTotal(total)}
           </div>
           {Object.keys(unUsedTotal).length > 0 && (
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline justify-between gap-2 @2xl:justify-start">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('unused')}
               </span>
@@ -347,7 +362,7 @@ export const ProductFooter = ({
             </div>
           )}
           {Object.keys(unUsedTotal).length > 0 && (
-            <div className="flex items-baseline gap-2">
+            <div className="flex items-baseline justify-between gap-2 @2xl:justify-start">
               <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 {t('total')}
               </span>
@@ -356,7 +371,7 @@ export const ProductFooter = ({
           )}
         </div>
 
-        <div className="flex w-full items-center gap-2 sm:w-auto">
+        <div className="flex w-full items-center gap-2 @2xl:w-auto">
           <SelectProductsBulk
             productIds={[]}
             pipelineId={pipelineId}
@@ -364,12 +379,12 @@ export const ProductFooter = ({
               onAddProducts(selectedProducts || [])
             }
           >
-            <Button variant="secondary" className="flex-1 sm:flex-none">
+            <Button variant="secondary" className="flex-1 @2xl:flex-none">
               <IconPlus className="size-4" />
               {t('add-products')}
             </Button>
           </SelectProductsBulk>
-          <Button onClick={onSave} className="flex-1 sm:flex-none">
+          <Button onClick={onSave} className="flex-1 @2xl:flex-none">
             <IconDeviceFloppy size={16} />
             {t('save')}
           </Button>

@@ -492,7 +492,7 @@ export const ProductsPayment = ({
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col pb-4">
+    <div className="@container mx-auto flex w-full max-w-3xl flex-col pb-4">
       <div className="grid grid-cols-2 border-y bg-muted/15">
         <div className="flex flex-col items-center px-4 py-5">
           <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -521,7 +521,7 @@ export const ProductsPayment = ({
         </div>
       </div>
       <div className="w-full divide-y border-b">
-        <div className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center">
+        <div className="grid gap-3 py-3 @lg:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] @lg:items-center">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {t('cash')}
           </p>
@@ -561,7 +561,7 @@ export const ProductsPayment = ({
           </div>
         </div>
         {hasMobilePayments && (
-          <div className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center">
+          <div className="grid gap-3 py-3 @lg:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] @lg:items-center">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t('mobile')}
             </p>
@@ -641,7 +641,7 @@ export const ProductsPayment = ({
         {(deal.mobileAmounts || []).map((mobilePayment, index) => (
           <div
             key={mobilePayment._id || index}
-            className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center"
+            className="grid gap-3 py-3 @lg:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] @lg:items-center"
           >
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
               {t('mobile-paid')}
@@ -677,7 +677,7 @@ export const ProductsPayment = ({
             return (
               <div
                 key={paymentType.type}
-                className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center"
+                className="grid gap-3 py-3 @lg:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] @lg:items-center"
               >
                 <div className="flex items-center gap-2">
                   <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">

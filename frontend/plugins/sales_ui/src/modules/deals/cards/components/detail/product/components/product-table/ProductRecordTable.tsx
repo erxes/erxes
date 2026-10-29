@@ -16,6 +16,7 @@ import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProductCommandBar } from '../../product-command-bar/ProductCommandBar';
 import { productColumns } from './ProductColumns';
+import { ProductCardList } from '@/deals/cards/components/detail/product/components/product-list/ProductCardList';
 
 const UOM_INFO_COLUMN_IDS = [
   'uomInfo.uom',
@@ -58,12 +59,20 @@ export const ProductsRecordTable = ({
   showAdvancedView,
   showTaxView,
   hasProductFilters,
+  layout = 'table',
+  expandedIds = [],
+  onToggleExpanded = () => undefined,
+  onExpandedChange = () => undefined,
 }: {
   products: DealProductData[];
   refetch: () => void;
   showAdvancedView: boolean;
   showTaxView: boolean;
   hasProductFilters: boolean;
+  layout?: 'table' | 'cards';
+  expandedIds?: string[];
+  onToggleExpanded?: (productDataId: string) => void;
+  onExpandedChange?: (productDataIds: string[]) => void;
 }) => {
   const { t } = useTranslation('sales');
 
@@ -107,7 +116,11 @@ export const ProductsRecordTable = ({
       }`}
       columns={columns}
       data={products}
-      className="flex h-full min-h-0 flex-col overflow-hidden rounded-lg border"
+      className={
+        layout === 'cards'
+          ? 'flex flex-col'
+          : 'flex h-full min-h-0 flex-col overflow-hidden rounded-lg border'
+      }
       stickyColumns={['more', 'checkbox', 'name']}
       tableId={
         showAdvancedView || showTaxView
@@ -134,6 +147,12 @@ export const ProductsRecordTable = ({
             </Empty.Description>
           </Empty.Header>
         </Empty>
+      ) : layout === 'cards' ? (
+        <ProductCardList
+          expandedIds={expandedIds}
+          onToggleExpanded={onToggleExpanded}
+          onExpandedChange={onExpandedChange}
+        />
       ) : (
         <div className="min-h-0 flex-1 overflow-auto">
           <RecordTable.Scroll>

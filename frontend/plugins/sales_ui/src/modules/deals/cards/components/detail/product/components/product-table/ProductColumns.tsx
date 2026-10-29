@@ -2,7 +2,11 @@
 
 import type { DealProductData } from '@/deals/utils/dealJson';
 import {
+  IconCircleCheck,
   IconCurrencyDollar,
+  IconDiscount,
+  IconFileCheck,
+  IconPercentage,
   IconDiamond,
   IconLabel,
   IconPentagonNumber1,
@@ -148,7 +152,12 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   {
     id: 'discountPercent',
     accessorKey: 'discountPercent',
-    header: () => <RecordTable.InlineHead label={t('discount-percent')} />,
+    header: () => (
+      <RecordTable.InlineHead
+        icon={IconPercentage}
+        label={t('discount-percent')}
+      />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -166,7 +175,9 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   {
     id: 'discount',
     accessorKey: 'discount',
-    header: () => <RecordTable.InlineHead label={t('discount')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconDiscount} label={t('discount')} />
+    ),
     cell: ({ cell }) => {
       return (
         <RecordTableInlineCell>
@@ -207,7 +218,9 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   {
     id: 'tickUsed',
     accessorKey: 'tickUsed',
-    header: () => <RecordTable.InlineHead label={t('tick-used')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconCircleCheck} label={t('tick-used')} />
+    ),
     cell: ({ cell }) => {
       const value = !!cell.getValue() as boolean;
       return (
@@ -223,7 +236,9 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
   {
     id: 'isVatApplied',
     accessorKey: 'isVatApplied',
-    header: () => <RecordTable.InlineHead label={t('vat-applied')} />,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFileCheck} label={t('vat-applied')} />
+    ),
     cell: ({ cell }) => {
       const value = !!cell.getValue() as boolean;
       return (
