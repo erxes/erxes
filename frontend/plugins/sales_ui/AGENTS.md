@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -115,7 +115,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   the app's side panel sits behind the modal sheet), elsewhere (a
   notification) in the side panel; the chevron opens the picker, and changes
   are saved on the deal's own single `customerId` / `companyId` through
-  `dealsEdit` (no core relation). The board card's customer / company chips
+  `dealsEdit` (no core relation), dropping only the cached `deals` lists
+  queried by `customerId` / `companyId` so boards keep theirs. The board card's customer / company chips
   save the same way (the latest pick replaces the one before). The add form
   and the detail rail use one customer and one company too.
 - The deal sheet's right rail (ui-modules `RelationWidgetSideTabs`, given the deal's customers / companies) holds only
@@ -213,7 +214,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
-- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
+- `widgets.recordPanels: [{ contentType: 'sales:deal', tabs: [{ value: 'products' }] }]` (panel order Detail · Properties · Activity · Products, as the sheet keeps Products last; core labels each tab with `t(<value>)` in the `sales` namespace, so `products` stays a key in `sales.json`) with `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`): the deal panel in the app's side panel, every view wrapped in `DealIdProvider`; only the title's `useDealDetail` fetches and subscribes (other views read `cache-first` with `subscribe: false`), and a `delete` from `salesDealChanged` closes the panel. `title` (deal name); `actions` (`DealPanelActions`: an icon-only Product config gear linking to the pipeline's settings tab, `MoveDealDropdown`, `DealsActions` menu; fullscreen is the core panel's own expand toggle); `detail` (`DealPanelDetail`, `PanelField` rows with icons whose values are label-free table-style cells (`DealPanelCells`: `PanelFieldTrigger` popovers; `DealContactsField variant="inline"`; dates `table`, priority `table` with `badge={false}`, labels `table` with `targetId` and the deal's `pipelineId`, so labels list outside sales pages) so the left labels are never repeated, two columns from the panel's `@3xl` container width: number, archived badge, name, stage cell with a full-width dotted stage progress under the row (`DealPanelStage`), assignees, start/close dates, priority, labels, tags, customer, company, broker, branches, departments, checklists (`Checklists compact`: icon-only delete), attachments (`Attachments compact`: no inset, plain headings), description); `properties` (`DealPipelineProperties`); `activity` (`DealActivityTab`); `tab` `products` (the sheet's `Products` with `compact`: under 768px of width `ProductsRecordTable` `layout="cards"` draws each row as a collapsible card through the same table instance (`ProductCardList`: checkbox, compact type icon, name, ×quantity, row menu and an expand chevron; expanded, every other visible column in two columns; Amount always on the card's last line); wider, and in the expanded dialog, the table; with `compact` the header stacks into two columns, and the cards open with a select-all checkbox, the table's column selector gear (`more` column header: hiding or reordering columns changes the cards too), the name column's heading and an expand/collapse-all toggle (double chevrons), aligned with the card heads; expanded card ids live in `ProductsList` so view toggles keep them; payments alongside). `new` is not drawn. Board cards (`DealsBoardCard`), the list's Name/Number cells (`MoveDealSelect.tsx`) and its Edit action (`DealsMoreColumn`) open the deal panel; the deal sheet is no longer opened from the panel.
+- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal panel stacked on the contact's panel (`openRecord` with `stack`, Back returns), `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.
@@ -240,6 +242,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
+- `DealIdProvider` (`src/modules/deals/context/DealIdContext.tsx`) names the
+  deal for hooks that otherwise read `salesItemId` / `dealDetailSheetState`
+  (`useCurrentDealId`, `useDealDetail`, `useDealsEdit`, `useDealsRemove`,
+  `useDealsCopy`, `useChecklists`); its id wins over both. `useDealActions`
+  closes the side panel when the provided deal is removed.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
   open state are local React state inside the deal product detail surface.
 - `propertyIds` is submitted with pipeline create/edit and reloaded from

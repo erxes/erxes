@@ -8,35 +8,12 @@ import {
   ContactWidgetRow,
   ContactWidgetSection,
   IContactWidgetProps,
+  useSidePanel,
 } from 'ui-modules';
 import { SALES_CONTACT_DEALS } from './contactDeals';
 
 // The most deals listed for one contact.
 const CONTACT_RECORDS_LIMIT = 50;
-
-type TContactDeal = {
-  _id: string;
-  name?: string | null;
-  boardId?: string | null;
-  pipelineId?: string | null;
-  stage?: { name?: string | null; pipelineId?: string | null } | null;
-};
-
-// Deals open on their board, in a new tab, as from the relation widget.
-const openDeal = (deal: TContactDeal) => {
-  const params = new URLSearchParams({ salesItemId: deal._id });
-  const pipelineId = deal.pipelineId || deal.stage?.pipelineId;
-
-  if (deal.boardId) {
-    params.set('boardId', deal.boardId);
-  }
-
-  if (pipelineId) {
-    params.set('pipelineId', pipelineId);
-  }
-
-  window.open(`/sales/deals?${params.toString()}`, '_blank');
-};
 
 /**
  * A customer's or company's deals, found by the contact on the deals
@@ -58,6 +35,7 @@ export const DealsContactSection = ({
     },
   });
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
+  const { openRecord } = useSidePanel();
   const deals = (data?.deals?.list || []).flatMap((deal) =>
     deal ? [deal] : [],
   );
@@ -79,7 +57,12 @@ export const DealsContactSection = ({
             <ContactWidgetRow
               title={deal.name || t('untitled', 'Untitled')}
               meta={deal.stage?.name}
-              onClick={() => openDeal(deal)}
+              onClick={() =>
+                openRecord(
+                  { contentType: 'sales:deal', contentId: deal._id },
+                  { stack: true },
+                )
+              }
             />
           )
         );
