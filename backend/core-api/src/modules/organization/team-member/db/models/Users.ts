@@ -1,4 +1,5 @@
 import { saveValidatedToken } from '@/auth/utils';
+import { LoginError } from '@/auth/loginError';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -59,6 +60,14 @@ interface IInviteParams {
   permissionGroupIds?: string[];
 }
 
+interface IProvisionedUserParams {
+  email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  permissionGroupIds: string[];
+}
+
 interface ILoginParams {
   email: string;
   password?: string;
@@ -74,6 +83,8 @@ interface IPasswordParams {
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
+  isDirectoryUser(userId: string): Promise<boolean>;
+  assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
@@ -103,6 +114,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
+  createProvisionedUser(params: IProvisionedUserParams): Promise<IUserDocument>;
   resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
@@ -123,7 +135,9 @@ export interface IUserModel extends Model<IUserDocument> {
       }
     | Record<string, never>
   >;
-  login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
+  login(
+    params: ILoginParams,
+  ): Promise<{ token: string; refreshToken: string; method: string }>;
   checkLoginAuth({
     email,
     password,
@@ -194,6 +208,19 @@ export const loadUserClass = (
       }
 
       return user;
+    }
+
+    public static async isDirectoryUser(userId: string) {
+      return Boolean(
+        await models.AuthIdentities.exists({ provider: 'ldap', userId }),
+      );
+    }
+
+    // Directory users sign in with their directory password, so a local one would never be used
+    public static async assertLocalPassword(userId: string) {
+      if (await this.isDirectoryUser(userId)) {
+        throw new Error('Password is managed by the directory');
+      }
     }
 
     public static checkPassword(password: string) {
@@ -330,6 +357,7 @@ export const loadUserClass = (
 
       // change password
       if (doc.password) {
+        await this.assertLocalPassword(_id);
         this.checkPassword(doc.password);
 
         doc.password = await this.generatePassword(doc.password);
@@ -445,6 +473,46 @@ export const loadUserClass = (
       createActivityLog(generateUserInvitationActivityLog(user));
 
       return token;
+    }
+
+    /**
+     * Create a password-less user whose identity lives in an external directory
+     */
+    public static async createProvisionedUser({
+      email,
+      username,
+      firstName,
+      lastName,
+      permissionGroupIds,
+    }: IProvisionedUserParams) {
+      email = email.toLowerCase().trim();
+
+      await models.Users.checkDuplication({ email });
+
+      const usernameTaken = username
+        ? await models.Users.exists({ username })
+        : null;
+
+      const user = await models.Users.create({
+        email,
+        ...(username && !usernameTaken ? { username } : {}),
+        details: {
+          firstName,
+          lastName,
+          fullName: [firstName, lastName].filter(Boolean).join(' '),
+        },
+        isActive: true,
+        code: await this.generateUserCode(),
+        ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
+      });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
+      });
+
+      return user;
     }
 
     /**
@@ -658,6 +726,8 @@ export const loadUserClass = (
         throw new Error('Password reset token is invalid or has expired.');
       }
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -688,6 +758,8 @@ export const loadUserClass = (
       newPassword: string;
     }) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertLocalPassword(user._id);
 
       if (!newPassword) {
         throw new Error('Password is required.');
@@ -724,6 +796,8 @@ export const loadUserClass = (
 
       const user = await models.Users.getUser(_id);
 
+      await this.assertLocalPassword(user._id);
+
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
 
@@ -754,6 +828,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('Invalid email');
       }
+
+      await this.assertLocalPassword(user._id);
 
       // create the random token
       const buffer = await crypto.randomBytes(20);
@@ -860,7 +936,7 @@ export const loadUserClass = (
 
       const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
 
-      const user = await models.Users.findOne({
+      const localUser = await models.Users.findOne({
         $or: [
           { email: { $regex: loginPattern } },
           { username: { $regex: loginPattern } },
@@ -868,16 +944,29 @@ export const loadUserClass = (
         isActive: true,
       });
 
-      if (!user?.password) {
-        // user with provided email not found
-        throw new Error('Invalid login');
-      }
-      const valid = await this.comparePassword(password, user.password);
+      const isDirectoryUser = localUser
+        ? await this.isDirectoryUser(localUser._id)
+        : false;
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
+      let user: IUserDocument;
+      let method = 'email/password';
+
+      // Directory-linked users never fall back to a local password
+      if (localUser && !isDirectoryUser) {
+        const valid = localUser.password
+          ? await this.comparePassword(password, localUser.password)
+          : false;
+
+        if (!valid) {
+          throw new LoginError('invalid_credentials');
+        }
+
+        user = localUser;
+      } else {
+        user = await models.AuthIdentities.authenticateLdap(email, password);
+        method = 'ldap';
       }
+
       // create tokens
       const [token, refreshToken] = await this.createTokens(
         user,
@@ -903,7 +992,7 @@ export const loadUserClass = (
       await user.updateOne({ $set: { registrationToken: null } });
 
       const loginActivityLog = generateLoginActivityLog(user, {
-        method: 'email/password',
+        method,
         deviceToken,
       });
       createActivityLog(loginActivityLog, user._id);
@@ -911,6 +1000,7 @@ export const loadUserClass = (
       return {
         token,
         refreshToken,
+        method,
       };
     }
 
