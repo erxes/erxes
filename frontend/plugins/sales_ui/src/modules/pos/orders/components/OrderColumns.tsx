@@ -20,7 +20,7 @@ import { TFunction } from 'i18next';
 import { ordersMoreColumn } from '@/pos/orders/components/OrdersMoreColumn';
 import { IOrder } from '@/pos/types/order';
 import { IUser } from 'ui-modules/modules';
-import { ClickableBillNumber } from './ClickableBillNumber';
+import { ClickableBillNumber } from '@/pos/orders/components/ClickableBillNumber';
 
 interface PaymentSummary {
   [key: string]: number | string;
@@ -97,7 +97,10 @@ export const firstOrderColumns: (t: TFunction) => ColumnDef<IOrder>[] = (t) => [
     ),
     cell: ({ cell, row }) => {
       return (
-        <ClickableBillNumber value={cell.getValue() as string} row={row} />
+        <ClickableBillNumber
+          value={cell.getValue() as string}
+          orderId={row.original._id}
+        />
       );
     },
   },

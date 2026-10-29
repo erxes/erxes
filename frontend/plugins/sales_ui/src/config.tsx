@@ -2,6 +2,10 @@ import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import {
+  POS_COVER_CONTENT_TYPE,
+  POS_ORDER_CONTENT_TYPE,
+} from '@/pos/constants/posPanel';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const DealStagePropertyInput = lazy(() =>
@@ -45,6 +49,10 @@ export const CONFIG: IUIConfig = {
   widgets: {
     // A customer's / company's deals on their overview (`./contactWidget`).
     contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
+    recordPanels: [
+      { contentType: POS_ORDER_CONTENT_TYPE, properties: false },
+      { contentType: POS_COVER_CONTENT_TYPE, properties: false },
+    ],
     relationWidgets: [
       {
         name: 'deals',

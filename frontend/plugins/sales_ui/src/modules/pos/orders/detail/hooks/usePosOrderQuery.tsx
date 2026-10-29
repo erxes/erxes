@@ -1,13 +1,16 @@
 import { toPosOrderDetail } from '@/pos/utils/posOrderJson';
-import { useQuery } from '@apollo/client';
+import { WatchQueryFetchPolicy, useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { POS_ORDER_DETAIL_QUERY } from '../graphql/queries/posOrderDetailQuery';
 
-export const usePosOrderQuery = (id?: string) => {
+export const usePosOrderQuery = (
+  id?: string,
+  fetchPolicy: WatchQueryFetchPolicy = 'cache-and-network',
+) => {
   const { data, loading, error, refetch } = useQuery(POS_ORDER_DETAIL_QUERY, {
     variables: id ? { id } : undefined,
     skip: !id,
-    fetchPolicy: 'cache-and-network',
+    fetchPolicy,
   });
 
   const parsed = useMemo(() => {

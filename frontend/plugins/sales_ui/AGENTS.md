@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -25,6 +25,31 @@
 
 ## Current Capabilities
 
+- POS orders and covers open in the app's side panel (no sheets): the
+  Orders and Items pages' bill number cells and row actions, and the Covers
+  page's POS name cell and Edit action, call `openRecord`. An Items row's
+  `_id` is `<order _id>_<item _id>` (set by `posOrderRecords`) and order ids
+  may contain `_`, so the order id comes from `toPosItemOrderId`, which strips
+  the item suffix; the automation
+  history link opens the Orders page with the panel's `panel` query key. Both
+  detail views follow operation's layout (`PosPanelFields` / `PosPanelAside`):
+  one column, two from the panel's `@3xl` width with the aside capped at
+  `max-w-3xl`. An order shows its customer (opens the customer / company panel stacked; a
+  `user` customer is text only), broker, POS, date, status, bill id, Ebarimt
+  date, accounting transaction link (accounting enabled), accounting
+  response, Erkhet info, deal, every item (`DealCardProducts` with
+  `maxVisible`), and the payments form (`usePosOrderPayments`: sums must equal
+  `totalAmount`, `returned` / `completed` orders are locked, saving refetches
+  `salesPosOrderDetail` and evicts cached `posOrderRecords`, so the Items list
+  reads again without a named refetch warning on other pages; list rows of
+  `posOrders` update through the returned `PosOrder`). Only the order title
+  reads `cache-and-network`; the detail view reads `cache-first`, so tab
+  switches send no request. Lists ignore the `panel` query key, so opening or
+  closing the panel does not refetch them. A cover shows its dates, user,
+  POS, status, description, total, and each paid type's breakdown (cash by
+  note); its delete action closes the panel. Activity shows only the
+  record's logs (`showInternalNotes={false}`, no note box), as POS had no
+  notes before the panel.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -207,12 +232,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
 | POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
 | POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                              |
+| Record panel        | `frontend/plugins/sales_ui/src/widgets/record-panel`                                                 | POS order and cover views drawn in the app side panel                            |
 | GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`           | Validates documents against the composed gateway schema |
 
 ## Contracts
 
 ### Provides
 
+- `widgets.recordPanels: [{ contentType: 'sales:pos.orders', properties: false }, { contentType: 'sales:pos.covers', properties: false }]` (`modules/pos/constants/posPanel.ts`) with `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`): order views `title` (`#<number>`), `detail`, `activity`; cover views `title` (POS name), `actions` (delete), `detail`, `activity`. `sales:pos.orders` is the order content type the backend already uses (segments, automations, payment callbacks); covers have no backend content type, so `sales:pos.covers` names them for the panel only.
 - `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
@@ -515,9 +542,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
-- Smoke POS settings save/reopen, product-group add/remove, order/item payment
-  details, filtered Cover deletion, Cover assignee display, and all POS report
-  routes.
+- Smoke POS settings save/reopen, product-group add/remove, order and item
+  rows opening the order panel (payments save and refetch), Cover rows opening
+  the cover panel (delete closes it), filtered Cover deletion, Cover assignee
+  display, and all POS report routes.
 - Integrations smoke: POS/pipeline Automations tab list and remove, payment
   selectors, deal relation POS orders panel, and the automation
   board/pipeline/stage text.

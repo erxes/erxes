@@ -1,10 +1,9 @@
 import { Cell } from '@tanstack/react-table';
-import { useSetAtom } from 'jotai';
-import { useSearchParams } from 'react-router-dom';
 import { RecordTable, Command, Combobox, Popover } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
 import { IOrder } from '@/pos/types/order';
-import { renderingOrderDetailAtom } from '@/pos/states/orderDetail';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { IconEdit } from '@tabler/icons-react';
 
 export const OrdersMoreColumnCell = ({
@@ -13,19 +12,14 @@ export const OrdersMoreColumnCell = ({
   cell: Cell<IOrder, unknown>;
 }) => {
   const { t } = useTranslation('sales');
-  const [searchParams, setSearchParams] = useSearchParams();
-  const setRenderingOrderDetail = useSetAtom(renderingOrderDetailAtom);
+  const { openRecord } = useSidePanel();
   const { _id } = cell.row.original;
 
   const setOpen = (orderId: string) => {
     if (!orderId) {
-      console.warn('Order ID is undefined, cannot open order details');
       return;
     }
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('pos_order_id', orderId);
-    setSearchParams(newSearchParams);
-    setRenderingOrderDetail(true);
+    openRecord({ contentType: POS_ORDER_CONTENT_TYPE, contentId: orderId });
   };
 
   return (

@@ -1008,5 +1008,15 @@
   "deal-voucher-more_other": "+{{count}} vouchers",
   "deal-voucher-empty": "No voucher or coupon",
   "deal-voucher-open": "Vouchers",
-  "deal-voucher-settled": "Used on this deal"
+  "deal-voucher-settled": "Used on this deal",
+  "order-not-found": "Order not found",
+  "cover-not-found": "Cover not found",
+  "new": "New",
+  "doing": "Doing",
+  "reDoing": "Redoing",
+  "done": "Done",
+  "complete": "Complete",
+  "pending": "Pending",
+  "return": "Return",
+  "paid": "Paid"
 }
