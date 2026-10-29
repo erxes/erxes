@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -285,6 +285,8 @@
 
 ## Local Invariants
 
+- `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
+  supplied date, including when copying an existing deal.
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
   callers submit `false` or omit the field. This applies to GraphQL and tRPC
   creation; transport-side `onServer`/offline routing checks remain in place.
