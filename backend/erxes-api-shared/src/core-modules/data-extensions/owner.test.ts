@@ -2,6 +2,7 @@ import {
   carryDataExtensionValues,
   IDataExtensionOwnerContext,
   linkDataExtensionRecords,
+  patchDataExtensionRecord,
   purgeDataExtensionValues,
   searchDataExtensionRecords,
 } from './owner';
@@ -217,5 +218,87 @@ describe('purgeDataExtensionValues', () => {
       purgeDataExtensionValues(context, 'operation', 'operation:team', ['project']),
     ).rejects.toThrow('Archive project');
     expect(updates).toEqual([]);
+  });
+});
+
+describe('unique values', () => {
+  const uniqueField: IDataExtensionField = {
+    recordType: 'operation:team',
+    key: 'code',
+    label: 'Code',
+    type: 'text',
+    settings: { unique: true },
+    order: 0,
+    status: 'active',
+  };
+
+  const uniqueContext = (taken: number) => {
+    const collection = {
+      collectionName: 'operation_teams',
+      createIndex: jest.fn(async () => 'ok'),
+      countDocuments: jest.fn(async () => taken),
+      updateOne: jest.fn(async () => ({ matchedCount: 1 })),
+    };
+    const model = {
+      db: { name: 'tenant_db' },
+      collection,
+      find: () => ({
+        lean: async () => [{ _id: TEAM_A, name: 'Team', dataExtensions: { code: 'A1' } }],
+      }),
+    };
+    const context = {
+      metadata: {
+        DataExtensionFields: {
+          db: { name: 'tenant_db' },
+          find: () => ({ sort: () => ({ lean: async () => [uniqueField] }) }),
+        },
+      },
+      adapters: { 'operation:teams': { storage: 'operation:teams', model } },
+    } as unknown as IDataExtensionOwnerContext;
+
+    return { context, collection };
+  };
+
+  it('builds a partial unique index and writes a free value', async () => {
+    const { context, collection } = uniqueContext(0);
+
+    await patchDataExtensionRecord(context, 'operation', 'operation:team', TEAM_A, {
+      code: 'A1',
+    });
+
+    expect(collection.createIndex).toHaveBeenCalledWith(
+      { 'dataExtensions.code': 1 },
+      expect.objectContaining({
+        name: 'dataExtensions_code_unique',
+        unique: true,
+        partialFilterExpression: { 'dataExtensions.code': { $exists: true } },
+      }),
+    );
+    expect(collection.updateOne).toHaveBeenCalled();
+  });
+
+  it('refuses a value another record already holds', async () => {
+    const { context, collection } = uniqueContext(1);
+
+    await expect(
+      patchDataExtensionRecord(context, 'operation', 'operation:team', TEAM_A, {
+        code: 'A1',
+      }),
+    ).rejects.toThrow('Another record already has this Code');
+    expect(collection.updateOne).not.toHaveBeenCalled();
+  });
+
+  it('turns a lost race on the index into a clear error', async () => {
+    const { context, collection } = uniqueContext(0);
+
+    collection.updateOne.mockRejectedValueOnce(
+      Object.assign(new Error('E11000'), { code: 11000 }),
+    );
+
+    await expect(
+      patchDataExtensionRecord(context, 'operation', 'operation:team', TEAM_A, {
+        code: 'A1',
+      }),
+    ).rejects.toThrow('Another record already has one of these values');
   });
 });

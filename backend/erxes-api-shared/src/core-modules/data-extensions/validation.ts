@@ -1,19 +1,26 @@
 import {
+  DATA_EXTENSION_ADDRESS_PARTS,
   DATA_EXTENSION_FIELD_KEY_PATTERN,
   DATA_EXTENSION_FIELD_TYPES,
+  DATA_EXTENSION_LENGTH_TYPES,
   DATA_EXTENSION_LIMITS,
+  DATA_EXTENSION_OPTION_COLORS,
+  DATA_EXTENSION_RANGE_TYPES,
   DATA_EXTENSION_RELATION_CREATE_KINDS,
   DATA_EXTENSION_RELATION_KINDS,
   DATA_EXTENSION_RESERVED_KEYS,
+  DATA_EXTENSION_UNIQUE_TYPES,
   DATA_EXTENSIONS_NAMESPACE,
 } from './constants';
 import { getDataExtensionRecordType } from './recordTypes';
 import {
   DataExtensionFieldType,
+  DataExtensionOptionColor,
   DataExtensionRelationKind,
   DataExtensionValue,
   IDataExtensionField,
   IDataExtensionFieldOption,
+  IDataExtensionFieldSettings,
   IDataExtensionPatchUpdate,
 } from './types';
 
@@ -39,6 +46,7 @@ export interface IDataExtensionFieldCreateInput {
   description?: string | null;
   type: string;
   options?: IDataExtensionFieldOption[] | null;
+  settings?: IDataExtensionFieldSettings | null;
   order?: number | null;
 }
 
@@ -46,6 +54,7 @@ export interface IDataExtensionFieldEditInput {
   label?: string | null;
   description?: string | null;
   options?: IDataExtensionFieldOption[] | null;
+  settings?: IDataExtensionFieldSettings | null;
   order?: number | null;
 }
 
@@ -132,7 +141,19 @@ const normalizeOptions = (
 
     seen.add(value);
 
-    return { value, label };
+    const color = option?.color;
+
+    if (color === undefined || color === null) {
+      return { value, label };
+    }
+
+    if (
+      !(DATA_EXTENSION_OPTION_COLORS as readonly string[]).includes(color)
+    ) {
+      fail(`Unknown option colour "${color}"`);
+    }
+
+    return { value, label, color: color as DataExtensionOptionColor };
   });
 };
 
@@ -146,6 +167,246 @@ const normalizeOrder = (order: unknown): number | undefined => {
   }
 
   return order;
+};
+
+const includesType = (types: readonly string[], type: string) =>
+  types.includes(type);
+
+const CURRENCY_CODE_PATTERN = /^[A-Z]{3}$/;
+
+const SETTING_KEYS: (keyof IDataExtensionFieldSettings)[] = [
+  'required',
+  'unique',
+  'defaultValue',
+  'min',
+  'max',
+  'maxLength',
+  'scale',
+  'currency',
+  'multiple',
+  'precision',
+  'group',
+  'showInCreate',
+  'placeholder',
+];
+
+const optionalBoolean = (value: unknown, name: string) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  return typeof value === 'boolean' ? value : fail(`${name} must be true or false`);
+};
+
+const optionalInteger = (
+  value: unknown,
+  name: string,
+  min: number,
+  max: number,
+) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  if (
+    typeof value !== 'number' ||
+    !Number.isInteger(value) ||
+    value < min ||
+    value > max
+  ) {
+    return fail(`${name} must be a whole number from ${min} to ${max}`);
+  }
+
+  return value;
+};
+
+const optionalNumber = (value: unknown, name: string) => {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  return typeof value === 'number' && Number.isFinite(value)
+    ? value
+    : fail(`${name} must be a number`);
+};
+
+const maxTextLength = (type: DataExtensionFieldType) =>
+  type === 'longText'
+    ? DATA_EXTENSION_LIMITS.longTextLength
+    : DATA_EXTENSION_LIMITS.textLength;
+
+/**
+ * Checks a field's settings against its type. Settings that would change how
+ * stored values are shaped (`unique`, `multiple`) are only accepted when the
+ * field is created, before any value exists; `previous` holds the settings
+ * of an existing field being edited.
+ */
+export const validateDataExtensionFieldSettings = (
+  type: DataExtensionFieldType,
+  raw: unknown,
+  options: IDataExtensionFieldOption[] | undefined,
+  previous?: IDataExtensionFieldSettings,
+): IDataExtensionFieldSettings | undefined => {
+  if (raw === undefined || raw === null) {
+    return previous;
+  }
+
+  if (typeof raw !== 'object' || Array.isArray(raw)) {
+    return fail('Settings must be an object');
+  }
+
+  const input = raw as Record<string, unknown>;
+
+  for (const key of Object.keys(input)) {
+    if (!(SETTING_KEYS as string[]).includes(key)) {
+      fail(`Unknown setting "${key}"`);
+    }
+  }
+
+  if (type === 'relation') {
+    return fail('Relations take no settings');
+  }
+
+  const settings: IDataExtensionFieldSettings = {};
+  const isEdit = previous !== undefined;
+
+  settings.required = optionalBoolean(input.required, 'Required');
+
+  const unique = optionalBoolean(input.unique, 'Unique');
+
+  if (unique) {
+    if (!includesType(DATA_EXTENSION_UNIQUE_TYPES, type)) {
+      fail('Only text, email, phone, URL and number fields can be unique');
+    }
+
+    if (isEdit && !previous?.unique) {
+      fail('A field can only be made unique when it is created');
+    }
+  }
+
+  settings.unique = unique === undefined && isEdit ? previous?.unique : unique;
+
+  const multiple = optionalBoolean(input.multiple, 'Multiple');
+
+  if (multiple !== undefined) {
+    if (type !== 'member') {
+      fail('Only member fields take "multiple"');
+    }
+
+    if (isEdit && Boolean(previous?.multiple) !== multiple) {
+      fail('One or several members is fixed once the field is created');
+    }
+  }
+
+  settings.multiple = isEdit ? previous?.multiple : multiple;
+
+  const min = optionalNumber(input.min, 'Minimum');
+  const max = optionalNumber(input.max, 'Maximum');
+
+  if (
+    (min !== undefined || max !== undefined) &&
+    !includesType(DATA_EXTENSION_RANGE_TYPES, type)
+  ) {
+    fail('Only number, currency and percent fields take a minimum or maximum');
+  }
+
+  if (min !== undefined && max !== undefined && min > max) {
+    fail('Minimum must not be above maximum');
+  }
+
+  settings.min = min;
+  settings.max = max;
+
+  const maxLength = optionalInteger(
+    input.maxLength,
+    'Maximum length',
+    1,
+    maxTextLength(type),
+  );
+
+  if (
+    maxLength !== undefined &&
+    !includesType(DATA_EXTENSION_LENGTH_TYPES, type)
+  ) {
+    fail('Only text fields take a maximum length');
+  }
+
+  settings.maxLength = maxLength;
+
+  const scale = optionalInteger(
+    input.scale,
+    'Rating scale',
+    3,
+    DATA_EXTENSION_LIMITS.ratingMax,
+  );
+
+  if (scale !== undefined && type !== 'rating') {
+    fail('Only rating fields take a scale');
+  }
+
+  settings.scale = scale;
+
+  if (input.currency !== undefined && input.currency !== null) {
+    if (type !== 'currency') {
+      fail('Only currency fields take a currency');
+    }
+
+    if (
+      typeof input.currency !== 'string' ||
+      !CURRENCY_CODE_PATTERN.test(input.currency)
+    ) {
+      fail('Currency must be a 3-letter ISO 4217 code, e.g. MNT or USD');
+    }
+
+    settings.currency = input.currency as string;
+  }
+
+  const precision = optionalInteger(input.precision, 'Decimals', 0, 6);
+
+  if (
+    precision !== undefined &&
+    !['number', 'percent', 'currency'].includes(type)
+  ) {
+    fail('Only number, currency and percent fields take decimals');
+  }
+
+  settings.precision = precision;
+  settings.showInCreate = optionalBoolean(input.showInCreate, 'Show on create');
+  settings.group =
+    cleanText(input.group, 'Group', DATA_EXTENSION_LIMITS.groupLength, false) ||
+    undefined;
+  settings.placeholder =
+    cleanText(
+      input.placeholder,
+      'Placeholder',
+      DATA_EXTENSION_LIMITS.placeholderLength,
+      false,
+    ) || undefined;
+
+  if (input.defaultValue !== undefined && input.defaultValue !== null) {
+    if (['member', 'files', 'json'].includes(type)) {
+      fail('This field type takes no default value');
+    }
+
+    // The default is checked exactly like a value a user would save.
+    const draft = {
+      key: 'defaultValue',
+      type,
+      options,
+      settings,
+    } as IDataExtensionField;
+    const value = normalizeDataExtensionValue(draft, input.defaultValue);
+
+    settings.defaultValue = value instanceof Date ? value.toISOString() : value;
+  }
+
+  for (const key of Object.keys(settings) as (keyof IDataExtensionFieldSettings)[]) {
+    if (settings[key] === undefined) {
+      delete settings[key];
+    }
+  }
+
+  return Object.keys(settings).length ? settings : undefined;
 };
 
 export const validateDataExtensionFieldCreate = (
@@ -188,6 +449,16 @@ export const validateDataExtensionFieldCreate = (
     field.options = normalizeOptions(input.options);
   } else if (input.options?.length) {
     fail('Only select fields take options');
+  }
+
+  const settings = validateDataExtensionFieldSettings(
+    type,
+    input.settings,
+    field.options,
+  );
+
+  if (settings) {
+    field.settings = settings;
   }
 
   return field;
@@ -330,13 +601,16 @@ export const validateDataExtensionRelationCreate = (
  * them. Options may be relabelled or added but not removed, so no stored
  * value is orphaned by an edit.
  */
+type DataExtensionFieldEditable = Pick<
+  IDataExtensionField,
+  'label' | 'description' | 'options' | 'order' | 'settings'
+>;
+
 export const validateDataExtensionFieldEdit = (
-  existing: Pick<IDataExtensionField, 'type' | 'options'>,
+  existing: Pick<IDataExtensionField, 'type' | 'options' | 'settings'>,
   input: IDataExtensionFieldEditInput,
-): Partial<Pick<IDataExtensionField, 'label' | 'description' | 'options' | 'order'>> => {
-  const update: Partial<
-    Pick<IDataExtensionField, 'label' | 'description' | 'options' | 'order'>
-  > = {};
+): Partial<DataExtensionFieldEditable> => {
+  const update: Partial<DataExtensionFieldEditable> = {};
 
   if (input.label !== undefined) {
     update.label = cleanText(
@@ -379,6 +653,17 @@ export const validateDataExtensionFieldEdit = (
     }
 
     update.options = options;
+  }
+
+  if (input.settings !== undefined && input.settings !== null) {
+    // Empty settings object clears them; `previous` keeps fixed ones fixed.
+    update.settings =
+      validateDataExtensionFieldSettings(
+        existing.type,
+        input.settings,
+        update.options || existing.options,
+        existing.settings || {},
+      ) || {};
   }
 
   return update;
@@ -440,19 +725,423 @@ const normalizeRelation = (
   );
 };
 
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+const normalizeEmail = (field: IDataExtensionField, value: unknown) => {
+  const email = normalizeString(field, value, 320).trim();
+
+  return EMAIL_PATTERN.test(email)
+    ? email
+    : fail(`${field.key} must be a valid email address`);
+};
+
+const normalizePhone = (field: IDataExtensionField, value: unknown) => {
+  const phone = normalizeString(field, value, 32).trim();
+
+  return PHONE_PATTERN.test(phone)
+    ? phone
+    : fail(`${field.key} must be a valid phone number`);
+};
+
+const normalizeHttpUrl = (field: IDataExtensionField, value: unknown) => {
+  const url = normalizeString(field, value, 2048).trim();
+
+  try {
+    const parsed = new URL(url);
+
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return url;
+    }
+  } catch {
+    // Falls through to the validation error below.
+  }
+
+  return fail(`${field.key} must be an http(s) URL`);
+};
+
+const normalizeDate = (field: IDataExtensionField, value: unknown) => {
+  const date =
+    value instanceof Date
+      ? value
+      : typeof value === 'string'
+        ? new Date(value)
+        : null;
+
+  return date && !Number.isNaN(date.getTime())
+    ? date
+    : fail(`${field.key} must be an ISO date`);
+};
+
+const normalizeFiniteNumber = (field: IDataExtensionField, value: unknown) =>
+  typeof value === 'number' && Number.isFinite(value)
+    ? value
+    : fail(`${field.key} must be a finite number`);
+
+/** Applies `min`/`max` from the field's settings. */
+const inRange = (field: IDataExtensionField, value: number) => {
+  const { min, max } = field.settings || {};
+
+  if (min !== undefined && value < min) {
+    fail(`${field.key} must be at least ${min}`);
+  }
+
+  if (max !== undefined && value > max) {
+    fail(`${field.key} must be at most ${max}`);
+  }
+
+  return value;
+};
+
+/** A list value: at most `listItems` entries, each normalised, no repeats. */
+const normalizeList = <T>(
+  field: IDataExtensionField,
+  value: unknown,
+  item: (entry: unknown) => T,
+  identity: (entry: T) => string,
+): T[] => {
+  if (!Array.isArray(value)) {
+    return fail(`${field.key} must be a list`);
+  }
+
+  if (value.length > DATA_EXTENSION_LIMITS.listItems) {
+    return fail(
+      `${field.key} holds at most ${DATA_EXTENSION_LIMITS.listItems} items`,
+    );
+  }
+
+  const seen = new Set<string>();
+  const items: T[] = [];
+
+  for (const entry of value) {
+    const normalized = item(entry);
+    const id = identity(normalized);
+
+    if (!seen.has(id)) {
+      seen.add(id);
+      items.push(normalized);
+    }
+  }
+
+  return items;
+};
+
+const optionalPart = (
+  field: IDataExtensionField,
+  value: unknown,
+  name: string,
+  maxLength: number,
+) => {
+  if (value === undefined || value === null || value === '') {
+    return undefined;
+  }
+
+  if (typeof value !== 'string') {
+    return fail(`${field.key}.${name} must be a string`);
+  }
+
+  if (value.length > maxLength) {
+    return fail(`${field.key}.${name} must be at most ${maxLength} characters`);
+  }
+
+  return value.trim() || undefined;
+};
+
+/** Only the listed parts, trimmed; empty parts are dropped. */
+const normalizeParts = (
+  field: IDataExtensionField,
+  value: unknown,
+  parts: readonly string[],
+  maxLength: number,
+) => {
+  if (!isPlainObject(value)) {
+    return fail(`${field.key} must be an object`);
+  }
+
+  for (const key of Object.keys(value)) {
+    if (!parts.includes(key) && key !== '__typename') {
+      fail(`${field.key} has no part "${key}"`);
+    }
+  }
+
+  const result: Record<string, string> = {};
+
+  for (const part of parts) {
+    const text = optionalPart(field, value[part], part, maxLength);
+
+    if (text) {
+      result[part] = text;
+    }
+  }
+
+  if (!Object.keys(result).length) {
+    return fail(`${field.key} needs at least one part; send null to clear it`);
+  }
+
+  return result;
+};
+
+/**
+ * Uploaded file references: an http(s) URL or an erxes storage key. Keys
+ * cannot carry a scheme, climb directories or start at the root, so the UI
+ * can always resolve them through erxes' own file route.
+ */
+const normalizeFileReference = (field: IDataExtensionField, value: unknown) => {
+  const ref = normalizeString(field, value, 2048).trim();
+
+  if (ref.includes(':')) {
+    return normalizeHttpUrl(field, ref);
+  }
+
+  if (!ref || ref.startsWith('/') || ref.includes('..') || /\s/.test(ref)) {
+    return fail(`${field.key} has an invalid file reference`);
+  }
+
+  return ref;
+};
+
+const normalizeFile = (field: IDataExtensionField, value: unknown) => {
+  if (!isPlainObject(value)) {
+    return fail(`${field.key} must list files as objects`);
+  }
+
+  const name = cleanText(
+    value.name,
+    `${field.key}.name`,
+    DATA_EXTENSION_LIMITS.fileNameLength,
+    true,
+  ) as string;
+  const file: Record<string, unknown> = {
+    url: normalizeFileReference(field, value.url),
+    name,
+  };
+  const type = optionalPart(field, value.type, 'type', 100);
+
+  if (type) {
+    file.type = type;
+  }
+
+  if (value.size !== undefined && value.size !== null) {
+    if (
+      typeof value.size !== 'number' ||
+      !Number.isInteger(value.size) ||
+      value.size < 0
+    ) {
+      fail(`${field.key}.size must be a whole number of bytes`);
+    }
+
+    file.size = value.size;
+  }
+
+  return file;
+};
+
+/** JSON safe to store under a Mongo path: bounded depth and size, no operators. */
+const assertStorableJson = (
+  field: IDataExtensionField,
+  value: unknown,
+  depth: number,
+): void => {
+  if (depth > DATA_EXTENSION_LIMITS.jsonDepth) {
+    fail(`${field.key} is nested too deeply`);
+  }
+
+  if (value === null || ['string', 'boolean'].includes(typeof value)) {
+    return;
+  }
+
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value)) {
+      fail(`${field.key} must only hold finite numbers`);
+    }
+
+    return;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item) => assertStorableJson(field, item, depth + 1));
+    return;
+  }
+
+  if (isPlainObject(value)) {
+    for (const [key, item] of Object.entries(value)) {
+      if (!key || key.startsWith('$') || key.includes('.')) {
+        fail(`${field.key} keys cannot be empty, start with $ or contain dots`);
+      }
+
+      assertStorableJson(field, item, depth + 1);
+    }
+
+    return;
+  }
+
+  fail(`${field.key} must be JSON`);
+};
+
+const normalizeJson = (field: IDataExtensionField, value: unknown) => {
+  if (!isPlainObject(value) && !Array.isArray(value)) {
+    return fail(`${field.key} must be a JSON object or list`);
+  }
+
+  assertStorableJson(field, value, 0);
+
+  if (
+    Buffer.byteLength(JSON.stringify(value), 'utf8') >
+    DATA_EXTENSION_LIMITS.jsonBytes
+  ) {
+    fail(`${field.key} is larger than ${DATA_EXTENSION_LIMITS.jsonBytes} bytes`);
+  }
+
+  return value as Record<string, unknown> | unknown[];
+};
+
+const normalizeMember = (field: IDataExtensionField, value: unknown) => {
+  if (!field.settings?.multiple) {
+    return normalizeRecordId(field, value);
+  }
+
+  if (!Array.isArray(value)) {
+    return fail(`${field.key} must be a list of team member ids`);
+  }
+
+  if (value.length > DATA_EXTENSION_LIMITS.membersPerValue) {
+    return fail(
+      `${field.key} holds at most ${DATA_EXTENSION_LIMITS.membersPerValue} team members`,
+    );
+  }
+
+  return Array.from(new Set(value.map((id) => normalizeRecordId(field, id))));
+};
+
 /** Validates and normalises one non-null value for its field. */
 export const normalizeDataExtensionValue = (
   field: IDataExtensionField,
   value: unknown,
 ): DataExtensionValue => {
   switch (field.type) {
+    case 'currency': {
+      if (!isPlainObject(value)) {
+        return fail(`${field.key} must be { amount, currency }`);
+      }
+
+      const currency =
+        typeof value.currency === 'string' && value.currency
+          ? value.currency.toUpperCase()
+          : field.settings?.currency;
+
+      if (!currency || !CURRENCY_CODE_PATTERN.test(currency)) {
+        return fail(`${field.key} needs a 3-letter currency code`);
+      }
+
+      return {
+        amount: inRange(field, normalizeFiniteNumber(field, value.amount)),
+        currency,
+      };
+    }
+    case 'dateTime':
+      return normalizeDate(field, value);
+    case 'rating': {
+      const scale = field.settings?.scale || 5;
+
+      return typeof value === 'number' &&
+        Number.isInteger(value) &&
+        value >= 1 &&
+        value <= scale
+        ? value
+        : fail(`${field.key} must be a whole number from 1 to ${scale}`);
+    }
+    case 'percent':
+      return inRange(field, normalizeFiniteNumber(field, value));
+    case 'address':
+      return normalizeParts(
+        field,
+        value,
+        DATA_EXTENSION_ADDRESS_PARTS,
+        DATA_EXTENSION_LIMITS.addressPartLength,
+      );
+    case 'fullName':
+      return normalizeParts(
+        field,
+        value,
+        ['firstName', 'lastName'],
+        DATA_EXTENSION_LIMITS.labelLength,
+      );
+    case 'links':
+      return normalizeList(
+        field,
+        value,
+        (entry) => {
+          if (!isPlainObject(entry)) {
+            return fail(`${field.key} must list links as { url, label }`);
+          }
+
+          const link: { url: string; label?: string } = {
+            url: normalizeHttpUrl(field, entry.url),
+          };
+          const label = optionalPart(
+            field,
+            entry.label,
+            'label',
+            DATA_EXTENSION_LIMITS.labelLength,
+          );
+
+          if (label) {
+            link.label = label;
+          }
+
+          return link;
+        },
+        (link) => link.url,
+      );
+    case 'emails':
+      return normalizeList(
+        field,
+        value,
+        (entry) => normalizeEmail(field, entry),
+        (email) => email.toLowerCase(),
+      );
+    case 'phones':
+      return normalizeList(
+        field,
+        value,
+        (entry) => normalizePhone(field, entry),
+        (phone) => phone.replace(/[^0-9+]/g, ''),
+      );
+    case 'files':
+      return normalizeList(
+        field,
+        value,
+        (entry) => normalizeFile(field, entry),
+        (file) => String(file.url),
+      ) as DataExtensionValue;
+    case 'member':
+      return normalizeMember(field, value);
+    case 'json':
+      return normalizeJson(field, value);
+    default:
+      return normalizeBaseValue(field, value);
+  }
+};
+
+/** The original eleven types, with length and range settings applied. */
+const normalizeBaseValue = (
+  field: IDataExtensionField,
+  value: unknown,
+): DataExtensionValue => {
+  const maxLength = field.settings?.maxLength;
+
+  switch (field.type) {
     case 'text':
-      return normalizeString(field, value, DATA_EXTENSION_LIMITS.textLength);
+      return normalizeString(
+        field,
+        value,
+        maxLength || DATA_EXTENSION_LIMITS.textLength,
+      );
     case 'longText':
       return normalizeString(
         field,
         value,
-        DATA_EXTENSION_LIMITS.longTextLength,
+        maxLength || DATA_EXTENSION_LIMITS.longTextLength,
       );
     case 'email': {
       const email = normalizeString(field, value, 320).trim();
@@ -484,9 +1173,7 @@ export const normalizeDataExtensionValue = (
       return fail(`${field.key} must be an http(s) URL`);
     }
     case 'number':
-      return typeof value === 'number' && Number.isFinite(value)
-        ? value
-        : fail(`${field.key} must be a finite number`);
+      return inRange(field, normalizeFiniteNumber(field, value));
     case 'boolean':
       return typeof value === 'boolean'
         ? value
@@ -581,15 +1268,33 @@ export const buildDataExtensionPatch = (
       fail(`${key} is the other side of a relation; links are stored on the linked records`);
     }
 
-    if (value === null) {
+    if (value === undefined) {
+      continue;
+    }
+
+    const normalized =
+      value === null ? null : normalizeDataExtensionValue(field, value);
+
+    if (field.settings?.required && isEmptyDataExtensionValue(normalized)) {
+      fail(`${field.label || key} is required`);
+    }
+
+    if (normalized === null) {
       update.$unset[path] = '';
-    } else if (value !== undefined) {
-      update.$set[path] = normalizeDataExtensionValue(field, value);
+    } else {
+      update.$set[path] = normalized;
     }
   }
 
   return update;
 };
+
+/** Null, blank text and empty lists count as no value. */
+export const isEmptyDataExtensionValue = (value: unknown) =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && !value.trim()) ||
+  (Array.isArray(value) && value.length === 0);
 
 /** Keeps only the stored values the caller's record type is allowed to see. */
 export const pickDataExtensionValues = (

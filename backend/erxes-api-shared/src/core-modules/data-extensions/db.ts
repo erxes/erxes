@@ -4,6 +4,7 @@ import {
   DATA_EXTENSION_FIELD_STATUSES,
   DATA_EXTENSION_FIELD_TYPES,
   DATA_EXTENSION_FIELDS_COLLECTION,
+  DATA_EXTENSION_OPTION_COLORS,
   DATA_EXTENSION_RELATION_KINDS,
   DATA_EXTENSION_SCHEMA_VERSION_ID,
   DATA_EXTENSION_SCHEMA_VERSIONS_COLLECTION,
@@ -32,6 +33,7 @@ const fieldOptionSchema = new Schema(
   {
     value: { type: String, required: true },
     label: { type: String, required: true },
+    color: { type: String, enum: DATA_EXTENSION_OPTION_COLORS },
   },
   { _id: false },
 );
@@ -50,6 +52,8 @@ export const dataExtensionFieldSchema = new Schema(
     },
     options: { type: [fieldOptionSchema], default: undefined },
     relation: { type: fieldRelationSchema, default: undefined },
+    // Validated per type by validateDataExtensionFieldSettings.
+    settings: { type: Schema.Types.Mixed, default: undefined },
     order: { type: Number, default: 0 },
     status: {
       type: String,

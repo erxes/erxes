@@ -16,6 +16,7 @@ import {
   GraphQLSchema,
   GraphQLString,
   Kind,
+  ValueNode,
 } from 'graphql';
 import {
   DATA_EXTENSION_LIMITS,
@@ -78,20 +79,184 @@ const nativeType = (
   }
 };
 
-const valueType = (type: DataExtensionFieldType) => {
+const parseJsonLiteral = (ast: ValueNode): unknown => {
+  switch (ast.kind) {
+    case Kind.STRING:
+    case Kind.BOOLEAN:
+      return ast.value;
+    case Kind.INT:
+    case Kind.FLOAT:
+      return Number(ast.value);
+    case Kind.NULL:
+      return null;
+    case Kind.LIST:
+      return ast.values.map(parseJsonLiteral);
+    case Kind.OBJECT:
+      return Object.fromEntries(
+        ast.fields.map((field) => [field.name.value, parseJsonLiteral(field.value)]),
+      );
+    default:
+      throw new GraphQLError('JSON values cannot use variables inline');
+  }
+};
+
+/** Free-form JSON; owners check its size, depth and keys before storing. */
+export const JsonScalar = new GraphQLScalarType({
+  name: 'JSON',
+  description: 'A JSON object or list',
+  serialize: (value) => value,
+  parseValue: (value) => value,
+  parseLiteral: parseJsonLiteral,
+});
+
+const nonNullString = new GraphQLNonNull(GraphQLString);
+
+// Shared by every tenant schema: composite values have one shape everywhere.
+const CurrencyType = new GraphQLObjectType({
+  name: 'DataExtensionCurrency',
+  fields: {
+    amount: { type: new GraphQLNonNull(GraphQLFloat) },
+    currency: { type: nonNullString, description: 'ISO 4217 code' },
+  },
+});
+
+const CurrencyInput = new GraphQLInputObjectType({
+  name: 'DataExtensionCurrencyInput',
+  fields: {
+    amount: { type: new GraphQLNonNull(GraphQLFloat) },
+    currency: {
+      type: GraphQLString,
+      description: 'ISO 4217 code; defaults to the field currency',
+    },
+  },
+});
+
+const addressParts = [
+  'street',
+  'street2',
+  'city',
+  'state',
+  'postalCode',
+  'country',
+];
+
+const AddressType = new GraphQLObjectType({
+  name: 'DataExtensionAddress',
+  fields: Object.fromEntries(
+    addressParts.map((part) => [part, { type: GraphQLString }]),
+  ),
+});
+
+const AddressInput = new GraphQLInputObjectType({
+  name: 'DataExtensionAddressInput',
+  fields: Object.fromEntries(
+    addressParts.map((part) => [part, { type: GraphQLString }]),
+  ),
+});
+
+const FullNameType = new GraphQLObjectType({
+  name: 'DataExtensionFullName',
+  fields: {
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+  },
+});
+
+const FullNameInput = new GraphQLInputObjectType({
+  name: 'DataExtensionFullNameInput',
+  fields: {
+    firstName: { type: GraphQLString },
+    lastName: { type: GraphQLString },
+  },
+});
+
+const LinkType = new GraphQLObjectType({
+  name: 'DataExtensionLink',
+  fields: { url: { type: nonNullString }, label: { type: GraphQLString } },
+});
+
+const LinkInput = new GraphQLInputObjectType({
+  name: 'DataExtensionLinkInput',
+  fields: { url: { type: nonNullString }, label: { type: GraphQLString } },
+});
+
+const FileType = new GraphQLObjectType({
+  name: 'DataExtensionFile',
+  fields: {
+    url: { type: nonNullString, description: 'http(s) URL or erxes file key' },
+    name: { type: nonNullString },
+    type: { type: GraphQLString },
+    size: { type: GraphQLFloat, description: 'Bytes' },
+  },
+});
+
+const FileInput = new GraphQLInputObjectType({
+  name: 'DataExtensionFileInput',
+  fields: {
+    url: { type: nonNullString },
+    name: { type: nonNullString },
+    type: { type: GraphQLString },
+    size: { type: GraphQLFloat },
+  },
+});
+
+const listOf = <T extends GraphQLOutputType | GraphQLInputType>(type: T) =>
+  new GraphQLList(new GraphQLNonNull(type));
+
+const valueType = (type: DataExtensionFieldType): GraphQLOutputType => {
   switch (type) {
     case 'number':
+    case 'percent':
       return GraphQLFloat;
+    case 'rating':
+      return GraphQLInt;
     case 'boolean':
       return GraphQLBoolean;
     case 'date':
+    case 'dateTime':
       return DateScalar;
     case 'multiSelect':
-      return new GraphQLList(new GraphQLNonNull(GraphQLString));
+    case 'emails':
+    case 'phones':
+      return listOf(GraphQLString);
+    case 'currency':
+      return CurrencyType;
+    case 'address':
+      return AddressType;
+    case 'fullName':
+      return FullNameType;
+    case 'links':
+      return listOf(LinkType);
+    case 'files':
+      return listOf(FileType);
+    case 'json':
+      return JsonScalar;
     default:
       return GraphQLString;
   }
 };
+
+const inputValueType = (field: IDataExtensionField): GraphQLInputType => {
+  switch (field.type) {
+    case 'currency':
+      return CurrencyInput;
+    case 'address':
+      return AddressInput;
+    case 'fullName':
+      return FullNameInput;
+    case 'links':
+      return listOf(LinkInput);
+    case 'files':
+      return listOf(FileInput);
+    case 'member':
+      return field.settings?.multiple ? listOf(GraphQLID) : GraphQLID;
+    default:
+      return valueType(field.type) as GraphQLInputType;
+  }
+};
+
+/** Team member fields resolve to the team member records they hold. */
+const TEAM_MEMBER_RECORD_TYPE = 'core:teamMember';
 
 const describeField = (field: IDataExtensionField) => {
   const options = field.options?.length
@@ -337,6 +502,39 @@ export const buildTenantSchema = ({
         > = {};
 
         for (const field of fieldsOf(descriptor.recordType)) {
+          const members =
+            field.type === 'member'
+              ? descriptors.get(TEAM_MEMBER_RECORD_TYPE)
+              : undefined;
+
+          if (members) {
+            const memberType = outputOf(members.recordType);
+
+            valueFields[field.key] = {
+              type: field.settings?.multiple
+                ? new GraphQLNonNull(listOf(memberType))
+                : memberType,
+              description: describeField(field),
+              resolve: async ({ values }, _args, context) => {
+                const ids = linkedIds(values[field.key]);
+
+                if (!ids.length) {
+                  return field.settings?.multiple ? [] : null;
+                }
+
+                await context.requirePermission(members.readAction);
+                const records = (
+                  await owners.load(context, members, ids)
+                ).filter((record): record is IDataExtensionRecord =>
+                  Boolean(record),
+                );
+
+                return field.settings?.multiple ? records : records[0] || null;
+              },
+            };
+            continue;
+          }
+
           if (!field.relation) {
             valueFields[field.key] = {
               type: valueType(field.type) as GraphQLOutputType,
@@ -524,8 +722,10 @@ export const buildTenantSchema = ({
                   } of the ${targetLabel} that should link here; replaces the current links. Send null to unlink all.`,
           }
         : {
-            type: valueType(field.type) as GraphQLInputType,
-            description: `${describeField(field)} Send null to clear.`,
+            type: inputValueType(field),
+            description: `${describeField(field)}${
+              field.type === 'member' ? ' Team member id(s).' : ''
+            } Send null to clear.`,
           };
     }
 
@@ -652,6 +852,24 @@ export const buildTenantSchema = ({
           throw new GraphQLError(
             `${field.key}: no ${target.label} found for every id`,
           );
+        }
+      }
+
+      // Team members must exist and be visible, like a link target.
+      for (const field of writable) {
+        const ids =
+          field.type === 'member' ? linkedIds(rawValues[field.key]) : [];
+        const members = descriptors.get(TEAM_MEMBER_RECORD_TYPE);
+
+        if (!ids.length || !members) {
+          continue;
+        }
+
+        await context.requirePermission(members.readAction);
+        const found = await owners.load(context, members, ids);
+
+        if (found.some((record) => !record)) {
+          throw new GraphQLError(`${field.key}: no team member for every id`);
         }
       }
 

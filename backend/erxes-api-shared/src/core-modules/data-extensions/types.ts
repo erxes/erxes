@@ -1,6 +1,7 @@
 import {
   DATA_EXTENSION_FIELD_STATUSES,
   DATA_EXTENSION_FIELD_TYPES,
+  DATA_EXTENSION_OPTION_COLORS,
   DATA_EXTENSION_RELATION_KINDS,
 } from './constants';
 
@@ -78,9 +79,44 @@ export interface IDataExtensionRelation {
   inverseFieldId?: string;
 }
 
+export type DataExtensionOptionColor =
+  (typeof DATA_EXTENSION_OPTION_COLORS)[number];
+
 export interface IDataExtensionFieldOption {
   value: string;
   label: string;
+  color?: DataExtensionOptionColor;
+}
+
+/**
+ * Optional behaviour of a field. Every setting is checked by the owner on
+ * each write, the same place the type is checked, so no client can skip it.
+ */
+export interface IDataExtensionFieldSettings {
+  /** A value cannot be cleared once set; create forms ask for it. */
+  required?: boolean;
+  /** No two records of the record type share a value. Set at creation. */
+  unique?: boolean;
+  /** Pre-filled on create forms; validated like any value. */
+  defaultValue?: unknown;
+  /** Bounds of a number, currency amount or percent. */
+  min?: number;
+  max?: number;
+  /** Longest text accepted, below the type's own limit. */
+  maxLength?: number;
+  /** Rating scale, 3 to 10 stars. */
+  scale?: number;
+  /** ISO 4217 code offered first for currency fields. */
+  currency?: string;
+  /** Member fields: one team member or several. */
+  multiple?: boolean;
+  /** Decimals shown for numbers and percents. */
+  precision?: number;
+  /** Section the field is shown under on records. */
+  group?: string;
+  /** Shown on create forms; defaults to true. */
+  showInCreate?: boolean;
+  placeholder?: string;
 }
 
 export interface IDataExtensionField {
@@ -91,6 +127,7 @@ export interface IDataExtensionField {
   type: DataExtensionFieldType;
   options?: IDataExtensionFieldOption[];
   relation?: IDataExtensionRelation;
+  settings?: IDataExtensionFieldSettings;
   order: number;
   status: DataExtensionFieldStatus;
   createdBy?: string;
@@ -115,7 +152,48 @@ export interface IDataExtensionSnapshot {
   fields: IDataExtensionFieldDocument[];
 }
 
-export type DataExtensionValue = string | number | boolean | Date | string[];
+export interface IDataExtensionCurrencyValue {
+  amount: number;
+  currency: string;
+}
+
+export type IDataExtensionAddressValue = Partial<
+  Record<
+    'street' | 'street2' | 'city' | 'state' | 'postalCode' | 'country',
+    string
+  >
+>;
+
+export interface IDataExtensionFullNameValue {
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface IDataExtensionLinkValue {
+  url: string;
+  label?: string;
+}
+
+export interface IDataExtensionFileValue {
+  url: string;
+  name: string;
+  type?: string;
+  size?: number;
+}
+
+export type DataExtensionValue =
+  | string
+  | number
+  | boolean
+  | Date
+  | string[]
+  | IDataExtensionCurrencyValue
+  | IDataExtensionAddressValue
+  | IDataExtensionFullNameValue
+  | IDataExtensionLinkValue[]
+  | IDataExtensionFileValue[]
+  | Record<string, unknown>
+  | unknown[];
 
 export interface IDataExtensionPatchUpdate {
   $set: Record<string, DataExtensionValue>;

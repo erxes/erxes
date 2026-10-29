@@ -542,3 +542,149 @@ describe('query limits', () => {
     ).toEqual([]);
   });
 });
+
+describe('composite field types', () => {
+  const compositeFields: IDataExtensionField[] = [
+    field('core:company', 'contractValue', 'currency'),
+    field('core:company', 'office', 'address'),
+    field('core:company', 'websites', 'links'),
+    field('core:company', 'attachments', 'files'),
+    field('core:company', 'meta', 'json'),
+    field('core:company', 'stars', 'rating'),
+    { ...field('core:company', 'accountManager', 'member') },
+    {
+      ...field('core:company', 'supportTeam', 'member'),
+      settings: { multiple: true },
+    },
+  ];
+
+  const companyWithValues: IDataExtensionRecord = {
+    _id: 'company-1',
+    native: { primaryName: 'Acme' },
+    dataExtensions: {
+      contractValue: { amount: 1200, currency: 'MNT' },
+      office: { city: 'Ulaanbaatar' },
+      websites: [{ url: 'https://acme.mn', label: 'Site' }],
+      attachments: [{ url: '1700-a.pdf', name: 'a.pdf', size: 10 }],
+      meta: { source: 'import', tags: ['x'] },
+      stars: 4,
+      accountManager: 'user-1',
+      supportTeam: ['user-1', 'user-2'],
+    },
+  };
+
+  const build = () => {
+    const loads: [string, string[]][] = [];
+    const owners: IOwnerResolvers = {
+      async load(_context, descriptor, ids) {
+        loads.push([descriptor.recordType, ids]);
+
+        if (descriptor.recordType === 'core:teamMember') {
+          return ids.map((id) => ({
+            _id: id,
+            native: { fullName: `Member ${id}` },
+            dataExtensions: {},
+          }));
+        }
+
+        return ids.map(() => companyWithValues);
+      },
+      patch: async () => companyWithValues,
+      findByRelation: async () => [],
+      search: async () => [],
+      link: async (_context, _descriptor, _key, ids) => ids,
+    };
+
+    return {
+      schema: buildTenantSchema({
+        version: 8,
+        recordTypes: DATA_EXTENSION_RECORD_TYPES,
+        fields: compositeFields,
+        owners,
+      }),
+      loads,
+    };
+  };
+
+  it('generates object, list, JSON and member types', () => {
+    const sdl = printSchema(build().schema);
+
+    expect(sdl).toContain('contractValue: DataExtensionCurrency');
+    expect(sdl).toContain('office: DataExtensionAddress');
+    expect(sdl).toContain('websites: [DataExtensionLink!]');
+    expect(sdl).toContain('attachments: [DataExtensionFile!]');
+    expect(sdl).toContain('meta: JSON');
+    expect(sdl).toContain('stars: Int');
+    expect(sdl).toContain('accountManager: TeamMember');
+    expect(sdl).toContain('supportTeam: [TeamMember!]!');
+    expect(sdl).toContain('contractValue: DataExtensionCurrencyInput');
+    expect(sdl).toContain('accountManager: ID');
+    expect(sdl).toContain('supportTeam: [ID!]');
+  });
+
+  it('resolves composite values and team members', async () => {
+    const { schema, loads } = build();
+    const { context, checked } = createContext();
+    const result = await execute({
+      schema,
+      document: parse(`{
+        company(_id: "company-1") {
+          dataExtensions {
+            contractValue { amount currency }
+            office { city country }
+            websites { url label }
+            meta
+            stars
+            accountManager { _id fullName }
+            supportTeam { _id }
+          }
+        }
+      }`),
+      contextValue: context,
+    });
+
+    expect(result.errors).toBeUndefined();
+    expect(result.data?.company).toEqual({
+      dataExtensions: {
+        contractValue: { amount: 1200, currency: 'MNT' },
+        office: { city: 'Ulaanbaatar', country: null },
+        websites: [{ url: 'https://acme.mn', label: 'Site' }],
+        meta: { source: 'import', tags: ['x'] },
+        stars: 4,
+        accountManager: { _id: 'user-1', fullName: 'Member user-1' },
+        supportTeam: [{ _id: 'user-1' }, { _id: 'user-2' }],
+      },
+    });
+    expect(checked).toContain('teamMembersRead');
+    expect(loads).toContainEqual(['core:teamMember', ['user-1']]);
+  });
+
+  it('refuses a patch naming a team member that does not exist', async () => {
+    const owners: IOwnerResolvers = {
+      load: async (_context, descriptor, ids) =>
+        descriptor.recordType === 'core:teamMember'
+          ? ids.map(() => null)
+          : ids.map(() => companyWithValues),
+      patch: async () => companyWithValues,
+      findByRelation: async () => [],
+      search: async () => [],
+      link: async (_context, _descriptor, _key, ids) => ids,
+    };
+    const schema = buildTenantSchema({
+      version: 8,
+      recordTypes: DATA_EXTENSION_RECORD_TYPES,
+      fields: compositeFields,
+      owners,
+    });
+    const { context } = createContext();
+    const result = await execute({
+      schema,
+      document: parse(`mutation {
+        companyDataExtensionsPatch(_id: "company-1", values: { accountManager: "ghost" }) { _id }
+      }`),
+      contextValue: context,
+    });
+
+    expect(result.errors?.[0].message).toContain('no team member for every id');
+  });
+});

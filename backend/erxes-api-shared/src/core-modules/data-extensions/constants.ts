@@ -23,6 +23,60 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'url',
   'phone',
   'relation',
+  'currency',
+  'dateTime',
+  'rating',
+  'percent',
+  'address',
+  'fullName',
+  'links',
+  'emails',
+  'phones',
+  'files',
+  'member',
+  'json',
+] as const;
+
+/** Types whose value is a single scalar a unique index can compare. */
+export const DATA_EXTENSION_UNIQUE_TYPES = [
+  'text',
+  'email',
+  'phone',
+  'url',
+  'number',
+] as const;
+
+/** Types that take `min`/`max` on their numeric value. */
+export const DATA_EXTENSION_RANGE_TYPES = [
+  'number',
+  'currency',
+  'percent',
+] as const;
+
+/** Types that take `maxLength` on their text. */
+export const DATA_EXTENSION_LENGTH_TYPES = ['text', 'longText'] as const;
+
+/** Parts of an address value, in display order. */
+export const DATA_EXTENSION_ADDRESS_PARTS = [
+  'street',
+  'street2',
+  'city',
+  'state',
+  'postalCode',
+  'country',
+] as const;
+
+/** Option colours offered for select options; the UI maps them to tokens. */
+export const DATA_EXTENSION_OPTION_COLORS = [
+  'gray',
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'teal',
+  'blue',
+  'purple',
+  'pink',
 ] as const;
 
 /**
@@ -94,4 +148,18 @@ export const DATA_EXTENSION_LIMITS = {
   searchPageSize: 20,
   searchPageMax: 50,
   searchTextLength: 100,
+  /** Items in a links, emails, phones or files value. */
+  listItems: 20,
+  /** Largest rating scale. */
+  ratingMax: 10,
+  /** Serialized size of a JSON value. */
+  jsonBytes: 10000,
+  /** Nesting depth of a JSON value. */
+  jsonDepth: 6,
+  /** Team members in a multiple member field. */
+  membersPerValue: 50,
+  addressPartLength: 200,
+  groupLength: 60,
+  placeholderLength: 120,
+  fileNameLength: 255,
 } as const;

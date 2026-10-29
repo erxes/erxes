@@ -2,6 +2,7 @@ export const types = `
   type DataExtensionFieldOption {
     value: String!
     label: String!
+    color: String
   }
 
   type DataExtensionFieldRelation {
@@ -20,6 +21,8 @@ export const types = `
     type: String!
     options: [DataExtensionFieldOption!]
     relation: DataExtensionFieldRelation
+    "Optional behaviour: required, unique, defaultValue, min, max, maxLength, scale, currency, multiple, precision, group, showInCreate, placeholder."
+    settings: JSON
     order: Int!
     status: String!
     createdBy: String
@@ -41,6 +44,7 @@ export const types = `
   input DataExtensionFieldOptionInput {
     value: String!
     label: String
+    color: String
   }
 
   input DataExtensionFieldAddInput {
@@ -50,6 +54,7 @@ export const types = `
     description: String
     type: String!
     options: [DataExtensionFieldOptionInput!]
+    settings: JSON
     order: Int
   }
 
@@ -68,6 +73,8 @@ export const types = `
     label: String
     description: String
     options: [DataExtensionFieldOptionInput!]
+    "Replaces the settings; unique and multiple stay as created."
+    settings: JSON
     order: Int
   }
 `;

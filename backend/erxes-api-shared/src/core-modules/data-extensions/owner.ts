@@ -356,6 +356,76 @@ const ensureRelationIndexes = async (
   }
 };
 
+/**
+ * Unique fields get a partial unique index on first write, like one-to-one
+ * links. If it cannot be built (existing values already repeat) the write
+ * is refused, so uniqueness never rests on the racy pre-check alone.
+ */
+const ensureUniqueValueIndex = async (
+  adapters: IDataExtensionStorageAdapter[],
+  field: IDataExtensionField,
+) => {
+  const fieldId = String((field as { _id?: unknown })._id ?? '');
+  const path = relationPath(field.key);
+
+  for (const { model } of adapters) {
+    const id = [
+      model.db.name,
+      model.collection.collectionName,
+      field.key,
+      fieldId,
+      'value-unique',
+    ].join(':');
+    let pending = ensuredIndexes.get(id);
+
+    if (!pending) {
+      pending = model.collection
+        .createIndex(
+          { [path]: 1 },
+          {
+            name: `dataExtensions_${field.key}_unique`,
+            unique: true,
+            partialFilterExpression: { [path]: { $exists: true } },
+          },
+        )
+        .then(() => undefined)
+        .catch((error) => {
+          ensuredIndexes.delete(id);
+          throw error;
+        });
+      ensuredIndexes.set(id, pending);
+    }
+
+    try {
+      await pending;
+    } catch {
+      throw new DataExtensionValidationError(
+        `${field.key} is unique but its index could not be built; existing records may already repeat a value`,
+      );
+    }
+  }
+};
+
+const assertValueAvailable = async (
+  adapters: IDataExtensionStorageAdapter[],
+  field: IDataExtensionField,
+  value: unknown,
+  ownId: string | Types.ObjectId,
+) => {
+  for (const { model } of adapters) {
+    const filter: Record<string, unknown> = {
+      [relationPath(field.key)]: value,
+      _id: { $ne: ownId },
+    };
+
+    if (await model.collection.countDocuments(filter, { limit: 1 })) {
+      throw new DataExtensionValidationError(
+        `Another record already has this ${field.label || field.key}`,
+      );
+    }
+  }
+};
+
 const assertOneToOneAvailable = async (
   adapters: IDataExtensionStorageAdapter[],
   field: IDataExtensionField,
@@ -495,6 +565,14 @@ export const patchDataExtensionRecord = async (
   const adapters = resolveAdapters(descriptor, context);
 
   for (const field of activeFields) {
+    const uniqueValue =
+      patch.$set[`${DATA_EXTENSIONS_NAMESPACE}.${field.key}`];
+
+    if (field.settings?.unique && uniqueValue !== undefined) {
+      await ensureUniqueValueIndex(adapters, field);
+      await assertValueAvailable(adapters, field, uniqueValue, castedId);
+    }
+
     if (
       field.relation?.side !== 'source' ||
       !Object.prototype.hasOwnProperty.call(values, field.key)
@@ -517,7 +595,20 @@ export const patchDataExtensionRecord = async (
       _id: castedId,
       ...scopeFilter,
     };
-    const result = await adapter.model.collection.updateOne(filter, update);
+    let result;
+
+    try {
+      result = await adapter.model.collection.updateOne(filter, update);
+    } catch (error) {
+      // Lost a race to the unique index the pre-check could not see.
+      if (isDuplicateKeyError(error)) {
+        throw new DataExtensionValidationError(
+          'Another record already has one of these values',
+        );
+      }
+
+      throw error;
+    }
 
     if (result.matchedCount) {
       const [record] = await getDataExtensionRecords(
