@@ -82,7 +82,10 @@ const SelectProjectValue = () => {
 
   const name = projects.find((p) => p._id === value)?.name;
 
-  const { project } = useGetProject(value, { skip: !!name });
+  const { project } = useGetProject(value, {
+    skip: !!name,
+    subscribe: false,
+  });
 
   const handleNavigateToProject = (e: React.MouseEvent) => {
     e.stopPropagation();
