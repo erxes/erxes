@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-11-16`
+- **Last synchronized:** `2026-11-17`
 
 ## Scope
 
@@ -37,7 +37,7 @@
 - Task activity rows show the accepting member's avatar and name with a triage-acceptance action; the action component supplies only the action text while the shared activity wrapper supplies the actor and timestamp.
 - GitHub-created triages show a GitHub button linking to the originating repository issue in the side panel's top bar, as tasks do. Their creation timeline and relation widget card use the short "Created from GitHub issue" attribution; manually created triages retain their user attribution.
 - Task, project, and triage activity timelines use action-specific icons; assignee changes and triage acceptance show the actor's avatar and hover label instead. The sentence names each entry's creator, while assignee changes show the new assignee only in the change detail.
-- The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column.
+- The My Inbox notification widget shows task, triage, project and team details; task notifications include the task side widgets with a pinned icon column and `TaskDetailActions` beside Open task, including permission-gated Print. `TaskFields` has no standalone Print button.
 - Task and project detail right rails expose configured custom properties in an editable Properties panel with a header action linking to the matching property settings, evenly padded width-constrained scrollable content, and an empty state centered within the remaining rail height.
 - Data Extension fields follow the shared metadata-driven path: the side-panel task and project drafts (`TaskPanelNew` / `ProjectPanelNew`) mount `DataExtensionCreateFields` (`operation:task` / `operation:project`) and hold no saving code, because the host Apollo link writes the values after `createTask` / `createProject` returns. Existing tasks show and edit them in core's record side panel (Custom fields tab).
 - Imports plain Markdown descriptions from GitHub issues into editable task and triage blocks while retaining BlockNote JSON for locally edited descriptions.
@@ -118,6 +118,8 @@
 
 ## Local Invariants
 
+- Task printing uses `TaskDetailActions` in the record panel, full-page task view and My Inbox. Keep the permission-gated print sheet outside the actions popover and pass the displayed task's `_id`.
+- Move-to-team controls and their project-conflict dialog work without a `RecordTable` provider. Bulk task actions clear their table selection through the optional success callback; record and notification menus omit it.
 - `PropertiesSidePanel` renders `FieldsInDetail` with `bare` (no outer
   "… Properties" card) and styles it only through padding, sizing (height,
   min-width) and column utilities; it never targets the component's internal
@@ -219,6 +221,7 @@
 
 ## Validation
 
+- Printing smoke: from a task's record panel, full-page detail and My Inbox, choose More actions → Print, verify the selected task, close and reopen the sheet, and confirm Print is hidden without `documentsRead`.
 - Dashboard smoke: add each operation tile from the home dashboard; project/cycle tiles open their settings dialog first, save, then show data; a cycle tile set to Current cycle shows the team's active cycle; My tasks rows open the task in the side panel; project and cycle detail rails look unchanged.
 - Task panel smoke: short names sit beside Name, long names wrap without truncation, selected statuses match neighboring field text, and assignee avatars are 20px. Name editing still saves with Enter and cancels with Escape.
 - Task panel smoke: clicking the name in the top bar edits it in place, inside the bar; long names truncate with a tooltip, selected statuses match neighboring field text, and assignee avatars are 20px. Name editing saves with Enter and cancels with Escape.

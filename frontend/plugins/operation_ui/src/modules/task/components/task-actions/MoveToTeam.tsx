@@ -5,14 +5,7 @@ import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { IconAlertTriangle, IconUsersGroup } from '@tabler/icons-react';
-import {
-  Button,
-  Command,
-  Dialog,
-  IconComponent,
-  RecordTable,
-  useToast,
-} from 'erxes-ui';
+import { Button, Command, Dialog, IconComponent, useToast } from 'erxes-ui';
 import { createContext, useContext, useMemo, useState } from 'react';
 
 interface MoveToTeamContextType {
@@ -104,14 +97,15 @@ export const MoveToTeamProvider = ({
 export const TaskMoveToTeamContent = ({
   setOpen,
   currentTeamId,
+  onSuccess,
 }: {
   setOpen: (open: boolean) => void;
   currentTeamId?: string;
+  onSuccess?: () => void;
 }) => {
   const { t } = useTranslation('operation');
   const { tasks, moveTasksToTeam, loading } = useMoveToTeamContext();
   const { teams, loading: teamsLoading } = useGetTeams();
-  const { table } = RecordTable.useRecordTable();
 
   const { projects } = useProjects({
     variables: { _ids: tasks?.map((t) => t.projectId) },
@@ -214,7 +208,7 @@ export const TaskMoveToTeamContent = ({
       return;
     }
 
-    table?.toggleAllRowsSelected(false);
+    onSuccess?.();
     setOpen(false);
   };
   return (
@@ -266,7 +260,10 @@ export const TaskMoveToTeamContent = ({
           conflictingProjects={conflictDialog.conflictingProjects}
           targetTeamId={conflictDialog.targetTeamId}
           targetTeamName={conflictDialog.targetTeamName}
-          onSuccess={() => setOpen(false)}
+          onSuccess={() => {
+            onSuccess?.();
+            setOpen(false);
+          }}
         />
       )}
     </Command>
@@ -277,14 +274,20 @@ export const TasksMoveToTeamCommandBarItem = ({
   tasks,
   setOpen,
   currentTeamId,
+  onSuccess,
 }: {
   tasks: { taskId: string; projectId: string | null }[];
   setOpen: (open: boolean) => void;
   currentTeamId?: string;
+  onSuccess?: () => void;
 }) => {
   return (
     <MoveToTeamProvider tasks={tasks}>
-      <TaskMoveToTeamContent currentTeamId={currentTeamId} setOpen={setOpen} />
+      <TaskMoveToTeamContent
+        currentTeamId={currentTeamId}
+        setOpen={setOpen}
+        onSuccess={onSuccess}
+      />
     </MoveToTeamProvider>
   );
 };
@@ -331,7 +334,6 @@ export const ProjectTeamConflictDialog = ({
   const { updateTask } = useUpdateTask();
   const { toast } = useToast();
   const client = useApolloClient();
-  const { table } = RecordTable.useRecordTable();
 
   const handleAddTeamToProjects = async () => {
     setIsProcessing(true);
@@ -366,7 +368,6 @@ export const ProjectTeamConflictDialog = ({
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
-      table?.toggleAllRowsSelected(false);
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {
@@ -405,7 +406,6 @@ export const ProjectTeamConflictDialog = ({
         variant: 'default',
       });
       client.refetchQueries({ include: ['GetTasks'] });
-      table?.toggleAllRowsSelected(false);
       onSuccess?.();
       onOpenChange(false);
     } catch (error) {

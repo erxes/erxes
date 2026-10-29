@@ -99,7 +99,7 @@ const BroadcastDetailSheetHeader = () => {
       actions={
         <>
           <ApprovalLockedBadge state={lockState ?? undefined} />
-          {message && <BroadcastDetailActions />}
+          {message && <BroadcastDetailActions key={message._id} />}
         </>
       }
     />
