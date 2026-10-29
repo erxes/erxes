@@ -4,6 +4,7 @@ import { ACCOUNT_PANEL } from '@/settings/account/components/AccountPanel';
 import { ACCOUNT_CATEGORY_PANEL } from '@/settings/account/account-categories/components/AccountCategoryPanel';
 import { CTAX_ROW_PANEL } from '@/settings/ctax/components/CtaxRowPanel';
 import { VAT_ROW_PANEL } from '@/settings/vat/components/VatRowPanel';
+import { JOB_PANEL } from '@/settings/jobs/components/JobPanel';
 import { SYNC_CONFIG_PANEL } from '@/settings/syncSettings/SyncConfigPanel';
 import {
   ISettingsPanelViews,
@@ -14,6 +15,7 @@ import {
   ACCOUNT_CONTENT_TYPE,
   CTAX_ROW_CONTENT_TYPE,
   getSyncConfigCode,
+  JOB_CONTENT_TYPE,
   VAT_ROW_CONTENT_TYPE,
 } from '@/settings/constants/settingsPanel';
 
@@ -22,6 +24,7 @@ const SETTINGS_PANELS: Record<string, ISettingsPanelViews> = {
   [ACCOUNT_CATEGORY_CONTENT_TYPE]: ACCOUNT_CATEGORY_PANEL,
   [VAT_ROW_CONTENT_TYPE]: VAT_ROW_PANEL,
   [CTAX_ROW_CONTENT_TYPE]: CTAX_ROW_PANEL,
+  [JOB_CONTENT_TYPE]: JOB_PANEL,
 };
 
 const SettingsPanelHeaderTitle = ({ label }: { label: string }) => {

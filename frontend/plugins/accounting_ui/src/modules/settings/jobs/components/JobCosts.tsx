@@ -66,7 +66,7 @@ export const JobCosts = ({
         )}
       </div>
       {enabled && (
-        <div className="overflow-x-auto">
+        <div className="relative overflow-x-auto">
           <Table className="min-w-[560px]" aria-label={title}>
             <Table.Header>
               <Table.Row>

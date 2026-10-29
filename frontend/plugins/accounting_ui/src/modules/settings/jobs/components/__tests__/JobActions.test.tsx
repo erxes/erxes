@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { useConfirm, useQueryState } from 'erxes-ui';
-import { useJobRemove } from '../../hooks/useJobMutations';
+import { useConfirm } from 'erxes-ui';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { useJobRemove } from '@/settings/jobs/hooks/useJobMutations';
 import { JobActions } from '../JobActions';
 
 jest.mock('react-i18next', () => ({
@@ -8,12 +9,14 @@ jest.mock('react-i18next', () => ({
 }));
 jest.mock('erxes-ui', () => ({
   useConfirm: jest.fn(),
-  useQueryState: jest.fn(),
 }));
-jest.mock('../../hooks/useJobMutations', () => ({
+jest.mock('@/settings/hooks/useSettingsPanel', () => ({
+  useSettingsPanel: jest.fn(),
+}));
+jest.mock('@/settings/jobs/hooks/useJobMutations', () => ({
   useJobRemove: jest.fn(),
 }));
-jest.mock('../../../components/SettingsRowsTable', () => ({
+jest.mock('@/settings/components/SettingsRowsTable', () => ({
   MoreActionsCell: ({
     onEdit,
     onDelete,
@@ -28,8 +31,8 @@ jest.mock('../../../components/SettingsRowsTable', () => ({
   ),
 }));
 
-test('shared row actions edit and delete the source card after confirmation', async () => {
-  const setOpen = jest.fn();
+test('row edit opens the source card in the side panel and delete waits for confirmation', async () => {
+  const openDetail = jest.fn();
   const removeJob = jest.fn().mockResolvedValue(undefined);
   let approve: (() => void) | undefined;
   const confirm = jest.fn().mockImplementation(
@@ -38,12 +41,17 @@ test('shared row actions edit and delete the source card after confirmation', as
         approve = resolve;
       }),
   );
-  jest.mocked(useQueryState).mockReturnValue([null, setOpen]);
+  jest.mocked(useSettingsPanel).mockReturnValue({
+    openDraft: jest.fn(),
+    openDetail,
+    cancelDraft: jest.fn(),
+    closePanel: jest.fn(),
+  });
   jest.mocked(useConfirm).mockReturnValue({ confirm });
   jest.mocked(useJobRemove).mockReturnValue({ removeJob, loading: false });
   render(<JobActions cardId="source-card" />);
   fireEvent.click(screen.getByText('Edit'));
-  expect(setOpen).toHaveBeenCalledWith('source-card');
+  expect(openDetail).toHaveBeenCalledWith('source-card');
   fireEvent.click(screen.getByText('Delete'));
   expect(confirm).toHaveBeenCalledWith({
     message: 'job-confirm-delete',
