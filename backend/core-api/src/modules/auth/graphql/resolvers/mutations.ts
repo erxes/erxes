@@ -12,6 +12,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
 import { LoginError } from '~/modules/auth/loginError';
 import { endSession, startSession } from '~/modules/auth/session';
+import { createTwoFactorChallenge } from '~/modules/auth/twoFactor/challenge';
 import { armLdapRecheck } from '~/modules/auth/ldap/worker';
 import {
   assertLoginAllowed,
@@ -74,6 +75,24 @@ export const authMutations = {
 
         const { user, method } = response;
         loginResult.method = method;
+
+        const twoFactor = await models.TwoFactors.requirement(user);
+
+        if (twoFactor !== 'none') {
+          const challenge = await createTwoFactorChallenge(subdomain, {
+            userId: user._id,
+            method,
+            setup: twoFactor === 'setup',
+          });
+
+          // An error, so a client unaware of 2FA can never look signed in
+          throw new LoginError(
+            twoFactor === 'setup'
+              ? 'two_factor_setup_required'
+              : 'two_factor_required',
+            challenge,
+          );
+        }
 
         await startSession({
           models,

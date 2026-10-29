@@ -70,6 +70,29 @@ export const types = `
     updatedAt: Date
   }
 
+  enum AuthTwoFactorMode {
+    off
+    optional
+    required
+  }
+
+  type AuthTwoFactorPolicy {
+    mode: AuthTwoFactorMode!
+    permissionGroupIds: [String!]!
+  }
+
+  type AuthTwoFactorStatus {
+    available: Boolean!
+    enabled: Boolean!
+    required: Boolean!
+    recoveryCodesLeft: Int!
+  }
+
+  type AuthTwoFactorSetup {
+    secret: String!
+    otpauthUrl: String!
+  }
+
   enum AuthLdapGroupChangePolicy {
     updatePermissions
     revokeSessions
@@ -134,6 +157,8 @@ export const queries = `
   oauthClientAppDetail(_id: String!): OAuthClientApp
   authLdapConfig: AuthLdapConfig
   authLdapLinkedUserIds: [String!]!
+  authTwoFactorStatus: AuthTwoFactorStatus
+  authTwoFactorPolicy: AuthTwoFactorPolicy
 `;
 
 export const mutations = `
@@ -167,5 +192,13 @@ export const mutations = `
   authLdapLinkUser(userId: String!, identifier: String!): Boolean
   authLdapUnlinkUser(userId: String!): Boolean
   authLdapRecheckNow: AuthLdapConfig
+  loginTwoFactorSetup(challenge: String!): AuthTwoFactorSetup
+  loginTwoFactorVerify(challenge: String!, code: String!): [String!]
+  authTwoFactorSetup: AuthTwoFactorSetup
+  authTwoFactorEnable(code: String!): [String!]
+  authTwoFactorDisable(code: String!): Boolean
+  authTwoFactorRecoveryCodes(code: String!): [String!]
+  authTwoFactorReset(userId: String!): Boolean
+  authTwoFactorPolicySave(mode: AuthTwoFactorMode!, permissionGroupIds: [String!]!): AuthTwoFactorPolicy
 
  `;

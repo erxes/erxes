@@ -10,6 +10,8 @@ import {
   loadAuthIdentityClass,
   loadLdapConfigClass,
 } from '@/auth/db/models/Ldap';
+import { ITwoFactorDocument } from '@/auth/db/definitions/twoFactor';
+import { ITwoFactorModel, loadTwoFactorClass } from '@/auth/db/models/TwoFactors';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -482,6 +484,7 @@ export interface IModels {
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
   LdapConfigs: ILdapConfigModel;
   AuthIdentities: IAuthIdentityModel;
+  TwoFactors: ITwoFactorModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -989,6 +992,11 @@ export const loadClasses = (
   models.AuthIdentities = db.model<IAuthIdentityDocument, IAuthIdentityModel>(
     'auth_identities',
     loadAuthIdentityClass(models, subdomain),
+  );
+
+  models.TwoFactors = db.model<ITwoFactorDocument, ITwoFactorModel>(
+    'auth_two_factors',
+    loadTwoFactorClass(models, subdomain),
   );
 
   // Per-user BYOK agents connection; one document per user per tenant.

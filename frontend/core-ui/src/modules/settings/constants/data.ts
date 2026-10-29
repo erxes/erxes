@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconDeviceMobileCheck,
   IconShoppingCart,
   IconSparkles,
   IconShieldCheck,
@@ -139,6 +140,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
     },
+    {
+      name: t('two-factor', 'Two-factor authentication'),
+      icon: IconDeviceMobileCheck,
+      path: SettingsPath.TwoFactor,
+    },
   ],
   nav: [
     {
@@ -217,6 +223,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('ldap', 'LDAP'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.Ldap,
+    },
+    {
+      name: t('security', 'Security'),
+      icon: IconShieldCheck,
+      path: SettingsWorkspacePath.Security,
     },
     {
       name: t('system-logs'),
@@ -388,6 +399,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
   [SettingsWorkspacePath.Ldap]: 'permissions',
+  [SettingsWorkspacePath.Security]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',

@@ -29,6 +29,7 @@ import { useUsersStatusEdit } from '../../hooks/useUserEdit';
 import { useTranslation } from 'react-i18next';
 import { LdapMemberMenuItem } from '@/settings/ldap/components/LdapMemberMenuItem';
 import { MemberSignOutMenuItem } from '@/settings/team-member/sessions/components/MemberSignOutMenuItem';
+import { MemberResetTwoFactorMenuItem } from '@/settings/two-factor/components/MemberResetTwoFactorMenuItem';
 import { useLdapLinkedUserIds } from '@/settings/ldap/hooks/useLdapUserLink';
 
 export const TeamMemberMoreColumnCell = ({
@@ -90,6 +91,10 @@ export const TeamMemberMoreColumnCell = ({
         </Can>
       )}
       <MemberSignOutMenuItem userId={_id} onDone={() => setMenuOpen(false)} />
+      <MemberResetTwoFactorMenuItem
+        userId={_id}
+        onDone={() => setMenuOpen(false)}
+      />
       <LdapMemberMenuItem userId={_id} onDone={() => setMenuOpen(false)} />
       <Can action="teamMembersRemove">
         <Command.Item
