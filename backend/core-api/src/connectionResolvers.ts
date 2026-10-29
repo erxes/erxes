@@ -988,7 +988,7 @@ export const loadClasses = (
 
   models.AuthIdentities = db.model<IAuthIdentityDocument, IAuthIdentityModel>(
     'auth_identities',
-    loadAuthIdentityClass(models),
+    loadAuthIdentityClass(models, subdomain),
   );
 
   // Per-user BYOK agents connection; one document per user per tenant.

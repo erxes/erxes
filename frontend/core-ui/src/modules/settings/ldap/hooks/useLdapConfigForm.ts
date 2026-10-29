@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
@@ -34,6 +34,8 @@ const toFormValues = (config: ILdapConfig | null): TLdapConfigForm => ({
   groupMappings: (config?.groupMappings ?? []).map(
     ({ groupDn, permissionGroupIds }) => ({ groupDn, permissionGroupIds }),
   ),
+  recheckEveryMinutes: config?.recheckEveryMinutes ?? 15,
+  groupChangePolicy: config?.groupChangePolicy ?? 'updatePermissions',
 });
 
 // An empty password keeps the stored one on the server
@@ -52,6 +54,8 @@ const toInput = (values: TLdapConfigForm): ILdapConfigInput => ({
     .map((domain) => domain.trim())
     .filter(Boolean),
   groupMappings: values.groupMappings,
+  recheckEveryMinutes: values.recheckEveryMinutes,
+  groupChangePolicy: values.groupChangePolicy,
   ...(values.bindPassword ? { bindPassword: values.bindPassword } : {}),
   ...(values.userFilter ? { userFilter: values.userFilter } : {}),
 });
@@ -73,8 +77,13 @@ export const useLdapConfigForm = () => {
     defaultValues: toFormValues(null),
   });
 
+  // Filled once on load and again after a save; a recheck refetching the config
+  // must not wipe unsaved edits
+  const filled = useRef(false);
+
   useEffect(() => {
-    if (!loading) {
+    if (!loading && !filled.current) {
+      filled.current = true;
       form.reset(toFormValues(config));
     }
   }, [config, loading, form]);
@@ -95,7 +104,10 @@ export const useLdapConfigForm = () => {
   const onSubmit = form.handleSubmit((values) =>
     save({
       variables: { input: toInput(values) },
-      onCompleted: () => toast({ title: t('saved'), variant: 'success' }),
+      onCompleted: (data) => {
+        form.reset(toFormValues(data.authLdapConfigSave));
+        toast({ title: t('saved'), variant: 'success' });
+      },
       onError: (e) => toast({ title: e.message, variant: 'destructive' }),
     }),
   );

@@ -62,7 +62,31 @@ export const types = `
     allowedGroupDns: [String!]!
     linkEmailDomains: [String!]!
     groupMappings: [AuthLdapGroupMapping!]!
+    recheckEveryMinutes: Int!
+    groupChangePolicy: AuthLdapGroupChangePolicy!
+    lastRecheck: AuthLdapRecheckRun
+    nextRecheckAt: Date
+    recheckChanges: [AuthLdapRecheckChange!]!
     updatedAt: Date
+  }
+
+  enum AuthLdapGroupChangePolicy {
+    updatePermissions
+    revokeSessions
+  }
+
+  type AuthLdapRecheckRun {
+    at: Date
+    status: String!
+    error: String
+    checked: Int!
+  }
+
+  type AuthLdapRecheckChange {
+    userId: String!
+    reason: String!
+    signedOut: Boolean!
+    at: Date
   }
 
   type AuthLdapProfile {
@@ -98,6 +122,8 @@ export const types = `
     allowedGroupDns: [String!]!
     linkEmailDomains: [String!]!
     groupMappings: [AuthLdapGroupMappingInput!]!
+    recheckEveryMinutes: Int!
+    groupChangePolicy: AuthLdapGroupChangePolicy!
   }
 `;
 
@@ -140,5 +166,6 @@ export const mutations = `
   authLdapTestConnection(input: AuthLdapConfigInput!, identifier: String): AuthLdapTestResult
   authLdapLinkUser(userId: String!, identifier: String!): Boolean
   authLdapUnlinkUser(userId: String!): Boolean
+  authLdapRecheckNow: AuthLdapConfig
 
  `;

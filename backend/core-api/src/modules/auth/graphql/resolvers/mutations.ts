@@ -12,6 +12,7 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
 import { LoginError } from '~/modules/auth/loginError';
 import { endSession, startSession } from '~/modules/auth/session';
+import { armLdapRecheck } from '~/modules/auth/ldap/worker';
 import {
   assertLoginAllowed,
   clearLoginFailures,
@@ -82,6 +83,13 @@ export const authMutations = {
           req,
           res,
         });
+
+        if (method === 'ldap') {
+          // Re-arms the directory recheck after a restart; never blocks sign-in
+          await armLdapRecheck(models, subdomain).catch((e: Error) =>
+            console.error(`LDAP recheck scheduling failed: ${e.message}`),
+          );
+        }
 
         return 'loggedIn';
       },

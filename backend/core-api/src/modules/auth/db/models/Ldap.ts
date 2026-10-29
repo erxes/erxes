@@ -8,16 +8,22 @@ import {
   IAuthIdentityDocument,
   ILdapConfig,
   ILdapConfigDocument,
+  ILdapRecheckChange,
+  ILdapRecheckRun,
+  LDAP_RECHECK_MINUTES,
+  LdapRecheckReason,
   ldapConfigSchema,
 } from '@/auth/db/definitions/ldap';
 import {
-  ILdapProfile,
+  IDirectoryState,
   isSecureLdapTransport,
   LdapConnectionConfig,
   lookupLdapUser,
+  readDirectoryStates,
   verifyLdapCredentials,
 } from '@/auth/ldap/client';
 import { LoginError } from '@/auth/loginError';
+import { revokeUserSessions } from '@/auth/session';
 
 export type LdapConfigInput = ILdapConfig & { bindPassword?: string };
 
@@ -25,7 +31,10 @@ export interface ILdapConfigModel extends Model<ILdapConfigDocument> {
   getLdapConfig(): Promise<ILdapConfigDocument | null>;
   saveLdapConfig(doc: LdapConfigInput): Promise<ILdapConfigDocument>;
   getConnectionConfig(input?: LdapConfigInput): Promise<LdapConnectionConfig>;
+  recordRecheck(run: ILdapRecheckRun, changes: ILdapRecheckChange[]): Promise<void>;
 }
+
+const RECHECK_CHANGES_KEPT = 20;
 
 export interface IAuthIdentityModel extends Model<IAuthIdentityDocument> {
   authenticateLdap(
@@ -34,6 +43,7 @@ export interface IAuthIdentityModel extends Model<IAuthIdentityDocument> {
   ): Promise<IUserDocument>;
   linkLdapUser(userId: string, identifier: string): Promise<IAuthIdentityDocument>;
   unlinkLdapUser(userId: string): Promise<boolean>;
+  recheckLdapUsers(): Promise<ILdapRecheckRun | null>;
 }
 
 const normalizeList = (values?: string[]) => [
@@ -53,6 +63,10 @@ const validateLdapConfig = (doc: LdapConfigInput) => {
 
   if (!isSecureLdapTransport(doc)) {
     throw new Error('Use an ldaps:// url, or ldap:// with StartTLS enabled');
+  }
+
+  if (!LDAP_RECHECK_MINUTES.includes(doc.recheckEveryMinutes)) {
+    throw new Error('Recheck interval must be one of 0, 5, 15 or 60 minutes');
   }
 
   if (doc.userFilter) {
@@ -105,6 +119,8 @@ export const loadLdapConfigClass = (models: IModels) => {
             permissionGroupIds: normalizeList(mapping.permissionGroupIds),
           }))
           .filter((mapping) => mapping.groupDn),
+        recheckEveryMinutes: doc.recheckEveryMinutes,
+        groupChangePolicy: doc.groupChangePolicy,
       };
 
       if (existing) {
@@ -140,8 +156,33 @@ export const loadLdapConfigClass = (models: IModels) => {
         allowedGroupDns: source.allowedGroupDns || [],
         linkEmailDomains: source.linkEmailDomains || [],
         groupMappings: source.groupMappings || [],
+        recheckEveryMinutes: source.recheckEveryMinutes ?? 15,
+        groupChangePolicy: source.groupChangePolicy || 'updatePermissions',
         bindPassword,
       };
+    }
+
+    public static async recordRecheck(
+      run: ILdapRecheckRun,
+      changes: ILdapRecheckChange[],
+    ) {
+      await models.LdapConfigs.updateOne(
+        {},
+        {
+          $set: { lastRecheck: run },
+          ...(changes.length
+            ? {
+                $push: {
+                  recheckChanges: {
+                    $each: changes,
+                    $position: 0,
+                    $slice: RECHECK_CHANGES_KEPT,
+                  },
+                },
+              }
+            : {}),
+        },
+      );
     }
   }
 
@@ -152,7 +193,7 @@ export const loadLdapConfigClass = (models: IModels) => {
 
 const mappedPermissionGroupIds = (
   config: ILdapConfig,
-  profile: ILdapProfile,
+  groupDns: string[],
 ): string[] | null => {
   if (!config.groupMappings.length) {
     return null;
@@ -160,22 +201,46 @@ const mappedPermissionGroupIds = (
 
   const ids = config.groupMappings
     .filter((mapping) =>
-      profile.groupDns.some((groupDn) => sameDn(groupDn, mapping.groupDn)),
+      groupDns.some((groupDn) => sameDn(groupDn, mapping.groupDn)),
     )
     .flatMap((mapping) => mapping.permissionGroupIds);
 
   return [...new Set(ids)];
 };
 
-const isAllowedToProvision = (config: ILdapConfig, profile: ILdapProfile) =>
+const isInAllowedGroup = (config: ILdapConfig, groupDns: string[]) =>
   config.allowedGroupDns.some((allowedDn) =>
-    profile.groupDns.some((groupDn) => sameDn(groupDn, allowedDn)),
+    groupDns.some((groupDn) => sameDn(groupDn, allowedDn)),
   );
+
+/** Why a linked user may no longer sign in, judged the same way login judges it. */
+export const lostAccessReason = (
+  config: ILdapConfig,
+  state?: IDirectoryState,
+): LdapRecheckReason | null => {
+  if (!state) {
+    return 'removed';
+  }
+
+  if (state.disabled) {
+    return 'disabled';
+  }
+
+  // With no allowed groups set, linked members keep access, as at login
+  if (config.allowedGroupDns.length && !isInAllowedGroup(config, state.groupDns)) {
+    return 'left_group';
+  }
+
+  return null;
+};
+
+const sameIds = (a: string[], b: string[]) =>
+  a.length === b.length && a.every((id) => b.includes(id));
 
 const canLinkByEmail = (config: ILdapConfig, email: string) =>
   config.linkEmailDomains.includes(email.split('@').pop() || '');
 
-export const loadAuthIdentityClass = (models: IModels) => {
+export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
   class AuthIdentity {
     /**
      * Returns the erxes user for valid directory credentials, creating one on
@@ -192,7 +257,7 @@ export const loadAuthIdentityClass = (models: IModels) => {
       const connection = await models.LdapConfigs.getConnectionConfig();
       const profile = await verifyLdapCredentials(connection, identifier, password);
 
-      const permissionGroupIds = mappedPermissionGroupIds(connection, profile);
+      const permissionGroupIds = mappedPermissionGroupIds(connection, profile.groupDns);
       const identity = await models.AuthIdentities.findOne({
         provider: 'ldap',
         subject: profile.subject,
@@ -202,7 +267,7 @@ export const loadAuthIdentityClass = (models: IModels) => {
         // Leaving an allowed group revokes access; with no groups set, linked members keep it
         if (
           connection.allowedGroupDns.length &&
-          !isAllowedToProvision(connection, profile)
+          !isInAllowedGroup(connection, profile.groupDns)
         ) {
           throw new LoginError('not_allowed');
         }
@@ -228,7 +293,7 @@ export const loadAuthIdentityClass = (models: IModels) => {
         return models.Users.getUser(user._id);
       }
 
-      if (!profile.email || !isAllowedToProvision(connection, profile)) {
+      if (!profile.email || !isInAllowedGroup(connection, profile.groupDns)) {
         throw new LoginError('not_allowed');
       }
 
@@ -327,6 +392,108 @@ export const loadAuthIdentityClass = (models: IModels) => {
       await models.AuthIdentities.deleteOne({ provider: 'ldap', userId });
 
       return true;
+    }
+
+    /**
+     * Applies directory changes to linked users between logins: lost access ends
+     * their sessions, moved mapped groups update permissions. An unreachable
+     * directory changes nothing.
+     */
+    public static async recheckLdapUsers() {
+      const config = await models.LdapConfigs.getLdapConfig();
+
+      if (!config?.enabled) {
+        return null;
+      }
+
+      const connection = await models.LdapConfigs.getConnectionConfig();
+      const identities = await models.AuthIdentities.find(
+        { provider: 'ldap' },
+        { userId: 1, subject: 1 },
+      ).lean();
+      const at = new Date();
+
+      let states: Map<string, IDirectoryState>;
+
+      try {
+        states = await readDirectoryStates(
+          connection,
+          identities.map((identity) => identity.subject),
+        );
+      } catch (e) {
+        const failed: ILdapRecheckRun = {
+          at,
+          status: 'failed',
+          error: (e as Error).message,
+          checked: 0,
+        };
+
+        await models.LdapConfigs.recordRecheck(failed, []);
+
+        return failed;
+      }
+
+      const users = await models.Users.find(
+        { _id: { $in: identities.map((identity) => identity.userId) } },
+        { permissionGroupIds: 1 },
+      ).lean();
+      const currentPermissions = new Map(
+        users.map((user) => [user._id, user.permissionGroupIds || []]),
+      );
+
+      const applyState = async (
+        userId: string,
+        state?: IDirectoryState,
+      ): Promise<ILdapRecheckChange | null> => {
+        const reason = lostAccessReason(connection, state);
+
+        // Recorded only when someone was actually signed out, so a user who
+        // left long ago does not fill the history on every run
+        if (reason) {
+          const ended = await revokeUserSessions(subdomain, userId);
+
+          return ended ? { userId, reason, signedOut: true, at } : null;
+        }
+
+        const permissionGroupIds =
+          state && mappedPermissionGroupIds(connection, state.groupDns);
+
+        if (
+          !permissionGroupIds ||
+          sameIds(currentPermissions.get(userId) || [], permissionGroupIds)
+        ) {
+          return null;
+        }
+
+        await models.Users.updateOne(
+          { _id: userId },
+          { $set: { permissionGroupIds } },
+        );
+
+        const signedOut =
+          connection.groupChangePolicy === 'revokeSessions' &&
+          (await revokeUserSessions(subdomain, userId)) > 0;
+
+        return { userId, reason: 'permissions_changed', signedOut, at };
+      };
+
+      const changes = (
+        await Promise.all(
+          identities.map((identity) =>
+            applyState(identity.userId, states.get(identity.subject)),
+          ),
+        )
+      ).filter((change): change is ILdapRecheckChange => change !== null);
+
+      const run: ILdapRecheckRun = {
+        at,
+        status: 'ok',
+        checked: identities.length,
+      };
+
+      await models.LdapConfigs.recordRecheck(run, changes);
+
+      return run;
     }
   }
 

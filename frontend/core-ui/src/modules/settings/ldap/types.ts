@@ -1,5 +1,23 @@
 export type TLdapServerType = 'activeDirectory' | 'openLdap';
 
+export type TLdapGroupChangePolicy = 'updatePermissions' | 'revokeSessions';
+
+export const LDAP_RECHECK_MINUTES = [0, 5, 15, 60] as const;
+
+export interface ILdapRecheckRun {
+  at: string;
+  status: 'ok' | 'failed';
+  error?: string | null;
+  checked: number;
+}
+
+export interface ILdapRecheckChange {
+  userId: string;
+  reason: 'removed' | 'disabled' | 'left_group' | 'permissions_changed';
+  signedOut: boolean;
+  at: string;
+}
+
 export interface ILdapGroupMapping {
   groupDn: string;
   permissionGroupIds: string[];
@@ -18,6 +36,11 @@ export interface ILdapConfig {
   allowedGroupDns: string[];
   linkEmailDomains: string[];
   groupMappings: ILdapGroupMapping[];
+  recheckEveryMinutes: number;
+  groupChangePolicy: TLdapGroupChangePolicy;
+  lastRecheck?: ILdapRecheckRun | null;
+  nextRecheckAt?: string | null;
+  recheckChanges: ILdapRecheckChange[];
   updatedAt?: string;
 }
 
@@ -49,6 +72,8 @@ export interface ILdapConfigInput {
   allowedGroupDns: string[];
   linkEmailDomains: string[];
   groupMappings: ILdapGroupMapping[];
+  recheckEveryMinutes: number;
+  groupChangePolicy: TLdapGroupChangePolicy;
 }
 
 export const LDAP_SERVER_DEFAULTS: Record<

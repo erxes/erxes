@@ -174,6 +174,60 @@ export const lookupLdapUser = (
     return entry ? toLdapProfile(config, entry) : null;
   });
 
+export interface IDirectoryState {
+  groupDns: string[];
+  disabled: boolean;
+}
+
+// AD userAccountControl ACCOUNTDISABLE bit
+const AD_DISABLED = 0x2;
+
+// objectGUID is stored as hex and matched as raw bytes
+const subjectFilterValue = (config: ILdapConfig, subject: string) =>
+  config.serverType === 'activeDirectory' ? Buffer.from(subject, 'hex') : subject;
+
+/** Current directory state of linked users, keyed by subject; a missing key means gone. */
+export const readDirectoryStates = async (
+  config: LdapConnectionConfig,
+  subjects: string[],
+): Promise<Map<string, IDirectoryState>> => {
+  if (!subjects.length) {
+    return new Map();
+  }
+
+  const attribute = SUBJECT_ATTRIBUTE[config.serverType];
+
+  return withServiceClient(config, async (client) => {
+    const { searchEntries } = await client.search(config.baseDn, {
+      scope: 'sub',
+      filter: new OrFilter({
+        filters: subjects.map(
+          (subject) =>
+            new EqualityFilter({
+              attribute,
+              value: subjectFilterValue(config, subject),
+            }),
+        ),
+      }),
+      attributes: [attribute, 'memberOf', 'userAccountControl'],
+      explicitBufferAttributes: ['objectGUID'],
+      // AD caps a page at 1000 entries; paging fetches the rest
+      paged: true,
+    });
+
+    return new Map(
+      searchEntries.map((entry) => [
+        readSubject(config.serverType, entry),
+        {
+          groupDns: allValues(entry.memberOf),
+          disabled:
+            (Number(firstValue(entry.userAccountControl)) & AD_DISABLED) !== 0,
+        },
+      ]),
+    );
+  });
+};
+
 // AD puts the cause in the bind error text as "data <hex>"
 const AD_BIND_REASONS: Record<string, LoginFailureReason> = {
   '775': 'directory_locked',

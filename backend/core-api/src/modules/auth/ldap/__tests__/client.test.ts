@@ -7,6 +7,7 @@ import {
   isSecureLdapTransport,
   LdapConnectionConfig,
   lookupLdapUser,
+  readDirectoryStates,
   verifyLdapCredentials,
 } from '@/auth/ldap/client';
 
@@ -33,6 +34,8 @@ const config: LdapConnectionConfig = {
   allowedGroupDns: [],
   linkEmailDomains: [],
   groupMappings: [],
+  recheckEveryMinutes: 15,
+  groupChangePolicy: 'updatePermissions',
 };
 
 const entry = {
@@ -210,5 +213,57 @@ describe('lookupLdapUser', () => {
 
     expect(profile?.subject).toBe('a-b-c');
     expect(profile?.username).toBe('bat');
+  });
+});
+
+describe('readDirectoryStates', () => {
+  it('returns each found user by subject with groups and the AD disabled bit', async () => {
+    const client = setupClient([
+      { ...entry, userAccountControl: '514' },
+      {
+        dn: 'CN=Dulmaa,OU=Sales,DC=example,DC=local',
+        objectGUID: Buffer.from('0304', 'hex'),
+        userAccountControl: '512',
+      },
+    ]);
+
+    const states = await readDirectoryStates(config, ['0102', '0304', '0506']);
+
+    expect(states.get('0102')).toEqual({
+      groupDns: ['CN=Sales,OU=Groups,DC=example,DC=local'],
+      disabled: true,
+    });
+    expect(states.get('0304')).toEqual({ groupDns: [], disabled: false });
+    expect(states.has('0506')).toBe(false);
+    expect(client.unbind).toHaveBeenCalled();
+  });
+
+  it('asks in one paged search, matching AD GUIDs as raw bytes', async () => {
+    const client = setupClient([]);
+
+    await readDirectoryStates(config, ['0102', '0304']);
+
+    expect(client.search).toHaveBeenCalledTimes(1);
+    const [, options] = client.search.mock.calls[0];
+    expect(options.paged).toBe(true);
+    expect(options.filter.toString()).toBe(
+      '(|(objectGUID=\\01\\02)(objectGUID=\\03\\04))',
+    );
+  });
+
+  it('skips the directory entirely when nobody is linked', async () => {
+    const client = setupClient([]);
+
+    await expect(readDirectoryStates(config, [])).resolves.toEqual(new Map());
+    expect(client.bind).not.toHaveBeenCalled();
+  });
+
+  it('lets connection failures reach the caller', async () => {
+    const client = setupClient([]);
+    client.bind.mockRejectedValue(new Error('connect ECONNREFUSED'));
+
+    await expect(readDirectoryStates(config, ['0102'])).rejects.toThrow(
+      'ECONNREFUSED',
+    );
   });
 });
