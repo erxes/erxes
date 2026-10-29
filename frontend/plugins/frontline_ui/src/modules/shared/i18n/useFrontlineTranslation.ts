@@ -8,13 +8,17 @@ export const useFrontlineTranslation = (
   const translation = useTranslation('frontline', { keyPrefix });
 
   for (const [language, resources] of Object.entries({ en, mn })) {
-    if (
-      !translation.i18n.getResource(
-        language,
-        'frontline',
-        'modules.ticket.ticket-name-required',
-      )
-    ) {
+    const complete = Object.entries(resources.modules).every(
+      ([module, labels]) =>
+        Object.keys(labels).every((key) =>
+          translation.i18n.getResource(
+            language,
+            'frontline',
+            `modules.${module}.${key}`,
+          ),
+        ) !== undefined,
+    );
+    if (!complete) {
       translation.i18n.addResourceBundle(
         language,
         'frontline',
