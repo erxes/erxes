@@ -202,6 +202,8 @@
 
 ## Local Invariants
 
+- Never render a raw record id as visible text. Resolve names (`AccountsInline`, `SelectBranches.InlineCell`, `useStageDetail`, `POS_DETAIL`, job/transaction lookups) and fall back to `-` or a translated label such as `untitled-rule`; ids stay only in values, keys and URLs.
+- Check-sync rule pickers label untitled rules by their POS name (order) or sales stage name (deal), then `untitled-rule`, and pass that label as `Command.Item` `keywords` so search matches what users see. Adjustment detail transaction columns show document numbers via `adjustments/utils/getTransactionNumbers.ts`.
 - Fixed asset adjustment GraphQL documents and hooks live in `src/modules/adjustments/fxa`; add, remove, run and transaction mutations each own a document and hook file. Header and depreciation-row queries share `graphql/adjustFixedAssetQueries.ts`, and their view types share `types/AdjustFixedAsset.ts` because details belong to the parent adjustment; mutation hooks preserve success/error callbacks, list/detail refetches and navigation.
 
 - Job master edit initialization and unchanged-value comparison both use `settings/jobs/utils/jobFormValues.ts`. The same module's immutable scaling helper scales execution products and costs while retaining UOMs, metadata, and raw output ratios; changing quantity must not reset child-form state or persist anything.

@@ -8,7 +8,8 @@ import { SyncPanelFormRow } from '@/settings/syncSettings/SyncSettingSection';
 import { DEAL_FIELD_GROUPS_WITH_FIELDS } from '../graphql/queries/relatedQueries';
 import { SETTINGS_PANEL_SELECT_ITEM_CLASS_NAME } from '@/settings/constants/settingsPanel';
 
-const getFieldLabel = (field: any) => field.name || field.code || field._id;
+const getFieldLabel = (field: { name?: string | null; code?: string | null }) =>
+  field.name || field.code || '-';
 
 export const SyncResponseFieldSelect = ({
   form,
