@@ -200,6 +200,21 @@
   (row action and command bar), the Channel and Tags column edits and channel
   moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) all refetch `FormsTotalCount`,
   so the counts never need a manual refresh.
+- The call report's **Integrations** filter labels each option with the
+  owning inbox integration's `name` from `callReportIntegrations`, falling
+  back to the formatted phone only when the name is empty. Several call
+  integrations can share one phone (one per queue), so a phone-only label
+  shows identical rows. `deduplicateIntegrations` in
+  `src/modules/report/call/utils.ts` keys by `inboxId`, merges phones and
+  keeps the first non-empty name.
+- `SipProvider` never lets JsSIP wait for ICE gathering to finish on its own.
+  Every `newRTCSession` subscribes to the session's `icecandidate` event and
+  calls its `ready()` as soon as a `relay` candidate arrives, or one second
+  after the last candidate otherwise, so the answer or offer SDP leaves at
+  once. Without this, Windows hosts with Hyper-V `vEthernet` or VPN adapters
+  keep ringing 40–50 seconds after Answer while the browser times out on
+  interfaces that never reply to STUN/TURN. Keep the early `ready()` when
+  changing call setup.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -1242,6 +1257,44 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `HelpCenterGeneralTab`'s `FeatureSection`): the uppercase `Form.Label` and its
   description on the left and the `Switch` on the right, so it reads like the
   step's other labelled fields.
+- Form field conversion keeps the existing field ID and answers. The field
+  sheet offers text/textarea ↔ customer name, description, email or phone,
+  number ↔ customer phone, and date ↔ customer birth date. Saved conversions
+  carry `expectedType`; incompatible answers, linked custom fields and stale
+  edits are rejected by `frontline_api`. Changing type resets the validator;
+  returning to the original type restores its stored validation and validator,
+  including legacy `input` fields, and clears `expectedType`. Only a changed
+  type on an existing field selects the atomic conversion save path.
+  Any newly selected validator is also checked against saved answers. Other
+  field shapes are not offered for conversion.
+  Type/rule selection checks saved answers before Confirm; stale, failed or
+  pending checks cannot enable it; loading failures for the stored form also
+  block confirmation and offer retry. Incompatible answers appear as a count,
+  with an optional searchable review using `ScrollArea` and the existing
+  intersection-observer pattern to append 20 answers at a time. Loading more
+  retains visible answers; failures offer retry, repeated scroll events do not
+  duplicate requests, and changing target or search resets the list. Responses
+  belong to a specific review request, even when a search is later repeated.
+  Search runs on explicit
+  submission to avoid rescanning large forms on every keystroke. Server
+  deadlines leave the draft intact and offer retry. Conversion messages and
+  field-type labels use the plugin-owned `frontline-form-conversion` English
+  and Mongolian namespace, loaded from `modules/forms/locales/conversion.*.json`;
+  server error reasons are translated by code.
+  Saving awaits the field mutation before clearing the draft, then invalidates
+  form and submission queries. Submission columns use current form fields and
+  field IDs, including unanswered fields and distinct fields with equal labels.
+  Invalid stored dates render as their original value instead of breaking the
+  submissions table. Conversion saves send metadata as `formChanges` in the
+  field mutation so failure rolls back both; ordinary saves retain their existing
+  path. A busy/stale conversion keeps the draft and asks the author to retry.
+  Builder drafts are keyed by form (or create/channel scope) in tab-owned
+  `sessionStorage`, with `FormDraftScope` gating children until the scope changes.
+  New-form drafts survive reloads in that tab; opening an existing form still
+  seeds its saved definition. Tabs cannot overwrite each other's drafts.
+  Previews use the editor's unique BroadcastChannel and validated snapshots;
+  both embedded and new-tab previews use `/frontline/forms/preview?draft=…`.
+  Preview state is in memory and cannot write back into the editor's draft.
 - Segmented `ToggleGroup` choices in the form builder (General step's
   Appearance and Load type, the field sheet's Field width and Validation) give
   every `ToggleGroup.Item` `flex-1` so the segments split equally; `flex-auto`

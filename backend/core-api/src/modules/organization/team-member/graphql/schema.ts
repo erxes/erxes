@@ -112,6 +112,8 @@ export const types = `
     employeeId: String
     isOnboarded: Boolean
     hasPassword: Boolean
+    """'ldap' when the user signs in with a directory password; null for a local password"""
+    passwordManagedBy: String
     cursor: String
   }
 

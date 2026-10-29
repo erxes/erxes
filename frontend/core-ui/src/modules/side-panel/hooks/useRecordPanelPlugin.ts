@@ -9,7 +9,11 @@ import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
  */
 export const useRecordPanelPlugin = (
   contentType: string,
-): { pluginName: string | null; hasProperties: boolean } => {
+): {
+  pluginName: string | null;
+  hasProperties: boolean;
+  hasDraftTitle: boolean;
+} => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
 
@@ -28,12 +32,13 @@ export const useRecordPanelPlugin = (
       !plugin ||
       (isLoaded && !isWildcard && !hasPluginPermission(plugin.name))
     ) {
-      return { pluginName: null, hasProperties: false };
+      return { pluginName: null, hasProperties: false, hasDraftTitle: false };
     }
 
     return {
       pluginName: plugin.name,
       hasProperties: panel?.properties !== false,
+      hasDraftTitle: panel?.draftTitle === true,
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
 };

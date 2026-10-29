@@ -1,3 +1,4 @@
+import type { Icon } from '@tabler/icons-react';
 import { cn, RecordTableInlineCell } from 'erxes-ui';
 import { forwardRef } from 'react';
 
@@ -5,18 +6,21 @@ import { forwardRef } from 'react';
 // cell. Click to edit; Enter saves and Escape cancels, as in the list.
 export const PanelField = ({
   label,
+  icon: Icon,
   children,
   cell = true,
 }: {
   label: React.ReactNode;
+  icon?: Icon;
   children: React.ReactNode;
   // The value is a record table cell, tightened to the panel's rows; off for
   // values with their own layout (e.g. an avatar upload).
   cell?: boolean;
 }) => (
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
-    <span className="truncate text-xs font-medium text-accent-foreground">
-      {label}
+    <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground">
+      {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
+      <span className="truncate">{label}</span>
     </span>
     {/* Record table cells are 32px and 14px; the panel's rows are a little
         tighter and their values the size of their labels. Switches and

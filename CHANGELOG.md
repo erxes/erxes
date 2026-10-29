@@ -1,5 +1,19 @@
 
 
+## [3.4.5](https://github.com/erxes/erxes/compare/3.4.4...3.4.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* (core-ui) remove duplicate filter  ([e72b9c8](https://github.com/erxes/erxes/commit/e72b9c876ecd72809c467df9743094acb0f6f21c))
+* **accounting:** census import csv for main import ([a43dfec](https://github.com/erxes/erxes/commit/a43dfecc96a22fe7a9d44255ecacbecdda198ef5))
+* **frontline:** speed up call answer and name call report integrations  ([5c45442](https://github.com/erxes/erxes/commit/5c454420e9f654bc9c3541f4bf3916fd7855f6dc))
+
+
+### Features
+
+* **payment:** add Pocket form with deeplink button to open Pocket app ([#10015](https://github.com/erxes/erxes/issues/10015)) ([f353685](https://github.com/erxes/erxes/commit/f3536856cd82d4e7257e1af717b5a7daa7078bb1))
+
 ## [3.4.4](https://github.com/erxes/erxes/compare/3.4.3...3.4.4) (2026-10-28)
 
 

@@ -2,14 +2,16 @@ import { WorkOS } from '@workos-inc/node';
 import {
   authCookieOptions,
   getEnv,
+  escapeRegExp,
   logHandler,
   markResolvers,
   redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
+import { LoginError } from '~/modules/auth/loginError';
 import {
   assertLoginAllowed,
   clearLoginFailures,
@@ -28,6 +30,16 @@ type LoginParams = {
   deviceToken?: string;
 };
 
+// Matches Users.login so attempts by username reach the user's log too
+const findLoginUser = (models: IModels, identifier: string) => {
+  const pattern = new RegExp(`^${escapeRegExp((identifier || '').trim())}$`, 'i');
+
+  return models.Users.findOne(
+    { $or: [{ email: pattern }, { username: pattern }] },
+    { _id: 1 },
+  ).lean();
+};
+
 export const authMutations = {
   /*
    * Login   */
@@ -36,6 +48,9 @@ export const authMutations = {
     args: LoginParams,
     { req, res, requestInfo, models, subdomain }: IContext,
   ) {
+    // Filled once the method is known; logHandler merges it on success
+    const loginResult: { method?: string } = {};
+
     return await logHandler(
       async () => {
         await assertLoginAllowed(subdomain, getRequestIp(req), args.email);
@@ -45,13 +60,19 @@ export const authMutations = {
         try {
           response = await models.Users.login(args);
         } catch (e) {
-          await recordLoginFailure(subdomain, args.email);
+          // An unreachable directory is not the user's mistake, so it must not lock them out
+          if (
+            !(e instanceof LoginError && e.reason === 'directory_unreachable')
+          ) {
+            await recordLoginFailure(subdomain, args.email);
+          }
           throw e;
         }
 
         await clearLoginFailures(subdomain, args.email);
 
-        const { token } = response;
+        const { token, method } = response;
+        loginResult.method = method;
 
         const sameSite = getEnv({ name: 'SAME_SITE' });
         const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
@@ -73,14 +94,13 @@ export const authMutations = {
         subdomain,
         source: 'auth',
         action: 'login',
-        userId: (await models.Users.findOne({ email: args.email }).lean())?._id,
+        userId: (await findLoginUser(models, args.email))?._id,
         payload: {
           headers: req.headers,
           email: args?.email,
-          method: 'email/password',
         },
       },
-      null,
+      loginResult,
       null,
       true,
     );

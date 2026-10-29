@@ -25,6 +25,14 @@ export default {
     return !!user.password;
   },
 
+  async passwordManagedBy(
+    user: IUserDocument,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return (await models.Users.isDirectoryUser(user._id)) ? 'ldap' : null;
+  },
+
   async status(user: IUserDocument) {
     if (user.registrationToken) {
       return 'Not verified';

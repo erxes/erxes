@@ -58,12 +58,15 @@ const TriagePanelTitle = ({ triageId }: { triageId: string }) => {
 const TriagePanelActivity = ({ triageId }: { triageId: string }) => {
   const { triage } = useGetTriage(triageId);
 
-  return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <div className="p-3">
-        {triage && <ActivityList contentId={triageId} contentDetail={triage} />}
-      </div>
-    </ScrollArea>
+  return triage ? (
+    <ActivityList
+      key={triageId}
+      contentId={triageId}
+      contentDetail={triage}
+      inPanel
+    />
+  ) : (
+    <Skeleton className="m-4 h-20" />
   );
 };
 
@@ -102,12 +105,15 @@ const TriagePanel = ({
 const TaskPanelActivity = ({ taskId }: { taskId: string }) => {
   const { task } = useGetTask(taskId);
 
-  return (
-    <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-      <div className="p-3">
-        {task && <ActivityList contentId={taskId} contentDetail={task} />}
-      </div>
-    </ScrollArea>
+  return task ? (
+    <ActivityList
+      key={taskId}
+      contentId={taskId}
+      contentDetail={task}
+      inPanel
+    />
+  ) : (
+    <Skeleton className="m-4 h-20" />
   );
 };
 
@@ -147,5 +153,3 @@ export const RecordPanel = ({
 
   return <TaskPanelDetail taskId={contentId} />;
 };
-
-export default RecordPanel;
