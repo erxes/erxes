@@ -947,3 +947,130 @@ export const carryDataExtensionValues = async (
 
   await model.collection.updateOne(filter, { $set });
 };
+
+/**
+ * Checks unique values before a write that `patchDataExtensionRecord` does
+ * not make, such as creating a custom object record. `ownId` is the record
+ * that may keep its own value.
+ */
+export const assertDataExtensionUniqueValues = async (
+  context: IDataExtensionOwnerContext,
+  owner: string,
+  recordType: string,
+  values: Record<string, unknown>,
+  ownId = '',
+): Promise<void> => {
+  const descriptor = resolveDescriptor(recordType, owner);
+  const activeFields = await getActiveDataExtensionFields(context.metadata, [
+    recordType,
+  ]);
+  const adapters = resolveAdapters(descriptor, context);
+
+  for (const field of activeFields) {
+    const value = values[field.key];
+
+    if (!field.settings?.unique || value === undefined || value === null) {
+      continue;
+    }
+
+    await ensureUniqueValueIndex(adapters, field);
+    await assertValueAvailable(adapters, field, value, ownId);
+  }
+};
+
+export interface IDataExtensionListInput {
+  searchValue?: string;
+  limit?: number;
+  skip?: number;
+  /** A native field name or `dataExtensions.<key>` of an active field. */
+  sortField?: string;
+  sortDirection?: 1 | -1;
+  /** Extra Mongo filter built by `buildDataExtensionRecordFilter`. */
+  filter?: Record<string, unknown>;
+}
+
+/**
+ * One page of records with the total, for list views. Sorting is limited to
+ * native fields and active extension fields, so a client cannot sort on an
+ * arbitrary or unindexed path of the owner's documents.
+ */
+export const listDataExtensionRecords = async (
+  context: IDataExtensionOwnerContext,
+  owner: string,
+  recordType: string,
+  input: IDataExtensionListInput = {},
+): Promise<{ records: IDataExtensionRecord[]; totalCount: number }> => {
+  const descriptor = resolveDescriptor(recordType, owner);
+  const [adapter, ...others] = resolveAdapters(descriptor, context);
+
+  if (others.length) {
+    throw new DataExtensionValidationError(
+      `${descriptor.label} are stored in several places and cannot be listed as one`,
+    );
+  }
+
+  const activeFields = await getFieldsForRead(context.metadata, recordType);
+  const limit = Math.min(
+    Math.max(input.limit || DATA_EXTENSION_LIMITS.recordsPageSize, 1),
+    DATA_EXTENSION_LIMITS.recordsPageMax,
+  );
+  const skip = Math.max(Math.floor(input.skip || 0), 0);
+  const text = (input.searchValue || '')
+    .trim()
+    .slice(0, DATA_EXTENSION_LIMITS.searchTextLength);
+  const filter: Record<string, unknown> = {
+    ...adapter.baseFilter,
+    ...buildDataExtensionScopeFilter(descriptor.scope),
+    ...(input.filter || {}),
+  };
+
+  if (text) {
+    const pattern = new RegExp(escapeRegExp(text), 'i');
+
+    filter.$and = [
+      ...((filter.$and as unknown[]) || []),
+      {
+        $or: (adapter.searchPaths || ['name']).map((path) => ({
+          [path]: pattern,
+        })),
+      },
+    ];
+  }
+
+  const sortable = new Set([
+    ...descriptor.nativeFields
+      .filter((field) => !field.computed)
+      .map((field) => field.path || field.name),
+    ...activeFields
+      .filter((field) => !field.relation)
+      .map((field) => relationPath(field.key)),
+  ]);
+  const sortField =
+    input.sortField && sortable.has(input.sortField) ? input.sortField : '_id';
+  const sort: Record<string, 1 | -1> = {
+    [sortField]: input.sortDirection === 1 ? 1 : -1,
+  };
+
+  if (sortField !== '_id') {
+    sort._id = -1;
+  }
+
+  const [docs, totalCount] = await Promise.all([
+    adapter.model.collection
+      .find(filter, {
+        projection: buildProjection(descriptor, adapter),
+        sort,
+        skip,
+        limit,
+      })
+      .toArray(),
+    adapter.model.collection.countDocuments(filter),
+  ]);
+
+  return {
+    records: docs.map((doc) =>
+      toRecord(descriptor, adapter, doc as LeanRecord, activeFields),
+    ),
+    totalCount,
+  };
+};

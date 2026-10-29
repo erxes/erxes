@@ -1,5 +1,12 @@
+import { AsyncLocalStorage } from 'async_hooks';
+import {
+  DATA_EXTENSION_CUSTOM_PREFIX,
+  DATA_EXTENSION_RECORD_ACTIONS,
+  DATA_EXTENSION_RECORDS_COLLECTION_PREFIX,
+} from './constants';
 import {
   IDataExtensionNativeField,
+  IDataExtensionObject,
   IDataExtensionRecordType,
 } from './types';
 
@@ -314,9 +321,43 @@ const recordTypesByName = new Map(
   ]),
 );
 
+/**
+ * Tenant-defined record types (custom objects) for the request being
+ * served. The static registry is shared by every tenant; custom objects
+ * differ per tenant, so core runs each Data Extensions request inside
+ * `runWithDataExtensionRecordTypes` and lookups below see both. Outside such
+ * a scope only the static registry exists, so nothing can resolve another
+ * tenant's objects.
+ */
+const tenantRecordTypes = new AsyncLocalStorage<
+  Map<string, IDataExtensionRecordType>
+>();
+
+export const runWithDataExtensionRecordTypes = <T>(
+  custom: IDataExtensionRecordType[],
+  run: () => T,
+): T =>
+  tenantRecordTypes.run(
+    new Map(custom.map((descriptor) => [descriptor.recordType, descriptor])),
+    run,
+  );
+
+/** Custom record types of the current request's tenant. */
+export const getCustomDataExtensionRecordTypes =
+  (): IDataExtensionRecordType[] =>
+    Array.from(tenantRecordTypes.getStore()?.values() || []);
+
+/** Static and custom record types the current request can use. */
+export const getAllDataExtensionRecordTypes = (): IDataExtensionRecordType[] => [
+  ...DATA_EXTENSION_RECORD_TYPES,
+  ...getCustomDataExtensionRecordTypes(),
+];
+
 export const getDataExtensionRecordType = (
   recordType: string,
-): IDataExtensionRecordType | undefined => recordTypesByName.get(recordType);
+): IDataExtensionRecordType | undefined =>
+  recordTypesByName.get(recordType) ||
+  tenantRecordTypes.getStore()?.get(recordType);
 
 /**
  * Record types whose values can sit on the same document. A key is unique
@@ -325,15 +366,19 @@ export const getDataExtensionRecordType = (
 export const getRecordTypesSharingStorage = (
   recordType: string,
 ): string[] => {
-  const descriptor = recordTypesByName.get(recordType);
+  const descriptor = getDataExtensionRecordType(recordType);
 
   if (!descriptor) {
     return [];
   }
 
-  return DATA_EXTENSION_RECORD_TYPES.filter((candidate) =>
-    candidate.storages.some((storage) => descriptor.storages.includes(storage)),
-  ).map((candidate) => candidate.recordType);
+  return getAllDataExtensionRecordTypes()
+    .filter((candidate) =>
+      candidate.storages.some((storage) =>
+        descriptor.storages.includes(storage),
+      ),
+    )
+    .map((candidate) => candidate.recordType);
 };
 
 /** Namespace slots a field occupies, one per storage it writes to. */
@@ -341,6 +386,141 @@ export const getDataExtensionStorageKeys = (
   recordType: string,
   key: string,
 ): string[] =>
-  (recordTypesByName.get(recordType)?.storages || []).map(
+  (getDataExtensionRecordType(recordType)?.storages || []).map(
     (storage) => `${storage}:${key}`,
   );
+
+const upperFirst = (value: string) =>
+  value.charAt(0).toUpperCase() + value.slice(1);
+
+const lowerFirst = (value: string) =>
+  value.charAt(0).toLowerCase() + value.slice(1);
+
+/** Native fields every custom object record has. */
+const customRecordFields: IDataExtensionNativeField[] = [
+  { name: '_id', graphqlType: 'ID' },
+  { name: 'name', graphqlType: 'String' },
+  { name: 'createdBy', graphqlType: 'String' },
+  ...timestamps,
+];
+
+export const getCustomRecordType = (objectKey: string) =>
+  `${DATA_EXTENSION_CUSTOM_PREFIX}${objectKey}`;
+
+export const getCustomRecordsCollection = (objectKey: string) =>
+  `${DATA_EXTENSION_RECORDS_COLLECTION_PREFIX}${objectKey}`;
+
+/** The record type a custom object gets; its records are core-owned. */
+export const buildCustomDataExtensionRecordType = (
+  object: Pick<
+    IDataExtensionObject,
+    'key' | 'singularLabel' | 'pluralLabel' | 'description' | 'icon'
+  >,
+): IDataExtensionRecordType => {
+  const recordType = getCustomRecordType(object.key);
+
+  return {
+    recordType,
+    owner: 'core',
+    typeName: upperFirst(object.key),
+    label: object.pluralLabel,
+    singularLabel: object.singularLabel,
+    description: object.description,
+    icon: object.icon,
+    custom: true,
+    storages: [recordType],
+    idKind: 'string',
+    readAction: DATA_EXTENSION_RECORD_ACTIONS.read,
+    updateAction: DATA_EXTENSION_RECORD_ACTIONS.manage,
+    nativeFields: customRecordFields,
+    contentTypes: [recordType],
+  };
+};
+
+/** Suffixes the generated schema appends to a record type's name. */
+const TYPE_SUFFIXES = [
+  '',
+  'DataExtensions',
+  'DataExtensionsPatch',
+  'DataExtensionsPatchItem',
+  'DataExtensionsPatchResult',
+  'List',
+  'CreateInput',
+  'UpdateInput',
+];
+
+const ROOT_SUFFIXES = [
+  '',
+  'Many',
+  'Search',
+  'DataExtensionsPatch',
+  'DataExtensionsPatchMany',
+  'List',
+  'Create',
+  'Update',
+  'Delete',
+];
+
+/** Names no record type may generate: shared types and GraphQL built-ins. */
+const RESERVED_TYPE_NAMES = new Set([
+  'Query',
+  'Mutation',
+  'Subscription',
+  'String',
+  'Int',
+  'Float',
+  'Boolean',
+  'ID',
+  'Date',
+  'JSON',
+]);
+
+/** Every type and root field name a record type adds to the schema. */
+export const getGeneratedGraphqlNames = (
+  descriptor: Pick<IDataExtensionRecordType, 'typeName'>,
+) => ({
+  types: TYPE_SUFFIXES.map((suffix) => `${descriptor.typeName}${suffix}`),
+  roots: ROOT_SUFFIXES.map(
+    (suffix) => `${lowerFirst(descriptor.typeName)}${suffix}`,
+  ),
+});
+
+/**
+ * The first generated name `candidate` would share with another record type
+ * or a reserved name, if any. Names are compared case-insensitively so two
+ * objects cannot differ only in case.
+ */
+export const findGeneratedNameClash = (
+  candidate: Pick<IDataExtensionRecordType, 'typeName' | 'recordType'>,
+  others: Pick<IDataExtensionRecordType, 'typeName' | 'recordType'>[],
+): string | undefined => {
+  const own = getGeneratedGraphqlNames(candidate);
+
+  if (candidate.typeName.startsWith('DataExtension')) {
+    return candidate.typeName;
+  }
+
+  for (const name of own.types) {
+    if (RESERVED_TYPE_NAMES.has(name)) {
+      return name;
+    }
+  }
+
+  const taken = new Set<string>();
+
+  for (const other of others) {
+    if (other.recordType === candidate.recordType) {
+      continue;
+    }
+
+    const names = getGeneratedGraphqlNames(other);
+
+    for (const name of [...names.types, ...names.roots]) {
+      taken.add(name.toLowerCase());
+    }
+  }
+
+  return [...own.types, ...own.roots].find((name) =>
+    taken.has(name.toLowerCase()),
+  );
+};

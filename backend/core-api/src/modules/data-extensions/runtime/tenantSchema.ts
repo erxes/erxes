@@ -13,6 +13,7 @@ import { ownerResolvers } from '~/modules/data-extensions/runtime/owners';
 import { buildTenantSchema } from '~/modules/data-extensions/runtime/schema/buildSchema';
 import { recordSchemaBuild } from '~/modules/data-extensions/runtime/metrics';
 import { SchemaCache } from '~/modules/data-extensions/runtime/schema/cache';
+import { loadCustomRecordTypes } from '~/modules/data-extensions/objects';
 
 const readNumber = (name: string, fallback: number) => {
   const value = Number(process.env[name]);
@@ -33,6 +34,16 @@ export const schemaCache = new SchemaCache<GraphQLSchema>({
 });
 
 const versions = new Map<string, { version: number; readAt: number }>();
+
+/**
+ * Custom objects each cached schema was built with. Requests run with these
+ * exact record types, so a schema and its owner lookups never disagree
+ * while a newer version is still being picked up.
+ */
+const customOfSchema = new WeakMap<GraphQLSchema, IDataExtensionRecordType[]>();
+
+export const getSchemaCustomRecordTypes = (schema: GraphQLSchema) =>
+  customOfSchema.get(schema) || [];
 
 /**
  * The version decides which cached schema serves a request. A short TTL
@@ -120,6 +131,8 @@ export const getTenantSchema = async (
   });
 
   async function buildSnapshotSchema() {
+    // Read after the version lookup, so never older than the cache key.
+    const custom = await loadCustomRecordTypes(models);
     const snapshot = await loadDataExtensionSnapshot(models);
 
     // A publish landed after the version lookup: point later requests at
@@ -131,11 +144,15 @@ export const getTenantSchema = async (
       });
     }
 
-    return buildTenantSchema({
+    const schema = buildTenantSchema({
       version: snapshot.version,
-      recordTypes,
+      recordTypes: [...recordTypes, ...custom],
       fields: snapshot.fields,
       owners: ownerResolvers,
     });
+
+    customOfSchema.set(schema, custom);
+
+    return schema;
   }
 };

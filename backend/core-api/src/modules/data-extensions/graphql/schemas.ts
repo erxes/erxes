@@ -38,7 +38,42 @@ export const types = `
     owner: String!
     contentTypes: [String!]!
     createMutations: [String!]!
+    "A tenant-defined object; its records are listed and created on the typed endpoint."
+    custom: Boolean!
+    icon: String
+    singularLabel: String
+    description: String
     fieldCount: Int!
+  }
+
+  type DataExtensionObject {
+    _id: String!
+    key: String!
+    "Record type of its records, custom:<key>."
+    recordType: String!
+    singularLabel: String!
+    pluralLabel: String!
+    description: String
+    icon: String
+    status: String!
+    createdBy: String
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  input DataExtensionObjectAddInput {
+    key: String!
+    singularLabel: String!
+    pluralLabel: String!
+    description: String
+    icon: String
+  }
+
+  input DataExtensionObjectEditInput {
+    singularLabel: String
+    pluralLabel: String
+    description: String
+    icon: String
   }
 
   input DataExtensionFieldOptionInput {
@@ -83,6 +118,7 @@ export const queries = `
   dataExtensionRecordTypes: [DataExtensionRecordType!]!
   dataExtensionFields(recordType: String, includeArchived: Boolean): [DataExtensionField!]!
   dataExtensionSchemaVersion: Int!
+  dataExtensionObjects(includeArchived: Boolean): [DataExtensionObject!]!
 `;
 
 export const mutations = `
@@ -96,4 +132,10 @@ export const mutations = `
   Returns the deleted definition ids.
   """
   dataExtensionFieldDelete(_id: String!): [String!]!
+  dataExtensionObjectAdd(input: DataExtensionObjectAddInput!): DataExtensionObject!
+  dataExtensionObjectEdit(_id: String!, input: DataExtensionObjectEditInput!): DataExtensionObject!
+  dataExtensionObjectArchive(_id: String!): DataExtensionObject!
+  dataExtensionObjectRestore(_id: String!): DataExtensionObject!
+  "Deletes an archived object, its fields, relations to it and every record. Returns the object id."
+  dataExtensionObjectDelete(_id: String!): String!
 `;

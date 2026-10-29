@@ -4,6 +4,7 @@ import {
   DATA_EXTENSION_LIMITS,
   DATA_EXTENSION_RECORD_TYPES,
   DataExtensionValidationError,
+  getCustomDataExtensionRecordTypes,
   getDataExtensionRecordType,
   getDataExtensionStorageKeys,
   getRecordTypesSharingStorage,
@@ -65,9 +66,12 @@ export const listDataExtensionRecordTypes = async (models: IModels) => {
   const countByType = new Map(counts.map(({ _id, count }) => [_id, count]));
   const operationEnabled = await isEnabled('operation');
 
-  return DATA_EXTENSION_RECORD_TYPES.filter(
-    (descriptor) => descriptor.owner === 'core' || operationEnabled,
-  ).map(
+  return [
+    ...DATA_EXTENSION_RECORD_TYPES.filter(
+      (descriptor) => descriptor.owner === 'core' || operationEnabled,
+    ),
+    ...getCustomDataExtensionRecordTypes(),
+  ].map(
     ({
       recordType,
       label,
@@ -75,6 +79,10 @@ export const listDataExtensionRecordTypes = async (models: IModels) => {
       owner,
       contentTypes,
       createMutations,
+      custom,
+      icon,
+      singularLabel,
+      description,
     }) => ({
       recordType,
       label,
@@ -82,6 +90,10 @@ export const listDataExtensionRecordTypes = async (models: IModels) => {
       owner,
       contentTypes,
       createMutations: createMutations || [],
+      custom: Boolean(custom),
+      icon: icon || null,
+      singularLabel: singularLabel || null,
+      description: description || null,
       fieldCount: countByType.get(recordType) || 0,
     }),
   );

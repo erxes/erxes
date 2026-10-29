@@ -242,6 +242,17 @@ export const permissions: IPermissionConfig = {
           name: 'dataExtensionsManage',
           description: 'Add, edit, archive and restore extension fields',
         },
+        {
+          title: 'View custom object records',
+          name: 'dataExtensionRecordsRead',
+          description: 'See records of tenant-defined objects such as Contracts',
+          always: true,
+        },
+        {
+          title: 'Manage custom object records',
+          name: 'dataExtensionRecordsManage',
+          description: 'Create, edit and delete records of tenant-defined objects',
+        },
       ],
     },
     {
@@ -862,7 +873,12 @@ export const permissions: IPermissionConfig = {
         {
           plugin: 'core',
           module: 'data-extensions',
-          actions: ['dataExtensionsRead', 'dataExtensionsManage'],
+          actions: [
+            'dataExtensionsRead',
+            'dataExtensionsManage',
+            'dataExtensionRecordsRead',
+            'dataExtensionRecordsManage',
+          ],
           scope: 'all',
         },
         {

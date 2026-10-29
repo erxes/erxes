@@ -4,6 +4,8 @@ import {
   DATA_EXTENSION_FIELD_TYPES,
   DATA_EXTENSION_LENGTH_TYPES,
   DATA_EXTENSION_LIMITS,
+  DATA_EXTENSION_OBJECT_ICONS,
+  DATA_EXTENSION_OBJECT_KEY_PATTERN,
   DATA_EXTENSION_OPTION_COLORS,
   DATA_EXTENSION_RANGE_TYPES,
   DATA_EXTENSION_RELATION_CREATE_KINDS,
@@ -1315,4 +1317,181 @@ export const pickDataExtensionValues = (
   }
 
   return picked;
+};
+
+export interface IDataExtensionObjectCreateInput {
+  key: string;
+  singularLabel: string;
+  pluralLabel: string;
+  description?: string | null;
+  icon?: string | null;
+}
+
+export type IDataExtensionObjectEditInput = Partial<
+  Omit<IDataExtensionObjectCreateInput, 'key'>
+>;
+
+const normalizeObjectIcon = (icon: unknown) => {
+  if (icon === undefined || icon === null || icon === '') {
+    return undefined;
+  }
+
+  return (DATA_EXTENSION_OBJECT_ICONS as readonly string[]).includes(
+    icon as string,
+  )
+    ? (icon as string)
+    : fail(`Unknown icon "${String(icon)}"`);
+};
+
+/**
+ * A custom object's definition. The key names its record type
+ * (`custom:<key>`), its collection and its GraphQL type, so it is fixed
+ * once created; labels and icon can change.
+ */
+export const validateDataExtensionObjectCreate = (
+  input: IDataExtensionObjectCreateInput,
+) => {
+  if (
+    typeof input.key !== 'string' ||
+    !DATA_EXTENSION_OBJECT_KEY_PATTERN.test(input.key)
+  ) {
+    fail(
+      'Object key must start with a lowercase letter and use 2-40 letters and digits',
+    );
+  }
+
+  const singularLabel = cleanText(
+    input.singularLabel,
+    'Singular name',
+    DATA_EXTENSION_LIMITS.labelLength,
+    true,
+  ) as string;
+  const pluralLabel = cleanText(
+    input.pluralLabel,
+    'Plural name',
+    DATA_EXTENSION_LIMITS.labelLength,
+    true,
+  ) as string;
+
+  if (singularLabel.toLowerCase() === pluralLabel.toLowerCase()) {
+    fail('Singular and plural names must differ');
+  }
+
+  return {
+    key: input.key,
+    singularLabel,
+    pluralLabel,
+    description: cleanText(
+      input.description,
+      'Description',
+      DATA_EXTENSION_LIMITS.descriptionLength,
+      false,
+    ),
+    icon: normalizeObjectIcon(input.icon),
+  };
+};
+
+export const validateDataExtensionObjectEdit = (
+  existing: { singularLabel: string; pluralLabel: string },
+  input: IDataExtensionObjectEditInput,
+) => {
+  const update: Record<string, string | undefined> = {};
+
+  if (input.singularLabel !== undefined) {
+    update.singularLabel = cleanText(
+      input.singularLabel,
+      'Singular name',
+      DATA_EXTENSION_LIMITS.labelLength,
+      true,
+    );
+  }
+
+  if (input.pluralLabel !== undefined) {
+    update.pluralLabel = cleanText(
+      input.pluralLabel,
+      'Plural name',
+      DATA_EXTENSION_LIMITS.labelLength,
+      true,
+    );
+  }
+
+  const singular = update.singularLabel ?? existing.singularLabel;
+  const plural = update.pluralLabel ?? existing.pluralLabel;
+
+  if (singular.toLowerCase() === plural.toLowerCase()) {
+    fail('Singular and plural names must differ');
+  }
+
+  if (input.description !== undefined) {
+    update.description =
+      cleanText(
+        input.description,
+        'Description',
+        DATA_EXTENSION_LIMITS.descriptionLength,
+        false,
+      ) || '';
+  }
+
+  if (input.icon !== undefined) {
+    update.icon = normalizeObjectIcon(input.icon) || '';
+  }
+
+  return update;
+};
+
+export const normalizeDataExtensionRecordName = (name: unknown): string =>
+  cleanText(
+    name,
+    'Name',
+    DATA_EXTENSION_LIMITS.recordNameLength,
+    true,
+  ) as string;
+
+/**
+ * Values for a record being created: defaults fill keys not given, then
+ * every value is checked as on any write and required fields must be set.
+ */
+export const buildDataExtensionCreateValues = (
+  activeFields: IDataExtensionField[],
+  values: Record<string, unknown> = {},
+): Record<string, DataExtensionValue> => {
+  if (!values || typeof values !== 'object' || Array.isArray(values)) {
+    return fail('Values must be an object');
+  }
+
+  const withDefaults: Record<string, unknown> = { ...values };
+
+  for (const field of activeFields) {
+    const fallback = field.settings?.defaultValue;
+
+    if (
+      withDefaults[field.key] === undefined &&
+      fallback !== undefined &&
+      fallback !== null
+    ) {
+      withDefaults[field.key] = fallback;
+    }
+  }
+
+  const stored: Record<string, DataExtensionValue> = {};
+
+  if (Object.keys(withDefaults).length) {
+    const patch = buildDataExtensionPatch(activeFields, withDefaults);
+
+    for (const [path, value] of Object.entries(patch.$set)) {
+      stored[path.slice(DATA_EXTENSIONS_NAMESPACE.length + 1)] = value;
+    }
+  }
+
+  for (const field of activeFields) {
+    if (
+      field.settings?.required &&
+      !field.relation &&
+      isEmptyDataExtensionValue(stored[field.key])
+    ) {
+      fail(`${field.label || field.key} is required`);
+    }
+  }
+
+  return stored;
 };

@@ -12,6 +12,26 @@ export type DataExtensionFieldStatus =
 
 export type DataExtensionOwner = 'core' | 'operation';
 
+export type DataExtensionObjectStatus = 'active' | 'archived';
+
+/** A tenant-defined object, e.g. Contracts; its records are core-owned. */
+export interface IDataExtensionObject {
+  key: string;
+  singularLabel: string;
+  pluralLabel: string;
+  description?: string;
+  icon?: string;
+  status: DataExtensionObjectStatus;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface IDataExtensionObjectDocument extends IDataExtensionObject {
+  _id: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export type DataExtensionNativeGraphqlType =
   | 'ID'
   | 'String'
@@ -63,6 +83,11 @@ export interface IDataExtensionRecordType {
    * create form; the UI writes the form's values right after they return.
    */
   createMutations?: string[];
+  /** A tenant-defined object: records are created and listed here. */
+  custom?: boolean;
+  icon?: string;
+  singularLabel?: string;
+  description?: string;
 }
 
 export type DataExtensionRelationKind =

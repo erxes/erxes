@@ -1,7 +1,10 @@
 import { initTRPC, TRPCError } from '@trpc/server';
 import {
   DATA_EXTENSIONS_OWNER_INPUTS,
+  getCustomDataExtensionRecordTypes,
+  getDataExtensionRecordModel,
   IDataExtensionOwnerContext,
+  IDataExtensionStorageAdapter,
   runDataExtensionsOwnerCall,
 } from 'erxes-api-shared/core-modules';
 import { ITRPCContext } from 'erxes-api-shared/utils';
@@ -20,11 +23,33 @@ const joinName = (...parts: unknown[]) =>
     .filter((part): part is string => typeof part === 'string' && !!part)
     .join(' ');
 
+/**
+ * Custom objects of the current request's tenant (see
+ * `withCustomRecordTypes`), each stored in its own collection.
+ */
+const customAdapters = (models: IModels) =>
+  Object.fromEntries(
+    getCustomDataExtensionRecordTypes().map(
+      (descriptor): [string, IDataExtensionStorageAdapter] => [
+        descriptor.recordType,
+        {
+          storage: descriptor.recordType,
+          model: getDataExtensionRecordModel(
+            models.DataExtensionFields.db,
+            descriptor.recordType.slice(descriptor.recordType.indexOf(':') + 1),
+          ),
+          searchPaths: ['name'],
+        },
+      ],
+    ),
+  );
+
 export const buildOwnerContext = (
   models: IModels,
 ): IDataExtensionOwnerContext => ({
   metadata: models,
   adapters: {
+    ...customAdapters(models),
     'core:companies': {
       storage: 'core:companies',
       model: models.Companies,

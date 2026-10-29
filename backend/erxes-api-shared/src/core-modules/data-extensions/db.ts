@@ -4,13 +4,16 @@ import {
   DATA_EXTENSION_FIELD_STATUSES,
   DATA_EXTENSION_FIELD_TYPES,
   DATA_EXTENSION_FIELDS_COLLECTION,
+  DATA_EXTENSION_OBJECTS_COLLECTION,
   DATA_EXTENSION_OPTION_COLORS,
   DATA_EXTENSION_RELATION_KINDS,
   DATA_EXTENSION_SCHEMA_VERSION_ID,
   DATA_EXTENSION_SCHEMA_VERSIONS_COLLECTION,
 } from './constants';
+import { getCustomRecordsCollection } from './recordTypes';
 import {
   IDataExtensionFieldDocument,
+  IDataExtensionObjectDocument,
   IDataExtensionSchemaVersionDocument,
   IDataExtensionSnapshot,
 } from './types';
@@ -187,4 +190,83 @@ export const loadDataExtensionSnapshot = async (
   }
 
   throw new Error('Data Extensions metadata is changing; retry the request');
+};
+
+export const dataExtensionObjectSchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    key: { type: String, required: true },
+    singularLabel: { type: String, required: true },
+    pluralLabel: { type: String, required: true },
+    description: { type: String },
+    icon: { type: String },
+    status: {
+      type: String,
+      required: true,
+      enum: ['active', 'archived'],
+      default: 'active',
+    },
+    createdBy: { type: String },
+    updatedBy: { type: String },
+  },
+  { timestamps: true },
+);
+
+// Archived objects keep their key: their records collection still exists.
+dataExtensionObjectSchema.index({ key: 1 }, { unique: true });
+
+/** One custom object record; values sit under `dataExtensions` as anywhere. */
+export const dataExtensionRecordSchema = new Schema(
+  {
+    _id: mongooseStringRandomId,
+    name: { type: String, required: true },
+    dataExtensions: { type: Schema.Types.Mixed },
+    createdBy: { type: String },
+    updatedBy: { type: String },
+  },
+  { timestamps: true, minimize: false },
+);
+
+dataExtensionRecordSchema.index({ name: 1 });
+dataExtensionRecordSchema.index({ createdAt: -1 });
+
+export type IDataExtensionObjectModel = Model<IDataExtensionObjectDocument>;
+
+export interface IDataExtensionRecordDocument {
+  _id: string;
+  name: string;
+  dataExtensions?: Record<string, unknown>;
+  createdBy?: string;
+  updatedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type IDataExtensionRecordModel = Model<IDataExtensionRecordDocument>;
+
+/** Object definitions; only core reads and writes them. */
+export const getDataExtensionObjectModel = (
+  connection: Connection,
+): IDataExtensionObjectModel =>
+  (connection.models[DATA_EXTENSION_OBJECTS_COLLECTION] as IDataExtensionObjectModel) ||
+  connection.model<IDataExtensionObjectDocument>(
+    DATA_EXTENSION_OBJECTS_COLLECTION,
+    dataExtensionObjectSchema,
+  );
+
+/** The records of one custom object, in its own collection. */
+export const getDataExtensionRecordModel = (
+  connection: Connection,
+  objectKey: string,
+): IDataExtensionRecordModel => {
+  const collection = getCustomRecordsCollection(objectKey);
+
+  return (
+    (connection.models[collection] as IDataExtensionRecordModel) ||
+    connection.model<IDataExtensionRecordDocument>(
+      collection,
+      dataExtensionRecordSchema,
+      collection,
+    )
+  );
 };

@@ -336,6 +336,37 @@ export interface IOwnerResolvers {
     targetId: string,
     limit?: number,
   ): Promise<IDataExtensionRecord[]>;
+  /** A page of records with the total; custom objects only. */
+  list?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    input: IListArgs,
+  ): Promise<{ records: IDataExtensionRecord[]; totalCount: number }>;
+  /** Creates a custom object record; returns its id. */
+  create?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    input: { name: string; values?: Record<string, unknown> | null },
+  ): Promise<string>;
+  rename?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    id: string,
+    name: string,
+  ): Promise<boolean>;
+  remove?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    id: string,
+  ): Promise<boolean>;
+}
+
+export interface IListArgs {
+  searchValue?: string | null;
+  limit?: number | null;
+  skip?: number | null;
+  sortField?: string | null;
+  sortDirection?: number | null;
 }
 
 /** Parent of a `<Type>DataExtensions` object: the record and its values. */
@@ -612,6 +643,19 @@ export const buildTenantSchema = ({
       }),
     );
   }
+
+  /** Patch input and writer per record type, for custom object create/update. */
+  const patchers = new Map<
+    string,
+    {
+      input: GraphQLInputObjectType;
+      patch: (
+        context: IRequestContext,
+        id: string,
+        values: Record<string, unknown>,
+      ) => Promise<IDataExtensionRecord | null>;
+    }
+  >();
 
   const queryFields: GraphQLFieldConfigMap<unknown, IRequestContext> = {
     dataExtensionsVersion: {
@@ -970,6 +1014,154 @@ export const buildTenantSchema = ({
             }
           },
         );
+      },
+    };
+
+    patchers.set(descriptor.recordType, { input: patchInput, patch: patchOne });
+  }
+
+  for (const descriptor of recordTypes) {
+    if (descriptor.custom) {
+      addCustomObjectOperations(descriptor);
+    }
+  }
+
+  /**
+   * Custom objects are owned by Data Extensions itself, so their records
+   * are listed, created, renamed and deleted here; values still go through
+   * the same patch as on any record type.
+   */
+  function addCustomObjectOperations(descriptor: IDataExtensionRecordType) {
+    const { list, create, rename, remove } = owners;
+
+    if (!list || !create || !rename || !remove) {
+      return;
+    }
+
+    const base = lowerFirst(descriptor.typeName);
+    const output = outputOf(descriptor.recordType);
+    const patcher = patchers.get(descriptor.recordType);
+    const requireManage = async (context: IRequestContext) => {
+      await context.requirePermission(descriptor.readAction);
+      await context.requirePermission(descriptor.updateAction);
+    };
+    const valuesArg: GraphQLInputFieldConfigMap = patcher
+      ? { values: { type: patcher.input } }
+      : {};
+
+    queryFields[`${base}List`] = {
+      type: new GraphQLNonNull(
+        new GraphQLObjectType({
+          name: `${descriptor.typeName}List`,
+          fields: {
+            list: { type: new GraphQLNonNull(listOf(output)) },
+            totalCount: { type: new GraphQLNonNull(GraphQLInt) },
+          },
+        }),
+      ),
+      description: `A page of ${descriptor.label}, newest first unless sorted. At most ${DATA_EXTENSION_LIMITS.recordsPageMax} per page.`,
+      args: {
+        searchValue: { type: GraphQLString },
+        limit: { type: GraphQLInt },
+        skip: { type: GraphQLInt },
+        sortField: {
+          type: GraphQLString,
+          description: 'name, createdAt, updatedAt or dataExtensions.<key>',
+        },
+        sortDirection: { type: GraphQLInt, description: '1 or -1' },
+      },
+      resolve: async (_root, args: IListArgs, context) => {
+        if ((args.searchValue?.length || 0) > DATA_EXTENSION_LIMITS.searchTextLength) {
+          throw new GraphQLError(
+            `Search text is limited to ${DATA_EXTENSION_LIMITS.searchTextLength} characters`,
+          );
+        }
+
+        await context.requirePermission(descriptor.readAction);
+
+        const { records, totalCount } = await list(context, descriptor, args);
+
+        context.consumeRecords(records.length);
+
+        return { list: records, totalCount };
+      },
+    };
+
+    mutationFields[`${base}Create`] = {
+      type: output,
+      description: `Creates one ${descriptor.singularLabel || descriptor.label} with its values; defaults and required fields apply.`,
+      args: {
+        input: {
+          type: new GraphQLNonNull(
+            new GraphQLInputObjectType({
+              name: `${descriptor.typeName}CreateInput`,
+              fields: { name: { type: nonNullString }, ...valuesArg },
+            }),
+          ),
+        },
+      },
+      resolve: async (
+        _root,
+        args: { input: { name: string; values?: Record<string, unknown> } },
+        context,
+      ) => {
+        await requireManage(context);
+
+        const id = await create(context, descriptor, args.input);
+        const [record] = await owners.load(context, descriptor, [id]);
+
+        return record || null;
+      },
+    };
+
+    mutationFields[`${base}Update`] = {
+      type: output,
+      description: `Renames a ${descriptor.singularLabel || descriptor.label} and/or sets values. Omitted keys are unchanged.`,
+      args: {
+        _id: { type: new GraphQLNonNull(GraphQLID) },
+        input: {
+          type: new GraphQLNonNull(
+            new GraphQLInputObjectType({
+              name: `${descriptor.typeName}UpdateInput`,
+              fields: { name: { type: GraphQLString }, ...valuesArg },
+            }),
+          ),
+        },
+      },
+      resolve: async (
+        _root,
+        args: {
+          _id: string;
+          input: { name?: string | null; values?: Record<string, unknown> | null };
+        },
+        context,
+      ) => {
+        await requireManage(context);
+
+        if (typeof args.input.name === 'string') {
+          if (!(await rename(context, descriptor, args._id, args.input.name))) {
+            return null;
+          }
+        }
+
+        if (patcher && args.input.values && Object.keys(args.input.values).length) {
+          return patcher.patch(context, args._id, args.input.values);
+        }
+
+        const [record] = await owners.load(context, descriptor, [args._id]);
+
+        return record || null;
+      },
+    };
+
+    mutationFields[`${base}Delete`] = {
+      type: new GraphQLNonNull(GraphQLBoolean),
+      description: `Deletes a ${descriptor.singularLabel || descriptor.label}. Links to it stop resolving.`,
+      args: { _id: { type: new GraphQLNonNull(GraphQLID) } },
+      resolve: async (_root, args: { _id: string }, context) => {
+        await requireManage(context);
+
+        return remove(context, descriptor, args._id);
       },
     };
   }

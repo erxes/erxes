@@ -4,6 +4,7 @@ import {
   DATA_EXTENSION_LIMITS,
   IDataExtensionRecord,
   IDataExtensionRecordType,
+  listDataExtensionRecords,
   ownerProofPayload,
   signDataExtensionsProof,
 } from 'erxes-api-shared/core-modules';
@@ -12,7 +13,15 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { dataExtensionsTrpcRouter } from '~/modules/data-extensions/trpc/dataExtensions';
+import {
+  buildOwnerContext,
+  dataExtensionsTrpcRouter,
+} from '~/modules/data-extensions/trpc/dataExtensions';
+import {
+  createCustomRecord,
+  deleteCustomRecord,
+  renameCustomRecord,
+} from '~/modules/data-extensions/objects';
 import { IRequestContext } from '~/modules/data-extensions/runtime/context';
 import {
   recordOwnerCall,
@@ -235,6 +244,18 @@ const getRelationLoader = (
   return loader;
 };
 
+/** A deactivated team member keeps read access but cannot write. */
+const assertActiveWriter = async (
+  models: Awaited<ReturnType<typeof generateModels>>,
+  userId: string,
+) => {
+  if (!(await models.Users.exists({ _id: userId, isActive: { $ne: false } }))) {
+    throw new GraphQLError('Your account cannot make changes', {
+      extensions: { code: 'FORBIDDEN' },
+    });
+  }
+};
+
 /** Reaches each record's owner over its tRPC contract with the caller id. */
 export const ownerResolvers: IOwnerResolvers = {
   async load(context, descriptor, ids) {
@@ -303,6 +324,87 @@ export const ownerResolvers: IOwnerResolvers = {
     context.relationLoaders.clear();
 
     return result?.ids || [];
+  },
+
+  // Custom objects are core-owned: listed, created, renamed and deleted in
+  // this process, after the schema checked the caller's permissions.
+  async list(context, descriptor, args) {
+    const models = await generateModels(context.subdomain);
+
+    try {
+      const result = await listDataExtensionRecords(
+        buildOwnerContext(models),
+        'core',
+        descriptor.recordType,
+        {
+          searchValue: args.searchValue || undefined,
+          limit: args.limit || undefined,
+          skip: args.skip || undefined,
+          sortField: args.sortField || undefined,
+          sortDirection: args.sortDirection === 1 ? 1 : -1,
+        },
+      );
+      const loader = getLoader(context, descriptor);
+
+      result.records.forEach((record) => loader.prime(record._id, record));
+
+      return result;
+    } catch (error) {
+      throw toGraphQLError(error, 'core', false);
+    }
+  },
+
+  async create(context, descriptor, input) {
+    const models = await generateModels(context.subdomain);
+
+    await assertActiveWriter(models, context.user._id);
+
+    try {
+      return await createCustomRecord(
+        models,
+        descriptor,
+        input,
+        context.user._id,
+        buildOwnerContext(models),
+      );
+    } catch (error) {
+      throw toGraphQLError(error, 'core', false);
+    } finally {
+      context.relationLoaders.clear();
+    }
+  },
+
+  async rename(context, descriptor, id, name) {
+    const models = await generateModels(context.subdomain);
+
+    await assertActiveWriter(models, context.user._id);
+
+    try {
+      return await renameCustomRecord(
+        models,
+        descriptor,
+        id,
+        name,
+        context.user._id,
+      );
+    } catch (error) {
+      throw toGraphQLError(error, 'core', false);
+    } finally {
+      getLoader(context, descriptor).clear(id);
+    }
+  },
+
+  async remove(context, descriptor, id) {
+    const models = await generateModels(context.subdomain);
+
+    await assertActiveWriter(models, context.user._id);
+
+    const removed = await deleteCustomRecord(models, descriptor, id);
+
+    getLoader(context, descriptor).clear(id);
+    context.relationLoaders.clear();
+
+    return removed;
   },
 
   async findByRelation(context, descriptor, key, targetId, limit) {

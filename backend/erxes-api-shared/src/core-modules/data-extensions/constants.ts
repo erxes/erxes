@@ -5,6 +5,44 @@ export const DATA_EXTENSIONS_NAMESPACE = 'dataExtensions';
 export const DATA_EXTENSIONS_ENGINE_VERSION = 1;
 
 export const DATA_EXTENSION_FIELDS_COLLECTION = 'data_extensions_fields';
+export const DATA_EXTENSION_OBJECTS_COLLECTION = 'data_extensions_objects';
+/** Each custom object keeps its records in `<prefix><objectKey>`. */
+export const DATA_EXTENSION_RECORDS_COLLECTION_PREFIX =
+  'data_extensions_records_';
+
+/** Record types of tenant-defined objects are `custom:<objectKey>`. */
+export const DATA_EXTENSION_CUSTOM_PREFIX = 'custom:';
+export const DATA_EXTENSION_OBJECT_KEY_PATTERN = /^[a-z][a-zA-Z0-9]{1,39}$/;
+
+/** Permissions every custom object's records use. */
+export const DATA_EXTENSION_RECORD_ACTIONS = {
+  read: 'dataExtensionRecordsRead',
+  manage: 'dataExtensionRecordsManage',
+} as const;
+
+/** Icons offered for custom objects; the UI maps them to its icon set. */
+export const DATA_EXTENSION_OBJECT_ICONS = [
+  'box',
+  'file-text',
+  'briefcase',
+  'building',
+  'home',
+  'car',
+  'calendar',
+  'certificate',
+  'clipboard',
+  'coin',
+  'heart',
+  'map-pin',
+  'package',
+  'school',
+  'shield',
+  'star',
+  'ticket',
+  'tool',
+  'truck',
+  'users',
+] as const;
 export const DATA_EXTENSION_SCHEMA_VERSIONS_COLLECTION =
   'data_extensions_schema_versions';
 
@@ -162,4 +200,8 @@ export const DATA_EXTENSION_LIMITS = {
   groupLength: 60,
   placeholderLength: 120,
   fileNameLength: 255,
+  objectsPerTenant: 50,
+  recordNameLength: 255,
+  recordsPageSize: 30,
+  recordsPageMax: 100,
 } as const;

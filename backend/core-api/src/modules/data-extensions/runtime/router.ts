@@ -9,6 +9,7 @@ import {
 import {
   DATA_EXTENSIONS_PROOF_HEADERS,
   gatewayProofPayload,
+  runWithDataExtensionRecordTypes,
   verifyDataExtensionsProof,
 } from 'erxes-api-shared/core-modules';
 import { extractUserFromHeader, userHeaderName } from 'erxes-api-shared/utils';
@@ -20,6 +21,7 @@ import {
 } from '~/modules/data-extensions/runtime/limits';
 import { metricsSnapshot } from '~/modules/data-extensions/runtime/metrics';
 import {
+  getSchemaCustomRecordTypes,
   getTenantSchema,
   schemaCache,
 } from '~/modules/data-extensions/runtime/tenantSchema';
@@ -118,15 +120,21 @@ const handleGraphql = async (req: Request, res: Response) => {
       return sendErrors(res, 400, [...validationErrors]);
     }
 
-    const result = await execute({
-      schema,
-      document,
-      variableValues:
-        variables && typeof variables === 'object' ? variables : undefined,
-      operationName:
-        typeof operationName === 'string' ? operationName : undefined,
-      contextValue: createRequestContext(subdomain, user),
-    });
+    // Owner calls made while resolving see the custom objects this schema
+    // was built with.
+    const result = await runWithDataExtensionRecordTypes(
+      getSchemaCustomRecordTypes(schema),
+      () =>
+      execute({
+        schema,
+        document,
+        variableValues:
+          variables && typeof variables === 'object' ? variables : undefined,
+        operationName:
+          typeof operationName === 'string' ? operationName : undefined,
+        contextValue: createRequestContext(subdomain, user),
+      }),
+    );
 
     if (result.errors?.length) {
       requestStats.errors++;
