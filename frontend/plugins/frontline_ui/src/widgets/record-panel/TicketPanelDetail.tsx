@@ -17,7 +17,7 @@ import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import type { ITicketDetail } from '@/ticket/types';
 import { toTicketAttachments } from '@/ticket/utils/ticketAttachments';
 import { Editor, ScrollArea, TextField, useToast } from 'erxes-ui';
-import { useTranslation } from 'react-i18next';
+import { useFrontlineTranslation } from '@/shared/i18n/useFrontlineTranslation';
 import {
   ContactRecordChip,
   PANEL_TEXT_FIELD_CLASS_NAME,
@@ -29,7 +29,7 @@ import {
 const SCOPE = 'side-panel-ticket';
 
 export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
+  const { t } = useFrontlineTranslation('modules.ticket');
   const { toast } = useToast();
   const { updateTicket } = useUpdateTicket();
   const { openRecord } = useSidePanel();
@@ -51,8 +51,8 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
     if (!canEdit) return;
     if (!name.trim()) {
       toast({
-        title: t('error', 'Error'),
-        description: t('ticket-name-required', 'Ticket name is required'),
+        title: t('error'),
+        description: t('ticket-name-required'),
         variant: 'destructive',
       });
       return;
@@ -63,7 +63,7 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-0.5 p-3">
-        <PanelField label={t('name', 'Name')}>
+        <PanelField label={t('name')}>
           <TextField
             scope={`${SCOPE}.name`}
             value={ticket.name || ''}
@@ -173,11 +173,7 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
           return (
             <PanelField
               key={kind}
-              label={
-                kind === 'customer'
-                  ? t('customer', 'Customer')
-                  : t('company', 'Company')
-              }
+              label={kind === 'customer' ? t('customer') : t('company')}
             >
               {value ? (
                 <ContactRecordChip
@@ -201,7 +197,7 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
         {canEdit ? (
           <PanelDescriptionField
             key={_id}
-            label={t('description', 'Description')}
+            label={t('description')}
             value={ticket.description || ''}
             scope={`${SCOPE}.description`}
             onSave={(description) =>
@@ -211,7 +207,7 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
         ) : (
           <div className="flex flex-col gap-1.5 pt-2">
             <span className="text-xs font-medium text-accent-foreground">
-              {t('description', 'Description')}
+              {t('description')}
             </span>
             <Editor
               initialContent={ticket.description || ''}

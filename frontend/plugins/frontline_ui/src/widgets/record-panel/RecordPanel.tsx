@@ -18,6 +18,33 @@ import {
 } from '@/knowledgebase/constants';
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
+import { useRecordPanelDraftSession } from '@/shared/states/recordPanelDraftState';
+
+const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
+  ...Object.values(KB_RECORD_CONTENT_TYPES),
+  ...Object.values(KB_DRAFT_CONTENT_TYPES),
+];
+
+const TicketPanelEmptyState = ({ message }: { message?: string }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
+  return (
+    <div className="flex flex-1 items-center justify-center p-6">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconInfoCircle />
+          </Empty.Media>
+          <Empty.Title>
+            {message ? t('failed-to-load-ticket') : t('ticket-not-found')}
+          </Empty.Title>
+          <Empty.Description>
+            {message || t('ticket-no-longer-available')}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    </div>
+  );
+};
 
 const IntegrationRecordPanel = lazy(() =>
   import('./IntegrationRecordPanel').then((module) => ({
@@ -60,23 +87,7 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   }
 
   if (!ticket) {
-    return (
-      <div className="flex flex-1 items-center justify-center p-6">
-        <Empty>
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconInfoCircle />
-            </Empty.Media>
-            <Empty.Title>
-              {error ? t('failed-to-load-ticket') : t('ticket-not-found')}
-            </Empty.Title>
-            <Empty.Description>
-              {error?.message || t('ticket-no-longer-available')}
-            </Empty.Description>
-          </Empty.Header>
-        </Empty>
-      </div>
-    );
+    return <TicketPanelEmptyState message={error?.message} />;
   }
 
   if (view === 'properties') {
@@ -99,7 +110,11 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
     return (
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <div className="p-3">
-          <ActivityList contentId={contentId} contentDetail={ticket} />
+          <ActivityList
+            contentId={contentId}
+            contentDetail={ticket}
+            preserveDraft
+          />
         </div>
       </ScrollArea>
     );
@@ -109,6 +124,7 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
+  useRecordPanelDraftSession(props);
   if (props.contentType === INTEGRATION_CONTENT_TYPE) {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>
@@ -129,12 +145,7 @@ export const RecordPanel = (props: IRecordPanelProps) => {
     ) : (
       <TicketPanel {...props} />
     );
-  if (
-    [
-      ...Object.values(KB_RECORD_CONTENT_TYPES),
-      ...Object.values(KB_DRAFT_CONTENT_TYPES),
-    ].some((contentType) => contentType === props.contentType)
-  ) {
+  if (KNOWLEDGE_BASE_CONTENT_TYPES.includes(props.contentType)) {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>
         <KnowledgeBaseRecordPanel {...props} />

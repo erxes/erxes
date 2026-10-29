@@ -517,9 +517,9 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
         <SelectTriggerTicket variant={variant} label={label}>
           <SelectStatusValue />
         </SelectTriggerTicket>
-        <Combobox.Content>
+        <SelectTicketContent variant={variant}>
           <SelectStatusContent allowCreate />
-        </Combobox.Content>
+        </SelectTicketContent>
       </PopoverScoped>
     </SelectStatusProvider>
   );

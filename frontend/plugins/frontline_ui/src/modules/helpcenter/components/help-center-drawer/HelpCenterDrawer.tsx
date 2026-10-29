@@ -7,7 +7,8 @@ import {
   Tabs,
   useQueryState,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useStore } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SheetNavSidebar } from 'ui-modules';
@@ -17,6 +18,7 @@ import { HelpCenterGeneralTab } from '@/helpcenter/components/help-center-drawer
 import {
   EMPTY_HELP_CENTER_FORM,
   HELP_CENTER_FIELD_TAB,
+  HELP_CENTER_CONTENT_TYPE,
 } from '@/helpcenter/constants';
 import { useSaveHelpCenter } from '@/helpcenter/hooks/useSaveHelpCenter';
 import {
@@ -29,6 +31,7 @@ import {
 import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigInput';
 import { TopicEmbedTab } from '@/knowledgebase/shared/components/TopicEmbedTab';
 import { KbFormPanelContext } from '@/knowledgebase/shared/components/KbFormLayout';
+import { frontlinePanelDraftState } from '@/shared/states/recordPanelDraftState';
 
 interface HelpCenterDrawerProps {
   readonly helpCenter?: IHelpCenter;
@@ -46,9 +49,19 @@ export function HelpCenterDrawer({
   panel = false,
 }: HelpCenterDrawerProps) {
   const { t } = useTranslation('frontline');
+  const store = useStore();
+  const draftKey = `${HELP_CENTER_CONTENT_TYPE}:${helpCenter?._id}`;
+  const [savedDraft] = useState(() => {
+    const state = store.get(frontlinePanelDraftState);
+    return panel && state.key === draftKey ? state.helpCenter : undefined;
+  });
   const isEditing = !!helpCenter;
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const [panelTab, setPanelTab] = useState<THelpCenterTab>('general');
+  const [panelTab, setPanelTab] = useState<THelpCenterTab>(
+    savedDraft?.tab ?? 'general',
+  );
+  const panelTabRef = useRef(panelTab);
+  panelTabRef.current = panelTab;
 
   const tabs = isEditing ? HELP_CENTER_TABS : HELP_CENTER_CREATE_TABS;
   const activeTab =
@@ -61,18 +74,58 @@ export function HelpCenterDrawer({
   };
 
   const form = useForm<IHelpCenterConfigInput>({
-    defaultValues: EMPTY_HELP_CENTER_FORM,
+    defaultValues: savedDraft?.defaults ?? toHelpCenterConfigInput(helpCenter),
     mode: 'onChange',
   });
 
   const handleClose = () => {
+    store.set(frontlinePanelDraftState, (current) =>
+      current.key === draftKey ? { key: null } : current,
+    );
     if (!panel) setSelectedTab(null);
     onClose();
   };
 
+  const initializedRecord = useRef<string>();
+  const serverValues = useRef(toHelpCenterConfigInput(helpCenter));
+  const dirtyFields = form.formState.dirtyFields;
+  const dirtyFieldsRef = useRef(dirtyFields);
+  dirtyFieldsRef.current = dirtyFields;
+
   useEffect(() => {
-    form.reset(toHelpCenterConfigInput(helpCenter));
-  }, [helpCenter, form]);
+    const recordId = helpCenter?._id ?? 'new';
+    const values = toHelpCenterConfigInput(helpCenter);
+    serverValues.current = values;
+    if (initializedRecord.current !== recordId) {
+      initializedRecord.current = recordId;
+      if (savedDraft) {
+        form.reset(savedDraft.values, { keepDefaultValues: true });
+        form.reset(values, { keepDirtyValues: true });
+      } else form.reset(values);
+      return;
+    }
+    form.reset(values, {
+      keepDirtyValues: Object.keys(dirtyFieldsRef.current).length > 0,
+    });
+  }, [helpCenter, form, savedDraft]);
+
+  useEffect(() => {
+    if (!panel || !helpCenter?._id) return;
+    return () => {
+      store.set(frontlinePanelDraftState, (current) =>
+        current.key === draftKey
+          ? {
+              ...current,
+              helpCenter: {
+                values: form.getValues(),
+                defaults: serverValues.current,
+                tab: panelTabRef.current,
+              },
+            }
+          : current,
+      );
+    };
+  }, [draftKey, form, helpCenter?._id, panel, store]);
 
   const { saveHelpCenter, loading } = useSaveHelpCenter({
     onSaved: () => {

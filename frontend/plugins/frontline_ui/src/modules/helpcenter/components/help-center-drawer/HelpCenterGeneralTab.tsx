@@ -40,6 +40,10 @@ function FeatureSection({
   children: React.ReactNode;
 }>) {
   const compact = useContext(KbFormPanelContext);
+  const enabledGridClassName = compact
+    ? 'grid gap-3 pt-3 border-t'
+    : 'grid gap-4 pt-3 border-t lg:grid-cols-2';
+
   return (
     <div className="flex flex-col gap-3">
       <Form.Field
@@ -57,15 +61,7 @@ function FeatureSection({
           </Form.Item>
         )}
       />
-      <div
-        className={
-          enabled
-            ? compact
-              ? 'grid gap-3 pt-3 border-t'
-              : 'grid gap-4 pt-3 border-t lg:grid-cols-2'
-            : 'hidden'
-        }
-      >
+      <div className={enabled ? enabledGridClassName : 'hidden'}>
         {children}
       </div>
     </div>

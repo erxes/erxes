@@ -16,7 +16,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useFrontlineTranslation } from '@/shared/i18n/useFrontlineTranslation';
 import { useNavigate } from 'react-router-dom';
 import {
   ActivityLogs,
@@ -59,9 +59,7 @@ const KnowledgeBasePanelActions = ({
   topicId: string;
   article?: IArticleDetail;
 }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.knowledgebase',
-  });
+  const { t } = useFrontlineTranslation('modules.knowledgebase');
   const { close } = useSidePanel();
   const navigate = useNavigate();
   const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
@@ -187,9 +185,7 @@ const KnowledgeBasePanelView = ({
   article?: IArticleDetail;
   children: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.knowledgebase',
-  });
+  const { t } = useFrontlineTranslation('modules.knowledgebase');
 
   if (view === 'title') {
     return loading && !record ? (

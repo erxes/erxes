@@ -31,7 +31,7 @@ type FieldMeta = { text: string; type: string };
 const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id } = cell.row.original;
-  const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
+  const [, setSubmissionId] = useQueryState<string>('submissionId');
 
   return (
     <DropdownMenu>
@@ -85,17 +85,16 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
   const submittedAtColumn: ColumnDef<FlatRow> = {
     id: '__submittedAt',
     accessorKey: '__submittedAt',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function SubmittedAtHeader() {
       const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
       );
     },
-    cell: (cell) => {
+    cell: function SubmittedAtCell(cell) {
       const value = cell.getValue() as string | undefined;
       const { _id } = cell.row.original;
-      const [_, setSubmissionId] = useQueryState<string>('submissionId');
+      const [, setSubmissionId] = useQueryState<string>('submissionId');
       return (
         <RecordTableInlineCell
           className="truncate cursor-pointer"
@@ -115,8 +114,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     id: text.replace(/\s+/g, '_'),
     accessorKey: text,
     header: () => <RecordTable.InlineHead label={text} />,
-    cell: ({ getValue }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    cell: function SubmissionFieldCell({ getValue }) {
       const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       const value = getValue();
 

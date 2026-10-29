@@ -19,7 +19,6 @@ import {
 } from '@/ticket/hooks/useTicketCreateLayout';
 import { TTicketDraft } from '@/ticket/hooks/useCreateTicketRecord';
 import { TAddTicket, addTicketSchema, TicketHotKeyScope } from '@/ticket/types';
-import { Block } from '@blocknote/core';
 import { IconSettings } from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -27,6 +26,7 @@ import {
   Button,
   Form,
   Input,
+  IBlockEditor,
   useBlockEditor,
   useToast,
   usePreviousHotkeyScope,
@@ -39,6 +39,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import {
   currentUserState,
+  sidePanelDraftState,
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
   PanelFormRow,
@@ -49,12 +50,14 @@ import {
 export const AddTicketForm = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const draft = useSidePanelDraft<TTicketDraft>(TICKET_PROPERTY_CONTENT_TYPE);
+  const panelDraft = useAtomValue(sidePanelDraftState);
   const { back, canGoBack, close, openRecord } = useSidePanel();
   const onClose = () => (canGoBack ? back() : close());
   const { toast } = useToast();
   const currentUser = useAtomValue(currentUserState);
   const { createTicket, loading: createTicketLoading } = useCreateTicket();
-  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
   const editor = useBlockEditor();
   const resolvedPipelineId = draft.pipelineId;
   const defaultValues: Partial<TAddTicket> = {
@@ -67,19 +70,6 @@ export const AddTicketForm = () => {
     resolver: zodResolver(addTicketSchema),
     defaultValues,
   });
-
-  const previousDraft = useRef(draft);
-  useEffect(() => {
-    if (previousDraft.current === draft) return;
-    previousDraft.current = draft;
-    if (!Object.keys(draft).length) return;
-    form.reset({
-      name: '',
-      priority: 0,
-      assigneeId: draft.pipelineId ? undefined : currentUser?._id,
-      ...draft,
-    });
-  }, [draft, form, currentUser?._id]);
 
   const selectedPipelineId = form.watch('pipelineId');
   const selectedChannelId = form.watch('channelId');
@@ -96,7 +86,24 @@ export const AddTicketForm = () => {
     setPropertyValue,
     findMissing,
     shownPropertiesData,
+    reset: resetProperties,
   } = useTicketCreateFields({ rows, rules });
+
+  const previousDraft = useRef(panelDraft);
+  useEffect(() => {
+    if (previousDraft.current === panelDraft) return;
+    previousDraft.current = panelDraft;
+    form.reset({
+      name: '',
+      priority: 0,
+      assigneeId: draft.pipelineId ? undefined : currentUser?._id,
+      ...draft,
+    });
+    setDescriptionContent(undefined);
+    editor.replaceBlocks(editor.document, []);
+    resetProperties();
+    form.setFocus('name');
+  }, [panelDraft, draft, form, currentUser?._id, editor, resetProperties]);
 
   const labelOf = (cell: TTicketLayoutCell) =>
     cell.kind === 'system'
@@ -126,12 +133,8 @@ export const AddTicketForm = () => {
     { enableOnFormTags: true },
   );
 
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
+  const handleDescriptionChange = () => {
+    setDescriptionContent(editor.document.slice(0, -1));
   };
 
   const onSubmit = async (data: TAddTicket) => {

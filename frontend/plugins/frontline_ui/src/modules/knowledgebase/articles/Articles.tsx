@@ -9,6 +9,8 @@ import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 import { KnowledgeBaseDetailLink } from '@/knowledgebase/shared/components/KnowledgeBaseDetailLink';
+import { useKbCreateHotkey } from '@/knowledgebase/shared/hooks/useKbCreateHotkey';
+import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 import {
   KB_RECORD_CONTENT_TYPES,
   KB_DRAFT_CONTENT_TYPES,
@@ -21,17 +23,25 @@ export const Articles = () => {
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
   const { categories } = useCategories(topicId);
-  const { openNewRecord } = useSidePanel();
+  const { openNewRecord, record } = useSidePanel();
   const [categoryId] = useQueryState<string>('categoryId');
 
   const defaultCategoryId = categoryId || categories?.[0]?._id || '';
   const canCreate = !!defaultCategoryId;
 
-  const openCreate = () =>
+  const openCreate = () => {
+    if (!canCreate) return;
     openNewRecord(KB_DRAFT_CONTENT_TYPES.article, {
       topicId,
       categoryId: defaultCategoryId,
     });
+  };
+
+  useKbCreateHotkey({
+    scope: KnowledgeBaseHotKeyScope.ArticlesPage,
+    isSheetOpen: !!record,
+    onCreate: openCreate,
+  });
 
   return (
     <KnowledgeBaseLayout

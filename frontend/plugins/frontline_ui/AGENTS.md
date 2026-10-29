@@ -83,10 +83,14 @@
 - Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
   import Radix directly.
 - The `frontline` i18n namespace JSON, which lives in
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned). Frontline-owned panel additions live in `src/modules/shared/i18n/locales/{en,mn}.json` and are registered into the existing namespace by `useFrontlineTranslation`; existing catalog entries are retained.
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Saved-record panel sessions retain Help Center form values/local sections and ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes; same-record Help Center refreshes retain dirty fields.
+- Integration removal evicts its cached `Integration` and returns from the matching open panel; a failed removal keeps the record and shows the existing error feedback.
+- The Articles page registers its advertised C shortcut through `useKbCreateHotkey`; it cannot create without a category or while another record panel owns the shortcut scope.
 
 - Channel integration creation and editing use the shared app side panel as
   `frontline:integration`, with no custom Properties tab. `IntegrationRecordPanel`
@@ -2744,6 +2748,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - Every in-app `Link`/`navigate` target starts with `/frontline/…`. A relative `to="frontline/tickets…"` resolves against the current route, so each click appends another `frontline/tickets` segment (`/frontline/tickets/frontline/tickets/…`). The tickets sidebar channel rows (`TicketNavigations`) link to `/frontline/tickets?channelId=…&pipelineId=…`.
 
 ## Validation
+
+- Draft smoke: edit Help Center fields, switch to Activity and back, then refresh its detail data; edits survive while untouched fields refresh. Change records or close/reopen and confirm a fresh form. Write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
+- `pnpm nx test frontline_ui --runInBand --watchman=false` includes Telegram panel navigation, resumable setup and disconnect after status failure.
 
 - Open each channel integration provider, start/cancel a draft, reopen it and
   edit an existing integration; check immediate navigation and the source

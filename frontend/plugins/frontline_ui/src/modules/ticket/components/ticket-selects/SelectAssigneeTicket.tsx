@@ -243,9 +243,9 @@ export const SelectAssigneeTicketFormItem = ({
         <SelectTriggerTicket variant={variant} label={label}>
           <SelectAssigneeValue />
         </SelectTriggerTicket>
-        <Combobox.Content>
+        <SelectTicketContent variant={variant}>
           <SelectTeamMemberContent />
-        </Combobox.Content>
+        </SelectTicketContent>
       </PopoverScoped>
     </SelectAssigneeProvider>
   );
