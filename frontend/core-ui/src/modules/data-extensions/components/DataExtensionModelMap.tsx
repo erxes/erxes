@@ -20,6 +20,7 @@ import {
   IDataExtensionField,
   IDataExtensionRecordType,
   useDataExtensionFields,
+  recordTypeGroup,
 } from 'ui-modules';
 import { DataExtensionEmptyState } from './DataExtensionStates';
 import { FieldTypeIcon } from './fieldTypeIcons';
@@ -178,7 +179,7 @@ const buildGraph = (
       recordType.recordType === selected ||
       fields.some((field) => field.recordType === recordType.recordType),
   );
-  const owners = Array.from(new Set(visible.map(({ owner }) => owner)));
+  const owners = Array.from(new Set(visible.map(recordTypeGroup)));
   const nodes: RecordTypeNode[] = [];
   let column = 0;
 
@@ -186,7 +187,7 @@ const buildGraph = (
   for (const owner of owners) {
     let y = 0;
 
-    for (const recordType of visible.filter((item) => item.owner === owner)) {
+    for (const recordType of visible.filter((item) => recordTypeGroup(item) === owner)) {
       const ownFields = fields.filter(
         (field) => field.recordType === recordType.recordType,
       );

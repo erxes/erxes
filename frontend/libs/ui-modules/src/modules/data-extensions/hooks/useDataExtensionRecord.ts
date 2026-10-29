@@ -58,7 +58,7 @@ const toLinked = (value: unknown): IDataExtensionLinkedRecord[] =>
  * has-many list that filled a whole page may be cut off, so it stays
  * read-only rather than unlinking what was not loaded.
  */
-const toResult = (
+export const toDataExtensionRecordResult = (
   recordType: IDataExtensionRecordType,
   fields: IDataExtensionField[],
   record: RawRecord,
@@ -159,7 +159,7 @@ export const useDataExtensionRecord = (
         }
 
         setRecord(
-          data.record ? toResult(recordType, fields, data.record) : null,
+          data.record ? toDataExtensionRecordResult(recordType, fields, data.record) : null,
         );
         setNotFound(!data.record);
       } catch (e) {
@@ -195,7 +195,7 @@ export const useDataExtensionRecord = (
           ...typedRequestOptions,
         });
         const next = data?.record
-          ? toResult(recordType, fields, data.record)
+          ? toDataExtensionRecordResult(recordType, fields, data.record)
           : null;
 
         if (current === generation.current) {

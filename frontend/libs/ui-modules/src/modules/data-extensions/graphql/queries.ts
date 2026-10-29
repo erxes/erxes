@@ -36,6 +36,10 @@ export const DATA_EXTENSION_RECORD_TYPES = gql`
       owner
       contentTypes
       createMutations
+      custom
+      icon
+      singularLabel
+      description
       fieldCount
     }
   }

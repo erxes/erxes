@@ -1,4 +1,9 @@
-import { IconPlus, IconVariable } from '@tabler/icons-react';
+import {
+  IconArchive,
+  IconPencil,
+  IconPlus,
+  IconVariable,
+} from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -7,6 +12,7 @@ import {
   Spinner,
   Tabs,
   toast,
+  useConfirm,
   useIsMobile,
   useQueryState,
 } from 'erxes-ui';
@@ -16,15 +22,21 @@ import { PageHeader, useSelectedDataExtensionRecordType } from 'ui-modules';
 import { DataExtensionApiPreview } from '@/data-extensions/components/DataExtensionApiPreview';
 import { DataExtensionFieldsTable } from '@/data-extensions/components/DataExtensionFieldsTable';
 import { DataExtensionModelMap } from '@/data-extensions/components/DataExtensionModelMap';
+import { DataExtensionObjectSheet } from '@/data-extensions/components/DataExtensionObjectSheet';
+import { DataExtensionRecordsTable } from '@/data-extensions/components/DataExtensionRecordsTable';
 import { DataExtensionRecordValues } from '@/data-extensions/components/DataExtensionRecordValues';
 import { DataExtensionsMobileSidebar } from '@/data-extensions/components/DataExtensionsSidebar';
 import {
   DataExtensionEmptyState,
   DataExtensionErrorState,
 } from '@/data-extensions/components/DataExtensionStates';
+import {
+  useDataExtensionObjectMutations,
+  useDataExtensionObjects,
+} from '@/data-extensions/hooks/useDataExtensionObjects';
 import { useDataExtensionPermissions } from '@/data-extensions/hooks/useDataExtensionPermissions';
 
-const TABS = ['fields', 'map', 'values', 'api'] as const;
+const TABS = ['records', 'fields', 'map', 'values', 'api'] as const;
 
 type Tab = (typeof TABS)[number];
 
@@ -35,10 +47,49 @@ export const DataExtensionsIndexPage = () => {
   const { recordType, recordTypes, loading, error, refetch } =
     useSelectedDataExtensionRecordType();
   const [tabParam, setTabParam] = useQueryState<string>('tab');
+  const [, setRecordTypeParam] = useQueryState<string>('recordType');
   const [sheetOpen, setSheetOpen] = useState(false);
-  const tab: Tab = TABS.includes(tabParam as Tab)
+  const [objectSheetOpen, setObjectSheetOpen] = useState(false);
+  const { confirm } = useConfirm();
+  const { objects } = useDataExtensionObjects();
+  const { archiveObject } = useDataExtensionObjectMutations();
+  const custom = Boolean(recordType?.custom);
+  const object = custom
+    ? objects.find((candidate) => candidate.recordType === recordType?.recordType)
+    : undefined;
+  // Custom objects open on their records; module records on their fields.
+  // A custom object's records are its own list, so it has no lookup tab.
+  const available: Tab[] = custom
+    ? ['records', 'fields', 'map', 'api']
+    : ['fields', 'map', 'values', 'api'];
+  const tab: Tab = available.includes(tabParam as Tab)
     ? (tabParam as Tab)
-    : 'fields';
+    : available[0];
+
+  const archive = () =>
+    object &&
+    confirm({
+      message: t('objects.archive-confirm', { label: object.pluralLabel }),
+      options: {
+        description: t('objects.archive-confirm-description'),
+        okLabel: t('archive'),
+      },
+    }).then(async () => {
+      try {
+        await archiveObject(object._id);
+        setRecordTypeParam(null);
+        toast({
+          variant: 'success',
+          title: t('objects.toast.archived', { label: object.pluralLabel }),
+        });
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: t('objects.toast.action-failed'),
+          description: error instanceof Error ? error.message : undefined,
+        });
+      }
+    });
 
   const renderContent = () => {
     if (loading && !recordTypes.length) {
@@ -75,11 +126,20 @@ export const DataExtensionsIndexPage = () => {
         className="flex h-full min-h-0 flex-col"
       >
         <Tabs.List className="mx-3 mt-2 w-fit">
-          <Tabs.Trigger value="fields">{t('tabs.fields')}</Tabs.Trigger>
-          <Tabs.Trigger value="map">{t('tabs.map')}</Tabs.Trigger>
-          <Tabs.Trigger value="values">{t('tabs.values')}</Tabs.Trigger>
-          <Tabs.Trigger value="api">{t('tabs.api')}</Tabs.Trigger>
+          {available.map((value) => (
+            <Tabs.Trigger key={value} value={value}>
+              {t(`tabs.${value}`)}
+            </Tabs.Trigger>
+          ))}
         </Tabs.List>
+        {custom && (
+          <Tabs.Content
+            value="records"
+            className="min-h-0 flex-auto motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-150"
+          >
+            <DataExtensionRecordsTable recordType={recordType} />
+          </Tabs.Content>
+        )}
         <Tabs.Content
           value="fields"
           className="min-h-0 flex-auto motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-150"
@@ -151,6 +211,31 @@ export const DataExtensionsIndexPage = () => {
           <Separator.Inline />
         </PageHeader.Start>
         <PageHeader.End>
+          {canManage && object && (
+            <>
+              <Button
+                variant="ghost"
+                aria-label={t('objects.edit')}
+                onClick={() => setObjectSheetOpen(true)}
+              >
+                <IconPencil />
+                <span className="hidden md:inline">{t('objects.edit')}</span>
+              </Button>
+              <Button
+                variant="ghost"
+                aria-label={t('objects.archive')}
+                onClick={archive}
+              >
+                <IconArchive />
+                <span className="hidden md:inline">{t('objects.archive')}</span>
+              </Button>
+              <DataExtensionObjectSheet
+                open={objectSheetOpen}
+                onOpenChange={setObjectSheetOpen}
+                object={object}
+              />
+            </>
+          )}
           {canManage && recordType && (
             <Button
               aria-label={t('add-field')}

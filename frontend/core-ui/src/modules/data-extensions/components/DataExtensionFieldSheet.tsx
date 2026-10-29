@@ -37,6 +37,7 @@ import {
   IDataExtensionFieldSettings,
   IDataExtensionRecordType,
   OptionColorDot,
+  recordTypeGroup,
   useDataExtensionRecordTypes,
 } from 'ui-modules';
 import { DataExtensionFieldPreview } from './DataExtensionFieldPreview';
@@ -303,8 +304,8 @@ export const DataExtensionFieldSheet = ({
     const groups = new Map<string, IDataExtensionRecordType[]>();
 
     for (const candidate of recordTypes) {
-      groups.set(candidate.owner, [
-        ...(groups.get(candidate.owner) || []),
+      groups.set(recordTypeGroup(candidate), [
+        ...(groups.get(recordTypeGroup(candidate)) || []),
         candidate,
       ]);
     }

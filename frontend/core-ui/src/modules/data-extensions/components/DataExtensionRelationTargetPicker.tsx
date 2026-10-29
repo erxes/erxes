@@ -1,7 +1,9 @@
 import { ChoiceboxGroup } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDataExtensionRecordType } from 'ui-modules';
+import { IDataExtensionRecordType,
+  recordTypeGroup,
+} from 'ui-modules';
 
 /**
  * The record type a relation links to, as one card per record type grouped
@@ -23,8 +25,8 @@ export const DataExtensionRelationTargetPicker = ({
     const byOwner = new Map<string, IDataExtensionRecordType[]>();
 
     for (const candidate of recordTypes) {
-      byOwner.set(candidate.owner, [
-        ...(byOwner.get(candidate.owner) || []),
+      byOwner.set(recordTypeGroup(candidate), [
+        ...(byOwner.get(recordTypeGroup(candidate)) || []),
         candidate,
       ]);
     }

@@ -157,7 +157,62 @@ export interface IDataExtensionRecordType {
   contentTypes: string[];
   /** Root mutation fields that create a record of this type. */
   createMutations: string[];
+  /** A tenant-defined object; its records are listed and created here. */
+  custom?: boolean;
+  icon?: string | null;
+  singularLabel?: string | null;
+  description?: string | null;
   fieldCount: number;
+}
+
+/** A custom object's definition, managed on the Data Extensions page. */
+export interface IDataExtensionObject {
+  _id: string;
+  key: string;
+  recordType: string;
+  singularLabel: string;
+  pluralLabel: string;
+  description?: string | null;
+  icon?: string | null;
+  status: 'active' | 'archived';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const DATA_EXTENSION_OBJECT_ICONS = [
+  'box',
+  'file-text',
+  'briefcase',
+  'building',
+  'home',
+  'car',
+  'calendar',
+  'certificate',
+  'clipboard',
+  'coin',
+  'heart',
+  'map-pin',
+  'package',
+  'school',
+  'shield',
+  'star',
+  'ticket',
+  'tool',
+  'truck',
+  'users',
+] as const;
+
+export type DataExtensionObjectIcon =
+  (typeof DATA_EXTENSION_OBJECT_ICONS)[number];
+
+/** One row of a custom object's record list. */
+export interface IDataExtensionListRecord {
+  _id: string;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+  values: Record<string, DataExtensionValue>;
+  links: Record<string, IDataExtensionLinkedRecord[]>;
 }
 
 export interface IDataExtensionCurrencyValue {
@@ -233,3 +288,17 @@ export const isRequiredField = (field: IDataExtensionField) =>
 export const isListRelation = (relation: IDataExtensionRelation) =>
   relation.kind === 'manyToMany' ||
   (relation.side === 'inverse' && relation.kind === 'manyToOne');
+
+/** Null, blank text, empty lists and empty objects count as no value. */
+export const isEmptyDataExtensionValue = (value: unknown) =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && !value.trim()) ||
+  (Array.isArray(value) && value.length === 0) ||
+  (typeof value === 'object' &&
+    !Array.isArray(value) &&
+    Object.keys(value as object).length === 0);
+
+/** The sidebar group a record type belongs to: its module, or `custom`. */
+export const recordTypeGroup = (recordType: IDataExtensionRecordType) =>
+  recordType.custom ? 'custom' : recordType.owner;

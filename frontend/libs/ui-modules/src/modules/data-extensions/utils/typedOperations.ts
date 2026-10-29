@@ -168,6 +168,71 @@ export const buildPatchMutation = (
 }`;
 };
 
+/** Root fields a custom object adds to the typed endpoint. */
+export const getCustomObjectOperationNames = (typeName: string) => {
+  const { lookup } = getTypedOperationNames(typeName);
+
+  return {
+    list: `${lookup}List`,
+    create: `${lookup}Create`,
+    update: `${lookup}Update`,
+    remove: `${lookup}Delete`,
+    createInput: `${typeName}CreateInput`,
+    updateInput: `${typeName}UpdateInput`,
+  };
+};
+
+export const buildListQuery = (
+  recordType: IDataExtensionRecordType,
+  fields: IDataExtensionField[],
+  recordTypes: IDataExtensionRecordType[],
+) => {
+  const { list } = getCustomObjectOperationNames(recordType.typeName);
+
+  return `query DataExtensionsRecordList($searchValue: String, $limit: Int, $skip: Int, $sortField: String, $sortDirection: Int) {
+  page: ${list}(searchValue: $searchValue, limit: $limit, skip: $skip, sortField: $sortField, sortDirection: $sortDirection) {
+    totalCount
+    list { createdAt updatedAt ${selection(recordType, fields, recordTypes)} }
+  }
+}`;
+};
+
+export const buildCreateMutation = (
+  recordType: IDataExtensionRecordType,
+  fields: IDataExtensionField[],
+  recordTypes: IDataExtensionRecordType[],
+) => {
+  const { create, createInput } = getCustomObjectOperationNames(
+    recordType.typeName,
+  );
+
+  return `mutation DataExtensionsRecordCreate($input: ${createInput}!) {
+  record: ${create}(input: $input) { ${selection(recordType, fields, recordTypes)} }
+}`;
+};
+
+export const buildUpdateMutation = (
+  recordType: IDataExtensionRecordType,
+  fields: IDataExtensionField[],
+  recordTypes: IDataExtensionRecordType[],
+) => {
+  const { update, updateInput } = getCustomObjectOperationNames(
+    recordType.typeName,
+  );
+
+  return `mutation DataExtensionsRecordUpdate($_id: ID!, $input: ${updateInput}!) {
+  record: ${update}(_id: $_id, input: $input) { ${selection(recordType, fields, recordTypes)} }
+}`;
+};
+
+export const buildDeleteMutation = (recordType: IDataExtensionRecordType) => {
+  const { remove } = getCustomObjectOperationNames(recordType.typeName);
+
+  return `mutation DataExtensionsRecordDelete($_id: ID!) {
+  deleted: ${remove}(_id: $_id)
+}`;
+};
+
 /** Readable name of a linked record from its summary fields. */
 export const describeLinkedRecord = (record: Record<string, unknown>) =>
   Object.entries(record)

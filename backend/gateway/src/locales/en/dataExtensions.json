@@ -17,7 +17,8 @@
   "record-types-title": "Record types",
   "owners": {
     "core": "Core records",
-    "operation": "Operation"
+    "operation": "Operation",
+    "custom": "Custom objects"
   },
   "record-types": {
     "core:company": "Companies",
@@ -77,7 +78,8 @@
     "fields": "Fields",
     "values": "Record values",
     "api": "API",
-    "map": "Data model"
+    "map": "Data model",
+    "records": "Records"
   },
   "empty": {
     "fields-title": "No fields yet",
@@ -356,5 +358,74 @@
     "placeholder": "Placeholder",
     "show-in-create": "Show on create forms",
     "show-in-create-hint": "Turn off for fields filled in later, after the record exists."
+  },
+  "objects": {
+    "new": "New object",
+    "new-title": "New object",
+    "edit-title": "Edit object",
+    "edit": "Edit object",
+    "archive": "Archive",
+    "restore": "Restore",
+    "delete": "Delete for good",
+    "archived": "Archived objects",
+    "restore-named": "Restore {{label}}",
+    "delete-named": "Delete {{label}} for good",
+    "intro": "An object is a new kind of record, such as Contracts or Properties. It gets its own list, fields and relations to any other record.",
+    "singular": "Singular name",
+    "singular-placeholder": "e.g. Contract",
+    "plural": "Plural name",
+    "plural-placeholder": "e.g. Contracts",
+    "key": "API key",
+    "key-hint": "Names the object in the API. Letters and digits, starting with a lowercase letter.",
+    "key-locked": "The key can’t change after the object is created.",
+    "icon": "Icon",
+    "description-placeholder": "What these records are for (optional)",
+    "create": "Create object",
+    "archive-confirm": "Archive {{label}}?",
+    "archive-confirm-description": "It disappears from the API and lists. Records and fields are kept, and you can restore it from Archived objects.",
+    "delete-confirm": "Delete {{label}} for good?",
+    "delete-confirm-description": "Every record, field and relation to it is removed and can’t be recovered. Type the object key to confirm.",
+    "validation": {
+      "singular-required": "Enter a singular name",
+      "plural-required": "Enter a plural name",
+      "names-differ": "Singular and plural names must differ",
+      "key-format": "Start with a lowercase letter; 2–40 letters and digits"
+    },
+    "toast": {
+      "created": "{{label}} created",
+      "updated": "{{label}} updated",
+      "archived": "{{label}} archived",
+      "restored": "{{label}} restored",
+      "deleted": "{{label}} deleted",
+      "create-failed": "Couldn’t create the object",
+      "update-failed": "Couldn’t save the object",
+      "action-failed": "That didn’t work"
+    }
+  },
+  "records": {
+    "search": "Search {{label}}",
+    "count_one": "{{count}} record",
+    "count_other": "{{count}} records",
+    "new": "New {{label}}",
+    "create": "Create {{label}}",
+    "name": "Name",
+    "name-placeholder": "Name this {{label}}",
+    "name-required": "Give the record a name",
+    "updated": "Updated",
+    "close": "Done",
+    "empty": "No {{label}} yet",
+    "empty-hint": "Create the first {{label}} to start filling in its fields.",
+    "no-results": "Nothing matches “{{search}}”",
+    "range": "{{from}}–{{to}} of {{total}}",
+    "previous": "Previous page",
+    "next": "Next page",
+    "created": "{{label}} created",
+    "create-failed": "Couldn’t create the {{label}}",
+    "update-failed": "Couldn’t rename the record",
+    "deleted": "{{name}} deleted",
+    "delete-failed": "Couldn’t delete the record",
+    "delete-confirm": "Delete {{name}}?",
+    "delete-confirm-description": "Links other records have to it stop showing. This can’t be undone.",
+    "required-missing": "Fill in: {{fields}}"
   }
 }
