@@ -105,10 +105,12 @@ export const agentsModelsQueries = {
   agentsModels: async (_p: undefined, _a: undefined, ctx: IContext) => {
     await ctx.checkPermission('agentsChat');
 
-    const doc = await ctx.models.AgentsConnection.getConnections(ctx.user._id);
+    const doc = await ctx.models.AgentsConnection.getEffectiveConnections(
+      ctx.user._id,
+    );
     const builtin = getBuiltinConnection();
     const listed = await Promise.all(
-      (doc?.connections ?? []).map(listProviderModels),
+      doc.connections.map(listProviderModels),
     );
 
     return builtin ? [...listed, toBuiltinModels(builtin)] : listed;

@@ -71,6 +71,9 @@ const virtualModules = {
         getConnections: async () => ({
           connections: [{ provider: 'openai', model: 'mock', config: { apiKey: 'k' } }],
         }),
+        getEffectiveConnections: async () => ({
+          connections: [{ provider: 'openai', model: 'mock', config: { apiKey: 'k' }, scope: 'private' }],
+        }),
       },
     });
   `,

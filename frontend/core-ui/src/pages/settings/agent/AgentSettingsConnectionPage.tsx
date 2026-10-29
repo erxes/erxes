@@ -13,6 +13,7 @@ import {
   Button,
   Input,
   Label,
+  RadioGroup,
   Separator,
   Spinner,
   buttonVariants,
@@ -21,7 +22,12 @@ import {
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { PageHeader, SIDE_PANEL_CHAT_PATH, useSidePanel } from 'ui-modules';
+import {
+  PageHeader,
+  SIDE_PANEL_CHAT_PATH,
+  usePermissionCheck,
+  useSidePanel,
+} from 'ui-modules';
 
 import { ProviderIcon } from '@/agent/components/ProviderIcon';
 import {
@@ -37,6 +43,10 @@ import {
   AGENTS_MODELS,
 } from '@/agent/graphql/connection';
 import type {
+  AgentsConnectionScope,
+  IAgentsConnectionEntry,
+} from '@/agent/graphql/connection';
+import type {
   IAgentsConnectionRemoveData,
   IAgentsConnectionRemoveVariables,
   IAgentsConnectionSetDefaultData,
@@ -49,6 +59,26 @@ import {
   useAgentsConnection,
 } from '@/agent/hooks/useAgentsConnection';
 import { useAgentsBuiltin } from '@/agent/hooks/useAgentsBuiltin';
+
+const SCOPE_OPTIONS: {
+  value: AgentsConnectionScope;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'private',
+    label: 'Private',
+    description: 'Only you can use this key.',
+  },
+  {
+    value: 'organization',
+    label: 'Organization',
+    description: 'Everyone in this workspace can chat with it.',
+  },
+];
+
+const connectionKey = (connection: IAgentsConnectionEntry) =>
+  `${connection.scope ?? 'private'}:${connection.provider}`;
 
 const formatTokens = (tokens: number) =>
   new Intl.NumberFormat(undefined, {
@@ -77,10 +107,12 @@ export const AgentSettingsConnectionPage = () => {
     setShowKey(false);
   }, [provider]);
   const [showKey, setShowKey] = useState(false);
-  const [removingProvider, setRemovingProvider] = useState<string | null>(null);
-  const [defaultingProvider, setDefaultingProvider] = useState<string | null>(
-    null,
-  );
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canManage = isLoaded && hasActionPermission('manageAgentsSettings');
+  const [scope, setScope] = useState<AgentsConnectionScope>('private');
+  const [removingConnection, setRemovingConnection] =
+    useState<IAgentsConnectionEntry | null>(null);
+  const [defaultingKey, setDefaultingKey] = useState<string | null>(null);
 
   // An active chat model picker lists models per connection; a bare document
   // refetches it only while mounted, so saving never lists models needlessly.
@@ -113,7 +145,7 @@ export const AgentSettingsConnectionPage = () => {
     refetchQueries,
     onCompleted: () => {
       toast({ title: 'API key removed' });
-      setRemovingProvider(null);
+      setRemovingConnection(null);
     },
     onError: (removeError) => {
       toast({
@@ -132,7 +164,7 @@ export const AgentSettingsConnectionPage = () => {
     awaitRefetchQueries: true,
     onCompleted: () => {
       toast({ title: 'Default provider updated' });
-      setDefaultingProvider(null);
+      setDefaultingKey(null);
     },
     onError: (setDefaultError) => {
       toast({
@@ -140,19 +172,33 @@ export const AgentSettingsConnectionPage = () => {
         description: setDefaultError.message,
         variant: 'destructive',
       });
-      setDefaultingProvider(null);
+      setDefaultingKey(null);
     },
   });
 
-  const defaultProvider = findDefaultAgentsConnection(connections)?.provider;
+  const defaultConnection = findDefaultAgentsConnection(connections);
+  const defaultKey = defaultConnection
+    ? connectionKey(defaultConnection)
+    : undefined;
+  const privateConnections = connections.filter(
+    (connection) => connection.scope !== 'organization',
+  );
+  const organizationConnections = connections.filter(
+    (connection) => connection.scope === 'organization',
+  );
 
-  const handleSetDefault = (nextProvider: string) => {
+  const handleSetDefault = (connection: IAgentsConnectionEntry) => {
     if (settingDefault) {
       return;
     }
 
-    setDefaultingProvider(nextProvider);
-    void setDefaultConnection({ variables: { provider: nextProvider } });
+    setDefaultingKey(connectionKey(connection));
+    void setDefaultConnection({
+      variables: {
+        provider: connection.provider,
+        scope: connection.scope ?? 'private',
+      },
+    });
   };
 
   const handleSave = () => {
@@ -165,6 +211,7 @@ export const AgentSettingsConnectionPage = () => {
     void upsertConnection({
       variables: {
         provider: trimmedProvider,
+        scope,
         ...(apiKey.trim() ? { apiKey: apiKey.trim() } : {}),
       },
     });
@@ -172,7 +219,9 @@ export const AgentSettingsConnectionPage = () => {
 
   const selectedProvider = provider.trim();
   const storedProvider = connections.find(
-    (connection) => connection.provider === selectedProvider,
+    (connection) =>
+      connection.provider === selectedProvider &&
+      (connection.scope ?? 'private') === scope,
   );
 
   return (
@@ -299,105 +348,189 @@ export const AgentSettingsConnectionPage = () => {
                   </p>
                 </div>
               ) : (
-                <ul className="space-y-2">
-                  {connections.map((connection) => {
-                    const option = getProviderOption(connection.provider);
-
-                    return (
-                      <li
-                        key={connection.provider}
-                        className="flex items-center gap-3 rounded-lg border px-3 py-2.5"
-                      >
-                        <ProviderIcon
-                          provider={connection.provider}
-                          className="size-8"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">
-                            {getProviderLabel(connection.provider)}{' '}
-                            <span className="font-normal text-muted-foreground">
-                              ({connection.model})
-                            </span>
+                <div className="space-y-4">
+                  {[
+                    {
+                      title: 'Private',
+                      hint: 'Only you can use these keys.',
+                      entries: privateConnections,
+                    },
+                    {
+                      title: 'Organization',
+                      hint: canManage
+                        ? 'Everyone in this workspace can chat with these keys. Only admins can change them.'
+                        : 'Shared by your workspace admins. Your private key for the same provider is used first.',
+                      entries: organizationConnections,
+                    },
+                  ]
+                    .filter((group) => group.entries.length > 0)
+                    .map((group) => (
+                      <div key={group.title} className="space-y-2">
+                        <div>
+                          <p className="text-xs font-medium">{group.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {group.hint}
                           </p>
-                          {option && (
-                            <p className="truncate text-xs text-muted-foreground">
-                              {option.description}
-                            </p>
-                          )}
                         </div>
-                        {connection.provider === defaultProvider ? (
-                          <Badge variant="secondary" className="shrink-0">
-                            Default
-                          </Badge>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 shrink-0 px-2 text-xs font-normal text-muted-foreground"
-                            disabled={settingDefault}
-                            aria-label={`Set ${getProviderLabel(
+                        <ul className="space-y-2">
+                          {group.entries.map((connection) => {
+                            const option = getProviderOption(
                               connection.provider,
-                            )} as default`}
-                            onClick={() =>
-                              handleSetDefault(connection.provider)
-                            }
-                          >
-                            {settingDefault &&
-                            defaultingProvider === connection.provider ? (
-                              <Spinner className="size-3.5" />
-                            ) : (
-                              'Set as default'
-                            )}
-                          </Button>
-                        )}
-                        {connection.hasKey ? (
-                          <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
-                            <span
-                              className="size-1.5 shrink-0 rounded-full bg-emerald-500"
-                              aria-hidden="true"
-                            />
-                            {connection.updatedAt
-                              ? formatDateISOStringToRelativeDate(
-                                  connection.updatedAt,
-                                )
-                              : ''}
-                          </span>
-                        ) : (
-                          // The server cannot open this stored key (missing or
-                          // changed encryption secret); saving it again fixes it.
-                          <span
-                            className="flex shrink-0 items-center gap-1.5 text-xs text-destructive"
-                            title="This key can't be read on the server. Select the provider below and paste the key again."
-                          >
-                            <span
-                              className="size-1.5 shrink-0 rounded-full bg-destructive"
-                              aria-hidden="true"
-                            />
-                            Re-enter key
-                          </span>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
-                          aria-label={`Remove ${getProviderLabel(
-                            connection.provider,
-                          )} key`}
-                          onClick={() =>
-                            setRemovingProvider(connection.provider)
-                          }
-                        >
-                          <IconTrash className="size-3.5" />
-                        </Button>
-                      </li>
-                    );
-                  })}
-                </ul>
+                            );
+                            const key = connectionKey(connection);
+                            const editable =
+                              connection.scope !== 'organization' || canManage;
+                            const label = `${
+                              connection.scope === 'organization'
+                                ? 'organization '
+                                : ''
+                            }${getProviderLabel(connection.provider)}`;
+
+                            return (
+                              <li
+                                key={key}
+                                className="flex items-center gap-3 rounded-lg border px-3 py-2.5"
+                              >
+                                <ProviderIcon
+                                  provider={connection.provider}
+                                  className="size-8"
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-sm font-medium">
+                                    {getProviderLabel(connection.provider)}{' '}
+                                    <span className="font-normal text-muted-foreground">
+                                      ({connection.model})
+                                    </span>
+                                  </p>
+                                  {option && (
+                                    <p className="truncate text-xs text-muted-foreground">
+                                      {option.description}
+                                    </p>
+                                  )}
+                                </div>
+                                {key === defaultKey ? (
+                                  <Badge
+                                    variant="secondary"
+                                    className="shrink-0"
+                                  >
+                                    Default
+                                  </Badge>
+                                ) : (
+                                  editable && (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-7 shrink-0 px-2 text-xs font-normal text-muted-foreground"
+                                      disabled={settingDefault}
+                                      aria-label={`Set ${label} as default`}
+                                      onClick={() =>
+                                        handleSetDefault(connection)
+                                      }
+                                    >
+                                      {settingDefault &&
+                                      defaultingKey === key ? (
+                                        <Spinner className="size-3.5" />
+                                      ) : (
+                                        'Set as default'
+                                      )}
+                                    </Button>
+                                  )
+                                )}
+                                {connection.hasKey ? (
+                                  <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
+                                    <span
+                                      className="size-1.5 shrink-0 rounded-full bg-emerald-500"
+                                      aria-hidden="true"
+                                    />
+                                    {connection.updatedAt
+                                      ? formatDateISOStringToRelativeDate(
+                                          connection.updatedAt,
+                                        )
+                                      : ''}
+                                  </span>
+                                ) : (
+                                  // The server cannot open this stored key (missing or
+                                  // changed encryption secret); saving it again fixes it.
+                                  <span
+                                    className="flex shrink-0 items-center gap-1.5 text-xs text-destructive"
+                                    title="This key can't be read on the server. Select the provider below and paste the key again."
+                                  >
+                                    <span
+                                      className="size-1.5 shrink-0 rounded-full bg-destructive"
+                                      aria-hidden="true"
+                                    />
+                                    Re-enter key
+                                  </span>
+                                )}
+                                {editable && (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="size-7 shrink-0 text-muted-foreground hover:text-destructive"
+                                    aria-label={`Remove ${label} key`}
+                                    onClick={() =>
+                                      setRemovingConnection(connection)
+                                    }
+                                  >
+                                    <IconTrash className="size-3.5" />
+                                  </Button>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                </div>
               )}
             </div>
 
             <div className="rounded-xl border p-6">
               <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <Label className="font-sans text-sm font-medium normal-case">
+                    Who can use this key
+                  </Label>
+                  <RadioGroup
+                    className="grid grid-cols-2 gap-2"
+                    value={scope}
+                    onValueChange={(value) => {
+                      setScope(value as AgentsConnectionScope);
+                      setApiKey('');
+                      setShowKey(false);
+                    }}
+                  >
+                    {SCOPE_OPTIONS.map((option) => (
+                      <label
+                        key={option.value}
+                        className="flex items-start gap-3 rounded-lg border p-3 has-data-[state=checked]:border-primary/60 has-data-[state=checked]:bg-accent/40 has-disabled:opacity-60"
+                      >
+                        <RadioGroup.Item
+                          value={option.value}
+                          aria-label={option.label}
+                          disabled={
+                            option.value === 'organization' && !canManage
+                          }
+                          className="mt-0.5"
+                        />
+                        <span className="min-w-0">
+                          <span className="block text-sm font-medium">
+                            {option.label}
+                          </span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
+                            {option.description}
+                          </span>
+                        </span>
+                      </label>
+                    ))}
+                  </RadioGroup>
+                  {!canManage && (
+                    <p className="text-xs text-muted-foreground">
+                      Only workspace admins can add organization keys.
+                    </p>
+                  )}
+                </div>
+
                 <div className="space-y-1.5">
                   <Label className="font-sans text-sm font-medium normal-case">
                     Add or update a provider
@@ -478,21 +611,30 @@ export const AgentSettingsConnectionPage = () => {
       </div>
 
       <AlertDialog
-        open={removingProvider !== null}
+        open={removingConnection !== null}
         onOpenChange={(open) => {
           if (!open) {
-            setRemovingProvider(null);
+            setRemovingConnection(null);
           }
         }}
       >
         <AlertDialog.Content>
           <AlertDialog.Header>
             <AlertDialog.Title className="flex items-center gap-2">
-              {removingProvider && (
-                <ProviderIcon provider={removingProvider} className="size-5" />
+              {removingConnection && (
+                <ProviderIcon
+                  provider={removingConnection.provider}
+                  className="size-5"
+                />
               )}
               Remove{' '}
-              {removingProvider ? getProviderLabel(removingProvider) : ''} key
+              {removingConnection?.scope === 'organization'
+                ? 'organization '
+                : ''}
+              {removingConnection
+                ? getProviderLabel(removingConnection.provider)
+                : ''}{' '}
+              key
             </AlertDialog.Title>
             <AlertDialog.Description>
               This provider disappears from the chat's model picker until a new
@@ -507,9 +649,12 @@ export const AgentSettingsConnectionPage = () => {
               onClick={(event) => {
                 event.preventDefault();
 
-                if (removingProvider) {
+                if (removingConnection) {
                   void removeConnection({
-                    variables: { provider: removingProvider },
+                    variables: {
+                      provider: removingConnection.provider,
+                      scope: removingConnection.scope ?? 'private',
+                    },
                   });
                 }
               }}

@@ -16,6 +16,7 @@ export const AGENTS_CONNECTIONS = gql`
     agentsConnections {
       provider
       model
+      scope
       hasKey
       isDefault
       updatedAt
@@ -58,10 +59,21 @@ export const AGENTS_BUILTIN = gql`
 `;
 
 export const AGENTS_CONNECTION_UPSERT = gql`
-  mutation AgentsConnectionUpsert($provider: String!, $model: String, $apiKey: String) {
-    agentsConnectionUpsert(provider: $provider, model: $model, apiKey: $apiKey) {
+  mutation AgentsConnectionUpsert(
+    $provider: String!
+    $model: String
+    $apiKey: String
+    $scope: String
+  ) {
+    agentsConnectionUpsert(
+      provider: $provider
+      model: $model
+      apiKey: $apiKey
+      scope: $scope
+    ) {
       provider
       model
+      scope
       hasKey
       isDefault
       updatedAt
@@ -70,16 +82,17 @@ export const AGENTS_CONNECTION_UPSERT = gql`
 `;
 
 export const AGENTS_CONNECTION_REMOVE = gql`
-  mutation AgentsConnectionRemove($provider: String!) {
-    agentsConnectionRemove(provider: $provider)
+  mutation AgentsConnectionRemove($provider: String!, $scope: String) {
+    agentsConnectionRemove(provider: $provider, scope: $scope)
   }
 `;
 
 export const AGENTS_CONNECTION_SET_DEFAULT = gql`
-  mutation AgentsConnectionSetDefault($provider: String) {
-    agentsConnectionSetDefault(provider: $provider) {
+  mutation AgentsConnectionSetDefault($provider: String, $scope: String) {
+    agentsConnectionSetDefault(provider: $provider, scope: $scope) {
       provider
       model
+      scope
       hasKey
       isDefault
       updatedAt
@@ -98,9 +111,12 @@ export const AGENTS_MODEL_VERIFY = gql`
   }
 `;
 
+export type AgentsConnectionScope = 'private' | 'organization';
+
 export interface IAgentsConnectionEntry {
   provider: string;
   model: string;
+  scope?: AgentsConnectionScope | null;
   hasKey: boolean;
   /** The one entry an unselected chat turn runs on. */
   isDefault?: boolean | null;
@@ -177,6 +193,7 @@ export interface IAgentsConnectionUpsertVariables {
   model?: string;
   /** Omit to keep this provider's stored key; only send a freshly entered value. */
   apiKey?: string;
+  scope?: AgentsConnectionScope;
 }
 
 export interface IAgentsConnectionRemoveData {
@@ -185,6 +202,7 @@ export interface IAgentsConnectionRemoveData {
 
 export interface IAgentsConnectionRemoveVariables {
   provider: string;
+  scope?: AgentsConnectionScope;
 }
 
 export interface IAgentsConnectionSetDefaultData {
@@ -194,6 +212,7 @@ export interface IAgentsConnectionSetDefaultData {
 export interface IAgentsConnectionSetDefaultVariables {
   /** Omit or send '' to clear the explicit default. */
   provider?: string;
+  scope?: AgentsConnectionScope;
 }
 
 export interface IAgentsModelVerifyData {

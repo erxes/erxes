@@ -23,6 +23,7 @@ import { listAgentPluginSkills } from '@/agents/graphqlTools';
 import { buildAgentPluginContributions } from '@/agents/pluginContributions';
 import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
 import { getProviderDefaultModel } from '@/agents/providers';
+import { toEffectiveConnections } from '@/agents/db/models/Connection';
 
 jest.mock('~/connectionResolvers', () => ({
   generateModels: jest.fn(),
@@ -92,7 +93,11 @@ beforeEach(() => {
     ],
   });
   mockedGenerateModels.mockResolvedValue({
-    AgentsConnection: { getConnections: getConnectionsMock },
+    AgentsConnection: {
+      getConnections: getConnectionsMock,
+      getEffectiveConnections: async (userId: string) =>
+        toEffectiveConnections(await getConnectionsMock(userId), null),
+    },
   } as unknown as Awaited<ReturnType<typeof generateModels>>);
 });
 

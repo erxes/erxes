@@ -209,9 +209,9 @@ const resolveRunConnection = async (
     };
   }
 
-  const doc = await models.AgentsConnection.getConnections(userId);
+  const doc = await models.AgentsConnection.getEffectiveConnections(userId);
 
-  if (!doc || doc.connections.length === 0) {
+  if (doc.connections.length === 0) {
     throw new Error('Add your API key to start using Agents.');
   }
 

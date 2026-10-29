@@ -213,9 +213,9 @@ const resolveTurnConnection = async (
     return { connection: await assertBuiltinAvailable(models), builtin: true };
   }
 
-  const doc = await models.AgentsConnection.getConnections(userId);
+  const doc = await models.AgentsConnection.getEffectiveConnections(userId);
 
-  if (doc && doc.connections.length > 0) {
+  if (doc.connections.length > 0) {
     return {
       connection: pickConnection(doc, provider, model),
       builtin: false,

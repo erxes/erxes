@@ -88,7 +88,12 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   questions to the summary. Groups longer than 4 show 3 pairs behind "Show all
   N answers". The summary settles in with `agent-ask-settle` (220ms fade/rise,
   none for reduced motion);
-- settings at `/settings/agent/*`: `connection` (BYOK; each saved connection
+- settings at `/settings/agent/*`: `connection` (BYOK; saved keys are grouped
+  Private and Organization; a "Who can use this key" radio picks the
+  `scope` sent with upsert, Organization only for `manageAgentsSettings`;
+  members see organization keys without actions; remove and set-default
+  send the clicked key's scope; the chat uses `effectiveAgentsConnections`
+  so a provider appears once, private first; each saved connection
   shows a `Default` badge or a `Set as default` action →
   `AgentsConnectionSetDefault`, toasts, awaited `AgentsConnections` refetch;
   tests in `pages/settings/agent/__tests__`), `code-mode`

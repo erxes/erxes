@@ -53,6 +53,11 @@ jest.mock('erxes-ui', () => {
     Button,
     Input: () => <input />,
     Label: Pass,
+    RadioGroup: Object.assign(Pass, {
+      Item: ({ value, disabled }: { value: string; disabled?: boolean }) => (
+        <input type="radio" aria-label={value} disabled={disabled} />
+      ),
+    }),
     Separator: { Inline: () => null },
     Spinner: () => <span role="progressbar" />,
     buttonVariants: () => '',
@@ -60,6 +65,10 @@ jest.mock('erxes-ui', () => {
     toast: jest.fn(),
   };
 });
+let mockPermissions = {
+  isLoaded: true,
+  hasActionPermission: (_action: string) => true,
+};
 jest.mock('ui-modules', () => {
   const Pass = ({ children }: PropsWithChildren) => <>{children}</>;
   return {
@@ -69,6 +78,7 @@ jest.mock('ui-modules', () => {
     }),
     SIDE_PANEL_CHAT_PATH: '/chat',
     useSidePanel: () => ({ openPath: jest.fn() }),
+    usePermissionCheck: () => mockPermissions,
   };
 });
 
@@ -79,6 +89,7 @@ const entry = (
 ): IAgentsConnectionEntry => ({
   provider,
   model,
+  scope: 'private',
   hasKey: true,
   isDefault,
   updatedAt: null,
@@ -116,7 +127,7 @@ it('marks the default connection and sets another one with immediate refetch', a
     {
       request: {
         query: AGENTS_CONNECTION_SET_DEFAULT,
-        variables: { provider: 'kimi' },
+        variables: { provider: 'kimi', scope: 'private' },
       },
       result: setDefault,
     },
@@ -170,7 +181,7 @@ it('reports a failed default change and keeps the current default', async () => 
     {
       request: {
         query: AGENTS_CONNECTION_SET_DEFAULT,
-        variables: { provider: 'kimi' },
+        variables: { provider: 'kimi', scope: 'private' },
       },
       result: { errors: [new GraphQLError('No connection stored')] },
     },

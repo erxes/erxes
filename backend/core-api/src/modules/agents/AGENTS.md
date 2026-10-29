@@ -12,6 +12,20 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   migration); `config.apiKey` is sealed at rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
   `getConnections` lazily re-seals legacy plaintext;
+- connection **scopes**: `private` (default; the acting user's document)
+  and `organization` (one tenant document whose `userId` is
+  `AGENTS_ORGANIZATION_OWNER_ID`, same entry shape, sealing and default
+  rules). `agentsConnectionUpsert`/`Remove`/`SetDefault` take `scope`;
+  `organization` requires `manageAgentsSettings` (checked before any read
+  or write), unknown scopes are a VALIDATION_ERROR. Every member with
+  `agentsChat` can run on organization keys but never read them.
+  `getEffectiveConnections(userId)` (`toEffectiveConnections`) is the only
+  run-time reader (chat route, run resolution, `agentsModels`,
+  `agentsModelVerify`): private entries first, organization entries only
+  for providers without a private one; the default is the private default
+  while the user has any private key, else the organization default, else
+  Erxes Assistant. `agentsConnections` returns both scopes with `scope` and
+  the effective default as `isDefault`;
 - **Erxes Assistant** (`builtin.ts`): an operator-paid built-in model read
   from env — `AGENTS_BUILTIN_PROVIDER` (default `openai`, any key-only BYOK
   provider), `AGENTS_BUILTIN_<PROVIDER>_API_KEY`, optional
@@ -392,7 +406,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 
 - The only env-var secret is the operator's Erxes Assistant key
   (`AGENTS_BUILTIN_<PROVIDER>_API_KEY`); it is never stamped, persisted,
-  returned or named. BYOK keys live only on the per-user
+  returned or named. BYOK keys live only on the per-user or organization
   document — sealed `enc:v1:` envelopes only, never plaintext — and never
   appear in responses, errors, or logs. `sealSecret` throws when
   `JWT_TOKEN_SECRET` is unset (fail closed).

@@ -10,6 +10,7 @@ export const types = `
   type AgentsConnectionEntry {
     provider: String
     model: String
+    scope: String
     hasKey: Boolean
     isDefault: Boolean
     updatedAt: Date
@@ -60,8 +61,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  agentsConnectionUpsert(provider: String!, model: String, apiKey: String): AgentsConnectionEntry
-  agentsConnectionRemove(provider: String!): Boolean
-  agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]
+  agentsConnectionUpsert(provider: String!, model: String, apiKey: String, scope: String): AgentsConnectionEntry
+  agentsConnectionRemove(provider: String!, scope: String): Boolean
+  agentsConnectionSetDefault(provider: String, scope: String): [AgentsConnectionEntry]
   agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
 `;

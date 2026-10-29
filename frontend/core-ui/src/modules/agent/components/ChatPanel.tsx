@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 import {
+  effectiveAgentsConnections,
   findDefaultAgentsConnection,
   useAgentsConnection,
 } from '../hooks/useAgentsConnection';
@@ -90,8 +91,9 @@ export const ChatPanel = ({
     retryLastTurn,
   } = chat;
 
-  const { connections: userConnections, loading: connectionsLoading } =
+  const { connections: savedConnections, loading: connectionsLoading } =
     useAgentsConnection();
+  const userConnections = effectiveAgentsConnections(savedConnections);
   const { builtin, loading: builtinLoading } = useAgentsBuiltin();
   const connections = builtin
     ? [
