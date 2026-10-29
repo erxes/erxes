@@ -85,12 +85,15 @@ export const notificationMutations = {
     { _id }: { _id: string },
     { models, user }: IContext,
   ) {
-    const notification = await models.Notifications.findOne({ _id });
+    const notification = await models.Notifications.findOne({
+      _id,
+      userId: user._id,
+    });
     if (!notification) throw new Error('Not found notification');
 
     if (!notification.isRead) {
       await models.Notifications.updateOne(
-        { _id },
+        { _id, userId: user._id },
         { $set: { isRead: true, readAt: new Date() } },
       );
 

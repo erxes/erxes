@@ -378,8 +378,10 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersResendInvitation(
     _parent: undefined,
     { email }: { email: string },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('teamMembersInvite');
+
     const token = await models.Users.resendInvitation({ email });
 
     return token;
@@ -448,8 +450,12 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersSetChatStatus(
     _parent: undefined,
     { _id, status }: { _id: string; status: string },
-    { models }: IContext,
+    { user, models, checkPermission }: IContext,
   ) {
+    if (user._id !== _id) {
+      await checkPermission('teamMembersUpdate');
+    }
+
     return await models.Users.setChatStatus(_id, status);
   },
 

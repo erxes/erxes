@@ -155,8 +155,10 @@ export const automationMutations = {
   async automationsAiAgentReindex(
     _root,
     { _id, fileId }: { _id: string; fileId?: string },
-    { models, user }: IContext,
+    { models, user, checkPermission }: IContext,
   ) {
+    await checkPermission('automationsAiAgentEdit');
+
     await models.ApprovalLocks.assertAccess({
       user,
       contentType: AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT,

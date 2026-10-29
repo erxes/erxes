@@ -25,8 +25,10 @@ export const cpNotificationMutations: Record<
       clientPortalId: string;
       input: CPNotificationSendInput;
     },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('clientPortalManage');
+
     const clientPortal = await models.ClientPortal.findOne({
       _id: clientPortalId,
     });

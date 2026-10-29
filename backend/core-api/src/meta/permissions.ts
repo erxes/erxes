@@ -432,6 +432,13 @@ export const permissions: IPermissionConfig = {
           description: 'Create, edit, delete positions',
           oauthScope: 'organization:manage',
         },
+        {
+          title: 'Manage workspace settings',
+          name: 'configsManage',
+          description:
+            'Update workspace-wide configuration, including file storage and mail credentials',
+          oauthScope: 'configs:manage',
+        },
       ],
     },
     {
@@ -870,6 +877,7 @@ export const permissions: IPermissionConfig = {
             'branchesManage',
             'unitsManage',
             'positionsManage',
+            'configsManage',
           ],
           scope: 'all',
         },
