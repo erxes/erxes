@@ -27,6 +27,9 @@ const GET_USER = gql`
         middleName
         lastName
         operatorPhone
+        coverPhoto
+        position
+        employeeId
       }
       links
       employeeId

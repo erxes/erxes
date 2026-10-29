@@ -1,7 +1,7 @@
 import { USER_LINK_FIELDS } from '@/settings/team-member/constants/memberDetailFields';
 import { MemberPanelTextField } from '@/settings/team-member/details/components/MemberPanelDetail';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
+import { useUserObjectEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { UserLinks } from '@/settings/team-member/types';
 import { IconExternalLink } from '@tabler/icons-react';
 import { Button, ScrollArea } from 'erxes-ui';
@@ -21,13 +21,12 @@ const toLinkUrl = (linkField: string, value: string) => {
 export const MemberLinks = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { userDetail } = useUserDetail();
-  const { usersEdit } = useUserEdit();
+  const links = (userDetail?.links ?? {}) as UserLinks;
+  const editLinks = useUserObjectEdit(userDetail?._id || '', 'links', links);
 
   if (!userDetail) {
     return null;
   }
-
-  const links = (userDetail.links ?? {}) as UserLinks;
 
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
@@ -50,14 +49,7 @@ export const MemberLinks = () => {
                   scope={`links.${field.name}`}
                   value={value}
                   placeholder={field.label}
-                  onSave={(next) =>
-                    usersEdit({
-                      variables: {
-                        _id: userDetail._id,
-                        links: { ...links, [field.name]: next },
-                      },
-                    })
-                  }
+                  onSave={(next) => editLinks({ [field.name]: next })}
                 />
                 {value && (
                   <Button

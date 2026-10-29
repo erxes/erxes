@@ -1,7 +1,9 @@
 import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
-import { useUserEdit } from '@/settings/team-member/hooks/useUserEdit';
-import { IUserDetailsType } from '@/settings/team-member/types';
+import {
+  useUserEdit,
+  useUserObjectEdit,
+} from '@/settings/team-member/hooks/useUserEdit';
 import { format } from 'date-fns';
 import {
   Avatar,
@@ -28,13 +30,7 @@ import {
 
 const SCOPE = 'team-member-panel';
 
-type TUserDetails = IUserDetailsType & { __typename?: string };
-
 type TDetailCode = 'firstName' | 'middleName' | 'lastName' | 'shortName';
-
-type TDetailsChange = {
-  [K in keyof IUserDetailsType]?: IUserDetailsType[K] | null;
-};
 
 export const MemberPanelTextField = ({
   scope,
@@ -63,16 +59,6 @@ export const MemberPanelTextField = ({
   </TextField>
 );
 
-const useMemberDetailsEdit = (_id: string, details?: TUserDetails) => {
-  const { usersEdit } = useUserEdit();
-
-  return (changed: TDetailsChange) => {
-    const current: Partial<TUserDetails> = { ...details };
-    delete current.__typename;
-    usersEdit({ variables: { _id, details: { ...current, ...changed } } });
-  };
-};
-
 const MemberDateField = ({
   value,
   onSave,
@@ -89,14 +75,16 @@ const MemberDateField = ({
       open={open}
       onOpenChange={(next) => {
         setOpen(next);
-        if (!next && date?.getTime() !== saved?.getTime()) {
+        if (next) {
+          setDate(saved);
+        } else if (date?.getTime() !== saved?.getTime()) {
           onSave(date || null);
         }
       }}
     >
       <PanelFieldTrigger>
-        {date ? (
-          format(date, 'yyyy/MM/dd')
+        {saved ? (
+          format(saved, 'yyyy/MM/dd')
         ) : (
           <span className="text-muted-foreground">YYYY/MM/DD</span>
         )}
@@ -127,7 +115,7 @@ const MemberPhoneField = ({
   const save = () => {
     const normalized = phone.replace(/\D/g, '');
 
-    if (normalized === value) {
+    if (normalized === value.replace(/\D/g, '')) {
       return;
     }
 
@@ -140,18 +128,17 @@ const MemberPhoneField = ({
     onSave(normalized || null);
   };
 
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (next) {
+      setPhone(value);
+    } else {
+      save();
+    }
+  };
+
   return (
-    <Popover
-      open={open}
-      onOpenChange={(next) => {
-        setOpen(next);
-        if (next) {
-          setPhone(value);
-        } else {
-          save();
-        }
-      }}
-    >
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PanelFieldTrigger>
         {value ? (
           formatPhoneNumber({ value: `+${value}` })
@@ -164,7 +151,7 @@ const MemberPhoneField = ({
           value={phone}
           className="bg-background"
           onChange={(next) => setPhone(next)}
-          onEnter={() => setOpen(false)}
+          onEnter={() => handleOpenChange(false)}
           onValidationChange={setIsValid}
         />
       </RecordTableInlineCell.Content>
@@ -181,6 +168,12 @@ const MemberDescriptionField = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const [description, setDescription] = useState(value);
+  const [prevValue, setPrevValue] = useState(value);
+
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setDescription(value);
+  }
 
   return (
     <div className="flex flex-col gap-1.5 pt-2">
@@ -219,8 +212,9 @@ export const MemberPanelDetail = () => {
   const { userDetail } = useUserDetail();
   const currentUser = useAtomValue(currentUserState);
   const { usersEdit } = useUserEdit();
-  const editDetails = useMemberDetailsEdit(
+  const editDetails = useUserObjectEdit(
     userDetail?._id || '',
+    'details',
     userDetail?.details,
   );
 
