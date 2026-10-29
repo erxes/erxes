@@ -31,6 +31,19 @@ import type {
 
 const TASKS_PER_PAGE = 30;
 
+export const useTaskListScope = (isCreatedView = false): ITaskFilter => {
+  const { projectId, cycleId } = useParams();
+  const currentUser = useAtomValue(currentUserState);
+
+  return {
+    ...(projectId && { projectId }),
+    ...(cycleId && { cycleId }),
+    ...(isCreatedView
+      ? { createdBy: currentUser?._id }
+      : { userId: currentUser?._id }),
+  };
+};
+
 export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
   const { teamId } = useParams();
   const {
