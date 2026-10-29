@@ -11,6 +11,7 @@ import { DeleteTeamForm } from '@/team/components/team-details/DeleteTeamForm';
 import { TriageSection } from '@/team/components/team-details/TriageSection';
 import { useTranslation } from 'react-i18next';
 import { GithubSection } from './GithubSection';
+import { DiscordSection } from './DiscordSection';
 
 export const TeamDetails = () => {
   const { t } = useTranslation('operation');
@@ -37,6 +38,7 @@ export const TeamDetails = () => {
       <TriageSection team={team} />
       <TemplateSection team={team} />
       <GithubSection team={team} />
+      <DiscordSection team={team} />
       <DeleteTeamForm />
     </div>
   );

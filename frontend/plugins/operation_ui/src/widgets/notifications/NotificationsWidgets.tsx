@@ -13,6 +13,14 @@ const NotificationProjectDetail = lazy(() =>
   })),
 );
 
+const NotificationDiscordLinkContent = lazy(() =>
+  import(
+    '~/widgets/notifications/my-inbox/components/NotificationDiscordLinkContent'
+  ).then((m) => ({
+    default: m.NotificationDiscordLinkContent,
+  })),
+);
+
 const NotificationTeamContent = lazy(() =>
   import(
     '~/widgets/notifications/my-inbox/components/NotificationTeamContent'
@@ -55,6 +63,14 @@ export const NotificationsWidgets = (props: TNotification) => {
     return (
       <Suspense fallback={<Spinner containerClassName="h-full" />}>
         <NotificationProjectDetail contentTypeId={contentTypeId} />
+      </Suspense>
+    );
+  }
+
+  if (moduleName === 'discord') {
+    return (
+      <Suspense fallback={<Spinner containerClassName="h-full" />}>
+        <NotificationDiscordLinkContent {...props} />
       </Suspense>
     );
   }
