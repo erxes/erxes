@@ -24,6 +24,9 @@ export interface IUserDetailsType {
   shortName?: string;
   description?: string;
   birthDate?: Date;
+  coverPhoto?: string;
+  position?: string;
+  employeeId?: string;
 }
 
 export enum EStatus {
