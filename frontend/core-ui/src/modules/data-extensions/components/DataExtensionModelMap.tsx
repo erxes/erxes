@@ -11,9 +11,10 @@ import {
   NodeProps,
   Position,
   ReactFlow,
+  useNodesState,
 } from '@xyflow/react';
 import { cn, Spinner, useQueryState } from 'erxes-ui';
-import { memo, useMemo } from 'react';
+import { memo, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   IDataExtensionField,
@@ -51,7 +52,7 @@ const RecordTypeNodeCard = memo(({ data }: NodeProps<RecordTypeNode>) => {
   return (
     <div
       className={cn(
-        'rounded-lg border bg-background text-left shadow-xs transition-[border-color,box-shadow,opacity] duration-200',
+        'cursor-pointer rounded-lg border bg-background text-left shadow-xs transition-[border-color,box-shadow,opacity] duration-200 hover:border-primary/50 hover:shadow-sm',
         data.selected && 'border-primary ring-2 ring-primary/15',
         !data.selected && !data.related && 'opacity-80',
       )}
@@ -277,7 +278,7 @@ export const DataExtensionModelMap = ({
   const [, setRecordType] = useQueryState<string>('recordType');
   const { fields, loading } = useDataExtensionFields({ all: true });
 
-  const { nodes, edges } = useMemo(
+  const graph = useMemo(
     () =>
       buildGraph(
         recordTypes,
@@ -288,6 +289,38 @@ export const DataExtensionModelMap = ({
         (field) => t(`relation.kinds.${field.relation?.kind || 'manyToOne'}`),
       ),
     [recordTypes, fields, selected, t],
+  );
+  // Cards are held in flow state so they can be dragged; a new layout
+  // replaces them when fields or the selection change.
+  const [nodes, setNodes, onNodesChange] = useNodesState<RecordTypeNode>(
+    graph.nodes,
+  );
+  const [hovered, setHovered] = useState<string | null>(null);
+
+  useEffect(() => {
+    setNodes(graph.nodes);
+  }, [graph.nodes, setNodes]);
+
+  // Hovering a card brings its links forward and fades the rest.
+  const edges = useMemo(
+    () =>
+      hovered
+        ? graph.edges.map((edge) => {
+            const linked = edge.source === hovered || edge.target === hovered;
+
+            return {
+              ...edge,
+              animated: linked || edge.animated,
+              zIndex: linked ? 1 : 0,
+              style: {
+                ...edge.style,
+                opacity: linked ? 1 : 0.2,
+                strokeWidth: linked ? 2 : edge.style?.strokeWidth,
+              },
+            };
+          })
+        : graph.edges,
+    [graph.edges, hovered],
   );
 
   if (loading && !fields.length) {
@@ -317,10 +350,16 @@ export const DataExtensionModelMap = ({
         fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
         minZoom={0.3}
         maxZoom={1.5}
+        onNodesChange={onNodesChange}
         nodesConnectable={false}
         nodesDraggable
+        // A click that moves a few pixels is still a click, not a drag.
+        nodeDragThreshold={4}
+        nodeClickDistance={4}
         proOptions={{ hideAttribution: true }}
         onNodeClick={(_event, node) => setRecordType(node.id)}
+        onNodeMouseEnter={(_event, node) => setHovered(node.id)}
+        onNodeMouseLeave={() => setHovered(null)}
       >
         {/* Dots show that the canvas pans; kept faint so cards lead. */}
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} />

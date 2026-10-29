@@ -244,5 +244,30 @@
   "delete-confirm-description-relation": "This removes both sides of the relation and every link stored under {{key}}. It cannot be undone. Archive instead if you may need the links later.",
   "inline": {
     "saved": "Saved"
+  },
+  "builder": {
+    "steps-label": "Steps",
+    "steps": {
+      "type": "Type",
+      "details": "Details"
+    },
+    "adding-to": "Add to",
+    "search-types": "Search field types",
+    "type-groups": {
+      "text": "Text",
+      "values": "Numbers, dates and toggles",
+      "choices": "Choices",
+      "contact": "Contact details",
+      "links": "Links to other records"
+    },
+    "no-types": "No field type matches “{{search}}”",
+    "type-on": "New field on {{label}}",
+    "change-type": "Change",
+    "back": "Back",
+    "preview-title": "Preview",
+    "preview-title-on": "How it looks on {{label}}",
+    "preview-untitled": "Untitled field",
+    "preview-inverse": "Also shown on {{target}} as “{{label}}”",
+    "preview-hint": "Try it out here. Nothing you enter in the preview is saved."
   }
 }
