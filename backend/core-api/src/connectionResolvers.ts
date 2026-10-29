@@ -1,6 +1,16 @@
 import { IAppModel, loadAppClass } from '@/apps/db/models/Apps';
 import { IOAuthClientAppDocument } from '@/auth/db/definitions/oauthClientApps';
 import {
+  IAuthIdentityDocument,
+  ILdapConfigDocument,
+} from '@/auth/db/definitions/ldap';
+import {
+  IAuthIdentityModel,
+  ILdapConfigModel,
+  loadAuthIdentityClass,
+  loadLdapConfigClass,
+} from '@/auth/db/models/Ldap';
+import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
 } from '@/auth/db/models/OAuthClientApps';
@@ -470,6 +480,8 @@ export interface IModels {
   TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
+  LdapConfigs: ILdapConfigModel;
+  AuthIdentities: IAuthIdentityModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -968,6 +980,16 @@ export const loadClasses = (
     IOAuthRefreshTokenDocument,
     Model<IOAuthRefreshTokenDocument>
   >('oauth_refresh_tokens', oauthRefreshTokenSchema);
+
+  models.LdapConfigs = db.model<ILdapConfigDocument, ILdapConfigModel>(
+    'ldap_configs',
+    loadLdapConfigClass(models),
+  );
+
+  models.AuthIdentities = db.model<IAuthIdentityDocument, IAuthIdentityModel>(
+    'auth_identities',
+    loadAuthIdentityClass(models),
+  );
 
   // Per-user BYOK agents connection; one document per user per tenant.
   models.AgentsConnection = db.model<

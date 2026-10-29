@@ -2,6 +2,7 @@ import { TeamMemberFilterBar } from '@/settings/team-member/components/header/Te
 import { TeamMemberTable } from '@/settings/team-member/components/TeamMemberTable';
 import { useQueryState } from 'erxes-ui';
 import { ResetPasswordDialog } from '@/settings/team-member/details/components/ResetPasswordDialog';
+import { LdapLinkDialog } from '@/settings/ldap/components/LdapLinkDialog';
 import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router';
@@ -36,6 +37,7 @@ const useOpenMemberFromQuery = () => {
 
 export function TeamMemberPage() {
   const [resetId] = useQueryState('reset_password_id');
+  const [ldapLinkId] = useQueryState('ldap_link_id');
 
   useOpenMemberFromQuery();
 
@@ -44,6 +46,7 @@ export function TeamMemberPage() {
       <TeamMemberFilterBar />
       <TeamMemberTable />
       {!!resetId && <ResetPasswordDialog />}
+      {!!ldapLinkId && <LdapLinkDialog />}
     </div>
   );
 }

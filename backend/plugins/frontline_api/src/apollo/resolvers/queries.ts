@@ -21,6 +21,7 @@ import { reportInboxQueries } from '@/reports/graphql/resolvers/inboxQueries';
 import { reportTicketQueries } from '@/reports/graphql/resolvers/ticketQueries';
 import ticketQueries from '@/ticket/graphql/resolvers/queries';
 import { fieldQueries } from '~/modules/form/graphql/resolvers/queries/fields';
+import { fieldConversionQueries } from '~/modules/form/graphql/resolvers/queries/fieldConversion';
 import formQueries from '~/modules/form/graphql/resolvers/queries/forms';
 import { surveyQueries } from '~/modules/survey/graphql/resolvers/queries/surveys';
 import { cpSurveyQueries } from '~/modules/survey/graphql/resolvers/queries/clientPortal';
@@ -44,6 +45,7 @@ export const queries = {
   ...responseTemplateQueries,
   ...formQueries,
   ...fieldQueries,
+  ...fieldConversionQueries,
   ...surveyQueries,
   ...cpSurveyQueries,
   ...reportInboxQueries,

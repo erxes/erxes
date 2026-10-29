@@ -1,3 +1,5 @@
+import { LdapMemberMenuItem } from '@/settings/ldap/components/LdapMemberMenuItem';
+import { useLdapLinkedUserIds } from '@/settings/ldap/hooks/useLdapUserLink';
 import { useResendInvite } from '@/settings/team-member/hooks/useResendInvite';
 import { useUsersStatusEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/states/teamMemberDetailStates';
@@ -46,6 +48,7 @@ export const TeamMemberActionItems = ({
   const { resend, loading } = useResendInvite();
   const { editStatus } = useUsersStatusEdit();
   const { _id, email, isActive } = user;
+  const { isLinked } = useLdapLinkedUserIds();
 
   const select = (action: () => void) => () => {
     action();
@@ -59,17 +62,20 @@ export const TeamMemberActionItems = ({
           <IconSettings size={18} /> {t('edit-permission-groups')}
         </Command.Item>
       </Can>
-      <Can action="teamMembersResetPassword">
-        <Command.Item
-          value="reset-password"
-          onSelect={select(() => {
-            setResetPasswordOpen(_id);
-            setRenderingResetPassword(true);
-          })}
-        >
-          <IconLock /> {t('reset-password')}
-        </Command.Item>
-      </Can>
+      {!isLinked(_id) && (
+        <Can action="teamMembersResetPassword">
+          <Command.Item
+            value="reset-password"
+            onSelect={select(() => {
+              setResetPasswordOpen(_id);
+              setRenderingResetPassword(true);
+            })}
+          >
+            <IconLock /> {t('reset-password')}
+          </Command.Item>
+        </Can>
+      )}
+      <LdapMemberMenuItem userId={_id} onDone={() => onAction?.()} />
       <Can action="teamMembersRemove">
         <Command.Item
           value="toggle-status"

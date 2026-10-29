@@ -127,6 +127,7 @@
     "js-cookie": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "jssip": "^3.10.1",
+    "ldapts": "9.2.0",
     "leaflet": "^1.9.4",
     "libphonenumber-js": "^1.11.20",
     "lodash": "^4.17.21",

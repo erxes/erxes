@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { Model, Query } from 'mongoose';
+import { ClientSession, Model, Query } from 'mongoose';
 import validator from 'validator';
 import {
   formSchema,
@@ -32,7 +32,11 @@ export interface IFormModel extends Model<IForm> {
     createdUserId: string,
   ): Promise<IFormDocument>;
 
-  updateForm(_id: string, doc: Omit<IForm, '_id'>): Promise<IFormDocument>;
+  updateForm(
+    _id: string,
+    doc: Omit<IForm, '_id'>,
+    session?: ClientSession,
+  ): Promise<IFormDocument>;
 
   removeForm(_id: string): void;
   duplicate(_id: string, userId: string): Promise<IFormDocument>;
@@ -81,6 +85,8 @@ export const loadFormClass = (models: IModels) => {
       doc.code = await this.generateCode();
       return models.Forms.create({
         ...doc,
+        conversionRevision: 0,
+        activeSubmissions: [],
         createdDate: new Date(),
         createdUserId,
       });
@@ -89,14 +95,18 @@ export const loadFormClass = (models: IModels) => {
     /**
      * Updates a form document
      */
-   public static async updateForm(_id: string, doc: Omit<IForm, '_id'>) {
+    public static async updateForm(
+      _id: string,
+      doc: Omit<IForm, '_id'>,
+      session?: ClientSession,
+    ) {
       await models.Forms.updateOne(
         { _id },
-        { $set: doc },
-        { runValidators: true },
+        { $set: doc, $inc: { conversionRevision: 1 } },
+        { runValidators: true, session },
       );
 
-      return models.Forms.findOne({ _id });
+      return models.Forms.findOne({ _id }).session(session ?? null);
     }
 
     /**
@@ -187,6 +197,16 @@ export const loadFormClass = (models: IModels) => {
           continue;
         }
 
+        // An already-open widget may still send the field's previous type.
+        submission.type = field.type;
+        submission.validation = field.validation;
+        if (
+          field.type === 'core:customer:phone' &&
+          typeof submission.value === 'number'
+        ) {
+          submission.value = String(submission.value);
+        }
+
         const value = submission.value || '';
 
         const type = field.type;
@@ -205,7 +225,7 @@ export const loadFormClass = (models: IModels) => {
           // email
           if (
             (type === 'email' || validation === 'email') &&
-            !validator.isEmail(value)
+            !validator.isEmail(String(value))
           ) {
             errors.push({
               fieldId: field._id,
@@ -217,7 +237,7 @@ export const loadFormClass = (models: IModels) => {
           // phone
           if (
             (type === 'phone' || validation === 'phone') &&
-            !/^\d{8,}$/.test(value.replace(/[\s()+-.]|ext/gi, ''))
+            !/^\d{8,}$/.test(String(value).replace(/[\s()+-.]|ext/gi, ''))
           ) {
             errors.push({
               fieldId: field._id,
@@ -337,7 +357,10 @@ export const loadFormClass = (models: IModels) => {
 };
 
 export interface IFormSubmissionModel extends Model<IFormSubmission> {
-  createFormSubmission(doc: IFormSubmission): Promise<IFormSubmissionDocument>;
+  createFormSubmission(
+    doc: IFormSubmission,
+    session?: ClientSession,
+  ): Promise<IFormSubmissionDocument>;
 }
 
 export const loadFormSubmissionClass = (models: IModels) => {
@@ -345,8 +368,11 @@ export const loadFormSubmissionClass = (models: IModels) => {
     /**
      * Creates a form document
      */
-    public static async createFormSubmission(doc: IFormSubmission) {
-      return models.FormSubmissions.create(doc);
+    public static async createFormSubmission(
+      doc: IFormSubmission,
+      session?: ClientSession,
+    ) {
+      return new models.FormSubmissions(doc).save({ session });
     }
   }
 

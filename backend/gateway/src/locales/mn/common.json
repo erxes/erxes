@@ -135,6 +135,7 @@
     "operating-system": "Үйлдлийн систем",
     "browser": "Хөтөч",
     "auth-method": "Нэвтрэх арга",
+    "failure-reason": "Амжилтгүй болсон шалтгаан",
     "operation-payload": "Үйлдлийн өгөгдөл",
     "captured-for-mutation": "{{mutationName}}-ийн аргумент болон хариуг бүртгэсэн.",
     "captured-for-operation": "Энэ GraphQL үйлдлийн аргумент болон хариуг бүртгэсэн.",
@@ -203,7 +204,8 @@
     "email-delivery": "Имэйл хүргэлт",
     "import-export": "Импорт ба Экспорт",
     "message-pro": "Message Pro",
-    "agents": "AI туслах"
+    "agents": "AI туслах",
+    "ldap": "LDAP"
   },
   "plugin": {
     "_": "Плагин",
@@ -312,6 +314,16 @@
     "or": "ЭСВЭЛ",
     "continue-with-google": "Google-ээр үргэлжлүүлэх",
     "incorrect-credentials": "Имэйл эсвэл нууц үг буруу байна",
+    "login-failure": {
+      "invalid_credentials": "Нэвтрэх нэр эсвэл нууц үг буруу байна",
+      "rate_limited": "Хэт олон оролдлого хийлээ. Хэсэг хугацааны дараа дахин оролдоно уу",
+      "directory_locked": "Таны directory account түгжигдсэн байна. IT-д хандана уу",
+      "directory_password_expired": "Нууц үгийн хугацаа дууссан. Windows дээр нууц үгээ солино уу",
+      "directory_disabled": "Таны account идэвхгүй байна. Admin-д хандана уу",
+      "directory_unreachable": "Directory сервер хариу өгсөнгүй. Дахин оролдоно уу",
+      "not_allowed": "Танд erxes-д нэвтрэх эрх олгогдоогүй байна. Admin-д хандана уу",
+      "not_linked": "Таны account directory-тай холбогдоогүй байна. Admin-д хандана уу"
+    },
     "success": "Амжилттай",
     "reset-link-sent": "Нууц үг сэргээх зааврыг таны имэйл рүү илгээлээ.",
     "something-went-wrong-title": "Уучлаарай! Алдаа гарлаа.",
