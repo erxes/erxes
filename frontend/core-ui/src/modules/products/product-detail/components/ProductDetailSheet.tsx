@@ -17,7 +17,6 @@ import {
   ActivityLogs,
   AddInternalNote,
   FieldsInDetail,
-  PrintDocument,
 } from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
@@ -40,6 +39,7 @@ import {
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
@@ -187,20 +187,22 @@ export const ProductDetailSheet = () => {
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
       >
-        <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
+        <FocusSheet.Header title={productDetail?.name || t('product-detail')}>
+          {productDetail?._id && (
+            <div className="ml-auto">
+              <DocumentPrintMenu
+                key={productDetail._id}
+                items={[{ _id: productDetail._id }]}
+                contentType="core:product"
+              />
+            </div>
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
-            {productDetail?._id && (
-              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
-                <PrintDocument
-                  items={[{ _id: productDetail._id }]}
-                  contentType="core:product"
-                />
-              </div>
-            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}

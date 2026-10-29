@@ -4,7 +4,7 @@ import { useUserDetail } from '../../hooks/useUserDetail';
 import { MemberDetailSidebar } from './MemberDetailSidebar';
 import { MemberDetailMainContents } from './MemberDetailMainContents';
 import { MemberDetailErrorState } from './MemberDetailErrorState';
-import { PrintDocument } from 'ui-modules';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 import { MemberDetailEmptyState } from './MemberDetailEmptyState';
 import { useTranslation } from 'react-i18next';
 
@@ -22,21 +22,23 @@ export const MemberDetail = () => {
         notFoundState={<MemberDetailEmptyState />}
         errorState={<MemberDetailErrorState />}
       >
-        <FocusSheet.Header title={t('member-detail')} />
+        <FocusSheet.Header title={t('member-detail')}>
+          {userDetail?._id && (
+            <div className="ml-auto">
+              <DocumentPrintMenu
+                key={userDetail._id}
+                items={[{ _id: userDetail._id }]}
+                contentType="core:user"
+              />
+            </div>
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content>
           <FocusSheet.SideBar>
             <MemberDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex-1 flex flex-col overflow-hidden">
             <MemberDetailGeneral />
-            {userDetail?._id && (
-              <div className="flex flex-wrap items-center gap-2 px-8 pb-5">
-                <PrintDocument
-                  items={[{ _id: userDetail._id }]}
-                  contentType="core:user"
-                />
-              </div>
-            )}
             <Separator />
             <MemberDetailMainContents />
           </div>
