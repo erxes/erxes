@@ -8,6 +8,7 @@ import { DeleteResult } from 'mongodb';
 import { Model } from 'mongoose';
 import { triageSchema } from '../definitions/triage';
 import { createNotifications } from '~/utils/notifications';
+import { notifyDiscord } from '@/discordIntegration/utils/notifyDiscord';
 
 export interface ITriageModel extends Model<ITriageDocument> {
   getTriage(_id: string): Promise<ITriageDocument>;
@@ -69,6 +70,15 @@ export const loadTriageClass = (models: IModels) => {
           models,
         });
       }
+
+      await notifyDiscord(models, {
+        subdomain,
+        event: 'triageCreated',
+        entityId: String(triageDoc._id),
+        teamId: String(triageDoc.teamId),
+        actorId: triage.createdBy,
+      });
+
       return triageDoc;
     }
 

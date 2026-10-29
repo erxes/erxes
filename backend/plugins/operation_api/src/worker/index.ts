@@ -1,6 +1,8 @@
 import { Queue } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
+import { DISCORD_NOTIFY_QUEUE } from '@/discordIntegration/constants';
 import { checkCycle, dailyCheckCycles } from '~/worker/dailyCheckCycles';
+import { deliverDiscordNotification } from '~/worker/discordNotifications';
 
 export const initMQWorkers = async (redis: any) => {
   const myQueue = new Queue('operations-daily-cycles-check', {
@@ -39,6 +41,18 @@ export const initMQWorkers = async (redis: any) => {
     redis,
     () => {
       console.log('Worker for queue operations-daily-cycles-check is ready');
+    },
+  );
+
+  createMQWorkerWithListeners(
+    'operations',
+    DISCORD_NOTIFY_QUEUE,
+    deliverDiscordNotification,
+    redis,
+    () => {
+      console.log(
+        `Worker for queue operations-${DISCORD_NOTIFY_QUEUE} is ready`,
+      );
     },
   );
 };

@@ -13,6 +13,7 @@ import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
+import { notifyDiscord } from '@/discordIntegration/utils/notifyDiscord';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
@@ -188,6 +189,17 @@ export const loadTaskClass = (
         docId: task._id,
         currentDocument: task.toObject(),
       });
+
+      if (doc.assigneeId) {
+        await notifyDiscord(models, {
+          subdomain,
+          event: 'taskAssigned',
+          entityId: String(task._id),
+          teamId: String(task.teamId),
+          actorId: userId,
+        });
+      }
+
       return task;
     }
 
@@ -325,6 +337,27 @@ export const loadTaskClass = (
           currentDocument: updatedTask.toObject(),
           prevDocument: task.toObject(),
         });
+
+        const discordJob = {
+          subdomain,
+          entityId: String(updatedTask._id),
+          teamId: String(updatedTask.teamId),
+          actorId: userId,
+        };
+
+        if (doc.assigneeId && doc.assigneeId !== task.assigneeId) {
+          await notifyDiscord(models, { ...discordJob, event: 'taskAssigned' });
+        }
+
+        if (
+          rest.statusType === STATUS_TYPES.COMPLETED &&
+          task.statusType !== STATUS_TYPES.COMPLETED
+        ) {
+          await notifyDiscord(models, {
+            ...discordJob,
+            event: 'taskCompleted',
+          });
+        }
       }
       return updatedTask;
     }

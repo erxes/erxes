@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageAddInput, ITriageUpdateInput } from '@/task/@types/triage';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { notifyDiscord } from '@/discordIntegration/utils/notifyDiscord';
 
 export const triageMutations = {
   operationAddTriage: async (
@@ -43,7 +44,7 @@ export const triageMutations = {
   operationCancelTriage: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('triageUpdate');
 
@@ -52,7 +53,19 @@ export const triageMutations = {
       throw new Error('Triage not found');
     }
 
-    return models.Triage.updateTriage(_id, { status: STATUS_TYPES.CANCELLED });
+    const cancelledTriage = await models.Triage.updateTriage(_id, {
+      status: STATUS_TYPES.CANCELLED,
+    });
+
+    await notifyDiscord(models, {
+      subdomain,
+      event: 'triageDeclined',
+      entityId: String(triage._id),
+      teamId: String(triage.teamId),
+      actorId: user._id,
+    });
+
+    return cancelledTriage;
   },
 
   operationConvertTriageToTask: async (
@@ -127,6 +140,19 @@ export const triageMutations = {
         });
       }
       await models.Triage.deleteTriage(_id);
+
+      await notifyDiscord(models, {
+        subdomain,
+        event:
+          status === STATUS_TYPES.CANCELLED
+            ? 'triageDeclined'
+            : 'triageAccepted',
+        entityId: String(task._id),
+        teamId: String(task.teamId),
+        actorId: user._id,
+        reason,
+      });
+
       return task;
     } else {
       throw new Error('Failed to convert triage to task');
