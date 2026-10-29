@@ -9,6 +9,7 @@ export type TRecordPanelView =
   | 'detail'
   | 'properties'
   | 'activity'
+  | 'tab'
   // A record not created yet (`contentId` is `NEW_RECORD_ID`): its draft,
   // which creates the record and replaces itself with it.
   | 'new';
@@ -17,4 +18,5 @@ export interface IRecordPanelProps {
   contentType: string;
   contentId: string;
   view: TRecordPanelView;
+  tab?: string;
 }
