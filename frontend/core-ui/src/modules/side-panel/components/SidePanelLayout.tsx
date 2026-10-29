@@ -548,6 +548,16 @@ export const SidePanelLayout = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
 
   const renderRoute = () => {
+    if (record?.contentType === USER_CONTENT_TYPE) {
+      return (
+        <MemberDetail
+          key={`${record.contentType}:${record.contentId}`}
+          onBack={onBack}
+          onClose={close}
+        />
+      );
+    }
+
     if (record) {
       return (
         <SidePanelRecord
