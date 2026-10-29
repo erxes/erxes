@@ -1,9 +1,10 @@
-import { Label } from 'erxes-ui';
+import { cn, Label } from 'erxes-ui';
 import {
   DataExtensionValue,
   IDataExtensionField,
   IDataExtensionLinkedRecord,
 } from '../types';
+import { DataExtensionFieldLabel } from './DataExtensionFieldLabel';
 import { DataExtensionRelationValue } from './DataExtensionRelationValue';
 import { DataExtensionValueInput } from './DataExtensionValueInput';
 
@@ -12,6 +13,9 @@ const WIDE_TYPES: IDataExtensionField['type'][] = [
   'multiSelect',
   'relation',
 ];
+
+/** Values taller than one row: their label sits at the top of the row. */
+const TALL_TYPES: IDataExtensionField['type'][] = ['longText', 'multiSelect'];
 
 /**
  * The editors for a record type's extension fields, laid out as a form
@@ -37,27 +41,19 @@ export const DataExtensionFieldsEditor = ({
   editableLinks?: string[];
   disabled?: boolean;
   idPrefix?: string;
-  /** `stack` puts every field on its own row, for narrow panels. */
+  /** `stack` lays fields out as side panel rows: label, then value. */
   layout?: 'grid' | 'stack';
-}) => (
-  <div
-    className={
-      layout === 'stack' ? 'flex flex-col gap-4' : 'grid gap-5 sm:grid-cols-2'
-    }
-  >
-    {fields.map((field) => {
-      const inputId = `${idPrefix}-${field.key}`;
+}) => {
+  const stack = layout === 'stack';
 
-      return (
-        <div
-          key={field._id}
-          className={
-            layout === 'grid' && WIDE_TYPES.includes(field.type)
-              ? 'flex flex-col gap-2 sm:col-span-2'
-              : 'flex flex-col gap-2'
-          }
-        >
-          <Label htmlFor={inputId}>{field.label}</Label>
+  return (
+    <div
+      className={stack ? 'flex flex-col gap-1' : 'grid gap-5 sm:grid-cols-2'}
+    >
+      {fields.map((field) => {
+        const inputId = `${idPrefix}-${field.key}`;
+        const tall = Boolean(field.relation) || TALL_TYPES.includes(field.type);
+        const input = (
           <fieldset disabled={disabled} className="min-w-0">
             {field.relation ? (
               <DataExtensionRelationValue
@@ -74,14 +70,49 @@ export const DataExtensionFieldsEditor = ({
                 field={field}
                 value={values[field.key] ?? null}
                 onChange={(value) => onChange(field.key, value)}
+                compact={stack}
               />
             )}
           </fieldset>
-          {field.description && (
-            <p className="text-xs text-muted-foreground">{field.description}</p>
-          )}
-        </div>
-      );
-    })}
-  </div>
-);
+        );
+
+        if (stack) {
+          return (
+            <div
+              key={field._id}
+              className={cn(
+                'grid min-h-7 grid-cols-[6.5rem_minmax(0,1fr)] gap-x-2',
+                tall ? 'items-start' : 'items-center',
+              )}
+            >
+              <DataExtensionFieldLabel
+                field={field}
+                htmlFor={inputId}
+                className={tall ? 'pt-1.5' : undefined}
+              />
+              {input}
+            </div>
+          );
+        }
+
+        return (
+          <div
+            key={field._id}
+            className={cn(
+              'flex flex-col gap-2',
+              WIDE_TYPES.includes(field.type) && 'sm:col-span-2',
+            )}
+          >
+            <Label htmlFor={inputId}>{field.label}</Label>
+            {input}
+            {field.description && (
+              <p className="text-xs text-muted-foreground">
+                {field.description}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};

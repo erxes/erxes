@@ -1,5 +1,6 @@
 import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
-import { cn, Label, Skeleton, Spinner } from 'erxes-ui';
+import { cn, Skeleton, Spinner } from 'erxes-ui';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { FocusEvent, KeyboardEvent, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataExtensionFields } from '../hooks/useDataExtensionFields';
@@ -11,6 +12,7 @@ import {
   IDataExtensionLinkedRecord,
   IDataExtensionRecordType,
 } from '../types';
+import { DataExtensionFieldLabel } from './DataExtensionFieldLabel';
 import { DataExtensionRelationValue } from './DataExtensionRelationValue';
 import { DataExtensionValueInput } from './DataExtensionValueInput';
 
@@ -24,12 +26,83 @@ const SAVE_ON_BLUR: IDataExtensionField['type'][] = [
   'phone',
 ];
 
+/** Values taller than one row: their label sits at the top of the row. */
+const TALL_TYPES: IDataExtensionField['type'][] = ['longText', 'multiSelect'];
+
+/** How long the saved check stays before it fades out. */
+const SAVED_VISIBLE_MS = 1600;
+
+/** The side panel's row: label column, value, and a slot for save state. */
+const ROW_CLASS_NAME =
+  'grid grid-cols-[6.5rem_minmax(0,1fr)_1rem] gap-x-2 gap-y-0.5 min-h-7';
+
 const sameValue = (a: DataExtensionValue, b: DataExtensionValue) =>
   JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 
 /**
+ * Saving, then a check that fades after a moment: confirms the write
+ * without leaving a lasting badge on every row the user touched.
+ */
+const SaveState = ({
+  saving,
+  saved,
+  error,
+}: {
+  saving: boolean;
+  saved: boolean;
+  error: string | null;
+}) => {
+  const { t } = useTranslation('dataExtensions');
+  const reduceMotion = useReducedMotion();
+  const appear = reduceMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 } }
+    : {
+        initial: { opacity: 0, scale: 0.6 },
+        animate: { opacity: 1, scale: 1 },
+      };
+
+  return (
+    <span
+      className="flex size-4 items-center justify-center"
+      aria-live="polite"
+    >
+      <AnimatePresence initial={false} mode="wait">
+        {saving && (
+          <motion.span key="saving" {...appear} exit={{ opacity: 0 }}>
+            <Spinner size="sm" />
+          </motion.span>
+        )}
+        {!saving && error && (
+          <motion.span
+            key="error"
+            {...appear}
+            exit={{ opacity: 0 }}
+            className="text-destructive"
+          >
+            <IconAlertCircle className="size-3.5" aria-hidden="true" />
+          </motion.span>
+        )}
+        {!saving && !error && saved && (
+          <motion.span
+            key="saved"
+            {...appear}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="text-success"
+          >
+            <IconCheck className="size-3.5" aria-hidden="true" />
+            <span className="sr-only">{t('inline.saved')}</span>
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+};
+
+/**
  * One field edited in place and saved on its own, the way Twenty persists
  * a field: typed values when focus leaves it, picked values right away.
+ * Laid out like the side panel's own fields.
  */
 const DataExtensionInlineField = ({
   field,
@@ -48,16 +121,26 @@ const DataExtensionInlineField = ({
   inputId: string;
   onSave: (key: string, value: DataExtensionValue) => Promise<void>;
 }) => {
-  const { t } = useTranslation('dataExtensions');
   const [draft, setDraft] = useState<DataExtensionValue>(value);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const saveOnBlur = !field.relation && SAVE_ON_BLUR.includes(field.type);
+  const tall = Boolean(field.relation) || TALL_TYPES.includes(field.type);
 
   useEffect(() => {
     setDraft(value);
   }, [value]);
+
+  useEffect(() => {
+    if (!saved) {
+      return;
+    }
+
+    const timer = setTimeout(() => setSaved(false), SAVED_VISIBLE_MS);
+
+    return () => clearTimeout(timer);
+  }, [saved]);
 
   const save = async (next: DataExtensionValue) => {
     if (sameValue(next, value)) {
@@ -106,20 +189,15 @@ const DataExtensionInlineField = ({
   };
 
   return (
-    <div className="flex min-w-0 flex-col gap-2">
-      <div className="flex items-center justify-between gap-2">
-        <Label htmlFor={inputId}>{field.label}</Label>
-        {saving && <Spinner size="sm" />}
-        {!saving && saved && (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <IconCheck className="size-3.5" />
-            {t('inline.saved')}
-          </span>
-        )}
-      </div>
+    <div className={cn(ROW_CLASS_NAME, tall ? 'items-start' : 'items-center')}>
+      <DataExtensionFieldLabel
+        field={field}
+        htmlFor={inputId}
+        className={tall ? 'pt-1.5' : 'self-center'}
+      />
       <fieldset
         disabled={readOnly || saving}
-        className="min-w-0"
+        className="min-w-0 transition-opacity disabled:opacity-70"
         onBlur={onBlur}
         onKeyDown={onKeyDown}
       >
@@ -138,25 +216,36 @@ const DataExtensionInlineField = ({
             field={field}
             value={draft}
             onChange={onChange}
+            compact
           />
         )}
       </fieldset>
-      {error ? (
+      <span className={tall ? 'pt-1.5' : 'self-center'}>
+        <SaveState saving={saving} saved={saved} error={error} />
+      </span>
+      {error && (
         <p
-          className="flex items-center gap-1 text-xs text-destructive"
+          className="col-start-2 col-end-4 text-xs text-destructive"
           role="alert"
         >
-          <IconAlertCircle className="size-3.5 shrink-0" />
           {error}
         </p>
-      ) : (
-        field.description && (
-          <p className="text-xs text-muted-foreground">{field.description}</p>
-        )
       )}
     </div>
   );
 };
+
+/** Rows of the panel's shape while a record's values load. */
+const FieldRowsSkeleton = ({ rows }: { rows: number }) => (
+  <div className="flex flex-col gap-1.5" aria-hidden="true">
+    {Array.from({ length: Math.min(rows, 4) }, (_, index) => (
+      <div key={index} className={cn(ROW_CLASS_NAME, 'items-center')}>
+        <Skeleton className="h-3 w-16" />
+        <Skeleton className="h-7 w-full rounded-sm" />
+      </div>
+    ))}
+  </div>
+);
 
 /**
  * Fields of one record type on one record. Renders nothing when the record
@@ -197,14 +286,18 @@ const RecordTypeFields = ({
 
   if (error) {
     return (
-      <p className="text-sm text-destructive" role="alert">
+      <p
+        className="flex items-center gap-1.5 text-xs text-destructive"
+        role="alert"
+      >
+        <IconAlertCircle className="size-3.5 shrink-0" aria-hidden="true" />
         {error.message}
       </p>
     );
   }
 
   if (!record) {
-    return <Skeleton className="h-14" />;
+    return <FieldRowsSkeleton rows={fields.length} />;
   }
 
   const onSave = async (key: string, value: DataExtensionValue) => {
@@ -212,9 +305,9 @@ const RecordTypeFields = ({
   };
 
   return (
-    <section className="flex flex-col gap-4">
+    <section className="flex flex-col gap-1.5 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-200">
       {showLabel && (
-        <h4 className="text-xs font-medium uppercase text-muted-foreground">
+        <h4 className="pb-0.5 text-xs font-medium text-muted-foreground">
           {descriptor.label}
         </h4>
       )}
@@ -237,8 +330,8 @@ const RecordTypeFields = ({
 /**
  * Every Data Extension field that applies to a record, from the current
  * definitions: the record types registered for its content type, read and
- * saved through the tenant endpoint. Used by the generic detail widget, so
- * no module page lists its fields itself.
+ * saved through the tenant endpoint. Used by the record side panel, so no
+ * module page lists its fields itself.
  */
 export const DataExtensionRecordFields = ({
   contentType,
@@ -259,11 +352,11 @@ export const DataExtensionRecordFields = ({
   );
 
   if (loading && !recordTypes.length) {
-    return <Spinner containerClassName="py-6" />;
+    return <FieldRowsSkeleton rows={3} />;
   }
 
   return (
-    <div className={cn('flex flex-col gap-6', className)}>
+    <div className={cn('flex flex-col gap-5', className)}>
       {applicable.map((descriptor) => (
         <RecordTypeFields
           key={descriptor.recordType}

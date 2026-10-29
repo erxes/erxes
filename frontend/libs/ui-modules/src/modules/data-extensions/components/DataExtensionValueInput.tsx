@@ -1,6 +1,15 @@
-import { Checkbox, DatePicker, Input, Label, Select, Textarea } from 'erxes-ui';
+import {
+  Checkbox,
+  cn,
+  DatePicker,
+  Input,
+  Label,
+  Select,
+  Textarea,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { DataExtensionValue, IDataExtensionField } from '../types';
+import { PANEL_INPUT_CLASS_NAME } from '../../widget/record-side-panel/PanelForm';
 
 const NOT_SET = '__not_set__';
 
@@ -11,19 +20,28 @@ const inputTypes: Partial<Record<IDataExtensionField['type'], string>> = {
   number: 'number',
 };
 
-/** One editor per field type; an empty editor means the value is cleared. */
+/**
+ * One editor per field type; an empty editor means the value is cleared.
+ * `compact` sizes the editors like the record side panel's own fields.
+ */
 export const DataExtensionValueInput = ({
   field,
   id,
   value,
   onChange,
+  compact = false,
 }: {
   field: IDataExtensionField;
   id: string;
   value: DataExtensionValue;
   onChange: (value: DataExtensionValue) => void;
+  compact?: boolean;
 }) => {
   const { t } = useTranslation('dataExtensions');
+  const inputClassName = compact ? PANEL_INPUT_CLASS_NAME : undefined;
+  const triggerClassName = compact
+    ? 'h-7 rounded-sm text-xs shadow-none'
+    : undefined;
 
   switch (field.type) {
     case 'longText':
@@ -31,6 +49,7 @@ export const DataExtensionValueInput = ({
         <Textarea
           id={id}
           rows={3}
+          className={cn(compact && 'min-h-16 rounded-sm text-xs shadow-none')}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value || null)}
         />
@@ -39,6 +58,7 @@ export const DataExtensionValueInput = ({
       return (
         <Input
           id={id}
+          className={inputClassName}
           type="number"
           inputMode="decimal"
           value={typeof value === 'number' ? String(value) : ''}
@@ -56,7 +76,7 @@ export const DataExtensionValueInput = ({
             onChange(next === NOT_SET ? null : next === 'true')
           }
         >
-          <Select.Trigger id={id}>
+          <Select.Trigger id={id} className={triggerClassName}>
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -69,6 +89,7 @@ export const DataExtensionValueInput = ({
     case 'date':
       return (
         <DatePicker
+          className={triggerClassName}
           value={typeof value === 'string' ? new Date(value) : undefined}
           placeholder={t('values.pick-date')}
           allowNull
@@ -83,7 +104,7 @@ export const DataExtensionValueInput = ({
           value={typeof value === 'string' ? value : NOT_SET}
           onValueChange={(next) => onChange(next === NOT_SET ? null : next)}
         >
-          <Select.Trigger id={id}>
+          <Select.Trigger id={id} className={triggerClassName}>
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -103,7 +124,10 @@ export const DataExtensionValueInput = ({
         <div
           id={id}
           role="group"
-          className="flex flex-wrap gap-x-4 gap-y-2 rounded-md border p-3"
+          className={cn(
+            'flex flex-wrap gap-x-4 gap-y-2 rounded-md border p-3',
+            compact && 'gap-x-3 gap-y-1.5 rounded-sm p-2 text-xs',
+          )}
         >
           {(field.options || []).map((option) => {
             const optionId = `${id}-${option.value}`;
@@ -134,6 +158,7 @@ export const DataExtensionValueInput = ({
       return (
         <Input
           id={id}
+          className={inputClassName}
           type={inputTypes[field.type] || 'text'}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value || null)}

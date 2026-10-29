@@ -1,5 +1,5 @@
 import { IconVariable } from '@tabler/icons-react';
-import { cn } from 'erxes-ui';
+import { cn, Separator } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataExtensionFields } from '../hooks/useDataExtensionFields';
@@ -61,12 +61,27 @@ export const DataExtensionCreateFields = ({
     return null;
   }
 
+  const stack = layout === 'stack';
+
   return (
-    <section className={cn('flex flex-col gap-4', className)}>
-      <h3 className="flex items-center gap-2 text-sm font-medium">
-        <IconVariable className="size-4 text-muted-foreground" />
-        {t('section.title')}
-      </h3>
+    <section
+      className={cn(
+        'flex flex-col motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-200',
+        stack ? 'gap-2' : 'gap-4',
+        className,
+      )}
+    >
+      {stack ? (
+        <h3 className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+          {t('section.title')}
+          <Separator className="flex-1" />
+        </h3>
+      ) : (
+        <h3 className="flex items-center gap-2 text-sm font-medium">
+          <IconVariable className="size-4 text-muted-foreground" />
+          {t('section.title')}
+        </h3>
+      )}
       <DataExtensionFieldsEditor
         fields={fields}
         values={values}
