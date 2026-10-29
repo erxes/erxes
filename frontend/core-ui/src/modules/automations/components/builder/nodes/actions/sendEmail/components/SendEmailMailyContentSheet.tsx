@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { EmailPastedVariables } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailPastedVariables';
 import { EmailTemplateSelector } from '@/automations/components/builder/nodes/actions/sendEmail/components/EmailTemplateSelector';
@@ -13,7 +14,7 @@ import { buildEmailItemTable } from '@/automations/components/builder/nodes/acti
 import { EmailContentEditor } from '@/emailTemplates/components/EmailContentEditor';
 import { IconEdit } from '@tabler/icons-react';
 import type { Editor as TiptapEditor } from '@tiptap/core';
-import { Button, EmailEditorVariable, JSONContent, Sheet } from 'erxes-ui';
+import { Button, EmailEditorVariable, JSONContent } from 'erxes-ui';
 import { useCallback, useMemo, useRef, useState } from 'react';
 
 /**
@@ -208,19 +209,29 @@ export const SendEmailMailyContentSheet = ({
         )}
       </div>
 
-      <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-          <Sheet.Header className="h-auto py-2">
+      <CoreModulePanel
+        maxWidth={1200}
+        defaultWidth={900}
+        name={
+          'automations/builder/nodes/actions/sendEmail/SendEmailMailyContentSheet'
+        }
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      >
+        <CoreModulePanel.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
+          <CoreModulePanel.Header className="h-auto py-2">
             <div className="space-y-1">
-              <Sheet.Title>{t('send-email-edit-content-title')}</Sheet.Title>
-              <Sheet.Description>
+              <CoreModulePanel.Title>
+                {t('send-email-edit-content-title')}
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Description>
                 {t('send-email-edit-content-description')}
-              </Sheet.Description>
+              </CoreModulePanel.Description>
             </div>
-            <Sheet.Close />
-          </Sheet.Header>
+            <CoreModulePanel.Close />
+          </CoreModulePanel.Header>
 
-          <Sheet.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
+          <CoreModulePanel.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
             {/* What earlier steps produced, to drag into the email. */}
             <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
               <div className="h-full min-h-0 overflow-y-auto">
@@ -252,15 +263,15 @@ export const SendEmailMailyContentSheet = ({
                 />
               </div>
             </div>
-          </Sheet.Content>
-          <Sheet.Footer>
+          </CoreModulePanel.Content>
+          <CoreModulePanel.Footer>
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               {t('cancel')}
             </Button>
             <Button onClick={onSave}>{t('save')}</Button>
-          </Sheet.Footer>
-        </Sheet.View>
-      </Sheet>
+          </CoreModulePanel.Footer>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </div>
   );
 };

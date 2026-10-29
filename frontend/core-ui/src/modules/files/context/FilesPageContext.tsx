@@ -1,4 +1,5 @@
 import { useQueryState } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
 import {
   createContext,
   Dispatch,
@@ -7,9 +8,17 @@ import {
   useContext,
   useMemo,
   useState,
+  useRef,
+  useCallback,
 } from 'react';
-import { TFilesItem, useFilesSelection } from '../hooks/useFilesSelection';
-import { IFile, IFilesFolder, TFilesSpace, useFilesBrowser } from 'ui-modules';
+import { TFilesItem, useFilesSelection } from '@/files/hooks/useFilesSelection';
+import {
+  FILES_BY_IDS,
+  IFile,
+  IFilesFolder,
+  TFilesSpace,
+  useFilesBrowser,
+} from 'ui-modules';
 
 export type TFilesNameDialog =
   | { mode: 'create-folder' }
@@ -35,6 +44,8 @@ type TFilesPageContext = {
   moveTarget: TFilesMoveTarget | null;
   setMoveTarget: (target: TFilesMoveTarget | null) => void;
   previewFile: IFile | null;
+  previewLoading: boolean;
+  previewError?: Error;
   setPreviewFile: Dispatch<SetStateAction<IFile | null>>;
   appearanceFolders: IFilesFolder[];
   setAppearanceFolders: (folders: IFilesFolder[]) => void;
@@ -59,7 +70,32 @@ export const FilesPageProvider = ({
   const browser = useFilesBrowser({ space, folderId, searchValue });
   const [nameDialog, setNameDialog] = useState<TFilesNameDialog | null>(null);
   const [moveTarget, setMoveTarget] = useState<TFilesMoveTarget | null>(null);
-  const [previewFile, setPreviewFile] = useState<IFile | null>(null);
+  const [previewId, setPreviewId] = useQueryState<string>('previewFileId');
+  const [previewSnapshot, setPreviewSnapshot] = useState<IFile | null>(null);
+  const {
+    data: previewData,
+    loading: previewLoading,
+    error: previewError,
+  } = useQuery<{ filesByIds: IFile[] }>(FILES_BY_IDS, {
+    variables: { _ids: previewId ? [previewId] : [] },
+    skip: !previewId,
+  });
+  const previewFile =
+    previewSnapshot?._id === previewId
+      ? previewSnapshot
+      : previewData?.filesByIds.find((file) => file._id === previewId) || null;
+  const previewRef = useRef(previewFile);
+  previewRef.current = previewFile;
+  const setPreviewFile = useCallback<Dispatch<SetStateAction<IFile | null>>>(
+    (value) => {
+      const next =
+        typeof value === 'function' ? value(previewRef.current) : value;
+      previewRef.current = next;
+      setPreviewSnapshot(next);
+      setPreviewId(next?._id || null);
+    },
+    [setPreviewId],
+  );
   const [appearanceFolders, setAppearanceFolders] = useState<IFilesFolder[]>(
     [],
   );
@@ -97,6 +133,8 @@ export const FilesPageProvider = ({
         moveTarget,
         setMoveTarget,
         previewFile,
+        previewLoading,
+        previewError,
         setPreviewFile,
         appearanceFolders,
         setAppearanceFolders,

@@ -1,10 +1,10 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconFolder, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
   Spinner,
   useScopedHotkeys,
   useToast,
@@ -12,14 +12,17 @@ import {
 import { useEffect } from 'react';
 import { ApolloError } from '@apollo/client';
 import { SubmitHandler } from 'react-hook-form';
-import { useDepartmentForm } from '../../hooks/useDepartmentForm';
+import { useDepartmentForm } from '@/settings/structure/hooks/useDepartmentForm';
 import {
   useDepartmentAdd,
   useDepartmentEdit,
-} from '../../hooks/useDepartmentActions';
-import { useDepartmentCreateSheet } from '../../hooks/useStructureCreateSheet';
-import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
-import { DepartmentForm } from './DepartmentForm';
+} from '@/settings/structure/hooks/useDepartmentActions';
+import { useDepartmentCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
+import {
+  DepartmentHotKeyScope,
+  TDepartmentForm,
+} from '@/settings/structure/types/department';
+import { DepartmentForm } from '@/settings/structure/components/departments/DepartmentForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateDepartment = () => {
@@ -92,19 +95,21 @@ export const CreateDepartment = () => {
     });
   };
   return (
-    <Sheet
+    <CoreModulePanel
+      requiredPermission="departmentsManage"
+      name={'settings/structure/departments/CreateDepartment'}
       onOpenChange={(open) => (open ? openSheet() : closeSheet())}
       open={isOpen}
     >
       <Can action="departmentsManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus /> {t('create-department')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -115,27 +120,27 @@ export const CreateDepartment = () => {
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconFolder size={16} />
                 {t('create-department-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <DepartmentForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={closeSheet}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? <Spinner /> : t('create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

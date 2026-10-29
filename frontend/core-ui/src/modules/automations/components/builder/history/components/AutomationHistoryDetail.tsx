@@ -1,3 +1,5 @@
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   AutomationExecutionBackButton,
   AutomationExecutionDetailTabs,
@@ -7,7 +9,7 @@ import { AutomationExecutionDetailProvider } from '@/automations/components/buil
 import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { IconEye } from '@tabler/icons-react';
-import { cn, RecordTable, RecordTableInlineCell, Sheet } from 'erxes-ui';
+import { cn, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const AutomationHistoryDetail = ({
@@ -16,46 +18,44 @@ export const AutomationHistoryDetail = ({
   executionId: string;
 }) => {
   const { t } = useTranslation('automations');
+  const { selectedExecutionId, selectExecution } = useAutomationHistoryView();
+  return (
+    <RecordTableInlineCell className="p-0">
+      <RecordTable.MoreButton
+        className="w-full h-full"
+        aria-label={t('history-show-execution-detail')}
+        onClick={() => selectExecution(executionId)}
+      >
+        <IconEye
+          className={cn(selectedExecutionId === executionId && 'text-primary')}
+        />
+      </RecordTable.MoreButton>
+    </RecordTableInlineCell>
+  );
+};
+
+export const AutomationHistoryPanel = () => {
   const { isSplitView, selectedExecutionId, selectExecution } =
     useAutomationHistoryView();
-  const isOpen = selectedExecutionId === executionId;
-
-  const trigger = (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      aria-label={t('history-show-execution-detail')}
-    >
-      <IconEye className={cn(isOpen && 'text-primary')} />
-    </RecordTable.MoreButton>
-  );
-
-  if (isSplitView) {
-    return (
-      <RecordTableInlineCell className="p-0">
-        <span
-          className="flex size-full"
-          onClick={() => selectExecution(executionId)}
-        >
-          {trigger}
-        </span>
-      </RecordTableInlineCell>
-    );
-  }
-
   return (
-    <AutomationHistoryDetailProvider executionId={executionId}>
-      <RecordTableInlineCell className="p-0">
-        <Sheet
-          open={isOpen}
-          onOpenChange={(open) => selectExecution(open ? executionId : null)}
-        >
-          <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
-          <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-            <AutomationHistorySheetContent isOpen={isOpen} />
-          </Sheet.View>
-        </Sheet>
-      </RecordTableInlineCell>
-    </AutomationHistoryDetailProvider>
+    <CoreModulePanel
+      name={AUTOMATION_HISTORY_PANEL}
+      open={!!selectedExecutionId && !isSplitView}
+      onOpenChange={(open) => !open && selectExecution(null)}
+      maxWidth={1100}
+      defaultWidth={720}
+    >
+      <CoreModulePanel.View className="p-0" notFound={!selectedExecutionId}>
+        {selectedExecutionId && (
+          <AutomationHistoryDetailProvider
+            key={selectedExecutionId}
+            executionId={selectedExecutionId}
+          >
+            <AutomationHistorySheetContent isOpen />
+          </AutomationHistoryDetailProvider>
+        )}
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
@@ -64,20 +64,20 @@ const AutomationHistorySheetHeader = () => {
   const title = useAutomationExecutionDetailTitle();
 
   return (
-    <Sheet.Header className="h-auto py-2">
+    <CoreModulePanel.Header className="h-auto py-2">
       <div className="flex min-w-0 items-center gap-2">
         <AutomationExecutionBackButton />
         <div>
           <div className="flex items-center gap-2">
-            <Sheet.Title>{title}</Sheet.Title>
+            <CoreModulePanel.Title>{title}</CoreModulePanel.Title>
           </div>
-          <Sheet.Description>
+          <CoreModulePanel.Description>
             {t('history-sheet-description')}
-          </Sheet.Description>
+          </CoreModulePanel.Description>
         </div>
       </div>
-      <Sheet.Close />
-    </Sheet.Header>
+      <CoreModulePanel.Close />
+    </CoreModulePanel.Header>
   );
 };
 
@@ -92,9 +92,9 @@ export const AutomationHistorySheetContent = ({
   return (
     <AutomationExecutionDetailProvider>
       <AutomationHistorySheetHeader />
-      <Sheet.Content>
+      <CoreModulePanel.Content>
         <AutomationExecutionDetailTabs />
-      </Sheet.Content>
+      </CoreModulePanel.Content>
     </AutomationExecutionDetailProvider>
   );
 };
