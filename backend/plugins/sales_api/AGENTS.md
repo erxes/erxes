@@ -77,6 +77,7 @@
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
   batch of them through the `evaluateFields` segment producer. The `tagIds`
   lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
+- POS items export (`sales:pos.posItems`): the module dispatcher reads `collectionName` from the unwrapped `data` the module producer passes, or from `{ data }`. `getPosItemsExportData` returns one page of up to 5000 order items per call; each row's `_id` is its position in the export, so the pipeline's `cursor` is the offset of the next page.
 
 ## Architecture
 
@@ -274,6 +275,8 @@
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- `posOrderRecordsQuery` sorts unwound order items by `createdAt` desc, `_id` desc, then `itemIndex` asc. The list and the POS items export page by `$skip`, and without the tie-breakers items of one order (same `createdAt`) could repeat or vanish between pages.
 
 - Every automation action declares a `configSchema` (`src/modules/sales/meta/automations/configSchemas.ts` and `src/modules/pos/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create deal (`stageId`, `name`), create checklist (`name`) and create POS order (`posId` or `posToken`; amounts may be `{{ }}` placeholders). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Create deal also declares `validateConfig` (`src/modules/sales/meta/automations/configValidators.ts`): its `stageId` exists. POS `posToken` is builder-only.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
