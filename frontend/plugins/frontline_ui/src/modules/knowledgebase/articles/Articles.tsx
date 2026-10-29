@@ -1,14 +1,18 @@
+import { useSidePanel } from 'ui-modules';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageSubHeader, useQueryState } from 'erxes-ui';
-import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { ArticleDrawer } from '@/knowledgebase/articles/components/ArticleDrawer';
 import { ArticlesFilter } from '@/knowledgebase/articles/components/ArticlesFilter';
 import { ArticlesRecordTable } from '@/knowledgebase/articles/components/ArticlesRecordTable';
 import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
+import { KnowledgeBaseDetailLink } from '@/knowledgebase/shared/components/KnowledgeBaseDetailLink';
+import {
+  KB_RECORD_CONTENT_TYPES,
+  KB_DRAFT_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 
 export const Articles = () => {
   const { t } = useTranslation('frontline', {
@@ -17,19 +21,17 @@ export const Articles = () => {
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
   const { categories } = useCategories(topicId);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editId, setEditId] = useQueryState<string>('editId');
+  const { openNewRecord } = useSidePanel();
   const [categoryId] = useQueryState<string>('categoryId');
 
   const defaultCategoryId = categoryId || categories?.[0]?._id || '';
   const canCreate = !!defaultCategoryId;
 
-  const openCreate = useCallback(() => setIsCreateOpen(true), []);
-
-  const handleClose = () => {
-    setIsCreateOpen(false);
-    setEditId(null);
-  };
+  const openCreate = () =>
+    openNewRecord(KB_DRAFT_CONTENT_TYPES.article, {
+      topicId,
+      categoryId: defaultCategoryId,
+    });
 
   return (
     <KnowledgeBaseLayout
@@ -54,14 +56,7 @@ export const Articles = () => {
         onCreate={openCreate}
       />
 
-      <ArticleDrawer
-        key={editId ?? 'create'}
-        articleId={editId}
-        topicId={topicId}
-        categoryId={defaultCategoryId}
-        isOpen={isCreateOpen || !!editId}
-        onClose={handleClose}
-      />
+      <KnowledgeBaseDetailLink contentType={KB_RECORD_CONTENT_TYPES.article} />
     </KnowledgeBaseLayout>
   );
 };

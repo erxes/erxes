@@ -1,4 +1,8 @@
 import {
+  KbFormItem,
+  KbFormPanelContext,
+} from '@/knowledgebase/shared/components/KbFormLayout';
+import {
   Combobox,
   Form,
   InfoCard,
@@ -8,7 +12,7 @@ import {
   Textarea,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectHelpCenterForms } from '@/helpcenter/components/SelectHelpCenterForms';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
@@ -35,6 +39,7 @@ function FeatureSection({
   enabled: boolean;
   children: React.ReactNode;
 }>) {
+  const compact = useContext(KbFormPanelContext);
   return (
     <div className="flex flex-col gap-3">
       <Form.Field
@@ -54,7 +59,11 @@ function FeatureSection({
       />
       <div
         className={
-          enabled ? 'grid gap-4 pt-3 border-t lg:grid-cols-2' : 'hidden'
+          enabled
+            ? compact
+              ? 'grid gap-3 pt-3 border-t'
+              : 'grid gap-4 pt-3 border-t lg:grid-cols-2'
+            : 'hidden'
         }
       >
         {children}
@@ -103,6 +112,7 @@ export function HelpCenterGeneralTab({
   t: TFunction;
 }>) {
   const control = form.control;
+  const compact = useContext(KbFormPanelContext);
 
   const showKnowledgeBase = useWatch({ control, name: 'kbToggle' });
   const showTickets = useWatch({ control, name: 'ticketToggle' });
@@ -115,32 +125,28 @@ export function HelpCenterGeneralTab({
     <div className="flex flex-col gap-4">
       <InfoCard title={t('general-settings', 'General')}>
         <InfoCard.Content className="gap-4">
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className={compact ? 'grid gap-3' : 'grid gap-4 lg:grid-cols-2'}>
             <Form.Field
               control={control}
               name="title"
               rules={{ required: 'Title is required' }}
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('name', 'Name')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <KbFormItem required label={t('name', 'Name')}>
                   <Form.Control>
                     <Input {...field} placeholder={t('kb-enter-topic-title')} />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="clientPortalId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('sidebar.client-portal', 'Client portal')}
-                  </Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('sidebar.client-portal', 'Client portal')}
+                >
                   <Form.Control>
                     <SelectHelpCenterClientPortal
                       variant="form"
@@ -154,7 +160,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
           </div>
@@ -162,8 +168,7 @@ export function HelpCenterGeneralTab({
             control={control}
             name="description"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
+              <KbFormItem wide label={t('description')}>
                 <Form.Control>
                   <Textarea
                     {...field}
@@ -171,7 +176,7 @@ export function HelpCenterGeneralTab({
                   />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </KbFormItem>
             )}
           />
         </InfoCard.Content>
@@ -193,10 +198,9 @@ export function HelpCenterGeneralTab({
               control={control}
               name="kbLabel"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('knowledgebase-name', 'Knowledge base name')}
-                  </Form.Label>
+                <KbFormItem
+                  label={t('knowledgebase-name', 'Knowledge base name')}
+                >
                   <Form.Control>
                     <Input
                       {...field}
@@ -207,7 +211,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
@@ -218,11 +222,11 @@ export function HelpCenterGeneralTab({
                   !showKnowledgeBase || !!value || 'Topic is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('knowledgebase-topic', 'Knowledge base topic')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('knowledgebase-topic', 'Knowledge base topic')}
+                >
                   <Form.Control>
                     <SelectHelpCenterTopic
                       variant="form"
@@ -231,7 +235,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
           </FeatureSection>
@@ -254,8 +258,7 @@ export function HelpCenterGeneralTab({
               control={control}
               name="ticketLabel"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('ticket-name', 'Ticket name')}</Form.Label>
+                <KbFormItem label={t('ticket-name', 'Ticket name')}>
                   <Form.Control>
                     <Input
                       {...field}
@@ -266,7 +269,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
@@ -277,11 +280,11 @@ export function HelpCenterGeneralTab({
                   !showTickets || !!value || 'Channel is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('channel-label')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('channel-label')}
+                >
                   <Form.Control>
                     <SelectChannel.FormItem
                       value={field.value}
@@ -293,7 +296,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
@@ -304,11 +307,11 @@ export function HelpCenterGeneralTab({
                   !showTickets || !!value || 'Pipeline is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('pipeline-label')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('pipeline-label')}
+                >
                   <Form.Control>
                     <SelectPipeline
                       variant="form"
@@ -322,15 +325,17 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="ticketStatusId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('status-label')}</Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('status-label')}
+                >
                   <Form.Control>
                     <TicketStatusField
                       value={field.value}
@@ -339,7 +344,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
           </FeatureSection>
@@ -351,13 +356,15 @@ export function HelpCenterGeneralTab({
         className={showTickets ? undefined : 'hidden'}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className={compact ? 'grid gap-3' : 'grid gap-4 lg:grid-cols-2'}>
             <Form.Field
               control={control}
               name="formChannelId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('channel-label')}</Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('channel-label')}
+                >
                   <Form.Control>
                     <SelectChannel.FormItem
                       value={field.value}
@@ -368,22 +375,24 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="formIds"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('forms', 'Forms')}</Form.Label>
+                <KbFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('forms', 'Forms')}
+                >
                   <SelectHelpCenterForms
                     value={field.value}
                     channelId={formChannelId}
                     onValueChange={field.onChange}
                   />
                   <Form.Message />
-                </Form.Item>
+                </KbFormItem>
               )}
             />
           </div>

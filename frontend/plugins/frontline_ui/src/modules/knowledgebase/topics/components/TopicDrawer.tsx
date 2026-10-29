@@ -19,11 +19,13 @@ export const TopicDrawer = ({
   isOpen,
   onClose,
   onSaved,
+  panel = false,
 }: {
   topic?: ITopic;
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -53,6 +55,7 @@ export const TopicDrawer = ({
   return (
     <KbFormSheet
       isOpen={isOpen}
+      panel={panel}
       onClose={onClose}
       title={
         isEditing
@@ -68,7 +71,10 @@ export const TopicDrawer = ({
       onSubmit={submit}
     >
       <Form {...form}>
-        <form onSubmit={submit} className="grid gap-4 p-4">
+        <form
+          onSubmit={submit}
+          className={panel ? 'grid gap-2 p-3' : 'grid gap-4 p-4'}
+        >
           <TopicFormFields form={form} t={t} />
         </form>
       </Form>

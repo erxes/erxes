@@ -1,7 +1,8 @@
+import { KbFormPanelContext } from '@/knowledgebase/shared/components/KbFormLayout';
 import { IconPlus, IconRestore, IconTrash } from '@tabler/icons-react';
 import { Accordion, Button, Form, Input, Separator, Textarea } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   Control,
   useFieldArray,
@@ -38,7 +39,7 @@ function FooterLinkRows({
               control={control}
               name={`${columnName}.links.${index}.label`}
               render={({ field }) => (
-                <Form.Item className="flex-1 space-y-0">
+                <Form.Item className="min-w-0 flex-1 space-y-0">
                   <Form.Control>
                     <Input
                       {...field}
@@ -54,7 +55,7 @@ function FooterLinkRows({
               control={control}
               name={`${columnName}.links.${index}.url`}
               render={({ field }) => (
-                <Form.Item className="flex-1 space-y-0">
+                <Form.Item className="min-w-0 flex-1 space-y-0">
                   <Form.Control>
                     <Input
                       {...field}
@@ -220,7 +221,7 @@ function FooterColumnsField({
         </p>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           size="sm"
@@ -261,10 +262,11 @@ export function HelpCenterFooterFields({
   t: TFunction;
 }>) {
   const control = form.control;
+  const compact = useContext(KbFormPanelContext);
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className={compact ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2'}>
         <StyleImageField
           control={control}
           name="footer.logo"

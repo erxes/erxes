@@ -1,5 +1,9 @@
+import {
+  IntegrationCreateButton,
+  IntegrationFormSession,
+} from '@/integrations/components/IntegrationPanelForm';
+import { IntegrationType } from '@/types/Integration';
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
-import { IconPlus } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { InstagramGetAccounts } from './InstagramGetAccounts';
@@ -11,11 +15,7 @@ import {
 } from '@/integrations/instagram/states/instagramStates';
 import { InstagramGetPages } from './InstagramGetPages';
 import { InstagramIntegrationSetup } from './InstagramIntegrationSetup';
-import { useAtom } from 'jotai';
-import {
-  IgIntegrationProvider,
-  useIgIntegrationContext,
-} from '@/integrations/instagram/context/IgIntegrationContext';
+import { IgIntegrationProvider } from '@/integrations/instagram/context/IgIntegrationContext';
 
 export const InstagramIntegrationFormSheet = ({
   isPost,
@@ -25,30 +25,38 @@ export const InstagramIntegrationFormSheet = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [instagramFormSheet, setInstagramFormSheet] = useAtom(
-    instagramFormSheetAtom,
-  );
-
+  const reset = useSetAtom(resetInstagramAddStateAtom);
   return (
-    <IgIntegrationProvider isPost={isPost}>
-      <div>
-        <Sheet open={instagramFormSheet} onOpenChange={setInstagramFormSheet}>
-          <Sheet.Trigger asChild>
-            <Button>
-              <IconPlus />
-              {isPost
-                ? t('add-instagram-post-integration')
-                : t('add-instagram-messenger-integration')}
-            </Button>
-          </Sheet.Trigger>
-          <Sheet.View>
-            <InstagramIntegrationForm />
-          </Sheet.View>
-        </Sheet>
-      </div>
-    </IgIntegrationProvider>
+    <IntegrationCreateButton
+      kind={
+        isPost
+          ? IntegrationType.INSTAGRAM_POST
+          : IntegrationType.INSTAGRAM_MESSENGER
+      }
+      onClick={reset}
+    >
+      {isPost
+        ? t('add-instagram-post-integration')
+        : t('add-instagram-messenger-integration')}
+    </IntegrationCreateButton>
   );
 };
+
+export const InstagramIntegrationPanelForm = ({
+  isPost,
+}: {
+  isPost?: boolean;
+}) => (
+  <IntegrationFormSession
+    state={instagramFormSheetAtom}
+    value={true}
+    closedValue={false}
+  >
+    <IgIntegrationProvider isPost={isPost}>
+      <InstagramIntegrationForm />
+    </IgIntegrationProvider>
+  </IntegrationFormSession>
+);
 
 export const InstagramIntegrationForm = () => {
   const activeStep = useAtomValue(activeInstagramFormStepAtom);
@@ -73,20 +81,13 @@ export const InstagramIntegrationFormLayout = ({
     keyPrefix: 'modules.integrations',
   });
   const resetForm = useSetAtom(resetInstagramAddStateAtom);
-  const { isPost } = useIgIntegrationContext();
 
   return (
     <>
-      <Sheet.Header>
-        <Sheet.Title>
-          {isPost ? t('add-instagram-post') : t('add-instagram-messenger')}
-        </Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
         {children}
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
         <Sheet.Close asChild>
           <Button
             className="mr-auto text-muted-foreground"

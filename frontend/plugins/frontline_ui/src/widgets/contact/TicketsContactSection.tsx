@@ -1,23 +1,14 @@
-import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { useTicketDetailSheet } from '@/ticket/hooks/useTicketDetailSheet';
-import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
+import { useCreateTicketRecord } from '@/ticket/hooks/useCreateTicketRecord';
 import { useQuery } from '@apollo/client';
 import { IconTicket } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ContactWidgetRow,
   ContactWidgetSection,
   IContactWidgetProps,
 } from 'ui-modules';
-
-const TicketDetailSheet = lazy(() =>
-  import('@/ticket/components/ticket-detail/TicketDetailSheet').then(
-    (module) => ({ default: module.TicketDetailSheet }),
-  ),
-);
 
 // The most tickets listed for one contact.
 const CONTACT_RECORDS_LIMIT = 50;
@@ -34,7 +25,7 @@ const TicketContactRow = ({
     <ContactWidgetRow
       title={ticket.name || t('untitled', 'Untitled')}
       meta={ticket.number ? `#${ticket.number}` : undefined}
-      onClick={() => setActiveTicket(ticket._id)}
+      onClick={() => setActiveTicket(ticket._id, { stack: true })}
     />
   );
 };
@@ -57,8 +48,7 @@ export const TicketsContactSection = ({
     ticket ? [ticket] : [],
   );
   const ticketsById = new Map(tickets.map((ticket) => [ticket._id, ticket]));
-  const setOpenCreateTicket = useSetAtom(ticketCreateSheetState);
-  const [activeTicket] = useTicketDetailSheet();
+  const { openTicketDraft } = useCreateTicketRecord();
 
   return (
     <ContactWidgetSection
@@ -67,19 +57,12 @@ export const TicketsContactSection = ({
       ids={[...ticketsById.keys()]}
       loading={loading}
       createLabel={t('add-ticket', 'Add ticket')}
-      onCreate={() => setOpenCreateTicket(true)}
+      onCreate={() => openTicketDraft(contacts, true)}
       renderItem={(ticketId) => {
         const ticket = ticketsById.get(ticketId);
 
         return ticket && <TicketContactRow ticket={ticket} />;
       }}
-    >
-      <AddTicketSheet contacts={contacts} isRelation hideTrigger />
-      <Suspense>
-        {activeTicket && ticketsById.has(activeTicket) && (
-          <TicketDetailSheet hideRelationWidgetSideTabs />
-        )}
-      </Suspense>
-    </ContactWidgetSection>
+    />
   );
 };

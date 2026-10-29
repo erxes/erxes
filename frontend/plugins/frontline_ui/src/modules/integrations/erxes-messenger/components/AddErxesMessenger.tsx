@@ -1,37 +1,31 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import {
-  erxesMessengerSetupSheetOpenAtom,
-  settedIntegrationDetailAtom,
-} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { EMSetup } from '@/integrations/erxes-messenger/components/EMSetup';
-import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import {
+  IntegrationCreateButton,
+  IntegrationFormSession,
+} from '@/integrations/components/IntegrationPanelForm';
+import { erxesMessengerSetupSheetOpenAtom } from '../states/erxesMessengerSetupStates';
+import { resetErxesMessengerSetupAtom } from '../states/EMSetupResetState';
+import { EMSetup } from './EMSetup';
 
 export const AddErxesMessengerSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [open, setOpen] = useAtom(erxesMessengerSetupSheetOpenAtom);
-  const settedIntegrationDetail = useAtomValue(settedIntegrationDetailAtom);
-  const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
-
+  const reset = useSetAtom(resetErxesMessengerSetupAtom);
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <div>
-        <Sheet.Trigger asChild>
-          <Button
-            onClick={() =>
-              settedIntegrationDetail && resetErxesMessengerSetup()
-            }
-          >
-            <IconPlus />
-            {t('add-messenger')}
-          </Button>
-        </Sheet.Trigger>
-      </div>
-      <EMSetup title={t('add-erxes-messenger')} />
-    </Sheet>
+    <IntegrationCreateButton kind="messenger" onClick={() => reset()}>
+      {t('add-messenger')}
+    </IntegrationCreateButton>
   );
 };
+
+export const AddErxesMessengerPanelForm = () => (
+  <IntegrationFormSession
+    state={erxesMessengerSetupSheetOpenAtom}
+    value={true}
+    closedValue={false}
+  >
+    <EMSetup />
+  </IntegrationFormSession>
+);

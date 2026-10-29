@@ -43,7 +43,7 @@ import { useCreateMessenger } from '@/integrations/erxes-messenger/hooks/useCrea
 import { useEditMessenger } from '@/integrations/erxes-messenger/hooks/useEditMessenger';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
-import { useParams } from 'react-router';
+import { useIntegrationChannelId } from '@/integrations/components/IntegrationPanelForm';
 import { EMTicketConfigPicker } from '@/integrations/erxes-messenger/components/EMTicketConfigPicker';
 import { EMKbTopicPicker } from '@/integrations/erxes-messenger/components/EMKbTopicPicker';
 import { EMMessengerAutomations } from '@/integrations/erxes-messenger/components/EMMessengerAutomations';
@@ -58,7 +58,7 @@ export const EMConfig = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const { id } = useParams();
+  const id = useIntegrationChannelId();
   const form = useForm<EMConfigFormValues>({
     resolver: zodResolver(EM_CONFIG_SCHEMA),
     defaultValues: {
@@ -115,7 +115,7 @@ export const EMConfig = () => {
           }
         >
           <div className="p-4 pt-0 space-y-6 overflow-auto styled-scroll flex-1">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div className="grid grid-cols-1 gap-4">
               <Form.Field
                 name="name"
                 render={({ field }) => (

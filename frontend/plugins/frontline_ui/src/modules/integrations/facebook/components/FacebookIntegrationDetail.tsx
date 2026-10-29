@@ -1,23 +1,31 @@
+import {
+  IntegrationFormItem,
+  INTEGRATION_CONTENT_TYPE,
+  IntegrationEditButton,
+} from '@/integrations/components/IntegrationPanelForm';
+
+import {
+  getSidePanelRecordPath,
+  sidePanelDraftState,
+  SelectBrands,
+} from 'ui-modules';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
   Button,
-  Dialog,
   Separator,
-  Sheet,
   Spinner,
   Form,
   Input,
   toast,
   Label,
 } from 'erxes-ui';
-import { SelectBrands } from 'ui-modules';
-import { IconEdit } from '@tabler/icons-react';
+
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
@@ -25,7 +33,6 @@ import { IntegrationType } from '@/types/Integration';
 import { useSearchParams } from 'react-router-dom';
 import { useSetAtom } from 'jotai';
 import {
-  facebookFormSheetAtom,
   selectedFacebookAccountAtom,
   activeFacebookFormStepAtom,
 } from '@/integrations/facebook/states/facebookStates';
@@ -38,7 +45,7 @@ const FacebookIntegrationBotSection = lazy(() =>
 
 export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const setFacebookFormSheet = useSetAtom(facebookFormSheetAtom);
+  const setDraft = useSetAtom(sidePanelDraftState);
   const setSelectedAccount = useSetAtom(selectedFacebookAccountAtom);
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
 
@@ -47,8 +54,7 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
     const accountId = searchParams.get('accountId');
 
     if (fbAuthorized === 'true') {
-      setFacebookFormSheet(true);
-
+      setDraft(null);
       if (accountId) {
         setSelectedAccount(accountId);
         setActiveStep(2);
@@ -56,12 +62,19 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
 
       searchParams.delete('fbAuthorized');
       searchParams.delete('accountId');
+      searchParams.set(
+        'panel',
+        getSidePanelRecordPath({
+          contentType: INTEGRATION_CONTENT_TYPE,
+          contentId: 'new',
+        }),
+      );
       setSearchParams(searchParams, { replace: true });
     }
   }, [
     searchParams,
     setSearchParams,
-    setFacebookFormSheet,
+    setDraft,
     setSelectedAccount,
     setActiveStep,
   ]);
@@ -81,25 +94,9 @@ export const FacebookIntegrationActions = ({
   return <FacebookIntegrationEditSheet id={integration._id} />;
 };
 
-export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
-        <FacebookIntegrationEditForm id={id} setOpen={setOpen} />
-      </Dialog.Content>
-    </Dialog>
-  );
-};
+export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => (
+  <IntegrationEditButton integration={{ _id: id }} />
+);
 
 export const FacebookIntegrationEditForm = ({
   id,
@@ -151,15 +148,12 @@ export const FacebookIntegrationEditForm = ({
 
   return (
     <>
-      <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3">
-        <Dialog.Title>{integrationDetail?.name}</Dialog.Title>
-        <Sheet.Close />
-      </Dialog.Header>
-      <Separator />
-
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="p-6 pb-8 space-y-6">
+        <form
+          className="flex flex-1 min-h-0 flex-col"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
             <div>
               <Label htmlFor="pageName">{t('page-name')}</Label>
               <Input
@@ -172,46 +166,47 @@ export const FacebookIntegrationEditForm = ({
             <Form.Field
               name="name"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
+                <IntegrationFormItem label={t('name')}>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </IntegrationFormItem>
               )}
             />
             <Form.Field
               name="brandId"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
+                <IntegrationFormItem label={t('brand')}>
                   <SelectBrands.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
                   />
                   <Form.Message />
-                </Form.Item>
+                </IntegrationFormItem>
               )}
             />
           </div>
           <Separator />
-          <Dialog.Footer className="flex justify-end py-4 px-6">
-            <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
-                {t('close')}
-              </Button>
-            </Dialog.Close>
+          <div className="flex shrink-0 justify-end gap-1 p-2">
+            <Button
+              type="button"
+              onClick={() => setOpen(false)}
+              disabled={loading || editLoading}
+              variant="ghost"
+            >
+              {t('close')}
+            </Button>
             <Button type="submit" disabled={loading || editLoading}>
               {t('save')}
             </Button>
-          </Dialog.Footer>
+          </div>
         </form>
       </Form>
       {integrationDetail?.kind === IntegrationType.FACEBOOK_MESSENGER && (
         <>
           <Separator />
-          <div className="px-6 py-4">
+          <div className="max-h-[40%] overflow-y-auto px-3 py-3">
             <Suspense fallback={<Spinner />}>
               <FacebookIntegrationBotSection integrationId={id} />
             </Suspense>

@@ -127,7 +127,9 @@ export const DateSelectTrigger = ({
   const { variant, disabled } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
     return (
-      <RecordTableInlineCell.Trigger>{children}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger disabled={disabled}>
+        {children}
+      </RecordTableInlineCell.Trigger>
     );
   }
   if (variant === DateSelectVariant.CARD) {
@@ -238,9 +240,7 @@ export const DateSelectTicketRoot = ({
           <Combobox.ChipTrigger
             label={label}
             disabled={disabled}
-            onClear={
-              dateValue && !disabled ? () => commitValue() : undefined
-            }
+            onClear={dateValue && !disabled ? () => commitValue() : undefined}
             clearLabel={t('clear')}
           >
             {dateValue ? (

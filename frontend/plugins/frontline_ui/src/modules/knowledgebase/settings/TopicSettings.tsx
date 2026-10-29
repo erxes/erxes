@@ -1,23 +1,17 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { IconCode, IconTrash } from '@tabler/icons-react';
-import { Button, Form, InfoCard, Spinner } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Button, Empty, InfoCard, Spinner } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
-import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
+import {
+  KB_RECORD_CONTENT_TYPES,
+  KNOWLEDGE_BASE_PATH,
+} from '@/knowledgebase/constants';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
 import { TopicEmbedScriptDialog } from '@/knowledgebase/shared/components/TopicEmbedScriptDialog';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
-import {
-  EMPTY_TOPIC,
-  TopicFormFields,
-  topicSchema,
-  topicToForm,
-  TTopicForm,
-} from '@/knowledgebase/topics/components/TopicFormFields';
+import { useSidePanel } from 'ui-modules';
 import { useConfirmRemoveTopic } from '@/knowledgebase/topics/hooks/useConfirmRemoveTopic';
-import { useSaveTopic } from '@/knowledgebase/topics/hooks/useTopicMutations';
 
 export const TopicSettings = () => {
   const { t } = useTranslation('frontline', {
@@ -25,29 +19,16 @@ export const TopicSettings = () => {
   });
   const { topicId = '' } = useParams();
   const navigate = useNavigate();
-  const { topic, loading, refetch } = useTopicDetail(topicId);
-  const { saveTopic, loading: saving } = useSaveTopic();
+  const { topic, loading, error } = useTopicDetail(topicId);
+  const { openRecord } = useSidePanel();
   const { confirmRemoveTopic, loading: removing } = useConfirmRemoveTopic();
   const [scriptOpen, setScriptOpen] = useState(false);
 
-  const form = useForm<TTopicForm>({
-    resolver: zodResolver(topicSchema),
-    defaultValues: EMPTY_TOPIC,
-  });
-
-  useEffect(() => {
-    if (topic) {
-      form.reset(topicToForm(topic));
-    }
-  }, [topic, form]);
-
-  const submit = form.handleSubmit(async (values) => {
-    const saved = await saveTopic(values, topicId);
-
-    if (saved) {
-      refetch();
-    }
-  });
+  const openTopic = () =>
+    openRecord({
+      contentType: KB_RECORD_CONTENT_TYPES.topic,
+      contentId: topicId,
+    });
 
   const handleDelete = () =>
     confirmRemoveTopic({ _id: topicId, title: topic?.title }, () =>
@@ -61,11 +42,11 @@ export const TopicSettings = () => {
       section="kbsettings"
       actions={
         <Button
-          onClick={submit}
-          disabled={saving || loading}
+          onClick={openTopic}
+          disabled={loading || !topic}
           className="py-1 h-7"
         >
-          {saving ? t('saving', 'Saving…') : t('save', 'Save')}
+          {t('kb-edit-topic', 'Edit Topic')}
         </Button>
       }
     >
@@ -73,14 +54,29 @@ export const TopicSettings = () => {
         <div className="flex justify-center items-center flex-auto">
           <Spinner />
         </div>
+      ) : !topic ? (
+        <Empty>
+          <Empty.Header>
+            <Empty.Title>{t('knowledge-base', 'Knowledge Base')}</Empty.Title>
+            <Empty.Description>
+              {error?.message ||
+                t('kb-record-not-found', 'This record is no longer available.')}
+            </Empty.Description>
+          </Empty.Header>
+        </Empty>
       ) : (
         <div className="overflow-auto flex-auto p-4">
           <div className="grid gap-4 items-start lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <Form {...form}>
-              <form onSubmit={submit} className="grid gap-4">
-                <TopicFormFields form={form} t={t} />
-              </form>
-            </Form>
+            <InfoCard title={t('general', 'General')}>
+              <InfoCard.Content>
+                <p className="text-sm font-medium">{topic?.title}</p>
+                {topic?.description && (
+                  <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                    {topic.description}
+                  </p>
+                )}
+              </InfoCard.Content>
+            </InfoCard>
 
             <div className="grid gap-4">
               <InfoCard title={t('kb-installation', 'Installation')}>
