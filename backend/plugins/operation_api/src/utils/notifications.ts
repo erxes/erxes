@@ -18,6 +18,10 @@ const getTitle = (contentType: string) => {
   if (contentType === 'triage') {
     return 'Triage';
   }
+
+  if (contentType === 'discord') {
+    return 'Discord';
+  }
 };
 
 const getMessage = (contentType: string, notificationType: string) => {
@@ -36,6 +40,8 @@ const getMessage = (contentType: string, notificationType: string) => {
       return 'You have been invited to team';
     case 'triage':
       return 'Your team has a new triage';
+    case 'discordAccountLink':
+      return 'Link your Discord account to be mentioned on your tasks';
     default:
       return 'Notification';
   }
@@ -61,7 +67,8 @@ const getContent = async (
       content = project?.name;
       break;
     }
-    case 'team': {
+    case 'team':
+    case 'discord': {
       const team = await models.Team.findOne({ _id: contentTypeId }).lean();
       content = team?.name;
       break;

@@ -10,6 +10,9 @@ import { triageQueries } from '@/task/graphql/resolvers/queries/triage';
 import { queries as templateQueries } from '@/template/graphql/resolvers';
 import { githubConfigQueries } from '@/githubIntegration/graphql/resolvers/queries/githubConfig';
 import { githubConnectionQueries } from '@/githubIntegration/graphql/resolvers/queries/githubConnection';
+import { discordConnectionQueries } from '@/discordIntegration/graphql/resolvers/queries/discordConnection';
+import { discordConfigQueries } from '@/discordIntegration/graphql/resolvers/queries/discordConfig';
+import { discordAccountQueries } from '@/discordIntegration/graphql/resolvers/queries/discordAccount';
 
 export const queries = {
   ...taskQueries,
@@ -24,4 +27,7 @@ export const queries = {
   ...templateQueries,
   ...githubConfigQueries,
   ...githubConnectionQueries,
+  ...discordConnectionQueries,
+  ...discordConfigQueries,
+  ...discordAccountQueries,
 };

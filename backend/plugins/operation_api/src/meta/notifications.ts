@@ -60,6 +60,20 @@ export const notifications = {
         },
       ],
     },
+    {
+      name: 'discord',
+      description: 'Discord Notifications',
+      icon: 'IconBrandDiscord',
+
+      events: [
+        {
+          name: 'accountLinkRequest',
+          title: 'Discord account requested',
+          description:
+            'Triggered when a team admin asks the user to link a Discord account',
+        },
+      ],
+    },
   ],
 } as const satisfies INotificationsConfig;
 

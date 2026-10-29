@@ -67,6 +67,24 @@ import {
   type as GithubConnectionTypes,
 } from '@/githubIntegration/graphql/schemas/githubConnection';
 
+import {
+  mutations as DiscordConnectionMutations,
+  queries as DiscordConnectionQueries,
+  type as DiscordConnectionTypes,
+} from '@/discordIntegration/graphql/schemas/discordConnection';
+
+import {
+  mutations as DiscordConfigMutations,
+  queries as DiscordConfigQueries,
+  type as DiscordConfigTypes,
+} from '@/discordIntegration/graphql/schemas/discordConfig';
+
+import {
+  mutations as DiscordAccountMutations,
+  queries as DiscordAccountQueries,
+  type as DiscordAccountTypes,
+} from '@/discordIntegration/graphql/schemas/discordAccount';
+
 export const types = `
   ${TaskTypes}
   ${ProjectTypes}
@@ -80,6 +98,9 @@ export const types = `
   ${TemplateTypes}
   ${GithubConfigTypes}
   ${GithubConnectionTypes}
+  ${DiscordConnectionTypes}
+  ${DiscordConfigTypes}
+  ${DiscordAccountTypes}
 `;
 
 export const queries = `
@@ -95,6 +116,9 @@ export const queries = `
   ${TemplateQueries}
   ${GithubConfigQueries}
   ${GithubConnectionQueries}
+  ${DiscordConnectionQueries}
+  ${DiscordConfigQueries}
+  ${DiscordAccountQueries}
 `;
 
 export const mutations = `
@@ -109,6 +133,9 @@ export const mutations = `
   ${TemplateMutations}
   ${GithubConfigMutations}
   ${GithubConnectionMutations}
+  ${DiscordConnectionMutations}
+  ${DiscordConfigMutations}
+  ${DiscordAccountMutations}
 `;
 
 export default { types, queries, mutations };

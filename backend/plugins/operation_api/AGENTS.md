@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -18,6 +18,10 @@
 - Task notes, activity records and operation templates.
 - The GitHub issue integration: repository configuration, connections, and the
   issue number/URL a task carries.
+- The Discord notification integration: bot connections per Discord server,
+  the channel and events each team posts to, the Discord card each triage
+  or task owns in that channel, and the link between a team member and their
+  Discord account.
 - Task import and export handlers.
 - The segment contract for `operation:task.tasks` - what can be filtered, how
   a batch is resolved, and how membership is written onto a task.
@@ -30,6 +34,9 @@
   declared by the plugin that owns them.
 - The segmentation engine. This plugin declares and answers; the decision, the
   queue and the sweep run elsewhere.
+- Frontline's Discord inbox integration (customer conversations over the
+  Discord Gateway). Operation keeps its own bot connections, never opens a
+  Gateway socket and never reads frontline's Discord records.
 
 ## Current Capabilities
 
@@ -59,6 +66,26 @@
 - `pnpm nx run operation_api:schema:print` writes the full subgraph schema, including the subscription fields from `src/apollo/subscription.ts`, to `generated/schema.graphql` without Redis, Mongo or a running service. The shared `scripts/print-subgraph-schema.ts` does the printing; the target comes from the `schema:print` default in `nx.json`.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
 - GitHub issue synchronisation for tasks.
+- Discord notifications: a team posts new, accepted and declined triages,
+  task assignments and completed tasks to one Discord channel through a
+  bring-your-own bot token (REST only, no Gateway, no message-content intent).
+  The first event for a record posts an embed card (team in the author line;
+  status; priority; assignee while open or once set; due date
+  as a Discord timestamp while open; customer; company; decline reason) with
+  "Open in erxes" and, for GitHub-opened records, "GitHub #n" link buttons.
+  Later events edit that card and reply to it with one emoji-prefixed
+  activity line. User-supplied text in fields and replies is
+  markdown-escaped.
+- Discord account linking: an admin turns on member linking per connection
+  with the application's client secret (checked with a client-credentials
+  grant) after adding the OAuth redirect URI in the Developer Portal. A member
+  signs in with Discord (`identify` scope) from a popup; the callback stores
+  the Discord user id, username, display name and avatar, then revokes the
+  token. A `taskAssigned` reply mentions the assignee as `<@id>` when they are
+  linked and in the server; when they are not linked and linking is on, the
+  reply says so and carries a "Link Discord account" button. Admins see each
+  team member's link and server status, unlink members and send a reminder
+  notification.
 - Triage conversion preserves the triage creator on the task while recording a `TRIAGE_ACCEPTANCE` activity with action `ACCEPTED` by the acting user; other task creation paths continue to use their acting `userId` as creator. Conversion to a cancelled task does not record acceptance and can save a decline reason as a note.
 - Another service can create a task on a user's behalf from a status id
   (`task.createFromSource`) and check which of a list of ids are tasks
@@ -75,6 +102,10 @@
 | Plugin segment meta   | `src/meta/segments.ts`                         | Routes segment producers to the module that owns the content type     |
 | Import/export         | `src/meta/import-export/`                      | Task import and export handlers                                       |
 | GitHub integration    | `src/modules/githubIntegration/`, `src/utils/` | Issue sync, repository configuration                                  |
+| Discord integration   | `src/modules/discordIntegration/`              | Connections, team configs, card mapping and builder, `notifyDiscord`  |
+| Discord REST client   | `src/utils/discordClient.ts`                   | Discord API v10 calls, 429 retry, error descriptions                  |
+| Discord worker        | `src/worker/discordNotifications.ts`           | `operations-discord-notify` processor: posts or edits the card        |
+| Discord account link  | `src/modules/discordIntegration/utils/`        | OAuth start, Redis state, callback route, assignee mention            |
 
 ## Contracts
 
@@ -96,6 +127,33 @@
 - Segment relations `user.assignedTasks` and `user.createdTasks`.
 - Import/export producers for the `task` module.
 - Nx target `schema:print` (cached, output `generated/schema.graphql`), composed with every other subgraph by `gateway:schema:compose`.
+- Discord GraphQL (`teamRead` for reads, `teamUpdate` for the token check and
+  every mutation): queries `operationDiscordConnections`,
+  `operationDiscordCheckToken(token)`, `operationDiscordChannels(connectionId)`,
+  `operationDiscordConfigByTeam(teamId)`, `operationDiscordConfigs(connectionId)`;
+  mutations `operationDiscordConnect(token, guildId)`,
+  `operationDiscordDisconnect(_id)` (refused while a team uses the server),
+  `operationDiscordSaveTeamConfig`, `operationDiscordDisconnectTeam(teamId)`,
+  `operationDiscordSendTestMessage(teamId)`. Events are the
+  `OperationDiscordNotificationEvent` enum built from
+  `DISCORD_NOTIFICATION_EVENTS`.
+- Discord account GraphQL: `operationDiscordMyAccount`,
+  `operationDiscordStartAccountLink` (returns the Discord authorize URL) and
+  `operationDiscordUnlinkMyAccount` need only a signed-in user;
+  `operationDiscordTeamMembers(teamId)` needs `teamRead`;
+  `operationDiscordOAuthRedirectUri`, `operationDiscordSetClientSecret`,
+  `operationDiscordClearClientSecret`, `operationDiscordUnlinkMember(userId)`
+  and `operationDiscordRemindMember(teamId, userId)` need `teamUpdate`.
+- Express route `GET /integrations/discord/oauth/callback`
+  (`DISCORD_OAUTH_CALLBACK_PATH`). Its public URL (the OAuth redirect URI) is
+  `<gateway>/pl:operation/integrations/discord/oauth/callback`, where the
+  gateway is `GATEWAY_URL`, else `${DOMAIN}/gateway` in production, else
+  `REACT_APP_API_URL` (the dev UI server proxies neither `/pl:*` nor
+  `/gateway`). It answers with a page that posts
+  `operation-discord-account-link` to its opener at the `DOMAIN` origin and
+  closes.
+- Notification event `operation:discord:accountLinkRequest` (content type
+  `operation:discord`, content id the team).
 - tRPC procedures under `src/trpc/` and `src/modules/task/trpc/task.ts`:
   `task.tag`; `task.findOne({ _ids })` returns the first task among the ids
   (`{ _id, name, teamId }`) or `null`, skipping ids that are not ObjectIds;
@@ -116,6 +174,20 @@ propertiesData? } })`
 - `sendNotification` with `event` (`TOperationNotificationEvent`) from
   `src/utils/notifications.ts`; core sends email and push on the channels each
   recipient's settings resolve to.
+- Discord REST API v10 with each connection's bot token; the invite link asks
+  for View Channels, Send Messages, Embed Links and Read Message History.
+  Server membership is read one member at a time with
+  `GET /guilds/{id}/members/{user}`, which needs no privileged intent.
+- Discord OAuth2 (`/oauth2/token`, `/oauth2/token/revoke`, `/users/@me` with a
+  bearer token) with the connection's application id and client secret.
+- The shared `redis` client for single-use account-link states
+  (`operation:discord:account-link:<state>`, 10 minutes).
+- Core's `users.find`, `customers.findOne` and `companies.findOne` tRPC
+  queries for the actor, assignee, customer and company names on Discord
+  cards, and the `DOMAIN` env for their links (no link when it is not an
+  `http(s)` URL).
+- The shared BullMQ helpers (`sendWorkerQueue`, `createMQWorkerWithListeners`)
+  for the `operations-discord-notify` queue.
 
 ## Data and State
 
@@ -127,11 +199,56 @@ propertiesData? } })`
 - Tasks and projects store optional custom field values in the schema-owned `propertiesData` mixed object.
 - A task's `_id` is a Mongo `ObjectId`, not the generated string id most erxes
   collections use.
+- `operation_discord_connections` (unique `guildId` + `subdomain`) stores the
+  bot token with `select: false`; read it only through
+  `getConnectionWithToken` or an explicit `+token` select. A 401 marks the
+  connection `health.status: 'broken'` and the worker skips it until it is
+  reconnected.
+- `operation_discord_configs` holds one config per team (unique `teamId` +
+  `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
+  test message. Several teams may share a channel.
+- `operation_discord_connections.clientSecret` is `select: false` like the
+  token; `hasClientSecret` says whether member linking is on. Reconnecting a
+  server with a different bot application clears the secret.
+- `operation_discord_user_links` holds one Discord account per member and one
+  member per Discord account (unique `userId` + `subdomain` and
+  `discordUserId` + `subdomain`). No OAuth token is stored. The team members
+  query refreshes username, display name and avatar from the server member.
+- `operation_discord_messages` maps a record to its card (unique `entityId` +
+  `channelId` + `subdomain`). A triage and the task it becomes share one
+  `_id`, so the card carries over on acceptance. Changing a team's channel or
+  disconnecting the team deletes its mappings; the posted messages stay in
+  Discord.
 - `operation_tasks.propertiesData` holds `operation:task` property values keyed
   by field id. Only `task.createFromSource` writes it today, and the task
   GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
+
+- Discord events are queued by `notifyDiscord` after the record is written,
+  so the worker reads the saved state. `triageCreated`, `taskAssigned` and
+  `taskCompleted` fire from the Task/Triage models, so GitHub webhook writes
+  notify as UI writes do; `triageAccepted` / `triageDeclined` fire from
+  `operationConvertTriageToTask` (after the triage is deleted) and
+  `operationCancelTriage`. `taskAssigned` fires only when the assignee
+  actually changes, and `taskCompleted` only on entering a completed status.
+  `notifyDiscord` never throws and queues nothing unless an active config for
+  the team subscribes to the event.
+- Every Discord message is sent with `allowed_mentions: { parse: [] }`, so a
+  record name can never ping `@everyone` or a role.
+- The worker posts a card only after `DiscordMessage.claimCard` succeeds, so
+  two workers never post two cards for one record; a stale claim (older than
+  `DISCORD_CARD_CLAIM_TIMEOUT_MS`) is taken over. Discord 429, 5xx and network
+  errors are retried by BullMQ (`DISCORD_NOTIFY_JOB_OPTIONS`); other Discord
+  errors are recorded on the config and dropped.
+- The bot token never leaves the server: no GraphQL type exposes it and the
+  frontend sends it only to `operationDiscordCheckToken` and
+  `operationDiscordConnect`. The client secret likewise reaches the server
+  only through `operationDiscordSetClientSecret`.
+- A member can link only their own Discord account: the OAuth `state` is
+  random, stored in Redis with the user and subdomain, consumed once, and
+  must match the callback's subdomain. Mentions only ever allow the one
+  assignee id (`allowed_mentions.users`), never `parse`.
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
@@ -251,3 +368,12 @@ propertiesData? } })`
 - Build a task segment on an assignee, confirm the preview count matches the
   task list filtered the same way, then confirm `segmentIds` lands on those
   tasks after the rebuild.
+- Smoke (Discord account): turn on member linking with the client secret,
+  link an account from My Discord account, assign that member a task in a
+  team with Discord, and confirm the reply pings them; unlink and confirm the
+  reply names them with a "Link Discord account" button.
+- Smoke (Discord): connect a server with a bot token, pick a channel and all
+  events for a team, send the test message, then create a triage, accept it
+  and assign the task. One card appears in the channel and is edited in
+  place, with a reply line per later event; a GitHub-opened triage shows its
+  issue link.
