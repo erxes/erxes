@@ -3,7 +3,7 @@ name: POSCLIENT-FRONT CI
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     paths:
       - 'apps/posclient-front/**'
       - '.github/workflows/ci-apps-posclient-front.yml'
@@ -32,9 +32,9 @@ jobs:
           npm run build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/feat/data-extensions-v2')
         run: |
           cd apps/posclient-front
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:latest -f Dockerfile .
-          docker push erxes/posclient-front:latest
+          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:ext -f Dockerfile .
+          docker push erxes/posclient-front:ext

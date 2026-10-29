@@ -3,7 +3,7 @@ name: CI Gateway
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     paths:
       - 'backend/gateway/**'
       - 'backend/erxes-api-shared/**'
@@ -45,18 +45,18 @@ jobs:
           pnpm nx build erxes-api-shared
 
       - name: Login to Docker Hub
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/data-extensions-v2'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push Docker image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/feat/data-extensions-v2'
         run: |
           export NX_DAEMON=false
           pnpm nx docker-build gateway
-          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:latest
+          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:ext
           docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:${{ github.sha }}
-          docker push erxes/erxes-next-gateway:latest
+          docker push erxes/erxes-next-gateway:ext
           docker push erxes/erxes-next-gateway:${{ github.sha }}

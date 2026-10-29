@@ -3,7 +3,7 @@ name: help-center-ci
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     paths:
       - 'apps/help-center/**'
       - 'frontend/libs/erxes-ui/src/**'
@@ -40,15 +40,15 @@ jobs:
           npm run build
 
       - name: Build docker image
-        if: github.event_name == 'push' && ( github.ref == 'refs/heads/main')
+        if: github.event_name == 'push' && ( github.ref == 'refs/heads/feat/data-extensions-v2')
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           DOCKER_BUILDKIT=1 docker build \
-            -t erxes/help-center:latest \
+            -t erxes/help-center:ext \
             -t "erxes/help-center:$DATE-$SHORT_SHA" \
             -f apps/help-center/Dockerfile .
-          docker push erxes/help-center:latest
+          docker push erxes/help-center:ext
           docker push "erxes/help-center:$DATE-$SHORT_SHA"

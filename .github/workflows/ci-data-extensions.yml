@@ -3,7 +3,7 @@ name: CI Data Extensions
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     paths:
       - 'backend/core-api/src/modules/data-extensions/**'
       - 'backend/erxes-api-shared/src/core-modules/data-extensions/**'

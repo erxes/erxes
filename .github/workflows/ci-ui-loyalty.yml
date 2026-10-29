@@ -3,7 +3,7 @@ name: CI plugin--loyalty_ui
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     tags:
       - '[0-9]*'
     paths:
@@ -50,12 +50,12 @@ jobs:
           pnpm nx build loyalty_ui
 
       - name: Push to Cloudflare R2
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/feat/data-extensions-v2' || startsWith(github.ref, 'refs/tags/'))
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             FOLDER="${{ github.ref_name }}"
           else
-            FOLDER="latest"
+            FOLDER="ext"
           fi
           aws configure set default.s3.max_concurrent_requests 50
           aws configure set default.s3.multipart_chunksize 16MB

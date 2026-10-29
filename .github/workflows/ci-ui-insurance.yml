@@ -3,7 +3,7 @@ name: CI plugin--insurance_ui
 on:
   push:
     branches:
-      - main
+      - feat/data-extensions-v2
     tags:
       - '[0-9]*'
     paths:
@@ -50,12 +50,12 @@ jobs:
           pnpm nx build insurance_ui
 
       - name: Sync to Cloudflare R2
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/feat/data-extensions-v2' || startsWith(github.ref, 'refs/tags/'))
         run: |
           if [[ "${{ github.ref }}" == refs/tags/* ]]; then
             FOLDER="${{ github.ref_name }}"
           else
-            FOLDER="latest"
+            FOLDER="ext"
           fi
           aws s3 sync dist/frontend/plugins/insurance_ui s3://erxes-next/$FOLDER/insurance_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com
