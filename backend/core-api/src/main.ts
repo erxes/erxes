@@ -32,6 +32,7 @@ import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import { startFilesWorker } from '@/files/worker';
+import { startLdapWorker } from '@/auth/ldap/worker';
 import { interruptAgentsStreams } from '@/agents/agentsStream';
 import initImportExport from './meta/import-export';
 import { references } from './meta/references';
@@ -196,6 +197,7 @@ httpServer.listen(port, async () => {
   await initImportExport(app);
   await initBroadcast(app);
   startFilesWorker();
+  startLdapWorker();
 });
 
 // GRACEFULL SHUTDOWN

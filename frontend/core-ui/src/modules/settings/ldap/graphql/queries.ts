@@ -18,6 +18,21 @@ export const LDAP_CONFIG = gql`
         groupDn
         permissionGroupIds
       }
+      recheckEveryMinutes
+      groupChangePolicy
+      lastRecheck {
+        at
+        status
+        error
+        checked
+      }
+      nextRecheckAt
+      recheckChanges {
+        userId
+        reason
+        signedOut
+        at
+      }
       updatedAt
     }
   }

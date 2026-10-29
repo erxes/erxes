@@ -7,6 +7,7 @@ import {
   isSecureLdapTransport,
   LdapConnectionConfig,
   lookupLdapUser,
+  readDirectoryStates,
   verifyLdapCredentials,
 } from '@/auth/ldap/client';
 
@@ -33,6 +34,8 @@ const config: LdapConnectionConfig = {
   allowedGroupDns: [],
   linkEmailDomains: [],
   groupMappings: [],
+  recheckEveryMinutes: 15,
+  groupChangePolicy: 'updatePermissions',
 };
 
 const entry = {
@@ -64,9 +67,15 @@ afterEach(() => {
 
 describe('isSecureLdapTransport', () => {
   it('accepts ldaps and ldap with StartTLS only', () => {
-    expect(isSecureLdapTransport({ url: 'ldaps://x', startTls: false })).toBe(true);
-    expect(isSecureLdapTransport({ url: 'ldap://x', startTls: true })).toBe(true);
-    expect(isSecureLdapTransport({ url: 'ldap://x', startTls: false })).toBe(false);
+    expect(isSecureLdapTransport({ url: 'ldaps://x', startTls: false })).toBe(
+      true,
+    );
+    expect(isSecureLdapTransport({ url: 'ldap://x', startTls: true })).toBe(
+      true,
+    );
+    expect(isSecureLdapTransport({ url: 'ldap://x', startTls: false })).toBe(
+      false,
+    );
   });
 });
 
@@ -76,7 +85,11 @@ describe('verifyLdapCredentials', () => {
 
     const profile = await verifyLdapCredentials(config, 'bat', 'user-secret');
 
-    expect(client.bind).toHaveBeenNthCalledWith(1, config.bindDn, 'service-secret');
+    expect(client.bind).toHaveBeenNthCalledWith(
+      1,
+      config.bindDn,
+      'service-secret',
+    );
     expect(client.bind).toHaveBeenNthCalledWith(2, entry.dn, 'user-secret');
     expect(client.unbind).toHaveBeenCalled();
     expect(profile).toEqual({
@@ -93,7 +106,9 @@ describe('verifyLdapCredentials', () => {
   it('never contacts the server with an empty password', async () => {
     setupClient([entry]);
 
-    await expect(verifyLdapCredentials(config, 'bat', '')).rejects.toMatchObject({
+    await expect(
+      verifyLdapCredentials(config, 'bat', ''),
+    ).rejects.toMatchObject({
       reason: 'invalid_credentials',
     });
     expect(mockedClient).not.toHaveBeenCalled();
@@ -124,7 +139,9 @@ describe('verifyLdapCredentials', () => {
   it('reports a wrong password and closes the connection', async () => {
     const client = rejectUserBind(adBindError('52e'));
 
-    await expect(verifyLdapCredentials(config, 'bat', 'wrong')).rejects.toMatchObject({
+    await expect(
+      verifyLdapCredentials(config, 'bat', 'wrong'),
+    ).rejects.toMatchObject({
       reason: 'invalid_credentials',
     });
     expect(client.unbind).toHaveBeenCalled();
@@ -139,7 +156,9 @@ describe('verifyLdapCredentials', () => {
   ])('maps AD bind code %s to %s', async (data, reason) => {
     rejectUserBind(adBindError(data));
 
-    await expect(verifyLdapCredentials(config, 'bat', 'pw')).rejects.toMatchObject({
+    await expect(
+      verifyLdapCredentials(config, 'bat', 'pw'),
+    ).rejects.toMatchObject({
       reason,
     });
   });
@@ -147,7 +166,9 @@ describe('verifyLdapCredentials', () => {
   it('reports a failing server, not a wrong password', async () => {
     rejectUserBind(new Error('connect ECONNREFUSED'));
 
-    await expect(verifyLdapCredentials(config, 'bat', 'pw')).rejects.toMatchObject({
+    await expect(
+      verifyLdapCredentials(config, 'bat', 'pw'),
+    ).rejects.toMatchObject({
       reason: 'directory_unreachable',
     });
   });
@@ -156,7 +177,9 @@ describe('verifyLdapCredentials', () => {
     const client = setupClient([entry]);
     client.bind.mockRejectedValueOnce(adBindError('52e'));
 
-    await expect(verifyLdapCredentials(config, 'bat', 'pw')).rejects.toMatchObject({
+    await expect(
+      verifyLdapCredentials(config, 'bat', 'pw'),
+    ).rejects.toMatchObject({
       reason: 'directory_unreachable',
     });
   });
@@ -200,7 +223,12 @@ describe('lookupLdapUser', () => {
 
   it('reads OpenLDAP entryUUID as the subject', async () => {
     setupClient([
-      { dn: 'uid=bat,ou=people,dc=example', entryUUID: 'a-b-c', uid: 'bat', mail: 'bat@example.com' },
+      {
+        dn: 'uid=bat,ou=people,dc=example',
+        entryUUID: 'a-b-c',
+        uid: 'bat',
+        mail: 'bat@example.com',
+      },
     ]);
 
     const profile = await lookupLdapUser(
@@ -210,5 +238,57 @@ describe('lookupLdapUser', () => {
 
     expect(profile?.subject).toBe('a-b-c');
     expect(profile?.username).toBe('bat');
+  });
+});
+
+describe('readDirectoryStates', () => {
+  it('returns each found user by subject with groups and the AD disabled bit', async () => {
+    const client = setupClient([
+      { ...entry, userAccountControl: '514' },
+      {
+        dn: 'CN=Dulmaa,OU=Sales,DC=example,DC=local',
+        objectGUID: Buffer.from('0304', 'hex'),
+        userAccountControl: '512',
+      },
+    ]);
+
+    const states = await readDirectoryStates(config, ['0102', '0304', '0506']);
+
+    expect(states.get('0102')).toEqual({
+      groupDns: ['CN=Sales,OU=Groups,DC=example,DC=local'],
+      disabled: true,
+    });
+    expect(states.get('0304')).toEqual({ groupDns: [], disabled: false });
+    expect(states.has('0506')).toBe(false);
+    expect(client.unbind).toHaveBeenCalled();
+  });
+
+  it('asks in one paged search, matching AD GUIDs as raw bytes', async () => {
+    const client = setupClient([]);
+
+    await readDirectoryStates(config, ['0102', '0304']);
+
+    expect(client.search).toHaveBeenCalledTimes(1);
+    const [, options] = client.search.mock.calls[0];
+    expect(options.paged).toBe(true);
+    expect(options.filter.toString()).toBe(
+      '(|(objectGUID=\\01\\02)(objectGUID=\\03\\04))',
+    );
+  });
+
+  it('skips the directory entirely when nobody is linked', async () => {
+    const client = setupClient([]);
+
+    await expect(readDirectoryStates(config, [])).resolves.toEqual(new Map());
+    expect(client.bind).not.toHaveBeenCalled();
+  });
+
+  it('lets connection failures reach the caller', async () => {
+    const client = setupClient([]);
+    client.bind.mockRejectedValue(new Error('connect ECONNREFUSED'));
+
+    await expect(readDirectoryStates(config, ['0102'])).rejects.toThrow(
+      'ECONNREFUSED',
+    );
   });
 });
