@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { currentUserState } from 'ui-modules';
 import type {
   GetProjectsInlineQuery,
@@ -90,12 +90,21 @@ export const useProjects = (
   const { t } = useTranslation('operation');
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
-  const variables = useProjectsVariables(options?.variables);
+  const rawVariables = useProjectsVariables(options?.variables);
+  // A fresh object every render would re-open the list subscription on every
+  // render; keep its identity while the filter is unchanged.
+  const variables = useMemo(
+    () => rawVariables,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(rawVariables)],
+  );
+
+  const skip = options?.skip || isUndefinedOrNull(variables.cursor);
 
   const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_PROJECTS, {
     ...options,
     variables: { filter: variables },
-    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    skip,
     onError: (e) => {
       toast({
         title: t('error'),
@@ -112,6 +121,7 @@ export const useProjects = (
   const totalCount = data?.getProjects?.totalCount;
 
   useEffect(() => {
+    if (skip) return;
     const unsubscribe = subscribeToMore({
       document: PROJECT_LIST_CHANGED,
       variables: { filter: variables },
@@ -158,7 +168,7 @@ export const useProjects = (
     });
 
     return () => unsubscribe();
-  }, [subscribeToMore, variables]);
+  }, [skip, subscribeToMore, variables]);
 
   useEffect(() => {
     if (isUndefinedOrNull(totalCount)) return;

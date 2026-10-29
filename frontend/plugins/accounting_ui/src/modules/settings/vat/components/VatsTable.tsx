@@ -7,17 +7,17 @@ import {
   getSharedRowColumns,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
-import { TextField, toast, useConfirm, useQueryState } from 'erxes-ui';
+import { TextField, toast, useConfirm } from 'erxes-ui';
 
 import { IVatRow } from '@/settings/vat/types/VatRow';
 import { VatRowsCommandbar } from '@/settings/vat/components/VatRowsCommandbar';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useVatRows } from '@/settings/vat/hooks/useVatRows';
 import { useVatRowEdit } from '@/settings/vat/hooks/useVatRowEdit';
 import { useVatRowsRemove } from '@/settings/vat/hooks/useVatRowsRemove';
-import { vatRowDetailAtom } from '@/settings/vat/states/vatRowStates';
 import { AddVats } from '@/settings/vat/components/AddVats';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { VAT_ROW_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
 
 export const VatRowMoreColumnCell = ({
   cell,
@@ -25,14 +25,12 @@ export const VatRowMoreColumnCell = ({
   cell: Cell<IVatRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('vat_row_id');
-  const setVatRowDetail = useSetAtom(vatRowDetailAtom);
+  const { openDetail } = useSettingsPanel(VAT_ROW_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeVatRows } = useVatRowsRemove();
 
   const handleEdit = () => {
-    setVatRowDetail(cell.row.original);
-    setOpen(cell.row.original._id);
+    openDetail(cell.row.original._id);
   };
 
   const handleDelete = () =>

@@ -31,7 +31,10 @@ export interface ILdapConfigModel extends Model<ILdapConfigDocument> {
   getLdapConfig(): Promise<ILdapConfigDocument | null>;
   saveLdapConfig(doc: LdapConfigInput): Promise<ILdapConfigDocument>;
   getConnectionConfig(input?: LdapConfigInput): Promise<LdapConnectionConfig>;
-  recordRecheck(run: ILdapRecheckRun, changes: ILdapRecheckChange[]): Promise<void>;
+  recordRecheck(
+    run: ILdapRecheckRun,
+    changes: ILdapRecheckChange[],
+  ): Promise<void>;
 }
 
 const RECHECK_CHANGES_KEPT = 20;
@@ -41,7 +44,10 @@ export interface IAuthIdentityModel extends Model<IAuthIdentityDocument> {
     identifier: string,
     password: string,
   ): Promise<IUserDocument>;
-  linkLdapUser(userId: string, identifier: string): Promise<IAuthIdentityDocument>;
+  linkLdapUser(
+    userId: string,
+    identifier: string,
+  ): Promise<IAuthIdentityDocument>;
   unlinkLdapUser(userId: string): Promise<boolean>;
   recheckLdapUsers(): Promise<ILdapRecheckRun | null>;
 }
@@ -124,7 +130,10 @@ export const loadLdapConfigClass = (models: IModels) => {
       };
 
       if (existing) {
-        await models.LdapConfigs.updateOne({ _id: existing._id }, { $set: update });
+        await models.LdapConfigs.updateOne(
+          { _id: existing._id },
+          { $set: update },
+        );
 
         return models.LdapConfigs.findOne({ _id: existing._id });
       }
@@ -227,7 +236,10 @@ export const lostAccessReason = (
   }
 
   // With no allowed groups set, linked members keep access, as at login
-  if (config.allowedGroupDns.length && !isInAllowedGroup(config, state.groupDns)) {
+  if (
+    config.allowedGroupDns.length &&
+    !isInAllowedGroup(config, state.groupDns)
+  ) {
     return 'left_group';
   }
 
@@ -255,9 +267,16 @@ export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
       }
 
       const connection = await models.LdapConfigs.getConnectionConfig();
-      const profile = await verifyLdapCredentials(connection, identifier, password);
+      const profile = await verifyLdapCredentials(
+        connection,
+        identifier,
+        password,
+      );
 
-      const permissionGroupIds = mappedPermissionGroupIds(connection, profile.groupDns);
+      const permissionGroupIds = mappedPermissionGroupIds(
+        connection,
+        profile.groupDns,
+      );
       const identity = await models.AuthIdentities.findOne({
         provider: 'ldap',
         subject: profile.subject,

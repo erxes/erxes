@@ -32,6 +32,7 @@ import { SelectProjectStatus } from '@/project/components/select/SelectProjectSt
 import { SelectMember, TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { projectsMoreColumn } from './ProjectsMoreColumn';
+import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
@@ -213,6 +214,7 @@ export const projectsColumns = (
           memberIds || [],
         );
         const [debouncedMemberIds] = useDebounce(localMemberIds, 1000);
+        const cachedMembers = useCachedMembers(memberIds);
         const serverMemberIdsString = JSON.stringify(memberIds || []);
 
         useEffect(() => {
@@ -251,6 +253,7 @@ export const projectsColumns = (
           <SelectMember.InlineCell
             key={cell.row.original._id}
             value={localMemberIds}
+            members={cachedMembers}
             onValueChange={(value) => {
               setLocalMemberIds(value as string[]);
             }}

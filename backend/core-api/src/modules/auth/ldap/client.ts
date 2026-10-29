@@ -8,10 +8,7 @@ import {
   InvalidCredentialsError,
   OrFilter,
 } from 'ldapts';
-import type {
-  ILdapConfig,
-  LdapServerType,
-} from '@/auth/db/definitions/ldap';
+import type { ILdapConfig, LdapServerType } from '@/auth/db/definitions/ldap';
 import { LoginError, LoginFailureReason } from '@/auth/loginError';
 
 export interface ILdapProfile {
@@ -97,7 +94,9 @@ const toLdapProfile = (
   };
 };
 
-export const isSecureLdapTransport = (config: Pick<ILdapConfig, 'url' | 'startTls'>) =>
+export const isSecureLdapTransport = (
+  config: Pick<ILdapConfig, 'url' | 'startTls'>,
+) =>
   config.url.startsWith('ldaps://') ||
   (config.url.startsWith('ldap://') && config.startTls);
 
@@ -105,7 +104,10 @@ const buildUserFilter = (config: ILdapConfig, identifier: string): Filter => {
   const filters: Filter[] = [
     new OrFilter({
       filters: [
-        new EqualityFilter({ attribute: config.loginAttribute, value: identifier }),
+        new EqualityFilter({
+          attribute: config.loginAttribute,
+          value: identifier,
+        }),
         new EqualityFilter({ attribute: 'mail', value: identifier }),
       ],
     }),
@@ -184,7 +186,9 @@ const AD_DISABLED = 0x2;
 
 // objectGUID is stored as hex and matched as raw bytes
 const subjectFilterValue = (config: ILdapConfig, subject: string) =>
-  config.serverType === 'activeDirectory' ? Buffer.from(subject, 'hex') : subject;
+  config.serverType === 'activeDirectory'
+    ? Buffer.from(subject, 'hex')
+    : subject;
 
 /** Current directory state of linked users, keyed by subject; a missing key means gone. */
 export const readDirectoryStates = async (
@@ -307,11 +311,18 @@ export const testLdapConnection = async (
     });
 
     if (profile === null) {
-      return { ok: false, message: 'Connected, but the user was not found', profile };
+      return {
+        ok: false,
+        message: 'Connected, but the user was not found',
+        profile,
+      };
     }
 
     return { ok: true, message: 'Connected', profile };
   } catch (e) {
-    return { ok: false, message: e instanceof Error ? e.message : 'Connection failed' };
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : 'Connection failed',
+    };
   }
 };

@@ -1,8 +1,5 @@
 import { LoginError } from '@/auth/loginError';
-import {
-  revokeUserSession,
-  revokeUserSessions,
-} from '@/auth/session';
+import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {

@@ -18,10 +18,6 @@ export const types = `
     paymentCount: Int!
   }
 
-  type SalesConvertTo {
-    dealUrl: String
-  }
-
   type SalesBoardCount {
     _id: String
     name: String
@@ -49,7 +45,6 @@ export const queries = `
   salesBoardGetLast: SalesBoard
   salesBoardDetail(_id: String!): SalesBoard
   cpSalesBoardDetail(_id: String!): SalesBoard
-  salesConvertToInfo(conversationId: String!): SalesConvertTo
   salesItemsCountByAssignedUser(pipelineId: String!, stackBy: String): JSON
   salesCardsFields: JSON
   salesBoardContentTypeDetail(contentType: String, contentId: String): JSON

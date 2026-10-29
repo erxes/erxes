@@ -11,7 +11,10 @@ import {
   loadLdapConfigClass,
 } from '@/auth/db/models/Ldap';
 import { ITwoFactorDocument } from '@/auth/db/definitions/twoFactor';
-import { ITwoFactorModel, loadTwoFactorClass } from '@/auth/db/models/TwoFactors';
+import {
+  ITwoFactorModel,
+  loadTwoFactorClass,
+} from '@/auth/db/models/TwoFactors';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -367,7 +370,10 @@ import {
 import { IFilePinDocument } from '@/files/db/definitions/pins';
 import { IFileShareDocument } from '@/files/db/definitions/shares';
 import { IFilePinModel, loadFilePinClass } from '@/files/db/models/FilePins';
-import { IFileShareModel, loadFileShareClass } from '@/files/db/models/FileShares';
+import {
+  IFileShareModel,
+  loadFileShareClass,
+} from '@/files/db/models/FileShares';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,

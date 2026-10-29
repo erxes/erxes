@@ -44,14 +44,20 @@ export const LdapConfigForm = () => {
                 <Form.Description>{t('enabled-description')}</Form.Description>
               </div>
               <Form.Control>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}
         />
         <LdapConnectionFields control={control} />
         <Separator />
-        <LdapUserFields control={control} onServerTypeChange={changeServerType} />
+        <LdapUserFields
+          control={control}
+          onServerTypeChange={changeServerType}
+        />
         <Separator />
         <LdapGroupMappings control={control} />
         <Separator />

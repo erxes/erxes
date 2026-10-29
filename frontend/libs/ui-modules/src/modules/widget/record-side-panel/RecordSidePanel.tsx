@@ -3,13 +3,17 @@ import {
   IconChevronDown,
   IconChevronLeft,
   IconMaximize,
+  IconMinimize,
   IconX,
 } from '@tabler/icons-react';
 import { Button, cn, DropdownMenu, Tabs } from 'erxes-ui';
 import {
+  createContext,
+  useContext,
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -28,6 +32,11 @@ export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
 
 const clampWidth = (width: number, maxWidth: number) =>
   Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
+
+const PanelExpansionContext = createContext<{
+  expanded: boolean;
+  toggle: () => void;
+} | null>(null);
 
 // Dragging the panel's left edge resizes it; leftwards makes it wider.
 const RecordSidePanelResizeHandle = ({
@@ -193,27 +202,52 @@ const RecordSidePanelRoot = ({
   onWidthChange?: (width: number) => void;
   children: React.ReactNode;
 }) => {
+  const [expanded, setExpanded] = useState(false);
+  const panelRef = useRef<HTMLElement>(null);
+  const toggle = useCallback(() => {
+    const panel = panelRef.current;
+    if (
+      panel?.animate &&
+      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      panel.animate(
+        [
+          { opacity: 0.7, transform: `translateX(${expanded ? -12 : 24}px)` },
+          { opacity: 1, transform: 'translateX(0)' },
+        ],
+        { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+      );
+    }
+    setExpanded((value) => !value);
+  }, [expanded]);
+  const expansion = useMemo(() => ({ expanded, toggle }), [expanded, toggle]);
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
   return (
-    <aside
-      style={{ width: panelWidth }}
-      className={cn(
-        'relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
-        // Animate entry only: duration-200 must never ease drag width changes.
-        'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
-        className,
-      )}
-    >
-      {onWidthChange && (
-        <RecordSidePanelResizeHandle
-          width={panelWidth}
-          maxWidth={upperBound}
-          onWidthChange={onWidthChange}
-        />
-      )}
-      {children}
-    </aside>
+    <PanelExpansionContext.Provider value={expansion}>
+      <aside
+        ref={panelRef}
+        data-record-side-panel
+        data-expanded={expanded || undefined}
+        style={{ width: expanded ? '100%' : panelWidth }}
+        className={cn(
+          '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
+          expanded && 'fixed inset-0 z-40 h-svh border-l-0',
+          // Animate entry only: duration-200 must never ease drag width changes.
+          'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+          className,
+        )}
+      >
+        {onWidthChange && !expanded && (
+          <RecordSidePanelResizeHandle
+            width={panelWidth}
+            maxWidth={upperBound}
+            onWidthChange={onWidthChange}
+          />
+        )}
+        {children}
+      </aside>
+    </PanelExpansionContext.Provider>
   );
 };
 
@@ -235,6 +269,55 @@ const RecordSidePanelHeader = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const expansion = useContext(PanelExpansionContext);
+  const expandButtonRef = useRef<HTMLButtonElement>(null);
+  const expand = onExpand ?? expansion?.toggle;
+  const expanded = !onExpand && expansion?.expanded;
+  const expandLabel = expanded
+    ? t('collapse', 'Collapse record')
+    : t('expand', 'Expand record');
+
+  useEffect(() => {
+    if (!expand) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.repeat ||
+        event.isComposing ||
+        event.key !== 'Enter' ||
+        !event.shiftKey ||
+        !(event.ctrlKey || event.metaKey) ||
+        event.altKey
+      )
+        return;
+
+      const target = event.target;
+      if (
+        target instanceof Element &&
+        target.closest(
+          'input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="dialog"], [role="menu"], [role="listbox"]',
+        )
+      )
+        return;
+
+      const button = expandButtonRef.current;
+      const panels = document.querySelectorAll('[data-record-side-panel]');
+      if (
+        !button ||
+        button.closest('[data-record-side-panel]') !==
+          panels[panels.length - 1] ||
+        document.querySelector(
+          '[role="dialog"][data-state="open"], [role="menu"][data-state="open"], [role="listbox"][data-state="open"]',
+        )
+      )
+        return;
+
+      event.preventDefault();
+      expand();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [expand]);
 
   return (
     // Same height and surface as the app's top bar, so the two read as one.
@@ -258,15 +341,23 @@ const RecordSidePanelHeader = ({
       {actions && (
         <div className="flex flex-none items-center gap-1">{actions}</div>
       )}
-      {onExpand && (
+      {expand && (
         <Button
+          ref={expandButtonRef}
           variant="ghost"
           size="icon"
           className="size-7"
-          onClick={onExpand}
-          title={t('expand', 'Open full view')}
+          onClick={expand}
+          title={`${expandLabel} (Ctrl/⌘ + Shift + Enter)`}
+          aria-label={expandLabel}
+          aria-expanded={!!expanded}
+          aria-keyshortcuts="Control+Shift+Enter Meta+Shift+Enter"
         >
-          <IconMaximize className="size-4" />
+          {expanded ? (
+            <IconMinimize className="size-4" />
+          ) : (
+            <IconMaximize className="size-4" />
+          )}
         </Button>
       )}
       <Button
@@ -304,6 +395,7 @@ const RecordSidePanelTabs = ({
   visibleCount?: number;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const expanded = useContext(PanelExpansionContext)?.expanded ?? false;
   const barRef = useRef<HTMLDivElement>(null);
   const tabWidths = useRef(new Map<string, number>());
   const tabsRef = useRef(tabs);
@@ -316,7 +408,7 @@ const RecordSidePanelTabs = ({
   const measure = useCallback(() => {
     const bar = barRef.current;
 
-    if (!bar) {
+    if (!bar || expanded) {
       return;
     }
 
@@ -360,7 +452,7 @@ const RecordSidePanelTabs = ({
     }
 
     setFitCount(Math.max(1, count));
-  }, [visibleCount]);
+  }, [visibleCount, expanded]);
 
   useLayoutEffect(() => {
     const bar = barRef.current;
@@ -386,7 +478,7 @@ const RecordSidePanelTabs = ({
     };
   }, [measure, tabsKey]);
 
-  const shownCount = Math.min(visibleCount, fitCount);
+  const shownCount = expanded ? tabs.length : Math.min(visibleCount, fitCount);
 
   // Tabs shown for the first time are measured once drawn; their real width
   // then settles the count (each width is measured once, so it converges).
@@ -404,16 +496,31 @@ const RecordSidePanelTabs = ({
     <Tabs
       value={value}
       onValueChange={onValueChange}
-      className="flex flex-col flex-1 min-h-0 min-w-0"
+      orientation={expanded ? 'vertical' : 'horizontal'}
+      className={cn(
+        'flex flex-1 min-h-0 min-w-0',
+        expanded ? 'flex-row' : 'flex-col',
+      )}
     >
       {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
       {/* Never wider than its container: pinning a tab moves tabs into More
           instead of widening whatever holds the panel. */}
       <div
         ref={barRef}
-        className="box-content flex items-center gap-1 h-10 px-2 border-b bg-background flex-none min-w-0 overflow-hidden"
+        className={cn(
+          'flex flex-none min-w-0 overflow-hidden',
+          expanded
+            ? 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3'
+            : 'box-content items-center gap-1 h-10 px-2 border-b bg-background',
+        )}
       >
-        <Tabs.List className="flex h-full min-w-0 items-stretch border-b-0 gap-1 py-0">
+        <Tabs.List
+          aria-label={t('navigation', 'Record navigation')}
+          className={cn(
+            'flex min-w-0 items-stretch border-b-0 gap-1 py-0',
+            expanded ? 'flex-col' : 'h-full',
+          )}
+        >
           {visible.map((tab) => (
             // Full row height, so the active underline lands on the row's
             // bottom border instead of above it.
@@ -421,10 +528,18 @@ const RecordSidePanelTabs = ({
               key={tab.value}
               value={tab.value}
               data-panel-tab={tab.value}
-              className="h-full gap-1.5 rounded-none after:-mb-px"
+              title={expanded ? tab.label : undefined}
+              className={cn(
+                'text-xs motion-reduce:transition-none',
+                expanded
+                  ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-[state=active]:bg-primary/10 data-[state=active]:hover:bg-primary/10'
+                  : 'h-full gap-1.5 rounded-none after:-mb-px',
+              )}
             >
-              <tab.icon className="size-4" />
-              {tab.label}
+              <tab.icon className="size-4 shrink-0" aria-hidden="true" />
+              <span className={expanded ? 'sr-only sm:not-sr-only' : undefined}>
+                {tab.label}
+              </span>
             </Tabs.Trigger>
           ))}
         </Tabs.List>

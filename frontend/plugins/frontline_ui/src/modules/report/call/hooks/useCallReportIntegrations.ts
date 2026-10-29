@@ -7,6 +7,7 @@ export const CALL_REPORT_INTEGRATIONS = gql(`
     callReportIntegrations {
       _id
       inboxId
+      name
       phone
       queues
     }

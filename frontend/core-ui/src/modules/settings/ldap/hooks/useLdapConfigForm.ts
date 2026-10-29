@@ -26,7 +26,8 @@ const toFormValues = (config: ILdapConfig | null): TLdapConfigForm => ({
   hasBindPassword: config?.hasBindPassword ?? false,
   baseDn: config?.baseDn ?? '',
   loginAttribute:
-    config?.loginAttribute ?? LDAP_SERVER_DEFAULTS.activeDirectory.loginAttribute,
+    config?.loginAttribute ??
+    LDAP_SERVER_DEFAULTS.activeDirectory.loginAttribute,
   userFilter:
     config?.userFilter ?? LDAP_SERVER_DEFAULTS.activeDirectory.userFilter,
   allowedGroupDns: config?.allowedGroupDns ?? [],

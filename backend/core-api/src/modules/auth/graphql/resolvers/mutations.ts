@@ -34,7 +34,10 @@ type LoginParams = {
 
 // Matches Users.login so attempts by username reach the user's log too
 const findLoginUser = (models: IModels, identifier: string) => {
-  const pattern = new RegExp(`^${escapeRegExp((identifier || '').trim())}$`, 'i');
+  const pattern = new RegExp(
+    `^${escapeRegExp((identifier || '').trim())}$`,
+    'i',
+  );
 
   return models.Users.findOne(
     { $or: [{ email: pattern }, { username: pattern }] },

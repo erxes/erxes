@@ -1,5 +1,4 @@
 import { AccountCategoriesTable } from '@/settings/account/account-categories/components/AccountCategoriesTable';
-import { EditAccountCategory } from '@/settings/account/account-categories/components/EditAccountsCategory';
 import { AccountCategoriesFilter } from '@/settings/account/account-categories/components/AccountCategoriesFilter';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { Can, Import } from 'ui-modules';
@@ -18,7 +17,6 @@ export const AccountCategoriesPage = () => {
         </Can>
       </PageSubHeader>
       <AccountCategoriesTable />
-      <EditAccountCategory />
     </PageContainer>
   );
 };

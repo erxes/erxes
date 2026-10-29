@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -27,6 +27,43 @@
 - Ticketing: boards, pipelines, statuses, tickets, activities, notes, ticket
   configs, plus ticket import/export handlers.
 - Forms: form definitions, fields, and form submissions (with submission export).
+- Form fields can convert between supported basic/customer types in place.
+  `modules/form/fieldConversion.ts` validates every saved answer against the
+  target type and selected validator before any bulk field write, rejects linked
+  custom fields, incompatible conditional rules and duplicate customer mappings,
+  and checks `expectedType` for stale edits. Field IDs and stored
+  answers are preserved; existing customer profiles are not backfilled.
+  `frontlineFormFieldConversionCheck` requires `formsEdit` and inspects the
+  draft before confirmation. Checks use the submission index
+  `{formId: 1, formFieldId: 1, _id: 1}`, yield between bounded batches, and
+  stop after ten seconds without changing fields. The review returns at most
+  20 previews of 200 characters; literal search covers full saved answers.
+  Custom validation patterns are compiled once per scan and evaluated in
+  bounded VM executions. Preview results never authorize a save: the bulk
+  mutation checks the current answers again.
+  Date compatibility requires both strict ISO validation and a parseable date;
+  conditional-rule checks merge partial field updates with stored definitions.
+  Conversion saves use the same replica-set/mongos capability check and
+  `withTransaction` session pattern as core's document-ID migration. Optional
+  `formChanges` on `frontlineFieldsBulkAction` commits metadata with all field
+  writes; ordinary forms remain usable on standalone MongoDB, while conversion
+  checks/saves return `TRANSACTIONS_REQUIRED` there.
+  An `expectedType` equal to the submitted type is not a conversion, but still
+  participates in stale-field validation.
+  `modules/form/formWriteGuard.ts` scans on the primary outside the short
+  transaction and commits only against the unchanged `conversionRevision` with no live
+  submissions. Widget and legacy submission writers acquire renewable admission
+  tokens before validation/external calls, then fence their database writes in
+  a transaction. Tokens expire after two minutes and expired writers cannot
+  commit; cleanup failures never turn a committed answer into a retry error.
+  Database-only callbacks may retry for up to ten seconds; customer RPC,
+  conversations and automation side effects must remain outside them.
+  Every participating field/submission database write must use its session;
+  adding a new writer requires the same guard. Direct database scripts bypass
+  this protocol and must run separately from conversion. All submission-writer
+  replicas must be upgraded before conversion is used during a rollout.
+  Incoming form submissions use the stored field type and validation so a
+  previously opened widget cannot keep the old customer mapping after conversion.
 - Surveys: channel-scoped survey definitions, the snapshot an agent posts into a
   messenger conversation, and the per-voter vote ledger behind the tallies.
 - Knowledge base: topics, categories, articles, scheduled article publishing,
@@ -401,8 +438,8 @@
   video, audio or file (never a sticker or share) still starts a run.
   `generateAiContext` merges every customer message since the last reply into
   the input, shows media as `[media <messageId>-<index> <type>]` markers, and
-  adds `facts.mediaIds` and `facts.openTickets` (tickets keeping the inbox
-  conversation in `sourceConversationIds` that are not resolved or closed). `actionCreateMessage` skips an
+  adds `facts.mediaIds` and `facts.openTickets` (the conversation's
+  customer's tickets, by `customerId`, that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
 - AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
@@ -414,8 +451,9 @@
 'ticket', fields: ['name', 'number'] }`, so behind an agent's tool the
   ticket is remembered and a later turn names it as `ticketId`.
 - Ticket automations: **Create ticket** attaches `attachmentIds` (media ids
-  resolved only against the triggering conversation's messages) and relates
-  the ticket to the inbox conversation and customer, as a manual convert does.
+  resolved only against the triggering conversation's messages) and saves the
+  conversation's customer as the ticket's `customerId`; the ticket keeps no
+  link to the conversation.
   (Media added to an existing ticket goes through Find object and Manage
   properties' `attachments` field; there is no separate add-to-ticket action.)
   Conversation media is stored on the ticket with a MIME `type` (from the URL
@@ -555,11 +593,6 @@
   SES or SendGrid path: mail enters and leaves through Cloudflare only.
 - Ticket boards/pipelines, response templates, forms, knowledgebase articles,
   and report aggregations.
-- Converts an inbox conversation into a ticket (created here) or a deal
-  (created by `sales` over tRPC), relates the new item to the conversation and
-  its customer, and refuses a second item of the same kind for one
-  conversation. There is no task target; `conversationConvertToCard` rejects
-  `type: "task"` as an unsupported convert type.
 - Agents use the public GraphQL API as the acting user; tRPC remains an
   internal service contract without agent metadata.
 - A help center points at a client portal by **`clientPortalId`**, and keeps
@@ -635,6 +668,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Mail provisioning        | `src/modules/integrations/mail/utils/cloudflare/`                                                                                                                | Cloudflare REST client, the fourteen-step provisioner, Email Sending onboarding and quota, the connection cache and its public shape                                                                                   |
 | Mail worker bundle       | `src/modules/integrations/mail/worker/bundle.generated.ts`                                                                                                       | The minified worker uploaded to a tenant's account, regenerated by `npm run bundle` in `cloudflare/mail-worker`                                                                                                        |
 | Call Pro                 | `src/modules/integrations/callpro/`                                                                                                                              | `CALLPRO_ENABLED` gate, `/callpro/receive` webhook, mirrored line/caller/call, recording URL                                                                                                                           |
+| Call operator resolution | `src/modules/integrations/call/services/operatorResolution.ts`                                                                                                   | Which peer call integration (`CallIntegrations.findPeers`: same trunk or phone) owns the extension that rang or answered                                                                                               |
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
@@ -678,7 +712,6 @@ The root router mounts its authenticated webhook at `/telegram`.
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
-| Conversation convert     | `src/modules/inbox/services/conversationConvert{,Targets}.ts`                                                                                                    | Conversion orchestration and relations; one handler per target (permission, existing-item lookup, URL, create)                                                                                                         |
 | Forms                    | `src/modules/form/`                                                                                                                                              | Forms, fields, submissions                                                                                                                                                                                             |
 | Surveys                  | `src/modules/survey/`                                                                                                                                            | Survey definitions, vote ledger, message snapshot, tally refresh                                                                                                                                                       |
 | Survey ticket automation | `src/modules/survey/ticketAutomation.ts`                                                                                                                         | Threshold evaluation, atomic single-ticket claim, ticket creation                                                                                                                                                      |
@@ -699,7 +732,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 ### Provides
 
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
-- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`), conversation convert and the create-ticket automation. No core relation is made for a ticket: a ticket made from a conversation (convert or the create-ticket automation) keeps it in `sourceConversationIds` (indexed); convert's "already converted" check, the converted-items list, open-ticket facts (`findOpenConversationTickets`) and the ticket source-channel report read that field, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateConversationRelationsToSourceFields.ts` copies old conversation ↔ ticket / deal relations and `customerFieldData.sourceConversationIds` into the field. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
+- `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`) and the create-ticket automation. No core relation and no conversation link is kept on a ticket: there is no conversation convert, tickets have no `sourceConversationIds` field, and a ticket made from a conversation (the create-ticket automation) only gets the conversation's customer. Open-ticket facts (`findOpenConversationTickets`) list the conversation's customer's open tickets, the ticket source-channel report groups the tickets' customers' conversations by integration, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` gives tickets and deals still without a customer the customer of their old source conversation (relations, the old field or `customerFieldData.sourceConversationIds`); stored `sourceConversationIds` values are left in place but nothing reads them. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
 - Telegram: `POST /telegram/receive/:_id` authenticates the stored webhook
   secret. `telegramBots`, `telegramConversationChats`, `telegramBotWebhookInfo` and
   `telegramMessageLinkPreviews` expose permission-checked setup/status and
@@ -998,6 +1031,12 @@ accountId, brandId, data)` — `channelId` is **nullable** for every kind;
   (`extension`, `fullname`, `status`) read from the PBX `listAccount` reply,
   filtered to the integration's operators. It returns `[]` when the PBX has no
   accounts and throws when the PBX request fails, never a string.
+- GraphQL `callReportIntegrations` lists the `calls_integrations` rows the
+  user may report on (`_id`, `inboxId`, `name`, `phone`, `queues`), sorted by
+  phone. `name` is the owning inbox integration's name read from
+  `integrations` by `inboxId`, the same join `callUserIntegrations` makes, and
+  is `''` when that inbox row is gone. Several call integrations can share one
+  phone, so the name is what tells them apart.
 - GraphQL call reports — `callGetQueueStats`, `callGetAgentStats`,
   `getCallbackStats`, `callKpiScorecard`, `callVolumeSeries`,
   `callCarrierBreakdown`, `callHeatmap`, `callTopNumbers`. All eight read
@@ -1457,6 +1496,8 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   ticket configs and only name, description, attachments, tags and properties.
 - Widget resolvers never log request arguments or customer documents: they
   carry visitors' emails, phones and custom data.
+  `cpWidgetsSaveLead` delegates to `widgetsSaveLead` for the same validation,
+  guarded persistence and customer mapping, with its own client-portal wrapper.
 - The widget API has no endpoint that sends email to caller-chosen recipients
   or with caller-chosen content (`widgetsSendEmail` was removed as an open
   relay). Any widget email goes to the session's own customer with server-side
@@ -1536,6 +1577,23 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - A ticket property option marked `deprecated` (archived) in core is never
   sent to the widget; records that already hold it keep it.
 
+- Several call integrations may share one trunk and phone (one PBX split into
+  channels by operator), and the PBX bridge may post any leg of a call under
+  any of them. `/call/event` and `/call/cdrReceive` therefore resolve the
+  extension against the posted integration **and its peers** (same `srcTrunk`,
+  `dstTrunk` or `phone`, `findPeerIntegrations`). The integration that owns
+  the answering operator owns the call: on answer the session's
+  `inboxIntegrationId` and the conversation's `integrationId` move to it and
+  the operator is assigned. A ringing, hangup or unanswered CDR update never
+  rewrites an existing conversation's `integrationId` (the inbox
+  `create-or-update-conversation` handler leaves it alone when the payload
+  omits it); a conversation created before anyone answered stays on the
+  integration that posted the first leg. `callSessionUpdated:ext:<inbox>:<ext>`
+  is published on the inbox that owns each extension, which is what the
+  operator's widget subscribes to. `callHistories` / `callHistoriesTotalCount`
+  read CDR legs from the selected integration **and its peers**, still
+  filtered to the caller's own extension, because any leg of a call may have
+  been posted under any peer.
 - Call Pro sends several webhooks per call, so `getOrCreateCustomer` in
   `src/modules/integrations/callpro/controller.ts` must never trust a
   `customers_callpros` row without `erxesApiId`: it links the core customer
@@ -1564,10 +1622,6 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   `CpTicketPipeline` type (`_id`, `name`, `description`, `channelId`), never
   the staff `Pipeline` type with its member, department, numbering and
   `createdUser` fields. Keep any new client portal read on its own narrow type.
-- A converted ticket's "Go to" URL (`conversationConvertedItems`, built in
-  `src/modules/inbox/services/conversationConvertTargets.ts`) carries the
-  ticket's `channelId` and `pipelineId` with `ticketId`; without them the
-  tickets page falls back to the channel's first pipeline.
 - Ticket activity logging (`createActivity` in
   `src/modules/ticket/utils/ticket.ts`) receives the whole ticket as `newDoc`
   (`{ ...ticket.toObject(), ...rest }`), so every field is compared on every

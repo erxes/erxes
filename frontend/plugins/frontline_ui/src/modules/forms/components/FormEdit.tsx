@@ -5,8 +5,18 @@ import { Spinner } from 'erxes-ui';
 import { formSetSetupAtom } from '../states/formSetupStates';
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
+import { FormDraftScope } from './FormDraftScope';
 
 export const FormEdit = ({ setName }: { setName?: (name: string) => void }) => {
+  const { formId } = useParams<{ formId: string }>();
+  return (
+    <FormDraftScope scope={`edit:${formId}`}>
+      <FormEditContent setName={setName} />
+    </FormDraftScope>
+  );
+};
+
+const FormEditContent = ({ setName }: { setName?: (name: string) => void }) => {
   const { formId } = useParams<{ formId: string }>();
   const [loadingSetup, setLoadingSetup] = useState(true);
   const { formDetail, loading } = useFormDetail({ formId: formId || '' });

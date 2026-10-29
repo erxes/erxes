@@ -320,16 +320,10 @@ export const createTicketAction = async ({
   }
 
   const customerId = getString(target, 'customerId');
-  // A ticket from a conversation keeps the conversation's customer and the
-  // conversation itself, so a later message finds it open; no relation.
+  // A ticket from a conversation keeps the conversation's customer, so the
+  // customer's open tickets are found on a later message; no relation.
   const ticket = await models.Ticket.addTicket(
-    inboxConversationId
-      ? {
-          ...doc,
-          ...(customerId && { customerId }),
-          sourceConversationIds: [inboxConversationId],
-        }
-      : doc,
+    inboxConversationId && customerId ? { ...doc, customerId } : doc,
     userId,
     subdomain,
   );

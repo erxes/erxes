@@ -1,98 +1,100 @@
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
-import { TAccountCategoryForm } from '../types/AccountCategory';
-import { Button, Form, Input, Sheet, Spinner, Textarea } from 'erxes-ui';
-import { SelectAccountCategory } from './SelectAccountCategory';
+import { Form, Input } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
+import { TAccountCategoryForm } from '@/settings/account/account-categories/types/AccountCategory';
+import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
+import { SettingsPanelDescriptionInput } from '@/settings/components/panel/SettingsPanelFields';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SETTINGS_PANEL_CELL_CLASS_NAME } from '@/settings/constants/settingsPanel';
 
 export const AccountCategoryForm = ({
   form,
-  handleSubmit,
-  loading,
+  onSubmit,
+  onCancel,
+  saving,
 }: {
   form: UseFormReturn<TAccountCategoryForm>;
-  handleSubmit: (data: TAccountCategoryForm) => void;
-  loading: boolean;
-  onClose?: () => void;
+  onSubmit: (data: TAccountCategoryForm) => void;
+  onCancel: () => void;
+  saving: boolean;
 }) => {
   const { t } = useTranslation('accounting');
+
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col flex-1 bg-background min-h-0"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5">
-          <div className="grid grid-cols-2 gap-5">
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item className="col-span-2">
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      saving={saving}
+      saveLabel={t('save-account-category')}
+    >
+      <Form.Field
+        control={form.control}
+        name="name"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('name')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoFocus
+              autoComplete="off"
+              placeholder={t('name')}
+              className={PANEL_INPUT_CLASS_NAME}
             />
+          </PanelFormRow>
+        )}
+      />
 
-            <Form.Field
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('code')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
+      <Form.Field
+        control={form.control}
+        name="code"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('code')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoComplete="off"
+              placeholder={t('code')}
+              className={PANEL_INPUT_CLASS_NAME}
             />
+          </PanelFormRow>
+        )}
+      />
 
-            <Form.Field
-              control={form.control}
-              name="parentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('parent')}</Form.Label>
-                  <Form.Control>
-                    <SelectAccountCategory
-                      recordId={field.name}
-                      selected={field.value}
-                      onSelect={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
+      <Form.Field
+        control={form.control}
+        name="parentId"
+        render={({ field }) => (
+          <PanelFormRow label={t('parent')}>
+            <SelectAccountCategory
+              recordId="side-panel-account-category-new.parent"
+              selected={field.value}
+              onSelect={field.onChange}
+              variant="ghost"
+              hideChevron
+              className={SETTINGS_PANEL_CELL_CLASS_NAME}
             />
+          </PanelFormRow>
+        )}
+      />
 
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item className="col-span-2">
-                  <Form.Label>{t('description')}</Form.Label>
-                  <Form.Control>
-                    <Textarea {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </div>
-        </div>
-
-        <Sheet.Footer className="shrink-0 border-t bg-background">
-          <Sheet.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              {t('cancel-label')}
-            </Button>
-          </Sheet.Close>
-
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading ? <Spinner /> : t('save-account-category')}
-          </Button>
-        </Sheet.Footer>
-      </form>
-    </Form>
+      <Form.Field
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <SettingsPanelDescriptionInput
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+    </SettingsPanelDraftForm>
   );
 };
