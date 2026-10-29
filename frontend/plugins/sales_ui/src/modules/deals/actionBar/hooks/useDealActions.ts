@@ -1,6 +1,7 @@
 import { useConfirm, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
 
 import {
   useDealsCopy,
@@ -9,6 +10,7 @@ import {
   useDealsWatch,
 } from '@/deals/cards/hooks/useDeals';
 import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 
@@ -25,6 +27,8 @@ export const useDealActions = ({
   const { t } = useTranslation('sales');
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
+  const panelDealId = useDealIdOverride();
+  const { close: closePanel } = useSidePanel();
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
@@ -98,6 +102,10 @@ export const useDealActions = ({
 
     if (salesItemId && removedDealIds.has(salesItemId)) {
       setSalesItemId(null);
+    }
+
+    if (panelDealId && removedDealIds.has(panelDealId)) {
+      closePanel();
     }
 
     const failedRemoval = removalResults.find(

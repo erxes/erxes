@@ -1,4 +1,6 @@
 import { parseDateRangeFromString } from 'erxes-ui';
+import { SIDE_PANEL_QUERY_KEY } from 'ui-modules';
+import { DEAL_ACTIVITY_FILTER_KEYS } from '@/deals/cards/components/detail/overview/activity/DealActivityFilter';
 
 const IGNORED_QUERY_VARIABLE_KEYS = [
   'boardId',
@@ -8,6 +10,9 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'archivedOnly',
   'archivedSort',
   'stageId',
+  SIDE_PANEL_QUERY_KEY,
+  'panelHistory',
+  ...DEAL_ACTIVITY_FILTER_KEYS,
 ];
 
 const DATE_RANGE_MAP: Record<string, [string, string]> = {

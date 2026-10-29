@@ -9,12 +9,14 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 
 export function useDealsCopy(
   options?: MutationHookOptions<DealsCopyMutation, DealsCopyMutationVariables>,
 ) {
   const { t } = useTranslation('sales');
-  const [_id] = useAtom(dealDetailSheetState);
+  const [activeDealId] = useAtom(dealDetailSheetState);
+  const _id = useDealIdOverride() || activeDealId;
 
   const [copyDeals, { loading, error }] = useMutation(DEALS_COPY, {
     ...options,
