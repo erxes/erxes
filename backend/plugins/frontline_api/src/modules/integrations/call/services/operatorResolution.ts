@@ -14,35 +14,11 @@ export interface IOperatorMatch {
   extension: string;
 }
 
-type PeerSelector =
-  | { srcTrunk: string }
-  | { dstTrunk: string }
-  | { phone: string };
-
-const peerSelectors = (
-  integration: ICallIntegrationDocument,
-): PeerSelector[] => {
-  const selectors: PeerSelector[] = [];
-  if (integration.srcTrunk) selectors.push({ srcTrunk: integration.srcTrunk });
-  if (integration.dstTrunk) selectors.push({ dstTrunk: integration.dstTrunk });
-  if (integration.phone) selectors.push({ phone: integration.phone });
-  return selectors;
-};
-
-export const findPeerIntegrations = async (
+export const findPeerIntegrations = (
   models: IModels,
   integration: ICallIntegrationDocument,
-): Promise<ICallIntegrationDocument[]> => {
-  const selectors = peerSelectors(integration);
-  if (!selectors.length) return [integration];
-
-  const peers = await models.CallIntegrations.find({
-    inboxId: { $ne: integration.inboxId },
-    $or: selectors,
-  });
-
-  return [integration, ...peers];
-};
+): Promise<ICallIntegrationDocument[]> =>
+  models.CallIntegrations.findPeers(integration);
 
 export const matchOperatorByExtension = (
   peers: ICallIntegrationDocument[],
