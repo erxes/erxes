@@ -27,6 +27,8 @@ import { TeamMemberActivityLogSheet } from '../TeamMemberActivityLogSheet';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
 import { useTranslation } from 'react-i18next';
+import { LdapMemberMenuItem } from '@/settings/ldap/components/LdapMemberMenuItem';
+import { useLdapLinkedUserIds } from '@/settings/ldap/hooks/useLdapUserLink';
 
 export const TeamMemberMoreColumnCell = ({
   cell,
@@ -43,6 +45,7 @@ export const TeamMemberMoreColumnCell = ({
     renderingTeamMemberResetPasswordAtom,
   );
   const { email, _id, isActive } = cell.row.original;
+  const { isLinked } = useLdapLinkedUserIds();
   const { resend, loading } = useResendInvite();
   const { editStatus } = useUsersStatusEdit();
 
@@ -72,17 +75,20 @@ export const TeamMemberMoreColumnCell = ({
           <IconSettings size={18} /> {t('edit-permission-groups')}
         </Command.Item>
       </Can>
-      <Can action="teamMembersResetPassword">
-        <Command.Item
-          value="reset-password"
-          onSelect={() => {
-            setResetPasswordOpen(_id);
-            setRenderingTeamMemberResetPasswordAtom(true);
-          }}
-        >
-          <IconLock /> {t('reset-password')}
-        </Command.Item>
-      </Can>
+      {!isLinked(_id) && (
+        <Can action="teamMembersResetPassword">
+          <Command.Item
+            value="reset-password"
+            onSelect={() => {
+              setResetPasswordOpen(_id);
+              setRenderingTeamMemberResetPasswordAtom(true);
+            }}
+          >
+            <IconLock /> {t('reset-password')}
+          </Command.Item>
+        </Can>
+      )}
+      <LdapMemberMenuItem userId={_id} onDone={() => setMenuOpen(false)} />
       <Can action="teamMembersRemove">
         <Command.Item
           value="toggle-status"

@@ -36,7 +36,7 @@ const publishUserStatusChanged = (
   ]);
 };
 
-const validatePermissionGroupIds = async (
+export const validatePermissionGroupIds = async (
   models: IModels,
   permissionGroupIds: string[],
 ) => {

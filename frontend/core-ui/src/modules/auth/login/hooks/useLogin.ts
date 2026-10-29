@@ -49,9 +49,14 @@ export const useLogin = () => {
         navigate(safeRedirect, { replace: true });
       },
       onError(error) {
+        const reason = error.graphQLErrors[0]?.extensions?.reason;
+
         toast({
-          title: t('incorrect-credentials'),
-          description: error.message,
+          title: t(
+            `login-failure.${
+              typeof reason === 'string' ? reason : 'invalid_credentials'
+            }`,
+          ),
           variant: 'destructive',
         });
       },

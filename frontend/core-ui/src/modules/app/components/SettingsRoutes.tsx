@@ -43,6 +43,11 @@ const SettingsMailConfig = lazy(() =>
     default: module.MailConfigPage,
   })),
 );
+const LdapSettings = lazy(() =>
+  import('~/pages/settings/workspace/LdapSettingsPage').then((module) => ({
+    default: module.LdapSettingsPage,
+  })),
+);
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
     default: module.GeneralSettingsPage,
@@ -189,6 +194,7 @@ export function SettingsRoutes() {
             element={<SettingsMailConfig />}
           />
         )}
+        <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
         <Route
           path={SettingsWorkspacePath.EmailTemplatesCatchAll}
           element={<EmailTemplatesSettingsRoutes />}

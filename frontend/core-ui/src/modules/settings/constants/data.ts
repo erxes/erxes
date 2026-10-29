@@ -214,6 +214,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
+      name: t('ldap', 'LDAP'),
+      icon: IconShieldLock,
+      path: SettingsWorkspacePath.Ldap,
+    },
+    {
       name: t('system-logs'),
       icon: IconFile,
       path: SettingsWorkspacePath.Logs,
@@ -353,6 +358,15 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
+  [SettingsWorkspacePath.Ldap]: {
+    name: sidebarT('ldap', 'LDAP'),
+    items: [
+      {
+        name: t('active-directory', 'Active Directory'),
+        path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -373,6 +387,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Ldap]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',

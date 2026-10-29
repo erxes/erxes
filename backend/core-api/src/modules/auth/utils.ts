@@ -8,6 +8,7 @@ import {
 import { Request } from 'express';
 import { IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
+import { LoginError } from '~/modules/auth/loginError';
 import { getConfig } from '~/modules/organization/settings/utils/configs';
 import { applyTemplate } from '~/utils/common';
 
@@ -48,7 +49,7 @@ export const assertLoginAllowed = async (
     Number(await redis.get(loginFailureKey(subdomain, identifier))) || 0;
 
   if (failures >= MAX_LOGIN_FAILURES) {
-    throw new Error('Too many login attempts. Please try again later.');
+    throw new LoginError('rate_limited');
   }
 };
 
