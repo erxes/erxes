@@ -6,7 +6,6 @@ import {
   RecordTable,
   CurrencyField,
   TextField,
-  useQueryState,
   RecordTableInlineCell,
   Popover,
   Combobox,
@@ -17,6 +16,8 @@ import { useTranslation } from 'react-i18next';
 import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
 import { useAccountEdit } from '../hooks/useAccountEdit';
 import { useAccountsRemove } from '../hooks/useAccountsRemove';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { ACCOUNT_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
 import { JOURNAL_LABELS } from '../constants/journalLabel';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import {
@@ -100,12 +101,12 @@ export const AccountMoreColumnCell = ({
   cell: Cell<IAccount, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('accountId');
+  const { openDetail } = useSettingsPanel(ACCOUNT_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeAccounts } = useAccountsRemove();
 
   const handleEdit = () => {
-    setOpen(cell.row.original._id);
+    openDetail(cell.row.original._id);
   };
 
   const handleDelete = () =>

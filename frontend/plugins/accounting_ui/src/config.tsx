@@ -8,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { SETTINGS_PANEL_CONTENT_TYPES } from '@/settings/constants/settingsPanel';
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
@@ -126,6 +127,11 @@ export const CONFIG: IUIConfig = {
         icon: IconReceipt,
       },
     ],
+    recordPanels: SETTINGS_PANEL_CONTENT_TYPES.map((contentType) => ({
+      contentType,
+      properties: false,
+      draftTitle: true,
+    })),
   },
   searchProviders: SEARCH_PROVIDERS,
 };

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -200,6 +200,21 @@
   (row action and command bar), the Channel and Tags column edits and channel
   moves (`CHANNEL_RESOURCE_LIST_QUERIES[FORM]`) all refetch `FormsTotalCount`,
   so the counts never need a manual refresh.
+- The call report's **Integrations** filter labels each option with the
+  owning inbox integration's `name` from `callReportIntegrations`, falling
+  back to the formatted phone only when the name is empty. Several call
+  integrations can share one phone (one per queue), so a phone-only label
+  shows identical rows. `deduplicateIntegrations` in
+  `src/modules/report/call/utils.ts` keys by `inboxId`, merges phones and
+  keeps the first non-empty name.
+- `SipProvider` never lets JsSIP wait for ICE gathering to finish on its own.
+  Every `newRTCSession` subscribes to the session's `icecandidate` event and
+  calls its `ready()` as soon as a `relay` candidate arrives, or one second
+  after the last candidate otherwise, so the answer or offer SDP leaves at
+  once. Without this, Windows hosts with Hyper-V `vEthernet` or VPN adapters
+  keep ringing 40–50 seconds after Answer while the browser times out on
+  interfaces that never reply to STUN/TURN. Keep the early `ready()` when
+  changing call setup.
 - The call widget's dialpad header carries a clear-cache icon button next to
   Pause and Turn off. After a confirm it closes the widget, resets the call
   atoms persisted in `localStorage` (`config:call_integrations`,
@@ -370,7 +385,7 @@
   the settings status sheet's `StatusNameColorField`, which takes the
   caller's `form`, and adds a type field) and selects the new record once its list
   has refetched. Create is on only where `allowCreate` is passed: every
-  `FormItem` variant (add ticket, conversation convert, help center drawer,
+  `FormItem` variant (add ticket, help center drawer,
   pipeline config, automation create-ticket action) and the status select's
   root (ticket detail, card, table). Pipeline needs a channel, status a
   pipeline, and the status option also `ticketStatusesManage`. No create
@@ -411,16 +426,9 @@
   switch (default off).
 - Registers navigation, settings navigation, relation widgets, property inputs,
   and activity rows with the host via `CONFIG` in `src/config.tsx`.
-- The conversation header carries a **Convert** menu. Each entry opens
-  `ConvertDialog`, a centred dialog laid out like the 1.x convert modal: the
-  target fields (ticket: channel → pipeline → status; deal: board → pipeline →
-  stage), then name, assigned to, branch and department (single for a ticket,
-  multiple for a deal), attachments, description and the Settings → Properties
-  fields. A conversation converts to a ticket or a deal only; there is no task
-  target, because operation's own `tasks` relation widget in the conversation
-  sidebar creates and lists related tasks. Saving calls
-  `conversationConvertToCard`; once a kind exists the entry becomes
-  `Go to a …` and navigates to the item's URL.
+- Conversations have no Convert menu. Tickets and deals are created from
+  their own apps or from the conversation rail's Tickets / Deals tabs, and
+  keep only the customer (`customerId`), never the conversation.
 - Inbox navigation splits into **Me** — the integration types in use by the
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
@@ -518,7 +526,8 @@
 - Previews a Facebook bot beside its form: a Messenger frame showing the
   welcome screen (greeting plus Get Started) and the persistent menu exactly as
   `connectBotPageMessenger` composes it, on a phone or the desktop chat window,
-  including the Get Started action the backend prepends, and flagging menu items
+  including the Get Started action the backend prepends (only when the bot has
+  at least one menu item; with none, the preview shows no ☰ button), and flagging menu items
   that never reach Facebook. Tapping a menu action in the preview names what it
   actually does — opens a webview, hands off to a person, resumes a paused step,
   starts a listed automation, or reaches nothing. Only a plain button menu item
@@ -535,6 +544,16 @@
 - Starts an automation from a saved bot: the bot sheet links to the automation
   builder with a `frontline:facebook.messages` trigger already carrying that
   `botId`, built through `buildAutomationSeedLink` from `ui-modules`.
+- Starts an AI reply flow from a saved bot: "AI messenger reply" / "AI comment
+  reply" in the same menu open `FacebookBotAiReplyDialog`, which picks an agent
+  (`FacebookBotAiAgents` → core `automationsAiAgents`; "Create AI agent" goes
+  to `/settings/automations/agents/create` in the same tab with a `returnTo`
+  link back to the current URL, whose `botId` and `aiReply` query reopen the
+  sheet and this dialog) and seeds trigger → `aiAgent` (`generateText`, input
+  `{{ trigger.content }}`) → Facebook message/comment reply whose text is
+  `{{ actions.<agentNodeId>.text }}` (`utils/buildAiReplySeedLink.ts`). The
+  messenger trigger is a direct condition with no keyword rules (any text);
+  the comment trigger is `postType: 'any'`.
 - Attaches a Facebook Messenger bot to an integration from the integration list
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
@@ -720,7 +739,6 @@ owns the setup form and connection actions.
 | Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
 | Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
-| Conversation convert      | `src/modules/inbox/conversations/conversation-detail/components/convert/`                                                                         | Convert menu, convert dialog, convert-time properties                                                                                           |
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
 | Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
@@ -862,11 +880,16 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
 - `erxes-ui`: all UI primitives — `NavigationMenuGroup`, `Sheet`, `Form`,
   `Dialog`, `Button`, `Badge`, `Label`, `Card`, `toast`, `useQueryState`,
   `useToast`, hotkey hooks.
-- `ui-modules`: `useSidePanel().openRecord` in `ConversationSideWidget`. The
-  conversation's right rail (`SideMenu`) holds a customer button, which closes
-  any open rail tab and opens the conversation's customer in the app side panel
+- `ui-modules`: `useSidePanel().openRecord`, `useRelationWidget` and
+  `getRelationWidgetLabel` in `ConversationSideWidget`. The conversation's
+  right rail (`SideMenu`) holds a customer button, which closes any open rail
+  tab and opens the conversation's customer in the app side panel
   (`core:customer`, where its linked records, Tracked data included, are
-  shown), and the conversation Properties tab. No relation widgets are rendered
+  shown); a **Tickets** tab (frontline `ticket`) and a **Deals** tab (sales
+  `deals`) — the relation widgets rendered with the conversation's
+  `customerId`, so they list and create that customer's tickets and deals —
+  shown only when the conversation has a customer and the plugin is enabled;
+  and the conversation Properties tab. No other relation widgets are rendered
   beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
@@ -973,12 +996,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   the Facebook board's data. `reportFacebookPosts` pages on the server
   (`limit` + `page` in the filter), every other card pages client-side through
   `useChartPagination`.
-- `frontline_api` GraphQL `conversationConvertToCard` and
-  `conversationConvertedItems` — the conversation Convert menu.
-- `ui-modules` `SelectBoard`, `SelectPipeline`, `SelectStage`, `SelectMember`,
-  `pluginsConfigState` and `usePermissionCheck` — the deal convert fields and
-  the Convert menu's visibility; `useFields`, `PropertyFormField` and
-  `isFieldVisibleByLogic` — convert-time properties.
 - `react-i18next` with the `frontline` namespace. The ticket note surfaces use
   keys the gateway locales do not carry yet, so they render their inline
   English fallback: `write-a-message`, `add-note`, `ticket-reply-portal-only`,
@@ -1070,6 +1087,30 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
+- Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
+- The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
+- Persistent menu and ice breakers are optional: the bot form never fills a
+  default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
+  mirrors the server rule — Get Started joins `items` only when there is a user
+  menu item — and keeps `getStartedTitle` apart for the welcome-screen button.
+- An AI reply seed always ends in a Facebook reply action: the `aiAgent` node
+  only writes text. `FacebookBotAiReplyDialog` blocks when another **active**
+  automation on the bot already answers any text (`directCatchAll`) or any post
+  (`anyPost`); a draft one is shown, never blocking.
+- Instagram history includes internal notes in the same paginated timeline.
+  Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
+  merge all message fields so deletion, receipt and reaction updates remain
+  visible without duplicates. Keep `subscribeToMore` in a ref and allow only
+  one pagination request at a time, as in the Facebook message hook.
+- Instagram replies and forwards read `extraData.instagramDelivery` with
+  `readInstagramDelivery`. Like Facebook, partial delivery leaves only unsent
+  attachments for retry; an acknowledgement followed by a history failure
+  warns against resending accepted content.
+  The composer builds this feedback through `getPartialDeliveryFeedback`;
+  preserve the distinct remaining-attachment and accepted-message warnings
+  for both Facebook and Instagram.
 
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
@@ -1271,34 +1312,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `formSetSetupAtom` reads it null-safely, falls back to the default
   `Initial step` when it has no steps, and places a field without
   `pageNumber` on page 1 — never dereference `payload.leadData` directly.
-- The Convert menu shows the deal entry only when the `sales` plugin config is
-  loaded, and each entry only with its create action (`createTicket`,
-  `dealsAdd`) on top of `conversationConvertToCard`.
-- The convert dialog keeps its own open state and never touches
-  `ticketCreateSheetState` / `ticketCreateDefaultValuesState`, which the ticket
-  relation widget in the same sidebar drives. Its ticket pickers reuse
-  `SelectChannel`, `SelectPipeline` and `SelectStatusTicket`; the pipeline and
-  status pickers watch `channelId` / `pipelineId` on whatever form they are
-  given, so a form using them must name those fields exactly that.
-- Convert-time properties come only from Settings → Properties, the same way
-  for every kind: `frontline:ticket` or `sales:deal` fields
-  whose `Visible to create` (`isVisibleToCreate`) is on and whose display logic
-  passes, rendered per field group under a `Properties` heading at the bottom
-  of the dialog. Ticket pipeline property selection does not filter them.
-  Multi-row groups are not offered at convert time. The values are sent as
-  `customFieldsData` without empty entries.
-- Convert-time system fields come from core `propertySystemFields` (the Settings
-  → Properties "Basic information" group) through `FrontlineConvertSystemFields`.
-  Priority, tags, start date and due date render only when their system field
-  has `Visible to create` on and its display logic passes; `Required` blocks
-  submit while empty. `useConvertSystemFields` resolves which keys show;
-  `getConvertSystemFieldCode` maps a form key to the kind's code, and only
-  `closeDate` differs (`CONVERT_TYPE_OPTIONS[type].closeDateCode`, which is
-  `targetDate` on tickets and tasks). Name, stage,
-  assignee, branch, department, attachments and description stay always shown.
-- A successful convert refetches `ConversationConvertedItems` and evicts
-  cached `getTickets` / `deals` lists, so the menu and the customer's lists
-  update without a reload. Convert makes no relation.
 - Any new call atom created with `atomWithStorage` must also be reset in
   `ClearCallCacheButton` (`call/components/CallSipActions.tsx`), otherwise the
   clear-cache action leaves stale call state behind. `callConfigAtom` is reset
@@ -2666,10 +2679,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   at once, shows up under the destination channel, and is still there after a
   reload. Select two forms and move them from the command bar; selecting forms
   from two channels on `/frontline/forms` must leave that button disabled.
-- Smoke (convert): in a conversation open Convert → `Convert to a ticket`,
-  `…a deal` and `…a task`; each save shows a success toast, the entry turns
-  into `Go to a …`, and the customer button's side panel lists the new item
-  under Tickets/Deals/Tasks.
+- Smoke (conversation rail): open a conversation that has a customer; the
+  rail shows Tickets and Deals tabs listing that customer's tickets and deals,
+  and "+" in each creates one already linked to the customer.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
   open the drawer and pick a client portal on **General** and save a colour on
   **Appearance**; reload and confirm both persisted. The website picker must

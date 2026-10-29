@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
-import { IconInbox } from '@tabler/icons-react';
+import { IconInbox, IconSettings } from '@tabler/icons-react';
 import { appLastLocationState } from '@/navigation/states/appLastLocationState';
 import {
   findAppActivityByPath,
@@ -21,6 +21,7 @@ import {
 } from '@/navigation/utils/appTabs';
 
 export const INBOX_TAB_ID = 'core:my-inbox';
+export const SETTINGS_TAB_ID = 'core:settings';
 
 const toHomePath = (activity: INavigationActivity) =>
   `/${activity.defaultPath.replace(/^\/+/, '')}`;
@@ -32,6 +33,9 @@ const toHomePath = (activity: INavigationActivity) =>
 export const useAppTabs = () => {
   const navigationActivities = useNavigationActivities();
   const { t } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const { t: navigationT } = useTranslation('common', {
+    keyPrefix: 'navigation',
+  });
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
   const [storedTabIds, setStoredTabIds] = useAtom(openAppTabsState);
@@ -48,15 +52,27 @@ export const useAppTabs = () => {
         modules: [{ name: t('my-inbox'), path: AppPath.MyInbox }],
         defaultPath: AppPath.MyInbox,
       },
+      {
+        id: SETTINGS_TAB_ID,
+        label: navigationT('organization-settings'),
+        icon: IconSettings,
+        kind: 'core',
+        modules: [
+          {
+            name: navigationT('organization-settings'),
+            path: AppPath.Settings,
+          },
+        ],
+        defaultPath: AppPath.Settings,
+      },
     ],
-    [navigationActivities, t],
+    [navigationActivities, navigationT, t],
   );
 
-  const isSettings = isOrganizationSettingsPath(pathname);
-  // Organization settings is not an app tab; plugin settings live under the
-  // plugin's own path, so they resolve to its tab.
-  const routeActivity = isSettings
-    ? undefined
+  // Organization settings opens as its own tab; plugin settings live under
+  // the plugin's own path, so they resolve to that plugin's tab.
+  const routeActivity = isOrganizationSettingsPath(pathname)
+    ? activities.find((activity) => activity.id === SETTINGS_TAB_ID)
     : findAppActivityByPath(activities, pathname);
   const routeActivityId = routeActivity?.id;
   const location = `${pathname}${search}`;

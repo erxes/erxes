@@ -64,7 +64,7 @@ export interface ICommentParams {
   comment_id?: string;
   video?: string;
   photo?: string;
-  from?: any;
+  from: { id: string; username?: string };
   message?: string;
   restoredCommentCreatedAt?: string;
   verb?: string;

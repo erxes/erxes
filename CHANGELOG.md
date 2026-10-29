@@ -1,5 +1,76 @@
 
 
+## [3.4.5](https://github.com/erxes/erxes/compare/3.4.4...3.4.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* (core-ui) remove duplicate filter  ([e72b9c8](https://github.com/erxes/erxes/commit/e72b9c876ecd72809c467df9743094acb0f6f21c))
+* **accounting:** census import csv for main import ([a43dfec](https://github.com/erxes/erxes/commit/a43dfecc96a22fe7a9d44255ecacbecdda198ef5))
+* **frontline:** speed up call answer and name call report integrations  ([5c45442](https://github.com/erxes/erxes/commit/5c454420e9f654bc9c3541f4bf3916fd7855f6dc))
+
+
+### Features
+
+* **payment:** add Pocket form with deeplink button to open Pocket app ([#10015](https://github.com/erxes/erxes/issues/10015)) ([f353685](https://github.com/erxes/erxes/commit/f3536856cd82d4e7257e1af717b5a7daa7078bb1))
+
+## [3.4.4](https://github.com/erxes/erxes/compare/3.4.3...3.4.4) (2026-10-28)
+
+
+### Features
+
+* change relation ([c80eeb9](https://github.com/erxes/erxes/commit/c80eeb9c421b93f2f533a5a9253476637e41644a))
+
+# Changelog
+
+## [3.4.3](https://github.com/erxes/erxes/compare/3.4.2...3.4.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **accounting:** from sales data save fix date and some ([701c424](https://github.com/erxes/erxes/commit/701c424c08bc5b4e7539ad64b8bf95acc8f4bf24))
+* **content:** clear removed CMS documents and attachments on save ([#10008](https://github.com/erxes/erxes/issues/10008)) ([d4af96b](https://github.com/erxes/erxes/commit/d4af96bfd52e7afadf10a294ed48ac7f0683988e))
+* **facebook:** make userId optional in repair method and related interfaces ([022899f](https://github.com/erxes/erxes/commit/022899f3bed87881c7198902889c80626d50054f))
+* **frontline:** restore Instagram Messenger and Post delivery  ([8a8ceeb](https://github.com/erxes/erxes/commit/8a8ceeb7241a70fe01f845b3425a6e169d13726c))
+* posclient front theme similiraty ([d3c9341](https://github.com/erxes/erxes/commit/d3c934189d148b933adc2acfe3a6750baf38a1a1))
+* **posclient:** show searched products that are not similarity stars ([a1d94d5](https://github.com/erxes/erxes/commit/a1d94d5ee18e19055b5a137f3e615b2169bd1cd8))
+
+## [3.4.2](https://github.com/erxes/erxes/compare/3.4.1...3.4.2) (2026-10-27)
+
+
+### Bug Fixes
+
+* **accounting:** persist inline account, branch and department edits in deal movement rules table ([#9959](https://github.com/erxes/erxes/issues/9959)) ([22e59c9](https://github.com/erxes/erxes/commit/22e59c93b977a419f3421e5b6db96ce43cb8567a))
+* **core-ui:** move the Assistant redirect to /assistant ([#9972](https://github.com/erxes/erxes/issues/9972)) ([f9e7e90](https://github.com/erxes/erxes/commit/f9e7e90cfa4aa5bd5e2feecae12334f68b6c7246))
+* **core:** add product type change action ([#9908](https://github.com/erxes/erxes/issues/9908)) ([c752841](https://github.com/erxes/erxes/commit/c75284142d3ce879185b4ce7a36284c5349ef72b))
+* **core:** improve My Inbox filtering and selection ([#9899](https://github.com/erxes/erxes/issues/9899)) ([e74c952](https://github.com/erxes/erxes/commit/e74c9521a260d6a55bde3d0b5cfa010d9233ac71))
+* fix loader placement ([aec980d](https://github.com/erxes/erxes/commit/aec980d9b0f5eb5a9c8dd8d1545d9ce402c87122))
+* **frontline:** i18n for inbox and reports ([#9785](https://github.com/erxes/erxes/issues/9785)) ([c83c88b](https://github.com/erxes/erxes/commit/c83c88bad38f5c01cc8c152cd9240f13af2bccec))
+* **frontline:** i18n for integrations, help center and automation widgets ([#9784](https://github.com/erxes/erxes/issues/9784)) ([963dfe8](https://github.com/erxes/erxes/commit/963dfe8ae57571497e7e05a228c9bbcaf2527eb6))
+* **frontline:** i18n for tickets, knowledge base and Facebook widget ([#9786](https://github.com/erxes/erxes/issues/9786)) ([b38ab38](https://github.com/erxes/erxes/commit/b38ab38142199d81f4dd8e2f5e5b9f4b6f5a8d3e))
+* keep app switcher columns visible with long favorites ([#9974](https://github.com/erxes/erxes/issues/9974)) ([599bce8](https://github.com/erxes/erxes/commit/599bce82ec2f24912db2b315d00bee49ce1d8bd2))
+* **operation:** correct team member removal and inactive labels ([#9928](https://github.com/erxes/erxes/issues/9928)) ([f76a4e8](https://github.com/erxes/erxes/commit/f76a4e88adefdfa4bde920e1a8efefb6f52c1d95))
+* posclient products categories clean ([b2660d2](https://github.com/erxes/erxes/commit/b2660d2932782bd05d240292c082287a11bbf3ba))
+* **segments:** tidy the segment sheet layout and added empty states([#9859](https://github.com/erxes/erxes/issues/9859)) ([5c58ba2](https://github.com/erxes/erxes/commit/5c58ba20bd83ea901e838aeb3d1e7c291ba3fbca))
+* **task:** enhance cycle filtering in task queries and UI hook ([#9960](https://github.com/erxes/erxes/issues/9960)) ([16240e8](https://github.com/erxes/erxes/commit/16240e89e98bb31cf95b848ab7d91a1ec8d60685))
+* truncate long favorite module names in app switcher ([#9998](https://github.com/erxes/erxes/issues/9998)) ([b0c8f40](https://github.com/erxes/erxes/commit/b0c8f4056ab1770e6a9994e11326933f1af75fa7))
+
+
+### Features
+
+* **accounting:** nest settings under sidebar sections with feedback and inline edits ([#9919](https://github.com/erxes/erxes/issues/9919)) ([6156fed](https://github.com/erxes/erxes/commit/6156feddb22ba78c3197f69ed7dae13959de99fe))
+* add location features to branch settings ([5d8a3da](https://github.com/erxes/erxes/commit/5d8a3da5d6f2ccbb214f26e004eed3663e747c39))
+* add tag in triage and add customer company select ([dc1a1a8](https://github.com/erxes/erxes/commit/dc1a1a8a373c3cbceeb995a86bd6bd7cdf2750de))
+* **agent:** AI Assistant mentions, documents, model catalog, turn timeline and cleanup ([#9964](https://github.com/erxes/erxes/issues/9964)) ([fb03c09](https://github.com/erxes/erxes/commit/fb03c0904b830db5abe56f43d045d0f274c49116)), closes [#9845](https://github.com/erxes/erxes/issues/9845) [#9965](https://github.com/erxes/erxes/issues/9965)
+* **auth:** enhance login process with rate limiting and failure tracking ([333f6f6](https://github.com/erxes/erxes/commit/333f6f6704bdb56b8eb2ea6debe45e17ebcdb55b))
+* **content:** store site-wide texts on Web Builder webs ([#9975](https://github.com/erxes/erxes/issues/9975)) ([107bb60](https://github.com/erxes/erxes/commit/107bb60494f583acd8c4880f02392bd66e943801))
+* **documents:** Print button added on each document types, document … ([#9677](https://github.com/erxes/erxes/issues/9677)) ([d9fb1b3](https://github.com/erxes/erxes/commit/d9fb1b36c1d3323ebbacdebfc236f20caeeecdde)), closes [#9911](https://github.com/erxes/erxes/issues/9911) [#9911](https://github.com/erxes/erxes/issues/9911) [#9911](https://github.com/erxes/erxes/issues/9911)
+* Implement preflight checks for automation builder ([89ef1fd](https://github.com/erxes/erxes/commit/89ef1fdeb9c74e42c8bf86629fd0c7ee208bec1e))
+* implement structure chart components and context ([c8fe771](https://github.com/erxes/erxes/commit/c8fe771d248137bab60844eceb5ba378ae2bc1d6))
+* **notification:** add notification templates management ([2c1b0ea](https://github.com/erxes/erxes/commit/2c1b0ead61a47f48331f6ff1dc47242c46f7398e))
+* refactor file configuration handling for SaaS compatibility ([1a55e89](https://github.com/erxes/erxes/commit/1a55e899fba1fbf550da7d916863a3ea628a9063))
+* **sales:** add tag filter to sales pipeline deals filter ([#9971](https://github.com/erxes/erxes/issues/9971)) ([0636b89](https://github.com/erxes/erxes/commit/0636b89e5ae738283ae934fcaea9e94d411cae26))
+
 ## [3.4.1](https://github.com/erxes/erxes/compare/3.4.0...3.4.1) (2026-10-23)
 
 
@@ -41,7 +112,7 @@
 * Revert "feat(core-ui): group notifications by author and add status tabs (#9912)" (#9915) ([e6fac5a](https://github.com/erxes/erxes/commit/e6fac5a4602cae22ad18c3feedf5af04cb9fad62)), closes [#9912](https://github.com/erxes/erxes/issues/9912) [#9915](https://github.com/erxes/erxes/issues/9915)
 * Revert "feat(core): add provider-first workspace connections (#9905)" (#9914) ([9ebe4f8](https://github.com/erxes/erxes/commit/9ebe4f84a0b61bcedfd7413d109ca797dfe3ede2)), closes [#9905](https://github.com/erxes/erxes/issues/9905) [#9914](https://github.com/erxes/erxes/issues/9914)
 
-# Changelog
+
 
 ## [3.3.7](https://github.com/erxes/erxes/compare/3.3.4...3.3.7) (2026-10-22)
 

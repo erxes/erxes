@@ -27,8 +27,8 @@ export const resolveInboxConversationId = async (
   return facebookConversation?.erxesApiId || undefined;
 };
 
-// The open tickets made from a conversation, newest first: tickets keep
-// their source conversations themselves (`sourceConversationIds`).
+// The open tickets of a conversation's customer, newest first: tickets keep
+// their customer (`customerId`), not the conversation they came from.
 export const findOpenConversationTickets = async ({
   models,
   conversationId,
@@ -36,8 +36,17 @@ export const findOpenConversationTickets = async ({
   models: IModels;
   conversationId: string;
 }) => {
+  const conversation = await models.Conversations.findOne(
+    { _id: conversationId },
+    { customerId: 1 },
+  ).lean<{ customerId?: string }>();
+
+  if (!conversation?.customerId) {
+    return [];
+  }
+
   const tickets = await models.Ticket.find(
-    { sourceConversationIds: conversationId },
+    { customerId: conversation.customerId },
     { _id: 1, number: 1, name: 1, statusType: 1 },
   )
     .sort({ createdAt: -1 })
