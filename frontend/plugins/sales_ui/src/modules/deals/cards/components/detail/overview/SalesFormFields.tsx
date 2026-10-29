@@ -180,7 +180,7 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
           {optimisticBroker.value.type === 'customer' && (
             <DealCustomerChip
               value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
                 optimisticBroker.setValue({
                   ...optimisticBroker.value,
@@ -192,7 +192,7 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
           {optimisticBroker.value.type === 'company' && (
             <DealCompanyChip
               value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
                 optimisticBroker.setValue({
                   ...optimisticBroker.value,
@@ -206,7 +206,7 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
               mode="single"
               label={t('user')}
               value={optimisticBroker.value.id}
-              placeholder={t('select-broker', 'Select broker')}
+              placeholder={t('select-broker')}
               onValueChange={(value) =>
                 optimisticBroker.setValue({
                   ...optimisticBroker.value,

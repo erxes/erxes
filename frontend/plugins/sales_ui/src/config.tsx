@@ -1,4 +1,9 @@
-import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
+import {
+  IconBriefcase,
+  IconPackage,
+  IconReceipt,
+  IconSandbox,
+} from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
@@ -45,6 +50,18 @@ export const CONFIG: IUIConfig = {
   widgets: {
     // A customer's / company's deals on their overview (`./contactWidget`).
     contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
+    recordPanels: [
+      {
+        contentType: 'sales:deal',
+        tabs: [
+          {
+            value: 'products',
+            label: 'Products',
+            icon: IconPackage,
+          },
+        ],
+      },
+    ],
     relationWidgets: [
       {
         name: 'deals',

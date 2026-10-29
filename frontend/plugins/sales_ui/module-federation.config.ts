@@ -22,6 +22,7 @@ const config: ModuleFederationConfig = {
       './src/widgets/notifications/NotificationsWidgets.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
     './contactWidget': './src/widgets/contact/ContactWidgets.tsx',
+    './recordPanel': './src/widgets/record-panel/RecordPanel.tsx',
     './pos': './src/modules/pos/Main.tsx',
     './automationsWidget':
       './src/widgets/automations/components/AutomationRemoteEntry.tsx',
