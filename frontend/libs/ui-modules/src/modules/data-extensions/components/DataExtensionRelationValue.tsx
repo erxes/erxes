@@ -96,7 +96,9 @@ export const DataExtensionRelationValue = ({
         value={
           list
             ? Array.isArray(value)
-              ? value
+              ? (value as unknown[]).filter(
+                  (id): id is string => typeof id === 'string',
+                )
               : []
             : typeof value === 'string'
             ? value

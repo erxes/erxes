@@ -12,10 +12,24 @@ const WIDE_TYPES: IDataExtensionField['type'][] = [
   'longText',
   'multiSelect',
   'relation',
+  'address',
+  'links',
+  'files',
+  'json',
 ];
 
 /** Values taller than one row: their label sits at the top of the row. */
-const TALL_TYPES: IDataExtensionField['type'][] = ['longText', 'multiSelect'];
+const TALL_TYPES: IDataExtensionField['type'][] = [
+  'longText',
+  'multiSelect',
+  'address',
+  'fullName',
+  'links',
+  'emails',
+  'phones',
+  'files',
+  'json',
+];
 
 /**
  * The editors for a record type's extension fields, laid out as a form

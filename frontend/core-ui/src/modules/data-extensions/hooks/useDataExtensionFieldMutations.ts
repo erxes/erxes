@@ -12,6 +12,7 @@ import {
   DataExtensionRelationCreateKind,
   IDataExtensionField,
   IDataExtensionFieldOption,
+  IDataExtensionFieldSettings,
 } from 'ui-modules';
 
 // Field lists and per-type counts change together, so both are refetched.
@@ -24,6 +25,7 @@ export interface IDataExtensionFieldAddInput {
   description?: string;
   type: DataExtensionFieldType;
   options?: IDataExtensionFieldOption[];
+  settings?: IDataExtensionFieldSettings;
   order?: number;
 }
 
@@ -41,7 +43,7 @@ export interface IDataExtensionRelationAddInput {
 export type IDataExtensionFieldEditInput = Partial<
   Pick<
     IDataExtensionFieldAddInput,
-    'label' | 'description' | 'options' | 'order'
+    'label' | 'description' | 'options' | 'order' | 'settings'
   >
 >;
 

@@ -15,6 +15,7 @@ import {
 import { DataExtensionFieldLabel } from './DataExtensionFieldLabel';
 import { DataExtensionRelationValue } from './DataExtensionRelationValue';
 import { DataExtensionValueInput } from './DataExtensionValueInput';
+import { groupFields } from '../utils/fieldDisplay';
 
 /** Typed into, so saved when focus leaves the field or on Enter. */
 const SAVE_ON_BLUR: IDataExtensionField['type'][] = [
@@ -24,10 +25,29 @@ const SAVE_ON_BLUR: IDataExtensionField['type'][] = [
   'email',
   'url',
   'phone',
+  'currency',
+  'percent',
+  'address',
+  'fullName',
+  'links',
+  'emails',
+  'phones',
+  'json',
+  'dateTime',
 ];
 
 /** Values taller than one row: their label sits at the top of the row. */
-const TALL_TYPES: IDataExtensionField['type'][] = ['longText', 'multiSelect'];
+const TALL_TYPES: IDataExtensionField['type'][] = [
+  'longText',
+  'multiSelect',
+  'address',
+  'fullName',
+  'links',
+  'emails',
+  'phones',
+  'files',
+  'json',
+];
 
 /** How long the saved check stays before it fades out. */
 const SAVED_VISIBLE_MS = 1600;
@@ -311,21 +331,31 @@ const RecordTypeFields = ({
           {descriptor.label}
         </h4>
       )}
-      {fields.map((field) => (
-        <DataExtensionInlineField
-          key={field._id}
-          field={field}
-          value={record.values[field.key] ?? null}
-          links={record.links[field.key] || []}
-          editable={record.editableLinks.includes(field.key)}
-          readOnly={readOnly}
-          inputId={`data-extensions-${recordId}-${field.key}`}
-          onSave={onSave}
-        />
+      {groupFields(fields).map(({ group, items }) => (
+        <div key={group || ''} className="flex flex-col gap-1.5">
+          {group && (
+            <h5 className="pt-1.5 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+              {group}
+            </h5>
+          )}
+          {items.map((field) => (
+            <DataExtensionInlineField
+              key={field._id}
+              field={field}
+              value={record.values[field.key] ?? null}
+              links={record.links[field.key] || []}
+              editable={record.editableLinks.includes(field.key)}
+              readOnly={readOnly}
+              inputId={`data-extensions-${recordId}-${field.key}`}
+              onSave={onSave}
+            />
+          ))}
+        </div>
       ))}
     </section>
   );
 };
+
 
 /**
  * Every Data Extension field that applies to a record, from the current

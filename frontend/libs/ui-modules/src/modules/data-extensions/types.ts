@@ -10,6 +10,72 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'url',
   'phone',
   'relation',
+  'currency',
+  'dateTime',
+  'rating',
+  'percent',
+  'address',
+  'fullName',
+  'links',
+  'emails',
+  'phones',
+  'files',
+  'member',
+  'json',
+] as const;
+
+/** Same groups the server checks settings against. */
+export const DATA_EXTENSION_UNIQUE_TYPES = [
+  'text',
+  'email',
+  'phone',
+  'url',
+  'number',
+] as const;
+export const DATA_EXTENSION_RANGE_TYPES = ['number', 'currency', 'percent'];
+export const DATA_EXTENSION_LENGTH_TYPES = ['text', 'longText'];
+export const DATA_EXTENSION_DECIMAL_TYPES = ['number', 'currency', 'percent'];
+export const DATA_EXTENSION_NO_DEFAULT_TYPES = [
+  'relation',
+  'member',
+  'files',
+  'json',
+];
+
+export const DATA_EXTENSION_ADDRESS_PARTS = [
+  'street',
+  'street2',
+  'city',
+  'state',
+  'postalCode',
+  'country',
+] as const;
+
+export const DATA_EXTENSION_OPTION_COLORS = [
+  'gray',
+  'red',
+  'orange',
+  'yellow',
+  'green',
+  'teal',
+  'blue',
+  'purple',
+  'pink',
+] as const;
+
+export type DataExtensionOptionColor =
+  (typeof DATA_EXTENSION_OPTION_COLORS)[number];
+
+/** Currencies offered first; any ISO 4217 code is accepted. */
+export const DATA_EXTENSION_CURRENCIES = [
+  'MNT',
+  'USD',
+  'EUR',
+  'CNY',
+  'RUB',
+  'KRW',
+  'JPY',
+  'GBP',
 ] as const;
 
 export const DATA_EXTENSION_RELATION_KINDS = [
@@ -47,6 +113,23 @@ export type DataExtensionFieldStatus = 'active' | 'archived';
 export interface IDataExtensionFieldOption {
   value: string;
   label: string;
+  color?: DataExtensionOptionColor | null;
+}
+
+export interface IDataExtensionFieldSettings {
+  required?: boolean;
+  unique?: boolean;
+  defaultValue?: DataExtensionValue;
+  min?: number;
+  max?: number;
+  maxLength?: number;
+  scale?: number;
+  currency?: string;
+  multiple?: boolean;
+  precision?: number;
+  group?: string;
+  showInCreate?: boolean;
+  placeholder?: string;
 }
 
 export interface IDataExtensionField {
@@ -58,6 +141,7 @@ export interface IDataExtensionField {
   type: DataExtensionFieldType;
   options?: IDataExtensionFieldOption[] | null;
   relation?: IDataExtensionRelation | null;
+  settings?: IDataExtensionFieldSettings | null;
   order: number;
   status: DataExtensionFieldStatus;
   createdAt?: string;
@@ -76,7 +160,45 @@ export interface IDataExtensionRecordType {
   fieldCount: number;
 }
 
-export type DataExtensionValue = string | number | boolean | string[] | null;
+export interface IDataExtensionCurrencyValue {
+  amount: number;
+  currency: string;
+}
+
+export type IDataExtensionAddressValue = Partial<
+  Record<(typeof DATA_EXTENSION_ADDRESS_PARTS)[number], string>
+>;
+
+export interface IDataExtensionFullNameValue {
+  firstName?: string;
+  lastName?: string;
+}
+
+export interface IDataExtensionLinkValue {
+  url: string;
+  label?: string;
+}
+
+export interface IDataExtensionFileValue {
+  url: string;
+  name: string;
+  type?: string;
+  size?: number;
+}
+
+export type DataExtensionValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | IDataExtensionCurrencyValue
+  | IDataExtensionAddressValue
+  | IDataExtensionFullNameValue
+  | IDataExtensionLinkValue[]
+  | IDataExtensionFileValue[]
+  | Record<string, unknown>
+  | unknown[]
+  | null;
 
 /** A linked record as shown next to a relation: its id and a readable name. */
 export interface IDataExtensionLinkedRecord {
@@ -99,6 +221,13 @@ export interface IDataExtensionRecordResult {
 
 export const hasFieldOptions = (type: DataExtensionFieldType) =>
   type === 'select' || type === 'multiSelect';
+
+/** Shown on create forms unless the field opted out. */
+export const showsInCreate = (field: IDataExtensionField) =>
+  field.settings?.showInCreate !== false;
+
+export const isRequiredField = (field: IDataExtensionField) =>
+  Boolean(field.settings?.required);
 
 /** A relation side whose list of links can hold more than one record. */
 export const isListRelation = (relation: IDataExtensionRelation) =>

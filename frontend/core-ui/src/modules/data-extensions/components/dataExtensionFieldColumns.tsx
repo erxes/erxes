@@ -18,7 +18,7 @@ import {
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useDataExtensionFieldMutations } from '../hooks/useDataExtensionFieldMutations';
-import { IDataExtensionField } from 'ui-modules';
+import { DataExtensionOptionBadge, IDataExtensionField } from 'ui-modules';
 import { FieldTypeIcon } from './fieldTypeIcons';
 
 const FieldActionsCell = ({
@@ -249,9 +249,7 @@ export const getDataExtensionFieldColumns = ({
         <RecordTableInlineCell className="gap-1 overflow-hidden">
           {options.length ? (
             options.slice(0, 3).map((option) => (
-              <Badge key={option.value} variant="ghost">
-                {option.label}
-              </Badge>
+              <DataExtensionOptionBadge key={option.value} option={option} />
             ))
           ) : (
             <span className="text-muted-foreground">—</span>

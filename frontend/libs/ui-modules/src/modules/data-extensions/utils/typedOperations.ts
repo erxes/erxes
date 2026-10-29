@@ -1,5 +1,6 @@
 import { REACT_APP_API_URL } from 'erxes-ui';
 import {
+  DATA_EXTENSION_ADDRESS_PARTS,
   DataExtensionFieldType,
   IDataExtensionField,
   IDataExtensionRecordType,
@@ -69,13 +70,25 @@ const targetTypeName = (
     (candidate) => candidate.recordType === field.relation?.targetRecordType,
   )?.typeName;
 
+/** Sub-selections of composite values; they mirror the server's shared types. */
+const COMPOSITE_SELECTIONS: Partial<Record<DataExtensionFieldType, string>> = {
+  currency: '{ amount currency }',
+  address: `{ ${DATA_EXTENSION_ADDRESS_PARTS.join(' ')} }`,
+  fullName: '{ firstName lastName }',
+  links: '{ url label }',
+  files: '{ url name type size }',
+  member: `{ _id ${SUMMARY_FIELDS.TeamMember.join(' ')} }`,
+};
+
 /** `key` or `key { _id ...summary }` for a relation, with a page size on lists. */
 const fieldSelection = (
   field: IDataExtensionField,
   recordTypes: IDataExtensionRecordType[],
 ) => {
   if (!field.relation) {
-    return field.key;
+    const composite = COMPOSITE_SELECTIONS[field.type];
+
+    return composite ? `${field.key} ${composite}` : field.key;
   }
 
   const typeName = targetTypeName(field, recordTypes);
@@ -195,6 +208,30 @@ const exampleValue = (
       return field.relation && isListRelation(field.relation)
         ? '["RELATED_ID"]'
         : '"RELATED_ID"';
+    case 'currency':
+      return `{ amount: 1500000, currency: "${field.settings?.currency || 'MNT'}" }`;
+    case 'dateTime':
+      return '"2027-06-01T09:30:00.000Z"';
+    case 'rating':
+      return '4';
+    case 'percent':
+      return '75';
+    case 'address':
+      return '{ street: "Peace Avenue 17", city: "Ulaanbaatar", country: "MN" }';
+    case 'fullName':
+      return '{ firstName: "Bat", lastName: "Dorj" }';
+    case 'links':
+      return '[{ url: "https://erxes.io", label: "Website" }]';
+    case 'emails':
+      return '["sales@example.com"]';
+    case 'phones':
+      return '["+976 9911 2233"]';
+    case 'files':
+      return '[{ url: "FILE_KEY", name: "contract.pdf" }]';
+    case 'member':
+      return field.settings?.multiple ? '["USER_ID"]' : '"USER_ID"';
+    case 'json':
+      return '{ source: "import" }';
     default:
       return '"Example"';
   }

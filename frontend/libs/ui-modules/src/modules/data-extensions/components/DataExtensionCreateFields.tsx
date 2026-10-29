@@ -1,10 +1,10 @@
 import { IconVariable } from '@tabler/icons-react';
 import { cn, Separator } from 'erxes-ui';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataExtensionFields } from '../hooks/useDataExtensionFields';
 import { useDataExtensionRecordTypes } from '../hooks/useDataExtensionRecordTypes';
-import { DataExtensionValue } from '../types';
+import { DataExtensionValue, showsInCreate } from '../types';
 import {
   clearDataExtensionCreateValues,
   setDataExtensionCreateValues,
@@ -30,7 +30,8 @@ export const DataExtensionCreateFields = ({
   layout?: 'grid' | 'stack';
 }) => {
   const { t } = useTranslation('dataExtensions');
-  const { fields } = useDataExtensionFields({ recordType });
+  const { fields: allFields } = useDataExtensionFields({ recordType });
+  const fields = useMemo(() => allFields.filter(showsInCreate), [allFields]);
   const { recordTypes } = useDataExtensionRecordTypes();
   const [values, setValues] = useState<Record<string, DataExtensionValue>>({});
   const descriptor = recordTypes.find(
@@ -39,6 +40,25 @@ export const DataExtensionCreateFields = ({
   const creatable = Boolean(descriptor?.createMutations.length);
 
   const onSaved = useCallback(() => setValues({}), []);
+
+  // Defaults fill fields the user has not touched yet.
+  useEffect(() => {
+    setValues((current) => {
+      const next = { ...current };
+      let changed = false;
+
+      for (const field of fields) {
+        const fallback = field.settings?.defaultValue;
+
+        if (!(field.key in next) && fallback !== undefined && fallback !== null) {
+          next[field.key] = fallback;
+          changed = true;
+        }
+      }
+
+      return changed ? next : current;
+    });
+  }, [fields]);
 
   useEffect(() => {
     if (descriptor && creatable) {

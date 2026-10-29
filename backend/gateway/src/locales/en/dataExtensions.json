@@ -46,7 +46,19 @@
     "email": "Email",
     "url": "URL",
     "phone": "Phone",
-    "relation": "Relation"
+    "relation": "Relation",
+    "currency": "Currency",
+    "dateTime": "Date and time",
+    "rating": "Rating",
+    "percent": "Percent",
+    "address": "Address",
+    "fullName": "Full name",
+    "links": "Links",
+    "emails": "Emails",
+    "phones": "Phones",
+    "files": "Files",
+    "member": "Team member",
+    "json": "JSON"
   },
   "columns": {
     "label": "Field",
@@ -100,7 +112,9 @@
     "add-option": "Add option",
     "options-hint": "Existing options can be relabelled but not removed, so values already saved stay valid.",
     "api-preview": "In the API",
-    "api-preview-hint": "How this field appears on the typed endpoint."
+    "api-preview-hint": "How this field appears on the typed endpoint.",
+    "option-color": "Option colour",
+    "no-color": "No colour"
   },
   "validation": {
     "label-required": "Enter a label",
@@ -155,7 +169,27 @@
     "pick-records": "Choose {{label}}",
     "selected": "Selected",
     "clear": "Clear",
-    "too-many-links": "Showing the first {{count}} records. Edit these links from {{label}}."
+    "too-many-links": "Showing the first {{count}} records. Edit these links from {{label}}.",
+    "currency": "Currency",
+    "address": {
+      "street": "Street",
+      "street2": "Apartment, suite",
+      "city": "City",
+      "state": "Province / state",
+      "postalCode": "Postal code",
+      "country": "Country"
+    },
+    "name": {
+      "firstName": "First name",
+      "lastName": "Last name"
+    },
+    "add-item": "Add another",
+    "remove-item": "Remove",
+    "link-label": "Label",
+    "rating-of": "{{value}} of {{scale}}",
+    "upload": "Upload files",
+    "remove-file": "Remove {{name}}",
+    "json-invalid": "Not valid JSON yet. Use an object { } or a list [ ]."
   },
   "api": {
     "title": "Typed API for this record type",
@@ -227,13 +261,25 @@
     "longText": "Paragraphs and notes",
     "number": "Amounts, scores, counts",
     "boolean": "A yes-or-no answer",
-    "date": "A day and time",
+    "date": "A calendar day",
     "select": "One option from a list",
     "multiSelect": "Several options from a list",
     "email": "A checked email address",
     "url": "A web link",
     "phone": "A phone number",
-    "relation": "A link to another record"
+    "relation": "A link to another record",
+    "currency": "An amount in MNT, USD or another currency",
+    "dateTime": "A day with a time",
+    "rating": "Stars, from 3 to 10",
+    "percent": "A share such as 75%",
+    "address": "Street, city and country",
+    "fullName": "First and last name",
+    "links": "Several web links with labels",
+    "emails": "Several email addresses",
+    "phones": "Several phone numbers",
+    "files": "Uploaded documents and images",
+    "member": "One or more people on your team",
+    "json": "Structured data for integrations"
   },
   "section": {
     "title": "Custom fields"
@@ -255,10 +301,12 @@
     "search-types": "Search field types",
     "type-groups": {
       "text": "Text",
-      "values": "Numbers, dates and toggles",
+      "values": "Numbers and toggles",
       "choices": "Choices",
       "contact": "Contact details",
-      "links": "Links to other records"
+      "links": "Links to records and people",
+      "dates": "Dates",
+      "advanced": "Files and data"
     },
     "no-types": "No field type matches “{{search}}”",
     "type-on": "New field on {{label}}",
@@ -269,5 +317,44 @@
     "preview-untitled": "Untitled field",
     "preview-inverse": "Also shown on {{target}} as “{{label}}”",
     "preview-hint": "Try it out here. Nothing you enter in the preview is saved."
+  },
+  "colors": {
+    "gray": "Gray",
+    "red": "Red",
+    "orange": "Orange",
+    "yellow": "Yellow",
+    "green": "Green",
+    "teal": "Teal",
+    "blue": "Blue",
+    "purple": "Purple",
+    "pink": "Pink"
+  },
+  "settings": {
+    "rules": "Rules",
+    "display": "Display",
+    "required": "Required",
+    "required-hint": "Create forms ask for it, and a saved value can’t be cleared.",
+    "unique": "Unique",
+    "unique-hint": "No two records can have the same value. Can only be turned on when the field is created.",
+    "unique-locked": "Uniqueness can only be turned on when a field is created.",
+    "multiple": "Several people",
+    "multiple-hint": "Allow more than one team member.",
+    "multiple-locked": "Fixed once the field is created.",
+    "min": "Minimum",
+    "max": "Maximum",
+    "max-length": "Maximum length",
+    "scale": "Scale",
+    "scale-stars_one": "{{count}} star",
+    "scale-stars_other": "{{count}} stars",
+    "precision": "Decimals",
+    "precision-auto": "As typed",
+    "currency": "Default currency",
+    "default-value": "Default value",
+    "default-value-hint": "Filled in on create forms; people can change it.",
+    "group": "Section",
+    "group-placeholder": "e.g. Contract",
+    "placeholder": "Placeholder",
+    "show-in-create": "Show on create forms",
+    "show-in-create-hint": "Turn off for fields filled in later, after the record exists."
   }
 }

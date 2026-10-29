@@ -30,17 +30,27 @@ import {
   DATA_EXTENSION_RELATION_CREATE_KINDS,
   DataExtensionFieldType,
   DataExtensionRelationCreateKind,
+  DATA_EXTENSION_OPTION_COLORS,
+  DataExtensionOptionColor,
   hasFieldOptions,
   IDataExtensionField,
+  IDataExtensionFieldSettings,
   IDataExtensionRecordType,
+  OptionColorDot,
   useDataExtensionRecordTypes,
 } from 'ui-modules';
 import { DataExtensionFieldPreview } from './DataExtensionFieldPreview';
+import {
+  cleanFieldSettings,
+  DataExtensionFieldSettings,
+} from './DataExtensionFieldSettings';
 import { DataExtensionFieldTypeGallery } from './DataExtensionFieldTypeGallery';
 import { DataExtensionRelationTargetPicker } from './DataExtensionRelationTargetPicker';
 import { FIELD_TYPE_GRAPHQL, FieldTypeIcon } from './fieldTypeIcons';
 
 const KEY_PATTERN = /^[a-z][a-zA-Z0-9]{0,62}$/;
+
+const NO_COLOR = '__no_color__';
 
 type BuilderStep = 'type' | 'details';
 
@@ -105,8 +115,11 @@ const buildSchema = (t: (key: string) => string, isEdit: boolean) =>
             .min(1, t('validation.option-value-required'))
             .max(100, t('validation.option-value-too-long')),
           label: z.string().trim().max(120, t('validation.label-too-long')),
+          color: z.enum(DATA_EXTENSION_OPTION_COLORS).optional(),
         }),
       ),
+      // Checked per type by the server; the form only offers valid ones.
+      settings: z.record(z.unknown()),
       targetRecordType: z.string(),
       kind: z.enum(DATA_EXTENSION_RELATION_CREATE_KINDS),
       inverseLabel: z.string().trim().max(120, t('validation.label-too-long')),
@@ -202,6 +215,7 @@ const emptyValues = (): FormValues => ({
   type: 'text',
   description: '',
   options: [],
+  settings: {},
   ...relationDefaults,
 });
 
@@ -210,7 +224,12 @@ const valuesFromField = (field: IDataExtensionField): FormValues => ({
   key: field.key,
   type: field.type,
   description: field.description || '',
-  options: (field.options || []).map(({ value, label }) => ({ value, label })),
+  options: (field.options || []).map(({ value, label, color }) => ({
+    value,
+    label,
+    ...(color ? { color } : {}),
+  })),
+  settings: { ...(field.settings || {}) },
   ...relationDefaults,
   ...(field.relation
     ? {
@@ -322,6 +341,8 @@ export const DataExtensionFieldSheet = ({
 
   const onTypeSelect = (next: DataExtensionFieldType) => {
     form.setValue('type', next);
+    // Settings belong to a type; a new type starts from none.
+    form.setValue('settings', {});
 
     // A choice field needs options; start with one row to fill in.
     // Other types send no options, so rows left from a choice type go.
@@ -346,8 +367,12 @@ export const DataExtensionFieldSheet = ({
       ? values.options.map((option) => ({
           value: option.value.trim(),
           label: option.label.trim() || option.value.trim(),
+          ...(option.color ? { color: option.color } : {}),
         }))
       : undefined;
+    const settings = cleanFieldSettings(
+      values.settings as IDataExtensionFieldSettings,
+    );
 
     try {
       if (!field && values.type === 'relation') {
@@ -366,6 +391,7 @@ export const DataExtensionFieldSheet = ({
           label: values.label,
           description: values.description,
           ...(cleanOptions ? { options: cleanOptions } : {}),
+          ...(field.relation ? {} : { settings }),
         });
       } else {
         await addField({
@@ -375,6 +401,7 @@ export const DataExtensionFieldSheet = ({
           description: values.description || undefined,
           type: values.type,
           options: cleanOptions,
+          ...(Object.keys(settings).length ? { settings } : {}),
         });
       }
 
@@ -839,6 +866,53 @@ export const DataExtensionFieldSheet = ({
                                       </Form.Item>
                                     )}
                                   />
+                                  <Form.Field
+                                    control={form.control}
+                                    name={`options.${index}.color`}
+                                    render={({ field: input }) => (
+                                      <Select
+                                        value={input.value || NO_COLOR}
+                                        onValueChange={(next) =>
+                                          input.onChange(
+                                            next === NO_COLOR
+                                              ? undefined
+                                              : (next as DataExtensionOptionColor),
+                                          )
+                                        }
+                                      >
+                                        <Select.Trigger
+                                          className="w-14 shrink-0"
+                                          aria-label={t('form.option-color')}
+                                        >
+                                          <OptionColorDot
+                                            color={input.value}
+                                            className="size-3"
+                                          />
+                                          {!input.value && (
+                                            <span className="size-3 rounded-full border border-dashed" />
+                                          )}
+                                        </Select.Trigger>
+                                        <Select.Content>
+                                          <Select.Item value={NO_COLOR}>
+                                            {t('form.no-color')}
+                                          </Select.Item>
+                                          {DATA_EXTENSION_OPTION_COLORS.map(
+                                            (color) => (
+                                              <Select.Item
+                                                key={color}
+                                                value={color}
+                                              >
+                                                <span className="flex items-center gap-2">
+                                                  <OptionColorDot color={color} />
+                                                  {t(`colors.${color}`)}
+                                                </span>
+                                              </Select.Item>
+                                            ),
+                                          )}
+                                        </Select.Content>
+                                      </Select>
+                                    )}
+                                  />
                                   <Button
                                     type="button"
                                     variant="ghost"
@@ -883,6 +957,20 @@ export const DataExtensionFieldSheet = ({
                             )}
                           </fieldset>
                         )}
+                        <DataExtensionFieldSettings
+                          type={type}
+                          isEdit={isEdit}
+                          initialSettings={field?.settings}
+                          options={form.watch('options')}
+                          settings={
+                            form.watch('settings') as IDataExtensionFieldSettings
+                          }
+                          onChange={(next) =>
+                            form.setValue('settings', { ...next }, {
+                              shouldDirty: true,
+                            })
+                          }
+                        />
                       </>
                     )}
                   </motion.div>

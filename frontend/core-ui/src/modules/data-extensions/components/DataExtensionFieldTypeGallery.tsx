@@ -7,11 +7,19 @@ import { FieldTypeIcon } from './fieldTypeIcons';
 
 /** Types grouped the way people look for them, not in registry order. */
 const TYPE_GROUPS: { key: string; types: DataExtensionFieldType[] }[] = [
-  { key: 'text', types: ['text', 'longText'] },
-  { key: 'values', types: ['number', 'date', 'boolean'] },
+  { key: 'text', types: ['text', 'longText', 'fullName'] },
+  {
+    key: 'values',
+    types: ['number', 'currency', 'percent', 'rating', 'boolean'],
+  },
+  { key: 'dates', types: ['date', 'dateTime'] },
   { key: 'choices', types: ['select', 'multiSelect'] },
-  { key: 'contact', types: ['email', 'phone', 'url'] },
-  { key: 'links', types: ['relation'] },
+  {
+    key: 'contact',
+    types: ['email', 'emails', 'phone', 'phones', 'url', 'links', 'address'],
+  },
+  { key: 'links', types: ['relation', 'member'] },
+  { key: 'advanced', types: ['files', 'json'] },
 ];
 
 /**

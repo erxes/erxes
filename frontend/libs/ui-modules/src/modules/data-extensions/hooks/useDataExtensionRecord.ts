@@ -24,6 +24,26 @@ type RawRecord = Record<string, unknown> & {
   dataExtensions?: Record<string, DataExtensionValue | RawLinked | RawLinked[]>;
 };
 
+/**
+ * Apollo adds `__typename` to composite values; the patch input types do not
+ * accept it, so it is dropped before a value can be edited and saved back.
+ */
+const withoutTypename = (value: unknown): DataExtensionValue => {
+  if (Array.isArray(value)) {
+    return value.map((item) => withoutTypename(item)) as DataExtensionValue;
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => key !== '__typename')
+        .map(([key, item]) => [key, withoutTypename(item)]),
+    ) as DataExtensionValue;
+  }
+
+  return value as DataExtensionValue;
+};
+
 const toLinked = (value: unknown): IDataExtensionLinkedRecord[] =>
   (Array.isArray(value) ? value : value ? [value] : [])
     .filter(
@@ -56,8 +76,22 @@ const toResult = (
   for (const field of fields) {
     const value = raw[field.key];
 
+    // Team members come back as records; the editable value is their ids.
+    if (field.type === 'member') {
+      links[field.key] = toLinked(value);
+
+      const ids = links[field.key].map((linked) => linked._id);
+
+      values[field.key] = field.settings?.multiple
+        ? ids.length
+          ? ids
+          : null
+        : ids[0] || null;
+      continue;
+    }
+
     if (!field.relation) {
-      values[field.key] = (value as DataExtensionValue) ?? null;
+      values[field.key] = withoutTypename(value) ?? null;
       continue;
     }
 

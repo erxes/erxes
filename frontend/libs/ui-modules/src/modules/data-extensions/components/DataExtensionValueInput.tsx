@@ -10,6 +10,19 @@ import {
 import { useTranslation } from 'react-i18next';
 import { DataExtensionValue, IDataExtensionField } from '../types';
 import { PANEL_INPUT_CLASS_NAME } from '../../widget/record-side-panel/PanelForm';
+import {
+  AddressInput,
+  CurrencyInput,
+  DateTimeInput,
+  FilesInput,
+  FullNameInput,
+  JsonInput,
+  LinksInput,
+  MemberInput,
+  RatingInput,
+  StringListInput,
+} from './DataExtensionCompositeInputs';
+import { OptionColorDot } from './DataExtensionOptionBadge';
 
 const NOT_SET = '__not_set__';
 
@@ -43,13 +56,68 @@ export const DataExtensionValueInput = ({
     ? 'h-7 rounded-sm text-xs shadow-none'
     : undefined;
 
+  const composite = {
+    field,
+    id,
+    value,
+    onChange,
+    compact,
+    inputClassName,
+  };
+
   switch (field.type) {
+    case 'currency':
+      return <CurrencyInput {...composite} />;
+    case 'address':
+      return <AddressInput {...composite} />;
+    case 'fullName':
+      return <FullNameInput {...composite} />;
+    case 'links':
+      return <LinksInput {...composite} />;
+    case 'emails':
+    case 'phones':
+      return <StringListInput {...composite} />;
+    case 'files':
+      return <FilesInput {...composite} />;
+    case 'rating':
+      return <RatingInput {...composite} />;
+    case 'dateTime':
+      return <DateTimeInput {...composite} />;
+    case 'member':
+      return <MemberInput {...composite} />;
+    case 'json':
+      return <JsonInput {...composite} />;
+    case 'percent':
+      return (
+        <div className="relative">
+          <Input
+            id={id}
+            className={cn('pr-7', inputClassName)}
+            type="number"
+            inputMode="decimal"
+            placeholder={field.settings?.placeholder}
+            value={typeof value === 'number' ? String(value) : ''}
+            onChange={(event) => {
+              const next = event.target.value;
+              onChange(next === '' ? null : Number(next));
+            }}
+          />
+          <span
+            className="pointer-events-none absolute inset-y-0 right-2.5 flex items-center text-xs text-muted-foreground"
+            aria-hidden="true"
+          >
+            %
+          </span>
+        </div>
+      );
     case 'longText':
       return (
         <Textarea
           id={id}
           rows={3}
           className={cn(compact && 'min-h-16 rounded-sm text-xs shadow-none')}
+          placeholder={field.settings?.placeholder}
+          maxLength={field.settings?.maxLength}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value || null)}
         />
@@ -61,6 +129,9 @@ export const DataExtensionValueInput = ({
           className={inputClassName}
           type="number"
           inputMode="decimal"
+          min={field.settings?.min}
+          max={field.settings?.max}
+          placeholder={field.settings?.placeholder}
           value={typeof value === 'number' ? String(value) : ''}
           onChange={(event) => {
             const next = event.target.value;
@@ -111,7 +182,10 @@ export const DataExtensionValueInput = ({
             <Select.Item value={NOT_SET}>{t('values.not-set')}</Select.Item>
             {(field.options || []).map((option) => (
               <Select.Item key={option.value} value={option.value}>
-                {option.label}
+                <span className="flex items-center gap-2">
+                  <OptionColorDot color={option.color} />
+                  {option.label}
+                </span>
               </Select.Item>
             ))}
           </Select.Content>
@@ -145,7 +219,11 @@ export const DataExtensionValueInput = ({
                     onChange(values.length ? values : null);
                   }}
                 />
-                <Label htmlFor={optionId} className="font-normal">
+                <Label
+                  htmlFor={optionId}
+                  className="flex items-center gap-1.5 font-normal"
+                >
+                  <OptionColorDot color={option.color} />
                   {option.label}
                 </Label>
               </div>
@@ -160,6 +238,8 @@ export const DataExtensionValueInput = ({
           id={id}
           className={inputClassName}
           type={inputTypes[field.type] || 'text'}
+          placeholder={field.settings?.placeholder}
+          maxLength={field.settings?.maxLength}
           value={typeof value === 'string' ? value : ''}
           onChange={(event) => onChange(event.target.value || null)}
         />

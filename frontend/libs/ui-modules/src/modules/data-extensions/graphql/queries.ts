@@ -11,6 +11,7 @@ export const DATA_EXTENSION_FIELD_FIELDS = gql`
     options {
       value
       label
+      color
     }
     relation {
       targetRecordType
@@ -18,6 +19,7 @@ export const DATA_EXTENSION_FIELD_FIELDS = gql`
       side
       inverseFieldId
     }
+    settings
     order
     status
     createdAt

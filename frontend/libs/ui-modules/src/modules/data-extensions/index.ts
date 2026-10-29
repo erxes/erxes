@@ -13,3 +13,6 @@ export * from './components/DataExtensionRecordSection';
 export * from './utils/createValues';
 export * from './components/DataExtensionCreateFields';
 export * from './components/DataExtensionRecordFields';
+export * from './components/DataExtensionOptionBadge';
+export * from './components/DataExtensionValueDisplay';
+export * from './utils/fieldDisplay';
