@@ -19,9 +19,14 @@ const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
 
 const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
   inCell ? (
-    <SelectMember.InlineCell {...props} {...COMMON_PROPS} />
+    <SelectMember.InlineCell
+      {...props}
+      {...COMMON_PROPS}
+      allowUnassigned
+      showInactive
+    />
   ) : (
-    <SelectMember {...props} {...COMMON_PROPS} />
+    <SelectMember {...props} {...COMMON_PROPS} allowUnassigned showInactive />
   );
 
 const RELATION_SELECT_BY_TYPE: Record<

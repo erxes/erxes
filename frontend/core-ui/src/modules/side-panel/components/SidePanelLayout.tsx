@@ -7,7 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
 import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
@@ -119,18 +119,30 @@ const getContentTypeLabel = (contentType: string) => {
 const useRecordHeading = (
   { contentType, contentId }: TRelationEntity,
   pluginName: string | null,
-) => {
+): {
+  title: ReactNode;
+  avatar?: ReactNode;
+  state?: 'error' | 'not-found';
+} => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   // A record just created has no name yet.
   const untitled = t('untitled', 'Untitled');
   const isCustomer = contentType === 'core:customer';
   const isCompany = contentType === 'core:company';
 
-  const { customerDetail } = useCustomerDetail({
+  const {
+    customerDetail,
+    loading: customerLoading,
+    error: customerError,
+  } = useCustomerDetail({
     variables: { _id: contentId },
     skip: !isCustomer,
   });
-  const { companyDetail } = useCompanyDetail(
+  const {
+    companyDetail,
+    loading: companyLoading,
+    error: companyError,
+  } = useCompanyDetail(
     { variables: { _id: contentId }, skip: !isCompany },
     true,
   );
@@ -158,8 +170,20 @@ const useRecordHeading = (
     };
   }
 
-  // Still loading: placeholders, never the raw content type.
   if (isCustomer || isCompany) {
+    const loading = isCustomer ? customerLoading : companyLoading;
+    const error = isCustomer ? customerError : companyError;
+
+    if (!loading) {
+      return {
+        title: error
+          ? t('error', 'Unable to load record')
+          : t('not-found-title', 'Nothing here'),
+        state: error ? 'error' : 'not-found',
+      };
+    }
+
+    // Still loading: placeholders, never the raw content type.
     return {
       title: <Skeleton className="h-4 w-32" />,
       avatar: <Skeleton className="size-7 flex-none rounded-full" />,
@@ -245,7 +269,7 @@ const SidePanelSavedRecord = ({
     record.contentType,
   );
   const panelPluginName = coreViews ? null : pluginName;
-  const { title, avatar } = useRecordHeading(record, panelPluginName);
+  const { title, avatar, state } = useRecordHeading(record, panelPluginName);
   const views =
     coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRelationWidgetTabs({
@@ -418,6 +442,25 @@ const SidePanelSavedRecord = ({
     ],
   ];
 
+  if (state) {
+    return (
+      <SidePanelEmpty
+        title={
+          state === 'error'
+            ? t('error', 'Unable to load record')
+            : t('not-found-title', 'Nothing here')
+        }
+        description={
+          state === 'error'
+            ? t('record-load-error', 'Please close the panel and try again.')
+            : t('record-not-found', 'This record no longer exists.')
+        }
+        onBack={onBack}
+        onClose={onClose}
+      />
+    );
+  }
+
   return (
     <>
       <RecordSidePanel.Header
@@ -517,10 +560,12 @@ export const SidePanelRecord = (
 const SidePanelEmpty = ({
   title,
   description,
+  onBack,
   onClose,
 }: {
   title: string;
   description: string;
+  onBack?: () => void;
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -529,6 +574,7 @@ const SidePanelEmpty = ({
     <>
       <RecordSidePanel.Header
         title={t('title', 'Side panel')}
+        onBack={onBack}
         onClose={onClose}
       />
       <div className="flex flex-1 items-center justify-center p-6">

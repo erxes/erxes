@@ -417,7 +417,7 @@ const RelationValueDisplay = ({
       return <ProductsInline productIds={ids} />;
     case 'relation:core:user':
     case 'relation:core:teamMembers':
-      return <MembersInline memberIds={ids} />;
+      return <MembersInline memberIds={ids} showInactive />;
     case 'relation:core:branch':
       return <BranchesInline branchIds={ids} />;
     case 'relation:core:department':

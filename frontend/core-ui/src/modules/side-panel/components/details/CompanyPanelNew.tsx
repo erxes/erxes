@@ -93,11 +93,19 @@ export const CompanyPanelNew = () => {
 
   const cancel = () => (canGoBack ? back() : close());
 
-  const save = ({ industry, size, primaryName, code, ...rest }: TCompanyForm) =>
+  const save = ({
+    industry,
+    size,
+    primaryName,
+    primaryEmail,
+    code,
+    ...rest
+  }: TCompanyForm) =>
     companiesAdd({
       variables: {
         ...rest,
         primaryName: primaryName?.trim() || undefined,
+        email: primaryEmail,
         code: code?.trim() || undefined,
         industry: industry?.map((option) => option.value),
         size: size ? Number(size) : undefined,

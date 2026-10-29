@@ -1,6 +1,7 @@
 import { useMultiQueryState } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
+import { nanoid } from 'nanoid';
 import {
   createContext,
   useCallback,
@@ -278,7 +279,7 @@ export const useSidePanel = () => {
           `${getSidePanelRecordPath({
             contentType,
             contentId: NEW_RECORD_ID,
-          })}/${crypto.randomUUID()}`,
+          })}/${nanoid()}`,
           options,
         );
     },

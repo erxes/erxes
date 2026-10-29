@@ -365,6 +365,7 @@ export const SelectMemberInlineCell = React.forwardRef<
       scope?: string;
       placeholder?: string;
       size?: AvatarProps['size'];
+      showInactive?: boolean;
     }
 >(
   (
@@ -373,6 +374,8 @@ export const SelectMemberInlineCell = React.forwardRef<
       value,
       onValueChange,
       members,
+      allowUnassigned,
+      showInactive,
       size = 'lg',
       scope,
       placeholder,
@@ -388,6 +391,7 @@ export const SelectMemberInlineCell = React.forwardRef<
         value={value}
         onValueChange={onValueChange}
         members={members}
+        allowUnassigned={allowUnassigned}
         setOpen={setOpen}
       >
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
@@ -396,7 +400,11 @@ export const SelectMemberInlineCell = React.forwardRef<
             {...props}
             className={cn(className, 'text-xs')}
           >
-            <SelectMemberValue placeholder={placeholder ?? ''} size={size} />
+            <SelectMemberValue
+              placeholder={placeholder ?? ''}
+              size={size}
+              showInactive={showInactive}
+            />
           </RecordTableInlineCell.Trigger>
           <RecordTableInlineCell.Content>
             <SelectMemberContent />
@@ -495,12 +503,14 @@ export const SelectMemberRoot = ({
   size,
   placeholder,
   scope,
+  showInactive,
   ...props
 }: Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> & {
   className?: string;
   size?: 'lg' | 'sm' | 'xl' | 'default' | 'xs';
   placeholder?: string;
   scope?: string;
+  showInactive?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -516,7 +526,11 @@ export const SelectMemberRoot = ({
           className={cn('w-full inline-flex', className)}
           variant="outline"
         >
-          <SelectMemberValue size={size} placeholder={placeholder} />
+          <SelectMemberValue
+            size={size}
+            placeholder={placeholder}
+            showInactive={showInactive}
+          />
         </Combobox.Trigger>
         <Combobox.Content>
           <SelectMemberContent />
