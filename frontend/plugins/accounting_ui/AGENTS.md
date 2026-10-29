@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -23,6 +23,8 @@
 - Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
+
+- The inventory Recalculate balances form distinguishes blank (all locations), `_` (“Салбар сонгогдоогүй” / “Нэгж сонгогдоогүй”), and real ids. Blank defaults leave selectors unselected. Clicking the selected unassigned-location option again clears that dimension; no separate all-location option is rendered. Sentinel labels never query `_` as a real structure id. Selected-product scoping is preserved.
 
 - Inventory navigation includes `Ажлын гүйцэтгэл` at `/accounting/inventories/job-executions`, with searchable/status-filtered paginated records, multi-job create/edit/view sheets, independently scaled actual product/cost arrays, common date and inventory accounts/locations, confirmed post/undo/delete actions, and linked transaction navigation. No planned-quantity disclosure or duplicate plan state is rendered.
 
@@ -348,6 +350,8 @@
 - Accounting list filters (transactions, accounts, permission settings, safe/reserve remainders, fixed asset remainders and owner records) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts and `afterBar` content stay last.
 
 ## Validation
+
+- Smoke scenario: in inventory Recalculate balances, leave both location filters blank for all locations, choose “Салбар сонгогдоогүй” with a department, a branch with “Нэгж сонгогдоогүй”, and both unassigned-location options; verify submitted ids contain `_` only for the chosen dimensions and the affected inventory rows refresh after success.
 
 - Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Edit posted actuals and confirm linked journals update under the same parent/pointer and the list refreshes. Read-only users and posting/undoing/error records cannot edit; undo allows draft deletion.
 
