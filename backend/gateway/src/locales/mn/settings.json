@@ -209,7 +209,8 @@
     "session-method-invitation": "Урилга",
     "session-method-saas_handoff": "erxes account",
     "presence-active": "Одоо идэвхтэй",
-    "presence-idle": "Нэвтэрсэн, идэвхгүй"
+    "presence-idle": "Нэвтэрсэн, идэвхгүй",
+    "email-deliveries": "Имэйл хүргэлт"
   },
   "brands": {
     "_": "Брэнд",

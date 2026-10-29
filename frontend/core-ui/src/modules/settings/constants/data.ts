@@ -220,11 +220,6 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.OAuthClients,
     },
     {
-      name: t('ldap', 'LDAP'),
-      icon: IconShieldLock,
-      path: SettingsWorkspacePath.Ldap,
-    },
-    {
       name: t('security', 'Security'),
       icon: IconShieldCheck,
       path: SettingsWorkspacePath.Security,
@@ -369,11 +364,16 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
-  [SettingsWorkspacePath.Ldap]: {
-    name: sidebarT('ldap', 'LDAP'),
+  // How staff sign in: second factor and the company directory
+  [SettingsWorkspacePath.Security]: {
+    name: sidebarT('security', 'Security'),
     items: [
       {
-        name: t('active-directory', 'Active Directory'),
+        name: sidebarT('two-factor', 'Two-factor authentication'),
+        path: settingsPath(SettingsWorkspacePath.Security),
+      },
+      {
+        name: sidebarT('active-directory', 'Active Directory (LDAP)'),
         path: settingsPath(SettingsWorkspacePath.Ldap),
       },
     ],
@@ -398,7 +398,6 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
-  [SettingsWorkspacePath.Ldap]: 'permissions',
   [SettingsWorkspacePath.Security]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',

@@ -207,7 +207,8 @@
     "agents": "AI туслах",
     "ldap": "LDAP",
     "two-factor": "Хоёр шатлалт баталгаажуулалт",
-    "security": "Аюулгүй байдал"
+    "security": "Аюулгүй байдал",
+    "active-directory": "Active Directory (LDAP)"
   },
   "plugin": {
     "_": "Плагин",

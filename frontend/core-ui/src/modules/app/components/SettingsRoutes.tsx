@@ -206,6 +206,11 @@ export function SettingsRoutes() {
           />
         )}
         <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        {/* Kept so links to the old LDAP address still land */}
+        <Route
+          path="ldap"
+          element={<Navigate to={`../${SettingsWorkspacePath.Ldap}`} replace />}
+        />
         <Route
           path={SettingsWorkspacePath.Security}
           element={<SecuritySettings />}

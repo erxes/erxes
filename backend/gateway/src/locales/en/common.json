@@ -206,7 +206,8 @@
     "agents": "Agents",
     "ldap": "LDAP",
     "two-factor": "Two-factor authentication",
-    "security": "Security"
+    "security": "Security",
+    "active-directory": "Active Directory (LDAP)"
   },
   "plugin": {
     "_": "Plugin",

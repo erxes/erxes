@@ -217,7 +217,8 @@
     "session-method-invitation": "Invitation",
     "session-method-saas_handoff": "erxes account",
     "presence-active": "Active now",
-    "presence-idle": "Signed in, idle"
+    "presence-idle": "Signed in, idle",
+    "email-deliveries": "Email deliveries"
   },
   "brands": {
     "_": "Brands",
