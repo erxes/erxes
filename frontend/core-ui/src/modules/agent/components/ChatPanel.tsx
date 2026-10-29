@@ -15,6 +15,7 @@ import {
   findDefaultAgentsConnection,
   useAgentsConnection,
 } from '../hooks/useAgentsConnection';
+import { useAgentsBuiltin } from '../hooks/useAgentsBuiltin';
 import { useAgentsModelVerify } from '../hooks/useAgentsModelVerify';
 import { useAgentsModels } from '../hooks/useAgentsModels';
 import { findModelThinking } from '../utils/thinkingLevels';
@@ -89,7 +90,20 @@ export const ChatPanel = ({
     retryLastTurn,
   } = chat;
 
-  const { connections, loading: connectionsLoading } = useAgentsConnection();
+  const { connections: userConnections, loading: connectionsLoading } =
+    useAgentsConnection();
+  const { builtin, loading: builtinLoading } = useAgentsBuiltin();
+  const connections = builtin
+    ? [
+        ...userConnections,
+        {
+          provider: builtin.provider,
+          model: builtin.model,
+          hasKey: true,
+          isDefault: userConnections.length === 0,
+        },
+      ]
+    : userConnections;
   const models = useAgentsModels();
   const verifyModel = useAgentsModelVerify();
   // The picker shows the levels of the model a turn runs on (the selection,
@@ -104,7 +118,11 @@ export const ChatPanel = ({
 
   const isStreaming = status === 'submitted' || status === 'streaming';
   const isEmpty = messages.length === 0 && !loadingThread;
-  const noConnection = !connectionsLoading && connections.length === 0;
+  const builtinExhausted =
+    userConnections.length === 0 && builtin?.exhausted === true;
+  const noConnection =
+    (!connectionsLoading && !builtinLoading && connections.length === 0) ||
+    builtinExhausted;
 
   // Hovering a suggestion card makes the hero bot wink once — re-armed
   // through restartKey so a second hover replays it while still winking.
@@ -211,10 +229,15 @@ export const ChatPanel = ({
     <div className="flex items-center gap-2 border-b bg-muted/40 px-3 py-2 text-[13px]">
       <BotBadge size={28} state="sleep" frozenAt={POSES.sleep} />
       <p className="min-w-0 flex-1 text-muted-foreground">
-        {t(
-          'no-connection',
-          'Connect an AI provider before chatting. Keys stay on your account.',
-        )}
+        {builtinExhausted
+          ? t(
+              'builtin-exhausted',
+              'Erxes Assistant reached this month’s limit. Add your own API key to keep chatting.',
+            )
+          : t(
+              'no-connection',
+              'Connect an AI provider before chatting. Keys stay on your account.',
+            )}
       </p>
       <Button variant="outline" size="sm" className="h-7 shrink-0" asChild>
         <Link to="/settings/agent">{t('set-up', 'Set up')}</Link>

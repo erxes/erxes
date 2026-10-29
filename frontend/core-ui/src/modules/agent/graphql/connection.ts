@@ -43,6 +43,20 @@ export const AGENTS_MODELS = gql`
   }
 `;
 
+export const AGENTS_BUILTIN = gql`
+  query AgentsBuiltin {
+    agentsBuiltin {
+      provider
+      model
+      name
+      usedTokens
+      limitTokens
+      resetsAt
+      exhausted
+    }
+  }
+`;
+
 export const AGENTS_CONNECTION_UPSERT = gql`
   mutation AgentsConnectionUpsert($provider: String!, $model: String, $apiKey: String) {
     agentsConnectionUpsert(provider: $provider, model: $model, apiKey: $apiKey) {
@@ -137,6 +151,20 @@ export interface IAgentsProviderModels {
 
 export interface IAgentsModelsData {
   agentsModels: IAgentsProviderModels[] | null;
+}
+
+export interface IAgentsBuiltin {
+  provider: string;
+  model: string;
+  name: string;
+  usedTokens: number;
+  limitTokens: number | null;
+  resetsAt: string;
+  exhausted: boolean;
+}
+
+export interface IAgentsBuiltinData {
+  agentsBuiltin: IAgentsBuiltin | null;
 }
 
 export interface IAgentsConnectionUpsertData {

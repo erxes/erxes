@@ -35,6 +35,16 @@ export const types = `
     error: String
   }
 
+  type AgentsBuiltin {
+    provider: String
+    model: String
+    name: String
+    usedTokens: Float
+    limitTokens: Float
+    resetsAt: Date
+    exhausted: Boolean
+  }
+
   type AgentsProviderModels {
     provider: String
     models: [String]
@@ -46,6 +56,7 @@ export const types = `
 export const queries = `
   agentsConnections: [AgentsConnectionEntry]
   agentsModels: [AgentsProviderModels]
+  agentsBuiltin: AgentsBuiltin
 `;
 
 export const mutations = `
