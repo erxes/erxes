@@ -1,6 +1,7 @@
 import { IContext } from '~/connectionResolvers';
+import { sendPosclientMessage } from '~/initWorker';
 
-const coverMutations = {
+export const coverMutations = {
   async posCoversEdit(
     _root,
     doc: { _id: string; note: string },
@@ -27,22 +28,26 @@ const coverMutations = {
     const cover = await models.Covers.getCover(_id);
     const toPos = await models.Pos.getPos({ token: cover.posToken });
 
-    // const posclientCover = await sendPosclientMessage({
-    //   subdomain,
-    //   action: 'covers.remove',
-    //   data: {
-    //     cover,
-    //   },
-    //   pos: toPos,
-    //   isRPC: true,
-    // });
+    const posclientCover: unknown = await sendPosclientMessage({
+      subdomain,
+      action: 'covers.remove',
+      method: 'query',
+      input: { cover },
+      pos: toPos,
+      throwOnError: true,
+    });
 
-    // if (posclientCover.status !== 'reconf') {
-    //   throw new Error('error of posclient');
-    // }
+    if (
+      !posclientCover ||
+      typeof posclientCover !== 'object' ||
+      !('_id' in posclientCover) ||
+      posclientCover._id !== _id ||
+      !('status' in posclientCover) ||
+      posclientCover.status !== 'reconf'
+    ) {
+      throw new Error('Could not unpublish cover in POS client');
+    }
 
     return await models.Covers.deleteCover(_id);
   },
 };
-
-export default coverMutations;
