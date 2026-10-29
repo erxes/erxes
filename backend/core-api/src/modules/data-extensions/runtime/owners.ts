@@ -1,6 +1,7 @@
 import DataLoader from 'dataloader';
 import { GraphQLError } from 'graphql';
 import {
+  aggregateDataExtensionRecords,
   DATA_EXTENSION_LIMITS,
   IDataExtensionRecord,
   IDataExtensionRecordType,
@@ -337,6 +338,7 @@ export const ownerResolvers: IOwnerResolvers = {
         'core',
         descriptor.recordType,
         {
+          filter: args.filter,
           searchValue: args.searchValue || undefined,
           limit: args.limit || undefined,
           skip: args.skip || undefined,
@@ -349,6 +351,25 @@ export const ownerResolvers: IOwnerResolvers = {
       result.records.forEach((record) => loader.prime(record._id, record));
 
       return result;
+    } catch (error) {
+      throw toGraphQLError(error, 'core', false);
+    }
+  },
+
+  async aggregate(context, descriptor, args) {
+    const models = await generateModels(context.subdomain);
+
+    try {
+      return await aggregateDataExtensionRecords(
+        buildOwnerContext(models),
+        'core',
+        descriptor.recordType,
+        {
+          filter: args.filter,
+          groupBy: args.groupBy || undefined,
+          metrics: args.metrics || [],
+        },
+      );
     } catch (error) {
       throw toGraphQLError(error, 'core', false);
     }

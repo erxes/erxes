@@ -28,6 +28,13 @@ import {
   setDataExtensionObjectStatus,
   withCustomRecordTypes,
 } from '@/data-extensions/objects';
+import {
+  addDataExtensionView,
+  deleteDataExtensionView,
+  editDataExtensionView,
+  IDataExtensionView,
+  listDataExtensionViews,
+} from '@/data-extensions/views';
 
 const canReadAll = async (checkPermission: IContext['checkPermission']) => {
   try {
@@ -46,6 +53,25 @@ const scoped =
 
 const withRecordType = (object: IDataExtensionObjectDocument | null) =>
   object && { ...object, recordType: getCustomRecordType(object.key) };
+
+const canManage = async (checkPermission: IContext['checkPermission']) => {
+  try {
+    await checkPermission('dataExtensionsManage');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Views are for people who can read the record type they show. */
+const requireRecordRead = async (
+  recordType: string | undefined,
+  checkPermission: IContext['checkPermission'],
+) => {
+  const descriptor = recordType ? getDataExtensionRecordType(recordType) : undefined;
+
+  await checkPermission(descriptor?.readAction || 'dataExtensionsRead');
+};
 
 export const dataExtensionQueries = {
   /**
@@ -114,9 +140,61 @@ export const dataExtensionQueries = {
       withRecordType,
     );
   },
+
+  dataExtensionViews: scoped(
+    async (
+      { recordType }: { recordType: string },
+      { models, user, checkPermission },
+    ) => {
+      await requireRecordRead(recordType, checkPermission);
+
+      return listDataExtensionViews(models, recordType, user._id);
+    },
+  ),
 };
 
+
 export const dataExtensionMutations = {
+  dataExtensionViewAdd: scoped(
+    async (
+      { input }: { input: Partial<IDataExtensionView> },
+      { models, user, checkPermission },
+    ) => {
+      await requireRecordRead(input.recordType, checkPermission);
+
+      return addDataExtensionView(
+        models,
+        input,
+        user._id,
+        await canManage(checkPermission),
+      );
+    },
+  ),
+
+  dataExtensionViewEdit: scoped(
+    async (
+      { _id, input }: { _id: string; input: Partial<IDataExtensionView> },
+      { models, user, checkPermission },
+    ) =>
+      editDataExtensionView(
+        models,
+        _id,
+        input,
+        user._id,
+        await canManage(checkPermission),
+      ),
+  ),
+
+  dataExtensionViewDelete: scoped(
+    async ({ _id }: { _id: string }, { models, user, checkPermission }) =>
+      deleteDataExtensionView(
+        models,
+        _id,
+        user._id,
+        await canManage(checkPermission),
+      ),
+  ),
+
   dataExtensionFieldAdd: scoped(
     async (
       { input }: { input: IDataExtensionFieldCreateInput },

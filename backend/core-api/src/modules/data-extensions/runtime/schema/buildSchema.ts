@@ -21,6 +21,8 @@ import {
 import {
   DATA_EXTENSION_LIMITS,
   DataExtensionFieldType,
+  IDataExtensionFilter,
+  IDataExtensionMetric,
   DataExtensionNativeGraphqlType,
   IDataExtensionField,
   IDataExtensionRecord,
@@ -255,6 +257,53 @@ const inputValueType = (field: IDataExtensionField): GraphQLInputType => {
   }
 };
 
+const FilterConditionInput = new GraphQLInputObjectType({
+  name: 'DataExtensionFilterConditionInput',
+  fields: {
+    field: {
+      type: nonNullString,
+      description: 'Field key, or name / createdAt / updatedAt',
+    },
+    operator: {
+      type: nonNullString,
+      description:
+        'eq, neq, contains, notContains, gt, gte, lt, lte, in, nin, isEmpty, isNotEmpty',
+    },
+    value: { type: JsonScalar },
+  },
+});
+
+const FilterInput = new GraphQLInputObjectType({
+  name: 'DataExtensionFilterInput',
+  fields: {
+    match: { type: GraphQLString, description: 'all (default) or any' },
+    conditions: { type: listOf(FilterConditionInput) },
+  },
+});
+
+const MetricInput = new GraphQLInputObjectType({
+  name: 'DataExtensionMetricInput',
+  fields: {
+    field: { type: GraphQLString },
+    op: { type: nonNullString, description: 'count, sum, avg, min or max' },
+  },
+});
+
+const AggregateGroupType = new GraphQLObjectType({
+  name: 'DataExtensionAggregateGroup',
+  fields: {
+    key: {
+      type: JsonScalar,
+      description: 'Option value, record id, true/false, or null for none',
+    },
+    count: { type: new GraphQLNonNull(GraphQLInt) },
+    values: {
+      type: new GraphQLNonNull(new GraphQLList(GraphQLFloat)),
+      description: 'One total per requested metric, in order',
+    },
+  },
+});
+
 /** Team member fields resolve to the team member records they hold. */
 const TEAM_MEMBER_RECORD_TYPE = 'core:teamMember';
 
@@ -348,6 +397,15 @@ export interface IOwnerResolvers {
     descriptor: IDataExtensionRecordType,
     input: { name: string; values?: Record<string, unknown> | null },
   ): Promise<string>;
+  aggregate?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    input: {
+      filter?: IDataExtensionFilter | null;
+      groupBy?: string | null;
+      metrics?: IDataExtensionMetric[] | null;
+    },
+  ): Promise<{ key: unknown; count: number; values: (number | null)[] }[]>;
   rename?(
     context: IRequestContext,
     descriptor: IDataExtensionRecordType,
@@ -362,6 +420,7 @@ export interface IOwnerResolvers {
 }
 
 export interface IListArgs {
+  filter?: IDataExtensionFilter | null;
   searchValue?: string | null;
   limit?: number | null;
   skip?: number | null;
@@ -1032,7 +1091,7 @@ export const buildTenantSchema = ({
    * the same patch as on any record type.
    */
   function addCustomObjectOperations(descriptor: IDataExtensionRecordType) {
-    const { list, create, rename, remove } = owners;
+    const { list, create, rename, remove, aggregate } = owners;
 
     if (!list || !create || !rename || !remove) {
       return;
@@ -1061,6 +1120,7 @@ export const buildTenantSchema = ({
       ),
       description: `A page of ${descriptor.label}, newest first unless sorted. At most ${DATA_EXTENSION_LIMITS.recordsPageMax} per page.`,
       args: {
+        filter: { type: FilterInput },
         searchValue: { type: GraphQLString },
         limit: { type: GraphQLInt },
         skip: { type: GraphQLInt },
@@ -1086,6 +1146,31 @@ export const buildTenantSchema = ({
         return { list: records, totalCount };
       },
     };
+
+    if (aggregate) {
+      queryFields[`${base}Aggregate`] = {
+        type: new GraphQLNonNull(listOf(AggregateGroupType)),
+        description: `Counts and totals of ${descriptor.label}, optionally per value of a select, member, relation or yes/no field.`,
+        args: {
+          filter: { type: FilterInput },
+          groupBy: { type: GraphQLString },
+          metrics: { type: listOf(MetricInput) },
+        },
+        resolve: async (
+          _root,
+          args: {
+            filter?: IDataExtensionFilter | null;
+            groupBy?: string | null;
+            metrics?: IDataExtensionMetric[] | null;
+          },
+          context,
+        ) => {
+          await context.requirePermission(descriptor.readAction);
+
+          return aggregate(context, descriptor, args);
+        },
+      };
+    }
 
     mutationFields[`${base}Create`] = {
       type: output,

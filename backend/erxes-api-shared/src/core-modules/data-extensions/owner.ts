@@ -9,6 +9,12 @@ import {
   IDataExtensionRecordType,
 } from './types';
 import {
+  buildDataExtensionAggregateStages,
+  buildDataExtensionRecordFilter,
+  IDataExtensionFilter,
+  IDataExtensionMetric,
+} from './query';
+import {
   buildDataExtensionPatch,
   DataExtensionValidationError,
   pickDataExtensionValues,
@@ -985,8 +991,8 @@ export interface IDataExtensionListInput {
   /** A native field name or `dataExtensions.<key>` of an active field. */
   sortField?: string;
   sortDirection?: 1 | -1;
-  /** Extra Mongo filter built by `buildDataExtensionRecordFilter`. */
-  filter?: Record<string, unknown>;
+  /** A view's conditions; turned into a Mongo filter here, on active fields. */
+  filter?: IDataExtensionFilter | null;
 }
 
 /**
@@ -1021,7 +1027,7 @@ export const listDataExtensionRecords = async (
   const filter: Record<string, unknown> = {
     ...adapter.baseFilter,
     ...buildDataExtensionScopeFilter(descriptor.scope),
-    ...(input.filter || {}),
+    ...buildDataExtensionRecordFilter(descriptor, activeFields, input.filter),
   };
 
   if (text) {
@@ -1073,4 +1079,59 @@ export const listDataExtensionRecords = async (
     ),
     totalCount,
   };
+};
+
+export interface IDataExtensionAggregateGroup {
+  /** The group's value: an option, a record id, true/false, or null. */
+  key: unknown;
+  count: number;
+  /** One number per requested metric, in order; null where nothing to total. */
+  values: (number | null)[];
+}
+
+/**
+ * Totals for a board column, a table footer or a chart: records counted
+ * and summed per group, under the same filter a list would use. Currency
+ * totals add amounts, so they assume one currency per field.
+ */
+export const aggregateDataExtensionRecords = async (
+  context: IDataExtensionOwnerContext,
+  owner: string,
+  recordType: string,
+  input: {
+    filter?: IDataExtensionFilter | null;
+    groupBy?: string;
+    metrics?: IDataExtensionMetric[];
+  },
+): Promise<IDataExtensionAggregateGroup[]> => {
+  const descriptor = resolveDescriptor(recordType, owner);
+  const [adapter, ...others] = resolveAdapters(descriptor, context);
+
+  if (others.length) {
+    throw new DataExtensionValidationError(
+      `${descriptor.label} are stored in several places and cannot be totalled as one`,
+    );
+  }
+
+  const activeFields = await getFieldsForRead(context.metadata, recordType);
+  const metrics = input.metrics || [];
+  const match = {
+    ...adapter.baseFilter,
+    ...buildDataExtensionScopeFilter(descriptor.scope),
+    ...buildDataExtensionRecordFilter(descriptor, activeFields, input.filter),
+  };
+  const rows = await adapter.model.collection
+    .aggregate([
+      { $match: match },
+      ...buildDataExtensionAggregateStages(activeFields, input.groupBy, metrics),
+    ])
+    .toArray();
+
+  return rows.map((row) => ({
+    key: row._id ?? null,
+    count: row.count,
+    values: metrics.map((metric, index) =>
+      metric.op === 'count' ? row.count : (row[`m${index}`] ?? null),
+    ),
+  }));
 };

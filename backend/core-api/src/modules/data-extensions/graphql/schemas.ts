@@ -69,6 +69,38 @@ export const types = `
     icon: String
   }
 
+  type DataExtensionView {
+    _id: String!
+    recordType: String!
+    name: String!
+    "table, kanban or calendar"
+    type: String!
+    "{ match: all|any, conditions: [{ field, operator, value }] }"
+    filter: JSON
+    sortField: String
+    sortDirection: Int
+    columns: [String!]
+    groupBy: String
+    dateField: String
+    shared: Boolean!
+    createdBy: String!
+    createdAt: Date
+    updatedAt: Date
+  }
+
+  input DataExtensionViewInput {
+    recordType: String
+    name: String
+    type: String
+    filter: JSON
+    sortField: String
+    sortDirection: Int
+    columns: [String!]
+    groupBy: String
+    dateField: String
+    shared: Boolean
+  }
+
   input DataExtensionObjectEditInput {
     singularLabel: String
     pluralLabel: String
@@ -119,6 +151,8 @@ export const queries = `
   dataExtensionFields(recordType: String, includeArchived: Boolean): [DataExtensionField!]!
   dataExtensionSchemaVersion: Int!
   dataExtensionObjects(includeArchived: Boolean): [DataExtensionObject!]!
+  "The caller's own views of a record type and every shared one."
+  dataExtensionViews(recordType: String!): [DataExtensionView!]!
 `;
 
 export const mutations = `
@@ -138,4 +172,7 @@ export const mutations = `
   dataExtensionObjectRestore(_id: String!): DataExtensionObject!
   "Deletes an archived object, its fields, relations to it and every record. Returns the object id."
   dataExtensionObjectDelete(_id: String!): String!
+  dataExtensionViewAdd(input: DataExtensionViewInput!): DataExtensionView!
+  dataExtensionViewEdit(_id: String!, input: DataExtensionViewInput!): DataExtensionView!
+  dataExtensionViewDelete(_id: String!): String!
 `;
