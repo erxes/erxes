@@ -1,17 +1,17 @@
 import { WorkOS } from '@workos-inc/node';
+import { randomUUID } from 'crypto';
 import {
-  authCookieOptions,
   getEnv,
   escapeRegExp,
   logHandler,
   markResolvers,
-  redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
 import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
 import { LoginError } from '~/modules/auth/loginError';
+import { endSession, startSession } from '~/modules/auth/session';
 import {
   assertLoginAllowed,
   clearLoginFailures,
@@ -21,7 +21,7 @@ import {
   recordLoginFailure,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
-import { assertSaasEnvironment } from '~/utils/saas';
+import { assertSaasEnvironment, MAGIC_LINK_STATE } from '~/utils/saas';
 import { sendEmail } from '~/utils/email';
 
 type LoginParams = {
@@ -46,7 +46,7 @@ export const authMutations = {
   async login(
     _parent: undefined,
     args: LoginParams,
-    { req, res, requestInfo, models, subdomain }: IContext,
+    { req, res, models, subdomain }: IContext,
   ) {
     // Filled once the method is known; logHandler merges it on success
     const loginResult: { method?: string } = {};
@@ -71,22 +71,17 @@ export const authMutations = {
 
         await clearLoginFailures(subdomain, args.email);
 
-        const { token, method } = response;
+        const { user, method } = response;
         loginResult.method = method;
 
-        const sameSite = getEnv({ name: 'SAME_SITE' });
-        const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-
-        const cookieOptions: any = { secure: requestInfo.secure };
-        if (
-          sameSite &&
-          sameSite === 'none' &&
-          res.req.headers.origin !== DOMAIN
-        ) {
-          cookieOptions.sameSite = sameSite;
-        }
-
-        res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+        await startSession({
+          models,
+          subdomain,
+          userId: user._id,
+          method,
+          req,
+          res,
+        });
 
         return 'loggedIn';
       },
@@ -116,12 +111,15 @@ export const authMutations = {
   ) {
     await logHandler(
       async () => {
-        const logout = await models.Users.logout(
-          user,
-          requestInfo.cookies['auth-token'],
-        );
-        res.clearCookie('auth-token');
-        return logout;
+        await endSession({ subdomain, req, res });
+
+        const legacyToken = requestInfo.cookies['auth-token'];
+
+        if (legacyToken) {
+          res.clearCookie('auth-token');
+        }
+
+        return models.Users.logout(user, legacyToken);
       },
       {
         subdomain,
@@ -249,9 +247,12 @@ export const authMutations = {
       return 'Invalid login';
     }
 
-    const token = await jwt.sign(
+    // Only proves the link was issued; the callback starts the real session
+    const state = await jwt.sign(
       {
-        user: await models.Users.getTokenFields(user),
+        typ: MAGIC_LINK_STATE,
+        jti: randomUUID(),
+        userId: user._id,
         subdomain,
         redirectUri: getCallbackRedirectUrl(subdomain, 'ml-callback'),
       },
@@ -259,19 +260,10 @@ export const authMutations = {
       { expiresIn: '1d' },
     );
 
-    // validated tokens are checked at user middleware
-    await models.Users.updateOne(
-      { _id: user._id },
-      { $push: { validatedTokens: token } },
-    );
-
-    // will use subdomain when workos callback data arrives
-    await redis.set('subdomain', subdomain);
-
     const session = await workosClient.passwordless.createSession({
       email,
       type: 'MagicLink',
-      state: token,
+      state,
       redirectURI: `${CORE_DOMAIN}/saas-ml-callback`,
     });
 

@@ -6,15 +6,12 @@ import {
   Resolver,
 } from 'erxes-api-shared/core-types';
 import {
-  authCookieOptions,
-  getEnv,
   getPlugin,
   getPlugins,
-  getSaasOrganizationDetail,
   graphqlPubsub,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
-import { saveValidatedToken } from '~/modules/auth/utils';
+import { readSessionCookie, startSession } from '~/modules/auth/session';
 import { sendInvitationEmail } from '../utils';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 
@@ -157,9 +154,13 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
   async usersChangePassword(
     _parent: undefined,
     args: { currentPassword: string; newPassword: string },
-    { user, models }: IContext,
+    { user, models, requestInfo }: IContext,
   ) {
-    return models.Users.changePassword({ _id: user._id, ...args });
+    return models.Users.changePassword({
+      _id: user._id,
+      ...args,
+      keepSid: readSessionCookie(requestInfo.cookies),
+    });
   },
 
   /*
@@ -381,7 +382,7 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     }: {
       token: string;
     },
-    { res, models, requestInfo, subdomain }: IContext,
+    { req, res, models, subdomain }: IContext,
   ) {
     const user = await models.Users.findOne({
       registrationToken,
@@ -394,17 +395,9 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('Token is invalid or has expired');
     }
 
-    const [token] = await models.Users.createTokens(
-      user,
-      models.Users.getSecret(),
-    );
-
-    await saveValidatedToken(token, user);
-
     await models.Users.updateOne(
       { _id: user._id },
       {
-        $push: { validatedTokens: token },
         $set: { isActive: true },
         $unset: {
           registrationToken: '',
@@ -413,34 +406,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
       },
     );
 
-    const sameSite = getEnv({ name: 'SAME_SITE' });
-    const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
-    const VERSION = getEnv({ name: 'VERSION' });
-
-    if (VERSION === 'saas') {
-      const organization = await getSaasOrganizationDetail({ subdomain });
-
-      const cookieOptions: any = authCookieOptions();
-
-      if (organization.domain && organization.dnsStatus === 'active') {
-        cookieOptions.secure = true;
-        cookieOptions.sameSite = 'none';
-      }
-
-      res.cookie('auth-token', token, cookieOptions);
-    } else {
-      const cookieOptions: any = { secure: requestInfo.secure };
-
-      if (
-        sameSite &&
-        sameSite === 'none' &&
-        res.req.headers.origin !== DOMAIN
-      ) {
-        cookieOptions.sameSite = sameSite;
-      }
-
-      res.cookie('auth-token', token, authCookieOptions(cookieOptions));
-    }
+    await startSession({
+      models,
+      subdomain,
+      userId: user._id,
+      method: 'invitation',
+      req,
+      res,
+    });
 
     await sendOnboardNotification(subdomain, models, user._id);
 
