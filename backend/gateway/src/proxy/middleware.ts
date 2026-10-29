@@ -33,7 +33,6 @@ export const proxyReq = (proxyReq, req: any) => {
   };
 
   safeSetHeader('hostname', req.hostname || '');
-  safeSetHeader('userid', req.user?._id || '');
 
   if (DEBUG_GATEWAY_AUTH && req.originalUrl?.startsWith('/graphql')) {
     console.log(
@@ -46,7 +45,7 @@ export const proxyReq = (proxyReq, req: any) => {
         targetPath: proxyReq.path,
         hasUser: Boolean(req.user?._id),
         userId: req.user?._id || '',
-        hasUseridHeader: Boolean(req.headers.userid),
+        hasUserHeader: Boolean(req.headers.user),
         hasAuthorizationHeader: Boolean(req.headers.authorization),
         hasAuthCookie: Boolean(req.cookies?.['auth-token']),
       }),
@@ -98,7 +97,7 @@ export const proxyRes = (proxyRes, req: any, res: ServerResponse) => {
         statusCode: proxyRes.statusCode,
         hasUser: Boolean(req.user?._id),
         userId: req.user?._id || '',
-        hasUseridHeader: Boolean(req.headers.userid),
+        hasUserHeader: Boolean(req.headers.user),
       }),
     );
   }
@@ -116,7 +115,7 @@ export const proxyError = (error, req: any, res?: any) => {
         message: error?.message,
         hasUser: Boolean(req.user?._id),
         userId: req.user?._id || '',
-        hasUseridHeader: Boolean(req.headers.userid),
+        hasUserHeader: Boolean(req.headers.user),
       }),
     );
   }

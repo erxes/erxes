@@ -1,4 +1,5 @@
 import {
+  extractUserFromHeader,
   getEnv,
   getSubdomain,
   isImage,
@@ -269,7 +270,7 @@ router.post(
   uploadLimiter,
   async (req: Request, res: Response) => {
     // require login
-    if (!req.headers.userid) {
+    if (!extractUserFromHeader(req.headers)) {
       return res.end('forbidden');
     }
 

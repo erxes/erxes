@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -123,6 +123,7 @@
 - GraphQL queries `journalReportData` and `journalReportMore`, returning summary and detailed rows for account, trial balance, general-ledger, main-journal, main-journal-summary, fund, debt, inventory-cost, inventory-sale, inventory-sale-cost, inventory-sale-period, inventory-price, inventory-profit, inventory-shipper, inventory-document, inventory-seller-subsystem, and fixed-asset reports with account permission filters, pointer/account/product/fixed-asset/customer/content metadata filters, branch/department child filters, `trKind`/`trKinds`/`getTrKind` filters, detail-level currency/account matching, line-record projection, and group metadata enrichment.
 - Transaction model methods such as `createPTransaction`, `updatePTransaction`, `createTransaction`, `updateTransaction`, and removal helpers used by accounting-owned flows.
 - Inventory split input contract is `details[].followInfos.invSplit` with canonical `hasSplit`; when true, `productId` and a positive `ratio` are required on an `invIncome` or `invMove` source detail, while false disables splitting without validating those fields. Generated `invOut` and `invIncome` rows use `originId` to point to that source transaction. Save normalizes legacy root `followInfos.invSplitDetails` into detail state.
+- HTTP routes `POST /migration/erkhet/references` and `POST /migration/erkhet/transactions` (`src/routes.ts`) require a signed-in caller verified by `extractUserFromHeader`; anonymous calls get 401. Transactions default to the verified caller when `body.userId` is absent.
 
 ### Consumes
 
@@ -160,6 +161,7 @@
 
 ## Local Invariants
 
+- Read the caller only through `extractUserFromHeader` (signed `user` header). Never trust raw `userid`, `user` or body identity for authorization.
 - POS order sale sync uses valid `order.paidDate` for sale and payment transaction dates on initial sync and resync, without `dateRule`.
 - POS order return sync uses valid `order.returnInfo.returnAt` for return and refund transaction dates on initial sync and resync, without `dateRule`.
 - Sale, movement, and return sync handlers throw actionable errors for failed prerequisites (missing/invalid POS dates, missing sale/movement products, or missing original sale for a return). Event and manual-sync callers catch these errors and persist them through `setOrderAccountingResponse` or the configured deal response property through `setDealAccountingResponse`; failed validation must never resolve as success. Missing payment-account configuration remains an intentional row skip.

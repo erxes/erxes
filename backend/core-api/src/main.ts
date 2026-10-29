@@ -10,6 +10,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import {
   applyTrustProxy,
+  assertIdentitySecret,
   closeMongooose,
   createTRPCContext,
   getSubdomain,
@@ -178,6 +179,8 @@ app.get('/debug-sentry', () => {
 
 // Wrap the Express server
 const httpServer = http.createServer({ maxHeaderSize: MAX_HEADER_BYTES }, app);
+
+assertIdentitySecret();
 
 httpServer.listen(port, async () => {
   await initApolloServer(app, httpServer);

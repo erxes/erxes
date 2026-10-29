@@ -48,7 +48,7 @@ import {
   expectedErrorPlugin,
 } from './apollo';
 import { BeforeResolversConfig } from './apollo/beforeResolvers';
-import { extractUserFromHeader } from './headers';
+import { assertIdentitySecret, extractUserFromHeader } from './headers';
 import { AfterProcessConfigs, logHandler, startAfterProcess } from './logs';
 import { closeMongooose } from './mongo';
 import {
@@ -379,6 +379,8 @@ export async function startPlugin(
       context: generateApolloContext<IMainContext>(apolloServerContext),
     }),
   );
+
+  assertIdentitySecret();
 
   await new Promise<void>((resolve) =>
     httpServer.listen({ port: PORT }, resolve),

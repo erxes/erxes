@@ -77,9 +77,8 @@ export default async function userMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  // Spoofed identity headers (`user`, `userid`, `cpuser`, `clientportal`,
-  // `erxes-subdomain`) must never reach the router — subgraphs trust them
-  // verbatim. Only identity established here is forwarded.
+  // Identity headers from the client are dropped; only identity established
+  // and signed here is forwarded.
   sanitizeHeaders(req.headers);
 
   const startedAt = Date.now();
@@ -213,7 +212,7 @@ export default async function userMiddleware(
       ...agentUserDoc,
       agent: agentAuth.threadId ? { threadId: agentAuth.threadId } : {},
     };
-    setUserHeader(req.headers, req.user);
+    setUserHeader(req.headers, req.user, subdomain);
     return next();
   }
 
@@ -248,7 +247,7 @@ export default async function userMiddleware(
           username: appInDb.name,
           isOwner: appInDb.allowAllPermission === true,
         } as any;
-        setUserHeader(req.headers, req.user);
+        setUserHeader(req.headers, req.user, subdomain);
       }
     } catch (e) {
       console.error(e);
@@ -290,7 +289,7 @@ export default async function userMiddleware(
 
       req.clientPortal = clientPortal;
 
-      setClientPortalHeader(req.headers, req.clientPortal);
+      setClientPortalHeader(req.headers, req.clientPortal, subdomain);
 
       if (clientAuthToken) {
         try {
@@ -308,7 +307,7 @@ export default async function userMiddleware(
 
           if (clientPortalUser) {
             req.cpUser = clientPortalUser;
-            setCPUserHeader(req.headers, req.cpUser);
+            setCPUserHeader(req.headers, req.cpUser, subdomain);
             debugAuth(req, 'client-portal-user-set', {
               subdomain,
               clientPortalId: String(clientPortal._id),
@@ -373,7 +372,7 @@ export default async function userMiddleware(
         req.user = { ...userDoc };
         req.user.sessionCode = req.headers.sessioncode || '';
 
-        setUserHeader(req.headers, req.user);
+        setUserHeader(req.headers, req.user, subdomain);
         debugAuth(req, 'session-user-header-set', {
           subdomain,
           userId: req.user._id,
@@ -469,7 +468,7 @@ export default async function userMiddleware(
       redis.set('hostname', process.env.DOMAIN || 'http://localhost:3001');
     }
 
-    setUserHeader(req.headers, req.user);
+    setUserHeader(req.headers, req.user, subdomain);
     debugAuth(req, 'user-header-set', {
       subdomain,
       userId: req.user._id,

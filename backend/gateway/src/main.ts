@@ -26,6 +26,7 @@ import {
 
 import {
   applyTrustProxy,
+  assertIdentitySecret,
   decodeAgentToolsAuthHeader,
   DEFAULT_JOB_OPTIONS,
   getPlugin,
@@ -230,6 +231,8 @@ let httpServer: http.Server;
 
 async function start() {
   try {
+    assertIdentitySecret();
+
     const enabledPlugins = await getPlugins();
     await setActivePlugins(enabledPlugins);
 

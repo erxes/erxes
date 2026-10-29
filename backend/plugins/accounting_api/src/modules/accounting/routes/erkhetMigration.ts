@@ -1,5 +1,10 @@
 import { Request, Response } from 'express';
-import { fixNum, getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  extractUserFromHeader,
+  fixNum,
+  getSubdomain,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
   FXA_OWNER_RECORD_ACTIONS,
@@ -1517,7 +1522,7 @@ const saveBatch = async ({
 export const importErkhetTransactions = async (req: Request, res: Response) => {
   try {
     const body = req.body as ErkhetTransactionsRequest;
-    const userId = body.userId || String(req.headers.userid || '');
+    const userId = body.userId || extractUserFromHeader(req.headers)?._id || '';
 
     if (!userId) {
       return res.status(400).json({ error: 'userId is required' });

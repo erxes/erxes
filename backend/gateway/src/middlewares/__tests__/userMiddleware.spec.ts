@@ -60,6 +60,7 @@ jest.mock('../../connectionResolver', () => ({
 }));
 
 import userMiddleware from '../userMiddleware';
+import { verifyIdentityHeader } from 'erxes-api-shared/utils/headers';
 
 const SECRET = 'SECRET';
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -115,7 +116,7 @@ const run = async ({
 };
 
 beforeAll(() => {
-  delete process.env.JWT_TOKEN_SECRET;
+  process.env.JWT_TOKEN_SECRET = SECRET;
   jest.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 
@@ -134,7 +135,12 @@ describe('staff session', () => {
     const { req, next } = await run({ cookies: { 'erxes-sid': sid } });
 
     expect(req.user?._id).toBe('u1');
-    expect(req.headers.user).toBeTruthy();
+    expect(
+      verifyIdentityHeader('user', String(req.headers.user)),
+    ).toMatchObject({
+      subdomain: 'acme',
+      value: { _id: 'u1' },
+    });
     expect(next).toHaveBeenCalled();
   });
 
