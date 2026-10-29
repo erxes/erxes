@@ -1,6 +1,7 @@
 import { markResolvers } from 'erxes-api-shared/utils';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
+import { ldapQueries } from '@/auth/graphql/resolvers/ldap';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
@@ -64,6 +65,7 @@ export const queries = {
   ...referenceQueries,
   ...contactQueries,
   ...authQueries,
+  ...ldapQueries,
   ...oauthClientAppQueries,
   ...userQueries,
   ...tagQueries,

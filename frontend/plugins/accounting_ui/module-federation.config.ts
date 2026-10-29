@@ -18,6 +18,7 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './accounting': './src/modules/AccountingMain.tsx',
     './relationWidget': './src/widgets/relation/RelationWidgets.tsx',
+    './recordPanel': './src/widgets/record-panel/RecordPanel.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

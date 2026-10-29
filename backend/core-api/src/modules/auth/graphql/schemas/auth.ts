@@ -38,6 +38,67 @@ export const types = `
     updatedAt: Date
     generatedSecret: String
   }
+
+  enum AuthLdapServerType {
+    activeDirectory
+    openLdap
+  }
+
+  type AuthLdapGroupMapping {
+    groupDn: String!
+    permissionGroupIds: [String!]!
+  }
+
+  type AuthLdapConfig {
+    enabled: Boolean!
+    serverType: AuthLdapServerType!
+    url: String
+    startTls: Boolean!
+    bindDn: String
+    hasBindPassword: Boolean!
+    baseDn: String
+    loginAttribute: String
+    userFilter: String
+    allowedGroupDns: [String!]!
+    linkEmailDomains: [String!]!
+    groupMappings: [AuthLdapGroupMapping!]!
+    updatedAt: Date
+  }
+
+  type AuthLdapProfile {
+    dn: String!
+    username: String
+    email: String
+    firstName: String
+    lastName: String
+    groupDns: [String!]!
+  }
+
+  type AuthLdapTestResult {
+    ok: Boolean!
+    message: String!
+    profile: AuthLdapProfile
+  }
+
+  input AuthLdapGroupMappingInput {
+    groupDn: String!
+    permissionGroupIds: [String!]!
+  }
+
+  input AuthLdapConfigInput {
+    enabled: Boolean!
+    serverType: AuthLdapServerType!
+    url: String!
+    startTls: Boolean!
+    bindDn: String!
+    bindPassword: String
+    baseDn: String!
+    loginAttribute: String!
+    userFilter: String
+    allowedGroupDns: [String!]!
+    linkEmailDomains: [String!]!
+    groupMappings: [AuthLdapGroupMappingInput!]!
+  }
 `;
 
 export const queries = `
@@ -45,6 +106,8 @@ export const queries = `
   oauthClientApps(searchValue: String, page: Int, perPage: Int): [OAuthClientApp]
   oauthClientAppsTotalCount(searchValue: String): Int
   oauthClientAppDetail(_id: String!): OAuthClientApp
+  authLdapConfig: AuthLdapConfig
+  authLdapLinkedUserIds: [String!]!
 `;
 
 export const mutations = `
@@ -73,5 +136,9 @@ export const mutations = `
   ): OAuthClientApp
   oauthClientAppsRevoke(_id: String!): OAuthClientApp
   oauthClientAppsRemove(_id: String!): JSON
+  authLdapConfigSave(input: AuthLdapConfigInput!): AuthLdapConfig
+  authLdapTestConnection(input: AuthLdapConfigInput!, identifier: String): AuthLdapTestResult
+  authLdapLinkUser(userId: String!, identifier: String!): Boolean
+  authLdapUnlinkUser(userId: String!): Boolean
 
  `;

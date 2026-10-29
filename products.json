@@ -1,0 +1,2027 @@
+[
+  {
+    "name": "Угаалтуур /45*60/",
+    "code": "0010",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Угаалтуур /45*68/",
+    "code": "0011",
+    "type": "product",
+    "unitPrice": 250000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Холигч",
+    "code": "0012",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Уур сорогч",
+    "code": "0013",
+    "type": "product",
+    "unitPrice": 200000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Трубо өлгүүр",
+    "code": "0014",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Өлгүүрний чих",
+    "code": "0015",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул хүрэн L",
+    "code": "0016",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул хүрэн C",
+    "code": "0017",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул хар C",
+    "code": "0018",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул саарал  С",
+    "code": "0019",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул хар Дээд",
+    "code": "0020",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "L бариулны булан",
+    "code": "0021",
+    "type": "product",
+    "unitPrice": 500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Гэрлэн зам суудаг-8mm",
+    "code": "0022",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Гэрлэн зам суудаг-5mm",
+    "code": "0023",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Гэрлэн зам булан-8mm",
+    "code": "0024",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Гэрлэн зам булан-5mm",
+    "code": "0025",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Блентус",
+    "code": "0026",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-1тэй",
+    "code": "0027",
+    "type": "product",
+    "unitPrice": 1500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-90/ 10 /",
+    "code": "0028",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-90 noumi",
+    "code": "0029",
+    "type": "product",
+    "unitPrice": 4500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-2той 90",
+    "code": "0030",
+    "type": "product",
+    "unitPrice": 4000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-1тай хагас",
+    "code": "0031",
+    "type": "product",
+    "unitPrice": 1500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-1тай бүтэн",
+    "code": "0032",
+    "type": "product",
+    "unitPrice": 1500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас дээд булан",
+    "code": "0033",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Нугас-ШХ",
+    "code": "0034",
+    "type": "product",
+    "unitPrice": 2500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-50",
+    "code": "0035",
+    "type": "product",
+    "unitPrice": 8500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-50 түлхдэг",
+    "code": "0036",
+    "type": "product",
+    "unitPrice": 15000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-50 сордог",
+    "code": "0037",
+    "type": "product",
+    "unitPrice": 15000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-45",
+    "code": "0038",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-40",
+    "code": "0039",
+    "type": "product",
+    "unitPrice": 7500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-35",
+    "code": "0040",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-30",
+    "code": "0041",
+    "type": "product",
+    "unitPrice": 6500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Зам-25",
+    "code": "0042",
+    "type": "product",
+    "unitPrice": 6000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Өлгүүр хар хямд",
+    "code": "0043",
+    "type": "product",
+    "unitPrice": 2500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Өлгүүр хар",
+    "code": "0044",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Өлгүүр хар чихтэй",
+    "code": "0045",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Өлгүүр шар",
+    "code": "0046",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хар хөл",
+    "code": "0047",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хар хөл /20см/",
+    "code": "0048",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хар хөл /15см/",
+    "code": "0049",
+    "type": "product",
+    "unitPrice": 6000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хатаагч-60",
+    "code": "0050",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хатаагч-70",
+    "code": "0051",
+    "type": "product",
+    "unitPrice": 50000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хатаагч-80",
+    "code": "0052",
+    "type": "product",
+    "unitPrice": 55000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хатаагч-90",
+    "code": "0053",
+    "type": "product",
+    "unitPrice": 60000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул нүхтэй -100/ хар /",
+    "code": "0054",
+    "type": "product",
+    "unitPrice": 13000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул нүхтэй -80/ хар /",
+    "code": "0055",
+    "type": "product",
+    "unitPrice": 11000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул нүхтэй -60 / хар/",
+    "code": "0056",
+    "type": "product",
+    "unitPrice": 9000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул нүхтэй -80 / хүрэн/",
+    "code": "0057",
+    "type": "product",
+    "unitPrice": 11000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул нүхтэй-60/ хүрэн/",
+    "code": "0058",
+    "type": "product",
+    "unitPrice": 9000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул-100",
+    "code": "0059",
+    "type": "product",
+    "unitPrice": 13000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул-80",
+    "code": "0060",
+    "type": "product",
+    "unitPrice": 11000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул-60",
+    "code": "0061",
+    "type": "product",
+    "unitPrice": 9000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул-20",
+    "code": "0062",
+    "type": "product",
+    "unitPrice": 50000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул-30 /өргөн/",
+    "code": "0063",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул саарал -80",
+    "code": "0064",
+    "type": "product",
+    "unitPrice": 11000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Бариул саарал -20",
+    "code": "0065",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Хар товчин бариул",
+    "code": "0066",
+    "type": "product",
+    "unitPrice": 1500,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Халбага сэрээ тус /50/",
+    "code": "0067",
+    "type": "product",
+    "unitPrice": 20000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "Халбага сэрээ тус /60/",
+    "code": "0068",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Тоноглол",
+    "status": "active"
+  },
+  {
+    "name": "DSP цагаан",
+    "code": "010",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "DSP шар",
+    "code": "011",
+    "type": "product",
+    "unitPrice": 65000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "DSP ягаан",
+    "code": "012",
+    "type": "product",
+    "unitPrice": 65000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "DSP хүрэн-111",
+    "code": "013",
+    "type": "product",
+    "unitPrice": 75000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "DSP шаргал мод",
+    "code": "014",
+    "type": "product",
+    "unitPrice": 75000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Солонгос бэйж мат",
+    "code": "015",
+    "type": "product",
+    "unitPrice": 230000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Солонгос цагаан саатай",
+    "code": "016",
+    "type": "product",
+    "unitPrice": 210000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Солонгос цагаан мат",
+    "code": "017",
+    "type": "product",
+    "unitPrice": 210000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Солонгос бэйж",
+    "code": "018",
+    "type": "product",
+    "unitPrice": 210000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "UV цагаан / 02G /",
+    "code": "019",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "16G",
+    "code": "16G",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Мат цагаан / 02M /",
+    "code": "02M",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "04М",
+    "code": "04М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "06 М",
+    "code": "06 М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "07М",
+    "code": "07М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "21М",
+    "code": "21М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Мат  / 17М /",
+    "code": "17М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "05M",
+    "code": "05M",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "08M",
+    "code": "08M",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "20М",
+    "code": "20М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "09М",
+    "code": "09М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "11М",
+    "code": "11М",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "14M1",
+    "code": "14M1",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "12M",
+    "code": "12M",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хавтан бусад солонгос",
+    "code": "Хавтан бусад солонгос",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хавтан бусад",
+    "code": "Хавтан бусад",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "710",
+    "code": "710",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "711",
+    "code": "711",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "712",
+    "code": "712",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "713",
+    "code": "713",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "715",
+    "code": "715",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "716",
+    "code": "716",
+    "type": "product",
+    "unitPrice": 240000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "С/Хуулга цагаан саатай",
+    "code": "С/Хуулга цагаан саатай",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "С/Хуулга цагаан мат",
+    "code": "С/Хуулга цагаан мат",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга DSP",
+    "code": "Хуулга DSP",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-05М",
+    "code": "Хуулга-05М",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга бэйж",
+    "code": "Хуулга бэйж",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга хүрэн-111",
+    "code": "Хуулга хүрэн-111",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга хүрэн мод",
+    "code": "Хуулга хүрэн мод",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-02G",
+    "code": "Хуулга-02G",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-02М",
+    "code": "Хуулга-02М",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-20М",
+    "code": "Хуулга-20М",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-16G",
+    "code": "Хуулга-16G",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-04М",
+    "code": "Хуулга-04М",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-06м",
+    "code": "Хуулга-06м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-07м",
+    "code": "Хуулга-07м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-21м",
+    "code": "Хуулга-21м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-09м",
+    "code": "Хуулга-09м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-11м",
+    "code": "Хуулга-11м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-12м",
+    "code": "Хуулга-12м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-14м1",
+    "code": "Хуулга-14м1",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-17м",
+    "code": "Хуулга-17м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-08м",
+    "code": "Хуулга-08м",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга",
+    "code": "Хуулга",
+    "type": "product",
+    "unitPrice": 45000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-710",
+    "code": "Хуулга-710",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-711",
+    "code": "Хуулга-711",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-712",
+    "code": "Хуулга-712",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-713",
+    "code": "Хуулга-713",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-715",
+    "code": "Хуулга-715",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хуулга-716",
+    "code": "Хуулга-716",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Аргелед",
+    "code": "Аргелед",
+    "type": "product",
+    "unitPrice": 30000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "ГХ бэйж",
+    "code": "ГХ бэйж",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "ГХ цагаан",
+    "code": "ГХ цагаан",
+    "type": "product",
+    "unitPrice": 100000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Рейк саарал өргөн",
+    "code": "Рейк саарал өргөн",
+    "type": "product",
+    "unitPrice": 32000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Рейк шаргал",
+    "code": "Рейк шаргал",
+    "type": "product",
+    "unitPrice": 23000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэлтэй хар залгаа",
+    "code": "Гэрэлтэй хар залгаа",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэлтэй хар төгсгөл",
+    "code": "Гэрэлтэй хар төгсгөл",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Шар булан",
+    "code": "Шар булан",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Шар төгсгөл",
+    "code": "Шар төгсгөл",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Шар залгаа",
+    "code": "Шар залгаа",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хар залгаа",
+    "code": "Хар залгаа",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хар төгсгөл",
+    "code": "Хар төгсгөл",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хар булан гадар",
+    "code": "Хар булан гадар",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хар булан",
+    "code": "Хар булан",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хүрэн залгаа",
+    "code": "Хүрэн залгаа",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хүрэн гэрэлтэй залгаа",
+    "code": "Хүрэн гэрэлтэй залгаа",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хүрэн төгсгөл",
+    "code": "Хүрэн төгсгөл",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Хүрэн булан",
+    "code": "Хүрэн булан",
+    "type": "product",
+    "unitPrice": 10000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Чулуу",
+    "code": "Чулуу",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Чулууны цавуу",
+    "code": "Чулууны цавуу",
+    "type": "product",
+    "unitPrice": 8500,
+    "uom": "Ширхэг",
+    "categoryName": "Хавтан",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэл -8mm",
+    "code": "Гэрэл -8mm",
+    "type": "product",
+    "unitPrice": 30000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэл -5mm",
+    "code": "Гэрэл -5mm",
+    "type": "product",
+    "unitPrice": 30000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэл холбогч-8mm",
+    "code": "Гэрэл холбогч-8mm",
+    "type": "product",
+    "unitPrice": 500,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Гэрэл холбогч-5mm",
+    "code": "Гэрэл холбогч-5mm",
+    "type": "product",
+    "unitPrice": 500,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Гэрлийн утас",
+    "code": "Гэрлийн утас",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Разетка ханын",
+    "code": "Разетка ханын",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Разетка тавцан  хар",
+    "code": "Разетка тавцан  хар",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Разетка тавцан саарал",
+    "code": "Разетка тавцан саарал",
+    "type": "product",
+    "unitPrice": 80000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Лисваны разетка",
+    "code": "Лисваны разетка",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Лисваны вилк",
+    "code": "Лисваны вилк",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Унтраалга",
+    "code": "Унтраалга",
+    "type": "product",
+    "unitPrice": 20000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Унтраалга",
+    "code": "Унтраалга-2",
+    "type": "product",
+    "unitPrice": 2500,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Унтраалга",
+    "code": "Унтраалга-3",
+    "type": "product",
+    "unitPrice": 6000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Ханын гэрэл хар",
+    "code": "Ханын гэрэл хар",
+    "type": "product",
+    "unitPrice": 30000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Ханын гэрэл цагаан",
+    "code": "Ханын гэрэл цагаан",
+    "type": "product",
+    "unitPrice": 30000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Ханын гэрэл",
+    "code": "Ханын гэрэл",
+    "type": "product",
+    "unitPrice": 25000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Утас гаргагч",
+    "code": "Утас гаргагч",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Утас гаргагч",
+    "code": "Утас гаргагч-2",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Ил разетка",
+    "code": "Ил разетка",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "Вилк",
+    "code": "Вилк",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Гэрэл",
+    "status": "active"
+  },
+  {
+    "name": "F30",
+    "code": "F30",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "1013",
+    "code": "1013",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Сум",
+    "code": "Сум",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "8*80",
+    "code": "8*80",
+    "type": "product",
+    "unitPrice": 5000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "8*60",
+    "code": "8*60",
+    "type": "product",
+    "unitPrice": 4000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Компормат толгой",
+    "code": "Компормат толгой",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Компормат",
+    "code": "Компормат",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Цавуу",
+    "code": "Цавуу",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Өрөм / нугасны/",
+    "code": "Өрөм / нугасны/",
+    "type": "product",
+    "unitPrice": 6000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Өрөм /3.5/",
+    "code": "Өрөм /3.5/",
+    "type": "product",
+    "unitPrice": 1500,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Тахай",
+    "code": "Тахай",
+    "type": "product",
+    "unitPrice": 8000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Цагаан наалт",
+    "code": "Цагаан наалт",
+    "type": "product",
+    "unitPrice": 1000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Цагаан хадаас",
+    "code": "Цагаан хадаас",
+    "type": "product",
+    "unitPrice": 80,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Цагаан тагтай булан",
+    "code": "Цагаан тагтай булан",
+    "type": "product",
+    "unitPrice": 150,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Тогтоогч",
+    "code": "Тогтоогч",
+    "type": "product",
+    "unitPrice": 500,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Тавиур тогтоогч чангалдаг",
+    "code": "Тавиур тогтоогч чангалдаг",
+    "type": "product",
+    "unitPrice": 100,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Тавиур тогтоогч зөөлөн",
+    "code": "Тавиур тогтоогч зөөлөн",
+    "type": "product",
+    "unitPrice": 100,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Тавиур тогтоогч",
+    "code": "Тавиур тогтоогч",
+    "type": "product",
+    "unitPrice": 50,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Шилэн т/тогтоогч",
+    "code": "Шилэн т/тогтоогч",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Шилэн т/тогтоогч-1",
+    "code": "Шилэн т/тогтоогч-1",
+    "type": "product",
+    "unitPrice": 3000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Шилэн т/тогтоогч-2",
+    "code": "Шилэн т/тогтоогч-2",
+    "type": "product",
+    "unitPrice": 500,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Түлхэгч",
+    "code": "Түлхэгч",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Шахдаг хөөс",
+    "code": "Шахдаг хөөс",
+    "type": "product",
+    "unitPrice": 12000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Зүлгүүр",
+    "code": "Зүлгүүр",
+    "type": "product",
+    "unitPrice": 2000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Өө дарагч",
+    "code": "Өө дарагч",
+    "type": "product",
+    "unitPrice": 1000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Бээлий",
+    "code": "Бээлий",
+    "type": "product",
+    "unitPrice": 1000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Метр 3.5",
+    "code": "Метр 3.5",
+    "type": "product",
+    "unitPrice": 11000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Метр  5",
+    "code": "Метр  5",
+    "type": "product",
+    "unitPrice": 15000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Силикон",
+    "code": "Силикон",
+    "type": "product",
+    "unitPrice": 7000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Цаасны хутга",
+    "code": "Цаасны хутга",
+    "type": "product",
+    "unitPrice": 4000,
+    "uom": "Ширхэг",
+    "categoryName": "Материал",
+    "status": "active"
+  },
+  {
+    "name": "Сандал цагаан төмөр хөл",
+    "code": "8034А",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ногоон төмөр хөл",
+    "code": "Сандал ногоон төмөр хөл",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал цагаан модон хөл",
+    "code": "8034В",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бэйж модон хөл",
+    "code": "Сандал бэйж модон хөл",
+    "type": "product",
+    "unitPrice": 120000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал саарал",
+    "code": "13",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бор шаргал",
+    "code": "Сандал бор шаргал",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал цагаан",
+    "code": "Сандал цагаан",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ногоон",
+    "code": "Сандал ногоон",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бэйж",
+    "code": "968",
+    "type": "product",
+    "unitPrice": 70000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал цагаан",
+    "code": "1542",
+    "type": "product",
+    "unitPrice": 48000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бэйж",
+    "code": "Сандал бэйж",
+    "type": "product",
+    "unitPrice": 48000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ногоон",
+    "code": "Сандал ногоон-2",
+    "type": "product",
+    "unitPrice": 48000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал саарал",
+    "code": "901",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал цагаан",
+    "code": "Сандал цагаан-2",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ногоон",
+    "code": "Сандал ногоон-3",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал хар",
+    "code": "Сандал хар",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бор",
+    "code": "Сандал бор",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал бэйж",
+    "code": "Сандал бэйж-2",
+    "type": "product",
+    "unitPrice": 35000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал саарал",
+    "code": "8018",
+    "type": "product",
+    "unitPrice": 103000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ягаан",
+    "code": "Сандал ягаан",
+    "type": "product",
+    "unitPrice": 103000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Сандал ногоон",
+    "code": "Сандал ногоон-4",
+    "type": "product",
+    "unitPrice": 103000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/цаг, х/мод 120/80/75",
+    "code": "601",
+    "type": "product",
+    "unitPrice": 260000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ хар 70/70/73",
+    "code": "609",
+    "type": "product",
+    "unitPrice": 200000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ цагаан 70/70/73",
+    "code": "Ширээ цагаан 70/70/73",
+    "type": "product",
+    "unitPrice": 200000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/цаг, х/мод 80/80/75",
+    "code": "602",
+    "type": "product",
+    "unitPrice": 210000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/цаг, х/цаг 160/80/76",
+    "code": "626",
+    "type": "product",
+    "unitPrice": 565000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/мод, х/цаг 160/80/76",
+    "code": "Ширээ т/мод, х/цаг 160/80/76",
+    "type": "product",
+    "unitPrice": 565000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/мод, х/цаг 180/80/76",
+    "code": "Ширээ т/мод, х/цаг 180/80/76",
+    "type": "product",
+    "unitPrice": 599000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/мод, х/хар 180/80/76",
+    "code": "Ширээ т/мод, х/хар 180/80/76",
+    "type": "product",
+    "unitPrice": 599000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/цаг, х/цаг 180/80/76",
+    "code": "Ширээ т/цаг, х/цаг 180/80/76",
+    "type": "product",
+    "unitPrice": 599000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ мод 120/55/35",
+    "code": "707",
+    "type": "product",
+    "unitPrice": 180000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ мод 55/55/35",
+    "code": "Ширээ мод 55/55/35",
+    "type": "product",
+    "unitPrice": 130000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/мод, х/төмөр 180/90",
+    "code": "870",
+    "type": "product",
+    "unitPrice": 880000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ т/мод, х/төмөр 160/90",
+    "code": "Ширээ т/мод, х/төмөр 160/90",
+    "type": "product",
+    "unitPrice": 830000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ хөл хар 120/70/72",
+    "code": "B256",
+    "type": "product",
+    "unitPrice": 150000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  },
+  {
+    "name": "Ширээ хөл цагаан 120/70/72",
+    "code": "B256W",
+    "type": "product",
+    "unitPrice": 160000,
+    "uom": "Ширхэг",
+    "categoryName": "Ширээ",
+    "status": "active"
+  }
+]

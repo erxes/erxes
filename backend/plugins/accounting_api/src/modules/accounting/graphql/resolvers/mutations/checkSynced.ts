@@ -16,6 +16,8 @@ import {
 
 type SalesDeal = {
   _id: string;
+  customerId?: string | null;
+  companyId?: string | null;
   stageId?: string;
   number?: string;
   name?: string;

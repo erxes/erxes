@@ -135,6 +135,7 @@
     "operating-system": "Operating System",
     "browser": "Browser",
     "auth-method": "Auth Method",
+    "failure-reason": "Failure Reason",
     "operation-payload": "Operation Payload",
     "captured-for-mutation": "Captured arguments and response for {{mutationName}}.",
     "captured-for-operation": "Captured arguments and response for this GraphQL operation.",
@@ -203,7 +204,8 @@
     "email-delivery": "Email delivery",
     "import-export": "Import & Export",
     "message-pro": "Message Pro",
-    "agents": "Agents"
+    "agents": "Agents",
+    "ldap": "LDAP"
   },
   "plugin": {
     "_": "Plugin",
@@ -312,6 +314,16 @@
     "or": "OR",
     "continue-with-google": "Continue with Google",
     "incorrect-credentials": "Email or password is incorrect",
+    "login-failure": {
+      "invalid_credentials": "Username or password is incorrect",
+      "rate_limited": "Too many attempts. Please try again later",
+      "directory_locked": "Your directory account is locked. Contact IT",
+      "directory_password_expired": "Your password has expired. Change it in Windows",
+      "directory_disabled": "Your account is disabled. Contact your admin",
+      "directory_unreachable": "The directory server did not respond. Please try again",
+      "not_allowed": "You have not been given access to erxes. Contact your admin",
+      "not_linked": "Your account is not linked to the directory. Contact your admin"
+    },
     "success": "Success",
     "reset-link-sent": "Password reset instructions have been sent to your email.",
     "something-went-wrong-title": "Uh oh! Something went wrong.",

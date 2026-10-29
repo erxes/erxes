@@ -20,6 +20,12 @@ export const currentAmountAtom = atom<number>(0)
 
 export const modeAtom = atomWithStorage<modeT>("mode", "main")
 
+const SIMILARITY_MODES: modeT[] = ["coffee-shop", "restaurant"]
+
+export const isSimilarityModeAtom = atom<boolean>((get) =>
+  SIMILARITY_MODES.includes(get(modeAtom))
+)
+
 export const currentPaymentTypeAtom = atom<string>("")
 
 export const paymentAmountTypeAtom = atom<IPaymentAmountType>("amount")

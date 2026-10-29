@@ -1,6 +1,6 @@
 import { getI18n } from 'react-i18next';
 import { parse } from 'csv-parse/browser/esm/sync';
-import { TSafeRemainderImportItem } from '../types/SafeRemainder';
+import { TSafeRemainderImportItem } from '@/inventories/safeRemainders/types/SafeRemainder';
 
 const translateImportError = (
   key: string,
@@ -14,15 +14,8 @@ const normalizeHeader = (header: string) =>
   header
     .replace(/^\uFEFF/, '')
     .trim()
-    .toLowerCase();
-
-const getColumn = (row: Record<string, string>, ...names: string[]) => {
-  for (const name of names) {
-    const value = row[normalizeHeader(name)];
-    if (value !== undefined) return value.trim();
-  }
-  return undefined;
-};
+    .toLowerCase()
+    .replace(/[\s_-]+/g, '');
 
 const parseNumber = (value: string | undefined, field: string, row: number) => {
   const parsed = Number(value);
@@ -60,7 +53,9 @@ const parseBoolean = (value: string | undefined, row: number) => {
   );
 };
 
-const parseTextRows = (text: string): TSafeRemainderImportItem[] => {
+export const parseSafeRemainderText = (
+  text: string,
+): TSafeRemainderImportItem[] => {
   const rows = parse(text, {
     bom: true,
     skip_empty_lines: true,
@@ -85,17 +80,99 @@ const parseTextRows = (text: string): TSafeRemainderImportItem[] => {
   });
 };
 
-const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
-  const rows = parse(text, {
+export type SafeRemainderCsvPreview = {
+  headers: string[];
+  rows: string[][];
+};
+
+export const SAFE_REMAINDER_CSV_FIELDS = [
+  {
+    key: 'productCode',
+    aliases: ['code'],
+    required: true,
+    dataType: 'text',
+    example: '001',
+  },
+  {
+    key: 'count',
+    aliases: [],
+    required: true,
+    dataType: 'number',
+    example: '10',
+  },
+  {
+    key: 'totalCost',
+    aliases: ['countedCost', 'unitCost', 'trInfo.unitCost'],
+    required: false,
+    dataType: 'number',
+    example: '50000',
+  },
+  {
+    key: 'isSale',
+    aliases: ['trInfo.isSale'],
+    required: true,
+    dataType: 'boolean',
+    example: 'false',
+  },
+  {
+    key: 'unitPrice',
+    aliases: ['trInfo.unitPrice'],
+    required: false,
+    dataType: 'number',
+    example: '6000',
+  },
+] as const;
+
+export const previewSafeRemainderCsv = (
+  text: string,
+): SafeRemainderCsvPreview => {
+  const records = parse(text, {
     bom: true,
-    columns: (headers: string[]) => headers.map(normalizeHeader),
     skip_empty_lines: true,
     trim: true,
-  }) as Record<string, string>[];
+  }) as string[][];
+  return { headers: records[0] ?? [], rows: records.slice(1) };
+};
+
+export const suggestSafeRemainderCsvMapping = (headers: string[]): string[] =>
+  headers.map(
+    (header) =>
+      SAFE_REMAINDER_CSV_FIELDS.find((field) =>
+        [field.key, ...field.aliases].some(
+          (name) => normalizeHeader(name) === normalizeHeader(header),
+        ),
+      )?.key ?? '',
+  );
+
+export const mapSafeRemainderCsv = (
+  preview: SafeRemainderCsvPreview,
+  mapping: string[],
+): TSafeRemainderImportItem[] => {
+  const keys = mapping.filter(Boolean);
+  const missing = SAFE_REMAINDER_CSV_FIELDS.filter(
+    (field) => field.required && !keys.includes(field.key),
+  );
+  if (missing.length || new Set(keys).size !== keys.length) {
+    throw new Error(
+      translateImportError(
+        'import-column-mapping-invalid',
+        'Шаардлагатай талбаруудыг сонгож, давхардсан талбаруудыг засна уу',
+      ),
+    );
+  }
+  const rows = preview.rows.map((values) => {
+    const row: Record<string, string> = {};
+    mapping.forEach((key, index) => {
+      if (SAFE_REMAINDER_CSV_FIELDS.some((field) => field.key === key)) {
+        row[key] = values[index]?.trim() ?? '';
+      }
+    });
+    return row;
+  });
 
   return rows.map((row, index) => {
     const rowNumber = index + 2;
-    const productCode = getColumn(row, 'productCode', 'code');
+    const productCode = row.productCode;
     if (!productCode) {
       throw new Error(
         translateImportError(
@@ -107,16 +184,13 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
     }
 
     const totalCost = parseOptionalNumber(
-      getColumn(row, 'totalCost', 'countedCost', 'unitCost', 'trInfo.unitCost'),
+      row.totalCost,
       'totalCost',
       rowNumber,
     );
-    const isSale = parseBoolean(
-      getColumn(row, 'isSale', 'trInfo.isSale'),
-      rowNumber,
-    );
+    const isSale = parseBoolean(row.isSale, rowNumber);
     const unitPrice = parseOptionalNumber(
-      getColumn(row, 'unitPrice', 'trInfo.unitPrice'),
+      row.unitPrice,
       'unitPrice',
       rowNumber,
     );
@@ -133,7 +207,7 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
 
     return {
       productCode,
-      count: parseNumber(getColumn(row, 'count'), 'count', rowNumber),
+      count: parseNumber(row.count, 'count', rowNumber),
       trInfo: {
         unitCost: totalCost,
         isCostExplicit: totalCost !== undefined,
@@ -142,17 +216,4 @@ const parseCsvRows = (text: string): TSafeRemainderImportItem[] => {
       },
     };
   });
-};
-
-export const parseSafeRemainderImport = (text: string, fileName: string) => {
-  const normalizedFileName = fileName.toLowerCase();
-  if (normalizedFileName.endsWith('.csv')) return parseCsvRows(text);
-  if (normalizedFileName.endsWith('.txt')) return parseTextRows(text);
-
-  throw new Error(
-    translateImportError(
-      'import-unsupported-file',
-      'Зөвхөн TXT эсвэл CSV файл импортлоно',
-    ),
-  );
 };

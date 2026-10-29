@@ -1,5 +1,59 @@
 
 
+## [3.4.6](https://github.com/erxes/erxes/compare/3.4.5...3.4.6) (2026-10-29)
+
+
+### Bug Fixes
+
+* **accounting:** remove duplicate accounting filter trigger and fix sales tag label ([#10016](https://github.com/erxes/erxes/issues/10016)) ([5722cfb](https://github.com/erxes/erxes/commit/5722cfbdba065526c704363c4f0b674161985e62))
+* add refetchfix(deals): Queries and awaitRefetchQueries to handleSave function ([#9992](https://github.com/erxes/erxes/issues/9992)) ([7adb74b](https://github.com/erxes/erxes/commit/7adb74bc9c6c66735334ec29d4cef5b6b77394ad))
+* **frontline:** route call legs to the integration that owns the answering operator  ([dc0f9d9](https://github.com/erxes/erxes/commit/dc0f9d9117fa13d6ae4a51b6b6c737380e469df4))
+* **posclient:** limit product similarity to coffee-shop and restaurant ([54a7e02](https://github.com/erxes/erxes/commit/54a7e02f23afcb8129cf268f69328fdba4385c61))
+* product remainder set refactor ([2774d7b](https://github.com/erxes/erxes/commit/2774d7b02146038b1d3169edc0f80b192687e232))
+
+
+### Features
+
+* **accounting:** move settings records into the app side panel ([#10034](https://github.com/erxes/erxes/issues/10034)) ([5cfa2ea](https://github.com/erxes/erxes/commit/5cfa2ea45c312b23f15fbc0620ffb2b2b4a40e2e))
+* add LDAP integration for user management ([#10047](https://github.com/erxes/erxes/issues/10047)) ([0ff7c49](https://github.com/erxes/erxes/commit/0ff7c49e23d918de2a168ad2349d7ac171141df6))
+* **frontline:** add form field conversion and fix submission columns  ([ed50ac5](https://github.com/erxes/erxes/commit/ed50ac54e65f18d9d772f78097023eeffe6cdc42))
+* **operation:** improve record details and activity timeline ([#10000](https://github.com/erxes/erxes/issues/10000)) ([4e48e57](https://github.com/erxes/erxes/commit/4e48e5702e84c54d7816dde357bde1908948b2b8))
+
+## [3.4.5](https://github.com/erxes/erxes/compare/3.4.4...3.4.5) (2026-10-28)
+
+
+### Bug Fixes
+
+* (core-ui) remove duplicate filter  ([e72b9c8](https://github.com/erxes/erxes/commit/e72b9c876ecd72809c467df9743094acb0f6f21c))
+* **accounting:** census import csv for main import ([a43dfec](https://github.com/erxes/erxes/commit/a43dfecc96a22fe7a9d44255ecacbecdda198ef5))
+* **frontline:** speed up call answer and name call report integrations  ([5c45442](https://github.com/erxes/erxes/commit/5c454420e9f654bc9c3541f4bf3916fd7855f6dc))
+
+
+### Features
+
+* **payment:** add Pocket form with deeplink button to open Pocket app ([#10015](https://github.com/erxes/erxes/issues/10015)) ([f353685](https://github.com/erxes/erxes/commit/f3536856cd82d4e7257e1af717b5a7daa7078bb1))
+
+## [3.4.4](https://github.com/erxes/erxes/compare/3.4.3...3.4.4) (2026-10-28)
+
+
+### Features
+
+* change relation ([c80eeb9](https://github.com/erxes/erxes/commit/c80eeb9c421b93f2f533a5a9253476637e41644a))
+
+# Changelog
+
+## [3.4.3](https://github.com/erxes/erxes/compare/3.4.2...3.4.3) (2026-10-27)
+
+
+### Bug Fixes
+
+* **accounting:** from sales data save fix date and some ([701c424](https://github.com/erxes/erxes/commit/701c424c08bc5b4e7539ad64b8bf95acc8f4bf24))
+* **content:** clear removed CMS documents and attachments on save ([#10008](https://github.com/erxes/erxes/issues/10008)) ([d4af96b](https://github.com/erxes/erxes/commit/d4af96bfd52e7afadf10a294ed48ac7f0683988e))
+* **facebook:** make userId optional in repair method and related interfaces ([022899f](https://github.com/erxes/erxes/commit/022899f3bed87881c7198902889c80626d50054f))
+* **frontline:** restore Instagram Messenger and Post delivery  ([8a8ceeb](https://github.com/erxes/erxes/commit/8a8ceeb7241a70fe01f845b3425a6e169d13726c))
+* posclient front theme similiraty ([d3c9341](https://github.com/erxes/erxes/commit/d3c934189d148b933adc2acfe3a6750baf38a1a1))
+* **posclient:** show searched products that are not similarity stars ([a1d94d5](https://github.com/erxes/erxes/commit/a1d94d5ee18e19055b5a137f3e615b2169bd1cd8))
+
 ## [3.4.2](https://github.com/erxes/erxes/compare/3.4.1...3.4.2) (2026-10-27)
 
 
@@ -77,7 +131,7 @@
 * Revert "feat(core-ui): group notifications by author and add status tabs (#9912)" (#9915) ([e6fac5a](https://github.com/erxes/erxes/commit/e6fac5a4602cae22ad18c3feedf5af04cb9fad62)), closes [#9912](https://github.com/erxes/erxes/issues/9912) [#9915](https://github.com/erxes/erxes/issues/9915)
 * Revert "feat(core): add provider-first workspace connections (#9905)" (#9914) ([9ebe4f8](https://github.com/erxes/erxes/commit/9ebe4f84a0b61bcedfd7413d109ca797dfe3ede2)), closes [#9905](https://github.com/erxes/erxes/issues/9905) [#9914](https://github.com/erxes/erxes/issues/9914)
 
-# Changelog
+
 
 ## [3.3.7](https://github.com/erxes/erxes/compare/3.3.4...3.3.7) (2026-10-22)
 

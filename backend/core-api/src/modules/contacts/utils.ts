@@ -1,6 +1,7 @@
 import { buildPropertyFilter } from 'erxes-api-shared/core-modules';
 import {
   buildSearchTokenFilter,
+  escapeRegExp,
   ExpectedError,
   ISearchTokenConfig,
   sendTRPCMessage,
@@ -48,10 +49,11 @@ export const generateFilter = async (
     if (searchConfig?.enabled) {
       Object.assign(filter, buildSearchTokenFilter(searchValue, searchConfig));
     } else {
-      const regex = { $regex: searchValue, $options: 'i' };
+      const regex = { $regex: escapeRegExp(searchValue), $options: 'i' };
 
       filter['$or'] = [
         { searchText: regex },
+        { primaryName: regex },
         { primaryEmail: regex },
         { emails: regex },
         { primaryPhone: regex },

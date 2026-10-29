@@ -5,11 +5,12 @@ import { debugError } from '@/integrations/instagram/debuggers';
 import { notifyIntegrationBroken } from '@/integrations/healthNotification';
 import { integrationSchema } from '../definitions/integrations';
 
-export interface IInstagramIntegrationModel extends Model<IInstagramIntegrationDocument> {
+export interface IInstagramIntegrationModel
+  extends Model<IInstagramIntegrationDocument> {
   getIntegration(selector): Promise<IInstagramIntegrationDocument>;
   markUnhealthy(
     selector: FilterQuery<IInstagramIntegrationDocument>,
-    healthStatus: 'page-token' | 'account-token',
+    healthStatus: 'page-token' | 'account-token' | 'error',
     error: string,
   ): Promise<void>;
 }
@@ -31,7 +32,7 @@ export const loadInstagramIntegrationClass = (
 
     public static async markUnhealthy(
       selector: FilterQuery<IInstagramIntegrationDocument>,
-      healthStatus: 'page-token' | 'account-token',
+      healthStatus: 'page-token' | 'account-token' | 'error',
       error: string,
     ) {
       // Notify only on the healthy → broken transition; repeat failures stay quiet

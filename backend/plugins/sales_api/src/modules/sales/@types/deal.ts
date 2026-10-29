@@ -83,7 +83,6 @@ export interface IDeal {
   order?: number;
   searchText?: string;
   priority?: string;
-  sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {
     status: string;
@@ -108,7 +107,6 @@ export interface IDeal {
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
-  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {
