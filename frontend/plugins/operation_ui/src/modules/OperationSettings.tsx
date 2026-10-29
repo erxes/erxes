@@ -10,8 +10,12 @@ import { TeamsSettingsPage } from '~/pages/TeamSettingsIndexPage';
 import { TeamStatusPage } from '~/pages/TeamStatusPage';
 import { TeamTemplatesPage } from '~/pages/TeamTemplatesPage';
 import { TeamGithubPage } from '~/pages/TeamGithubPage';
+import { TeamDiscordPage } from '~/pages/TeamDiscordPage';
 import { TemplateFormPage } from '~/pages/TemplateFormPage';
 import { GithubIntegrationPage } from '~/pages/GithubIntegrationPage';
+import { DiscordIntegrationPage } from '~/pages/DiscordIntegrationPage';
+import { DiscordAccountPage } from '~/pages/DiscordAccountPage';
+import { IntegrationsPage } from '~/pages/IntegrationsPage';
 import { OperationPaths } from '~/types/paths';
 import { CreateTeam } from '@/team/components/team-list/CreateTeam';
 
@@ -61,6 +65,10 @@ const OperationSettings = () => {
             element={<TeamGithubPage />}
           />
           <Route
+            path={OperationPaths.TeamDiscord}
+            element={<TeamDiscordPage />}
+          />
+          <Route
             path="templates/:id/template-new"
             element={<TemplateFormPage />}
           />
@@ -70,8 +78,20 @@ const OperationSettings = () => {
           />
         </Route>
         <Route
+          path={OperationPaths.Integrations}
+          element={<IntegrationsPage />}
+        />
+        <Route
           path={OperationPaths.GithubIntegration}
           element={<GithubIntegrationPage />}
+        />
+        <Route
+          path={OperationPaths.DiscordIntegration}
+          element={<DiscordIntegrationPage />}
+        />
+        <Route
+          path={OperationPaths.DiscordAccount}
+          element={<DiscordAccountPage />}
         />
       </Routes>
     </Suspense>

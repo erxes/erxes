@@ -13,6 +13,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { Can, FavoriteToggleIconButton, PageHeader } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useTeamFavoriteBreadcrumb } from '@/team/hooks/useTeamFavoriteBreadcrumb';
+import { DiscordLinkBanner } from '@/integrations/discord/components/DiscordLinkBanner';
 
 export const TasksPage = () => {
   const { teamId } = useParams();
@@ -60,6 +61,7 @@ export const TasksPage = () => {
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">
+          {teamId && <DiscordLinkBanner teamId={teamId} />}
           <PageSubHeader>
             <TasksFilter />
             <TasksImportButton />
