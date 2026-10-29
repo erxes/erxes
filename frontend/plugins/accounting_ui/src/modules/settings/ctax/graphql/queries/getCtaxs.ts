@@ -70,6 +70,8 @@ query accountingCtaxRowDetail($id: String!) {
     name
     number
     percent
+    kind
+    status
   }
 }
 `);

@@ -502,7 +502,9 @@ const SidePanelDraft = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { pluginName } = useRecordPanelPlugin(record.contentType);
+  const { pluginName, hasDraftTitle } = useRecordPanelPlugin(
+    record.contentType,
+  );
 
   const { hasActionPermission } = usePermissionCheck();
   const renderDraft = () => {
@@ -535,9 +537,21 @@ const SidePanelDraft = ({
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', {
-          type: getContentTypeLabel(record.contentType).toLowerCase(),
-        })}
+        title={
+          pluginName && hasDraftTitle ? (
+            <PluginRecordPanel
+              pluginName={pluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="title"
+              quiet
+            />
+          ) : (
+            t('new-record', 'New {{type}}', {
+              type: getContentTypeLabel(record.contentType).toLowerCase(),
+            })
+          )
+        }
         onBack={onBack}
         onClose={onClose}
       />

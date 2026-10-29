@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -184,6 +184,10 @@
   an empty sibling does not inherit its parent's retention. This runs after all
   groups are imported, including an empty import, and preserves other POS tokens
   and the category documents.
+
+- `poscProducts` / `poscProductsTotalCount` with `isSimilarity` (sent only by
+  the coffee-shop and restaurant POS themes) list each bulk-similarity group
+  as its star product only, including while searching.
 
 - An order converted to a deal sends its customer / company on the deal (`customerId` / `companyId` in the `sales` `deal.create` input); no core relation is made for it.
 
