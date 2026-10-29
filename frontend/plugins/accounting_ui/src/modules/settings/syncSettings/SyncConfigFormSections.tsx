@@ -20,6 +20,7 @@ import {
   SelectDepartments,
   SelectPipeline,
   SelectStage,
+  PanelFormRow,
 } from 'ui-modules';
 import { useEffect, useMemo, useRef } from 'react';
 
@@ -33,7 +34,7 @@ import { SelectAccount } from '@/settings/account/components/SelectAccount';
 import { SelectCtax } from '@/settings/ctax/components/SelectCtaxRow';
 import { SelectVat } from '@/settings/vat/components/SelectVatRow';
 import { SyncResponseFieldSelect } from './SyncResponseFieldSelect';
-import { SyncPanelFormRow, SyncSettingSection } from './SyncSettingSection';
+import { SyncSettingSection } from './SyncSettingSection';
 import { TR_STATUS_OPTIONS } from '@/transactions/types/constants';
 import { useTranslation } from 'react-i18next';
 
@@ -139,7 +140,7 @@ export const SyncConfigPaymentAccountField = <
       control={control}
       name={name}
       render={({ field }) => (
-        <SyncPanelFormRow label={label}>
+        <PanelFormRow label={label}>
           <SelectAccount.FormItem
             value={field.value}
             onValueChange={field.onChange}
@@ -149,7 +150,7 @@ export const SyncConfigPaymentAccountField = <
               ...(currency ? { currency } : {}),
             }}
           />
-        </SyncPanelFormRow>
+        </PanelFormRow>
       )}
     />
   );
@@ -163,7 +164,7 @@ const ReturnTypeFieldContent = ({
   const { t } = useTranslation('accounting');
 
   return (
-    <SyncPanelFormRow label={t('return-type')}>
+    <PanelFormRow label={t('return-type')}>
       <SettingsPanelSelect
         value={field.value}
         placeholder={t('return-type')}
@@ -175,7 +176,7 @@ const ReturnTypeFieldContent = ({
         onValueChange={field.onChange}
         className={PANEL_INPUT_CLASS_NAME}
       />
-    </SyncPanelFormRow>
+    </PanelFormRow>
   );
 };
 
@@ -203,7 +204,7 @@ const DateRuleFieldContent = ({
   const { t } = useTranslation('accounting');
 
   return (
-    <SyncPanelFormRow label={t('date-rule')}>
+    <PanelFormRow label={t('date-rule')}>
       <SettingsPanelSelect
         value={field.value}
         placeholder={t('date-rule')}
@@ -214,7 +215,7 @@ const DateRuleFieldContent = ({
         onValueChange={field.onChange}
         className={PANEL_INPUT_CLASS_NAME}
       />
-    </SyncPanelFormRow>
+    </PanelFormRow>
   );
 };
 
@@ -225,7 +226,7 @@ const TrStatusFieldContent = ({
 }) => {
   const { t } = useTranslation('accounting');
   return (
-    <SyncPanelFormRow label={t('tr-status-label')}>
+    <PanelFormRow label={t('tr-status-label')}>
       <SettingsPanelSelect
         value={field.value}
         placeholder={t('tr-status-label')}
@@ -236,7 +237,7 @@ const TrStatusFieldContent = ({
         onValueChange={field.onChange}
         className={PANEL_INPUT_CLASS_NAME}
       />
-    </SyncPanelFormRow>
+    </PanelFormRow>
   );
 };
 
@@ -255,10 +256,7 @@ export const SyncConfigGeneralFields = <
         control={control}
         name={'title' as FieldPath<TFieldValues>}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
-            label={t('title')}
-            error={fieldState.error?.message}
-          >
+          <PanelFormRow label={t('title')} error={fieldState.error?.message}>
             <Input
               {...field}
               value={field.value ?? ''}
@@ -266,7 +264,7 @@ export const SyncConfigGeneralFields = <
               placeholder={t('title')}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
@@ -300,27 +298,21 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
         control={form.control}
         name={'boardId' as FieldPath<T>}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
-            label={t('board')}
-            error={fieldState.error?.message}
-          >
+          <PanelFormRow label={t('board')} error={fieldState.error?.message}>
             <SelectBoard.FormItem
               mode="single"
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={'pipelineId' as FieldPath<T>}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
-            label={t('pipeline')}
-            error={fieldState.error?.message}
-          >
+          <PanelFormRow label={t('pipeline')} error={fieldState.error?.message}>
             <SelectPipeline.FormItem
               mode="single"
               value={field.value}
@@ -328,17 +320,14 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={'stageId' as FieldPath<T>}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
-            label={t('stage')}
-            error={fieldState.error?.message}
-          >
+          <PanelFormRow label={t('stage')} error={fieldState.error?.message}>
             <SelectStage.FormItem
               mode="single"
               value={field.value}
@@ -346,7 +335,7 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <SyncResponseFieldSelect form={form} />
@@ -369,70 +358,70 @@ export const SyncConfigAccountsSection = <
         control={control}
         name={'saleAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <SyncPanelFormRow label={t('sale-account')}>
+          <PanelFormRow label={t('sale-account')}>
             <SelectAccount.FormItem
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
               defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'saleOutAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <SyncPanelFormRow label={t('sale-out-account')}>
+          <PanelFormRow label={t('sale-out-account')}>
             <SelectAccount.FormItem
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
               defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'saleCostAccountId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <SyncPanelFormRow label={t('sale-cost-account')}>
+          <PanelFormRow label={t('sale-cost-account')}>
             <SelectAccount.FormItem
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
               defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'branchId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <SyncPanelFormRow label={t('branch')}>
+          <PanelFormRow label={t('branch')}>
             <SelectBranches.FormItem
               mode="single"
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'departmentId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <SyncPanelFormRow label={t('department')}>
+          <PanelFormRow label={t('department')}>
             <SelectDepartments.FormItem
               mode="single"
               value={field.value}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
     </SyncSettingSection>
@@ -533,12 +522,12 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
         control={control}
         name={hasName}
         render={({ field }) => (
-          <SyncPanelFormRow label={t(hasLabel)}>
+          <PanelFormRow label={t(hasLabel)}>
             <SettingsPanelSwitch
               checked={field.value ?? false}
               onCheckedChange={field.onChange}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       {hasValue ? (
@@ -548,13 +537,13 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
           render={({ field }) => {
             const SelectComponent = selectComponent;
             return (
-              <SyncPanelFormRow label={t(rowLabel)}>
+              <PanelFormRow label={t(rowLabel)}>
                 <SelectComponent
                   value={field.value || ''}
                   onValueChange={field.onChange}
                   className={PANEL_INPUT_CLASS_NAME}
                 />
-              </SyncPanelFormRow>
+              </PanelFormRow>
             );
           }}
         />
