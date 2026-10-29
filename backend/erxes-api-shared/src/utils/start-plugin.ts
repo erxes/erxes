@@ -451,7 +451,7 @@ export async function startPlugin(
     }
 
     if (importExport) {
-      startImportExportWorker({
+      await startImportExportWorker({
         pluginName: name,
         config: importExport,
         app,

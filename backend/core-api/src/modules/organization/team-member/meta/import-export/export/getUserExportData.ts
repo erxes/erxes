@@ -10,16 +10,18 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export async function getUserExportData(
   data: GetExportData & {
-    isActive?: boolean;
-    searchValue?: string;
-    brandIds?: string[];
-    departmentIds?: string[];
-    branchIds?: string[];
-    status?: string;
+    filters?: {
+      isActive?: boolean;
+      searchValue?: string;
+      brandIds?: string[];
+      departmentIds?: string[];
+      branchIds?: string[];
+      status?: string;
+    };
   },
   { models }: IImportExportContext<IModels>,
 ): Promise<Record<string, any>[]> {
-  const { cursor, limit, ids, selectedFields } = data;
+  const { cursor, limit, ids, selectedFields, filters = {} } = data;
 
   const effectiveLimit = normalizeExportLimit(limit, 100);
 
@@ -27,19 +29,19 @@ export async function getUserExportData(
 
   const query: any = { role: { $ne: 'system' } };
 
-  if (typeof data.isActive === 'boolean') query.isActive = data.isActive;
-  if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
-  if (data.departmentIds?.length)
-    query.departmentIds = { $in: data.departmentIds };
-  if (data.branchIds?.length) query.branchIds = { $in: data.branchIds };
-  if (data.status === 'Verified') {
+  if (typeof filters.isActive === 'boolean') query.isActive = filters.isActive;
+  if (filters.brandIds?.length) query.brandIds = { $in: filters.brandIds };
+  if (filters.departmentIds?.length)
+    query.departmentIds = { $in: filters.departmentIds };
+  if (filters.branchIds?.length) query.branchIds = { $in: filters.branchIds };
+  if (filters.status === 'Verified') {
     query.registrationToken = { $eq: null };
-  } else if (data.status === 'Not verified') {
+  } else if (filters.status === 'Not verified') {
     query.registrationToken = { $ne: null };
   }
 
-  if (data.searchValue?.trim()) {
-    const sv = escapeRegExp(data.searchValue.trim());
+  if (filters.searchValue?.trim()) {
+    const sv = escapeRegExp(filters.searchValue.trim());
     const re = new RegExp(sv, 'i');
     query.$or = [
       { email: re },

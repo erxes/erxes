@@ -33,6 +33,7 @@ export type CoreImportClient = {
     params: {
       importId: string;
       headerRow: string[];
+      columnKeys?: string[];
       errorRows: any[];
       keyToHeaderMap: Record<string, string>;
     },
