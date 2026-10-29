@@ -148,6 +148,16 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     return models.Users.resetMemberPassword(args);
   },
 
+  async usersRevokeSessions(
+    _parent: undefined,
+    { _id, sessionId }: { _id: string; sessionId?: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersResetPassword');
+
+    return models.Users.revokeSessions(_id, sessionId);
+  },
+
   /*
    * Change user password
    */

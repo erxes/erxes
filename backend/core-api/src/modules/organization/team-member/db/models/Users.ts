@@ -1,5 +1,8 @@
 import { LoginError } from '@/auth/loginError';
-import { revokeUserSessions } from '@/auth/session';
+import {
+  revokeUserSession,
+  revokeUserSessions,
+} from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -137,6 +140,7 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
   logout(_user: IUserDocument, legacyToken?: string): Promise<string>;
+  revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
@@ -931,6 +935,22 @@ export const loadUserClass = (
       createActivityLog(loginActivityLog, user._id);
 
       return { user, method };
+    }
+
+    /**
+     * Signs a member out of one session, or of every device when no id is given.
+     * The account stays active, so they can sign in again.
+     */
+    public static async revokeSessions(_id: string, sessionId?: string) {
+      const user = await models.Users.getUser(_id);
+
+      if (sessionId) {
+        return revokeUserSession(subdomain, user._id, sessionId);
+      }
+
+      await revokeUserSessions(subdomain, user._id);
+
+      return true;
     }
 
     /**

@@ -182,6 +182,115 @@ export const revokeUserSessions = async (
   return Number(results?.[0]?.[1] ?? 0);
 };
 
+export interface ISessionSummary {
+  // The sid hash: names the session without being usable as a cookie
+  _id: string;
+  method: SessionMethod;
+  createdAt: Date;
+  lastSeenAt: Date;
+  expiresAt: Date;
+  userAgent?: string;
+  current: boolean;
+}
+
+/** A user's live sessions, most recently used first. */
+export const listUserSessions = async (
+  subdomain: string,
+  userId: string,
+  currentSid?: string,
+): Promise<ISessionSummary[]> => {
+  const hashes = await redis.smembers(userSessionsKey(subdomain, userId));
+
+  if (!hashes.length) {
+    return [];
+  }
+
+  const raws = await redis.mget(
+    ...hashes.map((hash) => sessionKey(subdomain, hash)),
+  );
+  const currentHash = currentSid ? hashSid(currentSid) : '';
+
+  return hashes
+    .flatMap((hash, index) => {
+      const raw = raws[index];
+
+      if (!raw) {
+        return [];
+      }
+
+      const session = JSON.parse(raw) as ISession;
+
+      return [
+        {
+          _id: hash,
+          method: session.method,
+          createdAt: new Date(session.createdAt),
+          lastSeenAt: new Date(session.lastSeenAt),
+          expiresAt: new Date(session.expiresAt),
+          userAgent: session.userAgent,
+          current: hash === currentHash,
+        },
+      ];
+    })
+    .sort((a, b) => b.lastSeenAt.getTime() - a.lastSeenAt.getTime());
+};
+
+// lastSeenAt moves at most every 5 minutes, so "now" needs a wider window
+const ACTIVE_WINDOW_MS = 10 * 60 * 1000;
+
+export type SessionState = 'active' | 'idle' | 'none';
+
+/** Presence for avatars: used in the last 10 minutes, signed in but idle, or signed out. */
+export const getSessionState = async (
+  subdomain: string,
+  userId: string,
+): Promise<SessionState> => {
+  const hashes = await redis.smembers(userSessionsKey(subdomain, userId));
+
+  if (!hashes.length) {
+    return 'none';
+  }
+
+  const raws = await redis.mget(
+    ...hashes.map((hash) => sessionKey(subdomain, hash)),
+  );
+  const lastSeen = raws
+    .filter((raw): raw is string => Boolean(raw))
+    .map((raw) => (JSON.parse(raw) as ISession).lastSeenAt);
+
+  if (!lastSeen.length) {
+    return 'none';
+  }
+
+  return Date.now() - Math.max(...lastSeen) < ACTIVE_WINDOW_MS
+    ? 'active'
+    : 'idle';
+};
+
+/** Ends one session by its id, only when it belongs to this user. */
+export const revokeUserSession = async (
+  subdomain: string,
+  userId: string,
+  sessionId: string,
+) => {
+  const owned = await redis.sismember(
+    userSessionsKey(subdomain, userId),
+    sessionId,
+  );
+
+  if (!owned) {
+    return false;
+  }
+
+  await redis
+    .multi()
+    .del(sessionKey(subdomain, sessionId))
+    .srem(userSessionsKey(subdomain, userId), sessionId)
+    .exec();
+
+  return true;
+};
+
 export const readSessionCookie = (cookies?: Record<string, string>) =>
   cookies?.[SECURE_SESSION_COOKIE] || cookies?.[SESSION_COOKIE] || '';
 

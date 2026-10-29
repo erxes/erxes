@@ -77,6 +77,9 @@ import {
   DEFAULT_SESSION_POLICY,
   endSession,
   getSessionPolicy,
+  getSessionState,
+  listUserSessions,
+  revokeUserSession,
   revokeUserSessions,
   SECURE_SESSION_COOKIE,
   SESSION_COOKIE,
@@ -214,6 +217,88 @@ describe('revocation', () => {
     expect(store.has(`session:acme:${sha(value)}`)).toBe(false);
     expect(sets.get('user_sessions:acme:u1')?.size).toBe(0);
     expect(cleared).toEqual([SECURE_SESSION_COOKIE, SESSION_COOKIE]);
+  });
+});
+
+describe('admin session controls', () => {
+  it('lists live sessions without exposing the cookie, newest use first', async () => {
+    const older = await signIn('u1');
+    const newer = await signIn('u1');
+    const key = `session:acme:${sha(older.value)}`;
+    const stale = JSON.parse(store.get(key) || '');
+    store.set(
+      key,
+      JSON.stringify({ ...stale, lastSeenAt: stale.lastSeenAt - 60000 }),
+    );
+
+    const sessions = await listUserSessions('acme', 'u1', newer.value);
+
+    expect(sessions.map((session) => session._id)).toEqual([
+      sha(newer.value),
+      sha(older.value),
+    ]);
+    expect(sessions[0]).toMatchObject({ current: true, method: 'password' });
+    expect(sessions[1].current).toBe(false);
+    expect(JSON.stringify(sessions)).not.toContain(newer.value);
+  });
+
+  it('ends one session by id only when it belongs to that user', async () => {
+    const own = await signIn('u1');
+    const other = await signIn('u2');
+
+    await expect(
+      revokeUserSession('acme', 'u1', sha(other.value)),
+    ).resolves.toBe(false);
+    expect(store.has(`session:acme:${sha(other.value)}`)).toBe(true);
+
+    await expect(revokeUserSession('acme', 'u1', sha(own.value))).resolves.toBe(
+      true,
+    );
+    expect(store.has(`session:acme:${sha(own.value)}`)).toBe(false);
+  });
+
+  it('counts only sessions that were still live', async () => {
+    const live = await signIn('u1');
+    const gone = await signIn('u1');
+    store.delete(`session:acme:${sha(gone.value)}`);
+
+    await expect(revokeUserSessions('acme', 'u1')).resolves.toBe(1);
+    expect(store.has(`session:acme:${sha(live.value)}`)).toBe(false);
+  });
+});
+
+describe('getSessionState', () => {
+  const ageSession = (sid: string, minutes: number) => {
+    const key = `session:acme:${sha(sid)}`;
+    const session = JSON.parse(store.get(key) || '');
+    store.set(
+      key,
+      JSON.stringify({ ...session, lastSeenAt: Date.now() - minutes * 60000 }),
+    );
+  };
+
+  it('is none with no live session', async () => {
+    const { value } = await signIn('u1');
+    store.delete(`session:acme:${sha(value)}`);
+
+    await expect(getSessionState('acme', 'u1')).resolves.toBe('none');
+    await expect(getSessionState('acme', 'nobody')).resolves.toBe('none');
+  });
+
+  it('is active when any session was used in the last 10 minutes', async () => {
+    const old = await signIn('u1');
+    const recent = await signIn('u1');
+    ageSession(old.value, 60);
+    ageSession(recent.value, 9);
+
+    await expect(getSessionState('acme', 'u1')).resolves.toBe('active');
+  });
+
+  it('is idle when signed in but unused for 10 minutes', async () => {
+    const { value } = await signIn('u1');
+    ageSession(value, 11);
+
+    await expect(getSessionState('acme', 'u1')).resolves.toBe('idle');
   });
 });
 
