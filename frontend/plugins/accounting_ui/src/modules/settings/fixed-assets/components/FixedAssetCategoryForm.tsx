@@ -4,6 +4,7 @@ import { Form, Input } from 'erxes-ui';
 import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import {
   SettingsPanelDescriptionInput,
+  SettingsPanelNameCodeInputs,
   SettingsPanelSelect,
 } from '@/settings/components/panel/SettingsPanelFields';
 import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
@@ -138,44 +139,7 @@ export const FixedAssetCategoryForm = ({
       saving={saving}
       saveLabel={t('save-category')}
     >
-      <Form.Field
-        control={form.control}
-        name="name"
-        render={({ field, fieldState }) => (
-          <PanelFormRow
-            label={t('name')}
-            required
-            error={fieldState.error?.message}
-          >
-            <Input
-              {...field}
-              autoFocus
-              autoComplete="off"
-              placeholder={t('name')}
-              className={PANEL_INPUT_CLASS_NAME}
-            />
-          </PanelFormRow>
-        )}
-      />
-
-      <Form.Field
-        control={form.control}
-        name="code"
-        render={({ field, fieldState }) => (
-          <PanelFormRow
-            label={t('code')}
-            required
-            error={fieldState.error?.message}
-          >
-            <Input
-              {...field}
-              autoComplete="off"
-              placeholder={t('code')}
-              className={PANEL_INPUT_CLASS_NAME}
-            />
-          </PanelFormRow>
-        )}
-      />
+      <SettingsPanelNameCodeInputs />
 
       <Form.Field
         control={form.control}

@@ -15,6 +15,7 @@ import {
   SETTINGS_PANEL_CELL_CLASS_NAME,
 } from '@/settings/constants/settingsPanel';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { useSettingsPanelPendingChanges } from '@/settings/hooks/useSettingsPanelPendingChanges';
 import { FixedAssetAccountConfigForm } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigForm';
 import {
   FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES,
@@ -91,11 +92,16 @@ const FixedAssetAccountConfigPanelDetail = ({
   const { configs, loading } = useFixedAssetAccountConfigs();
   const { edit } = useFixedAssetAccountConfigMutations();
   const config = configs.find((item) => item._id === contentId);
+  const mergePendingChanges =
+    useSettingsPanelPendingChanges<IFixedAssetAccountConfig['value']>(
+      contentId,
+    );
 
   const save = (
     current: IFixedAssetAccountConfig,
-    fields: Partial<IFixedAssetAccountConfig['value']>,
+    changes: Partial<IFixedAssetAccountConfig['value']>,
   ) => {
+    const fields = mergePendingChanges(current.value, changes);
     const accountId = fields.accountId ?? current.accountId;
 
     edit({

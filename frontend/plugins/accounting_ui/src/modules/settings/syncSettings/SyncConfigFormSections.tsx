@@ -156,29 +156,25 @@ export const SyncConfigPaymentAccountField = <
   );
 };
 
-const ReturnTypeFieldContent = ({
+const SelectFieldContent = ({
+  label,
+  options,
   field,
 }: {
+  label: string;
+  options: { value: string; label: string }[];
   field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-
-  return (
-    <PanelFormRow label={t('return-type')}>
-      <SettingsPanelSelect
-        value={field.value}
-        placeholder={t('return-type')}
-        options={[
-          { value: 'fullTr', label: t('full-tr') },
-          { value: 'onlySale', label: t('only-sale') },
-          { value: 'delete', label: t('delete') },
-        ]}
-        onValueChange={field.onChange}
-        className={PANEL_INPUT_CLASS_NAME}
-      />
-    </PanelFormRow>
-  );
-};
+}) => (
+  <PanelFormRow label={label}>
+    <SettingsPanelSelect
+      value={field.value}
+      placeholder={label}
+      options={options}
+      onValueChange={field.onChange}
+      className={PANEL_INPUT_CLASS_NAME}
+    />
+  </PanelFormRow>
+);
 
 export const SyncConfigReturnTypeField = <
   TFieldValues extends FieldValues & ISyncReturnTypeFields,
@@ -187,59 +183,32 @@ export const SyncConfigReturnTypeField = <
 }: {
   control: Control<TFieldValues>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Form.Field
       control={control}
       name={'returnType' as FieldPath<TFieldValues>}
-      render={({ field }) => <ReturnTypeFieldContent field={field} />}
+      render={({ field }) => (
+        <SelectFieldContent
+          label={t('return-type')}
+          options={[
+            { value: 'fullTr', label: t('full-tr') },
+            { value: 'onlySale', label: t('only-sale') },
+            { value: 'delete', label: t('delete') },
+          ]}
+          field={field}
+        />
+      )}
     />
   );
 };
 
-const DateRuleFieldContent = ({
-  field,
-}: {
-  field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-
-  return (
-    <PanelFormRow label={t('date-rule')}>
-      <SettingsPanelSelect
-        value={field.value}
-        placeholder={t('date-rule')}
-        options={[
-          { value: 'alwaysNow', label: t('always-now') },
-          { value: 'syncedDateOrNow', label: t('synced-date-or-now') },
-        ]}
-        onValueChange={field.onChange}
-        className={PANEL_INPUT_CLASS_NAME}
-      />
-    </PanelFormRow>
-  );
-};
-
-const TrStatusFieldContent = ({
-  field,
-}: {
-  field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-  return (
-    <PanelFormRow label={t('tr-status-label')}>
-      <SettingsPanelSelect
-        value={field.value}
-        placeholder={t('tr-status-label')}
-        options={TR_STATUS_OPTIONS.map((s) => ({
-          value: s.value,
-          label: t(s.label || '', { nsSeparator: false }),
-        }))}
-        onValueChange={field.onChange}
-        className={PANEL_INPUT_CLASS_NAME}
-      />
-    </PanelFormRow>
-  );
-};
+const SYNC_SALE_ACCOUNT_FIELDS = [
+  ['saleAccountId', 'sale-account', JournalEnum.INV_FOLLOW],
+  ['saleOutAccountId', 'sale-out-account', JournalEnum.INVENTORY],
+  ['saleCostAccountId', 'sale-cost-account', JournalEnum.INV_FOLLOW],
+] as const;
 
 export const SyncConfigGeneralFields = <
   TFieldValues extends FieldValues & ISyncGeneralFields,
@@ -270,12 +239,30 @@ export const SyncConfigGeneralFields = <
       <Form.Field
         control={control}
         name={'dateRule' as FieldPath<TFieldValues>}
-        render={({ field }) => <DateRuleFieldContent field={field} />}
+        render={({ field }) => (
+          <SelectFieldContent
+            label={t('date-rule')}
+            options={[
+              { value: 'alwaysNow', label: t('always-now') },
+              { value: 'syncedDateOrNow', label: t('synced-date-or-now') },
+            ]}
+            field={field}
+          />
+        )}
       />
       <Form.Field
         control={control}
         name={'trStatus' as FieldPath<TFieldValues>}
-        render={({ field }) => <TrStatusFieldContent field={field} />}
+        render={({ field }) => (
+          <SelectFieldContent
+            label={t('tr-status-label')}
+            options={TR_STATUS_OPTIONS.map((s) => ({
+              value: s.value,
+              label: t(s.label || '', { nsSeparator: false }),
+            }))}
+            field={field}
+          />
+        )}
       />
     </>
   );
@@ -354,48 +341,23 @@ export const SyncConfigAccountsSection = <
 
   return (
     <SyncSettingSection title={t('accounts')}>
-      <Form.Field
-        control={control}
-        name={'saleAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <PanelFormRow label={t('sale-account')}>
-            <SelectAccount.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-              className={PANEL_INPUT_CLASS_NAME}
-              defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-            />
-          </PanelFormRow>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name={'saleOutAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <PanelFormRow label={t('sale-out-account')}>
-            <SelectAccount.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-              className={PANEL_INPUT_CLASS_NAME}
-              defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-            />
-          </PanelFormRow>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name={'saleCostAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <PanelFormRow label={t('sale-cost-account')}>
-            <SelectAccount.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-              className={PANEL_INPUT_CLASS_NAME}
-              defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-            />
-          </PanelFormRow>
-        )}
-      />
+      {SYNC_SALE_ACCOUNT_FIELDS.map(([name, label, journal]) => (
+        <Form.Field
+          key={name}
+          control={control}
+          name={name as FieldPath<TFieldValues>}
+          render={({ field }) => (
+            <PanelFormRow label={t(label)}>
+              <SelectAccount.FormItem
+                value={field.value}
+                onValueChange={field.onChange}
+                className={PANEL_INPUT_CLASS_NAME}
+                defaultFilter={{ journals: [journal] }}
+              />
+            </PanelFormRow>
+          )}
+        />
+      ))}
       <Form.Field
         control={control}
         name={'branchId' as FieldPath<TFieldValues>}

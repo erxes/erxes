@@ -5,9 +5,9 @@ import { PanelField } from 'ui-modules';
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
 import {
   SettingsPanelDescriptionField,
+  SettingsPanelNameCodeFields,
   SettingsPanelNumberField,
   SettingsPanelSelect,
-  SettingsPanelTextField,
 } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
@@ -19,6 +19,7 @@ import {
   SETTINGS_PANEL_CELL_CLASS_NAME,
 } from '@/settings/constants/settingsPanel';
 import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { useSettingsPanelPendingChanges } from '@/settings/hooks/useSettingsPanelPendingChanges';
 import { FixedAssetCategoryForm } from '@/settings/fixed-assets/components/FixedAssetCategoryForm';
 import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
 import { FIXED_ASSET_CATEGORY_DEPRECIATION_FIELDS } from '@/settings/fixed-assets/constants/categoryDepreciationFields';
@@ -164,10 +165,12 @@ const FixedAssetCategoryPanelDetail = ({
   const { fixedAssetCategoryDetail: category, loading } =
     useFixedAssetCategoryDetail(contentId);
   const { editFixedAssetCategory } = useFixedAssetCategoryEdit();
+  const mergePendingChanges =
+    useSettingsPanelPendingChanges<TFixedAssetCategoryPanelChange>(contentId);
 
   const save = (
     current: IFixedAssetCategory,
-    fields: TFixedAssetCategoryPanelChange,
+    changes: TFixedAssetCategoryPanelChange,
   ) =>
     editFixedAssetCategory({
       variables: {
@@ -184,7 +187,7 @@ const FixedAssetCategoryPanelDetail = ({
         defaultTaxAnnualDepreciationRate:
           current.defaultTaxAnnualDepreciationRate,
         defaultTaxSalvageValue: current.defaultTaxSalvageValue,
-        ...fields,
+        ...mergePendingChanges(current, changes),
       },
     });
 
@@ -192,22 +195,12 @@ const FixedAssetCategoryPanelDetail = ({
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!category}>
       {category && (
         <>
-          <PanelField label={t('name')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.name`}
-              value={category.name || ''}
-              placeholder={t('name')}
-              onSave={(name) => name.trim() && save(category, { name })}
-            />
-          </PanelField>
-          <PanelField label={t('code')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.code`}
-              value={category.code || ''}
-              placeholder={t('code')}
-              onSave={(code) => code.trim() && save(category, { code })}
-            />
-          </PanelField>
+          <SettingsPanelNameCodeFields
+            scope={SCOPE}
+            name={category.name}
+            code={category.code}
+            onSave={(fields) => save(category, fields)}
+          />
           <PanelField label={t('parent-category')}>
             <SelectFixedAssetCategory
               recordId={category._id}

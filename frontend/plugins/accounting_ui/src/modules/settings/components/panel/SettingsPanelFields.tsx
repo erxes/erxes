@@ -1,7 +1,12 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Select, Switch, TextField, Textarea } from 'erxes-ui';
-import { PANEL_TEXT_FIELD_CLASS_NAME } from 'ui-modules';
+import { Form, Input, Select, Switch, TextField, Textarea } from 'erxes-ui';
+import {
+  PANEL_INPUT_CLASS_NAME,
+  PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelField,
+  PanelFormRow,
+} from 'ui-modules';
 import {
   SETTINGS_PANEL_SELECT_ITEM_CLASS_NAME,
   SETTINGS_PANEL_SELECT_TRIGGER_CLASS_NAME,
@@ -72,6 +77,85 @@ export const SettingsPanelTextField = ({
     onSave={(next) => next !== value && onSave(next)}
   />
 );
+
+export const SettingsPanelNameCodeFields = ({
+  scope,
+  name,
+  code,
+  onSave,
+}: {
+  scope: string;
+  name?: string;
+  code?: string;
+  onSave: (fields: { name?: string; code?: string }) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <>
+      <PanelField label={t('name')}>
+        <SettingsPanelTextField
+          scope={`${scope}.name`}
+          value={name || ''}
+          placeholder={t('name')}
+          onSave={(next) => next.trim() && onSave({ name: next })}
+        />
+      </PanelField>
+      <PanelField label={t('code')}>
+        <SettingsPanelTextField
+          scope={`${scope}.code`}
+          value={code || ''}
+          placeholder={t('code')}
+          onSave={(next) => next.trim() && onSave({ code: next })}
+        />
+      </PanelField>
+    </>
+  );
+};
+
+export const SettingsPanelNameCodeInputs = () => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <>
+      <Form.Field
+        name="name"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('name')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoFocus
+              autoComplete="off"
+              placeholder={t('name')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        name="code"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('code')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoComplete="off"
+              placeholder={t('code')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
+        )}
+      />
+    </>
+  );
+};
 
 export const SettingsPanelNumberField = ({
   scope,
