@@ -8,11 +8,13 @@ export const DealContactsField = ({
   kind,
   label,
   value,
+  variant = 'chip',
 }: {
   dealId: string;
   kind: 'customer' | 'company';
   label: string;
   value?: string | null;
+  variant?: 'inline' | 'chip';
 }) => {
   const { editDeals } = useDealsContext();
   // The deal sheet is modal, so the app's side panel cannot show the
@@ -24,7 +26,7 @@ export const DealContactsField = ({
   return (
     <ContactsRelationField
       kind={kind}
-      variant="chip"
+      variant={variant}
       label={label}
       value={value}
       scope={`deal-detail.${kind}`}
@@ -38,7 +40,15 @@ export const DealContactsField = ({
           variables: { _id: dealId, [field]: id },
           // Contacts' deal lists change with them.
           update: (cache) =>
-            cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' }),
+            cache.modify({
+              id: 'ROOT_QUERY',
+              fields: {
+                deals: (existing, { DELETE, storeFieldName }) =>
+                  /"(customerId|companyId)":/.test(storeFieldName)
+                    ? DELETE
+                    : existing,
+              },
+            }),
         })
       }
     />

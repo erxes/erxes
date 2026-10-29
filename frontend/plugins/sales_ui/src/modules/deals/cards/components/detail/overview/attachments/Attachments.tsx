@@ -1,3 +1,4 @@
+import { cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAttachmentContext } from './AttachmentContext';
 import FileAttachments from './FileAttachments';
@@ -17,7 +18,7 @@ const fileTypes = [
 // const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/ogg'];
 // const videoTypes = ['video/mp4', 'video/webm', 'video/ogg'];
 
-export const Attachments = () => {
+export const Attachments = ({ compact = false }: { compact?: boolean }) => {
   const { attachments } = useAttachmentContext();
   const { t } = useTranslation('sales');
 
@@ -39,16 +40,32 @@ export const Attachments = () => {
   return (
     <div className="flex flex-col">
       {mediaAttachments.length > 0 && (
-        <div className="flex flex-col gap-4 py-4">
-          <span className="px-8 text-sm uppercase text-muted-foreground">
+        <div
+          className={cn('flex flex-col', compact ? 'gap-2 py-2' : 'gap-4 py-4')}
+        >
+          <span
+            className={
+              compact
+                ? 'text-sm font-medium'
+                : 'px-8 text-sm uppercase text-muted-foreground'
+            }
+          >
             {t('media-attachments')}
           </span>
-          <MediaAttachments attachments={mediaAttachments} />
+          <MediaAttachments attachments={mediaAttachments} compact={compact} />
         </div>
       )}
       {fileAttachments.length > 0 && (
-        <div className="flex flex-col gap-2 px-8 py-4">
-          <span className="text-sm uppercase text-muted-foreground">
+        <div
+          className={cn('flex flex-col gap-2', compact ? 'py-2' : 'px-8 py-4')}
+        >
+          <span
+            className={
+              compact
+                ? 'text-sm font-medium'
+                : 'text-sm uppercase text-muted-foreground'
+            }
+          >
             {t('file-attachments')}
           </span>
           <FileAttachments attachments={fileAttachments} />

@@ -63,6 +63,7 @@ export const SelectLabelsProvider = ({
   value,
   onValueChange,
   mode = 'single',
+  pipelineId,
 }: ISelectLabelProviderProps) => {
   const [newLabelName, setNewLabelName] = useState<string>('');
   const [selectedLabels, setSelectedLabels] = useState<IPipelineLabel[]>([]);
@@ -102,6 +103,7 @@ export const SelectLabelsProvider = ({
         setNewLabelName,
         mode,
         labelIds,
+        pipelineId,
       }}
     >
       {children}
@@ -111,9 +113,14 @@ export const SelectLabelsProvider = ({
 
 export const SelectLabelsCommand = () => {
   const { t } = useTranslation('sales');
-  const { labelIds, onSelect } = useSelectLabelsContext();
+  const {
+    labelIds,
+    onSelect,
+    pipelineId: contextPipelineId,
+  } = useSelectLabelsContext();
 
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = contextPipelineId || queryPipelineId;
 
   const {
     pipelineLabels = [],
@@ -156,6 +163,7 @@ export const SelectLabelsCommand = () => {
             setEditLabelId(null);
           }}
           labelId={editLabelId}
+          pipelineId={pipelineId || undefined}
         />
       </>
     );
@@ -260,12 +268,13 @@ export const SelectLabelsValue = ({
   showLabels?: boolean;
 }) => {
   const { t } = useTranslation('sales');
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const { labelIds, pipelineId: contextPipelineId } = useSelectLabelsContext();
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = contextPipelineId || queryPipelineId;
   const { pipelineLabels = [] } = usePipelineLabels({
     variables: { pipelineId },
     skip: !pipelineId,
   });
-  const { labelIds } = useSelectLabelsContext();
   const selectedIds = new Set(labelIds ?? []);
 
   if ((labelIds || [])?.length !== 0) {
@@ -386,6 +395,7 @@ export const SelectLabelsFilterBar = ({
   targetId,
   initialValue,
   showLabels,
+  pipelineId,
 }: {
   mode: 'single' | 'multiple';
   filterKey: string;
@@ -394,9 +404,13 @@ export const SelectLabelsFilterBar = ({
   targetId?: string;
   initialValue?: string[];
   showLabels?: boolean;
+  pipelineId?: string;
 }) => {
   const { t } = useTranslation('sales');
-  const isCardVariant = variant === 'card' || variant === 'detail';
+  const isCardVariant =
+    variant === 'card' ||
+    variant === 'detail' ||
+    (variant === 'table' && !!targetId);
 
   const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
@@ -436,6 +450,7 @@ export const SelectLabelsFilterBar = ({
   return (
     <SelectLabelsProvider
       mode={mode}
+      pipelineId={pipelineId}
       value={query || []}
       onValueChange={(value) => {
         const nextValue = Array.isArray(value)

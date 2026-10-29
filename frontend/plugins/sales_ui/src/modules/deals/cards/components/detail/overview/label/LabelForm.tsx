@@ -28,9 +28,11 @@ import { COLORS } from './constants/colors';
 export const LabelForm = ({
   onSuccess,
   labelId,
+  pipelineId: propPipelineId,
 }: {
   onSuccess?: () => void;
   labelId?: string | null;
+  pipelineId?: string;
 }) => {
   const form = useForm<LabelFormType>({
     resolver: zodResolver(labelFormSchema),
@@ -38,7 +40,8 @@ export const LabelForm = ({
 
   const closeRef = useRef<HTMLButtonElement>(null);
   const isEdit = Boolean(labelId);
-  const [pipelineId] = useQueryState<string>('pipelineId');
+  const [queryPipelineId] = useQueryState<string>('pipelineId');
+  const pipelineId = propPipelineId || queryPipelineId;
   const { confirm } = useConfirm();
 
   const handleSuccess = () => {

@@ -14,8 +14,10 @@ import { useAttachmentContext } from './AttachmentContext';
 
 export const MediaAttachments = ({
   attachments,
+  compact = false,
 }: {
   attachments: IAttachment[];
+  compact?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -50,7 +52,7 @@ export const MediaAttachments = ({
   }, [open, attachments.length]);
 
   return (
-    <div className="relative px-8">
+    <div className={cn('relative', !compact && 'px-8')}>
       <div
         ref={scrollContainerRef}
         className="flex gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
@@ -108,7 +110,10 @@ export const MediaAttachments = ({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute -left-4 top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex"
+            className={cn(
+              'absolute top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex',
+              compact ? 'left-1' : '-left-4',
+            )}
             onClick={() =>
               scrollContainerRef.current?.scrollBy({
                 left: -160,
@@ -123,7 +128,10 @@ export const MediaAttachments = ({
             type="button"
             variant="ghost"
             size="icon"
-            className="absolute -right-4 top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex"
+            className={cn(
+              'absolute top-1/2 hidden size-8 -translate-y-1/2 rounded-full bg-background shadow hover:bg-background lg:inline-flex',
+              compact ? 'right-1' : '-right-4',
+            )}
             onClick={() =>
               scrollContainerRef.current?.scrollBy({
                 left: 160,
