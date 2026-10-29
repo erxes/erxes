@@ -109,6 +109,49 @@ export const ProductsRecordTable = ({
     return newColumns;
   }, [showAdvancedView, showTaxView, t]);
 
+  let productsContent: React.ReactNode;
+
+  if (products.length === 0) {
+    productsContent = (
+      <Empty className="border-0 bg-transparent">
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconShoppingCart />
+          </Empty.Media>
+          <Empty.Title>{t('no-products-found')}</Empty.Title>
+          <Empty.Description>
+            {t(
+              hasProductFilters
+                ? 'no-products-filter-description'
+                : 'no-products-description',
+            )}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
+    );
+  } else if (layout === 'cards') {
+    productsContent = (
+      <ProductCardList
+        expandedIds={expandedIds}
+        onToggleExpanded={onToggleExpanded}
+        onExpandedChange={onExpandedChange}
+      />
+    );
+  } else {
+    productsContent = (
+      <div className="min-h-0 flex-1 overflow-auto">
+        <RecordTable.Scroll>
+          <RecordTable>
+            <RecordTable.Header />
+            <RecordTable.Body>
+              <RecordTable.RowList />
+            </RecordTable.Body>
+          </RecordTable>
+        </RecordTable.Scroll>
+      </div>
+    );
+  }
+
   return (
     <RecordTable.Provider
       key={`${showAdvancedView ? 'advanced' : 'basic'}-${
@@ -131,40 +174,7 @@ export const ProductsRecordTable = ({
       }
     >
       <ProductUomColumnPosition showAdvancedView={showAdvancedView} />
-      {products.length === 0 ? (
-        <Empty className="border-0 bg-transparent">
-          <Empty.Header>
-            <Empty.Media variant="icon">
-              <IconShoppingCart />
-            </Empty.Media>
-            <Empty.Title>{t('no-products-found')}</Empty.Title>
-            <Empty.Description>
-              {t(
-                hasProductFilters
-                  ? 'no-products-filter-description'
-                  : 'no-products-description',
-              )}
-            </Empty.Description>
-          </Empty.Header>
-        </Empty>
-      ) : layout === 'cards' ? (
-        <ProductCardList
-          expandedIds={expandedIds}
-          onToggleExpanded={onToggleExpanded}
-          onExpandedChange={onExpandedChange}
-        />
-      ) : (
-        <div className="min-h-0 flex-1 overflow-auto">
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList />
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
-        </div>
-      )}
+      {productsContent}
       <ProductCommandBar refetch={refetch} />
     </RecordTable.Provider>
   );

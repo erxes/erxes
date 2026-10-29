@@ -9,7 +9,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { ProductTypeIcon } from '@/deals/cards/components/detail/product/components/product-table/ProductTypeIcon';
 
-const HEAD_COLUMN_IDS = ['checkbox', 'type', 'name', 'more', 'amount'];
+const HEAD_COLUMN_IDS = new Set(['checkbox', 'type', 'name', 'more', 'amount']);
 
 type THeaders = Map<string, Header<DealProductData, unknown>>;
 
@@ -56,7 +56,7 @@ const ProductCard = ({
   const quantity = row.original.uomInfo?.quantity ?? row.original.quantity;
 
   return (
-    <div className="rounded-lg border bg-background">
+    <div className="@container rounded-lg border bg-background">
       <div className="flex h-9 items-center gap-2 px-2">
         <div className="w-4 shrink-0 [&>*]:p-0!">
           {renderCell(find('checkbox'))}
@@ -85,9 +85,9 @@ const ProductCard = ({
         </Button>
       </div>
       {open && (
-        <div className="grid grid-cols-2 gap-x-3 border-t px-2 py-1">
+        <div className="grid grid-cols-1 gap-x-3 border-t px-2 py-1 @lg:grid-cols-2">
           {cells
-            .filter((cell) => !HEAD_COLUMN_IDS.includes(cell.column.id))
+            .filter((cell) => !HEAD_COLUMN_IDS.has(cell.column.id))
             .map((cell) => (
               <ProductCardField key={cell.id} cell={cell} headers={headers} />
             ))}

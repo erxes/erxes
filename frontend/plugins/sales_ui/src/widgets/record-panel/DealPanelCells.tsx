@@ -23,7 +23,6 @@ type TValue = string | string[];
 type TCellProps = {
   value?: TValue;
   onValueChange: (value: TValue) => void;
-  placeholder?: string;
 };
 
 const PanelPopoverCell = ({
@@ -55,7 +54,7 @@ export const DealPanelMemberCell = ({
   onValueChange,
   placeholder,
   mode = 'multiple',
-}: TCellProps & { mode?: 'single' | 'multiple' }) => {
+}: TCellProps & { placeholder?: string; mode?: 'single' | 'multiple' }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -83,12 +82,19 @@ export const DealPanelTagsCell = ({
   value,
   onValueChange,
   placeholder,
-}: TCellProps) => {
+}: TCellProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
+  let tagIds: string[] = [];
+
+  if (Array.isArray(value)) {
+    tagIds = value;
+  } else if (value) {
+    tagIds = [value];
+  }
 
   return (
     <TagsSelect.Provider
-      value={Array.isArray(value) ? value : value ? [value] : []}
+      value={tagIds}
       mode="multiple"
       type="sales:deal"
       onValueChange={onValueChange}
@@ -188,7 +194,7 @@ export const DealPanelCustomerCell = ({
   value,
   onValueChange,
   placeholder,
-}: TCellProps) => {
+}: TCellProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -216,7 +222,7 @@ export const DealPanelCompanyCell = ({
   value,
   onValueChange,
   placeholder,
-}: TCellProps) => {
+}: TCellProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
 
   return (
