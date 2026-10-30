@@ -29,6 +29,7 @@ import {
 import { BroadcastScheduleDialog } from '../common/BroadcastScheduleDialog';
 import { BroadcastDetail } from './BroadcastDetail';
 import { useTranslation } from 'react-i18next';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 
 export const BroadcastDetailSheet = () => {
   const [messageId, setMessageId] = useQueryState<string>('messageId');
@@ -61,7 +62,7 @@ export const BroadcastDetailSheet = () => {
 
 const BroadcastDetailSheetHeader = () => {
   const { t } = useTranslation('broadcasts');
-  const { messageId, message, refetch } = useBroadcastDetail();
+  const { messageId, message, error, refetch } = useBroadcastDetail();
 
   const {
     canEdit,
@@ -94,6 +95,13 @@ const BroadcastDetailSheetHeader = () => {
       <ApprovalLockedBadge state={lockState ?? undefined} />
 
       <div className="ml-auto mr-2 flex items-center gap-2">
+        {message && !error && !locked && (
+          <DocumentPrintMenu
+            key={message._id}
+            items={[]}
+            contentType="core:broadcast"
+          />
+        )}
         {/* Locked and not ours: asking is the only thing left to offer. */}
         {locked && (
           <ApprovalRequestAccessButton

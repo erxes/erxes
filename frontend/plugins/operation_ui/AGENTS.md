@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -19,6 +19,8 @@
 - Operation backend persistence or GraphQL resolvers, core UI primitives, shared libraries, or another plugin's source.
 
 ## Current Capabilities
+
+- Task document printing is available in the `TaskDetailActions` More menu in the side panel, full-page detail, and My Inbox detail. The print sheet stays mounted outside the menu so closing the menu preserves the selected task and print settings.
 
 - Task date filters use the shared date picker for due, start, creation, update, and completion ranges. Task lists and statistics parse the same URL ranges into paired API bounds, and date-filtered lists refetch on task subscription events.
 
@@ -201,6 +203,7 @@
 - `pnpm nx run operation_ui:codegen`
 - Smoke scenario: create an issue in a connected GitHub repository and confirm the resulting triage shows a linked source issue above its name and short GitHub attribution in the timeline and relation card; create a triage manually and confirm its member attribution remains visible.
 - `pnpm exec tsc --noEmit -p frontend/plugins/operation_ui/tsconfig.app.json`
+- Print smoke: open a task in the side panel, full-page detail, and My Inbox; More → Print opens the existing print sheet for that task, and closing it leaves the detail usable without a standalone Print button.
 - Smoke scenario: open operation projects, tasks, team, operation settings, relation widgets, and automation widget entry through the remote.
 - Inbox smoke: open a task, triage, project and team notification in My Inbox; the task detail is padded, shows side widgets, and its icon column stays put while scrolling.
 - Triage smoke: when a second member accepts a triage, the task timeline shows the original creator and a separate acceptance row with the second member's photo, name, and acceptance time.

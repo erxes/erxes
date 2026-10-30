@@ -1,6 +1,7 @@
 import type { NotificationTaskDetailProps } from '~/widgets/notifications/my-inbox/types/notificationContent';
 import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
+import { TaskDetailActions } from '@/task/components/task-actions/TaskDetailActions';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { FocusSheet } from 'erxes-ui';
@@ -35,11 +36,14 @@ export const NotificationTaskDetail = ({
             checkTriage={true}
             titleAction={
               openTo && (
-                <NotificationOpenButton to={openTo}>
-                  {task
-                    ? t('open-task', 'Open task')
-                    : t('open-triage', 'Open triage')}
-                </NotificationOpenButton>
+                <div className="flex items-center gap-2">
+                  <NotificationOpenButton to={openTo}>
+                    {task
+                      ? t('open-task', 'Open task')
+                      : t('open-triage', 'Open triage')}
+                  </NotificationOpenButton>
+                  {task && <TaskDetailActions taskId={task._id} />}
+                </div>
               )
             }
           />

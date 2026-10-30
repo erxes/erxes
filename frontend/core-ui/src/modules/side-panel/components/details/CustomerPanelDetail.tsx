@@ -28,7 +28,6 @@ import {
   PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
-  PrintDocument,
 } from 'ui-modules';
 import { PanelAvatarField } from './PanelAvatarField';
 
@@ -223,12 +222,6 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             customerEdit({ variables: { _id: customer._id, avatar } })
           }
         />
-        <div className="py-2">
-          <PrintDocument
-            items={[{ _id: customer._id }]}
-            contentType="core:contact.customer"
-          />
-        </div>
         <PanelField label={addT('first-name', 'First name')}>
           <CustomerTextField
             customer={customer}

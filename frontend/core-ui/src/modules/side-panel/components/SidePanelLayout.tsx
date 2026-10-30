@@ -28,6 +28,7 @@ import { CustomerPanelNew } from './details/CustomerPanelNew';
 import { CustomerPanelProperties } from './details/CustomerPanelProperties';
 import { PluginRecordPanel } from './PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 import {
   ActivityLogs,
   AddInternalNote,
@@ -400,7 +401,17 @@ const SidePanelSavedRecord = ({
         avatar={avatar}
         title={title}
         actions={
-          panelPluginName && (
+          coreViews ? (
+            <DocumentPrintMenu
+              key={`${record.contentType}:${record.contentId}`}
+              items={[{ _id: record.contentId }]}
+              contentType={
+                record.contentType === 'core:customer'
+                  ? 'core:contact.customer'
+                  : 'core:contact.company'
+              }
+            />
+          ) : panelPluginName && (
             <PluginRecordPanel
               pluginName={panelPluginName}
               contentType={record.contentType}
