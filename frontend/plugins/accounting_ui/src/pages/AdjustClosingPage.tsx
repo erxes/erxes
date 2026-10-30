@@ -4,7 +4,6 @@ import { AdjustmentHeader } from '../modules/adjustments/components/Header';
 import { PageSubHeader } from 'erxes-ui';
 import { AdjustClosingTable } from '~/modules/adjustments/closing/components/AdjustClosingTable';
 import { AddAdjustClosing } from '~/modules/adjustments/closing/components/AddAdjustClosing';
-import { EditAdjustClosingSheet } from '~/modules/adjustments/closing/components/AdjustClosingEdit';
 
 export const AdjustClosingListPage = () => {
   return (
@@ -18,7 +17,6 @@ export const AdjustClosingListPage = () => {
         <TransactionsFilter />
       </PageSubHeader>
       <AdjustClosingTable />
-      <EditAdjustClosingSheet />
     </AccountingLayout>
   );
 };

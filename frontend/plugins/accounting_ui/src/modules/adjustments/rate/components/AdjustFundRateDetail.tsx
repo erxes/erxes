@@ -23,10 +23,11 @@ import {
 import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
 import { useAdjustFundRateDetail } from '../hooks/useAdjustFundRateDetail';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { formatDate as format } from '@/utils/graphqlDate';
-import { EditAdjustFundRate } from './AdjustFundRateForm';
+import { ADJUST_FUND_RATE_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { useAdjustFundRateRun } from '../hooks/useAdjustFundRateRun';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import type { ITransaction } from '@/transactions/types/Transaction';
@@ -255,7 +256,7 @@ const linkedTransactionColumns = (
 export const AdjustFundRateDetail = () => {
   const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useSettingsPanel(ADJUST_FUND_RATE_CONTENT_TYPE);
 
   const { adjustFundRate, loading } = useAdjustFundRateDetail({
     variables: { _id: id ?? '' },
@@ -416,7 +417,10 @@ export const AdjustFundRateDetail = () => {
             {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
             {t('run')}
           </Button>
-          <Button variant="outline" onClick={() => setEditOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => openDetail(adjustFundRate._id)}
+          >
             <IconEdit size={16} />
             {t('edit')}
           </Button>
@@ -461,14 +465,6 @@ export const AdjustFundRateDetail = () => {
           />
         </Tabs.Content>
       </Tabs>
-
-      {editOpen && (
-        <EditAdjustFundRate
-          open={editOpen}
-          setOpen={setEditOpen}
-          adjustFundRate={adjustFundRate}
-        />
-      )}
     </div>
   );
 };

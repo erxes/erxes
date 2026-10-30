@@ -1,25 +1,20 @@
 import { useTranslation } from 'react-i18next';
 import { UseFormReturn } from 'react-hook-form';
+import { Form, Input } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
+import { SelectFixedAssetCategory } from '@/settings/fixed-assets/components/SelectFixedAssetCategory';
+import { FIXED_ASSET_DEPRECIATION_METHODS } from '@/settings/fixed-assets/constants/depreciationMethods';
+import { TFixedAssetCategoryForm } from '@/settings/fixed-assets/types/FixedAsset';
 import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Sheet,
-  Spinner,
-  Textarea,
-} from 'erxes-ui';
-import { FIXED_ASSET_DEPRECIATION_METHODS } from '../constants/depreciationMethods';
-import { TFixedAssetCategoryForm } from '../types/FixedAsset';
-import { SelectFixedAssetCategory } from './SelectFixedAssetCategory';
-
-const roundRate = (value: number) => Math.round(value * 100) / 100;
-
-const getRateFromUsefulLife = (usefulLife?: number) =>
-  usefulLife && usefulLife > 0 ? roundRate(100 / usefulLife) : undefined;
-
-const getUsefulLifeFromRate = (annualRate?: number) =>
-  annualRate && annualRate > 0 ? roundRate(100 / annualRate) : undefined;
+  getRateFromUsefulLife,
+  getUsefulLifeFromRate,
+} from '@/settings/fixed-assets/utils/depreciationRate';
+import {
+  SettingsPanelDescriptionInput,
+  SettingsPanelSelect,
+} from '@/settings/components/panel/SettingsPanelFields';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SETTINGS_PANEL_CELL_CLASS_NAME } from '@/settings/constants/settingsPanel';
 
 const NumberInput = ({
   field,
@@ -31,6 +26,7 @@ const NumberInput = ({
   <Input
     type="number"
     value={field.value ?? ''}
+    className={PANEL_INPUT_CLASS_NAME}
     onChange={(event) => {
       const value =
         event.target.value === '' ? undefined : event.target.valueAsNumber;
@@ -44,256 +40,211 @@ const NumberInput = ({
 export const FixedAssetCategoryForm = ({
   form,
   handleSubmit,
+  onCancel,
   loading,
 }: {
   form: UseFormReturn<TFixedAssetCategoryForm>;
   handleSubmit: (data: TFixedAssetCategoryForm) => void;
+  onCancel: () => void;
   loading: boolean;
 }) => {
   const { t } = useTranslation('accounting');
+  const methodOptions = FIXED_ASSET_DEPRECIATION_METHODS.map((method) => ({
+    value: method.value,
+    label: t(method.label || '', { nsSeparator: false }),
+  }));
+
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col flex-1 bg-background min-h-0"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <Form.Field
-              control={form.control}
-              name="parentId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('parent-category')}</Form.Label>
-                  <SelectFixedAssetCategory
-                    recordId={field.value}
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    nullable
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      saving={loading}
+      saveLabel={t('save-category')}
+    >
+      <Form.Field
+        control={form.control}
+        name="parentId"
+        render={({ field }) => (
+          <PanelFormRow label={t('parent-category')}>
+            <SelectFixedAssetCategory
+              recordId={field.value}
+              selected={field.value}
+              onSelect={field.onChange}
+              variant="ghost"
+              hideChevron
+              className={SETTINGS_PANEL_CELL_CLASS_NAME}
+              nullable
             />
-            <Form.Field
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('code')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="code"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('code')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="name"
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('name')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input {...field} className={PANEL_INPUT_CLASS_NAME} />
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="depreciationMethod"
+        render={({ field }) => (
+          <PanelFormRow label={t('depreciation-method')}>
+            <SettingsPanelSelect
+              value={field.value}
+              placeholder={t('select-depreciation-method')}
+              options={methodOptions}
+              onValueChange={field.onChange}
             />
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultUsefulLife"
+        render={({ field }) => (
+          <PanelFormRow label={t('useful-life-in-years')}>
+            <NumberInput
+              field={field}
+              onValueChange={(value) =>
+                form.setValue(
+                  'defaultAnnualDepreciationRate',
+                  getRateFromUsefulLife(value),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  },
+                )
+              }
             />
-            <Form.Field
-              control={form.control}
-              name="depreciationMethod"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('depreciation-method')}</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={t('select-depreciation-method')}
-                        />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
-                          <Select.Item key={method.value} value={method.value}>
-                            {t(method.label || '', { nsSeparator: false })}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultAnnualDepreciationRate"
+        render={({ field }) => (
+          <PanelFormRow label={t('annual-depreciation-rate')}>
+            <NumberInput
+              field={field}
+              onValueChange={(value) =>
+                form.setValue(
+                  'defaultUsefulLife',
+                  getUsefulLifeFromRate(value),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  },
+                )
+              }
             />
-            <Form.Field
-              control={form.control}
-              name="defaultUsefulLife"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('useful-life-in-years')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput
-                      field={field}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          'defaultAnnualDepreciationRate',
-                          getRateFromUsefulLife(value),
-                          { shouldDirty: true, shouldValidate: true },
-                        )
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultSalvageValue"
+        render={({ field }) => (
+          <PanelFormRow label={t('residual-value')}>
+            <NumberInput field={field} />
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="taxDepreciationMethod"
+        render={({ field }) => (
+          <PanelFormRow label={t('tax-depreciation-method')}>
+            <SettingsPanelSelect
+              value={field.value}
+              placeholder={t('select-tax-depreciation-method')}
+              options={methodOptions}
+              onValueChange={field.onChange}
             />
-            <Form.Field
-              control={form.control}
-              name="defaultAnnualDepreciationRate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('annual-depreciation-rate')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput
-                      field={field}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          'defaultUsefulLife',
-                          getUsefulLifeFromRate(value),
-                          { shouldDirty: true, shouldValidate: true },
-                        )
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultTaxUsefulLife"
+        render={({ field }) => (
+          <PanelFormRow label={t('tax-useful-life-in-years')}>
+            <NumberInput
+              field={field}
+              onValueChange={(value) =>
+                form.setValue(
+                  'defaultTaxAnnualDepreciationRate',
+                  getRateFromUsefulLife(value),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  },
+                )
+              }
             />
-            <Form.Field
-              control={form.control}
-              name="defaultSalvageValue"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('residual-value')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput field={field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultTaxAnnualDepreciationRate"
+        render={({ field }) => (
+          <PanelFormRow label={t('annual-tax-depreciation-rate')}>
+            <NumberInput
+              field={field}
+              onValueChange={(value) =>
+                form.setValue(
+                  'defaultTaxUsefulLife',
+                  getUsefulLifeFromRate(value),
+                  {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  },
+                )
+              }
             />
-            <Form.Field
-              control={form.control}
-              name="taxDepreciationMethod"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('tax-depreciation-method')}</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={t('select-tax-depreciation-method')}
-                        />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {FIXED_ASSET_DEPRECIATION_METHODS.map((method) => (
-                          <Select.Item key={method.value} value={method.value}>
-                            {t(method.label || '', { nsSeparator: false })}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="defaultTaxUsefulLife"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('tax-useful-life-in-years')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput
-                      field={field}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          'defaultTaxAnnualDepreciationRate',
-                          getRateFromUsefulLife(value),
-                          { shouldDirty: true, shouldValidate: true },
-                        )
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="defaultTaxAnnualDepreciationRate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('annual-tax-depreciation-rate')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput
-                      field={field}
-                      onValueChange={(value) =>
-                        form.setValue(
-                          'defaultTaxUsefulLife',
-                          getUsefulLifeFromRate(value),
-                          { shouldDirty: true, shouldValidate: true },
-                        )
-                      }
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="defaultTaxSalvageValue"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('tax-residual-value')}</Form.Label>
-                  <Form.Control>
-                    <NumberInput field={field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item className="col-span-1 md:col-span-3">
-                  <Form.Label>{t('description')}</Form.Label>
-                  <Form.Control>
-                    <Textarea {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-        </div>
-        <Sheet.Footer className="shrink-0 border-t bg-background">
-          <Sheet.Close asChild>
-            <Button variant="outline" type="button" size="lg">
-              {t('cancel-label')}
-            </Button>
-          </Sheet.Close>
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading && <Spinner />}
-            {t('save-category')}
-          </Button>
-        </Sheet.Footer>
-      </form>
-    </Form>
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="defaultTaxSalvageValue"
+        render={({ field }) => (
+          <PanelFormRow label={t('tax-residual-value')}>
+            <NumberInput field={field} />
+          </PanelFormRow>
+        )}
+      />
+      <Form.Field
+        control={form.control}
+        name="description"
+        render={({ field }) => (
+          <SettingsPanelDescriptionInput
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+    </SettingsPanelDraftForm>
   );
 };
