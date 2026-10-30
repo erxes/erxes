@@ -6,7 +6,9 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useCallIntegrationDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callEditSheet] = useAtom(callEditSheetAtom);
 
   const { data, loading } = useQuery(CALL_INTEGRATION_DETAIL, {

@@ -10,6 +10,7 @@ import { IconBrandGithub, IconExternalLink } from '@tabler/icons-react';
 import { isGithubTriage } from '@/operation/utils/isGithubTriage';
 import { useTriageFieldsEditor } from '@/triage/hooks/useTriageFieldsEditor';
 import { TriageConversionDialog } from '@/triage/components/TriageConversionDialog';
+import { TriageContactsField } from '@/triage/components/TriageContactsField';
 
 export const TriageFields = ({ triage, titleAction }: TriageFieldsProps) => {
   const { t } = useTranslation('operation');
@@ -87,6 +88,18 @@ export const TriageFields = ({ triage, titleAction }: TriageFieldsProps) => {
           value={status}
           useExtendedLabels={true}
           onValueChange={handleStatusChange}
+        />
+        <TriageContactsField
+          triageId={triageId}
+          kind="customer"
+          value={triage.customerId}
+          label={t('customer', 'Customer')}
+        />
+        <TriageContactsField
+          triageId={triageId}
+          kind="company"
+          value={triage.companyId}
+          label={t('company', 'Company')}
         />
         <ConvertToTask triageId={triageId} />
         <DeclineTriage triageId={triageId} />

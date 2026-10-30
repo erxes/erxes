@@ -177,7 +177,6 @@ pnpm nx affected:test
 - **[Contributing Guide](https://erxes.io/docs/contribute)** - How to contribute to erxes
 - **[Roadmap](https://erxes.io/roadmap)** - What's coming next
 - **[Changelog](https://erxes.io/changelog)** - Release notes and updates
-- **[Platform credentials](backend/core-api/src/modules/credentials/README.md)** - Additive encrypted workspace credentials, scoped backend access, and key recovery setup
 
 We recommend always using the latest version of erxes to start your new projects. Enjoy 🎉
 

@@ -1,5 +1,8 @@
 import { Tabs } from 'erxes-ui';
 import { CredentialLoginForm } from '@/auth/login/components/CredentialLoginForm';
+import { TwoFactorLoginStep } from '@/auth/login/components/TwoFactorLoginStep';
+import { useLogin } from '@/auth/login/hooks/useLogin';
+import { ITwoFactorChallenge } from '@/auth/two-factor/types';
 import { MagicLinkLoginForm } from '@/auth/login/components/MagicLinkLoginForm';
 import { useState } from 'react';
 import { useVersion } from 'ui-modules';
@@ -11,6 +14,19 @@ export const Login = () => {
   const [value, setValue] = useState<string>(
     isOS ? 'credential' : 'magic-link',
   );
+  const { finishLogin } = useLogin();
+  // The second factor replaces the whole card, tabs included
+  const [twoFactor, setTwoFactor] = useState<ITwoFactorChallenge | null>(null);
+
+  if (twoFactor) {
+    return (
+      <TwoFactorLoginStep
+        {...twoFactor}
+        onSignedIn={finishLogin}
+        onBack={() => setTwoFactor(null)}
+      />
+    );
+  }
 
   return (
     <>
@@ -69,7 +85,7 @@ export const Login = () => {
           value="credential"
           className="h-full shadow-none border-none rounded-none"
         >
-          <CredentialLoginForm />
+          <CredentialLoginForm onTwoFactor={setTwoFactor} />
         </Tabs.Content>
       </Tabs>
     </>

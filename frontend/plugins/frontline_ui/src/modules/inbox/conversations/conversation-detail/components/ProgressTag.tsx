@@ -12,7 +12,7 @@ interface TagStats {
 }
 
 export const ProgressTags = ({ customerId }: { customerId?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversationTagProgress } = useGetConversationTagProgress({
     variables: customerId ? { customerId } : undefined,
     skip: !customerId,
@@ -128,7 +128,7 @@ interface StatusDetailsProps {
 }
 
 const StatusDetails = ({ statuses, total, percentage }: StatusDetailsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <div className="space-y-3">
       {Object.entries(statuses).map(([status, count]) => (

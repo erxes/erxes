@@ -27,7 +27,7 @@ export const ConversationReportContent = ({
 }: {
   customerId?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <>
       <div className="border-b">
@@ -67,7 +67,7 @@ export const ConversationsSideWidgetTabs = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [value, setValue] = useState<ConversationsSideWidgetTabsEnum>(
     ConversationsSideWidgetTabsEnum.Assignee,
   );

@@ -14,22 +14,22 @@ export const ActivityCycle = ({
 
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
-      <div className="inline-flex items-center gap-1">
+      <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
         {t('added-cycle')}
-        <span className="font-bold">
+        <span className="min-w-0 max-w-full font-medium">
           <CycleInline cycleId={metadata?.newValue} />
         </span>
       </div>
     );
   }
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('changed-cycle')}
-      <span className="font-bold">
+      <span className="min-w-0 max-w-full font-medium">
         <CycleInline cycleId={metadata?.previousValue} />
       </span>
       {t('to')}
-      <span className="font-bold">
+      <span className="min-w-0 max-w-full font-medium">
         <CycleInline cycleId={metadata?.newValue} />
       </span>
     </div>

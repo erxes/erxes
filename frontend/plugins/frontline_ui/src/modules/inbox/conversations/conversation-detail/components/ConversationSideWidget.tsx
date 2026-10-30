@@ -1,7 +1,17 @@
-import { SideMenu, cn, useSideMenuContext } from 'erxes-ui';
+import {
+  Button,
+  SideMenu,
+  Tooltip,
+  cn,
+  useSideMenuContext,
+} from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
-import { getRelationWidgetLabel, useRelationWidget } from 'ui-modules';
-import { IconHierarchy2 } from '@tabler/icons-react';
+import {
+  getRelationWidgetLabel,
+  useRelationWidget,
+  useSidePanel,
+} from 'ui-modules';
+import { IconHierarchy2, IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { ConversationProperties } from './ConversationProperties';
 
@@ -55,6 +65,56 @@ const SideWidgetOutsideClose = ({
   return null;
 };
 
+const CUSTOMER_CONTENT_TYPE = 'core:customer';
+const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
+// Records listed by the conversation's customer: the tickets and deals that
+// keep that customer (`customerId`), not the conversation they came from.
+const CUSTOMER_RECORD_MODULES = ['ticket', 'deals'];
+
+// Opens the customer in the app side panel, where everything linked to them is.
+const CustomerTrigger = ({ customerId }: { customerId: string }) => {
+  const { t } = useTranslation('frontline');
+  const { setActiveTab } = useSideMenuContext();
+  const { openRecord, record } = useSidePanel();
+  const isOpen =
+    record?.contentType === CUSTOMER_CONTENT_TYPE &&
+    record.contentId === customerId;
+  const label = t('customer', 'Customer');
+
+  return (
+    <Tooltip>
+      <Tooltip.Trigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          aria-label={label}
+          aria-pressed={isOpen}
+          className={cn(
+            'size-10 rounded bg-sidebar hover:bg-primary/10 [&>svg]:size-5 [&_svg]:text-primary',
+            isOpen && 'bg-primary/10',
+          )}
+          onClick={() => {
+            setActiveTab();
+            openRecord({
+              contentType: CUSTOMER_CONTENT_TYPE,
+              contentId: customerId,
+            });
+          }}
+        >
+          <IconUser />
+        </Button>
+      </Tooltip.Trigger>
+      <Tooltip.Content side="left">{label}</Tooltip.Content>
+    </Tooltip>
+  );
+};
+
+/**
+ * The conversation's right rail: its customer, opened in the app side
+ * panel, the customer's tickets and deals, and the conversation's own
+ * properties.
+ */
 export const ConversationSideWidget = ({
   customerId,
   _id,
@@ -69,10 +129,16 @@ export const ConversationSideWidget = ({
   boundaryRef: RefObject<HTMLElement>;
 }) => {
   const { t } = useTranslation(['frontline', 'common']);
-  const { relationWidgetsModules, RelationWidget } = useRelationWidget({
-    contentType: 'frontline:conversation',
-  });
   const sideMenuRef = useRef<HTMLDivElement>(null);
+  const { RelationWidget, relationWidgetsModules } = useRelationWidget({
+    contentType: CONVERSATION_CONTENT_TYPE,
+  });
+  // Without a customer there is nothing to list the records by.
+  const recordModules = customerId
+    ? relationWidgetsModules.filter((module) =>
+        CUSTOMER_RECORD_MODULES.includes(module.name),
+      )
+    : [];
 
   return (
     <SideMenu ref={sideMenuRef} className="flex-none">
@@ -82,43 +148,38 @@ export const ConversationSideWidget = ({
           boundaryRef={boundaryRef}
         />
       )}
-      {relationWidgetsModules.map((module) => {
-        return (
-          <SideMenu.Content
-            value={module.name}
-            key={module.name}
-            className={sideMenuContentClass(asSheet)}
-          >
-            <RelationWidget
-              key={module.name}
-              module={module.name}
-              pluginName={module.pluginName}
-              contentId={_id}
-              contentType="frontline:conversation"
-              customerId={customerId}
-            />
-          </SideMenu.Content>
-        );
-      })}
-
       <SideMenu.Content
         value="properties"
         className={cn(sideMenuContentClass(asSheet), 'overflow-y-auto p-4')}
       >
         <ConversationProperties id={_id} propertiesData={propertiesData} />
       </SideMenu.Content>
+      {recordModules.map((module) => (
+        <SideMenu.Content
+          key={module.name}
+          value={module.name}
+          className={sideMenuContentClass(asSheet)}
+        >
+          <RelationWidget
+            module={module.name}
+            pluginName={module.pluginName}
+            contentId={_id}
+            contentType={CONVERSATION_CONTENT_TYPE}
+            customerId={customerId}
+          />
+        </SideMenu.Content>
+      ))}
 
       <SideMenu.Sidebar>
-        {relationWidgetsModules.map((module) => {
-          return (
-            <SideMenu.Trigger
-              key={module.name}
-              value={module.name}
-              label={getRelationWidgetLabel(module)}
-              Icon={module.icon}
-            />
-          );
-        })}
+        {customerId && <CustomerTrigger customerId={customerId} />}
+        {recordModules.map((module) => (
+          <SideMenu.Trigger
+            key={module.name}
+            value={module.name}
+            label={getRelationWidgetLabel(module)}
+            Icon={module.icon}
+          />
+        ))}
         <SideMenu.Trigger
           value="properties"
           label={t('common:properties', 'Properties')}

@@ -82,7 +82,10 @@ const SelectProjectValue = () => {
 
   const name = projects.find((p) => p._id === value)?.name;
 
-  const { project } = useGetProject(value, { skip: !!name });
+  const { project } = useGetProject(value, {
+    skip: !!name,
+    subscribe: false,
+  });
 
   const handleNavigateToProject = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -202,6 +205,7 @@ export const SelectProjectFilterView = ({
 };
 
 export const SelectProjectFormItem = ({
+  variant = 'form',
   onValueChange,
   teamId,
   scope,
@@ -213,6 +217,8 @@ export const SelectProjectFormItem = ({
   onValueChange: (value: string | null) => void;
   value?: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -227,10 +233,10 @@ export const SelectProjectFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectProjectValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectProjectContent />
         </SelectOperationContent>
       </PopoverScoped>

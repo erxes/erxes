@@ -62,7 +62,7 @@ export const TicketCustomProperties = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketCustomPropertiesProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const { groupPropertyId } = filterConfig;
@@ -139,7 +139,7 @@ export const TicketCustomProperties = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets by custom property"
+        description={t('tickets-by-custom-property')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -156,7 +156,7 @@ export const TicketCustomProperties = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Tickets by custom property"
+        description={t('tickets-by-custom-property')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -177,7 +177,7 @@ export const TicketCustomProperties = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="No ticket custom properties found."
+        description={t('no-ticket-custom-properties-found')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -203,7 +203,7 @@ export const TicketCustomProperties = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Tickets by custom property"
+      description={t('tickets-by-custom-property')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >
@@ -285,7 +285,7 @@ const TicketCustomPropertyRankedBars = memo(
     total?: number;
     onBarClick?: (id: string, name: string, count: number) => void;
   }) {
-    const { t } = useTranslation('frontline');
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
     const total =
       totalOverride ?? properties.reduce((sum, p) => sum + (p.count || 0), 0);
@@ -504,6 +504,7 @@ export const TicketCustomPropertyBarChart = memo(
     properties: TagData[];
     onBarClick?: (id: string, name: string) => void;
   }) {
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
     const chartConfig = useMemo(
       () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
       [],
@@ -553,7 +554,7 @@ export const TicketCustomPropertyBarChart = memo(
             />
             <Bar
               dataKey="count"
-              name="Count"
+              name={t('count')}
               radius={[0, 4, 4, 0]}
               cursor={onBarClick ? 'pointer' : undefined}
               onClick={
@@ -589,7 +590,7 @@ export const TicketCustomPropertyBarChart = memo(
               content={<ChartTooltipContent />}
               formatter={(v: number, _name: string, props) => [
                 `${v} (${props.payload.percentage}%)`,
-                'Count',
+                t('count'),
               ]}
             />
           </BarChart>
@@ -605,6 +606,7 @@ export const TicketCustomPropertyLineChart = memo(
   }: {
     properties: TagData[];
   }) {
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
     const chartConfig = useMemo(
       () => ({
         count: { label: 'Count', color: 'var(--primary)' },
@@ -634,7 +636,7 @@ export const TicketCustomPropertyLineChart = memo(
             yAxisId="count"
             tickLine={false}
             axisLine={false}
-            label={{ value: 'Count', angle: -90, position: 'insideLeft' }}
+            label={{ value: t('count'), angle: -90, position: 'insideLeft' }}
           />
           <YAxis
             yAxisId="percentage"
@@ -642,7 +644,7 @@ export const TicketCustomPropertyLineChart = memo(
             tickLine={false}
             axisLine={false}
             label={{
-              value: 'Percentage (%)',
+              value: t('percentage-percent'),
               angle: 90,
               position: 'insideRight',
             }}
@@ -741,6 +743,7 @@ export const TicketCustomPropertyRadarChart = memo(
   }: {
     properties: TagData[];
   }) {
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
     const chartConfig = useMemo(
       () => ({
         count: { label: 'Count', color: 'var(--primary)' },
@@ -805,7 +808,7 @@ export const TicketCustomPropertyRadarChart = memo(
               name === 'Percentage'
                 ? [
                     props.payload.percentageOriginal?.toFixed(1) + '%',
-                    'Percentage',
+                    t('percentage'),
                   ]
                 : [v, name]
             }
@@ -822,10 +825,11 @@ export const TicketCustomPropertyTableChart = memo(
   }: {
     properties: TagData[];
   }) {
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
     const columns: ColumnDef<TagData>[] = [
       {
         id: 'name',
-        header: 'Custom Property',
+        header: t('custom-property'),
         accessorKey: 'name',
         cell: ({ cell }) => (
           <RecordTableInlineCell className="px-4 text-xs">
@@ -835,7 +839,7 @@ export const TicketCustomPropertyTableChart = memo(
       },
       {
         id: 'count',
-        header: 'Data',
+        header: t('data'),
         accessorKey: 'count',
         size: 28,
         cell: ({ cell }) => {

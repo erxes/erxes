@@ -12,6 +12,27 @@ jest.mock('erxes-ui', () => ({
     new globalThis.DOMParser().parseFromString(value || '', 'text/html').body
       .textContent || '',
 }));
+jest.mock('react-i18next', () => {
+  const messages: Record<string, string> = {
+    poll: 'Poll',
+    'poll-closed': 'Poll closed',
+    'poll-results-unavailable': 'Poll results unavailable',
+    'poll-status-closed': 'Closed',
+    'poll-status-live': 'Live',
+    'multiple-answers-allowed': 'Multiple answers allowed',
+    'choose-one': 'Choose one',
+    'vote-in': 'Vote in {{provider}}',
+  };
+  return {
+    useTranslation: () => ({
+      t: (key: string, options?: Record<string, string>) =>
+        (messages[key] ?? key).replace(
+          /\{\{(\w+)\}\}/g,
+          (_match, name: string) => options?.[name] ?? '',
+        ),
+    }),
+  };
+});
 jest.mock('../translations', () => ({
   useTelegramTranslation: () => ({ t: (key: string) => key }),
 }));

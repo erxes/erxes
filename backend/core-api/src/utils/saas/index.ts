@@ -1,8 +1,6 @@
 import { WorkOS } from '@workos-inc/node';
 import {
-  authCookieOptions,
   getEnv,
-  getSaasOrganizationDetail,
   getSubdomain,
   redis,
   USER_ROLES,
@@ -10,28 +8,17 @@ import {
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { generateModels } from '~/connectionResolvers';
-import { saveValidatedToken } from '~/modules/auth/utils';
+import { startSession } from '~/modules/auth/session';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 
-const setCookie = async (
-  res: Response,
-  user: any,
-  subdomain: string,
-  token: string,
-) => {
-  await saveValidatedToken(token, user);
+export const MAGIC_LINK_STATE = 'magic_link_state';
 
-  const organization = await getSaasOrganizationDetail({ subdomain });
-
-  const cookieOptions: any = authCookieOptions();
-
-  if (organization.domain && organization.dnsStatus === 'active') {
-    cookieOptions.secure = true;
-    cookieOptions.sameSite = 'none';
-  }
-
-  res.cookie('auth-token', token, cookieOptions);
-};
+interface IMagicLinkState {
+  typ: string;
+  jti: string;
+  userId: string;
+  subdomain: string;
+}
 
 export const ssocallback = async (req: any, res) => {
   const { code = '', subdomain = '' } = req.query;
@@ -63,14 +50,16 @@ export const ssocallback = async (req: any, res) => {
       return res.redirect(DOMAIN);
     }
 
-    const [token] = await models.Users.createTokens(
-      user,
-      models.Users.getSecret(),
-    );
+    await startSession({
+      models,
+      subdomain: sub,
+      userId: user._id,
+      method: 'sso',
+      req,
+      res,
+    });
 
-    await setCookie(res, user, subdomain, token.toString());
-
-    await sendOnboardNotification(subdomain, models, user._id);
+    await sendOnboardNotification(sub, models, user._id);
 
     return res.redirect(DOMAIN);
   } catch (e) {
@@ -105,19 +94,49 @@ export const magiclinkCallback = async (
   }
 
   try {
-    // this was set in loginWithMagicLink mutation
-    const subdomain = (await redis.get('subdomain')) || '';
-
-    await redis.set('subdomain', '');
-
-    const models = await generateModels(subdomain);
     const stateStr = typeof state === 'string' ? state : '';
     if (!stateStr) {
       return res.redirect('/login');
     }
-    const { user }: any = jwt.verify(stateStr, models.Users.getSecret());
 
-    await setCookie(res, user, subdomain, stateStr);
+    // State is signed by loginWithMagicLink and names its own tenant
+    const { typ, jti, userId, subdomain } = jwt.verify(
+      stateStr,
+      process.env.JWT_TOKEN_SECRET || 'SECRET',
+    ) as IMagicLinkState;
+
+    if (typ !== MAGIC_LINK_STATE || !jti || !userId || !subdomain) {
+      return res.redirect('/login');
+    }
+
+    // One sign-in per link, so a leaked or forwarded link cannot be replayed
+    const firstUse = await redis.set(
+      `magic_link_used:${jti}`,
+      1,
+      'EX',
+      24 * 60 * 60,
+      'NX',
+    );
+
+    if (!firstUse) {
+      return res.redirect('/login');
+    }
+
+    const models = await generateModels(subdomain);
+    const user = await models.Users.findOne({ _id: userId, isActive: true });
+
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    await startSession({
+      models,
+      subdomain,
+      userId: user._id,
+      method: 'magic_link',
+      req,
+      res,
+    });
 
     const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
     const NODE_ENV = getEnv({ name: 'NODE_ENV', subdomain });
@@ -166,14 +185,16 @@ export const handleCoreLogin = async (req: any, res) => {
     });
 
     if (systemUser) {
-      const [createToken] = await models.Users.createTokens(
-        systemUser,
-        models.Users.getSecret(),
-      );
-
       await sendOnboardNotification(subdomain, models, systemUser._id);
 
-      await setCookie(res, systemUser, subdomain, createToken.toString());
+      await startSession({
+        models,
+        subdomain,
+        userId: systemUser._id,
+        method: 'saas_handoff',
+        req,
+        res,
+      });
     }
 
     return res.redirect(`https://${subdomain}.next.erxes.io`);

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-20`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -83,6 +83,9 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- Post and page edit payloads always send the gallery (`images`/`pageImages`),
+  `documents`, and `attachments` lists, even when empty: the backend applies
+  edits with `$set`, so an omitted list keeps its removed files.
 - CMS posts store interoperable HTML with the non-lossy BlockNote document in
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.
@@ -109,6 +112,9 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- Custom-field choices use `getValidCustomFieldOptions` when saved and rendered.
+  Ignore blank and non-string choices from JSON field definitions; preserve valid
+  stored values and their order so existing selections continue to match.
 
 ### UI Conventions
 
@@ -202,6 +208,9 @@
 - `pnpm nx lint content_ui` (when a lint target is defined)
 - `pnpm nx build content_ui`
 - `pnpm nx test content_ui`
+- Open a CMS editor with a dropdown custom field containing empty or
+  whitespace-only choices and verify the editor renders and valid choices remain
+  selectable.
 - Create or edit a CMS post with blank paragraphs and a Tab-indented paragraph,
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than

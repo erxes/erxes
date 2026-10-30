@@ -9,7 +9,7 @@ export interface EmailDocument {
   _id: string;
   name?: string;
   code?: string;
-  content?: string;
+  content?: string | null;
 }
 
 const normalizePreview = (value: string) =>
@@ -46,7 +46,7 @@ const collectBlockText = (value: unknown): string[] => {
   return texts;
 };
 
-export const getDocumentPreview = (content?: string) => {
+export const getDocumentPreview = (content?: string | null) => {
   if (!content) {
     return '';
   }
@@ -58,10 +58,6 @@ export const getDocumentPreview = (content?: string) => {
   }
 };
 
-/**
- * Picking a document is the same question in every editor, so both the block
- * editor and the email editor ask it here and only differ in what they insert.
- */
 export const DocumentPickerDialog = ({
   open,
   onOpenChange,

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -25,6 +25,26 @@
 
 ## Current Capabilities
 
+- POS Cover detail displays the POS client's root `description` in a dedicated
+  read-only "Хаалтын тэмдэглэл" textarea (`components/CoverDescription.tsx`) and edits
+  Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
+  allows clearing it, gives save/error feedback, and refreshes active cover
+  detail/list queries after saving.
+- Cover terminal history is displayed only in the payment-table `paidType` tip
+  (`components/CoverPaidType.tsx`), with request times and formatted JSON or original
+  text from `terminalResults` (`components/CoverTerminalResults.tsx`).
+  The tip uses the public `Popover` so it stays open while a response textarea
+  is focused for selection/copy. Hover, keyboard focus, or click opens it;
+  Escape or clicking outside closes it. Response fields are read-only, styled
+  muted, and allow Ctrl/Cmd+A/C without table shortcuts intercepting them.
+  Cells without results retain their ordinary text display. There is no separate
+  terminal-history section in the cover sheet.
+  Created/modified times and payment totals remain visible above the details.
+  The general cover description and Sales note remain separate.
+  Cover labels, feedback, empty/pending states, and accessible response labels
+  use the `sales` namespace in the gateway's `locales/{en,mn}/sales.json`;
+  request numbers and paidType labels use translation interpolation. Original
+  bank responses and user-authored notes are never translated.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -98,6 +118,8 @@
 onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both come from the `posDetail` query (`graphql/queries.ts` `posCommonFields`), which the tab loads and saves back; a field missing there is saved as empty. The POS
   Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
+- The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
+- The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
@@ -106,7 +128,20 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
   The broker entity selector that follows is
   labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
-  placeholder.
+  placeholder. Customers and Companies follow tags (`DealContactsField`:
+  ui-modules `ContactsRelationField` with `variant="chip"`); inside the
+  deal sheet a linked contact opens in the sheet's own Customers / Companies
+  rail tab (`onOpen` → `setActiveSideTab(RELATION_CONTACT_SIDE_TABS[kind])`,
+  the app's side panel sits behind the modal sheet), elsewhere (a
+  notification) in the side panel; the chevron opens the picker, and changes
+  are saved on the deal's own single `customerId` / `companyId` through
+  `dealsEdit` (no core relation). The board card's customer / company chips
+  save the same way (the latest pick replaces the one before). The add form
+  and the detail rail use one customer and one company too.
+- The deal sheet's right rail (ui-modules `RelationWidgetSideTabs`, given the deal's customers / companies) holds only
+  Customers and Companies icons; each opens the side panel's view of the
+  deal's contacts inside the sheet (`EmbeddedRecordPanel`), where their other
+  records are. No relation widgets are listed beside a deal.
 - Deal detail header shows a `⋯` actions menu (`DealsActions`
   `variant="menu"`) with watch/unwatch, duplicate, print (shared
   `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
@@ -198,6 +233,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
+- `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
   silently narrows the trigger.
@@ -240,6 +276,14 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- Relation widgets go only through contacts: each lists the records whose
+  own `customerId` / `companyId` is the host's customer or company
+  (ui-modules `getHostContacts`: the host itself when it is a contact, else
+  the first of `customerId(s)` / `companyId(s)` from `IRelationWidgetProps`),
+  read with this plugin's own list query, the host left out. "+" creates a
+  record with those contacts through its create mutation. No core relation
+  is created or read for record ↔ record or record ↔ contact links, and there
+  is no "choose existing" picker.
 - The plugin owns its whole app sidebar. `src/modules/Main.tsx` (the `./sales`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="sales"`) with
   `SalesSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
@@ -249,7 +293,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   sidebar. The plugin owns its settings at `/sales/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `SalesSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends
@@ -485,9 +529,15 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   blur; clearing sends `null` so the backend unsets the date.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 - The POS list filter (`modules/pos/pos/PosFilter.tsx`) renders `PosFilterPopover` as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; the total count stays last.
+- Deal mutations send no `sourceConversationIds`; a deal is linked to a conversation only through its customer (`customerId`), which the conversation rail's Deals tab lists by.
 
 ## Validation
 
+- `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
+
+- Cover note smoke: open a cover, edit and save its note, reopen and verify the
+  saved text; clear and save, switch covers, and verify each one's own note.
+  A failed save must show the error and retain the draft for retry.
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment

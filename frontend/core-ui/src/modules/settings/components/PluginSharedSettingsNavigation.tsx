@@ -1,5 +1,10 @@
 import { Sidebar } from 'erxes-ui';
-import { IconHierarchy2, IconTag } from '@tabler/icons-react';
+import {
+  IconHierarchy2,
+  IconNotification,
+  IconTag,
+} from '@tabler/icons-react';
+import { useNotificationPluginsTypes } from '@/notification/settings/hooks/useNotificationPluginsTypes';
 
 import { usePermissionCheck } from 'ui-modules';
 import { usePropertyTypes } from '@/properties/hooks/usePropertyTypes';
@@ -16,6 +21,11 @@ const inlineSubPaths = (subPaths: TSettingSubPath[]) =>
     ? subPaths
     : undefined;
 
+/**
+ * Organization settings a plugin uses (tags, properties, notifications),
+ * appended to the plugin's own settings list and filtered to that plugin's
+ * types. Hidden entirely for plugins with none of them.
+ */
 export const PluginSharedSettingsNavigation = ({
   pluginName,
   pathPrefix,
@@ -30,6 +40,7 @@ export const PluginSharedSettingsNavigation = ({
   });
   const { types } = useTagTypes();
   const { propertyTypes } = usePropertyTypes();
+  const { pluginsNotifications } = useNotificationPluginsTypes();
   const { isLoaded, isWildcard, hasModulePermission } = usePermissionCheck();
   const canUse = (module: string) =>
     !isLoaded || isWildcard || hasModulePermission(module);
@@ -38,8 +49,12 @@ export const PluginSharedSettingsNavigation = ({
   const showTags = Boolean(tagTypes.length) && canUse('tags');
   const showProperties =
     Boolean(pluginPropertyTypes.length) && canUse('properties');
+  // each member's own choices: shown whenever the plugin declares events
+  const showNotifications = pluginsNotifications.some(
+    (plugin) => plugin.pluginName === pluginName && plugin.modules?.length,
+  );
 
-  if (!showTags && !showProperties) {
+  if (!showTags && !showProperties && !showNotifications) {
     return null;
   }
 
@@ -81,6 +96,14 @@ export const PluginSharedSettingsNavigation = ({
               name={t('sidebar.properties', 'Properties')}
               icon={IconHierarchy2}
               subPaths={propertySubPaths}
+            />
+          )}
+          {showNotifications && (
+            <SettingsNavigationItem
+              pathPrefix={pathPrefix}
+              path="notifications"
+              name={t('sidebar.notification')}
+              icon={IconNotification}
             />
           )}
         </Sidebar.Menu>

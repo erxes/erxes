@@ -1,7 +1,6 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import {
   Button,
@@ -12,39 +11,31 @@ import {
   RecordTable,
   RecordTableInlineCell,
   Separator,
-  Sheet,
   useConfirm,
 } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { SettingsPanelAddButton } from '@/settings/components/panel/SettingsPanelActions';
+import { FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import {
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
 import {
-  FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES,
-  fixedAssetAccountConfigSchema,
-} from '@/settings/fixed-assets/account-config/constants/schema';
-import {
   useFixedAssetAccountConfigMutations,
   useFixedAssetAccountConfigs,
 } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
-import {
-  IFixedAssetAccountConfig,
-  TFixedAssetAccountConfigForm,
-} from '@/settings/fixed-assets/account-config/types/FixedAssetAccountConfig';
-import { FixedAssetAccountConfigForm } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigForm';
+import { IFixedAssetAccountConfig } from '@/settings/fixed-assets/account-config/types/FixedAssetAccountConfig';
 
 const AccountConfigMoreCell = ({
   cell,
-  onEdit,
 }: {
   cell: Cell<IFixedAssetAccountConfig, unknown>;
-  onEdit: (config: IFixedAssetAccountConfig) => void;
 }) => {
   const { t } = useTranslation('accounting');
+  const { openDetail } = useSettingsPanel(
+    FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE,
+  );
   const { confirm } = useConfirm();
   const { remove } = useFixedAssetAccountConfigMutations();
 
@@ -58,7 +49,7 @@ const AccountConfigMoreCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => onEdit(cell.row.original)}
+              onSelect={() => openDetail(cell.row.original._id)}
             >
               <IconEdit /> {t('edit')}
             </Command.Item>
@@ -86,12 +77,11 @@ const AccountConfigMoreCell = ({
 };
 
 const getColumns = (
-  onEdit: (config: IFixedAssetAccountConfig) => void,
   t: TFunction<'accounting'>,
 ): ColumnDef<IFixedAssetAccountConfig>[] => [
   {
     ...moreColumn,
-    cell: (props) => <AccountConfigMoreCell {...props} onEdit={onEdit} />,
+    cell: AccountConfigMoreCell,
   },
   RecordTable.checkboxColumn as ColumnDef<IFixedAssetAccountConfig>,
   {
@@ -158,39 +148,6 @@ const getColumns = (
   },
 ];
 
-const AccountConfigSheet = ({
-  config,
-  onClose,
-}: {
-  config?: IFixedAssetAccountConfig;
-  onClose: () => void;
-}) => {
-  const form = useForm<TFixedAssetAccountConfigForm>({
-    resolver: zodResolver(fixedAssetAccountConfigSchema),
-    defaultValues: config
-      ? { accountId: config.accountId, value: config.value }
-      : FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES,
-  });
-  const { add, edit, adding, editing } = useFixedAssetAccountConfigMutations();
-
-  const handleSubmit = (data: TFixedAssetAccountConfigForm) => {
-    if (config) {
-      edit({ variables: { _id: config._id, ...data }, onCompleted: onClose });
-      return;
-    }
-
-    add({ variables: data, onCompleted: onClose });
-  };
-
-  return (
-    <FixedAssetAccountConfigForm
-      form={form}
-      handleSubmit={handleSubmit}
-      loading={adding || editing}
-    />
-  );
-};
-
 const FixedAssetAccountConfigsCommandbar = () => {
   const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
@@ -239,60 +196,29 @@ const FixedAssetAccountConfigsDelete = () => {
 export const FixedAssetAccountConfigsTable = () => {
   const { t } = useTranslation('accounting');
   const { configs, loading, error } = useFixedAssetAccountConfigs();
-  const [selectedConfig, setSelectedConfig] =
-    useState<IFixedAssetAccountConfig>();
-  const columns = getColumns((config) => setSelectedConfig(config), t);
 
   return (
-    <>
-      <SettingsRowsTable
-        columns={columns}
-        data={configs || []}
-        loading={loading}
-        error={error}
-        emptyAction={<AddFixedAssetAccountConfig />}
-        stickyColumns={['more', 'checkbox', 'accountId']}
-        className="m-3"
-        Commandbar={FixedAssetAccountConfigsCommandbar}
-        tableId="accounting_fixed_asset_account_configs_record_table"
-      />
-      <Sheet
-        open={Boolean(selectedConfig)}
-        onOpenChange={(open) => !open && setSelectedConfig(undefined)}
-      >
-        <AccountingSheet
-          title={t('edit-account-configuration')}
-          className="md:max-w-3xl"
-        >
-          {selectedConfig && (
-            <AccountConfigSheet
-              config={selectedConfig}
-              onClose={() => setSelectedConfig(undefined)}
-            />
-          )}
-        </AccountingSheet>
-      </Sheet>
-    </>
+    <SettingsRowsTable
+      columns={getColumns(t)}
+      data={configs || []}
+      loading={loading}
+      error={error}
+      emptyAction={<AddFixedAssetAccountConfig />}
+      stickyColumns={['more', 'checkbox', 'accountId']}
+      className="m-3"
+      Commandbar={FixedAssetAccountConfigsCommandbar}
+      tableId="accounting_fixed_asset_account_configs_record_table"
+    />
   );
 };
 
 export const AddFixedAssetAccountConfig = () => {
   const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button onClick={() => setOpen(true)}>
-          <IconPlus /> {t('add-account-configuration')}
-        </Button>
-      </Sheet.Trigger>
-      <AccountingSheet
-        title={t('add-account-configuration')}
-        className="md:max-w-3xl"
-      >
-        <AccountConfigSheet onClose={() => setOpen(false)} />
-      </AccountingSheet>
-    </Sheet>
+    <SettingsPanelAddButton
+      contentType={FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE}
+      label={t('add-account-configuration')}
+    />
   );
 };

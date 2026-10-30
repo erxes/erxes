@@ -20,7 +20,9 @@ import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
 
 export const useSaveArticle = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { run } = useKbToast();
 
   const [addArticle, { loading: adding }] = useMutation(ADD_ARTICLE, {
@@ -122,7 +124,9 @@ export const useEditArticleField = () => {
 };
 
 export const useBulkEditArticles = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const client = useApolloClient();
   const { run } = useKbToast();
   const { updateArticle } = useUpdateArticle();
@@ -156,7 +160,9 @@ export const useBulkEditArticles = () => {
 };
 
 export const useDuplicateArticle = (topicId: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { run } = useKbToast();
   const fetchDetail = useFetchArticleDetail();
   const [addArticle, { loading }] = useMutation(ADD_ARTICLE, {
@@ -169,7 +175,7 @@ export const useDuplicateArticle = (topicId: string) => {
       const detail = await fetchDetail(article._id);
 
       if (!detail) {
-        throw new Error(t('kb-article-not-found', 'Article not found'));
+        throw new Error(t('kb-article-not-found'));
       }
 
       const pdf = detail.pdfAttachment?.pdf
@@ -179,10 +185,7 @@ export const useDuplicateArticle = (topicId: string) => {
       await addArticle({
         variables: {
           doc: {
-            title: t('kb-article-copy-title', {
-              title: detail.title,
-              defaultValue: '{{title}} (copy)',
-            }),
+            title: t('kb-article-copy-title', { title: detail.title }),
             summary: detail.summary,
             content: detail.content || '<p></p>',
             status: 'draft',
@@ -198,7 +201,7 @@ export const useDuplicateArticle = (topicId: string) => {
           },
         },
       });
-    }, t('kb-article-duplicated', 'Article duplicated as a draft'));
+    }, t('kb-article-duplicated'));
 
   return { duplicateArticle, loading };
 };

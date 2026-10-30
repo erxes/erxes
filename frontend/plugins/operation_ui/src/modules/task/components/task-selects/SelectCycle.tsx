@@ -9,6 +9,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useGetActiveCycles } from '@/cycle/hooks/useGetActiveCycles';
+import { useGetCycleInline } from '@/cycle/hooks/useGetCycleInline';
 import { IActiveCycle } from '@/cycle/types';
 import {
   SelectOperationContent,
@@ -65,6 +66,10 @@ interface SelectCycleContextType {
   value?: string;
   onValueChange: (value: string) => void;
   activeCycles: IActiveCycle[];
+  selectedCycle?: Pick<
+    IActiveCycle,
+    '_id' | 'name' | 'startDate' | 'endDate' | 'isActive' | 'isCompleted'
+  > | null;
   isCompleted?: boolean;
   isFilter?: boolean;
 }
@@ -84,6 +89,7 @@ const useSelectCycleContext = () => {
 };
 
 export const SelectCycleFormItem = ({
+  variant = 'form',
   onValueChange,
   teamId,
   scope,
@@ -95,6 +101,8 @@ export const SelectCycleFormItem = ({
   onValueChange: (value: string) => void;
   value?: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
 
@@ -108,10 +116,10 @@ export const SelectCycleFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectCycleValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectCycleContent />
         </SelectOperationContent>
       </PopoverScoped>
@@ -121,7 +129,7 @@ export const SelectCycleFormItem = ({
 
 const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
   const { t } = useTranslation('operation');
-  const { activeCycles, value } = useSelectCycleContext();
+  const { selectedCycle, value } = useSelectCycleContext();
 
   if (!value)
     return (
@@ -132,8 +140,6 @@ const SelectCycleValue = ({ placeholder }: { placeholder?: string }) => {
         </span>
       </div>
     );
-
-  const selectedCycle = activeCycles.find((c) => c._id === value);
 
   return (
     <div className="flex items-center gap-2">
@@ -206,22 +212,28 @@ const SelectCycleProvider = ({
   value,
   onValueChange,
   teamId,
-  taskId,
   isFilter = false,
 }: {
   children: React.ReactNode;
   value?: string;
   onValueChange: (value: string) => void;
   teamId?: string;
-  taskId?: string;
   isFilter?: boolean;
 }) => {
   const { team } = useGetTeam(teamId);
-  const { activeCycles } = useGetActiveCycles(teamId, taskId);
+  const { activeCycles, loading: activeCyclesLoading } =
+    useGetActiveCycles(teamId);
+  const activeCycle = activeCycles?.find((c) => c._id === value);
+  // Past cycles are not in the team's active list; look them up by id, which
+  // every task row of that cycle shares through the cache.
+  const { cycle: pastCycle } = useGetCycleInline(value, {
+    skip:
+      isFilter || !team?.cycleEnabled || activeCyclesLoading || !!activeCycle,
+  });
 
   if (!team?.cycleEnabled && !isFilter) return null;
 
-  const selectedCycle = activeCycles?.find((c) => c._id === value);
+  const selectedCycle = activeCycle ?? pastCycle;
 
   const isCompleted = Boolean(
     selectedCycle?.isCompleted && !selectedCycle?.isActive,
@@ -241,6 +253,7 @@ const SelectCycleProvider = ({
         value,
         onValueChange: handleValueChange,
         activeCycles: activeCycles || [],
+        selectedCycle,
         isCompleted,
         isFilter,
       }}
@@ -306,7 +319,6 @@ const SelectCycleRoot = ({
         setOpen(false);
       }}
       teamId={teamId}
-      taskId={taskId}
     >
       <SelectCycleRootContent
         open={open}

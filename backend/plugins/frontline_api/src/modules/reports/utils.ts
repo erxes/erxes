@@ -3,7 +3,7 @@ import { propertyDataPath } from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
 import { IReportFilters } from '@/reports/@types/reportFilters';
 import { IModels } from '~/connectionResolvers';
-import { escapeRegExp, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 export const sourceMap: Record<string, string> = {
   'facebook-messenger': 'facebook-messenger',
@@ -552,56 +552,27 @@ export function buildTicketMatch(filters: IReportFilters) {
   return match;
 }
 
-export async function narrowTicketMatchByContacts(
+// Report contact filters: tickets keep their customer and company
+// themselves, so a filter of several contacts matches either of them.
+export function narrowTicketMatchByContacts(
   match: Record<string, any>,
   filters: IReportFilters,
-  subdomain: string,
 ) {
-  if (!filters.customerIds?.length && !filters.companyIds?.length) {
-    return match;
+  if (filters.customerIds?.length) {
+    match.customerId = { $in: filters.customerIds };
   }
 
-  const contactFilters = [
-    { contentType: 'core:customer', contentIds: filters.customerIds },
-    { contentType: 'core:company', contentIds: filters.companyIds },
-  ].filter((contactFilter) => contactFilter.contentIds?.length);
-
-  const ticketIdSets: Set<string>[] = [];
-
-  for (const { contentType, contentIds } of contactFilters) {
-    const relatedTicketIds: string[] = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      method: 'query',
-      module: 'relation',
-      action: 'filterRelationIds',
-      input: {
-        contentType,
-        contentIds,
-        relatedContentType: 'frontline:ticket',
-      },
-      defaultValue: [],
-    });
-
-    ticketIdSets.push(new Set(relatedTicketIds));
+  if (filters.companyIds?.length) {
+    match.companyId = { $in: filters.companyIds };
   }
-
-  const [firstSet, ...otherSets] = ticketIdSets;
-  match._id = {
-    $in: [...firstSet].filter((id) => otherSets.every((set) => set.has(id))),
-  };
 
   return match;
 }
 
-export const buildTicketPipeline = async (
-  filters: IReportFilters,
-  subdomain: string,
-): Promise<any[]> => {
-  const match = await narrowTicketMatchByContacts(
+export const buildTicketPipeline = (filters: IReportFilters): any[] => {
+  const match = narrowTicketMatchByContacts(
     buildTicketMatch(filters),
     filters,
-    subdomain,
   );
 
   return [{ $match: match }];

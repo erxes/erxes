@@ -17,7 +17,9 @@ export const FacebookMessageInputWrapper = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [conversationId] = useQueryState<string>('conversationId');
   const { facebookConversationMessages, loading } =
     useFacebookConversationMessages();

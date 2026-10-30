@@ -158,6 +158,9 @@ export type IUIConfig = {
       name: string;
       icon?: React.ElementType;
       label?: string;
+      // Host record types the widget shows on, e.g. `core:customer`;
+      // every host when omitted.
+      contentTypes?: string[];
     }[];
     // Sections a plugin adds to another plugin's settings page, e.g. what a
     // POS or a pipeline sends to loyalty.
@@ -171,6 +174,23 @@ export type IUIConfig = {
     recordPickerWidgets?: {
       name: string;
       contentType: string;
+    }[];
+    // Record types the plugin draws in the app's side panel (its
+    // `./recordPanel` remote, given `IRecordPanelProps`), e.g.
+    // `operation:task`; core keeps the panel's relations and activity.
+    recordPanels?: {
+      contentType: string;
+      // `false` when the type has no custom properties: no Properties tab.
+      properties?: boolean;
+      draftTitle?: boolean;
+    }[];
+    // Sections a plugin adds to a customer's or company's overview (its
+    // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):
+    // one per module, e.g. `tasks`, listing that contact's records.
+    contactWidgets?: {
+      name: string;
+      label?: string;
+      icon?: React.ElementType;
     }[];
     customerDetailWidgets?: {
       name: string;

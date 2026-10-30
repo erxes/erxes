@@ -8,10 +8,10 @@ import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { ITicket } from '~/modules/ticket/@types/ticket';
 import {
-  relateTicketToConversation,
   resolveConversationMedia,
   resolveInboxConversationId,
 } from '~/modules/ticket/utils/conversationTickets';
+import { logConversationFormSubmission } from '~/modules/inbox/utils/conversationFormSubmission';
 
 type TReceiveActionInput =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -252,7 +252,8 @@ const buildTicketDoc = (data: Record<string, unknown>): ITicket => {
     userId: getString(data, 'userId'),
     labelIds: toStringArray(data.labelIds),
     tagIds: toStringArray(data.tagIds),
-    companyIds: toStringArray(data.companyIds),
+    // A ticket keeps one company (old `companyIds` configs are migrated).
+    companyId: getString(data, 'companyId'),
     startDate: parseDate(data.startDate),
     targetDate: parseDate(data.targetDate),
     propertiesData: normalizePropertiesData(data),
@@ -318,15 +319,21 @@ export const createTicketAction = async ({
     });
   }
 
-  const ticket = await models.Ticket.addTicket(doc, userId, subdomain);
+  const customerId = getString(target, 'customerId');
+  // A ticket from a conversation keeps the conversation's customer, so the
+  // customer's open tickets are found on a later message; no relation.
+  const ticket = await models.Ticket.addTicket(
+    inboxConversationId && customerId ? { ...doc, customerId } : doc,
+    userId,
+    subdomain,
+  );
 
-  // Lets the conversation show its ticket and a later message find it open.
   if (inboxConversationId) {
-    await relateTicketToConversation({
+    await logConversationFormSubmission({
+      models,
       subdomain,
-      ticketId: ticket._id,
       conversationId: inboxConversationId,
-      customerId: getString(target, 'customerId'),
+      target: { contentType: 'frontline:ticket', contentId: ticket._id },
       userId,
     });
   }

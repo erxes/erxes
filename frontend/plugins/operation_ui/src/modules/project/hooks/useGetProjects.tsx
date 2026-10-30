@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { currentUserState } from 'ui-modules';
 import type {
   GetProjectsInlineQuery,
@@ -38,14 +38,26 @@ export const useProjectsVariables = (
   const { cursor } = useRecordTableCursor({
     sessionKey: PROJECTS_CURSOR_SESSION_KEY,
   });
-  const [{ name, team, priority, status, lead, tags }] = useMultiQueryState<{
-    name: string;
-    team: string;
-    priority: string;
-    status: string;
-    lead: string;
-    tags: string[];
-  }>(['name', 'team', 'priority', 'status', 'lead', 'tags']);
+  const [{ name, team, priority, status, lead, tags, customerId, companyId }] =
+    useMultiQueryState<{
+      name: string;
+      team: string;
+      priority: string;
+      status: string;
+      lead: string;
+      tags: string[];
+      customerId: string;
+      companyId: string;
+    }>([
+      'name',
+      'team',
+      'priority',
+      'status',
+      'lead',
+      'tags',
+      'customerId',
+      'companyId',
+    ]);
   const currentUser = useAtomValue(currentUserState);
 
   return {
@@ -60,6 +72,8 @@ export const useProjectsVariables = (
     status: status ? Number(status) : undefined,
     leadId: lead || undefined,
     tagIds: tags || undefined,
+    customerId: customerId || undefined,
+    companyId: companyId || undefined,
     ...variables,
     ...(variables?.teamIds || variables?.memberId || !currentUser?._id
       ? {}
@@ -76,12 +90,21 @@ export const useProjects = (
   const { t } = useTranslation('operation');
   const setProjectTotalCount = useSetAtom(projectTotalCountAtom);
   const { toast } = useToast();
-  const variables = useProjectsVariables(options?.variables);
+  const rawVariables = useProjectsVariables(options?.variables);
+  // A fresh object every render would re-open the list subscription on every
+  // render; keep its identity while the filter is unchanged.
+  const variables = useMemo(
+    () => rawVariables,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(rawVariables)],
+  );
+
+  const skip = options?.skip || isUndefinedOrNull(variables.cursor);
 
   const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_PROJECTS, {
     ...options,
     variables: { filter: variables },
-    skip: options?.skip || isUndefinedOrNull(variables.cursor),
+    skip,
     onError: (e) => {
       toast({
         title: t('error'),
@@ -98,6 +121,7 @@ export const useProjects = (
   const totalCount = data?.getProjects?.totalCount;
 
   useEffect(() => {
+    if (skip) return;
     const unsubscribe = subscribeToMore({
       document: PROJECT_LIST_CHANGED,
       variables: { filter: variables },
@@ -136,15 +160,15 @@ export const useProjects = (
               event.type === 'create'
                 ? (prev.getProjects.totalCount ?? 0) + 1
                 : event.type === 'delete'
-                  ? (prev.getProjects.totalCount ?? 0) - 1
-                  : prev.getProjects.totalCount,
+                ? (prev.getProjects.totalCount ?? 0) - 1
+                : prev.getProjects.totalCount,
           },
         };
       },
     });
 
     return () => unsubscribe();
-  }, [subscribeToMore, variables]);
+  }, [skip, subscribeToMore, variables]);
 
   useEffect(() => {
     if (isUndefinedOrNull(totalCount)) return;

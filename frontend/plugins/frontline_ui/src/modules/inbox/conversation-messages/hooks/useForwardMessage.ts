@@ -8,6 +8,7 @@ import { useConversationContext } from '@/inbox/conversations/conversation-detai
 import { useConversationMessageContext } from '@/inbox/conversations/conversation-detail/hooks/useConversationMessageContext';
 import { GET_CONVERSATIONS } from '@/inbox/conversations/graphql/queries/getConversations';
 import { readFacebookDelivery } from '@/integrations/facebook/types/FacebookReplyDelivery';
+import { readInstagramDelivery } from '@/integrations/instagram/utils/instagramReplyDelivery';
 import { compactList } from '@/shared/utils/cursorList';
 import {
   forwardMessageSchema,
@@ -15,11 +16,13 @@ import {
 } from '@/inbox/conversation-messages/types/forwardMessage';
 import { buildForwardMessage } from '@/inbox/conversation-messages/utils/forwardMessage';
 import { previewOf } from '@/inbox/conversation-messages/utils/messageActionText';
+import { useTranslation } from 'react-i18next';
 
 export const useForwardMessage = (
   open: boolean,
   onOpenChange: (open: boolean) => void,
 ) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const message = useConversationMessageContext();
   const { _id: sourceConversationId } = useConversationContext();
   const preview = previewOf(message);
@@ -76,11 +79,12 @@ export const useForwardMessage = (
           'ConversationCounts',
           'FrontlineInboxSidebarWorkCounts',
           'FacebookConversationMessages',
+          'InstagramConversationMessages',
         ],
       });
-      const delivery = readFacebookDelivery(
-        result.data?.conversationMessageAdd?.extraData,
-      );
+      const extraData = result.data?.conversationMessageAdd?.extraData;
+      const instagramDelivery = readInstagramDelivery(extraData);
+      const delivery = readFacebookDelivery(extraData) || instagramDelivery;
       if (delivery?.status === 'partial') {
         const remaining = outgoingAttachments.filter(
           ({ url }) => !delivery.sentAttachmentUrls.includes(url),
@@ -89,13 +93,19 @@ export const useForwardMessage = (
           ...current,
           [destinationId]: remaining,
         }));
+        const historyFailureDescription = instagramDelivery
+          ? t(
+              'instagram-forward-history-failed',
+              'Instagram accepted the message, but saving its history failed. Do not resend it.',
+            )
+          : t('facebook-forward-history-failed');
         toast({
           title: remaining.length
-            ? 'Message partially forwarded'
-            : 'Message forwarded with a warning',
+            ? t('message-partially-forwarded')
+            : t('message-forwarded-with-warning'),
           description: remaining.length
-            ? 'Retry will send only the remaining attachments.'
-            : 'Facebook accepted the message, but saving its history failed. Do not resend it.',
+            ? t('retry-sends-remaining-attachments')
+            : historyFailureDescription,
           variant: 'destructive',
         });
         return;
@@ -106,12 +116,12 @@ export const useForwardMessage = (
           [destinationId]: [],
         }));
       }
-      toast({ title: 'Message forwarded', variant: 'default' });
+      toast({ title: t('message-forwarded'), variant: 'default' });
       form.reset();
       onOpenChange(false);
     } catch (error) {
       toast({
-        title: `Failed to forward: ${(error as Error).message}`,
+        title: t('forward-failed', { message: (error as Error).message }),
         variant: 'destructive',
       });
     }

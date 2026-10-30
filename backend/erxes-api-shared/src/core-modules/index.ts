@@ -13,3 +13,5 @@ export * from './email-content';
 export * from './client-portals';
 export * from './import-export';
 export * from './templates';
+export * from './contact-fields';
+export * from './agent';

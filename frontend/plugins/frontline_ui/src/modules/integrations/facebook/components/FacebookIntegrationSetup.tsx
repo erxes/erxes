@@ -3,7 +3,7 @@ import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbInte
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input } from 'erxes-ui';
+import { Button, Form, Input, Spinner } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
@@ -22,7 +22,9 @@ import {
 } from '@/integrations/facebook/components/FacebookIntegrationForm';
 
 export const FacebookIntegrationSetup = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { id: channelId } = useParams();
   const { isPost } = useFbIntegrationContext();
   const form = useForm<z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>>({
@@ -42,6 +44,8 @@ export const FacebookIntegrationSetup = () => {
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);
 
   const onNext = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) => {
+    // Stays open until the server answers, so the wait shows on the button and
+    // a failure keeps what was typed.
     addIntegration({
       variables: {
         kind: isPost
@@ -55,9 +59,13 @@ export const FacebookIntegrationSetup = () => {
           pageIds: [pageId],
         },
       },
-      refetchQueries: ['Integrations'],
+      refetchQueries: ['Integrations', 'FacebookGetIntegrations'],
+      awaitRefetchQueries: true,
+    }).then(({ errors }) => {
+      if (!errors?.length) {
+        resetFacebookForm();
+      }
     });
-    resetFacebookForm();
   };
 
   return (
@@ -72,11 +80,13 @@ export const FacebookIntegrationSetup = () => {
               <Button
                 variant="secondary"
                 className="bg-border"
+                disabled={loading}
                 onClick={() => setActiveStep(2)}
               >
                 {t('previous-step')}
               </Button>
               <Button type="submit" disabled={loading}>
+                {loading && <Spinner size="sm" />}
                 {t('save')}
               </Button>
             </>

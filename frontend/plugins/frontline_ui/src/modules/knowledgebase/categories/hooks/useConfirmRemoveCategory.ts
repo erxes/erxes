@@ -3,7 +3,9 @@ import { useRemoveCategories } from '@/knowledgebase/categories/hooks/useCategor
 import { useKbConfirmRemove } from '@/knowledgebase/shared/hooks/useKbConfirmRemove';
 
 export const useConfirmRemoveCategory = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { removeCategories, loading } = useRemoveCategories();
   const confirmRemove = useKbConfirmRemove();
 

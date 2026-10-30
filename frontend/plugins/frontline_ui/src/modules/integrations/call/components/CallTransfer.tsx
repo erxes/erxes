@@ -12,7 +12,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const TransferTrigger = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [inCallView, setInCallView] = useAtom(inCallViewAtom);
   return (
     <InCallActionButton
@@ -33,7 +35,9 @@ export const TransferTrigger = () => {
 };
 
 export const Transfer = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [inCallView, setInCallView] = useAtom(inCallViewAtom);
   const config = useAtomValue(callConfigAtom);
   const { callExtensionList, loading } = useExtentionList({

@@ -99,6 +99,7 @@ export const types = `
   type CallReportIntegration {
     _id: String
     inboxId: String
+    name: String
     phone: String
     queues: [String]
   }

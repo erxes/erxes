@@ -60,6 +60,7 @@ export const types = `
     templateType: String
     erxesAppToken: String
     externalLinks: JSON
+    texts: JSON
     integrations: Integrations
     environmentVariables: [EnvironmentVariable]
     projectId: String
@@ -130,6 +131,7 @@ export const inputs = `
     templateType: String
     erxesAppToken: String
     externalLinks: JSON
+    texts: JSON
     integrations: IntegrationsInput
     environmentVariables: [EnvironmentVariableInput]
   }

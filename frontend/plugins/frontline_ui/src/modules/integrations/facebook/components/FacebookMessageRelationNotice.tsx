@@ -1,6 +1,7 @@
 import { useFbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { IconMessage2, IconQuote } from '@tabler/icons-react';
 import { Button, cn, useMultiQueryState } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 const COMMENT_PRIVATE_REPLY_SOURCE_TYPE = 'facebook_comment_private_reply';
 
@@ -22,6 +23,9 @@ export const FacebookMessageRelationNotice = ({
 }: {
   placement: 'comment' | 'messenger';
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { source, relatedMessage } = useFbMessengerMessageContext();
   const [, setQueryValues] = useMultiQueryState<{
     conversationId: string;
@@ -31,7 +35,7 @@ export const FacebookMessageRelationNotice = ({
   const relation =
     placement === 'comment'
       ? {
-          label: 'Sent in Messenger',
+          label: t('fb-sent-in-messenger'),
           content: relatedMessage?.content,
           conversationId: relatedMessage?.conversationId,
           messageId: relatedMessage?.messageId,
@@ -39,7 +43,7 @@ export const FacebookMessageRelationNotice = ({
         }
       : source?.type === COMMENT_PRIVATE_REPLY_SOURCE_TYPE
       ? {
-          label: 'Reply to comment',
+          label: t('fb-reply-to-comment'),
           content: source.content,
           conversationId: source.conversationId,
           messageId: source.messageId,

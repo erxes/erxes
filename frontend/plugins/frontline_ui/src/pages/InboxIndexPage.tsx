@@ -45,7 +45,7 @@ export const InboxIndexPage = () => {
           {canComposeEmail && (
             <Button type="button" onClick={() => composeEmail()}>
               <IconPencil />
-              Send email
+              {t('send-email')}
             </Button>
           )}
         </PageHeader.End>

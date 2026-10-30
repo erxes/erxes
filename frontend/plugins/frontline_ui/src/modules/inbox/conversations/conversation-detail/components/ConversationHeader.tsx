@@ -43,7 +43,6 @@ import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { ConversationSharedEmail } from '@/inbox/conversations/conversation-detail/components/ConversationSharedEmail';
-import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useRef, useState } from 'react';
 import {
@@ -56,7 +55,7 @@ const stopEventPropagation = (event: SyntheticEvent) => {
 };
 
 const ConversationListToggle = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { isHidden, toggle } = useConversationListVisibility();
   const Icon = isHidden
     ? IconLayoutSidebarLeftExpand
@@ -84,6 +83,7 @@ const ConversationListToggle = () => {
 };
 
 const ConversationHeaderProfile = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id, integration, customer, customerId } = useConversationContext();
   const isTelegram = integration?.kind === IntegrationType.TELEGRAM_MESSENGER;
   const { chats, loading: telegramLoading } = useTelegramChats(
@@ -126,7 +126,7 @@ const ConversationHeaderProfile = () => {
         </Avatar>
         <span
           className="text-sm text-foreground"
-          title={`Discord channel: #${channel.channelName}`}
+          title={t('discord-channel-title', { name: channel.channelName })}
         >
           #{channel.channelName}
         </span>
@@ -139,12 +139,13 @@ const ConversationHeaderProfile = () => {
       customers={customer ? [customer] : undefined}
       customerIds={customerId ? [customerId] : undefined}
       className="text-sm text-foreground flex-none"
-      placeholder="anonymous customer"
+      placeholder={t('anonymous-customer')}
     />
   );
 };
 
 const AutomatedReplyStatusBadge = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id, automatedReplyControl } = useConversationContext();
   const { setAutomatedReplyControl, loading } =
     useConversationAutomatedReplyControl();
@@ -156,13 +157,13 @@ const AutomatedReplyStatusBadge = () => {
 
   const isActive = status === 'active';
   const label = isActive
-    ? 'Automation active'
+    ? t('automation-active')
     : status === 'human_active' &&
-      automatedReplyControl?.reason === 'operator_reply'
-    ? 'Automation paused: operator active'
-    : 'Automation paused';
+        automatedReplyControl?.reason === 'operator_reply'
+      ? t('automation-paused-operator-active')
+      : t('automation-paused');
   const nextStatus = isActive ? 'human_active' : 'active';
-  const actionLabel = isActive ? 'Pause automation' : 'Resume automation';
+  const actionLabel = isActive ? t('pause-automation') : t('resume-automation');
   const Icon = isActive ? IconPlayerPlay : IconPlayerPause;
   const ActionIcon = isActive ? IconPlayerPause : IconPlayerPlay;
 
@@ -175,7 +176,7 @@ const AutomatedReplyStatusBadge = () => {
       },
       onCompleted: () => {
         toast({
-          title: isActive ? 'Automation paused' : 'Automation resumed',
+          title: isActive ? t('automation-paused') : t('automation-resumed'),
         });
       },
     });
@@ -213,7 +214,7 @@ const AssignConversation = ({
 }: {
   withinDropdown?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const conversation = useConversationContext();
   const { _id } = conversation;
   const { assignConversations, loading } = useAssignConversations();
@@ -295,7 +296,7 @@ export const ConversationTags = ({
   showAllTags?: boolean;
   withinDropdown?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id, tagIds, setTagIds } = useConversationContext();
   if (!_id) return null;
 
@@ -364,7 +365,7 @@ const ConversationActionsDropdown = ({
 }: {
   showAssignee?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { _id, status } = useConversationContext();
   const { changeConversationStatus, loading } = useChangeConversationStatus();
   const refetchConversations = useAtomValue(refetchConversationsAtom);
@@ -477,7 +478,6 @@ export const ConversationHeader = () => {
       <div className="ml-auto flex min-w-0 items-center gap-3">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
-        <ConversationConvert />
         {isCompact ? (
           <ConversationActionsDropdown showAssignee={hideAssignee} />
         ) : (

@@ -13,7 +13,9 @@ export const MailInboxChecklist = ({
   value,
   onChange,
 }: MailInboxChecklistProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-mail',
+  });
   const { data, loading, error } = useQuery(MAIL_INBOXES_QUERY);
 
   if (loading) {

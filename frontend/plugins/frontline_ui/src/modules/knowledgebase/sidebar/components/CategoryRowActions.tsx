@@ -17,7 +17,9 @@ export const CategoryRowActions = ({
   isActive: boolean;
   onEdit: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const navigate = useNavigate();
   const { confirmRemoveCategory } = useConfirmRemoveCategory();
   const editLabel = t('kb-edit-category', 'Edit Category');

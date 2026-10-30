@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import type { TFunction } from 'i18next';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import { JournalEnum } from '@/settings/account/types/Account';
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import {
@@ -12,7 +13,68 @@ import {
 } from 'ui-modules';
 import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
 import { IConfig } from '../types/Config';
-import { syncBaseColumns, SyncConfigTable } from './SyncTableShared';
+import {
+  syncBaseColumns,
+  SyncConfigTable,
+  useSyncConfigValueUpdate,
+} from '@/settings/syncSettings/SyncTableShared';
+
+type TMovementAccountKey = 'sourceAccountId' | 'destinationAccountId';
+type TMovementBranchKey =
+  | 'defaultSourceBranchId'
+  | 'defaultDestinationBranchId';
+type TMovementDepartmentKey =
+  | 'defaultSourceDepartmentId'
+  | 'defaultDestinationDepartmentId';
+
+const MovementAccountCell = ({
+  config,
+  name,
+}: {
+  config: IConfig;
+  name: TMovementAccountKey;
+}) => {
+  const updateValue = useSyncConfigValueUpdate(config);
+  return (
+    <SelectAccount.InlineCell
+      value={config.value?.[name] || ''}
+      onValueChange={(value) => updateValue(name, value)}
+      defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
+    />
+  );
+};
+
+const MovementBranchCell = ({
+  config,
+  name,
+}: {
+  config: IConfig;
+  name: TMovementBranchKey;
+}) => {
+  const updateValue = useSyncConfigValueUpdate(config);
+  return (
+    <SelectBranches.InlineCell
+      value={config.value?.[name] || ''}
+      onValueChange={(value) => updateValue(name, value)}
+    />
+  );
+};
+
+const MovementDepartmentCell = ({
+  config,
+  name,
+}: {
+  config: IConfig;
+  name: TMovementDepartmentKey;
+}) => {
+  const updateValue = useSyncConfigValueUpdate(config);
+  return (
+    <SelectDepartments.InlineCell
+      value={config.value?.[name] || ''}
+      onValueChange={(value) => updateValue(name, value)}
+    />
+  );
+};
 
 export const dealMovementColumns = (
   t: TFunction<'accounting'>,
@@ -56,9 +118,7 @@ export const dealMovementColumns = (
     accessorKey: 'sourceAccount',
     header: () => <RecordTable.InlineHead label={t('source-account')} />,
     cell: ({ cell }) => (
-      <SelectAccount.InlineCell
-        value={cell.row.original.value?.sourceAccountId || ''}
-      />
+      <MovementAccountCell config={cell.row.original} name="sourceAccountId" />
     ),
   },
   {
@@ -66,8 +126,9 @@ export const dealMovementColumns = (
     accessorKey: 'destinationAccount',
     header: () => <RecordTable.InlineHead label={t('destination-account')} />,
     cell: ({ cell }) => (
-      <SelectAccount.InlineCell
-        value={cell.row.original.value?.destinationAccountId || ''}
+      <MovementAccountCell
+        config={cell.row.original}
+        name="destinationAccountId"
       />
     ),
   },
@@ -76,8 +137,9 @@ export const dealMovementColumns = (
     accessorKey: 'sourceBranch',
     header: () => <RecordTable.InlineHead label={t('default-source-branch')} />,
     cell: ({ cell }) => (
-      <SelectBranches.InlineCell
-        branchIds={[cell.row.original.value?.defaultSourceBranchId || '']}
+      <MovementBranchCell
+        config={cell.row.original}
+        name="defaultSourceBranchId"
       />
     ),
   },
@@ -88,10 +150,9 @@ export const dealMovementColumns = (
       <RecordTable.InlineHead label={t('default-source-department')} />
     ),
     cell: ({ cell }) => (
-      <SelectDepartments.InlineCell
-        departmentIds={[
-          cell.row.original.value?.defaultSourceDepartmentId || '',
-        ]}
+      <MovementDepartmentCell
+        config={cell.row.original}
+        name="defaultSourceDepartmentId"
       />
     ),
   },
@@ -102,8 +163,9 @@ export const dealMovementColumns = (
       <RecordTable.InlineHead label={t('default-destination-branch')} />
     ),
     cell: ({ cell }) => (
-      <SelectBranches.InlineCell
-        branchIds={[cell.row.original.value?.defaultDestinationBranchId || '']}
+      <MovementBranchCell
+        config={cell.row.original}
+        name="defaultDestinationBranchId"
       />
     ),
   },
@@ -114,10 +176,9 @@ export const dealMovementColumns = (
       <RecordTable.InlineHead label={t('default-destination-department')} />
     ),
     cell: ({ cell }) => (
-      <SelectDepartments.InlineCell
-        departmentIds={[
-          cell.row.original.value?.defaultDestinationDepartmentId || '',
-        ]}
+      <MovementDepartmentCell
+        config={cell.row.original}
+        name="defaultDestinationDepartmentId"
       />
     ),
   },

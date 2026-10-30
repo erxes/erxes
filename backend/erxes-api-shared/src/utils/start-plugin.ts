@@ -18,6 +18,11 @@ import * as http from 'http';
 import * as path from 'path';
 import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
+import type { IContactFieldsMeta } from '../core-modules/contact-fields';
+import {
+  type IAgentPluginMeta,
+  validateAgentPluginMeta,
+} from '../core-modules/agent';
 import type {
   IPropertyMeta,
   LogsConfigs,
@@ -52,7 +57,6 @@ import {
   leaveErxesGateway,
 } from './service-discovery';
 import { createTRPCContext } from './trpc';
-import { mountAgentTools } from './agent-tools';
 import { applyTrustProxy, getSubdomain } from './utils';
 import * as Sentry from '@sentry/node';
 
@@ -93,6 +97,12 @@ type IMeta = {
   relations?: {
     subscribedTypes: string[];
   };
+  // Record types keeping their own customerId / companyId; core tells the
+  // plugin when a contact is merged or removed (tRPC `contactFields.sync`).
+  contactFields?: IContactFieldsMeta;
+  // Text-only skills and agent-hidden GraphQL operations for the core AI
+  // assistant; core re-validates them when it reads service discovery.
+  agent?: IAgentPluginMeta;
 };
 
 type ApiHandler = {
@@ -135,14 +145,6 @@ type ConfigTypes = {
       context: any,
     ) => Promise<TContext>;
   };
-  /**
-   * tRPC procedure paths to exclude from the agent capability manifest.
-   * Agent-tools endpoints are mounted automatically on every plugin that
-   * supplies a `trpcAppRouter`. Only procedures declaring
-   * `.meta({ agent: { permission } })` appear in the manifest; this list
-   * removes specific annotated procedures when needed.
-   */
-  agentToolsExclude?: string[];
   meta?: IMeta;
 };
 
@@ -165,8 +167,6 @@ export async function startPlugin(
     apolloServerContext,
     trpcAppRouter,
     onServerInit,
-    // agent capability endpoint exclusions
-    agentToolsExclude,
     // meta
     meta,
   } = configs || {};
@@ -280,19 +280,6 @@ export async function startPlugin(
         createContext: createTRPCContext(createContext),
       }),
     );
-  }
-
-  // Agent capability endpoints are mounted automatically on every plugin with
-  // a tRPC router. The manifest is admit-only: only procedures declaring
-  // `.meta({ agent: { permission } })` are exposed, so an empty router
-  // produces an empty manifest and zero callable tools.
-  if (trpcAppRouter) {
-    mountAgentTools(app, {
-      plugin: name,
-      trpcRouter: trpcAppRouter.router,
-      createContext: trpcAppRouter.createContext,
-      exclude: agentToolsExclude || [],
-    });
   }
 
   app.use((req: any, _res, next) => {
@@ -420,7 +407,16 @@ export async function startPlugin(
       importExport,
       approval,
       properties,
+      agent,
     } = meta || {};
+
+    for (const { skill, reason } of validateAgentPluginMeta(agent).rejections) {
+      console.warn(
+        `[agent] ${name} ${
+          skill ? `skill "${skill}"` : 'metadata'
+        } ignored: ${reason}`,
+      );
+    }
 
     if (beforeResolvers) {
       await startBeforeResolvers(app, name, beforeResolvers);

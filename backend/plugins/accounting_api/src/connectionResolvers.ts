@@ -47,7 +47,7 @@ import {
   IAdjustFxaDetailModel,
   loadAdjustFixedAssetClass,
   loadAdjustFxaDetailClass,
-} from './modules/accounting/db/models/FixedAssets';
+} from './modules/accounting/db/models/AdjustFixedAssets';
 import {
   IPermissionModel,
   loadPermissionClass,
@@ -103,9 +103,16 @@ import {
   ISafeRemainderModel,
   loadSafeRemainderClass,
 } from './modules/inventories/db/models/SafeRemainders';
+import { IJobModel, loadJobClass } from './modules/inventories/db/models/Jobs';
 import { IReserveRemDocument } from './modules/inventories/@types/reserveRems';
 import { ISafeRemainderItemDocument } from './modules/inventories/@types/safeRemainderItems';
 import { ISafeRemainderDocument } from './modules/inventories/@types/safeRemainders';
+import { IJobDocument } from './modules/inventories/@types/jobs';
+import { IJobExecutionDocument } from './modules/inventories/@types/jobExecutions';
+import {
+  IJobExecutionModel,
+  loadJobExecutionClass,
+} from './modules/inventories/db/models/JobExecutions';
 export interface IModels {
   Accounts: IAccountModel;
   Transactions: ITransactionModel;
@@ -129,6 +136,8 @@ export interface IModels {
   ReserveRems: IReserveRemModel;
   SafeRemainderItems: ISafeRemainderItemModel;
   SafeRemainders: ISafeRemainderModel;
+  Jobs: IJobModel;
+  JobExecutions: IJobExecutionModel;
   AdjustClosings: IAdjustClosingEntryModel;
 }
 
@@ -266,6 +275,22 @@ export const loadClasses = (
   models.SafeRemainders = db.model<ISafeRemainderDocument, ISafeRemainderModel>(
     'safe_remainders',
     loadSafeRemainderClass(models),
+  );
+  models.Jobs = db.model<IJobDocument, IJobModel>(
+    'inventories_jobs',
+    loadJobClass(
+      models,
+      accountingEventHandlers('accounting', 'inventories_jobs'),
+    ),
+  );
+  models.JobExecutions = db.model<IJobExecutionDocument, IJobExecutionModel>(
+    'job_executions',
+    loadJobExecutionClass(
+      models,
+      subdomain,
+      accountingEventHandlers('accounting', 'job_executions'),
+    ),
+    'job_executions',
   );
 
   return models;

@@ -340,7 +340,7 @@ export const widgetQueries: Record<string, Resolver> = {
     // Ticket numbers are guessable, so only the customer's own count.
     const ticket = await models.Ticket.findOne({
       number,
-      _id: { $in: await getOwnedTicketIds(subdomain, session) },
+      _id: { $in: await getOwnedTicketIds(subdomain, session, models) },
     });
 
     if (!ticket) {
@@ -353,7 +353,12 @@ export const widgetQueries: Record<string, Resolver> = {
     { contentId }: { contentId: string },
     { models, subdomain, req }: IContext,
   ) {
-    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
+    await assertOwnsTicket(
+      subdomain,
+      requireWidgetSession(req),
+      contentId,
+      models,
+    );
 
     const notes = await models.Note.getNotes({ contentId });
 
@@ -368,7 +373,12 @@ export const widgetQueries: Record<string, Resolver> = {
     { contentId }: { contentId: string },
     { models, subdomain, req }: IContext,
   ) {
-    await assertOwnsTicket(subdomain, requireWidgetSession(req), contentId);
+    await assertOwnsTicket(
+      subdomain,
+      requireWidgetSession(req),
+      contentId,
+      models,
+    );
 
     return (await models.Activity.find({ contentId })) || [];
   },
@@ -380,6 +390,7 @@ export const widgetQueries: Record<string, Resolver> = {
     const ticketIds = await getOwnedTicketIds(
       subdomain,
       requireWidgetSession(req),
+      models,
     );
 
     return models.Ticket.find({ _id: { $in: ticketIds } });

@@ -452,7 +452,7 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
       throw new Error('Permission denied');
     }
 
-    if (source && !['cart', 'order'].includes(source)) {
+    if (source && !['cart', 'order', 'cover'].includes(source)) {
       throw new Error('Invalid log source');
     }
 
@@ -507,7 +507,7 @@ const orderQueries: Record<string, Resolver<any, any, IContext>> = {
     return models.OrderChangeLogs.find({
       ...(matchingOrderIds ? { orderId: { $in: matchingOrderIds } } : {}),
       ...(orderId ? { orderId } : {}),
-      ...(source === 'cart' ? { source: 'cart' } : {}),
+      ...(['cart', 'cover'].includes(source || '') ? { source } : {}),
       ...(source === 'order'
         ? {
             $or: [

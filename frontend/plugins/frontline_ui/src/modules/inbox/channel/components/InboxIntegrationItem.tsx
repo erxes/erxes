@@ -35,7 +35,7 @@ export const InboxIntegrationItem = ({
   kind,
   name,
 }: InboxIntegrationItemProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [{ brandId, channelId: selectedChannelId, integrationId }, setFilters] =
     useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
   const isActive = integrationId === _id && selectedChannelId === channelId;

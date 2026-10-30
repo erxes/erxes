@@ -71,6 +71,11 @@ startPlugin({
   expressRouter: router,
 
   meta: {
+    // Tasks, projects and triages keep their own customerId / companyId;
+    // core tells operation when a contact is merged or removed.
+    contactFields: {
+      contentTypes: ['operation:task', 'operation:project', 'operation:triage'],
+    },
     importExport: {
       import: {
         types: [

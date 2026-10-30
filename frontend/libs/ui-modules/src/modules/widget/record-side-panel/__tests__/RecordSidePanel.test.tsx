@@ -1,0 +1,367 @@
+/** @jest-environment jsdom */
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { RecordSidePanel } from '../RecordSidePanel';
+
+jest.mock('erxes-ui', () => {
+  const ReactModule = jest.requireActual<typeof import('react')>('react');
+  const primitives = jest.requireActual<typeof import('radix-ui')>('radix-ui');
+  return {
+    cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
+    Button: ReactModule.forwardRef<
+      HTMLButtonElement,
+      React.ComponentProps<'button'>
+    >(({ children, ...props }, ref) => (
+      <button ref={ref} {...props}>
+        {children}
+      </button>
+    )),
+    Tabs: Object.assign(primitives.Tabs.Root, primitives.Tabs),
+    DropdownMenu: Object.assign(
+      primitives.DropdownMenu.Root,
+      primitives.DropdownMenu,
+    ),
+  };
+});
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (_key: string, fallback: string) => fallback }),
+}));
+
+const Panel = ({ maxWidth }: { maxWidth?: number }) => {
+  const [width, setWidth] = useState(400);
+  return (
+    <RecordSidePanel width={width} maxWidth={maxWidth} onWidthChange={setWidth}>
+      Chat
+    </RecordSidePanel>
+  );
+};
+
+let frames: Map<number, FrameRequestCallback>;
+let nextFrame = 0;
+beforeEach(() => {
+  frames = new Map();
+  jest.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+    const id = ++nextFrame;
+    frames.set(id, callback);
+    return id;
+  });
+  jest.spyOn(window, 'cancelAnimationFrame').mockImplementation((id) => {
+    frames.delete(id);
+  });
+});
+afterEach(() => jest.restoreAllMocks());
+const paint = () =>
+  act(() => {
+    const pending = [...frames.values()];
+    frames.clear();
+    pending.forEach((callback) => callback(0));
+  });
+const pointer = (
+  target: Element | Document,
+  type: string,
+  clientX = 0,
+  options: { pointerId?: number; buttons?: number; button?: number } = {},
+) => {
+  const event = new MouseEvent(type, {
+    bubbles: true,
+    clientX,
+    button: options.button ?? 0,
+    buttons: options.buttons ?? (type === 'pointerup' ? 0 : 1),
+  });
+  Object.defineProperty(event, 'pointerId', { value: options.pointerId ?? 1 });
+  fireEvent(target, event);
+};
+
+it('drags beyond the record limit when configured and clamps both width limits', () => {
+  render(<Panel maxWidth={1200} />);
+  const grip = screen.getByRole('separator', { name: 'Resize side panel' });
+  const panel = screen.getByText('Chat');
+  pointer(grip, 'pointerdown', 1000);
+  pointer(document, 'pointermove', 400);
+  paint();
+  expect(panel.style.width).toBe('1000px');
+  pointer(document, 'pointermove', 0);
+  paint();
+  expect(panel.style.width).toBe('1200px');
+  pointer(document, 'pointermove', 2000);
+  paint();
+  expect(panel.style.width).toBe('320px');
+  pointer(document, 'pointerup');
+  expect(document.body.style.cursor).toBe('');
+  pointer(document, 'pointermove', 0);
+  paint();
+  expect(panel.style.width).toBe('320px');
+});
+
+it('keeps the default record limit and supports keyboard resizing', () => {
+  render(<Panel />);
+  const grip = screen.getByRole('separator');
+  fireEvent.keyDown(grip, { key: 'ArrowLeft' });
+  expect(grip.getAttribute('aria-valuenow')).toBe('416');
+  fireEvent.keyDown(grip, { key: 'ArrowRight', shiftKey: true });
+  expect(grip.getAttribute('aria-valuenow')).toBe('352');
+  fireEvent.keyDown(grip, { key: 'End' });
+  expect(grip.getAttribute('aria-valuenow')).toBe('600');
+  pointer(grip, 'pointerdown', 800);
+  pointer(document, 'pointermove', 0);
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('600px');
+  pointer(document, 'pointerup');
+  fireEvent.keyDown(grip, { key: 'Home' });
+  expect(grip.getAttribute('aria-valuenow')).toBe('320');
+});
+
+it('restores the cursor and removes drag listeners on cancellation and unmount', () => {
+  const { unmount } = render(<Panel maxWidth={1200} />);
+  const grip = screen.getByRole('separator');
+  pointer(grip, 'pointerdown', 800);
+  expect(document.body.style.cursor).toBe('col-resize');
+  pointer(document, 'pointercancel');
+  expect(document.body.style.cursor).toBe('');
+  pointer(document, 'pointermove', 0);
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('400px');
+  pointer(grip, 'pointerdown', 800);
+  unmount();
+  expect(document.body.style.cursor).toBe('');
+  expect(document.body.style.userSelect).toBe('');
+});
+
+it('captures the initiating pointer, batches paints and persists only the final width', () => {
+  const onWidthChange = jest.fn();
+  render(
+    <RecordSidePanel width={400} maxWidth={1200} onWidthChange={onWidthChange}>
+      Chat
+    </RecordSidePanel>,
+  );
+  const grip = screen.getByRole('separator');
+  const capture = jest.fn();
+  const release = jest.fn();
+  grip.setPointerCapture = capture;
+  grip.hasPointerCapture = () => true;
+  grip.releasePointerCapture = release;
+  pointer(grip, 'pointerdown', 1000);
+  expect(capture).toHaveBeenCalledWith(1);
+  expect(
+    document.querySelector('[data-side-panel-resize-shield]'),
+  ).not.toBeNull();
+  pointer(document, 'pointermove', 800, { pointerId: 2 });
+  pointer(document, 'pointerup', 800, { pointerId: 2 });
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('400px');
+  pointer(document, 'pointermove', 900);
+  pointer(document, 'pointermove', 800);
+  expect(frames.size).toBe(1);
+  expect(onWidthChange).not.toHaveBeenCalled();
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('600px');
+  pointer(document, 'pointermove', 700);
+  pointer(document, 'pointerup', 700);
+  expect(onWidthChange.mock.calls).toEqual([[700]]);
+  expect(release).toHaveBeenCalledWith(1);
+  expect(frames.size).toBe(0);
+  expect(document.querySelector('[data-side-panel-resize-shield]')).toBeNull();
+});
+
+it.each([
+  'missing button',
+  'lost capture',
+  'blur',
+  'Escape',
+  'hidden document',
+])('ends a drag on %s and never resumes on hover', (reason) => {
+  render(<Panel maxWidth={1200} />);
+  const grip = screen.getByRole('separator');
+  pointer(grip, 'pointerdown', 1000);
+  pointer(document, 'pointermove', 800);
+  // Cleanup must flush this pending final width before removing the drag.
+  if (reason === 'missing button')
+    pointer(document, 'pointermove', 0, { buttons: 0 });
+  if (reason === 'lost capture') pointer(grip, 'lostpointercapture');
+  if (reason === 'blur') fireEvent(window, new Event('blur'));
+  if (reason === 'Escape') fireEvent.keyDown(document, { key: 'Escape' });
+  if (reason === 'hidden document') {
+    const visibility = jest
+      .spyOn(document, 'visibilityState', 'get')
+      .mockReturnValue('hidden');
+    fireEvent(document, new Event('visibilitychange'));
+    visibility.mockRestore();
+  }
+  expect(document.body.style.cursor).toBe('');
+  expect(document.querySelector('[data-side-panel-resize-shield]')).toBeNull();
+  pointer(document, 'pointermove', 0);
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('600px');
+});
+
+it('does not start on right click or resize just by hovering', () => {
+  render(<Panel />);
+  const grip = screen.getByRole('separator');
+  pointer(document, 'pointermove', 100);
+  pointer(grip, 'pointerdown', 800, { button: 2, buttons: 2 });
+  pointer(document, 'pointermove', 100);
+  paint();
+  expect(screen.getByText('Chat').style.width).toBe('400px');
+  expect(document.querySelector('[data-side-panel-resize-shield]')).toBeNull();
+});
+
+it('expands and collapses in place while preserving the draft and resized width', () => {
+  render(
+    <RecordSidePanel width={480} onWidthChange={jest.fn()}>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+      <input aria-label="Draft" defaultValue="Keep my edits" />
+    </RecordSidePanel>,
+  );
+  const panel = screen.getByRole('complementary');
+  const draft = screen.getByRole('textbox');
+  fireEvent.change(draft, { target: { value: 'Unsaved edit' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(panel.style.width).toBe('100%');
+  expect(panel.getAttribute('data-expanded')).toBe('true');
+  expect(screen.queryByRole('separator')).toBeNull();
+  expect(screen.getByRole('textbox')).toBe(draft);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(panel.style.width).toBe('480px');
+  expect(panel.hasAttribute('data-expanded')).toBe(false);
+  expect(screen.getByRole('separator').getAttribute('aria-valuenow')).toBe(
+    '480',
+  );
+  expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(
+    'Unsaved edit',
+  );
+});
+
+it('keeps an explicitly supplied expand handler', () => {
+  const expand = jest.fn();
+  render(
+    <RecordSidePanel width={400}>
+      <RecordSidePanel.Header
+        title="Task"
+        onExpand={expand}
+        onClose={jest.fn()}
+      />
+    </RecordSidePanel>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(expand).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('complementary').style.width).toBe('400px');
+});
+
+it.each([{ ctrlKey: true }, { metaKey: true }])(
+  'toggles with the exact fullscreen shortcut and preserves other Enter shortcuts (%o)',
+  (modifier) => {
+    render(
+      <RecordSidePanel width={480}>
+        <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        <input aria-label="Draft" />
+        <div contentEditable aria-label="Description" />
+      </RecordSidePanel>,
+    );
+    const panel = screen.getByRole('complementary');
+    const shortcut = { key: 'Enter', shiftKey: true, ...modifier };
+    fireEvent.keyDown(document, { key: 'Enter', ...modifier });
+    fireEvent.keyDown(document, { ...shortcut, altKey: true });
+    fireEvent.keyDown(document, { ...shortcut, repeat: true });
+    fireEvent.keyDown(document, { ...shortcut, isComposing: true });
+    fireEvent.keyDown(screen.getByRole('textbox'), shortcut);
+    fireEvent.keyDown(screen.getByLabelText('Description'), shortcut);
+    expect(panel.hasAttribute('data-expanded')).toBe(false);
+    fireEvent.keyDown(document, shortcut);
+    expect(panel.getAttribute('data-expanded')).toBe('true');
+    fireEvent.keyDown(document, shortcut);
+    expect(panel.style.width).toBe('480px');
+  },
+);
+
+it('does not toggle through an open menu or a previously handled shortcut', () => {
+  render(
+    <RecordSidePanel>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+      <div role="menu" data-state="open" />
+    </RecordSidePanel>,
+  );
+  const shortcut = { key: 'Enter', ctrlKey: true, shiftKey: true };
+  fireEvent.keyDown(document, shortcut);
+  expect(screen.getByRole('complementary').hasAttribute('data-expanded')).toBe(
+    false,
+  );
+  screen.getByRole('menu').remove();
+  const handled = new KeyboardEvent('keydown', {
+    ...shortcut,
+    cancelable: true,
+  });
+  handled.preventDefault();
+  fireEvent(document, handled);
+  expect(screen.getByRole('complementary').hasAttribute('data-expanded')).toBe(
+    false,
+  );
+});
+
+it('exposes every tab vertically in fullscreen and keeps the active editor mounted', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  const TabbedPanel = () => {
+    const [value, setValue] = useState('detail');
+    return (
+      <RecordSidePanel>
+        <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        <RecordSidePanel.Tabs
+          value={value}
+          onValueChange={setValue}
+          visibleCount={2}
+          tabs={['detail', 'properties', 'activity', 'files'].map((tab) => ({
+            value: tab,
+            label: tab,
+            icon: IconId,
+            content:
+              tab === 'detail' ? (
+                <input aria-label="Draft" defaultValue="Unsaved" />
+              ) : (
+                tab
+              ),
+          }))}
+        />
+      </RecordSidePanel>
+    );
+  };
+  render(<TabbedPanel />);
+  const draft = screen.getByRole('textbox');
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'vertical',
+  );
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
+  expect(screen.getByRole('textbox')).toBe(draft);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'horizontal',
+  );
+  expect(screen.getByRole('textbox')).toBe(draft);
+});
+
+it.each([false, true])(
+  'respects reduced motion when toggling (%s)',
+  (reducedMotion) => {
+    const animate = jest.fn();
+    const originalAnimate = HTMLElement.prototype.animate;
+    const originalMatchMedia = window.matchMedia;
+    HTMLElement.prototype.animate = animate;
+    window.matchMedia = jest.fn().mockReturnValue({ matches: reducedMotion });
+    try {
+      render(
+        <RecordSidePanel>
+          <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+        </RecordSidePanel>,
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+      expect(animate).toHaveBeenCalledTimes(reducedMotion ? 0 : 1);
+      expect(
+        screen.getByRole('complementary').getAttribute('data-expanded'),
+      ).toBe('true');
+    } finally {
+      HTMLElement.prototype.animate = originalAnimate;
+      window.matchMedia = originalMatchMedia;
+    }
+  },
+);

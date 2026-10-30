@@ -4,8 +4,6 @@ import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { convertConversation } from '@/inbox/services/conversationConvert';
-import { IConversationConvert } from '@/inbox/@types/conversationConvert';
 import {
   graphqlPubsub,
   markResolvers,
@@ -133,6 +131,7 @@ export const conversationMutations = {
             fromUserId: user._id,
             subdomain,
             notificationType: 'inboxAssignee',
+            event: 'frontline:conversations:conversationAssigneeChange',
             userIds: removed,
             action: 'unassign',
           });
@@ -143,6 +142,7 @@ export const conversationMutations = {
             fromUserId: user?._id,
             subdomain,
             notificationType: 'inboxAssignee',
+            event: 'frontline:conversations:conversationAssigneeChange',
             userIds: added,
             action: 'assignee',
           });
@@ -314,19 +314,6 @@ export const conversationMutations = {
     });
 
     return models.Conversations.getConversation(_id);
-  },
-
-  async conversationConvertToCard(
-    _root,
-    params: IConversationConvert,
-    { user, models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('conversationConvertToCard');
-
-    return convertConversation(
-      { models, subdomain, user, checkPermission },
-      params,
-    );
   },
 
   async conversationEditCustomFields(

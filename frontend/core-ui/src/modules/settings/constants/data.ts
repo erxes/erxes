@@ -18,8 +18,9 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
-  IconPlugConnected,
+  IconDeviceMobileCheck,
   IconShoppingCart,
+  IconSparkles,
   IconShieldCheck,
   IconShieldLock,
   IconTag,
@@ -139,13 +140,13 @@ export const SETTINGS_PATH_DATA = (
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
     },
+    {
+      name: t('two-factor', 'Two-factor authentication'),
+      icon: IconDeviceMobileCheck,
+      path: SettingsPath.TwoFactor,
+    },
   ],
   nav: [
-    {
-      name: t('connections', 'Connections'),
-      icon: IconPlugConnected,
-      path: SettingsWorkspacePath.Connections,
-    },
     {
       name: t('general'),
       icon: IconAdjustmentsAlt,
@@ -196,6 +197,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
     },
+    {
+      name: t('agents', 'Agents'),
+      icon: IconSparkles,
+      path: SettingsWorkspacePath.Agent,
+    },
   ],
   developer: [
     {
@@ -212,6 +218,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('oauth-clients'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
+    },
+    {
+      name: t('security', 'Security'),
+      icon: IconShieldCheck,
+      path: SettingsWorkspacePath.Security,
     },
     {
       name: t('system-logs'),
@@ -347,6 +358,29 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.Agent]: {
+    name: sidebarT('agents', 'Agents'),
+    items: [
+      { name: 'API key', path: `${settingsPath('agent')}/connection` },
+      { name: 'Code mode', path: `${settingsPath('agent')}/code-mode` },
+      { name: 'Approvals', path: `${settingsPath('agent')}/approvals` },
+      { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
+    ],
+  },
+  // How staff sign in: second factor and the company directory
+  [SettingsWorkspacePath.Security]: {
+    name: sidebarT('security', 'Security'),
+    items: [
+      {
+        name: sidebarT('two-factor', 'Two-factor authentication'),
+        path: settingsPath(SettingsWorkspacePath.Security),
+      },
+      {
+        name: sidebarT('active-directory', 'Active Directory (LDAP)'),
+        path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -357,8 +391,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
 });
 
 export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.Credentials]: 'credentials',
-  [SettingsWorkspacePath.Connections]: 'credentials',
+  [SettingsWorkspacePath.Agent]: 'agents',
   [SettingsWorkspacePath.TeamMember]: 'teamMembers',
   [SettingsWorkspacePath.Structure]: 'organization',
   [SettingsWorkspacePath.Tags]: 'tags',
@@ -368,13 +401,8 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Security]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',
-};
-
-// Sensitive settings stay hidden until their exact read action is loaded.
-export const SETTINGS_ACTION_PERMISSION_MAP: Record<string, string> = {
-  [SettingsWorkspacePath.Credentials]: 'credentialsRead',
-  [SettingsWorkspacePath.Connections]: 'credentialsRead',
 };

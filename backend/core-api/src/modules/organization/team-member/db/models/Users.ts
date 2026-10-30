@@ -1,4 +1,5 @@
-import { saveValidatedToken } from '@/auth/utils';
+import { LoginError } from '@/auth/loginError';
+import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -21,8 +22,7 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis } from 'erxes-api-shared/utils';
-import * as jwt from 'jsonwebtoken';
+import { escapeRegExp, redis } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
@@ -59,6 +59,14 @@ interface IInviteParams {
   permissionGroupIds?: string[];
 }
 
+interface IProvisionedUserParams {
+  email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  permissionGroupIds: string[];
+}
+
 interface ILoginParams {
   email: string;
   password?: string;
@@ -74,6 +82,8 @@ interface IPasswordParams {
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
+  isDirectoryUser(userId: string): Promise<boolean>;
+  assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
@@ -103,6 +113,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
+  createProvisionedUser(params: IProvisionedUserParams): Promise<IUserDocument>;
   resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
@@ -111,19 +122,12 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
-    params: IPasswordParams & { currentPassword: string },
+    params: IPasswordParams & { currentPassword: string; keepSid?: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
-  refreshTokens(refreshToken: string): Promise<
-    | {
-        token: string;
-        refreshToken: string;
-        user: IUserDocument;
-      }
-    | Record<string, never>
-  >;
-  login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
+  login(
+    params: ILoginParams,
+  ): Promise<{ user: IUserDocument; method: 'password' | 'ldap' }>;
   checkLoginAuth({
     email,
     password,
@@ -132,7 +136,8 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
-  logout(_user: IUserDocument, token: string): Promise<string>;
+  logout(_user: IUserDocument, legacyToken?: string): Promise<string>;
+  revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
@@ -194,6 +199,19 @@ export const loadUserClass = (
       }
 
       return user;
+    }
+
+    public static async isDirectoryUser(userId: string) {
+      return Boolean(
+        await models.AuthIdentities.exists({ provider: 'ldap', userId }),
+      );
+    }
+
+    // Directory users sign in with their directory password, so a local one would never be used
+    public static async assertLocalPassword(userId: string) {
+      if (await this.isDirectoryUser(userId)) {
+        throw new Error('Password is managed by the directory');
+      }
     }
 
     public static checkPassword(password: string) {
@@ -330,6 +348,7 @@ export const loadUserClass = (
 
       // change password
       if (doc.password) {
+        await this.assertLocalPassword(_id);
         this.checkPassword(doc.password);
 
         doc.password = await this.generatePassword(doc.password);
@@ -445,6 +464,46 @@ export const loadUserClass = (
       createActivityLog(generateUserInvitationActivityLog(user));
 
       return token;
+    }
+
+    /**
+     * Create a password-less user whose identity lives in an external directory
+     */
+    public static async createProvisionedUser({
+      email,
+      username,
+      firstName,
+      lastName,
+      permissionGroupIds,
+    }: IProvisionedUserParams) {
+      email = email.toLowerCase().trim();
+
+      await models.Users.checkDuplication({ email });
+
+      const usernameTaken = username
+        ? await models.Users.exists({ username })
+        : null;
+
+      const user = await models.Users.create({
+        email,
+        ...(username && !usernameTaken ? { username } : {}),
+        details: {
+          firstName,
+          lastName,
+          fullName: [firstName, lastName].filter(Boolean).join(' '),
+        },
+        isActive: true,
+        code: await this.generateUserCode(),
+        ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
+      });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
+      });
+
+      return user;
     }
 
     /**
@@ -589,6 +648,7 @@ export const loadUserClass = (
         return updatedUser;
       } else {
         await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+        await revokeUserSessions(subdomain, _id);
 
         const updatedUser = await models.Users.findOne({ _id });
         if (updatedUser) {
@@ -658,6 +718,8 @@ export const loadUserClass = (
         throw new Error('Password reset token is invalid or has expired.');
       }
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -674,6 +736,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -689,6 +753,8 @@ export const loadUserClass = (
     }) {
       const user = await models.Users.getUser(_id);
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -700,6 +766,8 @@ export const loadUserClass = (
         { $set: { password: await this.generatePassword(newPassword) } },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -710,10 +778,13 @@ export const loadUserClass = (
       _id,
       currentPassword,
       newPassword,
+      keepSid,
     }: {
       _id: string;
       currentPassword: string;
       newPassword: string;
+      // The caller's own session survives; every other one is signed out
+      keepSid?: string;
     }) {
       // Password can not be empty string
       if (newPassword === '') {
@@ -723,6 +794,8 @@ export const loadUserClass = (
       this.checkPassword(newPassword);
 
       const user = await models.Users.getUser(_id);
+
+      await this.assertLocalPassword(user._id);
 
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
@@ -739,6 +812,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id, keepSid);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -754,6 +829,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('Invalid email');
       }
+
+      await this.assertLocalPassword(user._id);
 
       // create the random token
       const buffer = await crypto.randomBytes(20);
@@ -788,64 +865,7 @@ export const loadUserClass = (
     }
 
     /*
-     * Creates regular and refresh tokens using given user information
-     */
-    public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        isOwner: _user.isOwner,
-      };
-
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
-
-      const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: '7d',
-      });
-
-      return [createToken, createRefreshToken];
-    }
-
-    /*
-     * Renews tokens
-     */
-    public static async refreshTokens(refreshToken: string) {
-      let _id = '';
-
-      try {
-        // validate refresh token
-        const { user }: any = jwt.verify(refreshToken, this.getSecret());
-
-        _id = user._id;
-        // if refresh token is expired then force to login
-      } catch (e: any) {
-        return {};
-      }
-
-      const dbUser = await models.Users.findOne({ _id, isActive: true });
-
-      if (!dbUser) {
-        return {};
-      }
-
-      // recreate tokens
-      const [newToken, newRefreshToken] = await this.createTokens(
-        dbUser,
-        this.getSecret(),
-      );
-
-      if (newToken) {
-        await saveValidatedToken(newToken, dbUser);
-      }
-
-      return {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        user: dbUser,
-      };
-    }
-
-    /*
-     * Validates user credentials and generates tokens
+     * Validates user credentials; the caller starts the session
      */
     public static async login({
       email,
@@ -858,32 +878,37 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const user = await models.Users.findOne({
+      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+
+      const localUser = await models.Users.findOne({
         $or: [
-          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
-          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { email: { $regex: loginPattern } },
+          { username: { $regex: loginPattern } },
         ],
         isActive: true,
       });
 
-      if (!user?.password) {
-        // user with provided email not found
-        throw new Error('Invalid login');
-      }
-      const valid = await this.comparePassword(password, user.password);
+      const isDirectoryUser = localUser
+        ? await this.isDirectoryUser(localUser._id)
+        : false;
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret(),
-      );
+      let user: IUserDocument;
+      let method: 'password' | 'ldap' = 'password';
 
-      if (token) {
-        await saveValidatedToken(token, user);
+      // Directory-linked users never fall back to a local password
+      if (localUser && !isDirectoryUser) {
+        const valid = localUser.password
+          ? await this.comparePassword(password, localUser.password)
+          : false;
+
+        if (!valid) {
+          throw new LoginError('invalid_credentials');
+        }
+
+        user = localUser;
+      } else {
+        user = await models.AuthIdentities.authenticateLdap(email, password);
+        method = 'ldap';
       }
 
       // storing tokens in user collection.
@@ -901,40 +926,47 @@ export const loadUserClass = (
       await user.updateOne({ $set: { registrationToken: null } });
 
       const loginActivityLog = generateLoginActivityLog(user, {
-        method: 'email/password',
+        method,
         deviceToken,
       });
       createActivityLog(loginActivityLog, user._id);
 
-      return {
-        token,
-        refreshToken,
-      };
+      return { user, method };
+    }
+
+    /**
+     * Signs a member out of one session, or of every device when no id is given.
+     * The account stays active, so they can sign in again.
+     */
+    public static async revokeSessions(_id: string, sessionId?: string) {
+      const user = await models.Users.getUser(_id);
+
+      if (sessionId) {
+        return revokeUserSession(subdomain, user._id, sessionId);
+      }
+
+      await revokeUserSessions(subdomain, user._id);
+
+      return true;
     }
 
     /**
      * Logging out user from database
      */
-    public static async logout(user: IUserDocument, currentToken: string) {
-      const validatedToken = await redis.get(
-        `user_token_${user._id}_${currentToken}`,
-      );
-
-      if (validatedToken) {
-        await redis.del(`user_token_${user._id}_${currentToken}`);
-
-        await models.Users.updateOne(
-          { _id: user._id },
-          { $set: { lastSeenAt: new Date() } },
-        );
-
-        const logoutActivityLog = generateLogoutActivityLog(user);
-        createActivityLog(logoutActivityLog);
-
-        return 'loggedout';
+    public static async logout(user: IUserDocument, legacyToken?: string) {
+      if (legacyToken) {
+        await redis.del(`user_token_${user._id}_${legacyToken}`);
       }
 
-      return 'token not found';
+      await models.Users.updateOne(
+        { _id: user._id },
+        { $set: { lastSeenAt: new Date() } },
+      );
+
+      const logoutActivityLog = generateLogoutActivityLog(user);
+      createActivityLog(logoutActivityLog);
+
+      return 'loggedout';
     }
 
     public static async generateUserCodeField() {
@@ -1071,6 +1103,20 @@ type ICommonUserMovement = {
   processId?: string;
 };
 
+type TStructureType = 'branch' | 'department' | 'position';
+
+const STRUCTURE_NOTIFICATION_TYPES: Record<string, string | undefined> = {
+  department: 'departmentAssigneeChanged',
+  branch: 'branchAssigneeChanged',
+  position: 'positionAssigneeChanged',
+};
+
+const STRUCTURE_FIELDS = {
+  branch: 'branchIds',
+  department: 'departmentIds',
+  position: 'positionIds',
+} as const;
+
 type IUserStructureAssignee = {
   subdomain: string;
   models: IModels;
@@ -1089,6 +1135,11 @@ export interface IUserMovemmentModel extends Model<IUserMovementDocument> {
   manageUserMovement(
     params: ICommonUserMovement,
   ): Promise<IUserMovementDocument>;
+  notifyStructureChanges(params: {
+    previous: IUserDocument;
+    updated: IUserDocument;
+    createdBy: string;
+  }): void;
 }
 
 export const loadUserMovemmentClass = (
@@ -1211,6 +1262,8 @@ export const loadUserMovemmentClass = (
 
     public static async manageUserMovement(params: ICommonUserMovement) {
       const user = params.user as IUserDocument;
+      // who made the change, not whose record it is
+      const createdBy = params.createdBy || user._id;
 
       for (const contentType of ['department', 'branch']) {
         const contentTypeIds = user[`${contentType}Ids`] || [];
@@ -1227,7 +1280,7 @@ export const loadUserMovemmentClass = (
           userId: user._id,
           contentType,
           contentTypeId: movement.contentTypeId,
-          createdBy: user._id,
+          createdBy,
           status: USER_MOVEMENT_STATUSES.REMOVED,
           isActive: false,
         }));
@@ -1274,7 +1327,7 @@ export const loadUserMovemmentClass = (
               contentType,
               contentTypeId,
               userId: user._id,
-              createdBy: user._id,
+              createdBy,
               isActive: true,
             });
           }
@@ -1354,8 +1407,86 @@ export const loadUserMovemmentClass = (
       return 'edited';
     }
 
+    // the one sender for both ways a member joins or leaves a structure
+    static notifyStructureAssignees({
+      contentType,
+      contentTypeId,
+      createdBy,
+      action,
+      targetUserIds,
+    }: {
+      contentType: string;
+      contentTypeId: string;
+      createdBy?: string;
+      action: string;
+      targetUserIds: string[];
+    }) {
+      const notificationType = STRUCTURE_NOTIFICATION_TYPES[contentType];
+      // the member who made the change is not told about it
+      const userIds = targetUserIds.filter((id) => id !== createdBy);
+
+      if (!createdBy || !notificationType || !userIds.length) {
+        return;
+      }
+
+      const assigned = action === 'assigned';
+
+      sendNotification(subdomain, {
+        title: assigned
+          ? `Assigned to ${contentType}`
+          : `Unassigned from ${contentType}`,
+        message: assigned
+          ? `You have been assigned to ${contentType}.`
+          : `You have been unassigned from ${contentType}.`,
+        type: 'info',
+        fromUserId: createdBy,
+        userIds,
+        contentType: `core:structure.${contentType}`,
+        contentTypeId,
+        action,
+        priority: 'medium',
+        notificationType,
+        event: `core:structure:${notificationType}`,
+      }).catch((e: Error) =>
+        console.error(`Structure notification failed: ${e.message}`),
+      );
+    }
+
+    // a member's own record changed: tell them about each structure joined or left
+    public static notifyStructureChanges({
+      previous,
+      updated,
+      createdBy,
+    }: {
+      previous: IUserDocument;
+      updated: IUserDocument;
+      createdBy: string;
+    }) {
+      for (const contentType of Object.keys(
+        STRUCTURE_FIELDS,
+      ) as TStructureType[]) {
+        const field = STRUCTURE_FIELDS[contentType];
+        const before = previous[field] || [];
+        const after = updated[field] || [];
+
+        for (const [action, contentTypeIds] of [
+          ['assigned', after.filter((id) => !before.includes(id))],
+          ['removed', before.filter((id) => !after.includes(id))],
+        ] as const) {
+          for (const contentTypeId of contentTypeIds) {
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds: [updated._id],
+            });
+          }
+        }
+      }
+    }
+
     static async handleUsersStructureAssignee({
-      subdomain,
       models,
       fieldName,
       contentType,
@@ -1374,18 +1505,14 @@ export const loadUserMovemmentClass = (
         [fieldName]: { $ne: contentTypeId },
       }).distinct('_id');
 
-      for (const { title, message, targetUserIds, update, action } of [
+      for (const { targetUserIds, update, action } of [
         {
           action: 'removed',
-          title: `Unassigned from ${contentType}`,
-          message: `You have been unassigned from ${contentType}.`,
           targetUserIds: removedAssigneeUserIds,
           update: { $pull: { [fieldName]: contentTypeId } },
         },
         {
           action: 'assigned',
-          title: `Assigned to ${contentType}`,
-          message: `You have been assigned to ${contentType}.`,
           targetUserIds: newlyAssignedUserIds,
           update: { $addToSet: { [fieldName]: contentTypeId } },
         },
@@ -1405,26 +1532,13 @@ export const loadUserMovemmentClass = (
               action,
             });
 
-            if (createdBy) {
-              const notificationType = {
-                department: 'departmentAssigneeChanged',
-                branch: 'branchAssigneeChanged',
-                position: 'positionAssigneeChanged',
-              }[contentType];
-
-              sendNotification(subdomain, {
-                title,
-                message,
-                type: 'info',
-                fromUserId: createdBy,
-                userIds: targetUserIds,
-                contentType: `core:structure.${contentType}`,
-                contentTypeId,
-                action,
-                priority: 'medium',
-                notificationType,
-              });
-            }
+            this.notifyStructureAssignees({
+              contentType,
+              contentTypeId,
+              createdBy,
+              action,
+              targetUserIds,
+            });
           }
         }
       }

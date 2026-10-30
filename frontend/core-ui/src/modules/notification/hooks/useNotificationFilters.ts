@@ -1,24 +1,11 @@
 import { useAtomValue } from 'jotai';
 import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 import { parseDateRangeFromString, useNonNullMultiQueryState } from 'erxes-ui';
-import {
-  TNotificationOrderBy,
-  TNotificationPriority,
-  TNotificationStatus,
-  TNotificationType,
-} from 'ui-modules';
-
-interface NotificationFilterVariables {
-  status: 'READ' | 'UNREAD' | 'ALL';
-  priority: string | undefined;
-  type: string | undefined;
-  fromDate: Date | undefined;
-  endDate: Date | undefined;
-  orderBy?: Record<string, 1 | -1>;
-  fromUserId: string | undefined;
-  module: string | undefined;
-  unreadFirst: boolean;
-}
+import { NOTIFICATION_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
+import type {
+  NotificationFilterQueryState,
+  NotificationFilterVariables,
+} from '@/notification/types/notificationFilters';
 
 export const useNotificationFilters = (): NotificationFilterVariables => {
   const display = useAtomValue(inboxDisplayOptionsState);
@@ -30,23 +17,10 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     notificationOrderBy: orderBy,
     notificationFromUserId: fromUserId,
     notificationModule: module,
-  } = useNonNullMultiQueryState<{
-    notificationStatus: TNotificationStatus;
-    notificationPriority: TNotificationPriority;
-    notificationType: TNotificationType;
-    notificationCreatedAt: string;
-    notificationOrderBy: TNotificationOrderBy;
-    notificationFromUserId: string;
-    notificationModule: string;
-  }>([
-    'notificationStatus',
-    'notificationType',
-    'notificationPriority',
-    'notificationCreatedAt',
-    'notificationOrderBy',
-    'notificationFromUserId',
-    'notificationModule',
-  ]);
+    notificationPlugin: plugin,
+  } = useNonNullMultiQueryState<NotificationFilterQueryState>(
+    NOTIFICATION_FILTER_QUERY_KEYS,
+  );
 
   const orderByFilter = (): Record<string, 1 | -1> => {
     if (orderBy === 'old') {
@@ -59,7 +33,9 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
   };
 
   const orderByValue = orderByFilter();
-  const statusValue = status === 'read' ? 'READ' : 'UNREAD';
+  let statusValue: NotificationFilterVariables['status'] = 'UNREAD';
+  if (status === 'read') statusValue = 'READ';
+  else if (status === 'all') statusValue = 'ALL';
 
   return {
     status: statusValue,
@@ -70,6 +46,7 @@ export const useNotificationFilters = (): NotificationFilterVariables => {
     ...(Object.keys(orderByValue).length > 0 && { orderBy: orderByValue }),
     fromUserId: fromUserId ?? undefined,
     module: module ?? undefined,
+    plugin: plugin ?? undefined,
     unreadFirst: display.unreadFirst,
   };
 };

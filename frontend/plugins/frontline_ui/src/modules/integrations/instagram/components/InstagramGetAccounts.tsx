@@ -26,7 +26,9 @@ import { useInstagramPages } from '@/integrations/instagram/hooks/useInstagramPa
 import { useIgAuthPopup } from '@/integrations/instagram/hooks/useIgAuthPopup';
 
 export const InstagramGetAccounts = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { instagramGetAccounts, loading, refetch } = useInstagramAccounts();
   const {
     instagramGetPages,

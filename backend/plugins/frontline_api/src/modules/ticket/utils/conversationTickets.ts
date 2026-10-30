@@ -1,12 +1,8 @@
 import { IAttachment } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { parseAiMediaId } from '@/integrations/facebook/meta/automation/utils/turnTaking';
 import { isClosingStatus } from '@/ticket/utils/cpNotifications';
 
-const CONVERSATION_CONTENT_TYPE = 'frontline:conversation';
-const TICKET_CONTENT_TYPE = 'frontline:ticket';
-const CUSTOMER_CONTENT_TYPE = 'core:customer';
 const MAX_OPEN_TICKETS = 5;
 
 // Automation targets carry either the inbox conversation id or, for Facebook,
@@ -31,72 +27,26 @@ export const resolveInboxConversationId = async (
   return facebookConversation?.erxesApiId || undefined;
 };
 
-// The same relations a manual "convert to ticket" writes, so the ticket shows
-// on the conversation and a later message can find it.
-export const relateTicketToConversation = async ({
-  subdomain,
-  ticketId,
-  conversationId,
-  customerId,
-  userId,
-}: {
-  subdomain: string;
-  ticketId: string;
-  conversationId: string;
-  customerId?: string;
-  userId: string;
-}) => {
-  const ticket = { contentType: TICKET_CONTENT_TYPE, contentId: ticketId };
-  const related = [
-    { contentType: CONVERSATION_CONTENT_TYPE, contentId: conversationId },
-    ...(customerId
-      ? [{ contentType: CUSTOMER_CONTENT_TYPE, contentId: customerId }]
-      : []),
-  ];
-
-  await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'mutation',
-    module: 'relation',
-    action: 'createMultipleRelations',
-    input: {
-      relations: related.map((entity) => ({ entities: [entity, ticket] })),
-    },
-    context: { userId },
-    defaultValue: null,
-  });
-};
-
+// The open tickets of a conversation's customer, newest first: tickets keep
+// their customer (`customerId`), not the conversation they came from.
 export const findOpenConversationTickets = async ({
   models,
-  subdomain,
   conversationId,
 }: {
   models: IModels;
-  subdomain: string;
   conversationId: string;
 }) => {
-  const ticketIds: string[] = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: CONVERSATION_CONTENT_TYPE,
-      contentId: conversationId,
-      relatedContentType: TICKET_CONTENT_TYPE,
-    },
-    defaultValue: [],
-  });
+  const conversation = await models.Conversations.findOne(
+    { _id: conversationId },
+    { customerId: 1 },
+  ).lean<{ customerId?: string }>();
 
-  if (!ticketIds?.length) {
+  if (!conversation?.customerId) {
     return [];
   }
 
   const tickets = await models.Ticket.find(
-    { _id: { $in: ticketIds } },
+    { customerId: conversation.customerId },
     { _id: 1, number: 1, name: 1, statusType: 1 },
   )
     .sort({ createdAt: -1 })

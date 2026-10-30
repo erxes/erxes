@@ -7,7 +7,6 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/utils/conversationCounts';
-import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
 import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
@@ -197,16 +196,6 @@ export const conversationQueries = {
     { models }: IContext,
   ) {
     return models.Conversations.findOne({ _id });
-  },
-
-  async conversationConvertedItems(
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('showConversations');
-
-    return getConversationConvertedItems(models, subdomain, _id);
   },
 
   /**

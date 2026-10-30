@@ -4,6 +4,7 @@ export enum SettingsPath {
   Index = 'settings/',
   Profile = 'profile',
   ChangePassword = 'change-password',
+  TwoFactor = 'two-factor',
   Notification = 'notification',
   NotificationCatchAll = 'notification/*',
   // Experience = 'experience',
@@ -36,12 +37,14 @@ export enum SettingsWorkspacePath {
   ClientPortals = 'client-portals',
   AppTokens = 'app-tokens',
   OAuthClients = 'oauth-clients',
-  Credentials = 'credentials',
-  Connections = 'connections',
+  Ldap = 'security/ldap',
+  Security = 'security',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',
   Broadcast = 'broadcast',
   MessagePro = 'message-pro',
+  Agent = 'agent',
+  AgentCatchAll = 'agent/*',
 }
 
 export type TSettingPath = {

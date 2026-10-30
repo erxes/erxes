@@ -9,7 +9,7 @@ export const ComposerModeTabs = ({
   replyDisabled = false,
   onInternalNoteChange,
 }: ComposerModeTabsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <Tabs

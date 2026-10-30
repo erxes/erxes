@@ -1,8 +1,8 @@
+import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router';
 import { EmailTemplatesSettingsRoutes } from '@/emailTemplates/components/EmailTemplatesSettingsRoutes';
 import { SettingsPageEffect } from '@/settings/components/SettingsPageEffect';
-import { AppPath } from '@/types/paths/AppPath';
 import {
   SettingsPath,
   SettingsWorkspacePath,
@@ -14,6 +14,12 @@ import { PluginSettingsRedirect } from '@/settings/components/PluginSettingsRedi
 import { ClientPortalDetailPage } from '~/pages/settings/client-portal/ClientPortalDetailPage';
 import { ClientPortalPage } from '~/pages/settings/client-portal/ClientPortalPage';
 import { TeamMemberSettingsRoutes } from '@/settings/team-member/components/TeamMemberSettingsRoutes';
+
+const AgentSettingsRoutes = lazy(() =>
+  import('~/pages/settings/agent/AgentSettingsRoutes').then((module) => ({
+    default: module.AgentSettingsRoutes,
+  })),
+);
 
 const SettingsProfile = lazy(() =>
   import('~/pages/settings/account/ProfilePage').then((module) => ({
@@ -35,6 +41,21 @@ const SettingsFileUpload = lazy(() =>
 const SettingsMailConfig = lazy(() =>
   import('~/pages/settings/workspace/MailConfigPage').then((module) => ({
     default: module.MailConfigPage,
+  })),
+);
+const SettingsTwoFactor = lazy(() =>
+  import('~/pages/settings/account/TwoFactorPage').then((module) => ({
+    default: module.TwoFactorPage,
+  })),
+);
+const SecuritySettings = lazy(() =>
+  import('~/pages/settings/workspace/SecuritySettingsPage').then((module) => ({
+    default: module.SecuritySettingsPage,
+  })),
+);
+const LdapSettings = lazy(() =>
+  import('~/pages/settings/workspace/LdapSettingsPage').then((module) => ({
+    default: module.LdapSettingsPage,
   })),
 );
 const GeneralSettings = lazy(() =>
@@ -67,14 +88,6 @@ const OAuthClientsSettings = lazy(() =>
   import('~/pages/settings/workspace/OAuthClientsSettingsPage').then(
     (module) => ({
       default: module.OAuthClientsSettingsPage,
-    }),
-  ),
-);
-
-const ConnectionsSettings = lazy(() =>
-  import('~/pages/settings/workspace/ConnectionsSettingsPage').then(
-    (module) => ({
-      default: module.ConnectionsSettingsPage,
     }),
   ),
 );
@@ -175,6 +188,7 @@ export function SettingsRoutes() {
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
         />
+        <Route path={SettingsPath.TwoFactor} element={<SettingsTwoFactor />} />
         {/* <Route
           path={SettingsPath.Experience}
           element={<SettingsExperiencePage />}
@@ -191,6 +205,16 @@ export function SettingsRoutes() {
             element={<SettingsMailConfig />}
           />
         )}
+        <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        {/* Kept so links to the old LDAP address still land */}
+        <Route
+          path="ldap"
+          element={<Navigate to={`../${SettingsWorkspacePath.Ldap}`} replace />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Security}
+          element={<SecuritySettings />}
+        />
         <Route
           path={SettingsWorkspacePath.EmailTemplatesCatchAll}
           element={<EmailTemplatesSettingsRoutes />}
@@ -243,6 +267,16 @@ export function SettingsRoutes() {
           element={<ProductsSettingsRoutes />}
         />
         <Route
+          path={SettingsWorkspacePath.AgentCatchAll}
+          element={
+            <PermissionRouteGuard module="agents">
+              <Suspense fallback={<div />}>
+                <AgentSettingsRoutes />
+              </Suspense>
+            </PermissionRouteGuard>
+          }
+        />
+        <Route
           path={SettingsWorkspacePath.AutomationsCatchAll}
           element={<AutomationSettingsRoutes />}
         />
@@ -254,19 +288,6 @@ export function SettingsRoutes() {
         <Route
           path={SettingsWorkspacePath.OAuthClients}
           element={<OAuthClientsSettings />}
-        />
-        <Route
-          path={SettingsWorkspacePath.Credentials}
-          element={
-            <Navigate
-              to={`/${AppPath.Settings}/${SettingsWorkspacePath.Connections}`}
-              replace
-            />
-          }
-        />
-        <Route
-          path={SettingsWorkspacePath.Connections}
-          element={<ConnectionsSettings />}
         />
         <Route
           path={SettingsWorkspacePath.PropertiesCatchAll}

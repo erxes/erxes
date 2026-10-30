@@ -1,20 +1,55 @@
-import { QueryFunctionOptions, useQuery } from '@apollo/client';
-import { GET_RELATIONS_BY_ENTITY } from '../graphql/getRelations';
+import { QueryHookOptions, useQuery } from '@apollo/client';
 import { IRelation } from 'erxes-ui';
+import { useMemo } from 'react';
+import { GET_RELATIONS_BY_ENTITY } from '../graphql/getRelations';
+import { getRelatedEntities } from '../utils';
+
+type TRelationsData = { getRelationsByEntity: IRelation[] };
+
+type TRelationsVariables = {
+  contentId: string;
+  contentType: string;
+  relatedContentType: string;
+};
 
 export const useRelations = (
-  options: QueryFunctionOptions<typeof GET_RELATIONS_BY_ENTITY>,
+  options: QueryHookOptions<TRelationsData, TRelationsVariables> & {
+    variables: TRelationsVariables;
+  },
 ) => {
-  const { data, loading } = useQuery(GET_RELATIONS_BY_ENTITY, options);
+  const { contentId, contentType, relatedContentType } = options.variables;
 
-  const relations = data?.getRelationsByEntity as IRelation[];
+  const { data, loading, error, refetch } = useQuery<
+    TRelationsData,
+    TRelationsVariables
+  >(GET_RELATIONS_BY_ENTITY, {
+    ...options,
+    skip: options.skip || !contentId,
+  });
 
-  const ownEntities =
-    relations?.flatMap((relation) =>
-      relation.entities.filter(
-        (entity) => entity.contentType !== options.variables?.contentType,
+  const relations = data?.getRelationsByEntity;
+
+  const ownEntities = useMemo(
+    () =>
+      getRelatedEntities(
+        relations,
+        { contentType, contentId },
+        relatedContentType,
       ),
-    ) || [];
+    [relations, contentType, contentId, relatedContentType],
+  );
 
-  return { ownEntities, loading };
+  const relatedIds = useMemo(
+    () => ownEntities.map((entity) => entity.contentId),
+    [ownEntities],
+  );
+
+  return {
+    relations: relations || [],
+    ownEntities,
+    relatedIds,
+    loading,
+    error,
+    refetch,
+  };
 };

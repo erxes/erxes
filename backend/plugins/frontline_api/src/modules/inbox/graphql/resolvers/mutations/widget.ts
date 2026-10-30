@@ -276,12 +276,14 @@ const freePrimaryContacts = async (
   };
 
   return {
-    ...(email && (await isFree('primaryEmail', email)) && {
-      primaryEmail: email,
-    }),
-    ...(phone && (await isFree('primaryPhone', phone)) && {
-      primaryPhone: phone,
-    }),
+    ...(email &&
+      (await isFree('primaryEmail', email)) && {
+        primaryEmail: email,
+      }),
+    ...(phone &&
+      (await isFree('primaryPhone', phone)) && {
+        primaryPhone: phone,
+      }),
   };
 };
 
@@ -559,54 +561,6 @@ export const widgetMutations: Record<string, Resolver> = {
           action: 'createCompany',
           input: {
             doc: { ...companyData },
-          },
-        });
-      }
-
-      if (customer && company) {
-        // add company to customer's companyIds list
-        const relatedCompanyIds: string[] = await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'query',
-          module: 'relation',
-          action: 'getRelationIds',
-          input: {
-            contentType: 'core:customer',
-            contentId: customer._id,
-            relatedContentType: 'core:company',
-          },
-          defaultValue: [],
-        });
-
-        if (!relatedCompanyIds.includes(company._id)) {
-          await sendTRPCMessage({
-            subdomain,
-            pluginName: 'core',
-            method: 'mutation',
-            module: 'relation',
-            action: 'createRelation',
-            input: {
-              relation: {
-                entities: [
-                  { contentType: 'core:customer', contentId: customer._id },
-                  { contentType: 'core:company', contentId: company._id },
-                ],
-              },
-            },
-          });
-        }
-        await sendTRPCMessage({
-          subdomain,
-          pluginName: 'core',
-          method: 'mutation',
-          module: 'conformity',
-          action: 'create',
-          input: {
-            mainType: 'customer',
-            mainTypeId: customer._id,
-            relType: 'company',
-            relTypeId: company._id,
           },
         });
       }
@@ -1303,34 +1257,13 @@ export const widgetMutations: Record<string, Resolver> = {
         statusId: statusId,
         pipelineId: status.pipelineId,
         channelId: pipeline.channelId,
-        customerIds: [customerId],
+        customerId,
         createdAt: new Date(),
         modifiedAt: new Date(),
         stageChangedDate: new Date(),
         searchText: fillSearchTextItem(doc),
         number: Date.now().toString(),
         createdBy: user?._id,
-      });
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'mutation',
-        module: 'relation',
-        action: 'createRelation',
-        input: {
-          relation: {
-            entities: [
-              {
-                contentType: 'core:customer',
-                contentId: customerId,
-              },
-              {
-                contentType: 'frontline:ticket',
-                contentId: ticket._id,
-              },
-            ],
-          },
-        },
       });
       return ticket;
     } catch (e) {
@@ -1345,7 +1278,7 @@ export const widgetMutations: Record<string, Resolver> = {
       emails?: string[];
       phones?: string[];
     },
-    { subdomain, req }: IContext,
+    { models, subdomain, req }: IContext,
   ) {
     const session = requireWidgetSession(req);
     const { firstName, lastName, emails, phones } = args;
@@ -1389,8 +1322,14 @@ export const widgetMutations: Record<string, Resolver> = {
     if (!customer) {
       throw new Error('Could not save your contact info. Please try again.');
     }
+    // The customer's latest ticket: tickets keep their customer themselves.
+    const ticket = await models.Ticket.findOne({ customerId: customer._id })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    return customer;
+    if (!ticket) throw new Error('No ticket relation found');
+
+    return ticket.number || '';
   },
 
   async widgetTicketCommentAdd(
@@ -1404,7 +1343,7 @@ export const widgetMutations: Record<string, Resolver> = {
     const session = requireWidgetSession(req);
     const { content, contentId } = args;
 
-    await assertOwnsTicket(subdomain, session, contentId);
+    await assertOwnsTicket(subdomain, session, contentId, models);
 
     const customerId = await resolveSessionCustomerId(subdomain, session);
 
@@ -1439,7 +1378,7 @@ export const widgetMutations: Record<string, Resolver> = {
       throw new Error('Comment not found');
     }
 
-    await assertOwnsTicket(subdomain, session, note.contentId);
+    await assertOwnsTicket(subdomain, session, note.contentId, models);
     await models.Note.deleteOne({ _id: note._id });
 
     return 'success';

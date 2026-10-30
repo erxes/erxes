@@ -12,6 +12,9 @@ export type TPluginNavigationItemProps = {
 export type TPluginSettingsSlots = {
   tags?: ComponentType<{ pluginName: string }>;
   properties?: ComponentType<{ pluginName: string; basePath: string }>;
+  /** The member's own notification choices for the plugin's events. */
+  notifications?: ComponentType<{ pluginName: string }>;
+  /** Menu items (Tags / Properties / Notification) for the plugin's settings sidebar. */
   navigation?: ComponentType<{ pluginName: string; pathPrefix: string }>;
   navigationItem?: ComponentType<TPluginNavigationItemProps>;
 };

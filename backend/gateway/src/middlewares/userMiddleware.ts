@@ -1,8 +1,11 @@
 import * as dotenv from 'dotenv';
 
 import {
+  agentToolsAuthHeaderName,
+  decodeAgentToolsAuthHeader,
   getSubdomain,
   redis,
+  sanitizeHeaders,
   setClientPortalHeader,
   setCPUserHeader,
   setUserHeader,
@@ -12,6 +15,7 @@ import * as jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import { generateModels, IModels } from '../connectionResolver';
+import { readSessionCookie, verifySession } from '../util/session';
 
 dotenv.config();
 
@@ -22,6 +26,11 @@ const shouldDebugAuth = (req: Request) =>
 
 const hashToken = (token: string) =>
   createHash('sha256').update(token).digest('hex').slice(0, 12);
+
+// Fields forwarded to subgraphs inside the `user` header; shared by the
+// session-JWT branch and the agent-auth branch below.
+const USER_HEADER_PROJECTION =
+  '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions';
 
 const debugAuth = (
   req: Request & { user?: any; cpUser?: any; clientPortal?: any },
@@ -68,6 +77,11 @@ export default async function userMiddleware(
   res: Response,
   next: NextFunction,
 ) {
+  // Spoofed identity headers (`user`, `userid`, `cpuser`, `clientportal`,
+  // `erxes-subdomain`) must never reach the router — subgraphs trust them
+  // verbatim. Only identity established here is forwarded.
+  sanitizeHeaders(req.headers);
+
   const startedAt = Date.now();
   const url = req.headers['erxes-core-website-url'];
   const erxesCoreToken = req.headers['erxes-core-token'];
@@ -75,6 +89,7 @@ export default async function userMiddleware(
   debugAuth(req, 'start', {
     hasAuthorizationHeader: Boolean(req.headers.authorization),
     hasAuthCookie: Boolean(req.cookies?.['auth-token']),
+    hasSessionCookie: Boolean(readSessionCookie(req.cookies)),
     hasClientAuthToken: Boolean(
       req.headers['client-auth-token'] || req.cookies?.['client-auth-token'],
     ),
@@ -164,6 +179,42 @@ export default async function userMiddleware(
       // In case `e` is not an instance of Error, handle it accordingly
       return res.status(500).json({ error: 'An unknown error occurred' });
     }
+  }
+
+  // Agent-initiated calls authenticate with the HMAC-signed agent auth
+  // header (5-minute TTL, minted by a service holding JWT_TOKEN_SECRET)
+  // instead of a session token — there is no session, so no redis check.
+  // The signed-in user's document is loaded here so the request executes
+  // with exactly that user's permissions down the same path the UI uses.
+  if (req.headers[agentToolsAuthHeaderName] !== undefined) {
+    const agentAuth = decodeAgentToolsAuthHeader(req.headers);
+    // Keep the credential out of the subgraph request and its logs.
+    delete req.headers[agentToolsAuthHeaderName];
+
+    if (
+      req.path !== '/graphql' ||
+      !agentAuth?.userId ||
+      agentAuth.subdomain !== subdomain
+    ) {
+      return res.status(401).json({ error: 'Invalid agent auth' });
+    }
+
+    const agentUserDoc = await models.Users.findOne(
+      { _id: agentAuth.userId, isActive: { $ne: false } },
+      USER_HEADER_PROJECTION,
+    ).lean();
+
+    if (!agentUserDoc) {
+      return res.status(401).json({ error: 'Invalid agent auth' });
+    }
+
+    // The `agent` marker flags the call as agent-initiated for subgraphs.
+    req.user = {
+      ...agentUserDoc,
+      agent: agentAuth.threadId ? { threadId: agentAuth.threadId } : {},
+    };
+    setUserHeader(req.headers, req.user);
+    return next();
   }
 
   if (appToken) {
@@ -305,6 +356,44 @@ export default async function userMiddleware(
     }
   }
 
+  const sid = bearerToken ? '' : readSessionCookie(req.cookies);
+
+  if (sid) {
+    try {
+      const session = await verifySession(subdomain, sid);
+
+      const userDoc = session
+        ? await models.Users.findOne(
+            { _id: session.userId, isActive: { $ne: false } },
+            USER_HEADER_PROJECTION,
+          ).lean()
+        : null;
+
+      if (userDoc) {
+        req.user = { ...userDoc };
+        req.user.sessionCode = req.headers.sessioncode || '';
+
+        setUserHeader(req.headers, req.user);
+        debugAuth(req, 'session-user-header-set', {
+          subdomain,
+          userId: req.user._id,
+          durationMs: Date.now() - startedAt,
+        });
+
+        return next();
+      }
+
+      debugAuth(req, 'session-invalid', {
+        subdomain,
+        tokenHash: hashToken(sid),
+        durationMs: Date.now() - startedAt,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // Legacy JWT: OAuth bearer tokens, and auth-token cookies issued before sessions
   const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
@@ -334,8 +423,8 @@ export default async function userMiddleware(
     }
 
     const userDoc = await models.Users.findOne(
-      { _id: user._id },
-      '_id email details isOwner groupIds brandIds username code branchIds departmentIds permissionGroupIds customPermissions',
+      { _id: user._id, isActive: { $ne: false } },
+      USER_HEADER_PROJECTION,
     ).lean();
 
     if (!userDoc) {

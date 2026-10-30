@@ -1,10 +1,12 @@
 import { parsePaymentTypes } from './paymentTypes';
 import { toGraphqlView } from '@/utils/graphql';
-import { Form, Select, isEnabled } from 'erxes-ui';
+import { Form, isEnabled } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SettingsPanelSelect } from '@/settings/components/panel/SettingsPanelFields';
 import {
   SyncConfigAccountsSection,
-  SyncConfigFormFooter,
   SyncConfigGeneralFields,
   SyncConfigPaymentsSection,
   SyncConfigReturnTypeField,
@@ -56,10 +58,12 @@ export const SyncOrderConfigForm = ({
   form,
   onSubmit,
   loading,
+  onCancel,
 }: {
   form: UseFormReturn<ConfigFormValues>;
   onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
   const posId = useWatch({ control: form.control, name: 'posId' });
@@ -110,55 +114,47 @@ export const SyncOrderConfigForm = ({
     onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col flex-1 min-h-0 bg-background"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
-          <SyncSettingSection title={t('general')}>
-            <SyncConfigGeneralFields control={form.control} />
-            <SyncConfigReturnTypeField control={form.control} />
-          </SyncSettingSection>
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      saving={loading}
+    >
+      <SyncSettingSection title={t('general')}>
+        <SyncConfigGeneralFields control={form.control} />
+        <SyncConfigReturnTypeField control={form.control} />
+      </SyncSettingSection>
 
-          <SyncSettingSection title="POS">
-            <Form.Field
-              control={form.control}
-              name="posId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('POS')}</Form.Label>
-                  <Form.Control>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Select.Trigger>
-                        <Select.Value placeholder={t('select-pos')} />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {posOptions.map((opt) => (
-                          <Select.Item key={opt.value} value={opt.value}>
-                            {t(opt.label || '', { nsSeparator: false })}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          </SyncSettingSection>
+      <SyncSettingSection title="POS">
+        <Form.Field
+          control={form.control}
+          name="posId"
+          render={({ field, fieldState }) => (
+            <PanelFormRow label={t('POS')} error={fieldState.error?.message}>
+              <SettingsPanelSelect
+                value={field.value}
+                placeholder={t('select-pos')}
+                options={posOptions.map((opt) => ({
+                  value: opt.value,
+                  label: t(opt.label || '', { nsSeparator: false }),
+                }))}
+                onValueChange={field.onChange}
+                className={PANEL_INPUT_CLASS_NAME}
+              />
+            </PanelFormRow>
+          )}
+        />
+      </SyncSettingSection>
 
-          <SyncConfigAccountsSection control={form.control} />
-          <SyncConfigPaymentsSection
-            control={form.control}
-            paymentTypes={paymentTypes}
-            paymentKey={posId || ''}
-            currency="MNT"
-          />
-          <SyncConfigVatCtaxSection control={form.control} />
-        </div>
-        <SyncConfigFormFooter loading={loading} />
-      </form>
-    </Form>
+      <SyncConfigAccountsSection control={form.control} />
+      <SyncConfigPaymentsSection
+        control={form.control}
+        paymentTypes={paymentTypes}
+        paymentKey={posId || ''}
+        currency="MNT"
+      />
+      <SyncConfigVatCtaxSection control={form.control} />
+    </SettingsPanelDraftForm>
   );
 };
 

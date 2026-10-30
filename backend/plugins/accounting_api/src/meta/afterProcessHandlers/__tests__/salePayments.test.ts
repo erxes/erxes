@@ -8,6 +8,13 @@ import {
 import { ITransaction } from '~/modules/accounting/@types/transaction';
 import { dealToTrs } from '../dealToTrs';
 import { orderToTrs } from '../orderToTrs';
+import { prepareRealJobProduction } from '../realJobProduction';
+
+jest.mock('../realJobProduction', () => ({
+  prepareRealJobProduction: jest
+    .fn()
+    .mockResolvedValue({ docs: [], details: [] }),
+}));
 
 jest.mock('erxes-api-shared/utils', () => ({
   fixNum: (value: number) => value,
@@ -55,8 +62,11 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
     paidAmount: number,
     paymentAccountId?: string,
     debtAccountId = '',
+    allowRealJobProduction = false,
+    hasProducts = true,
+    owner: { companyId?: string | null; customerId?: string | null } = {},
   ) => {
-    const config: Parameters<typeof orderToTrs>[0]['config'] = {
+    const config: Parameters<typeof dealToTrs>[0]['config'] = {
       dateRule: 'alwaysNow',
       saleAccountId: 'sale-account',
       saleOutAccountId: 'inventory-account',
@@ -74,13 +84,22 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       defaultPayment: { accountId: debtAccountId },
       defaultNegPayment: { accountId: '' },
     };
-    const context = { subdomain: 'tenant', models, userId: 'user', config };
+    const context = {
+      subdomain: 'tenant',
+      models,
+      userId: 'user',
+      config,
+      allowRealJobProduction,
+    };
     if (source === 'order') {
       await orderToTrs({
         ...context,
         order: {
           _id: 'order',
-          items: [{ productId: 'product', count: 1, unitPrice: 100 }],
+          paidDate: '2026-10-20T08:00:00.000Z',
+          items: hasProducts
+            ? [{ productId: 'product', count: 1, unitPrice: 100 }]
+            : [],
           cashAmount: paidAmount,
         },
       });
@@ -89,9 +108,17 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
         ...context,
         deal: {
           _id: 'deal',
-          productsData: [
-            { productId: 'product', quantity: 1, amount: 100, tickUsed: true },
-          ],
+          ...owner,
+          productsData: hasProducts
+            ? [
+                {
+                  productId: 'product',
+                  quantity: 1,
+                  amount: 100,
+                  tickUsed: true,
+                },
+              ]
+            : [],
           paymentsData: { cash: { amount: paidAmount } },
         },
       });
@@ -152,4 +179,60 @@ describe.each(['deal', 'order'] as const)('%s sale payment sync', (source) => {
       details: [{ accountId: 'cash-account', amount: 100 }],
     });
   });
+
+  if (source === 'deal') {
+    it.each([
+      [{ companyId: 'company', customerId: 'customer' }, 'company', 'company'],
+      [{ companyId: null, customerId: 'customer' }, 'customer', 'customer'],
+      [{ companyId: 'company', customerId: null }, 'company', 'company'],
+      [{ companyId: null, customerId: null }, 'customer', undefined],
+    ] as const)(
+      'copies direct deal owner %j to sale, payment and receivable rows',
+      async (owner, customerType, customerId) => {
+        const docs = await sync(
+          60,
+          'cash-account',
+          'debt-account',
+          false,
+          true,
+          owner,
+        );
+        expect(docs).toHaveLength(3);
+        for (const doc of docs) {
+          expect(doc.customerType).toBe(customerType);
+          expect(doc.customerId).toBe(customerId);
+        }
+      },
+    );
+  }
+
+  it('propagates transaction errors to the sync caller', async () => {
+    createPTransaction.mockRejectedValueOnce(
+      new Error('Transaction validation failed'),
+    );
+    await expect(sync(100, 'cash-account')).rejects.toThrow(
+      'Transaction validation failed',
+    );
+  });
+
+  it('rejects missing products before accounting reads or writes', async () => {
+    await expect(sync(100, 'cash-account', '', false, false)).rejects.toThrow(
+      source === 'order'
+        ? 'POS order has no items'
+        : 'Deal has no selected products',
+    );
+    expect(models.Transactions.find).not.toHaveBeenCalled();
+    expect(createPTransaction).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])(
+    'keeps production opt-in local to after-process (enabled=%s)',
+    async (enabled) => {
+      await sync(0, undefined, '', enabled);
+      expect(createPTransaction.mock.calls[0][2]).toEqual({
+        skipAccountPermission: true,
+      });
+      expect(prepareRealJobProduction).toHaveBeenCalledTimes(enabled ? 1 : 0);
+    },
+  );
 });

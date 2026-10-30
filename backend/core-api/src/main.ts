@@ -16,7 +16,6 @@ import {
   isDev,
   joinErxesGateway,
   leaveErxesGateway,
-  mountAgentTools,
   MAX_HEADER_BYTES,
 } from 'erxes-api-shared/utils';
 import { logs as coreLogsConfig } from './meta/logs';
@@ -27,18 +26,18 @@ import { IncomingMessage } from 'http';
 import * as path from 'path';
 import { appRouter } from '~/init-trpc';
 import { initApolloServer } from './apollo/apolloServer';
-import { credentialGraphqlBoundary } from './apollo/credentialPrivacy';
 import { generateModels } from './connectionResolvers';
 import meta from './meta';
 import { approval } from './meta/approval';
 import { initAutomation } from './meta/automations/automations';
 import { initBroadcast } from './meta/broadcast';
 import { startFilesWorker } from '@/files/worker';
+import { startLdapWorker } from '@/auth/ldap/worker';
+import { interruptAgentsStreams } from '@/agents/agentsStream';
 import initImportExport from './meta/import-export';
 import { references } from './meta/references';
 import { initSegmentCoreProducers } from './meta/segments';
 import { router } from './routes';
-import { credentialsRouter } from './modules/credentials/routes';
 
 const PLUGIN_NAME = 'core';
 
@@ -63,11 +62,6 @@ const port = process.env.PORT ? Number(process.env.PORT) : 3300;
 
 const app = express();
 applyTrustProxy(app);
-
-// Own parser, small body limit, no rawBody capture, and no-store even on errors.
-app.use('/credentials', credentialsRouter);
-
-app.use('/graphql', credentialGraphqlBoundary);
 
 // don't move it above telnyx controllers
 app.use(express.urlencoded({ limit: '15mb', extended: true }));
@@ -149,21 +143,6 @@ app.use(
   }),
 );
 
-// Core predates startPlugin, so it mounts the agent capability endpoints
-// itself. Only tRPC procedures declaring agent metadata are exposed.
-mountAgentTools(app, {
-  plugin: PLUGIN_NAME,
-  trpcRouter: appRouter,
-  createContext: async (
-    subdomain: string,
-    context: Record<string, unknown>,
-  ) => {
-    const models = await generateModels(subdomain, context);
-
-    return { ...context, models };
-  },
-});
-
 app.get('/health', async (_req, res) => {
   res.end('ok');
 });
@@ -218,6 +197,7 @@ httpServer.listen(port, async () => {
   await initImportExport(app);
   await initBroadcast(app);
   startFilesWorker();
+  startLdapWorker();
 });
 
 // GRACEFULL SHUTDOWN
@@ -251,6 +231,9 @@ async function closeHttpServer() {
 // If the Node process ends, close the http-server and mongoose.connection and leaveErxesGateway service discovery.
 (['SIGINT', 'SIGTERM'] as NodeJS.Signals[]).forEach((sig) => {
   process.on(sig, async () => {
+    // Open agents streams would hold the server open and their runs die with
+    // the process: end them with the restart error first.
+    interruptAgentsStreams();
     await closeHttpServer();
     await closeMongooose();
     await leaveServiceDiscovery();

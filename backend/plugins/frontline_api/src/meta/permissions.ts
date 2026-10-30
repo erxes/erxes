@@ -52,11 +52,6 @@ export const permissions: IPermissionConfig = {
           description: 'Mark conversations as resolved',
         },
         {
-          title: 'Convert conversations',
-          name: 'conversationConvertToCard',
-          description: 'Convert a conversation into a ticket, deal or task',
-        },
-        {
           title: 'Edit custom fields',
           name: 'conversationEditCustomFields',
           description: 'Edit custom field values on conversations',
@@ -391,7 +386,6 @@ export const permissions: IPermissionConfig = {
             'conversationsUnassign',
             'conversationsChangeStatus',
             'conversationsResolve',
-            'conversationConvertToCard',
             'conversationEditCustomFields',
           ],
           scope: 'all',
@@ -501,7 +495,6 @@ export const permissions: IPermissionConfig = {
             'conversationsAssign',
             'conversationsChangeStatus',
             'conversationsResolve',
-            'conversationConvertToCard',
             'conversationEditCustomFields',
           ],
           scope: 'group',

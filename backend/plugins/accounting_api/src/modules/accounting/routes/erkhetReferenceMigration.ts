@@ -5,6 +5,7 @@ import {
   sendTRPCMessage,
 } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
+import { IJob, IJobItem } from '../../inventories/@types/jobs';
 import { findOrCreateErkhetContact, TErkhetContact } from './erkhetMigration';
 
 type TCodeMap = Record<string, string>;
@@ -68,6 +69,30 @@ type TErkhetExchangeRate = {
   rate?: number;
 };
 
+type TErkhetJobItem = {
+  productCode: string;
+  uom?: string;
+  quantity: number;
+  costRatio?: number;
+};
+
+type TErkhetJobCost = {
+  name: string;
+  amount: number;
+  accountCode: string;
+};
+
+type TErkhetJob = {
+  code: string;
+  name: string;
+  description?: string;
+  durationType: 'real';
+  inputs: TErkhetJobItem[];
+  outputs: TErkhetJobItem[];
+  laborCosts?: TErkhetJobCost[];
+  overheadCosts?: TErkhetJobCost[];
+};
+
 type TErkhetReferencesRequest = {
   userId?: string;
   dryRun?: boolean;
@@ -77,6 +102,7 @@ type TErkhetReferencesRequest = {
   fixedAssetCategories?: TErkhetFixedAssetCategory[];
   workers?: TErkhetWorker[];
   exchangeRates?: TErkhetExchangeRate[];
+  jobs?: TErkhetJob[];
 };
 
 type TReferenceRow = {
@@ -505,6 +531,10 @@ const syncProducts = async ({
         }
       }
 
+      if (dryRun && !existingId) {
+        productIdsByCode[code] = `dry-run:${code}`;
+      }
+
       rows.push({
         type: 'product',
         code,
@@ -521,7 +551,7 @@ const syncProducts = async ({
     }
   }
 
-  return rows;
+  return { rows, productIdsByCode };
 };
 
 const syncWorkers = async ({
@@ -819,6 +849,153 @@ const syncExchangeRates = async ({
   return rows;
 };
 
+export const syncErkhetJobs = async ({
+  models,
+  subdomain,
+  userId,
+  dryRun,
+  jobs,
+  productIdsByCode = {},
+}: {
+  models: IModels;
+  subdomain: string;
+  userId?: string;
+  dryRun: boolean;
+  jobs: TErkhetJob[];
+  productIdsByCode?: TCodeMap;
+}): Promise<TReferenceRow[]> => {
+  if (!jobs.length) return [];
+  const codes = uniq(
+    jobs.flatMap((job) =>
+      [...(job.inputs || []), ...(job.outputs || [])].map((item) =>
+        normalizeIdentifierCode(item.productCode),
+      ),
+    ),
+  );
+  const products = {
+    ...(await fetchCoreCodeMap({ subdomain, module: 'products', codes })),
+    ...productIdsByCode,
+  };
+  const rows: TReferenceRow[] = [];
+  for (const job of jobs) {
+    const code = normalizeSourceCode(job.code);
+    try {
+      requireCodeAndName('Job', { code, name: normalizeSourceCode(job.name) });
+      if (job.durationType !== 'real') {
+        throw new Error('Migrated job durationType must be real');
+      }
+      const resolveItems = (
+        items: TErkhetJobItem[],
+        output: boolean,
+      ): IJobItem[] => {
+        if (!Array.isArray(items) || !items.length) {
+          throw new Error(
+            `Job ${output ? 'output' : 'input'} items are required`,
+          );
+        }
+        return items.map((item) => {
+          const productId = products[normalizeIdentifierCode(item.productCode)];
+          if (!productId)
+            throw new Error(`Job product not found: ${item.productCode}`);
+          if (!Number.isFinite(item.quantity) || item.quantity <= 0) {
+            throw new Error(
+              `Job quantity must be positive: ${item.productCode}`,
+            );
+          }
+          if (
+            output &&
+            (!Number.isFinite(item.costRatio) || (item.costRatio ?? -1) < 0)
+          ) {
+            throw new Error(
+              `Job output cost ratio is invalid: ${item.productCode}`,
+            );
+          }
+          return {
+            productId,
+            uom: normalizeSourceCode(item.uom),
+            quantity: item.quantity,
+            ...(output ? { costRatio: item.costRatio } : {}),
+          };
+        });
+      };
+      const inputs = resolveItems(job.inputs, false);
+      const outputs = resolveItems(job.outputs, true);
+      const totalRatio = outputs.reduce(
+        (sum, item) => sum + (item.costRatio ?? 0),
+        0,
+      );
+      if (!Number.isFinite(totalRatio) || totalRatio <= 0) {
+        throw new Error(
+          'Job output cost ratios must have a positive finite total',
+        );
+      }
+      const resolveCosts = async (costs: TErkhetJobCost[] = []) => {
+        const resolved: NonNullable<IJob['laborCosts']> = [];
+        for (const cost of costs) {
+          if (
+            !normalizeSourceCode(cost.name) ||
+            !Number.isFinite(cost.amount) ||
+            cost.amount < 0
+          ) {
+            throw new Error(
+              'Job cost name and non-negative finite amount are required',
+            );
+          }
+          const accountCode = normalizeSourceCode(cost.accountCode);
+          if (!accountCode)
+            throw new Error('Job cost account code is required');
+          const account = await models.Accounts.getAccount({
+            code: accountCode,
+            status: 'active',
+          });
+          resolved.push({
+            name: cost.name.trim(),
+            amount: cost.amount,
+            accountId: account._id,
+          });
+        }
+        return resolved;
+      };
+      const doc: IJob = {
+        code,
+        name: job.name.trim(),
+        description: normalizeSourceCode(job.description),
+        durationType: 'real',
+        status: 'active',
+        inputs,
+        outputs,
+        laborCosts: await resolveCosts(job.laborCosts),
+        overheadCosts: await resolveCosts(job.overheadCosts),
+      };
+      const existing = await models.Jobs.findOne({ code });
+      let id = existing?._id;
+      if (!dryRun) {
+        const saved = existing
+          ? await models.Jobs.updateJob(
+              { ...doc, _id: existing._id },
+              userId || '',
+            )
+          : await models.Jobs.createJob(doc, userId || '');
+        id = saved._id;
+      }
+      rows.push({
+        type: 'job',
+        code,
+        action: existing ? 'update' : 'create',
+        _id: id,
+      });
+    } catch (error) {
+      rows.push({
+        type: 'job',
+        code,
+        action: 'error',
+        error: getErrorMessage(error, 'Job sync failed'),
+      });
+    }
+  }
+  return rows;
+};
+
 export const importErkhetReferences = async (req: Request, res: Response) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -856,14 +1033,34 @@ export const importErkhetReferences = async (req: Request, res: Response) => {
   });
   rows.push(...companyResult.rows);
 
+  const productResult = await syncProducts({
+    subdomain,
+    userId: body.userId,
+    dryRun,
+    products: body.products || [],
+    categoryIdsByCode: productCategoryIdsByCode,
+    companyIdsByName: companyResult.companyIdsByName,
+  });
+  rows.push(...productResult.rows);
+  // A failed product must not become a usable dry-run dependency.
+  const failedProductCodes = new Set(
+    productResult.rows
+      .filter((row) => row.action === 'error')
+      .map((row) => normalizeIdentifierCode(row.code)),
+  );
+  const successfulProductIds = Object.fromEntries(
+    Object.entries(productResult.productIdsByCode).filter(
+      ([code]) => !failedProductCodes.has(normalizeIdentifierCode(code)),
+    ),
+  );
   rows.push(
-    ...(await syncProducts({
+    ...(await syncErkhetJobs({
+      models,
       subdomain,
       userId: body.userId,
       dryRun,
-      products: body.products || [],
-      categoryIdsByCode: productCategoryIdsByCode,
-      companyIdsByName: companyResult.companyIdsByName,
+      jobs: body.jobs || [],
+      productIdsByCode: successfulProductIds,
     })),
   );
 

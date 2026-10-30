@@ -7,3 +7,6 @@ export const FACEBOOK_COMMENT_TRIGGER_TYPE = 'frontline:facebook.comments';
  */
 export const FACEBOOK_MESSAGE_ACTION_TYPE =
   'frontline:facebook.messages.create';
+export const FACEBOOK_COMMENT_ACTION_TYPE =
+  'frontline:facebook.comments.create';
+export const AI_AGENT_ACTION_TYPE = 'aiAgent';

@@ -1,6 +1,7 @@
 import { Command, Filter } from 'erxes-ui';
 import {
   IconCalendar,
+  IconApps,
   IconEyeUp,
   IconLock,
   IconNotification,
@@ -19,8 +20,11 @@ export const NotificationFilterMenu = () => {
           variant="secondary"
           className="bg-background"
         />
-        <Command.Separator />
         <Command.List className="p-1">
+          <Filter.Item value="notificationPlugin">
+            <IconApps />
+            {t('plugin', 'Plugin')}
+          </Filter.Item>
           <Filter.Item value="notificationType">
             <IconNotification />
             {t('notification-type')}

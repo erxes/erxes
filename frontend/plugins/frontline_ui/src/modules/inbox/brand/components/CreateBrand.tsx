@@ -22,7 +22,7 @@ const schema = z.object({
 type TForm = z.infer<typeof schema>;
 
 export const CreateBrand = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { toast } = useToast();
   const { addBrand, loading } = useBrandsAdd();
 

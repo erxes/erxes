@@ -53,7 +53,7 @@ import { getFacebookPageUrl } from '@/integrations/facebook/utils/pageLinks';
 type TSimulatorView = 'welcome' | 'conversation';
 
 export const FacebookBotSimulator = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, facebookMessengerBot } = useFbBotFormContext();
   const [view, setView] = useState<TSimulatorView>('welcome');
   const [device, setDevice] = useState<TMessengerDevice>('mobile');
@@ -218,13 +218,14 @@ export const FacebookBotSimulator = () => {
               ? getFacebookPageUrl(facebookMessengerBot.pageId)
               : undefined
           }
-          isMenuOpen={isMenuOpen}
+          hasMenu={preview.items.length > 0}
+          isMenuOpen={isMenuOpen && preview.items.length > 0}
           onToggleMenu={() => setMenuOpen((open) => !open)}
           composerValue={composerValue}
           onComposerChange={setComposerValue}
           overlay={
             <>
-              {isMenuOpen && (
+              {isMenuOpen && preview.items.length > 0 && (
                 <PersistentMenuSheet
                   items={preview.items}
                   device={device}
@@ -233,9 +234,9 @@ export const FacebookBotSimulator = () => {
                   onSelect={setSelectedItemKey}
                 />
               )}
-              {view === 'welcome' && !isMenuOpen && (
+              {view === 'welcome' && (!isMenuOpen || !preview.items.length) && (
                 <GetStartedButton
-                  title={preview.items[0].title}
+                  title={preview.getStartedTitle}
                   isSelected={selectedItemKey === GET_STARTED_KEY}
                   onSelect={() => setSelectedItemKey(GET_STARTED_KEY)}
                 />
@@ -320,7 +321,7 @@ const WelcomeScreen = ({
   selectedKey?: string;
   onSelect: (key: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <div className="flex h-full flex-col items-center justify-center gap-2 text-center">
@@ -370,7 +371,7 @@ const WelcomeScreen = ({
 };
 
 const ConversationScreen = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <div className="flex flex-col gap-2">
@@ -384,7 +385,7 @@ const ConversationScreen = () => {
 };
 
 const UnsavedBadge = ({ className }: { className?: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   return (
     <Badge variant="secondary" className={className}>
@@ -533,7 +534,7 @@ const MenuOutcome = ({
   seedLink?: string;
   isUnsaved?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   const body = () => {
     if (outcome.kind === 'opensLink') {
@@ -641,7 +642,7 @@ const SimulatorNotices = ({
   isOverLimit: boolean;
   itemCount: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
 
   const notices = [
     isOverLimit && {
@@ -670,10 +671,14 @@ const SimulatorNotices = ({
     return (
       <p className="flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
         <IconInfoCircle className="size-3.5 shrink-0" />
-        {t('menu-preview-note', {
-          defaultValue:
-            'Facebook always adds Get Started as the first menu action.',
-        })}
+        {itemCount
+          ? t('menu-preview-note', {
+              defaultValue: 'erxes adds Get Started as the first menu action.',
+            })
+          : t('menu-preview-empty-note', {
+              defaultValue:
+                'No persistent menu, so Messenger shows no ☰ button.',
+            })}
       </p>
     );
   }
