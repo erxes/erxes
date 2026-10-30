@@ -65,6 +65,17 @@ export const discordConfigMutations = {
       throw new Error('The bot cannot see this Discord channel');
     }
 
+    const customerChannel = await models.DiscordCustomerChannel.exists({
+      channelId,
+      subdomain,
+    });
+
+    if (customerChannel) {
+      throw new Error(
+        'This channel is linked to a company. Pick a channel only your team uses.',
+      );
+    }
+
     const config = await models.DiscordConfig.upsertConfig({
       teamId,
       connectionId,

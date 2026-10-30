@@ -39,6 +39,7 @@ type TDiscordCardRecord = {
   githubRepoName?: string;
   customerId?: string | null;
   companyId?: string | null;
+  discordSource?: { username?: string } | null;
 };
 
 type TDiscordCardTask = TDiscordCardRecord & {
@@ -91,7 +92,7 @@ export const loadDiscordCardEntity = async (
   return triage ? { kind: 'triage', record: triage } : null;
 };
 
-const getUserNames = async (subdomain: string, userIds: string[]) => {
+export const getUserNames = async (subdomain: string, userIds: string[]) => {
   const ids = [...new Set(userIds.filter(Boolean))];
 
   if (!ids.length) {
@@ -178,10 +179,10 @@ const EVENT_EMOJIS: Record<TDiscordNotificationEvent, string> = {
   taskCompleted: '🎉',
 };
 
-const escapeDiscordMarkdown = (value: string) =>
+export const escapeDiscordMarkdown = (value: string) =>
   value.replace(/[\\*_`~|>[\]]/g, '\\$&');
 
-const capitalize = (value: string) =>
+export const capitalize = (value: string) =>
   `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 
 const getStatusType = (entity: TDiscordCardEntity) => {
@@ -323,7 +324,12 @@ export const buildDiscordCard = async ({
   ]);
 
   const actorName =
-    userNames.get(actorId) || (record.githubIssueUrl ? 'GitHub' : 'erxes');
+    userNames.get(actorId) ||
+    (record.discordSource?.username
+      ? `@${record.discordSource.username} (Discord)`
+      : record.githubIssueUrl
+      ? 'GitHub'
+      : 'erxes');
   const assigneeName = assigneeId ? userNames.get(assigneeId) : undefined;
   const reason = job.event === 'triageDeclined' ? job.reason?.trim() : '';
   const priority = record.priority ?? 0;

@@ -25,6 +25,12 @@ export type TDiscordOAuthToken = {
 export type TDiscordApplication = {
   id: string;
   name: string;
+  verify_key: string;
+  interactions_endpoint_url?: string | null;
+};
+
+export type TDiscordApplicationUpdate = {
+  interactions_endpoint_url: string | null;
 };
 
 export type TDiscordGuild = {
@@ -64,9 +70,50 @@ export type TDiscordLinkButton = {
   url: string;
 };
 
+export type TDiscordButton = {
+  type: 2;
+  style: 1 | 2;
+  label: string;
+  custom_id: string;
+  disabled?: boolean;
+};
+
+export type TDiscordTextInput = {
+  type: 4;
+  custom_id: string;
+  style: 1 | 2;
+  required?: boolean;
+  max_length?: number;
+  placeholder?: string;
+};
+
+export type TDiscordSelectOption = {
+  label: string;
+  value: string;
+  description?: string;
+  default?: boolean;
+};
+
+export type TDiscordStringSelect = {
+  type: 3;
+  custom_id: string;
+  placeholder?: string;
+  required?: boolean;
+  min_values?: number;
+  max_values?: number;
+  options: TDiscordSelectOption[];
+};
+
+export type TDiscordLabel = {
+  type: 18;
+  label: string;
+  description?: string;
+  component: TDiscordTextInput | TDiscordStringSelect;
+};
+
 export type TDiscordActionRow = {
   type: 1;
-  components: TDiscordLinkButton[];
+  components: Array<TDiscordLinkButton | TDiscordButton>;
 };
 
 export type TDiscordMessagePayload = {
@@ -90,9 +137,28 @@ export type TDiscordErrorBody = {
   error_description?: string;
 };
 
+export type TDiscordCommandOption = {
+  type: number;
+  name: string;
+  description: string;
+  required?: boolean;
+  choices?: { name: string; value: string | number }[];
+  options?: TDiscordCommandOption[];
+};
+
+export type TDiscordSlashCommand = {
+  name: string;
+  description: string;
+  type: number;
+  options?: TDiscordCommandOption[];
+};
+
 export type TDiscordRequestArgs = {
   token: string;
-  method?: 'GET' | 'POST' | 'PATCH';
+  method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
-  body?: TDiscordMessagePayload;
+  body?:
+    | TDiscordMessagePayload
+    | TDiscordSlashCommand[]
+    | TDiscordApplicationUpdate;
 };

@@ -26,7 +26,7 @@ const withoutTrailingSlash = (value: string) => value.replace(/\/+$/, '');
 const getDomain = (subdomain: string) =>
   withoutTrailingSlash(getEnv({ name: 'DOMAIN', subdomain }));
 
-const getGatewayUrl = (subdomain: string) => {
+export const getDiscordGatewayUrl = (subdomain: string) => {
   const explicit = getEnv({ name: 'GATEWAY_URL', subdomain, defaultValue: '' });
 
   if (explicit) {
@@ -54,6 +54,8 @@ const getUiOrigin = (subdomain: string) => {
   }
 };
 
+export const isSaasVersion = () => getEnv({ name: 'VERSION' }) === 'saas';
+
 export const requireDiscordLinkUser = (user?: { _id?: string } | null) => {
   if (!user?._id) {
     throw new Error('Login required');
@@ -63,7 +65,9 @@ export const requireDiscordLinkUser = (user?: { _id?: string } | null) => {
 };
 
 export const getDiscordOAuthRedirectUri = (subdomain: string) =>
-  `${getGatewayUrl(subdomain)}/pl:operation${DISCORD_OAUTH_CALLBACK_PATH}`;
+  `${getDiscordGatewayUrl(
+    subdomain,
+  )}/pl:operation${DISCORD_OAUTH_CALLBACK_PATH}`;
 
 export const getDiscordAccountPageUrl = (subdomain: string) => {
   const domain = getDomain(subdomain);
@@ -77,10 +81,10 @@ export const findDiscordLinkingConnection = (
   models: IModels,
   subdomain: string,
 ) =>
-  models.DiscordConnection.findOne({ subdomain, hasClientSecret: true })
-    .sort({ createdAt: 1 })
-    .select('+clientSecret')
-    .lean();
+  models.DiscordConnection.findWithSecrets({
+    subdomain,
+    hasClientSecret: true,
+  });
 
 export const startDiscordAccountLink = async ({
   models,
@@ -190,16 +194,19 @@ export const handleDiscordOAuthCallback = async (
   req: Request,
   res: Response,
 ) => {
-  const subdomain = getSubdomain(req);
-  const accountUrl = getDiscordAccountPageUrl(subdomain);
-  const uiOrigin = getUiOrigin(subdomain);
+  const hostSubdomain = getSubdomain(req);
   const { code, state, error } = req.query;
-
-  const fail = (message: string) =>
-    sendLinkResult(res, { ok: false, message, accountUrl, uiOrigin });
 
   const linkState =
     typeof state === 'string' ? await consumeDiscordLinkState(state) : null;
+
+  const subdomain =
+    linkState && !isSaasVersion() ? linkState.subdomain : hostSubdomain;
+  const accountUrl = getDiscordAccountPageUrl(subdomain);
+  const uiOrigin = getUiOrigin(subdomain);
+
+  const fail = (message: string) =>
+    sendLinkResult(res, { ok: false, message, accountUrl, uiOrigin });
 
   if (!linkState || linkState.subdomain !== subdomain) {
     return fail(
@@ -213,12 +220,10 @@ export const handleDiscordOAuthCallback = async (
 
   try {
     const models = await generateModels(subdomain);
-    const connection = await models.DiscordConnection.findOne({
+    const connection = await models.DiscordConnection.findWithSecrets({
       _id: linkState.connectionId,
       subdomain,
-    })
-      .select('+clientSecret')
-      .lean();
+    });
 
     if (!connection?.clientSecret) {
       return fail('Discord account linking is no longer set up.');

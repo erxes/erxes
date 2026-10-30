@@ -115,12 +115,10 @@ export const discordAccountQueries = {
     }).lean();
 
     const connection = config
-      ? await models.DiscordConnection.findOne({
+      ? await models.DiscordConnection.findWithSecrets({
           _id: config.connectionId,
           subdomain,
         })
-          .select('+token')
-          .lean()
       : null;
 
     const inServer =

@@ -13,6 +13,7 @@ import { githubConnectionQueries } from '@/githubIntegration/graphql/resolvers/q
 import { discordConnectionQueries } from '@/discordIntegration/graphql/resolvers/queries/discordConnection';
 import { discordConfigQueries } from '@/discordIntegration/graphql/resolvers/queries/discordConfig';
 import { discordAccountQueries } from '@/discordIntegration/graphql/resolvers/queries/discordAccount';
+import { discordCustomerChannelQueries } from '@/discordIntegration/graphql/resolvers/queries/discordCustomerChannel';
 
 export const queries = {
   ...taskQueries,
@@ -30,4 +31,5 @@ export const queries = {
   ...discordConnectionQueries,
   ...discordConfigQueries,
   ...discordAccountQueries,
+  ...discordCustomerChannelQueries,
 };

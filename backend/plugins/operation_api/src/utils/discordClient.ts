@@ -1,5 +1,6 @@
 import {
   TDiscordApplication,
+  TDiscordApplicationUpdate,
   TDiscordChannel,
   TDiscordErrorBody,
   TDiscordGuild,
@@ -9,11 +10,13 @@ import {
   TDiscordOAuthClient,
   TDiscordOAuthToken,
   TDiscordRequestArgs,
+  TDiscordSlashCommand,
   TDiscordUser,
 } from '@/discordIntegration/@types/discordApi';
 import {
   DISCORD_API_URL,
   DISCORD_BOT_PERMISSIONS,
+  DISCORD_BOT_SCOPES,
   DISCORD_ERROR_CODES,
   DISCORD_MAX_RATE_LIMIT_RETRIES,
   DISCORD_MESSAGE_CHANNEL_TYPES,
@@ -42,7 +45,8 @@ const parseBody = (text: string): unknown => {
 };
 
 const getRetryAfterMs = (response: Response, body: TDiscordErrorBody) => {
-  const header = Number(response.headers.get('retry-after'));
+  const headerValue = response.headers.get('retry-after');
+  const header = headerValue === null ? NaN : Number(headerValue);
   const seconds = Number.isFinite(header) ? header : Number(body.retry_after);
 
   return Math.min(
@@ -88,7 +92,7 @@ const discordRequest = async <T>(
   return data as T;
 };
 
-const readOAuthResponse = async <T>(response: Response): Promise<T> => {
+const readDiscordResponse = async <T>(response: Response): Promise<T> => {
   const data = parseBody(await response.text());
 
   if (!response.ok) {
@@ -127,7 +131,7 @@ const discordOAuthRequest = async <T>(
     body: new URLSearchParams(params).toString(),
   });
 
-  return readOAuthResponse<T>(response);
+  return readDiscordResponse<T>(response);
 };
 
 export const exchangeDiscordOAuthCode = ({
@@ -171,7 +175,7 @@ export const getDiscordOAuthUser = async (accessToken: string) => {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  return readOAuthResponse<TDiscordUser>(response);
+  return readDiscordResponse<TDiscordUser>(response);
 };
 
 export const getDiscordGuildMember = async (
@@ -197,6 +201,49 @@ export const getDiscordGuildMember = async (
   }
 };
 
+export const registerDiscordGuildCommands = ({
+  token,
+  applicationId,
+  guildId,
+  commands,
+}: {
+  token: string;
+  applicationId: string;
+  guildId: string;
+  commands: TDiscordSlashCommand[];
+}) =>
+  discordRequest<TDiscordSlashCommand[]>({
+    token,
+    method: 'PUT',
+    path: `/applications/${encodeURIComponent(
+      applicationId,
+    )}/guilds/${encodeURIComponent(guildId)}/commands`,
+    body: commands,
+  });
+
+export const editDiscordInteractionResponse = async ({
+  applicationId,
+  interactionToken,
+  payload,
+}: {
+  applicationId: string;
+  interactionToken: string;
+  payload: TDiscordMessagePayload;
+}) => {
+  const response = await fetch(
+    `${DISCORD_API_URL}/webhooks/${encodeURIComponent(
+      applicationId,
+    )}/${encodeURIComponent(interactionToken)}/messages/@original`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ allowed_mentions: { parse: [] }, ...payload }),
+    },
+  );
+
+  return readDiscordResponse<TDiscordMessage>(response);
+};
+
 export const getDiscordAvatarUrl = (user: TDiscordUser) =>
   user.avatar
     ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`
@@ -207,6 +254,17 @@ export const getDiscordBotUser = (token: string) =>
 
 export const getDiscordApplication = (token: string) =>
   discordRequest<TDiscordApplication>({ token, path: '/applications/@me' });
+
+export const updateDiscordApplication = (
+  token: string,
+  body: TDiscordApplicationUpdate,
+) =>
+  discordRequest<TDiscordApplication>({
+    token,
+    method: 'PATCH',
+    path: '/applications/@me',
+    body,
+  });
 
 export const listDiscordBotGuilds = (token: string) =>
   discordRequest<TDiscordGuild[]>({ token, path: '/users/@me/guilds' });
@@ -252,6 +310,31 @@ export const editDiscordMessage = (
     body: { allowed_mentions: { parse: [] }, ...payload },
   });
 
+export const deleteDiscordMessage = async (
+  token: string,
+  channelId: string,
+  messageId: string,
+) => {
+  try {
+    await discordRequest<Record<string, never>>({
+      token,
+      method: 'DELETE',
+      path: `/channels/${encodeURIComponent(
+        channelId,
+      )}/messages/${encodeURIComponent(messageId)}`,
+    });
+  } catch (error) {
+    if (
+      error instanceof DiscordApiError &&
+      (error.code === DISCORD_ERROR_CODES.UNKNOWN_MESSAGE ||
+        error.code === DISCORD_ERROR_CODES.UNKNOWN_CHANNEL)
+    ) {
+      return;
+    }
+    throw error;
+  }
+};
+
 export const getDiscordGuildIconUrl = (guild: TDiscordGuild) =>
   guild.icon
     ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png`
@@ -260,7 +343,9 @@ export const getDiscordGuildIconUrl = (guild: TDiscordGuild) =>
 export const buildDiscordInviteUrl = (applicationId: string) =>
   `https://discord.com/oauth2/authorize?client_id=${encodeURIComponent(
     applicationId,
-  )}&scope=bot&permissions=${DISCORD_BOT_PERMISSIONS}`;
+  )}&scope=${encodeURIComponent(
+    DISCORD_BOT_SCOPES,
+  )}&permissions=${DISCORD_BOT_PERMISSIONS}`;
 
 export const isDiscordAuthError = (error: unknown) =>
   error instanceof DiscordApiError && error.status === 401;

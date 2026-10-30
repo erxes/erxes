@@ -2,6 +2,8 @@ import {
   inspectDiscordBot,
   requireDiscordToken,
 } from '@/discordIntegration/utils/discordBot';
+import { enableDiscordCommands } from '@/discordIntegration/utils/discordCommands';
+import { sealDiscordSecret } from '@/discordIntegration/utils/discordSecrets';
 import { IContext } from '~/connectionResolvers';
 import {
   DiscordApiError,
@@ -41,7 +43,8 @@ export const discordConnectionMutations = {
       applicationId: application.id,
       botUserId: bot.id,
       botUsername: bot.username,
-      token: botToken,
+      token: sealDiscordSecret(botToken),
+      publicKey: application.verify_key,
       health: {
         status: 'healthy',
         lastVerifiedAt: new Date(),
@@ -51,15 +54,47 @@ export const discordConnectionMutations = {
       subdomain,
     });
 
-    if (!previous || previous.applicationId === application.id) {
+    if (!connection || previous?.applicationId === application.id) {
       return connection;
     }
 
-    return models.DiscordConnection.findOneAndUpdate(
-      { guildId, subdomain },
-      { $unset: { clientSecret: '' }, $set: { hasClientSecret: false } },
-      { new: true },
-    );
+    if (previous) {
+      const configIds = (
+        await models.DiscordConfig.find({
+          connectionId: String(previous._id),
+          subdomain,
+        })
+          .select('_id')
+          .lean()
+      ).map((config) => String(config._id));
+
+      if (configIds.length) {
+        await models.DiscordMessage.deleteMany({
+          configId: { $in: configIds },
+          audience: { $ne: 'customer' },
+          subdomain,
+        });
+      }
+
+      await models.DiscordConnection.updateOne(
+        { _id: connection._id, subdomain },
+        {
+          $unset: {
+            clientSecret: '',
+            commandsRegisteredAt: '',
+            commandsVersion: '',
+          },
+          $set: { hasClientSecret: false },
+        },
+      );
+    }
+
+    return enableDiscordCommands({
+      models,
+      subdomain,
+      connectionId: String(connection._id),
+      replaceEndpoint: false,
+    });
   },
 
   async operationDiscordSetClientSecret(
@@ -99,7 +134,12 @@ export const discordConnectionMutations = {
 
     return models.DiscordConnection.findOneAndUpdate(
       { _id, subdomain },
-      { $set: { clientSecret: secret, hasClientSecret: true } },
+      {
+        $set: {
+          clientSecret: sealDiscordSecret(secret),
+          hasClientSecret: true,
+        },
+      },
       { new: true },
     );
   },
@@ -140,10 +180,21 @@ export const discordConnectionMutations = {
       throw new Error('Discord connection not found');
     }
 
-    const linkedTeamCount = await models.DiscordConfig.countDocuments({
-      connectionId: _id,
-      subdomain,
-    });
+    const [linkedTeamCount, customerChannelCount] = await Promise.all([
+      models.DiscordConfig.countDocuments({ connectionId: _id, subdomain }),
+      models.DiscordCustomerChannel.countDocuments({
+        connectionId: _id,
+        subdomain,
+      }),
+    ]);
+
+    if (customerChannelCount > 0) {
+      throw new Error(
+        `This Discord server still has ${customerChannelCount} customer channel${
+          customerChannelCount === 1 ? '' : 's'
+        }. Remove them first.`,
+      );
+    }
 
     if (linkedTeamCount > 0) {
       throw new Error(
