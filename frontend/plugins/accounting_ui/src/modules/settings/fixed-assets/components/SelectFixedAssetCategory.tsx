@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Combobox, Command, Popover, cn } from 'erxes-ui';
-import { useState } from 'react';
+import { ComponentProps, useState } from 'react';
 import { useFixedAssetCategories } from '../hooks/useFixedAssetCategories';
 
 export const SelectFixedAssetCategory = ({
@@ -9,7 +9,9 @@ export const SelectFixedAssetCategory = ({
   recordId,
   nullable,
   className,
-}: {
+  variant,
+  hideChevron,
+}: Pick<ComponentProps<typeof Combobox.Trigger>, 'variant' | 'hideChevron'> & {
   selected?: string;
   onSelect: (value?: string) => void;
   recordId?: string;
@@ -25,7 +27,11 @@ export const SelectFixedAssetCategory = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+      <Combobox.Trigger
+        className={cn('w-full shadow-xs', className)}
+        variant={variant}
+        hideChevron={hideChevron}
+      >
         <span className="truncate">
           {selectedCategory
             ? `${selectedCategory.code} - ${selectedCategory.name}`
