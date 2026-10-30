@@ -7,6 +7,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from 'react';
@@ -158,7 +159,9 @@ export const useSidePanel = () => {
     );
   };
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
-  latest.current = { path, history, navigate, navigator, sourcePath };
+  useLayoutEffect(() => {
+    latest.current = { path, history, navigate, navigator, sourcePath };
+  });
   const replaceRecord = useCallback(
     (previous: TRelationEntity, next: TRelationEntity) => {
       const current = latest.current;

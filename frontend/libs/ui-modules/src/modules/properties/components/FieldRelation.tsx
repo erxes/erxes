@@ -13,20 +13,16 @@ type RelationSelectProps = {
   value?: string | string[];
   onValueChange: (value?: string | string[] | null) => void;
   inCell?: boolean;
+  allowUnassigned?: boolean;
 };
 
 const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
 
 const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
   inCell ? (
-    <SelectMember.InlineCell
-      {...props}
-      {...COMMON_PROPS}
-      allowUnassigned
-      showInactive
-    />
+    <SelectMember.InlineCell {...props} {...COMMON_PROPS} showInactive />
   ) : (
-    <SelectMember {...props} {...COMMON_PROPS} allowUnassigned showInactive />
+    <SelectMember {...props} {...COMMON_PROPS} showInactive />
   );
 
 const RELATION_SELECT_BY_TYPE: Record<
@@ -89,6 +85,9 @@ export const FieldRelation = ({
       scope={id}
       value={currentValue ?? undefined}
       inCell={inCell}
+      {...(SelectRelation === MemberRelation && {
+        allowUnassigned: !field.validations?.required,
+      })}
       onValueChange={(val = null) => {
         setCurrentValue(val);
         if (val !== value) handleChange(val);

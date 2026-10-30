@@ -170,23 +170,24 @@ const useRecordHeading = (
     };
   }
 
-  if (isCustomer || isCompany) {
-    const loading = isCustomer ? customerLoading : companyLoading;
-    const error = isCustomer ? customerError : companyError;
+  const isContact = isCustomer || isCompany;
+  const loading = isCustomer ? customerLoading : companyLoading;
+  const error = isCustomer ? customerError : companyError;
 
-    if (!loading) {
-      return {
-        title: error
-          ? t('error', 'Unable to load record')
-          : t('not-found-title', 'Nothing here'),
-        state: error ? 'error' : 'not-found',
-      };
-    }
-
+  if (isContact && loading) {
     // Still loading: placeholders, never the raw content type.
     return {
       title: <Skeleton className="h-4 w-32" />,
       avatar: <Skeleton className="size-7 flex-none rounded-full" />,
+    };
+  }
+
+  if (isContact) {
+    return {
+      title: error
+        ? t('error', 'Unable to load record')
+        : t('not-found-title', 'Nothing here'),
+      state: error ? 'error' : 'not-found',
     };
   }
 
