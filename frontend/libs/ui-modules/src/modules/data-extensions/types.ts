@@ -302,3 +302,95 @@ export const isEmptyDataExtensionValue = (value: unknown) =>
 /** The sidebar group a record type belongs to: its module, or `custom`. */
 export const recordTypeGroup = (recordType: IDataExtensionRecordType) =>
   recordType.custom ? 'custom' : recordType.owner;
+
+export type DataExtensionFilterOperator =
+  | 'eq'
+  | 'neq'
+  | 'contains'
+  | 'notContains'
+  | 'gt'
+  | 'gte'
+  | 'lt'
+  | 'lte'
+  | 'in'
+  | 'nin'
+  | 'isEmpty'
+  | 'isNotEmpty';
+
+export interface IDataExtensionFilterCondition {
+  field: string;
+  operator: DataExtensionFilterOperator;
+  value?: unknown;
+}
+
+export interface IDataExtensionFilter {
+  match?: 'all' | 'any';
+  conditions: IDataExtensionFilterCondition[];
+}
+
+export type DataExtensionViewType = 'table' | 'kanban' | 'calendar';
+
+export interface IDataExtensionView {
+  _id: string;
+  recordType: string;
+  name: string;
+  type: DataExtensionViewType;
+  filter?: IDataExtensionFilter | null;
+  sortField?: string | null;
+  sortDirection?: number | null;
+  columns?: string[] | null;
+  groupBy?: string | null;
+  dateField?: string | null;
+  shared: boolean;
+  createdBy: string;
+}
+
+/** Operators offered per field type; mirrors the server's checks. */
+export const filterOperatorsFor = (
+  field: Pick<IDataExtensionField, 'type' | 'relation'>,
+): DataExtensionFilterOperator[] => {
+  const empty: DataExtensionFilterOperator[] = ['isEmpty', 'isNotEmpty'];
+
+  if (field.relation) {
+    return field.relation.side === 'source' ? ['eq', 'neq', ...empty] : [];
+  }
+
+  switch (field.type) {
+    case 'text':
+    case 'longText':
+    case 'email':
+    case 'url':
+    case 'phone':
+      return ['contains', 'notContains', 'eq', 'neq', ...empty];
+    case 'number':
+    case 'percent':
+    case 'rating':
+    case 'currency':
+    case 'date':
+    case 'dateTime':
+      return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', ...empty];
+    case 'boolean':
+      return ['eq', ...empty];
+    case 'select':
+    case 'multiSelect':
+      return ['in', 'nin', ...empty];
+    case 'member':
+      return ['eq', 'neq', ...empty];
+    case 'address':
+    case 'fullName':
+    case 'links':
+    case 'emails':
+    case 'phones':
+    case 'files':
+      return ['contains', 'notContains', ...empty];
+    default:
+      return empty;
+  }
+};
+
+/** Fields a board can use for its columns: one choice per record. */
+export const isBoardField = (field: IDataExtensionField) =>
+  field.type === 'select';
+
+export const isDateField = (field: IDataExtensionField) =>
+  field.type === 'date' || field.type === 'dateTime';

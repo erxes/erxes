@@ -17,3 +17,4 @@ export * from './components/DataExtensionOptionBadge';
 export * from './components/DataExtensionValueDisplay';
 export * from './utils/fieldDisplay';
 export * from './hooks/useDataExtensionRecordList';
+export * from './hooks/useDataExtensionAggregate';

@@ -2,6 +2,7 @@ import { gql, useApolloClient } from '@apollo/client';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   IDataExtensionField,
+  IDataExtensionFilter,
   IDataExtensionListRecord,
   IDataExtensionRecordType,
 } from '../types';
@@ -9,6 +10,7 @@ import { buildListQuery, typedRequestOptions } from '../utils/typedOperations';
 import { toDataExtensionRecordResult } from './useDataExtensionRecord';
 
 export interface IDataExtensionListParams {
+  filter?: IDataExtensionFilter | null;
   searchValue?: string;
   limit?: number;
   skip?: number;
@@ -40,6 +42,8 @@ export const useDataExtensionRecordList = (
   const [error, setError] = useState<Error | null>(null);
   const generation = useRef(0);
   const { searchValue, limit, skip, sortField, sortDirection } = params;
+  // Compared by content, so a filter rebuilt on each render does not refetch.
+  const filterKey = JSON.stringify(params.filter || null);
 
   const refetch = useCallback(async () => {
     if (!recordType?.custom) {
@@ -56,7 +60,14 @@ export const useDataExtensionRecordList = (
         page: { totalCount: number; list: RawRecord[] };
       }>({
         query: gql(buildListQuery(recordType, fields, recordTypes)),
-        variables: { searchValue, limit, skip, sortField, sortDirection },
+        variables: {
+          filter: JSON.parse(filterKey),
+          searchValue,
+          limit,
+          skip,
+          sortField,
+          sortDirection,
+        },
         ...typedRequestOptions,
       });
 
@@ -95,6 +106,7 @@ export const useDataExtensionRecordList = (
     recordType,
     fields,
     recordTypes,
+    filterKey,
     searchValue,
     limit,
     skip,

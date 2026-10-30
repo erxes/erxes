@@ -189,11 +189,19 @@ export const buildListQuery = (
 ) => {
   const { list } = getCustomObjectOperationNames(recordType.typeName);
 
-  return `query DataExtensionsRecordList($searchValue: String, $limit: Int, $skip: Int, $sortField: String, $sortDirection: Int) {
-  page: ${list}(searchValue: $searchValue, limit: $limit, skip: $skip, sortField: $sortField, sortDirection: $sortDirection) {
+  return `query DataExtensionsRecordList($filter: DataExtensionFilterInput, $searchValue: String, $limit: Int, $skip: Int, $sortField: String, $sortDirection: Int) {
+  page: ${list}(filter: $filter, searchValue: $searchValue, limit: $limit, skip: $skip, sortField: $sortField, sortDirection: $sortDirection) {
     totalCount
     list { createdAt updatedAt ${selection(recordType, fields, recordTypes)} }
   }
+}`;
+};
+
+export const buildAggregateQuery = (recordType: IDataExtensionRecordType) => {
+  const { lookup } = getTypedOperationNames(recordType.typeName);
+
+  return `query DataExtensionsRecordAggregate($filter: DataExtensionFilterInput, $groupBy: String, $metrics: [DataExtensionMetricInput!]) {
+  groups: ${lookup}Aggregate(filter: $filter, groupBy: $groupBy, metrics: $metrics) { key count values }
 }`;
 };
 

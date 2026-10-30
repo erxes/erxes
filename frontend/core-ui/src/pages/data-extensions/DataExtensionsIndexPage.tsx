@@ -23,7 +23,7 @@ import { DataExtensionApiPreview } from '@/data-extensions/components/DataExtens
 import { DataExtensionFieldsTable } from '@/data-extensions/components/DataExtensionFieldsTable';
 import { DataExtensionModelMap } from '@/data-extensions/components/DataExtensionModelMap';
 import { DataExtensionObjectSheet } from '@/data-extensions/components/DataExtensionObjectSheet';
-import { DataExtensionRecordsTable } from '@/data-extensions/components/DataExtensionRecordsTable';
+import { DataExtensionRecordsView } from '@/data-extensions/components/DataExtensionRecordsView';
 import { DataExtensionRecordValues } from '@/data-extensions/components/DataExtensionRecordValues';
 import { DataExtensionsMobileSidebar } from '@/data-extensions/components/DataExtensionsSidebar';
 import {
@@ -137,7 +137,7 @@ export const DataExtensionsIndexPage = () => {
             value="records"
             className="min-h-0 flex-auto motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-150"
           >
-            <DataExtensionRecordsTable recordType={recordType} />
+            <DataExtensionRecordsView recordType={recordType} />
           </Tabs.Content>
         )}
         <Tabs.Content
