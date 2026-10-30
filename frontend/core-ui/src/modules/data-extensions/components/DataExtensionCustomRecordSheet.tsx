@@ -30,6 +30,7 @@ import {
 } from 'ui-modules';
 import { useDataExtensionPermissions } from '../hooks/useDataExtensionPermissions';
 import { DataExtensionObjectIcon } from './DataExtensionObjectIcon';
+import { DataExtensionRecordHistory } from './DataExtensionRecordHistory';
 
 const defaultsOf = (
   fields: ReturnType<typeof useDataExtensionFields>['fields'],
@@ -297,11 +298,18 @@ export const DataExtensionCustomRecordSheet = ({
             )
           ) : (
             recordId && (
-              <DataExtensionRecordFields
-                contentType={recordType.recordType}
-                recordId={recordId}
-                readOnly={!canManageRecords}
-              />
+              <>
+                <DataExtensionRecordFields
+                  contentType={recordType.recordType}
+                  recordId={recordId}
+                  readOnly={!canManageRecords}
+                />
+                <DataExtensionRecordHistory
+                  recordType={recordType.recordType}
+                  recordId={recordId}
+                  fields={fields}
+                />
+              </>
             )
           )}
         </Sheet.Content>

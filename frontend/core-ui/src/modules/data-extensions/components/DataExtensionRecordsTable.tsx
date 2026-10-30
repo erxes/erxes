@@ -269,7 +269,7 @@ export const DataExtensionRecordsTable = ({
                           field={field}
                           value={record.values[field.key] ?? null}
                           links={record.links[field.key]}
-                          className="block max-w-full truncate"
+                          className="max-w-full"
                         />
                       </Table.Cell>
                     ))}

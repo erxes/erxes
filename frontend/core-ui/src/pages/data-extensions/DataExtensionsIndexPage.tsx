@@ -3,6 +3,7 @@ import {
   IconPencil,
   IconPlus,
   IconVariable,
+  IconWebhook,
 } from '@tabler/icons-react';
 import {
   Breadcrumb,
@@ -23,6 +24,7 @@ import { DataExtensionApiPreview } from '@/data-extensions/components/DataExtens
 import { DataExtensionFieldsTable } from '@/data-extensions/components/DataExtensionFieldsTable';
 import { DataExtensionModelMap } from '@/data-extensions/components/DataExtensionModelMap';
 import { DataExtensionObjectSheet } from '@/data-extensions/components/DataExtensionObjectSheet';
+import { DataExtensionWebhooksSheet } from '@/data-extensions/components/DataExtensionWebhooksSheet';
 import { DataExtensionRecordsView } from '@/data-extensions/components/DataExtensionRecordsView';
 import { DataExtensionRecordValues } from '@/data-extensions/components/DataExtensionRecordValues';
 import { DataExtensionsMobileSidebar } from '@/data-extensions/components/DataExtensionsSidebar';
@@ -50,6 +52,7 @@ export const DataExtensionsIndexPage = () => {
   const [, setRecordTypeParam] = useQueryState<string>('recordType');
   const [sheetOpen, setSheetOpen] = useState(false);
   const [objectSheetOpen, setObjectSheetOpen] = useState(false);
+  const [webhooksOpen, setWebhooksOpen] = useState(false);
   const { confirm } = useConfirm();
   const { objects } = useDataExtensionObjects();
   const { archiveObject } = useDataExtensionObjectMutations();
@@ -211,6 +214,22 @@ export const DataExtensionsIndexPage = () => {
           <Separator.Inline />
         </PageHeader.Start>
         <PageHeader.End>
+          {canManage && (
+            <>
+              <Button
+                variant="ghost"
+                aria-label={t('webhooks.title')}
+                onClick={() => setWebhooksOpen(true)}
+              >
+                <IconWebhook />
+                <span className="hidden lg:inline">{t('webhooks.title')}</span>
+              </Button>
+              <DataExtensionWebhooksSheet
+                open={webhooksOpen}
+                onOpenChange={setWebhooksOpen}
+              />
+            </>
+          )}
           {canManage && object && (
             <>
               <Button

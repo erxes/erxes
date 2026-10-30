@@ -32,6 +32,7 @@ import {
 import { useDataExtensionPermissions } from '../hooks/useDataExtensionPermissions';
 import { useDataExtensionViews } from '../hooks/useDataExtensionViews';
 import { DataExtensionCalendar } from './DataExtensionCalendar';
+import { DataExtensionCsvActions } from './DataExtensionCsvActions';
 import { DataExtensionCustomRecordSheet } from './DataExtensionCustomRecordSheet';
 import { DataExtensionFilterBuilder, readyConditions } from './DataExtensionFilterBuilder';
 import { DataExtensionKanban } from './DataExtensionKanban';
@@ -340,6 +341,13 @@ export const DataExtensionRecordsView = ({
           />
         </div>
         <div className="ml-auto flex items-center gap-1">
+          <DataExtensionCsvActions
+            recordType={recordType}
+            fields={fields}
+            filter={filter}
+            canImport={canManageRecords}
+            onImported={() => setVersion((current) => current + 1)}
+          />
           {view && dirty && canEditView && (
             <Button
               variant="ghost"

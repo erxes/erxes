@@ -118,7 +118,7 @@ export const DataExtensionValueDisplay = ({
       );
     default:
       return (
-        <span className={cn('truncate', className)}>
+        <span className={cn('block truncate', className)}>
           {formatDataExtensionValue(field, value, { locale, links })}
         </span>
       );
