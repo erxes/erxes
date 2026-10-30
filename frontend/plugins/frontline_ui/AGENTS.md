@@ -1394,6 +1394,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   Saving awaits the field mutation before clearing the draft, then invalidates
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.
+  Header and cell renderers that call React hooks are named components.
   Invalid stored dates render as their original value instead of breaking the
   submissions table. Conversion saves send metadata as `formChanges` in the
   field mutation so failure rolls back both; ordinary saves retain their existing
