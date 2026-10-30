@@ -24,7 +24,7 @@ export const MemberDetail = () => {
       >
         <FocusSheet.Header title={t('member-detail')}>
           {userDetail?._id && (
-            <div className="ml-auto">
+            <div className="flex flex-1 items-center justify-end">
               <DocumentPrintMenu
                 key={userDetail._id}
                 items={[{ _id: userDetail._id }]}
