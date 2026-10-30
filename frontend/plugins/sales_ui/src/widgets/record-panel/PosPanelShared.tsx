@@ -1,4 +1,5 @@
 import { Empty, ScrollArea, Spinner, cn } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { ActivityLogs } from 'ui-modules';
 
 export const PosPanelText = ({
@@ -16,14 +17,18 @@ export const PosPanelText = ({
 export const PosPanelDetailLayout = ({
   loading,
   hasRecord,
+  error,
   emptyMessage,
   children,
 }: {
   loading: boolean;
   hasRecord: boolean;
+  error?: Error;
   emptyMessage: string;
   children: React.ReactNode;
 }) => {
+  const { t } = useTranslation('sales');
+
   if (loading && !hasRecord) {
     return <Spinner containerClassName="py-12" />;
   }
@@ -32,7 +37,8 @@ export const PosPanelDetailLayout = ({
     return (
       <Empty className="py-12">
         <Empty.Header>
-          <Empty.Title>{emptyMessage}</Empty.Title>
+          <Empty.Title>{error ? t('error') : emptyMessage}</Empty.Title>
+          {error && <Empty.Description>{error.message}</Empty.Description>}
         </Empty.Header>
       </Empty>
     );

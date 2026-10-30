@@ -158,7 +158,7 @@ export const PosCoverPanelActions = ({ coverId }: { coverId: string }) => {
 
 export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
   const { t } = useTranslation('sales');
-  const { posCovers: cover, loading } = usePosCoversQuery(coverId);
+  const { posCovers: cover, loading, error } = usePosCoversQuery(coverId);
   const details = (cover?.details || []).filter(isDefined);
   const total = details
     .flatMap((detail) => detail.paidSummary || [])
@@ -168,6 +168,7 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
     <PosPanelDetailLayout
       loading={loading}
       hasRecord={!!cover}
+      error={error}
       emptyMessage={t('cover-not-found')}
     >
       {cover && (

@@ -19,7 +19,7 @@ export const PosOrdersContactSection = ({
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('sales');
   const { openRecord } = useSidePanel();
-  const { data, loading } = useQuery(SALES_CONTACT_POS_ORDERS, {
+  const { data, loading, error } = useQuery(SALES_CONTACT_POS_ORDERS, {
     variables: {
       customerId: contentId,
       customerType: contentType === 'core:company' ? 'company' : 'customer',
@@ -37,6 +37,7 @@ export const PosOrdersContactSection = ({
       label={t('pos-orders')}
       ids={[...ordersById.keys()]}
       loading={loading}
+      emptyText={error?.message}
       renderItem={(orderId) => {
         const order = ordersById.get(orderId);
         const date = order?.paidDate || order?.createdAt;

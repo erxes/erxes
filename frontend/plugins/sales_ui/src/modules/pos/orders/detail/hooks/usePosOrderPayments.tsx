@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 type TPosOrder = NonNullable<ReturnType<typeof usePosOrderQuery>['posOrder']>;
 
-const LOCKED_STATUSES = ['returned', 'completed'];
+const LOCKED_STATUSES = new Set(['returned', 'completed']);
 
 export const usePosOrderPayments = (posOrder?: TPosOrder) => {
   const { t } = useTranslation('sales');
@@ -36,7 +36,7 @@ export const usePosOrderPayments = (posOrder?: TPosOrder) => {
 
   const { methods } = usePosOrderForm(posOrder?.paidAmounts, paymentSummary);
 
-  const isLocked = LOCKED_STATUSES.includes(posOrder?.status || '');
+  const isLocked = LOCKED_STATUSES.has(posOrder?.status || '');
 
   const submitHandler: SubmitHandler<TPosOrderFormData> = useCallback(
     async (data) => {

@@ -128,7 +128,11 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
 
 export const PosOrderPanelDetail = ({ orderId }: { orderId: string }) => {
   const { t } = useTranslation('sales');
-  const { posOrder: order, loading } = usePosOrderQuery(orderId, 'cache-first');
+  const {
+    posOrder: order,
+    loading,
+    error,
+  } = usePosOrderQuery(orderId, 'cache-first');
 
   const items = (order?.items || []).map((item, index) => {
     const quantity = toNumber(item.count);
@@ -150,6 +154,7 @@ export const PosOrderPanelDetail = ({ orderId }: { orderId: string }) => {
     <PosPanelDetailLayout
       loading={loading}
       hasRecord={!!order}
+      error={error}
       emptyMessage={t('order-not-found')}
     >
       {order && (
