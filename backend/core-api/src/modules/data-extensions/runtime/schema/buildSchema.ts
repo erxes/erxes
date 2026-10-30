@@ -19,8 +19,11 @@ import {
   ValueNode,
 } from 'graphql';
 import {
+  castFormulaResult,
   DATA_EXTENSION_LIMITS,
   DataExtensionFieldType,
+  evaluateFormula,
+  parseFormula,
   IDataExtensionFilter,
   IDataExtensionMetric,
   DataExtensionNativeGraphqlType,
@@ -303,6 +306,23 @@ const AggregateGroupType = new GraphQLObjectType({
     },
   },
 });
+
+const FORMULA_OUTPUT: Record<string, GraphQLOutputType> = {
+  number: GraphQLFloat,
+  text: GraphQLString,
+  date: DateScalar,
+  boolean: GraphQLBoolean,
+};
+
+/** Holds `dataExtensionsManage`; checked once per request and remembered. */
+const isManager = async (context: IRequestContext) => {
+  try {
+    await context.requirePermission('dataExtensionsManage');
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 /** Team member fields resolve to the team member records they hold. */
 const TEAM_MEMBER_RECORD_TYPE = 'core:teamMember';
@@ -609,6 +629,110 @@ export const buildTenantSchema = ({
     return isList(field) ? records : records[0] || null;
   };
 
+  /**
+   * Fields for managers only resolve to null for everyone else instead of
+   * failing the whole query.
+   */
+  const guarded =
+    (
+      field: IDataExtensionField,
+      resolve: (
+        parent: IValuesParent,
+        context: IRequestContext,
+      ) => unknown | Promise<unknown>,
+    ) =>
+    async (parent: IValuesParent, _args: unknown, context: IRequestContext) => {
+      if (field.settings?.access === 'managers' && !(await isManager(context))) {
+        return null;
+      }
+
+      return resolve(parent, context);
+    };
+
+  /** count/sum/avg/min/max of a field over the records a relation lists. */
+  const resolveRollup = async (
+    field: IDataExtensionField,
+    parent: IValuesParent,
+    context: IRequestContext,
+  ): Promise<number | null> => {
+    const rollup = field.settings?.rollup;
+    const relationField = usableFields.find(
+      (candidate) =>
+        candidate.recordType === field.recordType &&
+        candidate.key === rollup?.relation,
+    );
+
+    if (!rollup || !relationField?.relation) {
+      return null;
+    }
+
+    const target = descriptors.get(relationField.relation.targetRecordType);
+
+    if (!target) {
+      return null;
+    }
+
+    await context.requirePermission(target.readAction);
+
+    const stored = storedFieldOf(relationField);
+
+    // Custom objects total on the server, exactly, under a relation filter.
+    if (
+      target.custom &&
+      owners.aggregate &&
+      relationField.relation.side === 'inverse' &&
+      stored
+    ) {
+      const [group] = await owners.aggregate(context, target, {
+        filter: {
+          conditions: [{ field: stored.key, operator: 'eq', value: parent.record._id }],
+        },
+        metrics: [{ op: rollup.op, field: rollup.field }],
+      });
+
+      return group ? (group.values[0] ?? (rollup.op === 'count' ? 0 : null)) : rollup.op === 'count' ? 0 : null;
+    }
+
+    const linked = (await resolveRelation(
+      relationField,
+      parent,
+      context,
+      DATA_EXTENSION_LIMITS.relationPageMax,
+    )) as IDataExtensionRecord[] | null;
+    const records = Array.isArray(linked) ? linked : linked ? [linked] : [];
+
+    if (rollup.op === 'count') {
+      return records.length;
+    }
+
+    const numbers = records
+      .map((record) => {
+        const value = record.dataExtensions?.[rollup.field as string];
+        const amount =
+          value && typeof value === 'object'
+            ? (value as { amount?: unknown }).amount
+            : value;
+
+        return typeof amount === 'number' ? amount : null;
+      })
+      .filter((value): value is number => value !== null);
+
+    if (!numbers.length) {
+      return null;
+    }
+
+    switch (rollup.op) {
+      case 'sum':
+        return numbers.reduce((total, value) => total + value, 0);
+      case 'avg':
+        return numbers.reduce((total, value) => total + value, 0) / numbers.length;
+      case 'min':
+        return Math.min(...numbers);
+      default:
+        return Math.max(...numbers);
+    }
+  };
+
   const buildValuesType = (descriptor: IDataExtensionRecordType) =>
     new GraphQLObjectType<IValuesParent, IRequestContext>({
       name: `${descriptor.typeName}DataExtensions`,
@@ -652,11 +776,36 @@ export const buildTenantSchema = ({
             continue;
           }
 
+          if (field.type === 'formula') {
+            const tree = parseFormula(field.settings?.expression || '0');
+            const resultType = field.settings?.resultType || 'number';
+
+            valueFields[field.key] = {
+              type: FORMULA_OUTPUT[resultType],
+              description: `${describeField(field)} Computed: ${field.settings?.expression}`,
+              resolve: guarded(field, ({ values }) =>
+                castFormulaResult(evaluateFormula(tree, values), resultType),
+              ),
+            };
+            continue;
+          }
+
+          if (field.type === 'rollup') {
+            valueFields[field.key] = {
+              type: GraphQLFloat,
+              description: `${describeField(field)} Computed over linked records.`,
+              resolve: guarded(field, (parent, context) =>
+                resolveRollup(field, parent, context),
+              ),
+            };
+            continue;
+          }
+
           if (!field.relation) {
             valueFields[field.key] = {
               type: valueType(field.type) as GraphQLOutputType,
               description: describeField(field),
-              resolve: ({ values }) => values[field.key] ?? null,
+              resolve: guarded(field, ({ values }) => values[field.key] ?? null),
             };
             continue;
           }
@@ -821,8 +970,11 @@ export const buildTenantSchema = ({
       },
     };
 
+    // Computed fields store nothing, so they are never patch inputs.
     const writable = recordFields.filter(
-      (field) => !field.relation || storedFieldOf(field),
+      (field) =>
+        !['formula', 'rollup'].includes(field.type) &&
+        (!field.relation || storedFieldOf(field)),
     );
     const writableByKey = new Map(writable.map((field) => [field.key, field]));
 
@@ -942,6 +1094,18 @@ export const buildTenantSchema = ({
     ) => {
       const ownValues: Record<string, unknown> = {};
       const inverseValues: [IDataExtensionField, unknown][] = [];
+
+      // Restricted and read-only values change only for managers.
+      for (const key of Object.keys(rawValues)) {
+        const settings = writableByKey.get(key)?.settings;
+
+        if (
+          (settings?.access === 'managers' || settings?.readOnly) &&
+          !(await isManager(context))
+        ) {
+          throw new GraphQLError(`${key} can only be changed by Data Extensions managers`);
+        }
+      }
 
       for (const [key, value] of Object.entries(rawValues)) {
         const field = writableByKey.get(key);

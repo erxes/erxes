@@ -45,6 +45,7 @@ const fields = [
     relation: { targetRecordType: 'core:company', kind: 'manyToOne', side: 'inverse' },
   }),
   field('team', 'member', { settings: { multiple: true } }),
+  field('net', 'formula', { settings: { expression: '{value}', resultType: 'number' } }),
 ];
 
 const build = (conditions: unknown[], match?: 'all' | 'any') =>
@@ -124,6 +125,7 @@ describe('buildDataExtensionRecordFilter', () => {
     [{ field: 'secret', operator: 'eq', value: 'x' }, 'Unknown field'],
     [{ field: 'title', operator: '$where', value: '1' }, 'Unknown operator'],
     [{ field: 'stage', operator: 'in', value: [] }, 'list of values'],
+    [{ field: 'net', operator: 'isEmpty' }, 'computed on read'],
   ])('refuses %j', (condition, message) => {
     expect(() => build([condition])).toThrow(message);
   });

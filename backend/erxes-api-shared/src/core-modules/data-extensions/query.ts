@@ -260,6 +260,10 @@ export const buildDataExtensionRecordFilter = (
       return fail(`${field.key} is filtered from the other record type`);
     }
 
+    if (field.type === 'formula' || field.type === 'rollup') {
+      return fail(`${field.key} is computed on read and cannot be filtered`);
+    }
+
     if (!(DATA_EXTENSION_FILTER_OPERATORS as readonly string[]).includes(condition.operator)) {
       return fail(`Unknown operator "${String(condition.operator)}"`);
     }

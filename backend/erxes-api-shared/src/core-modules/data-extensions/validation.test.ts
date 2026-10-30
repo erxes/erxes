@@ -70,7 +70,7 @@ describe('validateDataExtensionFieldCreate', () => {
       }),
     ).toThrow('Unsupported record type');
     expect(() =>
-      validateDataExtensionFieldCreate({ ...base, key: 'a', type: 'formula' }),
+      validateDataExtensionFieldCreate({ ...base, key: 'a', type: 'gauge' }),
     ).toThrow('Unsupported field type');
   });
 

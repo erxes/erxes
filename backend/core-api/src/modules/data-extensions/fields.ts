@@ -19,6 +19,8 @@ import {
   validateDataExtensionFieldCreate,
   validateDataExtensionFieldEdit,
   validateDataExtensionRelationCreate,
+  formulaFieldKeys,
+  parseFormula,
 } from 'erxes-api-shared/core-modules';
 import { isEnabled, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
@@ -182,6 +184,74 @@ const assertKeyAvailable = async (
   }
 };
 
+const NUMERIC_TYPES = ['number', 'currency', 'percent', 'rating'];
+const COMPUTED = ['formula', 'rollup'];
+
+/**
+ * Formulas may only read stored fields of the same record type, so they
+ * can never form a cycle. Rollups total a numeric field over a relation
+ * that lists records.
+ */
+const assertComputedReferences = async (
+  models: IModels,
+  field: Pick<IDataExtensionField, 'recordType' | 'type' | 'settings' | 'key'>,
+) => {
+  if (!COMPUTED.includes(field.type)) {
+    return;
+  }
+
+  const siblings = await models.DataExtensionFields.find({
+    recordType: field.recordType,
+    status: ACTIVE,
+  }).lean<IDataExtensionFieldDocument[]>();
+  const byKey = new Map(siblings.map((sibling) => [sibling.key, sibling]));
+
+  if (field.type === 'formula') {
+    for (const key of formulaFieldKeys(parseFormula(field.settings?.expression || ''))) {
+      const used = byKey.get(key);
+
+      if (!used || key === field.key) {
+        throw new DataExtensionValidationError(`Formula: no field {${key}} on this record type`);
+      }
+
+      if (COMPUTED.includes(used.type) || used.relation) {
+        throw new DataExtensionValidationError(
+          `Formula: {${key}} is computed or a relation; use stored values`,
+        );
+      }
+    }
+
+    return;
+  }
+
+  const rollup = field.settings?.rollup;
+  const relation = rollup ? byKey.get(rollup.relation) : undefined;
+  const lists =
+    relation?.relation &&
+    (relation.relation.kind === 'manyToMany' ||
+      (relation.relation.side === 'inverse' && relation.relation.kind === 'manyToOne'));
+
+  if (!rollup || !relation?.relation || !lists) {
+    throw new DataExtensionValidationError(
+      'Rollup: pick a relation on this record type that lists records (has many)',
+    );
+  }
+
+  if (rollup.op !== 'count') {
+    const target = await models.DataExtensionFields.findOne({
+      recordType: relation.relation.targetRecordType,
+      key: rollup.field,
+      status: ACTIVE,
+    }).lean<IDataExtensionFieldDocument | null>();
+
+    if (!target || !NUMERIC_TYPES.includes(target.type)) {
+      throw new DataExtensionValidationError(
+        'Rollup: total a number, currency, percent or rating field of the linked records',
+      );
+    }
+  }
+};
+
 export const addDataExtensionField = async (
   models: IModels,
   input: IDataExtensionFieldCreateInput,
@@ -189,6 +259,7 @@ export const addDataExtensionField = async (
 ) => {
   const field = validateDataExtensionFieldCreate(input);
 
+  await assertComputedReferences(models, field);
   await assertBelowFieldLimit(models, field.recordType);
   await assertKeyAvailable(models, field.recordType, field.key);
 
@@ -226,6 +297,10 @@ export const editDataExtensionField = async (
 ) => {
   const existing = await getField(models, _id);
   const update = validateDataExtensionFieldEdit(existing, input);
+
+  if (update.settings) {
+    await assertComputedReferences(models, { ...existing, settings: update.settings });
+  }
 
   const updated = await models.DataExtensionFields.findOneAndUpdate(
     { _id },

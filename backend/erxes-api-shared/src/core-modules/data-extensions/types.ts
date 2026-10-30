@@ -142,6 +142,23 @@ export interface IDataExtensionFieldSettings {
   /** Shown on create forms; defaults to true. */
   showInCreate?: boolean;
   placeholder?: string;
+  /** Formula fields: the expression and the type of its result. */
+  expression?: string;
+  resultType?: 'number' | 'text' | 'date' | 'boolean';
+  /** Rollup fields: a total over the records a relation links. */
+  rollup?: {
+    /** Relation field on this record type whose records are totalled. */
+    relation: string;
+    op: 'count' | 'sum' | 'avg' | 'min' | 'max';
+    /** Numeric field on the linked records; not needed for count. */
+    field?: string;
+  };
+  /** `managers`: only Data Extensions managers see and change the value. */
+  access?: 'everyone' | 'managers';
+  /** Only Data Extensions managers can change the value. */
+  readOnly?: boolean;
+  /** Shown on forms only when another field matches; values stay writable. */
+  visibleWhen?: { field: string; operator: 'eq' | 'neq' | 'in' | 'isNotEmpty'; value?: unknown };
 }
 
 export interface IDataExtensionField {

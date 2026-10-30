@@ -1,5 +1,7 @@
+import { FORMULA_RESULT_TYPES, parseFormula } from './formula';
 import {
   DATA_EXTENSION_ADDRESS_PARTS,
+  DATA_EXTENSION_COMPUTED_TYPES,
   DATA_EXTENSION_FIELD_KEY_PATTERN,
   DATA_EXTENSION_FIELD_TYPES,
   DATA_EXTENSION_LENGTH_TYPES,
@@ -11,6 +13,7 @@ import {
   DATA_EXTENSION_RELATION_CREATE_KINDS,
   DATA_EXTENSION_RELATION_KINDS,
   DATA_EXTENSION_RESERVED_KEYS,
+  DATA_EXTENSION_ROLLUP_OPS,
   DATA_EXTENSION_UNIQUE_TYPES,
   DATA_EXTENSIONS_NAMESPACE,
 } from './constants';
@@ -190,6 +193,12 @@ const SETTING_KEYS: (keyof IDataExtensionFieldSettings)[] = [
   'group',
   'showInCreate',
   'placeholder',
+  'expression',
+  'resultType',
+  'rollup',
+  'access',
+  'readOnly',
+  'visibleWhen',
 ];
 
 const optionalBoolean = (value: unknown, name: string) => {
@@ -385,8 +394,88 @@ export const validateDataExtensionFieldSettings = (
       false,
     ) || undefined;
 
+  if (input.access !== undefined && input.access !== null) {
+    if (input.access !== 'everyone' && input.access !== 'managers') {
+      fail('Access is everyone or managers');
+    }
+
+    settings.access = input.access === 'managers' ? 'managers' : undefined;
+  }
+
+  settings.readOnly = optionalBoolean(input.readOnly, 'Read only') || undefined;
+
+  if (input.visibleWhen !== undefined && input.visibleWhen !== null) {
+    const rule = input.visibleWhen as Record<string, unknown>;
+
+    if (
+      typeof rule !== 'object' ||
+      typeof rule.field !== 'string' ||
+      !DATA_EXTENSION_FIELD_KEY_PATTERN.test(rule.field) ||
+      !['eq', 'neq', 'in', 'isNotEmpty'].includes(rule.operator as string) ||
+      JSON.stringify(rule.value ?? null).length > 1000
+    ) {
+      fail('Show-when needs a field key, eq/neq/in/isNotEmpty and a small value');
+    }
+
+    settings.visibleWhen = {
+      field: rule.field as string,
+      operator: rule.operator as 'eq' | 'neq' | 'in' | 'isNotEmpty',
+      ...(rule.value === undefined ? {} : { value: rule.value }),
+    };
+  }
+
+  const computed = (DATA_EXTENSION_COMPUTED_TYPES as readonly string[]).includes(type);
+
+  if (type === 'formula') {
+    if (typeof input.expression !== 'string') {
+      fail('A formula needs an expression');
+    }
+
+    try {
+      parseFormula(input.expression as string);
+    } catch (error) {
+      fail(`Formula: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
+    if (!(FORMULA_RESULT_TYPES as readonly string[]).includes(input.resultType as string)) {
+      fail('A formula returns a number, text, date or yes/no');
+    }
+
+    settings.expression = (input.expression as string).trim();
+    settings.resultType = input.resultType as IDataExtensionFieldSettings['resultType'];
+  } else if (input.expression !== undefined || input.resultType !== undefined) {
+    fail('Only formula fields take an expression');
+  }
+
+  if (type === 'rollup') {
+    const rollup = input.rollup as Record<string, unknown> | undefined;
+
+    if (
+      !rollup ||
+      typeof rollup.relation !== 'string' ||
+      !DATA_EXTENSION_FIELD_KEY_PATTERN.test(rollup.relation) ||
+      !(DATA_EXTENSION_ROLLUP_OPS as readonly string[]).includes(rollup.op as string) ||
+      (rollup.op !== 'count' &&
+        (typeof rollup.field !== 'string' || !DATA_EXTENSION_FIELD_KEY_PATTERN.test(rollup.field)))
+    ) {
+      fail('A rollup needs a relation, a total (count, sum, avg, min, max) and a field to total');
+    }
+
+    settings.rollup = {
+      relation: rollup?.relation as string,
+      op: rollup?.op as 'count',
+      ...(rollup?.op === 'count' ? {} : { field: rollup?.field as string }),
+    };
+  } else if (input.rollup !== undefined) {
+    fail('Only rollup fields take a rollup');
+  }
+
+  if (computed && (settings.required || settings.unique || input.defaultValue !== undefined)) {
+    fail('Computed fields cannot be required, unique or have a default');
+  }
+
   if (input.defaultValue !== undefined && input.defaultValue !== null) {
-    if (['member', 'files', 'json'].includes(type)) {
+    if (['member', 'files', 'json', 'formula', 'rollup'].includes(type)) {
       fail('This field type takes no default value');
     }
 
@@ -1120,6 +1209,9 @@ export const normalizeDataExtensionValue = (
       return normalizeMember(field, value);
     case 'json':
       return normalizeJson(field, value);
+    case 'formula':
+    case 'rollup':
+      return fail(`${field.key} is computed and cannot be set`);
     default:
       return normalizeBaseValue(field, value);
   }

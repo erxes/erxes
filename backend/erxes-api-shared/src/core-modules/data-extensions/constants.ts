@@ -73,6 +73,19 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'files',
   'member',
   'json',
+  'formula',
+  'rollup',
+] as const;
+
+/** Types computed on read; they store nothing and cannot be written. */
+export const DATA_EXTENSION_COMPUTED_TYPES = ['formula', 'rollup'] as const;
+
+export const DATA_EXTENSION_ROLLUP_OPS = [
+  'count',
+  'sum',
+  'avg',
+  'min',
+  'max',
 ] as const;
 
 /** Types whose value is a single scalar a unique index can compare. */
