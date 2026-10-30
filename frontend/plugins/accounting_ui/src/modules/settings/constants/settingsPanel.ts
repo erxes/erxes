@@ -5,6 +5,10 @@ export const ACCOUNT_CATEGORY_CONTENT_TYPE = 'accounting:accountCategory';
 export const VAT_ROW_CONTENT_TYPE = 'accounting:vatRow';
 export const CTAX_ROW_CONTENT_TYPE = 'accounting:ctaxRow';
 export const JOB_CONTENT_TYPE = 'accounting:job';
+export const FIXED_ASSET_CATEGORY_CONTENT_TYPE =
+  'accounting:fixedAssetCategory';
+export const FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE =
+  'accounting:fixedAssetAccountConfig';
 
 export const getSyncConfigContentType = (code: string) => `accounting:${code}`;
 
@@ -19,6 +23,8 @@ export const SETTINGS_PANEL_CONTENT_TYPES = [
   VAT_ROW_CONTENT_TYPE,
   CTAX_ROW_CONTENT_TYPE,
   JOB_CONTENT_TYPE,
+  FIXED_ASSET_CATEGORY_CONTENT_TYPE,
+  FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE,
   ...Object.values(ACCOUNTING_SETTINGS_CODES).map(getSyncConfigContentType),
 ];
 

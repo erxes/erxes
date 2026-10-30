@@ -1,6 +1,11 @@
 "use client"
 
-import { beginDateAtom, endDateAtom } from "@/store/cover.store"
+import {
+  beginDateAtom,
+  endDateAtom,
+  coverStatusAtom,
+  terminalFetchBusyAtom,
+} from "@/store/cover.store"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { format, setHours, setMinutes } from "date-fns"
 import { useAtom, useAtomValue } from "jotai"
@@ -19,7 +24,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 
-import useCoverAmounts from "../hooks/useCoverAmounts"
+import { useCoverAmounts } from "../hooks/useCoverAmounts"
 
 const FormSchema = z.object({
   endDate: z.date({
@@ -30,8 +35,10 @@ const FormSchema = z.object({
   }),
 })
 
-const Dates = () => {
+export const Dates = () => {
   const beginDate = useAtomValue(beginDateAtom)
+  const status = useAtomValue(coverStatusAtom)
+  const busy = useAtomValue(terminalFetchBusyAtom)
   const [endDate, setEndDate] = useAtom(endDateAtom)
 
   const { getCoverAmounts, loading } = useCoverAmounts()
@@ -39,8 +46,8 @@ const Dates = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     values: {
-      endDate: endDate ? new Date(endDate as any) : new Date(),
-      time: format(endDate ? new Date(endDate as any) : new Date(), "HH:mm"),
+      endDate: endDate ? new Date(endDate) : new Date(),
+      time: format(endDate ? new Date(endDate) : new Date(), "HH:mm"),
     },
   })
 
@@ -59,7 +66,10 @@ const Dates = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="flex items-start gap-2 flex-wrap">
+        <fieldset
+          disabled={busy || status === "confirm" || status === "confirming"}
+          className="flex items-start gap-2 flex-wrap"
+        >
           {!!beginDate && (
             <FormItem className="w-full">
               <FormLabel className="block">Эхлэх огноо</FormLabel>
@@ -104,7 +114,6 @@ const Dates = () => {
                     className="w-[200px]"
                     min={"00:00"}
                     max={format(new Date(), "HH:mm")}
-                    // disabled={!!beginDate}
                   />
                 </FormControl>
                 <FormMessage />
@@ -116,14 +125,11 @@ const Dates = () => {
             type="submit"
             loading={loading}
             variant="secondary"
-            // disabled={!!beginDate}
           >
             Хаалтын дүн татах
           </Button>
-        </div>
+        </fieldset>
       </form>
     </Form>
   )
 }
-
-export default Dates

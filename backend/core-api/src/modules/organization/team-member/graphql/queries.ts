@@ -5,6 +5,7 @@ import {
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { listUserSessions, readSessionCookie } from '@/auth/session';
 
 type IListArgs = {
   sortDirection?: number;
@@ -126,6 +127,21 @@ export const userQueries = {
     };
 
     return models.Users.countDocuments(selector);
+  },
+
+  // Devices and IPs are account-security data, gated like password resets
+  async userSessions(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { subdomain, requestInfo, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersResetPassword');
+
+    return listUserSessions(
+      subdomain,
+      _id,
+      readSessionCookie(requestInfo.cookies),
+    );
   },
 
   async userDetail(

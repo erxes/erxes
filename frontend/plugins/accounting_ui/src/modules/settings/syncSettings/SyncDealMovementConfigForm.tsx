@@ -8,6 +8,7 @@ import {
   PANEL_INPUT_CLASS_NAME,
   SelectBranches,
   SelectDepartments,
+  PanelFormRow,
 } from 'ui-modules';
 import { z } from 'zod';
 import {
@@ -15,7 +16,7 @@ import {
   SyncConfigPipelineSection,
   usePipelineReset,
 } from './SyncConfigFormSections';
-import { SyncPanelFormRow, SyncSettingSection } from './SyncSettingSection';
+import { SyncSettingSection } from './SyncSettingSection';
 import { useEffect } from 'react';
 import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 import { SettingsPanelSelect } from '@/settings/components/panel/SettingsPanelFields';
@@ -53,14 +54,14 @@ const InventoryAccountField = ({
       control={form.control}
       name={name}
       render={({ field, fieldState }) => (
-        <SyncPanelFormRow label={label} error={fieldState.error?.message}>
+        <PanelFormRow label={label} error={fieldState.error?.message}>
           <SelectAccount.FormItem
             value={field.value}
             onValueChange={field.onChange}
             className={PANEL_INPUT_CLASS_NAME}
             defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
           />
-        </SyncPanelFormRow>
+        </PanelFormRow>
       )}
     />
   );
@@ -87,24 +88,21 @@ const LocationFields = ({
         control={form.control}
         name={branchName}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
-            label={branchLabel}
-            error={fieldState.error?.message}
-          >
+          <PanelFormRow label={branchLabel} error={fieldState.error?.message}>
             <SelectBranches.FormItem
               mode="single"
               value={field.value ?? ''}
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={departmentName}
         render={({ field, fieldState }) => (
-          <SyncPanelFormRow
+          <PanelFormRow
             label={departmentLabel}
             error={fieldState.error?.message}
           >
@@ -114,7 +112,7 @@ const LocationFields = ({
               onValueChange={field.onChange}
               className={PANEL_INPUT_CLASS_NAME}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
     </>
@@ -132,7 +130,7 @@ const DealLocationSideField = ({
       control={form.control}
       name="dealLocationSide"
       render={({ field, fieldState }) => (
-        <SyncPanelFormRow
+        <PanelFormRow
           label={t('side-using-the-deal-branch-and-department')}
           error={fieldState.error?.message}
         >
@@ -146,7 +144,7 @@ const DealLocationSideField = ({
             onValueChange={field.onChange}
             className={PANEL_INPUT_CLASS_NAME}
           />
-        </SyncPanelFormRow>
+        </PanelFormRow>
       )}
     />
   );

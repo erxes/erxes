@@ -1,5 +1,6 @@
 import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { PanelLabel } from './PanelLabel';
 
 // Inputs inside a panel form row: the height and text of the panel's cells.
 export const PANEL_INPUT_CLASS_NAME =
@@ -21,10 +22,13 @@ export const PanelFormRow = ({
   children: React.ReactNode;
 }) => (
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-0.5 min-h-7">
-    <span className="truncate text-xs font-medium text-accent-foreground">
+    <PanelLabel
+      tooltip={label}
+      className="text-xs font-medium text-accent-foreground"
+    >
       {label}
       {required && <span className="text-destructive"> *</span>}
-    </span>
+    </PanelLabel>
     <div className="min-w-0 text-xs [&_button:not([role=switch])]:h-7 [&_button:not([role=switch])]:text-xs">
       {children}
     </div>
