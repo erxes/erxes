@@ -1,6 +1,10 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { usePermissionCheck } from 'ui-modules';
-import { LDAP_LINKED_USER_IDS } from '@/settings/ldap/graphql/queries';
+import {
+  LDAP_CONFIG,
+  LDAP_LINKED_USER_IDS,
+} from '@/settings/ldap/graphql/queries';
+import { ILdapConfig } from '@/settings/ldap/types';
 import {
   LDAP_LINK_USER,
   LDAP_UNLINK_USER,
@@ -15,11 +19,17 @@ export const useLdapLinkedUserIds = () => {
     { skip: !canManage },
   );
 
+  const { data: configData } = useQuery<{ authLdapConfig: ILdapConfig | null }>(
+    LDAP_CONFIG,
+    { skip: !canManage },
+  );
+
   const linkedUserIds = data?.authLdapLinkedUserIds ?? [];
 
   return {
     canManage,
     loading,
+    enabled: Boolean(configData?.authLdapConfig?.enabled),
     isLinked: (userId: string) => linkedUserIds.includes(userId),
   };
 };

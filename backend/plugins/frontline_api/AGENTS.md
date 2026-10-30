@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -191,6 +191,10 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- The Facebook/Instagram comment reply action resolves placeholders in the
+  picked text variant with the same two passes as the message action
+  (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
+  unresolved tokens are kept as written.
 - A Facebook message action with an **Input** message waits for the person's
   next typed message (`meta/automation/messages/inputWait.ts`). It stores
   `conversations_facebooks.inputWait` (`executionId`, `actionId`,
