@@ -19,8 +19,9 @@ import {
 import { useAdjustDebtRateRemove } from '../hooks/useAdjustDebtRateChange';
 import { useAdjustDebtRateDetail } from '../hooks/useAdjustDebtRateDetail';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
-import { EditAdjustDebtRate } from './AdjustDebtRateForm';
+import { useMemo } from 'react';
+import { ADJUST_DEBT_RATE_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
 import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
@@ -170,7 +171,7 @@ const adjustDebtRateDetailColumns = (
 export const AdjustDebtRateDetail = () => {
   const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useSettingsPanel(ADJUST_DEBT_RATE_CONTENT_TYPE);
 
   const { adjustDebtRate, loading } = useAdjustDebtRateDetail({
     variables: { _id: id ?? '' },
@@ -236,7 +237,10 @@ export const AdjustDebtRateDetail = () => {
               {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
               {t('run')}
             </Button>
-            <Button variant="outline" onClick={() => setEditOpen(true)}>
+            <Button
+              variant="outline"
+              onClick={() => openDetail(adjustDebtRate._id)}
+            >
               <IconEdit size={16} />
               {t('edit')}
             </Button>
@@ -334,14 +338,6 @@ export const AdjustDebtRateDetail = () => {
           </div>
         )}
       </div>
-
-      {editOpen && (
-        <EditAdjustDebtRate
-          open={editOpen}
-          setOpen={setEditOpen}
-          adjustDebtRate={adjustDebtRate}
-        />
-      )}
     </div>
   );
 };

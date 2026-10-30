@@ -10,6 +10,12 @@ import { JOB_PANEL } from '@/settings/jobs/components/JobPanel';
 import { SYNC_CONFIG_PANEL } from '@/settings/syncSettings/SyncConfigPanel';
 import { FIXED_ASSET_CATEGORY_PANEL } from '@/settings/fixed-assets/components/FixedAssetCategoryPanel';
 import { FIXED_ASSET_ACCOUNT_CONFIG_PANEL } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigPanel';
+import { ADJUST_FUND_RATE_PANEL } from '@/adjustments/rate/components/AdjustFundRatePanel';
+import { ADJUST_DEBT_RATE_PANEL } from '@/adjustments/debt/components/AdjustDebtRatePanel';
+import { ADJUST_CLOSING_PANEL } from '@/adjustments/closing/components/AdjustClosingPanel';
+import { ADJUST_INVENTORY_PANEL } from '@/adjustments/inventories/components/AdjustInventoryForm';
+import { ADJUST_FIXED_ASSET_PANEL } from '@/adjustments/fxa/components/AdjustFixedAssetForm';
+import { SAFE_REMAINDER_PANEL } from '@/inventories/safeRemainders/components/SafeRemainderForm';
 import {
   ISettingsPanelViews,
   SettingsPanelActivity,
@@ -25,8 +31,16 @@ import {
   JOB_CONTENT_TYPE,
   VAT_ROW_CONTENT_TYPE,
 } from '@/settings/constants/settingsPanel';
+import {
+  ADJUST_CLOSING_CONTENT_TYPE,
+  ADJUST_DEBT_RATE_CONTENT_TYPE,
+  ADJUST_FIXED_ASSET_CONTENT_TYPE,
+  ADJUST_FUND_RATE_CONTENT_TYPE,
+  ADJUST_INVENTORY_CONTENT_TYPE,
+} from '@/adjustments/constants/adjustmentPanel';
+import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
 
-const SETTINGS_PANELS: Record<string, ISettingsPanelViews> = {
+const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ACCOUNT_CONTENT_TYPE]: ACCOUNT_PANEL,
   [ACCOUNT_CATEGORY_CONTENT_TYPE]: ACCOUNT_CATEGORY_PANEL,
   [VAT_ROW_CONTENT_TYPE]: VAT_ROW_PANEL,
@@ -36,6 +50,12 @@ const SETTINGS_PANELS: Record<string, ISettingsPanelViews> = {
   ...FXA_OWNER_RECORD_PANELS,
   [FIXED_ASSET_CATEGORY_CONTENT_TYPE]: FIXED_ASSET_CATEGORY_PANEL,
   [FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE]: FIXED_ASSET_ACCOUNT_CONFIG_PANEL,
+  [ADJUST_FUND_RATE_CONTENT_TYPE]: ADJUST_FUND_RATE_PANEL,
+  [ADJUST_DEBT_RATE_CONTENT_TYPE]: ADJUST_DEBT_RATE_PANEL,
+  [ADJUST_CLOSING_CONTENT_TYPE]: ADJUST_CLOSING_PANEL,
+  [ADJUST_INVENTORY_CONTENT_TYPE]: ADJUST_INVENTORY_PANEL,
+  [ADJUST_FIXED_ASSET_CONTENT_TYPE]: ADJUST_FIXED_ASSET_PANEL,
+  [SAFE_REMAINDER_CONTENT_TYPE]: SAFE_REMAINDER_PANEL,
 };
 
 const SettingsPanelHeaderTitle = ({ label }: { label: string }) => {
@@ -44,8 +64,8 @@ const SettingsPanelHeaderTitle = ({ label }: { label: string }) => {
   return t(label);
 };
 
-const getSettingsPanel = (contentType: string) =>
-  SETTINGS_PANELS[contentType] ||
+const getRecordPanel = (contentType: string) =>
+  RECORD_PANELS[contentType] ||
   (getSyncConfigCode(contentType) ? SYNC_CONFIG_PANEL : undefined);
 
 export const RecordPanel = ({
@@ -53,7 +73,7 @@ export const RecordPanel = ({
   contentId,
   view,
 }: IRecordPanelProps) => {
-  const panel = getSettingsPanel(contentType);
+  const panel = getRecordPanel(contentType);
 
   if (!panel) {
     return null;
