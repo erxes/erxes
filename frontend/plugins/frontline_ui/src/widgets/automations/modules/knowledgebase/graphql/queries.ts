@@ -1,6 +1,6 @@
-import { gql } from '~/gql';
+import { gql } from '@apollo/client';
 
-export const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql(`
+export const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql`
   query frontlineAiKnowledgeArticles(
     $searchValue: String
     $page: Int
@@ -22,9 +22,9 @@ export const FRONTLINE_AI_KNOWLEDGE_ARTICLES = gql(`
       status
     }
   }
-`);
+`;
 
-export const FRONTLINE_AI_KNOWLEDGE_TOPICS = gql(`
+export const FRONTLINE_AI_KNOWLEDGE_TOPICS = gql`
   query frontlineAiKnowledgeTopics($perPage: Int) {
     knowledgeBaseTopics(page: 1, perPage: $perPage) {
       _id
@@ -36,4 +36,4 @@ export const FRONTLINE_AI_KNOWLEDGE_TOPICS = gql(`
       }
     }
   }
-`);
+`;

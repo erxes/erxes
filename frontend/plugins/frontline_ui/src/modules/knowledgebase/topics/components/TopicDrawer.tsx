@@ -16,16 +16,12 @@ import { ITopic } from '@/knowledgebase/types';
 
 export const TopicDrawer = ({
   topic,
-  isOpen,
   onClose,
   onSaved,
-  panel = false,
 }: {
   topic?: ITopic;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
-  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -54,14 +50,7 @@ export const TopicDrawer = ({
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      panel={panel}
       onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-topic', 'Edit Topic')
-          : t('kb-new-topic', 'New Topic')
-      }
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
@@ -71,12 +60,9 @@ export const TopicDrawer = ({
       onSubmit={submit}
     >
       <Form {...form}>
-        <form
-          onSubmit={submit}
-          className={panel ? 'grid gap-2 p-3' : 'grid gap-4 p-4'}
-        >
+        <div className="grid gap-2">
           <TopicFormFields form={form} t={t} />
-        </form>
+        </div>
       </Form>
     </KbFormSheet>
   );

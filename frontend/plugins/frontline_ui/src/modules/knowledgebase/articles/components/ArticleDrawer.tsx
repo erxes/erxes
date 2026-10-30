@@ -1,6 +1,5 @@
 import {
   KbFormItem,
-  KbFormPanelContext,
   KbFormSection,
 } from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -16,7 +15,7 @@ import {
   Switch,
   Upload,
 } from 'erxes-ui';
-import { useContext, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
@@ -153,13 +152,10 @@ const MediaRow = ({
   onSelect: (file?: TMediaFile) => void;
   removable?: boolean;
 }) => {
-  const panel = useContext(KbFormPanelContext);
   return (
     <div className="py-3 first:pt-0 last:pb-0">
       <Upload.Root
-        className={
-          panel ? 'flex-col gap-2 items-stretch' : 'gap-3 items-center'
-        }
+        className="flex-col gap-2 items-stretch"
         value={value}
         onChange={(fileInfo) => {
           if (!('url' in fileInfo)) return;
@@ -194,18 +190,14 @@ export const ArticleDrawer = ({
   articleId,
   topicId,
   categoryId,
-  isOpen,
   onClose,
   onSaved,
-  panel = false,
 }: {
   articleId?: string | null;
   topicId: string;
   categoryId: string;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
-  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -266,14 +258,7 @@ export const ArticleDrawer = ({
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      panel={panel}
       onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-article', 'Edit Article')
-          : t('kb-new-article', 'New Article')
-      }
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
@@ -281,17 +266,9 @@ export const ArticleDrawer = ({
       }
       loading={loading}
       onSubmit={submit}
-      className="sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]"
     >
       <Form {...form}>
-        <form
-          onSubmit={submit}
-          className={
-            panel
-              ? 'flex flex-col gap-3 p-3'
-              : 'grid gap-4 items-start p-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]'
-          }
-        >
+        <div className="flex flex-col gap-3">
           <KbFormSection title={t('content-label', 'Content')}>
             <KbFormSection.Content>
               <KbTextField
@@ -302,9 +279,7 @@ export const ArticleDrawer = ({
                 required
               />
 
-              <div
-                className={panel ? 'grid gap-1' : 'grid gap-4 sm:grid-cols-2'}
-              >
+              <div className="grid gap-1">
                 <Form.Field
                   control={form.control}
                   name="topicId"
@@ -373,7 +348,7 @@ export const ArticleDrawer = ({
                         onChange={field.onChange}
                         scope="KnowledgeBaseArticleContent"
                         isHTML
-                        className={panel ? 'h-auto min-h-40' : 'min-h-[26rem]'}
+                        className="h-auto min-h-40"
                       />
                     </Form.Control>
                     <Form.Message />
@@ -554,7 +529,7 @@ export const ArticleDrawer = ({
               </KbFormSection.Content>
             </KbFormSection>
           </div>
-        </form>
+        </div>
       </Form>
     </KbFormSheet>
   );

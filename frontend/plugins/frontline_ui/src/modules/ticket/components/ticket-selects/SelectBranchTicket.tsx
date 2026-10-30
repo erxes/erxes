@@ -91,7 +91,9 @@ const SelectBranchTicketRoot = ({
           label={label}
         >
           <SelectBranches.List
-            placeholder={label ? t('none') : t('branch-label')}
+            placeholder={
+              label ? t('none') : t('branch-label')
+            }
             renderAsPlainText
           />
         </SelectTriggerTicket>
