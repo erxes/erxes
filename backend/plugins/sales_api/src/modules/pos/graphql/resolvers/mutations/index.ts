@@ -1,9 +1,5 @@
 import pos from './pos';
-import order from "./orders";
-import cover from './covers';
+import order from './orders';
+import { coverMutations as cover } from './covers';
 
-export {
-  pos,
-  order,
-  cover,
-};
+export { pos, order, cover };
