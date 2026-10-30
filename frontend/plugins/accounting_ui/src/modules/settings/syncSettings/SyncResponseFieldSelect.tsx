@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
 import { Form, Select, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
-import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
-import { SyncPanelFormRow } from '@/settings/syncSettings/SyncSettingSection';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import { DEAL_FIELD_GROUPS_WITH_FIELDS } from '../graphql/queries/relatedQueries';
 import { SETTINGS_PANEL_SELECT_ITEM_CLASS_NAME } from '@/settings/constants/settingsPanel';
 
@@ -39,7 +38,7 @@ export const SyncResponseFieldSelect = ({
       control={form.control}
       name={name}
       render={({ field }) => (
-        <SyncPanelFormRow label={label}>
+        <PanelFormRow label={label}>
           <Select
             value={field.value || undefined}
             onValueChange={field.onChange}
@@ -73,7 +72,7 @@ export const SyncResponseFieldSelect = ({
               )}
             </Select.Content>
           </Select>
-        </SyncPanelFormRow>
+        </PanelFormRow>
       )}
     />
   );

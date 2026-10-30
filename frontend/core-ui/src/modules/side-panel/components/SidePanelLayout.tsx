@@ -28,6 +28,8 @@ import { CustomerPanelNew } from './details/CustomerPanelNew';
 import { CustomerPanelProperties } from './details/CustomerPanelProperties';
 import { PluginRecordPanel } from './PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
+import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
   ActivityLogs,
   AddInternalNote,
@@ -295,7 +297,7 @@ const SidePanelSavedRecord = ({
         ),
       }))
     : [];
-  const [tab, setTab] = useState(views ? DETAIL_TAB : ACTIVITY_TAB);
+  const { tab: selectedTab, setTab } = useSidePanel();
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -394,6 +396,13 @@ const SidePanelSavedRecord = ({
     ],
   ];
 
+  const tab =
+    selectedTab && tabs.some((entry) => entry.value === selectedTab)
+      ? selectedTab
+      : views
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
+
   return (
     <>
       <RecordSidePanel.Header
@@ -490,12 +499,17 @@ const SidePanelDraft = ({
 // `RecordViewContext` so it can be drawn where the panel cannot reach.
 export const SidePanelRecord = (
   props: React.ComponentProps<typeof SidePanelSavedRecord>,
-) =>
-  props.record.contentId === NEW_RECORD_ID ? (
+) => {
+  if (props.record.contentType === USER_CONTENT_TYPE) {
+    return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
+  }
+
+  return props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
     <SidePanelSavedRecord {...props} />
   );
+};
 
 const SidePanelEmpty = ({
   title,
@@ -541,6 +555,16 @@ export const SidePanelLayout = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
 
   const renderRoute = () => {
+    if (record?.contentType === USER_CONTENT_TYPE) {
+      return (
+        <MemberDetail
+          key={`${record.contentType}:${record.contentId}`}
+          onBack={onBack}
+          onClose={close}
+        />
+      );
+    }
+
     if (record) {
       return (
         <SidePanelRecord

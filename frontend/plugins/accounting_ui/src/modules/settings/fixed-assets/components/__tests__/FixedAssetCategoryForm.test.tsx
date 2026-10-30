@@ -55,6 +55,7 @@ jest.mock(
   }),
 );
 jest.mock('@/settings/components/panel/SettingsPanelFields', () => ({
+  ...jest.requireActual('@/settings/components/panel/SettingsPanelFields'),
   SettingsPanelSelect: () => null,
   SettingsPanelDescriptionInput: () => null,
 }));
@@ -69,9 +70,9 @@ const renderForm = (onSubmit: (data: TFixedAssetCategoryForm) => void) => {
     return (
       <FixedAssetCategoryForm
         form={form}
-        handleSubmit={onSubmit}
+        onSubmit={onSubmit}
         onCancel={jest.fn()}
-        loading={false}
+        saving={false}
       />
     );
   };

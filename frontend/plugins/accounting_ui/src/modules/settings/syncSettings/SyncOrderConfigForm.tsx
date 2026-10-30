@@ -1,7 +1,7 @@
 import { parsePaymentTypes } from './paymentTypes';
 import { toGraphqlView } from '@/utils/graphql';
 import { Form, isEnabled } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import { POS_DETAIL, POS_LIST } from '../graphql/queries/relatedQueries';
 import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 import { SettingsPanelSelect } from '@/settings/components/panel/SettingsPanelFields';
@@ -16,7 +16,7 @@ import {
 import { UseFormReturn, useWatch } from 'react-hook-form';
 import { useEffect, useMemo } from 'react';
 
-import { SyncPanelFormRow, SyncSettingSection } from './SyncSettingSection';
+import { SyncSettingSection } from './SyncSettingSection';
 import { TR_STATUSES } from '@/transactions/types/constants';
 import { useQuery } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
@@ -130,10 +130,7 @@ export const SyncOrderConfigForm = ({
           control={form.control}
           name="posId"
           render={({ field, fieldState }) => (
-            <SyncPanelFormRow
-              label={t('POS')}
-              error={fieldState.error?.message}
-            >
+            <PanelFormRow label={t('POS')} error={fieldState.error?.message}>
               <SettingsPanelSelect
                 value={field.value}
                 placeholder={t('select-pos')}
@@ -144,7 +141,7 @@ export const SyncOrderConfigForm = ({
                 onValueChange={field.onChange}
                 className={PANEL_INPUT_CLASS_NAME}
               />
-            </SyncPanelFormRow>
+            </PanelFormRow>
           )}
         />
       </SyncSettingSection>

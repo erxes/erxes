@@ -3,9 +3,12 @@ import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
 import { ACCOUNT_PANEL } from '@/settings/account/components/AccountPanel';
 import { ACCOUNT_CATEGORY_PANEL } from '@/settings/account/account-categories/components/AccountCategoryPanel';
 import { CTAX_ROW_PANEL } from '@/settings/ctax/components/CtaxRowPanel';
+import { FXA_OWNER_RECORD_PANELS } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordPanel';
+import { FIXED_ASSET_PANEL } from '@/settings/fixed-assets/components/FixedAssetPanel';
 import { VAT_ROW_PANEL } from '@/settings/vat/components/VatRowPanel';
 import { SYNC_CONFIG_PANEL } from '@/settings/syncSettings/SyncConfigPanel';
 import { FIXED_ASSET_CATEGORY_PANEL } from '@/settings/fixed-assets/components/FixedAssetCategoryPanel';
+import { FIXED_ASSET_ACCOUNT_CONFIG_PANEL } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigPanel';
 import { ADJUST_FUND_RATE_PANEL } from '@/adjustments/rate/components/AdjustFundRatePanel';
 import { ADJUST_DEBT_RATE_PANEL } from '@/adjustments/debt/components/AdjustDebtRatePanel';
 import { ADJUST_CLOSING_PANEL } from '@/adjustments/closing/components/AdjustClosingPanel';
@@ -20,6 +23,8 @@ import {
   ACCOUNT_CATEGORY_CONTENT_TYPE,
   ACCOUNT_CONTENT_TYPE,
   CTAX_ROW_CONTENT_TYPE,
+  FIXED_ASSET_CONTENT_TYPE,
+  FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE,
   FIXED_ASSET_CATEGORY_CONTENT_TYPE,
   getSyncConfigCode,
   VAT_ROW_CONTENT_TYPE,
@@ -38,7 +43,10 @@ const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ACCOUNT_CATEGORY_CONTENT_TYPE]: ACCOUNT_CATEGORY_PANEL,
   [VAT_ROW_CONTENT_TYPE]: VAT_ROW_PANEL,
   [CTAX_ROW_CONTENT_TYPE]: CTAX_ROW_PANEL,
+  [FIXED_ASSET_CONTENT_TYPE]: FIXED_ASSET_PANEL,
+  ...FXA_OWNER_RECORD_PANELS,
   [FIXED_ASSET_CATEGORY_CONTENT_TYPE]: FIXED_ASSET_CATEGORY_PANEL,
+  [FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE]: FIXED_ASSET_ACCOUNT_CONFIG_PANEL,
   [ADJUST_FUND_RATE_CONTENT_TYPE]: ADJUST_FUND_RATE_PANEL,
   [ADJUST_DEBT_RATE_CONTENT_TYPE]: ADJUST_DEBT_RATE_PANEL,
   [ADJUST_CLOSING_CONTENT_TYPE]: ADJUST_CLOSING_PANEL,

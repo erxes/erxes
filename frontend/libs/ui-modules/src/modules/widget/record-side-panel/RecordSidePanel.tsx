@@ -38,6 +38,9 @@ const PanelExpansionContext = createContext<{
   toggle: () => void;
 } | null>(null);
 
+export const usePanelExpanded = () =>
+  useContext(PanelExpansionContext)?.expanded ?? false;
+
 // Dragging the panel's left edge resizes it; leftwards makes it wider.
 const RecordSidePanelResizeHandle = ({
   width,
