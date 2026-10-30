@@ -7,28 +7,19 @@ import { Badge, Button, Calendar, Popover, Separator } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { currentUserState, MembersInline } from 'ui-modules';
 
-export const KanbanViewCard = ({
-  feature,
-}: {
-  feature: {
-    endAt: Date;
-    tags: { id: string; name: string }[];
-    name: string;
-    number: string;
-  };
-}) => {
+export const KanbanViewCard = ({ feature }: { feature: any }) => {
   const currentUser = useAtomValue(currentUserState);
   return (
     <>
       <div className="flex items-center justify-between h-9 px-1.5">
-        <KanbanDatePicker date={new Date()} />
-        <KanbanDatePicker date={feature.endAt} />
+        <KanbanDatePicker date={new Date()} onChange={() => {}} />
+        <KanbanDatePicker date={feature.endAt} onChange={() => {}} />
       </div>
       <Separator />
       <div className="p-3 flex flex-col gap-3">
         {feature.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
-            {feature.tags.map((tag, index) => (
+            {feature.tags.map((tag: any, index: number) => (
               <Badge
                 variant={index % 2 === 0 ? 'info' : 'warning'}
                 key={tag.id}
@@ -66,16 +57,8 @@ export const KanbanDatePicker = ({
   onChange,
 }: {
   date: Date;
-  onChange?: (date: Date) => void;
+  onChange: (date: Date) => void;
 }) => {
-  if (!onChange) {
-    return (
-      <span className="flex items-center gap-2 px-1 text-muted-foreground font-semibold text-sm">
-        <IconCalendarClock size={16} />
-        {format(date, 'MMM dd')}
-      </span>
-    );
-  }
   return (
     <Popover>
       <Popover.Trigger>
@@ -92,9 +75,7 @@ export const KanbanDatePicker = ({
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(date) => {
-            if (date) onChange(date);
-          }}
+          onSelect={(date) => onChange(date as Date)}
         />
       </Popover.Content>
     </Popover>

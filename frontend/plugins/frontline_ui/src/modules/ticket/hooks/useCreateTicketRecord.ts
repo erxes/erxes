@@ -18,9 +18,9 @@ export const useCreateTicketRecord = () => {
     openNewRecord(
       TICKET_PROPERTY_CONTENT_TYPE,
       {
-        channelId: channelId || undefined,
-        pipelineId: pipelineId || undefined,
         ...defaults,
+        channelId: defaults.channelId || channelId || undefined,
+        pipelineId: defaults.pipelineId || pipelineId || undefined,
       },
       { stack },
     );

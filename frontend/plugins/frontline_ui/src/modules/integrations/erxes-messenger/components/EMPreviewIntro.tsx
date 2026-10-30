@@ -242,9 +242,8 @@ export const EMPreviewIntro = () => {
       ([key, value]) =>
         WEEKDAY_VALUES.has(key) && value?.work && value.from && value.to,
     );
-    const range = entry?.[1];
-    if (!range?.from || !range.to) return '9:00 am – 5:00 pm';
-    return `${formatTime(range.from)} – ${formatTime(range.to)}`;
+    if (!entry) return '9:00 am – 5:00 pm';
+    return `${formatTime(entry[1].from!)} – ${formatTime(entry[1].to!)}`;
   };
 
   const availabilityText =
@@ -881,9 +880,9 @@ export const EMPreviewFaq = () => {
                 <span
                   className="shrink-0 p-2 rounded-xl flex items-center justify-center"
                   style={{
-                    backgroundColor: color
-                      ? `color-mix(in srgb, ${color} 60%, transparent)`
-                      : 'color-mix(in oklch, var(--primary) 60%, transparent)',
+                    backgroundColor:
+                      `color-mix(in srgb, ${color} 60%, transparent)` ||
+                      'color-mix(in oklch, var(--primary) 60%, transparent)',
                   }}
                 >
                   <IconComponent

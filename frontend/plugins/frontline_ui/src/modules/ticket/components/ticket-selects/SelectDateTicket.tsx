@@ -240,7 +240,9 @@ export const DateSelectTicketRoot = ({
           <Combobox.ChipTrigger
             label={label}
             disabled={disabled}
-            onClear={dateValue && !disabled ? () => commitValue() : undefined}
+            onClear={
+              dateValue && !disabled ? () => commitValue() : undefined
+            }
             clearLabel={t('clear')}
           >
             {dateValue ? (
