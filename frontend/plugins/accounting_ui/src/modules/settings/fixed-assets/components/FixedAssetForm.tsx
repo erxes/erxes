@@ -19,7 +19,6 @@ import {
   getRateFromUsefulLife,
   getUsefulLifeFromRate,
 } from '@/settings/fixed-assets/utils/depreciationRate';
-import { SyncPanelFormRow } from '@/settings/syncSettings/SyncSettingSection';
 
 const NumberInput = ({
   field,
@@ -196,21 +195,21 @@ export const FixedAssetForm = ({
         control={form.control}
         name="depreciationMethod"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('depreciation-method')}>
+          <PanelFormRow label={t('depreciation-method')}>
             <SettingsPanelSelect
               value={field.value}
               placeholder={t('select-depreciation-method')}
               options={methodOptions}
               onValueChange={field.onChange}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="usefulLife"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('useful-life-in-years')}>
+          <PanelFormRow label={t('useful-life-in-years')}>
             <NumberInput
               placeholder={t('useful-life-in-years')}
               field={{
@@ -225,14 +224,14 @@ export const FixedAssetForm = ({
                 },
               }}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="annualDepreciationRate"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('annual-depreciation-rate')}>
+          <PanelFormRow label={t('annual-depreciation-rate')}>
             <NumberInput
               placeholder={t('annual-depreciation-rate')}
               field={{
@@ -246,48 +245,48 @@ export const FixedAssetForm = ({
                 },
               }}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="salvageValue"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('residual-value')}>
+          <PanelFormRow label={t('residual-value')}>
             <NumberInput field={field} placeholder={t('residual-value')} />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="taxDepreciationMethod"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('tax-depreciation-method')}>
+          <PanelFormRow label={t('tax-depreciation-method')}>
             <SettingsPanelSelect
               value={field.value}
               placeholder={t('select-tax-depreciation-method')}
               options={methodOptions}
               onValueChange={field.onChange}
             />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="taxUsefulLife"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('tax-useful-life')}>
+          <PanelFormRow label={t('tax-useful-life')}>
             <NumberInput field={field} placeholder={t('tax-useful-life')} />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name="taxSalvageValue"
         render={({ field }) => (
-          <SyncPanelFormRow label={t('tax-residual-value')}>
+          <PanelFormRow label={t('tax-residual-value')}>
             <NumberInput field={field} placeholder={t('tax-residual-value')} />
-          </SyncPanelFormRow>
+          </PanelFormRow>
         )}
       />
       <Form.Field

@@ -47,23 +47,6 @@ jest.mock('ui-modules', () => ({
   ),
   ActivityLogs: () => null,
 }));
-jest.mock('@/settings/syncSettings/SyncSettingSection', () => ({
-  SyncPanelFormRow: ({
-    label,
-    error,
-    children,
-  }: {
-    label: string;
-    error?: string;
-    children: ReactNode;
-  }) => (
-    <label>
-      {label}
-      {children}
-      {error && <span role="alert">{error}</span>}
-    </label>
-  ),
-}));
 jest.mock('@/settings/components/panel/SettingsPanelFields', () => ({
   SettingsPanelSelect: ({ placeholder }: { placeholder: string }) => (
     <output aria-label={placeholder} />

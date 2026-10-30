@@ -7,6 +7,8 @@ import { FXA_OWNER_RECORD_PANELS } from '@/fixedAssets/ownerRecords/components/F
 import { FIXED_ASSET_PANEL } from '@/settings/fixed-assets/components/FixedAssetPanel';
 import { VAT_ROW_PANEL } from '@/settings/vat/components/VatRowPanel';
 import { SYNC_CONFIG_PANEL } from '@/settings/syncSettings/SyncConfigPanel';
+import { FIXED_ASSET_CATEGORY_PANEL } from '@/settings/fixed-assets/components/FixedAssetCategoryPanel';
+import { FIXED_ASSET_ACCOUNT_CONFIG_PANEL } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigPanel';
 import {
   ISettingsPanelViews,
   SettingsPanelActivity,
@@ -16,6 +18,8 @@ import {
   ACCOUNT_CONTENT_TYPE,
   CTAX_ROW_CONTENT_TYPE,
   FIXED_ASSET_CONTENT_TYPE,
+  FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE,
+  FIXED_ASSET_CATEGORY_CONTENT_TYPE,
   getSyncConfigCode,
   VAT_ROW_CONTENT_TYPE,
 } from '@/settings/constants/settingsPanel';
@@ -27,6 +31,8 @@ const SETTINGS_PANELS: Record<string, ISettingsPanelViews> = {
   [CTAX_ROW_CONTENT_TYPE]: CTAX_ROW_PANEL,
   [FIXED_ASSET_CONTENT_TYPE]: FIXED_ASSET_PANEL,
   ...FXA_OWNER_RECORD_PANELS,
+  [FIXED_ASSET_CATEGORY_CONTENT_TYPE]: FIXED_ASSET_CATEGORY_PANEL,
+  [FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE]: FIXED_ASSET_ACCOUNT_CONFIG_PANEL,
 };
 
 const SettingsPanelHeaderTitle = ({ label }: { label: string }) => {

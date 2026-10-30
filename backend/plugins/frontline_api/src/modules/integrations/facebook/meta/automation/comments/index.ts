@@ -1,7 +1,11 @@
-import { buildSkippedAction } from 'erxes-api-shared/core-modules';
+import {
+  buildSkippedAction,
+  replaceOutputPlaceholders,
+} from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { debugError } from '@/integrations/facebook/debuggers';
 import { queueCommentReply } from '@/integrations/facebook/commentOutbox';
+import { replaceMessageTemplateString } from '@/integrations/facebook/meta/automation/messages/utils';
 import { checkContentConditions } from '@/integrations/facebook/meta/automation/utils/messageUtils';
 
 /**
@@ -32,7 +36,19 @@ export const actionCreateComment = async (
 
     const { recipientId, comment_id, senderId, erxesApiId } = target;
     const { attachments, mentionSender } = config;
-    const text = pickReplyText(config);
+
+    // Resolve only the picked variant, the same two passes the message action runs.
+    const { text: outputResolvedText } = await replaceOutputPlaceholders({
+      subdomain,
+      execution,
+      values: { text: pickReplyText(config) },
+      keepUnresolvedPlaceholders: true,
+    });
+
+    const text = replaceMessageTemplateString(
+      String(outputResolvedText ?? ''),
+      { prevAction: execution.actions?.at(-1)?.result },
+    );
 
     const inboxConversation = await models.Conversations.findOne({
       _id: erxesApiId,
