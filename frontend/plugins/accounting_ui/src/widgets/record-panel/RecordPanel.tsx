@@ -6,6 +6,7 @@ import { CTAX_ROW_PANEL } from '@/settings/ctax/components/CtaxRowPanel';
 import { FXA_OWNER_RECORD_PANELS } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordPanel';
 import { FIXED_ASSET_PANEL } from '@/settings/fixed-assets/components/FixedAssetPanel';
 import { VAT_ROW_PANEL } from '@/settings/vat/components/VatRowPanel';
+import { JOB_PANEL } from '@/settings/jobs/components/JobPanel';
 import { SYNC_CONFIG_PANEL } from '@/settings/syncSettings/SyncConfigPanel';
 import { FIXED_ASSET_CATEGORY_PANEL } from '@/settings/fixed-assets/components/FixedAssetCategoryPanel';
 import { FIXED_ASSET_ACCOUNT_CONFIG_PANEL } from '@/settings/fixed-assets/account-config/components/FixedAssetAccountConfigPanel';
@@ -27,6 +28,7 @@ import {
   FIXED_ASSET_ACCOUNT_CONFIG_CONTENT_TYPE,
   FIXED_ASSET_CATEGORY_CONTENT_TYPE,
   getSyncConfigCode,
+  JOB_CONTENT_TYPE,
   VAT_ROW_CONTENT_TYPE,
 } from '@/settings/constants/settingsPanel';
 import {
@@ -43,6 +45,7 @@ const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ACCOUNT_CATEGORY_CONTENT_TYPE]: ACCOUNT_CATEGORY_PANEL,
   [VAT_ROW_CONTENT_TYPE]: VAT_ROW_PANEL,
   [CTAX_ROW_CONTENT_TYPE]: CTAX_ROW_PANEL,
+  [JOB_CONTENT_TYPE]: JOB_PANEL,
   [FIXED_ASSET_CONTENT_TYPE]: FIXED_ASSET_PANEL,
   ...FXA_OWNER_RECORD_PANELS,
   [FIXED_ASSET_CATEGORY_CONTENT_TYPE]: FIXED_ASSET_CATEGORY_PANEL,
