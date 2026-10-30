@@ -11,9 +11,8 @@ import {
   useRelationWidget,
   useSidePanel,
 } from 'ui-modules';
-import { IconHierarchy2, IconUser } from '@tabler/icons-react';
+import { IconUser } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
-import { ConversationProperties } from './ConversationProperties';
 
 const SIDE_MENU_CONTENT_CLASS =
   'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:slide-in-from-right-4 duration-150 motion-reduce:animate-none';
@@ -110,25 +109,17 @@ const CustomerTrigger = ({ customerId }: { customerId: string }) => {
   );
 };
 
-/**
- * The conversation's right rail: its customer, opened in the app side
- * panel, the customer's tickets and deals, and the conversation's own
- * properties.
- */
 export const ConversationSideWidget = ({
   customerId,
   _id,
-  propertiesData,
   asSheet,
   boundaryRef,
 }: {
   customerId: string;
   _id: string;
-  propertiesData?: Record<string, unknown>;
   asSheet?: boolean;
   boundaryRef: RefObject<HTMLElement>;
 }) => {
-  const { t } = useTranslation(['frontline', 'common']);
   const sideMenuRef = useRef<HTMLDivElement>(null);
   const { RelationWidget, relationWidgetsModules } = useRelationWidget({
     contentType: CONVERSATION_CONTENT_TYPE,
@@ -140,6 +131,8 @@ export const ConversationSideWidget = ({
       )
     : [];
 
+  if (!customerId) return null;
+
   return (
     <SideMenu ref={sideMenuRef} className="flex-none">
       {asSheet && (
@@ -148,12 +141,6 @@ export const ConversationSideWidget = ({
           boundaryRef={boundaryRef}
         />
       )}
-      <SideMenu.Content
-        value="properties"
-        className={cn(sideMenuContentClass(asSheet), 'overflow-y-auto p-4')}
-      >
-        <ConversationProperties id={_id} propertiesData={propertiesData} />
-      </SideMenu.Content>
       {recordModules.map((module) => (
         <SideMenu.Content
           key={module.name}
@@ -180,11 +167,6 @@ export const ConversationSideWidget = ({
             Icon={module.icon}
           />
         ))}
-        <SideMenu.Trigger
-          value="properties"
-          label={t('common:properties', 'Properties')}
-          Icon={IconHierarchy2}
-        />
       </SideMenu.Sidebar>
     </SideMenu>
   );

@@ -16,7 +16,6 @@ import { useIntegrationInline } from '@/integrations/hooks/useIntegrations';
 import { NoConversationSelected } from './NoConversationSelected';
 import { ConversationMarkAsReadEffect } from './ConversationMarkAsReadEffect';
 import { toConversationContextValue } from '@/inbox/conversations/utils/conversationContext';
-import { isRecord } from '@/shared/utils/isRecord';
 import { MessageInputIntegrationWrapper } from '@/integrations/components/MessageInputIntegrationWrapper';
 import { messageExtraInfoState } from '../states/messageExtraInfoState';
 import { messageReplyState } from '../states/messageReplyState';
@@ -82,7 +81,6 @@ export const ConversationDetail = () => {
     integration,
     loading,
   });
-  const { propertiesData } = conversationAllDetails;
 
   return (
     <div ref={detailRef} className="relative flex h-full overflow-hidden">
@@ -122,7 +120,6 @@ export const ConversationDetail = () => {
       <ConversationSideWidget
         customerId={conversationAllDetails.customerId || ''}
         _id={conversationAllDetails._id}
-        propertiesData={isRecord(propertiesData) ? propertiesData : undefined}
         asSheet={isCompact}
         boundaryRef={detailRef}
       />

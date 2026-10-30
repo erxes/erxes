@@ -999,8 +999,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `deals`) — the relation widgets rendered with the conversation's
   `customerId`, so they list and create that customer's tickets and deals —
   shown only when the conversation has a customer and the plugin is enabled;
-  and the conversation Properties tab. No other relation widgets are rendered
-  beside a conversation.
+  with no conversation Properties widget. Customer properties remain in the
+  contact panel's Properties tab. No other relation widgets are rendered beside
+  a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -2911,10 +2912,11 @@ null }`, fall back to the route pipeline and skip without one; never pass
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
-- Smoke (conversation properties): open a conversation, click the side
-  widget's **Properties** tab (matches the Settings icon), edit a field
-  through `FieldsInDetail` and confirm it saves and survives a reload; the
-  tab renders in one column even in the widget's narrow (sheet) layout.
+- Smoke (conversation customer widget): open a conversation and confirm the
+  right rail retains its customer button and enabled Tickets / Deals tabs.
+  Open the customer and verify the contact panel still has its Properties tab.
+  Check wide and narrow conversation areas; neither may show a Properties
+  widget button or a local properties overlay.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
