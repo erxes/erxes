@@ -11,11 +11,9 @@ import { Spinner } from 'erxes-ui';
 export const ActivityList = ({
   contentId,
   contentDetail,
-  preserveDraft = false,
 }: {
   contentId: string;
   contentDetail: ITicket;
-  preserveDraft?: boolean;
 }) => {
   const { activities, loading } = useActivities(contentId);
   if (loading) {
@@ -41,11 +39,7 @@ export const ActivityList = ({
         </div>
       </ActivityListProvider>
       <span className="ml-2.5 mb-6">
-        <NoteInput
-          key={contentId}
-          contentId={contentId}
-          preserveDraft={preserveDraft}
-        />
+        <NoteInput contentId={contentId} />
       </span>
     </div>
   );

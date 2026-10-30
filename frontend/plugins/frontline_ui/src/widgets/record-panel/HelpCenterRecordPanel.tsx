@@ -35,7 +35,7 @@ const HelpCenterSavedRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
             size="icon"
             className="size-7"
             disabled={removing}
-            aria-label={t('actions', 'Actions')}
+            aria-label={t('actions')}
           >
             <IconDotsVertical />
           </Button>
@@ -60,11 +60,7 @@ const HelpCenterSavedRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
         <Empty.Header>
           <Empty.Title>{t('help-center', 'Help Center')}</Empty.Title>
           <Empty.Description>
-            {error?.message ||
-              t(
-                'helpcenter-not-found',
-                'This help center is no longer available.',
-              )}
+            {error?.message || t('not-found')}
           </Empty.Description>
         </Empty.Header>
       </Empty>
@@ -77,25 +73,13 @@ const HelpCenterSavedRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
       </ScrollArea>
     );
   return (
-    <HelpCenterDrawer
-      key={contentId}
-      helpCenter={helpCenter}
-      isOpen
-      onClose={close}
-      panel
-    />
+    <HelpCenterDrawer key={contentId} helpCenter={helpCenter} onClose={close} />
   );
 };
 
 export const HelpCenterRecordPanel = (props: IRecordPanelProps) => {
   const { back, canGoBack, close } = useSidePanel();
   if (props.view === 'new')
-    return (
-      <HelpCenterDrawer
-        isOpen
-        onClose={() => (canGoBack ? back() : close())}
-        panel
-      />
-    );
+    return <HelpCenterDrawer onClose={() => (canGoBack ? back() : close())} />;
   return <HelpCenterSavedRecordPanel {...props} />;
 };

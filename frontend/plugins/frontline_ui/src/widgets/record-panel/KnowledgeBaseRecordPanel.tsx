@@ -16,7 +16,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
-import { useFrontlineTranslation } from '@/shared/i18n/useFrontlineTranslation';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import {
   ActivityLogs,
@@ -59,8 +59,9 @@ const KnowledgeBasePanelActions = ({
   topicId: string;
   article?: IArticleDetail;
 }) => {
-  const { t } = useFrontlineTranslation('modules.knowledgebase');
-  const { close } = useSidePanel();
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const navigate = useNavigate();
   const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
   const { duplicateArticle, loading: duplicating } =
@@ -80,7 +81,6 @@ const KnowledgeBasePanelActions = ({
     try {
       if (kind === 'category') {
         await confirmRemoveCategory({ _id: id, title }, () => {
-          close();
           if (categoryId === id) setCategoryId(null);
         });
       } else if (kind === 'article') {
@@ -91,11 +91,10 @@ const KnowledgeBasePanelActions = ({
           }),
           removedMessage: t('kb-article-deleted', 'Article deleted'),
           remove: () => removeArticles([id]),
-          onRemoved: close,
         });
       }
     } catch {
-      // Removal hooks report mutation failures; a dismissed confirmation is cancelled.
+      return;
     } finally {
       setPending(false);
     }
@@ -110,7 +109,7 @@ const KnowledgeBasePanelActions = ({
             size="icon"
             className="size-7"
             disabled={disabled}
-            aria-label={t('actions', 'Actions')}
+            aria-label={t('actions', { keyPrefix: '' })}
           >
             <IconDotsVertical />
           </Button>
@@ -130,7 +129,7 @@ const KnowledgeBasePanelActions = ({
                 disabled={disabled}
                 onSelect={() => setScriptOpen(true)}
               >
-                <IconCode /> {t('kb-embed-script', 'Embed script')}
+                <IconCode /> {t('kb-embed-script-title', 'Embed script')}
               </DropdownMenu.Item>
               <DropdownMenu.Item
                 onSelect={() =>
@@ -185,7 +184,9 @@ const KnowledgeBasePanelView = ({
   article?: IArticleDetail;
   children: ReactNode;
 }) => {
-  const { t } = useFrontlineTranslation('modules.knowledgebase');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   if (view === 'title') {
     return loading && !record ? (
@@ -213,8 +214,7 @@ const KnowledgeBasePanelView = ({
           <Empty.Header>
             <Empty.Title>{t('knowledge-base', 'Knowledge Base')}</Empty.Title>
             <Empty.Description>
-              {error?.message ||
-                t('kb-record-not-found', 'This record is no longer available.')}
+              {error?.message || t('not-found', { keyPrefix: '' })}
             </Empty.Description>
           </Empty.Header>
         </Empty>
@@ -263,9 +263,7 @@ const ArticlePanel = (props: IRecordPanelProps) => {
           articleId={article._id}
           topicId={topicId}
           categoryId={article.categoryId || ''}
-          isOpen
           onClose={close}
-          panel
         />
       )}
     </KnowledgeBasePanelView>
@@ -285,15 +283,7 @@ const TopicPanel = (props: IRecordPanelProps) => {
       loading={loading}
       error={error}
     >
-      {topic && (
-        <TopicDrawer
-          key={topic._id}
-          topic={topic}
-          isOpen
-          onClose={close}
-          panel
-        />
-      )}
+      {topic && <TopicDrawer key={topic._id} topic={topic} onClose={close} />}
     </KnowledgeBasePanelView>
   );
 };
@@ -321,9 +311,7 @@ const CategoryPanel = (props: IRecordPanelProps) => {
           key={category._id}
           category={category}
           topicId={topicId}
-          isOpen
           onClose={close}
-          panel
         />
       )}
     </KnowledgeBasePanelView>
@@ -345,24 +333,15 @@ const KnowledgeBasePanelNew = ({ contentType }: IRecordPanelProps) => {
       <ArticleDrawer
         topicId={draft.topicId || ''}
         categoryId={draft.categoryId || ''}
-        isOpen
         onClose={onClose}
-        panel
       />
     );
   if (
     contentType === KB_DRAFT_CONTENT_TYPES.category ||
     contentType === KB_RECORD_CONTENT_TYPES.category
   )
-    return (
-      <CategoryDrawer
-        topicId={draft.topicId || ''}
-        isOpen
-        onClose={onClose}
-        panel
-      />
-    );
-  return <TopicDrawer isOpen onClose={onClose} panel />;
+    return <CategoryDrawer topicId={draft.topicId || ''} onClose={onClose} />;
+  return <TopicDrawer onClose={onClose} />;
 };
 
 export const KnowledgeBaseRecordPanel = (props: IRecordPanelProps) => {

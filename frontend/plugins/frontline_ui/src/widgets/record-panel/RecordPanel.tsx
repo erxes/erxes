@@ -18,7 +18,6 @@ import {
 } from '@/knowledgebase/constants';
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
-import { useRecordPanelDraftSession } from '@/shared/states/recordPanelDraftState';
 
 const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
   ...Object.values(KB_RECORD_CONTENT_TYPES),
@@ -111,9 +110,9 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <div className="p-3">
           <ActivityList
+            key={contentId}
             contentId={contentId}
             contentDetail={ticket}
-            preserveDraft
           />
         </div>
       </ScrollArea>
@@ -124,7 +123,6 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
-  useRecordPanelDraftSession(props);
   if (props.contentType === INTEGRATION_CONTENT_TYPE) {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>

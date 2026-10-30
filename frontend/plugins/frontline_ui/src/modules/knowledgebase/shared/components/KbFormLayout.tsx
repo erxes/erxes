@@ -90,7 +90,9 @@ const KbFormSectionContent = ({
   const panel = useContext(KbFormPanelContext);
 
   return panel ? (
-    <div className="flex min-w-0 flex-col gap-1">{children}</div>
+    <div className={cn('flex min-w-0 flex-col gap-1', className)}>
+      {children}
+    </div>
   ) : (
     <InfoCard.Content className={className}>{children}</InfoCard.Content>
   );
