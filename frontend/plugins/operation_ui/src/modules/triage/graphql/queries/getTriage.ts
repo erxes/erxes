@@ -19,6 +19,11 @@ export const GET_TRIAGE = gql(`
       customerId
       companyId
       tagIds
+      discordSource {
+        userId
+        username
+        displayName
+      }
     }
   }
 `);

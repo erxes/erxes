@@ -24,6 +24,11 @@ export const GET_TASK = gql(`
       githubIssueNumber
       githubIssueUrl
       githubRepoName
+      discordSource {
+        userId
+        username
+        displayName
+      }
       propertiesData
       customerId
       companyId

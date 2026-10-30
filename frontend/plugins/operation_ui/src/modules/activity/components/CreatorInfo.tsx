@@ -4,8 +4,9 @@ import { ActivityTimelineItem } from '@/activity/components/ActivityTimelineItem
 import { ITriageDetail } from '@/triage/types/triage';
 import { useTranslation } from 'react-i18next';
 import { ActivityActor } from '@/activity/components/ActivityActor';
-import { IconBrandGithub } from '@tabler/icons-react';
+import { IconBrandDiscord, IconBrandGithub } from '@tabler/icons-react';
 import { isGithubTriage } from '@/operation/utils/isGithubTriage';
+import { isDiscordReported } from '@/operation/utils/isDiscordReported';
 
 interface CreatorInfoProps {
   contentDetail: ITaskDetail | IProject | ITriageDetail;
@@ -14,6 +15,7 @@ interface CreatorInfoProps {
 export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
   const { t } = useTranslation('operation');
   const githubTriage = isGithubTriage(contentDetail);
+  const discordReport = isDiscordReported(contentDetail) ? contentDetail : null;
 
   return (
     <ActivityActor.Provider actorId={contentDetail.createdBy}>
@@ -21,6 +23,8 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
         avatar={
           githubTriage ? (
             <IconBrandGithub className="size-4" />
+          ) : discordReport ? (
+            <IconBrandDiscord className="size-4" />
           ) : (
             <ActivityActor.Avatar />
           )
@@ -30,6 +34,11 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
       >
         {githubTriage ? (
           t('created-from-github-issue')
+        ) : discordReport ? (
+          t('created-from-discord', {
+            defaultValue: 'Reported in Discord by @{{username}}',
+            username: discordReport.discordSource.username,
+          })
         ) : (
           <>
             {t('created-by')} <ActivityActor.Name />
