@@ -1,4 +1,3 @@
-import { EditJob } from '@/settings/jobs/components/EditJob';
 import { JobsTable } from '@/settings/jobs/components/JobsTable';
 import { JobOutputsTable } from '@/settings/jobs/components/JobOutputsTable';
 import { JobFilters } from '@/settings/jobs/components/JobFilters';
@@ -15,7 +14,6 @@ export const JobsPage = ({
         <JobFilters unwindOutputs={unwindOutputs} />
       </PageSubHeader>
       {unwindOutputs ? <JobOutputsTable /> : <JobsTable />}
-      <EditJob />
     </PageContainer>
   );
 };
