@@ -39,17 +39,13 @@ const emptyCategory = (topicId: string): TCategoryForm => ({
 export const CategoryDrawer = ({
   category,
   topicId,
-  isOpen,
   onClose,
   onSaved,
-  panel = false,
 }: {
   category?: ICategoryFields;
   topicId: string;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
-  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -97,14 +93,7 @@ export const CategoryDrawer = ({
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      panel={panel}
       onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-category', 'Edit Category')
-          : t('kb-new-category', 'New Category')
-      }
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
@@ -114,10 +103,7 @@ export const CategoryDrawer = ({
       onSubmit={submit}
     >
       <Form {...form}>
-        <form
-          onSubmit={submit}
-          className={panel ? 'grid gap-2 p-3' : 'grid gap-4 p-4'}
-        >
+        <div className="grid gap-2">
           <KbFormSection title={t('general', 'General')}>
             <KbFormSection.Content>
               <KbTextField
@@ -225,7 +211,7 @@ export const CategoryDrawer = ({
               />
             </KbFormSection.Content>
           </KbFormSection>
-        </form>
+        </div>
       </Form>
     </KbFormSheet>
   );

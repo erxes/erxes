@@ -4,7 +4,7 @@ import { type PrimitiveAtom, useAtom } from 'jotai';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PanelFormRow, useSidePanel, useSidePanelDraft } from 'ui-modules';
+import { PanelFormRow, useSidePanel } from 'ui-modules';
 import type { IIntegration } from '../types/Integration';
 
 export const INTEGRATION_CONTENT_TYPE = 'frontline:integration';
@@ -28,19 +28,12 @@ export const IntegrationCreateButton = ({
   children: React.ReactNode;
   onClick?: () => void;
 }) => {
-  const { openNewRecord, record } = useSidePanel();
-  const draft = useSidePanelDraft<{ kind: string }>(INTEGRATION_CONTENT_TYPE);
+  const { openNewRecord } = useSidePanel();
   const channelId = useIntegrationChannelId();
   return (
     <Button
       className="self-start"
       onClick={() => {
-        if (
-          record?.contentType === INTEGRATION_CONTENT_TYPE &&
-          record.contentId === 'new' &&
-          draft.kind === kind
-        )
-          return;
         onClick?.();
         openNewRecord(INTEGRATION_CONTENT_TYPE, { kind, channelId });
       }}

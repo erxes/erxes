@@ -9,9 +9,6 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui';
 import { useEffect, useRef, useState } from 'react';
-import { useStore } from 'jotai';
-import { frontlinePanelDraftState } from '@/shared/states/recordPanelDraftState';
-import { TICKET_PROPERTY_CONTENT_TYPE } from '@/ticket/constants/createLayout';
 
 import { AssignMemberInEditor } from 'ui-modules';
 import type { Block } from '@blocknote/core';
@@ -32,29 +29,13 @@ import { useNoteAttachments } from '@/activity/hooks/useNoteAttachments';
 import { useNoteTemplateSuggestions } from '@/activity/hooks/useNoteTemplateSuggestions';
 import { useTranslation } from 'react-i18next';
 
-export const NoteInput = ({
-  contentId,
-  preserveDraft = false,
-}: NoteInputProps) => {
+export const NoteInput = ({ contentId }: NoteInputProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
-  const store = useStore();
-  const draftKey = `${TICKET_PROPERTY_CONTENT_TYPE}:${contentId}`;
-  const [savedDraft] = useState(() => {
-    const state = store.get(frontlinePanelDraftState);
-    return preserveDraft && state.key === draftKey ? state.note : undefined;
-  });
   const editor = useBlockEditor({
     placeholder: t('write-a-message', 'Write a message...'),
   });
-  useEffect(() => {
-    if (savedDraft?.blocks.length) {
-      editor.replaceBlocks(editor.document, savedDraft.blocks);
-    }
-  }, [editor, savedDraft]);
   const { createTicketNote, loading } = useCreateTicketNote();
-  const [isInternalNote, setIsInternalNote] = useState(
-    savedDraft?.isInternal ?? true,
-  );
+  const [isInternalNote, setIsInternalNote] = useState(true);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
     goBackToPreviousHotkeyScope,
@@ -80,27 +61,7 @@ export const NoteInput = ({
     uploadFiles,
     removeAttachment,
     resetAttachments,
-  } = useNoteAttachments(savedDraft?.attachments);
-
-  const draftRef = useRef({ attachments, isInternalNote });
-  draftRef.current = { attachments, isInternalNote };
-  useEffect(() => {
-    if (!preserveDraft) return;
-    return () => {
-      store.set(frontlinePanelDraftState, (current) =>
-        current.key === draftKey
-          ? {
-              ...current,
-              note: {
-                blocks: editor.document,
-                isInternal: draftRef.current.isInternalNote,
-                attachments: draftRef.current.attachments,
-              },
-            }
-          : current,
-      );
-    };
-  }, [draftKey, editor, preserveDraft, store]);
+  } = useNoteAttachments();
 
   const handleInternalNoteChange = (value: boolean) => {
     setIsInternalNote(value);

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -33,11 +33,11 @@
   repair, update or disconnect afterwards. The connected card also reports whether
   replies leave through that account and, when they do, its sending quota.
 - The mail inbox's four-step add wizard — basics, receiving, sending, done — and
-  the matching edit side panel. The sending step names the domain replies will leave
+  the matching edit dialog. The sending step names the domain replies will leave
   from and takes the sender display name, or blocks with the reason when neither
   the workspace's Cloudflare account nor the deployment's can sign. A preview
   renders the exact `Name <address>` recipients will see.
-- The mail inbox's delivery check: a button in the integration side panel that runs
+- The mail inbox's delivery check: a button in the integration dialog that runs
   `mailCheckConnection` and reports whether inbound mail reaches this workspace,
   naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
@@ -51,20 +51,20 @@
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
   routes: record tables with inline editing, filters, command bar bulk delete,
-  and topic, category and article editors. A topic's embed script opens as
+  and the topic, category and article drawers. A topic's embed script opens as
   a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
-  help center editor (General, Appearance, and — when editing — Embed and
-  Domain), which opens in the app side panel for both existing records and new
-  drafts. Its **Forms** card, shown only while the ticket
+  help center drawer (General, Appearance, and — when editing — Embed and
+  Domain), which is
+  the only place a help center is edited. Its **Forms** card, shown only while the ticket
   switch is on, has its own channel select and a multi-select of that
-  channel's forms (`formChannelId` / `formIds`). Existing CMS configuration
-  (`cmsId`, `cmsAppToken`, `cmsConfigs`) is preserved on every save without
-  reading another plugin's CMS list. Both
-  editor layouts read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
+  channel's forms (`formChannelId` / `formIds`); its **CMS** card multi-selects
+  the content CMSes whose posts the site lists as announcements
+  (`cmsConfigs`). Both
+  tabs read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
   knowledge base operation.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
@@ -83,94 +83,10 @@
 - Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
   import Radix directly.
 - The `frontline` i18n namespace JSON, which lives in
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned). Frontline-owned panel additions live in `src/modules/shared/i18n/locales/{en,mn}.json` and are registered into the existing namespace by `useFrontlineTranslation`; existing catalog entries are retained.
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
 - Other plugins' modules or state.
 
 ## Current Capabilities
-
-- Saved-record panel sessions retain Help Center form values/local sections and ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes; same-record Help Center refreshes retain dirty fields.
-- Integration removal evicts its cached `Integration` and returns from the matching open panel; a failed removal keeps the record and shows the existing error feedback.
-- The Articles page registers its advertised C shortcut through `useKbCreateHotkey`; it cannot create without a category or while another record panel owns the shortcut scope.
-
-- Channel integration creation and editing use the shared app side panel as
-  `frontline:integration`, with no custom Properties tab. `IntegrationRecordPanel`
-  resolves saved integration kind/channel by id and draft defaults from
-  `openNewRecord`; a provider route supplies defaults after a draft reload.
-  Provider forms retain their original setup, validation and mutation hooks.
-  `IntegrationPanelForm` supplies the existing Sheet context for cancel controls
-  without a modal view or overlay; `IntegrationFormSession` initializes and
-  clears the existing Messenger/call/social setup atoms around the panel form.
-  `IntegrationFormItem` composes public `PanelFormRow` for compact fields.
-  Messenger keeps all six steps and has local Edit/Preview tabs; its editor
-  stays mounted while previewing. Mail keeps its four-step wizard and delivery
-  check; Telegram keeps resumable setup, health checks and disconnect.
-  OAuth callbacks remove their callback parameters and open the draft in one
-  URL update. Provider mutations and their existing feedback/refetch behavior
-  remain unchanged by the sidebar layout.
-- Settings → Properties is supplied by core's public plugin-settings slot.
-  Frontline does not own its field/group editors or their modal containers.
-
-- Ticket, knowledge base article/topic/category and Help Center creation use
-  `useSidePanel().openNewRecord` and the record panel's `new` view, matching
-  Operation's draft flow. Knowledge base drafts use the UI-only
-  `frontline:article`, `frontline:topic` and `frontline:category` aliases so the
-  host header shows readable names; saved records keep their existing
-  `frontline:knowledgebase.*` types. They reuse their existing validated forms and
-  mutations; opening or cancelling a draft writes nothing. `useCreateTicketRecord`
-  carries ticket page, board status, conversation channel and contact defaults.
-  Contact drafts stack over their host; Cancel returns there. A created ticket
-  replaces its draft with the saved detail. `AddTicketSheet` is the existing
-  trigger component name and no longer renders a modal sheet.
-- `AddTicketForm` uses the shared `PanelFormLayout` / `PanelFormRow`, compact
-  selectors and pipeline layout validation. System fields preserve layout order
-  in a single column; custom properties keep their display logic and required
-  rules. Creation selectors accept an optional `table` variant while their
-  default `form` variant remains available to other forms. Description serialization
-  retains the existing ticket form behavior.
-
-- Existing help centers open as `frontline:helpcenter` records in the shared
-  app side panel, with title, Delete in the header, Detail and Activity.
-  Detail reuses `HelpCenterDrawer` in its `panel` mode: compact General fields,
-  single-column Appearance cards, and local General / Appearance / Embed /
-  Domain navigation. General and Appearance remain mounted while switching;
-  invalid saves return to the section containing the first error. Domain is
-  mounted only while selected. Create uses the same compact panel as a draft. Table links and
-  Edit actions retain legacy `?editId=` support through `KnowledgeBaseDetailLink`.
-- Help Center keeps its existing React Hook Form field rules: required title,
-  topic when knowledge base is enabled, and channel/pipeline when tickets are
-  enabled. Its existing input conversion retains hidden CMS values and the app
-  token. Table and panel Delete reuse `useConfirmRemoveHelpCenter`; deleting the open
-  help center closes its panel and refetches the list through the existing
-  removal hook.
-
-- Knowledge base article, topic and category details open in the shared app
-  side panel (`frontline:knowledgebase.article`, `.topic`, `.category`).
-  `KnowledgeBaseRecordPanel` supplies title, header actions, Detail and Activity;
-  these types have no custom Properties tab. Detail reuses each existing
-  drawer's React Hook Form/Zod form through `KbFormSheet`'s `panel` variant.
-  `KbFormItem` uses the shared `PanelFormRow` for compact labelled inputs;
-  description, article HTML content and media span the panel width. Save and
-  Cancel retain their existing validation and feedback. Create uses the same
-  compact forms as drafts in the app side panel, with the same fields and
-  mutation hooks.
-- Knowledge base article details retain title/summary, topic/category moves,
-  HTML content, status/scheduled publishing, privacy, reactions, cover image,
-  attachments and PDF upload. Topic details retain title, description, brand,
-  language, code, colour reset and background image; Embed script and Settings
-  are in the header menu, while topic deletion stays in the settings danger
-  zone. Category details retain title, description, code,
-  icon, topic moves and parent category. Article headers provide Duplicate and
-  Delete; category headers provide the existing confirmed cascade delete.
-- Knowledge base and Help Center title links and row Edit actions call the
-  public `useSidePanel().openRecord` directly, so opening or switching records
-  updates the host panel in the same navigation. `?editId=` remains an entry
-  link only; `KnowledgeBaseDetailLink` removes it and sets `panel` together
-  with `useMultiQueryState`, preserving other query parameters. Legacy ticket
-  links use the same atomic conversion in `TicketDetailLink`.
-  Sidebar category pencils, topic Edit actions and the topic settings page's
-  Edit Topic button open panels directly. Topic settings retains its install
-  snippet and danger zone. Activity uses the shared `ActivityLogs` renderer
-  for the record id and its loading/error/empty states.
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -193,9 +109,9 @@
   only when `useCanManageChannels` allows the channel: owner, or the
   channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
   `removePipeline` enforce.
-- The new-ticket side panel renders name, channel/pipeline/status and description
+- The new-ticket sheet renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
-  (`useTicketCreateLayout`): compact labelled system rows via `TicketCreateSystemField`,
+  (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
   properties via `PropertyFormField`. Property logic hides cells; required
   system fields, properties and description block Save with a toast and a red
   ring. Only shown properties are sent as `propertiesData`.
@@ -229,7 +145,7 @@
   refetches active setup/integration queries; status errors remain inline.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
-  the existing inbox integration side panel; no workspace-wide bot credentials are
+  the existing inbox integration sheet; no workspace-wide bot credentials are
   duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
@@ -430,33 +346,24 @@
   rows are disjoint — the API keeps survey conversations out of an
   `integrationType`-scoped list.
 
-- Tickets open in the app side panel (`?panel=/detail/frontline:ticket/<id>`).
-  `widgets/record-panel/RecordPanel.tsx` supplies title, actions, Detail,
-  Properties and Activity through the public `IRecordPanelProps` contract.
-  Detail uses `PanelField` rows with the existing table-variant ticket selects,
-  `TextField` for name, links to the ticket's existing customer and company,
-  `PanelDescriptionField`, and the existing attachment uploader.
-  Status movement and field edits retain pipeline/status permissions; channel
-  and pipeline remain locked. Activity keeps the ticket timeline and reply /
-  internal-note composer. Properties keeps `TicketPipelineProperties`.
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
-  side panel header. While one action is in flight the menu and its items stay
-  disabled. The notification view's `Open ticket` link opens this panel too.
-- `useTicketDetailSheet` reads and opens the ticket through `useSidePanel`;
-  list and board clicks start panel history afresh, while contact sections and
-  relation cards pass `{ stack: true }`. `TicketDetailLink` moves legacy
-  `?ticketId=` links into the panel. No ticket detail sheet or relation rail is
-  mounted by contact sections or relation cards.
+  ticket sheet header; the fields row carries no actions. The notification
+  ticket view has none of its own — its `Open ticket` button opens that sheet.
+  The header's close button sits in a `w-16` strip aligned with the relation
+  side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  Those side tabs (ui-modules `RelationWidgetSideTabs`) hold only Customers and
+  Companies icons, each opening the side panel's view of the ticket's contacts
+  inside the sheet; no relation widgets are listed beside a ticket.
+  While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
   `Priority | High ⌄`. A ticket select's root and `FormItem` take `label`,
   and `SelectTriggerTicket` and `SelectDateTicket` draw the chip (erxes-ui
   `Combobox.ChipTrigger`, shared with Sales) only for the `detail` and `form`
   variants with a label — every other variant and unlabelled caller keeps its
-  plain trigger. Notification detail chips and every add-ticket form chip are
-  labelled; the side panel uses table variants with `PanelField` labels.
-  Other `FormItem` callers stay unlabelled.
+  plain trigger. Every ticket detail chip, status included, and every add
+  ticket form chip is labelled; other `FormItem` callers stay unlabelled.
   Branch and department show `None` rather than repeating their label.
 - Ticket start/target dates follow Sales' `DateSelectDeal`: every variant's
   popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
@@ -833,13 +740,12 @@ owns the setup form and connection actions.
 | Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
-| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Side-panel add/edit forms over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
-| Ticket record panel       | `src/widgets/record-panel/` | App side-panel entry and inline ticket detail fields; properties and activity reuse ticket modules |
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
-| Help Center | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`, `src/widgets/record-panel/HelpCenterRecordPanel.tsx` | Help center table and shared record panel for creation and editing; General, Appearance, Embed and Domain reuse the existing form |
+| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
 | Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
 | Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
 | Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
@@ -859,7 +765,6 @@ owns the setup form and connection actions.
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
-| Knowledge base record panels | `src/widgets/record-panel/KnowledgeBaseRecordPanel.tsx`, `src/modules/knowledgebase/shared/components/{KbFormLayout,KbFormSheet,KnowledgeBaseDetailLink}.tsx` | Article/topic/category record views, compact validated edit forms, shared activity, header actions and legacy edit links |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
@@ -876,31 +781,16 @@ owns the setup form and connection actions.
 | Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
 | Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
 | Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step side-panel wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
-| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration side panel and renders its verdict                                                                  |
+| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
 ## Contracts
 
 ### Provides
 
-- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening the ticket stacked in the side panel, `+` opening a stacked ticket draft with `useCreateTicketRecord` and contact defaults, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); panel rows open their existing customer/company records without adding assignment mutations. The create-ticket automation action configures one `companyId`.
-- `widgets.recordPanels: [{ contentType: 'frontline:ticket' }]` with
-  `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`, named export
-  `RecordPanel`): title, actions, detail, properties and activity views. The
-  host owns panel tabs, resizing, navigation and lazy remote loading.
-- The same `./recordPanel` entry registers `frontline:knowledgebase.article`,
-  `frontline:knowledgebase.topic` and `frontline:knowledgebase.category`, each
-  with `properties: false`, and lazy-loads `KnowledgeBaseRecordPanel`.
-  `frontlineKbCategoryDetail` reads `knowledgeBaseCategoryDetail` with
-  `firstTopic { _id }`, so a category panel resolves its owning topic without
-  depending on the current page or the first page of category list results.
-- `./frontline` exports the named `Frontline` entry. `./recordPanel` also
-  registers `frontline:integration` and `frontline:helpcenter` with
-  `properties: false`; `IntegrationRecordPanel` lazy-loads the provider forms.
-  `HelpCenterRecordPanel` uses `frontlineHelpCenterDetail` directly by id.
-  `HelpCenterIndexPage` is a named route export, loaded by `FrontlineMain`.
+- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); the ticket sheet's rail is given them. The create-ticket automation action configures one `companyId`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -919,7 +809,7 @@ owns the setup form and connection actions.
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
-  `./relationWidget`, `./contactWidget`, `./recordPanel`, `./floatingWidget`, `./selectErxesMessenger`.
+  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
   path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
   `ticketStatus` property input, and the `formSubmission` activity row.
@@ -999,9 +889,8 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `deals`) — the relation widgets rendered with the conversation's
   `customerId`, so they list and create that customer's tickets and deals —
   shown only when the conversation has a customer and the plugin is enabled;
-  with no conversation Properties widget. Customer properties remain in the
-  contact panel's Properties tab. No other relation widgets are rendered beside
-  a conversation.
+  and the conversation Properties tab. No other relation widgets are rendered
+  beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
@@ -1091,7 +980,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   wizard gates Create on `ready` and the edit dialog reads the same query, so the
   button and the banner can never disagree with the server.
 - `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
-  integration side panel, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
+  integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
   verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
   the diagnostic itself. It is a deployment-wide check shown on an integration,
   so it is not refetched with integration data.
@@ -1171,10 +1060,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
-- `useHelpCenters` applies the `searchValue`/`brand` URL filters and owns
-  `helpCenterTotalCountAtom` for the filter bar. `useHelpCenterDetail` reads
-  the open record by id through `frontlineHelpCenterDetail`, independent of
-  list filters or pagination; there is no second unfiltered list lookup.
+- The help center list is read twice on purpose: `useHelpCenters` applies the
+  `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
+  filter bar, while `useAllHelpCenters` reads the same document unfiltered so
+  `HelpCenterIndexPage` can resolve the one help center `editId` names even when
+  the table is narrowed past it. With no filter set both resolve to the same
+  variables and Apollo serves one request.
 
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
@@ -1259,11 +1150,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
   repair components take `integration`, not a table `cell`. Erxes messenger,
-  call, callpro and telegram open `frontline:integration` records through
-  `IntegrationEditButton`; no list page mounts global integration edit sheets.
-  Their edits take the channel from the loaded record. Creation uses
-  `useIntegrationChannelId` so the host panel retains the selected channel
-  outside the page route context.
+  call, callpro and telegram edit through atom-driven sheets; a page listing
+  integrations of every kind mounts `IntegrationEditSheets` once (the channel
+  list does). Their edits take the channel from the loaded record, never from
+  the route.
 - Integration create/update/delete/repair/move mutations refetch
   `ChannelIntegrationsPeek` alongside `Integrations`.
 - `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
@@ -1394,7 +1284,6 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   Saving awaits the field mutation before clearing the draft, then invalidates
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.
-  Header and cell renderers that call React hooks are named components.
   Invalid stored dates render as their original value instead of breaking the
   submissions table. Conversion saves send metadata as `formChanges` in the
   field mutation so failure rolls back both; ordinary saves retain their existing
@@ -1539,17 +1428,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
-- `HelpCenterDrawer` uses a compact local
-  tab strip in the side panel for creation and editing — **general** and
+- `HelpCenterDrawer` splits across `SheetNavSidebar` tabs — **general** and
   **appearance** always, plus **embed** and **domain** while editing
   (`HELP_CENTER_TABS` vs `HELP_CENTER_CREATE_TABS`, because a config must exist
-  before its script or domain is worth showing). Its tab list is a wrapping
-  flex row with an 8px horizontal gap and content-sized triggers.
-  General stacks full-width cards in a fixed order — general
+  before its script or domain is worth showing): general stacks full-width cards in a fixed order — general
   settings (name and client portal side by side, then description), knowledge
   base,
-  tickets and forms. Existing CMS settings stay in form values without a CMS
-  picker. Each feature card keeps its
+  tickets, forms, and CMS. Each feature card keeps its
   switch row on top and lays its fields out in a two-column grid under a
   divider, and `FULL_WIDTH_SELECT` stretches every select to the `h-8` input
   height, so the two columns line up. Embed renders the knowledge base module's
@@ -1559,9 +1444,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
   accent colour and cover image, the header's wording, the footer's content, and
-  the raw header/footer HTML. Both create and edit panels keep their
-  internal section in local state, independent of the host's Detail/Activity
-  tabs. Both form sections stay mounted
+  the raw header/footer HTML. The sidebar
+  keeps the active tab in the `tab` URL query param, so the drawer clears it on
+  close or the next one opens wherever the last was left. Both tabs stay mounted
   (hidden, not unmounted) so values and validation survive switching, and an
   invalid submit switches to the tab holding the first failing field via
   `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
@@ -1593,13 +1478,15 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   published site to keep its built-in Support / Knowledge base / Account
   columns — so the card never seeds defaults on its own; the author asks for
   them with the "Start from the built-in columns" action.
-- A help center has **no page of its own**: `/frontline/helpcenter/:id` stays
-  removed. The row menu's Edit, name anchor and legacy links use `editId`,
-  which is moved to `?panel=/detail/frontline:helpcenter/<id>`. The index mounts
-  the shared record panel for both drafts and editing; never
-  reintroduce a standalone detail route. Every surface widens a list record
-  for a save through `toHelpCenterConfigInput`; passing a partial record would
-  reset the fields it omitted on the next save.
+- A help center has **no page of its own**: `/frontline/helpcenter/:id` was
+  removed, and editing is addressed by the `editId` URL query on the list page,
+  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
+  for both creating and editing, keyed on the record — two would each mount a
+  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the
+  name cell's anchor and a shared link all go through that one param — never
+  reintroduce a detail route. Every surface widens a list record for a save
+  through `toHelpCenterConfigInput`; passing a partial record would reset the
+  fields it omitted on the next save.
 - Category editing lives on the knowledge base categories route
   (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
   delete. The help center surface does not duplicate it.
@@ -1699,7 +1586,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   the two surfaces.
 - The help center drawer is split by responsibility, all under
   `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
-  the sheet/panel layout, the form and the save; `HelpCenterGeneralTab.tsx` and
+  the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
   reusable `Style*Field` helpers; the knowledge base module's
   `shared/components/TopicEmbedTab.tsx` the Embed tab panel (presentational,
@@ -2278,9 +2165,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
   reintroduce a `?topicId=` selection. A sidebar category links to its topic's
   `articles` route with the existing `categoryId` filter param, so the sidebar
-  and the filter bar chip always show the same selection. `createTopic`,
-  `categoryId` and `status` stay query params. Article/category `editId` links
-  are accepted for compatibility and moved into the shared `panel` query param.
+  and the filter bar chip always show the same selection. `editId`,
+  `createTopic`, `categoryId` and `status` stay query params, because they are
+  filter and drawer state, not routes.
 - `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
   every knowledge base page, including the index; there is no topics card grid
   or topics table. The index redirects to the first topic's `articles` route,
@@ -2316,17 +2203,16 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `null` = the panel's default `w-60`) and is passed as an inline `width`;
   the panel's width transition is switched off while `kbSidebarResizingAtom`
   is set, and its collapsed `w-0!` still wins over the inline width. The panel
-  keeps its children mounted while collapsed, so `?createTopic=true` can
-  still open a topic draft. The `+` opens
-  `TopicDrawer` in the app side panel (every topic field, including appearance), and
-  creating a category from the sidebar opens `CategoryDrawer` as a panel draft;
-  editing opens its same validated fields in the app side panel. Topic Edit
-  opens its same full fields in the panel too. A topic
+  keeps its children mounted while collapsed, so the topic and category
+  drawers inside it still open from `?createTopic=true`. The `+` opens
+  the full `TopicDrawer` sheet (every topic field, including appearance), and
+  creating or editing a category from the sidebar opens the full
+  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
   row has one `...` button, shown on hover, that opens a dropdown through
-  `KbSidebarRowActions` (edit topic, new category, manage categories, settings — a topic
+  `KbSidebarRowActions` (new category, manage categories, settings — a topic
   is deleted only from its `kbsettings` danger zone). A category row has no
   dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
-  focus — pencil (edit, opens the category record panel) and trash (delete, confirms
+  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
   first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
   `title`. A topic row
   uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
@@ -2788,47 +2674,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
 
 ## Validation
 
-- Draft smoke: edit Help Center fields, switch to Activity and back, then refresh its detail data; edits survive while untouched fields refresh. Change records or close/reopen and confirm a fresh form. Write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
-- `pnpm nx test frontline_ui --runInBand --watchman=false` includes Telegram panel navigation, resumable setup and disconnect after status failure.
-
-- Open each channel integration provider, start/cancel a draft, reopen it and
-  edit an existing integration; check immediate navigation and the source
-  channel, compact controls, scrolling and footer. For Messenger, switch all
-  steps and Edit/Preview without losing input. Verify provider failures retain
-  input, successful saves refresh lists/counters, OAuth returns resume their
-  account/page step, and Telegram health/disconnect remain accessible.
-
-- Create-panel smoke: open Add Ticket from the list, a board column and a
-  contact's Tickets section; verify channel/pipeline/status and contact defaults,
-  required system/custom fields, description, Cancel/Back and creation feedback.
-  Successful ticket creation must replace the draft and refresh its lists.
-  Open New Article, New Topic, New Category (table and topic menu) and Create
-  Help Center; all must render compact sidebar forms, retain validation and
-  update the table/tree after creation. Cancelling and reopening must start a
-  fresh draft. No detail query may request a record with id `new`.
-- Ticket panel smoke: open a ticket from list, board, a contact section and a
-  legacy `?ticketId=` link. Verify Detail / Properties / Activity, inline saves,
-  date clearing, permission-disabled fields, attachments, notes and header
-  actions. Open its customer/company and use panel Back. Reload a panel URL;
-  deleting the open ticket must close it and update the list immediately.
-- Knowledge base panel smoke: open article/category title links and row Edit,
-  sidebar category Edit and topic Edit, and topic settings Edit Topic. Confirm
-  each panel's complete fields, Save/Cancel, validation, immediate list/tree
-  refresh and direct panel URL reload. Check article HTML, scheduling, privacy,
-  reactions and all three media uploads; topic colour reset/background and
-  embed snippet; category topic/parent moves. Duplicate an article and confirm
-  delete uses the existing confirmation and closes a removed record's panel.
-  Start on the article table with no panel, click one article and then a
-  different article, close and reopen it, and use browser Back/Forward.
-  Header and fields must follow each selection without refreshing. Repeat
-  title/menu opening on categories and Help Center, including legacy `editId`
-  links with filters that must survive the conversion.
-- Help center panel smoke: open a name/row Edit and a legacy `editId` link,
-  including under a filter that excludes the record. Check General, Appearance,
-  Embed and Domain, required fields and cross-section error routing, colour
-  resets, footer columns/links, ticket/form cascading selects, and unchanged
-  hidden CMS/app-token values. Reload a panel URL, open Activity, cancel
-  without saving, then verify create/save/delete still update the table.
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
@@ -2876,21 +2721,19 @@ null }`, fall back to the route pipeline and skip without one; never pass
   rail shows Tickets and Deals tabs listing that customer's tickets and deals,
   and "+" in each creates one already linked to the customer.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
-  use the row's Edit action to open the shared sidebar. Check General,
-  Appearance, Embed and Domain; Save and Cancel remain accessible while the
-  fields scroll. A missing required field must switch back to its section.
-  Pick a client portal on **General** and save a colour on **Appearance**;
-  reload and confirm both persisted. The website picker must
+  open the drawer and pick a client portal on **General** and save a colour on
+  **Appearance**; reload and confirm both persisted. The website picker must
   list each client portal once by name, and the trigger must read back that name
-  after the pick, in the panel and in the table cell alike; typing a domain in
+  after the pick, in the drawer and in the table cell alike; typing a domain in
   the picker's search must still find it. The network tab must show `helpCenterConfig` /
   `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
   website picker's option list, and no `knowledgeBase*` operation other than the
   topic picker's option list.
-- Smoke (help center config preservation): save an existing help center with
-  CMS settings and confirm `cmsId`, `cmsAppToken`, `cmsConfigs` and
-  `erxesAppToken` are retained. General must not query another plugin's CMS
-  list. Create Help Center must open a new sidebar draft.
+- Smoke (help center CMS): with the content plugin enabled, open a help
+  center's **General** tab, pick two CMSes and save; reload and confirm both
+  badges return. A CMS whose client portal has no app token must be refused
+  with a toast and stay unselected, and a help center saved before `cmsConfigs`
+  existed must open with its old CMS already selected.
 - Smoke (knowledge base embed): open a topic's `kbsettings` page and open its
   embed script dialog; the snippet must carry that topic's `_id` and
   `Copy Script` must put it on the clipboard. Editing a help center must show
@@ -2913,11 +2756,10 @@ null }`, fall back to the route pipeline and skip without one; never pass
   another, then save and reload — the drawer shows what was saved and
   `localhost:3900` renders those columns. Emptying every column and saving
   brings the site's built-in Support / Knowledge base / Account columns back.
-- Smoke (conversation customer widget): open a conversation and confirm the
-  right rail retains its customer button and enabled Tickets / Deals tabs.
-  Open the customer and verify the contact panel still has its Properties tab.
-  Check wide and narrow conversation areas; neither may show a Properties
-  widget button or a local properties overlay.
+- Smoke (conversation properties): open a conversation, click the side
+  widget's **Properties** tab (matches the Settings icon), edit a field
+  through `FieldsInDetail` and confirm it saves and survives a reload; the
+  tab renders in one column even in the widget's narrow (sheet) layout.
 - Smoke: open `/frontline/inbox` and confirm the sidebar shows `Me` then
   `Team inbox`; that `Me` lists the personal channel's integration types with
   their counts and a header total (empty state when there is no personal inbox);
@@ -2965,3 +2807,45 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
+  <<<<<<< HEAD
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-16` — Knowledge scope tree and ticket media
+
+- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
+- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
+- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
+
+### `2026-10-06` — Telegram on the native composer and message components
+
+- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
+- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.
+  > > > > > > > b5737b8f9a6f3d229cf63081569bfebc7196a29c

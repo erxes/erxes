@@ -15,7 +15,7 @@ import { telegramChatLabel } from '@/integrations/telegram/useTelegramChats';
 import { toCustomerInline } from '@/inbox/conversations/utils/conversationContext';
 import { useConversationListChannels } from '@/inbox/conversations/hooks/useConversationListChannels';
 import { useConversations } from '@/inbox/conversations/hooks/useConversations';
-import { ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const Conversations = () => {
