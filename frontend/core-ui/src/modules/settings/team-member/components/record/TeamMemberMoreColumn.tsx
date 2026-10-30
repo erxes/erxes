@@ -2,7 +2,7 @@ import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/sta
 import { IUser } from '@/settings/team-member/types';
 import {
   IconEdit,
-  IconHistory,
+  IconMail,
   IconLock,
   IconRefresh,
   IconSettings,
@@ -27,6 +27,10 @@ import { TeamMemberActivityLogSheet } from '../TeamMemberActivityLogSheet';
 import { useResendInvite } from '../../hooks/useResendInvite';
 import { useUsersStatusEdit } from '../../hooks/useUserEdit';
 import { useTranslation } from 'react-i18next';
+import { LdapMemberMenuItem } from '@/settings/ldap/components/LdapMemberMenuItem';
+import { MemberSignOutMenuItem } from '@/settings/team-member/sessions/components/MemberSignOutMenuItem';
+import { MemberResetTwoFactorMenuItem } from '@/settings/two-factor/components/MemberResetTwoFactorMenuItem';
+import { useLdapLinkedUserIds } from '@/settings/ldap/hooks/useLdapUserLink';
 
 export const TeamMemberMoreColumnCell = ({
   cell,
@@ -43,6 +47,7 @@ export const TeamMemberMoreColumnCell = ({
     renderingTeamMemberResetPasswordAtom,
   );
   const { email, _id, isActive } = cell.row.original;
+  const { isLinked } = useLdapLinkedUserIds();
   const { resend, loading } = useResendInvite();
   const { editStatus } = useUsersStatusEdit();
 
@@ -72,15 +77,56 @@ export const TeamMemberMoreColumnCell = ({
           <IconSettings size={18} /> {t('edit-permission-groups')}
         </Command.Item>
       </Can>
-      <Can action="teamMembersResetPassword">
+      {!isLinked(_id) && (
+        <Can action="teamMembersResetPassword">
+          <Command.Item
+            value="reset-password"
+            onSelect={() => {
+              setResetPasswordOpen(_id);
+              setRenderingTeamMemberResetPasswordAtom(true);
+            }}
+          >
+            <IconLock /> {t('reset-password')}
+          </Command.Item>
+        </Can>
+      )}
+      <MemberResetTwoFactorMenuItem
+        userId={_id}
+        onDone={() => setMenuOpen(false)}
+      />
+      <LdapMemberMenuItem userId={_id} onDone={() => setMenuOpen(false)} />
+      <MemberSignOutMenuItem userId={_id} onDone={() => setMenuOpen(false)} />
+      <Can action="teamMembersInvite">
         <Command.Item
-          value="reset-password"
+          value="status"
+          onSelect={() =>
+            resend({
+              variables: {
+                email,
+              },
+              onError: (error) =>
+                toast({ title: error.message, variant: 'destructive' }),
+              onCompleted: () =>
+                toast({
+                  title: t('invitation-resent'),
+                  variant: 'success',
+                }),
+            })
+          }
+        >
+          {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
+          {t('resend-invite')}
+        </Command.Item>
+      </Can>
+      <Can action="broadcastUpdate">
+        <Command.Item
+          value="email-deliveries"
           onSelect={() => {
-            setResetPasswordOpen(_id);
-            setRenderingTeamMemberResetPasswordAtom(true);
+            setMenuOpen(false);
+            setActivityLogOpen(true);
           }}
         >
-          <IconLock /> {t('reset-password')}
+          <IconMail /> {t('email-deliveries')}
         </Command.Item>
       </Can>
       <Can action="teamMembersRemove">
@@ -109,39 +155,6 @@ export const TeamMemberMoreColumnCell = ({
             <IconToggleRight size={18} />
           )}
           {isActive ? t('deactivate') : t('activate')}
-        </Command.Item>
-      </Can>
-      <Can action="teamMembersInvite">
-        <Command.Item
-          value="status"
-          onSelect={() =>
-            resend({
-              variables: {
-                email,
-              },
-              onError: (error) =>
-                toast({ title: error.message, variant: 'destructive' }),
-              onCompleted: () =>
-                toast({
-                  title: t('invitation-resent'),
-                  variant: 'success',
-                }),
-            })
-          }
-        >
-          {loading ? <Spinner size="sm" /> : <IconRefresh size={18} />}
-          {t('resend-invite')}
-        </Command.Item>
-      </Can>
-      <Can action="broadcastUpdate">
-        <Command.Item
-          value="activity-log"
-          onSelect={() => {
-            setMenuOpen(false);
-            setActivityLogOpen(true);
-          }}
-        >
-          <IconHistory /> {t('activity-log')}
         </Command.Item>
       </Can>
     </Command.List>

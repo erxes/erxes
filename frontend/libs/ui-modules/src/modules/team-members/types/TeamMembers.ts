@@ -9,6 +9,7 @@ export interface IUser {
   configs?: any;
   isOnboarded: boolean;
   hasPassword?: boolean | null;
+  passwordManagedBy?: string | null;
   details?: {
     firstName?: string;
     lastName?: string;

@@ -5,7 +5,7 @@ import Product from './products';
 import CpProduct from './cpProducts';
 import Report from './report';
 import Bridges from './bridges';
-import Cover from './covers';
+import { coverQueries as Cover } from './covers';
 
 export default {
   ...Order,

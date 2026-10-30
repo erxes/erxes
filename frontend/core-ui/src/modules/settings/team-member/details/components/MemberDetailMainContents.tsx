@@ -6,6 +6,7 @@ import { useUserDetail } from '../../hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '../../hooks/useUserEdit';
 import { MembersPermissions } from './MembersPermissions';
 import { memberCustomActivities } from './MemberActivityRows';
+import { MemberSessions } from '@/settings/team-member/sessions/components/MemberSessions';
 
 export const MemberDetailMainContents = () => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
@@ -35,6 +36,9 @@ export const MemberDetailMainContents = () => {
             id={userDetail?._id || ''}
             className="p-6"
           />
+        </Tabs.Content>
+        <Tabs.Content value="sessions">
+          <MemberSessions />
         </Tabs.Content>
         <Tabs.Content value="activity">
           <ActivityLogs

@@ -1,3 +1,5 @@
+import { CoverPaidType, type CoverPaymentDetail } from './CoverPaidType';
+import { CoverDescription } from './CoverDescription';
 import {
   IconChessKnight,
   IconShoppingCart,
@@ -6,22 +8,34 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import dayjs from 'dayjs';
 import {
+  Button,
   Form,
   isDefined,
   RecordTable,
   RecordTableInlineCell,
   Sheet,
+  Spinner,
+  Textarea,
   TextOverflowTooltip,
+  useToast,
 } from 'erxes-ui';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { TFunction } from 'i18next';
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { usePosCoversQuery } from '../detail/hook/usePosCoversQuery';
+import { usePosCoversEdit } from '../detail/hook/usePosCoversEdit';
+import { POS_COVER_DETAIL_QUERY } from '../detail/graphql/queries/posCoverDetailQuery';
+import { posCovers as POS_COVERS_QUERY } from '../graphql/queries/queries';
+import { z } from 'zod';
+
+const coverNoteSchema = z.object({ note: z.string() });
 
 interface ICoverItemRow {
   paidType: string;
+  payment: CoverPaymentDetail;
   kind: string;
   kindOfVal: string;
   value: string;
@@ -35,9 +49,9 @@ const itemColumns: (t: TFunction) => ColumnDef<ICoverItemRow>[] = (t) => [
     header: () => (
       <RecordTable.InlineHead icon={IconShoppingCart} label={t('type')} />
     ),
-    cell: ({ cell }) => (
+    cell: ({ row }) => (
       <RecordTableInlineCell>
-        <TextOverflowTooltip value={(cell.getValue() as string) || ''} />
+        <CoverPaidType detail={row.original.payment} />
       </RecordTableInlineCell>
     ),
     size: 160,
@@ -96,37 +110,51 @@ const itemColumns: (t: TFunction) => ColumnDef<ICoverItemRow>[] = (t) => [
 ];
 
 export const PosCoversSheet = () => {
-  const [posCoverId, setPosCoverId] = React.useState<string>('');
   const [searchParams, setSearchParams] = useSearchParams();
-
-  React.useEffect(() => {
-    const coverId = searchParams.get('pos_cover_id');
-    if (coverId !== posCoverId) {
-      setPosCoverId(coverId || '');
-    }
-  }, [searchParams, posCoverId]);
-
+  const posCoverId = searchParams.get('pos_cover_id') || '';
   const updatePosCoverId = React.useCallback(
     (coverId: string) => {
-      setPosCoverId(coverId);
-      if (coverId) {
-        searchParams.set('pos_cover_id', coverId);
-      } else {
-        searchParams.delete('pos_cover_id');
-      }
-      setSearchParams(searchParams);
+      setSearchParams((previous) => {
+        const next = new URLSearchParams(previous);
+        if (coverId) next.set('pos_cover_id', coverId);
+        else next.delete('pos_cover_id');
+        return next;
+      });
     },
-    [searchParams, setSearchParams],
+    [setSearchParams],
   );
 
-  const { posCovers } = usePosCoversQuery(posCoverId || undefined);
+  const { posCovers, loading, error, refetch } = usePosCoversQuery(
+    posCoverId || undefined,
+  );
+  const { posCoversEdit, loading: saving } = usePosCoversEdit();
+  const { toast } = useToast();
   const { t } = useTranslation('sales');
   const coverItemColumns = React.useMemo(() => itemColumns(t), [t]);
 
-  const form = useForm<{ note?: string }>({
+  const form = useForm<z.infer<typeof coverNoteSchema>>({
+    resolver: zodResolver(coverNoteSchema),
     defaultValues: {
       note: '',
     },
+  });
+
+  const { reset } = form;
+  React.useEffect(() => {
+    reset({ note: posCovers?.note || '' });
+  }, [posCoverId, posCovers?._id, posCovers?.note, reset]);
+
+  const onSubmit = form.handleSubmit(async ({ note }) => {
+    if (!posCovers || loading || error || saving) return;
+
+    await posCoversEdit({
+      variables: { id: posCoverId, note },
+      refetchQueries: [POS_COVER_DETAIL_QUERY, POS_COVERS_QUERY],
+      awaitRefetchQueries: true,
+      onCompleted: () => {
+        toast({ description: t('note-saved') });
+      },
+    }).catch(() => undefined);
   });
 
   return (
@@ -138,19 +166,30 @@ export const PosCoversSheet = () => {
     >
       <Sheet.View className="p-0 sm:max-w-4xl">
         <Form {...form}>
-          <form
-            className="flex flex-col gap-0 size-full"
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
-          >
-            <Sheet.Header>
+          <form className="flex flex-col gap-0 size-full" onSubmit={onSubmit}>
+            <Sheet.Header className="shrink-0">
               <IconChessKnight />
               <Sheet.Title>{t('cover-detail')}</Sheet.Title>
               <Sheet.Close />
             </Sheet.Header>
-            <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
-              {posCovers && (
+            <Sheet.Content className="min-h-0 flex-1 overflow-auto flex flex-col px-5 py-4">
+              {loading && <Spinner />}
+              {error && (
+                <div role="alert" className="flex flex-col items-start gap-2">
+                  <p className="text-destructive">{error.message}</p>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => void refetch().catch(() => undefined)}
+                  >
+                    {t('retry')}
+                  </Button>
+                </div>
+              )}
+              {!loading && !error && !posCovers && (
+                <p className="text-muted-foreground">{t('cover-not-found')}</p>
+              )}
+              {posCovers && !error && (
                 <div className="flex flex-col gap-4 w-full my-4">
                   <div className="flex justify-between w-full gap-1">
                     <span className="text-base font-medium text-muted-foreground">
@@ -195,14 +234,31 @@ export const PosCoversSheet = () => {
                         .toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between w-full gap-1">
-                    <span className="text-base font-medium text-muted-foreground">
-                      {t('description')}
-                    </span>
-                    <span className="text-base font-medium">
-                      {posCovers.description}
-                    </span>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <p className="text-muted-foreground">{t('created-at')}</p>
+                      <p>
+                        {posCovers.createdAt
+                          ? dayjs(posCovers.createdAt).format(
+                              'YYYY-MM-DD HH:mm:ss',
+                            )
+                          : '-'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">
+                        {t('modified-at')}
+                      </p>
+                      <p>
+                        {posCovers.modifiedAt
+                          ? dayjs(posCovers.modifiedAt).format(
+                              'YYYY-MM-DD HH:mm:ss',
+                            )
+                          : '-'}
+                      </p>
+                    </div>
                   </div>
+                  <CoverDescription description={posCovers.description} />
 
                   <div className="rounded-md overflow-hidden relative">
                     <RecordTable.Provider
@@ -212,6 +268,7 @@ export const PosCoversSheet = () => {
                         .flatMap((d) =>
                           (d.paidSummary || []).filter(isDefined).map((s) => ({
                             paidType: d.paidType,
+                            payment: d,
                             kind: s.kind,
                             kindOfVal: s.kindOfVal,
                             value: s.value,
@@ -241,9 +298,41 @@ export const PosCoversSheet = () => {
                       </div>
                     )}
                   </div>
+                  <Form.Field
+                    control={form.control}
+                    name="note"
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label>{t('sales-cover-note')}</Form.Label>
+                        <Form.Control>
+                          <Textarea
+                            {...field}
+                            rows={4}
+                            disabled={saving || loading}
+                          />
+                        </Form.Control>
+                        <Form.Message />
+                      </Form.Item>
+                    )}
+                  />
                 </div>
               )}
             </Sheet.Content>
+            <Sheet.Footer className="shrink-0">
+              <Button
+                type="submit"
+                disabled={
+                  saving ||
+                  loading ||
+                  !!error ||
+                  !posCovers ||
+                  !form.formState.isDirty
+                }
+              >
+                {saving && <Spinner size="sm" />}
+                {t('save-note')}
+              </Button>
+            </Sheet.Footer>
           </form>
         </Form>
       </Sheet.View>

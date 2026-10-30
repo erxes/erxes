@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client"
+import { coverFields } from "./fields"
 
 const covers = gql`
   query Covers($startDate: Date, $endDate: Date, $userId: String) {
@@ -9,6 +10,16 @@ const covers = gql`
       beginDate
       endDate
       description
+      details {
+        _id
+        paidType
+        terminalResults {
+          _id
+          bank
+          response
+          createdAt
+        }
+      }
       userId
       createdAt
       createdBy
@@ -33,37 +44,16 @@ const coverAmounts = gql`
   }
 `
 
-const details = `
-   details {
-     _id
-     paidDetail
-     paidSummary {
-        _id
-        amount
-        kind
-        kindOfVal
-        value
-      }
-      paidType
-  }
-  `
-const commonFields = `
-  beginDate
-  endDate
-  description
-`
 const coverDetail = gql`
   query CoverDetail($id: String!) {
     coverDetail(_id: $id) {
-      _id
-      ${commonFields}
-      ${details}
+      ${coverFields}
     }
   }
 `
 
 const recieptDetail = gql`
-  query CoverDetail($id: String!) {
+  query PosclientCoverReceiptDetail($id: String!) {
     coverDetail(_id: $id) {
       createdAt
       modifiedAt
@@ -74,12 +64,9 @@ const recieptDetail = gql`
       modifiedUser {
         email
       }
-      ${commonFields}
-      ${details}
+      ${coverFields}
     }
   }
 `
 
-const queries = { covers, coverAmounts, coverDetail, recieptDetail }
-
-export default queries
+export const queries = { covers, coverAmounts, coverDetail, recieptDetail }
