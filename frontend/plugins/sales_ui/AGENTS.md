@@ -46,10 +46,31 @@
   reads `cache-and-network`; the detail view reads `cache-first`, so tab
   switches send no request. Lists ignore the `panel` query key, so opening or
   closing the panel does not refetch them. A cover shows its dates, user,
-  POS, status, description, total, and each paid type's breakdown (cash by
-  note); its delete action closes the panel. Activity shows only the
+  POS, status, created/modified times, total, the POS closing note, each paid
+  type's breakdown (cash by note) and the Sales note form; its delete action
+  closes the panel. Activity shows only the
   record's logs (`showInternalNotes={false}`, no note box), as POS had no
   notes before the panel.
+- The cover panel (`widgets/record-panel/PosCoverPanel.tsx`) displays the POS client's root `description` in a dedicated
+  read-only "Хаалтын тэмдэглэл" textarea (`components/CoverDescription.tsx`) and edits
+  Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
+  allows clearing it, gives save/error feedback, and refreshes active cover
+  detail/list queries after saving.
+- Cover terminal history is displayed only in each paid type card's `paidType` tip
+  (`components/CoverPaidType.tsx`), with request times and formatted JSON or original
+  text from `terminalResults` (`components/CoverTerminalResults.tsx`).
+  The tip uses the public `Popover` so it stays open while a response textarea
+  is focused for selection/copy. Hover, keyboard focus, or click opens it;
+  Escape or clicking outside closes it. Response fields are read-only, styled
+  muted, and allow Ctrl/Cmd+A/C without table shortcuts intercepting them.
+  Cells without results retain their ordinary text display. There is no separate
+  terminal-history section in the cover panel.
+  Created/modified times and payment totals remain visible above the details.
+  The general cover description and Sales note remain separate.
+  Cover labels, feedback, empty/pending states, and accessible response labels
+  use the `sales` namespace in the gateway's `locales/{en,mn}/sales.json`;
+  request numbers and paidType labels use translation interpolation. Original
+  bank responses and user-authored notes are never translated.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -541,6 +562,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
+- `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
+
+- Cover note smoke: open a cover, edit and save its note, reopen and verify the
+  saved text; clear and save, switch covers, and verify each one's own note.
+  A failed save must show the error and retain the draft for retry.
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order and item

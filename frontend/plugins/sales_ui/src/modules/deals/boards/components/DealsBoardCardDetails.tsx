@@ -24,7 +24,7 @@ export interface DealCardRelationItem {
 
 type DealCardProductsProps = {
   items: DealCardProductItem[];
-  label: string;
+  label: React.ReactNode;
   totalLabel: string;
   muted?: boolean;
   maxVisible?: number;

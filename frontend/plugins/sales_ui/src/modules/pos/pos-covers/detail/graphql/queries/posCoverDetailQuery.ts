@@ -13,6 +13,7 @@ export const POS_COVER_DETAIL_QUERY = gql(`
       details {
         _id
         paidType
+        terminalResults { _id bank response createdAt }
         paidSummary {
           _id
           kind

@@ -1,13 +1,19 @@
 import { DealCardProducts } from '@/deals/boards/components/DealsBoardCardDetails';
-import { options as paymentTypeOptions } from '@/pos/constants';
+import { CoverDescription } from '@/pos/pos-covers/components/CoverDescription';
+import { CoverPaidType } from '@/pos/pos-covers/components/CoverPaidType';
+import { POS_COVER_DETAIL_QUERY } from '@/pos/pos-covers/detail/graphql/queries/posCoverDetailQuery';
+import { usePosCoversEdit } from '@/pos/pos-covers/detail/hook/usePosCoversEdit';
 import { usePosCoversQuery } from '@/pos/pos-covers/detail/hook/usePosCoversQuery';
+import { posCovers as POS_COVERS_QUERY } from '@/pos/pos-covers/graphql/queries/queries';
 import { useRemovePosCover } from '@/pos/pos-covers/hooks/usePosCoverRemove';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  IconAlignLeft,
   IconBuildingStore,
   IconCalendar,
   IconCalendarDue,
   IconCircleDot,
+  IconClock,
+  IconClockEdit,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
@@ -15,12 +21,17 @@ import dayjs from 'dayjs';
 import {
   Button,
   Empty,
+  Form,
   isDefined,
   Skeleton,
+  Textarea,
   useConfirm,
   useToast,
 } from 'erxes-ui';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { z } from 'zod';
 import { PanelField, useSidePanel } from 'ui-modules';
 import {
   PosPanelAside,
@@ -34,10 +45,64 @@ const formatDate = (value?: string | number | Date | null) =>
 
 const CASH_PAID_TYPE = 'cashAmount';
 
-const getPaidTypeLabel = (paidType?: string | null) =>
-  paymentTypeOptions.find((option) => option.value === paidType)?.label ||
-  paidType ||
-  '-';
+const coverNoteSchema = z.object({ note: z.string() });
+
+const PosCoverNoteForm = ({
+  coverId,
+  note,
+}: {
+  coverId: string;
+  note?: string | null;
+}) => {
+  const { t } = useTranslation('sales');
+  const { toast } = useToast();
+  const { posCoversEdit, loading } = usePosCoversEdit();
+  const form = useForm<z.infer<typeof coverNoteSchema>>({
+    resolver: zodResolver(coverNoteSchema),
+    defaultValues: { note: note || '' },
+  });
+  const { reset } = form;
+
+  useEffect(() => {
+    reset({ note: note || '' });
+  }, [coverId, note, reset]);
+
+  const onSubmit = form.handleSubmit(({ note: nextNote }) =>
+    posCoversEdit({
+      variables: { id: coverId, note: nextNote },
+      refetchQueries: [POS_COVER_DETAIL_QUERY, POS_COVERS_QUERY],
+      awaitRefetchQueries: true,
+      onCompleted: () => toast({ description: t('note-saved') }),
+    }).catch(() => undefined),
+  );
+
+  return (
+    <Form {...form}>
+      <form onSubmit={onSubmit} className="flex flex-col gap-2">
+        <Form.Field
+          control={form.control}
+          name="note"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('sales-cover-note')}</Form.Label>
+              <Form.Control>
+                <Textarea {...field} rows={4} disabled={loading} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Button
+          type="submit"
+          className="self-end"
+          disabled={loading || !form.formState.isDirty}
+        >
+          {t('save')}
+        </Button>
+      </form>
+    </Form>
+  );
+};
 
 export const PosCoverPanelTitle = ({ coverId }: { coverId: string }) => {
   const { t } = useTranslation('sales');
@@ -63,7 +128,7 @@ export const PosCoverPanelActions = ({ coverId }: { coverId: string }) => {
         onCompleted: () => {
           toast({
             title: t('success'),
-            description: t('pos-cover-deleted', { count: 1 }),
+            description: t('deleted'),
           });
           close();
         },
@@ -135,15 +200,19 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                 {cover.status ? t(cover.status) : '-'}
               </PosPanelText>
             </PanelField>
+            <PanelField icon={IconClock} label={t('created-at')} cell={false}>
+              <PosPanelText>{formatDate(cover.createdAt)}</PosPanelText>
+            </PanelField>
             <PanelField
-              icon={IconAlignLeft}
-              label={t('description')}
+              icon={IconClockEdit}
+              label={t('modified-at')}
               cell={false}
             >
-              <PosPanelText>{cover.description || '-'}</PosPanelText>
+              <PosPanelText>{formatDate(cover.modifiedAt)}</PosPanelText>
             </PanelField>
           </PosPanelFields>
           <PosPanelAside>
+            <CoverDescription description={cover.description} />
             <div className="flex items-center justify-between gap-2 px-1 text-sm font-medium">
               <span>{t('total-amount')}</span>
               <span className="tabular-nums">{total.toLocaleString()}</span>
@@ -156,7 +225,7 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                   return (
                     <DealCardProducts
                       key={detail._id}
-                      label={getPaidTypeLabel(detail.paidType)}
+                      label={<CoverPaidType detail={detail} />}
                       totalLabel={t('total')}
                       items={(detail.paidSummary || [])
                         .filter(isDefined)
@@ -164,7 +233,7 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                           _id: summary._id || `${index}`,
                           name: isCash
                             ? (summary.kindOfVal || 0).toLocaleString()
-                            : getPaidTypeLabel(detail.paidType),
+                            : detail.paidType || '-',
                           quantity: isCash ? summary.value || 0 : 1,
                           unitPrice: isCash
                             ? summary.kindOfVal || 0
@@ -185,6 +254,9 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                   </Empty.Description>
                 </Empty.Header>
               </Empty>
+            )}
+            {cover._id && (
+              <PosCoverNoteForm coverId={cover._id} note={cover.note} />
             )}
           </PosPanelAside>
         </>
