@@ -25,7 +25,6 @@ export const FacebookIntegrationFormSheet = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const reset = useSetAtom(resetFacebookAddStateAtom);
   return (
     <IntegrationCreateButton
       kind={
@@ -33,7 +32,6 @@ export const FacebookIntegrationFormSheet = ({
           ? IntegrationType.FACEBOOK_POST
           : IntegrationType.FACEBOOK_MESSENGER
       }
-      onClick={reset}
     >
       {isPost
         ? t('add-facebook-post-integration')

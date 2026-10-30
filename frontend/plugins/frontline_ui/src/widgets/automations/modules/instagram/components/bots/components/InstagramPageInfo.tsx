@@ -6,24 +6,21 @@ import { useInstagramBotPages } from '~/widgets/automations/modules/instagram/co
 
 export const InstagramPageInfo = memo(
   ({ accountId, pageId }: { accountId: string; pageId: string }) => {
-    const { t } = useTranslation('frontline', {
-      keyPrefix: 'modules.instagram',
-    });
-    const { page } = useInstagramBotPages(accountId, pageId);
+    const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
     if (!accountId || !pageId) {
       return (
         <Label className="text-lg flex gap-2 items-center">
-          <IconInfoTriangle className="size-3 text-destructive" />{' '}
-          {t('select-a-page')}
+          <IconInfoTriangle className="size-3 text-destructive" /> {t('select-a-page')}
         </Label>
       );
     }
 
+    const { page } = useInstagramBotPages(accountId, pageId);
+
     if (!page) {
       return (
         <Label className="text-lg flex gap-2 items-center">
-          <IconInfoTriangle className="size-3 text-destructive" />{' '}
-          {t('not-found')}
+          <IconInfoTriangle className="size-3 text-destructive" /> {t('not-found')}
         </Label>
       );
     }
@@ -35,7 +32,7 @@ export const InstagramPageInfo = memo(
       </Label>
     );
   },
-  (prevProps, nextProps) =>
+  (prevProps: any, nextProps: any) =>
     prevProps?.accountId === nextProps?.accountId &&
     prevProps?.pageId === nextProps?.pageId,
 );

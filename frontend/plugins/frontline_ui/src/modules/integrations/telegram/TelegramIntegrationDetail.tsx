@@ -18,7 +18,7 @@ import {
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { SelectBrand } from 'ui-modules';
@@ -33,7 +33,6 @@ import {
   TELEGRAM_UPDATE_BOT,
   TELEGRAM_WEBHOOK_INFO,
   type TelegramBot,
-  type TelegramWebhookInfo,
 } from './graphql';
 import { useTelegramTranslation } from './translations';
 import {
@@ -41,166 +40,6 @@ import {
   getTelegramServerAddress,
   getTelegramWebhookUrl,
 } from './webhookUrl';
-
-const getTelegramConnectionHint = (
-  hasWebhook: boolean,
-  hasError: boolean,
-  hasDefault: boolean,
-): 'callbackSaved' | 'statusFailed' | 'callbackDetected' | 'callbackLocal' => {
-  if (hasWebhook) return 'callbackSaved';
-  if (hasError) return 'statusFailed';
-  return hasDefault ? 'callbackDetected' : 'callbackLocal';
-};
-
-const TelegramSetupAvailability = ({
-  loading,
-  hasData,
-  hasError,
-  missingBot,
-  onRetry,
-  children,
-}: {
-  loading: boolean;
-  hasData: boolean;
-  hasError: boolean;
-  missingBot: boolean;
-  onRetry: () => void;
-  children: ReactNode;
-}) => {
-  const { t } = useTelegramTranslation();
-  if (loading && !hasData)
-    return (
-      <div className="flex gap-2">
-        <Spinner />
-        {t('loading')}
-      </div>
-    );
-  if (hasError)
-    return (
-      <div role="alert">
-        {t('loadError')}
-        <Button type="button" variant="ghost" onClick={onRetry}>
-          {t('retry')}
-        </Button>
-      </div>
-    );
-  if (missingBot) return <p role="alert">{t('missing')}</p>;
-  return <>{children}</>;
-};
-
-const TelegramWebhookDiagnostics = ({
-  status,
-  loading,
-  hasError,
-}: {
-  status: TelegramWebhookInfo | undefined;
-  loading: boolean;
-  hasError: boolean;
-}) => {
-  const { t } = useTelegramTranslation();
-  if (loading) return <Spinner />;
-  if (hasError) return <p role="alert">{t('statusFailed')}</p>;
-  if (!status) return null;
-  const missingUpdates = [
-    'message',
-    'channel_post',
-    'edited_message',
-    'edited_channel_post',
-    'poll',
-    'message_reaction',
-    'message_reaction_count',
-  ].some((type) => !status.allowedUpdates?.includes(type));
-  return (
-    <>
-      <p>{status.url ? t('registered') : t('unregistered')}</p>
-      <p className="break-all text-muted-foreground">{status.url}</p>
-      <p>
-        {t('pending')}: {status.pendingUpdateCount}
-      </p>
-      {status.url && missingUpdates && (
-        <p className="text-warning">{t('channelUpdates')}</p>
-      )}
-      {status.lastErrorMessage && (
-        <div className="text-muted-foreground">
-          <p>
-            {t('lastError')}: {status.lastErrorMessage}
-          </p>
-          <p>
-            {status.lastErrorDate &&
-              new Date(status.lastErrorDate).toLocaleString()}
-          </p>
-          <p>{t('oldError')}</p>
-        </div>
-      )}
-    </>
-  );
-};
-
-const TelegramWebhookStatus = ({
-  bot,
-  status,
-  loading,
-  hasError,
-  busy,
-  onRefresh,
-  onDisconnect,
-}: {
-  bot: TelegramBot | undefined;
-  status: TelegramWebhookInfo | undefined;
-  loading: boolean;
-  hasError: boolean;
-  busy: boolean;
-  onRefresh: () => Promise<void>;
-  onDisconnect: () => Promise<void>;
-}) => {
-  const { t } = useTelegramTranslation();
-  if (!bot?.erxesApiId) return null;
-  return (
-    <div className="rounded-md border p-3 space-y-2 text-sm">
-      <p className="font-medium">{t('status')}</p>
-      <TelegramWebhookDiagnostics
-        status={status}
-        loading={loading}
-        hasError={hasError}
-      />
-      <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="secondary"
-          disabled={busy}
-          onClick={onRefresh}
-        >
-          {t('refresh')}
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          disabled={busy}
-          onClick={onDisconnect}
-        >
-          {t('disconnect')}
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const TelegramGroupGuidance = ({ bot }: { bot: TelegramBot | undefined }) => {
-  const { t } = useTelegramTranslation();
-  let permission: 'noGroups' | 'privacyOff' | 'privacyOn' = 'privacyOn';
-  if (bot?.canJoinGroups === false) permission = 'noGroups';
-  else if (bot?.canReadAllGroupMessages) permission = 'privacyOff';
-  return (
-    <div className="text-sm text-muted-foreground space-y-2">
-      <h3 className="font-semibold text-foreground">{t('groups')}</h3>
-      {bot && <p>{t(permission)}</p>}
-      <p>{t('groupHint')}</p>
-      <p>{t('channelHint')}</p>
-      <p>{t('files')}</p>
-      <p>{t('internal')}</p>
-    </div>
-  );
-};
 
 /** Validates the public callback address before any bot setup mutation. */
 const getSetupSchema = (callbackError: string) =>
@@ -442,15 +281,27 @@ export const TelegramSetup = ({
         className="flex flex-col flex-auto overflow-hidden"
       >
         <Sheet.Content className="overflow-auto p-4 space-y-5 styled-scroll">
-          <TelegramSetupAvailability
-            loading={botsQuery.loading}
-            hasData={!!botsQuery.data}
-            hasError={!!botsQuery.error}
-            missingBot={!!integrationId && !bot}
-            onRetry={() => {
-              void botsQuery.refetch().catch(reportError);
-            }}
-          >
+          {botsQuery.loading && !botsQuery.data ? (
+            <div className="flex gap-2">
+              <Spinner />
+              {t('loading')}
+            </div>
+          ) : botsQuery.error ? (
+            <div role="alert">
+              {t('loadError')}
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => {
+                  botsQuery.refetch().catch(reportError);
+                }}
+              >
+                {t('retry')}
+              </Button>
+            </div>
+          ) : integrationId && !bot ? (
+            <p role="alert">{t('missing')}</p>
+          ) : (
             <>
               {!integrationId && !savedBot && (
                 <Form.Field
@@ -560,13 +411,13 @@ export const TelegramSetup = ({
                   </Button>
                 </Collapsible.Trigger>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {t(
-                    getTelegramConnectionHint(
-                      !!status?.url,
-                      !!statusQuery.error,
-                      !!defaultAddress,
-                    ),
-                  )}
+                  {status?.url
+                    ? t('callbackSaved')
+                    : statusQuery.error
+                      ? t('statusFailed')
+                      : defaultAddress
+                        ? t('callbackDetected')
+                        : t('callbackLocal')}
                 </p>
                 <Collapsible.Content>
                   <Form.Field
@@ -608,18 +459,94 @@ export const TelegramSetup = ({
                   />
                 </Collapsible.Content>
               </Collapsible>
-              <TelegramWebhookStatus
-                bot={bot}
-                status={status}
-                loading={statusQuery.loading}
-                hasError={!!statusQuery.error}
-                busy={busy}
-                onRefresh={refreshStatus}
-                onDisconnect={disconnectBot}
-              />
+              {bot?.erxesApiId && (
+                <div className="rounded-md border p-3 space-y-2 text-sm">
+                  <p className="font-medium">{t('status')}</p>
+                  {statusQuery.loading ? (
+                    <Spinner />
+                  ) : statusQuery.error ? (
+                    <p role="alert">{t('statusFailed')}</p>
+                  ) : (
+                    status && (
+                      <>
+                        <p>
+                          {status.url ? t('registered') : t('unregistered')}
+                        </p>
+                        <p className="break-all text-muted-foreground">
+                          {status.url}
+                        </p>
+                        <p>
+                          {t('pending')}: {status.pendingUpdateCount}
+                        </p>
+                        {status.url &&
+                          [
+                            'message',
+                            'channel_post',
+                            'edited_message',
+                            'edited_channel_post',
+                            'poll',
+                            'message_reaction',
+                            'message_reaction_count',
+                          ].some(
+                            (type) => !status.allowedUpdates?.includes(type),
+                          ) && (
+                            <p className="text-warning">
+                              {t('channelUpdates')}
+                            </p>
+                          )}
+                        {status.lastErrorMessage && (
+                          <div className="text-muted-foreground">
+                            <p>
+                              {t('lastError')}: {status.lastErrorMessage}
+                            </p>
+                            <p>
+                              {status.lastErrorDate &&
+                                new Date(status.lastErrorDate).toLocaleString()}
+                            </p>
+                            <p>{t('oldError')}</p>
+                          </div>
+                        )}
+                      </>
+                    )
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      disabled={busy}
+                      onClick={refreshStatus}
+                    >
+                      {t('refresh')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={disconnectBot}
+                    >
+                      {t('disconnect')}
+                    </Button>
+                  </div>
+                </div>
+              )}
             </>
-          </TelegramSetupAvailability>
-          <TelegramGroupGuidance bot={bot} />
+          )}
+          <div className="text-sm text-muted-foreground space-y-2">
+            <h3 className="font-semibold text-foreground">{t('groups')}</h3>
+            {bot && (
+              <p>
+                {bot.canJoinGroups === false
+                  ? t('noGroups')
+                  : bot.canReadAllGroupMessages
+                    ? t('privacyOff')
+                    : t('privacyOn')}
+              </p>
+            )}
+            <p>{t('groupHint')}</p>
+            <p>{t('channelHint')}</p>
+            <p>{t('files')}</p>
+            <p>{t('internal')}</p>
+          </div>
         </Sheet.Content>
         <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
           <Sheet.Close asChild>

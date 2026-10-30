@@ -1,4 +1,4 @@
-import { useFrontlineTranslation } from '@/shared/i18n/useFrontlineTranslation';
+import { useTranslation } from 'react-i18next';
 import { EMAppearance } from '@/integrations/erxes-messenger/components/EMAppearance';
 import { EMGreeting } from '@/integrations/erxes-messenger/components/EMGreeting';
 import { EMIntro } from '@/integrations/erxes-messenger/components/EMIntro';
@@ -11,7 +11,9 @@ import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
 export const EMSetup = ({ loading }: { loading?: boolean }) => {
-  const { t } = useFrontlineTranslation('modules.integrations');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const step = useAtomValue(erxesMessengerSetupStepAtom);
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">

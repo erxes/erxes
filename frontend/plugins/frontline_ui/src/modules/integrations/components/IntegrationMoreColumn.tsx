@@ -1,5 +1,3 @@
-import { useSidePanel } from 'ui-modules';
-import { INTEGRATION_CONTENT_TYPE } from './IntegrationPanelForm';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconArrowBarToRight } from '@tabler/icons-react';
 import { Popover, Command, Combobox, RecordTable } from 'erxes-ui';
@@ -165,7 +163,6 @@ export const IntegrationActionsMenu = ({
     keyPrefix: 'modules.integrations',
   });
   const { _id, name, isActive, channelId, kind } = integration;
-  const { openRecord } = useSidePanel();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
@@ -183,10 +180,6 @@ export const IntegrationActionsMenu = ({
                   value="edit"
                   onSelect={() => {
                     setMenuOpen(false);
-                    openRecord({
-                      contentType: INTEGRATION_CONTENT_TYPE,
-                      contentId: _id,
-                    });
                   }}
                 >
                   <IntegrationEditAction integration={integration} />

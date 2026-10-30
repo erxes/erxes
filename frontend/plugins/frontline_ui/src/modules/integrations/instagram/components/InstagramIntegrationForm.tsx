@@ -25,7 +25,6 @@ export const InstagramIntegrationFormSheet = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const reset = useSetAtom(resetInstagramAddStateAtom);
   return (
     <IntegrationCreateButton
       kind={
@@ -33,7 +32,6 @@ export const InstagramIntegrationFormSheet = ({
           ? IntegrationType.INSTAGRAM_POST
           : IntegrationType.INSTAGRAM_MESSENGER
       }
-      onClick={reset}
     >
       {isPost
         ? t('add-instagram-post-integration')
