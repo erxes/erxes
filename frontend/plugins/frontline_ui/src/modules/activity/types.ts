@@ -62,7 +62,7 @@ export interface NoteInputToolbarProps {
   isSending: boolean;
 }
 
-export type NoteInputProps = { contentId: string; preserveDraft?: boolean };
+export type NoteInputProps = { contentId: string };
 export type NoteTemplateSuggestionsOptions = {
   editor: ReturnType<typeof import('erxes-ui').useBlockEditor>;
   enabled: boolean;

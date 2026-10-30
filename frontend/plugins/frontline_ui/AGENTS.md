@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -83,27 +83,10 @@
 - Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
   import Radix directly.
 - The `frontline` i18n namespace JSON, which lives in
-  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned). Frontline-owned panel additions live in `src/modules/shared/i18n/locales/{en,mn}.json` and are registered into the existing namespace by `useFrontlineTranslation`; existing catalog entries are retained.
+  `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
 - Other plugins' modules or state.
 
 ## Current Capabilities
-
-- Saved-record panel sessions retain ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes.
-- Settings → Properties is supplied by core's public plugin-settings slot.
-  Frontline does not own its field/group editors or their modal containers.
-
-- Ticket creation uses `useSidePanel().openNewRecord` and the record panel's `new` view. Opening or cancelling a draft writes nothing. `useCreateTicketRecord`
-  carries ticket page, board status, conversation channel and contact defaults.
-  Contact drafts stack over their host; Cancel returns there. A created ticket
-  replaces its draft with the saved detail. `AddTicketSheet` is the existing
-  trigger component name and no longer renders a modal sheet.
-- `AddTicketForm` uses the shared `PanelFormLayout` / `PanelFormRow`, compact
-  selectors and pipeline layout validation. System fields preserve layout order
-  in a single column; custom properties keep their display logic and required
-  rules. Creation selectors accept an optional `table` variant while their
-  default `form` variant remains available to other forms. Description serialization
-  retains the existing ticket form behavior.
-
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -126,9 +109,9 @@
   only when `useCanManageChannels` allows the channel: owner, or the
   channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
   `removePipeline` enforce.
-- The new-ticket side panel renders name, channel/pipeline/status and description
+- The new-ticket sheet renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
-  (`useTicketCreateLayout`): compact labelled system rows via `TicketCreateSystemField`,
+  (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
   properties via `PropertyFormField`. Property logic hides cells; required
   system fields, properties and description block Save with a toast and a red
   ring. Only shown properties are sent as `propertiesData`.
@@ -363,33 +346,24 @@
   rows are disjoint — the API keeps survey conversations out of an
   `integrationType`-scoped list.
 
-- Tickets open in the app side panel (`?panel=/detail/frontline:ticket/<id>`).
-  `widgets/record-panel/RecordPanel.tsx` supplies title, actions, Detail,
-  Properties and Activity through the public `IRecordPanelProps` contract.
-  Detail uses `PanelField` rows with the existing table-variant ticket selects,
-  `TextField` for name, links to the ticket's existing customer and company,
-  `PanelDescriptionField`, and the existing attachment uploader.
-  Status movement and field edits retain pipeline/status permissions; channel
-  and pipeline remain locked. Activity keeps the ticket timeline and reply /
-  internal-note composer. Properties keeps `TicketPipelineProperties`.
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
-  side panel header. While one action is in flight the menu and its items stay
-  disabled. The notification view's `Open ticket` link opens this panel too.
-- `useTicketDetailSheet` reads and opens the ticket through `useSidePanel`;
-  list and board clicks start panel history afresh, while contact sections and
-  relation cards pass `{ stack: true }`. `TicketDetailLink` moves legacy
-  `?ticketId=` links into the panel. No ticket detail sheet or relation rail is
-  mounted by contact sections or relation cards.
+  ticket sheet header; the fields row carries no actions. The notification
+  ticket view has none of its own — its `Open ticket` button opens that sheet.
+  The header's close button sits in a `w-16` strip aligned with the relation
+  side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
+  Those side tabs (ui-modules `RelationWidgetSideTabs`) hold only Customers and
+  Companies icons, each opening the side panel's view of the ticket's contacts
+  inside the sheet; no relation widgets are listed beside a ticket.
+  While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
   `Priority | High ⌄`. A ticket select's root and `FormItem` take `label`,
   and `SelectTriggerTicket` and `SelectDateTicket` draw the chip (erxes-ui
   `Combobox.ChipTrigger`, shared with Sales) only for the `detail` and `form`
   variants with a label — every other variant and unlabelled caller keeps its
-  plain trigger. Notification detail chips and every add-ticket form chip are
-  labelled; the side panel uses table variants with `PanelField` labels.
-  Other `FormItem` callers stay unlabelled.
+  plain trigger. Every ticket detail chip, status included, and every add
+  ticket form chip is labelled; other `FormItem` callers stay unlabelled.
   Branch and department show `None` rather than repeating their label.
 - Ticket start/target dates follow Sales' `DateSelectDeal`: every variant's
   popover holds erxes-ui `DatePicker` in `inline` mode (typed input above the
@@ -768,7 +742,6 @@ owns the setup form and connection actions.
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
 | Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
-| Ticket record panel       | `src/widgets/record-panel/` | App side-panel entry and inline ticket detail fields; properties and activity reuse ticket modules |
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
@@ -817,12 +790,7 @@ owns the setup form and connection actions.
 
 ### Provides
 
-- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening the ticket stacked in the side panel, `+` opening a stacked ticket draft with `useCreateTicketRecord` and contact defaults, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); panel rows open their existing customer/company records without adding assignment mutations. The create-ticket automation action configures one `companyId`.
-- `widgets.recordPanels: [{ contentType: 'frontline:ticket' }]` with
-  `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`, named export
-  `RecordPanel`): title, actions, detail, properties and activity views. The
-  host owns panel tabs, resizing, navigation and lazy remote loading.
-- `./frontline` exports the named `Frontline` entry.
+- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); the ticket sheet's rail is given them. The create-ticket automation action configures one `companyId`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -841,7 +809,7 @@ owns the setup form and connection actions.
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
-  `./relationWidget`, `./contactWidget`, `./recordPanel`, `./floatingWidget`, `./selectErxesMessenger`.
+  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
   path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
   `ticketStatus` property input, and the `formSubmission` activity row.
@@ -2706,17 +2674,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
 
 ## Validation
 
-- Draft smoke: write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
-- Create-panel smoke: open Add Ticket from the list, a board column and a
-  contact's Tickets section; verify channel/pipeline/status and contact defaults,
-  required system/custom fields, description, Cancel/Back and creation feedback.
-  Successful ticket creation must replace the draft and refresh its lists.
-  Cancelling and reopening must start a fresh draft. No detail query may request a record with id `new`.
-- Ticket panel smoke: open a ticket from list, board, a contact section and a
-  legacy `?ticketId=` link. Verify Detail / Properties / Activity, inline saves,
-  date clearing, permission-disabled fields, attachments, notes and header
-  actions. Open its customer/company and use panel Back. Reload a panel URL;
-  deleting the open ticket must close it and update the list immediately.
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
@@ -2850,3 +2807,45 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
+  <<<<<<< HEAD
+
+## Recent Changes
+
+<!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-10-16` — Knowledge scope tree and ticket media
+
+- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
+- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
+- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
+
+### `2026-10-06` — Telegram metadata promise handling
+
+- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
+- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
+- **Contracts changed:** None.
+
+### `2026-10-06` — Telegram setup recovery and attachment guards
+
+- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
+- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
+- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
+
+### `2026-10-06` — Telegram review fixes
+
+- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
+- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
+- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
+
+### `2026-10-06` — Telegram config entry and automatic setup defaults
+
+- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
+- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
+- **Contracts changed:** None; existing routes and per-bot setup are reused.
+
+### `2026-10-06` — Telegram on the native composer and message components
+
+- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
+- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
+- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.
+  > > > > > > > b5737b8f9a6f3d229cf63081569bfebc7196a29c

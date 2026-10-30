@@ -1,9 +1,0 @@
-{
-  "modules": {
-    "ticket": {
-      "ticket-name-required": "Тасалбарын нэрийг оруулна уу",
-      "customer": "Харилцагч",
-      "company": "Байгууллага"
-    }
-  }
-}

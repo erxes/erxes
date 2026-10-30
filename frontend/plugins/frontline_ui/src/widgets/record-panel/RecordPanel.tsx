@@ -11,7 +11,6 @@ import { Empty, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { IRecordPanelProps } from 'ui-modules';
 import { TicketPanelDetail } from './TicketPanelDetail';
-import { useRecordPanelDraftSession } from '@/shared/states/recordPanelDraftState';
 
 const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -81,9 +80,9 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
       <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
         <div className="p-3">
           <ActivityList
+            key={contentId}
             contentId={contentId}
             contentDetail={ticket}
-            preserveDraft
           />
         </div>
       </ScrollArea>
@@ -94,7 +93,6 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
-  useRecordPanelDraftSession(props);
   if (props.contentType === TICKET_PROPERTY_CONTENT_TYPE)
     return props.view === 'new' ? (
       <AddTicketForm />
