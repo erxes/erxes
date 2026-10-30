@@ -1,8 +1,8 @@
 import { useQueryState } from 'erxes-ui';
-import { atom, useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { useCallback, useContext, useMemo } from 'react';
-import { matchPath } from 'react-router-dom';
+import { matchPath, useLocation } from 'react-router-dom';
 import { TRelationEntity } from '../utils';
 import { SIDE_PANEL_WIDTH } from './RecordSidePanel';
 import { SidePanelNavigatorContext } from './recordView';
@@ -18,9 +18,11 @@ export const sidePanelWidthState = atomWithStorage<number>(
   SIDE_PANEL_WIDTH.default,
 );
 
-// Panel routes left by opening a related record from inside the panel,
-// newest last; the panel's back button returns to them.
-export const sidePanelHistoryState = atom<string[]>([]);
+interface ISidePanelNavigationState {
+  path: string | null;
+  tab: string;
+  history: { path: string; tab: string }[];
+}
 
 export interface IOpenRecordOptions {
   // Opened from inside the panel (a related record): Back returns here.
@@ -102,14 +104,40 @@ export const parseSidePanelRecord = (
 export const useSidePanel = () => {
   const navigator = useContext(SidePanelNavigatorContext);
   const [path, setPath] = useQueryState<string>(SIDE_PANEL_QUERY_KEY);
-  const [history, setHistory] = useAtom(sidePanelHistoryState);
+  const location = useLocation();
+  // Router state belongs to this browser entry, including Back/Forward visits.
+  const routerState = location.state as {
+    sidePanel?: ISidePanelNavigationState;
+  } | null;
+  const saved = routerState?.sidePanel;
+  const { tab = '', history = [] } = saved?.path === path ? saved : {};
+
+  const navigatePanel = useCallback(
+    (
+      nextPath: string | null,
+      nextTab = '',
+      nextHistory: ISidePanelNavigationState['history'] = [],
+      replace = false,
+    ) => {
+      setPath(nextPath, {
+        replace,
+        state: {
+          ...routerState,
+          sidePanel: { path: nextPath, tab: nextTab, history: nextHistory },
+        },
+      });
+    },
+    [routerState, setPath],
+  );
+  const setTab = (nextTab: string) =>
+    navigatePanel(path, nextTab, history, true);
 
   const open = !!path;
   const record = useMemo(() => parseSidePanelRecord(path), [path]);
 
   const openPath = useCallback(
-    (nextPath: string) => setPath(nextPath),
-    [setPath],
+    (nextPath: string) => navigatePanel(nextPath),
+    [navigatePanel],
   );
 
   // Opening from a list starts afresh; from inside the panel it stacks.
@@ -121,15 +149,18 @@ export const useSidePanel = () => {
         return;
       }
 
-      if (!options?.replace) {
-        setHistory((previous) =>
-          options?.stack && path ? [...previous, path] : [],
-        );
-      }
-
-      setPath(nextPath);
+      navigatePanel(
+        nextPath,
+        '',
+        options?.replace
+          ? history
+          : options?.stack && path
+          ? [...history, { path, tab }]
+          : [],
+        options?.replace,
+      );
     },
-    [path, setPath, setHistory],
+    [path, tab, history, navigatePanel],
   );
 
   const setDraft = useSetAtom(sidePanelDraftState);
@@ -141,24 +172,24 @@ export const useSidePanel = () => {
       return;
     }
 
-    setHistory(history.slice(0, -1));
-    setPath(previous);
-  }, [history, setHistory, setPath]);
+    navigatePanel(previous.path, previous.tab, history.slice(0, -1));
+  }, [history, navigatePanel]);
 
   const close = useCallback(() => {
-    setHistory([]);
-    setPath(null);
-  }, [setHistory, setPath]);
+    navigatePanel(null);
+  }, [navigatePanel]);
 
   const toggle = useCallback(
-    () => setPath(path ? null : SIDE_PANEL_ROOT_PATH),
-    [path, setPath],
+    () => (path ? close() : navigatePanel(SIDE_PANEL_ROOT_PATH)),
+    [path, close, navigatePanel],
   );
 
   const panel = {
     open,
     path,
     record,
+    tab,
+    setTab,
     openPath,
     openRecord,
     // Opens a draft of `contentType` starting with `defaults`.
@@ -186,6 +217,8 @@ export const useSidePanel = () => {
   return {
     ...panel,
     record: navigator.record,
+    tab: navigator.tab,
+    setTab: navigator.setTab,
     openRecord: navigator.openRecord,
     canGoBack: navigator.canGoBack,
     back: navigator.back,

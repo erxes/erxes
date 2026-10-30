@@ -40,14 +40,15 @@ const actionLabels = {
   update: "Өөрчилсөн",
   cancel: "Цуцалж устгасан",
   return: "Буцаалт бүртгэсэн",
+  delete: "Устгасан",
 }
 
 const valueText = (value: unknown): string =>
   value == null
     ? "-"
     : typeof value === "object"
-      ? JSON.stringify(value)
-      : String(value)
+    ? JSON.stringify(value)
+    : String(value)
 
 const snapshotFields = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" && !Array.isArray(value)
@@ -62,7 +63,7 @@ export const AuditChanges = ({ log }: { log: OrderAuditLog }) => {
   const orderChanges = log.changes
     .filter((change) => !["items", "itemActions"].includes(change.field))
     .flatMap((change) => {
-      if (change.field !== "order") return [change]
+      if (!["order", "cover"].includes(change.field)) return [change]
       const before = snapshotFields(change.oldValue)
       const after = snapshotFields(change.newValue)
       return Array.from(
@@ -89,10 +90,14 @@ export const AuditChanges = ({ log }: { log: OrderAuditLog }) => {
                 size={14}
                 className="shrink-0 group-open/order:rotate-90"
               />
-              Захиалгын өөрчлөлт
+              {log.source === "cover"
+                ? "Хаалтын мэдээлэл"
+                : "Захиалгын өөрчлөлт"}
             </span>
             <span className="break-all text-xs">
-              number: {log.orderNumber || "-"}
+              {log.source === "cover"
+                ? `Хаалт: ${log.coverId || "-"}`
+                : `number: ${log.orderNumber || "-"}`}
             </span>
             {total && (
               <span className="inline-flex flex-wrap items-center gap-2 text-xs">
@@ -122,8 +127,10 @@ export const AuditChanges = ({ log }: { log: OrderAuditLog }) => {
                 <span className="min-w-0 break-all font-medium">
                   {change.field}
                 </span>
-                <span className="min-w-0 break-all">
-                  {valueText(change.oldValue)}
+                <span className="min-w-0 break-all whitespace-pre-wrap">
+                  {log.source === "cover" && typeof change.oldValue === "object"
+                    ? JSON.stringify(change.oldValue, null, 2)
+                    : valueText(change.oldValue)}
                 </span>
                 <ArrowRight size={12} className="mt-0.5" aria-label="Дараа" />
                 <span className="min-w-0 break-all">
@@ -316,6 +323,7 @@ export const OrderAuditPage = () => {
                 <SelectItem value="all">Бүх эх үүсвэр</SelectItem>
                 <SelectItem value="cart">Сагсны өөрчлөлт</SelectItem>
                 <SelectItem value="order">Захиалгын өөрчлөлт</SelectItem>
+                <SelectItem value="cover">Хаалтын устгал</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -419,12 +427,16 @@ export const OrderAuditPage = () => {
                           : "-"}
                       </time>
                       <span className="min-w-0 break-all" title={log.orderId}>
-                        {log.orderId
+                        {log.coverId
+                          ? `Хаалт: ${log.coverId}`
+                          : log.orderId
                           ? `Захиалга: ${log.orderNumber || "-"}`
                           : `Сагс: ${log.cartId || "-"}`}
                       </span>
                       <span>
-                        {log.source === "cart"
+                        {log.source === "cover"
+                          ? "Хаалтын устгал"
+                          : log.source === "cart"
                           ? "Сагсны өөрчлөлт"
                           : "Захиалгын өөрчлөлт"}
                       </span>

@@ -75,6 +75,7 @@ const GET_USERS_QUERY = gql`
         username
         email
         status
+        sessionState
         isActive
         groupIds
         brandIds

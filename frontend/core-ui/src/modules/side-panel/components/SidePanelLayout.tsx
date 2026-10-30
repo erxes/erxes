@@ -297,7 +297,7 @@ const SidePanelSavedRecord = ({
         ),
       }))
     : [];
-  const [tab, setTab] = useState(views ? DETAIL_TAB : ACTIVITY_TAB);
+  const { tab: selectedTab, setTab } = useSidePanel();
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -395,6 +395,13 @@ const SidePanelSavedRecord = ({
       },
     ],
   ];
+
+  const tab =
+    selectedTab && tabs.some((entry) => entry.value === selectedTab)
+      ? selectedTab
+      : views
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>

@@ -1,8 +1,9 @@
 import { getPureDate, markResolvers, paginate } from 'erxes-api-shared/utils';
 import { IContext } from '~/modules/posclient/@types/types';
 
-const coverQueries = {
+export const coverQueries = {
   async covers(_root, params, { models, config, posUser }: IContext) {
+    if (!posUser) throw new Error('Must login');
     const selector: any = { posToken: config.token };
 
     const { userId, startDate, endDate } = params;
@@ -37,8 +38,20 @@ const coverQueries = {
     );
   },
 
-  async coverDetail(_root, { _id }: { _id: string }, { models }: IContext) {
-    return await models.Covers.findOne({ _id }).lean();
+  async coverDetail(
+    _root,
+    { _id }: { _id: string },
+    { models, config, posUser }: IContext,
+  ) {
+    if (!posUser) throw new Error('Must login');
+    const filter = {
+      _id,
+      posToken: config.token,
+      ...((config.adminIds || []).includes(posUser._id)
+        ? {}
+        : { createdBy: posUser._id }),
+    };
+    return models.Covers.findOne(filter).lean();
   },
 
   async coverAmounts(
@@ -46,13 +59,23 @@ const coverQueries = {
     { _id, endDate }: { _id: string; endDate: Date },
     { models, posUser, config }: IContext,
   ) {
+    if (!posUser) throw new Error('Must login');
     endDate = getPureDate(endDate);
 
     if (endDate > new Date()) {
       throw new Error('Must be a date forward from now');
     }
 
-    const filter: any = { posToken: config.token, userId: posUser?._id };
+    const filter: {
+      posToken: string;
+      userId: string;
+      status: { $ne: string };
+      _id?: { $ne: string };
+    } = {
+      posToken: config.token,
+      userId: posUser._id,
+      status: { $ne: 'draft' },
+    };
     if (_id) {
       filter._id = { $ne: _id };
     }
@@ -97,6 +120,3 @@ markResolvers(coverQueries, {
     skipPermission: true,
   },
 });
-
-
-export default coverQueries;

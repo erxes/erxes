@@ -1,12 +1,8 @@
 import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
-import { useQueryState } from 'erxes-ui';
-import { GET_FIXED_ASSET_CATEGORY_DETAIL } from '../graphql/queries/fixedAssets';
+import { GET_FIXED_ASSET_CATEGORY_DETAIL } from '@/settings/fixed-assets/graphql/queries/fixedAssets';
 
-export const useFixedAssetCategoryDetail = () => {
-  const [fixedAssetCategoryId, setFixedAssetCategoryId] = useQueryState<string>(
-    'fixedAssetCategoryId',
-  );
+export const useFixedAssetCategoryDetail = (fixedAssetCategoryId?: string) => {
   const { data: queryData, loading } = useQuery(
     GET_FIXED_ASSET_CATEGORY_DETAIL,
     {
@@ -19,6 +15,5 @@ export const useFixedAssetCategoryDetail = () => {
   return {
     fixedAssetCategoryDetail: data?.fixedAssetCategoryDetail,
     loading,
-    closeDetail: () => setFixedAssetCategoryId(null),
   };
 };

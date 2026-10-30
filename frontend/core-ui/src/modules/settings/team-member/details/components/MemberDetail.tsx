@@ -7,7 +7,9 @@ import { MemberPanelDetail } from '@/settings/team-member/details/components/Mem
 import { MembersPermissions } from '@/settings/team-member/details/components/MembersPermissions';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
+import { MemberSessions } from '@/settings/team-member/sessions/components/MemberSessions';
 import {
+  IconDeviceDesktop,
   IconHierarchy2,
   IconHistory,
   IconId,
@@ -28,6 +30,7 @@ import {
   FieldsInDetail,
   IRecordSidePanelTab,
   RecordSidePanel,
+  usePermissionCheck,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'overview';
@@ -49,6 +52,7 @@ export const MemberDetail = ({
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { error, userDetail, loading } = useUserDetail();
+  const { hasActionPermission } = usePermissionCheck();
 
   const handleClose = () => {
     setSelectedTab(null);
@@ -141,6 +145,22 @@ export const MemberDetail = ({
           </MemberPanelScroll>
         ),
       },
+      ...(hasActionPermission('teamMembersResetPassword')
+        ? [
+            {
+              value: 'sessions',
+              label: t('sessions', 'Sessions'),
+              icon: IconDeviceDesktop,
+              content: (
+                <MemberPanelScroll>
+                  <div className="[&>section]:p-3">
+                    <MemberSessions />
+                  </div>
+                </MemberPanelScroll>
+              ),
+            },
+          ]
+        : []),
       {
         value: 'activity',
         label: panelT('activity', 'Activity'),

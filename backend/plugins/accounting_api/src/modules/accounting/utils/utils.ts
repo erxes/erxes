@@ -98,52 +98,60 @@ const addInventoryDiff = (
     diffCount: fixNum((current.diffCount ?? 0) + (diff.diffCount ?? 0), 6),
     diffCost: fixNum((current.diffCost ?? 0) + (diff.diffCost ?? 0), 6),
     diffSoonIn: fixNum((current.diffSoonIn ?? 0) + (diff.diffSoonIn ?? 0), 6),
-    diffSoonOut: fixNum((current.diffSoonOut ?? 0) + (diff.diffSoonOut ?? 0), 6),
+    diffSoonOut: fixNum(
+      (current.diffSoonOut ?? 0) + (diff.diffSoonOut ?? 0),
+      6,
+    ),
   };
 };
 
+type TInventoryLocationDiff = {
+  branchId: string;
+  departmentId: string;
+  products: Record<string, TInventoryDiff>;
+};
+
 const collectInventoryDiffs = (
-  transaction: ITransactionDocument,
+  transaction: ITransaction,
   multiplier: number,
   direction: 1 | -1,
-) => {
-  const diffsByProductId: Record<string, TInventoryDiff> = {};
+  locations = new Map<string, TInventoryLocationDiff>(),
+): Map<string, TInventoryLocationDiff> => {
   const statusType = getInventoryStatusType(transaction.status);
   const isIncome = multiplier > 0;
 
-  if (statusType === TR_INVENTORY_STATUS_TYPES.OMIT) {
-    return diffsByProductId;
-  }
+  if (statusType === TR_INVENTORY_STATUS_TYPES.OMIT) return locations;
 
   for (const detail of transaction.details || []) {
-    const productId = detail.productId || '';
+    if (!detail.productId) continue;
+    const branchId = detail.branchId || transaction.branchId || '_';
+    const departmentId = detail.departmentId || transaction.departmentId || '_';
+    const key = JSON.stringify([branchId, departmentId]);
+    const location = locations.get(key) ?? {
+      branchId,
+      departmentId,
+      products: {},
+    };
+    locations.set(key, location);
     const count = detail.count || 0;
     const amount = detail.amount || 0;
 
-    if (statusType === TR_INVENTORY_STATUS_TYPES.REAL) {
-      addInventoryDiff(diffsByProductId, productId, {
-        diffCount: direction * multiplier * count,
-        diffCost: direction * multiplier * amount,
-      });
-      continue;
-    }
-
-    addInventoryDiff(diffsByProductId, productId, {
-      diffSoonIn: isIncome ? direction * count : 0,
-      diffSoonOut: isIncome ? 0 : direction * count,
-    });
+    addInventoryDiff(
+      location.products,
+      detail.productId,
+      statusType === TR_INVENTORY_STATUS_TYPES.REAL
+        ? {
+            diffCount: direction * multiplier * count,
+            diffCost: direction * multiplier * amount,
+          }
+        : {
+            diffSoonIn: isIncome ? direction * count : 0,
+            diffSoonOut: isIncome ? 0 : direction * count,
+          },
+    );
   }
 
-  return diffsByProductId;
-};
-
-const mergeInventoryDiffs = (
-  baseDiffs: Record<string, TInventoryDiff>,
-  diffs: Record<string, TInventoryDiff>,
-) => {
-  for (const productId of Object.keys(diffs)) {
-    addInventoryDiff(baseDiffs, productId, diffs[productId]);
-  }
+  return locations;
 };
 
 const hasInventoryDiff = (diff: TInventoryDiff) =>
@@ -151,103 +159,43 @@ const hasInventoryDiff = (diff: TInventoryDiff) =>
 
 const sendInventoryDiffs = (
   subdomain: string,
-  branchId: string | undefined,
-  departmentId: string | undefined,
-  diffsByProductId: Record<string, TInventoryDiff>,
-) => {
-  const productsInfo = Object.keys(diffsByProductId)
-    .filter((productId) => hasInventoryDiff(diffsByProductId[productId]))
-    .map((productId) => ({
-      productId,
-      ...diffsByProductId[productId],
-    }));
+  locations: Map<string, TInventoryLocationDiff>,
+): void => {
+  for (const { branchId, departmentId, products } of locations.values()) {
+    const productsInfo = Object.entries(products)
+      .filter(([, diff]) => hasInventoryDiff(diff))
+      .map(([productId, diff]) => ({ productId, ...diff }));
+    if (!productsInfo.length) continue;
 
-  if (!productsInfo.length) {
-    return;
+    void sendTRPCMessage({
+      subdomain,
+      method: 'mutation',
+      pluginName: 'core',
+      module: 'products',
+      action: 'increaseInventories',
+      input: { branchId, departmentId, productsInfo },
+    });
   }
-
-  sendTRPCMessage({
-    subdomain,
-    method: 'mutation',
-    pluginName: 'core',
-    module: 'products',
-    action: 'increaseInventories',
-    input: {
-      branchId,
-      departmentId,
-      productsInfo,
-    },
-  });
 };
 
-/**
- * barimt create or update hamaarah baraanii uldegdel sync hiih
- * @param transaction: undsen barimt
- * @param oldTr?: huuchin baisan barimt
- * @param multiplier: orlogo bol 1, zarlaga bol -1
- */
 export const syncProductsInventory = async (
   subdomain: string,
-  transaction: ITransactionDocument,
-  oldTr?: ITransactionDocument,
+  transaction: ITransaction,
+  oldTr?: ITransaction,
   multiplier = 1,
-) => {
-  if (
-    !oldTr?._id ||
-    (transaction.branchId === oldTr?.branchId &&
-      transaction.departmentId === oldTr?.departmentId)
-  ) {
-    const diffsByProductId = collectInventoryDiffs(
-      transaction,
-      multiplier,
-      1,
-    );
-
-    if (oldTr?._id) {
-      mergeInventoryDiffs(
-        diffsByProductId,
-        collectInventoryDiffs(oldTr, multiplier, -1),
-      );
-    }
-
-    sendInventoryDiffs(
-      subdomain,
-      transaction.branchId,
-      transaction.departmentId,
-      diffsByProductId,
-    );
-    return;
-  }
-
-  sendInventoryDiffs(
-    subdomain,
-    oldTr?.branchId,
-    oldTr?.departmentId,
-    collectInventoryDiffs(oldTr, multiplier, -1),
-  );
-
-  sendInventoryDiffs(
-    subdomain,
-    transaction.branchId,
-    transaction.departmentId,
-    collectInventoryDiffs(transaction, multiplier, 1),
-  );
+): Promise<void> => {
+  const locations = collectInventoryDiffs(transaction, multiplier, 1);
+  if (oldTr?._id) collectInventoryDiffs(oldTr, multiplier, -1, locations);
+  sendInventoryDiffs(subdomain, locations);
 };
 
-/**
- * barimt ustgahad hamaarah baraanii uldegdel sync hiih
- * @param transaction: ustaj bui transaction obj
- * @param multiplier: ugiin urvuu ch gesen orlogo ustgah ni default 1
- */
 export const removeSyncProductsInventory = async (
   subdomain: string,
-  transaction: ITransactionDocument,
+  transaction: ITransaction,
   multiplier = 1,
-) => {
+): Promise<void> => {
   sendInventoryDiffs(
     subdomain,
-    transaction.branchId,
-    transaction.departmentId,
     collectInventoryDiffs(transaction, multiplier, -1),
   );
 };

@@ -2,11 +2,13 @@ import { LdapMemberMenuItem } from '@/settings/ldap/components/LdapMemberMenuIte
 import { useLdapLinkedUserIds } from '@/settings/ldap/hooks/useLdapUserLink';
 import { useResendInvite } from '@/settings/team-member/hooks/useResendInvite';
 import { useUsersStatusEdit } from '@/settings/team-member/hooks/useUserEdit';
+import { MemberSignOutMenuItem } from '@/settings/team-member/sessions/components/MemberSignOutMenuItem';
 import { renderingTeamMemberResetPasswordAtom } from '@/settings/team-member/states/teamMemberDetailStates';
 import { IUser } from '@/settings/team-member/types';
+import { MemberResetTwoFactorMenuItem } from '@/settings/two-factor/components/MemberResetTwoFactorMenuItem';
 import {
-  IconHistory,
   IconLock,
+  IconMail,
   IconPrinter,
   IconRefresh,
   IconSettings,
@@ -75,7 +77,12 @@ export const TeamMemberActionItems = ({
           </Command.Item>
         </Can>
       )}
+      <MemberResetTwoFactorMenuItem
+        userId={_id}
+        onDone={() => onAction?.()}
+      />
       <LdapMemberMenuItem userId={_id} onDone={() => onAction?.()} />
+      <MemberSignOutMenuItem userId={_id} onDone={() => onAction?.()} />
       <Can action="teamMembersRemove">
         <Command.Item
           value="toggle-status"
@@ -121,10 +128,10 @@ export const TeamMemberActionItems = ({
       </Can>
       <Can action="broadcastUpdate">
         <Command.Item
-          value="activity-log"
+          value="email-deliveries"
           onSelect={select(onOpenActivityLog)}
         >
-          <IconHistory /> {t('activity-log')}
+          <IconMail /> {t('email-deliveries')}
         </Command.Item>
       </Can>
       <Can action="documentsRead">
