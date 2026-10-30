@@ -49,9 +49,17 @@ export const getProviderOption = (
 ): IProviderOption | undefined =>
   PROVIDER_OPTIONS.find((option) => option.value === value);
 
+export const AGENTS_BUILTIN_PROVIDER = 'erxes';
+export const AGENTS_BUILTIN_NAME = 'Erxes Assistant';
+
+export const isBuiltinProvider = (value: string) =>
+  value === AGENTS_BUILTIN_PROVIDER;
+
 /** Human label for a provider value (`openai` -> `OpenAI`). */
 export const getProviderLabel = (value: string): string =>
-  getProviderOption(value)?.label ?? value;
+  isBuiltinProvider(value)
+    ? AGENTS_BUILTIN_NAME
+    : getProviderOption(value)?.label ?? value;
 
 /**
  * 2x2 grid of selectable provider cards, used by the settings connection

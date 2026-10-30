@@ -189,7 +189,14 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   per message. `utils/mentionText.ts` owns ranges/tokens; `useAgentMentions`
   binds ranges to one exact text value, so resets drop them automatically.
 - BYOK-gated composer: no configured connection shows an inline banner
-  linking to the settings page and disables input.
+  linking to the settings page and disables input. When the server offers
+  Erxes Assistant (`AgentsBuiltin`, `useAgentsBuiltin`), `ChatPanel` appends
+  it to the saved models (`erxes|erxes-assistant`, default only without own
+  keys), so users without keys can chat; when it is `exhausted` and the user
+  has no key, the banner explains the monthly limit and input stays
+  disabled. The model picker shows only the name "Erxes Assistant" for
+  provider `erxes` (no id, no custom model); settings `connection` shows an
+  Erxes Assistant card with monthly token usage.
 - assistant message action row under each turn (Copy — the turn's answer
   text only, never narration; Regenerate on the
   last assistant message only and not while streaming → `retryLastTurn`;

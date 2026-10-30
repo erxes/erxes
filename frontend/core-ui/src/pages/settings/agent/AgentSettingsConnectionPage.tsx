@@ -48,6 +48,13 @@ import {
   findDefaultAgentsConnection,
   useAgentsConnection,
 } from '@/agent/hooks/useAgentsConnection';
+import { useAgentsBuiltin } from '@/agent/hooks/useAgentsBuiltin';
+
+const formatTokens = (tokens: number) =>
+  new Intl.NumberFormat(undefined, {
+    notation: 'compact',
+    maximumFractionDigits: 1,
+  }).format(tokens);
 
 /**
  * Settings BYOK management: every configured provider is listed with its
@@ -61,6 +68,7 @@ import {
 export const AgentSettingsConnectionPage = () => {
   const { openPath } = useSidePanel();
   const { connections, loading, error } = useAgentsConnection();
+  const { builtin, percent: builtinPercent } = useAgentsBuiltin();
 
   const [provider, setProvider] = useState('');
   const [apiKey, setApiKey] = useState('');
@@ -213,6 +221,61 @@ export const AgentSettingsConnectionPage = () => {
           </p>
         ) : (
           <div className="mx-auto max-w-2xl space-y-4 p-6">
+            {builtin && (
+              <div className="rounded-xl border p-6">
+                <div className="flex items-center gap-3">
+                  <ProviderIcon
+                    provider={builtin.provider}
+                    className="size-8"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-medium">
+                      {builtin.name}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      Included with your workspace. No API key needed.
+                    </p>
+                  </div>
+                  {connections.length === 0 && (
+                    <Badge variant="secondary" className="shrink-0">
+                      Default
+                    </Badge>
+                  )}
+                </div>
+                <div className="mt-4 flex flex-col gap-1.5 text-xs text-muted-foreground">
+                  <span>
+                    {builtin.limitTokens
+                      ? `${formatTokens(builtin.usedTokens)} of ${formatTokens(
+                          builtin.limitTokens,
+                        )} tokens used this month`
+                      : `${formatTokens(
+                          builtin.usedTokens,
+                        )} tokens used this month`}
+                    {` · Resets ${new Date(
+                      builtin.resetsAt,
+                    ).toLocaleDateString()}`}
+                  </span>
+                  {builtinPercent !== null && (
+                    <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+                      <div
+                        className={
+                          builtinPercent >= 90
+                            ? 'h-full bg-destructive'
+                            : 'h-full bg-primary'
+                        }
+                        style={{ width: `${builtinPercent}%` }}
+                      />
+                    </div>
+                  )}
+                  {builtin.exhausted && (
+                    <span className="text-destructive">
+                      Monthly limit reached. Add your own API key below to keep
+                      chatting.
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="rounded-xl border p-6">
               <div className="mb-4">
                 <Label className="font-sans text-sm font-medium normal-case">

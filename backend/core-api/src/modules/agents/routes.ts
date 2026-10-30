@@ -38,6 +38,12 @@ import {
 } from '@/agents/modelThinking';
 import type { IAgentsConnections } from '@/agents/@types/connection';
 import { findDefaultConnection } from '@/agents/db/models/Connection';
+import {
+  AgentsBuiltinError,
+  assertBuiltinAvailable,
+  getBuiltinConnection,
+  isBuiltinProvider,
+} from '@/agents/builtin';
 import { getAgentsRuntime } from '@/agents/memory';
 import { describeUnreadableKey } from '@/agents/providerModels';
 import { openSecret } from '@/agents/secretBox';
@@ -114,7 +120,9 @@ class HttpError extends Error {
 }
 
 const errorStatus = (error: unknown): number => {
-  if (error instanceof HttpError) return error.statusCode;
+  if (error instanceof HttpError || error instanceof AgentsBuiltinError) {
+    return error.statusCode;
+  }
   if (error instanceof ExpectedError) {
     if (error.code === 'UNAUTHORIZED') return 401;
     if (error.code === 'FORBIDDEN') return 403;
@@ -195,17 +203,30 @@ const resolveOwnedThreadId = async ({
  * approve. Without one the user is told exactly what is missing; the key
  * itself is never echoed into the error.
  */
-const resolveUserConnections = async (
+const resolveTurnConnection = async (
   models: IModels,
   userId: string,
-): Promise<IAgentsConnections> => {
-  const doc = await models.AgentsConnection.getConnections(userId);
-
-  if (!doc || doc.connections.length === 0) {
-    throw new HttpError(400, 'Add your API key to start using Agents.');
+  provider?: string,
+  model?: string,
+): Promise<{ connection: IAiAgentConnection; builtin: boolean }> => {
+  if (isBuiltinProvider(provider)) {
+    return { connection: await assertBuiltinAvailable(models), builtin: true };
   }
 
-  return doc;
+  const doc = await models.AgentsConnection.getConnections(userId);
+
+  if (doc && doc.connections.length > 0) {
+    return {
+      connection: pickConnection(doc, provider, model),
+      builtin: false,
+    };
+  }
+
+  if (!provider?.trim() && getBuiltinConnection()) {
+    return { connection: await assertBuiltinAvailable(models), builtin: true };
+  }
+
+  throw new HttpError(400, 'Add your API key to start using Agents.');
 };
 
 /**
@@ -701,12 +722,9 @@ router.post('/agents/chat', async (req, res) => {
     // A turn without a usable connection is rejected before any gateway
     // work: no mention lookup runs for a request that cannot reach a model.
     const models = await generateModels(identity.subdomain);
-    const storedConnections = await resolveUserConnections(
+    const { connection, builtin } = await resolveTurnConnection(
       models,
       identity.userId,
-    );
-    const connection = pickConnection(
-      storedConnections,
       body.provider,
       body.model,
     );
@@ -791,6 +809,7 @@ router.post('/agents/chat', async (req, res) => {
       userId: identity.userId,
       provider: connection.provider,
       model: connection.model,
+      builtin,
       thinkingLevel,
       codeModeEnabled: runSettings.codeModeEnabled,
       approvalMode: runSettings.approvalMode,

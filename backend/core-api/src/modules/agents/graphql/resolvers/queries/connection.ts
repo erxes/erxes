@@ -5,6 +5,7 @@ import type {
   IAgentsConnections,
 } from '@/agents/@types/connection';
 import { findDefaultConnection } from '@/agents/db/models/Connection';
+import { getBuiltinStatus } from '@/agents/builtin';
 
 /**
  * Maps one stored connection entry to the public GraphQL shape. The API key
@@ -56,5 +57,11 @@ export const agentsConnectionsQueries = {
     );
 
     return toPublicConnections(doc);
+  },
+
+  agentsBuiltin: async (_p: undefined, _a: undefined, ctx: IContext) => {
+    await ctx.checkPermission('agentsChat');
+
+    return getBuiltinStatus(ctx.models);
   },
 };

@@ -10,7 +10,7 @@ import type {
 } from '../hooks/useAgentsModels';
 import { agentRecentModelsState } from '../states/agentRecentModelsState';
 import { ProviderIcon } from './ProviderIcon';
-import { getProviderLabel } from './ProviderPicker';
+import { getProviderLabel, isBuiltinProvider } from './ProviderPicker';
 
 interface IModelChoice {
   provider: string;
@@ -120,7 +120,9 @@ export const ModelPicker = ({
   const nameOf = (choice: IModelChoice) =>
     displayNames.get(choiceValue(choice)) ?? choice.model;
   const describeChoice = (choice: IModelChoice) =>
-    `${getProviderLabel(choice.provider)} · ${nameOf(choice)}`;
+    isBuiltinProvider(choice.provider)
+      ? nameOf(choice)
+      : `${getProviderLabel(choice.provider)} · ${nameOf(choice)}`;
   const activeCatalog = catalogs.get(activeProvider);
   const activeModels: IAgentsModelOption[] = activeCatalog?.models ?? [];
   const toChoice = (model: IAgentsModelOption): IModelChoice => ({
@@ -141,6 +143,7 @@ export const ModelPicker = ({
   const customId =
     onVerifyModel &&
     activeProvider &&
+    !isBuiltinProvider(activeProvider) &&
     MODEL_ID_PATTERN.test(typedId) &&
     !activeModels.some((model) => model.id === typedId)
       ? typedId
@@ -321,11 +324,17 @@ export const ModelPicker = ({
         className={rowClassName}
       >
         {verifying === key && <Spinner className="size-3.5 shrink-0" />}
-        <span className="min-w-0 flex-1 truncate" title={choice.model}>
+        <span
+          className="min-w-0 flex-1 truncate"
+          title={
+            isBuiltinProvider(choice.provider) ? nameOf(choice) : choice.model
+          }
+        >
           {verifying === key ? (
             `Checking ${nameOf(choice)}…`
-          ) : nameOf(choice) === choice.model ? (
-            choice.model
+          ) : nameOf(choice) === choice.model ||
+            isBuiltinProvider(choice.provider) ? (
+            nameOf(choice)
           ) : (
             <>
               {nameOf(choice)}

@@ -400,6 +400,11 @@ import {
   IAgentsSettingsModel,
   loadAgentsSettingsClass,
 } from '@/agents/db/models/Settings';
+import { IAgentsUsageDocument } from '@/agents/@types/usage';
+import {
+  IAgentsUsageModel,
+  loadAgentsUsageClass,
+} from '@/agents/db/models/Usage';
 
 export interface IModels {
   Brands: IBrandModel;
@@ -494,6 +499,7 @@ export interface IModels {
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
+  AgentsUsage: IAgentsUsageModel;
 }
 
 export interface IContext extends IMainContext {
@@ -1016,6 +1022,11 @@ export const loadClasses = (
     IAgentsSettingsDocument,
     IAgentsSettingsModel
   >('agents_settings', loadAgentsSettingsClass(models));
+
+  models.AgentsUsage = db.model<IAgentsUsageDocument, IAgentsUsageModel>(
+    'agents_usages',
+    loadAgentsUsageClass(models),
+  );
 
   const db_name = db.name;
 

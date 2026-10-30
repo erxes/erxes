@@ -38,6 +38,7 @@ export interface IAgentsRequestContext extends IAgentsToolContext {
   provider: string;
   /** The model the turn runs on (per-turn override or the stored model). */
   model: string;
+  builtin?: boolean;
   /** Thinking depth picked in the chat UI for this turn. */
   thinkingLevel: IAgentsThinkingLevel;
   /** Whether the tenant's sandboxed code-mode tool rides along. */
@@ -78,6 +79,9 @@ export const buildAgentsRequestContext = async (
   requestContext.set('thinkingLevel', values.thinkingLevel);
   requestContext.set('codeModeEnabled', values.codeModeEnabled);
   requestContext.set('approvalMode', values.approvalMode);
+  if (values.builtin) {
+    requestContext.set('builtin', true);
+  }
   if (values.threadId) {
     requestContext.set('threadId', values.threadId);
   }
