@@ -42,7 +42,9 @@ export const useTicketCreateFields = ({
 
   const setPropertyValue = useCallback((fieldId: string, value: unknown) => {
     setPropertiesData((prev) => ({ ...prev, [fieldId]: value }));
-    setMissingIds((prev) => prev.filter((id) => id !== `property:${fieldId}`));
+    setMissingIds((prev) =>
+      prev.filter((id) => id !== `property:${fieldId}`),
+    );
   }, []);
 
   // Names of required fields left empty; marks them for the form to show.
@@ -87,10 +89,10 @@ export const useTicketCreateFields = ({
     return entries.length ? Object.fromEntries(entries) : undefined;
   };
 
-  const reset = useCallback(() => {
+  const reset = () => {
     setPropertiesData({});
     setMissingIds([]);
-  }, []);
+  };
 
   return {
     visibleRows,

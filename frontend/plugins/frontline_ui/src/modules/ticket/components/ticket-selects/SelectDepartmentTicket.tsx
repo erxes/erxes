@@ -93,7 +93,9 @@ const SelectDepartmentTicketRoot = ({
           label={label}
         >
           <SelectDepartments.List
-            placeholder={label ? t('none') : t('department-label')}
+            placeholder={
+              label ? t('none') : t('department-label')
+            }
             renderAsPlainText
           />
         </SelectTriggerTicket>

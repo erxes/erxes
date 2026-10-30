@@ -86,20 +86,16 @@ export const KanbanView = () => {
             </div>
           </KanbanHeader>
           <KanbanCards id={column.id}>
-            {(item) => {
-              const feature = features.find(({ id }) => id === item.id);
-              if (!feature) return null;
-              return (
-                <KanbanCard
-                  column={column.name}
-                  id={feature.id}
-                  key={feature.id}
-                  name={feature.name}
-                >
-                  <KanbanViewCard feature={feature} />
-                </KanbanCard>
-              );
-            }}
+            {(feature) => (
+              <KanbanCard
+                column={column.name}
+                id={feature.id}
+                key={feature.id}
+                name={feature.name}
+              >
+                <KanbanViewCard feature={feature} />
+              </KanbanCard>
+            )}
           </KanbanCards>
         </KanbanBoard>
       )}
