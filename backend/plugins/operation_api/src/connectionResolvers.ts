@@ -71,6 +71,11 @@ import {
   loadDiscordMessageClass,
 } from '@/discordIntegration/db/models/DiscordMessage';
 import { IDiscordUserLinkDocument } from '@/discordIntegration/@types/discordUserLink';
+import { IDiscordCustomerChannelDocument } from '@/discordIntegration/@types/discordCustomerChannel';
+import {
+  IDiscordCustomerChannelModel,
+  loadDiscordCustomerChannelClass,
+} from '@/discordIntegration/db/models/DiscordCustomerChannel';
 import {
   IDiscordUserLinkModel,
   loadDiscordUserLinkClass,
@@ -95,6 +100,7 @@ export interface IModels {
   DiscordConfig: IDiscordConfigModel;
   DiscordMessage: IDiscordMessageModel;
   DiscordUserLink: IDiscordUserLinkModel;
+  DiscordCustomerChannel: IDiscordCustomerChannelModel;
 }
 
 export interface IContext extends IMainContext {
@@ -207,6 +213,14 @@ export const loadClasses = (
     IDiscordUserLinkDocument,
     IDiscordUserLinkModel
   >('operation_discord_user_links', loadDiscordUserLinkClass(models));
+
+  models.DiscordCustomerChannel = db.model<
+    IDiscordCustomerChannelDocument,
+    IDiscordCustomerChannelModel
+  >(
+    'operation_discord_customer_channels',
+    loadDiscordCustomerChannelClass(models),
+  );
 
   return models;
 };

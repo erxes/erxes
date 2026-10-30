@@ -85,6 +85,12 @@ import {
   type as DiscordAccountTypes,
 } from '@/discordIntegration/graphql/schemas/discordAccount';
 
+import {
+  mutations as DiscordCustomerChannelMutations,
+  queries as DiscordCustomerChannelQueries,
+  type as DiscordCustomerChannelTypes,
+} from '@/discordIntegration/graphql/schemas/discordCustomerChannel';
+
 export const types = `
   ${TaskTypes}
   ${ProjectTypes}
@@ -101,6 +107,7 @@ export const types = `
   ${DiscordConnectionTypes}
   ${DiscordConfigTypes}
   ${DiscordAccountTypes}
+  ${DiscordCustomerChannelTypes}
 `;
 
 export const queries = `
@@ -119,6 +126,7 @@ export const queries = `
   ${DiscordConnectionQueries}
   ${DiscordConfigQueries}
   ${DiscordAccountQueries}
+  ${DiscordCustomerChannelQueries}
 `;
 
 export const mutations = `
@@ -136,6 +144,7 @@ export const mutations = `
   ${DiscordConnectionMutations}
   ${DiscordConfigMutations}
   ${DiscordAccountMutations}
+  ${DiscordCustomerChannelMutations}
 `;
 
 export default { types, queries, mutations };

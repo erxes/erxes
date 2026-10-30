@@ -12,6 +12,7 @@ import { githubConnectionMutations } from '@/githubIntegration/graphql/resolvers
 import { discordConnectionMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordConnection';
 import { discordConfigMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordConfig';
 import { discordAccountMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordAccount';
+import { discordCustomerChannelMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordCustomerChannel';
 
 export const mutations = {
   ...taskMutations,
@@ -28,4 +29,5 @@ export const mutations = {
   ...discordConnectionMutations,
   ...discordConfigMutations,
   ...discordAccountMutations,
+  ...discordCustomerChannelMutations,
 };

@@ -1,10 +1,17 @@
 import { Job } from 'bullmq';
 import { TDiscordMessagePayload } from '@/discordIntegration/@types/discordApi';
 import { IDiscordConfigDocument } from '@/discordIntegration/@types/discordConfig';
-import { TDiscordNotificationJob } from '@/discordIntegration/@types/discordNotification';
+import {
+  TDiscordCleanupJob,
+  TDiscordNotificationJob,
+} from '@/discordIntegration/@types/discordNotification';
 import { DISCORD_ERROR_CODES } from '@/discordIntegration/constants';
 import { getDiscordAccountPageUrl } from '@/discordIntegration/utils/discordAccountLink';
 import { recordDiscordFailure } from '@/discordIntegration/utils/discordBot';
+import {
+  buildDiscordCustomerRemoval,
+  buildDiscordCustomerUpdate,
+} from '@/discordIntegration/utils/discordCustomerUpdate';
 import {
   buildDiscordCard,
   loadDiscordCardEntity,
@@ -15,6 +22,7 @@ import { generateModels, IModels } from '~/connectionResolvers';
 import {
   createDiscordMessage,
   DiscordApiError,
+  deleteDiscordMessage,
   editDiscordMessage,
   getDiscordGuildMember,
   isRetryableDiscordError,
@@ -138,7 +146,8 @@ const updateCard = async (
   } catch (error) {
     if (
       error instanceof DiscordApiError &&
-      error.code === DISCORD_ERROR_CODES.UNKNOWN_MESSAGE
+      (error.code === DISCORD_ERROR_CODES.UNKNOWN_MESSAGE ||
+        error.code === DISCORD_ERROR_CODES.CANNOT_EDIT_OTHER_USER_MESSAGE)
     ) {
       await models.DiscordMessage.deleteOne({ _id: cardId });
 
@@ -153,10 +162,194 @@ const updateCard = async (
   await models.DiscordMessage.saveCardMessage(cardId, messageId, job.event);
 };
 
-export const deliverDiscordNotification = async (
-  job: Job<TDiscordNotificationJob>,
+const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
+  const { subdomain, entityId, event } = data;
+  const models = await generateModels(subdomain);
+
+  const thread = await models.DiscordMessage.findOne({
+    entityId,
+    subdomain,
+    audience: 'customer',
+  }).lean();
+
+  if (!thread) {
+    return 'skipped';
+  }
+
+  const customerChannel = await models.DiscordCustomerChannel.findOne({
+    _id: thread.configId,
+    subdomain,
+  }).lean();
+
+  if (!customerChannel) {
+    return 'skipped';
+  }
+
+  const connection = await models.DiscordConnection.findWithSecrets({
+    _id: customerChannel.connectionId,
+    subdomain,
+  });
+
+  if (!connection || connection.health?.status === 'broken') {
+    return 'skipped';
+  }
+
+  const entity = await loadDiscordCardEntity(models, entityId);
+
+  if (!entity) {
+    return 'skipped';
+  }
+
+  const payload = await buildDiscordCustomerUpdate({
+    entity,
+    job: data,
+    reporterId: thread.discordUserId,
+  });
+
+  try {
+    await createDiscordMessage(connection.token, thread.channelId, {
+      ...payload,
+      ...(thread.messageId
+        ? {
+            message_reference: {
+              message_id: thread.messageId,
+              fail_if_not_exists: false,
+            },
+          }
+        : {}),
+    });
+  } catch (error) {
+    await recordDiscordFailure({
+      models,
+      error,
+      connectionId: String(connection._id),
+    });
+
+    if (isRetryableDiscordError(error)) {
+      throw error;
+    }
+
+    return 'failed';
+  }
+
+  await models.DiscordMessage.updateOne(
+    { _id: thread._id },
+    { $set: { lastEvent: event } },
+  );
+
+  return 'sent';
+};
+
+const isCleanupJob = (
+  data: TDiscordNotificationJob | TDiscordCleanupJob,
+): data is TDiscordCleanupJob => 'type' in data && data.type === 'cleanup';
+
+const findThreadConnection = async (
+  models: IModels,
+  subdomain: string,
+  thread: { configId: string; audience?: string },
 ) => {
-  const { subdomain, event, entityId, teamId } = job.data;
+  const owner =
+    thread.audience === 'customer'
+      ? await models.DiscordCustomerChannel.findOne({
+          _id: thread.configId,
+          subdomain,
+        }).lean()
+      : await models.DiscordConfig.findOne({
+          _id: thread.configId,
+          subdomain,
+        }).lean();
+
+  if (!owner) {
+    return null;
+  }
+
+  const connection = await models.DiscordConnection.findWithSecrets({
+    _id: owner.connectionId,
+    subdomain,
+  });
+
+  return connection && connection.health?.status !== 'broken'
+    ? connection
+    : null;
+};
+
+const cleanupDiscordCards = async ({
+  subdomain,
+  records,
+  configIds,
+}: TDiscordCleanupJob) => {
+  const models = await generateModels(subdomain);
+
+  for (const record of records) {
+    const threads = await models.DiscordMessage.find({
+      entityId: record.entityId,
+      subdomain,
+      ...(configIds ? { configId: { $in: configIds } } : {}),
+    }).lean();
+
+    for (const thread of threads) {
+      const connection = await findThreadConnection(models, subdomain, thread);
+
+      if (connection) {
+        try {
+          if (thread.audience === 'customer') {
+            await createDiscordMessage(connection.token, thread.channelId, {
+              ...buildDiscordCustomerRemoval({
+                label: record.label,
+                name: record.name,
+                reporterId: thread.discordUserId,
+              }),
+              ...(thread.messageId
+                ? {
+                    message_reference: {
+                      message_id: thread.messageId,
+                      fail_if_not_exists: false,
+                    },
+                  }
+                : {}),
+            });
+          } else if (thread.messageId) {
+            await deleteDiscordMessage(
+              connection.token,
+              thread.channelId,
+              thread.messageId,
+            );
+          }
+        } catch (error) {
+          await recordDiscordFailure({
+            models,
+            error,
+            connectionId: String(connection._id),
+          });
+
+          if (isRetryableDiscordError(error)) {
+            throw error;
+          }
+        }
+      }
+
+      await models.DiscordMessage.deleteOne({ _id: thread._id });
+    }
+  }
+
+  return 'cleaned';
+};
+
+export const deliverDiscordNotification = async (
+  job: Job<TDiscordNotificationJob | TDiscordCleanupJob>,
+) => {
+  const data = job.data;
+
+  if (isCleanupJob(data)) {
+    return cleanupDiscordCards(data);
+  }
+
+  if (data.target === 'customer') {
+    return deliverDiscordCustomerUpdate(data);
+  }
+
+  const { subdomain, event, entityId, teamId } = data;
   const models = await generateModels(subdomain);
 
   const config = await models.DiscordConfig.findOne({
@@ -170,12 +363,10 @@ export const deliverDiscordNotification = async (
     return 'skipped';
   }
 
-  const connection = await models.DiscordConnection.findOne({
+  const connection = await models.DiscordConnection.findWithSecrets({
     _id: config.connectionId,
     subdomain,
-  })
-    .select('+token')
-    .lean();
+  });
 
   if (!connection || connection.health?.status === 'broken') {
     return 'skipped';
@@ -193,13 +384,13 @@ export const deliverDiscordNotification = async (
     token: connection.token,
     guildId: connection.guildId,
     entity,
-    job: job.data,
+    job: data,
   });
 
   const { card, reply } = await buildDiscordCard({
     models,
     entity,
-    job: job.data,
+    job: data,
     mention,
   });
 
@@ -207,7 +398,7 @@ export const deliverDiscordNotification = async (
     models,
     token: connection.token,
     config,
-    job: job.data,
+    job: data,
     card,
     reply,
     replyToNewCard: Boolean(mention.discordUserId || mention.linkAccountUrl),

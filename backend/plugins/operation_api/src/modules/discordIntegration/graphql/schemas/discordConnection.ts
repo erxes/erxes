@@ -14,6 +14,8 @@ export const type = `
     botUserId: String!
     botUsername: String!
     hasClientSecret: Boolean
+    commandsRegisteredAt: Date
+    commandsError: String
     health: OperationDiscordHealth
     createdBy: String
     createdAt: Date!

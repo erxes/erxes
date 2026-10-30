@@ -12,6 +12,13 @@ export const discordMessageSchema = new Schema(
       enum: [...DISCORD_NOTIFICATION_EVENTS],
       label: 'Last Event',
     },
+    audience: {
+      type: String,
+      enum: ['team', 'customer'],
+      label: 'Audience',
+      default: 'team',
+    },
+    discordUserId: { type: String, label: 'Reporter Discord User ID' },
     subdomain: { type: String, label: 'Subdomain', required: true },
   },
   { timestamps: true },
@@ -22,3 +29,4 @@ discordMessageSchema.index(
   { unique: true },
 );
 discordMessageSchema.index({ configId: 1, subdomain: 1 });
+discordMessageSchema.index({ entityId: 1, audience: 1, subdomain: 1 });

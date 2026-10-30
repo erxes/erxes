@@ -13,7 +13,11 @@ import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
-import { notifyDiscord } from '@/discordIntegration/utils/notifyDiscord';
+import {
+  notifyDiscord,
+  notifyDiscordRemoval,
+  notifyDiscordTeamChange,
+} from '@/discordIntegration/utils/notifyDiscord';
 
 export interface ITaskModel extends Model<ITaskDocument> {
   getTask(_id: string): Promise<ITaskDocument>;
@@ -338,6 +342,14 @@ export const loadTaskClass = (
           prevDocument: task.toObject(),
         });
 
+        if (doc.teamId && String(doc.teamId) !== String(task.teamId)) {
+          await notifyDiscordTeamChange(
+            models,
+            updatedTask,
+            String(task.teamId),
+          );
+        }
+
         const discordJob = {
           subdomain,
           entityId: String(updatedTask._id),
@@ -372,7 +384,11 @@ export const loadTaskClass = (
         });
       }
 
-      return models.Task.deleteMany({ _id: { $in: taskIds } });
+      const result = await models.Task.deleteMany({ _id: { $in: taskIds } });
+
+      await notifyDiscordRemoval(models, tasks);
+
+      return result;
     }
 
     public static async moveCycle(cycleId: string, newCycleId: string) {
