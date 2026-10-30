@@ -299,7 +299,7 @@ const SidePanelSavedRecord = ({
         ),
       }))
     : [];
-  const [tab, setTab] = useState(views ? DETAIL_TAB : ACTIVITY_TAB);
+  const { tab: selectedTab, setTab } = useSidePanel();
 
   const baseTabs: IRecordSidePanelTab[] = [
     ...(views
@@ -417,7 +417,7 @@ const SidePanelSavedRecord = ({
         },
       }))
     : [];
-  const baseValues = new Set(baseTabs.map((tab) => tab.value));
+  const baseValues = new Set(baseTabs.map((entry) => entry.value));
   const tabs: IRecordSidePanelTab[] = [
     ...baseTabs.flatMap((baseTab) => [
       baseTab,
@@ -429,6 +429,13 @@ const SidePanelSavedRecord = ({
       .filter((extra) => !extra.after || !baseValues.has(extra.after))
       .map((extra) => extra.tab),
   ];
+
+  const tab =
+    selectedTab && tabs.some((entry) => entry.value === selectedTab)
+      ? selectedTab
+      : views
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>

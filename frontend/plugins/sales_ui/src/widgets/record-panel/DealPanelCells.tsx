@@ -6,7 +6,7 @@ import {
   IconProgress,
 } from '@tabler/icons-react';
 import { Combobox, Command, Popover, RecordTableInlineCell } from 'erxes-ui';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   PanelFieldTrigger,
   SelectBranches,
@@ -84,13 +84,10 @@ export const DealPanelTagsCell = ({
   placeholder,
 }: TCellProps & { placeholder?: string }) => {
   const [open, setOpen] = useState(false);
-  let tagIds: string[] = [];
-
-  if (Array.isArray(value)) {
-    tagIds = value;
-  } else if (value) {
-    tagIds = [value];
-  }
+  const tagIds = useMemo(() => {
+    if (Array.isArray(value)) return value;
+    return value ? [value] : [];
+  }, [value]);
 
   return (
     <TagsSelect.Provider

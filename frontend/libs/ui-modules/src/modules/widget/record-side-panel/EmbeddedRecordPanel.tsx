@@ -33,7 +33,7 @@ export const EmbeddedRecordPanel = ({
 }) => {
   const RecordView = useRecordView();
   const single = records.length === 1;
-  const [stack, setStack] = useState<TRelationEntity[]>(
+  const [stack, setStack] = useState<(TRelationEntity & { tab?: string })[]>(
     single ? [records[0]] : [],
   );
   const record = stack[stack.length - 1] ?? null;
@@ -43,6 +43,13 @@ export const EmbeddedRecordPanel = ({
   const navigator = useMemo<ISidePanelNavigator>(
     () => ({
       record,
+      tab: record?.tab ?? '',
+      setTab: (tab) =>
+        setStack((previous) =>
+          previous.map((entry, index) =>
+            index === previous.length - 1 ? { ...entry, tab } : entry,
+          ),
+        ),
       openRecord: (entity, options) =>
         setStack((previous) =>
           options?.replace
