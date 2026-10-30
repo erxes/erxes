@@ -170,6 +170,7 @@ export const types = `
     _id: String!
     orderId: String
     orderNumber: String
+    coverId: String
     cartId: String
     eventId: String
     source: String

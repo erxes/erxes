@@ -22,6 +22,7 @@ const orderChangeEntrySchema = new Schema(
 export const orderChangeLogSchema = schemaHooksWrapper(
   new Schema({
     _id: field({ pkey: true }),
+    coverId: field({ type: String, optional: true, label: 'Cover', index: true }),
     // Persisted order reference; absent when the cart has never been saved.
     orderId: field({
       type: String,

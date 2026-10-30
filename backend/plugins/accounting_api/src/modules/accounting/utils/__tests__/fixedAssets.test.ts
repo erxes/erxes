@@ -1777,3 +1777,89 @@ describe('fixed asset sale and disposal summaries', () => {
     );
   });
 });
+
+describe('Erkhet opening adjustment description', () => {
+  const note = 'Эх өртөг -100; элэгдэл 20. Зассан өртөг 0; элэгдэл 0.';
+
+  it('creates a zero-cost asset with an adjustment note and no depreciation follow', async () => {
+    const models = makeModels();
+    const transaction = makeIncomeTransaction();
+    const detail = {
+      ...transaction.details[0],
+      count: 1,
+      amount: 0,
+      unitPrice: 0,
+      followInfos: {
+        preDeprecation: 0,
+        fixedAssetTotalCount: 1,
+        fixedAssetTotalAmount: 0,
+      },
+    };
+    await syncFxaIncomeDetails(models as never, 'user-a', {
+      ...transaction,
+      description: note,
+      details: [detail],
+    } as never);
+    expect(models.FixedAssets.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        originalCost: 0,
+        description: note,
+        count: 1,
+      }),
+    );
+    expect(models.Transactions.createTransaction).not.toHaveBeenCalledWith(
+      expect.objectContaining({ journal: JOURNALS.FXA_DEP_IN }),
+      expect.anything(),
+    );
+  });
+
+  it('uses detail unit cost and description on a master matched by code', async () => {
+    const models = makeModels();
+    models.FixedAssets.find
+      .mockReturnValueOnce(queryResult([]))
+      .mockReturnValueOnce(
+        queryResult([
+          {
+            _id: 'existing-asset',
+            code: 'DELL-001',
+            description: 'Хуучин тайлбар',
+            transactionDetailId: 'another-location',
+          },
+        ]),
+      );
+    const transaction = makeIncomeTransaction();
+    const detail = {
+      ...transaction.details[0],
+      unitPrice: 100,
+      amount: 100,
+      followInfos: {
+        preDeprecation: 0,
+        fixedAssetTotalCount: 2,
+        fixedAssetTotalAmount: 100,
+      },
+    };
+    await syncFxaIncomeDetails(models as never, 'user-a', {
+      ...transaction,
+      description: note,
+      details: [detail],
+    } as never);
+    expect(models.FixedAssets.updateOne).toHaveBeenCalledWith(
+      { _id: 'existing-asset' },
+      expect.objectContaining({
+        $set: expect.objectContaining({
+          originalCost: 100,
+          description: note,
+        }),
+      }),
+    );
+    expect(models.FixedAssets.updateOne).toHaveBeenCalledWith(
+      { _id: 'existing-asset' },
+      expect.objectContaining({
+        $set: expect.objectContaining({
+          description: note,
+        }),
+      }),
+    );
+    expect(models.FixedAssets.create).not.toHaveBeenCalled();
+  });
+});

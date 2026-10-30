@@ -79,6 +79,8 @@ export const types = `
     links: JSON
     status: String
     chatStatus: UserChatStatus
+    # Sign-in presence (active | idle | none), unlike chatStatus which members set by hand
+    sessionState: String
     emailSignatures: JSON
     getNotificationByEmail: Boolean
 
@@ -112,6 +114,8 @@ export const types = `
     employeeId: String
     isOnboarded: Boolean
     hasPassword: Boolean
+    """'ldap' when the user signs in with a directory password; null for a local password"""
+    passwordManagedBy: String
     cursor: String
   }
 
@@ -126,6 +130,16 @@ export const types = `
     contentTypeId:String
     contentTypeDetail:JSON
     status:String
+  }
+
+  type UserSession {
+    _id: String!
+    method: String!
+    createdAt: Date
+    lastSeenAt: Date
+    expiresAt: Date
+    userAgent: String
+    current: Boolean!
   }
 
   type UsersListResponse {
@@ -175,6 +189,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   userMovements(userId: String!,contentType: String):[UserMovement]
+  userSessions(_id: String!): [UserSession!]!
 `;
 
 export const mutations = `
@@ -200,4 +215,5 @@ export const mutations = `
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
   usersSetActiveStatusBatch(_ids: [String!]!): Boolean
+  usersRevokeSessions(_id: String!, sessionId: String): Boolean
 `;

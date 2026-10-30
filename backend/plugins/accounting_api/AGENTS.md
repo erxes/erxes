@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -23,6 +23,8 @@
 - Other plugins' data models or implementation details.
 
 ## Current Capabilities
+
+- `reCalcRemainders` treats blank location filters as all locations, `_` as unassigned, and real ids as exact locations. Blank dimensions expand to Core structure ids plus `_`; each pair reuses the existing `updateLiveRemainders` calculation in batches of ten without changing its aggregation or cache-writing logic. Empty filters are allowed for an authenticated all-location recalculation.
 
 - Accounting after-process deal/order events can manufacture inventory shortages without creating a job execution document. The newest active real job supplies the missing quantity using the sale inventory account and effective location. Production invOut, invIncome and expense journals are ordinary roots in the sale parent/pointer, visible as editable transaction tabs and in TBalance; they are not follows.
 
@@ -58,6 +60,7 @@
 - Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
 - Currency transactions compare custom rates with the active exchange rate, create exchange-difference follow transactions only when rates differ, and fail clearly when the active rate is missing.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms; current cost starts from the latest published inventory adjustment and applies business-active inventory movements strictly after that adjustment date.
+- Inventory transaction saves and removals dispatch tenant-scoped Core `products.increaseInventories` mutations without waiting for the remote update. Quantity, cost, and pending movements are grouped by each detail's branch/department, falling back to the header; edits net old and new effects by product and location.
 - Inventory income transaction details persist total line weight so additional expenses can be allocated by amount, count, or weight.
 - Inventory income and internal-movement income can split a received product into another product by detail-level `followInfos.invSplit`; saving creates linked `invOut` and `invIncome` follow transactions that preserve total cost while converting quantity and unit price by the ratio. The split pair shares its own pointer, separate from the source transaction pointer, and contains only enabled split details.
 - Deal movement sync configs create or update `invMove` transactions from checked deal product rows when a deal enters the configured stage; product/deal branch and department can be applied to either the movement source or destination, the other side uses configured default source/destination locations, and movement amounts use active inventory cost instead of deal sale price.
@@ -151,6 +154,7 @@
 - GraphQL detail input/output uses the existing `followInfos: JSON` contract; `ITrDetailFollowInfos` types known journal metadata and leaves extension keys unknown, without a duplicate root income-detail array.
 - Fixed asset transaction details store `fixedAssetId` for existing assets and store `fixedAssetCategoryId`, `fixedAssetCode`, and `fixedAssetName` for acquisition input; income synchronization writes the generated fixed asset id back to the detail.
 - Fixed asset documents store acquisition identity, account, unit cost, original quantity, current quantity cache, category depreciation defaults, acquisition date, depreciation start date, transaction id, and transaction detail id.
+- Fixed asset income takes unit cost from detail `unitPrice`, preserving explicit zero; when absent, it derives unit cost from that detail's `amount / count`.
 - Fixed asset owner records store optional responsible-user/serial allocation ledger rows with fixed asset, code, sequence, count, action, status, owner, transaction, and transaction-detail linkage; they must not store branch, department, cost, depreciation method, acquisition date, or financial movement source-of-truth fields.
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
@@ -233,6 +237,7 @@
 - Inventory split synchronization must preserve generated detail ids by source `originId`, remove duplicate generated transactions with inventory reversal, and fail when an enabled source split cannot map to its income-side detail.
 - Deal movement sync must resolve product-row `branchId`/`departmentId` first, then deal-level branch/department, then configured defaults; when the deal location side is destination, source details use default source location and generated `invMoveIn` details use deal/product location, and vice versa for source-side configs. It must cost source details from active inventory cost for the configured source account and effective source location, excluding the existing synced movement during resync.
 - Deal and POS order sale sync must preserve sale journal validation. Missing payment, receivable, or cash/bank account configuration skips only those payment rows; actual paid amounts must be deducted before checking account configuration, and the sync must not invent balancing rows solely to force `ptrStatus: ok`.
+- Live product inventory updates must not block journal handlers on the Core network response. Normalize absent, empty, or runtime-null location ids to `_`, matching `reCalcRemainders`; Core accepts optional strings but rejects null ids. Core owns first-time inventory-path creation. Use detail-level location before header defaults and reverse old locations on edits/removal; unchanged reposts must send no increment.
 - Safe remainder item `preCount` must return `0` and `diffType` filters must be ignored for users without `viewSafeRemainderItemCounts` so they cannot compare the system inventory balance with counted inventory.
 - Jobs must have at least one positive-quantity input row and one positive-quantity output row; output cost-allocation ratios must be finite non-negative numbers with a positive finite total and no percentage cap.
 - Job add/edit GraphQL inputs and outputs use `[JobItemInput!]!`; reject null product rows during GraphQL coercion before model normalization runs.
@@ -268,6 +273,8 @@
 
 ## Validation
 
+- Smoke scenario: recalculate a selected product with both location filters blank, either dimension `_`, both `_`, and actual ids; verify independent `inventories[branch][department]` totals, pending counts, stale-zero clearing, and unchanged unrelated locations.
+
 - Smoke scenario: sync a deal/order with insufficient output stock and an active real job, confirm production out/in tabs share the sale parent without originId, verify allocated cost feeds sale COGS, resync without duplicates, edit tabs manually, then remove the group and verify inventory reversal. Manual inventory out/sale saves must never run jobs.
 
 - Smoke scenario: add jobs A at quantity 5 and B at quantity 10, save/reopen and post once. Verify repeated products merge independently per side and job cost allocation is preserved. Edit posted actuals/accounts/locations/costs and confirm the existing parent/pointer updates without duplicate transactions; undo then remove the draft.
@@ -282,6 +289,7 @@
 - Smoke scenario: calculate a fund and debt rate adjustment, verify validation fields/details are stored, then run transactions and confirm linked `exchangeDiff` transactions are created.
 - Smoke scenario: calculate a closing adjustment, edit a detail entry tax percent, run transactions, and verify `taxImpactValue`, grouped details, and linked transaction ids are stored.
 - Smoke scenario: run `journalReportData` and `journalReportMore` for every registered report with account/category/currency, `trKind`, pointer, customer/product/fixed-asset/user/content grouping, and branch/department grouping filters, then verify grouped totals and detail rows match every selected hierarchy value.
+- Smoke scenario: post the first safe remainder income for a product without a live inventory entry, verify the branch/department quantity and cost are updated without recalculation once asynchronous Core synchronization finishes, then edit/repost and undo. Also save mixed-location detail rows and verify each product-location balance separately. Inventory dispatch must not wait for the Core network response.
 - Smoke scenario: recalculate a safe remainder and test equal, higher, and lower counted quantities; verify income absorbs positive target-value differences, negative income is zero with a capped decrease adjustment, out/sale uses active cost, and remaining increases/decreases create balanced `invJustify` parents after quantity transactions.
 - Smoke scenario: create, edit, list, and remove a job with multiple input products and three output products at cost ratios `1, 1, 2`; verify raw ratios persist, totals above 100 are accepted, and negative or all-zero ratios are rejected.
 - Smoke scenario: create and edit inventory income plus internal movement with five details and enable `details[].followInfos.invSplit` on three; verify exactly one linked three-detail `invOut` and one linked three-detail `invIncome` share a pointer different from the source transaction, total cost is unchanged, converted quantity/unit price follow the ratio, and removing the source reverses both inventory effects.

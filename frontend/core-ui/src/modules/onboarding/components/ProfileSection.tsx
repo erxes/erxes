@@ -87,7 +87,9 @@ const PasswordField = ({
 export const ProfileSection = ({ onContinue }: { onContinue: () => void }) => {
   const { t } = useTranslation('common', { keyPrefix: 'onboarding' });
   const [currentUser] = useAtom(currentUserState);
-  const hasPassword = !!currentUser?.hasPassword;
+  // Directory users keep signing in with their directory password
+  const hasPassword =
+    !!currentUser?.hasPassword || !!currentUser?.passwordManagedBy;
   const { usersEdit } = useUserEdit();
   const { toast } = useToast();
   const form = useForm<ProfileFormType>({

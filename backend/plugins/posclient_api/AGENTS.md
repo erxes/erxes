@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-29`
 
 ## Scope
 
@@ -20,6 +20,17 @@
 
 ## Current Capabilities
 
+- Cover terminal fetches reserve an idempotent entry through
+  `posclientCoverTerminalResultSave`, then complete it with the original response.
+  Completed entries persist only in their payment detail's `terminalResults`; payment amount saves preserve
+  terminal history. Cover deletion first archives the full cover and terminal
+  history to `OrderChangeLogs` (`source: cover`, `action: delete`, `coverId`);
+  an audit failure blocks deletion. `utils/coverChangeLogs.ts` owns snapshot archival
+  and guarded deletion; a confirmed no-op removes only its newly inserted audit
+  record, so concurrent edits do not leave false deletion events. Deletion compares raw payment snapshots through
+  `$expr` so Mongoose defaults cannot prevent deleting older or pipeline-created
+  rows, while concurrent terminal changes remain protected. Pending entries block publishing. Publishing locks the cover while Sales receives the
+  complete per-payment terminal history. Cover reads/writes require the current POS and user scope.
 - Prints its federated SDL through the shared `schema:print` Nx target for gateway composition and frontend codegen.
 
 - The cashier's earn preview (`previewLoyaltyEarn`) counts the POS's own earning campaigns (`config.earnScoreCampaignId`, synced from the sales POS) first, then any active automation's Adjust score, one rule per campaign.
@@ -67,6 +78,7 @@
 | GraphQL products | `backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/queries/products.ts` | Builds tenant-scoped POS product/category filters, sorting, counts, similarity grouping, and remainder checks. |
 | GraphQL schemas  | `backend/plugins/posclient_api/src/modules/posclient/graphql/schemas`                       | Declares POS client GraphQL types and operations.                                                              |
 | Config models    | `backend/plugins/posclient_api/src/modules/posclient/db`                                    | Stores synced POS client configuration and runtime data.                                                       |
+| Cover terminal results | `backend/plugins/posclient_api/src/modules/posclient/utils/coverTerminalResults.ts` | Reserves and completes immutable fetch entries and atomically stores their responses in payment terminal results. |
 | Discount utils   | `backend/plugins/posclient_api/src/modules/posclient/utils/discountInfos.ts`                | Merges automatic discount metadata with preserved manual `hand` discounts.                                     |
 | Customer create  | `backend/plugins/posclient_api/src/modules/posclient/utils/customerCreate.ts`               | Resolves the POS customer form, filters input to the layout, validates, and finds duplicates.                  |
 | Sync utilities   | `backend/plugins/posclient_api/src/modules/posclient/utils/syncUtils.ts`                    | Synchronizes sales POS configuration into POS client config.                                                   |
@@ -142,13 +154,24 @@
 
 ## Data and State
 
+- Each cover payment detail (`details[]`, identified by unique `paidType`) retains `terminalResults` (`_id`, bank, server time, optional response).
+  An absent response denotes a pending fetch. Terminal text is derived from
+  these entries; payment details have no duplicate description fields.
+  Cover-level `description` stays the general cover note, separate from payment history,
+  and publish sends its latest saved value unchanged to Sales.
+- A newly opened POS client cover is persisted with `status: draft`; it becomes
+  `new` after its calculated amounts are saved. Drafts do not advance the
+  previous-cover boundary in `coverAmounts` and cannot be published.
+- The admin-only `orderChangeLogs(source: "cover")` query exposes cover deletion
+  snapshots after the live cover is removed. Cover snapshots include dates, amounts,
+  payment details, terminal results, and the deleting POS user.
 - Tenant-scoped POS client collections are generated per `subdomain`.
 - Order change logs are stored in `posclient_order_change_logs` with
   `orderId`, `posToken`, `userId`, `createdAt`, and per-field old/new values.
   The `items` field contains complete before/after item snapshots, including
   additions, removals, quantity, price, discounts, and item status changes.
-- Order change logs expire 30 days after server `createdAt` through the
-  single-field `createdAt_1` TTL index (`expireAfterSeconds: 2592000`). MongoDB
+- Order change logs, including deleted cover snapshots, expire 40 days after server `createdAt` through the
+  single-field `createdAt_1` TTL index (`expireAfterSeconds: 3456000`). MongoDB
   removes expired rows asynchronously. Existing non-TTL `createdAt_1` indexes
   must be converted with `collMod` when deploying; schema declarations alone
   do not change existing index options. This also expires older existing logs.
@@ -160,7 +183,8 @@
 - `orderId` references a persisted order; `cartId` groups actions for one draft
   cart or uses `order:<orderId>` for a saved order. `eventId` identifies one
   client action and remains unchanged across retries. Backend order-change
-  logs use `source: order`; client cart events use `source: cart`. Historical
+  logs use `source: order`; client cart events use `source: cart`; cover deletion
+  snapshots use `source: cover`. Cover create/edit/fetch/publish do not create audit events. Historical
   logs may lack `source` or `action`; no speculative backfill is performed.
 - `OrderChangeLog.user` resolves the acting `userId` from tenant-scoped
   `PosUsers` and is registered in the runtime Apollo resolver map at
@@ -177,6 +201,12 @@
 
 ## Local Invariants
 
+- Terminal result IDs make reservation/completion retries idempotent. Completed
+  responses are immutable; saving manual cover fields must retain every result.
+  Reserve before calling a terminal. Covers with any reservation cannot be
+  deleted; pending responses prevent the atomic `confirming` publish lock.
+  An interrupted `confirming` publish can retry its stored snapshot; editing
+  and new terminal requests remain locked until it is acknowledged.
 - Product imports finish by removing the importing POS token from categories
   with no products carrying that token in that category or any descendant.
   Retain all ancestors using the slash-delimited code prefixes in `order`
@@ -242,6 +272,11 @@
 
 ## Validation
 
+- `node --test backend/plugins/posclient_api/src/modules/posclient/graphql/resolvers/mutations/__tests__/covers.test.cjs`
+- Cover smoke: create a draft, fetch two terminal results, reload, edit the
+  manual description, and publish; Sales receives both results. Reject deletion
+  after reservation, publishing while pending, replacement of a completed
+  response, and access from another POS/user. Retried completions append once.
 - `pnpm nx run posclient_api:schema:print --skip-nx-cache`
 - `pnpm nx run gateway:schema:compose --skip-nx-cache --parallel=2`
 
