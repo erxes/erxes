@@ -153,7 +153,7 @@ export const CitizenInsurancePage = () => {
     (p: InsuranceProduct) => p.id === selectedProductId,
   );
 
-  const citizenType = insuranceTypes.find((t: any) => t.isCitizen === true);
+  const citizenType = insuranceTypes.find((t) => t.isCitizen === true);
 
   // Traveler management
   const addTraveler = () => {
@@ -225,8 +225,10 @@ export const CitizenInsurancePage = () => {
       setTimeout(() => {
         navigate('/insurance/contracts');
       }, 1500);
-    } catch (err: any) {
-      setError(err.message || 'Гэрээ үүсгэхэд алдаа гарлаа');
+    } catch (err) {
+      setError(
+        (err instanceof Error && err.message) || 'Гэрээ үүсгэхэд алдаа гарлаа',
+      );
     }
   };
 

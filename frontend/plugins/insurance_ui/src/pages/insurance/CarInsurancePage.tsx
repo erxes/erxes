@@ -27,6 +27,11 @@ import {
 import { toPricingConfig } from '~/modules/insurance/utils/pricing';
 import { hasProduct } from '~/modules/insurance/utils/vendorProducts';
 
+interface CarInsuredObject {
+  assessedValue?: number;
+  [key: string]: string | number | undefined;
+}
+
 export const CarInsurancePage = () => {
   const { t } = useTranslation('insurance');
   const navigate = useNavigate();
@@ -97,7 +102,8 @@ export const CarInsurancePage = () => {
   };
 
   // Dynamic insured object based on insurance type attributes
-  const [insuredObject, setInsuredObject] = useState<Record<string, any>>({});
+  const [insuredObject, setInsuredObject] = useState<CarInsuredObject>({});
+  const assessedValue = insuredObject.assessedValue ?? 0;
 
   // Get selected product for premium calculation
   const selectedProduct = products.find((p) => p.id === formData.productId);
@@ -197,8 +203,10 @@ export const CarInsurancePage = () => {
       setTimeout(() => {
         navigate('/insurance/contracts');
       }, 1500);
-    } catch (err: any) {
-      setError(err.message || t('failed-to-create-contract'));
+    } catch (err) {
+      setError(
+        (err instanceof Error && err.message) || t('failed-to-create-contract'),
+      );
     }
   };
 
@@ -341,71 +349,22 @@ export const CarInsurancePage = () => {
                       </div>
 
                       {carInsuranceType.attributes
-                        .filter((attr: any) => attr.name !== 'assessedValue')
-                        .map((attr: any) => (
+                        .filter((attr) => attr.name !== 'assessedValue')
+                        .map((attr) => (
                           <div key={attr.name}>
                             <label className="block text-sm font-medium mb-2">
-                              {attr.label || attr.name} {attr.required && '*'}
+                              {attr.name} {attr.required && '*'}
                             </label>
-                            {attr.type === 'select' && attr.options ? (
-                              <Select
-                                value={insuredObject[attr.name] || ''}
-                                onValueChange={(value: string) =>
-                                  setInsuredObject({
-                                    ...insuredObject,
-                                    [attr.name]: value,
-                                  })
-                                }
-                              >
-                                <Select.Trigger>
-                                  <Select.Value placeholder={t('select')} />
-                                </Select.Trigger>
-                                <Select.Content>
-                                  {attr.options.map((option: any) => (
-                                    <Select.Item key={option} value={option}>
-                                      {option}
-                                    </Select.Item>
-                                  ))}
-                                </Select.Content>
-                              </Select>
-                            ) : attr.type === 'number' ? (
-                              <Input
-                                type="number"
-                                value={insuredObject[attr.name] || ''}
-                                onChange={(e) =>
-                                  setInsuredObject({
-                                    ...insuredObject,
-                                    [attr.name]:
-                                      Number.parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                                required={attr.required}
-                              />
-                            ) : attr.type === 'boolean' ? (
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={insuredObject[attr.name] || false}
-                                  onChange={(e) =>
-                                    setInsuredObject({
-                                      ...insuredObject,
-                                      [attr.name]: e.target.checked,
-                                    })
-                                  }
-                                />
-                              </label>
-                            ) : (
-                              <Input
-                                value={insuredObject[attr.name] || ''}
-                                onChange={(e) =>
-                                  setInsuredObject({
-                                    ...insuredObject,
-                                    [attr.name]: e.target.value,
-                                  })
-                                }
-                                required={attr.required}
-                              />
-                            )}
+                            <Input
+                              value={insuredObject[attr.name] || ''}
+                              onChange={(e) =>
+                                setInsuredObject({
+                                  ...insuredObject,
+                                  [attr.name]: e.target.value,
+                                })
+                              }
+                              required={attr.required ?? undefined}
+                            />
                           </div>
                         ))}
                     </div>
@@ -413,7 +372,7 @@ export const CarInsurancePage = () => {
                 )}
 
                 {/* Premium Calculation Display */}
-                {insuredObject.assessedValue > 0 && formData.productId && (
+                {assessedValue > 0 && formData.productId && (
                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                     <h4 className="font-semibold text-blue-800 mb-2 flex items-center gap-2">
                       <IconCurrencyTugrik size={18} />

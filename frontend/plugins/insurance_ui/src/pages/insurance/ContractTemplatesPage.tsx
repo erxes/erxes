@@ -187,7 +187,7 @@ export default function ContractTemplatesPage() {
               <Input
                 id="name"
                 value={templateName}
-                onChange={(e: any) => setTemplateName(e.target.value)}
+                onChange={(e) => setTemplateName(e.target.value)}
                 placeholder={t('template-name-placeholder')}
               />
             </div>
@@ -197,7 +197,7 @@ export default function ContractTemplatesPage() {
               <Input
                 id="description"
                 value={templateDescription}
-                onChange={(e: any) => setTemplateDescription(e.target.value)}
+                onChange={(e) => setTemplateDescription(e.target.value)}
                 placeholder={t('template-description-placeholder')}
               />
             </div>

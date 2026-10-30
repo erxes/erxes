@@ -1,4 +1,8 @@
 import type {
+  AdditionalCoverageInput,
+  CompensationCalculationInput,
+  CoveredRiskInput as GeneratedCoveredRiskInput,
+  DeductibleConfigInput,
   InsuranceContractsQuery,
   InsuranceCustomersQuery,
   InsuranceProductsQuery,
@@ -13,20 +17,13 @@ export type RiskType = InsuranceRiskTypesQuery['riskTypes'][number];
 
 export type InsuranceType = InsuranceTypesQuery['insuranceTypes'][number];
 
-export interface AdditionalCoverage {
-  name: string;
-  limits: number[];
+export interface AdditionalCoverage extends AdditionalCoverageInput {
   appliesTo: string[];
 }
 
-export interface CompensationCalculation {
-  name: string;
-  methodologies: string[];
-}
+export type CompensationCalculation = CompensationCalculationInput;
 
-export interface DeductibleConfig {
-  levels: string[];
-}
+export type DeductibleConfig = DeductibleConfigInput;
 
 export type InsuranceRegion = InsuranceRegionsQuery['insuranceRegions'][number];
 
@@ -54,7 +51,6 @@ export type InsuranceCustomer =
 export type InsuranceContract = InsuranceContractsQuery['contracts'][number];
 
 // Input Types
-export interface CoveredRiskInput {
+export interface CoveredRiskInput extends GeneratedCoveredRiskInput {
   riskId: string;
-  coveragePercentage: number;
 }

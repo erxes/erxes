@@ -70,7 +70,7 @@ export const InsuranceTypeForm = ({
   const handleAttributeChange = (
     index: number,
     field: keyof AttributeInput,
-    value: any,
+    value: AttributeInput[keyof AttributeInput],
   ) => {
     const newAttributes = [...formData.attributes];
     newAttributes[index] = {
@@ -85,7 +85,8 @@ export const InsuranceTypeForm = ({
 
     // Remove __typename from attributes (added by Apollo Client)
     const cleanAttributes = formData.attributes.map(
-      ({ __typename, ...attr }: any) => attr,
+      ({ __typename, ...attr }: AttributeInput & { __typename?: string }) =>
+        attr,
     );
 
     try {

@@ -37,8 +37,8 @@ export const ContractPdfEditorPage = () => {
   useEffect(() => {
     if (contract) {
       // Use saved PDF content if exists, otherwise generate from template
-      if ((contract as any).pdfContent) {
-        setHtmlContent((contract as any).pdfContent);
+      if (contract.pdfContent) {
+        setHtmlContent(contract.pdfContent);
       } else {
         setHtmlContent(generateContractHTML(contract));
       }

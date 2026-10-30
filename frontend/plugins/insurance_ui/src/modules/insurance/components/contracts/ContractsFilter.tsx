@@ -54,7 +54,7 @@ const InsuranceTypeFilterView = () => {
   };
   return (
     <div className="p-2 space-y-1 max-h-48 overflow-y-auto">
-      {(insuranceTypes || []).map((type: any) => (
+      {(insuranceTypes || []).map((type) => (
         <button
           key={type.id}
           onClick={() => setValue(value === type.id ? null : type.id)}
@@ -210,7 +210,7 @@ export const ContractsFilter = () => {
   } = queries || {};
   const { insuranceTypes } = useInsuranceTypes();
   const selectedTypeName = insuranceTypes?.find(
-    (t: any) => t.id === queries?.insuranceTypeId,
+    (t) => t.id === queries?.insuranceTypeId,
   )?.name;
 
   return (
