@@ -19,6 +19,7 @@ const TYPE_GROUPS: { key: string; types: DataExtensionFieldType[] }[] = [
     types: ['email', 'emails', 'phone', 'phones', 'url', 'links', 'address'],
   },
   { key: 'links', types: ['relation', 'member'] },
+  { key: 'computed', types: ['formula', 'rollup'] },
   { key: 'advanced', types: ['files', 'json'] },
 ];
 

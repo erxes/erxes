@@ -59,7 +59,9 @@
     "phones": "Phones",
     "files": "Files",
     "member": "Team member",
-    "json": "JSON"
+    "json": "JSON",
+    "formula": "Formula",
+    "rollup": "Rollup"
   },
   "columns": {
     "label": "Field",
@@ -281,7 +283,9 @@
     "phones": "Several phone numbers",
     "files": "Uploaded documents and images",
     "member": "One or more people on your team",
-    "json": "Structured data for integrations"
+    "json": "Structured data for integrations",
+    "formula": "Calculated from other fields",
+    "rollup": "Count or total of linked records"
   },
   "section": {
     "title": "Custom fields"
@@ -308,7 +312,8 @@
       "contact": "Contact details",
       "links": "Links to records and people",
       "dates": "Dates",
-      "advanced": "Files and data"
+      "advanced": "Files and data",
+      "computed": "Calculated"
     },
     "no-types": "No field type matches “{{search}}”",
     "type-on": "New field on {{label}}",
@@ -548,5 +553,58 @@
     "import-rows_one": "Import {{count}} row",
     "import-rows_other": "Import {{count}} rows",
     "imported": "Imported {{count}} of {{total}} rows"
+  },
+  "computed": {
+    "formula": "Formula",
+    "expression": "Expression",
+    "insert-field": "Insert a field",
+    "expression-hint": "Use {field} for values, + - * / and comparisons, and IF, ROUND, DAYS, CONCAT, MIN, MAX, TODAY. Computed when read; it can’t be filtered or edited.",
+    "result-type": "Result",
+    "results": {
+      "number": "Number",
+      "text": "Text",
+      "date": "Date",
+      "boolean": "Yes / No"
+    },
+    "rollup": "Rollup",
+    "relation": "Relation",
+    "op": "Total",
+    "of-field": "Of field",
+    "pick": "Choose",
+    "no-relations": "Add a has-many relation to this record type first; a rollup totals the records it links.",
+    "ops": {
+      "count": "Count",
+      "sum": "Sum",
+      "avg": "Average",
+      "min": "Minimum",
+      "max": "Maximum"
+    }
+  },
+  "access": {
+    "title": "Access",
+    "managers": "Only managers",
+    "managers-hint": "Only Data Extensions managers see and change this value.",
+    "read-only": "Read only for others",
+    "read-only-hint": "Everyone sees it; only Data Extensions managers change it.",
+    "show-when": "Show on forms when",
+    "show-when-field": "Field",
+    "always": "Always",
+    "show-when-hint": "Hides the field on forms until the condition is met. Values stay saved."
+  },
+  "templates": {
+    "title": "Templates",
+    "packs": "Ready templates",
+    "export": "Export",
+    "import": "Import",
+    "apply": "Apply",
+    "contents": "{{objects}} objects · {{fields}} fields",
+    "applied": "{{created}} created, {{skipped}} already there",
+    "progress": "{{created}} created · {{skipped}} skipped · {{failed}} failed",
+    "export-hint": "Choose record types to download their objects, fields and relations as a JSON file you can import into another workspace.",
+    "download": "Download JSON",
+    "import-hint": "Apply a data model exported from another workspace. Existing objects and fields are kept and skipped.",
+    "choose-file": "Choose file",
+    "bad-file": "That file is not a data model template",
+    "file-contents": "{{objects}} objects, {{fields}} fields, {{relations}} relations"
   }
 }

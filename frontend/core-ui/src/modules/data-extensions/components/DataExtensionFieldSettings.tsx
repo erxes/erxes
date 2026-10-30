@@ -2,6 +2,10 @@ import { Input, Label, Select, Switch } from 'erxes-ui';
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  DataExtensionAccessSettings,
+  DataExtensionComputedSettings,
+} from './DataExtensionComputedSettings';
+import {
   DATA_EXTENSION_CURRENCIES,
   DATA_EXTENSION_DECIMAL_TYPES,
   DATA_EXTENSION_LENGTH_TYPES,
@@ -122,6 +126,8 @@ const NumberSetting = ({
  */
 export const DataExtensionFieldSettings = ({
   type,
+  recordType,
+  fieldKey,
   settings,
   options,
   isEdit,
@@ -129,6 +135,8 @@ export const DataExtensionFieldSettings = ({
   onChange,
 }: {
   type: DataExtensionFieldType;
+  recordType: string;
+  fieldKey: string;
   settings: IDataExtensionFieldSettings;
   options: IDataExtensionFieldOption[];
   isEdit: boolean;
@@ -147,6 +155,28 @@ export const DataExtensionFieldSettings = ({
 
   if (type === 'relation') {
     return null;
+  }
+
+  // Computed fields store nothing: no rules or default, only how they are
+  // computed and who sees them.
+  if (type === 'formula' || type === 'rollup') {
+    return (
+      <div className="flex flex-col gap-5">
+        <DataExtensionComputedSettings
+          type={type}
+          recordType={recordType}
+          fieldKey={fieldKey}
+          settings={settings}
+          onChange={onChange}
+        />
+        <DataExtensionAccessSettings
+          recordType={recordType}
+          fieldKey={fieldKey}
+          settings={settings}
+          onChange={onChange}
+        />
+      </div>
+    );
   }
 
   const canBeUnique = (DATA_EXTENSION_UNIQUE_TYPES as readonly string[]).includes(
@@ -358,6 +388,13 @@ export const DataExtensionFieldSettings = ({
           }
         />
       </fieldset>
+
+      <DataExtensionAccessSettings
+        recordType={recordType}
+        fieldKey={fieldKey}
+        settings={settings}
+        onChange={onChange}
+      />
     </div>
   );
 };

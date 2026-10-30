@@ -22,6 +22,17 @@ export const DATA_EXTENSION_FIELD_TYPES = [
   'files',
   'member',
   'json',
+  'formula',
+  'rollup',
+] as const;
+
+export const DATA_EXTENSION_ROLLUP_OPS = ['count', 'sum', 'avg', 'min', 'max'] as const;
+
+export const DATA_EXTENSION_FORMULA_RESULT_TYPES = [
+  'number',
+  'text',
+  'date',
+  'boolean',
 ] as const;
 
 /** Same groups the server checks settings against. */
@@ -40,6 +51,8 @@ export const DATA_EXTENSION_NO_DEFAULT_TYPES = [
   'member',
   'files',
   'json',
+  'formula',
+  'rollup',
 ];
 
 export const DATA_EXTENSION_ADDRESS_PARTS = [
@@ -130,6 +143,20 @@ export interface IDataExtensionFieldSettings {
   group?: string;
   showInCreate?: boolean;
   placeholder?: string;
+  expression?: string;
+  resultType?: (typeof DATA_EXTENSION_FORMULA_RESULT_TYPES)[number];
+  rollup?: {
+    relation: string;
+    op: (typeof DATA_EXTENSION_ROLLUP_OPS)[number];
+    field?: string;
+  };
+  access?: 'everyone' | 'managers';
+  readOnly?: boolean;
+  visibleWhen?: {
+    field: string;
+    operator: 'eq' | 'neq' | 'in' | 'isNotEmpty';
+    value?: unknown;
+  } | null;
 }
 
 export interface IDataExtensionField {
@@ -277,9 +304,70 @@ export interface IDataExtensionRecordResult {
 export const hasFieldOptions = (type: DataExtensionFieldType) =>
   type === 'select' || type === 'multiSelect';
 
-/** Shown on create forms unless the field opted out. */
+/** Formula and rollup fields are computed on read and never edited. */
+export const isComputedField = (field: Pick<IDataExtensionField, 'type'>) =>
+  field.type === 'formula' || field.type === 'rollup';
+
+/** Shown on create forms unless computed or opted out. */
 export const showsInCreate = (field: IDataExtensionField) =>
-  field.settings?.showInCreate !== false;
+  !isComputedField(field) && field.settings?.showInCreate !== false;
+
+/**
+ * Applies a field's show-when rule to the values around it. Fields without
+ * a rule, or whose rule names a missing field, are always shown.
+ */
+export const isFieldVisible = (
+  field: IDataExtensionField,
+  values: Record<string, unknown>,
+) => {
+  const rule = field.settings?.visibleWhen;
+
+  if (!rule) {
+    return true;
+  }
+
+  const value = values[rule.field];
+  const matches = (candidate: unknown) =>
+    Array.isArray(value)
+      ? value.includes(candidate as never)
+      : JSON.stringify(value ?? null) === JSON.stringify(candidate ?? null);
+
+  switch (rule.operator) {
+    case 'isNotEmpty':
+      return !isEmptyDataExtensionValue(value);
+    case 'neq':
+      return !matches(rule.value);
+    case 'in':
+      return Array.isArray(rule.value) && rule.value.some(matches);
+    default:
+      return matches(rule.value);
+  }
+};
+
+/**
+ * The display type of a computed field's value, so the shared display can
+ * format it like a stored one.
+ */
+export const displayFieldOf = (field: IDataExtensionField): IDataExtensionField => {
+  if (field.type === 'rollup') {
+    return { ...field, type: 'number' };
+  }
+
+  if (field.type === 'formula') {
+    const type =
+      field.settings?.resultType === 'date'
+        ? 'dateTime'
+        : field.settings?.resultType === 'boolean'
+          ? 'boolean'
+          : field.settings?.resultType === 'text'
+            ? 'text'
+            : 'number';
+
+    return { ...field, type };
+  }
+
+  return field;
+};
 
 export const isRequiredField = (field: IDataExtensionField) =>
   Boolean(field.settings?.required);
@@ -353,6 +441,10 @@ export const filterOperatorsFor = (
 
   if (field.relation) {
     return field.relation.side === 'source' ? ['eq', 'neq', ...empty] : [];
+  }
+
+  if (isComputedField(field)) {
+    return [];
   }
 
   switch (field.type) {

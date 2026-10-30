@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DataExtensionValueDisplay,
+  displayFieldOf,
   formatDataExtensionValue,
   IDataExtensionField,
   IDataExtensionFilter,
@@ -266,7 +267,7 @@ export const DataExtensionRecordsTable = ({
                     {columns.map((field) => (
                       <Table.Cell key={field._id} className="max-w-56 overflow-hidden">
                         <DataExtensionValueDisplay
-                          field={field}
+                          field={displayFieldOf(field)}
                           value={record.values[field.key] ?? null}
                           links={record.links[field.key]}
                           className="max-w-full"

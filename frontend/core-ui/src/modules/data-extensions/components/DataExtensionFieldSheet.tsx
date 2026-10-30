@@ -960,6 +960,8 @@ export const DataExtensionFieldSheet = ({
                         )}
                         <DataExtensionFieldSettings
                           type={type}
+                          recordType={owner.recordType}
+                          fieldKey={form.watch('key')}
                           isEdit={isEdit}
                           initialSettings={field?.settings}
                           options={form.watch('options')}

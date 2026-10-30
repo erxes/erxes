@@ -6,12 +6,17 @@ import { useTranslation } from 'react-i18next';
 import { useDataExtensionFields } from '../hooks/useDataExtensionFields';
 import { useDataExtensionRecord } from '../hooks/useDataExtensionRecord';
 import { useDataExtensionRecordTypes } from '../hooks/useDataExtensionRecordTypes';
+import { usePermissionCheck } from '../../permissions/hooks/usePermissionCheck';
 import {
   DataExtensionValue,
+  displayFieldOf,
   IDataExtensionField,
   IDataExtensionLinkedRecord,
   IDataExtensionRecordType,
+  isComputedField,
+  isFieldVisible,
 } from '../types';
+import { DataExtensionValueDisplay } from './DataExtensionValueDisplay';
 import { DataExtensionFieldLabel } from './DataExtensionFieldLabel';
 import { DataExtensionRelationValue } from './DataExtensionRelationValue';
 import { DataExtensionValueInput } from './DataExtensionValueInput';
@@ -221,7 +226,13 @@ const DataExtensionInlineField = ({
         onBlur={onBlur}
         onKeyDown={onKeyDown}
       >
-        {field.relation ? (
+        {isComputedField(field) ? (
+          <DataExtensionValueDisplay
+            field={displayFieldOf(field)}
+            value={value}
+            className="block truncate py-1 text-xs"
+          />
+        ) : field.relation ? (
           <DataExtensionRelationValue
             id={inputId}
             field={field}
@@ -288,6 +299,8 @@ const RecordTypeFields = ({
   const { fields } = useDataExtensionFields({
     recordType: descriptor.recordType,
   });
+  const { hasActionPermission } = usePermissionCheck();
+  const canManage = hasActionPermission('dataExtensionsManage');
   const { record, notFound, error, load, save } = useDataExtensionRecord(
     descriptor,
     fields,
@@ -324,6 +337,17 @@ const RecordTypeFields = ({
     await save({ [key]: value });
   };
 
+  // Restricted values are hidden from, and read-only values locked for,
+  // anyone who is not a Data Extensions manager; the server enforces both.
+  const lockedFor = (field: IDataExtensionField) =>
+    readOnly ||
+    isComputedField(field) ||
+    (!canManage &&
+      (field.settings?.readOnly || field.settings?.access === 'managers'));
+  const shown = (field: IDataExtensionField) =>
+    isFieldVisible(field, record.values) &&
+    (canManage || field.settings?.access !== 'managers');
+
   return (
     <section className="flex flex-col gap-1.5 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-200">
       {showLabel && (
@@ -338,14 +362,14 @@ const RecordTypeFields = ({
               {group}
             </h5>
           )}
-          {items.map((field) => (
+          {items.filter(shown).map((field) => (
             <DataExtensionInlineField
               key={field._id}
               field={field}
               value={record.values[field.key] ?? null}
               links={record.links[field.key] || []}
               editable={record.editableLinks.includes(field.key)}
-              readOnly={readOnly}
+              readOnly={lockedFor(field)}
               inputId={`data-extensions-${recordId}-${field.key}`}
               onSave={onSave}
             />

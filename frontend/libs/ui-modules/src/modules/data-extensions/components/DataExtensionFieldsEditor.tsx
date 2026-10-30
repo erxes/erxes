@@ -3,6 +3,8 @@ import {
   DataExtensionValue,
   IDataExtensionField,
   IDataExtensionLinkedRecord,
+  isComputedField,
+  isFieldVisible,
 } from '../types';
 import { DataExtensionFieldLabel } from './DataExtensionFieldLabel';
 import { DataExtensionRelationValue } from './DataExtensionRelationValue';
@@ -64,69 +66,74 @@ export const DataExtensionFieldsEditor = ({
     <div
       className={stack ? 'flex flex-col gap-1' : 'grid gap-5 sm:grid-cols-2'}
     >
-      {fields.map((field) => {
-        const inputId = `${idPrefix}-${field.key}`;
-        const tall = Boolean(field.relation) || TALL_TYPES.includes(field.type);
-        const input = (
-          <fieldset disabled={disabled} className="min-w-0">
-            {field.relation ? (
-              <DataExtensionRelationValue
-                id={inputId}
-                field={field}
-                value={values[field.key] ?? null}
-                links={links[field.key] || []}
-                editable={!editableLinks || editableLinks.includes(field.key)}
-                onChange={(value) => onChange(field.key, value)}
-              />
-            ) : (
-              <DataExtensionValueInput
-                id={inputId}
-                field={field}
-                value={values[field.key] ?? null}
-                onChange={(value) => onChange(field.key, value)}
-                compact={stack}
-              />
-            )}
-          </fieldset>
-        );
+      {fields
+        .filter(
+          (field) => !isComputedField(field) && isFieldVisible(field, values),
+        )
+        .map((field) => {
+          const inputId = `${idPrefix}-${field.key}`;
+          const tall =
+            Boolean(field.relation) || TALL_TYPES.includes(field.type);
+          const input = (
+            <fieldset disabled={disabled} className="min-w-0">
+              {field.relation ? (
+                <DataExtensionRelationValue
+                  id={inputId}
+                  field={field}
+                  value={values[field.key] ?? null}
+                  links={links[field.key] || []}
+                  editable={!editableLinks || editableLinks.includes(field.key)}
+                  onChange={(value) => onChange(field.key, value)}
+                />
+              ) : (
+                <DataExtensionValueInput
+                  id={inputId}
+                  field={field}
+                  value={values[field.key] ?? null}
+                  onChange={(value) => onChange(field.key, value)}
+                  compact={stack}
+                />
+              )}
+            </fieldset>
+          );
 
-        if (stack) {
+          if (stack) {
+            return (
+              <div
+                key={field._id}
+                className={cn(
+                  'grid min-h-7 grid-cols-[6.5rem_minmax(0,1fr)] gap-x-2',
+                  tall ? 'items-start' : 'items-center',
+                )}
+              >
+                <DataExtensionFieldLabel
+                  field={field}
+                  htmlFor={inputId}
+                  className={tall ? 'pt-1.5' : undefined}
+                />
+                {input}
+              </div>
+            );
+          }
+
           return (
             <div
               key={field._id}
               className={cn(
-                'grid min-h-7 grid-cols-[6.5rem_minmax(0,1fr)] gap-x-2',
-                tall ? 'items-start' : 'items-center',
+                'flex flex-col gap-2',
+                WIDE_TYPES.includes(field.type) && 'sm:col-span-2',
               )}
             >
-              <DataExtensionFieldLabel
-                field={field}
-                htmlFor={inputId}
-                className={tall ? 'pt-1.5' : undefined}
-              />
+              <Label htmlFor={inputId}>{field.label}</Label>
               {input}
+              {field.description && (
+                <p className="text-xs text-muted-foreground">
+                  {field.description}
+                </p>
+              )}
             </div>
           );
-        }
-
-        return (
-          <div
-            key={field._id}
-            className={cn(
-              'flex flex-col gap-2',
-              WIDE_TYPES.includes(field.type) && 'sm:col-span-2',
-            )}
-          >
-            <Label htmlFor={inputId}>{field.label}</Label>
-            {input}
-            {field.description && (
-              <p className="text-xs text-muted-foreground">
-                {field.description}
-              </p>
-            )}
-          </div>
-        );
-      })}
+        })}
     </div>
   );
 };

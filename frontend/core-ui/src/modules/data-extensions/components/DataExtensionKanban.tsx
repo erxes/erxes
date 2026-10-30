@@ -16,6 +16,7 @@ import {
   buildPatchMutation,
   DataExtensionOptionBadge,
   DataExtensionValueDisplay,
+  displayFieldOf,
   formatDataExtensionValue,
   IDataExtensionField,
   IDataExtensionFilter,
@@ -64,7 +65,7 @@ const Card = ({
       {fields.map((field) => (
         <DataExtensionValueDisplay
           key={field._id}
-          field={field}
+          field={displayFieldOf(field)}
           value={record.values[field.key] ?? null}
           links={record.links[field.key]}
           className="block truncate text-xs text-muted-foreground"

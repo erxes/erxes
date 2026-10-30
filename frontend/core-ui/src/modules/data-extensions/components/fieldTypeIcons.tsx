@@ -15,11 +15,13 @@ import {
   IconMail,
   IconMailPlus,
   IconMapPin,
+  IconMathFunction,
   IconPaperclip,
   IconPercentage,
   IconPhone,
   IconPhonePlus,
   IconStar,
+  IconSum,
   IconToggleLeft,
   IconUserCircle,
   TablerIcon,
@@ -52,6 +54,8 @@ export const FIELD_TYPE_ICONS: Record<DataExtensionFieldType, TablerIcon> = {
   files: IconPaperclip,
   member: IconUserCircle,
   json: IconBraces,
+  formula: IconMathFunction,
+  rollup: IconSum,
 };
 
 /** GraphQL type a field gets on the typed endpoint, shown in previews. */
@@ -79,6 +83,8 @@ export const FIELD_TYPE_GRAPHQL: Record<DataExtensionFieldType, string> = {
   files: '[DataExtensionFile!]',
   member: 'TeamMember',
   json: 'JSON',
+  formula: 'Float / String / Date',
+  rollup: 'Float',
 };
 
 export const FieldTypeIcon = ({
