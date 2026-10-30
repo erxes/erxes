@@ -8,6 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { FXA_OWNER_RECORD_PANEL_CONTENT_TYPES } from '@/fixedAssets/ownerRecords/constants/ownerRecordPanel';
 import { SETTINGS_PANEL_CONTENT_TYPES } from '@/settings/constants/settingsPanel';
 
 export const CONFIG: IUIConfig = {
@@ -127,7 +128,10 @@ export const CONFIG: IUIConfig = {
         icon: IconReceipt,
       },
     ],
-    recordPanels: SETTINGS_PANEL_CONTENT_TYPES.map((contentType) => ({
+    recordPanels: [
+      ...SETTINGS_PANEL_CONTENT_TYPES,
+      ...FXA_OWNER_RECORD_PANEL_CONTENT_TYPES,
+    ].map((contentType) => ({
       contentType,
       properties: false,
       draftTitle: true,
