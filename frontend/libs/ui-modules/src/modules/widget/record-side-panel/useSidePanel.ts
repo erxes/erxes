@@ -11,7 +11,7 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { matchPath } from 'react-router-dom';
+import { matchPath, useLocation } from 'react-router-dom';
 import { TRelationEntity } from 'ui-modules/modules/widget/utils';
 import { SIDE_PANEL_WIDTH } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanel';
 import { SidePanelNavigatorContext } from 'ui-modules/modules/widget/record-side-panel/recordView';
@@ -33,6 +33,12 @@ export const sidePanelWidthState = atomWithStorage<number>(
 // newest last; the panel's back button returns to them.
 export const sidePanelHistoryState = atom<string[]>([]);
 export const sidePanelSessionState = atom(0);
+
+interface ISidePanelNavigationState {
+  path: string | null;
+  tab: string;
+  history: { path: string; tab: string }[];
+}
 
 export interface IOpenRecordOptions {
   // Opened from inside the panel (a related record): Back returns here.
@@ -126,6 +132,18 @@ export const useSidePanel = () => {
     panelHistory: string[];
   }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY]);
   const path = typeof queries.panel === 'string' ? queries.panel : null;
+  const location = useLocation();
+  const routerState = location.state as {
+    sidePanel?: ISidePanelNavigationState;
+  } | null;
+  const saved = routerState?.sidePanel;
+  const navigationState = saved?.path === path ? saved : undefined;
+  const getTab = (targetPath: string | null): string =>
+    targetPath === path
+      ? navigationState?.tab || ''
+      : navigationState?.history.find((entry) => entry.path === targetPath)
+          ?.tab || '';
+  const tab = getTab(sourcePath ?? path);
   const historyKey = JSON.stringify(queries.panelHistory ?? null);
   const history = useMemo(() => {
     const entries: unknown = JSON.parse(historyKey);
@@ -148,6 +166,7 @@ export const useSidePanel = () => {
     nextPath: string | null,
     nextHistory: string[],
     replace = false,
+    nextTab = getTab(nextPath),
   ) => {
     setHistory(nextHistory);
     setRoute(
@@ -155,9 +174,23 @@ export const useSidePanel = () => {
         panel: nextPath,
         panelHistory: nextHistory.length ? nextHistory : null,
       },
-      { replace },
+      {
+        replace,
+        state: {
+          ...routerState,
+          sidePanel: {
+            path: nextPath,
+            tab: nextTab,
+            history: nextHistory.map((entry) => ({
+              path: entry,
+              tab: getTab(entry),
+            })),
+          },
+        },
+      },
     );
   };
+  const setTab = (nextTab: string) => navigate(path, history, true, nextTab);
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
   useLayoutEffect(() => {
     latest.current = { path, history, navigate, navigator, sourcePath };
@@ -210,7 +243,7 @@ export const useSidePanel = () => {
     }
     if (!options?.stack && !options?.replace)
       setSession((session) => session + 1);
-    navigate(nextPath, nextHistory, !!options?.replace);
+    navigate(nextPath, nextHistory, !!options?.replace, '');
   };
 
   const openRecord = (
@@ -221,7 +254,7 @@ export const useSidePanel = () => {
     if (nextPath === path && entity.contentId === NEW_RECORD_ID) {
       if (!options?.stack && !options?.replace) {
         setSession((session) => session + 1);
-        navigate(nextPath, []);
+        navigate(nextPath, [], false, '');
       }
       return;
     }
@@ -261,6 +294,8 @@ export const useSidePanel = () => {
     path,
     history,
     record,
+    tab,
+    setTab,
     openPath,
     openRecord,
     replaceRecord,
@@ -299,6 +334,8 @@ export const useSidePanel = () => {
   return {
     ...panel,
     record: navigator.record,
+    tab: navigator.tab,
+    setTab: navigator.setTab,
     openRecord: navigator.openRecord,
     canGoBack: navigator.canGoBack,
     back: navigator.back,

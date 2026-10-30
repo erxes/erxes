@@ -1,8 +1,9 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { useQueryState } from 'erxes-ui';
 import { Provider } from 'jotai';
 import { startTransition, Suspense, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, useNavigate } from 'react-router-dom';
 import { SidePanelRecordPathContext, useSidePanel } from '../useSidePanel';
 
 jest.mock('react-router-dom', () => {
@@ -94,4 +95,94 @@ it('replaces a saved draft in history without leaving the active related record'
   expect(JSON.parse(savedParams.get('panelHistory') || '[]')).toEqual([
     '/detail/customer/saved-customer',
   ]);
+});
+
+const PanelNavigation = () => {
+  const { path, tab, setTab, openRecord, back } = useSidePanel();
+  const [, setSearch] = useQueryState<string>('searchValue');
+  const navigate = useNavigate();
+  return (
+    <>
+      <output data-testid="active-panel">{`${path}:${tab}`}</output>
+      <button onClick={() => setTab('properties')}>Properties</button>
+      <button onClick={() => setTab('activity')}>Activity</button>
+      <button
+        onClick={() =>
+          openRecord(
+            { contentType: 'core:company', contentId: 'related-company' },
+            { stack: true },
+          )
+        }
+      >
+        Open related company
+      </button>
+      <button onClick={back}>Panel back</button>
+      <button onClick={() => navigate(-1)}>Browser back</button>
+      <button onClick={() => navigate(1)}>Browser forward</button>
+      <button
+        onClick={() => {
+          setTab('properties');
+          setSearch('Alice');
+        }}
+      >
+        Set tab and filter
+      </button>
+    </>
+  );
+};
+
+const RetainedCustomerTab = () => {
+  const { tab } = useSidePanel();
+  return <output data-testid="retained-tab">{tab}</output>;
+};
+
+const renderNavigation = () => {
+  window.history.replaceState(null, '', '?panel=/detail/customer/customer-a');
+  render(
+    <Provider>
+      <BrowserRouter>
+        <PanelNavigation />
+        <SidePanelRecordPathContext.Provider value="/detail/customer/customer-a">
+          <RetainedCustomerTab />
+        </SidePanelRecordPathContext.Provider>
+      </BrowserRouter>
+    </Provider>,
+  );
+};
+
+it('preserves each record tab through panel and browser history navigation', async () => {
+  renderNavigation();
+  fireEvent.click(screen.getByRole('button', { name: 'Properties' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Open related company' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Activity' }));
+  expect(screen.getByTestId('retained-tab').textContent).toBe('properties');
+  fireEvent.click(screen.getByRole('button', { name: 'Panel back' }));
+  expect(screen.getByTestId('active-panel').textContent).toBe(
+    '/detail/customer/customer-a:properties',
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Browser back' }));
+  await waitFor(() =>
+    expect(screen.getByTestId('active-panel').textContent).toBe(
+      '/detail/company/related-company:activity',
+    ),
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Browser forward' }));
+  await waitFor(() =>
+    expect(screen.getByTestId('active-panel').textContent).toBe(
+      '/detail/customer/customer-a:properties',
+    ),
+  );
+});
+
+it('keeps tab state when a page filter is updated in the same event', () => {
+  renderNavigation();
+  fireEvent.click(screen.getByRole('button', { name: 'Set tab and filter' }));
+
+  expect(screen.getByTestId('active-panel').textContent).toBe(
+    '/detail/customer/customer-a:properties',
+  );
+  const params = new URLSearchParams(window.location.search);
+  expect(params.get('searchValue')).toBe('Alice');
+  expect(params.get('panel')).toBe('/detail/customer/customer-a');
 });

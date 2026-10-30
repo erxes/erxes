@@ -14,7 +14,7 @@ export const LdapMemberMenuItem = ({
   onDone: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'ldap' });
-  const { canManage, isLinked } = useLdapLinkedUserIds();
+  const { canManage, enabled, isLinked } = useLdapLinkedUserIds();
   const { unlink } = useLdapUserLink();
   const [, setLinkUserId] = useQueryState<string>('ldap_link_id');
 
@@ -39,6 +39,9 @@ export const LdapMemberMenuItem = ({
       </Command.Item>
     );
   }
+
+  // Unlink stays while LDAP is off: linked members cannot sign in until unlinked
+  if (!enabled) return null;
 
   return (
     <Command.Item

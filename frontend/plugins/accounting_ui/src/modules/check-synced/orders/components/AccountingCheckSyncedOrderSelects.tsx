@@ -11,17 +11,10 @@ import {
 } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { POS_DETAIL } from '@/settings/graphql/queries/relatedQueries';
 import { ACCOUNTING_POS_LIST_QUERY } from '../graphql/checkSyncedOrders';
 
-type AccountingPos = {
-  _id: string;
-  name?: string;
-};
-
-const getPosLabel = (pos?: AccountingPos) =>
-  pos?.name || pos?._id || 'Select POS';
-
-const useAccountingPosList = () => {
+export const useAccountingPosList = () => {
   const result = useQuery(ACCOUNTING_POS_LIST_QUERY, {
     variables: {
       page: 1,
@@ -55,12 +48,13 @@ const AccountingOrderPosContent = ({ onSelect }: { onSelect?: () => void }) => {
           <Command.Item
             key={pos._id}
             value={pos._id}
+            keywords={[pos.name ?? '']}
             onSelect={() => {
               setPosId(pos._id);
               onSelect?.();
             }}
           >
-            <span className="font-medium">{getPosLabel(pos)}</span>
+            <span className="font-medium">{pos.name}</span>
             <Combobox.Check checked={posId === pos._id} />
           </Command.Item>
         ))}
@@ -95,6 +89,11 @@ export const AccountingOrderPosFilterBar = () => {
   const [posId] = useQueryState<string>('pos');
   const { data } = useAccountingPosList();
   const pos = data?.posList?.find((item) => item._id === posId);
+  const { data: posDetail } = useQuery(POS_DETAIL, {
+    variables: { _id: posId ?? '' },
+    skip: !posId || !!pos,
+  });
+  const posName = pos?.name || posDetail?.posDetail?.name;
 
   return (
     <Filter.BarItem queryKey="pos">
@@ -105,7 +104,7 @@ export const AccountingOrderPosFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="pos">
-            {getPosLabel(pos)}
+            {posName || t('select-pos')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
