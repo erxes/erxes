@@ -1,6 +1,12 @@
 import { GQL_CURSOR_PARAM_DEFS } from 'erxes-api-shared/utils';
 
 export const types = `
+  type OperationDiscordSource {
+    userId: String
+    username: String
+    displayName: String
+  }
+
   type Triage {
     _id: String!
     name: String!
@@ -18,6 +24,7 @@ export const types = `
     customerId: String
     companyId: String
     tagIds: [String]
+    discordSource: OperationDiscordSource
   }
 
   input ITriageAddInput {

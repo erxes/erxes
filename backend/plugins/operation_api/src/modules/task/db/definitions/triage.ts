@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { STATUS_TYPES } from '@/status/constants/types';
+import { discordSourceSchema } from '@/task/db/definitions/discordSource';
 
 export const triageSchema = new Schema(
   {
@@ -20,6 +21,10 @@ export const triageSchema = new Schema(
     companyId: { type: String, label: 'Company', default: null, index: true },
     // Task tags (tag type `operation:task`); carried to the task it becomes.
     tagIds: { type: [String], label: 'Tag IDs' },
+    discordSource: {
+      type: discordSourceSchema,
+      label: 'Discord Source',
+    },
   },
   {
     timestamps: true,
@@ -33,4 +38,3 @@ triageSchema.index(
 
 triageSchema.index({ customerId: 1 });
 triageSchema.index({ companyId: 1 });
-

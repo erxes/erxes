@@ -111,6 +111,7 @@ export const triageMutations = {
         githubIssueNumber: triage.githubIssueNumber,
         githubIssueUrl: triage.githubIssueUrl,
         githubRepoName: triage.githubRepoName,
+        discordSource: triage.discordSource,
       },
       userId: user._id,
       subdomain: subdomain,
