@@ -2786,6 +2786,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 - Every in-app `Link`/`navigate` target starts with `/frontline/…`. A relative `to="frontline/tickets…"` resolves against the current route, so each click appends another `frontline/tickets` segment (`/frontline/tickets/frontline/tickets/…`). The tickets sidebar channel rows (`TicketNavigations`) link to `/frontline/tickets?channelId=…&pipelineId=…`.
 
+- Instagram bot page hooks run on every render and skip the page query when the account id is empty. Trigger field errors narrow unknown values before reading messages.
+
 ## Validation
 
 - Draft smoke: edit Help Center fields, switch to Activity and back, then refresh its detail data; edits survive while untouched fields refresh. Change records or close/reopen and confirm a fresh form. Write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
