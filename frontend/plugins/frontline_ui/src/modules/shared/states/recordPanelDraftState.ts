@@ -1,4 +1,8 @@
 import type { INoteAttachment } from '@/activity/types';
+import type {
+  IHelpCenterConfigInput,
+  THelpCenterTab,
+} from '@/helpcenter/types';
 import type { IBlockEditor } from 'erxes-ui';
 import { atom, useStore } from 'jotai';
 import { useEffect } from 'react';
@@ -6,6 +10,11 @@ import type { IRecordPanelProps } from 'ui-modules';
 
 export interface IFrontlinePanelDraft {
   key: string | null;
+  helpCenter?: {
+    values: IHelpCenterConfigInput;
+    defaults: IHelpCenterConfigInput;
+    tab: THelpCenterTab;
+  };
   note?: {
     blocks: IBlockEditor['document'];
     isInternal: boolean;

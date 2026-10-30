@@ -57,14 +57,14 @@
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
-  help center drawer (General, Appearance, and — when editing — Embed and
-  Domain), which is
-  the only place a help center is edited. Its **Forms** card, shown only while the ticket
+  help center editor (General, Appearance, and — when editing — Embed and
+  Domain), which opens in the app side panel for both existing records and new
+  drafts. Its **Forms** card, shown only while the ticket
   switch is on, has its own channel select and a multi-select of that
-  channel's forms (`formChannelId` / `formIds`); its **CMS** card multi-selects
-  the content CMSes whose posts the site lists as announcements
-  (`cmsConfigs`). Both
-  tabs read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
+  channel's forms (`formChannelId` / `formIds`). Existing CMS configuration
+  (`cmsId`, `cmsAppToken`, `cmsConfigs`) is preserved on every save without
+  reading another plugin's CMS list. Both
+  editor layouts read `helpCenterConfig` and write `helpCenterConfigUpdate` — never a
   knowledge base operation.
 - Call UI: call index, detail, and statistics pages.
 - Report screens for the frontline plugin, including the default chart catalogue
@@ -88,13 +88,13 @@
 
 ## Current Capabilities
 
-- Saved-record panel sessions retain ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes.
+- Saved-record panel sessions retain Help Center form values/local sections and ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes; same-record Help Center refreshes retain dirty fields.
 - The Articles page registers its advertised C shortcut through `useKbCreateHotkey`; it cannot create without a category or while another record panel owns the shortcut scope.
 
 - Settings → Properties is supplied by core's public plugin-settings slot.
   Frontline does not own its field/group editors or their modal containers.
 
-- Ticket, knowledge base article/topic/category creation use
+- Ticket, knowledge base article/topic/category and Help Center creation use
   `useSidePanel().openNewRecord` and the record panel's `new` view, matching
   Operation's draft flow. Knowledge base drafts use the UI-only
   `frontline:article`, `frontline:topic` and `frontline:category` aliases so the
@@ -111,6 +111,21 @@
   rules. Creation selectors accept an optional `table` variant while their
   default `form` variant remains available to other forms. Description serialization
   retains the existing ticket form behavior.
+
+- Existing help centers open as `frontline:helpcenter` records in the shared
+  app side panel, with title, Delete in the header, Detail and Activity.
+  Detail reuses `HelpCenterDrawer` in its `panel` mode: compact General fields,
+  single-column Appearance cards, and local General / Appearance / Embed /
+  Domain navigation. General and Appearance remain mounted while switching;
+  invalid saves return to the section containing the first error. Domain is
+  mounted only while selected. Create uses the same compact panel as a draft. Table links and
+  Edit actions retain legacy `?editId=` support through `KnowledgeBaseDetailLink`.
+- Help Center keeps its existing React Hook Form field rules: required title,
+  topic when knowledge base is enabled, and channel/pipeline when tickets are
+  enabled. Its existing input conversion retains hidden CMS values and the app
+  token. Table and panel Delete reuse `useConfirmRemoveHelpCenter`; deleting the open
+  help center closes its panel and refetches the list through the existing
+  removal hook.
 
 - Knowledge base article, topic and category details open in the shared app
   side panel (`frontline:knowledgebase.article`, `.topic`, `.category`).
@@ -130,7 +145,7 @@
   zone. Category details retain title, description, code,
   icon, topic moves and parent category. Article headers provide Duplicate and
   Delete; category headers provide the existing confirmed cascade delete.
-- Knowledge base title links and row Edit actions call the
+- Knowledge base and Help Center title links and row Edit actions call the
   public `useSidePanel().openRecord` directly, so opening or switching records
   updates the host panel in the same navigation. `?editId=` remains an entry
   link only; `KnowledgeBaseDetailLink` removes it and sets `panel` together
@@ -808,7 +823,7 @@ owns the setup form and connection actions.
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
-| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Help Center | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`, `src/widgets/record-panel/HelpCenterRecordPanel.tsx` | Help center table and shared record panel for creation and editing; General, Appearance, Embed and Domain reuse the existing form |
 | Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
 | Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
 | Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
@@ -865,7 +880,7 @@ owns the setup form and connection actions.
   `frontlineKbCategoryDetail` reads `knowledgeBaseCategoryDetail` with
   `firstTopic { _id }`, so a category panel resolves its owning topic without
   depending on the current page or the first page of category list results.
-- `./frontline` exports the named `Frontline` entry.
+- `./frontline` exports the named `Frontline` entry. `./recordPanel` also registers `frontline:helpcenter` with `properties: false`. `HelpCenterRecordPanel` uses `frontlineHelpCenterDetail` directly by id. `HelpCenterIndexPage` is a named route export, loaded by `FrontlineMain`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -1135,12 +1150,10 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
-- The help center list is read twice on purpose: `useHelpCenters` applies the
-  `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
-  filter bar, while `useAllHelpCenters` reads the same document unfiltered so
-  `HelpCenterIndexPage` can resolve the one help center `editId` names even when
-  the table is narrowed past it. With no filter set both resolve to the same
-  variables and Apollo serves one request.
+- `useHelpCenters` applies the `searchValue`/`brand` URL filters and owns
+  `helpCenterTotalCountAtom` for the filter bar. `useHelpCenterDetail` reads
+  the open record by id through `frontlineHelpCenterDetail`, independent of
+  list filters or pagination; there is no second unfiltered list lookup.
 
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
@@ -1503,13 +1516,17 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
-- `HelpCenterDrawer` splits across `SheetNavSidebar` tabs — **general** and
+- `HelpCenterDrawer` uses a compact local
+  tab strip in the side panel for creation and editing — **general** and
   **appearance** always, plus **embed** and **domain** while editing
   (`HELP_CENTER_TABS` vs `HELP_CENTER_CREATE_TABS`, because a config must exist
-  before its script or domain is worth showing): general stacks full-width cards in a fixed order — general
+  before its script or domain is worth showing). Its tab list is a wrapping
+  flex row with an 8px horizontal gap and content-sized triggers.
+  General stacks full-width cards in a fixed order — general
   settings (name and client portal side by side, then description), knowledge
   base,
-  tickets, forms, and CMS. Each feature card keeps its
+  tickets and forms. Existing CMS settings stay in form values without a CMS
+  picker. Each feature card keeps its
   switch row on top and lays its fields out in a two-column grid under a
   divider, and `FULL_WIDTH_SELECT` stretches every select to the `h-8` input
   height, so the two columns line up. Embed renders the knowledge base module's
@@ -1519,9 +1536,9 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
   accent colour and cover image, the header's wording, the footer's content, and
-  the raw header/footer HTML. The sidebar
-  keeps the active tab in the `tab` URL query param, so the drawer clears it on
-  close or the next one opens wherever the last was left. Both tabs stay mounted
+  the raw header/footer HTML. Both create and edit panels keep their
+  internal section in local state, independent of the host's Detail/Activity
+  tabs. Both form sections stay mounted
   (hidden, not unmounted) so values and validation survive switching, and an
   invalid submit switches to the tab holding the first failing field via
   `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
@@ -1553,15 +1570,13 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   published site to keep its built-in Support / Knowledge base / Account
   columns — so the card never seeds defaults on its own; the author asks for
   them with the "Start from the built-in columns" action.
-- A help center has **no page of its own**: `/frontline/helpcenter/:id` was
-  removed, and editing is addressed by the `editId` URL query on the list page,
-  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
-  for both creating and editing, keyed on the record — two would each mount a
-  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the
-  name cell's anchor and a shared link all go through that one param — never
-  reintroduce a detail route. Every surface widens a list record for a save
-  through `toHelpCenterConfigInput`; passing a partial record would reset the
-  fields it omitted on the next save.
+- A help center has **no page of its own**: `/frontline/helpcenter/:id` stays
+  removed. The row menu's Edit, name anchor and legacy links use `editId`,
+  which is moved to `?panel=/detail/frontline:helpcenter/<id>`. The index mounts
+  the shared record panel for both drafts and editing; never
+  reintroduce a standalone detail route. Every surface widens a list record
+  for a save through `toHelpCenterConfigInput`; passing a partial record would
+  reset the fields it omitted on the next save.
 - Category editing lives on the knowledge base categories route
   (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
   delete. The help center surface does not duplicate it.
@@ -1661,7 +1676,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   the two surfaces.
 - The help center drawer is split by responsibility, all under
   `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
-  the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
+  the sheet/panel layout, the form and the save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
   reusable `Style*Field` helpers; the knowledge base module's
   `shared/components/TopicEmbedTab.tsx` the Embed tab panel (presentational,
@@ -2750,12 +2765,15 @@ null }`, fall back to the route pipeline and skip without one; never pass
 
 ## Validation
 
-- Draft smoke: write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
+- Draft smoke: edit Help Center fields, switch to Activity and back, then refresh its detail data; edits survive while untouched fields refresh. Change records or close/reopen and confirm a fresh form. Write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
 - Create-panel smoke: open Add Ticket from the list, a board column and a
   contact's Tickets section; verify channel/pipeline/status and contact defaults,
   required system/custom fields, description, Cancel/Back and creation feedback.
   Successful ticket creation must replace the draft and refresh its lists.
-  Open New Article, New Topic and New Category from the table and topic menu; verify compact forms, validation, immediate updates and fresh drafts after cancellation. No detail query may request a record with id `new`.
+  Open New Article, New Topic, New Category (table and topic menu) and Create
+  Help Center; all must render compact sidebar forms, retain validation and
+  update the table/tree after creation. Cancelling and reopening must start a
+  fresh draft. No detail query may request a record with id `new`.
 - Ticket panel smoke: open a ticket from list, board, a contact section and a
   legacy `?ticketId=` link. Verify Detail / Properties / Activity, inline saves,
   date clearing, permission-disabled fields, attachments, notes and header
@@ -2771,8 +2789,14 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Start on the article table with no panel, click one article and then a
   different article, close and reopen it, and use browser Back/Forward.
   Header and fields must follow each selection without refreshing. Repeat
-  title/menu opening on categories, including legacy `editId`
+  title/menu opening on categories and Help Center, including legacy `editId`
   links with filters that must survive the conversion.
+- Help center panel smoke: open a name/row Edit and a legacy `editId` link,
+  including under a filter that excludes the record. Check General, Appearance,
+  Embed and Domain, required fields and cross-section error routing, colour
+  resets, footer columns/links, ticket/form cascading selects, and unchanged
+  hidden CMS/app-token values. Reload a panel URL, open Activity, cancel
+  without saving, then verify create/save/delete still update the table.
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
@@ -2820,19 +2844,21 @@ null }`, fall back to the route pipeline and skip without one; never pass
   rail shows Tickets and Deals tabs listing that customer's tickets and deals,
   and "+" in each creates one already linked to the customer.
 - Smoke (help center): open `/frontline/helpcenter`, change a name inline, then
-  open the drawer and pick a client portal on **General** and save a colour on
-  **Appearance**; reload and confirm both persisted. The website picker must
+  use the row's Edit action to open the shared sidebar. Check General,
+  Appearance, Embed and Domain; Save and Cancel remain accessible while the
+  fields scroll. A missing required field must switch back to its section.
+  Pick a client portal on **General** and save a colour on **Appearance**;
+  reload and confirm both persisted. The website picker must
   list each client portal once by name, and the trigger must read back that name
-  after the pick, in the drawer and in the table cell alike; typing a domain in
+  after the pick, in the panel and in the table cell alike; typing a domain in
   the picker's search must still find it. The network tab must show `helpCenterConfig` /
   `helpCenterConfigUpdate` for all three writes, `getClientPortals` only as the
   website picker's option list, and no `knowledgeBase*` operation other than the
   topic picker's option list.
-- Smoke (help center CMS): with the content plugin enabled, open a help
-  center's **General** tab, pick two CMSes and save; reload and confirm both
-  badges return. A CMS whose client portal has no app token must be refused
-  with a toast and stay unselected, and a help center saved before `cmsConfigs`
-  existed must open with its old CMS already selected.
+- Smoke (help center config preservation): save an existing help center with
+  CMS settings and confirm `cmsId`, `cmsAppToken`, `cmsConfigs` and
+  `erxesAppToken` are retained. General must not query another plugin's CMS
+  list. Create Help Center must open a new sidebar draft.
 - Smoke (knowledge base embed): open a topic's `kbsettings` page and open its
   embed script dialog; the snippet must carry that topic's `_id` and
   `Copy Script` must put it on the clipboard. Editing a help center must show

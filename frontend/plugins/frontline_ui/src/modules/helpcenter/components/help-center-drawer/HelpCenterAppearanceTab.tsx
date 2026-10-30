@@ -1,3 +1,5 @@
+import { KbFormPanelContext } from '@/knowledgebase/shared/components/KbFormLayout';
+import { useContext } from 'react';
 import { InfoCard } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { UseFormReturn } from 'react-hook-form';
@@ -28,6 +30,7 @@ export function HelpCenterAppearanceTab({
   form: UseFormReturn<IHelpCenterConfigInput>;
   t: TFunction;
 }>) {
+  const compact = useContext(KbFormPanelContext);
   const control = form.control;
 
   return (
@@ -40,7 +43,7 @@ export function HelpCenterAppearanceTab({
         )}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className={compact ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2'}>
             <StyleImageField
               control={control}
               name="styles.mainLogo"
@@ -65,7 +68,13 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-main-colors', 'Main colors')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={
+              compact
+                ? 'grid gap-3'
+                : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
+            }
+          >
             {HELP_CENTER_MAIN_COLOR_FIELDS.map((field) => (
               <StyleColorField
                 key={field.name}
@@ -80,7 +89,13 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-fonts-and-color', 'Fonts and color')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={
+              compact
+                ? 'grid gap-3'
+                : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
+            }
+          >
             <StyleFontField
               control={control}
               name="styles.baseFont"
@@ -107,7 +122,13 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-form-elements-color', 'Form elements color')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div
+            className={
+              compact
+                ? 'grid gap-3'
+                : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
+            }
+          >
             {HELP_CENTER_FORM_COLOR_FIELDS.map((field) => (
               <StyleColorField
                 key={field.name}
@@ -128,7 +149,7 @@ export function HelpCenterAppearanceTab({
         )}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className={compact ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2'}>
             <TopicColorField
               control={control}
               name="color"
