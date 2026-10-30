@@ -12,6 +12,49 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   migration); `config.apiKey` is sealed at rest (`secretBox.ts`, AES-256-GCM, `enc:v1:` envelope keyed from
   `JWT_TOKEN_SECRET`) — readers use `openSecret`, writers seal on upsert,
   `getConnections` lazily re-seals legacy plaintext;
+- connection **scopes**: `private` (default; the acting user's document)
+  and `organization` (one tenant document whose `userId` is
+  `AGENTS_ORGANIZATION_OWNER_ID`, same entry shape, sealing and default
+  rules). `agentsConnectionUpsert`/`Remove`/`SetDefault` take `scope`;
+  `organization` requires `manageAgentsSettings` (checked before any read
+  or write), unknown scopes are a VALIDATION_ERROR. Every member with
+  `agentsChat` can run on organization keys but never read them.
+  `getEffectiveConnections(userId)` (`toEffectiveConnections`) is the only
+  run-time reader (chat route, run resolution, `agentsModels`,
+  `agentsModelVerify`): private entries first, organization entries only
+  for providers without a private one; the default is the private default
+  while the user has any private key, else the organization default, else
+  Erxes Assistant. `agentsConnections` returns both scopes with `scope` and
+  the effective default as `isDefault`;
+- **Erxes Assistant** (`builtin.ts`): an operator-paid built-in model read
+  from env — `AGENTS_BUILTIN_PROVIDER` (default `openai`, any key-only BYOK
+  provider), `AGENTS_BUILTIN_<PROVIDER>_API_KEY`, optional
+  `AGENTS_BUILTIN_<PROVIDER>_MODEL` (openai default `gpt-6-luna`); no key
+  means disabled. Clients see only provider `erxes` / model
+  `erxes-assistant` / name "Erxes Assistant" — never the real model or key.
+  An unselected turn uses it only when the user has no saved connection;
+  an explicit other provider never falls back to it, and `model` is ignored
+  for it. RequestContext stamps the real provider/model plus `builtin: true`;
+  built-in runs get `AGENTS_BUILTIN_INSTRUCTIONS` (identity: answers "Erxes
+  Assistant" to who/what model questions, never names the model or provider).
+  Usage uses Mastra's processor hooks (`buildBuiltinUsageProcessor`,
+  registered as input and output processor on the base agent, the same
+  mechanism as Mastra's `TokenCostControl`, whose metrics store MongoDB does
+  not provide): `processInputStep` checks `AGENTS_BUILTIN_MONTHLY_TOKENS`
+  (default 10,000,000; `0` = no cap; invalid = default) before every model
+  call and aborts the run with the limit message, `processOutputStep` adds
+  Mastra's per-step `usage` to `AgentsUsage` (`agents_usages`, one doc per
+  UTC month `YYYY-MM`, atomic `$inc`; runs on the producer, so detached and
+  resumed runs count), and `processOutputStream` turns provider `error`
+  parts into `AgentsBuiltinError` 503 "Erxes Assistant is temporarily
+  unavailable…" (the real reason is only logged, redacted by
+  `sanitizeProviderMessage`). The chat route and each model resolution also
+  reject up front (`AgentsBuiltinError` 402 with the reset date; 400 when
+  not configured). Thread-title generation bypasses processors and is not
+  counted (one short call per new thread). Recording failures never fail
+  the run. `agentsBuiltin` (agentsChat) returns
+  `{ provider model name usedTokens limitTokens resetsAt exhausted }` or null,
+  and `agentsModels` appends the single built-in entry;
 - a Mastra **DurableAgent** chat over SSE with durable suspend/resume
   (destructive-tool approval, `ask_user` questions), per-turn provider/model/
   `thinkingLevel` selection, and generated thread titles;
@@ -351,7 +394,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`),
   `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`, `providers.ts`,
   `threadsEvents.ts`.
-- `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
+- `db/` — `AgentsConnection` + `AgentsSettings` + `AgentsUsage` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.
 
 ## Invariants (carry over)
@@ -361,7 +404,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   approval, the deny policy or permissions. Hidden operations stay a
   discovery filter; do not turn them into execution blocking.
 
-- Never introduce env-var secrets; BYOK keys live only on the per-user
+- The only env-var secret is the operator's Erxes Assistant key
+  (`AGENTS_BUILTIN_<PROVIDER>_API_KEY`); it is never stamped, persisted,
+  returned or named. BYOK keys live only on the per-user or organization
   document — sealed `enc:v1:` envelopes only, never plaintext — and never
   appear in responses, errors, or logs. `sealSecret` throws when
   `JWT_TOKEN_SECRET` is unset (fail closed).

@@ -8,6 +8,21 @@ import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
  */
 export type IAgentsConnectionEntry = IAiAgentConnection;
 
+export const AGENTS_CONNECTION_SCOPES = ['private', 'organization'] as const;
+
+export type AgentsConnectionScope = (typeof AGENTS_CONNECTION_SCOPES)[number];
+
+export const AGENTS_ORGANIZATION_OWNER_ID = '__organization__';
+
+export type IAgentsScopedConnectionEntry = IAgentsConnectionEntry & {
+  scope: AgentsConnectionScope;
+};
+
+export interface IAgentsEffectiveConnections {
+  connections: IAgentsScopedConnectionEntry[];
+  defaultProvider?: string;
+}
+
 /**
  * One user's BYOK connections: an entry per configured provider, so the chat
  * can switch between providers/models without re-entering keys.

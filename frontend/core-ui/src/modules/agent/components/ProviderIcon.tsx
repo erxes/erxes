@@ -88,6 +88,17 @@ export const ProviderIcon = ({
     );
   }
 
+  if (variant === 'plain' && provider === 'erxes') {
+    return (
+      <span
+        className={`flex shrink-0 items-center justify-center text-primary ${className}`}
+        aria-hidden="true"
+      >
+        <IconSparkles className="size-full" />
+      </span>
+    );
+  }
+
   if (variant === 'plain') {
     return (
       <span

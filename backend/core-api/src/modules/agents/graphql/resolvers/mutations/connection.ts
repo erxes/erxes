@@ -4,23 +4,30 @@ import type {
   IAiAgentConnectionConfig,
 } from 'erxes-api-shared/core-modules';
 import type { IContext } from '~/connectionResolvers';
+import {
+  AGENTS_CONNECTION_SCOPES,
+  AGENTS_ORGANIZATION_OWNER_ID,
+  type AgentsConnectionScope,
+} from '@/agents/@types/connection';
 import { getProviderDefaultModel } from '@/agents/providers';
 import { isByokProvider } from '@/agents/providerModels';
-import { findDefaultConnection } from '@/agents/db/models/Connection';
 import { probeProviderModel } from '@/agents/modelProbe';
 import {
+  listPublicConnections,
   toPublicConnection,
-  toPublicConnections,
+  toPublicConnectionList,
 } from '@/agents/graphql/resolvers/queries/connection';
 
 export interface IAgentsConnectionUpsertArgs {
   provider: string;
   model?: string;
   apiKey?: string;
+  scope?: string | null;
 }
 
 export interface IAgentsConnectionRemoveArgs {
   provider: string;
+  scope?: string | null;
 }
 
 export interface IAgentsModelVerifyArgs {
@@ -31,7 +38,30 @@ export interface IAgentsModelVerifyArgs {
 export interface IAgentsConnectionSetDefaultArgs {
   /** Empty or omitted clears the explicit default (first saved applies). */
   provider?: string | null;
+  scope?: string | null;
 }
+
+const resolveConnectionOwner = async (
+  ctx: IContext,
+  rawScope?: string | null,
+): Promise<{ ownerId: string; scope: AgentsConnectionScope }> => {
+  const scope = (rawScope || 'private').trim();
+
+  if (!(AGENTS_CONNECTION_SCOPES as readonly string[]).includes(scope)) {
+    throw new ExpectedError(
+      `Unsupported connection scope "${scope}".`,
+      'VALIDATION_ERROR',
+    );
+  }
+
+  if (scope === 'organization') {
+    await ctx.checkPermission('manageAgentsSettings');
+
+    return { ownerId: AGENTS_ORGANIZATION_OWNER_ID, scope };
+  }
+
+  return { ownerId: ctx.user._id, scope: 'private' };
+};
 
 const noStoredConnection = (provider: string) =>
   new ExpectedError(
@@ -65,7 +95,7 @@ export const agentsConnectionMutations = {
   ) => {
     await ctx.checkPermission('agentsChat');
 
-    const userId = ctx.user._id;
+    const { ownerId, scope } = await resolveConnectionOwner(ctx, args.scope);
     const provider = (args.provider || '').trim();
 
     if (!isByokProvider(provider)) {
@@ -75,7 +105,7 @@ export const agentsConnectionMutations = {
       );
     }
 
-    const doc = await ctx.models.AgentsConnection.getConnections(userId);
+    const doc = await ctx.models.AgentsConnection.getConnections(ownerId);
     const stored = doc?.connections.find(
       (connection) => connection.provider === provider,
     );
@@ -109,7 +139,7 @@ export const agentsConnectionMutations = {
     } as IAiAgentConnection;
 
     const updated = await ctx.models.AgentsConnection.upsertConnection(
-      userId,
+      ownerId,
       provider,
       connection,
     );
@@ -119,23 +149,27 @@ export const agentsConnectionMutations = {
         (connection) => connection.provider === provider,
       ) ?? connection;
 
-    return toPublicConnection(
-      saved,
-      updated.updatedAt,
-      findDefaultConnection(updated)?.provider === provider,
+    const listed = await listPublicConnections(ctx.models, ctx.user._id);
+
+    return (
+      listed.find(
+        (entry) => entry.provider === provider && entry.scope === scope,
+      ) ?? toPublicConnection(saved, updated.updatedAt, false, scope)
     );
   },
 
   /** Removes ONE provider's entry from the acting user's connections. */
   agentsConnectionRemove: async (
     _p: undefined,
-    { provider }: IAgentsConnectionRemoveArgs,
+    { provider, scope: rawScope }: IAgentsConnectionRemoveArgs,
     ctx: IContext,
   ) => {
     await ctx.checkPermission('agentsChat');
 
+    const { ownerId } = await resolveConnectionOwner(ctx, rawScope);
+
     await ctx.models.AgentsConnection.removeConnection(
-      ctx.user._id,
+      ownerId,
       (provider || '').trim(),
     );
 
@@ -155,9 +189,10 @@ export const agentsConnectionMutations = {
   ) => {
     await ctx.checkPermission('agentsChat');
 
+    const { ownerId, scope } = await resolveConnectionOwner(ctx, args.scope);
     const provider = (args.provider || '').trim();
     const doc = await ctx.models.AgentsConnection.setDefaultProvider(
-      ctx.user._id,
+      ownerId,
       provider,
     );
 
@@ -165,7 +200,13 @@ export const agentsConnectionMutations = {
       throw noStoredConnection(provider);
     }
 
-    return toPublicConnections(doc);
+    const other = await ctx.models.AgentsConnection.getConnections(
+      scope === 'organization' ? ctx.user._id : AGENTS_ORGANIZATION_OWNER_ID,
+    );
+
+    return scope === 'organization'
+      ? toPublicConnectionList(other, doc)
+      : toPublicConnectionList(doc, other);
   },
 
   /**
@@ -183,8 +224,10 @@ export const agentsConnectionMutations = {
 
     const provider = (args.provider || '').trim();
     const model = (args.model || '').trim();
-    const doc = await ctx.models.AgentsConnection.getConnections(ctx.user._id);
-    const connection = doc?.connections.find(
+    const doc = await ctx.models.AgentsConnection.getEffectiveConnections(
+      ctx.user._id,
+    );
+    const connection = doc.connections.find(
       (entry) => entry.provider === provider,
     );
 

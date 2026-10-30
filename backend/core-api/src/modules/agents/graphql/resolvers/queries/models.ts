@@ -14,6 +14,27 @@ import {
 } from '@/agents/providerModels';
 import { PROVIDER_DEFAULTS } from '@/agents/providers';
 import { openSecret } from '@/agents/secretBox';
+import {
+  AGENTS_BUILTIN_MODEL,
+  AGENTS_BUILTIN_NAME,
+  AGENTS_BUILTIN_PROVIDER,
+  getBuiltinConnection,
+} from '@/agents/builtin';
+
+const toBuiltinModels = (connection: IAgentsConnectionEntry) => ({
+  provider: AGENTS_BUILTIN_PROVIDER,
+  models: [AGENTS_BUILTIN_MODEL],
+  catalog: [
+    {
+      id: AGENTS_BUILTIN_MODEL,
+      family: '',
+      recommended: true,
+      name: AGENTS_BUILTIN_NAME,
+      thinking: getModelThinking(connection.provider, connection.model),
+    },
+  ],
+  error: null,
+});
 
 const listProviderModels = async (connection: IAgentsConnectionEntry) => {
   const { provider } = connection;
@@ -84,8 +105,14 @@ export const agentsModelsQueries = {
   agentsModels: async (_p: undefined, _a: undefined, ctx: IContext) => {
     await ctx.checkPermission('agentsChat');
 
-    const doc = await ctx.models.AgentsConnection.getConnections(ctx.user._id);
+    const doc = await ctx.models.AgentsConnection.getEffectiveConnections(
+      ctx.user._id,
+    );
+    const builtin = getBuiltinConnection();
+    const listed = await Promise.all(
+      doc.connections.map(listProviderModels),
+    );
 
-    return Promise.all((doc?.connections ?? []).map(listProviderModels));
+    return builtin ? [...listed, toBuiltinModels(builtin)] : listed;
   },
 };
