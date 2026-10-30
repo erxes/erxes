@@ -4,6 +4,14 @@ import {
   IListParams,
 } from 'erxes-api-shared/core-types';
 
+export interface ITriageDiscordSource {
+  userId: string;
+  username: string;
+  displayName?: string | null;
+  channelId: string;
+  guildId: string;
+}
+
 export interface ITriage {
   name: string;
   description: string;
@@ -19,6 +27,7 @@ export interface ITriage {
   customerId?: string | null;
   companyId?: string | null;
   tagIds?: string[];
+  discordSource?: ITriageDiscordSource;
 }
 
 export interface ITriageUpdate extends ITriage {

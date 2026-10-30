@@ -1,5 +1,6 @@
 import { TCreatedVia } from 'erxes-api-shared/core-types';
 import { Document } from 'mongoose';
+import { ITriageDiscordSource } from '@/task/@types/triage';
 import {
   ICursorPaginateParams,
   IListParams,
@@ -44,6 +45,7 @@ export interface ITask {
   githubIssueNumber?: number;
   githubIssueUrl?: string;
   githubRepoName?: string;
+  discordSource?: ITriageDiscordSource;
   githubPrNumber?: number;
   githubPrUrl?: string;
   propertiesData?: Record<string, unknown>;
