@@ -48,7 +48,10 @@ export const CONFIG: IUIConfig = {
   ],
   widgets: {
     // A customer's / company's deals on their overview (`./contactWidget`).
-    contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
+    contactWidgets: [
+      { name: 'deals', label: 'Deals', icon: IconSandbox },
+      { name: 'posOrders', label: 'POS orders', icon: IconReceipt },
+    ],
     recordPanels: [
       { contentType: POS_ORDER_CONTENT_TYPE, properties: false },
       { contentType: POS_COVER_CONTENT_TYPE, properties: false },
