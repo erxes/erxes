@@ -96,7 +96,9 @@ export function TeamDiscordDialog({
             <div className="space-y-4 py-4">
               {form.formState.errors.root?.message ? (
                 <Alert variant="destructive">
-                  {form.formState.errors.root.message}
+                  <Alert.Description>
+                    {form.formState.errors.root.message}
+                  </Alert.Description>
                 </Alert>
               ) : null}
 
@@ -132,7 +134,9 @@ export function TeamDiscordDialog({
               />
 
               {channelsError ? (
-                <Alert variant="destructive">{channelsError.message}</Alert>
+                <Alert variant="destructive">
+                  <Alert.Description>{channelsError.message}</Alert.Description>
+                </Alert>
               ) : null}
 
               <Form.Field

@@ -3,6 +3,7 @@ import {
   OperationDiscordCheckTokenQuery,
   OperationDiscordConfigByTeamQuery,
   OperationDiscordConnectionsQuery,
+  OperationDiscordCustomerChannelsQuery,
   OperationDiscordMyAccountQuery,
   OperationDiscordNotificationEvent,
   OperationDiscordTeamMembersQuery,
@@ -33,6 +34,9 @@ export type IDiscordUserLink = NonNullable<IDiscordAccount['link']>;
 
 export type IDiscordTeamMember =
   OperationDiscordTeamMembersQuery['operationDiscordTeamMembers'][number];
+
+export type IDiscordCustomerChannel =
+  OperationDiscordCustomerChannelsQuery['operationDiscordCustomerChannels'][number];
 
 export type TDiscordLinkMessage = {
   type: string;

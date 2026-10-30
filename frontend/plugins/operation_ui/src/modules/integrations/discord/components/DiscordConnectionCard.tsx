@@ -1,6 +1,7 @@
 import { Avatar, Badge, Button, Spinner, useConfirm, useToast } from 'erxes-ui';
 import { useDisconnectDiscord } from '../hooks/useDiscordIntegration';
 import { DiscordMemberLinking } from './DiscordMemberLinking';
+import { DiscordSlashCommands } from './DiscordSlashCommands';
 import { IDiscordConnection } from '../types';
 
 const formatDate = (value: string) =>
@@ -95,6 +96,7 @@ export function DiscordConnectionCard({
         </p>
       ) : null}
       <DiscordMemberLinking connection={connection} />
+      <DiscordSlashCommands connection={connection} />
     </div>
   );
 }
