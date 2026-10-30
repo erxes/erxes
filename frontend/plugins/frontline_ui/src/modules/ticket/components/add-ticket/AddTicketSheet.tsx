@@ -1,92 +1,40 @@
-import { IconPlus } from '@tabler/icons-react';
+import { useCreateTicketRecord } from '@/ticket/hooks/useCreateTicketRecord';
 import { TicketHotKeyScope } from '@/ticket/types/ticketHotkeyScope';
-import {
-  Button,
-  ButtonProps,
-  Kbd,
-  Sheet,
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-} from 'erxes-ui';
-import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm';
-import { useAtom } from 'jotai';
+import { IconPlus } from '@tabler/icons-react';
+import { Button, ButtonProps, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
 
 export const AddTicketSheet = ({
   onComplete,
   isRelation = false,
-  hideTrigger = false,
   contacts,
+  defaults,
   ...props
 }: {
   onComplete?: (ticketId: string) => void;
   contacts?: { customerId?: string; companyId?: string };
+  defaults?: { channelId?: string; pipelineId?: string; statusId?: string };
   isRelation?: boolean;
-  // Opened from elsewhere through `ticketCreateSheetState`.
-  hideTrigger?: boolean;
 } & ButtonProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const [open, setOpen] = useAtom(ticketCreateSheetState);
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
-  const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.TicketAddSheet);
-  };
-
-  const onClose = () => {
-    goBackToPreviousHotkeyScope();
-    setOpen(false);
-  };
+  const { openTicketDraft } = useCreateTicketRecord();
+  const onOpen = () =>
+    openTicketDraft({ ...defaults, ...contacts, onComplete }, isRelation);
 
   useScopedHotkeys(
-    `c`,
+    'c',
     () => {
-      onOpen();
+      if (!isRelation) onOpen();
     },
     TicketHotKeyScope.TicketPage,
+    [onOpen, isRelation],
   );
-  useScopedHotkeys(`esc`, () => onClose(), TicketHotKeyScope.TicketAddSheet);
 
   return (
-    <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-      {!hideTrigger && (
-        <Sheet.Trigger asChild>
-          <Button {...props}>
-            <IconPlus />
-            {t('add-ticket', 'Add ticket')}
-            {!isRelation && <Kbd>C</Kbd>}
-          </Button>
-        </Sheet.Trigger>
-      )}
-      <Sheet.View
-        className="sm:max-w-3xl w-full p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <AddTicketForm
-          onClose={onClose}
-          onComplete={onComplete}
-          contacts={contacts}
-        />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const AddTicketSheetHeader = () => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  return (
-    <Sheet.Header className="p-5">
-      <Sheet.Title>{t('add-ticket', 'Add ticket')}</Sheet.Title>
-      <Sheet.Description className="sr-only">
-        {t('add-ticket-description', 'Add a new ticket to your organization.')}
-      </Sheet.Description>
-      <Sheet.Close />
-    </Sheet.Header>
+    <Button {...props} onClick={onOpen}>
+      <IconPlus />
+      {t('add-ticket', 'Add ticket')}
+      {!isRelation && <Kbd>C</Kbd>}
+    </Button>
   );
 };

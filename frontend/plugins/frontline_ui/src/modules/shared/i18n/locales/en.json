@@ -1,0 +1,9 @@
+{
+  "modules": {
+    "ticket": {
+      "ticket-name-required": "Ticket name is required",
+      "customer": "Customer",
+      "company": "Company"
+    }
+  }
+}
