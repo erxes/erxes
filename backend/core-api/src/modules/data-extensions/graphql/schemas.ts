@@ -101,6 +101,40 @@ export const types = `
     shared: Boolean
   }
 
+  type DataExtensionChange {
+    _id: String!
+    key: String!
+    before: JSON
+    after: JSON
+    "created or updated"
+    event: String!
+    userId: String!
+    createdAt: Date
+  }
+
+  type DataExtensionWebhook {
+    _id: String!
+    name: String!
+    url: String!
+    "Fires for these record types; every record type when empty."
+    recordTypes: [String!]!
+    active: Boolean!
+    hasSecret: Boolean!
+    "Only returned when the webhook is created."
+    secret: String
+    lastStatus: Int
+    lastError: String
+    lastAt: Date
+    createdAt: Date
+  }
+
+  input DataExtensionWebhookInput {
+    name: String
+    url: String
+    recordTypes: [String!]
+    active: Boolean
+  }
+
   input DataExtensionObjectEditInput {
     singularLabel: String
     pluralLabel: String
@@ -153,6 +187,9 @@ export const queries = `
   dataExtensionObjects(includeArchived: Boolean): [DataExtensionObject!]!
   "The caller's own views of a record type and every shared one."
   dataExtensionViews(recordType: String!): [DataExtensionView!]!
+  "Who changed which value of a record, newest first."
+  dataExtensionChanges(recordType: String!, recordId: String!, limit: Int): [DataExtensionChange!]!
+  dataExtensionWebhooks: [DataExtensionWebhook!]!
 `;
 
 export const mutations = `
@@ -175,4 +212,8 @@ export const mutations = `
   dataExtensionViewAdd(input: DataExtensionViewInput!): DataExtensionView!
   dataExtensionViewEdit(_id: String!, input: DataExtensionViewInput!): DataExtensionView!
   dataExtensionViewDelete(_id: String!): String!
+  "Creates a webhook; its signing secret is returned this once."
+  dataExtensionWebhookAdd(input: DataExtensionWebhookInput!): DataExtensionWebhook!
+  dataExtensionWebhookEdit(_id: String!, input: DataExtensionWebhookInput!): DataExtensionWebhook!
+  dataExtensionWebhookDelete(_id: String!): String!
 `;

@@ -417,7 +417,34 @@ export interface IOwnerResolvers {
     descriptor: IDataExtensionRecordType,
     id: string,
   ): Promise<boolean>;
+  /**
+   * Called after values changed, for history and webhooks. Must not throw:
+   * the write already happened.
+   */
+  recordChanges?(
+    context: IRequestContext,
+    descriptor: IDataExtensionRecordType,
+    recordId: string,
+    changes: IValueChange[],
+    event: 'created' | 'updated',
+  ): Promise<void>;
 }
+
+export interface IValueChange {
+  key: string;
+  before: unknown;
+  after: unknown;
+}
+
+/** Keys whose stored value differs between two records' values. */
+const diffValues = (
+  keys: string[],
+  before: Record<string, unknown>,
+  after: Record<string, unknown>,
+): IValueChange[] =>
+  keys
+    .map((key) => ({ key, before: before[key] ?? null, after: after[key] ?? null }))
+    .filter((change) => JSON.stringify(change.before) !== JSON.stringify(change.after));
 
 export interface IListArgs {
   filter?: IDataExtensionFilter | null;
@@ -976,7 +1003,12 @@ export const buildTenantSchema = ({
         }
       }
 
-      const record = Object.keys(ownValues).length
+      const changedKeys = Object.keys(ownValues);
+      const before =
+        owners.recordChanges && changedKeys.length
+          ? (await owners.load(context, descriptor, [id]))[0]
+          : null;
+      const record = changedKeys.length
         ? await owners.patch(context, descriptor, id, ownValues)
         : (await owners.load(context, descriptor, [id]))[0];
 
@@ -986,6 +1018,18 @@ export const buildTenantSchema = ({
 
       for (const [field, value] of inverseValues) {
         await relinkInverse(context, field, record._id, value);
+      }
+
+      if (owners.recordChanges && before) {
+        const changes = diffValues(
+          changedKeys,
+          before.dataExtensions || {},
+          record.dataExtensions || {},
+        );
+
+        if (changes.length) {
+          await owners.recordChanges(context, descriptor, record._id, changes, 'updated');
+        }
       }
 
       return record;
@@ -1194,6 +1238,13 @@ export const buildTenantSchema = ({
 
         const id = await create(context, descriptor, args.input);
         const [record] = await owners.load(context, descriptor, [id]);
+
+        if (record && owners.recordChanges) {
+          const values = record.dataExtensions || {};
+          const changes = diffValues(Object.keys(values), {}, values);
+
+          await owners.recordChanges(context, descriptor, id, changes, 'created');
+        }
 
         return record || null;
       },

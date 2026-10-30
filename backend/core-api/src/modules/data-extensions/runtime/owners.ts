@@ -23,6 +23,10 @@ import {
   deleteCustomRecord,
   renameCustomRecord,
 } from '~/modules/data-extensions/objects';
+import {
+  deliverDataExtensionWebhooks,
+  recordDataExtensionChanges,
+} from '~/modules/data-extensions/changes';
 import { IRequestContext } from '~/modules/data-extensions/runtime/context';
 import {
   recordOwnerCall,
@@ -426,6 +430,32 @@ export const ownerResolvers: IOwnerResolvers = {
     context.relationLoaders.clear();
 
     return removed;
+  },
+
+  // History and webhooks never fail the write that already happened.
+  async recordChanges(context, descriptor, recordId, changes, event) {
+    try {
+      const models = await generateModels(context.subdomain);
+
+      await recordDataExtensionChanges(
+        models,
+        descriptor.recordType,
+        recordId,
+        changes,
+        event,
+        context.user._id,
+      );
+      deliverDataExtensionWebhooks(models, {
+        event,
+        subdomain: context.subdomain,
+        recordType: descriptor.recordType,
+        recordId,
+        userId: context.user._id,
+        changes,
+      });
+    } catch (error) {
+      console.warn('Data Extensions history not recorded', error);
+    }
   },
 
   async findByRelation(context, descriptor, key, targetId, limit) {

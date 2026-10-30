@@ -29,6 +29,14 @@ import {
   withCustomRecordTypes,
 } from '@/data-extensions/objects';
 import {
+  addDataExtensionWebhook,
+  deleteDataExtensionWebhook,
+  editDataExtensionWebhook,
+  IDataExtensionWebhook,
+  listDataExtensionChanges,
+  listDataExtensionWebhooks,
+} from '@/data-extensions/changes';
+import {
   addDataExtensionView,
   deleteDataExtensionView,
   editDataExtensionView,
@@ -141,6 +149,32 @@ export const dataExtensionQueries = {
     );
   },
 
+  dataExtensionChanges: scoped(
+    async (
+      args: { recordType: string; recordId: string; limit?: number },
+      { models, checkPermission },
+    ) => {
+      await requireRecordRead(args.recordType, checkPermission);
+
+      return listDataExtensionChanges(
+        models,
+        args.recordType,
+        args.recordId,
+        args.limit || undefined,
+      );
+    },
+  ),
+
+  async dataExtensionWebhooks(
+    _parent: undefined,
+    _args: undefined,
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('dataExtensionsManage');
+
+    return listDataExtensionWebhooks(models);
+  },
+
   dataExtensionViews: scoped(
     async (
       { recordType }: { recordType: string },
@@ -155,6 +189,38 @@ export const dataExtensionQueries = {
 
 
 export const dataExtensionMutations = {
+  dataExtensionWebhookAdd: scoped(
+    async (
+      { input }: { input: Partial<IDataExtensionWebhook> },
+      { models, user, checkPermission },
+    ) => {
+      await checkPermission('dataExtensionsManage');
+
+      return addDataExtensionWebhook(models, input, user._id);
+    },
+  ),
+
+  dataExtensionWebhookEdit: scoped(
+    async (
+      { _id, input }: { _id: string; input: Partial<IDataExtensionWebhook> },
+      { models, checkPermission },
+    ) => {
+      await checkPermission('dataExtensionsManage');
+
+      return editDataExtensionWebhook(models, _id, input);
+    },
+  ),
+
+  async dataExtensionWebhookDelete(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { models, checkPermission }: IContext,
+  ) {
+    await checkPermission('dataExtensionsManage');
+
+    return deleteDataExtensionWebhook(models, _id);
+  },
+
   dataExtensionViewAdd: scoped(
     async (
       { input }: { input: Partial<IDataExtensionView> },
