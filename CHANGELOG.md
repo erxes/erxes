@@ -1,4 +1,16 @@
+# Changelog
 
+## [3.4.7](https://github.com/erxes/erxes/compare/3.4.6...3.4.7) (2026-10-29)
+
+
+### Bug Fixes
+
+* fix operations query cache problems ([ba98f1e](https://github.com/erxes/erxes/commit/ba98f1e2cbc155c71819af154dd910e88a47dfa9))
+
+
+### Features
+
+* **auth:** server-side sessions, two-factor authentication, LDAP recheck and CSRF guard ([#10065](https://github.com/erxes/erxes/issues/10065)) ([479f724](https://github.com/erxes/erxes/commit/479f7245bc0a0ff86bf85d2c11a2b595f3b32df8))
 
 ## [3.4.6](https://github.com/erxes/erxes/compare/3.4.5...3.4.6) (2026-10-29)
 
@@ -40,7 +52,7 @@
 
 * change relation ([c80eeb9](https://github.com/erxes/erxes/commit/c80eeb9c421b93f2f533a5a9253476637e41644a))
 
-# Changelog
+
 
 ## [3.4.3](https://github.com/erxes/erxes/compare/3.4.2...3.4.3) (2026-10-27)
 

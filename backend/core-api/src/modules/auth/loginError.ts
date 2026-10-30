@@ -10,7 +10,11 @@ export type LoginFailureReason =
   | 'directory_disabled'
   | 'directory_unreachable'
   | 'not_allowed'
-  | 'not_linked';
+  | 'not_linked'
+  | 'two_factor_required'
+  | 'two_factor_setup_required'
+  | 'two_factor_invalid'
+  | 'two_factor_expired';
 
 // English text is what admins read in login logs; the UI translates by reason
 const MESSAGES: Record<LoginFailureReason, string> = {
@@ -22,14 +26,27 @@ const MESSAGES: Record<LoginFailureReason, string> = {
   directory_unreachable: 'Directory server did not respond',
   not_allowed: 'Invalid login: not in an allowed directory group',
   not_linked: 'Invalid login: account is not linked to the directory',
+  two_factor_required: 'Two-factor code required',
+  two_factor_setup_required: 'Two-factor setup required',
+  two_factor_invalid: 'Invalid two-factor code',
+  two_factor_expired: 'Sign-in expired, please sign in again',
 };
 
 export class LoginError extends ExpectedError {
-  readonly extensions: { code: string; reason: LoginFailureReason };
+  readonly extensions: {
+    code: string;
+    reason: LoginFailureReason;
+    challenge?: string;
+  };
 
-  constructor(readonly reason: LoginFailureReason) {
+  // challenge: the two-factor step's token, carried back to the sign-in form
+  constructor(readonly reason: LoginFailureReason, challenge?: string) {
     super(MESSAGES[reason], LOGIN_FAILED);
-    this.extensions = { code: LOGIN_FAILED, reason };
+    this.extensions = {
+      code: LOGIN_FAILED,
+      reason,
+      ...(challenge ? { challenge } : {}),
+    };
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }

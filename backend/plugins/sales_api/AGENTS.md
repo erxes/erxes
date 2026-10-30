@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-10-30`
 
 ## Scope
 
@@ -32,6 +32,16 @@
 
 ## Current Capabilities
 
+- POS cover `details[]` stores immutable terminal fetch results
+  per `paidType`, including zero-amount terminal rows received from POS client.
+  `PosCoverDetail` exposes `terminalResults` without duplicate description fields; the cover-level
+  description remains the POS client's general closing note, preserved by
+  `pos.confirmCover` and exposed unchanged through `posCoverDetail`.
+
+- Removing a Sales POS cover first unpublishes it through POS client's
+  `posclient.covers.remove` tRPC query. Only an acknowledgement for the same
+  cover with `status: reconf` permits Sales deletion, allowing POS client to
+  edit and publish that cover again.
 - `pnpm nx run sales_api:schema:print` exports the existing subgraph schema,
   including subscriptions, to `generated/schema.graphql` for type-generation
   tooling without starting the Sales service or executing resolvers.
@@ -275,6 +285,11 @@
 
 ## Local Invariants
 
+- `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
+  supplied date, including when copying an existing deal.
+- POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
+  callers submit `false` or omit the field. This applies to GraphQL and tRPC
+  creation; transport-side `onServer`/offline routing checks remain in place.
 - Every automation action declares a `configSchema` (`src/modules/sales/meta/automations/configSchemas.ts` and `src/modules/pos/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create deal (`stageId`, `name`), create checklist (`name`) and create POS order (`posId` or `posToken`; amounts may be `{{ }}` placeholders). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Create deal also declares `validateConfig` (`src/modules/sales/meta/automations/configValidators.ts`): its `stageId` exists. POS `posToken` is builder-only.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
   `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
@@ -578,6 +593,11 @@
 
 ## Validation
 
+- `node --test backend/plugins/sales_api/src/modules/pos/db/definitions/__tests__/coverDetails.test.cjs`
+- `node --test backend/plugins/sales_api/src/modules/pos/db/models/__tests__/posOnServer.test.cjs`
+- Cover smoke: confirm in POS client (editing is locked), remove in Sales
+  (POS client becomes editable), edit and confirm again. A POS client failure
+  must keep the Sales cover available for retry.
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/configSchemas.test.ts`)
 - `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
