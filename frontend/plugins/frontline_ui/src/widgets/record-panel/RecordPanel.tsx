@@ -16,6 +16,7 @@ import {
   KB_RECORD_CONTENT_TYPES,
   KB_DRAFT_CONTENT_TYPES,
 } from '@/knowledgebase/constants';
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 
 const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
   ...Object.values(KB_RECORD_CONTENT_TYPES),
@@ -46,6 +47,12 @@ const TicketPanelEmptyState = ({ message }: { message?: string }) => {
 const KnowledgeBaseRecordPanel = lazy(() =>
   import('./KnowledgeBaseRecordPanel').then((module) => ({
     default: module.KnowledgeBaseRecordPanel,
+  })),
+);
+
+const HelpCenterRecordPanel = lazy(() =>
+  import('./HelpCenterRecordPanel').then((module) => ({
+    default: module.HelpCenterRecordPanel,
   })),
 );
 
@@ -109,6 +116,13 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
+  if (props.contentType === HELP_CENTER_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <HelpCenterRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.contentType === TICKET_PROPERTY_CONTENT_TYPE)
     return props.view === 'new' ? (
       <AddTicketForm />
