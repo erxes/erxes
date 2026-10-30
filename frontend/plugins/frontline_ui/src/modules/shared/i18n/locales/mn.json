@@ -1,5 +1,10 @@
 {
   "modules": {
+    "knowledgebase": {
+      "actions": "Үйлдлүүд",
+      "kb-embed-script": "Шигтгэх код",
+      "kb-record-not-found": "Энэ мэдээлэл байхгүй болсон байна."
+    },
     "ticket": {
       "ticket-name-required": "Тасалбарын нэрийг оруулна уу",
       "customer": "Харилцагч",

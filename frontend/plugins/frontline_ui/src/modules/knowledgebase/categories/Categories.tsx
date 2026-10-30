@@ -1,15 +1,18 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, useQueryState } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Kbd } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CategoriesRecordTable } from '@/knowledgebase/categories/components/CategoriesRecordTable';
-import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
-import { useCategories } from '@/knowledgebase/categories/hooks/useCategories';
+import {
+  KB_RECORD_CONTENT_TYPES,
+  KB_DRAFT_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
+import { KnowledgeBaseDetailLink } from '@/knowledgebase/shared/components/KnowledgeBaseDetailLink';
 import { KnowledgeBaseLayout } from '@/knowledgebase/shared/components/KnowledgeBaseLayout';
 import { useKbCreateHotkey } from '@/knowledgebase/shared/hooks/useKbCreateHotkey';
 import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
+import { useSidePanel } from 'ui-modules';
 
 export const Categories = () => {
   const { t } = useTranslation('frontline', {
@@ -17,27 +20,15 @@ export const Categories = () => {
   });
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
-  const { categories, refetch } = useCategories(topicId, {
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
-  });
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editId, setEditId] = useQueryState<string>('editId');
-
-  const editing = (categories ?? []).find(
-    (category) => category._id === editId,
-  );
+  const { record, openNewRecord } = useSidePanel();
+  const openCreate = () =>
+    openNewRecord(KB_DRAFT_CONTENT_TYPES.category, { topicId });
 
   useKbCreateHotkey({
     scope: KnowledgeBaseHotKeyScope.CategoriesPage,
-    isSheetOpen: isCreateOpen || !!editing,
-    onCreate: () => setIsCreateOpen(true),
+    isSheetOpen: !!record,
+    onCreate: openCreate,
   });
-
-  const handleClose = () => {
-    setIsCreateOpen(false);
-    setEditId(null);
-  };
 
   return (
     <KnowledgeBaseLayout
@@ -45,26 +36,16 @@ export const Categories = () => {
       topicTitle={topic?.title ?? undefined}
       section="categories"
       actions={
-        <Button onClick={() => setIsCreateOpen(true)} className="py-1 h-7">
+        <Button onClick={openCreate} className="py-1 h-7">
           <IconPlus />
           {t('kb-new-category', 'New Category')}
           <Kbd>C</Kbd>
         </Button>
       }
     >
-      <CategoriesRecordTable
-        topicId={topicId}
-        onCreate={() => setIsCreateOpen(true)}
-      />
+      <CategoriesRecordTable topicId={topicId} onCreate={openCreate} />
 
-      <CategoryDrawer
-        key={editing?._id ?? 'create'}
-        category={editing}
-        topicId={topicId}
-        isOpen={isCreateOpen || !!editing}
-        onClose={handleClose}
-        onSaved={refetch}
-      />
+      <KnowledgeBaseDetailLink contentType={KB_RECORD_CONTENT_TYPES.category} />
     </KnowledgeBaseLayout>
   );
 };

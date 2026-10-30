@@ -51,7 +51,7 @@
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
   routes: record tables with inline editing, filters, command bar bulk delete,
-  and the topic, category and article drawers. A topic's embed script opens as
+  and topic, category and article editors. A topic's embed script opens as
   a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
@@ -89,10 +89,18 @@
 ## Current Capabilities
 
 - Saved-record panel sessions retain ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes.
+- The Articles page registers its advertised C shortcut through `useKbCreateHotkey`; it cannot create without a category or while another record panel owns the shortcut scope.
+
 - Settings → Properties is supplied by core's public plugin-settings slot.
   Frontline does not own its field/group editors or their modal containers.
 
-- Ticket creation uses `useSidePanel().openNewRecord` and the record panel's `new` view. Opening or cancelling a draft writes nothing. `useCreateTicketRecord`
+- Ticket, knowledge base article/topic/category creation use
+  `useSidePanel().openNewRecord` and the record panel's `new` view, matching
+  Operation's draft flow. Knowledge base drafts use the UI-only
+  `frontline:article`, `frontline:topic` and `frontline:category` aliases so the
+  host header shows readable names; saved records keep their existing
+  `frontline:knowledgebase.*` types. They reuse their existing validated forms and
+  mutations; opening or cancelling a draft writes nothing. `useCreateTicketRecord`
   carries ticket page, board status, conversation channel and contact defaults.
   Contact drafts stack over their host; Cancel returns there. A created ticket
   replaces its draft with the saved detail. `AddTicketSheet` is the existing
@@ -104,6 +112,34 @@
   default `form` variant remains available to other forms. Description serialization
   retains the existing ticket form behavior.
 
+- Knowledge base article, topic and category details open in the shared app
+  side panel (`frontline:knowledgebase.article`, `.topic`, `.category`).
+  `KnowledgeBaseRecordPanel` supplies title, header actions, Detail and Activity;
+  these types have no custom Properties tab. Detail reuses each existing
+  drawer's React Hook Form/Zod form through `KbFormSheet`'s `panel` variant.
+  `KbFormItem` uses the shared `PanelFormRow` for compact labelled inputs;
+  description, article HTML content and media span the panel width. Save and
+  Cancel retain their existing validation and feedback. Create uses the same
+  compact forms as drafts in the app side panel, with the same fields and
+  mutation hooks.
+- Knowledge base article details retain title/summary, topic/category moves,
+  HTML content, status/scheduled publishing, privacy, reactions, cover image,
+  attachments and PDF upload. Topic details retain title, description, brand,
+  language, code, colour reset and background image; Embed script and Settings
+  are in the header menu, while topic deletion stays in the settings danger
+  zone. Category details retain title, description, code,
+  icon, topic moves and parent category. Article headers provide Duplicate and
+  Delete; category headers provide the existing confirmed cascade delete.
+- Knowledge base title links and row Edit actions call the
+  public `useSidePanel().openRecord` directly, so opening or switching records
+  updates the host panel in the same navigation. `?editId=` remains an entry
+  link only; `KnowledgeBaseDetailLink` removes it and sets `panel` together
+  with `useMultiQueryState`, preserving other query parameters. Legacy ticket
+  links use the same atomic conversion in `TicketDetailLink`.
+  Sidebar category pencils, topic Edit actions and the topic settings page's
+  Edit Topic button open panels directly. Topic settings retains its install
+  snippet and danger zone. Activity uses the shared `ActivityLogs` renderer
+  for the record id and its loading/error/empty states.
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -792,6 +828,7 @@ owns the setup form and connection actions.
 | Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
 | Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
 | Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
+| Knowledge base record panels | `src/widgets/record-panel/KnowledgeBaseRecordPanel.tsx`, `src/modules/knowledgebase/shared/components/{KbFormLayout,KbFormSheet,KnowledgeBaseDetailLink}.tsx` | Article/topic/category record views, compact validated edit forms, shared activity, header actions and legacy edit links |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
@@ -822,6 +859,12 @@ owns the setup form and connection actions.
   `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`, named export
   `RecordPanel`): title, actions, detail, properties and activity views. The
   host owns panel tabs, resizing, navigation and lazy remote loading.
+- The same `./recordPanel` entry registers `frontline:knowledgebase.article`,
+  `frontline:knowledgebase.topic` and `frontline:knowledgebase.category`, each
+  with `properties: false`, and lazy-loads `KnowledgeBaseRecordPanel`.
+  `frontlineKbCategoryDetail` reads `knowledgeBaseCategoryDetail` with
+  `firstTopic { _id }`, so a category panel resolves its owning topic without
+  depending on the current page or the first page of category list results.
 - `./frontline` exports the named `Frontline` entry.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
@@ -2197,9 +2240,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
   reintroduce a `?topicId=` selection. A sidebar category links to its topic's
   `articles` route with the existing `categoryId` filter param, so the sidebar
-  and the filter bar chip always show the same selection. `editId`,
-  `createTopic`, `categoryId` and `status` stay query params, because they are
-  filter and drawer state, not routes.
+  and the filter bar chip always show the same selection. `createTopic`,
+  `categoryId` and `status` stay query params. Article/category `editId` links
+  are accepted for compatibility and moved into the shared `panel` query param.
 - `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
   every knowledge base page, including the index; there is no topics card grid
   or topics table. The index redirects to the first topic's `articles` route,
@@ -2235,16 +2278,17 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `null` = the panel's default `w-60`) and is passed as an inline `width`;
   the panel's width transition is switched off while `kbSidebarResizingAtom`
   is set, and its collapsed `w-0!` still wins over the inline width. The panel
-  keeps its children mounted while collapsed, so the topic and category
-  drawers inside it still open from `?createTopic=true`. The `+` opens
-  the full `TopicDrawer` sheet (every topic field, including appearance), and
-  creating or editing a category from the sidebar opens the full
-  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
+  keeps its children mounted while collapsed, so `?createTopic=true` can
+  still open a topic draft. The `+` opens
+  `TopicDrawer` in the app side panel (every topic field, including appearance), and
+  creating a category from the sidebar opens `CategoryDrawer` as a panel draft;
+  editing opens its same validated fields in the app side panel. Topic Edit
+  opens its same full fields in the panel too. A topic
   row has one `...` button, shown on hover, that opens a dropdown through
-  `KbSidebarRowActions` (new category, manage categories, settings — a topic
+  `KbSidebarRowActions` (edit topic, new category, manage categories, settings — a topic
   is deleted only from its `kbsettings` danger zone). A category row has no
   dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
-  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
+  focus — pencil (edit, opens the category record panel) and trash (delete, confirms
   first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
   `title`. A topic row
   uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
@@ -2711,12 +2755,24 @@ null }`, fall back to the route pipeline and skip without one; never pass
   contact's Tickets section; verify channel/pipeline/status and contact defaults,
   required system/custom fields, description, Cancel/Back and creation feedback.
   Successful ticket creation must replace the draft and refresh its lists.
-  Cancelling and reopening must start a fresh draft. No detail query may request a record with id `new`.
+  Open New Article, New Topic and New Category from the table and topic menu; verify compact forms, validation, immediate updates and fresh drafts after cancellation. No detail query may request a record with id `new`.
 - Ticket panel smoke: open a ticket from list, board, a contact section and a
   legacy `?ticketId=` link. Verify Detail / Properties / Activity, inline saves,
   date clearing, permission-disabled fields, attachments, notes and header
   actions. Open its customer/company and use panel Back. Reload a panel URL;
   deleting the open ticket must close it and update the list immediately.
+- Knowledge base panel smoke: open article/category title links and row Edit,
+  sidebar category Edit and topic Edit, and topic settings Edit Topic. Confirm
+  each panel's complete fields, Save/Cancel, validation, immediate list/tree
+  refresh and direct panel URL reload. Check article HTML, scheduling, privacy,
+  reactions and all three media uploads; topic colour reset/background and
+  embed snippet; category topic/parent moves. Duplicate an article and confirm
+  delete uses the existing confirmation and closes a removed record's panel.
+  Start on the article table with no panel, click one article and then a
+  different article, close and reopen it, and use browser Back/Forward.
+  Header and fields must follow each selection without refreshing. Repeat
+  title/menu opening on categories, including legacy `editId`
+  links with filters that must survive the conversion.
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count

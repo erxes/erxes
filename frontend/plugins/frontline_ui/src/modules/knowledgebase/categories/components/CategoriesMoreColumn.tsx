@@ -1,10 +1,14 @@
+import { useSidePanel } from 'ui-modules';
 import { IconFileText } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useConfirmRemoveCategory } from '@/knowledgebase/categories/hooks/useConfirmRemoveCategory';
 import { TCategoryRow } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
-import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
+import {
+  KNOWLEDGE_BASE_PATH,
+  KB_RECORD_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 import {
   KbRowActions,
   kbMoreColumn,
@@ -20,12 +24,18 @@ const CategoriesMoreColumnCell = ({
   });
   const { _id, title } = cell.row.original;
   const { topicId = '' } = useParams();
+  const { openRecord } = useSidePanel();
   const navigate = useNavigate();
   const { confirmRemoveCategory } = useConfirmRemoveCategory();
 
   return (
     <KbRowActions
-      id={_id}
+      onEdit={() =>
+        openRecord({
+          contentType: KB_RECORD_CONTENT_TYPES.category,
+          contentId: _id,
+        })
+      }
       actions={[
         {
           value: 'articles',
