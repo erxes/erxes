@@ -14,7 +14,15 @@ export interface ICallIntegrationModel extends Model<ICallIntegrationDocument> {
     integrationId: string,
   ): Promise<ICallIntegrationDocument>;
   getIntegrationQueuesByUser(userId: string): Promise<string[]>;
+  findPeers(
+    integration: ICallIntegrationDocument,
+  ): Promise<ICallIntegrationDocument[]>;
 }
+
+type PeerSelector =
+  | { srcTrunk: string }
+  | { dstTrunk: string }
+  | { phone: string };
 
 export const loadCallIntegrationClass = (models: IModels) => {
   class Integration {
@@ -39,6 +47,27 @@ export const loadCallIntegrationClass = (models: IModels) => {
           (operator) => operator.userId === userId,
         ),
       }));
+    }
+
+    public static async findPeers(integration: ICallIntegrationDocument) {
+      const selectors: PeerSelector[] = [];
+      if (integration.srcTrunk) {
+        selectors.push({ srcTrunk: integration.srcTrunk });
+      }
+      if (integration.dstTrunk) {
+        selectors.push({ dstTrunk: integration.dstTrunk });
+      }
+      if (integration.phone) {
+        selectors.push({ phone: integration.phone });
+      }
+      if (!selectors.length) return [integration];
+
+      const peers = await models.CallIntegrations.find({
+        inboxId: { $ne: integration.inboxId },
+        $or: selectors,
+      });
+
+      return [integration, ...peers];
     }
 
     public static async getIntegration(

@@ -8,10 +8,7 @@ import {
   InvalidCredentialsError,
   OrFilter,
 } from 'ldapts';
-import type {
-  ILdapConfig,
-  LdapServerType,
-} from '@/auth/db/definitions/ldap';
+import type { ILdapConfig, LdapServerType } from '@/auth/db/definitions/ldap';
 import { LoginError, LoginFailureReason } from '@/auth/loginError';
 
 export interface ILdapProfile {
@@ -97,7 +94,9 @@ const toLdapProfile = (
   };
 };
 
-export const isSecureLdapTransport = (config: Pick<ILdapConfig, 'url' | 'startTls'>) =>
+export const isSecureLdapTransport = (
+  config: Pick<ILdapConfig, 'url' | 'startTls'>,
+) =>
   config.url.startsWith('ldaps://') ||
   (config.url.startsWith('ldap://') && config.startTls);
 
@@ -105,7 +104,10 @@ const buildUserFilter = (config: ILdapConfig, identifier: string): Filter => {
   const filters: Filter[] = [
     new OrFilter({
       filters: [
-        new EqualityFilter({ attribute: config.loginAttribute, value: identifier }),
+        new EqualityFilter({
+          attribute: config.loginAttribute,
+          value: identifier,
+        }),
         new EqualityFilter({ attribute: 'mail', value: identifier }),
       ],
     }),
@@ -173,6 +175,62 @@ export const lookupLdapUser = (
 
     return entry ? toLdapProfile(config, entry) : null;
   });
+
+export interface IDirectoryState {
+  groupDns: string[];
+  disabled: boolean;
+}
+
+// AD userAccountControl ACCOUNTDISABLE bit
+const AD_DISABLED = 0x2;
+
+// objectGUID is stored as hex and matched as raw bytes
+const subjectFilterValue = (config: ILdapConfig, subject: string) =>
+  config.serverType === 'activeDirectory'
+    ? Buffer.from(subject, 'hex')
+    : subject;
+
+/** Current directory state of linked users, keyed by subject; a missing key means gone. */
+export const readDirectoryStates = async (
+  config: LdapConnectionConfig,
+  subjects: string[],
+): Promise<Map<string, IDirectoryState>> => {
+  if (!subjects.length) {
+    return new Map();
+  }
+
+  const attribute = SUBJECT_ATTRIBUTE[config.serverType];
+
+  return withServiceClient(config, async (client) => {
+    const { searchEntries } = await client.search(config.baseDn, {
+      scope: 'sub',
+      filter: new OrFilter({
+        filters: subjects.map(
+          (subject) =>
+            new EqualityFilter({
+              attribute,
+              value: subjectFilterValue(config, subject),
+            }),
+        ),
+      }),
+      attributes: [attribute, 'memberOf', 'userAccountControl'],
+      explicitBufferAttributes: ['objectGUID'],
+      // AD caps a page at 1000 entries; paging fetches the rest
+      paged: true,
+    });
+
+    return new Map(
+      searchEntries.map((entry) => [
+        readSubject(config.serverType, entry),
+        {
+          groupDns: allValues(entry.memberOf),
+          disabled:
+            (Number(firstValue(entry.userAccountControl)) & AD_DISABLED) !== 0,
+        },
+      ]),
+    );
+  });
+};
 
 // AD puts the cause in the bind error text as "data <hex>"
 const AD_BIND_REASONS: Record<string, LoginFailureReason> = {
@@ -253,11 +311,18 @@ export const testLdapConnection = async (
     });
 
     if (profile === null) {
-      return { ok: false, message: 'Connected, but the user was not found', profile };
+      return {
+        ok: false,
+        message: 'Connected, but the user was not found',
+        profile,
+      };
     }
 
     return { ok: true, message: 'Connected', profile };
   } catch (e) {
-    return { ok: false, message: e instanceof Error ? e.message : 'Connection failed' };
+    return {
+      ok: false,
+      message: e instanceof Error ? e.message : 'Connection failed',
+    };
   }
 };

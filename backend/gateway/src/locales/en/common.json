@@ -204,7 +204,10 @@
     "import-export": "Import & Export",
     "message-pro": "Message Pro",
     "agents": "Agents",
-    "ldap": "LDAP"
+    "ldap": "LDAP",
+    "two-factor": "Two-factor authentication",
+    "security": "Security",
+    "active-directory": "Active Directory (LDAP)"
   },
   "plugin": {
     "_": "Plugin",
@@ -321,7 +324,11 @@
       "directory_disabled": "Your account is disabled. Contact your admin",
       "directory_unreachable": "The directory server did not respond. Please try again",
       "not_allowed": "You have not been given access to erxes. Contact your admin",
-      "not_linked": "Your account is not linked to the directory. Contact your admin"
+      "not_linked": "Your account is not linked to the directory. Contact your admin",
+      "two_factor_required": "Enter the code from your authenticator app",
+      "two_factor_setup_required": "Set up two-factor authentication to continue",
+      "two_factor_invalid": "That code did not work. Try the newest code.",
+      "two_factor_expired": "Sign-in timed out. Sign in again."
     },
     "success": "Success",
     "reset-link-sent": "Password reset instructions have been sent to your email.",
@@ -946,5 +953,28 @@
       "not-connected": "The assistant is not connected yet."
     },
     "relations": "Relations"
+  },
+  "two-factor": {
+    "authenticator-code": "Authenticator code",
+    "recovery-code": "Recovery code",
+    "use-recovery-code": "Use a recovery code",
+    "use-authenticator": "Use the authenticator app",
+    "scan-instructions": "Scan with Microsoft or Google Authenticator, or enter the key.",
+    "copy-key": "Copy key",
+    "key-copied": "Key copied",
+    "codes-copied": "Recovery codes copied",
+    "copy-failed": "Could not copy. Select the text and copy it instead.",
+    "recovery-codes-title": "Save your recovery codes",
+    "recovery-codes-description": "Each code signs you in once if you lose your phone. They will not be shown again.",
+    "copy": "Copy",
+    "download": "Download",
+    "continue": "Continue",
+    "setup-title": "Set up two-factor authentication",
+    "setup-description": "Your organization requires a second step at sign-in.",
+    "verify-title": "Two-factor authentication",
+    "verify-description": "Enter the 6-digit code from your authenticator app.",
+    "turn-on-and-sign-in": "Turn on and sign in",
+    "verify": "Verify",
+    "back-to-sign-in": "Back to sign in"
   }
 }
