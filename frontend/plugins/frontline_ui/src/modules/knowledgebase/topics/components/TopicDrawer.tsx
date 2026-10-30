@@ -16,12 +16,10 @@ import { ITopic } from '@/knowledgebase/types';
 
 export const TopicDrawer = ({
   topic,
-  isOpen,
   onClose,
   onSaved,
 }: {
   topic?: ITopic;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
@@ -52,13 +50,7 @@ export const TopicDrawer = ({
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
       onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-topic', 'Edit Topic')
-          : t('kb-new-topic', 'New Topic')
-      }
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
@@ -68,9 +60,9 @@ export const TopicDrawer = ({
       onSubmit={submit}
     >
       <Form {...form}>
-        <form onSubmit={submit} className="grid gap-4 p-4">
+        <div className="grid gap-2">
           <TopicFormFields form={form} t={t} />
-        </form>
+        </div>
       </Form>
     </KbFormSheet>
   );

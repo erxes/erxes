@@ -11,6 +11,16 @@ import { Empty, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import type { IRecordPanelProps } from 'ui-modules';
 import { TicketPanelDetail } from './TicketPanelDetail';
+import { lazy, Suspense } from 'react';
+import {
+  KB_RECORD_CONTENT_TYPES,
+  KB_DRAFT_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
+
+const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
+  ...Object.values(KB_RECORD_CONTENT_TYPES),
+  ...Object.values(KB_DRAFT_CONTENT_TYPES),
+];
 
 const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -32,6 +42,12 @@ const TicketPanelEmptyState = ({ message }: { message?: string }) => {
     </div>
   );
 };
+
+const KnowledgeBaseRecordPanel = lazy(() =>
+  import('./KnowledgeBaseRecordPanel').then((module) => ({
+    default: module.KnowledgeBaseRecordPanel,
+  })),
+);
 
 const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -99,5 +115,12 @@ export const RecordPanel = (props: IRecordPanelProps) => {
     ) : (
       <TicketPanel {...props} />
     );
+  if (KNOWLEDGE_BASE_CONTENT_TYPES.includes(props.contentType)) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <KnowledgeBaseRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   return null;
 };

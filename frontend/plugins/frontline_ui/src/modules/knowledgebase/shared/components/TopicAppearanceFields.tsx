@@ -4,6 +4,7 @@ import { TFunction } from 'i18next';
 import { ReactNode } from 'react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
+import { KbFormItem } from './KbFormLayout';
 
 export function KbColorInput({
   value,
@@ -81,16 +82,22 @@ function KbControlField<T extends FieldValues>({
       name={name}
       rules={required ? { required } : undefined}
       render={({ field }) => (
-        <Form.Item>
-          <div className="flex items-center justify-between gap-2">
-            <Form.Label>{label}</Form.Label>
-            {renderLabelAction?.(field.value as string, field.onChange)}
-          </div>
+        <KbFormItem
+          label={label}
+          wide
+          labelAction={renderLabelAction?.(
+            typeof field.value === 'string' ? field.value : '',
+            field.onChange,
+          )}
+        >
           <Form.Control>
-            {renderControl(field.value as string, field.onChange)}
+            {renderControl(
+              typeof field.value === 'string' ? field.value : '',
+              field.onChange,
+            )}
           </Form.Control>
           <Form.Message />
-        </Form.Item>
+        </KbFormItem>
       )}
     />
   );
