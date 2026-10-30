@@ -10,7 +10,7 @@ export type DataExtensionFieldType = (typeof DATA_EXTENSION_FIELD_TYPES)[number]
 export type DataExtensionFieldStatus =
   (typeof DATA_EXTENSION_FIELD_STATUSES)[keyof typeof DATA_EXTENSION_FIELD_STATUSES];
 
-export type DataExtensionOwner = 'core' | 'operation';
+export type DataExtensionOwner = 'core' | 'operation' | 'sales' | 'frontline';
 
 export type DataExtensionObjectStatus = 'active' | 'archived';
 

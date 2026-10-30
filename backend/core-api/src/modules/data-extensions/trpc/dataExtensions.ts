@@ -89,6 +89,12 @@ export const buildOwnerContext = (
       model: models.Users,
       searchPaths: ['details.fullName', 'username', 'email'],
     },
+    'core:products': {
+      storage: 'core:products',
+      model: models.Products,
+      baseFilter: { status: { $ne: 'deleted' } },
+      searchPaths: ['name', 'code', 'shortName'],
+    },
   },
 });
 

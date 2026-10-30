@@ -64,11 +64,21 @@ export const listDataExtensionRecordTypes = async (models: IModels) => {
     { $group: { _id: '$recordType', count: { $sum: 1 } } },
   ]);
   const countByType = new Map(counts.map(({ _id, count }) => [_id, count]));
-  const operationEnabled = await isEnabled('operation');
+  // Record types of plugins that are not running are not offered.
+  const owners = Array.from(
+    new Set(DATA_EXTENSION_RECORD_TYPES.map(({ owner }) => owner)),
+  );
+  const enabled = new Set<string>();
+
+  for (const owner of owners) {
+    if (await isEnabled(owner)) {
+      enabled.add(owner);
+    }
+  }
 
   return [
-    ...DATA_EXTENSION_RECORD_TYPES.filter(
-      (descriptor) => descriptor.owner === 'core' || operationEnabled,
+    ...DATA_EXTENSION_RECORD_TYPES.filter((descriptor) =>
+      enabled.has(descriptor.owner),
     ),
     ...getCustomDataExtensionRecordTypes(),
   ].map(

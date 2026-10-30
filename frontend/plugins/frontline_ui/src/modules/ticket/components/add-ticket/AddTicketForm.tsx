@@ -35,7 +35,9 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
+import { currentUserState,
+  DataExtensionCreateFields,
+} from 'ui-modules';
 
 export const AddTicketForm = ({
   onClose,
@@ -283,6 +285,11 @@ export const AddTicketForm = ({
             propertiesData={propertiesData}
             missingIds={missingIds}
             onPropertyChange={setPropertyValue}
+          />
+          <DataExtensionCreateFields
+            recordType="frontline:ticket"
+            layout="stack"
+            className="mt-4"
           />
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">

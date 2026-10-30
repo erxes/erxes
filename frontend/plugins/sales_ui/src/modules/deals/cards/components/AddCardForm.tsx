@@ -16,6 +16,7 @@ import {
   SelectMember,
   isFieldVisibleByLogic,
   useFields,
+  DataExtensionCreateFields,
 } from 'ui-modules';
 
 import { useDealsAdd } from '@/deals/cards/hooks/useDeals';
@@ -243,6 +244,11 @@ export function AddCardForm({
                   {t('configure-properties-in-settings')}
                 </span>
               </button>
+              <DataExtensionCreateFields
+                recordType="sales:deal"
+                layout="stack"
+                className="mt-4"
+              />
             </div>
           </ScrollArea>
         </Sheet.Content>

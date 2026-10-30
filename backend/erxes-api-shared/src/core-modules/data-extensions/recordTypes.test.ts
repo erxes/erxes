@@ -32,6 +32,9 @@ describe('record type screen metadata', () => {
       ['core:lead', ['customersAdd']],
       ['operation:task', ['createTask']],
       ['operation:project', ['createProject']],
+      ['core:product', ['productsAdd']],
+      ['sales:deal', ['dealsAdd']],
+      ['frontline:ticket', ['createTicket']],
     ]);
   });
 

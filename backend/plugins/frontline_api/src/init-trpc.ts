@@ -16,6 +16,7 @@ import { inboxTrpcRouter } from './modules/inbox/trpc/inbox';
 import { integrationTrpcRouter } from './modules/integrations/trpc/integration';
 import { mailTrpcRouter } from './modules/integrations/mail/trpc/mail';
 import { ticketTrpcRouter } from './modules/ticket/trpc/ticket';
+import { dataExtensionsTrpcRouter } from './trpc/dataExtensions';
 import { generateTicketFields } from './modules/ticket/meta/fields/fieldUtils';
 
 export type FrontlineTRPCContext = ITRPCContext<{ models: IModels }>;
@@ -30,6 +31,7 @@ export const appRouter = t.mergeRouters(
   formTrpcRouter,
   ticketTrpcRouter,
   relationTrpcRouter,
+  dataExtensionsTrpcRouter,
   t.router({
     fields: t.router({
       getFieldList: t.procedure

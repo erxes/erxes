@@ -66,7 +66,7 @@ describe('validateDataExtensionFieldCreate', () => {
       validateDataExtensionFieldCreate({
         ...base,
         key: 'a',
-        recordType: 'sales:deal',
+        recordType: 'loyalty:voucher',
       }),
     ).toThrow('Unsupported record type');
     expect(() =>
@@ -266,7 +266,7 @@ describe('relations', () => {
       validateDataExtensionRelationCreate({ ...relationInput, kind: 'cascade' }),
     ).toThrow('Unsupported relation kind');
     expect(() =>
-      validateDataExtensionRelationCreate({ ...relationInput, targetRecordType: 'sales:deal' }),
+      validateDataExtensionRelationCreate({ ...relationInput, targetRecordType: 'loyalty:voucher' }),
     ).toThrow('Unsupported target');
     expect(() =>
       validateDataExtensionRelationCreate({

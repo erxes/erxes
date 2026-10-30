@@ -16,6 +16,7 @@ import { useProductFileLinks } from '../hooks/useProductFiles';
 import { useAddProduct } from '../hooks/useProductsAdd';
 import { IProductFormValues } from '../types';
 import { AddProductFormAttachmentsAndExtra } from './ProductAttachments';
+import { DataExtensionCreateFields } from '../../data-extensions/components/DataExtensionCreateFields';
 import { AddProductFormCustomFields } from './ProductCustomFields';
 import { AddProductFormFieldsDetail } from './ProductFieldsDetail';
 import type { SubUomItem } from './SubUomRow';
@@ -177,6 +178,11 @@ export function AddProductForm({
           >
             <ScrollArea className="flex-1" viewportClassName="p-4">
               <AddProductFormCustomFields form={form} noTopPadding />
+              <DataExtensionCreateFields
+                recordType="core:product"
+                layout="stack"
+                className="mt-4"
+              />
             </ScrollArea>
             <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2.5">
               {footerButtons}
@@ -263,6 +269,10 @@ export function AddProductForm({
                 <Collapsible.Content className="order-1 w-full">
                   <AddProductFormAttachmentsAndExtra form={form} />
                   <AddProductFormCustomFields form={form} />
+                  <DataExtensionCreateFields
+                    recordType="core:product"
+                    className="mt-4"
+                  />
                 </Collapsible.Content>
                 <Collapsible.Trigger asChild>
                   <Button

@@ -1,6 +1,7 @@
 import { IDealDetail } from '@/deals/types/deals';
 import { isDefined, Separator } from 'erxes-ui';
 import { useMemo } from 'react';
+import { DataExtensionRecordSection } from 'ui-modules';
 import { AttachmentProvider } from './attachments/AttachmentContext';
 import { SalesNoteAndComment } from './NoteAndComment';
 import { SalesFormFields } from './SalesFormFields';
@@ -18,6 +19,7 @@ export const Overview = ({ deal }: { deal: IDealDetail }) => {
     >
       <div className="w-full xl:max-w-6xl mx-auto p-6 flex flex-col gap-3">
         <SalesFormFields deal={deal} />
+        <DataExtensionRecordSection recordType="sales:deal" recordId={deal._id} />
         <Separator className="mt-1" />
         <SalesNoteAndComment dealId={deal._id} />
       </div>
