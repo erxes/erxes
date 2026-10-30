@@ -6,13 +6,11 @@ import {
   IRelationWidgetProps,
   RelationWidgetEmptyState,
   RelationWidgetList,
+  useSidePanel,
 } from 'ui-modules';
 
-import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { DealWidget } from './DealWidget';
-import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { SALES_CONTACT_DEALS } from '~/widgets/contact/contactDeals';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 // The most deals listed for one customer or company.
@@ -53,7 +51,7 @@ export const Deal = ({
     },
     skip: !contacts.companyId,
   });
-  const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
+  const { openNewRecord } = useSidePanel();
 
   if (customerDeals.loading || companyDeals.loading) {
     return <Spinner containerClassName="py-20" />;
@@ -70,7 +68,7 @@ export const Deal = ({
   ];
 
   const handleDealOpen = () => {
-    setOpenCreateDeal(true);
+    openNewRecord('sales:deal', contacts);
   };
 
   if (dealIds.length === 0) {
@@ -83,7 +81,6 @@ export const Deal = ({
           <IconPlus />
           {t('add-a-deal')}
         </Button>
-        <AddDealSheet contacts={contacts} showWorkflowFields />
       </RelationWidgetEmptyState>
     );
   }
@@ -92,12 +89,9 @@ export const Deal = ({
     <RelationWidgetList
       label={t('deals')}
       actions={
-        <>
-          <Button variant="secondary" onClick={handleDealOpen}>
-            <IconPlus />
-          </Button>
-          <AddDealSheet contacts={contacts} showWorkflowFields />
-        </>
+        <Button variant="secondary" onClick={handleDealOpen}>
+          <IconPlus />
+        </Button>
       }
     >
       {dealIds.map((dealId) => (

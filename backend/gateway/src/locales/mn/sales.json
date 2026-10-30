@@ -668,6 +668,7 @@
   "payments-not-balanced": "Төлбөрүүд нийт дүнтэй тэнцүү байх ёстой ({{totalAmount}}).",
   "unknown-error": "Тодорхойгүй алдаа",
   "name-required": "Нэр заавал шаардлагатай",
+  "stage-required": "Үе шат заавал сонгоно уу",
   "name-min-length": "Нэр хамгийн багадаа 2 тэмдэгт байх ёстой",
   "pipeline-name-required": "Pipeline-ийн нэр заавал шаардлагатай",
   "pipeline-board-required": "Боард заавал шаардлагатай",

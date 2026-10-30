@@ -1,8 +1,5 @@
-import { AddDealSheet } from '@/deals/components/AddDealSheet';
-import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useQuery } from '@apollo/client';
 import { IconSandbox } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ContactWidgetRow,
@@ -34,8 +31,7 @@ export const DealsContactSection = ({
       limit: CONTACT_RECORDS_LIMIT,
     },
   });
-  const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
-  const { openRecord } = useSidePanel();
+  const { openRecord, openNewRecord } = useSidePanel();
   const deals = (data?.deals?.list || []).flatMap((deal) =>
     deal ? [deal] : [],
   );
@@ -48,7 +44,7 @@ export const DealsContactSection = ({
       ids={[...dealsById.keys()]}
       loading={loading}
       createLabel={t('add-a-deal', 'Add a deal')}
-      onCreate={() => setOpenCreateDeal(true)}
+      onCreate={() => openNewRecord('sales:deal', contacts, { stack: true })}
       renderItem={(dealId) => {
         const deal = dealsById.get(dealId);
 
@@ -67,8 +63,6 @@ export const DealsContactSection = ({
           )
         );
       }}
-    >
-      <AddDealSheet contacts={contacts} showWorkflowFields />
-    </ContactWidgetSection>
+    />
   );
 };

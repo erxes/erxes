@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import type { IRecordPanelProps } from 'ui-modules';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelDetail } from '~/widgets/record-panel/DealPanelDetail';
+import { DealPanelNew } from '~/widgets/record-panel/DealPanelNew';
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
@@ -120,6 +121,10 @@ export const RecordPanel = ({
 }: IRecordPanelProps) => {
   if (contentType !== DEAL_CONTENT_TYPE) {
     return null;
+  }
+
+  if (view === 'new') {
+    return <DealPanelNew />;
   }
 
   return (

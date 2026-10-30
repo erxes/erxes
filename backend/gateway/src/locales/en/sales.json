@@ -668,6 +668,7 @@
   "payments-not-balanced": "Payments must sum to the total amount ({{totalAmount}}).",
   "unknown-error": "Unknown error",
   "name-required": "Name is required",
+  "stage-required": "Stage is required",
   "name-min-length": "Name must be at least 2 characters",
   "pipeline-name-required": "Pipeline name is required",
   "pipeline-board-required": "Board is required",
