@@ -1,12 +1,11 @@
+import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { SelectBrand } from 'ui-modules';
-import { useAtomValue } from 'jotai';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
-import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
 import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
 
 export const CallProIntegrationForm = ({
@@ -40,32 +39,29 @@ export const CallProIntegrationForm = ({
           <Form.Field
             name="name"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
+              <IntegrationFormItem label={t('name')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="phoneNumber"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('phone-number')}</Form.Label>
+              <IntegrationFormItem label={t('phone-number')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="recordUrl"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('callpro-record-url')}</Form.Label>
+              <IntegrationFormItem label={t('callpro-record-url')}>
                 <Form.Control>
                   <Input {...field} value={field.value ?? ''} />
                 </Form.Control>
@@ -73,16 +69,19 @@ export const CallProIntegrationForm = ({
                   {t('callpro-record-url-description')}
                 </Form.Description>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="brandId"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('brand')} <span className="text-destructive">*</span>
-                </Form.Label>
+              <IntegrationFormItem
+                label={
+                  <>
+                    {t('brand')} <span className="text-destructive">*</span>
+                  </>
+                }
+              >
                 <Form.Control>
                   <SelectBrand
                     value={field.value}
@@ -92,7 +91,7 @@ export const CallProIntegrationForm = ({
                   />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
         </CallProIntegrationFormLayout>
@@ -112,7 +111,7 @@ export const CallProWebhookHint = () => {
   }
 
   return (
-    <Alert className="col-span-2">
+    <Alert className="col-span-full">
       <IconInfoCircle className="size-4" />
       <Alert.Title>{t('callpro-webhook-title')}</Alert.Title>
       <Alert.Description>
@@ -135,20 +134,13 @@ export const CallProIntegrationFormLayout = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const callProEditSheet = useAtomValue(callProEditSheetAtom);
 
   return (
     <>
-      <Sheet.Header>
-        <Sheet.Title>
-          {callProEditSheet ? t('callpro-edit') : t('callpro-add')}
-        </Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content className="overflow-auto p-4 styled-scroll">
-        <div className="grid grid-cols-2 gap-4">{children}</div>
+      <Sheet.Content className="min-h-0 overflow-auto p-3 styled-scroll">
+        <div className="grid grid-cols-1 gap-3">{children}</div>
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
         <Sheet.Close asChild>
           <Button className="mr-auto text-muted-foreground" variant="ghost">
             {t('cancel')}

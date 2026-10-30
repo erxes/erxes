@@ -1,12 +1,11 @@
+import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Sheet, Form, Input, Checkbox, Spinner } from 'erxes-ui';
+import { Button, Sheet, Form, Input, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
 import { SelectMember, SelectBrand } from 'ui-modules';
-import { useAtomValue } from 'jotai';
-import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 
 export const CallIntegrationForm = ({
   form,
@@ -46,46 +45,46 @@ export const CallIntegrationForm = ({
           <Form.Field
             name="name"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
+              <IntegrationFormItem label={t('name')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="phone"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('phone-number')}</Form.Label>
+              <IntegrationFormItem label={t('phone-number')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="websocketServer"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('websocket-server')}</Form.Label>
+              <IntegrationFormItem label={t('websocket-server')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="brandId"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('brand')} <span className="text-destructive">*</span>
-                </Form.Label>
+              <IntegrationFormItem
+                label={
+                  <>
+                    {t('brand')} <span className="text-destructive">*</span>
+                  </>
+                }
+              >
                 <Form.Control>
                   <SelectBrand
                     value={field.value}
@@ -95,57 +94,54 @@ export const CallIntegrationForm = ({
                   />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="queues"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('queues')}</Form.Label>
+              <IntegrationFormItem label={t('queues')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
 
           <Form.Field
             name="srcTrunk"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('source-trunk')}</Form.Label>
+              <IntegrationFormItem label={t('source-trunk')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <Form.Field
             name="dstTrunk"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('destination-trunk')}</Form.Label>
+              <IntegrationFormItem label={t('destination-trunk')}>
                 <Form.Control>
                   <Input {...field} />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </IntegrationFormItem>
             )}
           />
           <div className="font-medium">{t('operators')}</div>
           {fields.map((field, index) => (
             <div
-              className="col-span-2 border-b last-of-type:border-b-0 border-dashed pb-4 last-of-type:pb-0"
+              className="col-span-full border-b last-of-type:border-b-0 border-dashed pb-4 last-of-type:pb-0"
               key={field.id}
             >
-              <div className="flex gap-4 w-full">
+              <div className="flex flex-col gap-3 w-full">
                 <Form.Field
                   name={`operators.${index}.userId`}
                   render={({ field }) => (
-                    <Form.Item className="flex-auto w-1/3">
+                    <Form.Item className="flex-auto">
                       <Form.Label>{t('operator')}</Form.Label>
                       <SelectMember.FormItem
                         value={field.value}
@@ -191,7 +187,7 @@ export const CallIntegrationForm = ({
             </div>
           ))}
           <Button
-            className="col-span-2"
+            className="col-span-full"
             variant="secondary"
             onClick={() =>
               append({
@@ -220,17 +216,12 @@ export const CallIntegrationFormLayout = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const callEditSheet = useAtomValue(callEditSheetAtom);
   return (
     <>
-      <Sheet.Header>
-        <Sheet.Title>{callEditSheet ? t('edit-call') : t('add-call')}</Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content className="overflow-auto p-4 styled-scroll">
-        <div className="grid grid-cols-2 gap-4">{children}</div>
+      <Sheet.Content className="min-h-0 overflow-auto p-3 styled-scroll">
+        <div className="grid grid-cols-1 gap-3">{children}</div>
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
         <Sheet.Close asChild>
           <Button className="mr-auto text-muted-foreground" variant="ghost">
             {t('cancel')}

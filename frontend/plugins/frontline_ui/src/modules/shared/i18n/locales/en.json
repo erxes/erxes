@@ -1,5 +1,9 @@
 {
   "modules": {
+    "integrations": {
+      "edit": "Edit",
+      "preview": "Preview"
+    },
     "knowledgebase": {
       "actions": "Actions",
       "kb-embed-script": "Embed script",

@@ -33,11 +33,11 @@
   repair, update or disconnect afterwards. The connected card also reports whether
   replies leave through that account and, when they do, its sending quota.
 - The mail inbox's four-step add wizard — basics, receiving, sending, done — and
-  the matching edit dialog. The sending step names the domain replies will leave
+  the matching edit side panel. The sending step names the domain replies will leave
   from and takes the sender display name, or blocks with the reason when neither
   the workspace's Cloudflare account nor the deployment's can sign. A preview
   renders the exact `Name <address>` recipients will see.
-- The mail inbox's delivery check: a button in the integration dialog that runs
+- The mail inbox's delivery check: a button in the integration side panel that runs
   `mailCheckConnection` and reports whether inbound mail reaches this workspace,
   naming the tenant and the endpoint the worker delivers to.
 - Ticket UI: pipelines, statuses, ticket boards and detail, plus the legacy
@@ -89,8 +89,24 @@
 ## Current Capabilities
 
 - Saved-record panel sessions retain Help Center form values/local sections and ticket note text, reply mode and uploaded attachments across Detail/Activity switches. The plugin-owned `frontlinePanelDraftState` is scoped to the header record's lifetime and clears when it closes or changes; same-record Help Center refreshes retain dirty fields.
+- Integration removal evicts its cached `Integration` and returns from the matching open panel; a failed removal keeps the record and shows the existing error feedback.
 - The Articles page registers its advertised C shortcut through `useKbCreateHotkey`; it cannot create without a category or while another record panel owns the shortcut scope.
 
+- Channel integration creation and editing use the shared app side panel as
+  `frontline:integration`, with no custom Properties tab. `IntegrationRecordPanel`
+  resolves saved integration kind/channel by id and draft defaults from
+  `openNewRecord`; a provider route supplies defaults after a draft reload.
+  Provider forms retain their original setup, validation and mutation hooks.
+  `IntegrationPanelForm` supplies the existing Sheet context for cancel controls
+  without a modal view or overlay; `IntegrationFormSession` initializes and
+  clears the existing Messenger/call/social setup atoms around the panel form.
+  `IntegrationFormItem` composes public `PanelFormRow` for compact fields.
+  Messenger keeps all six steps and has local Edit/Preview tabs; its editor
+  stays mounted while previewing. Mail keeps its four-step wizard and delivery
+  check; Telegram keeps resumable setup, health checks and disconnect.
+  OAuth callbacks remove their callback parameters and open the draft in one
+  URL update. Provider mutations and their existing feedback/refetch behavior
+  remain unchanged by the sidebar layout.
 - Settings → Properties is supplied by core's public plugin-settings slot.
   Frontline does not own its field/group editors or their modal containers.
 
@@ -213,7 +229,7 @@
   refetches active setup/integration queries; status errors remain inline.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
-  the existing inbox integration sheet; no workspace-wide bot credentials are
+  the existing inbox integration side panel; no workspace-wide bot credentials are
   duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
@@ -817,7 +833,7 @@ owns the setup form and connection actions.
 | Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
 | Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
-| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Side-panel add/edit forms over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
 | Ticket record panel       | `src/widgets/record-panel/` | App side-panel entry and inline ticket detail fields; properties and activity reuse ticket modules |
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
@@ -860,9 +876,9 @@ owns the setup form and connection actions.
 | Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
 | Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
 | Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step side-panel wizard over the shared `IntegrationSteps` chrome                                                                              |
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
-| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
+| Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration side panel and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
 
 ## Contracts
@@ -880,7 +896,11 @@ owns the setup form and connection actions.
   `frontlineKbCategoryDetail` reads `knowledgeBaseCategoryDetail` with
   `firstTopic { _id }`, so a category panel resolves its owning topic without
   depending on the current page or the first page of category list results.
-- `./frontline` exports the named `Frontline` entry. `./recordPanel` also registers `frontline:helpcenter` with `properties: false`. `HelpCenterRecordPanel` uses `frontlineHelpCenterDetail` directly by id. `HelpCenterIndexPage` is a named route export, loaded by `FrontlineMain`.
+- `./frontline` exports the named `Frontline` entry. `./recordPanel` also
+  registers `frontline:integration` and `frontline:helpcenter` with
+  `properties: false`; `IntegrationRecordPanel` lazy-loads the provider forms.
+  `HelpCenterRecordPanel` uses `frontlineHelpCenterDetail` directly by id.
+  `HelpCenterIndexPage` is a named route export, loaded by `FrontlineMain`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -1070,7 +1090,7 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   wizard gates Create on `ready` and the edit dialog reads the same query, so the
   button and the banner can never disagree with the server.
 - `frontline_api` GraphQL `mailCheckConnection` — run on demand from the
-  integration dialog, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
+  integration side panel, never cached (`fetchPolicy: 'no-cache'`), and rendered as a
   verdict rather than a toast, because its `{ ok, tenant, endpoint, error }` is
   the diagnostic itself. It is a deployment-wide check shown on an integration,
   so it is not refetched with integration data.
@@ -1238,10 +1258,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
   repair components take `integration`, not a table `cell`. Erxes messenger,
-  call, callpro and telegram edit through atom-driven sheets; a page listing
-  integrations of every kind mounts `IntegrationEditSheets` once (the channel
-  list does). Their edits take the channel from the loaded record, never from
-  the route.
+  call, callpro and telegram open `frontline:integration` records through
+  `IntegrationEditButton`; no list page mounts global integration edit sheets.
+  Their edits take the channel from the loaded record. Creation uses
+  `useIntegrationChannelId` so the host panel retains the selected channel
+  outside the page route context.
 - Integration create/update/delete/repair/move mutations refetch
   `ChannelIntegrationsPeek` alongside `Integrations`.
 - `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
@@ -2766,6 +2787,15 @@ null }`, fall back to the route pipeline and skip without one; never pass
 ## Validation
 
 - Draft smoke: edit Help Center fields, switch to Activity and back, then refresh its detail data; edits survive while untouched fields refresh. Change records or close/reopen and confirm a fresh form. Write a ticket note, change audience, attach a file, switch tabs and verify all three survive; closing or switching records discards that session.
+- `pnpm nx test frontline_ui --runInBand --watchman=false` includes Telegram panel navigation, resumable setup and disconnect after status failure.
+
+- Open each channel integration provider, start/cancel a draft, reopen it and
+  edit an existing integration; check immediate navigation and the source
+  channel, compact controls, scrolling and footer. For Messenger, switch all
+  steps and Edit/Preview without losing input. Verify provider failures retain
+  input, successful saves refresh lists/counters, OAuth returns resume their
+  account/page step, and Telegram health/disconnect remain accessible.
+
 - Create-panel smoke: open Add Ticket from the list, a board column and a
   contact's Tickets section; verify channel/pipeline/status and contact defaults,
   required system/custom fields, description, Cancel/Back and creation feedback.

@@ -48,6 +48,7 @@ export const CONFIG: IUIConfig = {
       { contentType: 'frontline:topic', properties: false },
       { contentType: 'frontline:category', properties: false },
       { contentType: 'frontline:helpcenter', properties: false },
+      { contentType: 'frontline:integration', properties: false },
     ],
     // A customer's / company's tickets and conversations on their overview
     // (`./contactWidget`).
