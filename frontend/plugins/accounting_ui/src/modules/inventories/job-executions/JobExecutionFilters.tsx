@@ -46,7 +46,7 @@ const ExecutionJobFilterValue = ({ jobId }: { jobId?: string }) => {
     skip: !jobId,
   });
   const job = data?.jobDetail;
-  return <>{job ? [job.code, job.name].filter(Boolean).join(' - ') : jobId}</>;
+  return [job?.code, job?.name].filter(Boolean).join(' - ') || '-';
 };
 
 const ExecutionTextFilter = ({

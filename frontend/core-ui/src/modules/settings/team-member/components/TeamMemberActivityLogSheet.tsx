@@ -25,7 +25,7 @@ export const TeamMemberActivityLogSheet = ({
     >
       <Sheet.View className="flex flex-col gap-0 sm:max-w-6xl">
         <Sheet.Header>
-          <Sheet.Title>{t('activity-log')}</Sheet.Title>
+          <Sheet.Title>{t('email-deliveries')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="min-h-0 flex-1 overflow-auto">

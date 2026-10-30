@@ -37,7 +37,6 @@ const ActivityActorProvider = ({
   const { userDetail, loading } = useMemberInline({
     variables: { _id: actorId },
     skip: !actorId || isSystem,
-    fetchPolicy: 'cache-and-network',
   });
   const contextValue = useMemo(
     () => ({ isSystem, loading, user: userDetail }),

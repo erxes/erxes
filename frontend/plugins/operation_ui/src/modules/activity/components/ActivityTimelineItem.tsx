@@ -15,15 +15,17 @@ export const ActivityTimelineItem = ({
   id,
 }: ActivityTimelineItemProps) => {
   return (
-    <div className="inline-flex gap-1">
-      <div className="size-5 -ml-2.5 mt-0.5 shadow-xs rounded-full bg-background relative flex items-center justify-center">
+    <div className="flex min-w-0 gap-2">
+      <div className="size-5 shrink-0 -ml-2.5 mt-0.5 shadow-xs rounded-full bg-background relative flex items-center justify-center">
         {avatar}
       </div>
-      <div className="inline-flex gap-1 text-sm leading-6 flex-wrap ml-1">
-        {children}
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-1 text-xs leading-5 [overflow-wrap:anywhere]">
+        <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
+          {children}
+        </div>
         {createdAt && (
           <RelativeDateDisplay value={createdAt} key={id} asChild>
-            <div className="text-accent-foreground ml-2 cursor-default">
+            <div className="text-muted-foreground cursor-default">
               <RelativeDateDisplay.Value value={createdAt} />
             </div>
           </RelativeDateDisplay>

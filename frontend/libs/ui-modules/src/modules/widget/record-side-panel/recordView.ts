@@ -23,6 +23,9 @@ export const useRecordView = () => useContext(RecordViewContext);
  */
 export interface ISidePanelNavigator {
   record: TRelationEntity | null;
+  // Empty selects the record's default tab.
+  tab: string;
+  setTab: (tab: string) => void;
   // Records open stacked there; `replace` swaps the top one (a draft once
   // saved).
   openRecord: (

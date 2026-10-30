@@ -15,8 +15,8 @@ import {
   Skeleton,
   Table,
 } from 'erxes-ui';
-import { useMemo } from 'react';
-import { SelectMember } from 'ui-modules';
+import { useMemo, useState } from 'react';
+import { SelectMember, useSidePanel } from 'ui-modules';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
@@ -26,7 +26,7 @@ import {
   IFixedAssetCategory,
   IFxaOwnerRecord,
 } from '@/settings/fixed-assets/types/FixedAsset';
-import { FxaOwnerRecordActionSheet } from '@/fixedAssets/ownerRecords/components/FxaOwnerRecordActionSheet';
+import { FXA_OWNER_RECORD_CONTENT_TYPES } from '@/fixedAssets/ownerRecords/constants/ownerRecordPanel';
 
 const OWNER_RECORD_STATUS_LABELS: Record<string, string> = {
   active: 'active',
@@ -57,6 +57,8 @@ const FxaOwnerRecordMoreCell = ({
   cell: Cell<TFxaOwnerRecordRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
+  const { openNewRecord } = useSidePanel();
+  const [menuOpen, setMenuOpen] = useState(false);
   const record = cell.row.original;
   const defaultValues = {
     fixedAssetId: record.fixedAssetId || '',
@@ -65,38 +67,46 @@ const FxaOwnerRecordMoreCell = ({
     count: record.count || 1,
   };
 
+  const openAction = (
+    contentType: string,
+    defaults: Record<string, unknown>,
+  ) => {
+    setMenuOpen(false);
+    openNewRecord(contentType, defaults);
+  };
+
   return (
-    <Popover>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <FxaOwnerRecordActionSheet
-              mode="transfer"
-              defaultValues={{
-                ...defaultValues,
-                fromOwnerId: record.ownerId || '',
-              }}
+            <Command.Item
+              value="move"
+              onSelect={() =>
+                openAction(FXA_OWNER_RECORD_CONTENT_TYPES.transfer, {
+                  ...defaultValues,
+                  fromOwnerId: record.ownerId || '',
+                })
+              }
             >
-              <Command.Item value="move">
-                <IconArrowRight />
-                {t('transfer')}
-              </Command.Item>
-            </FxaOwnerRecordActionSheet>
-            <FxaOwnerRecordActionSheet
-              mode="handOver"
-              defaultValues={{
-                ...defaultValues,
-                ownerId: record.ownerId || '',
-              }}
+              <IconArrowRight />
+              {t('transfer')}
+            </Command.Item>
+            <Command.Item
+              value="out"
+              onSelect={() =>
+                openAction(FXA_OWNER_RECORD_CONTENT_TYPES.handOver, {
+                  ...defaultValues,
+                  ownerId: record.ownerId || '',
+                })
+              }
             >
-              <Command.Item value="out">
-                <IconCircleOff />
-                {t('cancel')}
-              </Command.Item>
-            </FxaOwnerRecordActionSheet>
+              <IconCircleOff />
+              {t('cancel')}
+            </Command.Item>
           </Command.List>
         </Command>
       </Combobox.Content>

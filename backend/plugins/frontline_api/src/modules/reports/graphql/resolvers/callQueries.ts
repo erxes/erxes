@@ -148,7 +148,7 @@ export const reportCallQueries = {
       ? {}
       : { 'operators.userId': user?._id };
 
-    return models.CallIntegrations.find(selector, {
+    const integrations = await models.CallIntegrations.find(selector, {
       _id: 1,
       inboxId: 1,
       phone: 1,
@@ -158,6 +158,23 @@ export const reportCallQueries = {
       .lean<
         { _id: string; inboxId: string; phone?: string; queues?: string[] }[]
       >();
+
+    const inboxIntegrations = await models.Integrations.find(
+      { _id: { $in: integrations.map((integration) => integration.inboxId) } },
+      { name: 1 },
+    ).lean();
+
+    const nameById = new Map(
+      inboxIntegrations.map((integration) => [
+        String(integration._id),
+        integration.name,
+      ]),
+    );
+
+    return integrations.map((integration) => ({
+      ...integration,
+      name: nameById.get(integration.inboxId) || '',
+    }));
   },
   async callGetQueueStats(
     _args,

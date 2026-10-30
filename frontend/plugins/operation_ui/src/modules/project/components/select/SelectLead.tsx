@@ -27,6 +27,7 @@ import { useGetTeamMembers } from '@/team/hooks/useGetTeamMembers';
 import { useDebounce } from 'use-debounce';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import { IconUser } from '@tabler/icons-react';
+import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 
 export const SelectLeadProvider = SelectMember.Provider;
 
@@ -208,6 +209,7 @@ export const SelectLeadInlineCell = ({
   const { t } = useTranslation('operation');
   const { updateProject } = useUpdateProject();
   const [open, setOpen] = useState(false);
+  const cachedMembers = useCachedMembers(value);
 
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
@@ -227,6 +229,7 @@ export const SelectLeadInlineCell = ({
       mode="single"
       value={value || ''}
       onValueChange={handleValueChange}
+      members={cachedMembers}
       {...props}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>

@@ -1,3 +1,5 @@
+import type { TFunction } from 'i18next';
+
 export const FIXED_ASSET_DEPRECIATION_METHOD_VALUES = [
   'straightLine',
   'sumOfYearsDigits',
@@ -28,3 +30,9 @@ export const FIXED_ASSET_DEPRECIATION_METHODS = [
     label: 'custom-amount',
   },
 ] as const;
+
+export const getDepreciationMethodOptions = (t: TFunction<'accounting'>) =>
+  FIXED_ASSET_DEPRECIATION_METHODS.map((method) => ({
+    value: method.value,
+    label: t(method.label, { nsSeparator: false }),
+  }));

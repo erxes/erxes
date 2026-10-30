@@ -31,8 +31,11 @@ import { onError, toast } from "@/components/ui/use-toast"
 
 import { mutations } from "../graphql"
 
-const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
-  const { _id, status } = row.original || {}
+export const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
+  const { _id, status, details } = row.original
+  const terminalResults = (details || []).flatMap(
+    (detail) => detail.terminalResults || []
+  )
   const [actionType, setActionType] = useState("")
   const [openSheet, setOpenSheet] = useState(false)
 
@@ -41,7 +44,7 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
       _id,
     },
     onCompleted() {
-      actionType === "delete" && toast({ description: "Амжилттай устлаа" })
+      if (actionType === "delete") toast({ description: "Амжилттай устлаа" })
     },
     onError({ message }: ApolloError) {
       onError(message)
@@ -61,7 +64,12 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
   const handleSubmit = () =>
     actionType === "delete" ? coversDelete() : coversConfirm()
 
-  const disabled = status === "confirm"
+  const disabled = status === "confirm" || status === "confirming"
+  const cannotDelete = disabled
+  const cannotPublish =
+    status === "confirm" ||
+    status === "draft" ||
+    !!terminalResults?.some((result) => result.response == null)
 
   return (
     <>
@@ -91,23 +99,25 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
             <AlertDialogTrigger
               asChild
               onClick={() => setActionType("confirm")}
-              disabled={disabled}
+              disabled={cannotPublish}
             >
-              <DropdownMenuItem>Баталгаажуулах</DropdownMenuItem>
+              <DropdownMenuItem>
+                {status === "confirming"
+                  ? "Дахин баталгаажуулах"
+                  : "Баталгаажуулах"}
+              </DropdownMenuItem>
             </AlertDialogTrigger>
             <DropdownMenuSeparator />
 
             <AlertDialogTrigger
               asChild
               onClick={() => setActionType("delete")}
-              disabled={disabled}
+              disabled={cannotDelete}
             >
               <DropdownMenuItem className="text-destructive">
                 Устгах
               </DropdownMenuItem>
             </AlertDialogTrigger>
-
-            {/* </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
         <AlertDialogContent>
@@ -153,5 +163,3 @@ const CoverItemAction = ({ row }: { row: Row<Cover> }) => {
     </>
   )
 }
-
-export default CoverItemAction

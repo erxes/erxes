@@ -24,6 +24,7 @@ export * from './form';
 export * from './hover-card';
 export * from './info-card';
 export * from './input';
+export * from './input-otp';
 export * from './kbd';
 export * from './label';
 export * from './multiselect';

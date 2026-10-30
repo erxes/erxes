@@ -22,6 +22,13 @@ import { gql } from '@apollo/client/core';
 import { getSubdomain } from '../util/subdomain';
 import * as jwt from 'jsonwebtoken';
 import { createHmac } from 'crypto';
+import { redis } from 'erxes-api-shared/utils';
+import { generateModels } from '../connectionResolver';
+import {
+  SECURE_SESSION_COOKIE,
+  SESSION_COOKIE,
+  verifySession,
+} from '../util/session';
 
 let disposable: Disposable | undefined;
 
@@ -41,22 +48,50 @@ function readCookie(rawCookie: string | undefined, name: string) {
   return undefined;
 }
 
-function extractSubscriptionUser(request: any) {
+// Same checks as the HTTP middleware: live session or still-valid legacy token, active user
+async function extractSubscriptionUser(request: any, subdomain: string) {
   try {
-    const token = readCookie(request?.headers?.cookie, 'auth-token');
-    if (!token) {
+    const rawCookie = request?.headers?.cookie;
+    const sid =
+      readCookie(rawCookie, SECURE_SESSION_COOKIE) ||
+      readCookie(rawCookie, SESSION_COOKIE);
+
+    let userId = '';
+
+    if (sid) {
+      userId = (await verifySession(subdomain, sid))?.userId || '';
+    }
+
+    const token = readCookie(rawCookie, 'auth-token');
+
+    if (!userId && token) {
+      const decoded: any = jwt.verify(
+        token,
+        process.env.JWT_TOKEN_SECRET || 'SECRET',
+      );
+      const legacyUserId = decoded?.user?._id;
+
+      if (
+        legacyUserId &&
+        (await redis.get(`user_token_${legacyUserId}_${token}`))
+      ) {
+        userId = legacyUserId;
+      }
+    }
+
+    if (!userId) {
       return undefined;
     }
-    const decoded: any = jwt.verify(
-      token,
-      process.env.JWT_TOKEN_SECRET || 'SECRET',
+
+    const models = await generateModels(subdomain);
+
+    return (
+      (await models.Users.findOne(
+        { _id: userId, isActive: { $ne: false } },
+        { _id: 1, isOwner: 1 },
+      ).lean()) || undefined
     );
-    const user = decoded?.user;
-    if (!user?._id) {
-      return undefined;
-    }
-    return user;
-  } catch (e) {
+  } catch {
     return undefined;
   }
 }
@@ -155,13 +190,16 @@ export async function startSubscriptionServer(httpServer: http.Server) {
     {
       execute,
       subscribe,
-      context: (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
+      context: async (ctx, _msg: SubscribeMessage, _args: ExecutionArgs) => {
         const gatewayDataSource = new SubscriptionResolver(
           `http://127.0.0.1:${apolloRouterPort}`,
           ctx,
         );
         const subdomain = getSubdomain(ctx.extra.request);
-        const user = extractSubscriptionUser(ctx.extra.request);
+        const user = await extractSubscriptionUser(
+          ctx.extra.request,
+          subdomain,
+        );
         const widgetSession = extractWidgetSession(ctx.connectionParams);
         return {
           dataSources: { gatewayDataSource },

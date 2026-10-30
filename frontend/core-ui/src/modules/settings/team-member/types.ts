@@ -1,3 +1,4 @@
+import { TSessionState } from '@/settings/team-member/sessions/types';
 import { z } from 'zod';
 import {
   USER_SUBMIT_SCHEMA,
@@ -24,6 +25,9 @@ export interface IUserDetailsType {
   shortName?: string;
   description?: string;
   birthDate?: Date;
+  coverPhoto?: string;
+  position?: string;
+  employeeId?: string;
 }
 
 export enum EStatus {
@@ -48,6 +52,7 @@ export interface IUser extends IUserInline {
   score?: number;
   username?: string;
   propertiesData?: Record<string, unknown>;
+  sessionState?: TSessionState;
 }
 
 export interface IUserDetail extends IUser {

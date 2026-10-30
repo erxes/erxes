@@ -1,4 +1,19 @@
+import { GraphQLError } from 'graphql';
 import { withFilter } from 'graphql-subscriptions';
+
+// Whose events a socket hears comes from its session, never from arguments;
+// the userId arguments stay in the schema only so older clients still parse
+const signedInUserId = (context) => {
+  const userId = context?.user?._id;
+
+  if (!userId) {
+    throw new GraphQLError('Login required', {
+      extensions: { code: 'UNAUTHENTICATED' },
+    });
+  }
+
+  return userId;
+};
 
 export default {
   name: 'core',
@@ -36,25 +51,34 @@ export default {
             `,
           });
         },
-        subscribe: (_, { userId }, { subdomain }) =>
+        subscribe: (_, __, context) =>
           graphqlPubsub.asyncIterator(
-            `notificationInserted:${subdomain}:${userId}`,
+            `notificationInserted:${context.subdomain}:${signedInUserId(
+              context,
+            )}`,
           ),
       },
 
       notificationRead: {
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`notificationRead:${userId}`),
+        subscribe: (_, __, context) =>
+          graphqlPubsub.asyncIterator(
+            `notificationRead:${signedInUserId(context)}`,
+          ),
       },
       notificationArchived: {
-        subscribe: (_, { userId }) =>
-          graphqlPubsub.asyncIterator(`notificationArchived:${userId}`),
+        subscribe: (_, __, context) =>
+          graphqlPubsub.asyncIterator(
+            `notificationArchived:${signedInUserId(context)}`,
+          ),
       },
       activityLogInserted: {
         resolve: (payload) => {
           return payload.activityLogInserted;
         },
-        subscribe: (_, { userId, targetId }, { subdomain }) => {
+        subscribe: (_, { targetId }, context) => {
+          const userId = signedInUserId(context);
+          const { subdomain } = context;
+
           if (targetId) {
             return graphqlPubsub.asyncIterator(
               `activityLogInserted:${subdomain}:${targetId}`,
@@ -68,12 +92,15 @@ export default {
       },
       userStatusChanged: {
         resolve: (payload) => payload.userStatusChanged,
-        subscribe: (_, { _id }, { subdomain }) =>
-          graphqlPubsub.asyncIterator(
+        subscribe: (_, { _id }, context) => {
+          signedInUserId(context);
+
+          return graphqlPubsub.asyncIterator(
             _id
-              ? `userStatusChanged:${subdomain}:${_id}`
-              : `userStatusChanged:${subdomain}`,
-          ),
+              ? `userStatusChanged:${context.subdomain}:${_id}`
+              : `userStatusChanged:${context.subdomain}`,
+          );
+        },
       },
       /*
        * A campaign the broadcast worker moved. Without an id, every campaign
@@ -82,8 +109,13 @@ export default {
       broadcastChanged: {
         resolve: (payload) => payload.broadcastChanged,
         subscribe: withFilter(
-          (_, __, { subdomain }) =>
-            graphqlPubsub.asyncIterator(`broadcastChanged:${subdomain}`),
+          (_, __, context) => {
+            signedInUserId(context);
+
+            return graphqlPubsub.asyncIterator(
+              `broadcastChanged:${context.subdomain}`,
+            );
+          },
           (payload, { engageMessageId }) =>
             !engageMessageId ||
             payload.broadcastChanged.engageMessageId === engageMessageId,

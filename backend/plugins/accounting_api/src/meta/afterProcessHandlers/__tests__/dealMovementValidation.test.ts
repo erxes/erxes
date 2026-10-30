@@ -3,6 +3,8 @@
 import { IModels } from '~/connectionResolvers';
 import { dealToMovementTrs } from '../dealToMovementTrs';
 import { dealToReturnTrs } from '../dealToReturnTrs';
+import { activeCost } from '~/modules/accounting/utils/inventories';
+import { ITransaction } from '~/modules/accounting/@types/transaction';
 
 jest.mock('erxes-api-shared/utils', () => ({
   fixNum: (value: number) => value,
@@ -14,9 +16,16 @@ jest.mock('~/modules/accounting/utils/inventories', () => ({
 describe('deal sync prerequisites', () => {
   const find = jest.fn();
   const findOne = jest.fn();
-  const createPTransaction = jest.fn();
+  const createPTransaction = jest.fn<
+    Promise<ITransaction[]>,
+    [ITransaction[], string, object]
+  >();
+  const updatePTransaction = jest.fn<
+    Promise<ITransaction[]>,
+    [string, ITransaction[], string, object]
+  >();
   const models = {
-    Transactions: { find, findOne, createPTransaction },
+    Transactions: { find, findOne, createPTransaction, updatePTransaction },
   } as unknown as IModels;
 
   beforeEach(() => jest.clearAllMocks());
@@ -65,5 +74,61 @@ describe('deal sync prerequisites', () => {
       }),
     ).rejects.toThrow('Deal sale transaction was not found');
     expect(createPTransaction).not.toHaveBeenCalled();
+  });
+
+  describe.each([false, true])('movement owner (resync=%s)', (resync) => {
+    it.each([
+      [{ companyId: 'company', customerId: 'customer' }, 'company', 'company'],
+      [{ companyId: null, customerId: 'customer' }, 'customer', 'customer'],
+      [{ companyId: 'company', customerId: null }, 'company', 'company'],
+      [{ companyId: null, customerId: null }, 'customer', undefined],
+    ] as const)(
+      'uses direct deal owner %j',
+      async (owner, customerType, customerId) => {
+        find.mockReturnValue({
+          lean: async () =>
+            resync
+              ? [
+                  {
+                    _id: 'movement',
+                    parentId: 'parent',
+                    ptrId: 'pointer',
+                    customerType: 'company',
+                    customerId: 'previous-company',
+                  },
+                ]
+              : [],
+        });
+        jest
+          .mocked(activeCost)
+          .mockResolvedValue({
+            product: { unitCost: 10, remainder: 5, totalCost: 50 },
+          });
+        await dealToMovementTrs({
+          subdomain: 'tenant',
+          models,
+          userId: 'user',
+          deal: {
+            _id: 'deal',
+            ...owner,
+            productsData: [
+              { productId: 'product', quantity: 1, tickUsed: true },
+            ],
+          },
+          config: {
+            dateRule: 'alwaysNow',
+            sourceAccountId: 'source',
+            destinationAccountId: 'destination',
+            dealLocationSide: 'source',
+          },
+        });
+        const docs = resync
+          ? updatePTransaction.mock.calls[0][1]
+          : createPTransaction.mock.calls[0][0];
+        expect(docs).toHaveLength(1);
+        expect(docs[0].customerType).toBe(customerType);
+        expect(docs[0].customerId).toBe(customerId);
+      },
+    );
   });
 });

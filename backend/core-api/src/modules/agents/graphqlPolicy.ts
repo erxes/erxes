@@ -39,7 +39,7 @@ export const AGENT_GRAPHQL_DENIED_FIELD = {
       .replace(/_/g, ' ')
       .toLowerCase();
     return (
-      /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|sessions?|invitations?|permissions?)\b/.test(
+      /\b(login|logout|password|passwords|otp|tokens?|credentials?|secrets?|oauth|sso|ldap|sessions?|invitations?|permissions?)\b/.test(
         words,
       ) ||
       /\b(sign up|sign in|magic link|two factor|2fa|api key)\b/.test(words) ||

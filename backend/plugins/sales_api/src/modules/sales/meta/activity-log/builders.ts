@@ -197,26 +197,6 @@ export const generateDealMovedActivityLog = (
   },
 });
 
-export const generateDealConvertedActivityLog = (
-  deal: any,
-  conversationId: string,
-): ActivityLogInput => ({
-  activityType: 'convert',
-  target: buildDealTarget(deal),
-  action: {
-    type: 'convert',
-    description: 'Conversation converted to deal',
-  },
-  changes: {
-    sourceConversationId: conversationId,
-    convertedAt: new Date(),
-  },
-  metadata: {
-    conversationId,
-    dealId: deal._id,
-  },
-});
-
 export const generateDealWatchActivityLog = (
   deal: any,
   isAdd: boolean,
