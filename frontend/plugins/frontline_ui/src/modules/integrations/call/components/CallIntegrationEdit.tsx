@@ -1,6 +1,7 @@
+import { IntegrationFormSession } from '@/integrations/components/IntegrationPanelForm';
 import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
 import { useAtom } from 'jotai';
-import { isDefined, Sheet, Spinner, toast } from 'erxes-ui';
+import { isDefined, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -12,17 +13,15 @@ import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail'
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 
-export const CallIntegrationSheetEdit = () => {
-  const [callEditSheet, setCallEditSheet] = useAtom(callEditSheetAtom);
-
-  return (
-    <Sheet open={!!callEditSheet} onOpenChange={() => setCallEditSheet(null)}>
-      <Sheet.View className="sm:max-w-3xl">
-        <CallIntegrationEdit />
-      </Sheet.View>
-    </Sheet>
-  );
-};
+export const CallIntegrationSheetEdit = ({ id }: { id: string }) => (
+  <IntegrationFormSession
+    state={callEditSheetAtom}
+    value={id}
+    closedValue={null}
+  >
+    <CallIntegrationEdit />
+  </IntegrationFormSession>
+);
 
 export const CallIntegrationEdit = () => {
   const { t } = useTranslation('frontline', {
@@ -115,8 +114,7 @@ export const CallIntegrationEdit = () => {
           })),
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationDetail, callsIntegrationDetail, callLoading, loading]);
+  }, [integrationDetail, callsIntegrationDetail, callLoading, loading, form]);
 
   if (loading || callLoading) {
     return <Spinner className="h-full" />;

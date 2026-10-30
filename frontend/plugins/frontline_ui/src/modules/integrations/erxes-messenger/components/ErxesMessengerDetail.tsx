@@ -1,37 +1,11 @@
 import { AddErxesMessengerSheet } from './AddErxesMessenger';
-import { IIntegration } from '@/integrations/types/Integration';
-import { IconEdit } from '@tabler/icons-react';
-import { EditErxesMessengerSheet } from './EditErxesMessengerSheet';
-import { useSetAtom } from 'jotai';
-import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { useTranslation } from 'react-i18next';
-export const ErxesMessengerDetail = () => {
-  return (
-    <>
-      <AddErxesMessengerSheet />
-      <EditErxesMessengerSheet />
-    </>
-  );
-};
+import type { IIntegration } from '@/integrations/types/Integration';
+import { IntegrationEditButton } from '@/integrations/components/IntegrationPanelForm';
+
+export const ErxesMessengerDetail = () => <AddErxesMessengerSheet />;
 
 export const ErxesMessengerActions = ({
   integration,
 }: {
   integration: IIntegration;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
-  return (
-    <div className="flex flex-col gap-2 w-full">
-      <div
-        onClick={() => setEditId(integration._id)}
-        className="flex items-center gap-2 w-full cursor-pointer"
-      >
-        <IconEdit size={16} />
-        {t('edit')}
-      </div>
-    </div>
-  );
-};
+}) => <IntegrationEditButton integration={integration} />;

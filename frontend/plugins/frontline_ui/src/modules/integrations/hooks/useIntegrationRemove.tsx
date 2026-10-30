@@ -4,6 +4,8 @@ import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
 import { removingIntegrationIdsAtom } from '@/integrations/states/integrationRemoveStates';
+import { useSidePanel } from 'ui-modules';
+import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 
 export const useIntegrationRemove = ({
   _id,
@@ -17,6 +19,7 @@ export const useIntegrationRemove = ({
   });
   const { confirm } = useConfirm();
   const setRemovingIds = useSetAtom(removingIntegrationIdsAtom);
+  const { record, canGoBack, back, close } = useSidePanel();
   const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION, {
     refetchQueries: [
       'Integrations',
@@ -28,6 +31,13 @@ export const useIntegrationRemove = ({
     // The row stays locked until the list no longer has it.
     awaitRefetchQueries: true,
     onCompleted() {
+      if (
+        record?.contentType === INTEGRATION_CONTENT_TYPE &&
+        record.contentId === _id
+      ) {
+        if (canGoBack) back();
+        else close();
+      }
       toast({
         title: t('integration-removed'),
         variant: 'default',

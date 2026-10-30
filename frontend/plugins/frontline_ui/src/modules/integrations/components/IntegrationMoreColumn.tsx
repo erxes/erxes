@@ -176,7 +176,12 @@ export const IntegrationActionsMenu = ({
           <Command shouldFilter={false}>
             <Command.List>
               {EDITABLE_KINDS.includes(kind) && (
-                <Command.Item value="edit">
+                <Command.Item
+                  value="edit"
+                  onSelect={() => {
+                    setMenuOpen(false);
+                  }}
+                >
                   <IntegrationEditAction integration={integration} />
                 </Command.Item>
               )}
