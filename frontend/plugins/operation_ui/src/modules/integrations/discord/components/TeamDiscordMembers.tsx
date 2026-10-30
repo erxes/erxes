@@ -82,8 +82,10 @@ export function TeamDiscordMembers({ teamId }: { teamId: string }) {
       <Card.Content className="space-y-3">
         {!linkingEnabled ? (
           <Alert>
-            Turn on member linking in Discord Integration settings so members
-            can link their accounts.
+            <Alert.Description>
+              Turn on member linking in Discord Integration settings so members
+              can link their accounts.
+            </Alert.Description>
           </Alert>
         ) : null}
 
@@ -93,7 +95,9 @@ export function TeamDiscordMembers({ teamId }: { teamId: string }) {
           </div>
         ) : error ? (
           <Alert variant="destructive">
-            Failed to load the team’s Discord accounts. Please refresh.
+            <Alert.Description>
+              Failed to load the team’s Discord accounts. Please refresh.
+            </Alert.Description>
           </Alert>
         ) : members.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">

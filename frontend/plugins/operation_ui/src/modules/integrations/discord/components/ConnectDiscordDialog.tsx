@@ -19,9 +19,24 @@ import {
   useDiscordTokenCheck,
 } from '../hooks/useDiscordIntegration';
 import { DISCORD_CONNECT_SCHEMA, TDiscordConnectForm } from '../schemas';
-import { ConnectDiscordDialogProps } from '../types';
+import { ConnectDiscordDialogProps, IDiscordConnection } from '../types';
 
 const EMPTY_FORM: TDiscordConnectForm = { token: '', guildId: '' };
+
+const describeCommands = (
+  connection: Pick<
+    IDiscordConnection,
+    'commandsRegisteredAt' | 'commandsError'
+  > | null,
+) => {
+  if (connection?.commandsRegisteredAt) {
+    return '/triage new and /tasks are on for its customer channels.';
+  }
+
+  return connection?.commandsError
+    ? `Slash commands are off: ${connection.commandsError}`
+    : undefined;
+};
 
 export function ConnectDiscordDialog({
   open,
@@ -42,8 +57,11 @@ export function ConnectDiscordDialog({
       : undefined;
 
   const { connectDiscord, connecting } = useConnectDiscord({
-    onCompleted: () => {
-      toast({ title: 'Discord server connected' });
+    onCompleted: ({ operationDiscordConnect: connection }) => {
+      toast({
+        title: 'Discord server connected',
+        description: describeCommands(connection),
+      });
       onClose();
       onConnected?.();
     },
@@ -110,7 +128,9 @@ export function ConnectDiscordDialog({
 
               {form.formState.errors.root?.message ? (
                 <Alert variant="destructive">
-                  {form.formState.errors.root.message}
+                  <Alert.Description>
+                    {form.formState.errors.root.message}
+                  </Alert.Description>
                 </Alert>
               ) : null}
 
@@ -147,7 +167,9 @@ export function ConnectDiscordDialog({
               />
 
               {error && checkedToken === token.trim() ? (
-                <Alert variant="destructive">{error.message}</Alert>
+                <Alert variant="destructive">
+                  <Alert.Description>{error.message}</Alert.Description>
+                </Alert>
               ) : null}
 
               {tokenCheck ? (

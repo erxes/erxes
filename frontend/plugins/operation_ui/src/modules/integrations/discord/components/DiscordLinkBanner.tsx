@@ -1,14 +1,20 @@
 import { IconBrandDiscord, IconX } from '@tabler/icons-react';
-import { useAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import { Link } from 'react-router-dom';
 import { Button } from 'erxes-ui';
+import { currentUserState } from 'ui-modules';
 import { DISCORD_ACCOUNT_PATH } from '../constants';
 import { useDiscordMyAccount } from '../hooks/useDiscordAccount';
 import { useDiscordConfigByTeam } from '../hooks/useDiscordIntegration';
 import { discordLinkBannerDismissedState } from '../states/discordLinkBannerState';
 
 export function DiscordLinkBanner({ teamId }: { teamId: string }) {
-  const [dismissed, setDismissed] = useAtom(discordLinkBannerDismissedState);
+  const currentUser = useAtomValue(currentUserState);
+  const [dismissedKeys, setDismissedKeys] = useAtom(
+    discordLinkBannerDismissedState,
+  );
+  const dismissKey = `${currentUser?._id ?? ''}:${teamId}`;
+  const dismissed = dismissedKeys.includes(dismissKey);
   const { account } = useDiscordMyAccount();
   const { config } = useDiscordConfigByTeam(dismissed ? '' : teamId);
 
@@ -38,7 +44,7 @@ export function DiscordLinkBanner({ teamId }: { teamId: string }) {
           size="icon"
           variant="ghost"
           aria-label="Dismiss"
-          onClick={() => setDismissed(true)}
+          onClick={() => setDismissedKeys([...dismissedKeys, dismissKey])}
         >
           <IconX className="size-4" />
         </Button>

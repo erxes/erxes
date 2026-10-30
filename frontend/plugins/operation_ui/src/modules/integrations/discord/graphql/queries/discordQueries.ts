@@ -10,6 +10,8 @@ export const GET_DISCORD_CONNECTIONS = gql(`
       applicationId
       botUsername
       hasClientSecret
+      commandsRegisteredAt
+      commandsError
       health {
         status
         lastVerifiedAt
@@ -21,6 +23,7 @@ export const GET_DISCORD_CONNECTIONS = gql(`
       _id
       teamId
       connectionId
+      channelId
     }
   }
 `);
@@ -105,6 +108,20 @@ export const GET_DISCORD_TEAM_MEMBERS = gql(`
         avatarUrl
         linkedAt
       }
+    }
+  }
+`);
+
+export const GET_DISCORD_CUSTOMER_CHANNELS = gql(`
+  query operationDiscordCustomerChannels {
+    operationDiscordCustomerChannels {
+      _id
+      connectionId
+      guildId
+      channelId
+      channelName
+      companyId
+      teamId
     }
   }
 `);

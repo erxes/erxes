@@ -13,6 +13,7 @@ import { DiscordConnectionCard } from '@/integrations/discord/components/Discord
 import { DISCORD_BOT_PERMISSIONS } from '@/integrations/discord/constants';
 import { useDiscordConnections } from '@/integrations/discord/hooks/useDiscordIntegration';
 import { MyDiscordAccountCard } from '@/integrations/discord/components/MyDiscordAccountCard';
+import { DiscordCustomerChannels } from '@/integrations/discord/components/DiscordCustomerChannels';
 import { IntegrationsBackLink } from '@/integrations/components/IntegrationsBackLink';
 
 export const DiscordIntegrationPage = () => {
@@ -31,8 +32,6 @@ export const DiscordIntegrationPage = () => {
               Post triage and task updates from erxes to Discord channels.
             </p>
           </div>
-
-          <MyDiscordAccountCard />
 
           <Card>
             <Card.Header className="flex flex-row items-center justify-between gap-4">
@@ -61,7 +60,9 @@ export const DiscordIntegrationPage = () => {
                 </div>
               ) : error ? (
                 <Alert variant="destructive">
-                  Failed to load Discord servers. Please refresh.
+                  <Alert.Description>
+                    Failed to load Discord servers. Please refresh.
+                  </Alert.Description>
                 </Alert>
               ) : isConnected ? (
                 <div className="space-y-2">
@@ -95,6 +96,15 @@ export const DiscordIntegrationPage = () => {
               )}
             </Card.Content>
           </Card>
+
+          {isConnected ? (
+            <DiscordCustomerChannels
+              connections={connections}
+              configs={configs}
+            />
+          ) : null}
+
+          <MyDiscordAccountCard />
 
           <Card>
             <Card.Header>

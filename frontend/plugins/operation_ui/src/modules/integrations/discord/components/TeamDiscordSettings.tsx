@@ -110,7 +110,10 @@ export function TeamDiscordSettings({ teamId }: { teamId: string }) {
   if (connectionsError || configError) {
     return (
       <Alert variant="destructive">
-        Failed to load the Discord configuration. Please refresh and try again.
+        <Alert.Description>
+          Failed to load the Discord configuration. Please refresh and try
+          again.
+        </Alert.Description>
       </Alert>
     );
   }
@@ -167,12 +170,16 @@ export function TeamDiscordSettings({ teamId }: { teamId: string }) {
 
               {connection.health?.status === 'broken' ? (
                 <Alert variant="destructive">
-                  The bot token for {connection.guildName} stopped working.
-                  Update it in Discord Integration settings.
+                  <Alert.Description>
+                    The bot token for {connection.guildName} stopped working.
+                    Update it in Discord Integration settings.
+                  </Alert.Description>
                 </Alert>
               ) : config.lastError ? (
                 <Alert variant="warning">
-                  The last message failed: {config.lastError}
+                  <Alert.Description>
+                    The last message failed: {config.lastError}
+                  </Alert.Description>
                 </Alert>
               ) : null}
 
@@ -223,8 +230,10 @@ export function TeamDiscordSettings({ teamId }: { teamId: string }) {
           ) : config ? (
             <div className="space-y-4">
               <Alert variant="destructive">
-                This team’s Discord server is no longer connected. Choose
-                another server and channel to keep receiving updates.
+                <Alert.Description>
+                  This team’s Discord server is no longer connected. Choose
+                  another server and channel to keep receiving updates.
+                </Alert.Description>
               </Alert>
               <Button onClick={handleConnect}>Change channel</Button>
             </div>

@@ -1,4 +1,5 @@
 import { useLazyQuery, useMutation, useQuery } from '@apollo/client';
+import { OperationDiscordConnectMutation } from '~/gql/graphql';
 import {
   CHECK_DISCORD_TOKEN,
   GET_DISCORD_CHANNELS,
@@ -81,7 +82,10 @@ export function useDiscordConfigByTeam(teamId: string) {
 export function useConnectDiscord({
   onCompleted,
   onError,
-}: TMutationCallbacks) {
+}: {
+  onCompleted: (data: OperationDiscordConnectMutation) => void;
+  onError: (error: Error) => void;
+}) {
   const [connectDiscord, { loading: connecting }] = useMutation(
     CONNECT_DISCORD,
     {

@@ -10,6 +10,8 @@ export const CONNECT_DISCORD = gql(`
       applicationId
       botUsername
       hasClientSecret
+      commandsRegisteredAt
+      commandsError
       health {
         status
         lastVerifiedAt
@@ -117,6 +119,60 @@ export const UNLINK_DISCORD_MEMBER = gql(`
 export const REMIND_DISCORD_MEMBER = gql(`
   mutation operationDiscordRemindMember($teamId: String!, $userId: String!) {
     operationDiscordRemindMember(teamId: $teamId, userId: $userId) {
+      success
+    }
+  }
+`);
+
+export const ENABLE_DISCORD_COMMANDS = gql(`
+  mutation operationDiscordEnableCommands($_id: String!) {
+    operationDiscordEnableCommands(_id: $_id) {
+      _id
+      commandsRegisteredAt
+      commandsError
+    }
+  }
+`);
+
+export const DISABLE_DISCORD_COMMANDS = gql(`
+  mutation operationDiscordDisableCommands($_id: String!) {
+    operationDiscordDisableCommands(_id: $_id) {
+      _id
+      commandsRegisteredAt
+      commandsError
+    }
+  }
+`);
+
+export const SAVE_DISCORD_CUSTOMER_CHANNEL = gql(`
+  mutation operationDiscordSaveCustomerChannel(
+    $_id: String
+    $connectionId: String!
+    $channelId: String!
+    $companyId: String!
+    $teamId: String!
+  ) {
+    operationDiscordSaveCustomerChannel(
+      _id: $_id
+      connectionId: $connectionId
+      channelId: $channelId
+      companyId: $companyId
+      teamId: $teamId
+    ) {
+      _id
+      connectionId
+      guildId
+      channelId
+      channelName
+      companyId
+      teamId
+    }
+  }
+`);
+
+export const REMOVE_DISCORD_CUSTOMER_CHANNEL = gql(`
+  mutation operationDiscordRemoveCustomerChannel($_id: String!) {
+    operationDiscordRemoveCustomerChannel(_id: $_id) {
       success
     }
   }
