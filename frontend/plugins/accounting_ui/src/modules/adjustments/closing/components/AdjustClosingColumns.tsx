@@ -84,7 +84,7 @@ const AccountInlineCell = ({
       <AccountsInline
         accountIds={accountId ? [accountId] : []}
         permissionMode="read"
-        placeholder={accountId || '-'}
+        placeholder="-"
       />
     </RecordTableInlineCell>
   );

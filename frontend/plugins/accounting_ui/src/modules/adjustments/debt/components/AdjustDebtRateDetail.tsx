@@ -19,12 +19,14 @@ import {
 import { useAdjustDebtRateRemove } from '../hooks/useAdjustDebtRateChange';
 import { useAdjustDebtRateDetail } from '../hooks/useAdjustDebtRateDetail';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { EditAdjustDebtRate } from './AdjustDebtRateForm';
 import { useAdjustDebtRateRun } from '../hooks/useAdjustDebtRateRun';
 import type { IAdjustDebtRateDetail } from '../types/AdjustDebtRate';
 import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { ColumnDef } from '@tanstack/react-table';
+import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
+import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 
 const DetailField = ({ label, value }: { label: string; value?: string }) => (
   <div>
@@ -39,9 +41,7 @@ const formatAmount = (amount?: number) =>
 const AccountCell = ({ detail }: { detail: IAdjustDebtRateDetail }) => (
   <RecordTableInlineCell>
     <div className="min-w-0">
-      <div className="truncate font-medium">
-        {detail.accountCode || detail.accountId}
-      </div>
+      <div className="truncate font-medium">{detail.accountCode || '-'}</div>
       <div className="truncate text-xs text-muted-foreground">
         {[detail.accountName, detail.accountKind].filter(Boolean).join(' / ') ||
           '-'}
@@ -78,6 +78,7 @@ const DepartmentCell = ({ departmentId }: { departmentId?: string }) => (
 
 const adjustDebtRateDetailColumns = (
   t: TFunction<'accounting'>,
+  transactionNumbers: Map<string, string>,
 ): ColumnDef<IAdjustDebtRateDetail>[] => [
   {
     id: 'account',
@@ -159,7 +160,9 @@ const adjustDebtRateDetailColumns = (
     id: 'transactionId',
     header: () => <RecordTable.InlineHead label={t('transaction')} />,
     accessorKey: 'transactionId',
-    cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
+    cell: ({ getValue }) => (
+      <TextCell value={transactionNumbers.get(getValue<string>())} />
+    ),
     size: 220,
   },
 ];
@@ -173,6 +176,14 @@ export const AdjustDebtRateDetail = () => {
     variables: { _id: id ?? '' },
     skip: !id,
   });
+  const { transactions = [] } = useTransactionsDetail({
+    variables: { _id: adjustDebtRate?.transactionId ?? '' },
+    skip: !adjustDebtRate?.transactionId,
+  });
+  const transactionNumbers = useMemo(
+    () => getTransactionNumbers(transactions),
+    [transactions],
+  );
 
   const { removeAdjustDebtRate, loading: removeLoading } =
     useAdjustDebtRateRemove();
@@ -307,7 +318,7 @@ export const AdjustDebtRateDetail = () => {
               {t('Account Details')}
             </h3>
             <RecordTable.Provider
-              columns={adjustDebtRateDetailColumns(t)}
+              columns={adjustDebtRateDetailColumns(t, transactionNumbers)}
               data={adjustDebtRate.details}
               tableId="accounting_adjust_debt_rate_detail_record_table"
             >

@@ -12,6 +12,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useStageDetail } from 'ui-modules';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_DEAL_RULES_QUERY } from '../graphql/checkSyncedDeals';
 import { AccountingDealRule } from '../types';
@@ -30,8 +31,26 @@ const DEAL_RETURN_TYPE_LABELS = {
   onlySale: 'sales-only',
 };
 
-const getRuleLabel = (rule: AccountingDealRule | undefined, fallback: string) =>
-  rule?.value?.title || rule?.subId || rule?._id || fallback;
+const getRuleStageId = (rule: AccountingDealRule) =>
+  rule.value?.stageId || rule.subId || '';
+
+const DealRuleStageName = ({ stageId }: { stageId: string }) => {
+  const { t } = useTranslation('accounting');
+  const { stageDetail } = useStageDetail({ variables: { _id: stageId } });
+
+  return stageDetail?.name || t('untitled-rule');
+};
+
+const DealRuleTitle = ({ rule }: { rule: AccountingDealRule }) => {
+  const { t } = useTranslation('accounting');
+  const stageId = getRuleStageId(rule);
+
+  if (rule.value?.title) {
+    return rule.value.title;
+  }
+
+  return stageId ? <DealRuleStageName stageId={stageId} /> : t('untitled-rule');
+};
 
 const getRuleTypeLabelKeys = (rule: AccountingDealRule) => {
   if (rule.code !== ACCOUNTING_SETTINGS_CODES.SYNC_DEAL_RETURN) {
@@ -103,7 +122,7 @@ const useApplyDealRuleFilter = () => {
           ruleId: rule?._id || null,
           boardId: boardId || rule?.value?.boardId || null,
           pipelineId: pipelineId || rule?.value?.pipelineId || null,
-          stageId: stageId || rule?.value?.stageId || rule?.subId || null,
+          stageId: stageId || (rule && getRuleStageId(rule)) || null,
         });
       },
       [boardId, pipelineId, setQueries, stageId],
@@ -151,28 +170,33 @@ const AccountingCheckSyncedDealRuleContent = ({
         <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>
-        {rules.map((rule) => (
-          <Command.Item
-            key={rule._id}
-            value={rule._id}
-            onSelect={() => {
-              applyRule(rule);
-              onSelect?.();
-            }}
-          >
-            <span className="flex flex-col">
-              <span className="font-medium">
-                {getRuleLabel(rule, t('Select rule'))}
+        {rules.map((rule) => {
+          const typeLabel = getRuleTypeLabelKeys(rule)
+            .map((label) => t(label))
+            .join(' / ');
+
+          return (
+            <Command.Item
+              key={rule._id}
+              value={rule._id}
+              keywords={[rule.value?.title ?? '', typeLabel]}
+              onSelect={() => {
+                applyRule(rule);
+                onSelect?.();
+              }}
+            >
+              <span className="flex flex-col">
+                <span className="font-medium">
+                  <DealRuleTitle rule={rule} />
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {typeLabel}
+                </span>
               </span>
-              <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabelKeys(rule)
-                  .map((label) => t(label))
-                  .join(' / ')}
-              </span>
-            </span>
-            <Combobox.Check checked={ruleId === rule._id} />
-          </Command.Item>
-        ))}
+              <Combobox.Check checked={ruleId === rule._id} />
+            </Command.Item>
+          );
+        })}
       </Command.List>
     </Command>
   );
@@ -254,7 +278,7 @@ export const AccountingCheckSyncedDealRuleFilterBar = ({
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="ruleId">
-            {getRuleLabel(rule, t('Select rule'))}
+            {rule ? <DealRuleTitle rule={rule} /> : t('Select rule')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>

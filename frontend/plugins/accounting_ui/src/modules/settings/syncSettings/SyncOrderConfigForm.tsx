@@ -76,7 +76,7 @@ export const SyncOrderConfigForm = ({
   const posOptions: { value: string; label: string }[] = useMemo(() => {
     if (posListLoading) return [];
     return (posList?.posList ?? []).map((p) => ({
-      label: p.name ?? p._id,
+      label: p.name || '-',
       value: p._id,
     }));
   }, [posList, posListLoading]);
