@@ -1,0 +1,18 @@
+{
+  "modules": {
+    "integrations": {
+      "edit": "Edit",
+      "preview": "Preview"
+    },
+    "knowledgebase": {
+      "actions": "Actions",
+      "kb-embed-script": "Embed script",
+      "kb-record-not-found": "This record is no longer available."
+    },
+    "ticket": {
+      "ticket-name-required": "Ticket name is required",
+      "customer": "Customer",
+      "company": "Company"
+    }
+  }
+}

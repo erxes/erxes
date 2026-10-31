@@ -1,18 +1,21 @@
+import { isRecord } from '@/shared/utils/isRecord';
+
 export function getConditionsFieldErrors(
-  fieldState: any,
+  fieldState: unknown,
 ): Record<string, string> {
-  if (!fieldState?.error) return {};
+  if (!isRecord(fieldState) || !Array.isArray(fieldState.error)) return {};
 
   const errors: Record<string, string> = {};
 
   for (const errorItem of fieldState.error) {
-    if (!errorItem) continue;
+    if (!isRecord(errorItem)) continue;
 
-    for (let [field, error] of Object.entries<any>(errorItem)) {
-      if (error?.message) {
-        if (field === 'persistentMenuIds') field = 'persistentMenu';
-        if (field === 'conditions') field = 'direct';
-        errors[field] = error.message;
+    for (const [field, error] of Object.entries(errorItem)) {
+      if (isRecord(error) && typeof error.message === 'string') {
+        let fieldName = field;
+        if (field === 'persistentMenuIds') fieldName = 'persistentMenu';
+        if (field === 'conditions') fieldName = 'direct';
+        errors[fieldName] = error.message;
       }
     }
   }

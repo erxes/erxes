@@ -4,9 +4,11 @@ import {
   Form,
   ScrollArea,
   Sheet,
+  Tabs,
   useQueryState,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useStore } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { SheetNavSidebar } from 'ui-modules';
@@ -16,6 +18,7 @@ import { HelpCenterGeneralTab } from '@/helpcenter/components/help-center-drawer
 import {
   EMPTY_HELP_CENTER_FORM,
   HELP_CENTER_FIELD_TAB,
+  HELP_CENTER_CONTENT_TYPE,
 } from '@/helpcenter/constants';
 import { useSaveHelpCenter } from '@/helpcenter/hooks/useSaveHelpCenter';
 import {
@@ -27,12 +30,15 @@ import {
 } from '@/helpcenter/types';
 import { toHelpCenterConfigInput } from '@/helpcenter/utils/toHelpCenterConfigInput';
 import { TopicEmbedTab } from '@/knowledgebase/shared/components/TopicEmbedTab';
+import { KbFormPanelContext } from '@/knowledgebase/shared/components/KbFormLayout';
+import { frontlinePanelDraftState } from '@/shared/states/recordPanelDraftState';
 
 interface HelpCenterDrawerProps {
   readonly helpCenter?: IHelpCenter;
   readonly isOpen: boolean;
   readonly onClose: () => void;
   readonly onSaved?: () => void;
+  readonly panel?: boolean;
 }
 
 export function HelpCenterDrawer({
@@ -40,29 +46,86 @@ export function HelpCenterDrawer({
   isOpen,
   onClose,
   onSaved,
+  panel = false,
 }: HelpCenterDrawerProps) {
   const { t } = useTranslation('frontline');
+  const store = useStore();
+  const draftKey = `${HELP_CENTER_CONTENT_TYPE}:${helpCenter?._id}`;
+  const [savedDraft] = useState(() => {
+    const state = store.get(frontlinePanelDraftState);
+    return panel && state.key === draftKey ? state.helpCenter : undefined;
+  });
   const isEditing = !!helpCenter;
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const [panelTab, setPanelTab] = useState<THelpCenterTab>(
+    savedDraft?.tab ?? 'general',
+  );
+  const panelTabRef = useRef(panelTab);
+  panelTabRef.current = panelTab;
 
   const tabs = isEditing ? HELP_CENTER_TABS : HELP_CENTER_CREATE_TABS;
-  const activeTab: THelpCenterTab = tabs.includes(selectedTab as THelpCenterTab)
-    ? (selectedTab as THelpCenterTab)
-    : 'general';
+  const activeTab =
+    tabs.find((tab) => tab === (panel ? panelTab : selectedTab)) || 'general';
+  const selectTab = (value: string) => {
+    const nextTab = tabs.find((tab) => tab === value);
+    if (!nextTab) return;
+    if (panel) setPanelTab(nextTab);
+    else setSelectedTab(nextTab);
+  };
 
   const form = useForm<IHelpCenterConfigInput>({
-    defaultValues: EMPTY_HELP_CENTER_FORM,
+    defaultValues: savedDraft?.defaults ?? toHelpCenterConfigInput(helpCenter),
     mode: 'onChange',
   });
 
   const handleClose = () => {
-    setSelectedTab(null);
+    store.set(frontlinePanelDraftState, (current) =>
+      current.key === draftKey ? { key: null } : current,
+    );
+    if (!panel) setSelectedTab(null);
     onClose();
   };
 
+  const initializedRecord = useRef<string>();
+  const serverValues = useRef(toHelpCenterConfigInput(helpCenter));
+  const dirtyFields = form.formState.dirtyFields;
+  const dirtyFieldsRef = useRef(dirtyFields);
+  dirtyFieldsRef.current = dirtyFields;
+
   useEffect(() => {
-    form.reset(toHelpCenterConfigInput(helpCenter));
-  }, [helpCenter, form]);
+    const recordId = helpCenter?._id ?? 'new';
+    const values = toHelpCenterConfigInput(helpCenter);
+    serverValues.current = values;
+    if (initializedRecord.current !== recordId) {
+      initializedRecord.current = recordId;
+      if (savedDraft) {
+        form.reset(savedDraft.values, { keepDefaultValues: true });
+        form.reset(values, { keepDirtyValues: true });
+      } else form.reset(values);
+      return;
+    }
+    form.reset(values, {
+      keepDirtyValues: Object.keys(dirtyFieldsRef.current).length > 0,
+    });
+  }, [helpCenter, form, savedDraft]);
+
+  useEffect(() => {
+    if (!panel || !helpCenter?._id) return;
+    return () => {
+      store.set(frontlinePanelDraftState, (current) =>
+        current.key === draftKey
+          ? {
+              ...current,
+              helpCenter: {
+                values: form.getValues(),
+                defaults: serverValues.current,
+                tab: panelTabRef.current,
+              },
+            }
+          : current,
+      );
+    };
+  }, [draftKey, form, helpCenter?._id, panel, store]);
 
   const { saveHelpCenter, loading } = useSaveHelpCenter({
     onSaved: () => {
@@ -82,13 +145,11 @@ export function HelpCenterDrawer({
     });
 
   const onInvalid = (errors: Record<string, unknown>) => {
-    const firstField = Object.keys(errors)[0] as
-      | keyof IHelpCenterConfigInput
-      | undefined;
-
-    if (firstField && HELP_CENTER_FIELD_TAB[firstField] !== activeTab) {
-      setSelectedTab(HELP_CENTER_FIELD_TAB[firstField]);
-    }
+    const firstField = Object.keys(errors)[0];
+    const tab = Object.entries(HELP_CENTER_FIELD_TAB).find(
+      ([field]) => field === firstField,
+    )?.[1];
+    if (tab && tab !== activeTab) selectTab(tab);
   };
 
   const submit = form.handleSubmit(onSubmit, onInvalid);
@@ -100,6 +161,97 @@ export function HelpCenterDrawer({
     : t('helpcenter-create', 'Create Help Center');
   const busyLabel = isEditing ? t('saving') : t('kb-creating');
   const submitLabel = loading ? busyLabel : idleLabel;
+  const tabLabels: Record<THelpCenterTab, string> = {
+    general: t('general'),
+    appearance: t('appearance'),
+    embed: t('kb-embed-script'),
+    domain: t('customdomain-label'),
+  };
+
+  const footer = (
+    <>
+      <Button
+        type="button"
+        onClick={handleClose}
+        variant="outline"
+        disabled={loading}
+      >
+        {t('cancel')}
+      </Button>
+      <Button type="button" disabled={loading} onClick={submit}>
+        {submitLabel}
+      </Button>
+    </>
+  );
+
+  const fields = (
+    <Form {...form}>
+      <form
+        onSubmit={submit}
+        className="flex overflow-hidden flex-col flex-1 min-h-0 min-w-0"
+      >
+        <ScrollArea
+          className="flex-1 min-h-0"
+          viewportClassName={panel ? 'p-3 [&>div]:block!' : 'p-4'}
+        >
+          <div className={activeTab === 'general' ? '' : 'hidden'}>
+            <HelpCenterGeneralTab form={form} t={t} />
+          </div>
+          <div className={activeTab === 'appearance' ? '' : 'hidden'}>
+            <HelpCenterAppearanceTab form={form} t={t} />
+          </div>
+          {isEditing && (
+            <div className={activeTab === 'embed' ? '' : 'hidden'}>
+              {kbTopicId ? (
+                <TopicEmbedTab topicId={kbTopicId} t={t} />
+              ) : (
+                <p className="p-8 text-sm text-center text-muted-foreground">
+                  {t('select-knowledge-base-topic')}
+                </p>
+              )}
+            </div>
+          )}
+          {helpCenter?._id && activeTab === 'domain' && (
+            <HelpCenterDomainTab
+              helpCenterId={helpCenter._id}
+              t={t}
+              compact={panel}
+            />
+          )}
+        </ScrollArea>
+      </form>
+    </Form>
+  );
+
+  if (panel) {
+    return (
+      <KbFormPanelContext.Provider value>
+        <div className="flex flex-1 min-h-0 min-w-0 flex-col">
+          <Tabs
+            value={activeTab}
+            onValueChange={selectTab}
+            className="shrink-0 border-b px-2"
+          >
+            <Tabs.List className="flex w-full flex-wrap gap-x-2 h-auto">
+              {tabs.map((tab) => (
+                <Tabs.Trigger
+                  key={tab}
+                  value={tab}
+                  className="min-w-0 px-1.5 text-xs"
+                >
+                  {tabLabels[tab]}
+                </Tabs.Trigger>
+              ))}
+            </Tabs.List>
+          </Tabs>
+          {fields}
+          <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
+            {footer}
+          </div>
+        </div>
+      </KbFormPanelContext.Provider>
+    );
+  }
 
   return (
     <FocusSheet
@@ -119,64 +271,16 @@ export function HelpCenterDrawer({
           <FocusSheet.SideBar>
             <SheetNavSidebar
               tabs={[...tabs]}
-              labels={{
-                general: t('general'),
-                appearance: t('appearance'),
-                embed: t('kb-embed-script'),
-                domain: t('customdomain-label'),
-              }}
+              labels={tabLabels}
               groupLabel={t('kb-topic', 'Help center')}
             />
           </FocusSheet.SideBar>
 
-          <Form {...form}>
-            <form
-              onSubmit={submit}
-              className="flex overflow-hidden flex-col flex-1 min-w-0"
-            >
-              <ScrollArea className="flex-1" viewportClassName="p-4">
-                <div className={activeTab === 'general' ? '' : 'hidden'}>
-                  <HelpCenterGeneralTab form={form} t={t} />
-                </div>
-
-                <div className={activeTab === 'appearance' ? '' : 'hidden'}>
-                  <HelpCenterAppearanceTab form={form} t={t} />
-                </div>
-
-                {isEditing && (
-                  <div className={activeTab === 'embed' ? '' : 'hidden'}>
-                    {kbTopicId ? (
-                      <TopicEmbedTab topicId={kbTopicId} t={t} />
-                    ) : (
-                      <p className="p-8 text-sm text-center text-muted-foreground">
-                        {t('select-knowledge-base-topic')}
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {/* Mounted only while open: it checks the domain with
-                    Cloudflare, which should not happen on every edit. */}
-                {helpCenter?._id && activeTab === 'domain' && (
-                  <HelpCenterDomainTab helpCenterId={helpCenter._id} t={t} />
-                )}
-              </ScrollArea>
-            </form>
-          </Form>
+          {fields}
         </FocusSheet.Content>
 
         <Sheet.Footer className="flex gap-1 justify-end border-t shrink-0 bg-background p-2.5">
-          <Button
-            type="button"
-            onClick={handleClose}
-            variant="outline"
-            disabled={loading}
-          >
-            {t('cancel')}
-          </Button>
-          <Button type="submit" disabled={loading} onClick={submit}>
-            {submitLabel}
-          </Button>
+          {footer}
         </Sheet.Footer>
       </FocusSheet.View>
     </FocusSheet>

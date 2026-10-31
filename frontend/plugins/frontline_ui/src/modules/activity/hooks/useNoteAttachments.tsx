@@ -3,10 +3,13 @@ import { toast, useUpload } from 'erxes-ui';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const useNoteAttachments = () => {
+export const useNoteAttachments = (
+  initialAttachments: INoteAttachment[] = [],
+) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.activity' });
   const { upload, isLoading } = useUpload();
-  const [attachments, setAttachments] = useState<INoteAttachment[]>([]);
+  const [attachments, setAttachments] =
+    useState<INoteAttachment[]>(initialAttachments);
   const [attachmentPreview, setAttachmentPreview] =
     useState<INoteAttachment | null>(null);
 

@@ -249,10 +249,12 @@ export const SelectPriorityFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: number;
   onValueChange: (value: number) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -264,10 +266,10 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectPriorityValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectPriorityContent />
         </SelectTicketContent>
       </PopoverScoped>

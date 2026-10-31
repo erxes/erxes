@@ -1,10 +1,14 @@
+import {
+  KbFormItem,
+  KbFormPanelContext,
+  KbFormSection,
+} from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
 import {
   Button,
   Editor,
   Form,
-  InfoCard,
   isDefined,
   MultipleSelector,
   readImage,
@@ -12,7 +16,7 @@ import {
   Switch,
   Upload,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
@@ -148,38 +152,43 @@ const MediaRow = ({
   value: string;
   onSelect: (file?: TMediaFile) => void;
   removable?: boolean;
-}) => (
-  <div className="py-3 first:pt-0 last:pb-0">
-    <Upload.Root
-      className="gap-3 items-center"
-      value={value}
-      onChange={(fileInfo) => {
-        if (!('url' in fileInfo)) return;
+}) => {
+  const panel = useContext(KbFormPanelContext);
+  return (
+    <div className="py-3 first:pt-0 last:pb-0">
+      <Upload.Root
+        className={
+          panel ? 'flex-col gap-2 items-stretch' : 'gap-3 items-center'
+        }
+        value={value}
+        onChange={(fileInfo) => {
+          if (!('url' in fileInfo)) return;
 
-        onSelect(
-          fileInfo.url
-            ? { url: fileInfo.url, name: fileInfo.fileInfo?.name || '' }
-            : undefined,
-        );
-      }}
-    >
-      <Upload.Preview className="shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-foreground">{label}</p>
-        <p className="text-xs text-muted-foreground">{description}</p>
-      </div>
-      <div className="flex gap-1 items-center shrink-0">
-        <Upload.Button size="sm" variant="outline" type="button">
-          <IconUpload className="size-4" />
-          {actionLabel}
-        </Upload.Button>
-        {removable && (
-          <Upload.RemoveButton size="sm" variant="ghost" type="button" />
-        )}
-      </div>
-    </Upload.Root>
-  </div>
-);
+          onSelect(
+            fileInfo.url
+              ? { url: fileInfo.url, name: fileInfo.fileInfo?.name || '' }
+              : undefined,
+          );
+        }}
+      >
+        <Upload.Preview className="shrink-0" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-foreground">{label}</p>
+          <p className="text-xs text-muted-foreground">{description}</p>
+        </div>
+        <div className="flex gap-1 items-center shrink-0">
+          <Upload.Button size="sm" variant="outline" type="button">
+            <IconUpload className="size-4" />
+            {actionLabel}
+          </Upload.Button>
+          {removable && (
+            <Upload.RemoveButton size="sm" variant="ghost" type="button" />
+          )}
+        </div>
+      </Upload.Root>
+    </div>
+  );
+};
 
 export const ArticleDrawer = ({
   articleId,
@@ -188,6 +197,7 @@ export const ArticleDrawer = ({
   isOpen,
   onClose,
   onSaved,
+  panel = false,
 }: {
   articleId?: string | null;
   topicId: string;
@@ -195,6 +205,7 @@ export const ArticleDrawer = ({
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -218,7 +229,7 @@ export const ArticleDrawer = ({
             title: article.title || '',
             summary: article.summary || '',
             content: article.content || '<p></p>',
-            topicId,
+            topicId: article.topicId || topicId,
             categoryId: article.categoryId || categoryId,
             status: article.status || 'draft',
             isPrivate: article.isPrivate ?? false,
@@ -256,6 +267,7 @@ export const ArticleDrawer = ({
   return (
     <KbFormSheet
       isOpen={isOpen}
+      panel={panel}
       onClose={onClose}
       title={
         isEditing
@@ -274,10 +286,14 @@ export const ArticleDrawer = ({
       <Form {...form}>
         <form
           onSubmit={submit}
-          className="grid gap-4 items-start p-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]"
+          className={
+            panel
+              ? 'flex flex-col gap-3 p-3'
+              : 'grid gap-4 items-start p-4 lg:grid-cols-[minmax(0,2.4fr)_minmax(0,1fr)]'
+          }
         >
-          <InfoCard title={t('content-label', 'Content')}>
-            <InfoCard.Content>
+          <KbFormSection title={t('content-label', 'Content')}>
+            <KbFormSection.Content>
               <KbTextField
                 control={form.control}
                 name="title"
@@ -286,16 +302,17 @@ export const ArticleDrawer = ({
                 required
               />
 
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div
+                className={panel ? 'grid gap-1' : 'grid gap-4 sm:grid-cols-2'}
+              >
                 <Form.Field
                   control={form.control}
                   name="topicId"
                   render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('knowledge-base', 'Knowledge Base')}{' '}
-                        <span className="text-destructive">*</span>
-                      </Form.Label>
+                    <KbFormItem
+                      required
+                      label={t('knowledge-base', 'Knowledge Base')}
+                    >
                       <Form.Control>
                         <SelectKbTopic
                           value={field.value}
@@ -308,7 +325,7 @@ export const ArticleDrawer = ({
                         />
                       </Form.Control>
                       <Form.Message />
-                    </Form.Item>
+                    </KbFormItem>
                   )}
                 />
 
@@ -316,11 +333,7 @@ export const ArticleDrawer = ({
                   control={form.control}
                   name="categoryId"
                   render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('kb-category', 'Category')}{' '}
-                        <span className="text-destructive">*</span>
-                      </Form.Label>
+                    <KbFormItem required label={t('kb-category', 'Category')}>
                       <Form.Control>
                         <SelectKbCategory
                           topicId={selectedTopicId}
@@ -329,7 +342,7 @@ export const ArticleDrawer = ({
                         />
                       </Form.Control>
                       <Form.Message />
-                    </Form.Item>
+                    </KbFormItem>
                   )}
                 />
               </div>
@@ -349,36 +362,35 @@ export const ArticleDrawer = ({
                 control={form.control}
                 name="content"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('content-label', 'Content')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
+                  <KbFormItem
+                    wide
+                    required
+                    label={t('content-label', 'Content')}
+                  >
                     <Form.Control>
                       <Editor
                         initialContent={field.value}
                         onChange={field.onChange}
                         scope="KnowledgeBaseArticleContent"
                         isHTML
-                        className="min-h-[26rem]"
+                        className={panel ? 'h-auto min-h-40' : 'min-h-[26rem]'}
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </KbFormItem>
                 )}
               />
-            </InfoCard.Content>
-          </InfoCard>
+            </KbFormSection.Content>
+          </KbFormSection>
 
           <div className="grid gap-4">
-            <InfoCard title={t('kb-publishing', 'Publishing')}>
-              <InfoCard.Content>
+            <KbFormSection title={t('kb-publishing', 'Publishing')}>
+              <KbFormSection.Content>
                 <Form.Field
                   control={form.control}
                   name="status"
                   render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('status', 'Status')}</Form.Label>
+                    <KbFormItem label={t('status', 'Status')}>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
@@ -400,7 +412,7 @@ export const ArticleDrawer = ({
                         </Select.Content>
                       </Select>
                       <Form.Message />
-                    </Form.Item>
+                    </KbFormItem>
                   )}
                 />
 
@@ -409,10 +421,7 @@ export const ArticleDrawer = ({
                     control={form.control}
                     name="scheduledDate"
                     render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>
-                          {t('kb-publish-on', 'Publish on')}
-                        </Form.Label>
+                      <KbFormItem label={t('kb-publish-on', 'Publish on')}>
                         <ScheduleDateField
                           value={field.value}
                           onChange={field.onChange}
@@ -424,7 +433,7 @@ export const ArticleDrawer = ({
                           )}
                         </Form.Description>
                         <Form.Message />
-                      </Form.Item>
+                      </KbFormItem>
                     )}
                   />
                 )}
@@ -433,17 +442,14 @@ export const ArticleDrawer = ({
                   control={form.control}
                   name="isPrivate"
                   render={({ field }) => (
-                    <Form.Item className="flex flex-row gap-2 justify-between items-center">
-                      <Form.Label className="mb-0">
-                        {t('kb-is-private', 'Is Private')}
-                      </Form.Label>
+                    <KbFormItem inline label={t('kb-is-private', 'Is Private')}>
                       <Form.Control>
                         <Switch
                           checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </Form.Control>
-                    </Form.Item>
+                    </KbFormItem>
                   )}
                 />
 
@@ -451,10 +457,9 @@ export const ArticleDrawer = ({
                   control={form.control}
                   name="reactionChoices"
                   render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('kb-reaction-choices', 'Reaction Choices')}
-                      </Form.Label>
+                    <KbFormItem
+                      label={t('kb-reaction-choices', 'Reaction Choices')}
+                    >
                       <Form.Control>
                         <MultipleSelector
                           options={REACTIONS}
@@ -471,14 +476,14 @@ export const ArticleDrawer = ({
                         />
                       </Form.Control>
                       <Form.Message />
-                    </Form.Item>
+                    </KbFormItem>
                   )}
                 />
-              </InfoCard.Content>
-            </InfoCard>
+              </KbFormSection.Content>
+            </KbFormSection>
 
-            <InfoCard title={t('kb-media', 'Media')}>
-              <InfoCard.Content className="gap-0 divide-y">
+            <KbFormSection title={t('kb-media', 'Media')}>
+              <KbFormSection.Content className="gap-0 divide-y">
                 <Form.Field
                   control={form.control}
                   name="image"
@@ -546,8 +551,8 @@ export const ArticleDrawer = ({
                     />
                   )}
                 />
-              </InfoCard.Content>
-            </InfoCard>
+              </KbFormSection.Content>
+            </KbFormSection>
           </div>
         </form>
       </Form>

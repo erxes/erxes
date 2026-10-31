@@ -1,10 +1,11 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import {
+  IntegrationCreateButton,
+  useIntegrationChannelId,
+} from '@/integrations/components/IntegrationPanelForm';
 import { z } from 'zod';
 import { IntegrationType } from '@/types/Integration';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
@@ -16,25 +17,15 @@ export const CallProIntegrationAddSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [callProAddSheet, setCallProAddSheet] = useAtom(callProAddSheetAtom);
-
   return (
-    <Sheet open={callProAddSheet} onOpenChange={setCallProAddSheet}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('callpro-add')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-3xl">
-        <CallProIntegrationAdd />
-      </Sheet.View>
-    </Sheet>
+    <IntegrationCreateButton kind={IntegrationType.CALLPRO}>
+      {t('callpro-add')}
+    </IntegrationCreateButton>
   );
 };
 
 export const CallProIntegrationAdd = () => {
-  const { id } = useParams();
+  const id = useIntegrationChannelId();
   const setCallProAddSheet = useSetAtom(callProAddSheetAtom);
 
   const form = useForm<z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>>({
