@@ -8,7 +8,6 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
 import { IconSandbox, IconSettings } from '@tabler/icons-react';
@@ -60,7 +59,6 @@ export const SalesIndexPage = () => {
               </Link>
             </Button>
           </PageHeader.End>
-          <AddDealSheet />
         </PageHeader>
 
         <PageContainer className="overflow-hidden">

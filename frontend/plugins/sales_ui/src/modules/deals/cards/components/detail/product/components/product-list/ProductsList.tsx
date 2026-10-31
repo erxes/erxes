@@ -6,7 +6,7 @@ import { currentUserState } from 'ui-modules';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { Dialog } from 'erxes-ui';
+import { Dialog, ScrollArea } from 'erxes-ui';
 import { useDealProductActions } from '../../hooks/useDealProductActions';
 import { useProductCalculations } from '../../hooks/useProductCalculations';
 import {
@@ -26,6 +26,8 @@ import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
 import { ProductsListHeader } from './ProductsListHeader';
 
+const COMPACT_MAX_WIDTH = 768;
+
 export const ProductsList = ({
   products,
   productsData,
@@ -33,6 +35,7 @@ export const ProductsList = ({
   pipelineId,
   refetch,
   tickUsed,
+  compact = false,
 }: {
   products: DealProduct[];
   productsData: DealProductData[];
@@ -40,7 +43,21 @@ export const ProductsList = ({
   pipelineId?: string;
   refetch: () => void;
   tickUsed: boolean;
+  compact?: boolean;
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isNarrow, setIsNarrow] = useState(compact);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!compact || !container) return;
+    const observer = new ResizeObserver(([entry]) =>
+      setIsNarrow(entry.contentRect.width < COMPACT_MAX_WIDTH),
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [compact]);
+
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
   const [localProductsData, setLocalProductsData] =
@@ -248,33 +265,64 @@ export const ProductsList = ({
     Array.isArray(value) ? value.length > 0 : Boolean(value),
   );
 
+  const cardsLayout = compact && isNarrow && !showExpandedView;
+  const [expandedProductIds, setExpandedProductIds] = useState<string[]>([]);
+  const toggleExpandedProduct = (productDataId: string) =>
+    setExpandedProductIds((ids) =>
+      ids.includes(productDataId)
+        ? ids.filter((id) => id !== productDataId)
+        : [...ids, productDataId],
+    );
+
+  const productsHeader = (
+    <ProductsListHeader
+      filters={filters}
+      onFiltersChange={setFilters}
+      vatPercent={vatPercent}
+      vatPercentDraft={vatPercentDraft}
+      onVatPercentChange={onVatPercentChange}
+      onVatPercentBlur={onVatPercentBlur}
+      onApplyVat={applyVat}
+      showAdvancedView={showAdvancedView}
+      onShowAdvancedViewChange={setShowAdvancedView}
+      showTaxView={showTaxView}
+      onShowTaxViewChange={setShowTaxView}
+      showExpandedView={showExpandedView}
+      onShowExpandedViewChange={setShowExpandedView}
+      compact={cardsLayout}
+    />
+  );
+
+  const productsTable = (
+    <ProductsRecordTable
+      products={productRecords}
+      refetch={refetch}
+      showAdvancedView={showAdvancedView}
+      showTaxView={showTaxView}
+      hasProductFilters={hasProductFilters}
+      layout={cardsLayout ? 'cards' : 'table'}
+      expandedIds={expandedProductIds}
+      onToggleExpanded={toggleExpandedProduct}
+      onExpandedChange={setExpandedProductIds}
+    />
+  );
+
   const productWorkspace = (
     <>
-      <ProductsListHeader
-        filters={filters}
-        onFiltersChange={setFilters}
-        vatPercent={vatPercent}
-        vatPercentDraft={vatPercentDraft}
-        onVatPercentChange={onVatPercentChange}
-        onVatPercentBlur={onVatPercentBlur}
-        onApplyVat={applyVat}
-        showAdvancedView={showAdvancedView}
-        onShowAdvancedViewChange={setShowAdvancedView}
-        showTaxView={showTaxView}
-        onShowTaxViewChange={setShowTaxView}
-        showExpandedView={showExpandedView}
-        onShowExpandedViewChange={setShowExpandedView}
-      />
-
-      <div className="min-h-0 flex-1 py-4">
-        <ProductsRecordTable
-          products={productRecords}
-          refetch={refetch}
-          showAdvancedView={showAdvancedView}
-          showTaxView={showTaxView}
-          hasProductFilters={hasProductFilters}
-        />
-      </div>
+      {cardsLayout ? (
+        <ScrollArea
+          className="min-h-0 flex-1"
+          viewportClassName="[&>div]:block!"
+        >
+          {productsHeader}
+          <div className="py-4">{productsTable}</div>
+        </ScrollArea>
+      ) : (
+        <>
+          {productsHeader}
+          <div className="min-h-0 flex-1 py-4">{productsTable}</div>
+        </>
+      )}
 
       <ProductFooter
         productsCount={localProductsData.length}
@@ -296,7 +344,7 @@ export const ProductsList = ({
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div ref={containerRef} className="flex h-full min-h-0 flex-col">
       {showExpandedView ? (
         <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
           <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">

@@ -5,12 +5,10 @@ import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoyaltyTotals';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { dealProductsSchema, isRecord } from '@/deals/utils/dealJson';
 import { IconAlertCircleFilled } from '@tabler/icons-react';
 import { CopyText, isDefined, Separator, useQueryState } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -19,6 +17,7 @@ import {
   hasFieldValue,
   useFields,
   type CardDetailBadgeItem,
+  useSidePanel,
 } from 'ui-modules';
 import {
   SelectCompanyFilterBar,
@@ -244,8 +243,7 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
 export const DealsBoardCard = memo(function DealsBoardCard({
   deal,
 }: DealsBoardCardProps) {
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
-  const setActiveDealAtom = useSetAtom(dealDetailSheetState);
+  const { openRecord } = useSidePanel();
   const [searchParams] = useQueryState<string>('archivedOnly');
   const { editDeals } = useDealsEdit();
   const [currentCustomers, setCurrentCustomers] = useState(
@@ -281,8 +279,7 @@ export const DealsBoardCard = memo(function DealsBoardCard({
     tagIds,
   } = deal;
   const onCardClick = () => {
-    setSalesItemId(_id);
-    setActiveDealAtom(_id);
+    openRecord({ contentType: 'sales:deal', contentId: _id });
   };
   const archivedOnly = searchParams === 'true';
   const isArchived = status === 'archived';

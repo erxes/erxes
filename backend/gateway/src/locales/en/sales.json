@@ -3,6 +3,7 @@
   "edit": "Edit",
   "action": "Actions",
   "copy": "Copy",
+  "apply": "Apply",
   "print-document": "Print Document",
   "search-document": "Search document...",
   "print-document-failed": "Unable to prepare this document for printing",
@@ -667,6 +668,7 @@
   "payments-not-balanced": "Payments must sum to the total amount ({{totalAmount}}).",
   "unknown-error": "Unknown error",
   "name-required": "Name is required",
+  "stage-required": "Stage is required",
   "name-min-length": "Name must be at least 2 characters",
   "pipeline-name-required": "Pipeline name is required",
   "pipeline-board-required": "Board is required",
@@ -1021,5 +1023,14 @@
   "deal-voucher-more_other": "+{{count}} vouchers",
   "deal-voucher-empty": "No voucher or coupon",
   "deal-voucher-open": "Vouchers",
-  "deal-voucher-settled": "Used on this deal"
+  "deal-voucher-settled": "Used on this deal",
+  "show-details": "Show details",
+  "select-broker": "Select broker",
+  "ratio": "Ratio",
+  "set-amount": "Set amount",
+  "set-handle-discount": "Set handle discount",
+  "tax-view": "Tax view",
+  "expand-view": "Expand view",
+  "expand-all": "Expand all",
+  "collapse-all": "Collapse all"
 }

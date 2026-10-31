@@ -1,42 +1,16 @@
-import { AddDealSheet } from '@/deals/components/AddDealSheet';
-import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
 import { useQuery } from '@apollo/client';
 import { IconSandbox } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ContactWidgetRow,
   ContactWidgetSection,
   IContactWidgetProps,
+  useSidePanel,
 } from 'ui-modules';
 import { SALES_CONTACT_DEALS } from './contactDeals';
 
 // The most deals listed for one contact.
 const CONTACT_RECORDS_LIMIT = 50;
-
-type TContactDeal = {
-  _id: string;
-  name?: string | null;
-  boardId?: string | null;
-  pipelineId?: string | null;
-  stage?: { name?: string | null; pipelineId?: string | null } | null;
-};
-
-// Deals open on their board, in a new tab, as from the relation widget.
-const openDeal = (deal: TContactDeal) => {
-  const params = new URLSearchParams({ salesItemId: deal._id });
-  const pipelineId = deal.pipelineId || deal.stage?.pipelineId;
-
-  if (deal.boardId) {
-    params.set('boardId', deal.boardId);
-  }
-
-  if (pipelineId) {
-    params.set('pipelineId', pipelineId);
-  }
-
-  window.open(`/sales/deals?${params.toString()}`, '_blank');
-};
 
 /**
  * A customer's or company's deals, found by the contact on the deals
@@ -57,7 +31,7 @@ export const DealsContactSection = ({
       limit: CONTACT_RECORDS_LIMIT,
     },
   });
-  const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
+  const { openRecord, openNewRecord } = useSidePanel();
   const deals = (data?.deals?.list || []).flatMap((deal) =>
     deal ? [deal] : [],
   );
@@ -70,7 +44,7 @@ export const DealsContactSection = ({
       ids={[...dealsById.keys()]}
       loading={loading}
       createLabel={t('add-a-deal', 'Add a deal')}
-      onCreate={() => setOpenCreateDeal(true)}
+      onCreate={() => openNewRecord('sales:deal', contacts, { stack: true })}
       renderItem={(dealId) => {
         const deal = dealsById.get(dealId);
 
@@ -79,13 +53,16 @@ export const DealsContactSection = ({
             <ContactWidgetRow
               title={deal.name || t('untitled', 'Untitled')}
               meta={deal.stage?.name}
-              onClick={() => openDeal(deal)}
+              onClick={() =>
+                openRecord(
+                  { contentType: 'sales:deal', contentId: deal._id },
+                  { stack: true },
+                )
+              }
             />
           )
         );
       }}
-    >
-      <AddDealSheet contacts={contacts} showWorkflowFields />
-    </ContactWidgetSection>
+    />
   );
 };

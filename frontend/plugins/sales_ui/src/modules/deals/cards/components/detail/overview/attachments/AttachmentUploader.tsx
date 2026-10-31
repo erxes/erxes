@@ -88,14 +88,10 @@ export const AttachmentUploader = () => {
       />
       <Upload.Button
         size="sm"
-        variant="secondary"
+        variant="outline"
         type="button"
         disabled={isLoading}
-        className={cn(
-          'h-7 gap-1.5 rounded-md px-2.5 text-sm font-medium text-muted-foreground',
-          'hover:text-foreground',
-          isLoading && 'opacity-70',
-        )}
+        className={cn('h-7 gap-1.5 px-2', isLoading && 'opacity-70')}
       >
         {isLoading ? (
           <>
@@ -105,7 +101,7 @@ export const AttachmentUploader = () => {
             </span>
           </>
         ) : (
-          <IconPaperclip size={14} />
+          <IconPaperclip />
         )}
         {t('add-attachments')}
       </Upload.Button>

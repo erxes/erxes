@@ -12,8 +12,13 @@ export const ProductMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<DealProductData, unknown>;
+}) => <ProductMoreMenu productData={cell.row.original} />;
+
+export const ProductMoreMenu = ({
+  productData,
+}: {
+  productData: DealProductData;
 }) => {
-  const productData = cell.row.original;
   const confirmOptions = { confirmationValue: 'delete' };
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');

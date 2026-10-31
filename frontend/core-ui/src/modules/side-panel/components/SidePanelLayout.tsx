@@ -2,6 +2,7 @@ import {
   IconHierarchy2,
   IconHistory,
   IconId,
+  IconLayoutGrid,
   IconLink,
   IconLayoutSidebarRight,
 } from '@tabler/icons-react';
@@ -222,11 +223,14 @@ const SidePanelSavedRecord = ({
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const coreViews = getRecordViews(record);
   // Types core has no views for may be drawn by the plugin owning them.
-  const { pluginName, hasProperties } = useRecordPanelPlugin(
-    record.contentType,
-  );
+  const {
+    pluginName,
+    hasProperties,
+    tabs: pluginTabs,
+  } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
   const { title, avatar } = useRecordHeading(record, panelPluginName);
+  const { t: pluginT } = useTranslation(panelPluginName ?? undefined);
   const views =
     coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRelationWidgetTabs({
@@ -299,7 +303,7 @@ const SidePanelSavedRecord = ({
     : [];
   const { tab: selectedTab, setTab } = useSidePanel();
 
-  const tabs: IRecordSidePanelTab[] = [
+  const baseTabs: IRecordSidePanelTab[] = [
     ...(views
       ? [
           {
@@ -394,6 +398,38 @@ const SidePanelSavedRecord = ({
         ),
       },
     ],
+  ];
+
+  const extraTabs = panelPluginName
+    ? pluginTabs.map((pluginTab) => ({
+        after: pluginTab.after,
+        tab: {
+          value: `plugin:${pluginTab.value}`,
+          label: pluginT(pluginTab.value, { defaultValue: pluginTab.label }),
+          icon: pluginTab.icon || IconLayoutGrid,
+          content: (
+            <PluginRecordPanel
+              pluginName={panelPluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="tab"
+              tab={pluginTab.value}
+            />
+          ),
+        },
+      }))
+    : [];
+  const baseValues = new Set(baseTabs.map((entry) => entry.value));
+  const tabs: IRecordSidePanelTab[] = [
+    ...baseTabs.flatMap((baseTab) => [
+      baseTab,
+      ...extraTabs
+        .filter((extra) => extra.after === baseTab.value)
+        .map((extra) => extra.tab),
+    ]),
+    ...extraTabs
+      .filter((extra) => !extra.after || !baseValues.has(extra.after))
+      .map((extra) => extra.tab),
   ];
 
   const tab =

@@ -11,6 +11,7 @@ import { GET_DEAL_DETAIL } from '@/deals/graphql/queries/DealsQueries';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 
 interface UseDealsEditConfig {
   toastOptions?: {
@@ -25,8 +26,11 @@ export function useDealsEdit(
 ) {
   const { toastOptions } = config || {};
   const { t } = useTranslation('sales');
-  const [_id] = useAtom(dealDetailSheetState);
-  const [salesItemId] = useQueryState<string>('salesItemId');
+  const [activeDealId] = useAtom(dealDetailSheetState);
+  const overrideId = useDealIdOverride();
+  const _id = overrideId || activeDealId;
+  const [queryDealId] = useQueryState<string>('salesItemId');
+  const salesItemId = overrideId || queryDealId;
 
   const [editDeals, { loading, error }] = useMutation(EDIT_DEALS, {
     ...options,

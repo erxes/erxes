@@ -127,11 +127,13 @@ const SelectPriorityRoot = ({
   onValueChange,
   scope,
   variant,
+  badge = true,
 }: {
   value?: number;
   onValueChange: (value: number) => void;
   scope?: string;
   variant: `${SelectTriggerVariant}`;
+  badge?: boolean;
 }) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
@@ -151,7 +153,7 @@ const SelectPriorityRoot = ({
           </Combobox.ChipTrigger>
         ) : (
           <SelectTriggerOperation variant={variant}>
-            {variant === SelectTriggerVariant.TABLE ? (
+            {variant === SelectTriggerVariant.TABLE && badge ? (
               <SelectPriorityBadgeValue />
             ) : (
               <SelectPriorityValue />

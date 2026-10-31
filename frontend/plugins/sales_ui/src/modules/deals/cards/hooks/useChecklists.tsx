@@ -41,12 +41,14 @@ import type {
 import { isDefined, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 
 function useDealContentTypeId(passedContentTypeId?: string | null) {
   const [activeDealId] = useAtom(dealDetailSheetState);
   const [salesItemId] = useQueryState<string>('salesItemId');
+  const overrideId = useDealIdOverride();
 
-  return passedContentTypeId || salesItemId || activeDealId;
+  return passedContentTypeId || overrideId || salesItemId || activeDealId;
 }
 
 export function useChecklistsAdd(
