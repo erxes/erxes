@@ -1,6 +1,6 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, ExpectedError } from 'erxes-api-shared/utils';
 import { ICPNotificationDocument } from '@/clientportal/types/cpNotification';
 import {
   buildCPNotificationQuery,
@@ -47,7 +47,7 @@ export const cpNotificationQueries: Record<
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
-      throw new Error('User is not logged in');
+      throw new ExpectedError('User is not logged in', 'UNAUTHORIZED');
     }
 
     const query = buildCPNotificationQuery({ cpUserId: cpUser._id }, params);
@@ -71,7 +71,7 @@ export const cpNotificationQueries: Record<
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
-      throw new Error('User is not logged in');
+      throw new ExpectedError('User is not logged in', 'UNAUTHORIZED');
     }
 
     const notification = await models.CPNotifications.findOne({
@@ -92,7 +92,7 @@ export const cpNotificationQueries: Record<
     { models, cpUser }: IContext,
   ) {
     if (!cpUser) {
-      throw new Error('User is not logged in');
+      throw new ExpectedError('User is not logged in', 'UNAUTHORIZED');
     }
 
     const query: any = {
