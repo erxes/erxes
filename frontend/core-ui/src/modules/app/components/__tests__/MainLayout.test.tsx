@@ -63,6 +63,11 @@ jest.mock(
   { virtual: true },
 );
 jest.mock(
+  '@/settings/support-access/components/SupportAccessBanner',
+  () => ({ SupportAccessBanner: () => null }),
+  { virtual: true },
+);
+jest.mock(
   '@/side-panel/components/SidePanelLayout',
   () => ({
     SidePanelLayout: () => <aside data-testid="relation-panel" />,

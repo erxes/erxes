@@ -1,3 +1,4 @@
+import { AuthIdentityProvider } from '@/auth/db/definitions/ldap';
 import { LoginError } from '@/auth/loginError';
 import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
@@ -65,6 +66,7 @@ interface IProvisionedUserParams {
   firstName?: string;
   lastName?: string;
   permissionGroupIds: string[];
+  isActive?: boolean;
 }
 
 interface ILoginParams {
@@ -83,6 +85,8 @@ export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
   isDirectoryUser(userId: string): Promise<boolean>;
+  getIdentityProvider(userId: string): Promise<AuthIdentityProvider | undefined>;
+  isSupportUser(userId: string): Promise<boolean>;
   assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
@@ -207,10 +211,36 @@ export const loadUserClass = (
       );
     }
 
-    // Directory users sign in with their directory password, so a local one would never be used
+    public static async getIdentityProvider(userId: string) {
+      const identity = await models.AuthIdentities.findOne(
+        { userId },
+        { provider: 1 },
+      ).lean();
+
+      return identity?.provider;
+    }
+
+    public static async isSupportUser(userId: string) {
+      return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Linked users sign in at their provider, so a local password would be a second way in
     public static async assertLocalPassword(userId: string) {
-      if (await this.isDirectoryUser(userId)) {
+      const provider = await this.getIdentityProvider(userId);
+
+      if (provider === 'ldap') {
         throw new Error('Password is managed by the directory');
+      }
+
+      if (provider === 'erxes_support') {
+        throw new Error('Support accounts have no password');
+      }
+    }
+
+    // Name and groups come from the grant, so nobody edits a support account by hand
+    public static async assertEditable(userId: string) {
+      if (await this.isSupportUser(userId)) {
+        throw new Error('Support accounts are managed by support access');
       }
     }
 
@@ -335,6 +365,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('User not found');
       }
+
+      await this.assertEditable(_id);
 
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
@@ -475,6 +507,7 @@ export const loadUserClass = (
       firstName,
       lastName,
       permissionGroupIds,
+      isActive = true,
     }: IProvisionedUserParams) {
       email = email.toLowerCase().trim();
 
@@ -492,7 +525,7 @@ export const loadUserClass = (
           lastName,
           fullName: [firstName, lastName].filter(Boolean).join(' '),
         },
-        isActive: true,
+        isActive,
         code: await this.generateUserCode(),
         ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
       });
@@ -550,6 +583,8 @@ export const loadUserClass = (
       }: IEditProfile,
     ) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertEditable(_id);
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });

@@ -10,6 +10,7 @@ import {
   expectedErrorPlugin,
 } from 'erxes-api-shared/utils';
 import { generateModels } from '../connectionResolvers';
+import { guardSupportPermissions } from '../modules/auth/supportAccess/guard';
 import resolvers from './resolvers';
 import { typeDefs } from './typeDefs';
 
@@ -42,6 +43,11 @@ export const initApolloServer = async (app, httpServer) => {
           const models = await generateModels(subdomain, context);
 
           context.models = models;
+          context.checkPermission = guardSupportPermissions(
+            models,
+            context.user,
+            context.checkPermission,
+          );
 
           return context;
         },

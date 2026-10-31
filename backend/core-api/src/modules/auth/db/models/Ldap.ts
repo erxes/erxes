@@ -1,3 +1,4 @@
+import { clearGroupActionsCache } from 'erxes-api-shared/core-modules';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { FilterParser } from 'ldapts';
 import { Model } from 'mongoose';
@@ -24,6 +25,7 @@ import {
 } from '@/auth/ldap/client';
 import { LoginError } from '@/auth/loginError';
 import { revokeUserSessions } from '@/auth/session';
+import { ISupportStaff } from '@/auth/supportAccess/token';
 
 export type LdapConfigInput = ILdapConfig & { bindPassword?: string };
 
@@ -50,7 +52,15 @@ export interface IAuthIdentityModel extends Model<IAuthIdentityDocument> {
   ): Promise<IAuthIdentityDocument>;
   unlinkLdapUser(userId: string): Promise<boolean>;
   recheckLdapUsers(): Promise<ILdapRecheckRun | null>;
+  provisionSupportUser(staff: ISupportStaff): Promise<string>;
+  activateSupportUser(
+    userId: string,
+    permissionGroupIds: string[],
+  ): Promise<void>;
 }
+
+// .invalid never resolves: no mail, so no reset or magic link reaches a support account
+const SUPPORT_EMAIL_DOMAIN = 'support.erxes.invalid';
 
 const normalizeList = (values?: string[]) => [
   ...new Set((values || []).map((value) => value.trim()).filter(Boolean)),
@@ -373,6 +383,10 @@ export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
         throw new Error('The owner signs in with a local password');
       }
 
+      if (await models.Users.isSupportUser(userId)) {
+        throw new Error('Support accounts sign in through erxes.io');
+      }
+
       const connection = await models.LdapConfigs.getConnectionConfig();
       const profile = await lookupLdapUser(connection, identifier);
 
@@ -513,6 +527,55 @@ export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
       await models.LdapConfigs.recordRecheck(run, changes);
 
       return run;
+    }
+
+    /** The tenant user acting for a staff member, created inactive on their first visit. */
+    public static async provisionSupportUser(staff: ISupportStaff) {
+      const displayName = `${staff.name} (erxes support)`;
+      const identity = await models.AuthIdentities.findOne({
+        provider: 'erxes_support',
+        subject: staff.staffId,
+      });
+
+      if (identity) {
+        await models.Users.updateOne(
+          { _id: identity.userId },
+          {
+            $set: {
+              'details.firstName': displayName,
+              'details.fullName': displayName,
+            },
+          },
+        );
+
+        return identity.userId;
+      }
+
+      const user = await models.Users.createProvisionedUser({
+        email: `${staff.staffId}@${SUPPORT_EMAIL_DOMAIN}`,
+        firstName: displayName,
+        permissionGroupIds: [],
+        isActive: false,
+      });
+
+      await models.AuthIdentities.create({
+        userId: user._id,
+        provider: 'erxes_support',
+        subject: staff.staffId,
+      });
+
+      return user._id;
+    }
+
+    public static async activateSupportUser(
+      userId: string,
+      permissionGroupIds: string[],
+    ) {
+      await models.Users.updateOne(
+        { _id: userId },
+        { $set: { isActive: true, permissionGroupIds } },
+      );
+      await clearGroupActionsCache({ userId });
     }
   }
 

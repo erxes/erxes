@@ -185,6 +185,16 @@ router.post('/oauth/device/approve', async (req: Request, res: Response) => {
     const models = await generateModels(subdomain);
     const userCode = normalizeUserCode(String(req.body?.userCode || ''));
 
+    // Device tokens would outlive the support visit
+    if (await models.Users.isSupportUser(userId)) {
+      return sendOAuthError(
+        res,
+        403,
+        'access_denied',
+        'Not available during support access',
+      );
+    }
+
     if (!userCode) {
       return sendOAuthError(res, 400, 'invalid_request', 'Missing userCode');
     }

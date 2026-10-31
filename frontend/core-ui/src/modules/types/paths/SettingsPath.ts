@@ -38,6 +38,7 @@ export enum SettingsWorkspacePath {
   AppTokens = 'app-tokens',
   OAuthClients = 'oauth-clients',
   Ldap = 'security/ldap',
+  SupportAccess = 'security/support-access',
   Security = 'security',
   ClienPortalsCatchAll = 'client-portals/*',
   Logs = 'logs',

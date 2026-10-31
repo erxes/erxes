@@ -17,6 +17,7 @@ import {
 import { useRef } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
+import { SupportAccessBanner } from '@/settings/support-access/components/SupportAccessBanner';
 
 const AppWorkspace = () => {
   const { pathname } = useLocation();
@@ -54,6 +55,7 @@ export const DefaultLayout = () => {
         <GlobalSearch />
         <WelcomeNotificationEffect />
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+          <SupportAccessBanner />
           <CoreTab />
           <AppWorkspace />
         </div>

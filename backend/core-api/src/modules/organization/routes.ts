@@ -9,6 +9,7 @@ import {
 import { Request, Response, Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { generateModels } from '~/connectionResolvers';
+import { supportLogin } from '~/modules/auth/supportAccess/login';
 import { handleCoreLogin, magiclinkCallback, ssocallback } from '~/utils/saas';
 import { IOrganizationCharge } from './types';
 
@@ -170,5 +171,6 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 router.get('/sso-callback', callbackLimiter, ssocallback);
 router.get('/ml-callback', callbackLimiter, magiclinkCallback);
 router.get('/core-login', callbackLimiter, handleCoreLogin);
+router.get('/support-login', callbackLimiter, supportLogin);
 
 export { router };

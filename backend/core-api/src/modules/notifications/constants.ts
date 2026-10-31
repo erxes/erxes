@@ -25,6 +25,24 @@ export const CORE_NOTIFICATION_MODULES = [
           },
         ],
       },
+      {
+        name: 'security',
+        description: 'Security',
+        icon: 'IconShieldLock',
+        events: [
+          {
+            name: 'supportAccessRequested',
+            title: 'Support access requested',
+            description:
+              'Triggered when erxes support asks to enter the workspace',
+          },
+          {
+            name: 'supportAccessEntered',
+            title: 'Support entered the workspace',
+            description: 'Triggered when erxes support enters the workspace',
+          },
+        ],
+      },
     ],
   },
 ];

@@ -31,7 +31,7 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    return (await models.Users.isDirectoryUser(user._id)) ? 'ldap' : null;
+    return (await models.Users.getIdentityProvider(user._id)) || null;
   },
 
   async sessionState(

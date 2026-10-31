@@ -153,6 +153,9 @@ describe('system-operation deny policy', () => {
     'agentsConnectionUpsert',
     'agentsConnectionSetDefault',
     'agentsModelVerify',
+    'authSupportAccessApprove',
+    'authSupportAccessPolicySave',
+    'authSupportAccessRevoke',
   ])('refuses %s even behind aliases', (field) => {
     expect(() =>
       parseAgentGraphqlOperation(
