@@ -41,6 +41,7 @@ import type {
   InsuranceProduct,
   InsuranceRegion,
 } from '~/modules/insurance/types';
+import { toPricingConfig } from '~/modules/insurance/utils/pricing';
 
 const EMPTY_TRAVELER: Traveler = {
   firstName: '',
@@ -152,7 +153,7 @@ export const CitizenInsurancePage = () => {
     (p: InsuranceProduct) => p.id === selectedProductId,
   );
 
-  const citizenType = insuranceTypes.find((t: any) => t.isCitizen === true);
+  const citizenType = insuranceTypes.find((t) => t.isCitizen === true);
 
   // Traveler management
   const addTraveler = () => {
@@ -203,7 +204,7 @@ export const CitizenInsurancePage = () => {
           travelEndDate: endDate.toISOString(),
           regionName: selectedProduct.regions?.[0]?.name || '',
           numberOfTravelersInGroup: travelers.length,
-          dailyRate: selectedProduct.pricingConfig?.dailyRate,
+          dailyRate: toPricingConfig(selectedProduct.pricingConfig)?.dailyRate,
           discountPercent: priceResult.discountPercent,
         };
 
@@ -224,8 +225,10 @@ export const CitizenInsurancePage = () => {
       setTimeout(() => {
         navigate('/insurance/contracts');
       }, 1500);
-    } catch (err: any) {
-      setError(err.message || 'Гэрээ үүсгэхэд алдаа гарлаа');
+    } catch (err) {
+      setError(
+        (err instanceof Error && err.message) || 'Гэрээ үүсгэхэд алдаа гарлаа',
+      );
     }
   };
 
@@ -457,7 +460,9 @@ export const CitizenInsurancePage = () => {
                               </div>
                               <div className="text-right">
                                 <div className="text-lg font-bold text-primary">
-                                  {product.pricingConfig?.dailyRate?.toLocaleString()}
+                                  {toPricingConfig(
+                                    product.pricingConfig,
+                                  )?.dailyRate?.toLocaleString()}
                                   ₮
                                 </div>
                                 <div className="text-xs text-gray-500">

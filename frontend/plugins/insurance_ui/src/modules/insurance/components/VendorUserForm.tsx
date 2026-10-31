@@ -6,6 +6,7 @@ import {
   useUpdateVendorUser,
 } from '~/modules/insurance/hooks';
 import { VendorUser } from '~/modules/insurance/types';
+import type { InsuranceUpdateVendorUserMutationVariables } from '~/gql/graphql';
 
 interface VendorUserFormProps {
   open: boolean;
@@ -62,7 +63,7 @@ export const VendorUserForm = ({
     try {
       if (user) {
         // Update
-        const updateData: any = {
+        const updateData: InsuranceUpdateVendorUserMutationVariables = {
           id: user.id,
           name: formData.name || undefined,
           email: formData.email,

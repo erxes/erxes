@@ -1,20 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Select } from 'erxes-ui';
-
-interface Vendor {
-  id: string;
-  name: string;
-}
-
-interface Customer {
-  id: string;
-  firstName: string;
-  lastName: string;
-}
+import type { InsuranceCustomer, InsuranceVendor } from '../types';
 
 interface VendorCustomerSelectProps {
-  vendors: Vendor[];
-  customers: Customer[];
+  vendors: Pick<InsuranceVendor, 'id' | 'name'>[];
+  customers: Pick<InsuranceCustomer, 'id' | 'firstName' | 'lastName'>[];
   vendorId: string;
   customerId: string;
   onVendorChange: (value: string) => void;

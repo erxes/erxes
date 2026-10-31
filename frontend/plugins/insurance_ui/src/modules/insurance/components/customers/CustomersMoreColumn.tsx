@@ -2,8 +2,14 @@ import { IconEye, IconEdit, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Cell } from '@tanstack/table-core';
+import type { InsuranceCustomer } from '~/modules/insurance/types';
 
-export const CustomersMoreColumn = ({ cell }: { cell: any }) => {
+export const CustomersMoreColumn = ({
+  cell,
+}: {
+  cell: Cell<InsuranceCustomer, unknown>;
+}) => {
   const { t } = useTranslation('insurance');
   const customerId = cell.row.original.id;
 

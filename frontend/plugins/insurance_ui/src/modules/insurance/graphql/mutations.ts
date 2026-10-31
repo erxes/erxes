@@ -1,63 +1,110 @@
-import { gql } from '@apollo/client';
-import {
-  riskTypeFields,
-  insuranceTypeFields,
-  insuranceProductFields,
-  insuranceVendorFields,
-  vendorUserFields,
-  insuranceCustomerFields,
-  insuranceContractFields,
-} from './queries';
+import { gql } from '~/gql';
 
 // Risk Type Mutations
-export const CREATE_RISK_TYPE = gql`
-  mutation CreateRiskType($name: String!, $description: String) {
+export const CREATE_RISK_TYPE = gql(`
+  mutation InsuranceCreateRiskType($name: String!, $description: String) {
     createRiskType(name: $name, description: $description) {
-      ${riskTypeFields}
+      id
+      name
+      description
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_RISK_TYPE = gql`
-  mutation UpdateRiskType($id: ID!, $name: String, $description: String) {
+export const UPDATE_RISK_TYPE = gql(`
+  mutation InsuranceUpdateRiskType(
+    $id: ID!
+    $name: String
+    $description: String
+  ) {
     updateRiskType(id: $id, name: $name, description: $description) {
-      ${riskTypeFields}
+      id
+      name
+      description
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_RISK_TYPE = gql`
-  mutation DeleteRiskType($id: ID!) {
+export const DELETE_RISK_TYPE = gql(`
+  mutation InsuranceDeleteRiskType($id: ID!) {
     deleteRiskType(id: $id)
   }
-`;
+`);
 
 // Insurance Type Mutations
-export const CREATE_INSURANCE_TYPE = gql`
-  mutation CreateInsuranceType($name: String!, $attributes: [AttributeInput!], $isCitizen: Boolean) {
-    createInsuranceType(name: $name, attributes: $attributes, isCitizen: $isCitizen) {
-      ${insuranceTypeFields}
+export const CREATE_INSURANCE_TYPE = gql(`
+  mutation InsuranceCreateType(
+    $name: String!
+    $attributes: [AttributeInput!]
+    $isCitizen: Boolean
+  ) {
+    createInsuranceType(
+      name: $name
+      attributes: $attributes
+      isCitizen: $isCitizen
+    ) {
+      id
+      name
+      isCitizen
+      attributes {
+        name
+        dataType
+        required
+        description
+        options
+        min
+        max
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_TYPE = gql`
-  mutation UpdateInsuranceType($id: ID!, $name: String, $attributes: [AttributeInput!], $isCitizen: Boolean) {
-    updateInsuranceType(id: $id, name: $name, attributes: $attributes, isCitizen: $isCitizen) {
-      ${insuranceTypeFields}
+export const UPDATE_INSURANCE_TYPE = gql(`
+  mutation InsuranceUpdateType(
+    $id: ID!
+    $name: String
+    $attributes: [AttributeInput!]
+    $isCitizen: Boolean
+  ) {
+    updateInsuranceType(
+      id: $id
+      name: $name
+      attributes: $attributes
+      isCitizen: $isCitizen
+    ) {
+      id
+      name
+      isCitizen
+      attributes {
+        name
+        dataType
+        required
+        description
+        options
+        min
+        max
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_TYPE = gql`
-  mutation DeleteInsuranceType($id: ID!) {
+export const DELETE_INSURANCE_TYPE = gql(`
+  mutation InsuranceDeleteType($id: ID!) {
     deleteInsuranceType(id: $id)
   }
-`;
+`);
 
 // Insurance Product Mutations
-export const CREATE_INSURANCE_PRODUCT = gql`
-  mutation CreateInsuranceProduct(
+export const CREATE_INSURANCE_PRODUCT = gql(`
+  mutation InsuranceCreateProduct(
     $name: String!
     $insuranceTypeId: ID!
     $coveredRisks: [CoveredRiskInput!]!
@@ -79,13 +126,63 @@ export const CREATE_INSURANCE_PRODUCT = gql`
       deductibleConfig: $deductibleConfig
       regionIds: $regionIds
     ) {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_PRODUCT = gql`
-  mutation UpdateInsuranceProduct(
+export const UPDATE_INSURANCE_PRODUCT = gql(`
+  mutation InsuranceUpdateProduct(
     $id: ID!
     $name: String
     $coveredRisks: [CoveredRiskInput!]
@@ -107,76 +204,406 @@ export const UPDATE_INSURANCE_PRODUCT = gql`
       deductibleConfig: $deductibleConfig
       regionIds: $regionIds
     ) {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_PRODUCT = gql`
-  mutation DeleteInsuranceProduct($id: ID!) {
+export const DELETE_INSURANCE_PRODUCT = gql(`
+  mutation InsuranceDeleteProduct($id: ID!) {
     deleteInsuranceProduct(id: $id)
   }
-`;
+`);
 
 // Vendor Mutations
-export const CREATE_VENDOR = gql`
-  mutation CreateVendor($name: String!) {
+export const CREATE_VENDOR = gql(`
+  mutation InsuranceCreateVendor($name: String!) {
     createVendor(name: $name) {
-      ${insuranceVendorFields}
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_VENDOR = gql`
-  mutation UpdateVendor($id: ID!, $name: String!) {
+export const UPDATE_VENDOR = gql(`
+  mutation InsuranceUpdateVendor($id: ID!, $name: String!) {
     updateVendor(id: $id, name: $name) {
-      ${insuranceVendorFields}
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const ADD_PRODUCT_TO_VENDOR = gql`
-  mutation AddProductToVendor($vendorId: ID!, $productId: ID!, $pricingOverride: JSON, $discountTiers: [DiscountTierInput!]) {
-    addProductToVendor(vendorId: $vendorId, productId: $productId, pricingOverride: $pricingOverride, discountTiers: $discountTiers) {
-      ${insuranceVendorFields}
+export const ADD_PRODUCT_TO_VENDOR = gql(`
+  mutation InsuranceAddProductToVendor(
+    $vendorId: ID!
+    $productId: ID!
+    $pricingOverride: JSON
+    $discountTiers: [DiscountTierInput!]
+  ) {
+    addProductToVendor(
+      vendorId: $vendorId
+      productId: $productId
+      pricingOverride: $pricingOverride
+      discountTiers: $discountTiers
+    ) {
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const REMOVE_PRODUCT_FROM_VENDOR = gql`
-  mutation RemoveProductFromVendor($vendorId: ID!, $productId: ID!) {
+export const REMOVE_PRODUCT_FROM_VENDOR = gql(`
+  mutation InsuranceRemoveProductFromVendor($vendorId: ID!, $productId: ID!) {
     removeProductFromVendor(vendorId: $vendorId, productId: $productId) {
-      ${insuranceVendorFields}
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
 // Customer Mutations
-export const CREATE_CUSTOMER = gql`
-  mutation CreateCustomer($input: InsuranceCustomerInput!) {
+export const CREATE_CUSTOMER = gql(`
+  mutation InsuranceCreateCustomer($input: InsuranceCustomerInput!) {
     createCustomer(input: $input) {
-      ${insuranceCustomerFields}
+      id
+      firstName
+      lastName
+      type
+      registrationNumber
+      email
+      phone
+      companyName
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_CUSTOMER = gql`
-  mutation UpdateCustomer($id: ID!, $input: InsuranceCustomerInput) {
+export const UPDATE_CUSTOMER = gql(`
+  mutation InsuranceUpdateCustomer($id: ID!, $input: InsuranceCustomerInput) {
     updateCustomer(id: $id, input: $input) {
-      ${insuranceCustomerFields}
+      id
+      firstName
+      lastName
+      type
+      registrationNumber
+      email
+      phone
+      companyName
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_CUSTOMER = gql`
-  mutation DeleteCustomer($id: ID!) {
+export const DELETE_CUSTOMER = gql(`
+  mutation InsuranceDeleteCustomer($id: ID!) {
     deleteCustomer(id: $id)
   }
-`;
+`);
 
 // Contract Mutations
-export const CREATE_INSURANCE_CONTRACT = gql`
-  mutation CreateInsuranceContract(
+export const CREATE_INSURANCE_CONTRACT = gql(`
+  mutation InsuranceCreateContract(
     $vendorId: ID!
     $customerId: ID!
     $productId: ID!
@@ -194,94 +621,210 @@ export const CREATE_INSURANCE_CONTRACT = gql`
       endDate: $endDate
       paymentKind: $paymentKind
     ) {
-      ${insuranceContractFields}
+      id
+      contractNumber
+      vendor {
+        id
+        name
+      }
+      customer {
+        id
+        firstName
+        lastName
+        type
+        registrationNumber
+        email
+        phone
+        companyName
+        createdAt
+        updatedAt
+      }
+      insuranceType {
+        id
+        name
+      }
+      insuranceProduct {
+        id
+        name
+        pdfContent
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      chargedAmount
+      startDate
+      endDate
+      insuredObject
+      paymentKind
+      paymentStatus
+      pdfContent
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const GENERATE_CONTRACT_PDF = gql`
-  mutation GenerateContractPDF($contractId: ID!) {
+export const GENERATE_CONTRACT_PDF = gql(`
+  mutation InsuranceGenerateContractPDF($contractId: ID!) {
     generateContractPDF(contractId: $contractId) {
       success
       base64
       filename
     }
   }
-`;
+`);
 
 // Vendor User Mutations
-export const CREATE_VENDOR_USER = gql`
-  mutation CreateVendorUser($name: String, $email: String!, $phone: String, $password: String!, $vendorId: ID!, $role: String) {
-    createVendorUser(name: $name, email: $email, phone: $phone, password: $password, vendorId: $vendorId, role: $role) {
-      ${vendorUserFields}
+export const CREATE_VENDOR_USER = gql(`
+  mutation InsuranceCreateVendorUser(
+    $name: String
+    $email: String!
+    $phone: String
+    $password: String!
+    $vendorId: ID!
+    $role: String
+  ) {
+    createVendorUser(
+      name: $name
+      email: $email
+      phone: $phone
+      password: $password
+      vendorId: $vendorId
+      role: $role
+    ) {
+      id
+      name
+      email
+      phone
+      vendor {
+        id
+        name
+      }
+      role
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_VENDOR_USER = gql`
-  mutation UpdateVendorUser($id: ID!, $name: String, $email: String, $phone: String, $password: String, $role: String) {
-    updateVendorUser(id: $id, name: $name, email: $email, phone: $phone, password: $password, role: $role) {
-      ${vendorUserFields}
+export const UPDATE_VENDOR_USER = gql(`
+  mutation InsuranceUpdateVendorUser(
+    $id: ID!
+    $name: String
+    $email: String
+    $phone: String
+    $password: String
+    $role: String
+  ) {
+    updateVendorUser(
+      id: $id
+      name: $name
+      email: $email
+      phone: $phone
+      password: $password
+      role: $role
+    ) {
+      id
+      name
+      email
+      phone
+      vendor {
+        id
+        name
+      }
+      role
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_VENDOR_USER = gql`
-  mutation DeleteVendorUser($id: ID!) {
+export const DELETE_VENDOR_USER = gql(`
+  mutation InsuranceDeleteVendorUser($id: ID!) {
     deleteVendorUser(id: $id)
   }
-`;
+`);
 
 // Region Mutations
-import { insuranceRegionFields } from './queries';
 
-export const CREATE_INSURANCE_REGION = gql`
-  mutation CreateInsuranceRegion($name: String!, $countries: [String!]!) {
+export const CREATE_INSURANCE_REGION = gql(`
+  mutation InsuranceCreateRegion($name: String!, $countries: [String!]!) {
     createInsuranceRegion(name: $name, countries: $countries) {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const UPDATE_INSURANCE_REGION = gql`
-  mutation UpdateInsuranceRegion($id: ID!, $name: String, $countries: [String!]) {
+export const UPDATE_INSURANCE_REGION = gql(`
+  mutation InsuranceUpdateRegion(
+    $id: ID!
+    $name: String
+    $countries: [String!]
+  ) {
     updateInsuranceRegion(id: $id, name: $name, countries: $countries) {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const DELETE_INSURANCE_REGION = gql`
-  mutation DeleteInsuranceRegion($id: ID!) {
+export const DELETE_INSURANCE_REGION = gql(`
+  mutation InsuranceDeleteRegion($id: ID!) {
     deleteInsuranceRegion(id: $id)
   }
-`;
+`);
 
-export const ADD_COUNTRY_TO_REGION = gql`
-  mutation AddCountryToRegion($regionId: ID!, $country: String!) {
+export const ADD_COUNTRY_TO_REGION = gql(`
+  mutation InsuranceAddCountryToRegion($regionId: ID!, $country: String!) {
     addCountryToRegion(regionId: $regionId, country: $country) {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const REMOVE_COUNTRY_FROM_REGION = gql`
-  mutation RemoveCountryFromRegion($regionId: ID!, $country: String!) {
+export const REMOVE_COUNTRY_FROM_REGION = gql(`
+  mutation InsuranceRemoveCountryFromRegion($regionId: ID!, $country: String!) {
     removeCountryFromRegion(regionId: $regionId, country: $country) {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const SEED_INSURANCE_REGIONS = gql`
-  mutation SeedInsuranceRegions {
+export const SEED_INSURANCE_REGIONS = gql(`
+  mutation InsuranceSeedRegions {
     seedInsuranceRegions {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export default {
+export const mutations = {
   CREATE_RISK_TYPE,
   UPDATE_RISK_TYPE,
   DELETE_RISK_TYPE,

@@ -25,7 +25,7 @@ import {
 const fullNameColumn: ColumnDef<InsuranceCustomer> = {
   id: 'fullName',
   accessorKey: 'firstName',
-  header: () => {
+  header: function CustomerNameHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconUser} label={t('name')} />;
   },
@@ -45,11 +45,11 @@ const fullNameColumn: ColumnDef<InsuranceCustomer> = {
 const typeColumn: ColumnDef<InsuranceCustomer> = {
   id: 'type',
   accessorKey: 'type',
-  header: () => {
+  header: function CustomerTypeHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconBuilding} label={t('type')} />;
   },
-  cell: ({ cell }) => {
+  cell: function CustomerTypeCell({ cell }) {
     const { t } = useTranslation('insurance');
     const type = cell.getValue() as string;
     return (
@@ -57,7 +57,9 @@ const typeColumn: ColumnDef<InsuranceCustomer> = {
         {type === 'company' ? (
           <Badge className="bg-blue-100 text-blue-800">{t('company')}</Badge>
         ) : (
-          <Badge className="bg-green-100 text-green-800">{t('individual')}</Badge>
+          <Badge className="bg-green-100 text-green-800">
+            {t('individual')}
+          </Badge>
         )}
       </RecordTableInlineCell>
     );

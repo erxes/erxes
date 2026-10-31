@@ -2,11 +2,16 @@ import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDeleteRiskType } from '~/modules/insurance/hooks';
+import { Cell } from '@tanstack/table-core';
+import type { RiskType } from '~/modules/insurance/types';
 
-export const RisksMoreColumn = ({ cell }: { cell: any }) => {
+export const RisksMoreColumn = ({
+  cell,
+}: {
+  cell: Cell<RiskType, unknown>;
+}) => {
   const { t } = useTranslation('insurance');
   const riskId = cell.row.original.id;
-  const riskName = cell.row.original.name;
   const { deleteRiskType, loading } = useDeleteRiskType();
 
   const handleDelete = async () => {

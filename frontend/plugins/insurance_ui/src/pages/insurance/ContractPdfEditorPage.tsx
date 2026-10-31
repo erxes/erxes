@@ -12,17 +12,18 @@ import { Breadcrumb, Button, Separator, Card, Skeleton } from 'erxes-ui';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
 import { generateContractHTML } from '~/utils/contractPdfGenerator';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
 
-const SAVE_CONTRACT_PDF = gql`
-  mutation SaveContractPDF($contractId: ID!, $pdfContent: String!) {
+const SAVE_CONTRACT_PDF = gql(`
+  mutation InsuranceSaveContractPDF($contractId: ID!, $pdfContent: String!) {
     saveContractPDF(contractId: $contractId, pdfContent: $pdfContent) {
       id
       pdfContent
     }
   }
-`;
+`);
 
 export const ContractPdfEditorPage = () => {
   const { t } = useTranslation('insurance');
@@ -36,8 +37,8 @@ export const ContractPdfEditorPage = () => {
   useEffect(() => {
     if (contract) {
       // Use saved PDF content if exists, otherwise generate from template
-      if ((contract as any).pdfContent) {
-        setHtmlContent((contract as any).pdfContent);
+      if (contract.pdfContent) {
+        setHtmlContent(contract.pdfContent);
       } else {
         setHtmlContent(generateContractHTML(contract));
       }

@@ -2,10 +2,12 @@ import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDeleteInsuranceType } from '~/modules/insurance/hooks';
+import { Cell } from '@tanstack/table-core';
+import type { InsuranceType } from '~/modules/insurance/types';
 
 interface InsuranceTypesMoreColumnProps {
-  cell: any;
-  onEdit?: (insuranceType: any) => void;
+  cell: Cell<InsuranceType, unknown>;
+  onEdit?: (insuranceType: InsuranceType) => void;
   onDeleted?: () => void;
 }
 
