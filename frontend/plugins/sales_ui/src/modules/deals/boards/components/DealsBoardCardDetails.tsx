@@ -24,9 +24,10 @@ export interface DealCardRelationItem {
 
 type DealCardProductsProps = {
   items: DealCardProductItem[];
-  label: string;
+  label: React.ReactNode;
   totalLabel: string;
   muted?: boolean;
+  maxVisible?: number;
 };
 
 type DealCardRelationDetailsProps = {
@@ -81,12 +82,13 @@ export const DealCardProducts = ({
   label,
   totalLabel,
   muted,
+  maxVisible = MAX_VISIBLE_PRODUCTS,
 }: DealCardProductsProps) => {
   if (!items.length) {
     return null;
   }
 
-  const visibleItems = items.slice(0, MAX_VISIBLE_PRODUCTS);
+  const visibleItems = items.slice(0, maxVisible);
   const remainingCount = items.length - visibleItems.length;
   const totals = items.reduce<Record<string, number>>((result, item) => {
     const currency = item.currency || '';
@@ -143,9 +145,7 @@ export const DealCardProducts = ({
               </Tooltip.Trigger>
               <Tooltip.Content>
                 <TooltipItemList
-                  items={items
-                    .slice(MAX_VISIBLE_PRODUCTS)
-                    .map((item) => item.name)}
+                  items={items.slice(maxVisible).map((item) => item.name)}
                 />
               </Tooltip.Content>
             </Tooltip>

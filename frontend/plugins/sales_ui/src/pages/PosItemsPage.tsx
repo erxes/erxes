@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
-import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
 import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
 
 export const PosItemsPage = () => {
@@ -47,7 +46,6 @@ export const PosItemsPage = () => {
           <PosItemsRecordTable posId={posId} />
         </div>
       </div>
-      <PosItemDetailSheet />
     </>
   );
 };

@@ -1,25 +1,23 @@
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
 
 interface ClickableBillNumberProps {
   value: string;
-  row: any;
+  orderId?: string;
 }
 
 export const ClickableBillNumber = ({
   value,
-  row,
+  orderId,
 }: ClickableBillNumberProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { openRecord } = useSidePanel();
 
   const handleClick = () => {
-    const orderId = row.original._id;
     if (!orderId) {
       return;
     }
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('pos_order_id', orderId);
-    setSearchParams(newSearchParams);
+    openRecord({ contentType: POS_ORDER_CONTENT_TYPE, contentId: orderId });
   };
 
   return (

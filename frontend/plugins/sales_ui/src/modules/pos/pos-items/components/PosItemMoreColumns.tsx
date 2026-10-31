@@ -1,27 +1,26 @@
 import { Cell } from '@tanstack/react-table';
-import { useSearchParams } from 'react-router-dom';
 import { RecordTable } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 import { IPosItem } from '@/pos/pos-items/types/posItem';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { toPosItemOrderId } from '@/pos/utils/posOrderJson';
 
 export const PosItemMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IPosItem, unknown>;
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { _id } = cell.row.original;
+  const { openRecord } = useSidePanel();
 
-  const setOpen = (posItemId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('pos_order_id', posItemId);
-    setSearchParams(newSearchParams);
+  const setOpen = (orderId: string) => {
+    openRecord({ contentType: POS_ORDER_CONTENT_TYPE, contentId: orderId });
   };
 
   return (
     <RecordTable.MoreButton
       className="w-full h-full"
       onClick={() => {
-        setOpen(_id);
+        setOpen(toPosItemOrderId(cell.row.original));
       }}
     />
   );

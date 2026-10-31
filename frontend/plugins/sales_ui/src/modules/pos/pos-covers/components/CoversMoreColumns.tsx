@@ -1,12 +1,18 @@
 import { ICovers } from '@/pos/pos-covers/types/posCover';
-import { renderingCoverDetailAtom } from '@/pos/states/coverDetail';
+import { POS_COVER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { ApolloError } from '@apollo/client';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, useConfirm, useToast } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
+import {
+  Combobox,
+  Command,
+  Popover,
+  RecordTable,
+  useConfirm,
+  useToast,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
 import { useRemovePosCover } from '../hooks/usePosCoverRemove';
 
 export const useCoverMoreColumnCell = ({
@@ -14,23 +20,18 @@ export const useCoverMoreColumnCell = ({
 }: {
   cell: Cell<ICovers, unknown>;
 }) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const setRenderingCoverDetail = useSetAtom(renderingCoverDetailAtom);
+  const { openRecord, record, close } = useSidePanel();
   const { _id } = cell.row.original;
   const { t } = useTranslation('sales');
   const { removePosCover } = useRemovePosCover();
   const { toast } = useToast();
   const { confirm } = useConfirm();
 
-  const setOpen = (orderId: string) => {
-    if (!orderId) {
-      console.warn('Cover ID is undefined, cannot open cover details');
+  const setOpen = (coverId: string) => {
+    if (!coverId) {
       return;
     }
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('pos_cover_id', orderId);
-    setSearchParams(newSearchParams);
-    setRenderingCoverDetail(true);
+    openRecord({ contentType: POS_COVER_CONTENT_TYPE, contentId: coverId });
   };
 
   const handleDelete = () => {
@@ -45,6 +46,9 @@ export const useCoverMoreColumnCell = ({
             title: t('success'),
             description: t('pos-cover-deleted', { count: 1 }),
           });
+          if (record?.contentId === _id) {
+            close();
+          }
         },
         onError: (e: ApolloError) => {
           toast({

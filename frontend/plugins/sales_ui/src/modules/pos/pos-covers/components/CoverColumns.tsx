@@ -25,7 +25,12 @@ export const coverColumns: (t: TFunction) => ColumnDef<ICovers>[] = (t) => [
     accessorKey: 'posName',
     header: () => <RecordTable.InlineHead icon={IconPhone} label={t('pos')} />,
     cell: ({ row }) => {
-      return <ClickablePosName value={row.original.posName || ''} row={row} />;
+      return (
+        <ClickablePosName
+          value={row.original.posName || ''}
+          coverId={row.original._id}
+        />
+      );
     },
     size: 400,
   },
