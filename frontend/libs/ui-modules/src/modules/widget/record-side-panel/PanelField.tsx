@@ -1,6 +1,7 @@
 import type { Icon } from '@tabler/icons-react';
 import { cn, RecordTableInlineCell } from 'erxes-ui';
 import { forwardRef } from 'react';
+import { PanelLabel } from './PanelLabel';
 
 // One field in the side panel: its label, then the value as a record table
 // cell. Click to edit; Enter saves and Escape cancels, as in the list.
@@ -20,7 +21,7 @@ export const PanelField = ({
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
     <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground">
       {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
-      <span className="truncate">{label}</span>
+      <PanelLabel>{label}</PanelLabel>
     </span>
     {/* Record table cells are 32px and 14px; the panel's rows are a little
         tighter and their values the size of their labels. Switches and

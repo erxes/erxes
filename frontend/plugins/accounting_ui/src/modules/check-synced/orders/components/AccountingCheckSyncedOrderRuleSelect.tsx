@@ -9,11 +9,12 @@ import {
   useFilterContext,
   useMultiQueryState,
 } from 'erxes-ui';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
 import { ACCOUNTING_SYNC_ORDER_RULES_QUERY } from '../graphql/checkSyncedOrders';
 import { AccountingOrderRule } from '../types';
+import { useAccountingPosList } from './AccountingCheckSyncedOrderSelects';
 
 const ORDER_RETURN_TYPE_LABELS = {
   delete: 'delete',
@@ -21,10 +22,21 @@ const ORDER_RETURN_TYPE_LABELS = {
   onlySale: 'sales-only',
 };
 
-const getRuleLabel = (
-  rule: AccountingOrderRule | undefined,
-  fallback: string,
-) => rule?.value?.title || rule?.subId || rule?._id || fallback;
+const getRulePosId = (rule: AccountingOrderRule) =>
+  rule.value?.posId || rule.subId || '';
+
+const useOrderRuleTitle = () => {
+  const { t } = useTranslation('accounting');
+  const { data } = useAccountingPosList();
+  const posNames = useMemo(
+    () =>
+      new Map((data?.posList ?? []).map((pos) => [pos._id, pos.name ?? ''])),
+    [data?.posList],
+  );
+
+  return (rule: AccountingOrderRule) =>
+    rule.value?.title || posNames.get(getRulePosId(rule)) || t('untitled-rule');
+};
 
 const getRuleTypeLabelKeys = (rule: AccountingOrderRule) => {
   const returnType = rule.value?.returnType;
@@ -61,7 +73,7 @@ const useApplyOrderRuleFilter = () => {
     applyRule: (rule?: AccountingOrderRule) => {
       setQueries({
         orderRuleId: rule?._id || null,
-        pos: pos || rule?.value?.posId || rule?.subId || null,
+        pos: pos || (rule && getRulePosId(rule)) || null,
       });
     },
   };
@@ -75,6 +87,7 @@ const AccountingCheckSyncedOrderRuleContent = ({
   const { t } = useTranslation('accounting');
   const { data, loading } = useAccountingCheckSyncedOrderRules();
   const { ruleId, applyRule } = useApplyOrderRuleFilter();
+  const getRuleTitle = useOrderRuleTitle();
   const rules = data?.accountingsConfigs || [];
 
   if (loading) {
@@ -92,28 +105,32 @@ const AccountingCheckSyncedOrderRuleContent = ({
         <span className="text-muted-foreground">{t('no-rules-found')}</span>
       </Command.Empty>
       <Command.List>
-        {rules.map((rule) => (
-          <Command.Item
-            key={rule._id}
-            value={rule._id}
-            onSelect={() => {
-              applyRule(rule);
-              onSelect?.();
-            }}
-          >
-            <span className="flex flex-col">
-              <span className="font-medium">
-                {getRuleLabel(rule, t('Select rule'))}
+        {rules.map((rule) => {
+          const title = getRuleTitle(rule);
+          const typeLabel = getRuleTypeLabelKeys(rule)
+            .map((label) => t(label))
+            .join(' / ');
+
+          return (
+            <Command.Item
+              key={rule._id}
+              value={rule._id}
+              keywords={[title, typeLabel]}
+              onSelect={() => {
+                applyRule(rule);
+                onSelect?.();
+              }}
+            >
+              <span className="flex flex-col">
+                <span className="font-medium">{title}</span>
+                <span className="text-xs text-muted-foreground">
+                  {typeLabel}
+                </span>
               </span>
-              <span className="text-xs text-muted-foreground">
-                {getRuleTypeLabelKeys(rule)
-                  .map((label) => t(label))
-                  .join(' / ')}
-              </span>
-            </span>
-            <Combobox.Check checked={ruleId === rule._id} />
-          </Command.Item>
-        ))}
+              <Combobox.Check checked={ruleId === rule._id} />
+            </Command.Item>
+          );
+        })}
       </Command.List>
     </Command>
   );
@@ -163,6 +180,7 @@ export const AccountingCheckSyncedOrderRuleFilterBar = () => {
   const [open, setOpen] = useState(false);
   const { data } = useAccountingCheckSyncedOrderRules();
   const { ruleId } = useApplyOrderRuleFilter();
+  const getRuleTitle = useOrderRuleTitle();
   const rule = data?.accountingsConfigs?.find((item) => item._id === ruleId);
 
   return (
@@ -174,7 +192,7 @@ export const AccountingCheckSyncedOrderRuleFilterBar = () => {
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
           <Filter.BarButton filterKey="orderRuleId">
-            {getRuleLabel(rule, t('Select rule'))}
+            {rule ? getRuleTitle(rule) : t('Select rule')}
           </Filter.BarButton>
         </Popover.Trigger>
         <Combobox.Content>
