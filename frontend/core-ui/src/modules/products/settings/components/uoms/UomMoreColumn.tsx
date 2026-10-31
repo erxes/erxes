@@ -1,19 +1,13 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext } from '@tanstack/react-table';
 import { ColumnDef } from '@tanstack/table-core';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  Sheet,
-  useConfirm,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 import { useState } from 'react';
 import { Can, IUom } from 'ui-modules';
-import { useUomsRemove } from '../../hooks/useUomsRemove';
-import { UomForm } from './UomForm';
+import { useUomsRemove } from '@/products/settings/hooks/useUomsRemove';
+import { UomForm } from '@/products/settings/components/uoms/UomForm';
 
 export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
   const uom = props.row.original;
@@ -66,11 +60,16 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
         </Combobox.Content>
       </Popover>
 
-      <Sheet open={isEditOpen} onOpenChange={setIsEditOpen} modal>
-        <Sheet.View className="p-0 sm:max-w-lg">
+      <CoreModulePanel
+        name={`products/settings/uoms/UomMoreColumn/${uom._id}`}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        modal
+      >
+        <CoreModulePanel.View className="p-0 sm:max-w-lg">
           <UomForm uom={uom} onOpenChange={setIsEditOpen} />
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </>
   );
 };

@@ -1,5 +1,6 @@
 import { OperationVariables, useMutation } from '@apollo/client';
 import { CUSTOMERS_MERGE_MUTATION } from '../graphql/mutations/mergeCustomers';
+import { GET_CUSTOMERS } from '../graphql/queries/getCustomers';
 import { ICustomer } from 'ui-modules';
 import { useRecordTableCursor } from 'erxes-ui';
 import { useIsCustomerLeadSessionKey } from './useCustomerLeadSessionKey';
@@ -14,6 +15,7 @@ export const useMergeCustomers = () => {
   });
   const [_mergeCustomers, { loading, error }] = useMutation<ICustomerMergeData>(
     CUSTOMERS_MERGE_MUTATION,
+    { refetchQueries: [GET_CUSTOMERS], awaitRefetchQueries: true },
   );
 
   const mergeCustomers = (options?: OperationVariables) => {

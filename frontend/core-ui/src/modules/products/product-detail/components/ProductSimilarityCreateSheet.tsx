@@ -36,8 +36,8 @@ const buildInitialInfo = (product?: ProductDetail | null): ISimilarityInfo => {
     attachmentMore: Array.isArray(product.attachmentMore)
       ? product.attachmentMore
       : product.attachmentMore
-        ? [product.attachmentMore]
-        : undefined,
+      ? [product.attachmentMore]
+      : undefined,
   };
 
   return Object.fromEntries(
@@ -72,7 +72,7 @@ export const ProductSimilarityCreateSheet = ({
     >;
 
     const propertiesData: Record<string, string[]> = {};
-    
+
     for (const [fieldId, raw] of Object.entries(productProps)) {
       if (!optionFieldIds.has(fieldId)) continue;
       const value = Array.isArray(raw) ? raw[0] : raw;
@@ -98,11 +98,9 @@ export const ProductSimilarityCreateSheet = ({
     };
   }, [product, fields]);
 
-  if (!open) return null;
-
   return (
     <BulkProductSheetForm
-      open
+      open={open}
       onOpenChange={onOpenChange}
       similarity={initialSimilarity}
       saving={loading}

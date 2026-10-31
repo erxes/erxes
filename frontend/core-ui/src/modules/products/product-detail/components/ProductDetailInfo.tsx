@@ -4,16 +4,16 @@ import { SelectCompany } from 'ui-modules/modules/contacts';
 import { useTranslation } from 'react-i18next';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { useFormContext } from 'react-hook-form';
-import { ProductConditionsField } from './ProductConditionsField';
+import { ProductConditionsField } from '@/products/product-detail/components/ProductConditionsField';
 
-export function ProductDetailInfo() {
+export function ProductDetailInfo({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
 
   return (
     <InfoCard title={t('more-info')}>
       <InfoCard.Content>
-        <div className="grid grid-cols-3 gap-4">
+        <div className={compact ? 'grid gap-3' : 'grid grid-cols-3 gap-4'}>
           <Form.Field
             control={form.control}
             name="scopeBrandIds"

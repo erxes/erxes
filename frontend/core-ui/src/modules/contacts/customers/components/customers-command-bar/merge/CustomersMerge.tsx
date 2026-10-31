@@ -1,18 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
-import { MergeSheet } from './MergeSheet';
+import { CUSTOMERS_MERGE_PANEL, MergeSheet } from './MergeSheet';
+import { useSidePanel } from 'ui-modules';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
 import { ICustomer } from '@/contacts/types/customerType';
 import { MergingFieldContainer } from './MergingFieldContainer';
 import { MergeMap, FieldType } from './MergeMap';
-import { ChoiceboxGroup, useToast } from 'erxes-ui';
+import { ChoiceboxGroup, RecordTable, useToast } from 'erxes-ui';
 import { useMergeCustomers } from '@/contacts/customers/hooks/useMergeCustomers';
 import { ApolloError } from '@apollo/client';
-import { Row } from '@tanstack/table-core';
 
 interface MergeProps {
   disabled?: boolean;
   customers: ICustomer[];
-  rows: Row<ICustomer>[];
 }
 
 interface FieldMapping {
@@ -22,12 +22,10 @@ interface FieldMapping {
   parentKey?: string;
 }
 
-export const CustomersMerge = ({
-  disabled = false,
-  customers,
-  rows,
-}: MergeProps) => {
+export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
   const { toast } = useToast();
+  const { table } = RecordTable.useRecordTable();
+  const { dismissPath } = useSidePanel();
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();
@@ -45,9 +43,8 @@ export const CustomersMerge = ({
         });
       },
       onCompleted: () => {
-        rows.forEach((row) => {
-          row.toggleSelected(false);
-        });
+        dismissPath(getModulePanelPath(CUSTOMERS_MERGE_PANEL));
+        table.resetRowSelection(true);
         setSheetOpen(false);
         toast({
           title: t('success-title'),

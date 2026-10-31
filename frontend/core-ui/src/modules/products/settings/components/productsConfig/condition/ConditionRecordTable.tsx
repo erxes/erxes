@@ -1,14 +1,17 @@
-import { IconListDetails } from '@tabler/icons-react';
+import { IconListDetails, IconPlus } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
+  Button,
 } from 'erxes-ui';
+import { Can, useSidePanel } from 'ui-modules';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
 import { useTranslation } from 'react-i18next';
 import { useProductConditions } from '@/products/settings/hooks/useProductConditions';
 import { conditionMoreColumn } from './ConditionMoreColumn';
-import { ConditionSheet } from './ConditionSheet';
+import { CONDITION_CREATE_PANEL } from './ConditionSheet';
 import { IProductCondition } from './types';
 
 const columns: ColumnDef<IProductCondition>[] = [
@@ -60,6 +63,7 @@ const columns: ColumnDef<IProductCondition>[] = [
 ];
 
 export const ConditionRecordTable = () => {
+  const { openPath } = useSidePanel();
   const { t } = useTranslation('product');
   const { conditions, loading } = useProductConditions();
 
@@ -80,13 +84,24 @@ export const ConditionRecordTable = () => {
             'The states a product can be sold in, e.g. Dented or Display unit.',
           )}
         </p>
-        <ConditionSheet />
+        <Can action="productsConfigsManage">
+          <Button
+            onClick={() => openPath(getModulePanelPath(CONDITION_CREATE_PANEL))}
+          >
+            <IconPlus />
+            {t('add-condition', 'Add condition')}
+          </Button>
+        </Can>
       </div>
     );
   }
 
   return (
-    <RecordTable.Provider columns={columns} data={conditions} className="h-full">
+    <RecordTable.Provider
+      columns={columns}
+      data={conditions}
+      className="h-full"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

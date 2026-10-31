@@ -1,6 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IconCheck, IconPackage, IconTagPlus } from '@tabler/icons-react';
 import {
-  Badge,
   Button,
   Combobox,
   CurrencyField,
@@ -9,7 +9,6 @@ import {
   Popover,
   ScrollArea,
   Select,
-  Sheet,
   Spinner,
   Textarea,
   toast,
@@ -23,18 +22,18 @@ import {
   TagBadge,
   type ProductAttachmentItem,
 } from 'ui-modules';
-import { usePackageDetail } from '../hooks/usePackageDetail';
+import { usePackageDetail } from '@/products/packages/hooks/usePackageDetail';
 import {
   useChangePackageStatus,
   useEditPackage,
-} from '../hooks/usePackageMutations';
-import { usePricing } from '../hooks/usePricing';
+} from '@/products/packages/hooks/usePackageMutations';
+import { usePricing } from '@/products/packages/hooks/usePricing';
 import {
   IPackage,
   IPackageProduct,
   PACKAGE_STATUS_OPTIONS,
-} from '../types/Package';
-import { PackageProductPicker } from './PackageProductPicker';
+} from '@/products/packages/types/Package';
+import { PackageProductPicker } from '@/products/packages/components/PackageProductPicker';
 
 const Label = ({ children }: { children: React.ReactNode }) => (
   <label className="font-medium text-sm">{children}</label>
@@ -185,25 +184,26 @@ const PackageDetailEditor = ({
                 tagIds,
               },
             }),
-          statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
+          statusDirty &&
+            changeStatus({ variables: { _ids: [pkg._id], status } }),
         ].filter(Boolean),
       );
       toast({
         variant: 'success',
         title: t('package-updated', 'Package updated'),
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         variant: 'destructive',
         title: t('update-failed', 'Failed to update package'),
-        description: e?.message,
+        description: e instanceof Error ? e.message : undefined,
       });
     }
   };
 
   return (
     <>
-      <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
+      <CoreModulePanel.Content className="flex flex-auto p-0 overflow-hidden">
         <ScrollArea className="border-r w-2/5 h-full shrink-0">
           <div className="flex flex-col gap-4 p-5">
             <InfoCard title={t('basic-information', 'Basic information')}>
@@ -321,9 +321,9 @@ const PackageDetailEditor = ({
             disabled={saving}
           />
         </div>
-      </Sheet.Content>
+      </CoreModulePanel.Content>
 
-      <Sheet.Footer className="flex-none items-center gap-2">
+      <CoreModulePanel.Footer className="flex-none items-center gap-2">
         <div className="ml-auto flex gap-2">
           <Button type="button" variant="outline" onClick={onClose}>
             {t('close', 'Close')}
@@ -338,7 +338,7 @@ const PackageDetailEditor = ({
             {t('save', 'Save')}
           </Button>
         </div>
-      </Sheet.Footer>
+      </CoreModulePanel.Footer>
     </>
   );
 };
@@ -352,32 +352,35 @@ export const PackageDetailSheet = () => {
   const handleClose = () => setActivePackageId(null);
 
   return (
-    <Sheet
+    <CoreModulePanel
+      defaultWidth={1000}
+      maxWidth={1200}
+      name={'products/packages/PackageDetailSheet'}
       open={!!activePackageId}
       onOpenChange={(open) => {
         if (!open) handleClose();
       }}
     >
-      <Sheet.View className="p-0 sm:max-w-5xl">
+      <CoreModulePanel.View className="p-0 sm:max-w-5xl">
         <div className="flex flex-col flex-auto overflow-hidden">
-          <Sheet.Header className="flex gap-2">
+          <CoreModulePanel.Header className="flex gap-2">
             <IconPackage />
-            <Sheet.Title>
+            <CoreModulePanel.Title>
               {pkg?.name || t('package-detail', 'Package detail')}
-            </Sheet.Title>
-            <Sheet.Close />
-          </Sheet.Header>
+            </CoreModulePanel.Title>
+            <CoreModulePanel.Close />
+          </CoreModulePanel.Header>
 
           {loading && !pkg ? (
             <>
               <div className="flex flex-auto justify-center items-center">
                 <Spinner />
               </div>
-              <Sheet.Footer className="flex-none">
+              <CoreModulePanel.Footer className="flex-none">
                 <Button type="button" variant="outline" onClick={handleClose}>
                   {t('close', 'Close')}
                 </Button>
-              </Sheet.Footer>
+              </CoreModulePanel.Footer>
             </>
           ) : pkg ? (
             <PackageDetailEditor pkg={pkg} onClose={handleClose} />
@@ -386,15 +389,15 @@ export const PackageDetailSheet = () => {
               <div className="flex flex-auto justify-center items-center p-6 text-muted-foreground text-sm">
                 {t('package-not-found', 'Package not found')}
               </div>
-              <Sheet.Footer className="flex-none">
+              <CoreModulePanel.Footer className="flex-none">
                 <Button type="button" variant="outline" onClick={handleClose}>
                   {t('close', 'Close')}
                 </Button>
-              </Sheet.Footer>
+              </CoreModulePanel.Footer>
             </>
           )}
         </div>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
