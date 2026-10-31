@@ -218,11 +218,13 @@ export const SelectAssigneeTicketFormItem = ({
   onValueChange,
   scope,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -236,12 +238,12 @@ export const SelectAssigneeTicketFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectAssigneeValue />
         </SelectTriggerTicket>
-        <Combobox.Content>
+        <SelectTicketContent variant={variant}>
           <SelectTeamMemberContent />
-        </Combobox.Content>
+        </SelectTicketContent>
       </PopoverScoped>
     </SelectAssigneeProvider>
   );

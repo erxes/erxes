@@ -22,10 +22,7 @@ import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import clsx from 'clsx';
 import { ticketCountByBoardAtom } from '@/ticket/states/ticketsTotalCountState';
 import { IconPlus } from '@tabler/icons-react';
-import {
-  ticketCreateDefaultValuesState,
-  ticketCreateSheetState,
-} from '@/ticket/states/ticketCreateSheetState';
+import { useCreateTicketRecord } from '@/ticket/hooks/useCreateTicketRecord';
 import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/status/components/StatusInline';
 import { allTicketsMapState } from '@/ticket/states/allTicketsMapState';
@@ -340,12 +337,10 @@ const TicketCreateSheetTrigger = ({
   pipelineId?: string;
   channelId?: string;
 }) => {
-  const setOpenCreateticket = useSetAtom(ticketCreateSheetState);
-  const setDefaultValues = useSetAtom(ticketCreateDefaultValuesState);
+  const { openTicketDraft } = useCreateTicketRecord();
 
   const handleClick = () => {
-    setDefaultValues({ statusId, pipelineId, channelId });
-    setOpenCreateticket(true);
+    openTicketDraft({ statusId, pipelineId, channelId });
   };
 
   return (

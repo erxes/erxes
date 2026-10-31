@@ -1,12 +1,9 @@
 import { useConversationDetail } from '@/inbox/conversations/conversation-detail/hooks/useConversationDetail';
 import { AddTicketSheet } from '@/ticket/components/add-ticket/AddTicketSheet';
-import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { useQuery } from '@apollo/client';
 import { IconTicketOff } from '@tabler/icons-react';
 import { Spinner, useQueryState } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   getHostContacts,
@@ -54,9 +51,6 @@ export const TicketRelationWidget = ({
     skip: !contacts.companyId,
   });
 
-  const setTicketCreateDefaultValues = useSetAtom(
-    ticketCreateDefaultValuesState,
-  );
   const [conversationId] = useQueryState<string | null>('conversationId');
 
   const { conversationDetail } = useConversationDetail({
@@ -65,14 +59,6 @@ export const TicketRelationWidget = ({
     },
     skip: !conversationId,
   });
-
-  useEffect(() => {
-    if (!conversationDetail?.integration?.channelId) return;
-    setTicketCreateDefaultValues({
-      channelId: conversationDetail?.integration.channelId || undefined,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [conversationDetail]);
 
   if (customerTickets.loading || companyTickets.loading) {
     return <Spinner containerClassName="py-20" />;
@@ -101,6 +87,9 @@ export const TicketRelationWidget = ({
       >
         <AddTicketSheet
           contacts={contacts}
+          defaults={{
+            channelId: conversationDetail?.integration?.channelId || undefined,
+          }}
           variant="secondary"
           isRelation={true}
         />
@@ -114,6 +103,9 @@ export const TicketRelationWidget = ({
       actions={
         <AddTicketSheet
           contacts={contacts}
+          defaults={{
+            channelId: conversationDetail?.integration?.channelId || undefined,
+          }}
           variant="secondary"
           isRelation={true}
         />

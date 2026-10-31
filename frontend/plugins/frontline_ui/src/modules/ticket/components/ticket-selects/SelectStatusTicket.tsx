@@ -474,11 +474,13 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
   onValueChange,
   form,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   form?: UseFormReturn<TFieldValues>;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const control = form?.control as Control<FieldValues> | undefined;
   const pipelineId: string | undefined = useWatch({
@@ -512,12 +514,12 @@ export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
       pipelineId={pipelineId || undefined}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectStatusValue />
         </SelectTriggerTicket>
-        <Combobox.Content>
+        <SelectTicketContent variant={variant}>
           <SelectStatusContent allowCreate />
-        </Combobox.Content>
+        </SelectTicketContent>
       </PopoverScoped>
     </SelectStatusProvider>
   );
