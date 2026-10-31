@@ -15,6 +15,8 @@ import { TriagePanelActions } from './TriagePanelActions';
 import { TriagePanelDetail } from './TriagePanelDetail';
 import { TaskPanelNew } from './TaskPanelNew';
 import { TriagePanelNew } from './TriagePanelNew';
+import { TaskConnectionPanel } from '../contact/TaskConnectionPanel';
+import { TASK_CONNECTION_CONTENT_TYPE } from '../contact/taskContactConnection';
 
 const TaskPanelTitle = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
@@ -123,6 +125,13 @@ export const RecordPanel = ({
   contentId,
   view,
 }: IRecordPanelProps) => {
+  const { t } = useTranslation('operation');
+
+  if (contentType === TASK_CONNECTION_CONTENT_TYPE) {
+    if (view === 'title') return t('connect-task', 'Connect task');
+    return view === 'new' ? <TaskConnectionPanel /> : null;
+  }
+
   if (contentType === TRIAGE_CONTENT_TYPE) {
     return <TriagePanel triageId={contentId} view={view} />;
   }

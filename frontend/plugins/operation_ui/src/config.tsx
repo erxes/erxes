@@ -7,6 +7,7 @@ import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { TASK_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/taskContactConnection';
 
 const TaskStatusPropertyInput = lazy(() =>
   import('@/task/components/task-selects/TaskStatusPropertyInput').then(
@@ -66,16 +67,20 @@ export const CONFIG: IUIConfig = {
         icon: IconChecklist,
       },
     ],
-    // A customer's / company's tasks and projects on their overview
-    // (`./contactWidget`).
+
     contactWidgets: [
       { name: 'tasks', label: 'Tasks & triages', icon: IconChecklist },
       { name: 'projects', label: 'Projects', icon: IconClipboard },
     ],
-    // Tasks and triages open in the app's side panel (`./recordPanel`).
+
     recordPanels: [
       { contentType: 'operation:task' },
       { contentType: 'operation:triage', properties: false },
+      {
+        contentType: TASK_CONNECTION_CONTENT_TYPE,
+        properties: false,
+        draftTitle: true,
+      },
     ],
     propertyInputs: {
       taskStatus: (props: TPropertyInputProps) => (
