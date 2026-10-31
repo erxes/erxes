@@ -12,6 +12,10 @@ module.exports = composePlugins(withNx(), withReact(), (config: any) => {
       ),
     }),
   );
+  // Resolve chunks against <base href> so the app can be served under a
+  // sub-path (REACT_APP_WIDGETS_BASE_PATH, rewritten by docker-entrypoint.sh).
+  config.output = { ...config.output, publicPath: '' };
+
   // Configure dev server to serve static files from dist folder
   config.devServer = config.devServer || {};
   config.devServer.historyApiFallback = true;

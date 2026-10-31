@@ -19,7 +19,7 @@ export const useWebNotification = () => {
 
       const n = new Notification(title, {
         body: options?.body,
-        icon: options?.icon ?? '/favicon.ico',
+        icon: options?.icon ?? 'favicon.ico',
         tag: 'erxes-widget-message',
       });
 
