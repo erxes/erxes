@@ -27,6 +27,7 @@ export interface ChoosableProduct {
 const PER_PAGE = 30;
 
 interface ProductChooserSheetProps {
+  panelId: string;
   children: React.ReactNode;
   excludeIds?: string[];
   value?: string;
@@ -36,6 +37,7 @@ interface ProductChooserSheetProps {
 }
 
 export const ProductChooserSheet = ({
+  panelId,
   children,
   excludeIds = [],
   value,
@@ -48,7 +50,7 @@ export const ProductChooserSheet = ({
 
   return (
     <CoreModulePanel
-      name={'products/bulk-similarity/ProductChooserSheet'}
+      name={`products/bulk-similarity/ProductChooserSheet/${panelId}`}
       open={open}
       onOpenChange={setOpen}
     >

@@ -39,6 +39,7 @@ import {
 import { productCustomActivities } from '@/products/product-detail/components/ProductActivityRows';
 import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
 import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
+import { productsQueries } from '@/products/graphql';
 
 export const ProductRecordPanel = (props: IRecordViewProps) => (
   <ProductPanelIdContext.Provider value={props.record.contentId}>
@@ -168,6 +169,8 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
     };
     return productsEdit({
       variables,
+      refetchQueries: [productsQueries.productsMain],
+      awaitRefetchQueries: true,
       onCompleted: () => {
         form.reset(data);
         toast({
