@@ -12,6 +12,9 @@ import { BundleConditionForm } from '@/products/settings/components/productsConf
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 
+export const BUNDLE_CONDITION_CREATE_PANEL =
+  'products/settings/productsConfig/bundleCondition/BundleConditionSheet';
+
 export const BundleConditionSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
   const {
@@ -65,9 +68,7 @@ export const BundleConditionSheet = () => {
   return (
     <CoreModulePanel
       requiredPermission="bundleConditionsManage"
-      name={
-        'products/settings/productsConfig/bundleCondition/BundleConditionSheet'
-      }
+      name={BUNDLE_CONDITION_CREATE_PANEL}
       onOpenChange={handleSheetOpenChange}
       open={open}
       modal

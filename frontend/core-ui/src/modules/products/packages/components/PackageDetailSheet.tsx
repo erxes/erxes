@@ -1,7 +1,6 @@
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IconCheck, IconPackage, IconTagPlus } from '@tabler/icons-react';
 import {
-  Badge,
   Button,
   Combobox,
   CurrencyField,
@@ -185,18 +184,19 @@ const PackageDetailEditor = ({
                 tagIds,
               },
             }),
-          statusDirty && changeStatus({ variables: { _id: pkg._id, status } }),
+          statusDirty &&
+            changeStatus({ variables: { _ids: [pkg._id], status } }),
         ].filter(Boolean),
       );
       toast({
         variant: 'success',
         title: t('package-updated', 'Package updated'),
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         variant: 'destructive',
         title: t('update-failed', 'Failed to update package'),
-        description: e?.message,
+        description: e instanceof Error ? e.message : undefined,
       });
     }
   };
@@ -353,6 +353,8 @@ export const PackageDetailSheet = () => {
 
   return (
     <CoreModulePanel
+      defaultWidth={1000}
+      maxWidth={1200}
       name={'products/packages/PackageDetailSheet'}
       open={!!activePackageId}
       onOpenChange={(open) => {

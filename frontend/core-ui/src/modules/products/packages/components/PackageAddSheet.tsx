@@ -89,17 +89,19 @@ export const PackageAddSheet = () => {
         title: t('package-created', 'Package created'),
       });
       handleClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast({
         variant: 'destructive',
         title: t('create-failed', 'Failed to create package'),
-        description: e?.message,
+        description: e instanceof Error ? e.message : undefined,
       });
     }
   };
 
   return (
     <CoreModulePanel
+      defaultWidth={1000}
+      maxWidth={1200}
       name={'products/packages/PackageAddSheet'}
       open={open}
       onOpenChange={(v) => (v ? setOpen(true) : handleClose())}

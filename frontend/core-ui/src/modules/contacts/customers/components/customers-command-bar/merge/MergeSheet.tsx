@@ -5,6 +5,9 @@ import { Button, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { MergeTooltip } from '@/contacts/customers/components/customers-command-bar/merge/MergeTooltip';
 
+export const CUSTOMERS_MERGE_PANEL =
+  'contacts/customers/customers-command-bar/merge/MergeSheet';
+
 const noop = () => {
   //
 };
@@ -30,7 +33,7 @@ export const MergeSheet = ({
     <CoreModulePanel
       maxWidth={1000}
       defaultWidth={800}
-      name={'contacts/customers/customers-command-bar/merge/MergeSheet'}
+      name={CUSTOMERS_MERGE_PANEL}
       {...props}
     >
       <MergeTooltip disabled={!disabled}>

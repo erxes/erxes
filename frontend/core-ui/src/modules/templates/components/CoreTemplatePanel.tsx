@@ -23,7 +23,7 @@ export const CoreTemplatePanel = ({
       <CoreModulePanel.Trigger asChild>
         <Button variant="secondary">
           <IconBrandDatabricks />
-          {t('template', 'Template')}
+          {t('create-template', 'Create template')}
         </Button>
       </CoreModulePanel.Trigger>
       <CoreModulePanel.View>

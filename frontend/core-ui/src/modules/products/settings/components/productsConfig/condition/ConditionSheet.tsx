@@ -6,6 +6,9 @@ import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
 import { ConditionForm } from '@/products/settings/components/productsConfig/condition/ConditionForm';
 
+export const CONDITION_CREATE_PANEL =
+  'products/settings/productsConfig/condition/ConditionSheet';
+
 export const ConditionSheet = () => {
   const { t } = useTranslation('product');
   const [open, setOpen] = useState(false);
@@ -13,7 +16,7 @@ export const ConditionSheet = () => {
   return (
     <CoreModulePanel
       requiredPermission="productsConfigsManage"
-      name={'products/settings/productsConfig/condition/ConditionSheet'}
+      name={CONDITION_CREATE_PANEL}
       open={open}
       onOpenChange={setOpen}
       modal
