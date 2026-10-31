@@ -63,12 +63,14 @@ export const useConversations = (
     unread,
     status,
     created,
+    closed,
     brandId,
     searchValue,
   } = useNonNullMultiQueryState<InboxConversationQueryState>(
     INBOX_CONVERSATION_QUERY_KEYS,
   );
   const parsedDate = parseDateRangeFromString(created || '');
+  const closedDate = parseDateRangeFromString(closed || '');
 
   const filterVariables = useMemo(
     () => ({
@@ -83,9 +85,11 @@ export const useConversations = (
       participating: getBooleanFilterVariable(participating || participated),
       mentioned: getBooleanFilterVariable(mentioned),
       unread: getBooleanFilterVariable(unread),
-      status: status || '',
+      status: closed ? ConversationStatus.CLOSED : status || '',
       startDate: getDateFilterVariable(parsedDate?.from),
       endDate: getDateFilterVariable(parsedDate?.to),
+      closedAtFrom: getDateFilterVariable(closedDate?.from),
+      closedAtTo: getDateFilterVariable(closedDate?.to),
       brandId,
       searchValue,
       cursorMode: EnumCursorMode.INCLUSIVE,
@@ -105,6 +109,9 @@ export const useConversations = (
       status,
       parsedDate?.from,
       parsedDate?.to,
+      closed,
+      closedDate?.from,
+      closedDate?.to,
       brandId,
       searchValue,
     ],
@@ -251,6 +258,13 @@ export const useConversations = (
           }
         }
 
+        // A new message can reopen a closed conversation. Let the server
+        // reapply the closed-date bounds instead of patching it into this list.
+        if (closed) {
+          scheduleRefetch();
+          return prev;
+        }
+
         const conversationId = newMessage.conversationId;
         const list = compactList(prev?.conversations?.list);
         const index = list.findIndex(
@@ -292,6 +306,7 @@ export const useConversations = (
       unsubscribe();
     };
   }, [
+    closed,
     ownsInboxState,
     scheduleRefetch,
     setNewMessagesCount,

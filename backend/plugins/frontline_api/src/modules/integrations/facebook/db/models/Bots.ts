@@ -1,3 +1,4 @@
+import { publishReportUpdate } from '@/reports/realtime';
 import { SUBSCRIBED_FIELDS } from '@/integrations/facebook/constants';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
@@ -7,7 +8,10 @@ import {
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { IFacebookBotDocument, facebookBotSchema } from '../definitions/bots';
+import {
+  IFacebookBotDocument,
+  facebookBotSchema,
+} from '@/integrations/facebook/db/definitions/bots';
 
 type TBotPersistentMenuInput = {
   _id: string;
@@ -33,7 +37,7 @@ export type TCreateBotInputDoc = {
   automationActiveMessage?: string;
   handoffPauseMinutes?: number;
   tag: string;
-  isEnabledBackBtn: Boolean;
+  isEnabledBackBtn: boolean;
   backButtonText: string;
 };
 
@@ -688,7 +692,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       persistentMenus,
       getStartedText,
       isEnabledBackBtn,
-      backButtonText,
     }: {
       botId: string;
       persistentMenus?: Array<{
@@ -1152,6 +1155,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           },
         });
 
+        await publishReportUpdate(subdomain, ['facebook']);
         return await this.getBot(bot._id);
       } catch (error) {
         await models.FacebookBots.deleteOne({ _id: bot._id });
@@ -1349,6 +1353,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           },
         },
       );
+      await publishReportUpdate(subdomain, ['facebook']);
       return await this.getBot(_id);
     }
 
@@ -1356,6 +1361,7 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       await this.disconnectBotPageMessenger(_id);
 
       await models.FacebookBots.deleteOne({ _id });
+      await publishReportUpdate(subdomain, ['facebook']);
 
       return { status: 'success' };
     }
@@ -1368,7 +1374,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       getStartedText,
       greetText,
       isEnabledBackBtn,
-      backButtonText,
     }: {
       botId: string;
       pageAccessToken: string;

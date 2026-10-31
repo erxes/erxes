@@ -1,7 +1,7 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
 import { useConversationExport } from '@/report/hooks/useConversationExport';
-import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineCard } from '@/report/components/frontline-card/FrontlineCard';
 import {
   Alert,
   Badge,
@@ -23,10 +23,10 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { ReportFilter } from '../filter-popover/report-filter';
+import { ReportFilter } from '@/report/components/filter-popover/report-filter';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
-import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { ReportChartActions } from '@/report/components/report-chart/ReportChartActions';
 import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 const PER_PAGE = 10;
@@ -78,6 +78,13 @@ export const ConversationList = ({
       },
       skip: !filtersRestored,
     });
+
+  useEffect(() => {
+    if (isFetching || error || !conversationList) return;
+
+    const lastPage = Math.max(1, conversationList.totalPages ?? 1);
+    setPage((current) => Math.min(current, lastPage));
+  }, [conversationList, error, isFetching]);
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
   const handleNext = useCallback(() => setPage((p) => p + 1), []);

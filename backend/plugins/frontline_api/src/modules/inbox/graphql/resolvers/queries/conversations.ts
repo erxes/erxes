@@ -1,3 +1,4 @@
+import { buildClosedAtFilter } from '@/inbox/utils/closedAtFilter';
 import { withConversationPreviews } from '@/inbox/utils/conversationPreview';
 import { inboxFieldQueries } from '@/inbox/graphql/resolvers/queries/inboxFields';
 import type { FilterQuery } from 'mongoose';
@@ -50,7 +51,7 @@ export const conversationQueries = {
             ...params,
             orderBy: params.orderBy ?? { updatedAt: -1 },
           },
-          query: { _id: { $in: params.ids } },
+          query: { _id: { $in: params.ids }, ...buildClosedAtFilter(params) },
         });
 
       return {
@@ -69,7 +70,10 @@ export const conversationQueries = {
             orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
-          query: { customerId: params.customerId },
+          query: {
+            customerId: params.customerId,
+            ...buildClosedAtFilter(params),
+          },
         });
 
       return {
@@ -114,7 +118,19 @@ export const conversationQueries = {
     const response: IConversationRes = {};
     const _user = toQueryUser(user);
 
-    const qb = new QueryBuilder(models, subdomain, params, _user);
+    const qb = new QueryBuilder(
+      models,
+      subdomain,
+      {
+        ...params,
+        status:
+          params.status ||
+          (params.closedAtFrom || params.closedAtTo
+            ? CONVERSATION_STATUSES.CLOSED
+            : undefined),
+      },
+      _user,
+    );
 
     await qb.buildAllQueries();
 

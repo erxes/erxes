@@ -373,8 +373,6 @@ export const reportInboxQueries = {
   ) {
     const pipeline = await buildConversationResponsesPipeline(filters, models);
 
-    if (!pipeline) return [];
-
     pipeline.push(
       {
         $lookup: {

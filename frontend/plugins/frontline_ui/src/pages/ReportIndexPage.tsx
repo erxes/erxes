@@ -24,8 +24,10 @@ import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
 import { useTranslation } from 'react-i18next';
+import { useReportsRealtime } from '@/report/hooks/useReportsRealtime';
 
-export default function ReportIndexPage() {
+export function ReportIndexPage() {
+  useReportsRealtime();
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();

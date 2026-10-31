@@ -1,3 +1,4 @@
+import { publishReportUpdate } from '@/reports/realtime';
 import { IFacebookIntegrationDocument } from '@/integrations/facebook/@types/integrations';
 import { getConfig } from '@/integrations/facebook/commonUtils';
 import {
@@ -142,6 +143,7 @@ export const facebookWebhook = async (req, res, next) => {
           debugFacebook(`Received comment data ${JSON.stringify(event.value)}`);
           try {
             await receiveComment(models, subdomain, event.value, entry.id);
+            await publishReportUpdate(subdomain, ['facebook', 'inbox']);
             debugFacebook(`Successfully saved  ${JSON.stringify(event.value)}`);
             return respond();
           } catch (e) {
@@ -154,6 +156,7 @@ export const facebookWebhook = async (req, res, next) => {
           try {
             debugFacebook(`Received post data ${JSON.stringify(event.value)}`);
             await receivePost(models, subdomain, event.value, entry.id);
+            await publishReportUpdate(subdomain, ['facebook', 'inbox']);
             debugFacebook(
               `Successfully saved post ${JSON.stringify(event.value)}`,
             );
@@ -182,6 +185,7 @@ export async function processMessagingEvent(
   accessTokensByPageId: Record<string, string>,
 ) {
   debugFacebook(`Received messenger data: ${JSON.stringify(entry)}`);
+  let hasMessage = false;
 
   try {
     const messagingEvents = Array.isArray(entry.messaging)
@@ -257,11 +261,18 @@ export async function processMessagingEvent(
       debugFacebook(`Processing activity: ${JSON.stringify(activityData)}`);
 
       await receiveMessage(models, subdomain, integration, activityData);
+      if (activity.message) hasMessage = true;
     }
-    res.status(200).send('EVENT_RECEIVED');
   } catch (e) {
     debugFacebook(`Failed to process messaging event: ${(e as Error).message}`);
+    return;
+  } finally {
+    if (hasMessage) {
+      await publishReportUpdate(subdomain, ['facebook', 'inbox']);
+    }
   }
+
+  res.status(200).send('EVENT_RECEIVED');
 }
 
 export async function processStandbyEvents(data: any, models: IModels) {

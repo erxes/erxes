@@ -1,3 +1,4 @@
+import { publishReportUpdate } from '@/reports/realtime';
 import { ChannelScopes, IChannelDocument } from '@/channel/@types/channel';
 import {
   IArchiveParams,
@@ -574,6 +575,7 @@ export const integrationMutations = {
       data: data ? JSON.stringify(data) : '',
     });
 
+    await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
     return integration;
   },
 
@@ -622,6 +624,7 @@ export const integrationMutations = {
       throw new Error(result.errorMessage || 'Failed to update integration');
     }
 
+    await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
     return updated;
   },
 
@@ -671,7 +674,7 @@ export const integrationMutations = {
   async integrationsArchive(
     _root,
     { _id, status }: IArchiveParams,
-    { models }: IContext,
+    { models, subdomain }: IContext,
   ) {
     await models.Integrations.updateOne(
       { _id },
@@ -679,6 +682,7 @@ export const integrationMutations = {
     );
     const updated = await models.Integrations.findOne({ _id });
 
+    await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
     return updated;
   },
 

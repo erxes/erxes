@@ -1,4 +1,5 @@
 import { IEngageData } from '@/inbox/@types/conversationMessages';
+import { publishReportUpdate } from '@/reports/realtime';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
@@ -11,7 +12,7 @@ import { cursorPaginate } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
-import { IConversationDocument } from '../@types/conversations';
+import { IConversationDocument } from '@/inbox/@types/conversations';
 
 const t = initTRPC.context<FrontlineTRPCContext>().create();
 interface CreateConversationAndMessageParams {
@@ -468,7 +469,7 @@ export const conversationsRouter = t.router({
   changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { id, status } = input;
-      const { models } = ctx;
+      const { models, subdomain } = ctx;
 
       if (!id || !status) {
         return {
@@ -487,6 +488,10 @@ export const conversationsRouter = t.router({
           status: 'not_found',
           message: 'No conversation found with the provided ID',
         };
+      }
+
+      if (result.modifiedCount) {
+        await publishReportUpdate(subdomain, ['inbox']);
       }
 
       return {
@@ -802,7 +807,7 @@ export const inboxTrpcRouter = t.router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { models } = ctx;
+        const { models, subdomain } = ctx;
         const { _id } = input;
 
         try {
@@ -812,6 +817,10 @@ export const inboxTrpcRouter = t.router({
           const conversationResult = await models.Conversations.deleteOne({
             _id,
           });
+
+          if (conversationResult.deletedCount || messagesResult.deletedCount) {
+            await publishReportUpdate(subdomain, ['inbox', 'ticket']);
+          }
 
           return {
             status: 'success',

@@ -33,6 +33,7 @@ export default {
 			conversationBotTypingStatus(_id: String!): JSON
       queueRealtimeUpdate(extension: String): String
       callSessionUpdated(inboxIntegrationId: String, uniqueid: String, extension: String): CallSession
+      frontlineReportsChanged: FrontlineReportsChanged!
       ticketPipelineChanged(_id: String!): PipelineSubscription
       ticketPipelineListChanged: PipelineSubscription
       ticketChanged(_id: String!): TicketSubscription
@@ -276,6 +277,51 @@ export default {
           await assertCanListenToConversation(context, _id);
 
           return graphqlPubsub.asyncIterator(`conversationChanged:${_id}`);
+        },
+      },
+
+      frontlineReportsChanged: {
+        subscribe: (_root, _args, { subdomain, user }) => {
+          if (!user?._id) {
+            throw new Error('Authentication required');
+          }
+          const tenants =
+            process.env.VERSION === 'saas'
+              ? [subdomain]
+              : [...new Set([subdomain, 'os'])];
+          const iterator = graphqlPubsub.asyncIterator(
+            tenants.map((tenant) => `frontlineReportsChanged:${tenant}`),
+          );
+          let initial = true;
+
+          return {
+            next: () => {
+              // Resubscriptions reconcile changes missed during a disconnect.
+              if (initial) {
+                initial = false;
+                return Promise.resolve({
+                  value: {
+                    frontlineReportsChanged: {
+                      scopes: ['inbox', 'ticket', 'facebook', 'call', 'charts'],
+                    },
+                  },
+                  done: false,
+                });
+              }
+              return iterator.next();
+            },
+            return: () => {
+              initial = false;
+              return iterator.return();
+            },
+            throw: (error) => {
+              initial = false;
+              return iterator.throw(error);
+            },
+            [Symbol.asyncIterator]() {
+              return this;
+            },
+          };
         },
       },
 
