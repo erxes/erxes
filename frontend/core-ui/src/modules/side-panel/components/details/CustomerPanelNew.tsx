@@ -13,6 +13,7 @@ import {
 import { useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 import {
   buildCustomerSchema,
   CUSTOMER_FORM_DEFAULTS,
@@ -47,7 +48,8 @@ export const CustomerPanelNew = () => {
   const { state } = useSidePanelDraft<{ state: 'customer' | 'lead' }>(
     'core:customer',
   );
-  const { openRecord, back, canGoBack, close } = useSidePanel();
+  const { back, canGoBack, close } = useSidePanel();
+  const onCreated = useCreatedPanelRecord('core:customer');
   const client = useApolloClient();
   const { customersAdd, loading } = useAddCustomer();
   const { rules, loading: rulesLoading } = useSystemFieldRules(
@@ -93,10 +95,7 @@ export const CustomerPanelNew = () => {
       onCompleted: ({ customersAdd: created }) => {
         // Customer lists read again, the new one included.
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'customers' });
-        openRecord(
-          { contentType: 'core:customer', contentId: created._id },
-          { replace: true },
-        );
+        onCreated(created._id);
       },
     });
 

@@ -124,7 +124,13 @@ type QueryValues<T extends QueryTypes> = {
 
 export function useMultiQueryState<T extends QueryTypes>(
   queryKeys: (keyof T)[],
-): [QueryValues<T>, (values: Partial<QueryValues<T>>) => void] {
+): [
+  QueryValues<T>,
+  (
+    values: Partial<QueryValues<T>>,
+    navigationOptions?: NavigateOptions,
+  ) => void,
+] {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
@@ -154,7 +160,10 @@ export function useMultiQueryState<T extends QueryTypes>(
     return acc;
   }, {} as QueryValues<T>);
 
-  const setQueries = (values: Partial<QueryValues<T>>) => {
+  const setQueries = (
+    values: Partial<QueryValues<T>>,
+    navigationOptions?: NavigateOptions,
+  ) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
     let hasChanges = false;
@@ -174,10 +183,14 @@ export function useMultiQueryState<T extends QueryTypes>(
       }
     });
 
-    if (!hasChanges) return;
+    if (!hasChanges && !navigationOptions) return;
 
-    updateSearchParamsDraft(draft, nextParams);
-    setSearchParams(nextParams, { replace: true, state: draft.state });
+    updateSearchParamsDraft(draft, nextParams, navigationOptions);
+    setSearchParams(nextParams, {
+      replace: true,
+      ...navigationOptions,
+      state: draft.state,
+    });
   };
 
   return [queries, setQueries];

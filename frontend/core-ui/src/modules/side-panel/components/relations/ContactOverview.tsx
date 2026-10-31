@@ -10,8 +10,8 @@ import {
 import { IContactWidgetModule } from '@/side-panel/hooks/useContactWidgetModules';
 import { contactOverviewFoldedState } from '@/side-panel/states/contactOverviewState';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
-import { TContactOverviewEntry } from './contactOverviewEntries';
-import { ContactOverviewCustomize } from './ContactOverviewCustomize';
+import { TContactOverviewEntry } from '@/side-panel/components/relations/contactOverviewEntries';
+import { ContactOverviewCustomize } from '@/side-panel/components/relations/ContactOverviewCustomize';
 
 type TContactType = 'core:customer' | 'core:company';
 
@@ -21,6 +21,7 @@ const SectionSlot = ({
   module,
   contactType,
   contentId,
+  access,
   folded,
   onFold,
   onUnavailable,
@@ -29,13 +30,14 @@ const SectionSlot = ({
   module: IContactWidgetModule;
   contactType: TContactType;
   contentId: string;
+  access: 'read' | 'write';
   folded: boolean;
   onFold: (key: string, folded: boolean) => void;
   onUnavailable: (key: string) => void;
 }) => {
   const value = useMemo<IContactOverviewSection>(
-    () => ({ folded, setFolded: (next) => onFold(sectionKey, next) }),
-    [sectionKey, folded, onFold],
+    () => ({ folded, setFolded: (next) => onFold(sectionKey, next), access }),
+    [sectionKey, folded, onFold, access],
   );
 
   return (
@@ -43,7 +45,12 @@ const SectionSlot = ({
       <RenderPluginsComponent
         pluginName={`${module.pluginName}_ui`}
         remoteModuleName="contactWidget"
-        props={{ module: module.name, contentType: contactType, contentId }}
+        props={{
+          module: module.name,
+          contentType: contactType,
+          contentId,
+          access,
+        }}
         quiet
         onLoadError={() => onUnavailable(sectionKey)}
       />
@@ -97,12 +104,14 @@ const OtherSection = ({
 export const ContactOverview = ({
   contactType,
   contentId,
+  access,
   entries,
   customize,
   onUnavailable,
 }: {
   contactType: TContactType;
   contentId: string;
+  access: 'read' | 'write';
   // The modules shown here, in order (those pinned as tabs left out).
   entries: TContactOverviewEntry[];
   customize: React.ComponentProps<typeof ContactOverviewCustomize>;
@@ -138,6 +147,7 @@ export const ContactOverview = ({
               module={entry.module}
               contactType={contactType}
               contentId={contentId}
+              access={access}
               folded={isFolded(entry.key, false)}
               onFold={setFolded}
               onUnavailable={onUnavailable}
