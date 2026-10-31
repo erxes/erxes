@@ -18,6 +18,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconDeviceMobileCheck,
   IconShoppingCart,
   IconSparkles,
   IconShieldCheck,
@@ -139,6 +140,11 @@ export const SETTINGS_PATH_DATA = (
       icon: IconPassword,
       path: SettingsPath.ChangePassword,
     },
+    {
+      name: t('two-factor', 'Two-factor authentication'),
+      icon: IconDeviceMobileCheck,
+      path: SettingsPath.TwoFactor,
+    },
   ],
   nav: [
     {
@@ -212,6 +218,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('oauth-clients'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
+    },
+    {
+      name: t('security', 'Security'),
+      icon: IconShieldCheck,
+      path: SettingsWorkspacePath.Security,
     },
     {
       name: t('system-logs'),
@@ -353,6 +364,20 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
+  // How staff sign in: second factor and the company directory
+  [SettingsWorkspacePath.Security]: {
+    name: sidebarT('security', 'Security'),
+    items: [
+      {
+        name: sidebarT('two-factor', 'Two-factor authentication'),
+        path: settingsPath(SettingsWorkspacePath.Security),
+      },
+      {
+        name: sidebarT('active-directory', 'Active Directory (LDAP)'),
+        path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+    ],
+  },
   contacts: {
     name: sidebarT('contacts', 'Contacts'),
     items: [
@@ -373,6 +398,7 @@ export const SETTINGS_PERMISSION_MAP: Record<string, string> = {
   [SettingsWorkspacePath.Automations]: 'automations',
   [SettingsWorkspacePath.ClientPortals]: 'clientPortal',
   [SettingsWorkspacePath.OAuthClients]: 'apps',
+  [SettingsWorkspacePath.Security]: 'permissions',
   [SettingsWorkspacePath.Permissions]: 'permissions',
   [SettingsWorkspacePath.ApprovalRequests]: 'approval',
   [SettingsWorkspacePath.EmailTemplates]: 'emailTemplates',

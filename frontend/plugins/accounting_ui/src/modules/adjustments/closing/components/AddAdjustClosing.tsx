@@ -1,202 +1,162 @@
 import { useTranslation } from 'react-i18next';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, DatePicker, Form, Sheet, Spinner, Textarea } from 'erxes-ui';
-import { useState } from 'react';
-import { TAdjustClosingForm } from '../types/adjustClosingForm';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { adjustClosingSchema } from '../types/adjustClosingSchema';
-import { useAdjustClosingAdd } from '../hooks/useAdjustClosingAdd';
-import { SelectAccountFormItem } from '~/modules/settings/account/components/SelectAccount';
-import { AccountingSheet } from '~/modules/layout/components/Sheet';
+import { UseFormReturn } from 'react-hook-form';
+import { DatePicker, Form, Input } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
+import {
+  AdjustDateField,
+  AdjustDescriptionField,
+} from '@/adjustments/components/AdjustPanelFields';
+import { TAdjustClosingForm } from '@/adjustments/closing/types/adjustClosingForm';
+import { ADJUST_CLOSING_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { SelectAccount } from '@/settings/account/components/SelectAccount';
+import { SettingsPanelAddButton } from '@/settings/components/panel/SettingsPanelActions';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SETTINGS_PANEL_CELL_CLASS_NAME } from '@/settings/constants/settingsPanel';
+
+const ACCOUNT_FIELDS = [
+  { name: 'integrateAccountId', label: 'Integrate account' },
+  { name: 'periodGLAccountId', label: 'Period GL account' },
+  { name: 'earningAccountId', label: 'Earning account' },
+  { name: 'taxPayableAccountId', label: 'Tax payable account' },
+] as const;
+
+const ENTRY_NUMBER_FIELDS = [
+  { name: 'balance', label: 'Balance' },
+  { name: 'percent', label: 'Percent' },
+] as const;
+
+const ENTRY_ACCOUNT_FIELDS = [
+  { name: 'mainAccTrId', label: 'Main Transaction' },
+  { name: 'integrateTrId', label: 'Integrate Transaction' },
+] as const;
 
 export const AddAdjustClosing = () => {
   const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen} modal>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('Add Closing Adjustment')}
-        </Button>
-      </Sheet.Trigger>
-
-      <AccountingSheet title={t('Create Closing Adjustment')}>
-        <AddAdjustClosingForm setOpen={setOpen} />
-      </AccountingSheet>
-    </Sheet>
+    <SettingsPanelAddButton
+      contentType={ADJUST_CLOSING_CONTENT_TYPE}
+      label={t('Add Closing Adjustment')}
+    />
   );
 };
 
-export const AddAdjustClosingForm = ({
-  setOpen,
+export const AdjustClosingForm = ({
+  form,
+  onSubmit,
+  onCancel,
+  saving,
+  isNew,
 }: {
-  setOpen: (open: boolean) => void;
+  form: UseFormReturn<TAdjustClosingForm>;
+  onSubmit: (data: TAdjustClosingForm) => void;
+  onCancel: () => void;
+  saving: boolean;
+  isNew?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
-  const form = useForm<TAdjustClosingForm>({
-    resolver: zodResolver(adjustClosingSchema),
-    defaultValues: { date: new Date() },
-  });
-
-  const { addAdjustClosing, loading } = useAdjustClosingAdd();
-
-  const onSubmit = (data: TAdjustClosingForm) => {
-    addAdjustClosing({
-      variables: { ...data },
-      onCompleted: () => {
-        setOpen(false);
-        form.reset();
-      },
-    });
-  };
 
   return (
-    <Form {...form}>
-      <form
-        className="flex flex-col flex-1 min-h-0 bg-background"
-        onSubmit={form.handleSubmit(onSubmit)}
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-4">
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      saving={saving}
+    >
+      <AdjustDateField control={form.control} required={isNew} />
+      {!isNew && (
+        <Form.Field
+          control={form.control}
+          name="beginDate"
+          render={({ field }) => (
+            <PanelFormRow label={t('Begin date')}>
+              <DatePicker
+                value={field.value ?? undefined}
+                onChange={field.onChange}
+                className={PANEL_INPUT_CLASS_NAME}
+              />
+            </PanelFormRow>
+          )}
+        />
+      )}
+      {ACCOUNT_FIELDS.map(({ name, label }) => (
+        <Form.Field
+          key={name}
+          control={form.control}
+          name={name}
+          render={({ field, fieldState }) => (
+            <PanelFormRow
+              label={t(label)}
+              required={isNew}
+              error={fieldState.error?.message}
+            >
+              <SelectAccount
+                value={field.value ?? undefined}
+                onValueChange={field.onChange}
+                variant="ghost"
+                hideChevron
+                className={SETTINGS_PANEL_CELL_CLASS_NAME}
+              />
+            </PanelFormRow>
+          )}
+        />
+      ))}
+      <AdjustDescriptionField control={form.control} />
+      {!isNew && (
+        <>
           <Form.Field
             control={form.control}
-            name="date"
+            name="accountId"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('date')} <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    className="h-8 flex w-full"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="integrateAccountId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('Integrate account')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <SelectAccountFormItem
+              <PanelFormRow label={t('account')}>
+                <SelectAccount
                   value={field.value ?? undefined}
                   onValueChange={field.onChange}
-                  placeholder={t('Integrate account ID')}
+                  variant="ghost"
+                  hideChevron
+                  className={SETTINGS_PANEL_CELL_CLASS_NAME}
                 />
-                <Form.Message />
-              </Form.Item>
+              </PanelFormRow>
             )}
           />
-
-          <Form.Field
-            control={form.control}
-            name="periodGLAccountId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('Period GL account')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <SelectAccountFormItem
+          {ENTRY_NUMBER_FIELDS.map(({ name, label }) => (
+            <Form.Field
+              key={name}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <PanelFormRow label={t(label)}>
+                  <Input
+                    type="number"
+                    placeholder={t(label)}
+                    {...field}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    className={PANEL_INPUT_CLASS_NAME}
+                  />
+                </PanelFormRow>
+              )}
+            />
+          ))}
+          {ENTRY_ACCOUNT_FIELDS.map(({ name, label }) => (
+            <Form.Field
+              key={name}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <PanelFormRow label={t(label)}>
+                  <SelectAccount
                     value={field.value ?? undefined}
                     onValueChange={field.onChange}
-                    placeholder={t('Period GL account ID')}
+                    variant="ghost"
+                    hideChevron
+                    className={SETTINGS_PANEL_CELL_CLASS_NAME}
                   />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="earningAccountId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('Earning account')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <SelectAccountFormItem
-                    value={field.value ?? undefined}
-                    onValueChange={field.onChange}
-                    placeholder={t('Earning account ID')}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="taxPayableAccountId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('Tax payable account')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <Form.Control>
-                  <SelectAccountFormItem
-                    value={field.value ?? undefined}
-                    onValueChange={field.onChange}
-                    placeholder={t('Tax Payable account ID')}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
-                <Form.Control>
-                  <Textarea
-                    placeholder={t('enter-description')}
-                    value={field.value || ''}
-                    onChange={field.onChange}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </div>
-
-        <Sheet.Footer className="px-5 border-t bg-background shrink-0">
-          <Button
-            variant="outline"
-            type="button"
-            size="lg"
-            onClick={() => setOpen(false)}
-          >
-            {t('cancel')}
-          </Button>
-
-          <Button type="submit" size="lg" disabled={loading}>
-            {loading && <Spinner />}
-            {t('save')}
-          </Button>
-        </Sheet.Footer>
-      </form>
-    </Form>
+                </PanelFormRow>
+              )}
+            />
+          ))}
+        </>
+      )}
+    </SettingsPanelDraftForm>
   );
 };

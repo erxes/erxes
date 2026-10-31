@@ -135,6 +135,7 @@
     "operating-system": "Үйлдлийн систем",
     "browser": "Хөтөч",
     "auth-method": "Нэвтрэх арга",
+    "failure-reason": "Амжилтгүй болсон шалтгаан",
     "operation-payload": "Үйлдлийн өгөгдөл",
     "captured-for-mutation": "{{mutationName}}-ийн аргумент болон хариуг бүртгэсэн.",
     "captured-for-operation": "Энэ GraphQL үйлдлийн аргумент болон хариуг бүртгэсэн.",
@@ -203,7 +204,11 @@
     "email-delivery": "Имэйл хүргэлт",
     "import-export": "Импорт ба Экспорт",
     "message-pro": "Message Pro",
-    "agents": "AI туслах"
+    "agents": "AI туслах",
+    "ldap": "LDAP",
+    "two-factor": "Хоёр шатлалт баталгаажуулалт",
+    "security": "Аюулгүй байдал",
+    "active-directory": "Active Directory (LDAP)"
   },
   "plugin": {
     "_": "Плагин",
@@ -312,6 +317,20 @@
     "or": "ЭСВЭЛ",
     "continue-with-google": "Google-ээр үргэлжлүүлэх",
     "incorrect-credentials": "Имэйл эсвэл нууц үг буруу байна",
+    "login-failure": {
+      "invalid_credentials": "Нэвтрэх нэр эсвэл нууц үг буруу байна",
+      "rate_limited": "Хэт олон оролдлого хийлээ. Хэсэг хугацааны дараа дахин оролдоно уу",
+      "directory_locked": "Таны directory account түгжигдсэн байна. IT-д хандана уу",
+      "directory_password_expired": "Нууц үгийн хугацаа дууссан. Windows дээр нууц үгээ солино уу",
+      "directory_disabled": "Таны account идэвхгүй байна. Admin-д хандана уу",
+      "directory_unreachable": "Directory сервер хариу өгсөнгүй. Дахин оролдоно уу",
+      "not_allowed": "Танд erxes-д нэвтрэх эрх олгогдоогүй байна. Admin-д хандана уу",
+      "not_linked": "Таны account directory-тай холбогдоогүй байна. Admin-д хандана уу",
+      "two_factor_required": "Authenticator апп дахь кодоо оруулна уу",
+      "two_factor_setup_required": "Үргэлжлүүлэхийн тулд хоёр шатлалт баталгаажуулалтаа тохируулна уу",
+      "two_factor_invalid": "Код буруу байна. Хамгийн сүүлийн кодыг оруулна уу.",
+      "two_factor_expired": "Нэвтрэх хугацаа дууссан. Дахин нэвтэрнэ үү."
+    },
     "success": "Амжилттай",
     "reset-link-sent": "Нууц үг сэргээх зааврыг таны имэйл рүү илгээлээ.",
     "something-went-wrong-title": "Уучлаарай! Алдаа гарлаа.",
@@ -935,5 +954,28 @@
       "not-connected": "Туслах одоогоор холбогдоогүй байна."
     },
     "relations": "Холбоосууд"
+  },
+  "two-factor": {
+    "authenticator-code": "Authenticator код",
+    "recovery-code": "Нөөц код",
+    "use-recovery-code": "Нөөц код ашиглах",
+    "use-authenticator": "Authenticator апп ашиглах",
+    "scan-instructions": "Microsoft эсвэл Google Authenticator-оор уншуулна уу, эсвэл түлхүүрийг оруулна уу.",
+    "copy-key": "Түлхүүр хуулах",
+    "key-copied": "Түлхүүр хуулагдлаа",
+    "codes-copied": "Нөөц кодууд хуулагдлаа",
+    "copy-failed": "Хуулж чадсангүй. Текстийг сонгоод хуулна уу.",
+    "recovery-codes-title": "Нөөц кодуудаа хадгална уу",
+    "recovery-codes-description": "Утсаа алдвал код бүрээр нэг удаа нэвтэрч болно. Эдгээрийг дахин харуулахгүй.",
+    "copy": "Хуулах",
+    "download": "Татах",
+    "continue": "Үргэлжлүүлэх",
+    "setup-title": "Хоёр шатлалт баталгаажуулалт тохируулах",
+    "setup-description": "Танай байгууллага нэвтрэхэд хоёр дахь шат шаарддаг.",
+    "verify-title": "Хоёр шатлалт баталгаажуулалт",
+    "verify-description": "Authenticator апп дахь 6 оронтой кодыг оруулна уу.",
+    "turn-on-and-sign-in": "Асаагаад нэвтрэх",
+    "verify": "Баталгаажуулах",
+    "back-to-sign-in": "Нэвтрэх рүү буцах"
   }
 }

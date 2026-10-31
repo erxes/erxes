@@ -1,5 +1,10 @@
 import { appMutations } from '@/apps/graphql/mutations';
 import { authMutations } from '@/auth/graphql/resolvers/mutations';
+import { ldapMutations } from '@/auth/graphql/resolvers/ldap';
+import {
+  twoFactorLoginMutations,
+  twoFactorMutations,
+} from '@/auth/graphql/resolvers/twoFactor';
 import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
 import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
@@ -40,6 +45,9 @@ import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/se
 export const mutations = {
   ...contactMutations,
   ...authMutations,
+  ...ldapMutations,
+  ...twoFactorLoginMutations,
+  ...twoFactorMutations,
   ...oauthClientAppMutations,
   ...userMutations,
   ...organizationConfigMutations,

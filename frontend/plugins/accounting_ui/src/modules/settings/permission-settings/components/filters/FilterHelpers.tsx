@@ -64,7 +64,7 @@ const UserPickerCommand = ({
       <Command.List className="max-h-[300px] overflow-y-auto p-1">
         <Combobox.Empty loading={loading} error={error} />
         {users.map((user) => {
-          const fullName = user.details?.fullName || user.email || user._id;
+          const fullName = user.details?.fullName || user.email || '-';
           return (
             <Command.Item
               key={user._id}
@@ -97,7 +97,7 @@ const UserBarLabel = ({ userId }: { userId: string }) => {
     variables: { _id: userId ?? '' },
     skip: !userId,
   });
-  const fullName = userDetail?.details?.fullName || userDetail?.email || userId;
+  const fullName = userDetail?.details?.fullName || userDetail?.email || '-';
 
   return (
     <>

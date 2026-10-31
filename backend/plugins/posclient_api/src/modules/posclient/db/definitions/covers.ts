@@ -12,8 +12,16 @@ const coverSummarySchema = new Schema(
   { _id: false },
 );
 
+const terminalResultSchema = new Schema({
+  _id: { type: String, required: true },
+  bank: { type: String, required: true },
+  response: { type: String },
+  createdAt: { type: Date, required: true },
+});
+
 const coverDetailSchema = new Schema({
   _id: field({ pkey: true }),
+  terminalResults: { type: [terminalResultSchema], default: [] },
   paidType: field({ type: String, label: 'Paid type' }),
   paidSummary: field({ type: [coverSummarySchema], label: 'Summary' }),
   paidDetail: field({ type: Object, label: 'Detail' }),

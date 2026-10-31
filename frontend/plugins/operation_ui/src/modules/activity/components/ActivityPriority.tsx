@@ -11,7 +11,7 @@ export const ActivityPriority = ({
   const { newValue, previousValue } = metadata ?? {};
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('changed')}
       <PriorityBadge priority={Number(previousValue)} />
       {t('to')}

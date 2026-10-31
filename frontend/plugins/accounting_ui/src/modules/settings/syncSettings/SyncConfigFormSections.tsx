@@ -1,12 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Form,
-  Input,
-  Select,
-  Sheet,
-  Spinner,
-} from 'erxes-ui';
+import { Button, Form, Input, Spinner } from 'erxes-ui';
 import {
   Control,
   FieldPath,
@@ -22,14 +14,20 @@ import {
   ISyncVatCtaxFields,
 } from '@/settings/types/SyncConfig';
 import {
+  PANEL_INPUT_CLASS_NAME,
   SelectBoard,
   SelectBranches,
   SelectDepartments,
   SelectPipeline,
   SelectStage,
+  PanelFormRow,
 } from 'ui-modules';
 import { useEffect, useMemo, useRef } from 'react';
 
+import {
+  SettingsPanelSelect,
+  SettingsPanelSwitch,
+} from '@/settings/components/panel/SettingsPanelFields';
 import { FormSelectEbarimtProductRule } from './SelectEbarimtProductRule';
 import { JournalEnum } from '@/settings/account/types/Account';
 import { SelectAccount } from '@/settings/account/components/SelectAccount';
@@ -112,12 +110,12 @@ export const normalizeSyncConfigData = <
   mongolianEnabled: boolean,
 ): T => ({
   ...data,
-  vatRowId: data.hasVat ? (data.vatRowId ?? '') : '',
+  vatRowId: data.hasVat ? data.vatRowId ?? '' : '',
   reverseVatRules:
     mongolianEnabled && !data.hasVat
       ? normalizeRuleIds(data.reverseVatRules)
       : [],
-  ctaxRowId: data.hasCtax ? (data.ctaxRowId ?? '') : '',
+  ctaxRowId: data.hasCtax ? data.ctaxRowId ?? '' : '',
   reverseCtaxRules:
     !mongolianEnabled || data.hasCtax
       ? []
@@ -142,56 +140,41 @@ export const SyncConfigPaymentAccountField = <
       control={control}
       name={name}
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{label}</Form.Label>
-          <Form.Control>
-            <SelectAccount.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-              defaultFilter={{
-                journals: [
-                  JournalEnum.BANK,
-                  JournalEnum.CASH,
-                  JournalEnum.DEBT,
-                ],
-                ...(currency ? { currency } : {}),
-              }}
-            />
-          </Form.Control>
-        </Form.Item>
+        <PanelFormRow label={label}>
+          <SelectAccount.FormItem
+            value={field.value}
+            onValueChange={field.onChange}
+            className={PANEL_INPUT_CLASS_NAME}
+            defaultFilter={{
+              journals: [JournalEnum.BANK, JournalEnum.CASH, JournalEnum.DEBT],
+              ...(currency ? { currency } : {}),
+            }}
+          />
+        </PanelFormRow>
       )}
     />
   );
 };
 
-const ReturnTypeFieldContent = ({
+const SelectFieldContent = ({
+  label,
+  options,
   field,
 }: {
+  label: string;
+  options: { value: string; label: string }[];
   field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-  const options = (
-    <Select.Content>
-      <Select.Item value="fullTr">{t('full-tr')}</Select.Item>
-      <Select.Item value="onlySale">{t('only-sale')}</Select.Item>
-      <Select.Item value="delete">{t('delete')}</Select.Item>
-    </Select.Content>
-  );
-
-  return (
-    <Form.Item>
-      <Form.Label>{t('return-type')}</Form.Label>
-      <Form.Control>
-        <Select {...field} onValueChange={field.onChange}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          {options}
-        </Select>
-      </Form.Control>
-    </Form.Item>
-  );
-};
+}) => (
+  <PanelFormRow label={label}>
+    <SettingsPanelSelect
+      value={field.value}
+      placeholder={label}
+      options={options}
+      onValueChange={field.onChange}
+      className={PANEL_INPUT_CLASS_NAME}
+    />
+  </PanelFormRow>
+);
 
 export const SyncConfigReturnTypeField = <
   TFieldValues extends FieldValues & ISyncReturnTypeFields,
@@ -200,71 +183,32 @@ export const SyncConfigReturnTypeField = <
 }: {
   control: Control<TFieldValues>;
 }) => {
+  const { t } = useTranslation('accounting');
+
   return (
     <Form.Field
       control={control}
       name={'returnType' as FieldPath<TFieldValues>}
-      render={({ field }) => <ReturnTypeFieldContent field={field} />}
+      render={({ field }) => (
+        <SelectFieldContent
+          label={t('return-type')}
+          options={[
+            { value: 'fullTr', label: t('full-tr') },
+            { value: 'onlySale', label: t('only-sale') },
+            { value: 'delete', label: t('delete') },
+          ]}
+          field={field}
+        />
+      )}
     />
   );
 };
 
-const DateRuleFieldContent = ({
-  field,
-}: {
-  field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-  const options = (
-    <Select.Content>
-      <Select.Item value="alwaysNow">{t('always-now')}</Select.Item>
-      <Select.Item value="syncedDateOrNow">
-        {t('synced-date-or-now')}
-      </Select.Item>
-    </Select.Content>
-  );
-
-  return (
-    <Form.Item>
-      <Form.Label>{t('date-rule')}</Form.Label>
-      <Form.Control>
-        <Select {...field} onValueChange={field.onChange}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          {options}
-        </Select>
-      </Form.Control>
-    </Form.Item>
-  );
-};
-
-const TrStatusFieldContent = ({
-  field,
-}: {
-  field: { value: string; onChange: (v: string) => void };
-}) => {
-  const { t } = useTranslation('accounting');
-  return (
-    <Form.Item>
-      <Form.Label>{t('tr-status-label')}</Form.Label>
-      <Form.Control>
-        <Select {...field} onValueChange={field.onChange}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Content>
-            {TR_STATUS_OPTIONS.map((s) => (
-              <Select.Item key={s.value} value={s.value}>
-                {t(s.label || '', { nsSeparator: false })}
-              </Select.Item>
-            ))}
-          </Select.Content>
-        </Select>
-      </Form.Control>
-    </Form.Item>
-  );
-};
+const SYNC_SALE_ACCOUNT_FIELDS = [
+  ['saleAccountId', 'sale-account', JournalEnum.INV_FOLLOW],
+  ['saleOutAccountId', 'sale-out-account', JournalEnum.INVENTORY],
+  ['saleCostAccountId', 'sale-cost-account', JournalEnum.INV_FOLLOW],
+] as const;
 
 export const SyncConfigGeneralFields = <
   TFieldValues extends FieldValues & ISyncGeneralFields,
@@ -280,24 +224,45 @@ export const SyncConfigGeneralFields = <
       <Form.Field
         control={control}
         name={'title' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('title')}</Form.Label>
-            <Form.Control>
-              <Input {...field} />
-            </Form.Control>
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow label={t('title')} error={fieldState.error?.message}>
+            <Input
+              {...field}
+              value={field.value ?? ''}
+              autoComplete="off"
+              placeholder={t('title')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'dateRule' as FieldPath<TFieldValues>}
-        render={({ field }) => <DateRuleFieldContent field={field} />}
+        render={({ field }) => (
+          <SelectFieldContent
+            label={t('date-rule')}
+            options={[
+              { value: 'alwaysNow', label: t('always-now') },
+              { value: 'syncedDateOrNow', label: t('synced-date-or-now') },
+            ]}
+            field={field}
+          />
+        )}
       />
       <Form.Field
         control={control}
         name={'trStatus' as FieldPath<TFieldValues>}
-        render={({ field }) => <TrStatusFieldContent field={field} />}
+        render={({ field }) => (
+          <SelectFieldContent
+            label={t('tr-status-label')}
+            options={TR_STATUS_OPTIONS.map((s) => ({
+              value: s.value,
+              label: t(s.label || '', { nsSeparator: false }),
+            }))}
+            field={field}
+          />
+        )}
       />
     </>
   );
@@ -319,48 +284,45 @@ export const SyncConfigPipelineSection = <T extends IUsePipelineResetForm>({
       <Form.Field
         control={form.control}
         name={'boardId' as FieldPath<T>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('board')}</Form.Label>
+        render={({ field, fieldState }) => (
+          <PanelFormRow label={t('board')} error={fieldState.error?.message}>
             <SelectBoard.FormItem
               mode="single"
               value={field.value}
               onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
             />
-            <Form.Message />
-          </Form.Item>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={'pipelineId' as FieldPath<T>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('pipeline')}</Form.Label>
+        render={({ field, fieldState }) => (
+          <PanelFormRow label={t('pipeline')} error={fieldState.error?.message}>
             <SelectPipeline.FormItem
               mode="single"
               value={field.value}
               boardId={boardId || undefined}
               onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
             />
-            <Form.Message />
-          </Form.Item>
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={form.control}
         name={'stageId' as FieldPath<T>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('stage')}</Form.Label>
+        render={({ field, fieldState }) => (
+          <PanelFormRow label={t('stage')} error={fieldState.error?.message}>
             <SelectStage.FormItem
               mode="single"
               value={field.value}
               pipelineId={pipelineId || undefined}
               onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
             />
-            <Form.Message />
-          </Form.Item>
+          </PanelFormRow>
         )}
       />
       <SyncResponseFieldSelect form={form} />
@@ -379,84 +341,49 @@ export const SyncConfigAccountsSection = <
 
   return (
     <SyncSettingSection title={t('accounts')}>
-      <Form.Field
-        control={control}
-        name={'saleAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('sale-account')}</Form.Label>
-            <Form.Control>
+      {SYNC_SALE_ACCOUNT_FIELDS.map(([name, label, journal]) => (
+        <Form.Field
+          key={name}
+          control={control}
+          name={name as FieldPath<TFieldValues>}
+          render={({ field }) => (
+            <PanelFormRow label={t(label)}>
               <SelectAccount.FormItem
                 value={field.value}
                 onValueChange={field.onChange}
-                defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
+                className={PANEL_INPUT_CLASS_NAME}
+                defaultFilter={{ journals: [journal] }}
               />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name={'saleOutAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('sale-out-account')}</Form.Label>
-            <Form.Control>
-              <SelectAccount.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{ journals: [JournalEnum.INVENTORY] }}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name={'saleCostAccountId' as FieldPath<TFieldValues>}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('sale-cost-account')}</Form.Label>
-            <Form.Control>
-              <SelectAccount.FormItem
-                value={field.value}
-                onValueChange={field.onChange}
-                defaultFilter={{ journals: [JournalEnum.INV_FOLLOW] }}
-              />
-            </Form.Control>
-          </Form.Item>
-        )}
-      />
+            </PanelFormRow>
+          )}
+        />
+      ))}
       <Form.Field
         control={control}
         name={'branchId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('branch')}</Form.Label>
-            <Form.Control>
-              <SelectBranches.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-          </Form.Item>
+          <PanelFormRow label={t('branch')}>
+            <SelectBranches.FormItem
+              mode="single"
+              value={field.value}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
       <Form.Field
         control={control}
         name={'departmentId' as FieldPath<TFieldValues>}
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('department')}</Form.Label>
-            <Form.Control>
-              <SelectDepartments.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-          </Form.Item>
+          <PanelFormRow label={t('department')}>
+            <SelectDepartments.FormItem
+              mode="single"
+              value={field.value}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
     </SyncSettingSection>
@@ -522,6 +449,7 @@ export const SyncConfigPaymentsSection = <
 type VatCtaxSelectProps = {
   value: string;
   onValueChange: (value: string) => void;
+  className?: string;
 };
 
 const SelectVatItem = (props: VatCtaxSelectProps) => <SelectVat {...props} />;
@@ -551,55 +479,48 @@ const VatCtaxItem = <TFieldValues extends FieldValues & ISyncVatCtaxFields>({
   const hasValue = useWatch({ control, name: hasName });
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-1">
       <Form.Field
         control={control}
         name={hasName}
         render={({ field }) => (
-          <Form.Item className="flex items-center gap-2 space-y-0">
-            <Form.Control>
-              <Checkbox
-                checked={field.value ?? false}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Label variant="peer">{t(hasLabel)}</Form.Label>
-          </Form.Item>
+          <PanelFormRow label={t(hasLabel)}>
+            <SettingsPanelSwitch
+              checked={field.value ?? false}
+              onCheckedChange={field.onChange}
+            />
+          </PanelFormRow>
         )}
       />
-      <div>
-        {hasValue ? (
-          <Form.Field
-            control={control}
-            name={rowIdName}
-            render={({ field }) => {
-              const SelectComponent = selectComponent;
-              return (
-                <Form.Item>
-                  <Form.Label>{t(rowLabel)}</Form.Label>
-                  <Form.Control>
-                    <SelectComponent
-                      value={field.value || ''}
-                      onValueChange={field.onChange}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              );
-            }}
-          />
-        ) : (
-          <FormSelectEbarimtProductRule
-            name={
-              `reverse${
-                kind === 'vat' ? 'Vat' : 'Ctax'
-              }Rules` as FieldPath<TFieldValues>
-            }
-            label={t(reverseLabel)}
-            kind={kind}
-            control={control}
-          />
-        )}
-      </div>
+      {hasValue ? (
+        <Form.Field
+          control={control}
+          name={rowIdName}
+          render={({ field }) => {
+            const SelectComponent = selectComponent;
+            return (
+              <PanelFormRow label={t(rowLabel)}>
+                <SelectComponent
+                  value={field.value || ''}
+                  onValueChange={field.onChange}
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
+            );
+          }}
+        />
+      ) : (
+        <FormSelectEbarimtProductRule
+          name={
+            `reverse${
+              kind === 'vat' ? 'Vat' : 'Ctax'
+            }Rules` as FieldPath<TFieldValues>
+          }
+          label={t(reverseLabel)}
+          kind={kind}
+          control={control}
+        />
+      )}
     </div>
   );
 };
@@ -611,7 +532,7 @@ export const SyncConfigVatCtaxSection = <
 }: {
   control: Control<TFieldValues>;
 }) => (
-  <section className="col-span-full grid grid-cols-2 gap-8 mt-4 items-start">
+  <section className="flex flex-col gap-1 pt-3">
     <VatCtaxItem
       control={control}
       hasName={'hasVat' as FieldPath<TFieldValues>}
@@ -635,19 +556,24 @@ export const SyncConfigVatCtaxSection = <
   </section>
 );
 
-export const SyncConfigFormFooter = ({ loading }: { loading: boolean }) => {
+export const SyncConfigFormFooter = ({
+  loading,
+  onCancel,
+}: {
+  loading: boolean;
+  onCancel: () => void;
+}) => {
   const { t } = useTranslation('accounting');
 
   return (
-    <Sheet.Footer className="px-5 py-4 border-t bg-background shrink-0 gap-2">
-      <Sheet.Close asChild>
-        <Button variant="outline" size="lg">
-          {t('cancel')}
-        </Button>
-      </Sheet.Close>
-      <Button type="submit" disabled={loading} size="lg">
-        {loading ? <Spinner /> : t('save')}
+    <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
+      <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
+        {t('cancel')}
       </Button>
-    </Sheet.Footer>
+      <Button type="submit" size="sm" disabled={loading}>
+        {loading && <Spinner size="sm" />}
+        {t('save')}
+      </Button>
+    </div>
   );
 };

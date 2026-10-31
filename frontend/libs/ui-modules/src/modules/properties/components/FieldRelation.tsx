@@ -1,5 +1,5 @@
 import { SelectCompany, SelectCustomer } from 'ui-modules/modules/contacts';
-import { SpecificFieldProps } from './Field';
+import { SpecificFieldProps } from 'ui-modules/modules/properties/components/Field';
 import { ComponentType, useState } from 'react';
 import { SelectProduct } from 'ui-modules/modules/products';
 import {
@@ -13,9 +13,17 @@ type RelationSelectProps = {
   value?: string | string[];
   onValueChange: (value?: string | string[] | null) => void;
   inCell?: boolean;
+  allowUnassigned?: boolean;
 };
 
 const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
+
+const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
+  inCell ? (
+    <SelectMember.InlineCell {...props} {...COMMON_PROPS} showInactive />
+  ) : (
+    <SelectMember {...props} {...COMMON_PROPS} showInactive />
+  );
 
 const RELATION_SELECT_BY_TYPE: Record<
   string,
@@ -39,12 +47,8 @@ const RELATION_SELECT_BY_TYPE: Record<
     ) : (
       <SelectProduct {...props} {...COMMON_PROPS} />
     ),
-  'core:teamMembers': ({ inCell, ...props }) =>
-    inCell ? (
-      <SelectMember.InlineCell {...props} {...COMMON_PROPS} />
-    ) : (
-      <SelectMember {...props} {...COMMON_PROPS} />
-    ),
+  'core:user': MemberRelation,
+  'core:teamMembers': MemberRelation,
   'core:branch': ({ inCell, ...props }) =>
     inCell ? (
       <SelectBranches.InlineCell {...props} {...COMMON_PROPS} />
@@ -81,9 +85,12 @@ export const FieldRelation = ({
       scope={id}
       value={currentValue ?? undefined}
       inCell={inCell}
+      {...(SelectRelation === MemberRelation && {
+        allowUnassigned: !field.validations?.required,
+      })}
       onValueChange={(val = null) => {
         setCurrentValue(val);
-        val !== value && handleChange(val);
+        if (val !== value) handleChange(val);
       }}
     />
   );

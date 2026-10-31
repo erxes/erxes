@@ -1,6 +1,6 @@
 import { useState } from "react"
 import dynamic from "next/dynamic"
-import { mobileTabAtom, modeAtom } from "@/store"
+import { isSimilarityModeAtom, mobileTabAtom, modeAtom } from "@/store"
 import { addToCartAtom } from "@/store/cart.store"
 import { isShowRemainderAtom } from "@/store/config.store"
 import { useAtomValue, useSetAtom } from "jotai"
@@ -39,13 +39,15 @@ const ProductItem = (props: IProduct) => {
     remainder,
     remainders,
     isCheckRem,
-    hasSimilarity,
   } = props
   const [open, setOpen] = useState(false)
   const addToCart = useSetAtom(addToCartAtom)
   const mode = useAtomValue(modeAtom)
   const isShowRemainder = useAtomValue(isShowRemainderAtom)
   const setTab = useSetAtom(mobileTabAtom)
+
+  const isSimilarityMode = useAtomValue(isSimilarityModeAtom)
+  const hasSimilarity = isSimilarityMode && props.hasSimilarity
 
   return (
     <>

@@ -1,11 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { ACCOUNTING_SETTINGS_CODES } from '../constants/settingsRoutes';
-import { useAccountingConfigAdd } from '../hooks/useAccountingConfigAdd';
-import { SettingsRuleByCode } from './AddEditConfigRules';
+import { ACCOUNTING_SETTINGS_CODES } from '@/settings/constants/settingsRoutes';
+import { getSyncConfigContentType } from '@/settings/constants/settingsPanel';
+import { SettingsPanelAddButton } from '@/settings/components/panel/SettingsPanelActions';
 
 export const AddAccountingConfig = ({
   code,
@@ -13,57 +9,11 @@ export const AddAccountingConfig = ({
   code: ACCOUNTING_SETTINGS_CODES;
 }) => {
   const { t } = useTranslation('accounting');
-  const [open, setOpen] = useState(false);
+
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-configuration')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-4xl">
-        <Sheet.Header>
-          <Sheet.Title>{t('add-configuration')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <AddAccountingConfigForm code={code} setOpen={setOpen} />
-      </Sheet.View>
-    </Sheet>
+    <SettingsPanelAddButton
+      contentType={getSyncConfigContentType(code)}
+      label={t('add-configuration')}
+    />
   );
-};
-
-export const AddAccountingConfigForm = ({
-  code,
-  setOpen,
-}: {
-  code: ACCOUNTING_SETTINGS_CODES;
-  setOpen: (open: boolean) => void;
-}) => {
-  const { t } = useTranslation('accounting');
-  const rule = SettingsRuleByCode[code];
-  const form = useForm<any>({ defaultValues: {} });
-
-  const { addConfig, loading } = useAccountingConfigAdd({
-    onCompleted: () => {
-      setOpen(false);
-      form.reset();
-    },
-  });
-
-  if (!rule) {
-    return <div>{t('unknown-configuration-type')}</div>;
-  }
-
-  const { subIdFieldName, FormComponent } = SettingsRuleByCode[code] || {};
-
-  const onSubmit = (data: any) => {
-    addConfig({
-      code,
-      subId: data[subIdFieldName] ?? '',
-      value: data,
-    });
-  };
-
-  return <FormComponent form={form} onSubmit={onSubmit} loading={loading} />;
 };

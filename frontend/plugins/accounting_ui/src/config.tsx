@@ -8,6 +8,10 @@ import {
 } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { FXA_OWNER_RECORD_PANEL_CONTENT_TYPES } from '@/fixedAssets/ownerRecords/constants/ownerRecordPanel';
+import { SETTINGS_PANEL_CONTENT_TYPES } from '@/settings/constants/settingsPanel';
+import { ADJUSTMENT_PANEL_CONTENT_TYPES } from '@/adjustments/constants/adjustmentPanel';
+import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
 
 export const CONFIG: IUIConfig = {
   name: 'accounting',
@@ -126,6 +130,16 @@ export const CONFIG: IUIConfig = {
         icon: IconReceipt,
       },
     ],
+    recordPanels: [
+      ...SETTINGS_PANEL_CONTENT_TYPES,
+      ...FXA_OWNER_RECORD_PANEL_CONTENT_TYPES,
+      ...ADJUSTMENT_PANEL_CONTENT_TYPES,
+      SAFE_REMAINDER_CONTENT_TYPE,
+    ].map((contentType) => ({
+      contentType,
+      properties: false,
+      draftTitle: true,
+    })),
   },
   searchProviders: SEARCH_PROVIDERS,
 };

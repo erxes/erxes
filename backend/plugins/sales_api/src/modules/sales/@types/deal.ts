@@ -107,7 +107,6 @@ export interface IDeal {
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
-  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {

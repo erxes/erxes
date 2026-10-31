@@ -8,6 +8,20 @@ import { initTRPC } from '@trpc/server';
 import { createTRPCContext } from '../trpc';
 import { nanoid } from 'nanoid';
 import { z } from 'zod';
+import { redactLogPayload } from './redactLogPayload';
+
+const enqueueLog = (logDoc: ILogDoc) => {
+  try {
+    logDoc.payload = redactLogPayload(logDoc.payload);
+  } catch {
+    // Unserializable payload (e.g. circular) could not be queued anyway; never fail the resolver over it
+    return;
+  }
+
+  sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
+    removeOnComplete: true,
+  });
+};
 
 export const logHandler = async (
   resolver: () => Promise<any> | any,
@@ -38,9 +52,7 @@ export const logHandler = async (
       durationMs: durationMs,
     };
     logDoc.status = 'success';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
-      removeOnComplete: true,
-    });
+    enqueueLog(logDoc);
 
     return result;
   } catch (error) {
@@ -52,9 +64,7 @@ export const logHandler = async (
 
     logDoc.payload = { ...payload, ...onError, error: errorDetails };
     logDoc.status = 'failed';
-    sendWorkerQueue('logs', 'put_log').add('put_log', logDoc, {
-      removeOnComplete: true,
-    });
+    enqueueLog(logDoc);
 
     throw error;
   }
