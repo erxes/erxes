@@ -73,20 +73,14 @@ jest.mock('../SidePanelChat', () => {
         mockMounts += 1;
       }, []);
       return (
-        <div
-          data-testid="chat"
-          data-active={String(active)}
-          data-mode={mode}
-        >
+        <div data-testid="chat" data-active={String(active)} data-mode={mode}>
           <input
             aria-label="Draft"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
           <button
-            onClick={() =>
-              onModeChange(mode === 'lens' ? 'companion' : 'lens')
-            }
+            onClick={() => onModeChange(mode === 'lens' ? 'companion' : 'lens')}
           >
             {mode === 'lens' ? 'Pin to side panel' : 'Unpin and float'}
           </button>

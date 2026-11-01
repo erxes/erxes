@@ -78,7 +78,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   have a review/edit step before explicit submission; answers keep the existing
   positional string/string-array contract. `AskUserAnswered` is the persisted
   summary in the transcript. Both share one surface (`rounded-xl border
-  bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
+bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
   renders the review step and the summary the same way: picked options as
   erxes-ui `Badge` chips (wrapping at 320px) and the user's own words as a
   separate muted text line (pencil icon + sr-only "Your own answer" when the
@@ -116,7 +116,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   a key without Models: Read, or one the server cannot decrypt), an
   `Unavailable` marker when not in use, its saved model and its recent picks.
   A well-formed unlisted id typed in search offers `Use "<id>"` (`Custom
-  model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
+model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
   `AgentsModelVerify`) resolves null, otherwise the reason shows inline. Listed
   models get the same check when first picked, because listings ignore some
   access rules (OpenAI lists the organisation's models regardless of a

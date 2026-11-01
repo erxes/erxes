@@ -6,13 +6,7 @@ import {
 } from '@tabler/icons-react';
 import { Button, toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { SIDE_PANEL_CHAT_PATH, SIDE_PANEL_QUERY_KEY } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
@@ -162,9 +156,7 @@ export const AgentSidePanel = ({
             variant="ghost"
             size="icon"
             className="size-7"
-            onClick={() =>
-              onModeChange(mode === 'lens' ? 'companion' : 'lens')
-            }
+            onClick={() => onModeChange(mode === 'lens' ? 'companion' : 'lens')}
             aria-label={modeLabel}
             title={modeLabel}
           >

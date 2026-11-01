@@ -22,7 +22,7 @@ export const AgentPageContextChip = ({
   const Icon = target.icon;
   const label = record
     ? t(`reference-types.${record.type}`, record.type)
-    : pageLabel ?? t('current-page', 'Current page');
+    : (pageLabel ?? t('current-page', 'Current page'));
 
   return (
     <span className="inline-flex max-w-full items-center gap-1.5 rounded-full border bg-muted/40 px-2.5 py-1 text-[11px] text-muted-foreground">
