@@ -50,8 +50,11 @@ export const resetSupportLoginKeys = () => {
   publicKeys = undefined;
 };
 
+// erxes cloud only; development opens it too so both sides can be tried locally
 export const isSupportAccessAvailable = () =>
-  getEnv({ name: 'VERSION' }) === 'saas' && getPublicKeys().size > 0;
+  (getEnv({ name: 'VERSION' }) === 'saas' ||
+    getEnv({ name: 'NODE_ENV' }) === 'development') &&
+  getPublicKeys().size > 0;
 
 // Names reach notification emails that render them unescaped
 const clean = (value: unknown, max: number) =>

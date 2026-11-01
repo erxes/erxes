@@ -184,6 +184,7 @@ describe('approval', () => {
     expect(visit.sessionPolicy.idleSecs).toBeLessThanOrEqual(HOUR_SECS);
     await expect(supportUser()).resolves.toMatchObject({
       isActive: true,
+      isOnboarded: true,
       permissionGroupIds: ['sales:admin'],
     });
     expect(mockArmEnd).toHaveBeenCalledTimes(1);

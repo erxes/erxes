@@ -77,6 +77,7 @@ const handMade = (header: object, signature: (input: string) => string) => {
 
 beforeEach(() => {
   mockEnv.VERSION = 'saas';
+  mockEnv.NODE_ENV = 'production';
   mockEnv.SUPPORT_LOGIN_JWKS = JSON.stringify([
     { ...keys.publicKey.export({ format: 'jwk' }), kid: KID },
   ]);
@@ -173,6 +174,15 @@ describe('where support access is off', () => {
     mockEnv.VERSION = 'os';
 
     await expect(verifySupportToken(sign(), SUBDOMAIN)).resolves.toBeNull();
+  });
+
+  it('opens outside erxes cloud only for local development', async () => {
+    mockEnv.VERSION = 'os';
+    mockEnv.NODE_ENV = 'development';
+
+    await expect(verifySupportToken(sign(), SUBDOMAIN)).resolves.toMatchObject({
+      staffId: 'staff_bat',
+    });
   });
 
   it('lets nobody in without global-profile keys', async () => {

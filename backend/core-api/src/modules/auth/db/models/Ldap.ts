@@ -573,7 +573,8 @@ export const loadAuthIdentityClass = (models: IModels, subdomain: string) => {
     ) {
       await models.Users.updateOne(
         { _id: userId },
-        { $set: { isActive: true, permissionGroupIds } },
+        // Onboarding edits the profile, which a support account can't; it would trap the visit there
+        { $set: { isActive: true, isOnboarded: true, permissionGroupIds } },
       );
       await clearGroupActionsCache({ userId });
     }
