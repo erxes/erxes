@@ -1,0 +1,7 @@
+{
+  "name": "erxes-chat-design",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node --test tests/chat.test.mjs" },
+  "devDependencies": { "playwright": "1.64.1" }
+}
