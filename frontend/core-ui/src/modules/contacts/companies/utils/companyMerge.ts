@@ -164,14 +164,22 @@ export const buildMergeRows = (
   });
 };
 
-export const resolveMergeValue = (row: MergeRow, selected: '0' | '1' = '0') => {
+/** Which company's value wins a conflict: '0' = first, '1' = second. */
+export type MergeChoice = '0' | '1';
+
+export const DEFAULT_MERGE_CHOICE: MergeChoice = '0';
+
+export const resolveMergeValue = (
+  row: MergeRow,
+  selected: MergeChoice = DEFAULT_MERGE_CHOICE,
+) => {
   const [first, second] = row.values;
   if (row.field.union) return unionValues(first, second);
   if (row.conflict) return row.values[Number(selected)];
   return isEmpty(first) ? second : first;
 };
 
-export type MergeSelection = Record<string, '0' | '1'>;
+export type MergeSelection = Record<string, MergeChoice>;
 
 /** The `companyFields` payload for the companiesMerge mutation. */
 export const buildCompanyMergeFields = (
@@ -183,4 +191,66 @@ export const buildCompanyMergeFields = (
     row.field.apply(fields, resolveMergeValue(row, selection[row.field.key]));
   });
   return fields;
+};
+
+/** A conflicting field, ready to render as a pick-one choice. */
+export interface MergeConflictItem {
+  key: string;
+  label: string;
+  type: FieldType;
+  selected: MergeChoice;
+  options: { choice: MergeChoice; fieldValue: unknown }[];
+}
+
+/** A field of the merged company, ready to render in the preview. */
+export interface MergeResultItem {
+  key: string;
+  label: string;
+  type: FieldType;
+  value: unknown;
+}
+
+export const buildMergeConflicts = (
+  rows: MergeRow[],
+  selection: MergeSelection,
+): MergeConflictItem[] =>
+  rows
+    .filter((row) => row.conflict)
+    .map(({ field, values }) => ({
+      key: field.key,
+      label: field.label,
+      type: field.type,
+      selected: selection[field.key] ?? DEFAULT_MERGE_CHOICE,
+      options: [
+        { choice: '0', fieldValue: values[0] },
+        { choice: '1', fieldValue: values[1] },
+      ],
+    }));
+
+export const buildMergeResults = (
+  rows: MergeRow[],
+  selection: MergeSelection,
+): MergeResultItem[] =>
+  rows
+    .map((row) => ({
+      key: row.field.key,
+      label: row.field.label,
+      type: row.field.type,
+      value: resolveMergeValue(row, selection[row.field.key]),
+    }))
+    .filter((item) => !isEmpty(item.value));
+
+export const getCompanyMergeName = (company: MergeCompany) =>
+  company.primaryName || company.primaryEmail || company._id;
+
+/** The two fetched companies in the order they were selected, or null. */
+export const orderMergeCompanies = (
+  list: MergeCompany[],
+  companyIds: string[],
+): [MergeCompany, MergeCompany] | null => {
+  const ordered = companyIds
+    .map((id) => list.find((company) => company._id === id))
+    .filter((company): company is MergeCompany => Boolean(company));
+
+  return ordered.length === 2 ? [ordered[0], ordered[1]] : null;
 };

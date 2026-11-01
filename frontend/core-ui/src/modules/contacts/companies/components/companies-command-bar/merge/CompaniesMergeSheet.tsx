@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { IconArrowMerge } from '@tabler/icons-react';
 import { Button, Sheet, Spinner, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
-import { CompaniesMergeTooltip } from '@/contacts/companies/components/companies-command-bar/CompaniesMergeTooltip';
+import { CompaniesMergeTooltip } from './CompaniesMergeTooltip';
 
 const noop = () => {
   //
@@ -29,9 +29,15 @@ export const CompaniesMergeSheet = ({
   ...props
 }: CompaniesMergeSheetProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  // The tooltip explains why Merge is disabled, so it only shows then.
+  const hideTooltip = !disabled;
+  const showFooter = !disabled;
+  const saveButtonDisabled = saving || saveDisabled;
+  const contentClassName = cn('w-full', className);
+
   return (
     <Sheet {...props}>
-      <CompaniesMergeTooltip disabled={!disabled}>
+      <CompaniesMergeTooltip disabled={hideTooltip}>
         <Sheet.Trigger asChild>
           <Button variant="secondary" disabled={disabled}>
             <IconArrowMerge />
@@ -48,14 +54,14 @@ export const CompaniesMergeSheet = ({
           {t('merge-tooltip')}
         </Sheet.Description>
         <Sheet.Content className="min-h-0 overflow-y-auto">
-          <div className={cn('w-full', className)}>{children}</div>
+          <div className={contentClassName}>{children}</div>
         </Sheet.Content>
-        {!disabled && (
+        {showFooter && (
           <Sheet.Footer className="flex justify-end p-5">
             <Button variant="secondary" onClick={onDiscard} disabled={saving}>
               {t('action-discard')}
             </Button>
-            <Button onClick={onSave} disabled={saving || saveDisabled}>
+            <Button onClick={onSave} disabled={saveButtonDisabled}>
               {saving && <Spinner containerClassName="inline-flex flex-none" />}
               {t('action-save')}
             </Button>

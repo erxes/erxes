@@ -1,7 +1,11 @@
 import {
   MergeCompany,
   buildCompanyMergeFields,
+  buildMergeConflicts,
+  buildMergeResults,
   buildMergeRows,
+  getCompanyMergeName,
+  orderMergeCompanies,
 } from './companyMerge';
 
 const company = (overrides: Partial<MergeCompany>): MergeCompany => ({
@@ -98,5 +102,50 @@ describe('company merge', () => {
     expect(
       buildCompanyMergeFields(rows, { 'links.facebook': '1' }).links,
     ).toEqual({ facebook: 'fb.com/acme-llc', github: 'github.com/acme' });
+  });
+
+  it('builds render-ready conflicts and preview items', () => {
+    const rows = buildMergeRows([
+      company({ _id: 'a', primaryName: 'Acme', code: 'A1' }),
+      company({ _id: 'b', primaryName: 'Acme LLC' }),
+    ]);
+
+    expect(buildMergeConflicts(rows, { primaryName: '1' })).toEqual([
+      {
+        key: 'primaryName',
+        label: 'Name',
+        type: 'string',
+        selected: '1',
+        options: [
+          { choice: '0', fieldValue: 'Acme' },
+          { choice: '1', fieldValue: 'Acme LLC' },
+        ],
+      },
+    ]);
+    expect(
+      buildMergeResults(rows, { primaryName: '1' }).map(({ key, value }) => [
+        key,
+        value,
+      ]),
+    ).toEqual([
+      ['primaryName', 'Acme LLC'],
+      ['code', 'A1'],
+    ]);
+  });
+
+  it('orders fetched companies by selection and names them', () => {
+    const first = company({
+      _id: 'a',
+      primaryName: '',
+      primaryEmail: 'a@x.mn',
+    });
+    const second = company({ _id: 'b', primaryName: 'Beta' });
+
+    expect(orderMergeCompanies([second, first], ['a', 'b'])).toEqual([
+      first,
+      second,
+    ]);
+    expect(orderMergeCompanies([second], ['a', 'b'])).toBeNull();
+    expect(getCompanyMergeName(first)).toBe('a@x.mn');
   });
 });

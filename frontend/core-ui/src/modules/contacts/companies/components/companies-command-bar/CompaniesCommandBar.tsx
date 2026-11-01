@@ -3,7 +3,7 @@ import { ApolloError } from '@apollo/client';
 import { CommandBar, RecordTable, Separator, toast } from 'erxes-ui';
 import { Can, Export, TagsSelect } from 'ui-modules';
 import { CompaniesDelete } from './CompaniesDelete';
-import { CompaniesMerge } from './CompaniesMerge';
+import { CompaniesMerge } from './merge/CompaniesMerge';
 
 export const CompaniesCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
@@ -76,7 +76,7 @@ export const CompaniesCommandBar = () => {
         <Can action="contactsMerge">
           <>
             <Separator.Inline />
-            <CompaniesMerge rows={selectedRows} />
+            <CompaniesMerge companyIds={companyIds} />
           </>
         </Can>
         <Can action="contactsDelete">
