@@ -31,7 +31,11 @@ export const paginate = (
   return collection.limit(_limit).skip((_page - 1) * _limit);
 };
 
-const generateFilterPosQuery = async (models, params, currentUserId) => {
+export const generateFilterPosQuery = async (
+  models,
+  params,
+  currentUserId,
+) => {
   const query: any = {};
   const {
     search,

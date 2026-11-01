@@ -1,6 +1,7 @@
 import { CommandBar, Separator } from 'erxes-ui/components';
 import { RecordTable } from 'erxes-ui';
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
+import { DealsExport } from '@/deals/actionBar/components/DealsExport';
 import { useTranslation } from 'react-i18next';
 
 export const DealsCommandBar = () => {
@@ -20,6 +21,10 @@ export const DealsCommandBar = () => {
         <CommandBar.Value>{selectedCount} {t('selected')}</CommandBar.Value>
         <DealsActions deals={selectedDeals} selectedCount={selectedCount} />
         <Separator.Inline />
+        <DealsExport
+          buttonVariant="secondary"
+          ids={selectedDeals.map((deal) => deal._id)}
+        />
       </CommandBar.Bar>
     </CommandBar>
   );
