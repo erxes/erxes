@@ -82,6 +82,7 @@
   "use-company-email": "Use company email",
   "verified-sender-email": "Verified sender",
   "custom-sender-email": "Custom sender email",
+  "custom-sender-email-hint": "Type an address on your verified domain, or a placeholder that gives a team member's email. An address on another domain sends from the company email, and replies go to that address. When a placeholder gives several addresses, the first one is used.",
   "to": "To",
   "cc": "CC",
   "subject": "Subject",

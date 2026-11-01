@@ -110,6 +110,13 @@ export const checkCampaignDoc = async (
       throw new Error(`"${replyTo}" is not a valid reply-to address`);
     }
 
+    // a verified From makes the reply-to the address that steers replies away
+    if (replyTo && !(await isSenderAllowed(models, replyTo, 'broadcast'))) {
+      throw new Error(
+        `"${replyTo}" can't be the reply-to: use an address on a verified domain or a confirmed address`,
+      );
+    }
+
     if (!content && !contentJson) {
       throw new Error('Email content is missing');
     }
