@@ -1,5 +1,7 @@
 import {
+  IntegrationFormActions,
   IntegrationFormItem,
+  IntegrationNameField,
   INTEGRATION_CONTENT_TYPE,
   IntegrationEditButton,
 } from '@/integrations/components/IntegrationPanelForm';
@@ -12,15 +14,7 @@ import {
 } from 'ui-modules';
 import { InstagramIntegrationFormSheet } from './InstagramIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
-import {
-  Button,
-  Separator,
-  Spinner,
-  Form,
-  Input,
-  toast,
-  Label,
-} from 'erxes-ui';
+import { Spinner, Form, Input, toast, Label } from 'erxes-ui';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -165,16 +159,7 @@ export const InstagramIntegrationEditForm = ({
               readOnly
             />
           </div>
-          <Form.Field
-            name="name"
-            render={({ field }) => (
-              <IntegrationFormItem label={t('name')}>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-              </IntegrationFormItem>
-            )}
-          />
+          <IntegrationNameField showMessage={false} />
           <Form.Field
             name="brandId"
             render={({ field }) => (
@@ -190,20 +175,10 @@ export const InstagramIntegrationEditForm = ({
             )}
           />
         </div>
-        <Separator />
-        <div className="flex shrink-0 justify-end gap-1 p-2">
-          <Button
-            type="button"
-            onClick={() => setOpen(false)}
-            disabled={loading || editLoading}
-            variant="ghost"
-          >
-            {t('close')}
-          </Button>
-          <Button type="submit" disabled={loading || editLoading}>
-            {t('save')}
-          </Button>
-        </div>
+        <IntegrationFormActions
+          onClose={() => setOpen(false)}
+          disabled={loading || editLoading}
+        />
       </form>
     </Form>
   );

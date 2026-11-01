@@ -1,4 +1,4 @@
-import { Button, Form, Sheet, Spinner } from 'erxes-ui';
+import { Button, Form, Input, Separator, Sheet, Spinner } from 'erxes-ui';
 import { IconEdit, IconPlus } from '@tabler/icons-react';
 import { type PrimitiveAtom, useAtom } from 'jotai';
 import { createContext, useContext, useEffect, useState } from 'react';
@@ -104,6 +104,68 @@ export const IntegrationFormItem = ({
     </PanelFormRow>
   </Form.Item>
 );
+
+/** Renders the integration name with optional setup guidance and validation feedback. */
+export const IntegrationNameField = ({
+  label,
+  description,
+  showMessage = true,
+}: {
+  label?: string;
+  description?: string;
+  showMessage?: boolean;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <Form.Field
+      name="name"
+      render={({ field }) => (
+        <IntegrationFormItem label={label ?? t('name')}>
+          <Form.Control>
+            <Input {...field} />
+          </Form.Control>
+          {description && <Form.Description>{description}</Form.Description>}
+          {showMessage && <Form.Message />}
+        </IntegrationFormItem>
+      )}
+    />
+  );
+};
+
+/** Keeps close and submit controls consistent across provider edit forms. */
+export const IntegrationFormActions = ({
+  onClose,
+  disabled,
+}: {
+  onClose: () => void;
+  disabled?: boolean;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <>
+      <Separator />
+      <div className="flex shrink-0 justify-end gap-1 p-2">
+        <Button
+          type="button"
+          onClick={onClose}
+          disabled={disabled}
+          variant="ghost"
+        >
+          {t('close')}
+        </Button>
+        <Button type="submit" disabled={disabled}>
+          {t('save')}
+        </Button>
+      </div>
+    </>
+  );
+};
 
 export const IntegrationFormSession = <T,>({
   state,

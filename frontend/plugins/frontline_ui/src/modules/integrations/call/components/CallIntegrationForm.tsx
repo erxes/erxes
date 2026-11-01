@@ -1,6 +1,7 @@
+import { IntegrationFormLayout as CallIntegrationFormLayout } from '@/integrations/components/IntegrationFormLayout';
 import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
-import { Button, Sheet, Form, Input, Spinner } from 'erxes-ui';
+import { Button, Form, Input, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
@@ -206,29 +207,4 @@ export const CallIntegrationForm = ({
   );
 };
 
-export const CallIntegrationFormLayout = ({
-  children,
-  actions,
-}: {
-  children: React.ReactNode;
-  actions: React.ReactNode;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  return (
-    <>
-      <Sheet.Content className="min-h-0 overflow-auto p-3 styled-scroll">
-        <div className="grid grid-cols-1 gap-3">{children}</div>
-      </Sheet.Content>
-      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
-        <Sheet.Close asChild>
-          <Button className="mr-auto text-muted-foreground" variant="ghost">
-            {t('cancel')}
-          </Button>
-        </Sheet.Close>
-        {actions}
-      </Sheet.Footer>
-    </>
-  );
-};
+export { CallIntegrationFormLayout };

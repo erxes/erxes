@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -1088,6 +1088,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
 
 ## Local Invariants
 
+- Integration provider forms reuse `IntegrationFormLayout` for call sheet
+  layouts and `IntegrationFormActions` / `IntegrationNameField` for common
+  edit and setup controls. Preserve each provider's validation, brand selector
+  and mutation behavior when composing these helpers.
+- Telegram's standalone setup exports retain sheet behavior by default; the
+  integrations page and row menu opt into `presentation="panel"`. Both use
+  the same setup implementation, with channel and field layout supplied by
+  their presentation.
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
 - Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
 - The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.

@@ -8,7 +8,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import { TelegramSetup } from '../TelegramIntegrationDetail';
+import { TelegramIntegrationDetail } from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
@@ -81,7 +81,6 @@ jest.mock('erxes-ui', () => {
   };
 });
 jest.mock('ui-modules', () => ({
-  PanelFormRow: ({ children }: PropsWithChildren) => <div>{children}</div>,
   SelectBrand: ({
     value,
     onValueChange,
@@ -189,10 +188,11 @@ test.each([false, true])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramSetup integrationId={null} />
+          <TelegramIntegrationDetail />
         </Provider>
       </MockedProvider>,
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Open setup' }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'brandId' }), {
       target: { value: 'brand' },
     });

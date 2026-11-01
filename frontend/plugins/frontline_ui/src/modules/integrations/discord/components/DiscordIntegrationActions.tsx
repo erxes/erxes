@@ -1,12 +1,14 @@
 import {
+  IntegrationFormActions,
   IntegrationFormItem,
+  IntegrationNameField,
   IntegrationEditButton,
 } from '@/integrations/components/IntegrationPanelForm';
 
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconTool } from '@tabler/icons-react';
-import { Button, Form, Input, Separator, Spinner, toast } from 'erxes-ui';
+import { Form, Spinner, toast } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SelectBrands } from 'ui-modules';
@@ -85,17 +87,7 @@ export const DiscordIntegrationEditForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
-          <Form.Field
-            name="name"
-            render={({ field }) => (
-              <IntegrationFormItem label={t('name')}>
-                <Form.Control>
-                  <Input {...field} />
-                </Form.Control>
-                <Form.Message />
-              </IntegrationFormItem>
-            )}
-          />
+          <IntegrationNameField />
           <Form.Field
             name="brandId"
             render={({ field }) => (
@@ -109,20 +101,10 @@ export const DiscordIntegrationEditForm = ({
             )}
           />
         </div>
-        <Separator />
-        <div className="flex shrink-0 justify-end gap-1 p-2">
-          <Button
-            type="button"
-            onClick={() => setOpen(false)}
-            disabled={loading || editLoading}
-            variant="ghost"
-          >
-            {t('close')}
-          </Button>
-          <Button type="submit" disabled={loading || editLoading}>
-            {t('save')}
-          </Button>
-        </div>
+        <IntegrationFormActions
+          onClose={() => setOpen(false)}
+          disabled={loading || editLoading}
+        />
       </form>
     </Form>
   );

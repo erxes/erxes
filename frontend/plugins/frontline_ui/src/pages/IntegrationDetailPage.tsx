@@ -115,7 +115,7 @@ export const IntegrationDetailPage = () => {
       </div>
       <Suspense fallback={<span>{t('loading', 'Loading…')}</span>}>
         {integrationType === IntegrationType.TELEGRAM_MESSENGER && (
-          <TelegramIntegrationDetail />
+          <TelegramIntegrationDetail presentation="panel" />
         )}
         {integrationType === IntegrationType.ERXES_MESSENGER && (
           <ErxesMessengerDetail />

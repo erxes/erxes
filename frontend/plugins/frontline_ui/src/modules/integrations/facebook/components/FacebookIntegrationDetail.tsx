@@ -1,5 +1,7 @@
 import {
+  IntegrationFormActions,
   IntegrationFormItem,
+  IntegrationNameField,
   INTEGRATION_CONTENT_TYPE,
   IntegrationEditButton,
 } from '@/integrations/components/IntegrationPanelForm';
@@ -11,15 +13,7 @@ import {
 } from 'ui-modules';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
-import {
-  Button,
-  Separator,
-  Spinner,
-  Form,
-  Input,
-  toast,
-  Label,
-} from 'erxes-ui';
+import { Separator, Spinner, Form, Input, toast, Label } from 'erxes-ui';
 
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
@@ -163,17 +157,7 @@ export const FacebookIntegrationEditForm = ({
                 readOnly
               />
             </div>
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <IntegrationFormItem label={t('name')}>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </IntegrationFormItem>
-              )}
-            />
+            <IntegrationNameField />
             <Form.Field
               name="brandId"
               render={({ field }) => (
@@ -187,20 +171,10 @@ export const FacebookIntegrationEditForm = ({
               )}
             />
           </div>
-          <Separator />
-          <div className="flex shrink-0 justify-end gap-1 p-2">
-            <Button
-              type="button"
-              onClick={() => setOpen(false)}
-              disabled={loading || editLoading}
-              variant="ghost"
-            >
-              {t('close')}
-            </Button>
-            <Button type="submit" disabled={loading || editLoading}>
-              {t('save')}
-            </Button>
-          </div>
+          <IntegrationFormActions
+            onClose={() => setOpen(false)}
+            disabled={loading || editLoading}
+          />
         </form>
       </Form>
       {integrationDetail?.kind === IntegrationType.FACEBOOK_MESSENGER && (

@@ -1,8 +1,9 @@
 import {
   IntegrationFormItem,
+  IntegrationNameField,
   useIntegrationChannelId,
 } from '@/integrations/components/IntegrationPanelForm';
-import { Button, Form, Input } from 'erxes-ui';
+import { Button, Form } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 import {
@@ -90,19 +91,9 @@ export const InstagramIntegrationSetup = () => {
             step={3}
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <IntegrationFormItem label={t('integration-name')}>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Description>
-                    {t('integration-name-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </IntegrationFormItem>
-              )}
+            <IntegrationNameField
+              label={t('integration-name')}
+              description={t('integration-name-description')}
             />
 
             <Form.Field

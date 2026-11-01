@@ -6,6 +6,7 @@ import {
 } from '@/integrations/components/IntegrationPanelForm';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconBrandTelegram, IconSettings } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
@@ -18,9 +19,10 @@ import {
   toast,
   useConfirm,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { atom, useAtom, useSetAtom } from 'jotai';
+import { type ComponentType, type ReactNode, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-
+import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
 import { z } from 'zod';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
@@ -41,6 +43,18 @@ import {
   getTelegramWebhookUrl,
 } from './webhookUrl';
 
+const telegramSetupState = atom<string | null>();
+type TelegramPresentation = 'sheet' | 'panel';
+type TelegramFormItemProps = { label: ReactNode; children: ReactNode };
+
+/** Preserves the standalone sheet's field labels around the shared setup controls. */
+const TelegramFormItem = ({ label, children }: TelegramFormItemProps) => (
+  <Form.Item>
+    <Form.Label>{label}</Form.Label>
+    {children}
+  </Form.Item>
+);
+
 /** Validates the public callback address before any bot setup mutation. */
 const getSetupSchema = (callbackError: string) =>
   z.object({
@@ -60,19 +74,53 @@ type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
 /** Opens setup for the integration selected in the native integrations table. */
 export const TelegramIntegrationActions = ({
   integration,
+  presentation = 'sheet',
 }: {
   integration: IIntegration;
+  presentation?: TelegramPresentation;
 }) => {
-  return <IntegrationEditButton integration={integration} />;
+  const setOpen = useSetAtom(telegramSetupState);
+  const { t } = useTelegramTranslation();
+  return presentation === 'panel' ? (
+    <IntegrationEditButton integration={integration} />
+  ) : (
+    <Button
+      variant="ghost"
+      className="w-full justify-start"
+      onClick={() => setOpen(integration._id)}
+    >
+      <IconSettings className="size-4" />
+      {t('configure')}
+    </Button>
+  );
 };
 
-/** Runs resumable bot verification, inbox linking and webhook registration. */
+/** Supplies record-panel channel context and field layout to the shared setup form. */
 export const TelegramSetup = ({
   integrationId,
 }: {
   integrationId: string | null;
 }) => {
   const channelId = useIntegrationChannelId();
+  return (
+    <TelegramSetupForm
+      integrationId={integrationId}
+      channelId={channelId}
+      FormItem={IntegrationFormItem}
+    />
+  );
+};
+
+/** Runs resumable bot verification, inbox linking and webhook registration. */
+const TelegramSetupForm = ({
+  integrationId,
+  channelId,
+  FormItem,
+}: {
+  integrationId: string | null;
+  channelId?: string;
+  FormItem: ComponentType<TelegramFormItemProps>;
+}) => {
   const { t } = useTelegramTranslation();
   const client = useApolloClient();
   const { confirm } = useConfirm();
@@ -308,7 +356,7 @@ export const TelegramSetup = ({
                   control={form.control}
                   name="botId"
                   render={({ field }) => (
-                    <IntegrationFormItem label={t('bot')}>
+                    <FormItem label={t('bot')}>
                       <Select
                         value={field.value}
                         onValueChange={field.onChange}
@@ -333,7 +381,7 @@ export const TelegramSetup = ({
                         </Select.Content>
                       </Select>
                       <Form.Message />
-                    </IntegrationFormItem>
+                    </FormItem>
                   )}
                 />
               )}
@@ -346,9 +394,7 @@ export const TelegramSetup = ({
                 control={form.control}
                 name="token"
                 render={({ field }) => (
-                  <IntegrationFormItem
-                    label={bot ? t('replacementToken') : t('token')}
-                  >
+                  <FormItem label={bot ? t('replacementToken') : t('token')}>
                     <Form.Control>
                       <Input
                         {...field}
@@ -358,7 +404,7 @@ export const TelegramSetup = ({
                     </Form.Control>
                     <Form.Description>{t('tokenHint')}</Form.Description>
                     <Form.Message />
-                  </IntegrationFormItem>
+                  </FormItem>
                 )}
               />
               {needsLink && (
@@ -367,7 +413,7 @@ export const TelegramSetup = ({
                     control={form.control}
                     name="name"
                     render={({ field }) => (
-                      <IntegrationFormItem label={t('name')}>
+                      <FormItem label={t('name')}>
                         <Form.Control>
                           <Input
                             {...field}
@@ -376,14 +422,14 @@ export const TelegramSetup = ({
                         </Form.Control>
                         <Form.Description>{t('nameHint')}</Form.Description>
                         <Form.Message />
-                      </IntegrationFormItem>
+                      </FormItem>
                     )}
                   />
                   <Form.Field
                     control={form.control}
                     name="brandId"
                     render={({ field }) => (
-                      <IntegrationFormItem label={t('brand')}>
+                      <FormItem label={t('brand')}>
                         <Form.Control>
                           <SelectBrand
                             value={field.value}
@@ -393,7 +439,7 @@ export const TelegramSetup = ({
                           />
                         </Form.Control>
                         <Form.Message />
-                      </IntegrationFormItem>
+                      </FormItem>
                     )}
                   />
                 </>
@@ -414,17 +460,17 @@ export const TelegramSetup = ({
                   {status?.url
                     ? t('callbackSaved')
                     : statusQuery.error
-                      ? t('statusFailed')
-                      : defaultAddress
-                        ? t('callbackDetected')
-                        : t('callbackLocal')}
+                    ? t('statusFailed')
+                    : defaultAddress
+                    ? t('callbackDetected')
+                    : t('callbackLocal')}
                 </p>
                 <Collapsible.Content>
                   <Form.Field
                     control={form.control}
                     name="url"
                     render={({ field }) => (
-                      <IntegrationFormItem label={t('callback')}>
+                      <FormItem label={t('callback')}>
                         <Form.Control>
                           <Input
                             {...field}
@@ -454,7 +500,7 @@ export const TelegramSetup = ({
                           )}
                         </Form.Description>
                         <Form.Message />
-                      </IntegrationFormItem>
+                      </FormItem>
                     )}
                   />
                 </Collapsible.Content>
@@ -538,8 +584,8 @@ export const TelegramSetup = ({
                 {bot.canJoinGroups === false
                   ? t('noGroups')
                   : bot.canReadAllGroupMessages
-                    ? t('privacyOff')
-                    : t('privacyOn')}
+                  ? t('privacyOff')
+                  : t('privacyOn')}
               </p>
             )}
             <p>{t('groupHint')}</p>
@@ -579,13 +625,58 @@ export const TelegramSetup = ({
  */
 export const TelegramIntegrationDetail = ({
   showTrigger = true,
+  presentation = 'sheet',
 }: {
   showTrigger?: boolean;
+  presentation?: TelegramPresentation;
 }) => {
   const { t } = useTelegramTranslation();
-  return showTrigger ? (
-    <IntegrationCreateButton kind="telegram-messenger">
-      {t('connect')}
-    </IntegrationCreateButton>
-  ) : null;
+  if (presentation === 'panel') {
+    return showTrigger ? (
+      <IntegrationCreateButton kind="telegram-messenger">
+        {t('connect')}
+      </IntegrationCreateButton>
+    ) : null;
+  }
+  return <TelegramSetupSheet showTrigger={showTrigger} />;
+};
+
+/** Hosts the existing standalone create and configure entry points in a sheet. */
+const TelegramSetupSheet = ({ showTrigger }: { showTrigger: boolean }) => {
+  const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
+  const { id: channelId } = useParams();
+  const { t } = useTelegramTranslation();
+  return (
+    <Sheet
+      open={integrationId !== undefined}
+      onOpenChange={(open) => setIntegrationId(open ? null : undefined)}
+    >
+      {showTrigger && (
+        <Sheet.Trigger asChild>
+          <Button>
+            <IconBrandTelegram />
+            {t('connect')}
+          </Button>
+        </Sheet.Trigger>
+      )}
+      <Sheet.View className="sm:max-w-2xl">
+        {integrationId !== undefined && (
+          <>
+            <Sheet.Header>
+              <Sheet.Title>
+                {integrationId ? t('configure') : t('connect')}
+              </Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
+            <TelegramSetupForm
+              key={integrationId ?? 'new'}
+              integrationId={integrationId}
+              channelId={channelId}
+              FormItem={TelegramFormItem}
+            />
+          </>
+        )}
+      </Sheet.View>
+    </Sheet>
+  );
 };

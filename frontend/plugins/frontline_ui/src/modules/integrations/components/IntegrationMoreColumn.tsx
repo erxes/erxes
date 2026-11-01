@@ -145,7 +145,10 @@ const IntegrationEditAction = ({
         <DiscordIntegrationActions integration={integration} />
       )}
       {kind === IntegrationType.TELEGRAM_MESSENGER && (
-        <TelegramIntegrationActions integration={integration} />
+        <TelegramIntegrationActions
+          integration={integration}
+          presentation="panel"
+        />
       )}
     </Suspense>
   );

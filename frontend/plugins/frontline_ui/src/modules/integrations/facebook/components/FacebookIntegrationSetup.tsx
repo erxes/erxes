@@ -1,5 +1,6 @@
 import {
   IntegrationFormItem,
+  IntegrationNameField,
   useIntegrationChannelId,
 } from '@/integrations/components/IntegrationPanelForm';
 import { FACEBOOK_INTEGRATION_SCHEMA } from '@/integrations/facebook/constants/FbMessengerSchema';
@@ -7,7 +8,7 @@ import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbInte
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Spinner } from 'erxes-ui';
+import { Button, Form, Spinner } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
 
@@ -101,19 +102,9 @@ export const FacebookIntegrationSetup = () => {
             step={3}
           />
           <div className="flex-1 overflow-hidden p-4 pt-0 flex flex-col gap-4">
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <IntegrationFormItem label={t('integration-name')}>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Description>
-                    {t('integration-name-description')}
-                  </Form.Description>
-                  <Form.Message />
-                </IntegrationFormItem>
-              )}
+            <IntegrationNameField
+              label={t('integration-name')}
+              description={t('integration-name-description')}
             />
 
             <Form.Field
