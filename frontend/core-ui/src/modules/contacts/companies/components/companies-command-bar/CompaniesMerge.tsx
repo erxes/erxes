@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import { ApolloError, useQuery } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
-import { ChoiceboxGroup, Spinner, useToast } from 'erxes-ui';
+import { ChoiceboxGroup, RecordTable, Spinner, useToast } from 'erxes-ui';
 import { CompaniesMergeSheet } from '@/contacts/companies/components/companies-command-bar/CompaniesMergeSheet';
 import { GET_COMPANIES_FOR_MERGE } from '@/contacts/companies/graphql/queries/getCompaniesForMerge';
 import { useMergeCompanies } from '@/contacts/companies/hooks/useMergeCompanies';
@@ -24,6 +24,7 @@ interface CompaniesMergeProps {
 export const CompaniesMerge = ({ rows }: CompaniesMergeProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { toast } = useToast();
+  const { table } = RecordTable.useRecordTable();
   const [open, setOpen] = useState(false);
   const [selection, setSelection] = useState<MergeSelection>({});
 
@@ -79,7 +80,7 @@ export const CompaniesMerge = ({ rows }: CompaniesMergeProps) => {
       },
       onCompleted: () => {
         setOpen(false);
-        rows.forEach((row) => row.toggleSelected(false));
+        table.setRowSelection({});
         toast({
           title: t('success-title'),
           description: t('merged-success'),
