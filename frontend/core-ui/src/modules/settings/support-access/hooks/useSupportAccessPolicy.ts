@@ -35,7 +35,11 @@ export const useSupportAccessPolicy = () => {
 
   const form = useForm<TSupportAccessPolicyForm>({
     resolver: zodResolver(SUPPORT_ACCESS_POLICY_SCHEMA),
-    defaultValues: { mode: 'approval', allowUntil: null, permissionGroupIds: [] },
+    defaultValues: {
+      mode: 'approval',
+      allowUntil: null,
+      permissionGroupIds: [],
+    },
   });
 
   const policy = data?.authSupportAccessPolicy;
@@ -60,7 +64,8 @@ export const useSupportAccessPolicy = () => {
         allowUntil: allowing ? values.allowUntil : null,
         permissionGroupIds: allowing ? values.permissionGroupIds : [],
       },
-      onCompleted: () => toast({ title: t('policy-saved'), variant: 'success' }),
+      onCompleted: () =>
+        toast({ title: t('policy-saved'), variant: 'success' }),
       onError: (e) => toast({ title: e.message, variant: 'destructive' }),
     });
   });

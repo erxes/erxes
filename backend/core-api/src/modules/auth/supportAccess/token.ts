@@ -59,7 +59,10 @@ export const isSupportAccessAvailable = () =>
 // Names reach notification emails that render them unescaped
 const clean = (value: unknown, max: number) =>
   typeof value === 'string'
-    ? value.replace(/[<>"'`]/g, '').trim().slice(0, max)
+    ? value
+        .replace(/[<>"'`]/g, '')
+        .trim()
+        .slice(0, max)
     : '';
 
 /** The staff member a token names, or null when it is forged, foreign, stale or spent. */

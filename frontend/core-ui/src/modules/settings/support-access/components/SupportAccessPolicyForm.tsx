@@ -20,8 +20,16 @@ const startOfToday = () => {
 
 export const SupportAccessPolicyForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'support-access' });
-  const { form, mode, available, allowEndedOn, loading, error, saving, onSubmit } =
-    useSupportAccessPolicy();
+  const {
+    form,
+    mode,
+    available,
+    allowEndedOn,
+    loading,
+    error,
+    saving,
+    onSubmit,
+  } = useSupportAccessPolicy();
   const { options } = usePermissionGroupOptions();
 
   if (loading) return <Spinner />;
@@ -102,7 +110,9 @@ export const SupportAccessPolicyForm = () => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>{t('groups')}</Form.Label>
-                    <Form.Description>{t('groups-description')}</Form.Description>
+                    <Form.Description>
+                      {t('groups-description')}
+                    </Form.Description>
                     <Form.Control>
                       <MultipleSelector
                         options={options}

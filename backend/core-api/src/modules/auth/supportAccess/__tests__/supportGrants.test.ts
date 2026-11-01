@@ -258,9 +258,9 @@ describe('allow window', () => {
       autoApproved: true,
       permissionGroupIds: ['sales:admin', 'frontline:admin'],
     });
-    expect(
-      (grant?.endsAt?.getTime() ?? 0) - Date.now(),
-    ).toBeLessThanOrEqual(4 * HOUR_SECS * 1000);
+    expect((grant?.endsAt?.getTime() ?? 0) - Date.now()).toBeLessThanOrEqual(
+      4 * HOUR_SECS * 1000,
+    );
   });
 
   it('lets nobody in when off', async () => {

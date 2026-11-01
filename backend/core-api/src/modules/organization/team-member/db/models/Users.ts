@@ -85,9 +85,13 @@ export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
   isDirectoryUser(userId: string): Promise<boolean>;
-  getIdentityProvider(userId: string): Promise<AuthIdentityProvider | undefined>;
+  getIdentityProvider(
+    userId: string,
+  ): Promise<AuthIdentityProvider | undefined>;
   isSupportUser(userId: string): Promise<boolean>;
-  staffQuery(query: FilterQuery<IUserDocument>): Promise<FilterQuery<IUserDocument>>;
+  staffQuery(
+    query: FilterQuery<IUserDocument>,
+  ): Promise<FilterQuery<IUserDocument>>;
   assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;

@@ -2,11 +2,7 @@ export type TSupportAccessMode = 'off' | 'approval' | 'allow';
 
 // expired: approved, but its end has passed
 export type TSupportGrantStatus =
-  | 'pending'
-  | 'approved'
-  | 'denied'
-  | 'revoked'
-  | 'expired';
+  'pending' | 'approved' | 'denied' | 'revoked' | 'expired';
 
 export interface ISupportAccessPolicy {
   available: boolean;

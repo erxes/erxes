@@ -6,10 +6,7 @@ export type LdapServerType = 'activeDirectory' | 'openLdap';
 export type LdapGroupChangePolicy = 'updatePermissions' | 'revokeSessions';
 
 export type LdapRecheckReason =
-  | 'removed'
-  | 'disabled'
-  | 'left_group'
-  | 'permissions_changed';
+  'removed' | 'disabled' | 'left_group' | 'permissions_changed';
 
 export interface ILdapRecheckChange {
   userId: string;

@@ -22,11 +22,7 @@ import {
 
 // expired: approved, but endsAt has passed
 export type SupportGrantListStatus =
-  | 'pending'
-  | 'approved'
-  | 'denied'
-  | 'revoked'
-  | 'expired';
+  'pending' | 'approved' | 'denied' | 'revoked' | 'expired';
 
 export type SupportVisit =
   | { outcome: 'entered'; userId: string; sessionPolicy: ISessionPolicy }

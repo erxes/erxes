@@ -50,7 +50,10 @@ describe('everyone else', () => {
     await guarded('teamMembersInvite');
     await guarded('teamMembersUpdate', 'u2');
 
-    expect(checkPermission).toHaveBeenCalledWith('teamMembersInvite', undefined);
+    expect(checkPermission).toHaveBeenCalledWith(
+      'teamMembersInvite',
+      undefined,
+    );
     expect(checkPermission).toHaveBeenCalledWith('teamMembersUpdate', 'u2');
   });
 

@@ -68,7 +68,11 @@ export const SupportAccessGrants = () => {
             >
               <IconX /> {t('deny')}
             </Button>
-            <Button size="sm" disabled={busy} onClick={() => openApprove(grant)}>
+            <Button
+              size="sm"
+              disabled={busy}
+              onClick={() => openApprove(grant)}
+            >
               <IconCheck /> {t('approve')}
             </Button>
           </div>
