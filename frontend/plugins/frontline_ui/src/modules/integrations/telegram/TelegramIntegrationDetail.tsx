@@ -139,7 +139,7 @@ const TelegramSetupForm = ({
       name: '',
       brandId: '',
       token: '',
-      url: integrationId ? '' : defaultAddress ?? '',
+      url: integrationId ? '' : (defaultAddress ?? ''),
     },
   });
   const chosenId = form.watch('botId');
@@ -148,8 +148,8 @@ const TelegramSetupForm = ({
       savedBot
         ? item._id === savedBot._id
         : integrationId
-        ? item.erxesApiId === integrationId
-        : item._id === chosenId,
+          ? item.erxesApiId === integrationId
+          : item._id === chosenId,
     ) ?? savedBot;
   const needsLink = !bot?.erxesApiId;
   const statusQuery = useQuery(TELEGRAM_WEBHOOK_INFO, {
@@ -163,8 +163,8 @@ const TelegramSetupForm = ({
       form.setValue(
         'url',
         status.url
-          ? getTelegramServerAddress(status.url) ?? status.url
-          : defaultAddress ?? '',
+          ? (getTelegramServerAddress(status.url) ?? status.url)
+          : (defaultAddress ?? ''),
       );
   }, [status, defaultAddress, form]);
   const [addBot] = useMutation(TELEGRAM_ADD_BOT);
@@ -460,10 +460,10 @@ const TelegramSetupForm = ({
                   {status?.url
                     ? t('callbackSaved')
                     : statusQuery.error
-                    ? t('statusFailed')
-                    : defaultAddress
-                    ? t('callbackDetected')
-                    : t('callbackLocal')}
+                      ? t('statusFailed')
+                      : defaultAddress
+                        ? t('callbackDetected')
+                        : t('callbackLocal')}
                 </p>
                 <Collapsible.Content>
                   <Form.Field
@@ -584,8 +584,8 @@ const TelegramSetupForm = ({
                 {bot.canJoinGroups === false
                   ? t('noGroups')
                   : bot.canReadAllGroupMessages
-                  ? t('privacyOff')
-                  : t('privacyOn')}
+                    ? t('privacyOff')
+                    : t('privacyOn')}
               </p>
             )}
             <p>{t('groupHint')}</p>
