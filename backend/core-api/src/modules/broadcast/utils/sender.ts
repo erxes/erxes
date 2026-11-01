@@ -322,7 +322,7 @@ export const sendEngageEmail = async (
           data.fromEmail,
           configSet,
         ),
-        { alignedFrom: await getBroadcastAlignedFrom(models) },
+        { alignedFrom: await getBroadcastAlignedFrom(models, data.fromEmail) },
       ),
       log: createDeliveryLogPort(models),
       suppression: createSuppressionPort(models),

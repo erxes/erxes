@@ -43,3 +43,16 @@ export const GET_CYCLE_DETAIL = gql(`
     }
   }
 `);
+
+export const GET_CYCLE_INLINE = gql(`
+  query GetCycleInline($_id: String!) {
+    getCycle(_id: $_id) {
+      _id
+      name
+      startDate
+      endDate
+      isActive
+      isCompleted
+    }
+  }
+`);

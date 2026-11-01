@@ -1,5 +1,5 @@
 import { ILocationOption, IOrderInput } from 'erxes-api-shared/core-types';
-import { Model } from 'mongoose';
+import { ClientSession, Model } from 'mongoose';
 import validator from 'validator';
 import { fieldSchema, IField, IFieldDocument } from '../definitions/fields';
 import { IModels } from '~/connectionResolvers';
@@ -29,11 +29,16 @@ export const isValidDate = (value) => {
 };
 
 export interface IFieldModel extends Model<IFieldDocument> {
-  checkCodeDuplication(code: string): string;
-  checkIsDefinedByErxes(_id: string): never;
+  checkCodeDuplication(code: string, session?: ClientSession): string;
+  checkIsDefinedByErxes(_id: string, session?: ClientSession): never;
   checkHasValue(_id: string, contentType: string): never;
-  createField(doc: IField): Promise<IFieldDocument>;
-  updateField(_id: string, doc: IField): Promise<IFieldDocument>;
+  createField(doc: IField, session?: ClientSession): Promise<IFieldDocument>;
+  updateField(
+    _id: string,
+    doc: IField,
+    expectedType?: string,
+    session?: ClientSession,
+  ): Promise<IFieldDocument>;
   removeField(_id: string): void;
   updateOrder(orders: IOrderInput[]): Promise<IFieldDocument[]>;
   clean(
@@ -80,10 +85,10 @@ export interface IFieldModel extends Model<IFieldDocument> {
 
 export const loadFieldClass = (models: IModels, subdomain: string) => {
   class Field {
-    static async checkCodeDuplication(code: string) {
+    static async checkCodeDuplication(code: string, session?: ClientSession) {
       const group = await models.Fields.findOne({
         code,
-      });
+      }).session(session ?? null);
 
       if (group) {
         throw new Error('Code must be unique');
@@ -92,8 +97,13 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
     /*
      * Check if Group is defined by erxes by default
      */
-    public static async checkIsDefinedByErxes(_id: string) {
-      const fieldObj = await models.Fields.findOne({ _id });
+    public static async checkIsDefinedByErxes(
+      _id: string,
+      session?: ClientSession,
+    ) {
+      const fieldObj = await models.Fields.findOne({ _id }).session(
+        session ?? null,
+      );
 
       // Checking if the field is defined by the erxes
       if (fieldObj?.isDefinedByErxes) {
@@ -133,17 +143,15 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
     /*
      * Create new field
      */
-    public static async createField({
-      contentType,
-      contentTypeId,
-      groupId,
-      ...fields
-    }: IField) {
+    public static async createField(
+      { contentType, contentTypeId, groupId, ...fields }: IField,
+      session?: ClientSession,
+    ) {
       if (fields.code) {
-        await this.checkCodeDuplication(fields.code || '');
+        await this.checkCodeDuplication(fields.code || '', session);
       }
 
-      const query: { [key: string]: any } = { contentType };
+      const query: Record<string, unknown> = { contentType };
 
       if (groupId) {
         query.groupId = groupId;
@@ -157,13 +165,15 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
       // if there is no field then start with 0
       let order = 0;
 
-      const lastField = await models.Fields.findOne(query).sort({ order: -1 });
+      const lastField = await models.Fields.findOne(query)
+        .sort({ order: -1 })
+        .session(session ?? null);
 
       if (lastField) {
         order = (lastField.order || 0) + 1;
       }
 
-      return models.Fields.create({
+      const field = new models.Fields({
         contentType,
         contentTypeId,
         order,
@@ -171,22 +181,30 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         isDefinedByErxes: false,
         ...fields,
       });
+      return field.save({ session });
     }
 
     /*
      * Update field
      */
-    public static async updateField(_id: string, doc: IField) {
-      await this.checkIsDefinedByErxes(_id);
+    public static async updateField(
+      _id: string,
+      doc: IField,
+      expectedType?: string,
+      session?: ClientSession,
+    ) {
+      await this.checkIsDefinedByErxes(_id, session);
 
-      const field = await models.Fields.findOne({ _id });
+      const field = await models.Fields.findOne({ _id }).session(
+        session ?? null,
+      );
 
       if (!field) {
         throw new Error('Field not found');
       }
 
       if (doc.code && field.code !== doc.code) {
-        await this.checkCodeDuplication(doc.code);
+        await this.checkCodeDuplication(doc.code, session);
       }
 
       if (
@@ -204,9 +222,17 @@ export const loadFieldClass = (models: IModels, subdomain: string) => {
         }
       }
 
-      await models.Fields.updateOne({ _id }, { $set: doc });
-
-      return models.Fields.findOne({ _id });
+      const updated = await models.Fields.findOneAndUpdate(
+        { _id, ...(expectedType ? { type: expectedType } : {}) },
+        { $set: doc },
+        { new: true, session },
+      );
+      if (!updated) {
+        throw new Error(
+          'The field type changed. Reload the form before converting it.',
+        );
+      }
+      return updated;
     }
 
     /*

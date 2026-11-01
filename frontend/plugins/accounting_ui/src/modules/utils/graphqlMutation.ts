@@ -22,6 +22,19 @@ export const notifyMutationResult = (success: boolean, description: string) => {
   });
 };
 
+export const withMutationErrorToast = <
+  Data,
+  Variables extends Record<string, unknown>,
+>(
+  options: MutationHookOptions<Data, Variables>,
+): MutationHookOptions<Data, Variables> => ({
+  ...options,
+  onError: (error: ApolloError) => {
+    notifyMutationResult(false, error.message);
+    options.onError?.(error);
+  },
+});
+
 export const withMutationToast = <
   Data,
   Variables extends Record<string, unknown>,

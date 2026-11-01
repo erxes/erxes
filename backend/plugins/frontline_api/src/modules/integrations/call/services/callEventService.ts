@@ -7,6 +7,12 @@ import { debugCall } from '@/integrations/call/debuggers';
 import { parseCdrDate } from '@/integrations/call/services/cdrUtils';
 import { ICallSessionDocument } from '@/integrations/call/@types/callSessions';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
+import { ICallIntegrationDocument } from '@/integrations/call/@types/integrations';
+import {
+  findPeerIntegrations,
+  inboxIdForExtension,
+  matchOperatorByExtension,
+} from '@/integrations/call/services/operatorResolution';
 
 const SESSION_LOCK_TTL_MS = 15_000;
 
@@ -56,30 +62,19 @@ const findIntegrationForEvent = async (
   });
 };
 
-const resolveOperatorUserId = async (
-  subdomain: string,
-  integration: any,
-  extension?: string,
-) => {
-  if (!extension) return undefined;
-  const matched = integration.operators?.find(
-    (op: any) => op.gsUsername === extension,
-  );
-  if (!matched) return undefined;
-  return matched.userId as string | undefined;
-};
-
 const publishSession = async (
   subdomain: string,
   session: any,
   integration: any,
+  peers: ICallIntegrationDocument[],
 ) => {
   if (!session) return;
+  const sessionInboxId = session.inboxIntegrationId || integration?.inboxId;
   const payload = {
     callSessionUpdated: {
       ...(session.toObject ? session.toObject() : session),
       subdomain,
-      inboxIntegrationId: integration?.inboxId,
+      inboxIntegrationId: sessionInboxId,
     },
   };
   if (session.uniqueid) {
@@ -88,18 +83,18 @@ const publishSession = async (
       payload,
     );
   }
-  if (session.answeredExtension) {
-    await graphqlPubsub.publish(
-      `callSessionUpdated:ext:${integration?.inboxId}:${session.answeredExtension}`,
-      payload,
-    );
-  }
+  const published = new Set<string>();
+  const publishToExtension = async (extension?: string) => {
+    if (!extension) return;
+    const inboxId = inboxIdForExtension(peers, extension, sessionInboxId);
+    const key = `${inboxId}:${extension}`;
+    if (published.has(key)) return;
+    published.add(key);
+    await graphqlPubsub.publish(`callSessionUpdated:ext:${key}`, payload);
+  };
+  await publishToExtension(session.answeredExtension);
   for (const op of session.ringingOperators || []) {
-    if (!op.extensionNumber) continue;
-    await graphqlPubsub.publish(
-      `callSessionUpdated:ext:${integration?.inboxId}:${op.extensionNumber}`,
-      payload,
-    );
+    await publishToExtension(op.extensionNumber);
   }
 };
 
@@ -230,6 +225,8 @@ export const handleCallEvent = async (
     return { status: 'ignored', reason: 'no_integration' };
   }
 
+  const peers = await findPeerIntegrations(models, integration);
+
   const direction: 'incoming' | 'outgoing' =
     ev.callType ||
     (ev.dstTrunkName && !ev.srcTrunkName ? 'outgoing' : 'incoming');
@@ -310,14 +307,10 @@ export const handleCallEvent = async (
     switch (ev.type) {
       case 'ringing': {
         if (ev.extension) {
-          const userId = await resolveOperatorUserId(
-            subdomain,
-            integration,
-            ev.extension,
-          );
+          const match = matchOperatorByExtension(peers, ev.extension);
           await models.CallSessions.attachOperator(ev.uniqueid, {
             extensionNumber: ev.extension,
-            userId,
+            userId: match?.operator.userId,
             state: 'ringing',
           });
           session = await models.CallSessions.findOne({
@@ -336,11 +329,9 @@ export const handleCallEvent = async (
 
       case 'answered':
       case 'bridged': {
-        const userId = await resolveOperatorUserId(
-          subdomain,
-          integration,
-          ev.extension,
-        );
+        const match = matchOperatorByExtension(peers, ev.extension);
+        const userId = match?.operator.userId;
+        const owner = match?.integration || integration;
         if (ev.extension) {
           await models.CallSessions.markAnswered(
             ev.uniqueid,
@@ -348,17 +339,22 @@ export const handleCallEvent = async (
             userId,
           );
         }
+        if (match && session.inboxIntegrationId !== owner.inboxId) {
+          await models.CallSessions.updateOne(
+            { uniqueid: ev.uniqueid },
+            {
+              $set: {
+                inboxIntegrationId: owner.inboxId,
+                operatorPhone: owner.phone,
+              },
+            },
+          );
+        }
         session = await models.CallSessions.findOne({
           uniqueid: ev.uniqueid,
         });
         try {
-          await ensureConversation(
-            models,
-            subdomain,
-            session,
-            integration,
-            userId,
-          );
+          await ensureConversation(models, subdomain, session, owner, userId);
         } catch (e) {
           debugCall(
             `ensureConversation on answer failed for ${ev.uniqueid}: ${e.message}`,
@@ -392,7 +388,7 @@ export const handleCallEvent = async (
       }
     }
 
-    await publishSession(subdomain, session, integration);
+    await publishSession(subdomain, session, integration, peers);
     return {
       status: 'ok',
       uniqueid: ev.uniqueid,

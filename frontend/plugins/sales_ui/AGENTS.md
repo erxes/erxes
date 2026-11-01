@@ -30,6 +30,26 @@
   and URL filters (`DealsExport`), the deals list command bar exports the
   selected rows, and the POS orders page exports the current order filters.
   Buttons render only with `dealsExportManage` / `posOrdersExportManage`.
+- POS Cover detail displays the POS client's root `description` in a dedicated
+  read-only "Хаалтын тэмдэглэл" textarea (`components/CoverDescription.tsx`) and edits
+  Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
+  allows clearing it, gives save/error feedback, and refreshes active cover
+  detail/list queries after saving.
+- Cover terminal history is displayed only in the payment-table `paidType` tip
+  (`components/CoverPaidType.tsx`), with request times and formatted JSON or original
+  text from `terminalResults` (`components/CoverTerminalResults.tsx`).
+  The tip uses the public `Popover` so it stays open while a response textarea
+  is focused for selection/copy. Hover, keyboard focus, or click opens it;
+  Escape or clicking outside closes it. Response fields are read-only, styled
+  muted, and allow Ctrl/Cmd+A/C without table shortcuts intercepting them.
+  Cells without results retain their ordinary text display. There is no separate
+  terminal-history section in the cover sheet.
+  Created/modified times and payment totals remain visible above the details.
+  The general cover description and Sales note remain separate.
+  Cover labels, feedback, empty/pending states, and accessible response labels
+  use the `sales` namespace in the gateway's `locales/{en,mn}/sales.json`;
+  request numbers and paidType labels use translation interpolation. Original
+  bank responses and user-authored notes are never translated.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -525,6 +545,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Validation
 
+- `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
+
+- Cover note smoke: open a cover, edit and save its note, reopen and verify the
+  saved text; clear and save, switch covers, and verify each one's own note.
+  A failed save must show the error and retain the draft for retry.
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment

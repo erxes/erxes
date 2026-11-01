@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDebouncedCallback } from 'use-debounce';
 import { currentUserState } from 'ui-modules';
 import type {
   CycleFilterType,
@@ -179,6 +180,11 @@ export const useTasks = (
   const pageInfo = toCursorPageInfo(data?.getTasks?.pageInfo);
   const totalCount = data?.getTasks?.totalCount;
 
+  // A burst of task events (imports, bulk edits) refetches the list once.
+  const refetchDebounced = useDebouncedCallback(() => {
+    void refetch();
+  }, 1000);
+
   useSubscription(TASK_LIST_CHANGED, {
     variables: { filter: variables },
     ignoreResults: true,
@@ -192,7 +198,7 @@ export const useTasks = (
         variables.cycleFilter ||
         TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)
       ) {
-        void refetch();
+        refetchDebounced();
         return;
       }
 

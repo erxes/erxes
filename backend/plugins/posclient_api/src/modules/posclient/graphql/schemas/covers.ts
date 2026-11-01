@@ -1,4 +1,10 @@
 export const types = `
+  type PosclientCoverTerminalResult {
+    _id: String!
+    bank: String!
+    response: String
+    createdAt: Date!
+  }
   type CoverSummary {
     _id: String
     kind: String
@@ -8,6 +14,7 @@ export const types = `
   }
 
   type CoverDetail {
+    terminalResults: [PosclientCoverTerminalResult!]
     _id: String
     paidType: String
     
@@ -46,6 +53,7 @@ const coverParams = `
 `;
 
 export const mutations = `
+  posclientCoverTerminalResultSave(_id: String!, resultId: String!, bank: String!, response: String): Cover
   coversAdd(${coverParams}): Cover
   coversEdit(_id: String!, ${coverParams}): Cover
   coversRemove(_id: String!): JSON

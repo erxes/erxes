@@ -1,5 +1,6 @@
-import { saveValidatedToken } from '@/auth/utils';
+import { AuthIdentityProvider } from '@/auth/db/definitions/ldap';
 import { LoginError } from '@/auth/loginError';
+import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -23,8 +24,7 @@ import {
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp, redis } from 'erxes-api-shared/utils';
-import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -66,6 +66,7 @@ interface IProvisionedUserParams {
   firstName?: string;
   lastName?: string;
   permissionGroupIds: string[];
+  isActive?: boolean;
 }
 
 interface ILoginParams {
@@ -84,6 +85,13 @@ export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
   isDirectoryUser(userId: string): Promise<boolean>;
+  getIdentityProvider(
+    userId: string,
+  ): Promise<AuthIdentityProvider | undefined>;
+  isSupportUser(userId: string): Promise<boolean>;
+  staffQuery(
+    query: FilterQuery<IUserDocument>,
+  ): Promise<FilterQuery<IUserDocument>>;
   assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
@@ -123,21 +131,12 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
-    params: IPasswordParams & { currentPassword: string },
+    params: IPasswordParams & { currentPassword: string; keepSid?: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
-  refreshTokens(refreshToken: string): Promise<
-    | {
-        token: string;
-        refreshToken: string;
-        user: IUserDocument;
-      }
-    | Record<string, never>
-  >;
   login(
     params: ILoginParams,
-  ): Promise<{ token: string; refreshToken: string; method: string }>;
+  ): Promise<{ user: IUserDocument; method: 'password' | 'ldap' }>;
   checkLoginAuth({
     email,
     password,
@@ -146,7 +145,8 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
-  logout(_user: IUserDocument, token: string): Promise<string>;
+  logout(_user: IUserDocument, legacyToken?: string): Promise<string>;
+  revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
@@ -216,10 +216,53 @@ export const loadUserClass = (
       );
     }
 
-    // Directory users sign in with their directory password, so a local one would never be used
+    public static async getIdentityProvider(userId: string) {
+      const identity = await models.AuthIdentities.findOne(
+        { userId },
+        { provider: 1 },
+      ).lean();
+
+      return identity?.provider;
+    }
+
+    public static async isSupportUser(userId: string) {
+      return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Support accounts act in the tenant but aren't staff: no lists, pickers or counts
+    public static async staffQuery(query: FilterQuery<IUserDocument>) {
+      const supportUserIds = await models.AuthIdentities.find({
+        provider: 'erxes_support',
+      }).distinct('userId');
+
+      return {
+        $and: [
+          query,
+          {
+            role: { $ne: USER_ROLES.SYSTEM },
+            ...(supportUserIds.length ? { _id: { $nin: supportUserIds } } : {}),
+          },
+        ],
+      };
+    }
+
+    // Linked users sign in at their provider, so a local password would be a second way in
     public static async assertLocalPassword(userId: string) {
-      if (await this.isDirectoryUser(userId)) {
+      const provider = await this.getIdentityProvider(userId);
+
+      if (provider === 'ldap') {
         throw new Error('Password is managed by the directory');
+      }
+
+      if (provider === 'erxes_support') {
+        throw new Error('Support accounts have no password');
+      }
+    }
+
+    // Name and groups come from the grant, so nobody edits a support account by hand
+    public static async assertEditable(userId: string) {
+      if (await this.isSupportUser(userId)) {
+        throw new Error('Support accounts are managed by support access');
       }
     }
 
@@ -344,6 +387,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('User not found');
       }
+
+      await this.assertEditable(_id);
 
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
@@ -484,6 +529,7 @@ export const loadUserClass = (
       firstName,
       lastName,
       permissionGroupIds,
+      isActive = true,
     }: IProvisionedUserParams) {
       email = email.toLowerCase().trim();
 
@@ -501,7 +547,7 @@ export const loadUserClass = (
           lastName,
           fullName: [firstName, lastName].filter(Boolean).join(' '),
         },
-        isActive: true,
+        isActive,
         code: await this.generateUserCode(),
         ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
       });
@@ -559,6 +605,8 @@ export const loadUserClass = (
       }: IEditProfile,
     ) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertEditable(_id);
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -657,6 +705,7 @@ export const loadUserClass = (
         return updatedUser;
       } else {
         await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+        await revokeUserSessions(subdomain, _id);
 
         const updatedUser = await models.Users.findOne({ _id });
         if (updatedUser) {
@@ -744,6 +793,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -772,6 +823,8 @@ export const loadUserClass = (
         { $set: { password: await this.generatePassword(newPassword) } },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -782,10 +835,13 @@ export const loadUserClass = (
       _id,
       currentPassword,
       newPassword,
+      keepSid,
     }: {
       _id: string;
       currentPassword: string;
       newPassword: string;
+      // The caller's own session survives; every other one is signed out
+      keepSid?: string;
     }) {
       // Password can not be empty string
       if (newPassword === '') {
@@ -812,6 +868,8 @@ export const loadUserClass = (
           password: await this.generatePassword(newPassword),
         },
       );
+
+      await revokeUserSessions(subdomain, user._id, keepSid);
 
       return models.Users.findOne({ _id: user._id });
     }
@@ -864,64 +922,7 @@ export const loadUserClass = (
     }
 
     /*
-     * Creates regular and refresh tokens using given user information
-     */
-    public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        isOwner: _user.isOwner,
-      };
-
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
-
-      const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: '7d',
-      });
-
-      return [createToken, createRefreshToken];
-    }
-
-    /*
-     * Renews tokens
-     */
-    public static async refreshTokens(refreshToken: string) {
-      let _id = '';
-
-      try {
-        // validate refresh token
-        const { user }: any = jwt.verify(refreshToken, this.getSecret());
-
-        _id = user._id;
-        // if refresh token is expired then force to login
-      } catch (e: any) {
-        return {};
-      }
-
-      const dbUser = await models.Users.findOne({ _id, isActive: true });
-
-      if (!dbUser) {
-        return {};
-      }
-
-      // recreate tokens
-      const [newToken, newRefreshToken] = await this.createTokens(
-        dbUser,
-        this.getSecret(),
-      );
-
-      if (newToken) {
-        await saveValidatedToken(newToken, dbUser);
-      }
-
-      return {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        user: dbUser,
-      };
-    }
-
-    /*
-     * Validates user credentials and generates tokens
+     * Validates user credentials; the caller starts the session
      */
     public static async login({
       email,
@@ -949,7 +950,7 @@ export const loadUserClass = (
         : false;
 
       let user: IUserDocument;
-      let method = 'email/password';
+      let method: 'password' | 'ldap' = 'password';
 
       // Directory-linked users never fall back to a local password
       if (localUser && !isDirectoryUser) {
@@ -965,16 +966,6 @@ export const loadUserClass = (
       } else {
         user = await models.AuthIdentities.authenticateLdap(email, password);
         method = 'ldap';
-      }
-
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret(),
-      );
-
-      if (token) {
-        await saveValidatedToken(token, user);
       }
 
       // storing tokens in user collection.
@@ -997,36 +988,42 @@ export const loadUserClass = (
       });
       createActivityLog(loginActivityLog, user._id);
 
-      return {
-        token,
-        refreshToken,
-        method,
-      };
+      return { user, method };
+    }
+
+    /**
+     * Signs a member out of one session, or of every device when no id is given.
+     * The account stays active, so they can sign in again.
+     */
+    public static async revokeSessions(_id: string, sessionId?: string) {
+      const user = await models.Users.getUser(_id);
+
+      if (sessionId) {
+        return revokeUserSession(subdomain, user._id, sessionId);
+      }
+
+      await revokeUserSessions(subdomain, user._id);
+
+      return true;
     }
 
     /**
      * Logging out user from database
      */
-    public static async logout(user: IUserDocument, currentToken: string) {
-      const validatedToken = await redis.get(
-        `user_token_${user._id}_${currentToken}`,
-      );
-
-      if (validatedToken) {
-        await redis.del(`user_token_${user._id}_${currentToken}`);
-
-        await models.Users.updateOne(
-          { _id: user._id },
-          { $set: { lastSeenAt: new Date() } },
-        );
-
-        const logoutActivityLog = generateLogoutActivityLog(user);
-        createActivityLog(logoutActivityLog);
-
-        return 'loggedout';
+    public static async logout(user: IUserDocument, legacyToken?: string) {
+      if (legacyToken) {
+        await redis.del(`user_token_${user._id}_${legacyToken}`);
       }
 
-      return 'token not found';
+      await models.Users.updateOne(
+        { _id: user._id },
+        { $set: { lastSeenAt: new Date() } },
+      );
+
+      const logoutActivityLog = generateLogoutActivityLog(user);
+      createActivityLog(logoutActivityLog);
+
+      return 'loggedout';
     }
 
     public static async generateUserCodeField() {

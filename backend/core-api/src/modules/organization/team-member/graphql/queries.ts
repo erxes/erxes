@@ -1,10 +1,10 @@
-import { USER_ROLES } from 'erxes-api-shared/core-modules';
 import {
   ICursorPaginateParams,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
 import { cursorPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import { listUserSessions, readSessionCookie } from '@/auth/session';
 
 type IListArgs = {
   sortDirection?: number;
@@ -25,8 +25,6 @@ type IListArgs = {
   unitId?: string;
   segment?: string;
 };
-
-const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
 const queryBuilder = async (params: IListArgs, models: IModels) => {
   const {
@@ -120,12 +118,26 @@ export const userQueries = {
     args: IListArgs,
     { models }: IContext,
   ) {
-    const selector = {
-      ...(await queryBuilder(args, models)),
-      ...NORMAL_USER_SELECTOR,
-    };
+    const selector = await models.Users.staffQuery(
+      await queryBuilder(args, models),
+    );
 
     return models.Users.countDocuments(selector);
+  },
+
+  // Devices and IPs are account-security data, gated like password resets
+  async userSessions(
+    _parent: undefined,
+    { _id }: { _id: string },
+    { subdomain, requestInfo, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersResetPassword');
+
+    return listUserSessions(
+      subdomain,
+      _id,
+      readSessionCookie(requestInfo.cookies),
+    );
   },
 
   async userDetail(
@@ -175,7 +187,7 @@ export const userQueries = {
       selector._id = user._id;
     }
 
-    return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
+    return models.Users.find(await models.Users.staffQuery(selector)).sort({
       username: 1,
     });
   },
@@ -185,10 +197,9 @@ export const userQueries = {
     args: IListArgs & ICursorPaginateParams,
     { models }: IContext,
   ) {
-    const selector = {
-      ...(await queryBuilder(args, models)),
-      ...NORMAL_USER_SELECTOR,
-    };
+    const selector = await models.Users.staffQuery(
+      await queryBuilder(args, models),
+    );
 
     const { list, totalCount, pageInfo } = await cursorPaginate<IUserDocument>({
       model: models.Users,

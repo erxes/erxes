@@ -10,6 +10,16 @@ import {
   loadAuthIdentityClass,
   loadLdapConfigClass,
 } from '@/auth/db/models/Ldap';
+import { ITwoFactorDocument } from '@/auth/db/definitions/twoFactor';
+import {
+  ITwoFactorModel,
+  loadTwoFactorClass,
+} from '@/auth/db/models/TwoFactors';
+import { ISupportGrantDocument } from '@/auth/db/definitions/supportAccess';
+import {
+  ISupportGrantModel,
+  loadSupportGrantClass,
+} from '@/auth/db/models/SupportAccess';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -365,7 +375,10 @@ import {
 import { IFilePinDocument } from '@/files/db/definitions/pins';
 import { IFileShareDocument } from '@/files/db/definitions/shares';
 import { IFilePinModel, loadFilePinClass } from '@/files/db/models/FilePins';
-import { IFileShareModel, loadFileShareClass } from '@/files/db/models/FileShares';
+import {
+  IFileShareModel,
+  loadFileShareClass,
+} from '@/files/db/models/FileShares';
 import {
   ITemplateCategoryModal,
   loadTemplateCategoryClass,
@@ -482,6 +495,8 @@ export interface IModels {
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
   LdapConfigs: ILdapConfigModel;
   AuthIdentities: IAuthIdentityModel;
+  TwoFactors: ITwoFactorModel;
+  SupportGrants: ISupportGrantModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -988,7 +1003,17 @@ export const loadClasses = (
 
   models.AuthIdentities = db.model<IAuthIdentityDocument, IAuthIdentityModel>(
     'auth_identities',
-    loadAuthIdentityClass(models),
+    loadAuthIdentityClass(models, subdomain),
+  );
+
+  models.TwoFactors = db.model<ITwoFactorDocument, ITwoFactorModel>(
+    'auth_two_factors',
+    loadTwoFactorClass(models, subdomain),
+  );
+
+  models.SupportGrants = db.model<ISupportGrantDocument, ISupportGrantModel>(
+    'auth_support_grants',
+    loadSupportGrantClass(models, subdomain),
   );
 
   // Per-user BYOK agents connection; one document per user per tenant.

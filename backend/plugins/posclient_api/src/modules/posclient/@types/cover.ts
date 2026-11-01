@@ -9,6 +9,13 @@ export interface ICoverSummary {
 }
 
 export interface ICoverDetail {
+  terminalResults?: {
+    _id: string;
+    bank: string;
+    response?: string;
+    createdAt: Date;
+  }[];
+
   _id?: string;
   paidType: string;
   paidSummary: ICoverSummary[];

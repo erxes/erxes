@@ -1,5 +1,9 @@
 import type { MutationHookOptions } from '@apollo/client';
-import { withMutationToast } from '@/utils/graphqlMutation';
+import {
+  notifyMutationResult,
+  withMutationErrorToast,
+  withMutationToast,
+} from '@/utils/graphqlMutation';
 import type { ResultOf, VariablesOf } from '@graphql-typed-document-node/core';
 import { z } from 'zod';
 import { useMemo } from 'react';
@@ -7,8 +11,7 @@ import { useMemo } from 'react';
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { toGraphqlView } from '@/utils/graphql';
 import { useMutation, useQuery } from '@apollo/client';
-import { getI18n, useTranslation } from 'react-i18next';
-import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   ACCOUNTINGS_CONFIGS_ADD,
   ACCOUNTINGS_CONFIGS_EDIT,
@@ -31,18 +34,7 @@ type AccountConfigOptions<Document> = Omit<
 const withToast = <Data, Variables extends Record<string, unknown>>(
   options: MutationHookOptions<Data, Variables>,
   message: string,
-) =>
-  withMutationToast(
-    options,
-    (success, description) => {
-      toast({
-        title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
-        description,
-        variant: success ? 'success' : 'destructive',
-      });
-    },
-    message,
-  );
+) => withMutationToast(options, notifyMutationResult, message);
 
 export const useFixedAssetAccountConfigs = () => {
   const {
@@ -110,20 +102,17 @@ export const useFixedAssetAccountConfigMutations = () => {
     edit: (options: AccountConfigOptions<typeof ACCOUNTINGS_CONFIGS_EDIT>) => {
       const { _id, accountId, value } = options.variables;
       return edit(
-        withToast<
+        withMutationErrorToast<
           ResultOf<typeof ACCOUNTINGS_CONFIGS_EDIT>,
           VariablesOf<typeof ACCOUNTINGS_CONFIGS_EDIT>
-        >(
-          {
-            ...options,
-            variables: {
-              _id,
-              subId: accountId,
-              value: { ...value, accountId },
-            },
+        >({
+          ...options,
+          variables: {
+            _id,
+            subId: accountId,
+            value: { ...value, accountId },
           },
-          t('account-configuration-updated-successfully'),
-        ),
+        }),
       );
     },
     remove: (

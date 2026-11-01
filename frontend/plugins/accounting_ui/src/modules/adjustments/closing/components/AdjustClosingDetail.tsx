@@ -41,6 +41,7 @@ import { tbalanceColumns } from '~/modules/transactions/transaction-form/compone
 import { useTransactionsDetail } from '~/modules/transactions/transaction-form/hooks/useTransactionsDetail';
 import { ITBalanceTransaction } from '~/modules/transactions/transaction-form/types/TBalance';
 import { ITransaction } from '~/modules/transactions/types/Transaction';
+import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 import {
   IAdjustClosing,
   IAdjustClosingDetailItem,
@@ -94,10 +95,10 @@ const formatStructureLabel = (
 
   const label = labelMap[id];
   if (!label) {
-    return id;
+    return '-';
   }
 
-  return [label.code, label.title].filter(Boolean).join(' - ') || id;
+  return [label.code, label.title].filter(Boolean).join(' - ') || '-';
 };
 
 const getBranchLabel = (
@@ -168,7 +169,7 @@ const ClosingAccountCell = ({
         Boolean(id),
       )}
       permissionMode="read"
-      placeholder={row.original.accountId || '-'}
+      placeholder="-"
     />
   </RecordTableInlineCell>
 );
@@ -203,25 +204,22 @@ const ClosingPercentCell = ({
   </RecordTableInlineCell>
 );
 
-const ClosingMainTransactionCell = ({
-  row,
-}: CellContext<TClosingEntryRow, unknown>) => (
+const ClosingTransactionCell = ({
+  transactionId,
+  transactionNumbers,
+}: {
+  transactionId?: string;
+  transactionNumbers: Map<string, string>;
+}) => (
   <RecordTableInlineCell>
-    {row.original.mainAccTrId || '-'}
-  </RecordTableInlineCell>
-);
-
-const ClosingIntegrateTransactionCell = ({
-  row,
-}: CellContext<TClosingEntryRow, unknown>) => (
-  <RecordTableInlineCell>
-    {row.original.integrateTrId || '-'}
+    {(transactionId && transactionNumbers.get(transactionId)) || '-'}
   </RecordTableInlineCell>
 );
 
 const createClosingEntryColumns = (
   t: TFunction<'accounting'>,
   onPercentChange: TPercentChangeHandler,
+  transactionNumbers: Map<string, string>,
 ): ColumnDef<TClosingEntryRow>[] => [
   {
     id: 'accountId',
@@ -250,14 +248,24 @@ const createClosingEntryColumns = (
     id: 'mainAccTrId',
     accessorKey: 'mainAccTrId',
     header: () => <RecordTable.InlineHead label={t('Main transaction')} />,
-    cell: ClosingMainTransactionCell,
+    cell: ({ row }) => (
+      <ClosingTransactionCell
+        transactionId={row.original.mainAccTrId}
+        transactionNumbers={transactionNumbers}
+      />
+    ),
     size: 220,
   },
   {
     id: 'integrateTrId',
     accessorKey: 'integrateTrId',
     header: () => <RecordTable.InlineHead label={t('Integrate transaction')} />,
-    cell: ClosingIntegrateTransactionCell,
+    cell: ({ row }) => (
+      <ClosingTransactionCell
+        transactionId={row.original.integrateTrId}
+        transactionNumbers={transactionNumbers}
+      />
+    ),
     size: 220,
   },
 ];
@@ -468,9 +476,13 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
     [adjustClosingEdit, id],
   );
 
+  const transactionNumbers = useMemo(
+    () => getTransactionNumbers(transactions),
+    [transactions],
+  );
   const columns = useMemo(
-    () => createClosingEntryColumns(t, handlePercentChange),
-    [handlePercentChange, t],
+    () => createClosingEntryColumns(t, handlePercentChange, transactionNumbers),
+    [handlePercentChange, t, transactionNumbers],
   );
 
   if (loading || detailsLoading || branchesLoading || departmentsLoading) {

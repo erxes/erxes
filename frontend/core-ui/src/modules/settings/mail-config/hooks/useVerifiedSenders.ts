@@ -22,6 +22,7 @@ export interface IEmailSenderOptions {
   provider: TEmailProvider;
   supportsSenderVerification: boolean;
   supportsDynamicSender: boolean;
+  verifiedDomains: string[];
   defaultSenderEmail: string;
   alignedFrom: string | null;
   sameAsMailConfig: boolean;
@@ -37,6 +38,7 @@ const EMPTY_OPTIONS: IEmailSenderOptions = {
   provider: 'SES',
   supportsSenderVerification: false,
   supportsDynamicSender: false,
+  verifiedDomains: [],
   defaultSenderEmail: '',
   alignedFrom: null,
   sameAsMailConfig: false,

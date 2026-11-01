@@ -43,10 +43,27 @@ const SettingsMailConfig = lazy(() =>
     default: module.MailConfigPage,
   })),
 );
+const SettingsTwoFactor = lazy(() =>
+  import('~/pages/settings/account/TwoFactorPage').then((module) => ({
+    default: module.TwoFactorPage,
+  })),
+);
+const SecuritySettings = lazy(() =>
+  import('~/pages/settings/workspace/SecuritySettingsPage').then((module) => ({
+    default: module.SecuritySettingsPage,
+  })),
+);
 const LdapSettings = lazy(() =>
   import('~/pages/settings/workspace/LdapSettingsPage').then((module) => ({
     default: module.LdapSettingsPage,
   })),
+);
+const SupportAccessSettings = lazy(() =>
+  import('~/pages/settings/workspace/SupportAccessSettingsPage').then(
+    (module) => ({
+      default: module.SupportAccessSettingsPage,
+    }),
+  ),
 );
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
@@ -96,11 +113,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -178,6 +195,7 @@ export function SettingsRoutes() {
           path={SettingsPath.ChangePassword}
           element={<SettingsChangePassword />}
         />
+        <Route path={SettingsPath.TwoFactor} element={<SettingsTwoFactor />} />
         {/* <Route
           path={SettingsPath.Experience}
           element={<SettingsExperiencePage />}
@@ -195,6 +213,19 @@ export function SettingsRoutes() {
           />
         )}
         <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        <Route
+          path={SettingsWorkspacePath.SupportAccess}
+          element={<SupportAccessSettings />}
+        />
+        {/* Kept so links to the old LDAP address still land */}
+        <Route
+          path="ldap"
+          element={<Navigate to={`../${SettingsWorkspacePath.Ldap}`} replace />}
+        />
+        <Route
+          path={SettingsWorkspacePath.Security}
+          element={<SecuritySettings />}
+        />
         <Route
           path={SettingsWorkspacePath.EmailTemplatesCatchAll}
           element={<EmailTemplatesSettingsRoutes />}

@@ -3,3 +3,5 @@ export enum TeamMembersPath {
   TeamMembers = '/members',
   TeamPermissions = '/permissions',
 }
+
+export const USER_CONTENT_TYPE = 'core:user';

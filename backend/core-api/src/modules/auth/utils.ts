@@ -1,5 +1,4 @@
 import sendgridMail from '@sendgrid/mail';
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   getEnv,
   getSaasOrganizationDetail,
@@ -14,10 +13,6 @@ import { applyTemplate } from '~/utils/common';
 
 const LOGIN_WINDOW_SECS = 15 * 60;
 const MAX_LOGIN_FAILURES = 10;
-
-export const saveValidatedToken = (token: string, user: IUserDocument) => {
-  return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
-};
 
 // Rightmost entry is the one the gateway appended; leftmost ones are client-controlled
 export const getRequestIp = (req: Request) => {

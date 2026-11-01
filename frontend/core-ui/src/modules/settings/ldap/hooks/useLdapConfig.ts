@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { LDAP_CONFIG } from '@/settings/ldap/graphql/queries';
 import {
   LDAP_CONFIG_SAVE,
+  LDAP_RECHECK_NOW,
   LDAP_TEST_CONNECTION,
 } from '@/settings/ldap/graphql/mutations';
 import {
@@ -34,6 +35,21 @@ export const useLdapConfigSave = () => {
   });
 
   return { save, loading };
+};
+
+// Refetching keeps the whole config (and form) in step with the run's result
+export const useLdapRecheckNow = () => {
+  const [recheck, { loading }] = useMutation<{
+    authLdapRecheckNow: Pick<
+      ILdapConfig,
+      'lastRecheck' | 'nextRecheckAt' | 'recheckChanges'
+    > | null;
+  }>(LDAP_RECHECK_NOW, {
+    refetchQueries: [LDAP_CONFIG],
+    awaitRefetchQueries: true,
+  });
+
+  return { recheck, loading };
 };
 
 export const useLdapTestConnection = () => {

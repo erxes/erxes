@@ -7,8 +7,11 @@ import {
   getConversationContent,
   isHumanAnsweredLeg,
   parseCdrDate,
-  resolveCdrOperator,
 } from '@/integrations/call/services/cdrUtils';
+import {
+  findPeerIntegrations,
+  matchCdrOperator,
+} from '@/integrations/call/services/operatorResolution';
 import { getOrCreateCustomer } from '@/integrations/call/store';
 import { createOrUpdateErxesConversation } from '@/integrations/call/utils';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
@@ -30,7 +33,7 @@ interface IConversationPayload {
   conversationId: string;
   content: string;
   updatedAt: Date;
-  integrationId: string;
+  integrationId?: string;
   owner?: string;
   userId?: string;
   customerId?: string;
@@ -131,9 +134,10 @@ const processCdrLocked = async (
     inboxIntegrationId: inboxId,
   });
 
-  const { operator: matchedOperator, extension: operatorExtension } =
-    resolveCdrOperator(integration.operators, params);
-  const operatorUserId = matchedOperator?.userId;
+  const peers = await findPeerIntegrations(models, integration);
+  const { match: operatorMatch, extension: operatorExtension } =
+    matchCdrOperator(peers, params);
+  const operatorUserId = operatorMatch?.operator.userId;
 
   let operatorPhone = '';
   if (operatorUserId) {
@@ -153,6 +157,10 @@ const processCdrLocked = async (
   const isAnsweredLeg = isHumanAnsweredLeg(params);
   const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
   const assignedUserId = isAnsweredLeg ? operatorUserId : undefined;
+  const answeredInboxId =
+    isAnsweredLeg && operatorMatch
+      ? operatorMatch.integration.inboxId
+      : undefined;
 
   let conversationId: string | undefined;
   let isNewConversation = false;
@@ -237,7 +245,7 @@ const processCdrLocked = async (
     updatedAt: new Date(),
     owner: ownerForConversation,
     userId: assignedUserId,
-    integrationId: inboxId,
+    integrationId: answeredInboxId || (conversationId ? undefined : inboxId),
   };
   if (customer) {
     payload.customerId = customer?.erxesApiId;
@@ -261,17 +269,27 @@ const processCdrLocked = async (
     throw new Error('Failed to find or create a conversation ID.');
   }
 
-  if (existingSession && !existingSession.conversationId) {
-    await models.CallSessions.updateOne(
-      { _id: existingSession._id },
-      {
-        $set: {
-          conversationId,
-          ...(customer?.erxesApiId ? { customerId: customer.erxesApiId } : {}),
-        },
-      },
-    );
-    existingSession.conversationId = conversationId;
+  if (existingSession) {
+    const sessionPatch: Record<string, string> = {};
+    if (!existingSession.conversationId) {
+      sessionPatch.conversationId = conversationId;
+      if (customer?.erxesApiId) {
+        sessionPatch.customerId = customer.erxesApiId;
+      }
+    }
+    if (
+      answeredInboxId &&
+      existingSession.inboxIntegrationId !== answeredInboxId
+    ) {
+      sessionPatch.inboxIntegrationId = answeredInboxId;
+    }
+    if (Object.keys(sessionPatch).length) {
+      await models.CallSessions.updateOne(
+        { _id: existingSession._id },
+        { $set: sessionPatch },
+      );
+      existingSession.conversationId = conversationId;
+    }
   }
 
   const { cdr, created } = await findOrCreateCdr(
@@ -301,7 +319,7 @@ const processCdrLocked = async (
         await models.CallSessions.upsertSession({
           uniqueid: sessionUniqueid,
           ...(params.linkedid ? { linkedid: params.linkedid } : {}),
-          inboxIntegrationId: inboxId,
+          inboxIntegrationId: answeredInboxId || inboxId,
           conversationId,
           customerId: customer?.erxesApiId,
           customerPhone: primaryPhone,

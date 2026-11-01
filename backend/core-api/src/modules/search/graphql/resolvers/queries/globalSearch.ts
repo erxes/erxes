@@ -332,19 +332,20 @@ export const globalSearchQueries = {
       ? new RegExp(escapedSearch, 'i')
       : undefined;
 
-    const userQuery = searchRegex
-      ? {
-          isActive: { $ne: false },
-          role: { $ne: 'system' },
-          $or: [
-            { username: searchRegex },
-            { email: searchRegex },
-            { employeeId: searchRegex },
-            { 'details.fullName': searchRegex },
-            { 'details.position': searchRegex },
-          ],
-        }
-      : { isActive: { $ne: false }, role: { $ne: 'system' } };
+    const userQuery = await models.Users.staffQuery(
+      searchRegex
+        ? {
+            isActive: { $ne: false },
+            $or: [
+              { username: searchRegex },
+              { email: searchRegex },
+              { employeeId: searchRegex },
+              { 'details.fullName': searchRegex },
+              { 'details.position': searchRegex },
+            ],
+          }
+        : { isActive: { $ne: false } },
+    );
 
     const branchQuery = searchRegex
       ? {

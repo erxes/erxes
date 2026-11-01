@@ -5,6 +5,8 @@ import { LdapConnectionFields } from '@/settings/ldap/components/LdapConnectionF
 import { LdapUserFields } from '@/settings/ldap/components/LdapUserFields';
 import { LdapGroupMappings } from '@/settings/ldap/components/LdapGroupMappings';
 import { LdapTestConnection } from '@/settings/ldap/components/LdapTestConnection';
+import { LdapRecheckFields } from '@/settings/ldap/components/LdapRecheckFields';
+import { LdapRecheckStatus } from '@/settings/ldap/components/LdapRecheckStatus';
 
 export const LdapConfigForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'ldap' });
@@ -42,16 +44,25 @@ export const LdapConfigForm = () => {
                 <Form.Description>{t('enabled-description')}</Form.Description>
               </div>
               <Form.Control>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </Form.Control>
             </Form.Item>
           )}
         />
         <LdapConnectionFields control={control} />
         <Separator />
-        <LdapUserFields control={control} onServerTypeChange={changeServerType} />
+        <LdapUserFields
+          control={control}
+          onServerTypeChange={changeServerType}
+        />
         <Separator />
         <LdapGroupMappings control={control} />
+        <Separator />
+        <LdapRecheckFields control={control} />
+        <LdapRecheckStatus />
         <LdapTestConnection
           onTest={testConnection}
           result={testResult}

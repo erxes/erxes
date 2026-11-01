@@ -17,8 +17,13 @@ import { useMutation } from '@apollo/client';
 import { isDefined, toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
+import { useFormConversionTranslation } from '../conversionTranslations';
 
-type FormField = { tempFieldId?: string } & Record<string, unknown>;
+type FormField = {
+  tempFieldId?: string;
+  type?: string;
+  expectedType?: string;
+} & Record<string, unknown>;
 
 const buildEditFieldsVariables = (
   id: string,
@@ -40,6 +45,7 @@ const buildEditFieldsVariables = (
 
 export const useFormMutate = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const { errorMessage } = useFormConversionTranslation();
   const { formId: id, id: _channelId } = useParams();
   const navigate = useNavigate();
   const formSetupValues = useAtomValue(formSetupValuesAtom);
@@ -48,26 +54,9 @@ export const useFormMutate = () => {
   const { addForm, isAddingForm, client: addFormClient } = useFormAdd();
   const { editForm, loading: isEditingForm } = useFormEdit();
   const [createLeadIntegration, { loading: isCreatingIntegration }] =
-    useMutation(CRAETE_LEAD_INTEGRATION, {
-      onError: (error) => {
-        toast({
-          title: t('error', 'Error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
-
+    useMutation(CRAETE_LEAD_INTEGRATION);
   const [fieldsBulkAction, { loading: isFieldsBulkActionLoading }] =
-    useMutation(FORM_BULK_ACTION, {
-      onError: (error) => {
-        toast({
-          title: t('error', 'Error'),
-          description: error.message,
-          variant: 'destructive',
-        });
-      },
-    });
+    useMutation(FORM_BULK_ACTION);
 
   const handleMutateForm = async (
     confirmation: z.infer<typeof FORM_CONFIRMATION_SCHEMA>,
@@ -79,100 +68,102 @@ export const useFormMutate = () => {
     } = formSetupValues(confirmation);
     const channelId =
       formDetail?.channelId || selectedChannelId || _channelId || '';
-    if (id) {
-      await editForm({
-        variables: {
-          ...formValues,
-          id,
-          integrationId: formDetail?.integrationId,
-        },
-        onCompleted: () => {
-          fieldsBulkAction({
-            variables: buildEditFieldsVariables(
-              id,
-              formFields,
-              (formDetail?.fields ?? []).filter(isDefined),
-            ),
-            onCompleted: () => {
-              toast({
-                title: t('success', 'Success!'),
-                variant: 'success',
-                description: t(
-                  'form-updated-successfully',
-                  'Form updated successfully',
-                ),
-              });
-            },
-          });
-        },
-        onError: (error) => {
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      });
-    } else {
-      if (!channelId) {
-        toast({
-          variant: 'destructive',
-          title: t(
-            'channel-id-required',
-            'Channel ID is required to create a form',
-          ),
-        });
-        return;
-      }
-      const integrationResult = await createLeadIntegration({
-        variables: { name: formValues.name, channelId },
-      });
-      const integrationId =
-        integrationResult.data?.integrationsCreateLeadIntegration?._id;
-      await addForm({
-        variables: { ...formValues, channelId, integrationId },
-        refetchQueries: [GET_FORMS_TOTAL_COUNT],
-        onCompleted: ({ formsAdd }) => {
-          if (!formsAdd) return;
 
-          fieldsBulkAction({
+    try {
+      if (id) {
+        const fieldVariables = buildEditFieldsVariables(
+          id,
+          formFields,
+          (formDetail?.fields ?? []).filter(isDefined),
+        );
+        const converting = fieldVariables.updatedFields.some(
+          (field) => field.expectedType && field.expectedType !== field.type,
+        );
+        if (!converting)
+          await editForm({
             variables: {
-              contentType: 'form',
-              contentTypeId: formsAdd._id,
-              newFields: formFields,
-            },
-            onCompleted: () => {
-              toast({
-                title: t('success', 'Success!'),
-                variant: 'success',
-                description: t(
-                  'form-created-successfully',
-                  'Form created successfully',
-                ),
-              });
+              ...formValues,
+              id,
+              integrationId: formDetail?.integrationId,
             },
           });
-          addFormClient?.cache.evict({
-            id: 'ROOT_QUERY',
-            fieldName: 'forms',
-          });
-          addFormClient?.cache.gc();
+        await fieldsBulkAction({
+          variables: {
+            ...fieldVariables,
+            ...(converting
+              ? {
+                  formChanges: {
+                    ...formValues,
+                    integrationId: formDetail?.integrationId,
+                  },
+                }
+              : {}),
+          },
+        });
+      } else {
+        if (!channelId)
+          throw new Error(
+            t('channel-id-required', 'Channel ID is required to create a form'),
+          );
+        const integrationResult = await createLeadIntegration({
+          variables: { name: formValues.name, channelId },
+        });
+        const integrationId =
+          integrationResult.data?.integrationsCreateLeadIntegration?._id;
+        const result = await addForm({
+          variables: { ...formValues, channelId, integrationId },
+          refetchQueries: [GET_FORMS_TOTAL_COUNT],
+        });
+        const formId = result.data?.formsAdd?._id;
+        if (!formId)
+          throw new Error(
+            t('form-create-failed', 'Could not create the form.'),
+          );
+        await fieldsBulkAction({
+          variables: {
+            contentType: 'form',
+            contentTypeId: formId,
+            newFields: formFields,
+          },
+        });
+      }
+
+      await addFormClient?.refetchQueries({
+        updateCache(cache) {
+          for (const fieldName of [
+            'forms',
+            'formDetail',
+            'formSubmissions',
+            'formSubmissionDetail',
+          ]) {
+            cache.evict({ id: 'ROOT_QUERY', fieldName });
+          }
         },
-        onError: (error) => {
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
+      });
+      toast({
+        title: t('success', 'Success!'),
+        variant: 'success',
+        description: id
+          ? t('form-updated-successfully', 'Form updated successfully')
+          : t('form-created-successfully', 'Form created successfully'),
+      });
+      resetFormSetup();
+      navigate(
+        _channelId
+          ? `/frontline/settings/channels/${_channelId}/forms`
+          : '/frontline/forms',
+      );
+    } catch (error) {
+      toast({
+        title: t('error', 'Error'),
+        description:
+          errorMessage(error) ??
+          (error instanceof Error
+            ? error.message
+            : t('form-save-failed', 'Could not save the form.')),
+        variant: 'destructive',
       });
     }
-    resetFormSetup();
-    navigate(
-      _channelId
-        ? `/frontline/settings/channels/${_channelId}/forms`
-        : '/frontline/forms',
-    );
   };
 
   return {
