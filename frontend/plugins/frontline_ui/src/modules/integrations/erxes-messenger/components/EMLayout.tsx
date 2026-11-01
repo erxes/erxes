@@ -16,7 +16,6 @@ const EM_STEP_LABEL_KEYS = [
   'config',
 ];
 
-/** Renders setup progress, step content and the shared cancellation and save controls. */
 export const EMLayout = ({
   children,
   actions,
@@ -31,7 +30,6 @@ export const EMLayout = ({
   const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
   const editSave = useEMEditSave();
 
-  /** Resets messenger setup state when setup is cancelled. */
   const handleCancel = () => {
     resetErxesMessengerSetup();
   };
@@ -73,7 +71,6 @@ export const EMLayout = ({
   );
 };
 
-/** Returns to the previous messenger setup step and disables at the first step. */
 export const EMLayoutPreviousStepButton = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',

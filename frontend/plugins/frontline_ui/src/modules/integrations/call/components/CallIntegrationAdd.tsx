@@ -13,7 +13,6 @@ import {
   useIntegrationChannelId,
 } from '@/integrations/components/IntegrationPanelForm';
 
-/** Opens the record panel for creating a call integration. */
 export const CallIntegrationAddSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -25,7 +24,6 @@ export const CallIntegrationAddSheet = () => {
   );
 };
 
-/** Creates a call integration with validated connection and operator settings. */
 export const CallIntegrationAdd = () => {
   const id = useIntegrationChannelId();
 
@@ -43,7 +41,6 @@ export const CallIntegrationAdd = () => {
 
   const { addIntegration, loading } = useIntegrationAdd();
 
-  /** Creates the call integration and closes its setup session after success. */
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
     addIntegration({
       variables: {
@@ -60,7 +57,6 @@ export const CallIntegrationAdd = () => {
           operators: data.operators,
         },
       },
-      /** Closes the call setup session after successful creation. */
       onCompleted() {
         setCallAddSheet(false);
       },

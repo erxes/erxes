@@ -36,10 +36,8 @@ import { isRecord } from '@/shared/utils/isRecord';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
-/** Reads supported mail detail strings without trusting the provider payload shape. */
 const readMailDetails = (details: unknown) => {
   const data = isRecord(details) && isRecord(details.data) ? details.data : {};
-  /** Returns a supported string value or leaves an absent provider field unset. */
   const text = (key: string) => {
     const value = data[key];
     return typeof value === 'string' ? value : undefined;
@@ -54,7 +52,6 @@ const readMailDetails = (details: unknown) => {
   };
 };
 
-/** Edits the inbox brand through the shared validated form control. */
 const MailIntegrationBrandField = ({
   control,
 }: {
@@ -84,7 +81,6 @@ const MailIntegrationBrandField = ({
   );
 };
 
-/** Edits mail identity, forwarding and brand while retaining connection diagnostics. */
 export const MailIntegrationEditForm = ({
   id,
   setOpen,
@@ -125,7 +121,6 @@ export const MailIntegrationEditForm = ({
     });
   }, [integrationDetail, form]);
 
-  /** Saves validated mail settings and refreshes the integration's active views. */
   const onSubmit = (data: MailFormValues) => {
     editIntegration({
       variables: {
@@ -236,12 +231,10 @@ export const MailIntegrationEditForm = ({
   );
 };
 
-/** Opens the selected mail integration in the shared record panel. */
 export const MailIntegrationActions = ({
   integration,
 }: {
   integration: IIntegration;
 }) => <IntegrationEditButton integration={integration} />;
 
-/** Provides the native mail connection entry and its integration layout. */
 export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

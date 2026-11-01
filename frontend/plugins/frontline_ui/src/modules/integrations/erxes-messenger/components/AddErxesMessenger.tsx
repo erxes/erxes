@@ -27,7 +27,6 @@ export const AddErxesMessengerSheet = () => {
   );
 };
 
-/** Initializes the messenger creation session and renders its setup steps. */
 export const AddErxesMessengerPanelForm = () => (
   <IntegrationFormSession
     state={erxesMessengerSetupSheetOpenAtom}

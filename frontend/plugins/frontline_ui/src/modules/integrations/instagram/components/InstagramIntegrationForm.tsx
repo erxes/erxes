@@ -17,7 +17,6 @@ import { InstagramGetPages } from './InstagramGetPages';
 import { InstagramIntegrationSetup } from './InstagramIntegrationSetup';
 import { IgIntegrationProvider } from '@/integrations/instagram/context/IgIntegrationContext';
 
-/** Starts an Instagram post or messenger connection in the shared record panel. */
 export const InstagramIntegrationFormSheet = ({
   isPost,
 }: {
@@ -41,7 +40,6 @@ export const InstagramIntegrationFormSheet = ({
   );
 };
 
-/** Renders the account, page or setup screen selected by the existing wizard state. */
 export const InstagramIntegrationForm = () => {
   const activeStep = useAtomValue(activeInstagramFormStepAtom);
 
@@ -54,7 +52,6 @@ export const InstagramIntegrationForm = () => {
   );
 };
 
-/** Hosts the existing Instagram wizard state and provider context in the panel. */
 export const InstagramIntegrationPanelForm = ({
   isPost,
 }: {
@@ -71,7 +68,6 @@ export const InstagramIntegrationPanelForm = ({
   </IntegrationFormSession>
 );
 
-/** Preserves the wizard content, cancel reset and step-specific footer actions. */
 export const InstagramIntegrationFormLayout = ({
   children,
   actions,
@@ -105,7 +101,6 @@ export const InstagramIntegrationFormLayout = ({
   );
 };
 
-/** Shows the current stage within Instagram's three-step setup. */
 export const InstagramIntegrationFormSteps = ({
   title,
   step,

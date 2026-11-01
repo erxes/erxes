@@ -8,7 +8,6 @@ import { ChannelsCommandBar } from './ChannelsCommandBar';
 import { useChannelsColumns } from './ChannelsColumns';
 import { useTranslation } from 'react-i18next';
 
-/** Lists channel settings with member-aware columns and filtered empty states. */
 export function Channels() {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [searchValue] = useQueryState<string | null>('searchValue');

@@ -75,7 +75,6 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
   },
 ];
 
-/** Renders a configured mail field through the shared validated form composition. */
 export const MailFormField = <TValues extends FieldValues>({
   name,
   label,
@@ -123,7 +122,6 @@ export const MailFormField = <TValues extends FieldValues>({
   );
 };
 
-/** Shows the generated receiving address with its existing clipboard feedback. */
 export const MailAddressCallout = ({
   address,
   description = 'forward-your-mail-here-description',
@@ -136,7 +134,6 @@ export const MailAddressCallout = ({
   const { t } = useTranslation('frontline');
   const [copied, setCopied] = useState(false);
 
-  /** Copies the address and briefly marks the callout as copied. */
   const copy = async () => {
     await navigator.clipboard.writeText(address);
     setCopied(true);
@@ -167,7 +164,6 @@ export const MailAddressCallout = ({
   );
 };
 
-/** Previews the sender name and address in the same format as outgoing mail. */
 export const MailSenderPreview = ({
   senderName,
   address,
@@ -181,7 +177,6 @@ export const MailSenderPreview = ({
   </p>
 );
 
-/** Summarizes the available sending domain and sender identity. */
 const MailSendingSummary = ({
   domain,
   senderName,
@@ -218,7 +213,6 @@ const STEP_TITLES = [
   'mail-step-done',
 ];
 
-/** Shows the created inbox address, sending identity and next-step guidance. */
 const MailIntegrationCreated = ({
   integrationId,
   sendingDomain,
@@ -287,7 +281,6 @@ const MailIntegrationCreated = ({
   );
 };
 
-/** Starts a mail connection through the shared record panel. */
 export const MailIntegrationFormSheet = () => {
   const { t } = useTranslation('frontline');
   return (
@@ -297,11 +290,9 @@ export const MailIntegrationFormSheet = () => {
   );
 };
 
-/** Resolves the same optional sender override and inbox-name fallback. */
 const getMailSenderName = (values: MailFormValues): string =>
   values.senderName?.trim() || values.name?.trim() || '';
 
-/** Renders the wizard's initial identity, preview and required brand fields. */
 const MailIntegrationBasics = ({
   control,
   sendingDomain,
@@ -351,7 +342,6 @@ const MailIntegrationBasics = ({
   );
 };
 
-/** Selects the current mail setup screen without owning wizard state. */
 const MailIntegrationWizardStep = ({
   step,
   control,
@@ -392,7 +382,6 @@ const MailIntegrationWizardStep = ({
   </>
 );
 
-/** Preserves cancellation, navigation and readiness gates for each wizard stage. */
 const MailIntegrationWizardFooter = ({
   step,
   loading,
@@ -465,7 +454,6 @@ const MailIntegrationWizardFooter = ({
   );
 };
 
-/** Owns the mail wizard state, validation and integration creation lifecycle. */
 export const MailIntegrationPanelForm = () => {
   const { t } = useTranslation('frontline');
   const { close: closePanel } = useSidePanel();
@@ -481,7 +469,6 @@ export const MailIntegrationPanelForm = () => {
   const { addIntegration, loading } = useIntegrationAdd();
   const { readiness, loading: readinessLoading } = useMailSendingReadiness();
 
-  /** Closes the panel and clears the local wizard session. */
   const close = () => {
     closePanel();
     setStep(1);
@@ -499,7 +486,6 @@ export const MailIntegrationPanelForm = () => {
 
   const sendingReady = Boolean(readiness?.ready);
 
-  /** Creates the validated inbox and advances to its confirmation after success. */
   const onSubmit = (data: MailFormValues) =>
     addIntegration({
       variables: {
@@ -512,7 +498,6 @@ export const MailIntegrationPanelForm = () => {
           senderName: data.senderName,
         },
       },
-      /** Retains the created inbox identifier for the confirmation screen. */
       onCompleted(created) {
         const newId = created?.integrationsCreateExternalIntegration?._id;
 

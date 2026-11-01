@@ -17,7 +17,6 @@ import { FacebookGetAccounts } from '@/integrations/facebook/components/Facebook
 import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGetPages';
 import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
-/** Opens a new record-panel draft for the selected Facebook integration kind. */
 export const FacebookIntegrationFormSheet = ({
   isPost,
 }: {
@@ -41,7 +40,6 @@ export const FacebookIntegrationFormSheet = ({
   );
 };
 
-/** Renders the account, page or setup step selected by the Facebook wizard. */
 export const FacebookIntegrationForm = () => {
   const activeStep = useAtomValue(activeFacebookFormStepAtom);
 
@@ -54,7 +52,6 @@ export const FacebookIntegrationForm = () => {
   );
 };
 
-/** Hosts the existing Facebook setup steps in the active record-panel session. */
 export const FacebookIntegrationPanelForm = ({
   isPost,
 }: {
@@ -71,7 +68,6 @@ export const FacebookIntegrationPanelForm = ({
   </IntegrationFormSession>
 );
 
-/** Keeps Facebook setup content and actions in the existing sheet layout. */
 export const FacebookIntegrationFormLayout = ({
   children,
   actions,
@@ -105,7 +101,6 @@ export const FacebookIntegrationFormLayout = ({
   );
 };
 
-/** Displays the active step in the three-stage Facebook connection wizard. */
 export const FacebookIntegrationFormSteps = ({
   title,
   step,

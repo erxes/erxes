@@ -33,7 +33,6 @@ const FacebookIntegrationBotSection = lazy(() =>
   ),
 );
 
-/** Restores OAuth selection and opens the matching Facebook setup record. */
 export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setDraft = useSetAtom(sidePanelDraftState);
@@ -77,12 +76,10 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   );
 };
 
-/** Opens the shared record panel for editing a Facebook integration. */
 export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => (
   <IntegrationEditButton integration={{ _id: id }} />
 );
 
-/** Opens the Facebook integration editor from its row actions. */
 export const FacebookIntegrationActions = ({
   integration,
 }: {
@@ -91,7 +88,6 @@ export const FacebookIntegrationActions = ({
   return <FacebookIntegrationEditSheet id={integration._id} />;
 };
 
-/** Renders the selected page, editable name and existing brand selector. */
 const FacebookIntegrationEditFields = ({ pageName }: { pageName?: string }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -108,7 +104,6 @@ const FacebookIntegrationEditFields = ({ pageName }: { pageName?: string }) => {
   );
 };
 
-/** Loads bot configuration only for Facebook Messenger integrations. */
 const FacebookIntegrationBotArea = ({
   integrationId,
 }: {
@@ -124,7 +119,6 @@ const FacebookIntegrationBotArea = ({
   </>
 );
 
-/** Edits Facebook integration metadata while retaining its bot configuration surface. */
 export const FacebookIntegrationEditForm = ({
   id,
   setOpen,
@@ -153,7 +147,6 @@ export const FacebookIntegrationEditForm = ({
     }
   }, [integrationDetail, form]);
 
-  /** Saves the integration metadata and closes its panel after a successful update. */
   const onSubmit = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) => {
     editIntegration({
       variables: {

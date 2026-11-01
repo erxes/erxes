@@ -54,7 +54,6 @@ type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
 type TConfigTab = 'bot' | 'ticket' | 'kb';
 
-/** Explains persistent menu behavior through the existing tooltip. */
 const PersistentMenuHelp = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -78,7 +77,6 @@ const PersistentMenuHelp = () => {
   );
 };
 
-/** Renders the persistent menu button or link selector. */
 const PersistentMenuTypeSelect = ({
   value,
   onChange,
@@ -104,7 +102,6 @@ const PersistentMenuTypeSelect = ({
   );
 };
 
-/** Renders the existing persistent menu content types. */
 const PersistentMenuContentTypeSelect = ({
   value,
   onChange,
@@ -133,7 +130,6 @@ const PersistentMenuContentTypeSelect = ({
   );
 };
 
-/** Edits one persistent menu item while retaining hidden type-specific fields. */
 const PersistentMenuRow = ({
   index,
   currentType,
@@ -213,7 +209,6 @@ const PersistentMenuRow = ({
   );
 };
 
-/** Manages persistent menu items through the shared messenger form field array. */
 const PersistentMenu = ({
   form,
 }: {
@@ -266,7 +261,6 @@ const PersistentMenu = ({
   );
 };
 
-/** Lists matching automations and closes the picker after a selection. */
 const MessengerAutomationOptions = ({
   automations,
   value,
@@ -308,7 +302,6 @@ const MessengerAutomationOptions = ({
   );
 };
 
-/** Loads inbox message automations and selects the messenger bot automation. */
 const SelectMessengerAutomation = ({
   value,
   onChange,
@@ -349,7 +342,6 @@ const SelectMessengerAutomation = ({
   );
 };
 
-/** Shows bot, ticket and knowledge base tabs with their existing status badges. */
 const EMConfigTabList = ({
   botEnabled,
   ticketConfigCount,
@@ -386,7 +378,6 @@ const EMConfigTabList = ({
   );
 };
 
-/** Renders the messenger bot greeting, menu, AI options and automation controls. */
 const EMBotConfigFields = ({
   form,
   idToEdit,
@@ -482,7 +473,6 @@ const EMBotConfigFields = ({
   );
 };
 
-/** Groups integration identity and bot, ticket and knowledge base configuration. */
 const EMConfigFields = ({
   form,
   idToEdit,
@@ -589,7 +579,6 @@ const EMConfigFields = ({
   );
 };
 
-/** Creates or updates the messenger using its validated configuration and setup state. */
 export const EMConfig = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',

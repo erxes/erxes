@@ -6,7 +6,6 @@ import { CallIntegrationAddSheet } from '@/integrations/call/components/CallInte
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { useCallEnabledIntegrations } from '@/integrations/call/hooks/useCallEnabledIntegrations';
 
-/** Shows the action for creating a call integration. */
 export const CallIntegrationDetail = () => {
   return (
     <div>
@@ -15,7 +14,6 @@ export const CallIntegrationDetail = () => {
   );
 };
 
-/** Toggles the selected call integration for the signed-in user's dialer. */
 export const CallIntegrationConnect = ({
   integrationId,
 }: {
@@ -53,7 +51,6 @@ export const CallIntegrationConnect = ({
   );
 };
 
-/** Exposes the call connection toggle beside the shared integration editor. */
 export const CallIntegrationActions = ({
   integration,
 }: {

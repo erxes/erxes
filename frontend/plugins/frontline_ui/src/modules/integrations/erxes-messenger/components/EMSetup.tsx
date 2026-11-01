@@ -10,7 +10,6 @@ import { Preview, Separator, Spinner, Tabs } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
-/** Renders the messenger preview with its toolbar and iframe pointing to the same setup route. */
 const EMSetupPreview = () => {
   const previewPath = `/frontline/settings/channels${FrontlinePaths.ErxesMessengerPreview}?inPreview=true`;
 
@@ -27,7 +26,6 @@ const EMSetupPreview = () => {
   );
 };
 
-/** Shows the selected messenger editor step and its preview after setup loads. */
 export const EMSetup = ({ loading }: { loading?: boolean }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',

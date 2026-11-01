@@ -74,7 +74,6 @@ const STEP_DETAILS = [
 
 const NAME_PLACEHOLDER = 'e.g. Enterprise Support';
 
-/** Offers matching saved integration names while accepting a new name. */
 const IntegrationNamePicker = ({
   value,
   onChange,
@@ -158,7 +157,6 @@ const IntegrationNamePicker = ({
   );
 };
 
-/** Opens the record-panel setup for a Discord bot integration. */
 export const DiscordIntegrationDetail = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -170,7 +168,6 @@ export const DiscordIntegrationDetail = () => {
   );
 };
 
-/** Shows available Discord servers or the current loading and invitation guidance. */
 const DiscordServerPicker = ({
   guildsLoading,
   guilds,
@@ -234,7 +231,6 @@ const DiscordServerPicker = ({
   }
 };
 
-/** Presents token verification and selection of a previously connected Discord server. */
 const DiscordTokenStep = ({
   token,
   setToken,
@@ -425,7 +421,6 @@ const DiscordTokenStep = ({
   );
 };
 
-/** Presents channel selection and the shared integration name and brand fields. */
 const DiscordChannelsStep = ({
   channels,
   setChannels,
@@ -555,7 +550,6 @@ const DiscordChannelsStep = ({
   );
 };
 
-/** Preserves cancellation, previous-step resets, and next/save availability. */
 const DiscordSetupFooter = ({
   step,
   setStep,
@@ -636,7 +630,6 @@ const DiscordSetupFooter = ({
   );
 };
 
-/** Keeps setup progress and scrollable step content in the existing sheet layout. */
 const DiscordSetupContent = ({
   step,
   children,
@@ -657,7 +650,6 @@ const DiscordSetupContent = ({
   </Sheet.Content>
 );
 
-/** Adds the server-step label around the server loading, picker, or empty state. */
 const DiscordServerStep = (
   props: ComponentProps<typeof DiscordServerPicker>,
 ) => {
@@ -674,7 +666,6 @@ const DiscordServerStep = (
   );
 };
 
-/** Coordinates Discord setup state and creates integrations in selected-channel order. */
 export const DiscordIntegrationPanelForm = () => {
   const inboxChannelId = useIntegrationChannelId();
   const { close } = useSidePanel();
@@ -751,7 +742,6 @@ export const DiscordIntegrationPanelForm = () => {
     defaultValues: { name: '', brandId: '' },
   });
 
-  /** Clears the setup session after every selected channel has been created. */
   const reset = () => {
     setStep(1);
     setToken('');
@@ -770,7 +760,6 @@ export const DiscordIntegrationPanelForm = () => {
     setExistingBotId('');
   }, [token]);
 
-  /** Creates channels sequentially and retains only failed selections for retry. */
   const onSubmit = async (values: FormValues) => {
     if ((!isExistingMode && !currentValidation?.valid) || !channels.length) {
       return;

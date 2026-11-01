@@ -22,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-/** Renders logo upload, replacement and removal without changing stored values. */
 const EMLogoUpload = ({
   value,
   onChange,
@@ -56,7 +55,6 @@ const EMLogoUpload = ({
   );
 };
 
-/** Renders the existing brand colors, logo and appearance controls. */
 const EMAppearanceFields = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -185,7 +183,6 @@ const EMAppearanceFields = () => {
   );
 };
 
-/** Edits messenger appearance and advances after successful validation. */
 export const EMAppearance = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -203,7 +200,6 @@ export const EMAppearance = () => {
     },
   });
 
-  /** Advances to the next setup step after appearance validation. */
   const onSubmit = () => {
     setStep((prev) => prev + 1);
   };

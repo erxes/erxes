@@ -1094,6 +1094,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   `IntegrationBrandField` for common
   edit and setup controls. Preserve each provider's validation, brand selector
   and mutation behavior when composing these helpers.
+  Provider entry points retain named exports while composing these helpers.
 - Telegram's standalone setup exports retain sheet behavior by default; the
   integrations page and row menu opt into `presentation="panel"`. Both use
   the same setup implementation, with channel and field layout supplied by

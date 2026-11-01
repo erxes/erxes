@@ -69,7 +69,6 @@ type TelegramSetupFieldProps = {
   FormItem: ComponentType<TelegramFormItemProps>;
 };
 
-/** Preserves the standalone sheet's field labels around the shared setup controls. */
 const TelegramFormItem = ({ label, children }: TelegramFormItemProps) => (
   <Form.Item>
     <Form.Label>{label}</Form.Label>
@@ -77,7 +76,6 @@ const TelegramFormItem = ({ label, children }: TelegramFormItemProps) => (
   </Form.Item>
 );
 
-/** Resolves the same saved, integration-linked or selected bot in priority order. */
 const getSetupBot = (
   bots: TelegramBot[] | undefined,
   savedBot: TelegramBot | undefined,
@@ -115,7 +113,6 @@ export const TelegramIntegrationActions = ({
   );
 };
 
-/** Renders bot identity, credentials and the inbox fields before linking. */
 const TelegramBotFields = ({
   control,
   FormItem,
@@ -219,7 +216,6 @@ const TelegramBotFields = ({
   );
 };
 
-/** Keeps the public callback override and generated webhook preview together. */
 const TelegramConnectionSettings = ({
   control,
   FormItem,
@@ -293,7 +289,6 @@ const TelegramConnectionSettings = ({
   );
 };
 
-/** Displays the saved webhook and provider delivery diagnostics without changing them. */
 const TelegramWebhookDiagnostics = ({
   status,
 }: {
@@ -336,7 +331,6 @@ const TelegramWebhookDiagnostics = ({
   );
 };
 
-/** Leaves refresh and disconnect available even when webhook status fails. */
 const TelegramWebhookStatus = ({
   status,
   loading,
@@ -385,7 +379,6 @@ const TelegramWebhookStatus = ({
   );
 };
 
-/** Preserves the provider's privacy, group, channel and media guidance. */
 const TelegramGroupHints = ({ bot }: { bot?: TelegramBot }) => {
   const { t } = useTelegramTranslation();
   let groupMessage = t('privacyOn');
@@ -406,7 +399,6 @@ const TelegramGroupHints = ({ bot }: { bot?: TelegramBot }) => {
   );
 };
 
-/** Shows loading, retry and missing-record states before setup fields. */
 const TelegramSetupContent = ({
   loading,
   failed,
@@ -441,7 +433,6 @@ const TelegramSetupContent = ({
   return children;
 };
 
-/** Shares the cancellation and save/connect controls between both presentations. */
 const TelegramSetupFooter = ({
   integrationId,
   busy,
@@ -552,7 +543,6 @@ const TelegramSetupForm = ({
       variant: 'destructive',
     });
   };
-  /** Verifies new or replacement credentials and clears only a saved token. */
   const saveBot = async (token: string): Promise<TelegramBot> => {
     if (!bot) {
       const result = await addBot({ variables: { token } });
@@ -571,7 +561,6 @@ const TelegramSetupForm = ({
     form.setValue('token', '');
     return current;
   };
-  /** Reconciles an interrupted create before attempting another inbox link. */
   const linkInbox = async (
     saved: TelegramBot,
     values: SetupValues,
@@ -599,7 +588,6 @@ const TelegramSetupForm = ({
     setProgress('linked');
     return linked;
   };
-  /** Runs verification, resumable linking and webhook registration in order. */
   const submit = async (values: SetupValues): Promise<void> => {
     if (needsLink && !values.brandId) {
       form.setError('brandId', { message: t('chooseBrand') });
@@ -739,7 +727,6 @@ const TelegramSetupForm = ({
   );
 };
 
-/** Supplies record-panel channel context and field layout to the shared setup form. */
 export const TelegramSetup = ({
   integrationId,
 }: {
@@ -755,7 +742,6 @@ export const TelegramSetup = ({
   );
 };
 
-/** Hosts the existing standalone create and configure entry points in a sheet. */
 const TelegramSetupSheet = ({ showTrigger }: { showTrigger: boolean }) => {
   const [integrationId, setIntegrationId] = useAtom(telegramSetupState);
   const { id: channelId } = useParams();

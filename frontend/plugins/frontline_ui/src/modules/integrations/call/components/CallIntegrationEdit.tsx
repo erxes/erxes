@@ -13,7 +13,6 @@ import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail'
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 
-/** Loads and edits call connection settings while preserving the owning channel. */
 export const CallIntegrationEdit = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -120,7 +119,6 @@ export const CallIntegrationEdit = () => {
   );
 };
 
-/** Initializes the call integration edit session for the selected record. */
 export const CallIntegrationSheetEdit = ({ id }: { id: string }) => (
   <IntegrationFormSession
     state={callEditSheetAtom}

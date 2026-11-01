@@ -11,7 +11,6 @@ import { z } from 'zod';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
 import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
 
-/** Shows the configured webhook address when Call Pro provides one. */
 export const CallProWebhookHint = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -36,7 +35,6 @@ export const CallProWebhookHint = () => {
   );
 };
 
-/** Renders validated Call Pro connection fields and the save action. */
 export const CallProIntegrationForm = ({
   form,
   onSubmit,

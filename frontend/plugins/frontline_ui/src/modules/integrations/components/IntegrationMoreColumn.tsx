@@ -88,7 +88,6 @@ const EDITABLE_KINDS: string[] = [
   IntegrationType.TELEGRAM_MESSENGER,
 ];
 
-/** Checks whether the provider exposes a connection repair action. */
 export const isRepairableIntegration = (kind: string) =>
   FACEBOOK_KINDS.includes(kind) ||
   INSTAGRAM_KINDS.includes(kind) ||
@@ -115,7 +114,6 @@ export const IntegrationRepairAction = ({
   return null;
 };
 
-/** Loads the provider editor action without mounting unrelated provider actions. */
 const IntegrationEditAction = ({
   integration,
 }: {
@@ -162,7 +160,6 @@ type IntegrationMenuContentProps = {
   setMoveOpen: (open: boolean) => void;
 };
 
-/** Renders provider actions and preserves the callbacks that close or move a row. */
 const IntegrationMenuItems = ({
   integration,
   setMenuOpen,
@@ -218,7 +215,6 @@ const IntegrationMenuItems = ({
   );
 };
 
-/** Composes the existing command menu without adding a wrapper to its DOM. */
 const IntegrationMenuContent = (props: IntegrationMenuContentProps) => (
   <Combobox.Content>
     <Command shouldFilter={false}>
@@ -262,7 +258,6 @@ export const IntegrationActionsMenu = ({
   );
 };
 
-/** Builds the integration actions column with an optional column selector. */
 export const integrationMoreColumn = (
   showColumnSelector = false,
 ): ColumnDef<IIntegration> => ({

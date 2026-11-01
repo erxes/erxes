@@ -18,14 +18,12 @@ export const IntegrationChannelContext = createContext<
   string | null | undefined
 >(null);
 
-/** Resolves the record panel's channel before falling back to the channel route. */
 export const useIntegrationChannelId = (): string | undefined => {
   const { id } = useParams();
   const channelId = useContext(IntegrationChannelContext);
   return channelId ?? id;
 };
 
-/** Opens a new provider draft with the current channel already selected. */
 export const IntegrationCreateButton = ({
   kind,
   children,
@@ -51,7 +49,6 @@ export const IntegrationCreateButton = ({
   );
 };
 
-/** Opens an existing integration in the shared record panel. */
 export const IntegrationEditButton = ({
   integration,
 }: {
@@ -78,7 +75,6 @@ export const IntegrationEditButton = ({
   );
 };
 
-/** Supplies sheet controls and compact styling inside an integration record panel. */
 export const IntegrationPanelForm = ({
   children,
 }: {
@@ -94,7 +90,6 @@ export const IntegrationPanelForm = ({
   );
 };
 
-/** Aligns provider field labels and controls using the shared panel form row. */
 export const IntegrationFormItem = ({
   label,
   children,
@@ -115,7 +110,6 @@ export const IntegrationFormItem = ({
   </Form.Item>
 );
 
-/** Shares brand-field markup while retaining each provider's existing selector. */
 export const IntegrationBrandField = ({
   required,
   variant = 'single',
@@ -164,7 +158,6 @@ export const IntegrationBrandField = ({
   );
 };
 
-/** Renders the integration name with optional setup guidance and validation feedback. */
 export const IntegrationNameField = ({
   label,
   description,
@@ -194,7 +187,6 @@ export const IntegrationNameField = ({
   );
 };
 
-/** Keeps close and submit controls consistent across provider edit forms. */
 export const IntegrationFormActions = ({
   onClose,
   disabled,
@@ -226,7 +218,6 @@ export const IntegrationFormActions = ({
   );
 };
 
-/** Initializes provider form state and closes the panel when that state resets. */
 export const IntegrationFormSession = <T,>({
   state,
   value,

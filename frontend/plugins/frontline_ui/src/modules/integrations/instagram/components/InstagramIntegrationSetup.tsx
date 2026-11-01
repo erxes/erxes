@@ -29,7 +29,6 @@ const INTEGRATION_KINDS = {
   MESSENGER: 'instagram-messenger',
 };
 
-/** Links the selected Instagram page to a validated inbox connection. */
 export const InstagramIntegrationSetup = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -48,7 +47,6 @@ export const InstagramIntegrationSetup = () => {
   const resetInstagramForm = useSetAtom(resetInstagramAddStateAtom);
   const setActiveStep = useSetAtom(activeInstagramFormStepAtom);
 
-  /** Creates the selected page integration and resets wizard state after success. */
   const onNext = (data: z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>) => {
     if (!channelId) return;
 

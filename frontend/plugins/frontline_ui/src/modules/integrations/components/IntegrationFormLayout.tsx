@@ -7,7 +7,6 @@ interface IntegrationFormLayoutProps {
   actions: ReactNode;
 }
 
-/** Renders integration form fields with the shared sheet footer and cancel action. */
 export const IntegrationFormLayout = ({
   children,
   actions,
