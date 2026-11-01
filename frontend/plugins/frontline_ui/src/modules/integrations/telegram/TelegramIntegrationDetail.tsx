@@ -21,7 +21,7 @@ import {
 } from 'erxes-ui';
 import { atom, useAtom, useSetAtom } from 'jotai';
 import { type ComponentType, type ReactNode, useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { type Control, useForm } from 'react-hook-form';
 import { useParams } from 'react-router';
 import { SelectBrand } from 'ui-modules';
 import { z } from 'zod';
@@ -35,6 +35,7 @@ import {
   TELEGRAM_UPDATE_BOT,
   TELEGRAM_WEBHOOK_INFO,
   type TelegramBot,
+  type TelegramWebhookInfo,
 } from './graphql';
 import { useTelegramTranslation } from './translations';
 import {
@@ -46,14 +47,6 @@ import {
 const telegramSetupState = atom<string | null>();
 type TelegramPresentation = 'sheet' | 'panel';
 type TelegramFormItemProps = { label: ReactNode; children: ReactNode };
-
-/** Preserves the standalone sheet's field labels around the shared setup controls. */
-const TelegramFormItem = ({ label, children }: TelegramFormItemProps) => (
-  <Form.Item>
-    <Form.Label>{label}</Form.Label>
-    {children}
-  </Form.Item>
-);
 
 /** Validates the public callback address before any bot setup mutation. */
 const getSetupSchema = (callbackError: string) =>
@@ -70,6 +63,33 @@ const getSetupSchema = (callbackError: string) =>
       }),
   });
 type SetupValues = z.infer<ReturnType<typeof getSetupSchema>>;
+
+type TelegramSetupFieldProps = {
+  control: Control<SetupValues>;
+  FormItem: ComponentType<TelegramFormItemProps>;
+};
+
+/** Preserves the standalone sheet's field labels around the shared setup controls. */
+const TelegramFormItem = ({ label, children }: TelegramFormItemProps) => (
+  <Form.Item>
+    <Form.Label>{label}</Form.Label>
+    {children}
+  </Form.Item>
+);
+
+/** Resolves the same saved, integration-linked or selected bot in priority order. */
+const getSetupBot = (
+  bots: TelegramBot[] | undefined,
+  savedBot: TelegramBot | undefined,
+  integrationId: string | null,
+  chosenId: string,
+): TelegramBot | undefined => {
+  if (savedBot)
+    return bots?.find((item) => item._id === savedBot._id) ?? savedBot;
+  if (integrationId)
+    return bots?.find((item) => item.erxesApiId === integrationId);
+  return bots?.find((item) => item._id === chosenId);
+};
 
 /** Opens setup for the integration selected in the native integrations table. */
 export const TelegramIntegrationActions = ({
@@ -95,19 +115,357 @@ export const TelegramIntegrationActions = ({
   );
 };
 
-/** Supplies record-panel channel context and field layout to the shared setup form. */
-export const TelegramSetup = ({
+/** Renders bot identity, credentials and the inbox fields before linking. */
+const TelegramBotFields = ({
+  control,
+  FormItem,
+  bot,
+  bots,
+  showBotPicker,
+}: TelegramSetupFieldProps & {
+  bot?: TelegramBot;
+  bots?: TelegramBot[];
+  showBotPicker: boolean;
+}) => {
+  const { t } = useTelegramTranslation();
+  const needsLink = !bot?.erxesApiId;
+  return (
+    <>
+      {showBotPicker && (
+        <Form.Field
+          control={control}
+          name="botId"
+          render={({ field }) => (
+            <FormItem label={t('bot')}>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Form.Control>
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                </Form.Control>
+                <Select.Content>
+                  <Select.Item value="new">{t('newBot')}</Select.Item>
+                  {bots
+                    ?.filter((item) => !item.erxesApiId)
+                    .map((item) => (
+                      <Select.Item key={item._id} value={item._id}>
+                        {item.botName}{' '}
+                        {item.botUsername ? `(@${item.botUsername})` : ''}
+                      </Select.Item>
+                    ))}
+                </Select.Content>
+              </Select>
+              <Form.Message />
+            </FormItem>
+          )}
+        />
+      )}
+      {bot && (
+        <p className="font-medium">
+          {bot.botName} {bot.botUsername ? `(@${bot.botUsername})` : ''}
+        </p>
+      )}
+      <Form.Field
+        control={control}
+        name="token"
+        render={({ field }) => (
+          <FormItem label={bot ? t('replacementToken') : t('token')}>
+            <Form.Control>
+              <Input {...field} type="password" autoComplete="new-password" />
+            </Form.Control>
+            <Form.Description>{t('tokenHint')}</Form.Description>
+            <Form.Message />
+          </FormItem>
+        )}
+      />
+      {needsLink && (
+        <>
+          <Form.Field
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <FormItem label={t('name')}>
+                <Form.Control>
+                  <Input
+                    {...field}
+                    placeholder={bot?.botName || t('namePlaceholder')}
+                  />
+                </Form.Control>
+                <Form.Description>{t('nameHint')}</Form.Description>
+                <Form.Message />
+              </FormItem>
+            )}
+          />
+          <Form.Field
+            control={control}
+            name="brandId"
+            render={({ field }) => (
+              <FormItem label={t('brand')}>
+                <Form.Control>
+                  <SelectBrand
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    placeholder={t('chooseBrand')}
+                    className="w-full"
+                  />
+                </Form.Control>
+                <Form.Message />
+              </FormItem>
+            )}
+          />
+        </>
+      )}
+    </>
+  );
+};
+
+/** Keeps the public callback override and generated webhook preview together. */
+const TelegramConnectionSettings = ({
+  control,
+  FormItem,
+  bot,
+  status,
+  statusError,
+  defaultAddress,
+  open,
+  onOpenChange,
+}: TelegramSetupFieldProps & {
+  bot?: TelegramBot;
+  status?: TelegramWebhookInfo;
+  statusError: boolean;
+  defaultAddress: string | undefined;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const { t } = useTelegramTranslation();
+  return (
+    <Collapsible open={open} onOpenChange={onOpenChange}>
+      <Collapsible.Trigger asChild>
+        <Button type="button" variant="ghost" className="gap-2 px-0">
+          <Collapsible.TriggerIcon />
+          {t('connectionSettings')}
+        </Button>
+      </Collapsible.Trigger>
+      <p className="text-sm text-muted-foreground mb-3">
+        {status?.url
+          ? t('callbackSaved')
+          : statusError
+            ? t('statusFailed')
+            : defaultAddress
+              ? t('callbackDetected')
+              : t('callbackLocal')}
+      </p>
+      <Collapsible.Content>
+        <Form.Field
+          control={control}
+          name="url"
+          render={({ field }) => (
+            <FormItem label={t('callback')}>
+              <Form.Control>
+                <Input
+                  {...field}
+                  type="url"
+                  placeholder="https://your-public-frontline-host"
+                />
+              </Form.Control>
+              <Form.Description>
+                {t('callbackHint')}
+                <span className="block mt-1">{t('callbackAutomatic')}</span>
+                <span className="block mt-2 font-medium">
+                  {t('callbackPreview')}
+                </span>
+                <code className="block break-all">
+                  {getTelegramWebhookUrl(
+                    field.value || 'https://your-public-frontline-host',
+                    bot?._id ?? '{bot-id}',
+                  ) ?? `/telegram/receive/${bot?._id ?? '{bot-id}'}`}
+                </code>
+                {!bot && (
+                  <span className="block mt-1">{t('callbackPending')}</span>
+                )}
+              </Form.Description>
+              <Form.Message />
+            </FormItem>
+          )}
+        />
+      </Collapsible.Content>
+    </Collapsible>
+  );
+};
+
+/** Displays the saved webhook and provider delivery diagnostics without changing them. */
+const TelegramWebhookDiagnostics = ({
+  status,
+}: {
+  status?: TelegramWebhookInfo;
+}) => {
+  const { t } = useTelegramTranslation();
+  if (!status) return null;
+  return (
+    <>
+      <p>{status.url ? t('registered') : t('unregistered')}</p>
+      <p className="break-all text-muted-foreground">{status.url}</p>
+      <p>
+        {t('pending')}: {status.pendingUpdateCount}
+      </p>
+      {status.url &&
+        [
+          'message',
+          'channel_post',
+          'edited_message',
+          'edited_channel_post',
+          'poll',
+          'message_reaction',
+          'message_reaction_count',
+        ].some((type) => !status.allowedUpdates?.includes(type)) && (
+          <p className="text-warning">{t('channelUpdates')}</p>
+        )}
+      {status.lastErrorMessage && (
+        <div className="text-muted-foreground">
+          <p>
+            {t('lastError')}: {status.lastErrorMessage}
+          </p>
+          <p>
+            {status.lastErrorDate &&
+              new Date(status.lastErrorDate).toLocaleString()}
+          </p>
+          <p>{t('oldError')}</p>
+        </div>
+      )}
+    </>
+  );
+};
+
+/** Leaves refresh and disconnect available even when webhook status fails. */
+const TelegramWebhookStatus = ({
+  status,
+  loading,
+  failed,
+  busy,
+  refreshStatus,
+  disconnectBot,
+}: {
+  status?: TelegramWebhookInfo;
+  loading: boolean;
+  failed: boolean;
+  busy: boolean;
+  refreshStatus: () => Promise<void>;
+  disconnectBot: () => Promise<void>;
+}) => {
+  const { t } = useTelegramTranslation();
+  return (
+    <div className="rounded-md border p-3 space-y-2 text-sm">
+      <p className="font-medium">{t('status')}</p>
+      {loading ? (
+        <Spinner />
+      ) : failed ? (
+        <p role="alert">{t('statusFailed')}</p>
+      ) : (
+        <TelegramWebhookDiagnostics status={status} />
+      )}
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="secondary"
+          disabled={busy}
+          onClick={refreshStatus}
+        >
+          {t('refresh')}
+        </Button>
+        <Button
+          type="button"
+          variant="ghost"
+          disabled={busy}
+          onClick={disconnectBot}
+        >
+          {t('disconnect')}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+/** Preserves the provider's privacy, group, channel and media guidance. */
+const TelegramGroupHints = ({ bot }: { bot?: TelegramBot }) => {
+  const { t } = useTelegramTranslation();
+  return (
+    <div className="text-sm text-muted-foreground space-y-2">
+      <h3 className="font-semibold text-foreground">{t('groups')}</h3>
+      {bot && (
+        <p>
+          {bot.canJoinGroups === false
+            ? t('noGroups')
+            : bot.canReadAllGroupMessages
+              ? t('privacyOff')
+              : t('privacyOn')}
+        </p>
+      )}
+      <p>{t('groupHint')}</p>
+      <p>{t('channelHint')}</p>
+      <p>{t('files')}</p>
+      <p>{t('internal')}</p>
+    </div>
+  );
+};
+
+/** Shows loading, retry and missing-record states before setup fields. */
+const TelegramSetupContent = ({
+  loading,
+  failed,
+  missing,
+  retry,
+  children,
+}: {
+  loading: boolean;
+  failed: boolean;
+  missing: boolean;
+  retry: () => void;
+  children: ReactNode;
+}) => {
+  const { t } = useTelegramTranslation();
+  if (loading)
+    return (
+      <div className="flex gap-2">
+        <Spinner />
+        {t('loading')}
+      </div>
+    );
+  if (failed)
+    return (
+      <div role="alert">
+        {t('loadError')}
+        <Button type="button" variant="ghost" onClick={retry}>
+          {t('retry')}
+        </Button>
+      </div>
+    );
+  if (missing) return <p role="alert">{t('missing')}</p>;
+  return children;
+};
+
+/** Shares the cancellation and save/connect controls between both presentations. */
+const TelegramSetupFooter = ({
   integrationId,
+  busy,
+  disabled,
 }: {
   integrationId: string | null;
+  busy: boolean;
+  disabled: boolean;
 }) => {
-  const channelId = useIntegrationChannelId();
+  const { t } = useTelegramTranslation();
   return (
-    <TelegramSetupForm
-      integrationId={integrationId}
-      channelId={channelId}
-      FormItem={IntegrationFormItem}
-    />
+    <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
+      <Sheet.Close asChild>
+        <Button type="button" variant="ghost" className="mr-auto">
+          {t('cancel')}
+        </Button>
+      </Sheet.Close>
+      <Button type="submit" disabled={disabled}>
+        {busy && <Spinner size="sm" />}
+        {integrationId ? t('save') : t('connect')}
+      </Button>
+    </Sheet.Footer>
   );
 };
 
@@ -143,14 +501,12 @@ const TelegramSetupForm = ({
     },
   });
   const chosenId = form.watch('botId');
-  const bot =
-    botsQuery.data?.telegramBots.find((item) =>
-      savedBot
-        ? item._id === savedBot._id
-        : integrationId
-          ? item.erxesApiId === integrationId
-          : item._id === chosenId,
-    ) ?? savedBot;
+  const bot = getSetupBot(
+    botsQuery.data?.telegramBots,
+    savedBot,
+    integrationId,
+    chosenId,
+  );
   const needsLink = !bot?.erxesApiId;
   const statusQuery = useQuery(TELEGRAM_WEBHOOK_INFO, {
     variables: { _id: bot?._id ?? '' },
@@ -198,7 +554,54 @@ const TelegramSetupForm = ({
       variant: 'destructive',
     });
   };
-  /** Reconciles saved bot state before resuming setup after an interrupted request. */
+  /** Verifies new or replacement credentials and clears only a saved token. */
+  const saveBot = async (token: string): Promise<TelegramBot> => {
+    if (!bot) {
+      const result = await addBot({ variables: { token } });
+      const current = result.data?.telegramAddBot;
+      if (!current) throw new Error(t('failed'));
+      setSavedBot(current);
+      form.setValue('token', '');
+      setProgress('saved');
+      return current;
+    }
+    if (!token) return bot;
+    const result = await updateBot({ variables: { _id: bot._id, token } });
+    if (!result.data) throw new Error(t('failed'));
+    const current = result.data.telegramUpdateBot;
+    setSavedBot(current);
+    form.setValue('token', '');
+    return current;
+  };
+  /** Reconciles an interrupted create before attempting another inbox link. */
+  const linkInbox = async (
+    saved: TelegramBot,
+    values: SetupValues,
+  ): Promise<TelegramBot> => {
+    if (saved.erxesApiId) return saved;
+    const { data } = await botsQuery.refetch();
+    const current = data.telegramBots.find((item) => item._id === saved._id);
+    if (!current) throw new Error(t('missing'));
+    setSavedBot(current);
+    if (current.erxesApiId) return current;
+    const result = await addIntegration({
+      variables: {
+        kind: 'telegram-messenger',
+        name:
+          values.name || current.botName || current.botUsername || 'Telegram',
+        brandId: values.brandId,
+        channelId: channelId ?? '',
+        data: { sourceBotId: current._id },
+      },
+    });
+    const createdId = result.data?.integrationsCreateExternalIntegration?._id;
+    if (!createdId) throw new Error(t('failed'));
+    const linked = { ...current, erxesApiId: createdId };
+    setSavedBot(linked);
+    setProgress('linked');
+    return linked;
+  };
+  /** Runs verification, resumable linking and webhook registration in order. */
   const submit = async (values: SetupValues): Promise<void> => {
     if (needsLink && !values.brandId) {
       form.setError('brandId', { message: t('chooseBrand') });
@@ -210,58 +613,8 @@ const TelegramSetupForm = ({
     }
     setBusy(true);
     try {
-      let current = bot;
-      if (!current) {
-        const result = await addBot({ variables: { token: values.token } });
-        current = result.data?.telegramAddBot;
-        if (!current) throw new Error(t('failed'));
-        setSavedBot(current);
-        form.setValue('token', '');
-        setProgress('saved');
-      } else if (values.token) {
-        const result = await updateBot({
-          variables: { _id: current._id, token: values.token },
-        });
-        if (!result.data) throw new Error(t('failed'));
-        current = result.data.telegramUpdateBot;
-        setSavedBot(current);
-        form.setValue('token', '');
-      }
-      if (!current.erxesApiId) {
-        // A previous create may have committed before its response was lost.
-        // Reconcile with the server before attempting another integration.
-        const { data } = await botsQuery.refetch();
-        const reconciled = data.telegramBots.find(
-          (item) => item._id === current?._id,
-        );
-        if (!reconciled) throw new Error(t('missing'));
-        current = reconciled;
-        setSavedBot(current);
-      }
-      if (!current.erxesApiId) {
-        const result = await addIntegration({
-          variables: {
-            kind: 'telegram-messenger',
-            name:
-              values.name ||
-              current.botName ||
-              current.botUsername ||
-              'Telegram',
-            brandId: values.brandId,
-            channelId: channelId ?? '',
-            data: { sourceBotId: current._id },
-          },
-        });
-        const createdId =
-          result.data?.integrationsCreateExternalIntegration?._id;
-        if (!createdId) throw new Error(t('failed'));
-        current = {
-          ...current,
-          erxesApiId: createdId,
-        };
-        setSavedBot(current);
-        setProgress('linked');
-      }
+      const saved = await saveBot(values.token);
+      const current = await linkInbox(saved, values);
       const url = getTelegramWebhookUrl(values.url, current._id);
       if (!url) throw new Error(t('callbackInvalid'));
       const result = await register({
@@ -329,316 +682,79 @@ const TelegramSetupForm = ({
         className="flex flex-col flex-auto overflow-hidden"
       >
         <Sheet.Content className="overflow-auto p-4 space-y-5 styled-scroll">
-          {botsQuery.loading && !botsQuery.data ? (
-            <div className="flex gap-2">
-              <Spinner />
-              {t('loading')}
-            </div>
-          ) : botsQuery.error ? (
-            <div role="alert">
-              {t('loadError')}
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  botsQuery.refetch().catch(reportError);
-                }}
-              >
-                {t('retry')}
-              </Button>
-            </div>
-          ) : integrationId && !bot ? (
-            <p role="alert">{t('missing')}</p>
-          ) : (
-            <>
-              {!integrationId && !savedBot && (
-                <Form.Field
-                  control={form.control}
-                  name="botId"
-                  render={({ field }) => (
-                    <FormItem label={t('bot')}>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Form.Control>
-                          <Select.Trigger>
-                            <Select.Value />
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content>
-                          <Select.Item value="new">{t('newBot')}</Select.Item>
-                          {botsQuery.data?.telegramBots
-                            .filter((item) => !item.erxesApiId)
-                            .map((item) => (
-                              <Select.Item key={item._id} value={item._id}>
-                                {item.botName}{' '}
-                                {item.botUsername
-                                  ? `(@${item.botUsername})`
-                                  : ''}
-                              </Select.Item>
-                            ))}
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </FormItem>
-                  )}
-                />
-              )}
-              {bot && (
-                <p className="font-medium">
-                  {bot.botName} {bot.botUsername ? `(@${bot.botUsername})` : ''}
-                </p>
-              )}
-              <Form.Field
-                control={form.control}
-                name="token"
-                render={({ field }) => (
-                  <FormItem label={bot ? t('replacementToken') : t('token')}>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="password"
-                        autoComplete="new-password"
-                      />
-                    </Form.Control>
-                    <Form.Description>{t('tokenHint')}</Form.Description>
-                    <Form.Message />
-                  </FormItem>
-                )}
-              />
-              {needsLink && (
-                <>
-                  <Form.Field
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem label={t('name')}>
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            placeholder={bot?.botName || t('namePlaceholder')}
-                          />
-                        </Form.Control>
-                        <Form.Description>{t('nameHint')}</Form.Description>
-                        <Form.Message />
-                      </FormItem>
-                    )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="brandId"
-                    render={({ field }) => (
-                      <FormItem label={t('brand')}>
-                        <Form.Control>
-                          <SelectBrand
-                            value={field.value}
-                            onValueChange={field.onChange}
-                            placeholder={t('chooseBrand')}
-                            className="w-full"
-                          />
-                        </Form.Control>
-                        <Form.Message />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-              {progress && (
-                <p role="status" className="text-sm text-muted-foreground">
-                  {t(progress)}
-                </p>
-              )}
-              <Collapsible open={showAddress} onOpenChange={setShowAddress}>
-                <Collapsible.Trigger asChild>
-                  <Button type="button" variant="ghost" className="gap-2 px-0">
-                    <Collapsible.TriggerIcon />
-                    {t('connectionSettings')}
-                  </Button>
-                </Collapsible.Trigger>
-                <p className="text-sm text-muted-foreground mb-3">
-                  {status?.url
-                    ? t('callbackSaved')
-                    : statusQuery.error
-                      ? t('statusFailed')
-                      : defaultAddress
-                        ? t('callbackDetected')
-                        : t('callbackLocal')}
-                </p>
-                <Collapsible.Content>
-                  <Form.Field
-                    control={form.control}
-                    name="url"
-                    render={({ field }) => (
-                      <FormItem label={t('callback')}>
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            type="url"
-                            placeholder="https://your-public-frontline-host"
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('callbackHint')}
-                          <span className="block mt-1">
-                            {t('callbackAutomatic')}
-                          </span>
-                          <span className="block mt-2 font-medium">
-                            {t('callbackPreview')}
-                          </span>
-                          <code className="block break-all">
-                            {getTelegramWebhookUrl(
-                              field.value ||
-                                'https://your-public-frontline-host',
-                              bot?._id ?? '{bot-id}',
-                            ) ?? `/telegram/receive/${bot?._id ?? '{bot-id}'}`}
-                          </code>
-                          {!bot && (
-                            <span className="block mt-1">
-                              {t('callbackPending')}
-                            </span>
-                          )}
-                        </Form.Description>
-                        <Form.Message />
-                      </FormItem>
-                    )}
-                  />
-                </Collapsible.Content>
-              </Collapsible>
-              {bot?.erxesApiId && (
-                <div className="rounded-md border p-3 space-y-2 text-sm">
-                  <p className="font-medium">{t('status')}</p>
-                  {statusQuery.loading ? (
-                    <Spinner />
-                  ) : statusQuery.error ? (
-                    <p role="alert">{t('statusFailed')}</p>
-                  ) : (
-                    status && (
-                      <>
-                        <p>
-                          {status.url ? t('registered') : t('unregistered')}
-                        </p>
-                        <p className="break-all text-muted-foreground">
-                          {status.url}
-                        </p>
-                        <p>
-                          {t('pending')}: {status.pendingUpdateCount}
-                        </p>
-                        {status.url &&
-                          [
-                            'message',
-                            'channel_post',
-                            'edited_message',
-                            'edited_channel_post',
-                            'poll',
-                            'message_reaction',
-                            'message_reaction_count',
-                          ].some(
-                            (type) => !status.allowedUpdates?.includes(type),
-                          ) && (
-                            <p className="text-warning">
-                              {t('channelUpdates')}
-                            </p>
-                          )}
-                        {status.lastErrorMessage && (
-                          <div className="text-muted-foreground">
-                            <p>
-                              {t('lastError')}: {status.lastErrorMessage}
-                            </p>
-                            <p>
-                              {status.lastErrorDate &&
-                                new Date(status.lastErrorDate).toLocaleString()}
-                            </p>
-                            <p>{t('oldError')}</p>
-                          </div>
-                        )}
-                      </>
-                    )
-                  )}
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      disabled={busy}
-                      onClick={refreshStatus}
-                    >
-                      {t('refresh')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      disabled={busy}
-                      onClick={disconnectBot}
-                    >
-                      {t('disconnect')}
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </>
-          )}
-          <div className="text-sm text-muted-foreground space-y-2">
-            <h3 className="font-semibold text-foreground">{t('groups')}</h3>
-            {bot && (
-              <p>
-                {bot.canJoinGroups === false
-                  ? t('noGroups')
-                  : bot.canReadAllGroupMessages
-                    ? t('privacyOff')
-                    : t('privacyOn')}
+          <TelegramSetupContent
+            loading={botsQuery.loading && !botsQuery.data}
+            failed={Boolean(botsQuery.error)}
+            missing={Boolean(integrationId && !bot)}
+            retry={() => {
+              botsQuery.refetch().catch(reportError);
+            }}
+          >
+            <TelegramBotFields
+              control={form.control}
+              FormItem={FormItem}
+              bot={bot}
+              bots={botsQuery.data?.telegramBots}
+              showBotPicker={!integrationId && !savedBot}
+            />
+            {progress && (
+              <p role="status" className="text-sm text-muted-foreground">
+                {t(progress)}
               </p>
             )}
-            <p>{t('groupHint')}</p>
-            <p>{t('channelHint')}</p>
-            <p>{t('files')}</p>
-            <p>{t('internal')}</p>
-          </div>
+            <TelegramConnectionSettings
+              control={form.control}
+              FormItem={FormItem}
+              bot={bot}
+              status={status}
+              statusError={Boolean(statusQuery.error)}
+              defaultAddress={defaultAddress}
+              open={showAddress}
+              onOpenChange={setShowAddress}
+            />
+            {bot?.erxesApiId && (
+              <TelegramWebhookStatus
+                status={status}
+                loading={statusQuery.loading}
+                failed={Boolean(statusQuery.error)}
+                busy={busy}
+                refreshStatus={refreshStatus}
+                disconnectBot={disconnectBot}
+              />
+            )}
+          </TelegramSetupContent>
+          <TelegramGroupHints bot={bot} />
         </Sheet.Content>
-        <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
-          <Sheet.Close asChild>
-            <Button type="button" variant="ghost" className="mr-auto">
-              {t('cancel')}
-            </Button>
-          </Sheet.Close>
-          <Button
-            type="submit"
-            disabled={
-              busy ||
-              botsQuery.loading ||
-              Boolean(bot?.erxesApiId && statusQuery.loading) ||
-              Boolean(botsQuery.error) ||
-              Boolean(integrationId && !bot)
-            }
-          >
-            {busy && <Spinner size="sm" />}
-            {integrationId ? t('save') : t('connect')}
-          </Button>
-        </Sheet.Footer>
+        <TelegramSetupFooter
+          integrationId={integrationId}
+          busy={busy}
+          disabled={
+            busy ||
+            botsQuery.loading ||
+            Boolean(bot?.erxesApiId && statusQuery.loading) ||
+            Boolean(botsQuery.error) ||
+            Boolean(integrationId && !bot)
+          }
+        />
       </form>
     </Form>
   );
 };
 
-/**
- * Owns the shared connection sheet for new and existing Telegram bots. Hosts
- * that only edit existing bots mount it without the connect trigger.
- */
-export const TelegramIntegrationDetail = ({
-  showTrigger = true,
-  presentation = 'sheet',
+/** Supplies record-panel channel context and field layout to the shared setup form. */
+export const TelegramSetup = ({
+  integrationId,
 }: {
-  showTrigger?: boolean;
-  presentation?: TelegramPresentation;
+  integrationId: string | null;
 }) => {
-  const { t } = useTelegramTranslation();
-  if (presentation === 'panel') {
-    return showTrigger ? (
-      <IntegrationCreateButton kind="telegram-messenger">
-        {t('connect')}
-      </IntegrationCreateButton>
-    ) : null;
-  }
-  return <TelegramSetupSheet showTrigger={showTrigger} />;
+  const channelId = useIntegrationChannelId();
+  return (
+    <TelegramSetupForm
+      integrationId={integrationId}
+      channelId={channelId}
+      FormItem={IntegrationFormItem}
+    />
+  );
 };
 
 /** Hosts the existing standalone create and configure entry points in a sheet. */
@@ -679,4 +795,26 @@ const TelegramSetupSheet = ({ showTrigger }: { showTrigger: boolean }) => {
       </Sheet.View>
     </Sheet>
   );
+};
+
+/**
+ * Owns the shared connection sheet for new and existing Telegram bots. Hosts
+ * that only edit existing bots mount it without the connect trigger.
+ */
+export const TelegramIntegrationDetail = ({
+  showTrigger = true,
+  presentation = 'sheet',
+}: {
+  showTrigger?: boolean;
+  presentation?: TelegramPresentation;
+}) => {
+  const { t } = useTelegramTranslation();
+  if (presentation === 'panel') {
+    return showTrigger ? (
+      <IntegrationCreateButton kind="telegram-messenger">
+        {t('connect')}
+      </IntegrationCreateButton>
+    ) : null;
+  }
+  return <TelegramSetupSheet showTrigger={showTrigger} />;
 };

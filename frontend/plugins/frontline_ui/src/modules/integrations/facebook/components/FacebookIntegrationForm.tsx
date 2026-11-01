@@ -40,22 +40,7 @@ export const FacebookIntegrationFormSheet = ({
   );
 };
 
-export const FacebookIntegrationPanelForm = ({
-  isPost,
-}: {
-  isPost?: boolean;
-}) => (
-  <IntegrationFormSession
-    state={facebookFormSheetAtom}
-    value={true}
-    closedValue={false}
-  >
-    <FbIntegrationProvider isPost={isPost}>
-      <FacebookIntegrationForm />
-    </FbIntegrationProvider>
-  </IntegrationFormSession>
-);
-
+/** Renders the account, page or setup step selected by the Facebook wizard. */
 export const FacebookIntegrationForm = () => {
   const activeStep = useAtomValue(activeFacebookFormStepAtom);
 
@@ -67,6 +52,23 @@ export const FacebookIntegrationForm = () => {
     </>
   );
 };
+
+/** Hosts the existing Facebook setup steps in the active record-panel session. */
+export const FacebookIntegrationPanelForm = ({
+  isPost,
+}: {
+  isPost?: boolean;
+}) => (
+  <IntegrationFormSession
+    state={facebookFormSheetAtom}
+    value
+    closedValue={false}
+  >
+    <FbIntegrationProvider isPost={isPost}>
+      <FacebookIntegrationForm />
+    </FbIntegrationProvider>
+  </IntegrationFormSession>
+);
 
 export const FacebookIntegrationFormLayout = ({
   children,

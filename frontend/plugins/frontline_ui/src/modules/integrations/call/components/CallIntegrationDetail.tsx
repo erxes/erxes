@@ -14,19 +14,6 @@ export const CallIntegrationDetail = () => {
   );
 };
 
-export const CallIntegrationActions = ({
-  integration,
-}: {
-  integration: IIntegration;
-}) => {
-  return (
-    <>
-      <CallIntegrationConnect integrationId={integration._id} />
-      <IntegrationEditButton integration={integration} />
-    </>
-  );
-};
-
 export const CallIntegrationConnect = ({
   integrationId,
 }: {
@@ -61,5 +48,18 @@ export const CallIntegrationConnect = ({
         <Tooltip.Content>{t('connect-to-call')}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
+  );
+};
+
+export const CallIntegrationActions = ({
+  integration,
+}: {
+  integration: IIntegration;
+}) => {
+  return (
+    <>
+      <CallIntegrationConnect integrationId={integration._id} />
+      <IntegrationEditButton integration={integration} />
+    </>
   );
 };

@@ -7,16 +7,7 @@ import { useEffect, useRef, useState } from 'react';
 import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
 import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
 
-export const EditErxesMessengerSheet = ({ id }: { id: string }) => (
-  <IntegrationFormSession
-    state={erxesMessengerSetupEditSheetOpenAtom}
-    value={id}
-    closedValue={false}
-  >
-    <EditErxesMessengerForm />
-  </IntegrationFormSession>
-);
-
+/** Populates messenger setup state before showing the selected integration form. */
 const EditErxesMessengerForm = () => {
   const idToEdit = useAtomValue(erxesMessengerSetupEditSheetOpenAtom);
   const { integrationDetail, loading } = useEMIntegrationDetail({
@@ -59,3 +50,13 @@ const EditErxesMessengerForm = () => {
 
   return <EMSetup loading={loading || !isPopulated} />;
 };
+
+export const EditErxesMessengerSheet = ({ id }: { id: string }) => (
+  <IntegrationFormSession
+    state={erxesMessengerSetupEditSheetOpenAtom}
+    value={id}
+    closedValue={false}
+  >
+    <EditErxesMessengerForm />
+  </IntegrationFormSession>
+);

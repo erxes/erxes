@@ -37,6 +37,7 @@ const FacebookIntegrationBotSection = lazy(() =>
   ),
 );
 
+/** Restores OAuth selection and opens the matching Facebook setup record. */
 export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const setDraft = useSetAtom(sidePanelDraftState);
@@ -80,6 +81,11 @@ export const FacebookIntegrationDetail = ({ isPost }: { isPost?: boolean }) => {
   );
 };
 
+/** Opens the shared record panel for editing a Facebook integration. */
+export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => (
+  <IntegrationEditButton integration={{ _id: id }} />
+);
+
 export const FacebookIntegrationActions = ({
   integration,
 }: {
@@ -88,10 +94,51 @@ export const FacebookIntegrationActions = ({
   return <FacebookIntegrationEditSheet id={integration._id} />;
 };
 
-export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => (
-  <IntegrationEditButton integration={{ _id: id }} />
+/** Renders the selected page, editable name and existing brand selector. */
+const FacebookIntegrationEditFields = ({ pageName }: { pageName?: string }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+      <div>
+        <Label htmlFor="pageName">{t('page-name')}</Label>
+        <Input id="pageName" value={pageName} className="mt-2" readOnly />
+      </div>
+      <IntegrationNameField />
+      <Form.Field
+        name="brandId"
+        render={({ field }) => (
+          <IntegrationFormItem label={t('brand')}>
+            <SelectBrands.FormItem
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+            <Form.Message />
+          </IntegrationFormItem>
+        )}
+      />
+    </div>
+  );
+};
+
+/** Loads bot configuration only for Facebook Messenger integrations. */
+const FacebookIntegrationBotArea = ({
+  integrationId,
+}: {
+  integrationId: string;
+}) => (
+  <>
+    <Separator />
+    <div className="max-h-[40%] overflow-y-auto px-3 py-3">
+      <Suspense fallback={<Spinner />}>
+        <FacebookIntegrationBotSection integrationId={integrationId} />
+      </Suspense>
+    </div>
+  </>
 );
 
+/** Edits Facebook integration metadata while retaining its bot configuration surface. */
 export const FacebookIntegrationEditForm = ({
   id,
   setOpen,
@@ -147,30 +194,9 @@ export const FacebookIntegrationEditForm = ({
           className="flex flex-1 min-h-0 flex-col"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
-            <div>
-              <Label htmlFor="pageName">{t('page-name')}</Label>
-              <Input
-                id="pageName"
-                value={integrationDetail?.facebookPage?.[0]?.name ?? undefined}
-                className="mt-2"
-                readOnly
-              />
-            </div>
-            <IntegrationNameField />
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <IntegrationFormItem label={t('brand')}>
-                  <SelectBrands.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </IntegrationFormItem>
-              )}
-            />
-          </div>
+          <FacebookIntegrationEditFields
+            pageName={integrationDetail?.facebookPage?.[0]?.name ?? undefined}
+          />
           <IntegrationFormActions
             onClose={() => setOpen(false)}
             disabled={loading || editLoading}
@@ -178,14 +204,7 @@ export const FacebookIntegrationEditForm = ({
         </form>
       </Form>
       {integrationDetail?.kind === IntegrationType.FACEBOOK_MESSENGER && (
-        <>
-          <Separator />
-          <div className="max-h-[40%] overflow-y-auto px-3 py-3">
-            <Suspense fallback={<Spinner />}>
-              <FacebookIntegrationBotSection integrationId={id} />
-            </Suspense>
-          </div>
-        </>
+        <FacebookIntegrationBotArea integrationId={id} />
       )}
     </>
   );

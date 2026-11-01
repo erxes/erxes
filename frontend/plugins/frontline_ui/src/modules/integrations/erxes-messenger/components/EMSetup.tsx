@@ -10,6 +10,23 @@ import { Preview, Separator, Spinner, Tabs } from 'erxes-ui';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 import { erxesMessengerSetupStepAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 
+/** Renders the messenger preview with its toolbar and iframe pointing to the same setup route. */
+const EMSetupPreview = () => {
+  const previewPath = `/frontline/settings/channels${FrontlinePaths.ErxesMessengerPreview}?inPreview=true`;
+
+  return (
+    <Preview>
+      <div className="bg-background shrink-0 overflow-x-auto">
+        <div className="w-max min-w-full">
+          <Preview.Toolbar path={previewPath} />
+        </div>
+      </div>
+      <Separator />
+      <Preview.View iframeSrc={previewPath} />
+    </Preview>
+  );
+};
+
 export const EMSetup = ({ loading }: { loading?: boolean }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -46,27 +63,7 @@ export const EMSetup = ({ loading }: { loading?: boolean }) => {
             value="preview"
             className="flex flex-1 min-h-0 flex-col overflow-hidden"
           >
-            <Preview>
-              <div className="bg-background shrink-0 overflow-x-auto">
-                <div className="w-max min-w-full">
-                  <Preview.Toolbar
-                    path={
-                      '/frontline/settings/channels' +
-                      FrontlinePaths.ErxesMessengerPreview +
-                      '?inPreview=true'
-                    }
-                  />
-                </div>
-              </div>
-              <Separator />
-              <Preview.View
-                iframeSrc={
-                  '/frontline/settings/channels' +
-                  FrontlinePaths.ErxesMessengerPreview +
-                  '?inPreview=true'
-                }
-              />
-            </Preview>
+            <EMSetupPreview />
           </Tabs.Content>
         </Tabs>
       )}

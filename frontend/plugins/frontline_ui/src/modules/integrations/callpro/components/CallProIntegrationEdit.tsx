@@ -13,16 +13,7 @@ import { CallProIntegrationForm } from '@/integrations/callpro/components/CallPr
 import { useCallProIntegrationDetail } from '@/integrations/callpro/hooks/useCallProIntegrationDetail';
 import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
 
-export const CallProIntegrationSheetEdit = ({ id }: { id: string }) => (
-  <IntegrationFormSession
-    state={callProEditSheetAtom}
-    value={id}
-    closedValue={null}
-  >
-    <CallProIntegrationEdit />
-  </IntegrationFormSession>
-);
-
+/** Loads and edits Call Pro settings while preserving the owning channel. */
 export const CallProIntegrationEdit = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -108,3 +99,14 @@ export const CallProIntegrationEdit = () => {
     />
   );
 };
+
+/** Initializes the Call Pro edit session for the selected integration. */
+export const CallProIntegrationSheetEdit = ({ id }: { id: string }) => (
+  <IntegrationFormSession
+    state={callProEditSheetAtom}
+    value={id}
+    closedValue={null}
+  >
+    <CallProIntegrationEdit />
+  </IntegrationFormSession>
+);

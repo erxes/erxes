@@ -24,6 +24,7 @@ export const CallIntegrationAddSheet = () => {
   );
 };
 
+/** Creates a call integration with validated connection and operator settings. */
 export const CallIntegrationAdd = () => {
   const id = useIntegrationChannelId();
 

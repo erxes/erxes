@@ -7,6 +7,7 @@ import { removingIntegrationIdsAtom } from '@/integrations/states/integrationRem
 import { useSidePanel } from 'ui-modules';
 import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 
+/** Removes an integration, refreshes its lists and closes the deleted record's panel. */
 export const useIntegrationRemove = ({
   _id,
   name,

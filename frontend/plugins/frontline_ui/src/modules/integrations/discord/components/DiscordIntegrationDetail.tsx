@@ -19,7 +19,15 @@ import {
   Spinner,
   type MultiSelectOption,
 } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import {
+  type ComponentProps,
+  type ReactNode,
+  type Dispatch,
+  type SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import {
@@ -161,10 +169,512 @@ export const DiscordIntegrationDetail = () => {
   );
 };
 
-export const DiscordIntegrationPanelForm = () => {
+/** Shows available Discord servers or the current loading and invitation guidance. */
+const DiscordServerPicker = ({
+  guildsLoading,
+  guilds,
+  guildId,
+  setGuildId,
+  setGuildName,
+}: {
+  guildsLoading: boolean;
+  guilds: ReturnType<typeof useDiscordGuilds>['guilds'];
+  guildId: string;
+  setGuildId: (value: string) => void;
+  setGuildName: (value: string) => void;
+}) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
+  if (guildsLoading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Spinner size="sm" /> {t('discord-loading-servers', 'Loading servers…')}
+      </div>
+    );
+  } else if (guilds.length) {
+    return (
+      <Select
+        value={guildId}
+        onValueChange={(value) => {
+          setGuildId(value);
+          setGuildName(guilds.find((g) => g.id === value)?.name || '');
+        }}
+      >
+        <Select.Trigger id="discord-server">
+          <Select.Value
+            placeholder={t('discord-select-a-server', 'Select a server')}
+          />
+        </Select.Trigger>
+        <Select.Content>
+          {guilds.map((g) => (
+            <Select.Item key={g.id} value={g.id}>
+              {g.name}
+            </Select.Item>
+          ))}
+        </Select.Content>
+      </Select>
+    );
+  } else {
+    return (
+      <Alert variant="warning">
+        <IconAlertTriangle className="size-4" />
+        <Alert.Title>
+          {t('discord-bot-not-in-server', "This bot isn't in any server")}
+        </Alert.Title>
+        <Alert.Description>
+          {t(
+            'discord-add-bot-to-server-hint',
+            'Use "Add this bot to a server" on the previous step, then come back.',
+          )}
+        </Alert.Description>
+      </Alert>
+    );
+  }
+};
+
+/** Presents token verification and selection of a previously connected Discord server. */
+const DiscordTokenStep = ({
+  token,
+  setToken,
+  setValidatedToken,
+  validate,
+  validating,
+  currentValidation,
+  connectedServers,
+  setChannels,
+  setGuildId,
+  setGuildName,
+  setExistingBotId,
+  setStep,
+}: {
+  token: string;
+  setToken: (value: string) => void;
+  setValidatedToken: (value: string) => void;
+  validate: ReturnType<typeof useDiscordValidateToken>['validate'];
+  validating: boolean;
+  currentValidation: ReturnType<typeof useDiscordValidateToken>['validation'];
+  connectedServers: ReturnType<
+    typeof useDiscordConnectedServers
+  >['connectedServers'];
+  setChannels: (value: MultiSelectOption[]) => void;
+  setGuildId: (value: string) => void;
+  setGuildName: (value: string) => void;
+  setExistingBotId: (value: string) => void;
+  setStep: Dispatch<SetStateAction<number>>;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const inviteUrl =
+    currentValidation?.valid && currentValidation.applicationId
+      ? buildDiscordInviteUrl(currentValidation.applicationId)
+      : undefined;
+  return (
+    <div className="flex flex-col gap-3">
+      <label htmlFor="discord-bot-token" className="text-sm font-medium">
+        {t('discord-bot-token', 'Bot token')}
+      </label>
+      <Input
+        id="discord-bot-token"
+        type="password"
+        value={token}
+        placeholder={t('discord-paste-bot-token', 'Paste your bot token')}
+        onChange={(e) => setToken(e.target.value)}
+        onBlur={() => {
+          const trimmed = token.trim();
+          if (!trimmed) return;
+          setValidatedToken(trimmed);
+          validate(trimmed);
+        }}
+      />
+      <p className="text-xs text-muted-foreground">
+        {t(
+          'discord-bot-token-hint',
+          "From the Discord Developer Portal → Bot. We'll verify it and fill in the rest automatically.",
+        )}
+      </p>
+
+      {validating && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Spinner size="sm" />{' '}
+          {t('discord-verifying-token', 'Verifying token…')}
+        </div>
+      )}
+
+      {currentValidation?.valid && (
+        <Alert variant="default">
+          <IconCircleCheck className="size-4 text-green-600" />
+          <Alert.Title>
+            {t('discord-connected-as', 'Connected as {{botUsername}}', {
+              botUsername: currentValidation.botUsername,
+            })}
+          </Alert.Title>
+          <Alert.Description>
+            {t(
+              'discord-app-id-detected',
+              'Application ID and public key detected automatically.',
+            )}
+          </Alert.Description>
+        </Alert>
+      )}
+
+      {currentValidation?.valid &&
+        currentValidation.hasMessageContentIntent === false && (
+          <Alert variant="warning">
+            <IconAlertTriangle className="size-4" />
+            <Alert.Title>
+              {t(
+                'discord-message-content-intent-off',
+                'MESSAGE CONTENT intent is off',
+              )}
+            </Alert.Title>
+            <Alert.Description>
+              {t(
+                'discord-enable-message-content-intent',
+                'Enable it in the Developer Portal → Bot, or incoming messages will arrive empty.',
+              )}
+            </Alert.Description>
+          </Alert>
+        )}
+
+      {currentValidation && !currentValidation.valid && (
+        <Alert variant="destructive">
+          <IconAlertTriangle className="size-4" />
+          <Alert.Title>
+            {t('discord-invalid-token', 'Invalid token')}
+          </Alert.Title>
+          <Alert.Description>
+            {currentValidation.error ||
+              t(
+                'discord-token-rejected',
+                'Discord rejected this token. Double-check it and try again.',
+              )}
+          </Alert.Description>
+        </Alert>
+      )}
+
+      {inviteUrl && (
+        <a
+          href={inviteUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          <IconExternalLink className="size-4" />
+          {t('discord-add-bot-to-server', 'Add this bot to a server')}
+        </a>
+      )}
+
+      {connectedServers.length > 0 && (
+        <div className="flex flex-col gap-2 pt-2">
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs text-muted-foreground">
+              {t('discord-or-separator', 'or')}
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <label
+            htmlFor="discord-connected-server"
+            className="text-sm font-medium"
+          >
+            {t(
+              'discord-add-channels-to-connected-server',
+              'Add channels to a connected server',
+            )}
+          </label>
+          <Select
+            value=""
+            onValueChange={(botId) => {
+              const server = connectedServers.find((s) => s.botId === botId);
+              if (!server) return;
+              setChannels([]);
+              setGuildId(server.guildId);
+              setGuildName(server.guildName || '');
+              setExistingBotId(botId);
+              setStep(3);
+            }}
+          >
+            <Select.Trigger id="discord-connected-server">
+              <Select.Value
+                placeholder={t(
+                  'discord-select-connected-server',
+                  'Select a connected server',
+                )}
+              />
+            </Select.Trigger>
+            <Select.Content>
+              {connectedServers.map((server) => (
+                <Select.Item key={server.botId} value={server.botId}>
+                  {server.guildName || server.guildId}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              'discord-skip-token-step-hint',
+              "Skip the token step and pick more channels for a bot you've already connected.",
+            )}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/** Presents channel selection and the shared integration name and brand fields. */
+const DiscordChannelsStep = ({
+  channels,
+  setChannels,
+  channelOptions,
+  channelLabelById,
+  channelsLoading,
+  namePresets,
+}: {
+  channels: MultiSelectOption[];
+  setChannels: (value: MultiSelectOption[]) => void;
+  channelOptions: MultiSelectOption[];
+  channelLabelById: Map<string, string>;
+  channelsLoading: boolean;
+  namePresets: string[];
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <label htmlFor="discord-channels" className="text-sm font-medium">
+            {t('discord-channels', 'Discord channels')}
+          </label>
+          {channelOptions.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-auto px-1 text-xs text-primary"
+              onClick={() => {
+                setChannels(
+                  channels.length === channelOptions.length
+                    ? []
+                    : channelOptions,
+                );
+              }}
+            >
+              {channels.length === channelOptions.length
+                ? t('clear-all', 'Clear all')
+                : t('select-all', 'Select all')}
+            </Button>
+          )}
+        </div>
+        <MultipleSelector
+          inputProps={{ id: 'discord-channels' }}
+          value={channels}
+          onChange={setChannels}
+          options={channelOptions}
+          groupBy="category"
+          commandProps={{
+            filter: (value, search) => {
+              const label = channelLabelById.get(value) ?? '';
+              return label.toLowerCase().includes(search.trim().toLowerCase())
+                ? 1
+                : 0;
+            },
+          }}
+          placeholder={
+            channelsLoading
+              ? t('discord-loading-channels', 'Loading channels…')
+              : t(
+                  'discord-select-one-or-more-channels',
+                  'Select one or more channels',
+                )
+          }
+          emptyIndicator={
+            <p className="text-center text-sm text-muted-foreground py-2">
+              {t('discord-no-text-channels-found', 'No text channels found')}
+            </p>
+          }
+        />
+        <p className="text-xs text-muted-foreground">
+          {t(
+            'discord-integration-per-channel-hint',
+            'One integration is created per channel, all sharing this bot.',
+          )}
+        </p>
+      </div>
+
+      <Form.Field
+        name="name"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>
+              {t('discord-integration-name', 'Integration name')}
+            </Form.Label>
+            {namePresets.length > 0 ? (
+              <IntegrationNamePicker
+                value={field.value}
+                onChange={field.onChange}
+                presets={namePresets}
+              />
+            ) : (
+              <Form.Control>
+                <Input {...field} placeholder={t('discord-name-placeholder')} />
+              </Form.Control>
+            )}
+            <Form.Description>
+              {t(
+                'discord-integration-name-description',
+                'Used as a prefix; each integration is named "{name} - #channel".',
+              )}
+            </Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+
+      <Form.Field
+        name="brandId"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('brand', 'Brand')}</Form.Label>
+            <Form.Control>
+              <SelectBrands.FormItem
+                value={field.value}
+                onValueChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </div>
+  );
+};
+
+/** Preserves cancellation, previous-step resets, and next/save availability. */
+const DiscordSetupFooter = ({
+  step,
+  setStep,
+  isExistingMode,
+  setExistingBotId,
+  setGuildId,
+  setGuildName,
+  setChannels,
+  currentValidation,
+  guildId,
+  loading,
+  channels,
+}: {
+  step: number;
+  setStep: Dispatch<SetStateAction<number>>;
+  isExistingMode: boolean;
+  setExistingBotId: (value: string) => void;
+  setGuildId: (value: string) => void;
+  setGuildName: (value: string) => void;
+  setChannels: (value: MultiSelectOption[]) => void;
+  currentValidation: ReturnType<typeof useDiscordValidateToken>['validation'];
+  guildId: string;
+  loading: boolean;
+  channels: MultiSelectOption[];
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
+      <Sheet.Close asChild>
+        <Button
+          className="mr-auto text-muted-foreground"
+          variant="ghost"
+          type="button"
+        >
+          {t('cancel', 'Cancel')}
+        </Button>
+      </Sheet.Close>
+
+      <Button
+        variant="secondary"
+        className="bg-border"
+        type="button"
+        disabled={step === 1}
+        onClick={() => {
+          if (isExistingMode) {
+            setExistingBotId('');
+            setGuildId('');
+            setGuildName('');
+            setChannels([]);
+            setStep(1);
+            return;
+          }
+          setStep((s) => s - 1);
+        }}
+      >
+        {t('previous-step', 'Previous step')}
+      </Button>
+
+      {step < 3 ? (
+        <Button
+          type="button"
+          disabled={
+            (step === 1 && !currentValidation?.valid) ||
+            (step === 2 && !guildId)
+          }
+          onClick={() => setStep((s) => s + 1)}
+        >
+          {t('next-step', 'Next step')}
+        </Button>
+      ) : (
+        <Button type="submit" disabled={loading || !channels.length}>
+          {t('save', 'Save')}
+        </Button>
+      )}
+    </Sheet.Footer>
+  );
+};
+
+/** Keeps setup progress and scrollable step content in the existing sheet layout. */
+const DiscordSetupContent = ({
+  step,
+  children,
+}: {
+  step: number;
+  children: ReactNode;
+}) => (
+  <Sheet.Content className="flex flex-col overflow-hidden">
+    <IntegrationSteps
+      step={step}
+      title={STEP_DETAILS[step - 1].title}
+      stepsLength={3}
+      description={STEP_DETAILS[step - 1].description}
+    />
+    <div className="flex-1 overflow-auto p-4 pt-0 flex flex-col gap-4">
+      {children}
+    </div>
+  </Sheet.Content>
+);
+
+/** Adds the server-step label around the server loading, picker, or empty state. */
+const DiscordServerStep = (
+  props: ComponentProps<typeof DiscordServerPicker>,
+) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <div className="flex flex-col gap-3">
+      <label htmlFor="discord-server" className="text-sm font-medium">
+        {t('server', 'Server')}
+      </label>
+      <DiscordServerPicker {...props} />
+    </div>
+  );
+};
+
+/** Coordinates Discord setup state and creates integrations in selected-channel order. */
+export const DiscordIntegrationPanelForm = () => {
   const inboxChannelId = useIntegrationChannelId();
   const { close } = useSidePanel();
   const { addIntegration, loading } = useIntegrationAdd();
@@ -305,417 +815,65 @@ export const DiscordIntegrationPanelForm = () => {
     reset();
   };
 
-  const inviteUrl =
-    currentValidation?.valid && currentValidation.applicationId
-      ? buildDiscordInviteUrl(currentValidation.applicationId)
-      : undefined;
-
-  let serverStepContent: React.ReactNode;
-  if (guildsLoading) {
-    serverStepContent = (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Spinner size="sm" /> {t('discord-loading-servers', 'Loading servers…')}
-      </div>
-    );
-  } else if (guilds.length) {
-    serverStepContent = (
-      <Select
-        value={guildId}
-        onValueChange={(value) => {
-          setGuildId(value);
-          setGuildName(guilds.find((g) => g.id === value)?.name || '');
-        }}
-      >
-        <Select.Trigger id="discord-server">
-          <Select.Value
-            placeholder={t('discord-select-a-server', 'Select a server')}
-          />
-        </Select.Trigger>
-        <Select.Content>
-          {guilds.map((g) => (
-            <Select.Item key={g.id} value={g.id}>
-              {g.name}
-            </Select.Item>
-          ))}
-        </Select.Content>
-      </Select>
-    );
-  } else {
-    serverStepContent = (
-      <Alert variant="warning">
-        <IconAlertTriangle className="size-4" />
-        <Alert.Title>
-          {t('discord-bot-not-in-server', "This bot isn't in any server")}
-        </Alert.Title>
-        <Alert.Description>
-          {t(
-            'discord-add-bot-to-server-hint',
-            'Use "Add this bot to a server" on the previous step, then come back.',
-          )}
-        </Alert.Description>
-      </Alert>
-    );
-  }
-
   return (
     <Form {...form}>
       <form
         className="flex flex-col flex-1 overflow-hidden"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Content className="flex flex-col overflow-hidden">
-          <IntegrationSteps
-            step={step}
-            title={STEP_DETAILS[step - 1].title}
-            stepsLength={3}
-            description={STEP_DETAILS[step - 1].description}
-          />
-          <div className="flex-1 overflow-auto p-4 pt-0 flex flex-col gap-4">
-            {step === 1 && (
-              <div className="flex flex-col gap-3">
-                <label
-                  htmlFor="discord-bot-token"
-                  className="text-sm font-medium"
-                >
-                  {t('discord-bot-token', 'Bot token')}
-                </label>
-                <Input
-                  id="discord-bot-token"
-                  type="password"
-                  value={token}
-                  placeholder={t(
-                    'discord-paste-bot-token',
-                    'Paste your bot token',
-                  )}
-                  onChange={(e) => setToken(e.target.value)}
-                  onBlur={() => {
-                    const trimmed = token.trim();
-                    if (!trimmed) return;
-                    setValidatedToken(trimmed);
-                    validate(trimmed);
-                  }}
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t(
-                    'discord-bot-token-hint',
-                    "From the Discord Developer Portal → Bot. We'll verify it and fill in the rest automatically.",
-                  )}
-                </p>
-
-                {validating && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Spinner size="sm" />{' '}
-                    {t('discord-verifying-token', 'Verifying token…')}
-                  </div>
-                )}
-
-                {currentValidation?.valid && (
-                  <Alert variant="default">
-                    <IconCircleCheck className="size-4 text-green-600" />
-                    <Alert.Title>
-                      {t(
-                        'discord-connected-as',
-                        'Connected as {{botUsername}}',
-                        {
-                          botUsername: currentValidation.botUsername,
-                        },
-                      )}
-                    </Alert.Title>
-                    <Alert.Description>
-                      {t(
-                        'discord-app-id-detected',
-                        'Application ID and public key detected automatically.',
-                      )}
-                    </Alert.Description>
-                  </Alert>
-                )}
-
-                {currentValidation?.valid &&
-                  currentValidation.hasMessageContentIntent === false && (
-                    <Alert variant="warning">
-                      <IconAlertTriangle className="size-4" />
-                      <Alert.Title>
-                        {t(
-                          'discord-message-content-intent-off',
-                          'MESSAGE CONTENT intent is off',
-                        )}
-                      </Alert.Title>
-                      <Alert.Description>
-                        {t(
-                          'discord-enable-message-content-intent',
-                          'Enable it in the Developer Portal → Bot, or incoming messages will arrive empty.',
-                        )}
-                      </Alert.Description>
-                    </Alert>
-                  )}
-
-                {currentValidation && !currentValidation.valid && (
-                  <Alert variant="destructive">
-                    <IconAlertTriangle className="size-4" />
-                    <Alert.Title>
-                      {t('discord-invalid-token', 'Invalid token')}
-                    </Alert.Title>
-                    <Alert.Description>
-                      {currentValidation.error ||
-                        t(
-                          'discord-token-rejected',
-                          'Discord rejected this token. Double-check it and try again.',
-                        )}
-                    </Alert.Description>
-                  </Alert>
-                )}
-
-                {inviteUrl && (
-                  <a
-                    href={inviteUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                  >
-                    <IconExternalLink className="size-4" />
-                    {t('discord-add-bot-to-server', 'Add this bot to a server')}
-                  </a>
-                )}
-
-                {connectedServers.length > 0 && (
-                  <div className="flex flex-col gap-2 pt-2">
-                    <div className="flex items-center gap-2">
-                      <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs text-muted-foreground">
-                        {t('discord-or-separator', 'or')}
-                      </span>
-                      <div className="h-px flex-1 bg-border" />
-                    </div>
-                    <label
-                      htmlFor="discord-connected-server"
-                      className="text-sm font-medium"
-                    >
-                      {t(
-                        'discord-add-channels-to-connected-server',
-                        'Add channels to a connected server',
-                      )}
-                    </label>
-                    <Select
-                      value=""
-                      onValueChange={(botId) => {
-                        const server = connectedServers.find(
-                          (s) => s.botId === botId,
-                        );
-                        if (!server) return;
-                        setChannels([]);
-                        setGuildId(server.guildId);
-                        setGuildName(server.guildName || '');
-                        setExistingBotId(botId);
-                        setStep(3);
-                      }}
-                    >
-                      <Select.Trigger id="discord-connected-server">
-                        <Select.Value
-                          placeholder={t(
-                            'discord-select-connected-server',
-                            'Select a connected server',
-                          )}
-                        />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {connectedServers.map((server) => (
-                          <Select.Item key={server.botId} value={server.botId}>
-                            {server.guildName || server.guildId}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      {t(
-                        'discord-skip-token-step-hint',
-                        "Skip the token step and pick more channels for a bot you've already connected.",
-                      )}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="flex flex-col gap-3">
-                <label htmlFor="discord-server" className="text-sm font-medium">
-                  {t('server', 'Server')}
-                </label>
-                {serverStepContent}
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="discord-channels"
-                      className="text-sm font-medium"
-                    >
-                      {t('discord-channels', 'Discord channels')}
-                    </label>
-                    {channelOptions.length > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-auto px-1 text-xs text-primary"
-                        onClick={() => {
-                          setChannels(
-                            channels.length === channelOptions.length
-                              ? []
-                              : channelOptions,
-                          );
-                        }}
-                      >
-                        {channels.length === channelOptions.length
-                          ? t('clear-all', 'Clear all')
-                          : t('select-all', 'Select all')}
-                      </Button>
-                    )}
-                  </div>
-                  <MultipleSelector
-                    inputProps={{ id: 'discord-channels' }}
-                    value={channels}
-                    onChange={setChannels}
-                    options={channelOptions}
-                    groupBy="category"
-                    commandProps={{
-                      filter: (value, search) => {
-                        const label = channelLabelById.get(value) ?? '';
-                        return label
-                          .toLowerCase()
-                          .includes(search.trim().toLowerCase())
-                          ? 1
-                          : 0;
-                      },
-                    }}
-                    placeholder={
-                      channelsLoading
-                        ? t('discord-loading-channels', 'Loading channels…')
-                        : t(
-                            'discord-select-one-or-more-channels',
-                            'Select one or more channels',
-                          )
-                    }
-                    emptyIndicator={
-                      <p className="text-center text-sm text-muted-foreground py-2">
-                        {t(
-                          'discord-no-text-channels-found',
-                          'No text channels found',
-                        )}
-                      </p>
-                    }
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    {t(
-                      'discord-integration-per-channel-hint',
-                      'One integration is created per channel, all sharing this bot.',
-                    )}
-                  </p>
-                </div>
-
-                <Form.Field
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>
-                        {t('discord-integration-name', 'Integration name')}
-                      </Form.Label>
-                      {namePresets.length > 0 ? (
-                        <IntegrationNamePicker
-                          value={field.value}
-                          onChange={field.onChange}
-                          presets={namePresets}
-                        />
-                      ) : (
-                        <Form.Control>
-                          <Input
-                            {...field}
-                            placeholder={t('discord-name-placeholder')}
-                          />
-                        </Form.Control>
-                      )}
-                      <Form.Description>
-                        {t(
-                          'discord-integration-name-description',
-                          'Used as a prefix; each integration is named "{name} - #channel".',
-                        )}
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-
-                <Form.Field
-                  name="brandId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('brand', 'Brand')}</Form.Label>
-                      <Form.Control>
-                        <SelectBrands.FormItem
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              </div>
-            )}
-          </div>
-        </Sheet.Content>
-
-        <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
-          <Sheet.Close asChild>
-            <Button
-              className="mr-auto text-muted-foreground"
-              variant="ghost"
-              type="button"
-            >
-              {t('cancel', 'Cancel')}
-            </Button>
-          </Sheet.Close>
-
-          <Button
-            variant="secondary"
-            className="bg-border"
-            type="button"
-            disabled={step === 1}
-            onClick={() => {
-              if (isExistingMode) {
-                setExistingBotId('');
-                setGuildId('');
-                setGuildName('');
-                setChannels([]);
-                setStep(1);
-                return;
-              }
-              setStep((s) => s - 1);
-            }}
-          >
-            {t('previous-step', 'Previous step')}
-          </Button>
-
-          {step < 3 ? (
-            <Button
-              type="button"
-              disabled={
-                (step === 1 && !currentValidation?.valid) ||
-                (step === 2 && !guildId)
-              }
-              onClick={() => setStep((s) => s + 1)}
-            >
-              {t('next-step', 'Next step')}
-            </Button>
-          ) : (
-            <Button type="submit" disabled={loading || !channels.length}>
-              {t('save', 'Save')}
-            </Button>
+        <DiscordSetupContent step={step}>
+          {step === 1 && (
+            <DiscordTokenStep
+              token={token}
+              setToken={setToken}
+              setValidatedToken={setValidatedToken}
+              validate={validate}
+              validating={validating}
+              currentValidation={currentValidation}
+              connectedServers={connectedServers}
+              setChannels={setChannels}
+              setGuildId={setGuildId}
+              setGuildName={setGuildName}
+              setExistingBotId={setExistingBotId}
+              setStep={setStep}
+            />
           )}
-        </Sheet.Footer>
+
+          {step === 2 && (
+            <DiscordServerStep
+              guildsLoading={guildsLoading}
+              guilds={guilds}
+              guildId={guildId}
+              setGuildId={setGuildId}
+              setGuildName={setGuildName}
+            />
+          )}
+
+          {step === 3 && (
+            <DiscordChannelsStep
+              channels={channels}
+              setChannels={setChannels}
+              channelOptions={channelOptions}
+              channelLabelById={channelLabelById}
+              channelsLoading={channelsLoading}
+              namePresets={namePresets}
+            />
+          )}
+        </DiscordSetupContent>
+
+        <DiscordSetupFooter
+          step={step}
+          setStep={setStep}
+          isExistingMode={isExistingMode}
+          setExistingBotId={setExistingBotId}
+          setGuildId={setGuildId}
+          setGuildName={setGuildName}
+          setChannels={setChannels}
+          currentValidation={currentValidation}
+          guildId={guildId}
+          loading={loading}
+          channels={channels}
+        />
       </form>
     </Form>
   );

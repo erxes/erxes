@@ -24,6 +24,7 @@ export const CallProIntegrationAddSheet = () => {
   );
 };
 
+/** Creates a Call Pro integration with validated phone and recording settings. */
 export const CallProIntegrationAdd = () => {
   const id = useIntegrationChannelId();
   const setCallProAddSheet = useSetAtom(callProAddSheetAtom);

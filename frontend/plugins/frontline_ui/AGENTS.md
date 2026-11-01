@@ -1096,6 +1096,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   integrations page and row menu opt into `presentation="panel"`. Both use
   the same setup implementation, with channel and field layout supplied by
   their presentation.
+- Telegram and Discord setup keep state and mutations in their provider form;
+  typed presentation components render the individual steps and diagnostics.
+  Preserve token verification, inbox linking and webhook registration order.
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
 - Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
 - The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
