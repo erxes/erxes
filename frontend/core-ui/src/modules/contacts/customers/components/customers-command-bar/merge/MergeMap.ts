@@ -8,12 +8,7 @@ export type FieldType =
   | 'sex'
   | 'company';
 type LinkType =
-  | 'website'
-  | 'facebook'
-  | 'instagram'
-  | 'twitter'
-  | 'linkedIn'
-  | 'github';
+  'website' | 'facebook' | 'instagram' | 'twitter' | 'linkedIn' | 'github';
 
 interface Field {
   displayName: string | null;
