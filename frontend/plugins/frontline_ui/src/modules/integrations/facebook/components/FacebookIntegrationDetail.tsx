@@ -82,6 +82,7 @@ export const FacebookIntegrationEditSheet = ({ id }: { id: string }) => (
   <IntegrationEditButton integration={{ _id: id }} />
 );
 
+/** Opens the Facebook integration editor from its row actions. */
 export const FacebookIntegrationActions = ({
   integration,
 }: {

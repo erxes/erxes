@@ -51,6 +51,7 @@ const EditErxesMessengerForm = () => {
   return <EMSetup loading={loading || !isPopulated} />;
 };
 
+/** Scopes messenger edit state to the integration opened in the record panel. */
 export const EditErxesMessengerSheet = ({ id }: { id: string }) => (
   <IntegrationFormSession
     state={erxesMessengerSetupEditSheetOpenAtom}

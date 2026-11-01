@@ -70,6 +70,7 @@ export const FacebookIntegrationPanelForm = ({
   </IntegrationFormSession>
 );
 
+/** Keeps Facebook setup content and actions in the existing sheet layout. */
 export const FacebookIntegrationFormLayout = ({
   children,
   actions,

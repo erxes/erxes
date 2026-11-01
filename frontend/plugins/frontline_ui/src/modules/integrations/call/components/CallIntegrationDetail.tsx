@@ -14,6 +14,7 @@ export const CallIntegrationDetail = () => {
   );
 };
 
+/** Toggles the selected call integration for the signed-in user's dialer. */
 export const CallIntegrationConnect = ({
   integrationId,
 }: {
@@ -51,6 +52,7 @@ export const CallIntegrationConnect = ({
   );
 };
 
+/** Exposes the call connection toggle beside the shared integration editor. */
 export const CallIntegrationActions = ({
   integration,
 }: {

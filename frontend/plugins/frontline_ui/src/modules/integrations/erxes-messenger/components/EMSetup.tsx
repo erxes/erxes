@@ -27,6 +27,7 @@ const EMSetupPreview = () => {
   );
 };
 
+/** Shows the selected messenger editor step and its preview after setup loads. */
 export const EMSetup = ({ loading }: { loading?: boolean }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',

@@ -238,6 +238,14 @@ const TelegramConnectionSettings = ({
   onOpenChange: (open: boolean) => void;
 }) => {
   const { t } = useTelegramTranslation();
+  let callbackMessage = t('callbackLocal');
+  if (status?.url) {
+    callbackMessage = t('callbackSaved');
+  } else if (statusError) {
+    callbackMessage = t('statusFailed');
+  } else if (defaultAddress) {
+    callbackMessage = t('callbackDetected');
+  }
   return (
     <Collapsible open={open} onOpenChange={onOpenChange}>
       <Collapsible.Trigger asChild>
@@ -246,15 +254,7 @@ const TelegramConnectionSettings = ({
           {t('connectionSettings')}
         </Button>
       </Collapsible.Trigger>
-      <p className="text-sm text-muted-foreground mb-3">
-        {status?.url
-          ? t('callbackSaved')
-          : statusError
-            ? t('statusFailed')
-            : defaultAddress
-              ? t('callbackDetected')
-              : t('callbackLocal')}
-      </p>
+      <p className="text-sm text-muted-foreground mb-3">{callbackMessage}</p>
       <Collapsible.Content>
         <Form.Field
           control={control}
@@ -353,16 +353,16 @@ const TelegramWebhookStatus = ({
   disconnectBot: () => Promise<void>;
 }) => {
   const { t } = useTelegramTranslation();
+  let statusContent = <TelegramWebhookDiagnostics status={status} />;
+  if (loading) {
+    statusContent = <Spinner />;
+  } else if (failed) {
+    statusContent = <p role="alert">{t('statusFailed')}</p>;
+  }
   return (
     <div className="rounded-md border p-3 space-y-2 text-sm">
       <p className="font-medium">{t('status')}</p>
-      {loading ? (
-        <Spinner />
-      ) : failed ? (
-        <p role="alert">{t('statusFailed')}</p>
-      ) : (
-        <TelegramWebhookDiagnostics status={status} />
-      )}
+      {statusContent}
       <div className="flex gap-2">
         <Button
           type="button"
@@ -388,18 +388,16 @@ const TelegramWebhookStatus = ({
 /** Preserves the provider's privacy, group, channel and media guidance. */
 const TelegramGroupHints = ({ bot }: { bot?: TelegramBot }) => {
   const { t } = useTelegramTranslation();
+  let groupMessage = t('privacyOn');
+  if (bot?.canJoinGroups === false) {
+    groupMessage = t('noGroups');
+  } else if (bot?.canReadAllGroupMessages) {
+    groupMessage = t('privacyOff');
+  }
   return (
     <div className="text-sm text-muted-foreground space-y-2">
       <h3 className="font-semibold text-foreground">{t('groups')}</h3>
-      {bot && (
-        <p>
-          {bot.canJoinGroups === false
-            ? t('noGroups')
-            : bot.canReadAllGroupMessages
-              ? t('privacyOff')
-              : t('privacyOn')}
-        </p>
-      )}
+      {bot && <p>{groupMessage}</p>}
       <p>{t('groupHint')}</p>
       <p>{t('channelHint')}</p>
       <p>{t('files')}</p>
