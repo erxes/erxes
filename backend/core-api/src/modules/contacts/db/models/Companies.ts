@@ -84,6 +84,19 @@ export const loadCompanyClass = (
       },
     );
 
+    // A merged company can't be its own parent; drop the link if the chosen
+    // parent was one of the companies being merged.
+    await models.Companies.updateOne(
+      { _id: newCompanyId, parentCompanyId: { $in: oldCompanyIds } },
+      { $unset: { parentCompanyId: '' } },
+    );
+
+    // Subsidiaries of the merged companies now belong to the new company.
+    await models.Companies.updateMany(
+      { _id: { $ne: newCompanyId }, parentCompanyId: { $in: oldCompanyIds } },
+      { $set: { parentCompanyId: newCompanyId } },
+    );
+
     await models.Conformities.changeConformity({
       type: 'company',
       newTypeId: newCompanyId,
