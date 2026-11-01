@@ -355,4 +355,21 @@ describe('support accounts', () => {
     ).rejects.toThrow('managed by support access');
     await expect(models.Users.isSupportUser(userId)).resolves.toBe(true);
   });
+
+  it('stay out of staff lists, even while active', async () => {
+    const grant = await pendingGrant();
+
+    await models.SupportGrants.approve(
+      grant._id,
+      { hours: 1, permissionGroupIds: ['sales:admin'] },
+      'owner1',
+    );
+    await models.SupportGrants.enter(staff());
+
+    const staffIds = await models.Users.find(
+      await models.Users.staffQuery({ isActive: true }),
+    ).distinct('_id');
+
+    expect(staffIds).toEqual(['owner1']);
+  });
 });

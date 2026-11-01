@@ -24,7 +24,7 @@ import {
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp, redis } from 'erxes-api-shared/utils';
-import { Model } from 'mongoose';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -87,6 +87,7 @@ export interface IUserModel extends Model<IUserDocument> {
   isDirectoryUser(userId: string): Promise<boolean>;
   getIdentityProvider(userId: string): Promise<AuthIdentityProvider | undefined>;
   isSupportUser(userId: string): Promise<boolean>;
+  staffQuery(query: FilterQuery<IUserDocument>): Promise<FilterQuery<IUserDocument>>;
   assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
@@ -222,6 +223,23 @@ export const loadUserClass = (
 
     public static async isSupportUser(userId: string) {
       return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Support accounts act in the tenant but aren't staff: no lists, pickers or counts
+    public static async staffQuery(query: FilterQuery<IUserDocument>) {
+      const supportUserIds = await models.AuthIdentities.find({
+        provider: 'erxes_support',
+      }).distinct('userId');
+
+      return {
+        $and: [
+          query,
+          {
+            role: { $ne: USER_ROLES.SYSTEM },
+            ...(supportUserIds.length ? { _id: { $nin: supportUserIds } } : {}),
+          },
+        ],
+      };
     }
 
     // Linked users sign in at their provider, so a local password would be a second way in
