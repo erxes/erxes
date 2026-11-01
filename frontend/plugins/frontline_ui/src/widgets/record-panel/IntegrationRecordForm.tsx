@@ -24,11 +24,13 @@ import { Empty } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
 
+/** Selects the existing provider form for an integration record or creation draft. */
 const IntegrationForm = ({ kind, id }: { kind: string; id?: string }) => {
   const { close } = useSidePanel();
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
+  /** Adapts provider form completion to the shared record-panel close action. */
   const setOpen = (open: boolean) => !open && close();
 
   switch (kind) {
@@ -44,7 +46,7 @@ const IntegrationForm = ({ kind, id }: { kind: string; id?: string }) => {
       ) : (
         <IntegrationFormSession
           state={callAddSheetAtom}
-          value={true}
+          value
           closedValue={false}
         >
           <CallIntegrationAdd />
@@ -56,7 +58,7 @@ const IntegrationForm = ({ kind, id }: { kind: string; id?: string }) => {
       ) : (
         <IntegrationFormSession
           state={callProAddSheetAtom}
-          value={true}
+          value
           closedValue={false}
         >
           <CallProIntegrationAdd />
@@ -107,6 +109,7 @@ const IntegrationForm = ({ kind, id }: { kind: string; id?: string }) => {
   }
 };
 
+/** Provides the common record-panel layout around the selected integration form. */
 export const IntegrationRecordForm = (props: { kind: string; id?: string }) => (
   <IntegrationPanelForm>
     <IntegrationForm {...props} />

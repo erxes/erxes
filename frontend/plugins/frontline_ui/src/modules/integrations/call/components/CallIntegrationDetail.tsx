@@ -6,6 +6,7 @@ import { CallIntegrationAddSheet } from '@/integrations/call/components/CallInte
 import { useCallUserIntegration } from '@/integrations/call/hooks/useCallUserIntegration';
 import { useCallEnabledIntegrations } from '@/integrations/call/hooks/useCallEnabledIntegrations';
 
+/** Shows the action for creating a call integration. */
 export const CallIntegrationDetail = () => {
   return (
     <div>

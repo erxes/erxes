@@ -13,6 +13,7 @@ import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constan
 import { CallProIntegrationForm } from '@/integrations/callpro/components/CallProIntegrationForm';
 import { callProAddSheetAtom } from '@/integrations/callpro/states/callProAddSheetAtom';
 
+/** Opens the record panel for creating a Call Pro integration. */
 export const CallProIntegrationAddSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -41,6 +42,7 @@ export const CallProIntegrationAdd = () => {
 
   const { addIntegration, loading } = useIntegrationAdd();
 
+  /** Creates the Call Pro integration and resets its setup session after success. */
   const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
     addIntegration({
       variables: {
@@ -53,6 +55,7 @@ export const CallProIntegrationAdd = () => {
           recordUrl: data.recordUrl || '',
         },
       },
+      /** Clears and closes the Call Pro setup session after successful creation. */
       onCompleted() {
         form.reset();
         setCallProAddSheet(false);

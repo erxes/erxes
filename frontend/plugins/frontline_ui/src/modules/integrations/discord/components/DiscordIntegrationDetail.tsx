@@ -74,6 +74,7 @@ const STEP_DETAILS = [
 
 const NAME_PLACEHOLDER = 'e.g. Enterprise Support';
 
+/** Offers matching saved integration names while accepting a new name. */
 const IntegrationNamePicker = ({
   value,
   onChange,
@@ -157,7 +158,7 @@ const IntegrationNamePicker = ({
   );
 };
 
-// skipcq: JS-R1005
+/** Opens the record-panel setup for a Discord bot integration. */
 export const DiscordIntegrationDetail = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -750,6 +751,7 @@ export const DiscordIntegrationPanelForm = () => {
     defaultValues: { name: '', brandId: '' },
   });
 
+  /** Clears the setup session after every selected channel has been created. */
   const reset = () => {
     setStep(1);
     setToken('');
@@ -768,6 +770,7 @@ export const DiscordIntegrationPanelForm = () => {
     setExistingBotId('');
   }, [token]);
 
+  /** Creates channels sequentially and retains only failed selections for retry. */
   const onSubmit = async (values: FormValues) => {
     if ((!isExistingMode && !currentValidation?.valid) || !channels.length) {
       return;
@@ -804,7 +807,7 @@ export const DiscordIntegrationPanelForm = () => {
       }
     }
 
-    void refetchNamePresets();
+    refetchNamePresets();
 
     if (failed.length) {
       setChannels(failed);

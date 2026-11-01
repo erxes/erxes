@@ -22,6 +22,170 @@ import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
+/** Renders logo upload, replacement and removal without changing stored values. */
+const EMLogoUpload = ({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (value: unknown) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <Form.Control>
+      <Upload.Root
+        value={value || ''}
+        onChange={(fileInfo) => {
+          if (fileInfo && 'url' in fileInfo) {
+            onChange(fileInfo.url);
+          } else {
+            onChange(fileInfo);
+          }
+        }}
+      >
+        <Upload.Preview className="[&_img]:bg-muted border-dashed border border-border rounded" />
+        <Upload.Button variant={'outline'} size="sm">
+          <IconUpload />
+          {value ? t('replace') : t('upload')}
+        </Upload.Button>
+        <Upload.RemoveButton size="sm" variant="outline" type="button" />
+      </Upload.Root>
+    </Form.Control>
+  );
+};
+
+/** Renders the existing brand colors, logo and appearance controls. */
+const EMAppearanceFields = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <div className="space-y-6 p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
+      <Label className="text-foreground">{t('brand-colors')}</Label>
+      <div className="flex flex-col gap-1">
+        <Form.Field
+          name="primary.DEFAULT"
+          render={({ field }) => (
+            <IntegrationFormItem label={t('brand-color')}>
+              <Form.Control>
+                <ColorPicker
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  className="w-full"
+                />
+              </Form.Control>
+              <Form.Message />
+            </IntegrationFormItem>
+          )}
+        />
+        <Form.Field
+          name="primary.foreground"
+          render={({ field }) => (
+            <IntegrationFormItem label={t('text-color')}>
+              <Form.Control>
+                <ColorPicker
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  className="w-full"
+                />
+              </Form.Control>
+              <Form.Message />
+            </IntegrationFormItem>
+          )}
+        />
+        <Form.Field
+          name="backgroundColor"
+          render={({ field }) => (
+            <IntegrationFormItem label={t('background-color')}>
+              <Form.Control>
+                <ColorPicker
+                  value={field.value}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                  }}
+                  className="w-full"
+                />
+              </Form.Control>
+              <Form.Message />
+            </IntegrationFormItem>
+          )}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <Label className="text-foreground">{t('logos')}</Label>
+        <Form.Field
+          name="logo"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('logo')}</Form.Label>
+              <EMLogoUpload value={field.value} onChange={field.onChange} />
+              <Form.Message />
+              <Form.Description>{t('logo-description')}</Form.Description>
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="launcherLogo"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('launcher-logo')}</Form.Label>
+              <EMLogoUpload value={field.value} onChange={field.onChange} />
+              <Form.Message />
+              <Form.Description>
+                {t('launcher-logo-description')}
+              </Form.Description>
+            </Form.Item>
+          )}
+        />
+      </div>
+      <Form.Field
+        name="heroStyleVariant"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label className="text-foreground">
+              {t('hero-style')}
+            </Form.Label>
+            <Form.Description>{t('hero-style-description')}</Form.Description>
+            <Form.Control>
+              <HeroStyleRadioGroup
+                value={field.value}
+                onChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name="navigationVariant"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label className="text-foreground">
+              {t('navigation-bar')}
+            </Form.Label>
+            <Form.Control>
+              <NavigationVariantRadioGroup
+                value={field.value}
+                onChange={field.onChange}
+              />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </div>
+  );
+};
+
+/** Edits messenger appearance and advances after successful validation. */
 export const EMAppearance = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -39,6 +203,7 @@ export const EMAppearance = () => {
     },
   });
 
+  /** Advances to the next setup step after appearance validation. */
   const onSubmit = () => {
     setStep((prev) => prev + 1);
   };
@@ -62,171 +227,7 @@ export const EMAppearance = () => {
             </>
           }
         >
-          <div className="space-y-6 p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
-            <Label className="text-foreground">{t('brand-colors')}</Label>
-            <div className="flex flex-col gap-1">
-              <Form.Field
-                name="primary.DEFAULT"
-                render={({ field }) => (
-                  <IntegrationFormItem label={t('brand-color')}>
-                    <Form.Control>
-                      <ColorPicker
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        className="w-full"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </IntegrationFormItem>
-                )}
-              />
-              <Form.Field
-                name="primary.foreground"
-                render={({ field }) => (
-                  <IntegrationFormItem label={t('text-color')}>
-                    <Form.Control>
-                      <ColorPicker
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        className="w-full"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </IntegrationFormItem>
-                )}
-              />
-              <Form.Field
-                name="backgroundColor"
-                render={({ field }) => (
-                  <IntegrationFormItem label={t('background-color')}>
-                    <Form.Control>
-                      <ColorPicker
-                        value={field.value}
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                        }}
-                        className="w-full"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </IntegrationFormItem>
-                )}
-              />
-            </div>
-
-            <div className="flex flex-col gap-3">
-              <Label className="text-foreground">{t('logos')}</Label>
-              <Form.Field
-                name="logo"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('logo')}</Form.Label>
-                    <Form.Control>
-                      <Upload.Root
-                        value={field.value || ''}
-                        onChange={(fileInfo) => {
-                          if (fileInfo && 'url' in fileInfo) {
-                            field.onChange(fileInfo.url);
-                          } else {
-                            field.onChange(fileInfo);
-                          }
-                        }}
-                      >
-                        <Upload.Preview className="[&_img]:bg-muted border-dashed border border-border rounded" />
-                        <Upload.Button variant={'outline'} size="sm">
-                          <IconUpload />
-                          {field.value ? t('replace') : t('upload')}
-                        </Upload.Button>
-                        <Upload.RemoveButton
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        />
-                      </Upload.Root>
-                    </Form.Control>
-                    <Form.Message />
-                    <Form.Description>{t('logo-description')}</Form.Description>
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="launcherLogo"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('launcher-logo')}</Form.Label>
-                    <Form.Control>
-                      <Upload.Root
-                        value={field.value || ''}
-                        onChange={(fileInfo) => {
-                          if (fileInfo && 'url' in fileInfo) {
-                            field.onChange(fileInfo.url);
-                          } else {
-                            field.onChange(fileInfo);
-                          }
-                        }}
-                      >
-                        <Upload.Preview className="[&_img]:bg-muted border-dashed border border-border rounded" />
-                        <Upload.Button variant={'outline'} size="sm">
-                          <IconUpload />
-                          {field.value ? t('replace') : t('upload')}
-                        </Upload.Button>
-                        <Upload.RemoveButton
-                          size="sm"
-                          variant="outline"
-                          type="button"
-                        />
-                      </Upload.Root>
-                    </Form.Control>
-                    <Form.Message />
-                    <Form.Description>
-                      {t('launcher-logo-description')}
-                    </Form.Description>
-                  </Form.Item>
-                )}
-              />
-            </div>
-            <Form.Field
-              name="heroStyleVariant"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-foreground">
-                    {t('hero-style')}
-                  </Form.Label>
-                  <Form.Description>
-                    {t('hero-style-description')}
-                  </Form.Description>
-                  <Form.Control>
-                    <HeroStyleRadioGroup
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="navigationVariant"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label className="text-foreground">
-                    {t('navigation-bar')}
-                  </Form.Label>
-                  <Form.Control>
-                    <NavigationVariantRadioGroup
-                      value={field.value}
-                      onChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <EMAppearanceFields />
         </EMLayout>
       </form>
     </Form>

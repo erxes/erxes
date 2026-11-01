@@ -17,6 +17,7 @@ import { FacebookGetAccounts } from '@/integrations/facebook/components/Facebook
 import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGetPages';
 import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
+/** Opens a new record-panel draft for the selected Facebook integration kind. */
 export const FacebookIntegrationFormSheet = ({
   isPost,
 }: {
@@ -104,6 +105,7 @@ export const FacebookIntegrationFormLayout = ({
   );
 };
 
+/** Displays the active step in the three-stage Facebook connection wizard. */
 export const FacebookIntegrationFormSteps = ({
   title,
   step,

@@ -53,6 +53,7 @@ export const useIntegrationRemove = ({
     },
   });
 
+  /** Confirms deletion and keeps the selected row locked until its list refetches. */
   const handleRemove = () => {
     confirm({
       message: t('confirm-remove-integration', { name }),

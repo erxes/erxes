@@ -24,6 +24,7 @@ const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
   ...Object.values(KB_DRAFT_CONTENT_TYPES),
 ];
 
+/** Explains missing tickets and failed ticket-detail requests inside the panel. */
 const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
@@ -63,6 +64,7 @@ const HelpCenterRecordPanel = lazy(() =>
   })),
 );
 
+/** Renders the requested ticket view with its existing loading and error states. */
 const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { ticket, loading, error } = useGetTicket({
@@ -122,6 +124,7 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   return <TicketPanelDetail key={contentId} ticket={ticket} />;
 };
 
+/** Routes frontline record types to their ticket, knowledge base, help center or integration panels. */
 export const RecordPanel = (props: IRecordPanelProps) => {
   if (props.contentType === INTEGRATION_CONTENT_TYPE) {
     return (

@@ -482,7 +482,7 @@ const TelegramSetupForm = ({
   const { confirm } = useConfirm();
   const [savedBot, setSavedBot] = useState<TelegramBot>();
   const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState<'saved' | 'linked' | undefined>();
+  const [progress, setProgress] = useState<'saved' | 'linked' | null>(null);
   const defaultAddress = getTelegramDefaultServerAddress(REACT_APP_API_URL);
   const [showAddress, setShowAddress] = useState(!defaultAddress);
   const botsQuery = useQuery(TELEGRAM_BOTS, {
@@ -620,7 +620,7 @@ const TelegramSetupForm = ({
       });
       if (!result.data?.telegramSetWebhook) throw new Error(t('failed'));
       form.setValue('url', getTelegramServerAddress(url) ?? values.url);
-      setProgress(undefined);
+      setProgress(null);
       toast({ title: t('success') });
     } catch (error: unknown) {
       reportError(error);

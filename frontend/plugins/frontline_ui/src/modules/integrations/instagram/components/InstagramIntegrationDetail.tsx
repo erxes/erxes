@@ -31,6 +31,7 @@ import {
   activeInstagramFormStepAtom,
 } from '../states/instagramStates';
 
+/** Resumes the selected account after Instagram authorization returns to the page. */
 export const InstagramIntegrationDetail = ({
   isPost,
 }: {
@@ -78,6 +79,12 @@ export const InstagramIntegrationDetail = ({
   );
 };
 
+/** Opens an existing Instagram integration through the shared record panel. */
+export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => (
+  <IntegrationEditButton integration={{ _id: id }} />
+);
+
+/** Provides the selected integration's edit entry in its native actions menu. */
 export const InstagramIntegrationActions = ({
   integration,
 }: {
@@ -86,10 +93,45 @@ export const InstagramIntegrationActions = ({
   return <InstagramIntegrationEditSheet id={integration._id} />;
 };
 
-export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => (
-  <IntegrationEditButton integration={{ _id: id }} />
-);
+/** Reads only the first provider page's verified string name for display. */
+const getInstagramPageName = (pages: unknown): string =>
+  Array.isArray(pages) &&
+  isRecord(pages[0]) &&
+  typeof pages[0].name === 'string'
+    ? pages[0].name
+    : '';
 
+/** Shares the loaded page name and editable connection fields within the form. */
+const InstagramIntegrationEditFields = ({ pageName }: { pageName: string }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+      <div>
+        <Label htmlFor="pageName">{t('page-name')}</Label>
+        <Input id="pageName" value={pageName} className="mt-2" readOnly />
+      </div>
+      <IntegrationNameField showMessage={false} />
+      <Form.Field
+        name="brandId"
+        render={({ field }) => (
+          <IntegrationFormItem label={t('brand')}>
+            <SelectBrand
+              value={field.value}
+              onValueChange={field.onChange}
+              placeholder={t('select-a-brand')}
+              className="w-full h-10 rounded-lg border bg-background"
+            />
+            <Form.Message />
+          </IntegrationFormItem>
+        )}
+      />
+    </div>
+  );
+};
+
+/** Edits connection details while preserving the loaded record's channel. */
 export const InstagramIntegrationEditForm = ({
   id,
   setOpen,
@@ -117,6 +159,7 @@ export const InstagramIntegrationEditForm = ({
     }
   }, [integrationDetail, form]);
 
+  /** Saves validated name and brand changes with native success/error feedback. */
   const onSubmit = (data: z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>) => {
     editIntegration({
       variables: {
@@ -143,38 +186,9 @@ export const InstagramIntegrationEditForm = ({
         className="flex flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(onSubmit)}
       >
-        <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
-          <div>
-            <Label htmlFor="pageName">{t('page-name')}</Label>
-            <Input
-              id="pageName"
-              value={
-                Array.isArray(integrationDetail?.instagramPage) &&
-                isRecord(integrationDetail.instagramPage[0]) &&
-                typeof integrationDetail.instagramPage[0].name === 'string'
-                  ? integrationDetail.instagramPage[0].name
-                  : ''
-              }
-              className="mt-2"
-              readOnly
-            />
-          </div>
-          <IntegrationNameField showMessage={false} />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <IntegrationFormItem label={t('brand')}>
-                <SelectBrand
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  placeholder={t('select-a-brand')}
-                  className="w-full h-10 rounded-lg border bg-background"
-                />
-                <Form.Message />
-              </IntegrationFormItem>
-            )}
-          />
-        </div>
+        <InstagramIntegrationEditFields
+          pageName={getInstagramPageName(integrationDetail?.instagramPage)}
+        />
         <IntegrationFormActions
           onClose={() => setOpen(false)}
           disabled={loading || editLoading}

@@ -29,7 +29,10 @@ import { useSidePanel, SelectBrand } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 import { MailSendingRequired } from './MailSendingRequired';
-import { useMailSendingReadiness } from '@/integrations/mail/hooks/useMailSendingReadiness';
+import {
+  useMailSendingReadiness,
+  type IMailSendingReadiness,
+} from '@/integrations/mail/hooks/useMailSendingReadiness';
 
 export const MAIL_SENDER_NAME_MAX_LENGTH = 64;
 
@@ -72,6 +75,7 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
   },
 ];
 
+/** Renders a configured mail field through the shared validated form composition. */
 export const MailFormField = <TValues extends FieldValues>({
   name,
   label,
@@ -119,6 +123,7 @@ export const MailFormField = <TValues extends FieldValues>({
   );
 };
 
+/** Shows the generated receiving address with its existing clipboard feedback. */
 export const MailAddressCallout = ({
   address,
   description = 'forward-your-mail-here-description',
@@ -131,6 +136,7 @@ export const MailAddressCallout = ({
   const { t } = useTranslation('frontline');
   const [copied, setCopied] = useState(false);
 
+  /** Copies the address and briefly marks the callout as copied. */
   const copy = async () => {
     await navigator.clipboard.writeText(address);
     setCopied(true);
@@ -161,6 +167,7 @@ export const MailAddressCallout = ({
   );
 };
 
+/** Previews the sender name and address in the same format as outgoing mail. */
 export const MailSenderPreview = ({
   senderName,
   address,
@@ -174,6 +181,7 @@ export const MailSenderPreview = ({
   </p>
 );
 
+/** Summarizes the available sending domain and sender identity. */
 const MailSendingSummary = ({
   domain,
   senderName,
@@ -210,6 +218,7 @@ const STEP_TITLES = [
   'mail-step-done',
 ];
 
+/** Shows the created inbox address, sending identity and next-step guidance. */
 const MailIntegrationCreated = ({
   integrationId,
   sendingDomain,
@@ -278,7 +287,7 @@ const MailIntegrationCreated = ({
   );
 };
 
-// skipcq: JS-R1005
+/** Starts a mail connection through the shared record panel. */
 export const MailIntegrationFormSheet = () => {
   const { t } = useTranslation('frontline');
   return (
@@ -288,6 +297,175 @@ export const MailIntegrationFormSheet = () => {
   );
 };
 
+/** Resolves the same optional sender override and inbox-name fallback. */
+const getMailSenderName = (values: MailFormValues): string =>
+  values.senderName?.trim() || values.name?.trim() || '';
+
+/** Renders the wizard's initial identity, preview and required brand fields. */
+const MailIntegrationBasics = ({
+  control,
+  sendingDomain,
+  senderName,
+}: {
+  control: Control<MailFormValues>;
+  sendingDomain: string | null;
+  senderName: string;
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <>
+      <MailFormField {...MAIL_FORM_FIELDS[0]} control={control} />
+      <MailFormField {...MAIL_FORM_FIELDS[2]} control={control} />
+      {Boolean(sendingDomain) && Boolean(senderName) && (
+        <MailSenderPreview
+          senderName={senderName}
+          address={`…@${sendingDomain}`}
+        />
+      )}
+      <Form.Field
+        name="brandId"
+        control={control}
+        render={({ field }) => (
+          <IntegrationFormItem
+            label={
+              <>
+                {t('brand')}
+                <span className="ml-0.5 text-destructive">*</span>
+              </>
+            }
+          >
+            <Form.Control>
+              <SelectBrand
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={t('select-a-brand')}
+                className="h-10 w-full rounded-lg border bg-background"
+              />
+            </Form.Control>
+            <Form.Description>{t('choose-brand-description')}</Form.Description>
+            <Form.Message />
+          </IntegrationFormItem>
+        )}
+      />
+    </>
+  );
+};
+
+/** Selects the current mail setup screen without owning wizard state. */
+const MailIntegrationWizardStep = ({
+  step,
+  control,
+  readiness,
+  sendingDomain,
+  senderName,
+  createdId,
+}: {
+  step: number;
+  control: Control<MailFormValues>;
+  readiness: IMailSendingReadiness | null;
+  sendingDomain: string | null;
+  senderName: string;
+  createdId: string | null;
+}) => (
+  <>
+    {step === 1 && (
+      <MailIntegrationBasics
+        control={control}
+        sendingDomain={sendingDomain}
+        senderName={senderName}
+      />
+    )}
+    {step === 2 && <MailFormField {...MAIL_FORM_FIELDS[1]} control={control} />}
+    {step === 3 &&
+      (readiness && !readiness.ready ? (
+        <MailSendingRequired reason={readiness.cloudflare?.reason} />
+      ) : (
+        <MailSendingSummary domain={sendingDomain} senderName={senderName} />
+      ))}
+    {step === 4 && createdId && (
+      <MailIntegrationCreated
+        integrationId={createdId}
+        sendingDomain={sendingDomain}
+        senderName={senderName}
+      />
+    )}
+  </>
+);
+
+/** Preserves cancellation, navigation and readiness gates for each wizard stage. */
+const MailIntegrationWizardFooter = ({
+  step,
+  loading,
+  readinessLoading,
+  basicsReady,
+  sendingReady,
+  onClose,
+  onPrevious,
+  onNext,
+}: {
+  step: number;
+  loading: boolean;
+  readinessLoading: boolean;
+  basicsReady: boolean;
+  sendingReady: boolean;
+  onClose: () => void;
+  onPrevious: () => void;
+  onNext: () => void;
+}) => {
+  const { t } = useTranslation('frontline');
+  return (
+    <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
+      {step === 4 ? (
+        <Button type="button" className="ml-auto" onClick={onClose}>
+          {t('done')}
+        </Button>
+      ) : (
+        <>
+          <Button
+            className="mr-auto text-muted-foreground"
+            variant="ghost"
+            type="button"
+            onClick={onClose}
+            disabled={loading}
+          >
+            {t('cancel')}
+          </Button>
+
+          <Button
+            variant="secondary"
+            className="bg-border"
+            type="button"
+            disabled={step === 1 || loading}
+            onClick={onPrevious}
+          >
+            {t('previous-step')}
+          </Button>
+
+          {step < 3 ? (
+            <Button
+              type="button"
+              disabled={step === 1 && !basicsReady}
+              onClick={onNext}
+            >
+              {t('next-step')}
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={
+                loading || readinessLoading || !basicsReady || !sendingReady
+              }
+            >
+              {loading ? t('saving') : t('create')}
+            </Button>
+          )}
+        </>
+      )}
+    </Sheet.Footer>
+  );
+};
+
+/** Owns the mail wizard state, validation and integration creation lifecycle. */
 export const MailIntegrationPanelForm = () => {
   const { t } = useTranslation('frontline');
   const { close: closePanel } = useSidePanel();
@@ -303,6 +481,7 @@ export const MailIntegrationPanelForm = () => {
   const { addIntegration, loading } = useIntegrationAdd();
   const { readiness, loading: readinessLoading } = useMailSendingReadiness();
 
+  /** Closes the panel and clears the local wizard session. */
   const close = () => {
     closePanel();
     setStep(1);
@@ -311,6 +490,7 @@ export const MailIntegrationPanelForm = () => {
   };
 
   const values = form.watch();
+  const senderName = getMailSenderName(values);
 
   const basicsReady = Boolean(values.name?.trim() && values.brandId);
 
@@ -319,6 +499,7 @@ export const MailIntegrationPanelForm = () => {
 
   const sendingReady = Boolean(readiness?.ready);
 
+  /** Creates the validated inbox and advances to its confirmation after success. */
   const onSubmit = (data: MailFormValues) =>
     addIntegration({
       variables: {
@@ -331,6 +512,7 @@ export const MailIntegrationPanelForm = () => {
           senderName: data.senderName,
         },
       },
+      /** Retains the created inbox identifier for the confirmation screen. */
       onCompleted(created) {
         const newId = created?.integrationsCreateExternalIntegration?._id;
 
@@ -355,131 +537,27 @@ export const MailIntegrationPanelForm = () => {
           />
 
           <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 pt-0">
-            {step === 1 && (
-              <>
-                <MailFormField
-                  {...MAIL_FORM_FIELDS[0]}
-                  control={form.control}
-                />
-                <MailFormField
-                  {...MAIL_FORM_FIELDS[2]}
-                  control={form.control}
-                />
-                {!!sendingDomain &&
-                  !!(values.senderName?.trim() || values.name?.trim()) && (
-                    <MailSenderPreview
-                      senderName={
-                        values.senderName?.trim() || values.name?.trim() || ''
-                      }
-                      address={`…@${sendingDomain}`}
-                    />
-                  )}
-                <Form.Field
-                  name="brandId"
-                  control={form.control}
-                  render={({ field }) => (
-                    <IntegrationFormItem
-                      label={
-                        <>
-                          {t('brand')}
-                          <span className="ml-0.5 text-destructive">*</span>
-                        </>
-                      }
-                    >
-                      <Form.Control>
-                        <SelectBrand
-                          value={field.value}
-                          onValueChange={field.onChange}
-                          placeholder={t('select-a-brand')}
-                          className="h-10 w-full rounded-lg border bg-background"
-                        />
-                      </Form.Control>
-                      <Form.Description>
-                        {t('choose-brand-description')}
-                      </Form.Description>
-                      <Form.Message />
-                    </IntegrationFormItem>
-                  )}
-                />
-              </>
-            )}
-
-            {step === 2 && (
-              <MailFormField {...MAIL_FORM_FIELDS[1]} control={form.control} />
-            )}
-
-            {step === 3 &&
-              (readiness && !readiness.ready ? (
-                <MailSendingRequired reason={readiness.cloudflare?.reason} />
-              ) : (
-                <MailSendingSummary
-                  domain={sendingDomain}
-                  senderName={
-                    values.senderName?.trim() || values.name?.trim() || ''
-                  }
-                />
-              ))}
-
-            {step === 4 && createdId && (
-              <MailIntegrationCreated
-                integrationId={createdId}
-                sendingDomain={sendingDomain}
-                senderName={
-                  values.senderName?.trim() || values.name?.trim() || ''
-                }
-              />
-            )}
+            <MailIntegrationWizardStep
+              step={step}
+              control={form.control}
+              readiness={readiness}
+              sendingDomain={sendingDomain}
+              senderName={senderName}
+              createdId={createdId}
+            />
           </div>
         </Sheet.Content>
 
-        <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
-          {step === 4 ? (
-            <Button type="button" className="ml-auto" onClick={close}>
-              {t('done')}
-            </Button>
-          ) : (
-            <>
-              <Button
-                className="mr-auto text-muted-foreground"
-                variant="ghost"
-                type="button"
-                onClick={close}
-                disabled={loading}
-              >
-                {t('cancel')}
-              </Button>
-
-              <Button
-                variant="secondary"
-                className="bg-border"
-                type="button"
-                disabled={step === 1 || loading}
-                onClick={() => setStep((current) => current - 1)}
-              >
-                {t('previous-step')}
-              </Button>
-
-              {step < 3 ? (
-                <Button
-                  type="button"
-                  disabled={step === 1 && !basicsReady}
-                  onClick={() => setStep((current) => current + 1)}
-                >
-                  {t('next-step')}
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  disabled={
-                    loading || readinessLoading || !basicsReady || !sendingReady
-                  }
-                >
-                  {loading ? t('saving') : t('create')}
-                </Button>
-              )}
-            </>
-          )}
-        </Sheet.Footer>
+        <MailIntegrationWizardFooter
+          step={step}
+          loading={loading}
+          readinessLoading={readinessLoading}
+          basicsReady={basicsReady}
+          sendingReady={sendingReady}
+          onClose={close}
+          onPrevious={() => setStep((current) => current - 1)}
+          onNext={() => setStep((current) => current + 1)}
+        />
       </form>
     </Form>
   );

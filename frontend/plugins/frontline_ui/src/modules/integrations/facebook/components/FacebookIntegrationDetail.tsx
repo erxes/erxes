@@ -153,6 +153,7 @@ export const FacebookIntegrationEditForm = ({
     }
   }, [integrationDetail, form]);
 
+  /** Saves the integration metadata and closes its panel after a successful update. */
   const onSubmit = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) => {
     editIntegration({
       variables: {

@@ -145,7 +145,7 @@
   refetches active setup/integration queries; status errors remain inline.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
-  the existing inbox integration sheet; no workspace-wide bot credentials are
+  the existing inbox integration record panel; no workspace-wide bot credentials are
   duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
@@ -781,7 +781,8 @@ owns the setup form and connection actions.
 | Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
 | Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
 | Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step record-panel wizard over the shared `IntegrationSteps` chrome                                                                         |
+| Integration record panels | `src/widgets/record-panel/{IntegrationRecordPanel,IntegrationRecordForm}.tsx`                                                                      | Resolve integration titles, actions, activity, channel context and provider create/edit forms                                                                 |
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
@@ -1102,6 +1103,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   Preserve token verification, inbox linking and webhook registration order.
   Callback messages prioritize a saved URL, status failure, then the detected
   address; webhook diagnostics prioritize loading before failure feedback.
+- Mail setup keeps wizard state and mutations in `MailIntegrationPanelForm`;
+  presentation helpers preserve receiving and sending validation, sender
+  previews and recovery after failed creation.
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
 - Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
 - The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
@@ -1163,11 +1167,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   outside the pipeline pages must pass them.
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
-  repair components take `integration`, not a table `cell`. Erxes messenger,
-  call, callpro and telegram edit through atom-driven sheets; a page listing
-  integrations of every kind mounts `IntegrationEditSheets` once (the channel
-  list does). Their edits take the channel from the loaded record, never from
-  the route.
+  repair components take `integration`, not a table `cell`. Provider editors
+  open the shared integration record panel, whose form sessions synchronize
+  the existing provider atoms. Edits take the channel from the loaded record,
+  never from the route. Keep `MoveToChannelDialog` mounted beside the action
+  popover so closing the menu does not unmount an open move dialog.
 - Integration create/update/delete/repair/move mutations refetch
   `ChannelIntegrationsPeek` alongside `Integrations`.
 - `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls

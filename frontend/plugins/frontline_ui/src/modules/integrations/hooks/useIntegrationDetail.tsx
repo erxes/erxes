@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { GET_INTEGRATION_DETAIL } from '@/integrations/graphql/queries/getIntegrationDetail';
 
+/** Loads a selected integration while skipping the query for new-record drafts. */
 export const useIntegrationDetail = ({
   integrationId,
 }: {

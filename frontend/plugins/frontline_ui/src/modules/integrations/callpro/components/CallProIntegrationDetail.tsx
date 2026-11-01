@@ -11,6 +11,7 @@ export const CallProIntegrationDetail = () => {
   );
 };
 
+/** Opens the selected Call Pro integration in the shared record editor. */
 export const CallProIntegrationActions = ({
   integration,
 }: {

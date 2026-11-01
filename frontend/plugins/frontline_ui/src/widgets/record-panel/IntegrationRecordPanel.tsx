@@ -21,6 +21,7 @@ const IntegrationRecordForm = lazy(() =>
   })),
 );
 
+/** Resolves integration titles, actions, activity and channel-scoped provider forms. */
 export const IntegrationRecordPanel = ({
   contentId,
   view,

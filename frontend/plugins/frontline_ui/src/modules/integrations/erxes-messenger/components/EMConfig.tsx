@@ -25,7 +25,7 @@ import {
   EMLayout,
   EMLayoutPreviousStepButton,
 } from '@/integrations/erxes-messenger/components/EMLayout';
-import { SelectMember, SelectBrand } from 'ui-modules';
+import { SelectBrand } from 'ui-modules';
 import {
   IconBook,
   IconPlus,
@@ -54,6 +54,542 @@ type EMConfigFormValues = z.infer<typeof EM_CONFIG_SCHEMA>;
 
 type TConfigTab = 'bot' | 'ticket' | 'kb';
 
+/** Explains persistent menu behavior through the existing tooltip. */
+const PersistentMenuHelp = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <Tooltip delayDuration={100}>
+      <Tooltip.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-2 rounded-full size-5 px-1"
+        >
+          <IconQuestionMark />
+        </Button>
+      </Tooltip.Trigger>
+      <Tooltip.Content className="max-w-80">
+        {t('persistent-menu-tooltip')}
+      </Tooltip.Content>
+    </Tooltip>
+  );
+};
+
+/** Renders the persistent menu button or link selector. */
+const PersistentMenuTypeSelect = ({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <Form.Control>
+        <Select.Trigger className="mb-0">
+          <Select.Value placeholder={t('select-a-type')} />
+        </Select.Trigger>
+      </Form.Control>
+      <Select.Content>
+        <Select.Item value="button">{t('button')}</Select.Item>
+        <Select.Item value="link">{t('link')}</Select.Item>
+      </Select.Content>
+    </Select>
+  );
+};
+
+/** Renders the existing persistent menu content types. */
+const PersistentMenuContentTypeSelect = ({
+  value,
+  onChange,
+}: {
+  value?: string;
+  onChange: (value: string) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <Form.Control>
+        <Select.Trigger>
+          <Select.Value placeholder={t('select-content-type')} />
+        </Select.Trigger>
+      </Form.Control>
+      <Select.Content>
+        {EM_CONTENT_TYPES.map(({ type, labelKey }) => (
+          <Select.Item key={type} value={type}>
+            {t(labelKey)}
+          </Select.Item>
+        ))}
+      </Select.Content>
+    </Select>
+  );
+};
+
+/** Edits one persistent menu item while retaining hidden type-specific fields. */
+const PersistentMenuRow = ({
+  index,
+  currentType,
+  remove,
+}: {
+  index: number;
+  currentType?: string;
+  remove: (index: number) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <div className="space-y-2">
+      <div className="flex gap-2 items-end">
+        <Form.Field
+          name={`botSetup.persistentMenu.${index}.text`}
+          render={({ field }) => (
+            <Form.Item className="flex-auto">
+              <Form.Label>{t('text')}</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name={`botSetup.persistentMenu.${index}.type`}
+          render={({ field }) => (
+            <Form.Item className="flex-auto">
+              <Form.Label>{t('type')}</Form.Label>
+              <PersistentMenuTypeSelect
+                value={field.value}
+                onChange={field.onChange}
+              />
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Button
+          onClick={() => remove(index)}
+          variant="secondary"
+          size="icon"
+          className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
+        >
+          <IconTrash />
+        </Button>
+      </div>
+      <Form.Field
+        name={`botSetup.persistentMenu.${index}.link`}
+        render={({ field }) => (
+          <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
+            <Form.Label>{t('url')}</Form.Label>
+            <Form.Control>
+              <Input {...field} type="url" placeholder="https://example.com" />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name={`botSetup.persistentMenu.${index}.contentType`}
+        render={({ field }) => (
+          <Form.Item className={currentType === 'button' ? '' : 'hidden'}>
+            <Form.Label>{t('content-type')}</Form.Label>
+            <PersistentMenuContentTypeSelect
+              value={field.value}
+              onChange={field.onChange}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </div>
+  );
+};
+
+/** Manages persistent menu items through the shared messenger form field array. */
+const PersistentMenu = ({
+  form,
+}: {
+  form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const { control, watch } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'botSetup.persistentMenu',
+  });
+
+  const persistentMenuValues = watch('botSetup.persistentMenu');
+
+  return (
+    <Form.Item>
+      <Form.Label className="flex items-center">
+        {t('persistent-menu')}
+        <Tooltip.Provider>
+          <PersistentMenuHelp />
+        </Tooltip.Provider>
+      </Form.Label>
+      <div className="space-y-3">
+        {fields.map((field, index) => {
+          const currentType = persistentMenuValues?.[index]?.type;
+          return (
+            <PersistentMenuRow
+              key={field.id}
+              index={index}
+              currentType={currentType}
+              remove={remove}
+            />
+          );
+        })}
+      </div>
+      <Button
+        onClick={() =>
+          append({ text: '', type: 'button', contentType: 'text' })
+        }
+        className="flex w-full mt-5!"
+        variant="secondary"
+      >
+        <IconPlus />
+        {t('add-persistent-menu')}
+      </Button>
+    </Form.Item>
+  );
+};
+
+/** Lists matching automations and closes the picker after a selection. */
+const MessengerAutomationOptions = ({
+  automations,
+  value,
+  onChange,
+  setOpen,
+}: {
+  automations: { _id: string; name?: string | null; status?: string | null }[];
+  value: string;
+  onChange: (value: string) => void;
+  setOpen: (open: boolean) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <Command>
+      <Command.List>
+        <Command.Input placeholder={t('search-automation')} />
+        <Command.Empty>{t('no-automations-found')}</Command.Empty>
+        {automations.map((automation) => (
+          <Command.Item
+            key={automation._id}
+            value={automation._id}
+            onSelect={(v) => {
+              onChange(v === value ? '' : v);
+              setOpen(false);
+            }}
+          >
+            <span className="flex-1">{automation.name}</span>
+            <span className="ml-2 text-xs text-muted-foreground capitalize">
+              {automation.status}
+            </span>
+            {automation._id === value && <Combobox.Check />}
+          </Command.Item>
+        ))}
+      </Command.List>
+    </Command>
+  );
+};
+
+/** Loads inbox message automations and selects the messenger bot automation. */
+const SelectMessengerAutomation = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  const [open, setOpen] = useState(false);
+  const { data, loading } = useQuery(EM_MESSENGER_AUTOMATIONS, {
+    variables: { triggerTypes: ['frontline:inbox.messages'] },
+  });
+
+  const automations = data?.automations?.filter(isDefined) ?? [];
+
+  const selected = automations.find((a) => a._id === value);
+  const selectedLabel = selected ? selected.name : t('select-an-automation');
+  const triggerLabel = loading ? t('loading') : selectedLabel;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <Combobox.Trigger className="w-full">
+        <span className={selected ? '' : 'text-muted-foreground'}>
+          {triggerLabel}
+        </span>
+      </Combobox.Trigger>
+      <Combobox.Content>
+        <MessengerAutomationOptions
+          automations={automations}
+          value={value}
+          onChange={onChange}
+          setOpen={setOpen}
+        />
+      </Combobox.Content>
+    </Popover>
+  );
+};
+
+/** Shows bot, ticket and knowledge base tabs with their existing status badges. */
+const EMConfigTabList = ({
+  botEnabled,
+  ticketConfigCount,
+  knowledgeBaseTopicId,
+}: {
+  botEnabled?: boolean;
+  ticketConfigCount: number;
+  knowledgeBaseTopicId?: string | null;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <Tabs.List className="w-full justify-start">
+      <Tabs.Trigger value="bot" className="gap-1.5">
+        <IconRobot className="size-4" />
+        {t('bot', 'Bot')}
+        {botEnabled && <Badge variant="secondary">AI</Badge>}
+      </Tabs.Trigger>
+      <Tabs.Trigger value="ticket" className="gap-1.5">
+        <IconTicket className="size-4" />
+        {t('ticket', 'Ticket')}
+        {ticketConfigCount > 0 && (
+          <Badge variant="secondary">{ticketConfigCount}</Badge>
+        )}
+      </Tabs.Trigger>
+      <Tabs.Trigger value="kb" className="gap-1.5">
+        <IconBook className="size-4" />
+        {t('knowledge-base', 'Knowledge base')}
+        {knowledgeBaseTopicId && <Badge variant="secondary">1</Badge>}
+      </Tabs.Trigger>
+    </Tabs.List>
+  );
+};
+
+/** Renders the messenger bot greeting, menu, AI options and automation controls. */
+const EMBotConfigFields = ({
+  form,
+  idToEdit,
+}: {
+  form: UseFormReturn<EMConfigFormValues>;
+  idToEdit: string | false;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+  return (
+    <>
+      <Form.Field
+        name="botSetup.greetingMessage"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('greeting-message')}</Form.Label>
+            <Form.Control>
+              <Textarea {...field} />
+            </Form.Control>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <PersistentMenu form={form} />
+      <Form.Field
+        name="botSetup.botCheck"
+        render={({ field }) => (
+          <Form.Item>
+            <div className="flex items-center gap-3">
+              <Form.Control>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+
+              <Form.Label variant="peer" className="leading-6">
+                {t('enable-ai-bot')}
+              </Form.Label>
+            </div>
+            <Form.Description>
+              {t('enable-ai-bot-description')}
+            </Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      <Form.Field
+        name="botSetup.botShowInitialMessage"
+        render={({ field }) => (
+          <Form.Item>
+            <div className="flex items-center gap-3">
+              <Form.Control>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Label variant="peer" className="leading-6">
+                {t('show-initial-message')}
+              </Form.Label>
+            </div>
+            <Form.Description>
+              {t('show-initial-message-description')}
+            </Form.Description>
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+      {form.watch('botSetup.botCheck') && (
+        <Form.Field
+          name="botSetup.automationId"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('automation-bot')}</Form.Label>
+              <Form.Control>
+                <SelectMessengerAutomation
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Description>
+                {t('automation-bot-description')}
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      )}
+      <EMMessengerAutomations integrationId={idToEdit || undefined} />
+    </>
+  );
+};
+
+/** Groups integration identity and bot, ticket and knowledge base configuration. */
+const EMConfigFields = ({
+  form,
+  idToEdit,
+  configTab,
+  setConfigTab,
+  botEnabled,
+  ticketConfigCount,
+  knowledgeBaseTopicId,
+}: {
+  form: UseFormReturn<EMConfigFormValues>;
+  idToEdit: string | false;
+  configTab: TConfigTab;
+  setConfigTab: (value: TConfigTab) => void;
+  botEnabled?: boolean;
+  ticketConfigCount: number;
+  knowledgeBaseTopicId?: string | null;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <div className="p-4 pt-0 space-y-6 overflow-auto styled-scroll flex-1">
+      <div className="grid grid-cols-1 gap-4">
+        <Form.Field
+          name="name"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('name')}</Form.Label>
+              <Form.Control>
+                <Input {...field} />
+              </Form.Control>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          name="brandId"
+          rules={{ required: 'Brand is required' }}
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t('brand')}</Form.Label>
+              <Form.Control>
+                <SelectBrand
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-a-brand')}
+                />
+              </Form.Control>
+              <Form.Description>
+                {t('choose-the-brand-for-this-integration')}
+              </Form.Description>
+              <Form.Message />
+            </Form.Item>
+          )}
+        />
+      </div>
+      <Tabs
+        value={configTab}
+        onValueChange={(value) => {
+          if (value === 'bot' || value === 'ticket' || value === 'kb') {
+            setConfigTab(value);
+          }
+        }}
+      >
+        <EMConfigTabList
+          botEnabled={botEnabled}
+          ticketConfigCount={ticketConfigCount}
+          knowledgeBaseTopicId={knowledgeBaseTopicId}
+        />
+        <Tabs.Content value="bot" className="space-y-4 pt-4">
+          <EMBotConfigFields form={form} idToEdit={idToEdit} />
+        </Tabs.Content>
+        <Tabs.Content value="ticket" className="pt-4">
+          <Form.Field
+            name="ticketConfigIds"
+            render={({ field }) => (
+              <Form.Item>
+                <EMTicketConfigPicker
+                  channelId={form.watch('channelId')}
+                  value={field.value ?? []}
+                  onChange={field.onChange}
+                />
+              </Form.Item>
+            )}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="kb" className="pt-4">
+          <Form.Field
+            name="knowledgeBaseTopicId"
+            render={({ field }) => (
+              <Form.Item>
+                <EMKbTopicPicker
+                  value={field.value}
+                  onChange={field.onChange}
+                  brandId={form.watch('brandId')}
+                />
+              </Form.Item>
+            )}
+          />
+        </Tabs.Content>
+      </Tabs>
+    </div>
+  );
+};
+
+/** Creates or updates the messenger using its validated configuration and setup state. */
 export const EMConfig = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -74,7 +610,7 @@ export const EMConfig = () => {
   const { editMessenger, loading: editLoading } = useEditMessenger();
 
   const loading = createLoading || editLoading;
-  const isEditMode = !!idToEdit;
+  const isEditMode = Boolean(idToEdit);
   const [configTab, setConfigTab] = useState<TConfigTab>('bot');
   const botEnabled = form.watch('botSetup.botCheck');
   const ticketConfigCount = form.watch('ticketConfigIds')?.length ?? 0;
@@ -114,459 +650,17 @@ export const EMConfig = () => {
             </>
           }
         >
-          <div className="p-4 pt-0 space-y-6 overflow-auto styled-scroll flex-1">
-            <div className="grid grid-cols-1 gap-4">
-              <Form.Field
-                name="name"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('name')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name="brandId"
-                rules={{ required: 'Brand is required' }}
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('brand')}</Form.Label>
-                    <Form.Control>
-                      <SelectBrand
-                        value={field.value}
-                        onValueChange={field.onChange}
-                        placeholder={t('select-a-brand')}
-                      />
-                    </Form.Control>
-                    <Form.Description>
-                      {t('choose-the-brand-for-this-integration')}
-                    </Form.Description>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-            <Tabs
-              value={configTab}
-              onValueChange={(value) => setConfigTab(value as TConfigTab)}
-            >
-              <Tabs.List className="w-full justify-start">
-                <Tabs.Trigger value="bot" className="gap-1.5">
-                  <IconRobot className="size-4" />
-                  {t('bot', 'Bot')}
-                  {botEnabled && <Badge variant="secondary">AI</Badge>}
-                </Tabs.Trigger>
-                <Tabs.Trigger value="ticket" className="gap-1.5">
-                  <IconTicket className="size-4" />
-                  {t('ticket', 'Ticket')}
-                  {ticketConfigCount > 0 && (
-                    <Badge variant="secondary">{ticketConfigCount}</Badge>
-                  )}
-                </Tabs.Trigger>
-                <Tabs.Trigger value="kb" className="gap-1.5">
-                  <IconBook className="size-4" />
-                  {t('knowledge-base', 'Knowledge base')}
-                  {knowledgeBaseTopicId && <Badge variant="secondary">1</Badge>}
-                </Tabs.Trigger>
-              </Tabs.List>
-              <Tabs.Content value="bot" className="space-y-4 pt-4">
-                <Form.Field
-                  name="botSetup.greetingMessage"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('greeting-message')}</Form.Label>
-                      <Form.Control>
-                        <Textarea {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <PersistentMenu form={form} />
-                <Form.Field
-                  name="botSetup.botCheck"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <div className="flex items-center gap-3">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-
-                        <Form.Label variant="peer" className="leading-6">
-                          {t('enable-ai-bot')}
-                        </Form.Label>
-                      </div>
-                      <Form.Description>
-                        {t('enable-ai-bot-description')}
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name="botSetup.botShowInitialMessage"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <div className="flex items-center gap-3">
-                        <Form.Control>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Label variant="peer" className="leading-6">
-                          {t('show-initial-message')}
-                        </Form.Label>
-                      </div>
-                      <Form.Description>
-                        {t('show-initial-message-description')}
-                      </Form.Description>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                {form.watch('botSetup.botCheck') && (
-                  <Form.Field
-                    name="botSetup.automationId"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t('automation-bot')}</Form.Label>
-                        <Form.Control>
-                          <SelectMessengerAutomation
-                            value={field.value ?? ''}
-                            onChange={field.onChange}
-                          />
-                        </Form.Control>
-                        <Form.Description>
-                          {t('automation-bot-description')}
-                        </Form.Description>
-                        <Form.Message />
-                      </Form.Item>
-                    )}
-                  />
-                )}
-                <EMMessengerAutomations integrationId={idToEdit || undefined} />
-              </Tabs.Content>
-              <Tabs.Content value="ticket" className="pt-4">
-                <Form.Field
-                  name="ticketConfigIds"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <EMTicketConfigPicker
-                        channelId={form.watch('channelId')}
-                        value={field.value ?? []}
-                        onChange={field.onChange}
-                      />
-                    </Form.Item>
-                  )}
-                />
-              </Tabs.Content>
-              <Tabs.Content value="kb" className="pt-4">
-                <Form.Field
-                  name="knowledgeBaseTopicId"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <EMKbTopicPicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        brandId={form.watch('brandId')}
-                      />
-                    </Form.Item>
-                  )}
-                />
-              </Tabs.Content>
-            </Tabs>
-          </div>
+          <EMConfigFields
+            form={form}
+            idToEdit={idToEdit}
+            configTab={configTab}
+            setConfigTab={setConfigTab}
+            botEnabled={botEnabled}
+            ticketConfigCount={ticketConfigCount}
+            knowledgeBaseTopicId={knowledgeBaseTopicId}
+          />
         </EMLayout>
       </form>
     </Form>
-  );
-};
-
-const PersistentMenu = ({
-  form,
-}: {
-  form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const { control, watch } = form;
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'botSetup.persistentMenu',
-  });
-
-  const persistentMenuValues = watch('botSetup.persistentMenu');
-
-  return (
-    <Form.Item>
-      <Form.Label className="flex items-center">
-        {t('persistent-menu')}
-        <Tooltip.Provider>
-          <Tooltip delayDuration={100}>
-            <Tooltip.Trigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="ml-2 rounded-full size-5 px-1"
-              >
-                <IconQuestionMark />
-              </Button>
-            </Tooltip.Trigger>
-            <Tooltip.Content className="max-w-80">
-              {t('persistent-menu-tooltip')}
-            </Tooltip.Content>
-          </Tooltip>
-        </Tooltip.Provider>
-      </Form.Label>
-      <div className="space-y-3">
-        {fields.map((field, index) => {
-          const currentType = persistentMenuValues?.[index]?.type;
-          return (
-            <div className="space-y-2" key={field.id}>
-              <div className="flex gap-2 items-end">
-                <Form.Field
-                  name={`botSetup.persistentMenu.${index}.text`}
-                  render={({ field }) => (
-                    <Form.Item className="flex-auto">
-                      <Form.Label>{t('text')}</Form.Label>
-                      <Form.Control>
-                        <Input {...field} />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Form.Field
-                  name={`botSetup.persistentMenu.${index}.type`}
-                  render={({ field }) => (
-                    <Form.Item className="flex-auto">
-                      <Form.Label>{t('type')}</Form.Label>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Form.Control>
-                          <Select.Trigger className="mb-0">
-                            <Select.Value placeholder={t('select-a-type')} />
-                          </Select.Trigger>
-                        </Form.Control>
-                        <Select.Content>
-                          <Select.Item value="button">
-                            {t('button')}
-                          </Select.Item>
-                          <Select.Item value="link">{t('link')}</Select.Item>
-                        </Select.Content>
-                      </Select>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-                <Button
-                  onClick={() => remove(index)}
-                  variant="secondary"
-                  size="icon"
-                  className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-                >
-                  <IconTrash />
-                </Button>
-              </div>
-              <Form.Field
-                name={`botSetup.persistentMenu.${index}.link`}
-                render={({ field }) => (
-                  <Form.Item className={currentType === 'link' ? '' : 'hidden'}>
-                    <Form.Label>{t('url')}</Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        type="url"
-                        placeholder="https://example.com"
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-              <Form.Field
-                name={`botSetup.persistentMenu.${index}.contentType`}
-                render={({ field }) => (
-                  <Form.Item
-                    className={currentType === 'button' ? '' : 'hidden'}
-                  >
-                    <Form.Label>{t('content-type')}</Form.Label>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value
-                            placeholder={t('select-content-type')}
-                          />
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        {EM_CONTENT_TYPES.map(({ type, labelKey }) => (
-                          <Select.Item key={type} value={type}>
-                            {t(labelKey)}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
-          );
-        })}
-      </div>
-      <Button
-        onClick={() =>
-          append({ text: '', type: 'button', contentType: 'text' })
-        }
-        className="flex w-full mt-5!"
-        variant="secondary"
-      >
-        <IconPlus />
-        {t('add-persistent-menu')}
-      </Button>
-    </Form.Item>
-  );
-};
-
-const CallRouting = ({
-  form,
-}: {
-  form: UseFormReturn<z.infer<typeof EM_CONFIG_SCHEMA>>;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const { control } = form;
-
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: 'cloudflareCallsSetup.callRouting',
-  });
-
-  return (
-    <Form.Item>
-      <Form.Label>{t('call-routing')}</Form.Label>
-      <div className="space-y-3">
-        {fields.map((field, index) => (
-          <div className="flex gap-2 items-end">
-            <Form.Field
-              key={field.id}
-              name={`cloudflareCallsSetup.callRouting.${index}.name`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              key={field.id}
-              name={`cloudflareCallsSetup.callRouting.${index}.operatorIds`}
-              render={({ field }) => (
-                <Form.Item className="flex-auto">
-                  <Form.Label>{t('operator-ids')}</Form.Label>
-                  <SelectMember.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    mode="multiple"
-                    className="max-w-96"
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Button
-              onClick={() => remove(index)}
-              variant="secondary"
-              size="icon"
-              className="size-8 bg-destructive/10 hover:bg-destructive/20 text-destructive"
-            >
-              <IconTrash />
-            </Button>
-          </div>
-        ))}
-      </div>
-      <Button
-        onClick={() => append({ name: '', operatorIds: [] })}
-        className="flex w-full mt-5!"
-        variant="secondary"
-      >
-        <IconPlus />
-        {t('add-call-routing')}
-      </Button>
-    </Form.Item>
-  );
-};
-
-const SelectMessengerAutomation = ({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (v: string) => void;
-}) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-  const { data, loading } = useQuery(EM_MESSENGER_AUTOMATIONS, {
-    variables: { triggerTypes: ['frontline:inbox.messages'] },
-  });
-
-  const automations = data?.automations?.filter(isDefined) ?? [];
-
-  const selected = automations.find((a) => a._id === value);
-
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger className="w-full">
-        <span className={selected ? '' : 'text-muted-foreground'}>
-          {loading
-            ? t('loading')
-            : selected
-              ? selected.name
-              : t('select-an-automation')}
-        </span>
-      </Combobox.Trigger>
-      <Combobox.Content>
-        <Command>
-          <Command.List>
-            <Command.Input placeholder={t('search-automation')} />
-            <Command.Empty>{t('no-automations-found')}</Command.Empty>
-            {automations.map((automation) => (
-              <Command.Item
-                key={automation._id}
-                value={automation._id}
-                onSelect={(v) => {
-                  onChange(v === value ? '' : v);
-                  setOpen(false);
-                }}
-              >
-                <span className="flex-1">{automation.name}</span>
-                <span className="ml-2 text-xs text-muted-foreground capitalize">
-                  {automation.status}
-                </span>
-                {automation._id === value && <Combobox.Check />}
-              </Command.Item>
-            ))}
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
   );
 };
