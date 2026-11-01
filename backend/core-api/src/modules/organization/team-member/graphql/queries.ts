@@ -1,4 +1,3 @@
-import { USER_ROLES } from 'erxes-api-shared/core-modules';
 import {
   ICursorPaginateParams,
   IUserDocument,
@@ -26,8 +25,6 @@ type IListArgs = {
   unitId?: string;
   segment?: string;
 };
-
-const NORMAL_USER_SELECTOR = { role: { $ne: USER_ROLES.SYSTEM } };
 
 const queryBuilder = async (params: IListArgs, models: IModels) => {
   const {
@@ -121,10 +118,9 @@ export const userQueries = {
     args: IListArgs,
     { models }: IContext,
   ) {
-    const selector = {
-      ...(await queryBuilder(args, models)),
-      ...NORMAL_USER_SELECTOR,
-    };
+    const selector = await models.Users.staffQuery(
+      await queryBuilder(args, models),
+    );
 
     return models.Users.countDocuments(selector);
   },
@@ -191,7 +187,7 @@ export const userQueries = {
       selector._id = user._id;
     }
 
-    return models.Users.find({ ...selector, ...NORMAL_USER_SELECTOR }).sort({
+    return models.Users.find(await models.Users.staffQuery(selector)).sort({
       username: 1,
     });
   },
@@ -201,10 +197,9 @@ export const userQueries = {
     args: IListArgs & ICursorPaginateParams,
     { models }: IContext,
   ) {
-    const selector = {
-      ...(await queryBuilder(args, models)),
-      ...NORMAL_USER_SELECTOR,
-    };
+    const selector = await models.Users.staffQuery(
+      await queryBuilder(args, models),
+    );
 
     const { list, totalCount, pageInfo } = await cursorPaginate<IUserDocument>({
       model: models.Users,
