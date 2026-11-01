@@ -5,7 +5,8 @@ export type FieldType =
   | 'avatar'
   | 'links'
   | 'link'
-  | 'sex';
+  | 'sex'
+  | 'company';
 type LinkType =
   | 'website'
   | 'facebook'
