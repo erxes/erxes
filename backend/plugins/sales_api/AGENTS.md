@@ -91,7 +91,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
+| Schema export              | `scripts/print-subgraph-schema.ts`                        | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
