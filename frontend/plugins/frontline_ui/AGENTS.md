@@ -1089,7 +1089,8 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 ## Local Invariants
 
 - Integration provider forms reuse `IntegrationFormLayout` for call sheet
-  layouts and `IntegrationFormActions` / `IntegrationNameField` for common
+  layouts and `IntegrationFormActions`, `IntegrationNameField` and
+  `IntegrationBrandField` for common
   edit and setup controls. Preserve each provider's validation, brand selector
   and mutation behavior when composing these helpers.
 - Telegram's standalone setup exports retain sheet behavior by default; the

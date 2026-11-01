@@ -1,16 +1,12 @@
 import {
   IntegrationFormActions,
-  IntegrationFormItem,
+  IntegrationBrandField,
   IntegrationNameField,
   INTEGRATION_CONTENT_TYPE,
   IntegrationEditButton,
 } from '@/integrations/components/IntegrationPanelForm';
 
-import {
-  getSidePanelRecordPath,
-  sidePanelDraftState,
-  SelectBrands,
-} from 'ui-modules';
+import { getSidePanelRecordPath, sidePanelDraftState } from 'ui-modules';
 import { FacebookIntegrationFormSheet } from './FacebookIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import { Separator, Spinner, Form, Input, toast, Label } from 'erxes-ui';
@@ -106,18 +102,7 @@ const FacebookIntegrationEditFields = ({ pageName }: { pageName?: string }) => {
         <Input id="pageName" value={pageName} className="mt-2" readOnly />
       </div>
       <IntegrationNameField />
-      <Form.Field
-        name="brandId"
-        render={({ field }) => (
-          <IntegrationFormItem label={t('brand')}>
-            <SelectBrands.FormItem
-              value={field.value}
-              onValueChange={field.onChange}
-            />
-            <Form.Message />
-          </IntegrationFormItem>
-        )}
-      />
+      <IntegrationBrandField variant="form-item" />
     </div>
   );
 };

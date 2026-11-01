@@ -1,11 +1,13 @@
 import { IntegrationFormLayout as CallProIntegrationFormLayout } from '@/integrations/components/IntegrationFormLayout';
-import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
+import {
+  IntegrationBrandField,
+  IntegrationFormItem,
+} from '@/integrations/components/IntegrationPanelForm';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Spinner } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
-import { SelectBrand } from 'ui-modules';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
 import { useCallProConfig } from '@/integrations/callpro/hooks/useCallProConfig';
 
@@ -73,28 +75,7 @@ export const CallProIntegrationForm = ({
               </IntegrationFormItem>
             )}
           />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <IntegrationFormItem
-                label={
-                  <>
-                    {t('brand')} <span className="text-destructive">*</span>
-                  </>
-                }
-              >
-                <Form.Control>
-                  <SelectBrand
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder={t('select-a-brand')}
-                    className="w-full"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </IntegrationFormItem>
-            )}
-          />
+          <IntegrationBrandField required />
         </CallProIntegrationFormLayout>
       </form>
     </Form>

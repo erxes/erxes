@@ -4,7 +4,12 @@ import { type PrimitiveAtom, useAtom } from 'jotai';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PanelFormRow, useSidePanel } from 'ui-modules';
+import {
+  PanelFormRow,
+  SelectBrand,
+  SelectBrands,
+  useSidePanel,
+} from 'ui-modules';
 import type { IIntegration } from '../types/Integration';
 
 export const INTEGRATION_CONTENT_TYPE = 'frontline:integration';
@@ -109,6 +114,55 @@ export const IntegrationFormItem = ({
     </PanelFormRow>
   </Form.Item>
 );
+
+/** Shares brand-field markup while retaining each provider's existing selector. */
+export const IntegrationBrandField = ({
+  required,
+  variant = 'single',
+}: {
+  required?: boolean;
+  variant?: 'single' | 'form-item';
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
+
+  return (
+    <Form.Field
+      name="brandId"
+      render={({ field }) => (
+        <IntegrationFormItem
+          label={
+            required ? (
+              <>
+                {t('brand')} <span className="text-destructive">*</span>
+              </>
+            ) : (
+              t('brand')
+            )
+          }
+        >
+          {variant === 'single' ? (
+            <Form.Control>
+              <SelectBrand
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={t('select-a-brand')}
+                className="w-full"
+              />
+            </Form.Control>
+          ) : (
+            <SelectBrands.FormItem
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+          )}
+          <Form.Message />
+        </IntegrationFormItem>
+      )}
+    />
+  );
+};
 
 /** Renders the integration name with optional setup guidance and validation feedback. */
 export const IntegrationNameField = ({

@@ -1,12 +1,15 @@
 import { IntegrationFormLayout as CallIntegrationFormLayout } from '@/integrations/components/IntegrationFormLayout';
-import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
+import {
+  IntegrationBrandField,
+  IntegrationFormItem,
+} from '@/integrations/components/IntegrationPanelForm';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, Form, Input, Spinner } from 'erxes-ui';
 import { useFieldArray, UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { z } from 'zod';
-import { SelectMember, SelectBrand } from 'ui-modules';
+import { SelectMember } from 'ui-modules';
 
 export const CallIntegrationForm = ({
   form,
@@ -76,28 +79,7 @@ export const CallIntegrationForm = ({
               </IntegrationFormItem>
             )}
           />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <IntegrationFormItem
-                label={
-                  <>
-                    {t('brand')} <span className="text-destructive">*</span>
-                  </>
-                }
-              >
-                <Form.Control>
-                  <SelectBrand
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder={t('select-a-brand')}
-                    className="w-full"
-                  />
-                </Form.Control>
-                <Form.Message />
-              </IntegrationFormItem>
-            )}
-          />
+          <IntegrationBrandField required />
           <Form.Field
             name="queues"
             render={({ field }) => (

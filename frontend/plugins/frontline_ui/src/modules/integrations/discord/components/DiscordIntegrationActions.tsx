@@ -1,6 +1,6 @@
 import {
   IntegrationFormActions,
-  IntegrationFormItem,
+  IntegrationBrandField,
   IntegrationNameField,
   IntegrationEditButton,
 } from '@/integrations/components/IntegrationPanelForm';
@@ -11,7 +11,6 @@ import { IconTool } from '@tabler/icons-react';
 import { Form, Spinner, toast } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IntegrationType } from '@/types/Integration';
@@ -88,18 +87,7 @@ export const DiscordIntegrationEditForm = ({
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
           <IntegrationNameField />
-          <Form.Field
-            name="brandId"
-            render={({ field }) => (
-              <IntegrationFormItem label={t('brand')}>
-                <SelectBrands.FormItem
-                  value={field.value}
-                  onValueChange={field.onChange}
-                />
-                <Form.Message />
-              </IntegrationFormItem>
-            )}
-          />
+          <IntegrationBrandField variant="form-item" />
         </div>
         <IntegrationFormActions
           onClose={() => setOpen(false)}
