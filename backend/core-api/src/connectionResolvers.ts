@@ -15,6 +15,11 @@ import {
   ITwoFactorModel,
   loadTwoFactorClass,
 } from '@/auth/db/models/TwoFactors';
+import { ISupportGrantDocument } from '@/auth/db/definitions/supportAccess';
+import {
+  ISupportGrantModel,
+  loadSupportGrantClass,
+} from '@/auth/db/models/SupportAccess';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -491,6 +496,7 @@ export interface IModels {
   LdapConfigs: ILdapConfigModel;
   AuthIdentities: IAuthIdentityModel;
   TwoFactors: ITwoFactorModel;
+  SupportGrants: ISupportGrantModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -1003,6 +1009,11 @@ export const loadClasses = (
   models.TwoFactors = db.model<ITwoFactorDocument, ITwoFactorModel>(
     'auth_two_factors',
     loadTwoFactorClass(models, subdomain),
+  );
+
+  models.SupportGrants = db.model<ISupportGrantDocument, ISupportGrantModel>(
+    'auth_support_grants',
+    loadSupportGrantClass(models, subdomain),
   );
 
   // Per-user BYOK agents connection; one document per user per tenant.

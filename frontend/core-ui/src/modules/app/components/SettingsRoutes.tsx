@@ -58,6 +58,13 @@ const LdapSettings = lazy(() =>
     default: module.LdapSettingsPage,
   })),
 );
+const SupportAccessSettings = lazy(() =>
+  import('~/pages/settings/workspace/SupportAccessSettingsPage').then(
+    (module) => ({
+      default: module.SupportAccessSettingsPage,
+    }),
+  ),
+);
 const GeneralSettings = lazy(() =>
   import('~/pages/settings/workspace/GeneralSettingsPage').then((module) => ({
     default: module.GeneralSettingsPage,
@@ -106,11 +113,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import(
-    '@/automations/components/settings/components/AutomationSettingsRoutes'
-  ).then((module) => ({
-    default: module.AutomationSettingsRoutes,
-  })),
+  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
+    (module) => ({
+      default: module.AutomationSettingsRoutes,
+    }),
+  ),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -206,6 +213,10 @@ export function SettingsRoutes() {
           />
         )}
         <Route path={SettingsWorkspacePath.Ldap} element={<LdapSettings />} />
+        <Route
+          path={SettingsWorkspacePath.SupportAccess}
+          element={<SupportAccessSettings />}
+        />
         {/* Kept so links to the old LDAP address still land */}
         <Route
           path="ldap"

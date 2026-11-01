@@ -381,7 +381,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
-  // How staff sign in: second factor and the company directory
+  // How staff sign in: second factor, the company directory and erxes support
   [SettingsWorkspacePath.Security]: {
     name: sidebarT('security', 'Security'),
     items: [
@@ -392,6 +392,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       {
         name: sidebarT('active-directory', 'Active Directory (LDAP)'),
         path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+      {
+        name: sidebarT('support-access', 'Support access'),
+        path: settingsPath(SettingsWorkspacePath.SupportAccess),
       },
     ],
   },

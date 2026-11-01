@@ -25,7 +25,7 @@ export async function getUserExportData(
 
   if (!models) throw new Error('Models not available in context');
 
-  const query: any = { role: { $ne: 'system' } };
+  const query: any = {};
 
   if (typeof data.isActive === 'boolean') query.isActive = data.isActive;
   if (data.brandIds?.length) query.brandIds = { $in: data.brandIds };
@@ -50,7 +50,7 @@ export async function getUserExportData(
   }
 
   const { query: exportQuery, isIdsMode } = buildExportCursorQuery({
-    baseQuery: query,
+    baseQuery: await models.Users.staffQuery(query),
     cursor,
     ids,
     limit: effectiveLimit,

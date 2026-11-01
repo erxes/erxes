@@ -208,7 +208,8 @@
     "ldap": "LDAP",
     "two-factor": "Хоёр шатлалт баталгаажуулалт",
     "security": "Аюулгүй байдал",
-    "active-directory": "Active Directory (LDAP)"
+    "active-directory": "Active Directory (LDAP)",
+    "support-access": "Дэмжлэгийн хандалт"
   },
   "plugin": {
     "_": "Плагин",

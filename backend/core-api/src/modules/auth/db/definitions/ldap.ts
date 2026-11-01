@@ -6,10 +6,7 @@ export type LdapServerType = 'activeDirectory' | 'openLdap';
 export type LdapGroupChangePolicy = 'updatePermissions' | 'revokeSessions';
 
 export type LdapRecheckReason =
-  | 'removed'
-  | 'disabled'
-  | 'left_group'
-  | 'permissions_changed';
+  'removed' | 'disabled' | 'left_group' | 'permissions_changed';
 
 export interface ILdapRecheckChange {
   userId: string;
@@ -59,12 +56,16 @@ export interface ILdapConfigDocument extends ILdapConfig, Document {
   updatedAt: Date;
 }
 
+// erxes_support: an erxes staff member let in by a support access grant
+export type AuthIdentityProvider = 'ldap' | 'erxes_support';
+
 export interface IAuthIdentityDocument extends Document {
   userId: string;
-  provider: 'ldap';
-  // Stable directory id: AD objectGUID or OpenLDAP entryUUID, survives renames
+  provider: AuthIdentityProvider;
+  // Stable id at the provider: AD objectGUID, OpenLDAP entryUUID or the
+  // global-profile staff id; survives renames
   subject: string;
-  dn: string;
+  dn?: string;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -169,7 +170,7 @@ export const authIdentitySchema = new Schema(
     provider: {
       type: String,
       label: 'Provider',
-      enum: ['ldap'],
+      enum: ['ldap', 'erxes_support'],
       required: true,
     },
     subject: { type: String, label: 'Subject', required: true },
