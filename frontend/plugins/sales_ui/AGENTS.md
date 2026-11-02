@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -262,6 +262,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   pipeline and POS settings forms.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
   open state are local React state inside the deal product detail surface.
+- `parseDealDate` reads a stored `1970-01-01` start or close date as unset, so
+  every `DateSelectDeal` shows the placeholder and no "Ended" badge. The stored
+  value is left as it is until someone picks a date.
 - `propertyIds` is submitted with pipeline create/edit and reloaded from
   `salesPipelineDetail`.
 - Product advanced-view discount edits are stored as `discountInfos` entries

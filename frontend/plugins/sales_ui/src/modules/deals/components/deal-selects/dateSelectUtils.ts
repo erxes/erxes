@@ -1,6 +1,7 @@
 import { format, isValid, parse } from 'date-fns';
 
 const DEAL_DATE_FORMAT = 'yyyy-MM-dd';
+const UNSET_DEAL_DATE = '1970-01-01';
 
 export const formatDealDateForMutation = (date?: Date) => {
   if (!date || !isValid(date)) {
@@ -16,10 +17,15 @@ export const parseDealDate = (value?: Date | string) => {
   }
 
   if (value instanceof Date) {
-    return isValid(value) ? value : undefined;
+    return isValid(value) && value.getTime() !== 0 ? value : undefined;
   }
 
   const dateOnlyValue = value.slice(0, DEAL_DATE_FORMAT.length);
+
+  if (dateOnlyValue === UNSET_DEAL_DATE) {
+    return undefined;
+  }
+
   const parsedDate = parse(dateOnlyValue, DEAL_DATE_FORMAT, new Date());
 
   if (
