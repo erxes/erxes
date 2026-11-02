@@ -114,8 +114,16 @@ export const getStorageKeys = async (key: string, models?: IModels) => {
   const storedKey = key.replace(/^\/+/, '');
   const keys = new Set([key, storedKey]);
 
-  const { UPLOAD_SERVICE_TYPE, CLOUDFLARE_BUCKET_NAME } =
-    await getFileUploadConfigs(models);
+  const readSetting = (code: string, defaultValue: string) =>
+    getEnv({ name: 'VERSION' }) === 'saas'
+      ? getEnv({ name: code })
+      : getConfig(code, defaultValue, models);
+
+  const UPLOAD_SERVICE_TYPE = await readSetting('UPLOAD_SERVICE_TYPE', 'AWS');
+  const CLOUDFLARE_BUCKET_NAME = await readSetting(
+    'CLOUDFLARE_BUCKET_NAME',
+    '',
+  );
 
   if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE' && CLOUDFLARE_BUCKET_NAME) {
     const bucketPrefix = `${CLOUDFLARE_BUCKET_NAME}/`;
