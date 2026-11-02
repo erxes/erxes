@@ -6,6 +6,7 @@ import {
 import {
   IconAdjustmentsAlt,
   IconBolt,
+  IconBroadcast,
   IconBuilding,
   IconChessKnight,
   IconFile,
@@ -196,6 +197,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('message-pro', 'Message Pro'),
       icon: IconMessage,
       path: SettingsWorkspacePath.MessagePro,
+    },
+    {
+      name: t('broadcast-config', 'Broadcast config'),
+      icon: IconBroadcast,
+      path: SettingsWorkspacePath.Broadcast,
     },
     {
       name: t('agents', 'Agents'),

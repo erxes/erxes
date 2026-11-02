@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -127,6 +127,17 @@
   articles filed there later; with no rule, articles stay plain source ids.
 - Ticket automation forms: **Create ticket** has an attachments (conversation
   media ids) field.
+- Ticket automation forms: **Ticket status changed** trigger picks channel,
+  pipeline and optional `toStatusIds` (`TicketStatusChecklist`); its node shows
+  the pipeline and status count. Routed by relation type `statusChanged` in
+  `TicketRemoteEntry`.
+- Pipeline → Ticket statuses has **Create automation**: a dialog of the
+  pipeline's statuses (all picked by default) creates a draft through
+  `FrontlineStatusAutomationAdd` (`automationsAdd`) — the status-changed
+  trigger plus one `split` whose options match `statusId` per picked status,
+  branches left empty — and opens `/automations/edit/:id`. All statuses picked
+  saves `toStatusIds: []` (any move). Seed shape lives in
+  `status/utils/statusAutomationSeed.ts`; no segment is created.
 - Ticket and note attachments group by type prefix, so bare conversation types
   (`image`, `audio`, `file`) render like MIME types; audio plays inline. Media
   at an external URL (not `read-file`) — what a customer sent — stays covered
@@ -2697,6 +2708,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `frontend/libs` are pre-existing and owned by those libraries.
 - `project.json` defines `build`, `serve`, `serve-static`, `test`, `codegen`
   and `codegen:watch`.
+- Smoke: Pipeline → Ticket statuses → Create automation with two statuses
+  opens the builder on a "Ticket status changed" trigger and a split with two
+  empty branches named after them.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
   Composer send regression tests import `hooks/composer/useComposerSend`;
