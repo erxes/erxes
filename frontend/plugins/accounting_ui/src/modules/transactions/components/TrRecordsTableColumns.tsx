@@ -72,6 +72,9 @@ const getRecordSide = ({ side, sumDt, sumCt }: ITrRecord) => {
   return sumCt ? TR_SIDES.CREDIT : undefined;
 };
 
+const isRealZero = ({ details, sumDt, sumCt }: ITrRecord) =>
+  sumDt === 0 && sumCt === 0 && details?.amount === 0;
+
 const SideAmountCell = ({
   row,
   columnSide,
@@ -82,7 +85,7 @@ const SideAmountCell = ({
   const { details } = row.original;
   const side = getRecordSide(row.original);
 
-  if (!side) {
+  if (!side && !isRealZero(row.original)) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
   }
 
