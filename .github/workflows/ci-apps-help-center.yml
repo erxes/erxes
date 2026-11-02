@@ -47,8 +47,8 @@ jobs:
         run: |
           echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
           DOCKER_BUILDKIT=1 docker build \
-            -t erxes/help-center:ext \
+            -t erxes/help-center:ext2 \
             -t "erxes/help-center:$DATE-$SHORT_SHA" \
             -f apps/help-center/Dockerfile .
-          docker push erxes/help-center:ext
+          docker push erxes/help-center:ext2
           docker push "erxes/help-center:$DATE-$SHORT_SHA"

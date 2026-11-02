@@ -68,5 +68,5 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: |
-            erxes/erxes-next-migrations:ext
+            erxes/erxes-next-migrations:ext2
             erxes/erxes-next-migrations:${{ env.DATE }}-${{ env.SHORT_SHA }}

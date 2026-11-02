@@ -74,5 +74,5 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |
-            erxes/erxes-next-logs:ext
+            erxes/erxes-next-logs:ext2
             erxes/erxes-next-logs:${{ env.DATE }}-${{ env.SHORT_SHA }}

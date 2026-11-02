@@ -44,7 +44,7 @@ jobs:
         with:
           images: erxes/erxes-next-ui
           tags: |
-            type=raw,value=ext
+            type=raw,value=ext2
             type=ref,event=branch
             type=sha,format=short
             type=semver,pattern={{version}}

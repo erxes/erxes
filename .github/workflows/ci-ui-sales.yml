@@ -78,7 +78,7 @@ jobs:
           elif [[ -n "${{ inputs.version }}" ]]; then
             FOLDER="${{ inputs.version }}"
           else
-            FOLDER="ext"
+            FOLDER="ext2"
           fi
           aws s3 sync dist/frontend/plugins/sales_ui s3://erxes-next/$FOLDER/sales_ui/ \
             --endpoint-url https://7c8392aff8ac4518aa06dfa4b6337ef2.r2.cloudflarestorage.com

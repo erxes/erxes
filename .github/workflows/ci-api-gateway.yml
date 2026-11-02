@@ -56,7 +56,7 @@ jobs:
         run: |
           export NX_DAEMON=false
           pnpm nx docker-build gateway
-          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:ext
+          docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:ext2
           docker tag erxes/erxes-next-gateway erxes/erxes-next-gateway:${{ github.sha }}
-          docker push erxes/erxes-next-gateway:ext
+          docker push erxes/erxes-next-gateway:ext2
           docker push erxes/erxes-next-gateway:${{ github.sha }}

@@ -36,5 +36,5 @@ jobs:
         run: |
           cd apps/posclient-front
           echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:ext -f Dockerfile .
-          docker push erxes/posclient-front:ext
+          DOCKER_BUILDKIT=1 docker build -t erxes/posclient-front:ext2 -f Dockerfile .
+          docker push erxes/posclient-front:ext2
