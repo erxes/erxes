@@ -29,6 +29,7 @@ import { debugError } from '~/modules/posclient/debugError';
 const SETTLE_WAIT_MS = 500;
 const SETTLE_WAIT_ATTEMPTS = 20;
 const SETTLE_CLAIM_MS = 60 * 1000;
+const PORTAL_BILL_TYPES = [BILL_TYPES.CITIZEN, BILL_TYPES.ENTITY];
 
 export interface ICountBy {
   [index: string]: number;
@@ -114,6 +115,7 @@ export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
   paymentParams: any[],
+  { deferReceipt = false }: { deferReceipt?: boolean } = {},
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
@@ -187,7 +189,10 @@ export const updateMobileAmount = async (
     billType = BILL_TYPES.INNER;
   }
 
-  if (isMobileCovered(sumMobileAmount, totalAmount)) {
+  const billTypeMissing =
+    deferReceipt && !order.billType && billType !== BILL_TYPES.INNER;
+
+  if (isMobileCovered(sumMobileAmount, totalAmount) && !billTypeMissing) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
       billType === BILL_TYPES.CITIZEN ||
@@ -248,12 +253,26 @@ export const updateMobileAmount = async (
   return sumMobileAmount;
 };
 
+const getPaidInvoices = (subdomain: string, _id: string) =>
+  sendTRPCMessage({
+    subdomain,
+    pluginName: 'payment',
+    method: 'query',
+    module: 'invoices',
+    action: 'find',
+    input: { contentTypeId: _id, status: 'paid' },
+    defaultValue: [],
+  });
+
+const paymentNotConfirmed = () =>
+  new ExpectedError('Order payment is not confirmed', 'FORBIDDEN');
+
 const waitForSettlement = async (models: IModels, _id: string) => {
   for (let attempt = 0; attempt < SETTLE_WAIT_ATTEMPTS; attempt++) {
     const { paidDate, mobileAmount, totalAmount } =
       await models.Orders.getOrder(_id);
 
-    if (paidDate || Math.round(mobileAmount || 0) < Math.round(totalAmount)) {
+    if (paidDate || !isMobileCovered(mobileAmount || 0, totalAmount)) {
       return;
     }
 
@@ -261,7 +280,7 @@ const waitForSettlement = async (models: IModels, _id: string) => {
   }
 };
 
-export const settleFromPaidInvoices = async (
+export const recordPaidInvoices = async (
   subdomain: string,
   models: IModels,
   _id: string,
@@ -272,25 +291,58 @@ export const settleFromPaidInvoices = async (
     return order;
   }
 
-  const invoices = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'payment',
-    method: 'query',
-    module: 'invoices',
-    action: 'find',
-    input: { contentTypeId: _id, status: 'paid' },
-    defaultValue: [],
-  });
+  const invoices = await getPaidInvoices(subdomain, _id);
 
-  if (invoices.length) {
-    await updateMobileAmount(subdomain, models, invoices);
-    await waitForSettlement(models, _id);
+  if (!invoices.length) {
+    throw paymentNotConfirmed();
   }
+
+  await updateMobileAmount(subdomain, models, invoices, { deferReceipt: true });
+
+  const recordedOrder = await models.Orders.getOrder(_id);
+
+  if (
+    recordedOrder.paidDate ||
+    recordedOrder.isPre ||
+    isMobileCovered(recordedOrder.mobileAmount || 0, recordedOrder.totalAmount)
+  ) {
+    return recordedOrder;
+  }
+
+  throw paymentNotConfirmed();
+};
+
+export const settleFromPaidInvoices = async (
+  subdomain: string,
+  models: IModels,
+  { _id, billType, registerNumber }: ISettlePaymentParams,
+) => {
+  const order = await models.Orders.getOrder(_id);
+
+  if (order.paidDate) {
+    return order;
+  }
+
+  const invoices = await getPaidInvoices(subdomain, _id);
+
+  if (!invoices.length) {
+    throw paymentNotConfirmed();
+  }
+
+  if (!order.userId && PORTAL_BILL_TYPES.includes(billType)) {
+    await models.Orders.updateOne(
+      { _id, paidDate: null },
+      { $set: { billType, ...(registerNumber ? { registerNumber } : {}) } },
+    );
+  }
+
+  await updateMobileAmount(subdomain, models, invoices);
+  await waitForSettlement(models, _id);
 
   const settledOrder = await models.Orders.getOrder(_id);
 
   if (!settledOrder.paidDate) {
-    throw new ExpectedError('Order payment is not confirmed', 'FORBIDDEN');
+    throw paymentNotConfirmed();
   }
 
   return settledOrder;

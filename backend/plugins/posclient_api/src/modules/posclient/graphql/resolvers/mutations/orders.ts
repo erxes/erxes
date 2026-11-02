@@ -48,6 +48,7 @@ import { checkSlotStatus } from '~/modules/posclient/utils/slots';
 import { IModels } from '~/connectionResolvers';
 import {
   prepareSettlePayment,
+  recordPaidInvoices,
   settleFromPaidInvoices,
 } from '~/modules/posclient/utils';
 import { debugError } from '~/modules/posclient/debugError';
@@ -1150,7 +1151,7 @@ const orderMutations: Record<string, Resolver> = {
     { models, config, subdomain, posUser }: IContext,
   ) {
     if (!posUser) {
-      return settleFromPaidInvoices(subdomain, models, _id);
+      return recordPaidInvoices(subdomain, models, _id);
     }
 
     const order = await models.Orders.getOrder(_id);
@@ -1263,7 +1264,11 @@ const orderMutations: Record<string, Resolver> = {
     { config, models, subdomain, posUser }: IContext,
   ) {
     if (!posUser) {
-      await settleFromPaidInvoices(subdomain, models, _id);
+      await settleFromPaidInvoices(subdomain, models, {
+        _id,
+        billType,
+        registerNumber,
+      });
 
       const putResponse = await models.PutResponses.putHistory({
         contentType: 'pos',
