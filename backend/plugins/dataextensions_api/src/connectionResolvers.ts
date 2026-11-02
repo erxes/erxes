@@ -31,7 +31,10 @@ const readCacheMs = () => {
 
 const MODELS_CACHE_MS = readCacheMs();
 const MODELS_CACHE_MAX = 5000;
-const cachedModels = new Map<string, { models: Promise<IModels>; at: number }>();
+const cachedModels = new Map<
+  string,
+  { models: Promise<IModels>; at: number }
+>();
 
 /**
  * Models per tenant, kept for DATA_EXTENSIONS_ORG_CACHE_MS (30s; 0 turns it

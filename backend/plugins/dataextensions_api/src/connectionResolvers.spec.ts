@@ -7,7 +7,9 @@ jest.mock('erxes-api-shared/utils', () => ({
 
     if (failNext) {
       failNext = false;
-      throw new Error(`Organization with subdomain = ${subdomain} is not found`);
+      throw new Error(
+        `Organization with subdomain = ${subdomain} is not found`,
+      );
     }
 
     return { subdomain };

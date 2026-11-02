@@ -13,7 +13,8 @@ jest.mock('./redis', () => ({
       store.set(key, value);
       return 'OK';
     },
-    del: async (...keys: string[]) => keys.filter((key) => store.delete(key)).length,
+    del: async (...keys: string[]) =>
+      keys.filter((key) => store.delete(key)).length,
     unlink: async (...keys: string[]) =>
       keys.filter((key) => store.delete(key)).length,
     scan: async (_cursor: string, _match: string, pattern: string) => {
@@ -23,7 +24,12 @@ jest.mock('./redis', () => ({
 
       return ['0', [...store.keys()].filter((key) => key.startsWith(prefix))];
     },
-    eval: async (_script: string, _keys: number, key: string, token: string) => {
+    eval: async (
+      _script: string,
+      _keys: number,
+      key: string,
+      token: string,
+    ) => {
       if (store.get(key) === token) {
         store.delete(key);
         return 1;
