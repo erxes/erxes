@@ -163,7 +163,5 @@ export type TDiscordRequestArgs = {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
   body?:
-    | TDiscordMessagePayload
-    | TDiscordSlashCommand
-    | TDiscordApplicationUpdate;
+    TDiscordMessagePayload | TDiscordSlashCommand | TDiscordApplicationUpdate;
 };

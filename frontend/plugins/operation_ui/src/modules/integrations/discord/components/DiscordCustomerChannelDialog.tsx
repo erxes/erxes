@@ -32,7 +32,7 @@ import {
 } from '../types';
 
 const firstValue = (value: string | string[]) =>
-  Array.isArray(value) ? value[0] ?? '' : value;
+  Array.isArray(value) ? (value[0] ?? '') : value;
 
 const toggleValue = (values: string[], value: string, checked: boolean) =>
   checked

@@ -3,8 +3,7 @@ import { IDiscordCustomerChannelDocument } from '@/discordIntegration/@types/dis
 import { discordCustomerChannelSchema } from '@/discordIntegration/db/definitions/discordCustomerChannel';
 import { IModels } from '~/connectionResolvers';
 
-export interface IDiscordCustomerChannelModel
-  extends Model<IDiscordCustomerChannelDocument> {
+export interface IDiscordCustomerChannelModel extends Model<IDiscordCustomerChannelDocument> {
   findForChannel(
     subdomain: string,
     channelIds: string[],

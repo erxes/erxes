@@ -141,7 +141,7 @@ export const discordAccountQueries = {
       return {
         userId,
         link,
-        inServer: link ? inServer.get(link.discordUserId) ?? null : null,
+        inServer: link ? (inServer.get(link.discordUserId) ?? null) : null,
       };
     });
   },

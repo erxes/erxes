@@ -283,14 +283,12 @@ const buildLinkRow = (
 ): TDiscordActionRow[] => {
   const buttons = links
     .filter(({ url }) => url && isHttpUrl(url))
-    .map(
-      ({ label, url }): TDiscordLinkButton => ({
-        type: 2,
-        style: 5,
-        label,
-        url: url || '',
-      }),
-    );
+    .map(({ label, url }): TDiscordLinkButton => ({
+      type: 2,
+      style: 5,
+      label,
+      url: url || '',
+    }));
 
   return buttons.length ? [{ type: 1, components: buttons }] : [];
 };
@@ -328,8 +326,8 @@ export const buildDiscordCard = async ({
     (record.discordSource?.username
       ? `@${record.discordSource.username} (Discord)`
       : record.githubIssueUrl
-      ? 'GitHub'
-      : 'erxes');
+        ? 'GitHub'
+        : 'erxes');
   const assigneeName = assigneeId ? userNames.get(assigneeId) : undefined;
   const reason = job.event === 'triageDeclined' ? job.reason?.trim() : '';
   const priority = record.priority ?? 0;

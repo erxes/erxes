@@ -12,8 +12,7 @@ export type IDiscordCustomerChannel = {
 };
 
 export interface IDiscordCustomerChannelDocument
-  extends IDiscordCustomerChannel,
-    Document {
+  extends IDiscordCustomerChannel, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -38,9 +38,9 @@ export function TeamDiscordDialog({
 
     return {
       connectionId: hasCurrentConnection
-        ? currentConfig?.connectionId ?? ''
-        : connections[0]?._id ?? '',
-      channelId: hasCurrentConnection ? currentConfig?.channelId ?? '' : '',
+        ? (currentConfig?.connectionId ?? '')
+        : (connections[0]?._id ?? ''),
+      channelId: hasCurrentConnection ? (currentConfig?.channelId ?? '') : '',
       events: currentConfig?.events.length
         ? [...currentConfig.events]
         : [...DISCORD_NOTIFICATION_EVENTS],

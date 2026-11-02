@@ -32,7 +32,4 @@ export type TDiscordLinkResult = {
 };
 
 export type TDiscordLinkErrorCode =
-  | 'expired'
-  | 'cancelled'
-  | 'not-set-up'
-  | 'failed';
+  'expired' | 'cancelled' | 'not-set-up' | 'failed';

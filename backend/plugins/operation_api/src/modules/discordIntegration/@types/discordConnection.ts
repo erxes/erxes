@@ -28,8 +28,7 @@ export type IDiscordConnection = {
 };
 
 export interface IDiscordConnectionDocument
-  extends IDiscordConnection,
-    Document {
+  extends IDiscordConnection, Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

@@ -6,27 +6,27 @@ import { type TNotification } from 'ui-modules';
 import { NotificationTaskDetail } from '~/widgets/notifications/my-inbox/components/NotificationTaskDetail';
 
 const NotificationProjectDetail = lazy(() =>
-  import(
-    '~/widgets/notifications/my-inbox/components/NotificationProjectDetail'
-  ).then((module) => ({
-    default: module.NotificationProjectDetail,
-  })),
+  import('~/widgets/notifications/my-inbox/components/NotificationProjectDetail').then(
+    (module) => ({
+      default: module.NotificationProjectDetail,
+    }),
+  ),
 );
 
 const NotificationDiscordLinkContent = lazy(() =>
-  import(
-    '~/widgets/notifications/my-inbox/components/NotificationDiscordLinkContent'
-  ).then((m) => ({
-    default: m.NotificationDiscordLinkContent,
-  })),
+  import('~/widgets/notifications/my-inbox/components/NotificationDiscordLinkContent').then(
+    (m) => ({
+      default: m.NotificationDiscordLinkContent,
+    }),
+  ),
 );
 
 const NotificationTeamContent = lazy(() =>
-  import(
-    '~/widgets/notifications/my-inbox/components/NotificationTeamContent'
-  ).then((m) => ({
-    default: m.NotificationTeamContent,
-  })),
+  import('~/widgets/notifications/my-inbox/components/NotificationTeamContent').then(
+    (m) => ({
+      default: m.NotificationTeamContent,
+    }),
+  ),
 );
 
 export const NotificationsWidgets = (props: TNotification) => {

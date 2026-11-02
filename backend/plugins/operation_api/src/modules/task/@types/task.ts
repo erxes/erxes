@@ -63,7 +63,8 @@ export interface ITaskDocument extends ITask, Document {
 }
 
 export interface ITaskFilter
-  extends ICursorPaginateParams,
+  extends
+    ICursorPaginateParams,
     IListParams,
     Omit<ITask, 'startDate' | 'targetDate'> {
   _id?: string;
