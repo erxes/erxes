@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -139,8 +139,8 @@
   `throwOnError`, so a refusal stops the payment instead of being swallowed.
 - Synced POS config fields including `adminIds`, `cashierIds`, `token`, `permissionConfig`, and `customerCreateConfig`.
 - Loyalty tRPC `loyalty.ownerSummary` and `coupon.checkCoupon`.
-- Core tRPC `fields.find`, `customers.findActiveCustomers`, and
-  `customers.createCustomer`.
+- Core tRPC `fields.find`, `customers.findActiveCustomers`,
+  `customers.createCustomer`, and `products.buyerPdfAttachment`.
 - Core tRPC `segment.fetchSegment` (`{ segmentId, cursor?, limit? }` →
   `{ ids, nextCursor? }`); `segmentProductIds` pages on `nextCursor` until it
   is empty.
@@ -264,6 +264,7 @@
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
 - `poscCustomersAdd` sends Core only fields placed in `customerCreateConfig.layout`, requires e-mail or phone, and always sets `state: 'customer'`, `createdVia: { source: 'pos', sourceId: posId, sourceName: posName, actorId: posUserId }` (the `schemaWrapper` provenance field; no core change); `ownerId` is the POS user only when `assignCashierAsOwner` is on. No offline queue: Core must be reachable.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
+- `PoscProduct.pdfAttachment` and `cpPoscProduct.pdfAttachment` never return the synced copy. Core tRPC `products.buyerPdfAttachment` decides, for a signed-in portal customer with a paid order holding the product. `similarity` drops `info.pdfAttachment`.
 - Automatic pricing and loyalty/voucher recalculation must preserve existing `hand` discounts and replace only the matching automatic source entry.
 - POS order item `unitPrice` is stored after discounts; discount base
   calculations must reconstruct the pre-discount base as
@@ -310,6 +311,7 @@
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
 - POS customer smoke scenario: as a cashier with `createCustomer`, `poscCustomerForm.canCreate` is true; `poscCustomersAdd` with a new phone creates a customer with `createdVia.sourceId` = POS id; repeating it returns `duplicate` instead.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.
+- Reader smoke scenario: `cpPoscProductDetail` and `poscProductDetail` return `pdfAttachment: null` with tokens only, for a signed-in customer with no paid order, and for a returned order. A signed-in buyer gets the pages.
 - POS order change log smoke scenario: changing a paid order's due date,
   branch, delivery info, or description creates a POS-local log entry; a
   cashier receives permission denied for `orderChangeLogs`, while an admin can

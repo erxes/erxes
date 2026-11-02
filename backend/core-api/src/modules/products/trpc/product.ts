@@ -3,6 +3,7 @@ import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
 import { similaritiesTrpcRouter } from '@/products/trpc/similarity';
+import { getBuyerPdfAttachment } from '@/products/utils/pdfAttachment';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
@@ -89,6 +90,29 @@ export const productsTrpcRouter = t.router({
         }
 
         return models.Products.findOne(query).lean();
+      }),
+
+    buyerPdfAttachment: t.procedure
+      .input(
+        z.object({
+          productId: z.string(),
+          buyer: z.object({
+            erxesCustomerId: z.string().optional(),
+            erxesCompanyId: z.string().optional(),
+          }),
+        }),
+      )
+      .query(async ({ ctx, input }) => {
+        const { models, subdomain } = ctx;
+        const product = await models.Products.findOne({
+          _id: input.productId,
+        }).lean();
+
+        if (!product) {
+          return null;
+        }
+
+        return getBuyerPdfAttachment(subdomain, product, input.buyer);
       }),
 
     createProduct: t.procedure

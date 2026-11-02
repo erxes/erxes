@@ -1,6 +1,7 @@
 import { IProductDocument } from 'erxes-api-shared/core-types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { PRODUCT_SIMILARITY_STATUSES } from '@/products/constants';
+import { getBuyerPdfAttachment } from '@/products/utils/pdfAttachment';
 import { IContext } from '~/connectionResolvers';
 import { IProductParams } from '~/modules/products/@types';
 
@@ -277,16 +278,38 @@ export default {
   similarity: async (
     product: IProductDocument,
     _args: undefined,
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
     if (!product.similarityId) {
       return null;
     }
 
-    return models.ProductSimilarities.findOne({
+    const similarity = await models.ProductSimilarities.findOne({
       _id: product.similarityId,
       status: { $ne: PRODUCT_SIMILARITY_STATUSES.DELETED },
     }).lean();
+
+    if (user || !similarity?.info) {
+      return similarity;
+    }
+
+    const info = { ...similarity.info };
+
+    delete info.pdfAttachment;
+
+    return { ...similarity, info };
+  },
+
+  pdfAttachment: async (
+    product: IProductDocument,
+    _args: undefined,
+    { subdomain, user, cpUser }: IContext,
+  ) => {
+    if (user) {
+      return product.pdfAttachment;
+    }
+
+    return getBuyerPdfAttachment(subdomain, product, cpUser);
   },
 
   uom: async (

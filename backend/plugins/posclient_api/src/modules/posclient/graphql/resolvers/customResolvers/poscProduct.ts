@@ -142,12 +142,47 @@ export default {
       return null;
     }
 
-    return sendTRPCMessage({
+    const similarity = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',
       module: 'products',
       action: 'similarities.findOne',
       input: { _id: product.similarityId },
+      defaultValue: null,
+    });
+
+    if (!similarity?.info) {
+      return similarity;
+    }
+
+    const info = { ...similarity.info };
+
+    delete info.pdfAttachment;
+
+    return { ...similarity, info };
+  },
+
+  async pdfAttachment(
+    product: IProductDocument,
+    _args,
+    { subdomain, cpUser }: IContext,
+  ) {
+    if (!product.pdfAttachment || !cpUser) {
+      return null;
+    }
+
+    return sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      module: 'products',
+      action: 'buyerPdfAttachment',
+      input: {
+        productId: product._id,
+        buyer: {
+          erxesCustomerId: cpUser.erxesCustomerId,
+          erxesCompanyId: cpUser.erxesCompanyId,
+        },
+      },
       defaultValue: null,
     });
   },
