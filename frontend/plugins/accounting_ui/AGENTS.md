@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -102,6 +102,7 @@
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 - Every list-page record table (receipts, journal entries, all adjustment lists, check-sync deals/orders, inventory remainders, reserve and safe remainders, accounts, account categories, permissions, settings row tables such as VAT/CTAX/fixed asset settings, sync configs, fixed asset owner records and remainders) keeps rendering the table with its header and, once loading finishes with no rows, shows `AccountingEmptyState` in `overlay` mode on top of the empty body.
 - Empty states explain what to do next: tables with a create flow show `empty-list-description` plus that page's existing add component as the call to action (`AddTransactionEmptyAction`, `AddAdjustClosing`, `AddAdjustFundRate`, `AddAdjustDebtRate`, `AddAdjustFixedAsset`, `AddAdjustInventory`, `AddReserveRem`, `AddSafeRemainder`, `AddAccount`, `AddAccountCategory`, `AddAccountingConfig`, and through `SettingsRowsTable` `emptyAction` `AddVats`, `AddCtaxs`, `AddFixedAssetCategory`, `AddFixedAssetAccountConfig`); transaction-derived tables (inventory remainders, fixed assets, fixed asset owner records and remainders) show `empty-generated-description`; permissions show `empty-filter-description`. The journal report page shows `select-a-report-description` with quick-pick buttons for the account statement, trial balance, and general ledger reports, and lays the report filter form out with `px-6 py-6` padding inside a centered `max-w-6xl` column.
+- A journal report with no records shows `no-transactions` in one full-width table row instead of an empty table.
 
 ## Architecture
 
