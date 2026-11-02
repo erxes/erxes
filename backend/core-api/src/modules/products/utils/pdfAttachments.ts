@@ -56,8 +56,10 @@ const getJpegQuality = () =>
     ),
   );
 
-const isSameAttachment = (left?: IAttachment | null, right?: IAttachment | null) =>
-  !!left?.url && !!right?.url && left.url === right.url;
+const isSameAttachment = (
+  left?: IAttachment | null,
+  right?: IAttachment | null,
+) => !!left?.url && !!right?.url && left.url === right.url;
 
 const looksLikePdf = (attachment: IAttachment) => {
   const type = (attachment.type || '').toLowerCase();

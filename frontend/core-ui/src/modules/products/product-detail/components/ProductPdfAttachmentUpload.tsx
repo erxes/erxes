@@ -91,12 +91,12 @@ export const ProductPdfAttachmentUpload = ({
                     'Pages are generated after you save. Current pages stay visible until then.',
                   )
                 : pageCount
-                ? t('page-count', '{{count}} reader pages', {
-                    count: pageCount,
-                  })
-                : pdf?.size
-                ? formatBytes(pdf.size)
-                : t('hint', 'Upload a PDF to create reader pages')}
+                  ? t('page-count', '{{count}} reader pages', {
+                      count: pageCount,
+                    })
+                  : pdf?.size
+                    ? formatBytes(pdf.size)
+                    : t('hint', 'Upload a PDF to create reader pages')}
             </p>
           </div>
         </div>
