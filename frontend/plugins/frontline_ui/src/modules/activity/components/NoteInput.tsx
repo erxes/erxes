@@ -130,7 +130,7 @@ export const NoteInput = ({
               'The receiving server rejected {{recipients}}',
               { recipients: (delivery.bouncedRecipients ?? []).join(', ') },
             )
-          : delivery.error ?? undefined,
+          : (delivery.error ?? undefined),
       variant: 'destructive',
     });
   };

@@ -38,8 +38,7 @@ const cellScope = (helpCenter: IHelpCenter, field: string) =>
 
 type THelpCenterTextField = {
   [K in keyof THelpCenterPatch]-?: THelpCenterPatch[K] extends
-    | string
-    | undefined
+    string | undefined
     ? K
     : never;
 }[keyof THelpCenterPatch];

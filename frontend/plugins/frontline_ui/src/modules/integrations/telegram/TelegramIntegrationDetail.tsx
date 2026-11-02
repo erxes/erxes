@@ -252,7 +252,7 @@ export const TelegramSetup = ({
       name: '',
       brandId: '',
       token: '',
-      url: integrationId ? '' : defaultAddress ?? '',
+      url: integrationId ? '' : (defaultAddress ?? ''),
     },
   });
   const chosenId = form.watch('botId');
@@ -261,8 +261,8 @@ export const TelegramSetup = ({
       savedBot
         ? item._id === savedBot._id
         : integrationId
-        ? item.erxesApiId === integrationId
-        : item._id === chosenId,
+          ? item.erxesApiId === integrationId
+          : item._id === chosenId,
     ) ?? savedBot;
   const needsLink = !bot?.erxesApiId;
   const statusQuery = useQuery(TELEGRAM_WEBHOOK_INFO, {
@@ -276,8 +276,8 @@ export const TelegramSetup = ({
       form.setValue(
         'url',
         status.url
-          ? getTelegramServerAddress(status.url) ?? status.url
-          : defaultAddress ?? '',
+          ? (getTelegramServerAddress(status.url) ?? status.url)
+          : (defaultAddress ?? ''),
       );
   }, [status, defaultAddress, form]);
   const [addBot] = useMutation(TELEGRAM_ADD_BOT);

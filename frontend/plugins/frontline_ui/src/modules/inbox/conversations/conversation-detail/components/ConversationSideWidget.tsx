@@ -1,10 +1,4 @@
-import {
-  Button,
-  SideMenu,
-  Tooltip,
-  cn,
-  useSideMenuContext,
-} from 'erxes-ui';
+import { Button, SideMenu, Tooltip, cn, useSideMenuContext } from 'erxes-ui';
 import { RefObject, useEffect, useRef } from 'react';
 import {
   getRelationWidgetLabel,
