@@ -5,7 +5,10 @@ import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectA
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import {
+  formatDateLabel,
+  SelectDateTicket,
+} from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
@@ -19,7 +22,9 @@ import { compactList } from '@/shared/utils/cursorList';
 import { Block } from '@blocknote/core';
 import {
   BlockEditor,
+  Combobox,
   Input,
+  Popover,
   Separator,
   Tooltip,
   useBlockEditor,
@@ -63,6 +68,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     tagIds,
     attachments,
     startDate,
+    statusChangedDate,
     description,
   } = ticket || {};
   const ticketAttachments = React.useMemo(
@@ -286,6 +292,17 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             label={t('target-date')}
             disabled={!canEditTicket}
           />
+          <Popover>
+            <Combobox.ChipTrigger label={t('status-changed-date')} disabled>
+              {statusChangedDate ? (
+                formatDateLabel(new Date(statusChangedDate))
+              ) : (
+                <span className="text-accent-foreground">
+                  {t('not-specified')}
+                </span>
+              )}
+            </Combobox.ChipTrigger>
+          </Popover>
           <SelectTagsTicket
             id={ticketId}
             value={compactList(tagIds)}
