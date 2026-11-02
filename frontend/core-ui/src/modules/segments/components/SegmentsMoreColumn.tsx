@@ -97,7 +97,12 @@ export const SegmentMoreColumnCell = ({
             <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit /> {t('edit')}
             </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
+            <Command.Separator className="my-1" />
+            <Command.Item
+              value="delete"
+              className="text-destructive"
+              onSelect={handleDelete}
+            >
               <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>

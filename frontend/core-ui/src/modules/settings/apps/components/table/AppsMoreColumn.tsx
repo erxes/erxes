@@ -71,7 +71,12 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
                 <IconLock /> {t('revoke')}
               </Command.Item>
             )}
-            <Command.Item value="delete" onSelect={handleDelete}>
+            <Command.Separator className="my-1" />
+            <Command.Item
+              value="delete"
+              className="text-destructive"
+              onSelect={handleDelete}
+            >
               <IconTrash /> {t('delete')}
             </Command.Item>
           </Command.List>

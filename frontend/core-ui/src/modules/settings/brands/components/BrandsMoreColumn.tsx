@@ -51,7 +51,11 @@ export const BrandsMoreColumnCell = ({
         <Command shouldFilter={false}>
           <Command.List>
             <Can action="brandsDelete">
-              <Command.Item value="delete" onSelect={handleDelete}>
+              <Command.Item
+                value="delete"
+                className="text-destructive"
+                onSelect={handleDelete}
+              >
                 <IconTrash /> {t('delete')}
               </Command.Item>
             </Can>
