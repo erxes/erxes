@@ -150,3 +150,5 @@ productSchema.index(
 );
 productSchema.index({ similarityId: 1 });
 productSchema.index({ similarityId: 1, code: 1 });
+productSchema.index({ 'pdfAttachment.pdf.url': 1 }, { sparse: true });
+productSchema.index({ 'pdfAttachment.pages.url': 1 }, { sparse: true });

@@ -9,7 +9,11 @@ import { NextFunction, Request, Response, Router } from 'express';
 import * as formidable from 'formidable';
 import * as os from 'os';
 import { filterXSS } from 'xss';
-import { generateModels } from '~/connectionResolvers';
+import {
+  isPdfAttachmentFile,
+  verifyPdfFileToken,
+} from '@/products/utils/pdfAttachment';
+import { generateModels, IModels } from '~/connectionResolvers';
 import {
   checkFile,
   deleteFile,
@@ -92,7 +96,21 @@ interface IReadFileQuery {
   inline?: string;
   name?: string;
   width?: string;
+  token?: string;
 }
+
+const canReadFile = async (
+  req: Request,
+  models: IModels,
+  key: string,
+  subdomain: string,
+) => {
+  if (req.headers.userid || !(await isPdfAttachmentFile(models, key))) {
+    return true;
+  }
+
+  return verifyPdfFileToken(req.query.token, key, subdomain);
+};
 
 router.get(
   '/read-file',
@@ -115,6 +133,10 @@ router.get(
 
       if (!sanitizedKey) {
         return res.status(400).send('Invalid key');
+      }
+
+      if (!(await canReadFile(req, models, sanitizedKey, subdomain))) {
+        return res.status(403).send('Access denied');
       }
 
       const response = await readFileRequest({
