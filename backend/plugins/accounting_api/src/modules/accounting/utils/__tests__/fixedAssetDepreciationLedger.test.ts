@@ -343,3 +343,89 @@ test('inactive and future depreciation entries do not affect the period', async 
   const [detail] = await fixture.run();
   expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
 });
+
+test('a mid-period correction changes rates only from its effective date', async () => {
+  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-03', 0, TR_SIDES.CREDIT, 0);
+  correction.details[0].followInfos = { annualDepreciationRate: 24 };
+  const fixture = setup({
+    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
+  });
+  const [detail] = await fixture.run('2026-01-04');
+  expect(detail.depreciationAmount).toBeCloseTo(6 / 31, 8);
+  expect(detail.originalCost).toBe(100);
+});
+
+test('a correction uses the new method and a ledger delta without resetting accumulated depreciation', async () => {
+  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-02', 5, TR_SIDES.CREDIT, 0);
+  correction.details[0].followInfos = { depreciationMethod: 'decliningBalance', annualDepreciationRate: 20 };
+  const fixture = setup({
+    priorDepreciation: 20,
+    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
+  });
+  const [detail] = await fixture.run();
+  expect(detail.depreciationAmount).toBeCloseTo(75 * 0.2 / 365, 8);
+  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(25 + 75 * 0.2 / 365, 8);
+});
+
+test('draft and future correction rules never affect historical depreciation', async () => {
+  const draft = entry(JOURNALS.FXA_JUSTIFY, '2026-01-02', 5, TR_SIDES.CREDIT, 0);
+  draft.status = TR_STATUSES.DRAFT;
+  draft.details[0].followInfos = { annualDepreciationRate: 90 };
+  const future = entry(JOURNALS.FXA_JUSTIFY, '2026-01-04', 5, TR_SIDES.CREDIT, 0);
+  future.details[0].followInfos = { annualDepreciationRate: 80 };
+  const fixture = setup({
+    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), draft, future],
+  });
+  const [detail] = await fixture.run('2026-01-03');
+  expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
+});
+
+test('a later period keeps correction rules from before its opening snapshot', async () => {
+  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-01', 0, TR_SIDES.CREDIT, 0);
+  correction.details[0].followInfos = { annualDepreciationRate: 24, salvageValue: 0 };
+  const fixture = setup({
+    priorDepreciation: 20,
+    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
+  });
+  const [detail] = await fixture.run();
+  expect(detail.preDeprecation).toBe(20);
+  expect(detail.depreciationAmount).toBeCloseTo(2 / 31, 8);
+});
+
+test('capitalized cost only affects depreciation and closing cost from the capitalization day', async () => {
+  const capital = entry(JOURNALS.FXA_CAPITAL, '2026-01-03', 100, TR_SIDES.DEBIT, 0);
+  capital.details[0].followInfos = { originalCost: 200, annualDepreciationRate: 12, depreciationBase: 200, depreciationStartDate: new Date('2026-01-03') };
+  const fixture = setup({ transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), capital] });
+  const [before] = await fixture.run('2026-01-02');
+  expect(before.originalCost).toBe(100);
+  expect(before.depreciationAmount).toBeCloseTo(2 / 31, 8);
+  const [after] = await fixture.run('2026-01-04');
+  expect(after.originalCost).toBe(200);
+  expect(after.openingBookValue).toBe(100);
+  expect(after.depreciationAmount).toBeCloseTo(6 / 31, 8);
+});
+
+test('renewal depreciates the new net base over the new life while retaining posted depreciation', async () => {
+  const capital = entry(JOURNALS.FXA_CAPITAL, '2026-01-02', 100, TR_SIDES.DEBIT, 0);
+  capital.details[0].followInfos = { originalCost: 200, annualDepreciationRate: 20, depreciationBase: 150, depreciationStartDate: new Date('2026-01-02') };
+  const fixture = setup({ priorDepreciation: 40, transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), capital,
+    entry(JOURNALS.FXA_DEP_IN, '2026-01-02', 10)] });
+  const [detail] = await fixture.run();
+  expect(detail.depreciationAmount).toBeCloseTo((150 * 0.2 / 12) / 31, 8);
+  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(50 + (150 * 0.2 / 12) / 31, 8);
+  expect(detail.originalCost).toBe(200);
+});
+
+test('a fully disposed asset absent from the last snapshot stays absent in later periods', async () => {
+  const fixture = setup({
+    priorDepreciation: 0,
+    snapshotHasAsset: false,
+    acquisitionDate: '2025-12-01',
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2025-12-01', 100),
+      entry(JOURNALS.FXA_OUT, '2026-01-01', 100),
+      entry(JOURNALS.FXA_DEP_OUT, '2026-01-01', 100, TR_SIDES.DEBIT, 0),
+    ],
+  });
+  expect(await fixture.run()).toEqual([]);
+});

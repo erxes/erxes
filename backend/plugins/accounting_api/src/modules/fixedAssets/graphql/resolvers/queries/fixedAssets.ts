@@ -1,5 +1,8 @@
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { getFxaCorrections, getFxaRulesAtDate } from '@/accounting/utils/fxaJustify';
+import { getFxaCapitalValuation } from '@/accounting/utils/fxaCapitalValuation';
+import { assertTransactionJournalPermission } from '@/accounting/utils/transactionPermissions';
 import {
   JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
@@ -361,16 +364,20 @@ const fixedAssets = {
       categoryId,
       status,
       limit,
+      date,
+      excludeTransactionId,
     }: {
       searchValue?: string;
       ids?: string[];
       categoryId?: string;
       status?: string;
       limit?: number;
+      date?: Date;
+      excludeTransactionId?: string;
     },
-    { models }: IContext,
+    { models, user }: IContext,
   ) => {
-    const filter: any = { status: { $ne: 'deleted' } };
+    const filter: Record<string, unknown> = { status: { $ne: 'deleted' } };
 
     if (ids?.length) {
       filter._id = { $in: ids };
@@ -389,10 +396,39 @@ const fixedAssets = {
       filter.$or = [{ code: regex }, { name: regex }];
     }
 
-    return models.FixedAssets.find(filter)
+    const assets = await models.FixedAssets.find(filter)
       .sort({ code: 1 })
       .limit(limit || 30)
       .lean();
+    if (!date) return assets;
+    if (!user?._id) throw new Error('Authentication required.');
+    const endDate = getEndOfDay(date);
+    endDate.setMilliseconds(endDate.getMilliseconds() + 1);
+    const changes = await getFxaCorrections(models, endDate, excludeTransactionId);
+    return Promise.all(assets.map(async (asset) => {
+      const rules = getFxaRulesAtDate(asset, changes, getEndOfDay(date));
+      if (!changes.some((change) => change.fixedAssetId === asset._id && change.rules.originalCost !== undefined)) {
+        return { ...asset, ...rules };
+      }
+      const valuation = await getFxaCapitalValuation(models, asset._id, date, excludeTransactionId, user);
+      return {
+        ...asset, ...rules,
+        originalCost: valuation.originalCost,
+        currentCount: valuation.count,
+        accumulatedDepreciation: valuation.preDeprecation * valuation.count,
+        bookValue: (valuation.originalCost - valuation.preDeprecation) * valuation.count,
+      };
+    }));
+  },
+
+  fixedAssetCapitalValuation: async (
+    _root: undefined,
+    { fixedAssetId, date, excludeTransactionId }: { fixedAssetId: string; date: Date; excludeTransactionId?: string },
+    context: IContext,
+  ) => {
+    if (!context.user?._id) throw new Error('Authentication required.');
+    await assertTransactionJournalPermission(context, JOURNALS.FXA_CAPITAL, 'read');
+    return getFxaCapitalValuation(context.models, fixedAssetId, date, excludeTransactionId, context.user);
   },
 
   fixedAssetDetail: async (

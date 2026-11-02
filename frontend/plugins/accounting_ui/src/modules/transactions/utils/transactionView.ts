@@ -35,6 +35,7 @@ const detailFollowSchema = transactionDetailFollowInfoSchema
   .passthrough();
 const followSchema = fxaFollowInfosSchema
   .extend({
+    capitalAccountId: undefed(z.string()),
     moveInAccountId: undefed(z.string()),
     saleTransactionId: undefed(z.string()),
     fixedAssetAccountId: undefed(z.string()),

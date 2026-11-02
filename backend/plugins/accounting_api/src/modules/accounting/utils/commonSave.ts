@@ -23,6 +23,8 @@ import {
 } from './fixedAssets';
 import { applyActiveInventoryCosts } from './inventoryCosts';
 import { saveInvJustify } from './invJustify';
+import { saveFxaJustify, validateFxaJustifySave } from './fxaJustify';
+import { saveFxaCapital, validateFxaCapitalSave } from './fxaCapital';
 import {
   normalizeInvSplitTransaction,
   syncInvSplitFollowTrs,
@@ -49,6 +51,8 @@ export const commonSaveValidation = async (
       oldTr?: ITransactionDocument,
     ) => Promise<void>
   > = {
+    fxaCapital: validateFxaCapitalSave,
+    fxaJustify: validateFxaJustifySave,
     fxaIncome: validateFxaIncomeSave,
   };
   const validator = validators[doc.journal];
@@ -104,6 +108,7 @@ function getJournalHandler(journal: string) {
     main: handleMain,
     tax: handleMain,
     exchangeDiff: handleMain,
+    fxaDep: handleMain,
     cash: handleSingleTr,
     bank: handleSingleTr,
     receivable: handleSingleTr,
@@ -114,6 +119,8 @@ function getJournalHandler(journal: string) {
     invMove: handleInvMove,
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
+    fxaCapital: saveFxaCapital,
+    fxaJustify: saveFxaJustify,
     fxaIncome: handleFxaIncome,
     fxaOut: handleFxaOut,
     fxaMove: handleFxaMove,

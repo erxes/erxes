@@ -2,6 +2,7 @@ import { getI18n } from 'react-i18next';
 import { CustomerType } from 'ui-modules';
 import { z } from 'zod';
 import { TR_SIDES, TR_STATUSES, TrJournalEnum } from '../../types/constants';
+import { FIXED_ASSET_DEPRECIATION_METHOD_VALUES } from '@/settings/fixed-assets/constants/depreciationMethods';
 import { undefed } from '~/modules/types/utils';
 
 // #region common:
@@ -36,6 +37,14 @@ export const transactionDetailFollowInfoSchema = z
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
+    originalCost: undefed(z.number().finite().positive()),
+    depreciationBase: undefed(z.number().finite().nonnegative()),
+    capitalizationType: undefed(z.enum(['improvement', 'revaluation'])),
+    depreciationMethod: undefed(z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)),
+    annualDepreciationRate: undefed(z.number().finite().positive().max(100)),
+    depreciationStartDate: undefed(
+      z.string().refine((value) => Number.isFinite(Date.parse(value))),
+    ),
     preDeprecation: undefed(z.number().nonnegative()),
     salvageValue: undefed(z.number()),
   })
@@ -624,6 +633,60 @@ export const transactionFxaSaleSchema = z
       }),
     ),
   });
+export const transactionFxaCapitalSchema = z.object({
+  ...baseTransactionSchema.shape,
+  journal: z.literal(TrJournalEnum.FXA_CAPITAL),
+  followInfos: z.object({ capitalAccountId: z.string().min(1) }),
+  details: z.array(baseTrDetailSchema.extend({
+    fixedAssetId: z.string().min(1),
+    count: z.literal(0),
+    followInfos: transactionDetailFollowInfoSchema.extend({
+      originalCost: z.number().finite().positive(),
+      annualDepreciationRate: z.number().finite().positive().max(100),
+      capitalizationType: z.enum(['improvement', 'revaluation']),
+      preDeprecation: undefed(z.number().finite().nonnegative()),
+      salvageValue: undefed(z.number().finite().nonnegative()),
+    }).refine((info) => (info.preDeprecation ?? 0) + (info.salvageValue ?? 0) <= info.originalCost,
+      () => ({ path: ['preDeprecation'], message: getI18n().t('Accumulated depreciation and residual value cannot exceed cost', { ns: 'accounting' }) })),
+  })).min(1),
+});
+
+export const transactionFxaJustifySchema = z.object({
+  ...baseTransactionSchema.shape,
+  journal: z.literal(TrJournalEnum.FXA_JUSTIFY),
+  details: z
+    .array(
+      baseTrDetailSchema
+        .extend({
+          fixedAssetId: z.string().min(1),
+          count: z.literal(0),
+          followInfos: transactionDetailFollowInfoSchema.extend({
+            depreciationMethod: undefed(
+              z
+                .enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)
+                .refine((value): boolean => value !== 'manual'),
+            ),
+            salvageValue: undefed(z.number().finite().nonnegative()),
+          }),
+        })
+        .refine(
+          (detail) =>
+            detail.amount > 0 ||
+            detail.followInfos.depreciationMethod !== undefined ||
+            detail.followInfos.annualDepreciationRate !== undefined ||
+            detail.followInfos.salvageValue !== undefined ||
+            detail.followInfos.depreciationStartDate !== undefined,
+          () => ({
+            path: ['amount'],
+            message: getI18n().t(
+              'Enter a correction amount or a depreciation rule change',
+              { ns: 'accounting' },
+            ),
+          }),
+        ),
+    )
+    .min(1),
+});
 // #endregion Fixed assets
 
 // #region core
@@ -642,6 +705,8 @@ export const trDocSchema = z
     transactionInvSaleSchema,
     transactionInvSaleReturnSchema,
 
+    transactionFxaCapitalSchema,
+    transactionFxaJustifySchema,
     transactionFxaIncomeSchema,
     transactionFxaOutSchema,
     transactionFxaMoveSchema,

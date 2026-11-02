@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -23,6 +23,10 @@
 - Other plugins' data models or implementation details.
 
 ## Current Capabilities
+
+- `fxaCapital` records renovation/improvement or revaluation of one asset across all active branch/department quantities. It persists new unit cost, target unit `preDeprecation`, annual rate, residual value, schedule start and a net `depreciationBase` in detail `followInfos`, plus prior effective valuation. Cost delta is the source journal, depreciation changes use owned `fxaDepIn`/`fxaDepOut` follows and the net book-value delta uses `fxaCapitalBalance`; all rows keep quantity zero and the source pointer.
+
+- `fxaJustify` journals persist effective-date depreciation rule patches and the prior effective rules in transaction detail `followInfos`, without rewriting acquisition master data. Credit increases accumulated depreciation and debit decreases it; quantities stay zero. Rule-only corrections use amount zero. The daily depreciation calculation applies active corrections from their calendar date, including corrections before the opening snapshot.
 
 - `reCalcRemainders` treats blank location filters as all locations, `_` as unassigned, and real ids as exact locations. Blank dimensions expand to Core structure ids plus `_`; each pair reuses the existing `updateLiveRemainders` calculation in batches of ten without changing its aggregation or cache-writing logic. Empty filters are allowed for an authenticated all-location recalculation.
 
@@ -97,6 +101,8 @@
 
 ### Provides
 
+- `fixedAssetCapitalValuation(fixedAssetId, date, excludeTransactionId)` exposes the dated effective cost/rules, posted unit accumulated depreciation, active quantity by location, depreciation cutoff and readiness; it requires the capital journal read permission and account visibility. `fixedAssets(date, excludeTransactionId)` optionally supplies effective cost and capitalized book/depreciation totals for disposal previews.
+
 - `jobExecutions`, `jobExecutionDetail`, `jobExecutionSave`, `jobExecutionPost`, `jobExecutionUndo`, and `jobExecutionRemove`, guarded by `readJobExecutions`, `manageJobExecutions`, and `removeJobExecutions` under `jobExecution`.
 
 - Accounting GraphQL schema and resolvers from `src/modules/accounting/graphql`.
@@ -159,6 +165,15 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- Daily adjustment checks active quantity in the current adjustment period before reconstructing an asset absent from the prior snapshot. Fully disposed assets must not restart depreciation in later periods.
+
+- Calculated fixed-asset depreciation (`fxaDep`) uses the ordinary main transaction save handler for both debit expense and credit accumulated depreciation legs; adjustment posting must persist both sides through `createPTransaction`.
+
+- Capitalization requires posted depreciation through the preceding calendar day (or same-day acquisition), active posting accounts in fixedAsset/fxaFollow/main with matching currency, and account-write permission for every generated account. Remove later posted depreciation journals, clear their calculations and undo later asset changes/disposal/sale/movement before editing, moving or removing a capitalization. Historical corrections also cannot change underneath a later capitalization. Capitalization never rewrites acquisition master cost or quantity.
+- A capitalization starts a new depreciation schedule on its event date. Straight-line and sum-of-years-digits use the saved new net depreciable base; declining-balance methods continue from the actual adjusted book balance. Historical days and opening book value use their dated effective original cost.
+
+- Fixed asset corrections must not rewrite acquisition quantity/cost or master depreciation defaults. Reject corrections before acquisition, duplicate same-day active corrections for one asset, unsupported manual methods, invalid rule inputs, wrong accumulated depreciation accounts and debit corrections larger than posted depreciation. Saving, editing, moving or deleting corrections requires later non-draft depreciation calculations to be cleared first.
 
 - POS order sale sync uses valid `order.paidDate` for sale and payment transaction dates on initial sync and resync, without `dateRule`.
 - POS order return sync uses valid `order.returnInfo.returnAt` for return and refund transaction dates on initial sync and resync, without `dateRule`.
@@ -272,6 +287,10 @@
 - Automatic fixed asset adjustment calculation supports every fixed asset depreciation method except `manual`; `manual` must fail validation until an entered-depreciation detail flow exists.
 
 ## Validation
+
+- Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged and TBalance is balanced across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward revaluation, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
+
+- Smoke scenario: create a zero-amount fixed asset correction with a new rate effective mid-month; calculate depreciation across that date and verify earlier days retain the old rule and later days use the new one. Save/reopen a correction with explicit residual value zero, test debit/credit monetary deltas with balancing entries, verify quantity is unchanged, and clear later depreciation calculations before editing or deleting.
 
 - Smoke scenario: recalculate a selected product with both location filters blank, either dimension `_`, both `_`, and actual ids; verify independent `inventories[branch][department]` totals, pending counts, stale-zero clearing, and unchanged unrelated locations.
 

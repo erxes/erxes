@@ -8,6 +8,8 @@ import {
 } from '@/fixedAssets/@types/constants';
 import { JOURNALS, TR_INVENTORY_STATUS_TYPES } from '../@types/constants';
 import { ITransaction, ITransactionDocument } from '../@types/transaction';
+import { getFxaCorrections } from './fxaJustify';
+import { getFxaCapitalValuation } from './fxaCapitalValuation';
 
 export type TFxaOwnerRecordInput = {
   _id?: string;
@@ -522,13 +524,24 @@ export const getFxaDisposalSummaries = async (
     transaction.date,
   );
 
+  const afterDate = new Date(transaction.date);
+  afterDate.setDate(afterDate.getDate() + 1);
+  const changes = await getFxaCorrections(models, afterDate);
+  const valuations = new Map<string, Awaited<ReturnType<typeof getFxaCapitalValuation>>>();
+  for (const id of fixedAssetIds) {
+    if (changes.some((change) => change.fixedAssetId === id && change.rules.originalCost !== undefined)) {
+      valuations.set(id, await getFxaCapitalValuation(models, id, transaction.date, transaction._id));
+    }
+  }
+
   return (transaction.details || [])
     .map((detail) => {
+      const valuation = detail.fixedAssetId ? valuations.get(detail.fixedAssetId) : undefined;
       const fixedAsset = detail.fixedAssetId
         ? fixedAssetsById.get(detail.fixedAssetId)
         : undefined;
       const count = Math.max(0, Math.trunc(detail.count || 0));
-      const originalCost = fixNum((fixedAsset?.originalCost || 0) * count);
+      const originalCost = fixNum((valuation?.originalCost ?? fixedAsset?.originalCost ?? 0) * count);
       const latestAdjustment = detail.fixedAssetId
         ? adjustmentDetails.get(detail.fixedAssetId)
         : undefined;
@@ -549,7 +562,7 @@ export const getFxaDisposalSummaries = async (
         : 0;
       const accumulatedDepreciation = fixNum(
         suppliedUnitDepreciation === undefined
-          ? adjustmentDepreciation
+          ? (valuation ? valuation.preDeprecation * count : adjustmentDepreciation)
           : suppliedUnitDepreciation * count,
       );
 

@@ -184,6 +184,7 @@ export const useFxaDisposalFollowTrs = ({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as ITransaction;
+  const date = useWatch({ control: form.control, name: 'date' });
   const setFollowTrDocs = useSetAtom(followTrDocsState);
   const fixedAssetIds = useMemo(
     () =>
@@ -197,7 +198,7 @@ export const useFxaDisposalFollowTrs = ({
     [trDoc?.details],
   );
   const { data: queryData, loading } = useQuery(FIXED_ASSETS_QUERY, {
-    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length },
+    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length, date, excludeTransactionId: trDoc?.parentId ? trDoc._id : undefined },
     skip: !fixedAssetIds.length,
   });
   const data = toGraphqlView(queryData);

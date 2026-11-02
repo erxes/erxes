@@ -579,6 +579,38 @@ export function JOURNALS_BY_JOURNAL(
       result = INV_SALE_RETURN_JOURNAL_DEFAULT_VALUES(doc);
       break;
 
+    case TrJournalEnum.FXA_CAPITAL:
+      result = {
+        ...trDataWrapper(doc),
+        journal: TrJournalEnum.FXA_CAPITAL,
+        side: doc.side || TR_SIDES.DEBIT,
+        followInfos: { capitalAccountId: doc.followInfos?.capitalAccountId || '' },
+        details: (doc.details?.length ? doc.details : [{}]).map((detail) => ({
+          ...trDetailWrapper(detail), count: 0 as const,
+          followInfos: {
+            ...detail.followInfos,
+            originalCost: detail.followInfos?.originalCost ?? 0,
+            annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
+            capitalizationType: detail.followInfos?.capitalizationType || 'improvement',
+          },
+        })),
+      };
+      break;
+
+    case TrJournalEnum.FXA_JUSTIFY:
+      result = {
+        ...trDataWrapper(doc),
+        journal: TrJournalEnum.FXA_JUSTIFY,
+        side: doc.side || TR_SIDES.CREDIT,
+        details: (doc.details?.length ? doc.details : [{}]).map((detail) => ({
+          ...trDetailWrapper(detail),
+          count: 0 as const,
+          unitPrice: 0,
+          followInfos: detail.followInfos || {},
+        })),
+      };
+      break;
+
     case TrJournalEnum.FXA_INCOME:
       result = FXA_INCOME_JOURNAL_DEFAULT_VALUES(doc);
       break;

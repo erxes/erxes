@@ -137,6 +137,8 @@ const JOURNAL_TITLES: Record<string, string> = {
   invMove: 'inventory movement journal',
   invSale: 'inventory sale journal',
   invSaleReturn: 'inventory sale return journal',
+  fxaCapital: 'fixed asset capitalization and revaluation journal',
+  fxaJustify: 'fixed asset correction journal',
   fxaIncome: 'fixed asset income journal',
   fxaOut: 'fixed asset out journal',
   fxaMove: 'fixed asset movement journal',

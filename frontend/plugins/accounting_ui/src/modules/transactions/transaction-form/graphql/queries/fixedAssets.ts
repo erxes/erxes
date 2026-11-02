@@ -1,8 +1,8 @@
 import { gql } from '~/gql';
 
 export const FIXED_ASSETS_QUERY = gql(`
-query AccountingFixedAssets($searchValue: String, $ids: [String], $limit: Int) {
-  fixedAssets(searchValue: $searchValue, ids: $ids, limit: $limit) {
+query AccountingFixedAssets($searchValue: String, $ids: [String], $limit: Int, $date: Date, $excludeTransactionId: String) {
+  fixedAssets(searchValue: $searchValue, ids: $ids, limit: $limit, date: $date, excludeTransactionId: $excludeTransactionId) {
     _id
     code
     name
@@ -11,6 +11,8 @@ query AccountingFixedAssets($searchValue: String, $ids: [String], $limit: Int) {
     count
     currentCount
     originalCost
+    accumulatedDepreciation
+    bookValue
     acquisitionDate
     depreciationStartDate
     depreciationMethod

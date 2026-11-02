@@ -34,6 +34,9 @@ export enum TrJournalEnum {
   INV_SALE_RETURN_OUT = 'invSaleReturnOut',
   INV_SALE_RETURN_COST = 'invSaleReturnCost',
 
+  FXA_CAPITAL = 'fxaCapital',
+  FXA_CAPITAL_BALANCE = 'fxaCapitalBalance',
+  FXA_JUSTIFY = 'fxaJustify',
   FXA_INCOME = 'fxaIncome',
   FXA_OUT = 'fxaOut',
   FXA_DEP = 'fxaDep',
@@ -70,6 +73,9 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_OUT]: 'sales-return-inventory-issue',
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'sales-return-cost-of-goods-sold',
 
+  [TrJournalEnum.FXA_CAPITAL]: 'Капиталжуулалт / Дахин үнэлгээ',
+  [TrJournalEnum.FXA_CAPITAL_BALANCE]: 'Капиталжуулалтын эсрэг бичилт',
+  [TrJournalEnum.FXA_JUSTIFY]: 'Үндсэн хөрөнгийн залруулга',
   [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
   [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',
   [TrJournalEnum.FXA_DEP]: 'fixed-asset-depreciation',
@@ -146,6 +152,8 @@ export const TR_JOURNAL_GROUPS: TrJournalGroup[] = [
     label: 'fixed-asset',
     icon: IconBuildingFactory2,
     items: [
+      { journal: TrJournalEnum.FXA_CAPITAL, label: 'Капиталжуулалт / Дахин үнэлгээ' },
+      { journal: TrJournalEnum.FXA_JUSTIFY, label: 'Үндсэн хөрөнгийн залруулга' },
       { journal: TrJournalEnum.FXA_INCOME, label: 'receipt' },
       { journal: TrJournalEnum.FXA_OUT, label: 'disposal' },
       { journal: TrJournalEnum.FXA_MOVE, label: 'movement' },
@@ -205,6 +213,9 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
     label: 'fixed-asset',
     icon: IconBuildingFactory2,
     journals: [
+      TrJournalEnum.FXA_CAPITAL,
+      TrJournalEnum.FXA_CAPITAL_BALANCE,
+      TrJournalEnum.FXA_JUSTIFY,
       TrJournalEnum.FXA_INCOME,
       TrJournalEnum.FXA_DEP_IN,
       TrJournalEnum.FXA_OUT,

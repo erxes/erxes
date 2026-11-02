@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -23,6 +23,10 @@
 - Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
+
+- The fixed asset add menu offers `Капиталжуулалт / Дахин үнэлгээ` (`fxaCapital`) for one asset per journal. `FxaCapitalForm.tsx` loads dated valuation, shows prior unit cost/depreciation and quantity, captures improvement/revaluation type, new unit cost, unit accumulated depreciation (including zero), residual value, automatic method and new useful years, and previews cost/depreciation/counterpart entries in TBalance. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
+
+- The fixed asset add-transaction menu includes `Үндсэн хөрөнгийн залруулга` (`fxaJustify`). Its form selects assets and their configured accumulated depreciation accounts, accepts optional method/rate/unit residual value/start-date patches and a total accumulated depreciation delta, and uses the existing grouped save, feedback and refresh flow. Blank rule inputs retain the previous effective rule; zero residual value is explicit. Monetary corrections use ordinary balancing transaction tabs.
 
 - The inventory Recalculate balances form distinguishes blank (all locations), `_` (“Салбар сонгогдоогүй” / “Нэгж сонгогдоогүй”), and real ids. Blank defaults leave selectors unselected. Clicking the selected unassigned-location option again clears that dimension; no separate all-location option is rendered. Sentinel labels never query `_` as a real structure id. Selected-product scoping is preserved.
 
@@ -149,6 +153,8 @@
 
 ### Consumes
 
+- The generated `accountingFixedAssetCapitalValuation` operation drives capitalization; disposal previews pass date/current transaction exclusion to `AccountingFixedAssets` so subsequent disposal/movement/sale uses capitalized cost and accumulated depreciation.
+
 - `ui-modules` side panel API (`useSidePanel`, `useSidePanelDraft`, `IRecordPanelProps`, `PanelFormLayout`, `PanelFormRow`, `PANEL_INPUT_CLASS_NAME`, `ActivityLogs`) for settings record panels.
 - Production processes use `jobExecutions`, `jobExecutionSave`, `jobExecutionPost`, `jobExecutionUndo`, and `jobExecutionRemove` through generated GraphQL documents; mutations refetch the list before success completion.
 
@@ -205,6 +211,11 @@
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
+
+- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. Counterpart selection is restricted to active write-permitted main-journal accounts; the API validates every generated account.
+- Correction copy describes backdating to the erroneous reporting period followed by clearing/recalculation; capitalization copy describes the actual renovation/revaluation date and a renewed depreciation schedule.
+
+- Keep fixed asset correction inputs in `transactions/transaction-form/components/forms/FxaJustifyForm.tsx`, with quantity zero and patches in detail `followInfos`. Do not fill optional rule patches from master data on mount/refetch; the backend applies dated history. Credit means accumulated depreciation increase and debit means decrease.
 
 - Never render a raw record id as visible text. Resolve names (`AccountsInline`, `SelectBranches.InlineCell`, `useStageDetail`, `POS_DETAIL`, job/transaction lookups) and fall back to `-` or a translated label such as `untitled-rule`; ids stay only in values, keys and URLs.
 - Check-sync rule pickers label untitled rules by their POS name (order) or sales stage name (deal), then `untitled-rule`, and pass that label as `Command.Item` `keywords` so search matches what users see. Adjustment detail transaction columns show document numbers via `adjustments/utils/getTransactionNumbers.ts`.
@@ -368,6 +379,10 @@
 - Accounting list filters (transactions, accounts, permission settings, safe/reserve remainders, fixed asset remainders and owner records) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts and `afterBar` content stay last. Each `Filter.Bar` renders exactly one popover trigger, which receives page-specific props such as `sidebarFilters`.
 
 ## Validation
+
+- Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged and TBalance is balanced across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward revaluation, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
+
+- Smoke scenario: create a zero-amount fixed asset correction with a new rate effective mid-month; calculate depreciation across that date and verify earlier days retain the old rule and later days use the new one. Save/reopen a correction with explicit residual value zero, test debit/credit monetary deltas with balancing entries, verify quantity is unchanged, and clear later depreciation calculations before editing or deleting.
 
 - Smoke scenario: in inventory Recalculate balances, leave both location filters blank for all locations, choose “Салбар сонгогдоогүй” with a department, a branch with “Нэгж сонгогдоогүй”, and both unassigned-location options; verify submitted ids contain `_` only for the chosen dimensions and the affected inventory rows refresh after success.
 

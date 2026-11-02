@@ -1,4 +1,26 @@
 export const types = `
+  type FixedAssetCapitalLocation {
+    branchId: String!
+    departmentId: String!
+    count: Float!
+  }
+
+  type FixedAssetCapitalValuation {
+    fixedAssetId: String!
+    accountId: String!
+    depreciationAccountId: String!
+    count: Float!
+    originalCost: Float!
+    preDeprecation: Float!
+    annualDepreciationRate: Float!
+    depreciationMethod: String!
+    salvageValue: Float!
+    depreciationStartDate: Date!
+    depreciationThrough: Date
+    ready: Boolean!
+    locations: [FixedAssetCapitalLocation!]!
+  }
+
   type FixedAssetLocationRemainder {
     fixedAssetId: String
     branchId: String
@@ -18,6 +40,8 @@ export const types = `
     count: Float
     currentCount: Float
     originalCost: Float
+    accumulatedDepreciation: Float
+    bookValue: Float
     acquisitionDate: Date
     depreciationStartDate: Date
     transactionId: String
@@ -38,8 +62,9 @@ export const types = `
 `;
 
 export const queries = `
-  fixedAssets(searchValue: String, ids: [String], categoryId: String, status: String, limit: Int): [FixedAsset]
+  fixedAssets(searchValue: String, ids: [String], categoryId: String, status: String, limit: Int, date: Date, excludeTransactionId: String): [FixedAsset]
   fixedAssetDetail(_id: String!): FixedAsset
+  fixedAssetCapitalValuation(fixedAssetId: String!, date: Date!, excludeTransactionId: String): FixedAssetCapitalValuation!
   fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder
   fixedAssetLocationRemainders(searchValue: String, fixedAssetId: String, categoryId: String, branchId: String, departmentId: String, date: Date, limit: Int): [FixedAssetLocationRemainder]
 `;

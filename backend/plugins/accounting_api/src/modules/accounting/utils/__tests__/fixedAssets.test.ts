@@ -1125,6 +1125,7 @@ describe('fixed asset move follow transaction', () => {
     };
 
     models.Transactions.find
+      .mockReturnValueOnce(queryResult([]))
       .mockReturnValueOnce(
         queryResult([
           {
