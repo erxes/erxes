@@ -208,13 +208,17 @@ export const loadTaskClass = (
         throw new Error('Task not found');
       }
 
-      if (doc.status && doc.status !== task.status) {
+      if (doc.status && doc.status.toString() !== task.status?.toString()) {
         rest.statusChangedDate = new Date();
         const status = await models.Status.getStatus(doc.status || '');
         rest.statusType = status.type;
       }
 
-      if (task.projectId && doc.teamId && doc.teamId !== task.teamId) {
+      if (
+        task.projectId &&
+        doc.teamId &&
+        doc.teamId.toString() !== task.teamId.toString()
+      ) {
         const project = await models.Project.findOne({ _id: task.projectId });
 
         if (project && !project.teamIds.includes(doc.teamId)) {
@@ -225,7 +229,7 @@ export const loadTaskClass = (
       if (
         task.teamId &&
         doc.teamId &&
-        task.teamId !== doc.teamId &&
+        task.teamId.toString() !== doc.teamId.toString() &&
         task.projectId
       ) {
         const project = await models.Project.findOne({ _id: task.projectId });
@@ -235,7 +239,7 @@ export const loadTaskClass = (
         }
       }
 
-      if (doc.teamId && doc.teamId !== task.teamId) {
+      if (doc.teamId && doc.teamId.toString() !== task.teamId.toString()) {
         const [result] = await models.Task.aggregate([
           { $match: { teamId: doc.teamId } },
           { $group: { _id: null, maxNumber: { $max: '$number' } } },

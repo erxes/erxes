@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -133,6 +133,7 @@ propertiesData? } })`
 
 ## Local Invariants
 
+- Task status and team ids are stored as MongoDB ObjectIds; compare their string values when detecting changes. Only a real team change may remap the status, clear its history or cycle, or renumber the task; metadata-only updates, including GitHub sync after creation, preserve those fields. Re-saving the same status preserves `statusChangedDate`.
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
 - Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
@@ -238,6 +239,7 @@ propertiesData? } })`
 
 ## Validation
 
+- Status smoke: create and update tasks with custom statuses in each of Backlog, Todo, In progress, Done and Cancelled on a team with two-way GitHub sync; confirm the exact selected status and cycle persist. Moving to a different team still maps the status to that team's matching type.
 - `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx lint operation_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
