@@ -450,6 +450,8 @@
   A focused row checkbox shows in place of the avatar.
   A keyboard-focused row shows an Enter key hint in place of its time; hover
   alone does not.
+- Opening a conversation from the list pushes a history entry: Back returns to
+  the list or the previous conversation, and Forward reopens it.
 - `Team inbox` channel rows carry the caller's unread count from
   `Channel.unreadConversationCount` and dim when it is zero; integration-type
   rows in both groups carry their open-conversation count from

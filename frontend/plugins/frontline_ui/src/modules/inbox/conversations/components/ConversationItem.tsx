@@ -12,7 +12,7 @@ import {
   TextOverflowTooltip,
   Tooltip,
   readImage,
-  useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import {
   IconCornerDownLeft,
@@ -280,9 +280,8 @@ const ConversationContainer = ({
   className?: string;
   onConversationSelect: () => void;
 }) => {
-  const [{ conversationId }, setValues] = useMultiQueryState<{
-    conversationId: string;
-  }>(['conversationId']);
+  const [conversationId, setConversationId] =
+    useQueryState<string>('conversationId');
   const setActiveConversation = useSetAtom(activeConversationState);
   const conversation = useConversationContext();
   const { _id, readUserIds } = conversation;
@@ -291,7 +290,7 @@ const ConversationContainer = ({
 
   const openConversation = () => {
     setActiveConversation(conversation);
-    setValues({ conversationId: _id });
+    setConversationId(_id);
     onConversationSelect();
   };
 
