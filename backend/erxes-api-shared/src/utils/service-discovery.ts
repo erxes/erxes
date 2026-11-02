@@ -8,6 +8,7 @@ import {
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
 import { sendWorkerQueue } from './mq-worker';
+import { clearCachedPermissionMaps } from './permission-cache';
 
 dotenv.config();
 
@@ -143,27 +144,6 @@ export const getPlugin = async (
   return result;
 };
 
-/** Drops every user's cached permission map (`user_actions_<userId>`). */
-const clearCachedPermissionMaps = async () => {
-  let cursor = '0';
-
-  do {
-    const [next, keys] = await redis.scan(
-      cursor,
-      'MATCH',
-      'user_actions_*',
-      'COUNT',
-      500,
-    );
-
-    cursor = next;
-
-    if (keys.length) {
-      await redis.del(...keys);
-    }
-  } while (cursor !== '0');
-};
-
 export const joinErxesGateway = async ({
   name,
   port,
@@ -204,8 +184,13 @@ export const joinErxesGateway = async ({
   // Cached permission maps were built from the old definitions (an upgrade
   // that adds actions to a default group would otherwise keep refusing them
   // until each user's groups change); they rebuild on the next request.
+  // Runs in the background so a large shared Redis never holds up startup.
   if (permissionsChanged) {
-    await clearCachedPermissionMaps();
+    clearCachedPermissionMaps().catch((error) =>
+      console.error(
+        `Could not clear cached permission maps: ${error?.message || error}`,
+      ),
+    );
   }
 
   const address =
