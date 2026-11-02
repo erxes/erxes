@@ -369,13 +369,19 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - A Cover's `user` is its assignee, while `createdUser` resolves `createdBy`.
   Do not substitute one for the other when deriving display data. Covers list
   rows keep the selected `user` for the assignee column.
+- The Covers list reads its total from `posCoversCount` (same filter
+  arguments, same document as `posCovers`) so `hasNextPage` loads pages past
+  the first 30; it writes that count on every result, including
+  0, and resets it to `null` (skeleton) while a new result loads; a failed
+  `posCovers` request shows the error alert like Orders, never the empty state.
 - POS report list documents (Orders, Items, ByItems, Summary, Covers) declare
   `$posId` and pass it to the field so the `:posId` route scopes each list;
   `posOrderCustomers` and `posOrderBySubscriptions` have no backend `posId`
   argument and are not POS-scoped.
 - Product-group saves project only `GroupInput` fields and refetch that POS's
   groups before completing. Cover deletion removes each successfully deleted
-  id from every cached `posCovers` filter variant.
+  id from every cached `posCovers` filter variant and evicts
+  `posCoversCount` so the total refetches.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
   contracts rather than declaring documents for unsupported aliases.
@@ -546,7 +552,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment
   details, filtered Cover deletion, Cover assignee display, and all POS report
-  routes; two POSes' Covers lists show only their own covers.
+  routes; two POSes' Covers lists show only their own covers, a POS without
+  covers shows 0 records, an unknown `posId` shows an error, and a POS with
+  more than 30 covers loads the rest on scroll.
 - Integrations smoke: POS/pipeline Automations tab list and remove, payment
   selectors, deal relation POS orders panel, and the automation
   board/pipeline/stage text.

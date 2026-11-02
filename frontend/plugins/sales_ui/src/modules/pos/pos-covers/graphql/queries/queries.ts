@@ -79,5 +79,11 @@ export const posCovers = gql(`
         cursor
       }
     }
+    posCoversCount(
+      startDate: $startDate
+      endDate: $endDate
+      userId: $userId
+      posId: $posId
+    )
   }
 `);

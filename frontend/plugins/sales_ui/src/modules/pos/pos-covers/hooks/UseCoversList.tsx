@@ -1,5 +1,6 @@
 import { ICovers } from '@/pos/pos-covers/types/posCover';
 import { hasId } from '@/pos/utils/posJson';
+import { readPosCount } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
@@ -14,6 +15,7 @@ type UseCoversListOptions = PosCoversQueryVariables & { posId?: string };
 
 interface UseCoversListReturn {
   loading: boolean;
+  error?: Error;
   coversList: ICovers[];
   totalCount: number;
   handleFetchMore: () => void;
@@ -53,7 +55,7 @@ export const useCoversList = (
 ): UseCoversListReturn => {
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
-  const { data, loading, fetchMore } = useQuery(posCovers, {
+  const { data, loading, error, fetchMore } = useQuery(posCovers, {
     variables,
   });
 
@@ -74,8 +76,8 @@ export const useCoversList = (
   );
 
   const totalCount = useMemo(
-    () => data?.posCovers?.length || 0,
-    [data?.posCovers],
+    () => readPosCount(data?.posCoversCount),
+    [data?.posCoversCount],
   );
 
   const handleFetchMore = useCallback(() => {
@@ -99,12 +101,12 @@ export const useCoversList = (
   }, [transformedCoversList.length, fetchMore, data?.posCovers, variables]);
 
   useEffect(() => {
-    if (!totalCount) return;
-    setPosCoverTotalCount(totalCount);
-  }, [totalCount, setPosCoverTotalCount]);
+    setPosCoverTotalCount(data?.posCovers ? totalCount : null);
+  }, [data?.posCovers, totalCount, setPosCoverTotalCount]);
 
   return {
     loading,
+    error,
     coversList: transformedCoversList,
     totalCount,
     handleFetchMore,
