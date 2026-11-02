@@ -55,6 +55,8 @@
   "previous": "Previous",
   "next": "Next",
   "close": "Close",
+  "collapse-sidebar": "Collapse sidebar",
+  "expand-sidebar": "Expand sidebar",
   "select-color": "Select a Color",
   "back": "Back",
   "change": "Change",

@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -123,6 +123,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
+- The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
+  Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
+  and `expand-sidebar`.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
