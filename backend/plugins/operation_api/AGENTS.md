@@ -158,22 +158,22 @@
 
 ## Architecture
 
-| Area                  | Path                                           | Responsibility                                                        |
-| --------------------- | ---------------------------------------------- | --------------------------------------------------------------------- |
-| Plugin entry          | `src/main.ts`                                  | `startPlugin` on port 3307, GraphQL, subscriptions, meta registration |
-| Models                | `src/connectionResolvers.ts`                   | Tenant-scoped models, each with its event dispatcher                  |
-| Task module           | `src/modules/task/`                            | Task and triage schemas, models, resolvers                            |
-| Task segment contract | `src/modules/task/meta/segments/`              | Fields, collections, members, membership, evaluation, relations       |
-| Plugin segment meta   | `src/meta/segments.ts`                         | Routes segment producers to the module that owns the content type     |
-| Import/export         | `src/meta/import-export/`                      | Task import and export handlers                                       |
-| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/` | Issue sync, repository configuration                                  |
-| Discord integration   | `src/modules/discordIntegration/`              | Connections, team configs, card mapping and builder, `notifyDiscord`  |
-| Discord REST client   | `src/utils/discordClient.ts`                   | Discord API v10 calls, 429 retry, error descriptions                  |
-| Sequential runner     | `src/utils/runSequentially.ts`                 | Runs async steps one at a time (Discord calls that must not burst)    |
-| Discord worker        | `src/worker/discordNotifications.ts`           | `operations-discord-notify` processor: posts or edits the card        |
-| Discord account link  | `src/modules/discordIntegration/utils/`        | OAuth start, Redis state, callback route, assignee mention            |
-| Discord interactions  | `src/modules/discordIntegration/utils/`        | Signature check, `/triage new` modal, `/tasks` list and paging        |
-| Discord commands      | `src/modules/discordIntegration/utils/discordCommands.ts` | Slash commands on/off (endpoint URL + guild commands) and re-sync |
+| Area                  | Path                                                      | Responsibility                                                        |
+| --------------------- | --------------------------------------------------------- | --------------------------------------------------------------------- |
+| Plugin entry          | `src/main.ts`                                             | `startPlugin` on port 3307, GraphQL, subscriptions, meta registration |
+| Models                | `src/connectionResolvers.ts`                              | Tenant-scoped models, each with its event dispatcher                  |
+| Task module           | `src/modules/task/`                                       | Task and triage schemas, models, resolvers                            |
+| Task segment contract | `src/modules/task/meta/segments/`                         | Fields, collections, members, membership, evaluation, relations       |
+| Plugin segment meta   | `src/meta/segments.ts`                                    | Routes segment producers to the module that owns the content type     |
+| Import/export         | `src/meta/import-export/`                                 | Task import and export handlers                                       |
+| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/`            | Issue sync, repository configuration                                  |
+| Discord integration   | `src/modules/discordIntegration/`                         | Connections, team configs, card mapping and builder, `notifyDiscord`  |
+| Discord REST client   | `src/utils/discordClient.ts`                              | Discord API v10 calls, 429 retry, error descriptions                  |
+| Sequential runner     | `src/utils/runSequentially.ts`                            | Runs async steps one at a time (Discord calls that must not burst)    |
+| Discord worker        | `src/worker/discordNotifications.ts`                      | `operations-discord-notify` processor: posts or edits the card        |
+| Discord account link  | `src/modules/discordIntegration/utils/`                   | OAuth start, Redis state, callback route, assignee mention            |
+| Discord interactions  | `src/modules/discordIntegration/utils/`                   | Signature check, `/triage new` modal, `/tasks` list and paging        |
+| Discord commands      | `src/modules/discordIntegration/utils/discordCommands.ts` | Slash commands on/off (endpoint URL + guild commands) and re-sync     |
 
 ## Contracts
 
@@ -225,14 +225,14 @@
   Discord account the callback stored for that user.
 - Discord customer channel GraphQL: `operationDiscordCustomerChannels`
   (`teamRead`); `operationDiscordLinkCustomerChannels(connectionId,
-  channelIds, companyId, teamId)` links up to
+channelIds, companyId, teamId)` links up to
   `DISCORD_CUSTOMER_CHANNEL_LINK_LIMIT` (25) channels of one server to one
   company and team at once and returns them; it validates every channel
   first (already linked, a team's notification channel, or not visible to
   the bot, naming the offending channels) and saves none on failure, and if
   another link wins the unique index meanwhile it deletes the rows it
   inserted. `operationDiscordSaveCustomerChannel(_id, connectionId,
-  channelIds, companyId, teamId)` edits one link and returns every link it
+channelIds, companyId, teamId)` edits one link and returns every link it
   leaves: the link stays (with the new company and team) while its channel
   is in `channelIds`, is deleted with its customer threads when it is not,
   and every other channel in `channelIds` becomes a new link with the same

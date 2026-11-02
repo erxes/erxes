@@ -285,14 +285,12 @@ const buildLinkRow = (
 ): TDiscordActionRow[] => {
   const buttons = links
     .filter(({ url }) => url && isHttpUrl(url))
-    .map(
-      ({ label, url }): TDiscordLinkButton => ({
-        type: 2,
-        style: 5,
-        label,
-        url: url || '',
-      }),
-    );
+    .map(({ label, url }): TDiscordLinkButton => ({
+      type: 2,
+      style: 5,
+      label,
+      url: url || '',
+    }));
 
   return buttons.length ? [{ type: 1, components: buttons }] : [];
 };
