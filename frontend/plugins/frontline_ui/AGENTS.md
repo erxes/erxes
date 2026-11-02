@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -444,6 +444,9 @@
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
   Discord servers and Brands groups follow.
+- A conversation row is a focusable `role="button"`. Enter or Space on the row
+  opens it; the row ignores keys that come from its own checkbox or time button.
+  A focused row checkbox shows in place of the avatar.
 - `Team inbox` channel rows carry the caller's unread count from
   `Channel.unreadConversationCount` and dim when it is zero; integration-type
   rows in both groups carry their open-conversation count from

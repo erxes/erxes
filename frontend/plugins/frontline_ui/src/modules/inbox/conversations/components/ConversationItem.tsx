@@ -275,25 +275,36 @@ const ConversationContainer = ({
   const { _id, readUserIds } = conversation;
   const currentUser = useAtomValue(currentUserState);
   const isRead = readUserIds?.includes(currentUser?._id || '');
+
+  const openConversation = () => {
+    setActiveConversation(conversation);
+    setValues({ conversationId: _id });
+    onConversationSelect();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openConversation();
+    }
+  };
+
   return (
     <Button
       variant="ghost"
       size="lg"
       asChild
       className={cn(
-        'relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent',
+        'relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent ring-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
         isRead && 'text-muted-foreground',
         className,
         conversationId === _id &&
           'border-l-primary bg-primary/10 text-foreground hover:bg-primary/10',
       )}
-      onClick={() => {
-        setActiveConversation(conversation);
-        setValues({ conversationId: _id });
-        onConversationSelect();
-      }}
+      onClick={openConversation}
     >
-      <div>
+      <div role="button" tabIndex={0} onKeyDown={handleKeyDown}>
         {children}
         <ConversationIdleIndicator conversation={conversation} />
       </div>
@@ -319,7 +330,7 @@ const ConversationSelector = ({
   return (
     <div className="group relative grid size-9 shrink-0 place-items-center">
       <ConversationCheckbox />
-      <div className="relative size-full transition-opacity group-hover:opacity-0 peer-data-[state=checked]:opacity-0">
+      <div className="relative size-full transition-opacity group-hover:opacity-0 group-focus-within:opacity-0 peer-data-[state=checked]:opacity-0">
         {isPending ? (
           <Skeleton className="size-9 rounded-full" />
         ) : (
@@ -348,7 +359,7 @@ const ConversationCheckbox = () => {
     <>
       <Checkbox
         checked={isChecked}
-        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100 z-10"
+        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[state=checked]:opacity-100 z-10"
         onClick={(e) => e.stopPropagation()}
         onCheckedChange={() => setSelectConversations(_id || '')}
       />
