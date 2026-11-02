@@ -266,7 +266,7 @@ export async function getDealExportData(
     throw new Error('Models not available in context');
   }
 
-    // Selected rows are exported as chosen; list filters apply only without ids.
+  // Selected rows are exported as chosen; list filters apply only without ids.
   const baseQuery = ids?.length
     ? {}
     : await generateFilter(models, subdomain, EXPORT_USER_ID, filters || {});
