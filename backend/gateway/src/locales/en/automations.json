@@ -291,6 +291,8 @@
   "templates-empty-search-title": "No templates match your search",
   "templates-empty-search-description": "Try a different term or clear the filter.",
   "add-note": "Add note",
+  "status-switch-label": "Automation active: {{name}}",
+  "status-switch-hint": "Turning this off stops new triggers from running.",
   "note-placeholder": "Write a note... markdown is supported",
   "failed-after-finish": "{{count}} step inside this run failed",
   "error-handling": "Error handling",

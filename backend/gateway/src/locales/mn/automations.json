@@ -291,6 +291,8 @@
   "templates-empty-search-title": "Хайлтад тохирох загвар олдсонгүй",
   "templates-empty-search-description": "Өөр түлхүүр үг оруулах эсвэл шүүлтүүрээ арилгана уу.",
   "add-note": "Тэмдэглэл нэмэх",
+  "status-switch-label": "Автоматжуулалт идэвхтэй: {{name}}",
+  "status-switch-hint": "Үүнийг унтраавал шинэ өдөөгч ажиллахаа зогсооно.",
   "note-placeholder": "Тэмдэглэл бичих... markdown дэмжигдэнэ",
   "failed-after-finish": "Энэ ажиллалтын доторх {{count}} алхам унасан",
   "error-handling": "Алдаа боловсруулалт",
