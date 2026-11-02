@@ -511,7 +511,8 @@
     "linked_one": "{{count}} linked record",
     "linked_other": "{{count}} linked records",
     "set": "set {{label}} to {{value}}",
-    "changed": "changed {{label}} from {{from}} to {{to}}"
+    "changed": "changed {{label}} from {{from}} to {{to}}",
+    "automation": "An automation"
   },
   "webhooks": {
     "title": "Webhooks",

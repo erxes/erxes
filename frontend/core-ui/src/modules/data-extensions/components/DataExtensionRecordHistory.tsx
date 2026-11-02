@@ -88,7 +88,10 @@ export const DataExtensionRecordHistory = ({
   }, [version, refetch]);
   const changes = data?.dataExtensionChanges || [];
   const userIds = useMemo(
-    () => Array.from(new Set(changes.map((change) => change.userId))),
+    () =>
+      Array.from(new Set(changes.map((change) => change.userId))).filter(
+        (userId) => userId !== 'automation',
+      ),
     [changes],
   );
   const { users } = useUsers({
@@ -96,6 +99,10 @@ export const DataExtensionRecordHistory = ({
     skip: !userIds.length,
   });
   const nameOf = (userId: string) => {
+    if (userId === 'automation') {
+      return t('history.automation');
+    }
+
     const user = users.find((candidate) => candidate._id === userId);
 
     return user?.details?.fullName || user?.email || t('history.someone');

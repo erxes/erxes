@@ -511,7 +511,8 @@
     "linked_one": "{{count}} холбосон бичлэг",
     "linked_other": "{{count}} холбосон бичлэг",
     "set": "{{label}}-г {{value}} болгосон",
-    "changed": "{{label}}-г {{from}}-аас {{to}} болгож өөрчилсөн"
+    "changed": "{{label}}-г {{from}}-аас {{to}} болгож өөрчилсөн",
+    "automation": "Автоматжуулалт"
   },
   "webhooks": {
     "title": "Вебхүүк",

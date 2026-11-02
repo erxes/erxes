@@ -27,6 +27,7 @@ import {
   deliverDataExtensionWebhooks,
   recordDataExtensionChanges,
 } from '~/modules/data-extensions/changes';
+import { announceDataExtensionChange } from '~/modules/data-extensions/events';
 import { IRequestContext } from '~/modules/data-extensions/runtime/context';
 import {
   recordOwnerCall,
@@ -452,6 +453,24 @@ export const ownerResolvers: IOwnerResolvers = {
         recordId,
         userId: context.user._id,
         changes,
+      });
+      await announceDataExtensionChange(models, {
+        subdomain: context.subdomain,
+        descriptor,
+        recordId,
+        loadRecord: async () => {
+          const [record] = await ownerResolvers.load(context, descriptor, [
+            recordId,
+          ]);
+
+          return (
+            record && {
+              ...record.native,
+              _id: record._id,
+              dataExtensions: record.dataExtensions,
+            }
+          );
+        },
       });
     } catch (error) {
       console.warn('Data Extensions history not recorded', error);
