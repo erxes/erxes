@@ -3,7 +3,7 @@ name: CI Data Extensions
 on:
   push:
     branches:
-      - feat/data-extensions-v2
+      - main
     paths:
       - 'backend/core-api/src/modules/data-extensions/**'
       - 'backend/plugins/dataextensions_api/**'
