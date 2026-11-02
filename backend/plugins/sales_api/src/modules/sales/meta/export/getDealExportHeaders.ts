@@ -7,6 +7,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
+import { toExportHeaders } from '~/meta/export/utils';
 
 const DEAL_PROPERTY_CONTENT_TYPE = 'sales:deal';
 
@@ -20,40 +21,40 @@ interface IDealPropertyField {
   groupId?: string;
 }
 
-export const DEAL_EXPORT_SYSTEM_HEADERS: ImportHeaderDefinition[] = [
-  { label: 'Number', key: 'number', isDefault: true },
-  { label: 'Name', key: 'name', isDefault: true },
-  { label: 'Board', key: 'boardName' },
-  { label: 'Pipeline', key: 'pipelineName', isDefault: true },
-  { label: 'Stage', key: 'stageName', isDefault: true },
-  { label: 'Status', key: 'status' },
-  { label: 'Priority', key: 'priority' },
-  { label: 'Labels', key: 'labels' },
-  { label: 'Tags', key: 'tags' },
-  { label: 'Customer', key: 'customer', isDefault: true },
-  { label: 'Customer Email', key: 'customerEmail' },
-  { label: 'Customer Phone', key: 'customerPhone' },
-  { label: 'Company', key: 'company', isDefault: true },
-  { label: 'Created By', key: 'createdBy' },
-  { label: 'Assigned Users', key: 'assignedUsers', isDefault: true },
-  { label: 'Branches', key: 'branches' },
-  { label: 'Departments', key: 'departments' },
-  { label: 'Start Date', key: 'startDate' },
-  { label: 'Close Date', key: 'closeDate', isDefault: true },
-  { label: 'Stage Changed Date', key: 'stageChangedDate' },
-  { label: 'Is Complete', key: 'isComplete' },
-  { label: 'Products', key: 'products' },
-  { label: 'Product Count', key: 'productCount' },
-  { label: 'Currency', key: 'currency' },
-  { label: 'Total Amount', key: 'totalAmount', isDefault: true },
-  { label: 'Unused Total Amount', key: 'unUsedTotalAmount' },
-  { label: 'Paid Amount', key: 'paidAmount' },
-  { label: 'Payments', key: 'payments' },
-  { label: 'Description', key: 'description' },
-  { label: 'Score', key: 'score' },
-  { label: 'Created At', key: 'createdAt', isDefault: true },
-  { label: 'Updated At', key: 'updatedAt' },
-];
+export const DEAL_EXPORT_SYSTEM_HEADERS = toExportHeaders([
+  ['number', 'Number', true],
+  ['name', 'Name', true],
+  ['boardName', 'Board'],
+  ['pipelineName', 'Pipeline', true],
+  ['stageName', 'Stage', true],
+  ['status', 'Status'],
+  ['priority', 'Priority'],
+  ['labels', 'Labels'],
+  ['tags', 'Tags'],
+  ['customer', 'Customer', true],
+  ['customerEmail', 'Customer Email'],
+  ['customerPhone', 'Customer Phone'],
+  ['company', 'Company', true],
+  ['createdBy', 'Created By'],
+  ['assignedUsers', 'Assigned Users', true],
+  ['branches', 'Branches'],
+  ['departments', 'Departments'],
+  ['startDate', 'Start Date'],
+  ['closeDate', 'Close Date', true],
+  ['stageChangedDate', 'Stage Changed Date'],
+  ['isComplete', 'Is Complete'],
+  ['products', 'Products'],
+  ['productCount', 'Product Count'],
+  ['currency', 'Currency'],
+  ['totalAmount', 'Total Amount', true],
+  ['unUsedTotalAmount', 'Unused Total Amount'],
+  ['paidAmount', 'Paid Amount'],
+  ['payments', 'Payments'],
+  ['description', 'Description'],
+  ['score', 'Score'],
+  ['createdAt', 'Created At', true],
+  ['updatedAt', 'Updated At'],
+]);
 
 /**
  * Core does not expose field groups to plugins, so a group counts as

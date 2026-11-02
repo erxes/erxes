@@ -1,6 +1,20 @@
+import { ImportHeaderDefinition } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export type ExportRow = Record<string, string | number>;
+
+/** One export column as `[key, label, isDefault]`. */
+export type ExportHeaderRow = [key: string, label: string, isDefault?: boolean];
+
+/** Builds export header definitions from compact `[key, label, isDefault]` rows. */
+export const toExportHeaders = (
+  rows: ExportHeaderRow[],
+): ImportHeaderDefinition[] =>
+  rows.map(([key, label, isDefault]) => ({
+    key,
+    label,
+    ...(isDefault ? { isDefault } : {}),
+  }));
 
 type CoreLookupModule =
   | 'users'
@@ -49,9 +63,25 @@ interface ICoreProduct {
   code?: string;
 }
 
+/**
+ * Turns any stored value into the text of one CSV cell: lists are joined
+ * with `; `, dates become ISO strings, booleans Yes/No, objects JSON.
+ */
 export const formatExportValue = (value: unknown): string => {
   if (value === null || value === undefined) {
     return '';
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (typeof value === 'number' || typeof value === 'bigint') {
+    return value.toString();
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
   }
 
   if (Array.isArray(value)) {
@@ -65,17 +95,15 @@ export const formatExportValue = (value: unknown): string => {
     return Number.isNaN(value.getTime()) ? '' : value.toISOString();
   }
 
-  if (typeof value === 'boolean') {
-    return value ? 'Yes' : 'No';
-  }
-
   if (typeof value === 'object') {
     return JSON.stringify(value);
   }
 
-  return String(value);
+  // Functions and symbols carry no exportable data.
+  return '';
 };
 
+/** Formats an optional date or date string as an ISO cell, empty if unset. */
 export const formatExportDate = (value?: Date | string | null): string => {
   if (!value) {
     return '';
@@ -84,17 +112,21 @@ export const formatExportDate = (value?: Date | string | null): string => {
   return formatExportValue(new Date(value));
 };
 
+/** Returns a finite number for amount columns, 0 when the value is missing. */
 export const toExportNumber = (value?: number | null): number => {
   return typeof value === 'number' && Number.isFinite(value) ? value : 0;
 };
 
+/** Drops empty ids and duplicates so each core lookup asks once per id. */
 export const uniqueIds = (ids: Array<string | null | undefined>): string[] => {
   return [...new Set(ids.filter((id): id is string => Boolean(id)))];
 };
 
 /**
  * Loads one batch of core records by id. Export batches are bounded by the
- * worker batch size, so a single `$in` query per module is enough.
+ * worker batch size, so a single `$in` query per module is enough. A failed
+ * lookup throws, so the export fails and retries instead of finishing with
+ * blank names.
  */
 const findCoreRecords = async <T extends { _id: string }>(
   subdomain: string,
@@ -116,11 +148,13 @@ const findCoreRecords = async <T extends { _id: string }>(
         ? { query: { _id: { $in: ids } }, limit: ids.length }
         : { query: { _id: { $in: ids } } },
     defaultValue: [],
+    throwOnError: true,
   });
 
   return Array.isArray(records) ? records : [];
 };
 
+/** Indexes records by id, keeping only the label each one exports as. */
 const toMap = <T extends { _id: string }>(
   records: T[],
   label: (record: T) => string,
@@ -128,6 +162,7 @@ const toMap = <T extends { _id: string }>(
   return new Map(records.map((record) => [String(record._id), label(record)]));
 };
 
+/** Display name of a team member: full name, else email, else username. */
 export const getUserLabel = (user: ICoreUser): string => {
   const fullName =
     user.details?.fullName ||
@@ -136,6 +171,7 @@ export const getUserLabel = (user: ICoreUser): string => {
   return fullName || user.email || user.username || '';
 };
 
+/** Display name of a customer: name, else email, phone or code. */
 export const getCustomerLabel = (customer: ICoreCustomer): string => {
   const fullName = [customer.firstName, customer.lastName]
     .filter(Boolean)
@@ -150,6 +186,7 @@ export const getCustomerLabel = (customer: ICoreCustomer): string => {
   );
 };
 
+/** Display name of a company: primary name, else email, phone or code. */
 export const getCompanyLabel = (company: ICoreCompany): string => {
   return (
     company.primaryName ||
@@ -161,35 +198,41 @@ export const getCompanyLabel = (company: ICoreCompany): string => {
   );
 };
 
+/** Branch or department label as `code - title`, or just the title. */
 const getStructureLabel = (record: ICoreNamed): string => {
   const title = record.title || record.name || '';
   return record.code && title ? `${record.code} - ${title}` : title;
 };
 
+/** Team member display names by id. */
 export const fetchUserNames = async (subdomain: string, ids: string[]) =>
   toMap(
     await findCoreRecords<ICoreUser>(subdomain, 'users', ids),
     getUserLabel,
   );
 
+/** Tag names by id. */
 export const fetchTagNames = async (subdomain: string, ids: string[]) =>
   toMap(
     await findCoreRecords<ICoreNamed>(subdomain, 'tags', ids),
     (tag) => tag.name || '',
   );
 
+/** Branch labels by id. */
 export const fetchBranchNames = async (subdomain: string, ids: string[]) =>
   toMap(
     await findCoreRecords<ICoreNamed>(subdomain, 'branches', ids),
     getStructureLabel,
   );
 
+/** Department labels by id. */
 export const fetchDepartmentNames = async (subdomain: string, ids: string[]) =>
   toMap(
     await findCoreRecords<ICoreNamed>(subdomain, 'departments', ids),
     getStructureLabel,
   );
 
+/** Customer records by id, for name, email and phone columns. */
 export const fetchCustomers = async (subdomain: string, ids: string[]) =>
   new Map(
     (await findCoreRecords<ICoreCustomer>(subdomain, 'customers', ids)).map(
@@ -197,6 +240,7 @@ export const fetchCustomers = async (subdomain: string, ids: string[]) =>
     ),
   );
 
+/** Company records by id. */
 export const fetchCompanies = async (subdomain: string, ids: string[]) =>
   new Map(
     (await findCoreRecords<ICoreCompany>(subdomain, 'companies', ids)).map(
@@ -204,6 +248,7 @@ export const fetchCompanies = async (subdomain: string, ids: string[]) =>
     ),
   );
 
+/** Product records by id, for code and name in product summaries. */
 export const fetchProducts = async (subdomain: string, ids: string[]) =>
   new Map(
     (await findCoreRecords<ICoreProduct>(subdomain, 'products', ids)).map(
@@ -211,6 +256,7 @@ export const fetchProducts = async (subdomain: string, ids: string[]) =>
     ),
   );
 
+/** Resolves ids to names and joins them into one `; `-separated cell. */
 export const joinNames = (
   ids: string[] | undefined,
   names: Map<string, string>,
@@ -254,3 +300,4 @@ export const pickExportFields = (
 
   return picked;
 };
+
