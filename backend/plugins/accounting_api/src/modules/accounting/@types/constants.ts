@@ -145,6 +145,7 @@ export const JOURNALS = {
   INV_SALE_RETURN_COST: 'invSaleReturnCost',
   INV_SALE_RETURN_OUT: 'invSaleReturnOut',
   FXA_CAPITAL: 'fxaCapital',
+  // Read compatibility for automatic counterparts saved before manual balancing.
   FXA_CAPITAL_BALANCE: 'fxaCapitalBalance',
   FXA_JUSTIFY: 'fxaJustify',
   FXA_INCOME: 'fxaIncome',

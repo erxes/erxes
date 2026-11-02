@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -24,7 +24,8 @@
 
 ## Current Capabilities
 
-- `fxaCapital` records renovation/improvement or revaluation of one asset across all active branch/department quantities. It persists new unit cost, target unit `preDeprecation`, annual rate, residual value, schedule start and a net `depreciationBase` in detail `followInfos`, plus prior effective valuation. Cost delta is the source journal, depreciation changes use owned `fxaDepIn`/`fxaDepOut` follows and the net book-value delta uses `fxaCapitalBalance`; all rows keep quantity zero and the source pointer.
+- `fxaCapital` records renovation/improvement or revaluation of multiple assets across their active branch/department quantities. It persists new unit cost, target unit `preDeprecation`, annual rate, residual value, schedule start and a net `depreciationBase` in detail `followInfos`, plus prior effective valuation. Cost delta is the source journal, depreciation changes use owned `fxaDepIn`/`fxaDepOut` follows; all rows keep quantity zero and the source pointer. It does not require a counterpart account or generate a balancing transaction. Accountants balance one or more capital sources with ordinary root journals.
+- Capitalization save/edit and removal share `findLaterCapitalDependency` in `utils/fxaCapital.ts`; keep the affected-asset union and earliest effective date when checking later business-active asset changes.
 
 - `fxaJustify` journals persist effective-date depreciation rule patches and the prior effective rules in transaction detail `followInfos`, without rewriting acquisition master data. Credit increases accumulated depreciation and debit decreases it; quantities stay zero. Rule-only corrections use amount zero. The daily depreciation calculation applies active corrections from their calendar date, including corrections before the opening snapshot.
 
@@ -166,11 +167,15 @@
 
 ## Local Invariants
 
+- Capitalization details group by fixed asset, each group uses its own dated valuation and depreciation rules, and generated depreciation rows merge by debit/credit origin type. A transaction has one debit/credit side: mixed positive/negative cost changes require separate capital journals. Follow/detail identity matching includes fixed asset plus location. Edit/removal dependency checks cover every saved and submitted asset, including removed rows.
+
+- Capitalization clears source-level `followInfos` and only generates depreciation follows. Ordinary balancing roots remain independently editable and are excluded from fixed asset reports. Legacy `fxaCapitalBalance` journal/origin values remain readable for saved history; edits/removal clean only the source-owned obsolete follows, never an accountant's ordinary balancing root.
+
 - Daily adjustment checks active quantity in the current adjustment period before reconstructing an asset absent from the prior snapshot. Fully disposed assets must not restart depreciation in later periods.
 
 - Calculated fixed-asset depreciation (`fxaDep`) uses the ordinary main transaction save handler for both debit expense and credit accumulated depreciation legs; adjustment posting must persist both sides through `createPTransaction`.
 
-- Capitalization requires posted depreciation through the preceding calendar day (or same-day acquisition), active posting accounts in fixedAsset/fxaFollow/main with matching currency, and account-write permission for every generated account. Remove later posted depreciation journals, clear their calculations and undo later asset changes/disposal/sale/movement before editing, moving or removing a capitalization. Historical corrections also cannot change underneath a later capitalization. Capitalization never rewrites acquisition master cost or quantity.
+- Capitalization requires posted depreciation through the preceding calendar day (or same-day acquisition), active posting accounts in fixedAsset/fxaFollow with matching currency, and account-write permission for every generated account. Remove later posted depreciation journals, clear their calculations and undo later asset changes/disposal/sale/movement before editing, moving or removing a capitalization. Historical corrections also cannot change underneath a later capitalization. Capitalization never rewrites acquisition master cost or quantity.
 - A capitalization starts a new depreciation schedule on its event date. Straight-line and sum-of-years-digits use the saved new net depreciable base; declining-balance methods continue from the actual adjusted book balance. Historical days and opening book value use their dated effective original cost.
 
 - Fixed asset corrections must not rewrite acquisition quantity/cost or master depreciation defaults. Reject corrections before acquisition, duplicate same-day active corrections for one asset, unsupported manual methods, invalid rule inputs, wrong accumulated depreciation accounts and debit corrections larger than posted depreciation. Saving, editing, moving or deleting corrections requires later non-draft depreciation calculations to be cleared first.

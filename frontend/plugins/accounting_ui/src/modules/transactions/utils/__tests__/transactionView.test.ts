@@ -299,7 +299,7 @@ test('correction rules and explicit zero residual value survive reopening', () =
   });
 });
 
-test('capitalization values, counterpart account and zero accumulated depreciation survive reopening', () => {
+test('capitalization reopening preserves asset rules and discards obsolete counterpart settings', () => {
   const view = transaction(TrJournalEnum.FXA_CAPITAL, {
     followInfos: { capitalAccountId: 'reserve-account' },
     details: [{ _id: 'detail', fixedAssetId: 'asset', accountId: 'asset-account', amount: 100, count: 0,
@@ -307,7 +307,7 @@ test('capitalization values, counterpart account and zero accumulated depreciati
         depreciationBase: 200, capitalizationType: 'revaluation', depreciationStartDate: '2026-02-01' } }],
   });
   const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_CAPITAL, view);
-  expect(draft.followInfos).toMatchObject({ capitalAccountId: 'reserve-account' });
+  expect(draft.followInfos).toBeUndefined();
   expect(draft.details[0]).toMatchObject({ count: 0, amount: 100, followInfos: {
     originalCost: 200, preDeprecation: 0, depreciationBase: 200, capitalizationType: 'revaluation',
   } });

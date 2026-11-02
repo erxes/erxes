@@ -167,3 +167,18 @@ test('deleting the capital source and its follows restores the old effective rul
     annualDepreciationRate: 10,
   });
 });
+
+test('an ordinary balancing journal does not change dated asset cost, depreciation or quantity', async () => {
+  const { models, entries } = fixture();
+  const before = await getFxaCapitalValuation(
+    models,
+    'asset',
+    new Date('2026-02-01'),
+  );
+  const main = entry(JOURNALS.MAIN, '2026-02-01', 80, 0, 'capital-parent');
+  main.details[0].accountId = 'dep-account';
+  entries.push(main);
+  expect(
+    await getFxaCapitalValuation(models, 'asset', new Date('2026-02-01')),
+  ).toEqual(before);
+});

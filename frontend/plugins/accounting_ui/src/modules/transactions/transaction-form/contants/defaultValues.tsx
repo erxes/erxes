@@ -46,6 +46,24 @@ const trDetailWrapper = (detail?: ITrDetail) => {
   };
 };
 
+export const fxaCapitalDetailDefaultValues = (detail: ITrDetail = {}) => ({
+  ...trDetailWrapper(detail),
+  count: 0 as const,
+  followInfos: {
+    ...detail.followInfos,
+    originalCost: detail.followInfos?.originalCost ?? 0,
+    annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
+    capitalizationType: detail.followInfos?.capitalizationType || 'improvement',
+  },
+});
+
+export const fxaJustifyDetailDefaultValues = (detail: ITrDetail = {}) => ({
+  ...trDetailWrapper(detail),
+  count: 0 as const,
+  unitPrice: 0,
+  followInfos: detail.followInfos || {},
+});
+
 const getInventoryDetailFollowInfos = (
   detail: ITrDetail,
   doc?: Partial<ITransaction>,
@@ -584,16 +602,10 @@ export function JOURNALS_BY_JOURNAL(
         ...trDataWrapper(doc),
         journal: TrJournalEnum.FXA_CAPITAL,
         side: doc.side || TR_SIDES.DEBIT,
-        followInfos: { capitalAccountId: doc.followInfos?.capitalAccountId || '' },
-        details: (doc.details?.length ? doc.details : [{}]).map((detail) => ({
-          ...trDetailWrapper(detail), count: 0 as const,
-          followInfos: {
-            ...detail.followInfos,
-            originalCost: detail.followInfos?.originalCost ?? 0,
-            annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
-            capitalizationType: detail.followInfos?.capitalizationType || 'improvement',
-          },
-        })),
+        followInfos: undefined,
+        details: (doc.details?.length ? doc.details : [{}]).map(
+          fxaCapitalDetailDefaultValues,
+        ),
       };
       break;
 
@@ -602,12 +614,9 @@ export function JOURNALS_BY_JOURNAL(
         ...trDataWrapper(doc),
         journal: TrJournalEnum.FXA_JUSTIFY,
         side: doc.side || TR_SIDES.CREDIT,
-        details: (doc.details?.length ? doc.details : [{}]).map((detail) => ({
-          ...trDetailWrapper(detail),
-          count: 0 as const,
-          unitPrice: 0,
-          followInfos: detail.followInfos || {},
-        })),
+        details: (doc.details?.length ? doc.details : [{}]).map(
+          fxaJustifyDetailDefaultValues,
+        ),
       };
       break;
 

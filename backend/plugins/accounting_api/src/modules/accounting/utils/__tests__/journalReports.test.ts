@@ -25,6 +25,32 @@ describe('resolveErkhetReportJournals', () => {
 });
 
 describe('journal report filters', () => {
+  it('keeps manually balanced main entries outside the fixed asset report', async () => {
+    const aggregateMock = jest.fn().mockResolvedValue([]);
+    const models = {
+      AccountCategories: { find: jest.fn().mockResolvedValue([]) },
+      Accounts: {
+        find: jest.fn(() => ({
+          lean: jest.fn().mockResolvedValue([{ _id: 'account' }]),
+        })),
+      },
+      Transactions: { aggregate: aggregateMock },
+    } as unknown as Parameters<typeof getRecMore>[1];
+    await getRecMore('test', models, 'fxa', {}, {
+      _id: 'user',
+      isOwner: true,
+    } as Parameters<typeof getRecMore>[4]);
+    const journals = aggregateMock.mock.calls[0][0][0].$match.journal.$in;
+    expect(journals).toEqual(
+      expect.arrayContaining([
+        JOURNALS.FXA_CAPITAL,
+        JOURNALS.FXA_DEP_IN,
+        JOURNALS.FXA_DEP_OUT,
+      ]),
+    );
+    expect(journals).not.toContain(JOURNALS.MAIN);
+  });
+
   beforeEach(() => {
     mockSendTRPCMessage.mockReset();
   });

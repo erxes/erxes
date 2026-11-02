@@ -51,7 +51,6 @@ const document = (): ITransaction => ({
   journal: JOURNALS.FXA_CAPITAL,
   date: new Date('2026-02-01'),
   side: TR_SIDES.DEBIT,
-  followInfos: { capitalAccountId: 'offset-account' },
   details: [
     {
       _id: 'input',
@@ -75,12 +74,10 @@ const fixture = () => {
     Accounts: {
       find: jest.fn(() =>
         query(
-          ['asset-account', 'dep-account', 'offset-account'].map(
-            (_id, index) => ({
-              _id,
-              journal: ['fixedAsset', 'fxaFollow', 'main'][index],
-            }),
-          ),
+          ['asset-account', 'dep-account'].map((_id, index) => ({
+            _id,
+            journal: ['fixedAsset', 'fxaFollow'][index],
+          })),
         ),
       ),
     },
@@ -101,7 +98,7 @@ const signed = (doc: ITransaction): number =>
   doc.details.reduce((sum, row) => sum + row.amount, 0) *
   (doc.side === TR_SIDES.DEBIT ? 1 : -1);
 
-test('renovation writes balanced cost, depreciation and counterpart entries across existing locations', () => {
+test('renovation writes only asset and depreciation entries for an accountant to balance', () => {
   const { main, follows } = buildFxaCapitalDocuments(document(), valuation);
   expect(main.details.map((row) => row.amount)).toEqual([100, 50]);
   expect(new Set(main.details.map((row) => row._id)).size).toBe(2);
@@ -117,11 +114,15 @@ test('renovation writes balanced cost, depreciation and counterpart entries acro
       .find((row) => row.journal === JOURNALS.FXA_DEP_IN)
       ?.details.map((row) => row.amount),
   ).toEqual([20, 10]);
-  expect([main, ...follows].reduce((sum, row) => sum + signed(row), 0)).toBe(0);
+  expect(follows).toHaveLength(1);
+  expect(main.followInfos).toBeUndefined();
+  expect([main, ...follows].reduce((sum, row) => sum + signed(row), 0)).toBe(
+    120,
+  );
   expect(document().details[0].followInfos?.originalCost).toBe(150);
 });
 
-test('a downward revaluation including explicit zero depreciation stays balanced', () => {
+test('downward revaluation with zero depreciation leaves its net difference for an ordinary root', () => {
   const doc = document();
   doc.details[0].followInfos = {
     originalCost: 80,
@@ -140,7 +141,10 @@ test('a downward revaluation including explicit zero depreciation stays balanced
     preDeprecation: 0,
     depreciationBase: 80,
   });
-  expect([main, ...follows].reduce((sum, row) => sum + signed(row), 0)).toBe(0);
+  expect(follows).toHaveLength(1);
+  expect([main, ...follows].reduce((sum, row) => sum + signed(row), 0)).toBe(
+    30,
+  );
 });
 
 test('rule-only renewal requires no financial follow rows', () => {
@@ -216,7 +220,7 @@ test('saving and removing own generated rows keeps source identity and pointer l
       } as ITransactionDocument),
   );
   const result = await saveFxaCapital('tenant', models, 'user', document());
-  expect(result.otherTrs).toHaveLength(2);
+  expect(result.otherTrs).toHaveLength(1);
   expect(createOrUpdateTr).toHaveBeenCalledWith(
     models,
     'user',
@@ -247,7 +251,7 @@ test('every generated journal and origin type is accepted by the transaction sch
   );
 });
 
-test('editing replaces obsolete depreciation follows while preserving the surviving counterpart identity', async () => {
+test('editing removes obsolete depreciation and legacy automatic counterparts', async () => {
   const { models, raw } = fixture();
   jest.mocked(createOrUpdateTr).mockImplementation(
     async (_models, _user, doc, old) =>
@@ -259,7 +263,15 @@ test('editing replaces obsolete depreciation follows while preserving the surviv
       } as ITransactionDocument),
   );
   const first = await saveFxaCapital('tenant', models, 'user', document());
-  raw.Transactions.find.mockReturnValue(query(first.otherTrs));
+  const legacyCounterpart = {
+    ...first.otherTrs[0],
+    _id: 'legacy-counterpart',
+    journal: JOURNALS.FXA_CAPITAL_BALANCE,
+    originType: 'fxaCapitalBalanceCt',
+  };
+  raw.Transactions.find.mockReturnValue(
+    query([...first.otherTrs, legacyCounterpart]),
+  );
   const changed = {
     ...first.mainTr,
     details: first.mainTr.details.map((row) => ({
@@ -274,17 +286,177 @@ test('editing replaces obsolete depreciation follows while preserving the surviv
     changed,
     first.mainTr,
   );
-  const offsetId = first.otherTrs.find(
-    (row) => row.journal === JOURNALS.FXA_CAPITAL_BALANCE,
-  )?._id;
-  expect(
-    second.otherTrs.find((row) => row.journal === JOURNALS.FXA_CAPITAL_BALANCE)
-      ?._id,
-  ).toBe(offsetId);
+  expect(second.otherTrs).toHaveLength(1);
   expect(
     second.otherTrs.some((row) => row.journal === JOURNALS.FXA_DEP_OUT),
   ).toBe(true);
   expect(raw.Transactions.deleteMany).toHaveBeenCalledWith({
-    _id: { $in: ['fxaCapitalDepIn'] },
+    _id: { $in: ['fxaCapitalDepIn', 'legacy-counterpart'] },
   });
+});
+
+test('ordinary roots can close the combined difference of several capitalizations without asset linkage', () => {
+  const first = buildFxaCapitalDocuments(document(), valuation);
+  const other = document();
+  other._id = 'second-capital';
+  other.details[0].fixedAssetId = 'second-asset';
+  other.details[0].followInfos = {
+    originalCost: 80,
+    preDeprecation: 0,
+    annualDepreciationRate: 25,
+    capitalizationType: 'revaluation',
+  };
+  const second = buildFxaCapitalDocuments(other, {
+    ...valuation,
+    fixedAssetId: 'second-asset',
+  });
+  const root: ITransaction = {
+    date: document().date,
+    journal: JOURNALS.MAIN,
+    side: TR_SIDES.CREDIT,
+    details: [
+      { accountId: 'manually-selected-account', amount: 150, count: 0 },
+    ],
+  };
+  expect(
+    [first.main, ...first.follows, second.main, ...second.follows, root].reduce(
+      (sum, row) => sum + signed(row),
+      0,
+    ),
+  ).toBe(0);
+  expect(root.details[0].fixedAssetId).toBeUndefined();
+});
+
+test('obsolete source-level counterpart input is discarded rather than generating a transaction', () => {
+  const doc = document();
+  doc.followInfos = { capitalAccountId: 'old-account' };
+  const result = buildFxaCapitalDocuments(doc, valuation);
+  expect(result.main.followInfos).toBeUndefined();
+  expect(result.follows.map((row) => row.journal)).toEqual([
+    JOURNALS.FXA_DEP_IN,
+  ]);
+});
+
+test('batch capitalization keeps independent asset rules and merges depreciation by direction', () => {
+  const doc = document();
+  doc.details.push({
+    ...doc.details[0],
+    _id: 'second',
+    fixedAssetId: 'second',
+    followInfos: {
+      ...doc.details[0].followInfos,
+      originalCost: 200,
+      preDeprecation: 0,
+      annualDepreciationRate: 5,
+    },
+  });
+  const second = { ...valuation, fixedAssetId: 'second' };
+  const result = buildFxaCapitalDocuments(doc, [valuation, second]);
+  expect(result.main.details.map((row) => row.amount)).toEqual([
+    100, 50, 200, 100,
+  ]);
+  expect(result.main.details.map((row) => row.fixedAssetId)).toEqual([
+    'asset',
+    'asset',
+    'second',
+    'second',
+  ]);
+  expect(result.main.details[2].followInfos?.annualDepreciationRate).toBe(5);
+  expect(result.follows.map((row) => row.side)).toEqual([
+    TR_SIDES.CREDIT,
+    TR_SIDES.DEBIT,
+  ]);
+  doc.details[1].followInfos = {
+    ...doc.details[1].followInfos,
+    preDeprecation: 40,
+  };
+  const merged = buildFxaCapitalDocuments(doc, [valuation, second]);
+  expect(merged.follows).toHaveLength(1);
+  expect(merged.follows[0].details.map((row) => row.fixedAssetId)).toEqual([
+    'asset',
+    'asset',
+    'second',
+    'second',
+  ]);
+});
+
+test('batch rejects opposite cost directions and allows a zero-cost renewal alongside an increase', () => {
+  const doc = document();
+  doc.details.push({
+    ...doc.details[0],
+    _id: 'second',
+    fixedAssetId: 'second',
+    followInfos: { ...doc.details[0].followInfos, originalCost: 80 },
+  });
+  const second = { ...valuation, fixedAssetId: 'second' };
+  expect(() => buildFxaCapitalDocuments(doc, [valuation, second])).toThrow(
+    'Separate cost increases',
+  );
+  doc.details[1].followInfos = {
+    ...doc.details[1].followInfos,
+    originalCost: 100,
+  };
+  const result = buildFxaCapitalDocuments(doc, [valuation, second]);
+  expect(result.main.side).toBe(TR_SIDES.DEBIT);
+  expect(result.main.details.map((row) => row.amount)).toEqual([100, 50, 0, 0]);
+});
+
+test('batch edits preserve depreciation row ids by asset and location', async () => {
+  const { models, raw } = fixture();
+  const doc = document();
+  doc.details.push({
+    ...doc.details[0],
+    _id: 'second',
+    fixedAssetId: 'second',
+  });
+  jest
+    .mocked(getFxaCapitalValuation)
+    .mockImplementation(async (_models, id) => ({
+      ...valuation,
+      fixedAssetId: id,
+    }));
+  jest.mocked(createOrUpdateTr).mockImplementation(
+    async (_models, _user, input, old) =>
+      ({
+        ...input,
+        _id: old?._id || input._id || input.originType,
+        parentId: 'parent',
+        ptrId: 'pointer',
+        details: input.details.map((row, i) => ({
+          ...row,
+          _id: row._id || `saved-${row.fixedAssetId}-${i}`,
+        })),
+      } as ITransactionDocument),
+  );
+  const first = await saveFxaCapital('tenant', models, 'user', doc);
+  raw.Transactions.find.mockReturnValue(query(first.otherTrs));
+  const second = await saveFxaCapital(
+    'tenant',
+    models,
+    'user',
+    first.mainTr,
+    first.mainTr,
+  );
+  expect(second.otherTrs[0].details.map((row) => row._id)).toEqual(
+    first.otherTrs[0].details.map((row) => row._id),
+  );
+  expect(new Set(second.otherTrs[0].details.map((row) => row._id)).size).toBe(
+    4,
+  );
+  const reduced = {
+    ...first.mainTr,
+    details: first.mainTr.details.filter((row) => row.fixedAssetId === 'asset'),
+  };
+  await validateFxaCapitalSave('tenant', models, 'user', reduced, first.mainTr);
+  expect(raw.Transactions.findOne).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      'details.fixedAssetId': { $in: ['asset', 'second'] },
+    }),
+  );
+  await validateFxaCapitalRemove(models, 'tenant', first.mainTr);
+  expect(raw.Transactions.findOne).toHaveBeenLastCalledWith(
+    expect.objectContaining({
+      'details.fixedAssetId': { $in: ['asset', 'second'] },
+    }),
+  );
 });

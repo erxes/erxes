@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -24,7 +24,7 @@
 
 ## Current Capabilities
 
-- The fixed asset add menu offers `Капиталжуулалт / Дахин үнэлгээ` (`fxaCapital`) for one asset per journal. `FxaCapitalForm.tsx` loads dated valuation, shows prior unit cost/depreciation and quantity, captures improvement/revaluation type, new unit cost, unit accumulated depreciation (including zero), residual value, automatic method and new useful years, and previews cost/depreciation/counterpart entries in TBalance. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
+- The fixed asset add menu offers `Капиталжуулалт / Дахин үнэлгээ` (`fxaCapital`) for multiple assets per journal. `FxaChangeTable.tsx` and its rows load dated valuations, show prior unit cost/depreciation and quantity, capture improvement/revaluation type, new unit cost, unit accumulated depreciation (including zero), residual value, automatic method and new useful years, and preview only cost/depreciation entries in TBalance. There is no counterpart-account field or source `capitalAccountId`; accountants add ordinary transaction tabs to close the combined remaining difference. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
 
 - The fixed asset add-transaction menu includes `Үндсэн хөрөнгийн залруулга` (`fxaJustify`). Its form selects assets and their configured accumulated depreciation accounts, accepts optional method/rate/unit residual value/start-date patches and a total accumulated depreciation delta, and uses the existing grouped save, feedback and refresh flow. Blank rule inputs retain the previous effective rule; zero residual value is explicit. Monetary corrections use ordinary balancing transaction tabs.
 
@@ -212,10 +212,17 @@
 
 ## Local Invariants
 
-- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. Counterpart selection is restricted to active write-permitted main-journal accounts; the API validates every generated account.
+- Capitalization and correction use the shared `FxaChangeTable` with single/bulk asset addition and row-local `RecordTable.MoreButton` sheets. Cost/amount and useful-life/rate inputs stay in the table; method, residual value, capitalization type/target depreciation and correction account/start date live in each row sheet. Capitalization shows one editable row per asset while preserving its location-expanded saved details; previews, lookup initialization and row deletion stay asset-scoped. Blank correction rules remain unchanged and explicit zero is preserved. Mixed cost-increase/decrease rows show a localized message and require separate journal tabs.
+- Capitalization preview arithmetic lives in `transaction-form/components/forms/hooks/fxaCapitalPreview.ts`; `useFxaCapitalPreview` only synchronizes the memoized result with form/follow state. New rows, bulk rows, asset replacement and journal initialization reuse `fxaCapitalDetailDefaultValues` / `fxaJustifyDetailDefaultValues` from `transaction-form/contants/defaultValues.tsx`, preserving explicit zero and blank correction patches.
+
+- Fixed asset capitalization and correction are infrequent journals and stay last in the fixed asset add-menu and receipt-filter group. Record filters and enum-driven journal selectors place capitalization/correction entries after ordinary fixed asset journals and omit the legacy automatic counterpart type.
+
+- Fixed asset capitalization/correction journal labels use English-based keys in `TR_JOURNAL_LABELS` and `TR_JOURNAL_GROUPS`, shared by add menus, navigation, tabs, lists and balance previews. Their form labels, placeholders, side options, help and validation messages use the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`.
+
+- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. The API validates asset/depreciation accounts. Source-level counterpart information is not consumed by the capital form and is discarded on save. Legacy automatic counterpart journals remain readable only for saved history and never appear in add/filter options.
 - Correction copy describes backdating to the erroneous reporting period followed by clearing/recalculation; capitalization copy describes the actual renovation/revaluation date and a renewed depreciation schedule.
 
-- Keep fixed asset correction inputs in `transactions/transaction-form/components/forms/FxaJustifyForm.tsx`, with quantity zero and patches in detail `followInfos`. Do not fill optional rule patches from master data on mount/refetch; the backend applies dated history. Credit means accumulated depreciation increase and debit means decrease.
+- Keep fixed asset correction inputs in the shared `transactions/transaction-form/components/forms/FxaChangeTable.tsx`, `FxaChangeRow.tsx` and `FxaChangeFields.tsx`, with quantity zero and patches in detail `followInfos`. Do not fill optional rule patches from master data on mount/refetch; the backend applies dated history. Credit means accumulated depreciation increase and debit means decrease.
 
 - Never render a raw record id as visible text. Resolve names (`AccountsInline`, `SelectBranches.InlineCell`, `useStageDetail`, `POS_DETAIL`, job/transaction lookups) and fall back to `-` or a translated label such as `untitled-rule`; ids stay only in values, keys and URLs.
 - Check-sync rule pickers label untitled rules by their POS name (order) or sales stage name (deal), then `untitled-rule`, and pass that label as `Command.Item` `keywords` so search matches what users see. Adjustment detail transaction columns show document numbers via `adjustments/utils/getTransactionNumbers.ts`.
@@ -380,7 +387,7 @@
 
 ## Validation
 
-- Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged and TBalance is balanced across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward revaluation, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
+- Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged, add an ordinary main transaction to balance TBalance across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward revaluation, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
 
 - Smoke scenario: create a zero-amount fixed asset correction with a new rate effective mid-month; calculate depreciation across that date and verify earlier days retain the old rule and later days use the new one. Save/reopen a correction with explicit residual value zero, test debit/credit monetary deltas with balancing entries, verify quantity is unchanged, and clear later depreciation calculations before editing or deleting.
 

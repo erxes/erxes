@@ -636,7 +636,6 @@ export const transactionFxaSaleSchema = z
 export const transactionFxaCapitalSchema = z.object({
   ...baseTransactionSchema.shape,
   journal: z.literal(TrJournalEnum.FXA_CAPITAL),
-  followInfos: z.object({ capitalAccountId: z.string().min(1) }),
   details: z.array(baseTrDetailSchema.extend({
     fixedAssetId: z.string().min(1),
     count: z.literal(0),

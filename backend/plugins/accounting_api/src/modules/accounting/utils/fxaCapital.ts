@@ -23,30 +23,15 @@ const MONEY_EPSILON = 0.005;
 const FOLLOW_TYPES = [
   'fxaCapitalDepIn',
   'fxaCapitalDepOut',
+  // Older saved automatic counterparts are removed when their source is edited.
   'fxaCapitalBalanceDt',
   'fxaCapitalBalanceCt',
 ];
 
-const getCapitalAccountId = (doc: ITransaction): string => {
-  const info: unknown = doc.followInfos;
-  if (
-    !info ||
-    typeof info !== 'object' ||
-    !('capitalAccountId' in info) ||
-    typeof info.capitalAccountId !== 'string' ||
-    !info.capitalAccountId
-  ) {
-    throw new Error(
-      'Select the capitalization/revaluation counterpart account.',
-    );
-  }
-  return info.capitalAccountId;
-};
-
 const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 10000) / 10000;
 
-export const buildFxaCapitalDocuments = (
+const buildFxaCapitalAssetDocuments = (
   doc: ITransaction,
   valuation: TFxaCapitalValuation,
 ): { main: ITransaction; follows: ITransaction[] } => {
@@ -76,7 +61,6 @@ export const buildFxaCapitalDocuments = (
   const targetCost = rules.originalCost;
   const costDelta = targetCost - valuation.originalCost;
   const depreciationDelta = targetDepreciation - valuation.preDeprecation;
-  const offsetAccountId = getCapitalAccountId(doc);
   const side = costDelta < 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
   const date = fxaCapitalDate(doc.date);
   const usedDetailIds = new Set<string>();
@@ -126,92 +110,111 @@ export const buildFxaCapitalDocuments = (
       };
     },
   );
-  const main: ITransaction = { ...doc, date, side, details: locationDetails };
-  const follows: ITransaction[] = [];
-  const appendFollow = (
-    journal: string,
-    originType: string,
-    followSide: string,
-    accountId: string,
-    delta: number,
-  ) => {
-    const details = valuation.locations
-      .map(
-        (location): ITrDetail => ({
-          fixedAssetId: valuation.fixedAssetId,
-          accountId,
-          branchId: location.branchId,
-          departmentId: location.departmentId,
-          count: 0,
-          amount: roundMoney(Math.abs(delta) * location.count),
-        }),
-      )
-      .filter((detail) => detail.amount > MONEY_EPSILON);
-    if (details.length)
-      follows.push({
-        date,
-        journal,
-        originType,
-        originId: doc._id,
-        ptrId: doc.ptrId,
-        parentId: doc.parentId,
-        number: doc.number,
-        status: doc.status,
-        description: doc.description,
-        customerType: doc.customerType,
-        customerId: doc.customerId,
-        side: followSide,
-        details,
-      });
+  const main: ITransaction = {
+    ...doc,
+    date,
+    side,
+    followInfos: undefined,
+    details: locationDetails,
   };
-  appendFollow(
-    depreciationDelta < 0 ? JOURNALS.FXA_DEP_OUT : JOURNALS.FXA_DEP_IN,
-    depreciationDelta < 0 ? 'fxaCapitalDepOut' : 'fxaCapitalDepIn',
-    depreciationDelta < 0 ? TR_SIDES.DEBIT : TR_SIDES.CREDIT,
-    valuation.depreciationAccountId,
-    depreciationDelta,
-  );
-  const netDelta = costDelta - depreciationDelta;
-  appendFollow(
-    JOURNALS.FXA_CAPITAL_BALANCE,
-    netDelta < 0 ? 'fxaCapitalBalanceDt' : 'fxaCapitalBalanceCt',
-    netDelta < 0 ? TR_SIDES.DEBIT : TR_SIDES.CREDIT,
-    offsetAccountId,
-    netDelta,
-  );
+  const decreasesDepreciation = depreciationDelta < 0;
+  const details = valuation.locations
+    .map(
+      (location): ITrDetail => ({
+        fixedAssetId: valuation.fixedAssetId,
+        accountId: valuation.depreciationAccountId,
+        branchId: location.branchId,
+        departmentId: location.departmentId,
+        count: 0,
+        amount: roundMoney(Math.abs(depreciationDelta) * location.count),
+      }),
+    )
+    .filter((detail) => detail.amount > MONEY_EPSILON);
+  const follows: ITransaction[] = details.length
+    ? [
+        {
+          date,
+          journal: decreasesDepreciation
+            ? JOURNALS.FXA_DEP_OUT
+            : JOURNALS.FXA_DEP_IN,
+          originType: decreasesDepreciation
+            ? 'fxaCapitalDepOut'
+            : 'fxaCapitalDepIn',
+          originId: doc._id,
+          ptrId: doc.ptrId,
+          parentId: doc.parentId,
+          number: doc.number,
+          status: doc.status,
+          description: doc.description,
+          customerType: doc.customerType,
+          customerId: doc.customerId,
+          side: decreasesDepreciation ? TR_SIDES.DEBIT : TR_SIDES.CREDIT,
+          details,
+        },
+      ]
+    : [];
   return { main, follows };
 };
 
-const prepareCapital = async (
-  models: IModels,
+export const buildFxaCapitalDocuments = (
   doc: ITransaction,
-  oldTr?: ITransactionDocument,
-) => {
-  await assertCorrectionDateOpen(models, doc.date);
-  if (oldTr) await assertCorrectionDateOpen(models, oldTr.date);
-  const fixedAssetId = doc.details[0]?.fixedAssetId;
-  if (
-    !fixedAssetId ||
-    doc.details.some((detail) => detail.fixedAssetId !== fixedAssetId)
-  ) {
-    throw new Error(
-      'A capitalization journal must refer to one fixed asset. Add another journal for a different asset.',
-    );
+  valuationInput: TFxaCapitalValuation | TFxaCapitalValuation[],
+): { main: ITransaction; follows: ITransaction[] } => {
+  const valuations = Array.isArray(valuationInput)
+    ? valuationInput
+    : [valuationInput];
+  if (!doc.details.length || doc.details.some((detail) => !detail.fixedAssetId))
+    throw new Error('Select acquired fixed assets to capitalize.');
+  const groups = new Map<string, ITrDetail[]>();
+  for (const detail of doc.details) {
+    const id = detail.fixedAssetId || '';
+    const group = groups.get(id);
+    if (group) group.push(detail);
+    else groups.set(id, [detail]);
   }
-  const valuation = await getFxaCapitalValuation(
-    models,
-    fixedAssetId,
-    doc.date,
-    oldTr?._id,
-  );
-  if (valuation.count <= 0)
-    throw new Error('This asset has no remaining quantity to capitalize.');
-  if (!valuation.ready)
-    throw new Error(
-      'Calculate and post depreciation through the day before capitalization first.',
+  const results = [...groups].map(([fixedAssetId, details]) => {
+    const valuation = valuations.find(
+      (item) => item.fixedAssetId === fixedAssetId,
     );
-  const later = await models.Transactions.findOne({
-    _id: { $ne: oldTr?._id || doc._id },
+    if (!valuation) throw new Error('Fixed asset valuation is missing.');
+    return buildFxaCapitalAssetDocuments({ ...doc, details }, valuation);
+  });
+  const sides = new Set(
+    results
+      .filter((result) =>
+        result.main.details.some((detail) => detail.amount > MONEY_EPSILON),
+      )
+      .map((result) => result.main.side),
+  );
+  if (sides.size > 1)
+    throw new Error(
+      'Separate cost increases and decreases into different capitalization journals.',
+    );
+  const follows = new Map<string, ITransaction>();
+  for (const result of results)
+    for (const follow of result.follows) {
+      const previous = follows.get(follow.originType || '');
+      if (previous) previous.details.push(...follow.details);
+      else follows.set(follow.originType || '', follow);
+    }
+  return {
+    main: {
+      ...results[0].main,
+      side: [...sides][0] || TR_SIDES.DEBIT,
+      details: results.flatMap((result) => result.main.details),
+    },
+    follows: [...follows.values()],
+  };
+};
+
+const findLaterCapitalDependency = (
+  models: IModels,
+  transactionId: string | undefined,
+  date: Date,
+  fixedAssetIds: (string | undefined)[],
+) =>
+  models.Transactions.findOne({
+    _id: { $ne: transactionId },
     journal: {
       $in: [
         JOURNALS.FXA_CAPITAL,
@@ -222,24 +225,59 @@ const prepareCapital = async (
       ],
     },
     status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-    'details.fixedAssetId': fixedAssetId,
-    date: {
-      $gte: fxaCapitalDate(
-        oldTr && oldTr.date < doc.date ? oldTr.date : doc.date,
-      ),
+    'details.fixedAssetId': {
+      $in: [...new Set(fixedAssetIds.filter(Boolean))],
     },
+    date: { $gte: fxaCapitalDate(date) },
   }).lean();
+
+const prepareCapital = async (
+  models: IModels,
+  doc: ITransaction,
+  oldTr?: ITransactionDocument,
+) => {
+  await assertCorrectionDateOpen(models, doc.date);
+  if (oldTr) await assertCorrectionDateOpen(models, oldTr.date);
+  const fixedAssetIds = [
+    ...new Set(doc.details.map((detail) => detail.fixedAssetId)),
+  ];
+  if (!fixedAssetIds.length || fixedAssetIds.some((id) => !id))
+    throw new Error('Select acquired fixed assets to capitalize.');
+  const valuations = await Promise.all(
+    fixedAssetIds.map((fixedAssetId) =>
+      getFxaCapitalValuation(models, fixedAssetId || '', doc.date, oldTr?._id),
+    ),
+  );
+  if (valuations.some((valuation) => valuation.count <= 0))
+    throw new Error('This asset has no remaining quantity to capitalize.');
+  if (valuations.some((valuation) => !valuation.ready))
+    throw new Error(
+      'Calculate and post depreciation through the day before capitalization first.',
+    );
+  const affectedIds = [
+    ...new Set([
+      ...fixedAssetIds,
+      ...(oldTr?.details || []).map((detail) => detail.fixedAssetId),
+    ]),
+  ].filter(Boolean);
+  const later = await findLaterCapitalDependency(
+    models,
+    oldTr?._id || doc._id,
+    oldTr && oldTr.date < doc.date ? oldTr.date : doc.date,
+    affectedIds,
+  );
   if (later)
     throw new Error(
       'Remove later asset changes before editing or inserting this capitalization.',
     );
-  const documents = buildFxaCapitalDocuments(doc, valuation);
+  const documents = buildFxaCapitalDocuments(doc, valuations);
   const accountIds = [
-    ...new Set([
-      valuation.accountId,
-      valuation.depreciationAccountId,
-      getCapitalAccountId(doc),
-    ]),
+    ...new Set(
+      valuations.flatMap((valuation) => [
+        valuation.accountId,
+        valuation.depreciationAccountId,
+      ]),
+    ),
   ];
   const accounts = await models.Accounts.find({
     _id: { $in: accountIds },
@@ -248,23 +286,21 @@ const prepareCapital = async (
   }).lean();
   if (accounts.length !== accountIds.length)
     throw new Error('Use active posting accounts for capitalization.');
-  const assetAccount = accounts.find(
-    (account) => account._id === valuation.accountId,
-  );
-  const depAccount = accounts.find(
-    (account) => account._id === valuation.depreciationAccountId,
-  );
-  const offsetAccount = accounts.find(
-    (account) => account._id === getCapitalAccountId(doc),
-  );
-  if (
-    assetAccount?.journal !== ACCOUNT_JOURNALS.FIXED_ASSET ||
-    depAccount?.journal !== ACCOUNT_JOURNALS.FXA_FOLLOW ||
-    offsetAccount?.journal !== ACCOUNT_JOURNALS.MAIN
-  ) {
-    throw new Error(
-      'Use fixed asset, accumulated depreciation and main counterpart journal accounts.',
+  for (const valuation of valuations) {
+    const assetAccount = accounts.find(
+      (account) => account._id === valuation.accountId,
     );
+    const depAccount = accounts.find(
+      (account) => account._id === valuation.depreciationAccountId,
+    );
+    if (
+      assetAccount?.journal !== ACCOUNT_JOURNALS.FIXED_ASSET ||
+      depAccount?.journal !== ACCOUNT_JOURNALS.FXA_FOLLOW
+    ) {
+      throw new Error(
+        'Use fixed asset and accumulated depreciation journal accounts.',
+      );
+    }
   }
   if (new Set(accounts.map((account) => account.currency || '')).size > 1) {
     throw new Error('Capitalization accounts must use the same currency.');
@@ -293,21 +329,12 @@ export const validateFxaCapitalRemove = async (
   transaction: ITransactionDocument,
 ): Promise<void> => {
   await assertCorrectionDateOpen(models, transaction.date);
-  const later = await models.Transactions.findOne({
-    _id: { $ne: transaction._id },
-    journal: {
-      $in: [
-        JOURNALS.FXA_CAPITAL,
-        JOURNALS.FXA_JUSTIFY,
-        JOURNALS.FXA_OUT,
-        JOURNALS.FXA_MOVE,
-        JOURNALS.FXA_SALE,
-      ],
-    },
-    status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-    'details.fixedAssetId': transaction.details[0]?.fixedAssetId,
-    date: { $gte: fxaCapitalDate(transaction.date) },
-  }).lean();
+  const later = await findLaterCapitalDependency(
+    models,
+    transaction._id,
+    transaction.date,
+    transaction.details.map((detail) => detail.fixedAssetId),
+  );
   if (later)
     throw new Error(
       'Remove later asset changes before deleting this capitalization.',
@@ -355,6 +382,7 @@ export const saveFxaCapital = async (
           ...detail,
           _id: previous?.details.find(
             (old) =>
+              old.fixedAssetId === detail.fixedAssetId &&
               (old.branchId || '') === (detail.branchId || '') &&
               (old.departmentId || '') === (detail.departmentId || ''),
           )?._id,

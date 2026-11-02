@@ -1,7 +1,7 @@
 import {
   buildFxaCapitalPreview,
   TFxaCapitalValuation,
-} from '@/transactions/transaction-form/components/forms/hooks/useFxaCapitalPreview';
+} from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 import { JOURNALS_BY_JOURNAL } from '@/transactions/transaction-form/contants/defaultValues';
 import { transactionFxaCapitalSchema } from '@/transactions/transaction-form/contants/transactionSchema';
 import { TrJournalEnum } from '@/transactions/types/constants';
@@ -36,7 +36,6 @@ const valuation: TFxaCapitalValuation = {
 const journal = () =>
   JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_CAPITAL, {
     _id: 'capital',
-    followInfos: { capitalAccountId: 'offset-account' },
     details: [
       {
         _id: 'first',
@@ -56,7 +55,7 @@ const journal = () =>
     ],
   });
 
-test('preview allocates capitalized cost by quantity and balances against generated depreciation and counterpart entries', () => {
+test('preview allocates capitalized cost and depreciation while leaving the difference for ordinary journals', () => {
   const preview = buildFxaCapitalPreview(journal(), valuation);
   expect(preview?.details.map((row) => row.amount)).toEqual([100, 50]);
   expect(preview?.details.every((row) => row.count === 0)).toBe(true);
@@ -70,7 +69,12 @@ test('preview allocates capitalized cost by quantity and balances against genera
       (sum, row) => sum + (row.sumDt || 0) - (row.sumCt || 0),
       150,
     ),
-  ).toBe(0);
+  ).toBe(120);
+  expect(preview?.follows).toHaveLength(1);
+  expect(journal().followInfos).toBeUndefined();
+  expect(
+    transactionFxaCapitalSchema.shape.followInfos.safeParse(undefined).success,
+  ).toBe(true);
   expect(preview?.details[0].followInfos.annualDepreciationRate).toBe(20);
   expect(
     buildFxaCapitalPreview(journal(), valuation)?.details.map((row) => row._id),
@@ -128,4 +132,54 @@ test('new locations cannot reuse an existing location detail id', () => {
       after?.details.find((next) => next.branchId === row.branchId)?._id,
     ).toBe(row._id);
   }
+});
+
+test('batch preview isolates rules and identities for assets at identical locations', () => {
+  const doc = journal();
+  if (doc.journal !== TrJournalEnum.FXA_CAPITAL)
+    throw new Error('Invalid test journal');
+  doc.details.push({
+    ...doc.details[0],
+    _id: 'second',
+    fixedAssetId: 'second',
+    followInfos: {
+      ...doc.details[0].followInfos,
+      originalCost: 200,
+      annualDepreciationRate: 5,
+    },
+  });
+  const valuations = [valuation, { ...valuation, fixedAssetId: 'second' }];
+  const preview = buildFxaCapitalPreview(doc, valuations);
+  expect(preview?.mixedDirections).toBe(false);
+  expect(preview?.details.map((row) => row.amount)).toEqual([
+    100, 50, 200, 100,
+  ]);
+  expect(preview?.details[2].followInfos.annualDepreciationRate).toBe(5);
+  expect(new Set(preview?.details.map((row) => row._id)).size).toBe(4);
+  expect(preview?.follows).toHaveLength(1);
+  expect(new Set(preview?.follows[0].details.map((row) => row._id)).size).toBe(
+    4,
+  );
+  doc.details = [doc.details[1]];
+  expect(
+    buildFxaCapitalPreview(doc, valuations)?.details.every(
+      (row) => row.fixedAssetId === 'second',
+    ),
+  ).toBe(true);
+});
+
+test('batch preview identifies mixed cost directions without treating zero-cost rules as a decrease', () => {
+  const doc = journal();
+  if (doc.journal !== TrJournalEnum.FXA_CAPITAL)
+    throw new Error('Invalid test journal');
+  doc.details.push({
+    ...doc.details[0],
+    _id: 'second',
+    fixedAssetId: 'second',
+    followInfos: { ...doc.details[0].followInfos, originalCost: 80 },
+  });
+  const valuations = [valuation, { ...valuation, fixedAssetId: 'second' }];
+  expect(buildFxaCapitalPreview(doc, valuations)?.mixedDirections).toBe(true);
+  doc.details[1].followInfos.originalCost = 100;
+  expect(buildFxaCapitalPreview(doc, valuations)?.mixedDirections).toBe(false);
 });
