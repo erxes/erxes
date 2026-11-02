@@ -202,44 +202,44 @@ export const loadTaskClass = (
     }) {
       const { _id, ...rest } = doc;
 
+      if (doc.teamId !== undefined && !doc.teamId?.toString().trim()) {
+        throw new Error('Team is required');
+      }
+
+      const teamId = doc.teamId?.toString().toLowerCase();
       const task = await models.Task.findOne({ _id });
 
       if (!task) {
         throw new Error('Task not found');
       }
 
-      if (doc.status && doc.status.toString() !== task.status?.toString()) {
-        rest.statusChangedDate = new Date();
-        const status = await models.Status.getStatus(doc.status || '');
+      if (doc.status) {
+        const statusId = doc.status.toString().toLowerCase();
+        const status = await models.Status.getStatus(statusId);
         rest.statusType = status.type;
+
+        if (statusId !== task.status?.toString()) {
+          rest.statusChangedDate = new Date();
+        }
       }
 
-      if (
-        task.projectId &&
-        doc.teamId &&
-        doc.teamId.toString() !== task.teamId.toString()
-      ) {
+      const isTeamChanged = !!teamId && teamId !== task.teamId?.toString();
+
+      if (task.projectId && isTeamChanged) {
         const project = await models.Project.findOne({ _id: task.projectId });
 
-        if (project && !project.teamIds.includes(doc.teamId)) {
+        if (
+          project &&
+          !project.teamIds.some(
+            (projectTeamId) =>
+              projectTeamId?.toString().toLowerCase() === teamId,
+          )
+        ) {
           throw new Error('Task project is not in this team');
         }
       }
 
-      if (
-        task.teamId &&
-        doc.teamId &&
-        task.teamId.toString() !== doc.teamId.toString() &&
-        task.projectId
-      ) {
-        const project = await models.Project.findOne({ _id: task.projectId });
-
-        if (project && !project.teamIds.includes(doc.teamId)) {
-          throw new Error('Task project is not in this team');
-        }
-      }
-
-      if (doc.teamId && doc.teamId.toString() !== task.teamId.toString()) {
+      if (isTeamChanged) {
         const [result] = await models.Task.aggregate([
           { $match: { teamId: doc.teamId } },
           { $group: { _id: null, maxNumber: { $max: '$number' } } },
@@ -248,7 +248,7 @@ export const loadTaskClass = (
         const status = await models.Status.getStatus(task.status || '');
 
         const newStatus = await models.Status.findOne({
-          teamId: doc.teamId,
+          teamId,
           type: status.type,
         });
 
@@ -261,6 +261,7 @@ export const loadTaskClass = (
 
         rest.number = nextNumber;
         rest.status = newStatus?._id;
+        rest.statusType = newStatus?.type;
         rest.cycleId = null;
       }
 
@@ -288,11 +289,10 @@ export const loadTaskClass = (
       }
 
       if (doc.targetDate) {
-        const teamId = doc.teamId || task.teamId;
         const targetDate = new Date(doc.targetDate);
 
         const matchingCycle = await models.Cycle.findOne({
-          teamId,
+          teamId: teamId || task.teamId,
           isCompleted: false,
           startDate: { $lte: targetDate },
           endDate: { $gte: targetDate },
