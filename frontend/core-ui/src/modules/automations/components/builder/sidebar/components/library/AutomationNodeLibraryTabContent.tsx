@@ -2,6 +2,7 @@ import { NodeLibraryRow } from '@/automations/components/builder/sidebar/compone
 import { useAutomationNodeLibraryGroups } from '@/automations/components/builder/sidebar/hooks/useAutomationNodeLibraryGroups';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
+import { useWorkflowEditScope } from '@/automations/context/WorkflowEditScopeProvider';
 import { AutomationNodeType } from '@/automations/types';
 import { IconPointerBolt } from '@tabler/icons-react';
 import { Button, Command } from 'erxes-ui';
@@ -31,8 +32,11 @@ export const AutomationNodeLibraryTabContent = ({
   const groups = useAutomationNodeLibraryGroups({ type, list });
   const { isEmpty } = useAutomationNodes();
   const { openNodeLibrary } = useAutomationBuilderSidebarHooks();
+  // Workflow canvases start from their input node, never a trigger.
+  const workflowEditScope = useWorkflowEditScope();
 
   if (
+    !workflowEditScope &&
     type === AutomationNodeType.Action &&
     isEmpty(AutomationNodeType.Trigger) &&
     isEmpty(AutomationNodeType.Action)

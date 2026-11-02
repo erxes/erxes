@@ -62,7 +62,54 @@ export const types = `
     allowedGroupDns: [String!]!
     linkEmailDomains: [String!]!
     groupMappings: [AuthLdapGroupMapping!]!
+    recheckEveryMinutes: Int!
+    groupChangePolicy: AuthLdapGroupChangePolicy!
+    lastRecheck: AuthLdapRecheckRun
+    nextRecheckAt: Date
+    recheckChanges: [AuthLdapRecheckChange!]!
     updatedAt: Date
+  }
+
+  enum AuthTwoFactorMode {
+    off
+    optional
+    required
+  }
+
+  type AuthTwoFactorPolicy {
+    mode: AuthTwoFactorMode!
+    permissionGroupIds: [String!]!
+  }
+
+  type AuthTwoFactorStatus {
+    available: Boolean!
+    enabled: Boolean!
+    required: Boolean!
+    recoveryCodesLeft: Int!
+  }
+
+  type AuthTwoFactorSetup {
+    secret: String!
+    otpauthUrl: String!
+  }
+
+  enum AuthLdapGroupChangePolicy {
+    updatePermissions
+    revokeSessions
+  }
+
+  type AuthLdapRecheckRun {
+    at: Date
+    status: String!
+    error: String
+    checked: Int!
+  }
+
+  type AuthLdapRecheckChange {
+    userId: String!
+    reason: String!
+    signedOut: Boolean!
+    at: Date
   }
 
   type AuthLdapProfile {
@@ -98,6 +145,53 @@ export const types = `
     allowedGroupDns: [String!]!
     linkEmailDomains: [String!]!
     groupMappings: [AuthLdapGroupMappingInput!]!
+    recheckEveryMinutes: Int!
+    groupChangePolicy: AuthLdapGroupChangePolicy!
+  }
+
+  enum AuthSupportAccessMode {
+    off
+    approval
+    allow
+  }
+
+  enum AuthSupportGrantStatus {
+    pending
+    approved
+    denied
+    revoked
+    expired
+  }
+
+  type AuthSupportAccessPolicy {
+    available: Boolean!
+    mode: AuthSupportAccessMode!
+    configuredMode: AuthSupportAccessMode!
+    allowUntil: Date
+    permissionGroupIds: [String!]!
+  }
+
+  type AuthSupportGrantVisit {
+    enteredAt: Date!
+    reason: String!
+  }
+
+  type AuthSupportGrant {
+    _id: String!
+    staffName: String!
+    staffEmail: String
+    userId: String!
+    reason: String!
+    status: AuthSupportGrantStatus!
+    autoApproved: Boolean!
+    permissionGroupIds: [String!]!
+    decidedBy: String
+    decidedAt: Date
+    endsAt: Date
+    revokedBy: String
+    revokedAt: Date
+    visits: [AuthSupportGrantVisit!]!
+    createdAt: Date!
   }
 `;
 
@@ -108,6 +202,11 @@ export const queries = `
   oauthClientAppDetail(_id: String!): OAuthClientApp
   authLdapConfig: AuthLdapConfig
   authLdapLinkedUserIds: [String!]!
+  authTwoFactorStatus: AuthTwoFactorStatus
+  authTwoFactorPolicy: AuthTwoFactorPolicy
+  authSupportAccessPolicy: AuthSupportAccessPolicy!
+  authSupportAccessGrants(status: AuthSupportGrantStatus): [AuthSupportGrant!]!
+  authSupportAccessActive: [AuthSupportGrant!]!
 `;
 
 export const mutations = `
@@ -140,5 +239,18 @@ export const mutations = `
   authLdapTestConnection(input: AuthLdapConfigInput!, identifier: String): AuthLdapTestResult
   authLdapLinkUser(userId: String!, identifier: String!): Boolean
   authLdapUnlinkUser(userId: String!): Boolean
+  authLdapRecheckNow: AuthLdapConfig
+  loginTwoFactorSetup(challenge: String!): AuthTwoFactorSetup
+  loginTwoFactorVerify(challenge: String!, code: String!): [String!]
+  authTwoFactorSetup: AuthTwoFactorSetup
+  authTwoFactorEnable(code: String!): [String!]
+  authTwoFactorDisable(code: String!): Boolean
+  authTwoFactorRecoveryCodes(code: String!): [String!]
+  authTwoFactorReset(userId: String!): Boolean
+  authTwoFactorPolicySave(mode: AuthTwoFactorMode!, permissionGroupIds: [String!]!): AuthTwoFactorPolicy
+  authSupportAccessPolicySave(mode: AuthSupportAccessMode!, allowUntil: Date, permissionGroupIds: [String!]!): AuthSupportAccessPolicy!
+  authSupportAccessApprove(_id: String!, hours: Int!, permissionGroupIds: [String!]!): AuthSupportGrant!
+  authSupportAccessDeny(_id: String!): AuthSupportGrant!
+  authSupportAccessRevoke(_id: String!): AuthSupportGrant!
 
  `;

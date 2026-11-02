@@ -2,6 +2,26 @@ import { Document, Schema } from 'mongoose';
 
 export type LdapServerType = 'activeDirectory' | 'openLdap';
 
+// What a directory change that only moves mapped permission groups does
+export type LdapGroupChangePolicy = 'updatePermissions' | 'revokeSessions';
+
+export type LdapRecheckReason =
+  'removed' | 'disabled' | 'left_group' | 'permissions_changed';
+
+export interface ILdapRecheckChange {
+  userId: string;
+  reason: LdapRecheckReason;
+  signedOut: boolean;
+  at: Date;
+}
+
+export interface ILdapRecheckRun {
+  at: Date;
+  status: 'ok' | 'failed';
+  error?: string;
+  checked: number;
+}
+
 export interface ILdapGroupMapping {
   groupDn: string;
   permissionGroupIds: string[];
@@ -21,25 +41,61 @@ export interface ILdapConfig {
   // Not a login filter; other emails still provision or are linked by an admin
   linkEmailDomains: string[];
   groupMappings: ILdapGroupMapping[];
+  // 0 turns the directory recheck off
+  recheckEveryMinutes: number;
+  groupChangePolicy: LdapGroupChangePolicy;
 }
 
 export interface ILdapConfigDocument extends ILdapConfig, Document {
   // Sealed with sealSecret; never returned through the API
   bindPassword?: string;
+  lastRecheck?: ILdapRecheckRun;
+  // Newest first, capped: who the recheck signed out or re-permissioned
+  recheckChanges: ILdapRecheckChange[];
   createdAt: Date;
   updatedAt: Date;
 }
 
+// erxes_support: an erxes staff member let in by a support access grant
+export type AuthIdentityProvider = 'ldap' | 'erxes_support';
+
 export interface IAuthIdentityDocument extends Document {
   userId: string;
-  provider: 'ldap';
-  // Stable directory id: AD objectGUID or OpenLDAP entryUUID, survives renames
+  provider: AuthIdentityProvider;
+  // Stable id at the provider: AD objectGUID, OpenLDAP entryUUID or the
+  // global-profile staff id; survives renames
   subject: string;
-  dn: string;
+  dn?: string;
   lastLoginAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export const LDAP_RECHECK_MINUTES = [0, 5, 15, 60];
+
+const recheckRunSchema = new Schema(
+  {
+    at: { type: Date, label: 'At' },
+    status: { type: String, label: 'Status', enum: ['ok', 'failed'] },
+    error: { type: String, label: 'Error' },
+    checked: { type: Number, label: 'Checked users' },
+  },
+  { _id: false },
+);
+
+const recheckChangeSchema = new Schema(
+  {
+    userId: { type: String, label: 'User id' },
+    reason: {
+      type: String,
+      label: 'Reason',
+      enum: ['removed', 'disabled', 'left_group', 'permissions_changed'],
+    },
+    signedOut: { type: Boolean, label: 'Signed out' },
+    at: { type: Date, label: 'At' },
+  },
+  { _id: false },
+);
 
 const groupMappingSchema = new Schema(
   {
@@ -84,6 +140,24 @@ export const ldapConfigSchema = new Schema(
       label: 'Group mappings',
       default: [],
     },
+    recheckEveryMinutes: {
+      type: Number,
+      label: 'Recheck every minutes',
+      enum: LDAP_RECHECK_MINUTES,
+      default: 15,
+    },
+    groupChangePolicy: {
+      type: String,
+      label: 'Group change policy',
+      enum: ['updatePermissions', 'revokeSessions'],
+      default: 'updatePermissions',
+    },
+    lastRecheck: { type: recheckRunSchema, label: 'Last recheck' },
+    recheckChanges: {
+      type: [recheckChangeSchema],
+      label: 'Recheck changes',
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -96,7 +170,7 @@ export const authIdentitySchema = new Schema(
     provider: {
       type: String,
       label: 'Provider',
-      enum: ['ldap'],
+      enum: ['ldap', 'erxes_support'],
       required: true,
     },
     subject: { type: String, label: 'Subject', required: true },

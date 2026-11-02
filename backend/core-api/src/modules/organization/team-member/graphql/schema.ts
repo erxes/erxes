@@ -79,6 +79,8 @@ export const types = `
     links: JSON
     status: String
     chatStatus: UserChatStatus
+    # Sign-in presence (active | idle | none), unlike chatStatus which members set by hand
+    sessionState: String
     emailSignatures: JSON
     getNotificationByEmail: Boolean
 
@@ -130,6 +132,16 @@ export const types = `
     status:String
   }
 
+  type UserSession {
+    _id: String!
+    method: String!
+    createdAt: Date
+    lastSeenAt: Date
+    expiresAt: Date
+    userAgent: String
+    current: Boolean!
+  }
+
   type UsersListResponse {
     list: [User]
     totalCount: Int
@@ -177,6 +189,7 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   userMovements(userId: String!,contentType: String):[UserMovement]
+  userSessions(_id: String!): [UserSession!]!
 `;
 
 export const mutations = `
@@ -202,4 +215,5 @@ export const mutations = `
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
   usersSetActiveStatusBatch(_ids: [String!]!): Boolean
+  usersRevokeSessions(_id: String!, sessionId: String): Boolean
 `;

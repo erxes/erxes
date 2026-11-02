@@ -1,6 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
-import { USER_ROLES } from 'erxes-api-shared/core-modules';
+import { getSessionState } from '@/auth/session';
 
 export default {
   __resolveReference: async ({ _id }, { models }: IContext) => {
@@ -30,7 +30,15 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    return (await models.Users.isDirectoryUser(user._id)) ? 'ldap' : null;
+    return (await models.Users.getIdentityProvider(user._id)) || null;
+  },
+
+  async sessionState(
+    user: IUserDocument,
+    _args: undefined,
+    { subdomain }: IContext,
+  ) {
+    return getSessionState(subdomain, user._id);
   },
 
   async status(user: IUserDocument) {
@@ -168,10 +176,9 @@ export default {
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
     return (
-      (await models.Users.find({
-        score: { $gt: user.score || 0 },
-        role: { $ne: USER_ROLES.SYSTEM },
-      }).countDocuments()) + 1
+      (await models.Users.countDocuments(
+        await models.Users.staffQuery({ score: { $gt: user.score || 0 } }),
+      )) + 1
     );
   },
 };

@@ -82,9 +82,21 @@ export const sendEmail = async (
     }
   }
 
+  const requested =
+    fromEmail ||
+    (hasCompanyFromEmail
+      ? `Noreply <${COMPANY_EMAIL_FROM}>`
+      : 'noreply@erxes.io');
+
+  if (!requested) {
+    throw new Error(`"From" email address is missing: ${requested}`);
+  }
+
   const log = models ? createDeliveryLogPort(models) : undefined;
   const suppression = models ? createSuppressionPort(models) : undefined;
-  const alignedFrom = models ? await resolveAlignedFrom(models) : null;
+  const alignedFrom = models
+    ? await resolveAlignedFrom(models, 'transactional', requested)
+    : null;
 
   // a template the workspace published in place of a built-in file
   const systemEmail =
@@ -126,16 +138,6 @@ export const sendEmail = async (
 
     if (customHtml) {
       html = Handlebars.compile(customHtml)(customHtmlData || {});
-    }
-
-    const requested =
-      fromEmail ||
-      (hasCompanyFromEmail
-        ? `Noreply <${COMPANY_EMAIL_FROM}>`
-        : 'noreply@erxes.io');
-
-    if (!requested) {
-      throw new Error(`"From" email address is missing: ${requested}`);
     }
 
     const { from, replyTo } = alignSender(requested, undefined, alignedFrom);

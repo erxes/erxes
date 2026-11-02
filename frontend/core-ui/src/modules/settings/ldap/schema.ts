@@ -20,6 +20,10 @@ export const LDAP_CONFIG_SCHEMA = z
         permissionGroupIds: z.array(z.string()),
       }),
     ),
+    recheckEveryMinutes: z
+      .number()
+      .refine((value) => [0, 5, 15, 60].includes(value)),
+    groupChangePolicy: z.enum(['updatePermissions', 'revokeSessions']),
   })
   .superRefine((values, ctx) => {
     if (values.url && !/^ldaps?:\/\//.test(values.url)) {

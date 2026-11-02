@@ -170,6 +170,7 @@ export const createBoardItem = async (models: IModels, doc: IDeal) => {
   try {
     item = await models.Deals.create({
       ...updatedDoc,
+      createdAt: new Date(),
       stageChangedDate: new Date(),
       searchText: fillSearchTextItem(doc),
     });

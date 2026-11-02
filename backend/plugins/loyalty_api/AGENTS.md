@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-25`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -160,6 +160,12 @@
   bonus voucher usage; POS and deal callers may sell weighted products with
   decimal counts. Confirmation must also accept null or omitted voucher IDs
   and counts for sale lines without a selected bonus voucher.
+- A coupon campaign's `codeRule` is stored with the campaign form's names
+  (`numberOfCodes`, `prefixUppercase`, `postfixUppercase`, `characterSet`
+  string); `couponAdd` reads it through `normalizeCodeRule`
+  (`modules/coupon/utils/codeRule.ts`) into the generator's `size`, `prefix`,
+  `postfix`, `charSet`. Read a stored `codeRule` only through it; without it
+  every generation made one code.
 
 ## Validation
 
@@ -172,6 +178,7 @@
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
 - `pnpm nx test loyalty_api --testPathPattern publicDiscounts`
 - `pnpm nx test loyalty_api --testPathPattern afterProcess`
+- Release: from `backend/plugins/loyalty_api`, `pnpm exec release-it --dry-run`, then `pnpm exec release-it`. `.release-it.json` versions this plugin on its own (`package.json`, local `CHANGELOG.md` from commits under this folder, tag `loyalty_api@x.y.z`, GitHub release not marked Latest); the tag runs `.github/workflows/release-plugin.yml`, which builds `erxes/erxes-next-loyalty_api:x.y.z` from the tagged commit. Needs a clean working tree and `GITHUB_TOKEN`.
 - Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
 
 ## Recent Changes

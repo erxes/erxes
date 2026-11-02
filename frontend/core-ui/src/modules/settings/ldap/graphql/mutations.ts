@@ -18,7 +18,42 @@ export const LDAP_CONFIG_SAVE = gql`
         groupDn
         permissionGroupIds
       }
+      recheckEveryMinutes
+      groupChangePolicy
+      lastRecheck {
+        at
+        status
+        error
+        checked
+      }
+      nextRecheckAt
+      recheckChanges {
+        userId
+        reason
+        signedOut
+        at
+      }
       updatedAt
+    }
+  }
+`;
+
+export const LDAP_RECHECK_NOW = gql`
+  mutation AuthLdapRecheckNow {
+    authLdapRecheckNow {
+      lastRecheck {
+        at
+        status
+        error
+        checked
+      }
+      nextRecheckAt
+      recheckChanges {
+        userId
+        reason
+        signedOut
+        at
+      }
     }
   }
 `;

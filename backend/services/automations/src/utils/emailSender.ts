@@ -4,6 +4,7 @@ import { debugError } from '../debugger';
 export const assertSenderAllowed = async (
   subdomain: string,
   fromEmail: string,
+  { fromPlaceholder = false }: { fromPlaceholder?: boolean } = {},
 ) => {
   if (!fromEmail) {
     return;
@@ -18,7 +19,7 @@ export const assertSenderAllowed = async (
       pluginName: 'core',
       module: 'emailSenders',
       action: 'isAllowed',
-      input: { email: fromEmail },
+      input: { email: fromEmail, fromPlaceholder },
     });
   } catch (e) {
     debugError(`Could not check sender "${fromEmail}": ${e.message}`);
@@ -32,7 +33,9 @@ export const assertSenderAllowed = async (
 
   if (!result.allowed) {
     throw new Error(
-      `"${fromEmail}" is not a verified sender. Verify it under Settings → Mail config, or pick one that already is.`,
+      fromPlaceholder
+        ? `"${fromEmail}" came from a placeholder but is not a team member's address. Only team members and verified senders can send this email.`
+        : `"${fromEmail}" is not a verified sender. Verify it under Settings → Mail config, or pick one that already is.`,
     );
   }
 };

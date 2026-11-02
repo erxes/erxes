@@ -21,8 +21,8 @@ interface IOutboundOptions {
 export const getBroadcastEmailConfig = (models: IModels) =>
   getScopedEmailConfig(models, 'broadcast');
 
-export const getBroadcastAlignedFrom = (models: IModels) =>
-  resolveAlignedFrom(models, 'broadcast');
+export const getBroadcastAlignedFrom = (models: IModels, requested?: string) =>
+  resolveAlignedFrom(models, 'broadcast', requested);
 
 export const getBroadcastCacheKey = (models: IModels) =>
   getScopedCacheKey(models, 'broadcast');

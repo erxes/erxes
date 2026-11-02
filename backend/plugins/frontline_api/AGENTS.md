@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -191,6 +191,10 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- The Facebook/Instagram comment reply action resolves placeholders in the
+  picked text variant with the same two passes as the message action
+  (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
+  unresolved tokens are kept as written.
 - A Facebook message action with an **Input** message waits for the person's
   next typed message (`meta/automation/messages/inputWait.ts`). It stores
   `conversations_facebooks.inputWait` (`executionId`, `actionId`,
@@ -456,6 +460,12 @@
   link to the conversation.
   (Media added to an existing ticket goes through Find object and Manage
   properties' `attachments` field; there is no separate add-to-ticket action.)
+- Ticket automations: **Ticket status changed** (`frontline:tickets.tickets.statusChanged`,
+  custom, always re-runs) needs no segment. `checkCustomTrigger` passes only
+  an update whose `eventUpdateDescription.updated.statusId` moved, on the
+  configured `pipelineId`, and — when `toStatusIds` is not empty — to one of
+  them (`ticket/meta/automations/trigger/checkStatusChangedTrigger.ts`). A new
+  ticket never fires it: a create carries no previous status.
   Conversation media is stored on the ticket with a MIME `type` (from the URL
   extension, else `<kind>/*`), never the message's bare kind (`image`): the
   ticket detail's `erxes-ui` Attachments only shows MIME-typed files.

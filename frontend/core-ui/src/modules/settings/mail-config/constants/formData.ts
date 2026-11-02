@@ -3,26 +3,14 @@ import { TFunction } from 'i18next';
 
 export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
   return {
-    common: [
+    sending: [
       {
         name: 'COMPANY_EMAIL_FROM',
         inputType: 'input',
         type: 'email',
         label: t('email'),
         description: t('email-desc'),
-      },
-      {
-        name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
-        inputType: 'select',
-        label: t('type'),
-        description: t('type-desc'),
-        options: ['simple', 'custom'],
-      },
-      {
-        name: 'COMPANY_EMAIL_TEMPLATE',
-        inputType: 'editor',
-        label: t('template'),
-        description: t('temp-desc'),
+        className: 'col-span-2',
       },
       {
         name: 'DEFAULT_EMAIL_SERVICE',
@@ -30,10 +18,26 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         label: t('default-email-service'),
         description: t('default-email-service-desc'),
         options: ['SES', 'sendgrid', 'custom'],
+        className: 'col-span-2',
       },
     ],
-    // Last on the page: the address goes into every email's footer, and it is
-    // filled once rather than alongside the provider it does not depend on.
+    template: [
+      {
+        name: 'COMPANY_EMAIL_TEMPLATE_TYPE',
+        inputType: 'select',
+        label: t('type'),
+        description: t('type-desc'),
+        options: ['simple', 'custom'],
+        className: 'col-span-2',
+      },
+      {
+        name: 'COMPANY_EMAIL_TEMPLATE',
+        inputType: 'editor',
+        label: t('template'),
+        description: t('temp-desc'),
+        className: 'col-span-2',
+      },
+    ],
     postal: [
       {
         name: 'COMPANY_POSTAL_ADDRESS',
@@ -41,21 +45,19 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         type: 'input',
         label: t('postal-address'),
         description: t('postal-address-desc'),
-        className: 'col-span-4',
+        className: 'col-span-2',
       },
       {
         name: 'COMPANY_POSTAL_CITY',
         inputType: 'input',
         type: 'input',
         label: t('postal-city'),
-        className: 'col-span-2',
       },
       {
         name: 'COMPANY_POSTAL_COUNTRY',
         inputType: 'input',
         type: 'input',
         label: t('postal-country'),
-        className: 'col-span-2',
       },
     ],
     custom: [
@@ -64,35 +66,31 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         inputType: 'input',
         type: 'input',
         label: t('mail-service-name'),
-        description: '',
       },
       {
         name: 'MAIL_PORT',
         inputType: 'input',
         type: 'input',
         label: t('port'),
-        description: '',
       },
       {
         name: 'MAIL_USER',
         inputType: 'input',
         type: 'input',
         label: t('username'),
-        description: '',
       },
       {
         name: 'MAIL_PASS',
         inputType: 'input',
-        type: 'input',
+        type: 'password',
         label: t('password'),
-        description: '',
       },
       {
         name: 'MAIL_HOST',
         inputType: 'input',
         type: 'input',
         label: t('host'),
-        description: '',
+        className: 'col-span-2',
       },
     ],
     SES: [
@@ -101,28 +99,24 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         inputType: 'input',
         type: 'input',
         label: 'AWS SES Access Key id',
-        description: '',
       },
       {
         name: 'AWS_SES_SECRET_ACCESS_KEY',
         inputType: 'input',
-        type: 'input',
+        type: 'password',
         label: 'AWS SES Secret Access Key',
-        description: '',
       },
       {
         name: 'AWS_REGION',
         inputType: 'input',
         type: 'input',
         label: 'AWS Region',
-        description: '',
       },
       {
         name: 'AWS_SES_CONFIG_SET',
         inputType: 'input',
         type: 'input',
         label: 'AWS SES Config Set',
-        description: '',
       },
     ],
     sendgrid: [
@@ -146,6 +140,7 @@ export const MAIL_CONFIG_FIELDS: (t: TFunction) => TFormData = (t) => {
         type: 'input',
         label: 'SendGrid Webhook Public Key',
         description: t('sendgrid-webhook-key-desc'),
+        className: 'col-span-2',
       },
     ],
   };
