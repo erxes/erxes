@@ -218,3 +218,19 @@ export const DATA_EXTENSION_LIMITS = {
   recordsPageSize: 30,
   recordsPageMax: 100,
 } as const;
+
+/** Service name of the standalone Data Extensions app. */
+export const DATA_EXTENSIONS_SERVICE = 'dataextensions';
+
+/**
+ * Whether the standalone Data Extensions app serves this deployment. It
+ * is on when `dataextensions` is listed in `ENABLED_PLUGINS` or
+ * `ENABLED_PLUGINS_ONLY_API`; otherwise core serves Data Extensions. Core
+ * and the gateway read the same lists, so they always agree on who serves.
+ */
+export const isDataExtensionsServiceEnabled = () =>
+  [process.env.ENABLED_PLUGINS, process.env.ENABLED_PLUGINS_ONLY_API]
+    .join(',')
+    .split(',')
+    .map((name) => name.trim())
+    .includes(DATA_EXTENSIONS_SERVICE);

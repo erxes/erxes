@@ -126,6 +126,9 @@ type ConfigTypes = {
     typeDefs: DocumentNode;
   }>;
   expressRouter?: Router;
+  // Mounted before the shared body parsers, for routes that parse their own
+  // bodies with a tighter limit.
+  routerBeforeBodyParsers?: Router;
   apolloServerContext: (
     subdomain: string,
     context: any,
@@ -158,6 +161,7 @@ export async function startPlugin(
     // api configs
     corsOptions = {},
     expressRouter,
+    routerBeforeBodyParsers,
     middlewares,
     apiHandlers,
     // graphql
@@ -181,6 +185,10 @@ export async function startPlugin(
   applyTrustProxy(app);
   app.disable('x-powered-by');
   app.use(cors(corsOptions));
+
+  if (routerBeforeBodyParsers) {
+    app.use(routerBeforeBodyParsers);
+  }
   app.use(
     express.json({
       limit: '15mb',
