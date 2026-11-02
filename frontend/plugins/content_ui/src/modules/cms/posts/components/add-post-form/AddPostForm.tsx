@@ -402,7 +402,9 @@ export const AddPostForm = ({
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       {postizSheet}
       {savedRowLoad.hasFailed && (
-        <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+        <div className="mb-4 px-4">
+          <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+        </div>
       )}
       {postizAccess?.agentPostizTenantEnabled &&
         currentEditingPost?._id &&
