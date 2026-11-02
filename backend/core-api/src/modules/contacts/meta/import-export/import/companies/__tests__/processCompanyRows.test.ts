@@ -16,7 +16,7 @@ process.env.MONGO_URL = `mongodb://127.0.0.1:27017/${DATABASE}?directConnection=
 jest.setTimeout(30_000);
 
 type IProcessCompanyRows =
-  typeof import('../processCompanyRows')['processCompanyRows'];
+  (typeof import('../processCompanyRows'))['processCompanyRows'];
 
 type TImportRow = Record<string, string>;
 

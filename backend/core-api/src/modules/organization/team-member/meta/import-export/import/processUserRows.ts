@@ -9,21 +9,29 @@ export async function processUserRows(
   const errorRows: any[] = [];
 
   // Prefetch existing matches
-  const emails = rows.map((r) => r.email).filter(Boolean).map((x) => String(x).toLowerCase().trim());
-  const usernames = rows.map((r) => r.username).filter(Boolean).map((x) => String(x).trim());
-  const employeeIds = rows.map((r) => r.employeeId).filter(Boolean).map((x) => String(x).trim());
+  const emails = rows
+    .map((r) => r.email)
+    .filter(Boolean)
+    .map((x) => String(x).toLowerCase().trim());
+  const usernames = rows
+    .map((r) => r.username)
+    .filter(Boolean)
+    .map((x) => String(x).trim());
+  const employeeIds = rows
+    .map((r) => r.employeeId)
+    .filter(Boolean)
+    .map((x) => String(x).trim());
 
   const orFilters = [
-      ...(emails.length ? [{ email: { $in: emails } }] : []),
-      ...(usernames.length ? [{ username: { $in: usernames } }] : []),
-      ...(employeeIds.length ? [{ employeeId: { $in: employeeIds } }] : []),
-      ];
-    
+    ...(emails.length ? [{ email: { $in: emails } }] : []),
+    ...(usernames.length ? [{ username: { $in: usernames } }] : []),
+    ...(employeeIds.length ? [{ employeeId: { $in: employeeIds } }] : []),
+  ];
+
   const existingDocs = orFilters.length
-    ? await models.Users
-    .find({ $or: orFilters })
-    .select('_id email username employeeId')
-    .lean()
+    ? await models.Users.find({ $or: orFilters })
+        .select('_id email username employeeId')
+        .lean()
     : [];
 
   const byEmail = new Map<string, any>();
@@ -57,15 +65,24 @@ export async function processUserRows(
 
       // CSV internal dup check
       if (emailKey && seenEmail.has(emailKey)) {
-        errorRows.push({ ...row, error: `Duplicated in file: email ${emailKey}` });
+        errorRows.push({
+          ...row,
+          error: `Duplicated in file: email ${emailKey}`,
+        });
         continue;
       }
       if (userKey && seenUsername.has(userKey)) {
-        errorRows.push({ ...row, error: `Duplicated in file: username ${userKey}` });
+        errorRows.push({
+          ...row,
+          error: `Duplicated in file: username ${userKey}`,
+        });
         continue;
       }
       if (empKey && seenEmployeeId.has(empKey)) {
-        errorRows.push({ ...row, error: `Duplicated in file: employeeId ${empKey}` });
+        errorRows.push({
+          ...row,
+          error: `Duplicated in file: employeeId ${empKey}`,
+        });
         continue;
       }
       if (emailKey) seenEmail.add(emailKey);
@@ -89,8 +106,8 @@ export async function processUserRows(
       const created = await models.Users.createUser({
         username: doc.username,
         email: doc.email,
-        password: '',             
-        notUsePassword: true,      
+        password: '',
+        notUsePassword: true,
         details: doc.details,
         links: doc.links || [],
         groupIds: doc.groupIds,
@@ -107,13 +124,15 @@ export async function processUserRows(
       if (doc.propertiesData) extraSet.propertiesData = doc.propertiesData;
 
       try {
-          if (Object.keys(extraSet).length)
-            await models.Users.updateOne({ _id: created._id }, { $set: extraSet });
-        } catch (err) {
-          await models.Users.deleteOne({ _id: created._id });
-          throw err;
-        }
-        
+        if (Object.keys(extraSet).length)
+          await models.Users.updateOne(
+            { _id: created._id },
+            { $set: extraSet },
+          );
+      } catch (err) {
+        await models.Users.deleteOne({ _id: created._id });
+        throw err;
+      }
 
       successRows.push({ ...row, _id: created._id });
     } catch (e: any) {

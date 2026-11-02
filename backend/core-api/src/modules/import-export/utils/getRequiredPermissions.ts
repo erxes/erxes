@@ -24,8 +24,7 @@ export const getRequiredImportExportPermissions = async ({
   const plugin = await getPlugin(pluginName);
 
   const meta = plugin.config?.meta?.importExport as
-    | ImportExportMeta
-    | undefined;
+    ImportExportMeta | undefined;
 
   const types = meta?.[operation]?.types || [];
   const typeKey = toTypeKey(entityType);

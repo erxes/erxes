@@ -62,8 +62,8 @@ const escapeCsvField = (
     field === null || field === undefined
       ? ''
       : typeof field === 'string'
-      ? field
-      : String(field);
+        ? field
+        : String(field);
 
   if (value.includes('"') || value.includes(',') || value.includes('\n')) {
     return `"${value.replace(/"/g, '""')}"`;

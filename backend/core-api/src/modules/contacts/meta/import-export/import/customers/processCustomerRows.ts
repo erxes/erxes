@@ -6,8 +6,7 @@ import {
 import { prepareCustomerDoc } from './utils';
 
 type OpMeta =
-  | { row: any; type: 'insert' }
-  | { row: any; type: 'update'; _id: any };
+  { row: any; type: 'insert' } | { row: any; type: 'update'; _id: any };
 
 export async function processCustomerRows(
   models: IModels,
