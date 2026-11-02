@@ -55,30 +55,39 @@ export const TransactionsDelete = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeTrRecords, loading } = useTrRecordsRemove();
+  const parentIds = Array.from(
+    new Set(
+      table
+        .getFilteredSelectedRowModel()
+        .rows.map((row: Row<ITrRecord>) => row.original.parentId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
 
   const handleDelete = () =>
     confirm({
-      message: t('are-you-sure-delete-tr-records'),
+      message: t('are-you-sure-delete-selected-transactions', {
+        count: parentIds.length,
+      }),
       options: {
         okLabel: t('delete'),
         cancelLabel: t('cancel'),
       },
     }).then(() => {
-      const selectedRows = table.getFilteredSelectedRowModel().rows;
-
-      // Delete each transaction record by parentId
-      selectedRows.forEach((row) => {
-        if (row.original.parentId) {
-          removeTrRecords(row.original.parentId);
-        }
+      parentIds.forEach((parentId) => {
+        removeTrRecords(parentId);
       });
 
-      // Clear selection after deletion
       table.setRowSelection({});
     });
 
   return (
-    <Button variant="secondary" disabled={loading} onClick={handleDelete}>
+    <Button
+      variant="secondary"
+      className="text-destructive"
+      disabled={loading}
+      onClick={handleDelete}
+    >
       <IconTrash />
       {t('delete')}
     </Button>

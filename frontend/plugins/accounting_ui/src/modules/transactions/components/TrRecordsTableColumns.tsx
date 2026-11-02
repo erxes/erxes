@@ -216,7 +216,7 @@ const TransactionMoreColumnCell = ({
 
   const handleDelete = () =>
     confirm({
-      message: t('are-you-sure-delete-tr-record'),
+      message: t('are-you-sure-delete-selected-transactions', { count: 1 }),
       options: {
         okLabel: t('delete'),
         cancelLabel: t('cancel'),

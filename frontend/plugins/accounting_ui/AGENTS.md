@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -32,6 +32,7 @@
 - Job master, item, cost and unwound-output response types derive from generated fragments/queries. Lists, details and selectors preserve nullable response fields; only `jobFormValues` converts them to editable form defaults, reused when selecting execution jobs. Do not restore response-wide `normalizeJob` adapters or handwritten Job response interfaces.
 - Rspack awaits gateway schema composition and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Journal entry delete actions confirm in transactions, not lines. Selected rows reduce to unique `parentId` values and each parent is removed once.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
 - Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
