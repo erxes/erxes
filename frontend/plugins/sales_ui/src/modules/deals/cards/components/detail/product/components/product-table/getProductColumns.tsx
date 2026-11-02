@@ -540,10 +540,7 @@ export const uomRatio = (t: TFunction): ColumnDef<DealProductData> => ({
   id: 'uomInfo.ratio',
   accessorFn: (row) => getProductUomInfo(row).ratio,
   header: () => (
-    <RecordTable.InlineHead
-      icon={IconArrowsLeftRight}
-      label={t('ratio')}
-    />
+    <RecordTable.InlineHead icon={IconArrowsLeftRight} label={t('ratio')} />
   ),
   cell: ({ row }) => (
     <RecordTableInlineCell>

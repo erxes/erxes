@@ -212,14 +212,12 @@ const CardDetails = ({ deal }: { deal: IDeal }) => {
         <div className="mt-1 flex flex-col gap-1">
           <CardDetailBadges
             items={
-              tags
-                ?.filter(isDefined)
-                .map((tag) => ({
-                  ...tag,
-                  _id: tag._id ?? undefined,
-                  name: tag.name ?? '',
-                  colorCode: tag.colorCode ?? undefined,
-                })) || []
+              tags?.filter(isDefined).map((tag) => ({
+                ...tag,
+                _id: tag._id ?? undefined,
+                name: tag.name ?? '',
+                colorCode: tag.colorCode ?? undefined,
+              })) || []
             }
             color="#FF6600"
             maxVisibleItems={5}
