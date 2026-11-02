@@ -207,7 +207,8 @@
     "ldap": "LDAP",
     "two-factor": "Two-factor authentication",
     "security": "Security",
-    "active-directory": "Active Directory (LDAP)"
+    "active-directory": "Active Directory (LDAP)",
+    "support-access": "Support access"
   },
   "plugin": {
     "_": "Plugin",

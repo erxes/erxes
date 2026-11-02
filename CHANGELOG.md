@@ -1,5 +1,30 @@
 # Changelog
 
+## [3.4.8](https://github.com/erxes/erxes/compare/3.4.7...3.4.8) (2026-11-01)
+
+
+### Bug Fixes
+
+* **accounting:** show record titles instead of raw ids ([#10063](https://github.com/erxes/erxes/issues/10063)) ([b8e96ad](https://github.com/erxes/erxes/commit/b8e96adc7eba57869f316c7185bd7c52d52d286f))
+* copied deals createdAt now ([e004e01](https://github.com/erxes/erxes/commit/e004e010bef809e137dd9bdb6bafa4c1efc59753))
+* improve tab management and navigation state handling ([#10067](https://github.com/erxes/erxes/issues/10067)) ([6713e55](https://github.com/erxes/erxes/commit/6713e55ef25a52988492c624b11d03c7c4fd2708))
+* posclient and pos cover upgrade ([fb7cccf](https://github.com/erxes/erxes/commit/fb7cccf25fd7a0eb10ee6e1d67ca61084db54bb3))
+
+
+### Features
+
+* **accounting:** move fixed asset category and account set into the app side panel ([#10056](https://github.com/erxes/erxes/issues/10056)) ([45dd22a](https://github.com/erxes/erxes/commit/45dd22a59396560d7c2f9d514013cd70cf087f78))
+* **accounting:** open fixed asset and custodian forms in the app side panel ([#10073](https://github.com/erxes/erxes/issues/10073)) ([c45dd14](https://github.com/erxes/erxes/commit/c45dd14280fc38b10359251e4bf4827eb2d88634))
+* **accounting:** open inventory job cards in the shared record side panel ([#10058](https://github.com/erxes/erxes/issues/10058)) ([4dcdf76](https://github.com/erxes/erxes/commit/4dcdf767743b1f5bb50fc341ea0930e1ac320a90))
+* **accounting:** render adjustment, inventory count and fixed asset category forms in the app side panel ([#10068](https://github.com/erxes/erxes/issues/10068)) ([fbe6023](https://github.com/erxes/erxes/commit/fbe6023a02b38bb0f0647388764b98745fd7b2ec))
+* **auth:** named, time-limited support access to replace the shared owner account ([#10103](https://github.com/erxes/erxes/issues/10103)) ([bd40f2a](https://github.com/erxes/erxes/commit/bd40f2a63fe5f8a8163175fe61452bb8e11286c0))
+* **automations:** add execution timeline component and hooks for detailed run history ([9317af3](https://github.com/erxes/erxes/commit/9317af3ca0c72ce526308b5f808a1a268f7dbb94))
+* **companies:** integrate RecordTable for row selection management in CompaniesMerge ([534f47d](https://github.com/erxes/erxes/commit/534f47d422e66dad3dfba22642fb57eedcf9f24a))
+* **contacts:** merge companies from the companies table ([#10102](https://github.com/erxes/erxes/issues/10102)) ([8c2d9cb](https://github.com/erxes/erxes/commit/8c2d9cb7ee5d93f5dcbb4e251b8e45ea287e849f))
+* **frontline-widgets:** update docker entrypoint and rspack config for sub-path hosting; fix notification icon path ([2911148](https://github.com/erxes/erxes/commit/2911148fbf1799dc1025c74df5509821bdda54c7))
+* move team member detail to record side panel ([#10002](https://github.com/erxes/erxes/issues/10002)) ([6df213b](https://github.com/erxes/erxes/commit/6df213b8b193281392dda1554a638d25c5953721))
+* update frontline_api plugin documentation and enhance Facebook comment handling ([92e9b6f](https://github.com/erxes/erxes/commit/92e9b6f644464e3491d47a69b7fe70de50ca5531))
+
 ## [3.4.7](https://github.com/erxes/erxes/compare/3.4.6...3.4.7) (2026-10-29)
 
 

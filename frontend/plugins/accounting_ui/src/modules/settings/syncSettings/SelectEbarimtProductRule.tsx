@@ -57,14 +57,14 @@ const SelectEbarimtProductRules = ({
   const productRules: ProductRule[] = data?.ebarimtProductRules?.list || [];
   const options: MultiSelectOption[] = productRules.map((rule) => ({
     value: rule._id,
-    label: rule.title || rule._id,
+    label: rule.title || t('untitled-rule'),
   }));
   const selectedRuleIds = normalizeRuleIds(value);
   const selectedOptions: MultiSelectOption[] = selectedRuleIds.map((ruleId) => {
     const rule = productRules.find((productRule) => productRule._id === ruleId);
     return {
       value: ruleId,
-      label: rule?.title || ruleId,
+      label: rule?.title || t(loading ? 'loading' : 'untitled-rule'),
     };
   });
 

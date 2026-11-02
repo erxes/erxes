@@ -18,7 +18,7 @@ import {
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
 import {
   SettingsPanelDescriptionField,
-  SettingsPanelTextField,
+  SettingsPanelNameCodeFields,
 } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
@@ -134,22 +134,12 @@ const AccountCategoryPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!category}>
       {category && (
         <>
-          <PanelField label={t('name')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.name`}
-              value={category.name || ''}
-              placeholder={t('name')}
-              onSave={(name) => name.trim() && save(category, { name })}
-            />
-          </PanelField>
-          <PanelField label={t('code')}>
-            <SettingsPanelTextField
-              scope={`${SCOPE}.code`}
-              value={category.code || ''}
-              placeholder={t('code')}
-              onSave={(code) => code.trim() && save(category, { code })}
-            />
-          </PanelField>
+          <SettingsPanelNameCodeFields
+            scope={SCOPE}
+            name={category.name}
+            code={category.code}
+            onSave={(fields) => save(category, fields)}
+          />
           <PanelField label={t('parent')}>
             <SelectAccountCategory
               recordId={`${SCOPE}.parent`}

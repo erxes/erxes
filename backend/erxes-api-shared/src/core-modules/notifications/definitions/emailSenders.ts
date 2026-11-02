@@ -12,6 +12,8 @@ export interface IEmailSenderDocument extends Document {
 
   state: TEmailSenderState;
   providerId?: string;
+  // the provider credentials a domain claim was confirmed with, hashed
+  credentialHash?: string;
 
   verifiedAt?: Date;
   verificationToken?: string;
@@ -54,6 +56,10 @@ export const emailSenderSchema = new Schema({
   },
 
   providerId: {
+    type: String,
+  },
+
+  credentialHash: {
     type: String,
   },
 

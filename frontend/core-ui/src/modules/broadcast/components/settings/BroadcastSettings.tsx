@@ -5,6 +5,7 @@ import {
   BROADCAST_PROVIDER_FIELD,
 } from '@/broadcast/hooks/useBroadcastEmailCredentials';
 import { useBroadcastSettingsForm } from '@/broadcast/hooks/useBroadcastSettingsForm';
+import { FromDomainStatus } from '@/settings/mail-config/components/FromDomainStatus';
 import { VerifiedSenders } from '@/settings/mail-config/components/VerifiedSenders';
 import { EmailSenderScopeProvider } from '@/settings/mail-config/contexts/EmailSenderScope';
 import { Form, Input, Select } from 'erxes-ui';
@@ -125,6 +126,7 @@ export const BroadcastSettings = () => {
           </Form.Item>
 
           {usesOwnCredentials && <BroadcastCredentialsNotice />}
+          {usesOwnCredentials && <FromDomainStatus className="col-span-2" />}
         </EmailSenderScopeProvider>
       </form>
     </Form>

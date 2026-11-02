@@ -1,10 +1,13 @@
 import type { MutationHookOptions } from '@apollo/client';
-import { withMutationToast } from '@/utils/graphqlMutation';
+import {
+  notifyMutationResult,
+  withMutationErrorToast,
+  withMutationToast,
+} from '@/utils/graphqlMutation';
 
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
-import { getI18n, useTranslation } from 'react-i18next';
-import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import {
   FIXED_ASSET_CATEGORIES_ADD,
   FIXED_ASSET_CATEGORIES_EDIT,
@@ -20,18 +23,7 @@ import {
 const withToast = <Data, Variables extends Record<string, unknown>>(
   options: MutationHookOptions<Data, Variables>,
   message: string,
-) =>
-  withMutationToast(
-    options,
-    (success, description) => {
-      toast({
-        title: getI18n().t(success ? 'success' : 'error', { ns: 'accounting' }),
-        description,
-        variant: success ? 'success' : 'destructive',
-      });
-    },
-    message,
-  );
+) => withMutationToast(options, notifyMutationResult, message);
 
 const withoutUsefulLifeVariables = <
   Options extends { variables?: Record<string, unknown> },
@@ -71,10 +63,10 @@ export const useFixedAssetCategoryAdd = () => {
 };
 
 export const useFixedAssetCategoryEdit = () => {
-  const { t } = useTranslation('accounting');
   const [mutate, { loading }] = useMutation(FIXED_ASSET_CATEGORIES_EDIT, {
     refetchQueries: [
       'accountingFixedAssetCategories',
+      'accountingFixedAssetCategoryDetail',
       'accountingSettingsFixedAssets',
     ],
   });
@@ -82,13 +74,7 @@ export const useFixedAssetCategoryEdit = () => {
   return {
     editFixedAssetCategory: (
       options: GraphqlMutationOptions<typeof FIXED_ASSET_CATEGORIES_EDIT>,
-    ) =>
-      mutate(
-        withToast(
-          withoutUsefulLifeVariables(options),
-          t('fixed-asset-category-updated-successfully'),
-        ),
-      ),
+    ) => mutate(withMutationErrorToast(withoutUsefulLifeVariables(options))),
     loading,
   };
 };

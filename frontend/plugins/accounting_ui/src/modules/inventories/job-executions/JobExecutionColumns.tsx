@@ -188,7 +188,7 @@ const ExecutionDateCell = ({ row }: CellContext<JobExecution, unknown>) => (
 );
 const ExecutionNameCell = ({ row }: CellContext<JobExecution, unknown>) => (
   <RecordTableInlineCell>
-    {row.original.jobs.map((job) => job.jobName || job.jobId).join(', ')}
+    {row.original.jobs.map((job) => job.jobName || '-').join(', ')}
   </RecordTableInlineCell>
 );
 const ExecutionQuantityCell = ({ row }: CellContext<JobExecution, unknown>) => (
