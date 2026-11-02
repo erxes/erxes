@@ -234,10 +234,20 @@ import {
 } from '@/search/graphql/schema';
 import { queries as ReferenceQueries } from '~/meta/references/graphql/schema';
 import {
-  mutations as DataExtensionMutations,
-  queries as DataExtensionQueries,
-  types as DataExtensionTypes,
+  mutations as dataExtensionMutationDefs,
+  queries as dataExtensionQueryDefs,
+  types as dataExtensionTypeDefs,
 } from '@/data-extensions/graphql/schemas';
+import { isDataExtensionsServiceEnabled } from 'erxes-api-shared/core-modules';
+
+// When the standalone Data Extensions app runs, it serves these instead;
+// both declaring them would break the gateway's supergraph.
+const servesDataExtensions = !isDataExtensionsServiceEnabled();
+const DataExtensionTypes = servesDataExtensions ? dataExtensionTypeDefs : '';
+const DataExtensionQueries = servesDataExtensions ? dataExtensionQueryDefs : '';
+const DataExtensionMutations = servesDataExtensions
+  ? dataExtensionMutationDefs
+  : '';
 
 import {
   mutations as AgentsConnectionMutations,

@@ -20,6 +20,7 @@ import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
   applyDataExtensionsProxy,
+  refuseDataExtensionsPluginProxy,
   applyProxiesCoreless,
   applyProxyToCore,
   proxyReq,
@@ -189,6 +190,8 @@ app.get('/locales/:lng/:file', async (req, res) => {
 
   return res.json(locale);
 });
+
+refuseDataExtensionsPluginProxy(app);
 
 app.use('/pl:serviceName', async (req, res) => {
   try {
