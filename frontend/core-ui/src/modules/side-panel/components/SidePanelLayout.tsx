@@ -436,8 +436,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-      ? DETAIL_TAB
-      : ACTIVITY_TAB;
+        ? DETAIL_TAB
+        : ACTIVITY_TAB;
 
   return (
     <>
