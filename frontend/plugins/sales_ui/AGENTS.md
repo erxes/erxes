@@ -371,7 +371,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   rows keep the selected `user` for the assignee column.
 - The Covers list reads its total from `posCoversCount` (same filter
   arguments, same document as `posCovers`) so `hasNextPage` loads pages past
-  the first 30; it writes that count on every result, including
+  the first 30; each fetched page replaces it with that page's
+  `posCoversCount`, like Items; it writes that count on every result, including
   0, and resets it to `null` (skeleton) while a new result loads; a failed
   `posCovers` request shows the error alert like Orders, never the empty state.
 - POS report list documents (Orders, Items, ByItems, Summary, Covers) declare

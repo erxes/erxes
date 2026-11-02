@@ -95,6 +95,7 @@ export const useCoversList = (
         return {
           ...prev,
           posCovers: [...(prev.posCovers || []), ...fetchMoreResult.posCovers],
+          posCoversCount: fetchMoreResult.posCoversCount ?? prev.posCoversCount,
         };
       },
     });
