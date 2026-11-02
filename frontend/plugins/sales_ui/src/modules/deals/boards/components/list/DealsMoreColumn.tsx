@@ -1,10 +1,5 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useSidePanel } from 'ui-modules';
 import {
   IconArchive,

@@ -330,7 +330,7 @@ export const ProductsPayment = ({
 
     if (qrModal.password && customer?._id === qrModal.password) {
       const payInfo = payInfoByType[typeName];
-      const availableAmount = payInfo?.unavailable ? 0 : payInfo?.limit ?? 0;
+      const availableAmount = payInfo?.unavailable ? 0 : (payInfo?.limit ?? 0);
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
