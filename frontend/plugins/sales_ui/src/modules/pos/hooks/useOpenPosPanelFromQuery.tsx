@@ -7,7 +7,7 @@ const keepId = (value: string) => value;
 export const useOpenPosPanelFromQuery = (
   queryKey: string,
   contentType: string,
-  toContentId: (value: string) => string = keepId,
+  toContentId: (value: string) => string | Promise<string> = keepId,
 ) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const value = searchParams.get(queryKey);
@@ -17,20 +17,29 @@ export const useOpenPosPanelFromQuery = (
       return;
     }
 
-    setSearchParams(
-      (previous) => {
-        const next = new URLSearchParams(previous);
-        next.delete(queryKey);
-        next.set(
-          SIDE_PANEL_QUERY_KEY,
-          getSidePanelRecordPath({
-            contentType,
-            contentId: toContentId(value),
-          }),
-        );
-        return next;
-      },
-      { replace: true },
-    );
+    let cancelled = false;
+
+    Promise.resolve(toContentId(value)).then((contentId) => {
+      if (cancelled) {
+        return;
+      }
+
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          next.delete(queryKey);
+          next.set(
+            SIDE_PANEL_QUERY_KEY,
+            getSidePanelRecordPath({ contentType, contentId }),
+          );
+          return next;
+        },
+        { replace: true },
+      );
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [value, queryKey, contentType, toContentId, setSearchParams]);
 };

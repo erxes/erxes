@@ -20,8 +20,11 @@ export const PosOrdersContactSection = ({
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('sales');
   const { openRecord } = useSidePanel();
-  const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canReadOrders = isLoaded && hasActionPermission('posOrderRead');
+  const { isLoaded, getModuleActions } = usePermissionCheck();
+  const posActions = getModuleActions('pos');
+  const canReadOrders =
+    isLoaded &&
+    (posActions.includes('*') || posActions.includes('posOrderRead'));
   const { data, loading, error } = useQuery(SALES_CONTACT_POS_ORDERS, {
     variables: {
       customerId: contentId,

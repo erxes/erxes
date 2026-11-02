@@ -89,6 +89,10 @@ export const usePosOrderPayments = (posOrder?: TPosOrder) => {
         update: (cache) => {
           cache.evict({ id: 'ROOT_QUERY', fieldName: 'posOrderRecords' });
           cache.evict({ id: 'ROOT_QUERY', fieldName: 'posOrdersSummary' });
+          cache.evict({
+            id: 'ROOT_QUERY',
+            fieldName: 'posOrdersGroupSummary',
+          });
         },
         onCompleted: () =>
           toast({ title: t('order-updated-successfully'), variant: 'success' }),

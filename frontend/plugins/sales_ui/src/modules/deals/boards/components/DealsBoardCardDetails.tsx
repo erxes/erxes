@@ -11,8 +11,8 @@ import { Avatar, Tooltip, cn } from 'erxes-ui';
 export interface DealCardProductItem {
   _id?: string | null;
   name: string;
-  quantity: number;
-  unitPrice: number;
+  quantity?: number | null;
+  unitPrice?: number | null;
   amount: number;
   currency?: string;
 }
@@ -129,10 +129,12 @@ export const DealCardProducts = ({
                   </Tooltip.Trigger>
                   <Tooltip.Content>{item.name}</Tooltip.Content>
                 </Tooltip>
-                <div className="text-[9px] leading-3 text-muted-foreground tabular-nums">
-                  {item.quantity.toLocaleString()} ×{' '}
-                  {formatAmount(item.unitPrice, item.currency)}
-                </div>
+                {item.quantity != null && item.unitPrice != null && (
+                  <div className="text-[9px] leading-3 text-muted-foreground tabular-nums">
+                    {item.quantity.toLocaleString()} ×{' '}
+                    {formatAmount(item.unitPrice, item.currency)}
+                  </div>
+                )}
               </div>
               <span className="shrink-0 pb-0.5 text-[10px] font-medium text-foreground tabular-nums">
                 {formatAmount(item.amount, item.currency)}

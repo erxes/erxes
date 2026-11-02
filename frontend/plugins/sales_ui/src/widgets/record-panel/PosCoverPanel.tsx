@@ -232,8 +232,8 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                       .map((summary, index) => ({
                         _id: summary._id || `${index}`,
                         name: summary.kind || '-',
-                        quantity: summary.value || 0,
-                        unitPrice: summary.kindOfVal || 0,
+                        quantity: summary.value ?? null,
+                        unitPrice: summary.kindOfVal ?? null,
                         amount: summary.amount || 0,
                       }))}
                     maxVisible={(detail.paidSummary || []).length}

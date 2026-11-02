@@ -34,8 +34,11 @@
   history link and the API's automation `link` open the Orders page with the
   panel's `panel` query key. The old sheets' links are rewritten to the panel
   by `useOpenPosPanelFromQuery` (`modules/pos/hooks`): Orders `pos_order_id`,
-  Covers `pos_cover_id`, and Items `pos_order_id` (`<order>_<item>`;
-  `toLegacyPosItemOrderId` strips the 21-character nanoid item id). Both
+  Covers `pos_cover_id`, and Items `pos_order_id` (`<order>_<item>`: both ids
+  may contain `_` and item ids have no fixed length, as the POS client may
+  send its own, so `useResolvePosItemOrderId` tries each `_` split from
+  `getPosItemRowIdSplits` and keeps the order whose items hold the rest; it
+  never splits by position or at the first `_`). Both
   detail views follow operation's layout (`PosPanelFields` / `PosPanelAside`):
   one column, two from the panel's `@3xl` width with the aside capped at
   `max-w-3xl`. An order shows its customer (opens the customer / company panel stacked; a
@@ -48,8 +51,9 @@
   `totalAmount`, shown as "Total Amount" above the form as the old sheet did,
   `return` orders are locked (inputs and Save disabled under a
   warning; `complete` orders stay editable, as the backend allows), saving refetches
-  `salesPosOrderDetail` and evicts cached `posOrderRecords` and
-  `posOrdersSummary`, so the Items list and the Orders payment-type columns
+  `salesPosOrderDetail` and evicts cached `posOrderRecords`,
+  `posOrdersSummary` and `posOrdersGroupSummary` (JSON, not normalized), so
+  the Items list, the Orders payment-type columns and the Summary report
   read again without a named refetch warning on other pages; list rows of
   `posOrders` update through the returned `PosOrder`). Only the order title
   reads `cache-and-network`; the detail view reads `cache-first`, so tab
@@ -59,7 +63,10 @@
   fields, then a Payments section (each paid type's `paidSummary` rows as
   `DealCardProducts` with `icon={IconCreditCard}`: stored `kind` as the name,
   `value × kindOfVal`, `amount`, never derived or hard-coded per paid type, as
-  the old sheet's Kind / Kind of val / Value / Amount columns; the total under them)
+  the old sheet's Kind / Kind of val / Value / Amount columns; missing
+  `value` / `kindOfVal` stay `null`, never `0`, and `DealCardProducts` then
+  omits the quantity × price line, as compact rows hide absent meta; the
+  total under them)
   and the Sales note form; its delete action
   closes the panel. Activity shows only the
   record's logs (`showInternalNotes={false}`, no note box), as POS had no
@@ -274,7 +281,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 ### Provides
 
 - `widgets.recordPanels: [{ contentType: 'sales:pos.orders', properties: false, tabs: [{ value: 'payments', after: 'detail' }] }, { contentType: 'sales:pos.covers', properties: false }]` (`modules/pos/constants/posPanel.ts`) with `./recordPanel` (`src/widgets/record-panel/RecordPanel.tsx`): order views `title` (`#<number>`), `detail`, `activity`, `tab` `payments` (core labels it with `t('payments')` in the `sales` namespace and draws it between Detail and Activity; the core `recordPanels[].tabs` support is carried in this branch's core diff); cover views `title` (POS name), `actions` (delete), `detail`, `activity`. `sales:pos.orders` is the order content type the backend already uses (segments, automations, payment callbacks); covers have no backend content type, so `sales:pos.covers` names them for the panel only.
-- `widgets.contactWidgets: [{ name: 'posOrders' }]` (`src/widgets/contact/PosOrdersContactSection.tsx`): the POS orders section of a customer's / company's Relations overview, from `posOrders(customerId, customerType)` (`salesContactPosOrders`; companies are kept on orders as `customerId` with `customerType: 'company'`), rows (`#number`, total · date) opening the order panel stacked on the contact's panel. Users without the `posOrderRead` action (`usePermissionCheck`) get no section and no query; a failed query shows the translated `failed-to-load-pos-orders` text, never the raw server message (the header count still reads 0: `ContactWidgetSection` has no error state). Same name as the `posOrders` relation widget, so core lists this section instead of that widget under More; that widget reads orders by `dealId` and has no host beside a deal any more.
+- `widgets.contactWidgets: [{ name: 'posOrders' }]` (`src/widgets/contact/PosOrdersContactSection.tsx`): the POS orders section of a customer's / company's Relations overview, from `posOrders(customerId, customerType)` (`salesContactPosOrders`; companies are kept on orders as `customerId` with `customerType: 'company'`), rows (`#number`, total · date) opening the order panel stacked on the contact's panel. Users without the `posOrderRead` action get no section and no query: `usePermissionCheck().getModuleActions('pos')` must hold `*` or `posOrderRead`, since a module `*` grant reaches the frontend unexpanded and `hasActionPermission` misses it while the API allows it; a failed query shows the translated `failed-to-load-pos-orders` text, never the raw server message (the header count still reads 0: `ContactWidgetSection` has no error state). Same name as the `posOrders` relation widget, so core lists this section instead of that widget under More; that widget reads orders by `dealId` and has no host beside a deal any more.
 - `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
@@ -440,6 +447,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   variables, arguments, and selections.
   Check generated TypeScript names too: operation names differing only in
   letter case can generate the same PascalCase identifiers.
+- The Orders and Summary payment-type columns (`generateOtherPaymentColumns`)
+  are keyed `payment_<title>`, never by position: `RecordTable` keeps saved
+  column order, visibility and widths by id per `tableId` (shared by every
+  POS) and appends unknown ids at the end, so a positional id moves columns
+  whenever a POS's payment types differ or change (as `useFieldsColumns`
+  keys property columns by `field._id`).
 - POS report operations use their report context in their names (Orders,
   ByItems, Covers, Items, or Summary), even when their selections are identical.
   Keep document exports stable for their existing hooks and selectors.

@@ -108,13 +108,22 @@ export const toPosItemOrderId = ({
   return suffix && _id.endsWith(suffix) ? _id.slice(0, -suffix.length) : _id;
 };
 
-const POS_ITEM_ID_SUFFIX_LENGTH = 22;
+export const getPosItemRowIdSplits = (rowId: string) => {
+  const splits: { orderId: string; itemId: string }[] = [];
 
-export const toLegacyPosItemOrderId = (rowId: string) =>
-  rowId.length > POS_ITEM_ID_SUFFIX_LENGTH &&
-  rowId[rowId.length - POS_ITEM_ID_SUFFIX_LENGTH] === '_'
-    ? rowId.slice(0, -POS_ITEM_ID_SUFFIX_LENGTH)
-    : rowId;
+  for (
+    let index = rowId.indexOf('_');
+    index > 0 && index < rowId.length - 1;
+    index = rowId.indexOf('_', index + 1)
+  ) {
+    splits.push({
+      orderId: rowId.slice(0, index),
+      itemId: rowId.slice(index + 1),
+    });
+  }
+
+  return splits;
+};
 
 export const toPosOrderDetail = <
   T extends NonNullable<SalesPosOrderDetailQuery['posOrderDetail']>,

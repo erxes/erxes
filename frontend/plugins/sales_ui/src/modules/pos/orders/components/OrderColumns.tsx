@@ -65,8 +65,8 @@ export const generateOtherPaymentColumns = (
     )
     .sort();
 
-  return otherPayTitles.map((title: string, index) => ({
-    id: `${title}_${index}`,
+  return otherPayTitles.map((title: string) => ({
+    id: `payment_${title}`,
     header: () => (
       <RecordTable.InlineHead
         icon={IconClock}
