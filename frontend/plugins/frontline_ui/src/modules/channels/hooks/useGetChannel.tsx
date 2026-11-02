@@ -5,9 +5,9 @@ import type { GetChannelQuery, GetChannelQueryVariables } from '~/gql/graphql';
 export const useGetChannel = (
   options?: QueryHookOptions<GetChannelQuery, GetChannelQueryVariables>,
 ) => {
-  const { data, loading, refetch } = useQuery(GET_CHANNEL, options);
+  const { data, loading, error, refetch } = useQuery(GET_CHANNEL, options);
 
   const channel = data?.getChannel ?? undefined;
 
-  return { channel, loading, refetch };
+  return { channel, loading, error, refetch };
 };

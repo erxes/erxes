@@ -10,8 +10,35 @@ import {
   Spinner,
   useConfirm,
 } from 'erxes-ui';
-import { useNavigate } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
+import { CHANNEL_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useCanManageChannels } from '@/channels/hooks/useCanManageChannels';
 import { useTranslation } from 'react-i18next';
+
+const ChannelActionCommands = ({
+  handleEdit,
+  handleDelete,
+  loading,
+}: {
+  handleEdit: () => void;
+  handleDelete: () => void;
+  loading: boolean;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={handleEdit}>
+          <IconEdit /> {t('edit', 'Edit')}
+        </Command.Item>
+        <Command.Item value="delete" disabled={loading} onSelect={handleDelete}>
+          {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+          {t('delete', 'Delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+};
 
 export const ChannelsMoreColumnCell = ({
   cell,
@@ -20,12 +47,13 @@ export const ChannelsMoreColumnCell = ({
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { _id } = cell.row.original;
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
+  const canManage = useCanManageChannels([_id]);
   const { removeChannel, loading } = useChannelRemove();
   const { confirm } = useConfirm();
 
   const handleEdit = () => {
-    navigate(`/frontline/settings/channels/${_id}`);
+    openRecord({ contentType: CHANNEL_CONTENT_TYPE, contentId: _id });
   };
 
   const handleDelete = () => {
@@ -38,10 +66,14 @@ export const ChannelsMoreColumnCell = ({
     confirm({
       message: confirmationMessage,
       options: { confirmationValue },
-    }).then(() => {
-      removeChannel({ variables: { id: _id } });
-    });
+    })
+      .then(() => {
+        removeChannel({ variables: { id: _id } });
+      })
+      .catch(() => undefined);
   };
+
+  if (!canManage(_id)) return null;
 
   return (
     <Popover>
@@ -49,17 +81,11 @@ export const ChannelsMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit', 'Edit')}
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
-              {t('delete', 'Delete')}
-            </Command.Item>
-          </Command.List>
-        </Command>
+        <ChannelActionCommands
+          handleEdit={handleEdit}
+          handleDelete={handleDelete}
+          loading={loading}
+        />
       </Combobox.Content>
     </Popover>
   );

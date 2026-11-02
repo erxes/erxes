@@ -1,7 +1,6 @@
 import {
   Label,
   Input,
-  Sheet,
   ToggleGroup,
   Button,
   Select,
@@ -15,6 +14,7 @@ import { IFieldData, useFormDnd } from './FormDndProvider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
+import { RecordSidePanel } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
 import { useFormFieldConversion } from '../hooks/useFormFieldConversion';
@@ -227,11 +227,8 @@ export const FormFieldDetail = ({
 
   return (
     <div className="flex flex-col gap-0 size-full">
-      <Sheet.Header>
-        <Sheet.Title className="truncate min-w-0">{draft?.label}</Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content className="grow size-full overflow-y-hidden flex flex-col">
+      <RecordSidePanel.Header title={draft.label} onClose={handleClose} />
+      <div className="grow min-h-0 overflow-y-hidden flex flex-col">
         <ScrollArea className="h-full">
           <div className="grid grid-cols-2 gap-4 p-6">
             {(conversionTargets.length > 0 || draft.type !== originalType) && (
@@ -249,13 +246,13 @@ export const FormFieldDetail = ({
                           expectedType:
                             type === originalType
                               ? undefined
-                              : previous.expectedType ?? previous.type,
+                              : (previous.expectedType ?? previous.type),
                           type,
                           validation:
                             type === originalType
-                              ? conversionCheck.savedField?.validation ??
+                              ? (conversionCheck.savedField?.validation ??
                                 fieldData?.validation ??
-                                ''
+                                '')
                               : getConvertedFieldValidation(type),
                           validator:
                             type === originalType
@@ -626,8 +623,8 @@ export const FormFieldDetail = ({
             </div>
           </div>
         </ScrollArea>
-      </Sheet.Content>
-      <Sheet.Footer>
+      </div>
+      <div className="flex shrink-0 justify-end gap-2 border-t p-3">
         <Button
           variant="secondary"
           className="text-destructive bg-destructive/10 hover:bg-destructive/20"
@@ -639,23 +636,7 @@ export const FormFieldDetail = ({
         <Button onClick={handleConfirm} disabled={!conversionCheck.canConfirm}>
           {t('confirm', 'Confirm')}
         </Button>
-      </Sheet.Footer>
+      </div>
     </div>
-  );
-};
-
-export const FormFieldDetailSheet = ({
-  open,
-  onOpenChange,
-  children,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  children: React.ReactNode;
-}) => {
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.View>{open && children}</Sheet.View>
-    </Sheet>
   );
 };

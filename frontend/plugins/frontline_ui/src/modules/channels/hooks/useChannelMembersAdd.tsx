@@ -1,3 +1,4 @@
+import { CHANNEL_REFETCH_QUERIES } from '@/channels/constants/refetchQueries';
 import { ADD_CHANNEL_MEMBERS } from '@/channels/graphql';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import type {
@@ -19,7 +20,7 @@ export const useChannelMembersAdd = () => {
       onCompleted: (data) => {
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['GetChannelMembers'],
+      refetchQueries: CHANNEL_REFETCH_QUERIES,
     });
   };
   return { channelAddMembers: handleChannelMembersAdd, loading, error };

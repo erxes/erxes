@@ -1,7 +1,7 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { GET_TICKET_CONFIGS } from '../graphql';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { compactList } from '@/shared/utils/cursorList';
 import type {
   TicketConfigsQuery,
@@ -15,14 +15,14 @@ export type IConfig = NonNullable<
 export const useGetTicketConfigs = (
   options?: QueryHookOptions<TicketConfigsQuery, TicketConfigsQueryVariables>,
 ) => {
-  const { id } = useParams<{ id: string }>();
-  const effectiveChannelId = options?.variables?.channelId || id;
+  const { id } = useSettingsParams();
+  const effectiveChannelId = options?.variables?.channelId ?? id;
   const { data, loading, error } = useQuery(GET_TICKET_CONFIGS, {
     ...options,
     variables: effectiveChannelId
       ? { channelId: effectiveChannelId }
       : undefined,
-    skip: !effectiveChannelId,
+    skip: options?.skip || !effectiveChannelId,
   });
 
   const ticketConfigs = useMemo(

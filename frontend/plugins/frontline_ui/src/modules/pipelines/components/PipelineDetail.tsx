@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { CreatePipelineForm } from '@/pipelines/components/CreatePipelineForm';
 import { useForm } from 'react-hook-form';
@@ -13,9 +13,7 @@ import { PipelineConfig } from '@/pipelines/components/PipelineConfig';
 
 export const PipelineDetail = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
-  const { pipelineId } = useParams<{
-    pipelineId: string;
-  }>();
+  const { pipelineId } = useSettingsParams();
   const { pipeline } = useGetPipeline(pipelineId);
   const { updatePipeline, loading: updating } = useUpdatePipeline();
 

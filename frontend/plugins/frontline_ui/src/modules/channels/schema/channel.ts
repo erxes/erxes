@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CHANNEL_SCHEMA = z.object({
-  name: z.string(),
+  name: z.string().trim().min(1, 'Name is required'),
   icon: z.string().optional().nullable(),
   description: z.string().optional(),
   memberIds: z.string().array().optional(),

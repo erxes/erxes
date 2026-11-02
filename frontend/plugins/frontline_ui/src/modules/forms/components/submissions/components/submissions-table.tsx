@@ -11,7 +11,6 @@ import {
   isDefined,
   parseFilesAsAttachments,
   readImage,
-  useQueryState,
 } from 'erxes-ui';
 import { format } from 'date-fns';
 import { useMemo } from 'react';
@@ -24,13 +23,15 @@ import {
   IconCircleDashedX,
   IconEdit,
 } from '@tabler/icons-react';
+import { useSidePanel } from 'ui-modules';
+import { FORM_SUBMISSION_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 
 type FlatRow = { _id: string } & Record<string, unknown>;
 
-const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
+const SubmissionActionsCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id } = cell.row.original;
-  const [, setSubmissionId] = useQueryState<string>('submissionId');
+  const { openRecord } = useSidePanel();
 
   return (
     <DropdownMenu>
@@ -39,7 +40,14 @@ const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
       </DropdownMenu.Trigger>
 
       <DropdownMenu.Content side="bottom" align="start">
-        <DropdownMenu.Item onSelect={() => setSubmissionId(_id)}>
+        <DropdownMenu.Item
+          onSelect={() =>
+            openRecord({
+              contentType: FORM_SUBMISSION_CONTENT_TYPE,
+              contentId: _id,
+            })
+          }
+        >
           <IconEdit />
           {t('edit', 'Edit')}
         </DropdownMenu.Item>
@@ -63,6 +71,146 @@ export const CheckboxCell = ({ value }: { value: string[] }) => {
   );
 };
 
+const parseSubmissionChecks = (value: unknown): string[] => {
+  let checks: string[] = [];
+  if (value && typeof value === 'string' && value.trim() !== '') {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed)) checks = parsed.map(String);
+    } catch {
+      checks = [String(value)];
+    }
+  }
+  return checks;
+};
+
+const SubmissionSelectCell = ({ value }: { value: unknown }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  let options: string[] = [];
+  if (value && typeof value === 'string' && value.trim()) {
+    try {
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed)) options = parsed.map(String).filter(Boolean);
+      else options = [String(value)];
+    } catch {
+      options = [String(value)];
+    }
+  } else if (value) {
+    options = [String(value)];
+  }
+  if (!options.length) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+  return (
+    <RecordTableInlineCell className="flex gap-1 flex-wrap">
+      {options.length === 1 ? (
+        <Badge variant="info" className="rounded-lg">
+          {options[0]}
+        </Badge>
+      ) : (
+        <Badge variant="info" className="rounded-lg">
+          <IconCheckbox size={12} />
+          {t('n-selected', '{{count}} selected', {
+            count: options.length,
+          })}
+        </Badge>
+      )}
+    </RecordTableInlineCell>
+  );
+};
+
+const SubmissionDateCell = ({ value }: { value: unknown }) => {
+  const date = typeof value === 'string' ? new Date(value) : undefined;
+  const formatted =
+    date && !Number.isNaN(date.getTime())
+      ? format(date, 'MMM d, yyyy')
+      : String(value);
+  return (
+    <RecordTableInlineCell className="truncate">
+      {formatted}
+    </RecordTableInlineCell>
+  );
+};
+
+const SubmissionAvatarCell = ({ value }: { value: unknown }) => {
+  return (
+    <RecordTableInlineCell>
+      <Avatar size={'lg'}>
+        <Avatar.Image
+          src={readImage(decodeURIComponent(String(value ?? '')))}
+          alt="avatar"
+        />
+        <Avatar.Fallback>C</Avatar.Fallback>
+      </Avatar>
+    </RecordTableInlineCell>
+  );
+};
+
+const SubmissionFieldCell = ({
+  field,
+  value,
+}: {
+  field: IFormField;
+  value: unknown;
+}) => {
+  if (value === null || value === undefined || value === '') {
+    return <RecordTableInlineCell />;
+  }
+
+  if (field.type === 'core:customer:avatar')
+    return <SubmissionAvatarCell value={value} />;
+
+  if (field.type === 'file') {
+    return <Attachments.Inline attachments={parseFilesAsAttachments(value)} />;
+  }
+
+  if (field.type === 'core:customer:birthDate' || field.type === 'date') {
+    return <SubmissionDateCell value={value} />;
+  }
+
+  if (field.type === 'check')
+    return <CheckboxCell value={parseSubmissionChecks(value)} />;
+
+  if (field.type === 'select') return <SubmissionSelectCell value={value} />;
+
+  if (field.type === 'boolean') {
+    return (
+      <RecordTableInlineCell className="truncate">
+        {String(value) === 'true' ? (
+          <Badge variant={'success'}>
+            <IconCircleDashedCheck size={16} />
+          </Badge>
+        ) : (
+          <Badge variant="destructive">
+            <IconCircleDashedX size={16} />
+          </Badge>
+        )}
+      </RecordTableInlineCell>
+    );
+  }
+  if (field.type === 'radio') {
+    return (
+      <RecordTableInlineCell>
+        <Badge variant={'info'} className="rounded-lg">
+          <IconCheckbox size={12} />
+          {String(value ?? '')}
+        </Badge>
+      </RecordTableInlineCell>
+    );
+  }
+
+  return (
+    <RecordTableInlineCell className="truncate">
+      {String(value ?? '')}
+    </RecordTableInlineCell>
+  );
+};
+
+const SubmissionSubmittedAtHeader = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  return <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />;
+};
+
 function buildColumnsAndRows(
   submissions: IFormSubmission[],
   fields: IFormField[],
@@ -73,23 +221,22 @@ function buildColumnsAndRows(
   const submittedAtColumn: ColumnDef<FlatRow> = {
     id: '__submittedAt',
     accessorKey: '__submittedAt',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
-      return (
-        <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
-      );
-    },
+    header: SubmissionSubmittedAtHeader,
     cell: function SubmittedAtCell(cell) {
-      const value = cell.getValue() as string | undefined;
+      const value = cell.getValue();
       const { _id } = cell.row.original;
-      const [, setSubmissionId] = useQueryState<string>('submissionId');
+      const { openRecord } = useSidePanel();
       return (
         <RecordTableInlineCell
           className="truncate cursor-pointer"
-          onClick={() => setSubmissionId(_id)}
+          onClick={() =>
+            openRecord({
+              contentType: FORM_SUBMISSION_CONTENT_TYPE,
+              contentId: _id,
+            })
+          }
         >
-          {value ? (
+          {typeof value === 'string' && value ? (
             <RelativeDateDisplay value={value}>
               <RelativeDateDisplay.Value value={value} />
             </RelativeDateDisplay>
@@ -103,137 +250,17 @@ function buildColumnsAndRows(
     id: field._id,
     accessorFn: (row) => row[field._id],
     header: () => <RecordTable.InlineHead label={field.text || field._id} />,
-    cell: ({ getValue }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline', {
-        keyPrefix: 'modules.forms',
-      });
-      const value = getValue();
+    cell: ({ getValue }) => (
+      <SubmissionFieldCell field={field} value={getValue()} />
+    ),
 
-      if (value === null || value === undefined || value === '') {
-        return <RecordTableInlineCell />;
-      }
-
-      if (field.type === 'core:customer:avatar') {
-        return (
-          <RecordTableInlineCell>
-            <Avatar size={'lg'}>
-              <Avatar.Image
-                src={readImage(decodeURIComponent(String(value ?? '')))}
-                alt="avatar"
-              />
-              <Avatar.Fallback>C</Avatar.Fallback>
-            </Avatar>
-          </RecordTableInlineCell>
-        );
-      }
-
-      if (field.type === 'file') {
-        return (
-          <Attachments.Inline attachments={parseFilesAsAttachments(value)} />
-        );
-      }
-
-      if (field.type === 'core:customer:birthDate' || field.type === 'date') {
-        const date = typeof value === 'string' ? new Date(value) : undefined;
-        const formatted =
-          date && !Number.isNaN(date.getTime())
-            ? format(date, 'MMM d, yyyy')
-            : String(value);
-        return (
-          <RecordTableInlineCell className="truncate">
-            {formatted}
-          </RecordTableInlineCell>
-        );
-      }
-
-      if (field.type === 'check') {
-        let checks: string[] = [];
-        if (value && typeof value === 'string' && value.trim() !== '') {
-          try {
-            const parsed = JSON.parse(value);
-            if (Array.isArray(parsed)) checks = parsed.map(String);
-          } catch {
-            checks = [String(value)];
-          }
-        }
-        return <CheckboxCell value={checks} />;
-      }
-
-      if (field.type === 'select') {
-        let options: string[] = [];
-        if (value && typeof value === 'string' && value.trim()) {
-          try {
-            const parsed = JSON.parse(value);
-            if (Array.isArray(parsed))
-              options = parsed.map(String).filter(Boolean);
-            else options = [String(value)];
-          } catch {
-            options = [String(value)];
-          }
-        } else if (value) {
-          options = [String(value)];
-        }
-        if (!options.length) {
-          return <RecordTableInlineCell>-</RecordTableInlineCell>;
-        }
-        return (
-          <RecordTableInlineCell className="flex gap-1 flex-wrap">
-            {options.length === 1 ? (
-              <Badge variant="info" className="rounded-lg">
-                {options[0]}
-              </Badge>
-            ) : (
-              <Badge variant="info" className="rounded-lg">
-                <IconCheckbox size={12} />
-                {t('n-selected', '{{count}} selected', {
-                  count: options.length,
-                })}
-              </Badge>
-            )}
-          </RecordTableInlineCell>
-        );
-      }
-
-      if (field.type === 'boolean') {
-        return (
-          <RecordTableInlineCell className="truncate">
-            {String(value) === 'true' ? (
-              <Badge variant={'success'}>
-                <IconCircleDashedCheck size={16} />
-              </Badge>
-            ) : (
-              <Badge variant="destructive">
-                <IconCircleDashedX size={16} />
-              </Badge>
-            )}
-          </RecordTableInlineCell>
-        );
-      }
-      if (field.type === 'radio') {
-        return (
-          <RecordTableInlineCell>
-            <Badge variant={'info'} className="rounded-lg">
-              <IconCheckbox size={12} />
-              {String(value ?? '')}
-            </Badge>
-          </RecordTableInlineCell>
-        );
-      }
-
-      return (
-        <RecordTableInlineCell className="truncate">
-          {String(value ?? '')}
-        </RecordTableInlineCell>
-      );
-    },
     size: 200,
   }));
   const moreColumns: ColumnDef<FlatRow> = {
     id: 'more',
     size: 33,
     header: () => <RecordTable.ColumnSelector />,
-    cell: MoreColumnCell,
+    cell: SubmissionActionsCell,
   };
 
   const columns: ColumnDef<FlatRow>[] = [

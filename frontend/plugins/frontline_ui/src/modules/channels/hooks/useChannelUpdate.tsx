@@ -1,3 +1,4 @@
+import { CHANNEL_REFETCH_QUERIES } from '@/channels/constants/refetchQueries';
 import { UPDATE_CHANNEL } from '@/channels/graphql';
 import { MutationHookOptions, useMutation } from '@apollo/client';
 import type {
@@ -18,7 +19,7 @@ export const useChannelUpdate = () => {
       onCompleted: (data) => {
         options?.onCompleted?.(data);
       },
-      refetchQueries: ['frontlineChannelList', 'GetChannelMembers'],
+      refetchQueries: CHANNEL_REFETCH_QUERIES,
     });
   };
 

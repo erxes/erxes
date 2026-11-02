@@ -1,3 +1,4 @@
+import type { IChannelMember } from '@/channels/types';
 import { useGetChannelMembers } from '@/channels/hooks/useGetChannelMembers';
 import { RecordTable, RecordTableTree, Spinner } from 'erxes-ui';
 import { useParams } from 'react-router-dom';
@@ -5,6 +6,40 @@ import { AddMembers } from './AddMembers';
 import { MemberCommandBar } from './MemberCommandBar';
 import columns from './MembersColumn';
 import { useTranslation } from 'react-i18next';
+
+const ChannelMemberRows = ({ loading }: { loading: boolean }) => (
+  <RecordTable.Scroll>
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList Row={RecordTableTree.Row} />
+        {loading && <RecordTable.RowSkeleton rows={40} />}
+      </RecordTable.Body>
+    </RecordTable>
+  </RecordTable.Scroll>
+);
+
+const ChannelMembersTable = ({
+  members,
+  loading,
+}: {
+  members: IChannelMember[];
+  loading: boolean;
+}) => (
+  <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
+    <RecordTable.Provider
+      columns={columns()}
+      data={members}
+      stickyColumns={['more', 'checkbox', 'name']}
+      className="mt-1.5"
+    >
+      <RecordTableTree id="members" ordered>
+        <ChannelMemberRows loading={loading} />
+      </RecordTableTree>
+      <MemberCommandBar />
+    </RecordTable.Provider>
+  </div>
+);
 
 export function Members() {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
@@ -24,29 +59,9 @@ export function Members() {
         <h1 className="text-xl font-semibold">
           {t('members-title', 'Members')}
         </h1>
-        <AddMembers />
+        <AddMembers channelId={channelId ?? ''} />
       </div>
-      <div className="bg-sidebar border border-sidebar pl-1 border-t-4 border-l-4 pb-2 pr-2 rounded-lg">
-        <RecordTable.Provider
-          columns={columns()}
-          data={activeMembers || []}
-          stickyColumns={['more', 'checkbox', 'name']}
-          className="mt-1.5"
-        >
-          <RecordTableTree id="members" ordered>
-            <RecordTable.Scroll>
-              <RecordTable>
-                <RecordTable.Header />
-                <RecordTable.Body>
-                  <RecordTable.RowList Row={RecordTableTree.Row} />
-                  {loading && <RecordTable.RowSkeleton rows={40} />}
-                </RecordTable.Body>
-              </RecordTable>
-            </RecordTable.Scroll>
-          </RecordTableTree>
-          <MemberCommandBar />
-        </RecordTable.Provider>
-      </div>
+      <ChannelMembersTable members={activeMembers || []} loading={loading} />
     </div>
   );
 }

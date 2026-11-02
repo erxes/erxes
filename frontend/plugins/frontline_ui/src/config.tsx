@@ -13,6 +13,7 @@ import {
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
 
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
@@ -40,6 +41,10 @@ export const CONFIG: IUIConfig = {
   },
   widgets: {
     recordPanels: [
+      ...Array.from(SETTINGS_RECORD_CONTENT_TYPES, (contentType) => ({
+        contentType,
+        properties: false,
+      })),
       { contentType: 'frontline:ticket' },
       { contentType: 'frontline:knowledgebase.article', properties: false },
       { contentType: 'frontline:knowledgebase.topic', properties: false },

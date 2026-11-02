@@ -1,5 +1,12 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { createContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
 import { FormFieldType } from '../constants/formFieldTypes';
@@ -36,6 +43,8 @@ export const FormDndContext = createContext<{
   ) => IFieldData | undefined;
   handleAddField: (stepId: UniqueIdentifier, type: FormFieldType) => void;
   newFieldId: UniqueIdentifier | null;
+  editingFieldId: UniqueIdentifier | null;
+  setEditingFieldId: Dispatch<SetStateAction<UniqueIdentifier | null>>;
   clearNewFieldId: () => void;
   removeStep: (stepId: UniqueIdentifier) => void;
   handleChangeField: (
@@ -85,6 +94,9 @@ export function FormDndProvider({
   onValueChange: (values: z.infer<typeof FORM_CONTENT_SCHEMA>['steps']) => void;
 }) {
   const [newFieldId, setNewFieldId] = useState<UniqueIdentifier | null>(null);
+  const [editingFieldId, setEditingFieldId] = useState<UniqueIdentifier | null>(
+    null,
+  );
 
   const steps = Object.entries(value)
     .sort((a, b) => a[1].order - b[1].order)
@@ -277,6 +289,8 @@ export function FormDndProvider({
         getFieldValue,
         handleAddField,
         newFieldId,
+        editingFieldId,
+        setEditingFieldId,
         clearNewFieldId: () => setNewFieldId(null),
         removeStep,
         handleChangeField,

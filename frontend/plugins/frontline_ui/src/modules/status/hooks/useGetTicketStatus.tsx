@@ -5,7 +5,7 @@ import {
   GET_TICKET_STATUS_BY_TYPE,
   GET_TICKET_STATUS_BY_ID,
 } from '@/status/graphql/query/getTicketStatusByType';
-import { useParams } from 'react-router';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import {
   GET_TICKET_STATUS_BY_PIPELINE,
   GET_ACCESSIBLE_TICKET_STATUSES,
@@ -29,7 +29,7 @@ export const useGetTicketStatus = (
     'variables'
   >,
 ) => {
-  const { pipelineId } = useParams();
+  const { pipelineId } = useSettingsParams();
   const { data, loading, error } = useQuery(GET_TICKET_STATUS_BY_TYPE, {
     ...options,
     variables: pipelineId ? { pipelineId, type } : undefined,
@@ -56,7 +56,7 @@ export const useGetTicketStatusesByPipeline = (
     'variables'
   > & { variables?: { pipelineId?: string | null } },
 ) => {
-  const { pipelineId: routePipelineId } = useParams();
+  const { pipelineId: routePipelineId } = useSettingsParams();
   const pipelineId = options?.variables?.pipelineId ?? routePipelineId;
   const { data, loading, error } = useQuery(GET_TICKET_STATUS_BY_PIPELINE, {
     ...options,
@@ -87,7 +87,7 @@ export const useGetAccessibleTicketStatuses = (
     'variables'
   > & { variables?: { pipelineId?: string | null } },
 ) => {
-  const { pipelineId: routePipelineId } = useParams();
+  const { pipelineId: routePipelineId } = useSettingsParams();
   const pipelineId = options?.variables?.pipelineId ?? routePipelineId;
   const { data, loading, error, refetch } = useQuery(
     GET_ACCESSIBLE_TICKET_STATUSES,

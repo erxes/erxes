@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -82,21 +82,33 @@
   and consumed through `ui-modules` remote-entry prop types.
 - Shared primitives — consume `erxes-ui` and `ui-modules`; never fork them or
   import Radix directly.
+- Shared CSV field-picker presentation; Frontline supplies its entity type,
+  filters and export callback through the public `ExportFieldSelection` API.
 - The `frontline` i18n namespace JSON, which lives in
   `backend/gateway/src/locales/{en,mn}/frontline.json` (gateway-owned).
 - Other plugins' modules or state.
 
 ## Current Capabilities
 
+- Channel create/edit and member-add, pipeline create/edit, ticket statuses,
+  ticket configurations, response templates, and form submissions open in the
+  host record panel. Pipeline settings expose General, Statuses, Configuration,
+  Permissions, Properties and Mail as panel sections; channel resource lists
+  remain their management routes.
+- Legacy pipeline section and response-detail routes, plus `configId` and
+  `submissionId` links, select the corresponding panel without losing the
+  surrounding settings list. Pipeline layout editing stacks over Properties.
+- Form-field details and new layout properties use a local `RecordSidePanel`
+  so the form builder and unsaved layout keep their live provider state.
+
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
-  "Edit layout", which opens the shared `LayoutEditor` drawn like the
-  new-ticket sheet (`TicketCreateFormHeader`/`Footer`, chips via
-  `TicketLayoutChip`) with a **Fields** side panel
+  "Edit layout", which opens the shared `LayoutEditor` in a stacked record
+  panel (chips via `TicketLayoutChip`) with a **Fields** side panel
   (`TicketLayoutFieldsPanel`). In the panel the checkbox puts a field on this
   pipeline's form; "Turn on" and the Required switch edit the Settings →
   Properties rules in place (`frontlineTicketSystemFieldEdit` /
   `frontlineTicketFieldEdit`), so nothing needs a page switch; "New property"
-  opens `PropertyAddSheet` and places the new field turned on. Fields saved
+  opens the local property panel and places the new field turned on. Fields saved
   with a type the form cannot render are flagged "Unsupported type" and never
   shown. A placed field that Settings → Properties hides on detail
   (`isVisible: false`) gets a "Hidden in detail" badge; the editor never
@@ -704,6 +716,13 @@
 
 ## Architecture
 
+| Area | Path | Responsibility |
+| --- | --- | --- |
+| Settings panel dispatch | `src/widgets/record-panel/SettingsRecordPanel.tsx` | Lazy named editors registered by settings content type |
+| Settings resource IDs | `src/modules/settings/constants/recordPanels.ts` | Channel, pipeline, status, configuration, layout, response and submission panel types |
+| Settings scope | `src/modules/settings/contexts/SettingsPanelContext.tsx` | Authoritative loaded channel/pipeline IDs, with route fallback only outside a panel provider |
+| Local editor panels | `src/modules/settings/components/SettingsLocalPanel.tsx` | Resizable nonmodal panel, keyboard close, entry and return focus while preserving parent context |
+
 Telegram setup and provider-specific presentation live in
 `src/modules/integrations/telegram/`. It reuses `ComposerShell`, `ComposerEditor`,
 `ComposerToolbar`, `useComposerSend`, `messageReplyState` and `MessageAttachments`.
@@ -790,6 +809,17 @@ owns the setup form and connection actions.
 ## Contracts
 
 ### Provides
+
+- Settings editors use the existing `IRecordPanelProps` federation contract.
+  `frontline:channel`, `frontline:channel-members`, `frontline:pipeline`,
+  `frontline:ticket-status`, `frontline:ticket-config`,
+  `frontline:pipeline-layout`, `frontline:response-template` and
+  `frontline:form-submission` are registered through `CONFIG.widgets.recordPanels`.
+- Pipeline section IDs are `<pipelineId>~<section>` (General uses the raw ID).
+  Reloadable draft IDs encode their owning scope: `new~<channelId>` for
+  pipelines and responses, `new~<pipelineId>~<type>` for statuses, and
+  `new~<channelId>~<pipelineId>` for configurations. Preserve these parsers and
+  their legacy route adapters when changing panel navigation.
 
 - `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); the ticket sheet's rail is given them. The create-ticket automation action configures one `companyId`.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
@@ -1009,6 +1039,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 
 ## Data and State
 
+- Form builders keep one `editingFieldId` in their existing `FormDndProvider`,
+  so switching fields replaces the local panel while preserving the builder.
+  Saved settings and reloadable drafts use URL panel IDs; temporary property
+  creation and export progress remain local to their mounted parent editor.
+
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
   receipt. The existing conversation-change cleanup and user/conversation
@@ -1088,6 +1123,17 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Settings panel mutations derive their target from the loaded record and its
+  explicit scope, never an unrelated background route. Preserve channel
+  owner/admin metadata permissions, lead access for adding team-channel members,
+  and the restriction against adding members to personal channels.
+- Keep form-field and layout-property panels inside the mounted builder's React
+  context. Closing or opening a child must preserve unsaved parent edits; a
+  successful property creation refetches fields before enabling and placing it.
+- Panel conversions reuse feature forms, validation, mutation feedback and cache
+  refreshes. Draft Activity tabs show an action back to the editor; saved records
+  use their authoritative ID for activity.
 
 - Integration provider forms reuse `IntegrationFormLayout` for call sheet
   layouts and `IntegrationFormActions`, `IntegrationNameField` and
@@ -2693,6 +2739,16 @@ null }`, fall back to the route pipeline and skip without one; never pass
 
 ## Validation
 
+- Settings smoke: create/edit a channel, add members as an authorized team-channel
+  lead, and confirm personal-channel member addition is unavailable. Save, cancel
+  and retry failed mutations without losing the surrounding list.
+- Pipeline smoke: open every section, then status/configuration and layout child
+  panels; use Back, reload a scoped draft, and open legacy section URLs. Confirm
+  saving refreshes the list and closing a child preserves the parent layout.
+- Form smoke: open and confirm/delete a field, switch fields, close with Escape
+  while respecting open menus, and inspect a submission from its list and legacy
+  query link. Keyboard focus enters the local editor and returns on close.
+
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
@@ -2826,45 +2882,3 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-  <<<<<<< HEAD
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-16` — Knowledge scope tree and ticket media
-
-- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
-- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
-- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
-
-### `2026-10-06` — Telegram metadata promise handling
-
-- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
-- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
-- **Contracts changed:** None.
-
-### `2026-10-06` — Telegram setup recovery and attachment guards
-
-- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
-- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
-- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
-- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
-- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
-
-### `2026-10-06` — Telegram config entry and automatic setup defaults
-
-- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
-- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
-- **Contracts changed:** None; existing routes and per-bot setup are reused.
-
-### `2026-10-06` — Telegram on the native composer and message components
-
-- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
-- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.
-  > > > > > > > b5737b8f9a6f3d229cf63081569bfebc7196a29c

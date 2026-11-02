@@ -1,111 +1,40 @@
 import { IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  Kbd,
-  Sheet,
-  usePreviousHotkeyScope,
-  useScopedHotkeys,
-  useSetHotkeyScope,
-  useToast,
-} from 'erxes-ui';
-import { useResponseAdd } from '@/responseTemplate/hooks/useAddResponse';
-import { useNavigate } from 'react-router';
-import { useParams } from 'react-router-dom';
+import { Button, Kbd, useScopedHotkeys } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
 import { ResponseHotkeyScope } from '@/responseTemplate/types/ResponseHotkeyScope';
-import { CreateResponseForm } from '@/responseTemplate/components/CreateResponseForm';
-import { TCreateResponseForm } from '@/responseTemplate/types';
+import { useSidePanel } from 'ui-modules';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
+import { RESPONSE_TEMPLATE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 
 export const CreateResponse = () => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
-  const { id: channelId } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const { toast } = useToast();
-
-  const { addResponse, loading } = useResponseAdd();
-
-  const [open, setOpen] = useState(false);
-
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
-  // Sheet open
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
+  const { id: channelId } = useSettingsParams();
+  const { openRecord, record } = useSidePanel();
   const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(
-      ResponseHotkeyScope.ResponseAddSheet,
-    );
+    if (channelId)
+      openRecord(
+        {
+          contentType: RESPONSE_TEMPLATE_CONTENT_TYPE,
+          contentId: `new~${channelId}`,
+        },
+        { stack: Boolean(record) },
+      );
   };
-
-  // Sheet close
-  const onClose = () => {
-    setOpen(false);
-    setHotkeyScope(ResponseHotkeyScope.ResponseSettingsPage);
-  };
-
-  // Hotkeys
-  useScopedHotkeys('c', onOpen, ResponseHotkeyScope.ResponseSettingsPage);
-  useScopedHotkeys('esc', onClose, ResponseHotkeyScope.ResponseAddSheet);
-
-  const onSubmit = (data: TCreateResponseForm) => {
-    if (!channelId) return;
-
-    addResponse({
-      variables: { ...data, channelId },
-      onCompleted: (res) => {
-        toast({ title: t('success', 'Success!') });
-        setOpen(false);
-        const createdId = res.responseTemplatesAdd?._id;
-        if (createdId) {
-          navigate(
-            `/frontline/settings/channels/${channelId}/response/${createdId}`,
-          );
-        }
-      },
-      onError: (err) => {
-        toast({
-          title: t('error', 'Error'),
-          description: err.message,
-          variant: 'destructive',
-        });
-      },
-    });
-  };
-
+  useScopedHotkeys(
+    'c',
+    () => {
+      if (!record) onOpen();
+    },
+    ResponseHotkeyScope.ResponseSettingsPage,
+  );
   if (!channelId) return null;
-
   return (
-    <Sheet open={open} onOpenChange={(state) => (state ? onOpen() : onClose())}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('create-response-template', 'Create response template')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
-
-      <Sheet.View className="p-0">
-        <Sheet.Header>
-          <Sheet.Title>
-            {t('add-response-template', 'Add response template')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-
-        <Sheet.Content className="grow flex flex-col px-5 py-4">
-          <CreateResponseForm
-            type="create"
-            defaultValues={{
-              name: '',
-              content: '',
-              channelId,
-            }}
-            onSubmit={onSubmit}
-            loading={loading}
-          />
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+    <Button onClick={onOpen}>
+      <IconPlus />
+      {t('create-response-template', 'Create response template')}
+      <Kbd>C</Kbd>
+    </Button>
   );
 };

@@ -5,13 +5,12 @@ import {
   Button,
   Form,
   Input,
-  Sheet,
+  Empty,
   Skeleton,
   Spinner,
   Textarea,
   parseFilesAsAttachments,
   readImage,
-  useQueryState,
 } from 'erxes-ui';
 import { useGetFormSubmissionDetails } from '../hooks/useGetFormSubmissionDetails';
 import { useSubmissionDetailsForm } from '../hooks/useSubmissionDetailsForm';
@@ -23,19 +22,56 @@ import {
   IconCircleDashedX,
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useEffect } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  ActivityLogs,
+  getSidePanelRecordPath,
+  type IRecordPanelProps,
+  useSidePanel,
+} from 'ui-modules';
+import { FORM_SUBMISSION_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { SettingsPanelForm } from '@/settings/components/SettingsPanelForm';
 
 const parseChecks = (value: unknown): string[] => {
   if (!value) return [];
   if (typeof value === 'string' && value.trim()) {
     try {
-      const parsed = JSON.parse(value);
-      if (Array.isArray(parsed)) return parsed;
+      const parsed: unknown = JSON.parse(value);
+      if (Array.isArray(parsed))
+        return parsed.filter(
+          (item): item is string => typeof item === 'string',
+        );
     } catch {
       return [value];
     }
   }
-  if (Array.isArray(value)) return value as string[];
+  if (Array.isArray(value))
+    return value.filter((item): item is string => typeof item === 'string');
   return [];
+};
+
+const SubmissionDateDisplay = ({ value }: { value: unknown }) => {
+  const formatted =
+    value && typeof value === 'string'
+      ? format(new Date(value), 'MMM d, yyyy')
+      : '-';
+  return <Input value={formatted} readOnly className="bg-muted" />;
+};
+
+const SubmissionBooleanDisplay = ({ value }: { value: unknown }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  return String(value) === 'true' ? (
+    <Badge variant="success">
+      <IconCircleDashedCheck size={16} />
+      {t('yes', 'Yes')}
+    </Badge>
+  ) : (
+    <Badge variant="destructive">
+      <IconCircleDashedX size={16} />
+      {t('no', 'No')}
+    </Badge>
+  );
 };
 
 const SubmissionFieldDisplay = ({
@@ -45,7 +81,6 @@ const SubmissionFieldDisplay = ({
   item: ISubmissionItem;
   value: unknown;
 }) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { formFieldType } = item;
 
   if (formFieldType === 'core:customer:avatar') {
@@ -98,25 +133,11 @@ const SubmissionFieldDisplay = ({
   }
 
   if (formFieldType === 'boolean') {
-    return String(value) === 'true' ? (
-      <Badge variant="success">
-        <IconCircleDashedCheck size={16} />
-        {t('yes', 'Yes')}
-      </Badge>
-    ) : (
-      <Badge variant="destructive">
-        <IconCircleDashedX size={16} />
-        {t('no', 'No')}
-      </Badge>
-    );
+    return <SubmissionBooleanDisplay value={value} />;
   }
 
   if (formFieldType === 'date' || formFieldType === 'core:customer:birthDate') {
-    const formatted =
-      value && typeof value === 'string'
-        ? format(new Date(value), 'MMM d, yyyy')
-        : '-';
-    return <Input value={formatted} readOnly className="bg-muted" />;
+    return <SubmissionDateDisplay value={value} />;
   }
 
   if (formFieldType === 'textarea' || formFieldType === 'html') {
@@ -134,67 +155,100 @@ const SubmissionFieldDisplay = ({
 };
 
 export const SubmissionDetails = () => {
+  const [searchParams] = useSearchParams();
+  const { pathname, hash, state } = useLocation();
+  const navigate = useNavigate();
+  const submissionId = searchParams.get('submissionId');
+
+  useEffect(() => {
+    if (!submissionId) return;
+    const next = new URLSearchParams(searchParams);
+    next.delete('submissionId');
+    next.set(
+      'panel',
+      getSidePanelRecordPath({
+        contentType: FORM_SUBMISSION_CONTENT_TYPE,
+        contentId: submissionId,
+      }),
+    );
+    navigate(
+      { pathname, search: next.toString(), hash },
+      { replace: true, state },
+    );
+  }, [submissionId, searchParams, pathname, hash, state, navigate]);
+
+  return null;
+};
+
+export const FormSubmissionRecordPanel = ({
+  contentId,
+  view,
+}: IRecordPanelProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
-  const [submissionId, setSubmissionId] = useQueryState<string>('submissionId');
-  const { submissionDetails, loading } = useGetFormSubmissionDetails({
-    variables: submissionId ? { _id: submissionId } : undefined,
-    skip: !submissionId,
+  const { close, back, canGoBack } = useSidePanel();
+  const { submissionDetails, loading, error } = useGetFormSubmissionDetails({
+    variables: { _id: contentId },
+    skip: contentId === 'new',
   });
   const { form, fields } = useSubmissionDetailsForm(submissionDetails);
+  const createdAt = submissionDetails?.createdAt
+    ? parseISO(submissionDetails.createdAt)
+    : undefined;
+
+  if (view === 'title') {
+    if (loading && !submissionDetails) return <Skeleton className="h-4 w-32" />;
+    return createdAt && !Number.isNaN(createdAt.getTime())
+      ? format(createdAt, 'MMM dd, yyyy')
+      : t('submission-details', 'Submission details');
+  }
+  if (view === 'actions') return null;
+  if (view === 'activity')
+    return <ActivityLogs targetId={contentId} showInternalNotes={false} />;
+  if (loading && !submissionDetails)
+    return <Spinner containerClassName="py-12" />;
+  if (!submissionDetails)
+    return (
+      <Empty className="m-3">
+        <Empty.Header>
+          <Empty.Title>{t('not-found', 'Not found')}</Empty.Title>
+          {error && <Empty.Description>{error.message}</Empty.Description>}
+        </Empty.Header>
+      </Empty>
+    );
 
   return (
-    <Sheet
-      open={!!submissionId}
-      onOpenChange={(open) => {
-        if (!open) setSubmissionId(null);
-      }}
-    >
-      <Sheet.View>
-        <Sheet.Header>
-          {loading ? (
-            <Skeleton className="w-32 h-6" />
-          ) : submissionDetails?.createdAt ? (
-            format(parseISO(submissionDetails.createdAt), 'MMM dd, yyyy')
-          ) : (
-            '-'
-          )}
-        </Sheet.Header>
-        <Sheet.Content>
-          {loading ? (
-            <Spinner containerClassName="py-32" />
-          ) : (
-            <Form {...form}>
-              <form className="px-5 py-4 space-y-5">
-                {fields.map((item) => (
-                  <Form.Field
-                    key={item.formFieldId}
-                    name={item.formFieldId}
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{item.formFieldText}</Form.Label>
-                        <SubmissionFieldDisplay
-                          item={item}
-                          value={field.value}
-                        />
-                      </Form.Item>
-                    )}
-                  />
-                ))}
-                {!fields.length && (
-                  <p className="text-center text-muted-foreground py-8 text-sm">
-                    {t('no-submission-data', 'No submission data')}
-                  </p>
+    <SettingsPanelForm>
+      <div className="min-h-0 flex-1 overflow-auto">
+        <Form {...form}>
+          <form className="px-5 py-4 space-y-5">
+            {fields.map((item) => (
+              <Form.Field
+                key={item.formFieldId}
+                name={item.formFieldId}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{item.formFieldText}</Form.Label>
+                    <SubmissionFieldDisplay item={item} value={field.value} />
+                  </Form.Item>
                 )}
-              </form>
-            </Form>
-          )}
-        </Sheet.Content>
-        <Sheet.Footer>
-          <Button variant="secondary" onClick={() => setSubmissionId(null)}>
-            {t('close', 'Close')}
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+              />
+            ))}
+            {!fields.length && (
+              <p className="text-center text-muted-foreground py-8 text-sm">
+                {t('no-submission-data', 'No submission data')}
+              </p>
+            )}
+          </form>
+        </Form>
+      </div>
+      <div className="flex shrink-0 justify-end border-t p-3">
+        <Button
+          variant="secondary"
+          onClick={() => (canGoBack ? back() : close())}
+        >
+          {t('close', 'Close')}
+        </Button>
+      </div>
+    </SettingsPanelForm>
   );
 };

@@ -1,51 +1,81 @@
 import { UseFormReturn } from 'react-hook-form';
 import { TChannelForm } from '@/channels/types';
 import { Form, IconPicker, Input, Textarea } from 'erxes-ui';
-import { SelectMember } from 'ui-modules';
+import { PanelFormRow, SelectMember } from 'ui-modules';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+
+const ChannelFormItem = ({
+  panel,
+  label,
+  children,
+  className,
+}: {
+  panel: boolean;
+  label: ReactNode;
+  children: ReactNode;
+  className?: string;
+}) => (
+  <Form.Item className={className}>
+    {panel ? (
+      <PanelFormRow label={<Form.Label>{label}</Form.Label>}>
+        {children}
+      </PanelFormRow>
+    ) : (
+      <>
+        <Form.Label>{label}</Form.Label>
+        {children}
+      </>
+    )}
+  </Form.Item>
+);
 
 export const ChannelForm = ({
   form,
+  includeMembers = true,
+  panel = false,
 }: {
   form: UseFormReturn<TChannelForm>;
+  includeMembers?: boolean;
+  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
-  const scope = form.watch('scope');
-  const isTeam = scope === 'team';
   return (
     <div className="flex flex-col gap-3">
-      <div className="w-full flex gap-2">
+      <div className={panel ? 'flex flex-col gap-3' : 'w-full flex gap-2'}>
         <Form.Field
           control={form.control}
           name="icon"
           render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('icon', 'Icon')}</Form.Label>
+            <ChannelFormItem panel={panel} label={t('icon', 'Icon')}>
               <Form.Description className="sr-only">
                 {t('icon', 'Icon')}
               </Form.Description>
               <Form.Control>
                 <IconPicker
                   onValueChange={field.onChange}
-                  value={field.value as string}
+                  value={field.value ?? undefined}
                   className="w-min"
                 />
               </Form.Control>
               <Form.Message />
-            </Form.Item>
+            </ChannelFormItem>
           )}
         />
         <Form.Field
           control={form.control}
           name="name"
           render={({ field }) => (
-            <Form.Item className="flex-auto">
-              <Form.Label>{t('name', 'Name')}</Form.Label>
+            <ChannelFormItem
+              panel={panel}
+              label={t('name', 'Name')}
+              className="flex-auto"
+            >
               <Form.Control>
                 <Input {...field} />
               </Form.Control>
               <Form.Message />
-            </Form.Item>
+            </ChannelFormItem>
           )}
         />
       </div>
@@ -54,32 +84,38 @@ export const ChannelForm = ({
         control={form.control}
         name="description"
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('description', 'Description')}</Form.Label>
+          <ChannelFormItem
+            panel={panel}
+            label={t('description', 'Description')}
+          >
             <Form.Control>
               <Textarea {...field} />
             </Form.Control>
             <Form.Message />
-          </Form.Item>
+          </ChannelFormItem>
         )}
       />
-      <Form.Field
-        control={form.control}
-        name="memberIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('members-title', 'Members')}</Form.Label>
-            <Form.Control>
-              <SelectMember.FormItem
-                mode="multiple"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      {includeMembers && (
+        <Form.Field
+          control={form.control}
+          name="memberIds"
+          render={({ field }) => (
+            <ChannelFormItem
+              panel={panel}
+              label={t('members-title', 'Members')}
+            >
+              <Form.Control>
+                <SelectMember.FormItem
+                  mode="multiple"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              </Form.Control>
+              <Form.Message />
+            </ChannelFormItem>
+          )}
+        />
+      )}
     </div>
   );
 };

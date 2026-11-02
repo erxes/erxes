@@ -1,8 +1,8 @@
 import { IconLayoutGrid, IconLock } from '@tabler/icons-react';
-import { Button, InfoCard, Sheet, Spinner, cn } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, InfoCard, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { LayoutEditor } from 'ui-modules';
+import { LayoutEditor, useSidePanel } from 'ui-modules';
+import { PIPELINE_LAYOUT_CONTENT_TYPE } from '@/settings/constants/recordPanels';
 import {
   TicketCreateFormFooter,
   TicketCreateFormHeader,
@@ -14,7 +14,10 @@ import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { useUpdatePipeline } from '@/pipelines/hooks/useUpdatePipeline';
 import { DEFAULT_TICKET_CREATE_LAYOUT } from '@/ticket/constants/createLayout';
 
-const usePipelineCreateFormLayout = (pipelineId?: string) => {
+const usePipelineCreateFormLayout = (
+  pipelineId?: string,
+  onSaved?: () => void,
+) => {
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { updatePipeline, loading: saving } = useUpdatePipeline();
   const {
@@ -24,9 +27,8 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
     setCreateOn,
     setRequired,
   } = useTicketLayoutFields();
-  const [open, setOpen] = useState(false);
 
-  const isCustom = !!pipeline?.createLayout?.length;
+  const isCustom = Boolean(pipeline?.createLayout?.length);
   const rows = isCustom
     ? (pipeline?.createLayout ?? [])
     : DEFAULT_TICKET_CREATE_LAYOUT;
@@ -41,8 +43,12 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
     }
 
     updatePipeline({
-      variables: { _id: pipeline._id, name: pipeline.name, createLayout: layout },
-      onCompleted: () => setOpen(false),
+      variables: {
+        _id: pipeline._id,
+        name: pipeline.name,
+        createLayout: layout,
+      },
+      onCompleted: onSaved,
     });
   };
 
@@ -54,8 +60,6 @@ const usePipelineCreateFormLayout = (pipelineId?: string) => {
     rows,
     isCustom,
     lockedCount,
-    open,
-    setOpen,
     saving,
     handleSave,
     fieldActions: { setCreateOn, setRequired, saving: rulesSaving },
@@ -68,20 +72,16 @@ export const PipelineCreateFormLayout = ({
   pipelineId?: string;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
-  const {
-    pipeline,
-    loading,
-    items,
-    itemById,
-    rows,
-    isCustom,
-    lockedCount,
-    open,
-    setOpen,
-    saving,
-    handleSave,
-    fieldActions,
-  } = usePipelineCreateFormLayout(pipelineId);
+  const { pipeline, loading, itemById, rows, isCustom, lockedCount } =
+    usePipelineCreateFormLayout(pipelineId);
+  const { openRecord } = useSidePanel();
+  const openEditor = () => {
+    if (!pipelineId) return;
+    openRecord(
+      { contentType: PIPELINE_LAYOUT_CONTENT_TYPE, contentId: pipelineId },
+      { stack: true },
+    );
+  };
 
   return (
     <InfoCard
@@ -109,7 +109,7 @@ export const PipelineCreateFormLayout = ({
                 <button
                   type="button"
                   className="shrink-0 font-medium text-primary hover:underline"
-                  onClick={() => setOpen(true)}
+                  onClick={openEditor}
                 >
                   {t('fix-in-editor', 'Fix in editor')}
                 </button>
@@ -144,7 +144,7 @@ export const PipelineCreateFormLayout = ({
                 type="button"
                 variant="secondary"
                 disabled={!pipeline}
-                onClick={() => setOpen(true)}
+                onClick={openEditor}
               >
                 <IconLayoutGrid />
                 {t('edit-layout', 'Edit layout')}
@@ -158,32 +158,39 @@ export const PipelineCreateFormLayout = ({
           </>
         )}
       </InfoCard.Content>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <Sheet.View className="p-0 sm:max-w-5xl">
-          {open && (
-            <LayoutEditor
-              title={t('create-form', 'Create form')}
-              items={items}
-              initialRows={rows}
-              saving={saving}
-              onSave={handleSave}
-              onClose={() => setOpen(false)}
-              header={<TicketCreateFormHeader />}
-              footer={<TicketCreateFormFooter />}
-              renderChip={(item) => (
-                <TicketLayoutChip item={itemById.get(item.id)} />
-              )}
-              aside={(api) => (
-                <TicketLayoutFieldsPanel
-                  items={items}
-                  api={api}
-                  actions={fieldActions}
-                />
-              )}
-            />
-          )}
-        </Sheet.View>
-      </Sheet>
     </InfoCard>
+  );
+};
+
+export const PipelineLayoutEditor = ({
+  pipelineId,
+  onClose,
+}: {
+  pipelineId: string;
+  onClose: () => void;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
+  const { loading, items, itemById, rows, saving, handleSave, fieldActions } =
+    usePipelineCreateFormLayout(pipelineId, onClose);
+  if (loading) return <Spinner containerClassName="py-12" />;
+  return (
+    <LayoutEditor
+      title={t('create-form', 'Create form')}
+      items={items}
+      initialRows={rows}
+      saving={saving}
+      onSave={handleSave}
+      onClose={onClose}
+      header={<TicketCreateFormHeader />}
+      footer={<TicketCreateFormFooter />}
+      renderChip={(item) => <TicketLayoutChip item={itemById.get(item.id)} />}
+      aside={(api) => (
+        <TicketLayoutFieldsPanel
+          items={items}
+          api={api}
+          actions={fieldActions}
+        />
+      )}
+    />
   );
 };

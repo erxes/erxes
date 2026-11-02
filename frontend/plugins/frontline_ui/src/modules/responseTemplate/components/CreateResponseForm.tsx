@@ -1,10 +1,11 @@
-import { Form, Input, ScrollArea, Editor, Button } from 'erxes-ui';
+import { Form, Input, ScrollArea, Editor } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
+import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  CREATE_RESPONSE_FORM_SCHEMA,
-  UPDATE_RESPONSE_FORM_SCHEMA,
+  RESPONSE_FORM_BASE_SCHEMA,
   TCreateResponseForm,
   TUpdateResponseForm,
 } from '@/settings/schema/response';
@@ -14,6 +15,7 @@ interface CreateModeProps {
   defaultValues: TCreateResponseForm;
   onSubmit: (data: TCreateResponseForm) => void;
   loading?: boolean;
+  onCancel: () => void;
 }
 
 interface UpdateModeProps {
@@ -21,40 +23,34 @@ interface UpdateModeProps {
   defaultValues: TUpdateResponseForm;
   onSubmit: (data: TUpdateResponseForm) => void;
   loading?: boolean;
+  onCancel: () => void;
 }
 
 export type CreateResponseFormProps = CreateModeProps | UpdateModeProps;
 
-export const CreateResponseForm = ({
-  type,
-  defaultValues,
-  onSubmit,
-  loading,
-}: CreateResponseFormProps) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
-  const schema =
-    type === 'create'
-      ? CREATE_RESPONSE_FORM_SCHEMA
-      : UPDATE_RESPONSE_FORM_SCHEMA;
-
-  const form = useForm({
-    resolver: zodResolver(schema),
-    defaultValues,
+export const CreateResponseForm = (props: CreateResponseFormProps) => {
+  const { type, defaultValues, loading, onCancel } = props;
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
   });
-
-  const handleSubmit = (data: any) => {
-    if (type === 'create') {
-      onSubmit(data as TCreateResponseForm);
-    } else {
-      onSubmit(data as TUpdateResponseForm);
-    }
+  const form = useForm<z.infer<typeof RESPONSE_FORM_BASE_SCHEMA>>({
+    resolver: zodResolver(RESPONSE_FORM_BASE_SCHEMA),
+    defaultValues: { name: defaultValues.name, content: defaultValues.content },
+  });
+  const handleSubmit = (data: z.infer<typeof RESPONSE_FORM_BASE_SCHEMA>) => {
+    if (props.type === 'create')
+      props.onSubmit({ ...data, channelId: props.defaultValues.channelId });
+    else props.onSubmit({ ...data, _id: props.defaultValues._id });
   };
 
   return (
-    <form onSubmit={form.handleSubmit(handleSubmit)}>
+    <form
+      className="flex flex-1 min-h-0 flex-col"
+      onSubmit={form.handleSubmit(handleSubmit)}
+    >
       <Form {...form}>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-col gap-3">
+        <div className="flex flex-1 min-h-0 flex-col gap-2">
+          <div className="flex flex-1 min-h-0 flex-col gap-3 overflow-y-auto p-4">
             <Form.Field
               name="name"
               render={({ field }) => (
@@ -87,13 +83,15 @@ export const CreateResponseForm = ({
             />
           </div>
 
-          <span className="flex justify-end">
-            <Button type="submit" disabled={!form.formState.isDirty || loading}>
-              {type === 'create'
-                ? t('create', 'Create')
-                : t('update', 'Update')}
-            </Button>
-          </span>
+          <SettingsPanelFooter
+            onCancel={onCancel}
+            cancelLabel={t('cancel', 'Cancel')}
+            submitLabel={
+              type === 'create' ? t('create', 'Create') : t('update', 'Update')
+            }
+            loading={loading}
+            disabled={!form.formState.isDirty}
+          />
         </div>
       </Form>
     </form>

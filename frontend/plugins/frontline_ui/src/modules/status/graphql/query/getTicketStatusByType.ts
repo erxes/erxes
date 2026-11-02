@@ -24,6 +24,7 @@ export const GET_TICKET_STATUS_BY_ID = gql(`
       type
       color
       pipelineId
+      description
       visibilityType
       memberIds
       canMoveMemberIds

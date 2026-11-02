@@ -13,7 +13,7 @@ import {
   useForm,
   useWatch,
 } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { useTranslation } from 'react-i18next';
 import { useGetPipeline } from '@/pipelines/hooks/useGetPipeline';
 import { compactList } from '@/shared/utils/cursorList';
@@ -217,7 +217,7 @@ const PipelinePermissionsFormBody = ({
 
 export const PipelinePermissionsList = memo(() => {
   const { t } = useTranslation('frontline');
-  const { pipelineId } = useParams<{ pipelineId: string }>();
+  const { pipelineId } = useSettingsParams();
 
   const { pipeline, loading: pipelineLoading } = useGetPipeline(pipelineId);
   const { statuses, loading: statusesLoading } =

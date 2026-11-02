@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import { GET_TICKET_CONFIG_BY_PIPELINE_ID } from '../graphql/queries/getTicketConfigBetPipelineId';
 import type {
   TicketConfigQuery,
@@ -9,11 +9,14 @@ import type {
 export const useGetTicketConfigByPipelineId = (
   options?: QueryHookOptions<TicketConfigQuery, TicketConfigQueryVariables>,
 ) => {
-  const { pipelineId } = useParams<{ pipelineId: string }>();
+  const { pipelineId } = useSettingsParams();
+  const effectivePipelineId = options?.variables?.pipelineId ?? pipelineId;
   const { data, loading } = useQuery(GET_TICKET_CONFIG_BY_PIPELINE_ID, {
-    variables: pipelineId ? { pipelineId } : undefined,
     ...options,
-    skip: !pipelineId,
+    variables: effectivePipelineId
+      ? { pipelineId: effectivePipelineId }
+      : undefined,
+    skip: options?.skip || !effectivePipelineId,
   });
   return {
     ticketConfig: data?.ticketConfig ?? undefined,

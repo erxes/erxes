@@ -4,7 +4,6 @@ import { Combobox, Command, Form, Popover } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import {
   currentUserState,
   IUser,
@@ -14,75 +13,6 @@ import {
 } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
-
-export const MemberForm = ({
-  form,
-}: {
-  form: UseFormReturn<TChannelMemberForm>;
-}) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
-  const { id: channelId } = useParams();
-  return (
-    <div className="flex flex-col gap-3">
-      <Form.Field
-        control={form.control}
-        name="memberIds"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('choose-members', 'Choose members')}</Form.Label>
-            <Form.Description className="sr-only">
-              {t('members-title', 'Members')}
-            </Form.Description>
-            <SelectChannelMember
-              channelId={channelId ?? ''}
-              mode="multiple"
-              value={field.value}
-              onValueChange={field.onChange}
-              inForm={true}
-            />
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-    </div>
-  );
-};
-
-export const SelectChannelMember = ({
-  channelId,
-  mode,
-  value,
-  onValueChange,
-  exclude,
-  inForm,
-}: {
-  channelId: string;
-  mode: 'multiple' | 'single';
-  value?: string[];
-  onValueChange?: (value: string[] | string) => void;
-  exclude?: boolean;
-  inForm?: boolean;
-}) => {
-  const Control = inForm ? Form.Control : React.Fragment;
-  return (
-    <SelectMember.Provider
-      value={value}
-      onValueChange={(value) => onValueChange?.(value as string[] | string)}
-      mode={mode}
-    >
-      <Popover>
-        <Control>
-          <Combobox.Trigger>
-            <SelectMember.Value />
-          </Combobox.Trigger>
-        </Control>
-        <Combobox.Content>
-          <MemberFormContent channelId={channelId} exclude={exclude ?? true} />
-        </Combobox.Content>
-      </Popover>
-    </SelectMember.Provider>
-  );
-};
 
 export const MemberFormContent = ({
   channelId,
@@ -139,5 +69,75 @@ export const MemberFormContent = ({
         />
       </Command.List>
     </Command>
+  );
+};
+
+export const SelectChannelMember = ({
+  channelId,
+  mode,
+  value,
+  onValueChange,
+  exclude,
+  inForm,
+}: {
+  channelId: string;
+  mode: 'multiple' | 'single';
+  value?: string[];
+  onValueChange?: (value: string[] | string) => void;
+  exclude?: boolean;
+  inForm?: boolean;
+}) => {
+  const Control = inForm ? Form.Control : React.Fragment;
+  return (
+    <SelectMember.Provider
+      value={value}
+      onValueChange={(value) => onValueChange?.(value as string[] | string)}
+      mode={mode}
+    >
+      <Popover>
+        <Control>
+          <Combobox.Trigger>
+            <SelectMember.Value />
+          </Combobox.Trigger>
+        </Control>
+        <Combobox.Content>
+          <MemberFormContent channelId={channelId} exclude={exclude ?? true} />
+        </Combobox.Content>
+      </Popover>
+    </SelectMember.Provider>
+  );
+};
+
+export const MemberForm = ({
+  form,
+  channelId,
+}: {
+  form: UseFormReturn<TChannelMemberForm>;
+  channelId: string;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
+  return (
+    <div className="flex flex-col gap-3">
+      <Form.Field
+        control={form.control}
+        name="memberIds"
+        render={({ field }) => (
+          <Form.Item>
+            <Form.Label>{t('choose-members', 'Choose members')}</Form.Label>
+            <Form.Description className="sr-only">
+              {t('members-title', 'Members')}
+            </Form.Description>
+            <SelectChannelMember
+              channelId={channelId ?? ''}
+              mode="multiple"
+              value={field.value}
+              onValueChange={field.onChange}
+              inForm={true}
+            />
+            <Form.Message />
+          </Form.Item>
+        )}
+      />
+    </div>
   );
 };

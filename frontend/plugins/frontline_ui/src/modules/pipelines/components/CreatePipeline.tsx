@@ -3,98 +3,87 @@ import {
   Button,
   Form,
   Kbd,
-  Sheet,
-  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
 import { usePipelineAdd } from '@/pipelines/hooks/useAddPipeline';
-import { useAtom } from 'jotai';
-import React, { useEffect } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { CREATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TCreatePipelineForm } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
-import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
 import { CreatePipelineForm } from './CreatePipelineForm';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
+import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
+import { getPipelineDraftId } from '@/pipelines/constants/pipelineTabs';
+import { useEffect } from 'react';
 
-const CreatePipelineSheetForm = ({
+export const CreatePipelinePanelForm = ({
   channelId,
-  onClose,
 }: {
   channelId: string;
-  onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { close, openRecord } = useSidePanel();
   const { addPipeline, loading } = usePipelineAdd();
-
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
+  useEffect(() => {
+    setHotkeyScopeAndMemorizePreviousScope(
+      PipelineHotkeyScope.PipelineAddSheet,
+    );
+    return goBackToPreviousHotkeyScope;
+  }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
+  useScopedHotkeys('esc', close, PipelineHotkeyScope.PipelineAddSheet);
   const form = useForm<TCreatePipelineForm>({
     resolver: zodResolver(CREATE_PIPELINE_FORM_SCHEMA),
-    defaultValues: {
-      name: '',
-      description: '',
-      channelId,
-    },
+    defaultValues: { name: '', description: '', channelId },
   });
 
-  const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
-    (data) => {
-      addPipeline({
-        variables: { ...data, channelId },
-        onCompleted: (response) => {
-          form.reset();
-          onClose();
-          toast({ title: t('success', 'Success!') });
-          if (response.createPipeline) {
-            navigate(
-              `/frontline/settings/channels/${channelId}/pipelines/${response.createPipeline._id}`,
-            );
-          }
-        },
-        onError: (error) =>
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [addPipeline, channelId, form, navigate, onClose, t, toast],
-  );
+  const submit = (data: TCreatePipelineForm) => {
+    addPipeline({
+      variables: { ...data, channelId },
+      awaitRefetchQueries: true,
+      onCompleted: ({ createPipeline }) => {
+        if (!createPipeline) return;
+        form.reset();
+        toast({ title: t('success', 'Success!') });
+        openRecord(
+          { contentType: PIPELINE_CONTENT_TYPE, contentId: createPipeline._id },
+          { replace: true },
+        );
+      },
+      onError: (error) =>
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
 
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-0 size-full"
-        onSubmit={form.handleSubmit(submitHandler)}
+        className="flex min-h-0 flex-1 flex-col"
+        onSubmit={form.handleSubmit(submit)}
       >
-        <Sheet.Header>
-          <Sheet.Title>{t('add-pipeline', 'Add pipeline')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+        <div className="flex-1 overflow-auto p-3">
           <CreatePipelineForm form={form} />
-        </Sheet.Content>
-        <Sheet.Footer>
-          <Button
-            disabled={loading}
-            onClick={onClose}
-            type="button"
-            variant="secondary"
-          >
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button disabled={loading} type="submit">
-            {loading ? <Spinner /> : t('create', 'Create')}
-          </Button>
-        </Sheet.Footer>
+        </div>
+        <SettingsPanelFooter
+          onCancel={close}
+          cancelLabel={t('cancel', 'Cancel')}
+          submitLabel={t('create', 'Create')}
+          loading={loading}
+        />
       </form>
     </Form>
   );
@@ -102,61 +91,24 @@ const CreatePipelineSheetForm = ({
 
 export const CreatePipeline = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
-  const { id: channelId } = useParams<{ id: string }>();
-
-  const [open, setOpen] = useAtom(createPipelineSheetState);
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
-  useEffect(() => {
-    if (open) {
-      setHotkeyScopeAndMemorizePreviousScope(
-        PipelineHotkeyScope.PipelineAddSheet,
-      );
-      return;
-    }
-
-    setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-  }, [open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
-
-  useScopedHotkeys(
-    'c',
-    () => setOpen(true),
-    PipelineHotkeyScope.PipelineSettingsPage,
-  );
-  useScopedHotkeys(
-    'esc',
-    () => setOpen(false),
-    PipelineHotkeyScope.PipelineAddSheet,
-  );
-
-  // The effect above cannot carry this: its cleanup runs on every `open`
-  // change, so closing there would stop the sheet from ever opening.
-  useEffect(
-    () => () => {
-      setOpen(false);
-      setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-    },
-    [setHotkeyScope, setOpen],
-  );
+  const { id: channelId } = useSettingsParams();
+  const { openRecord } = useSidePanel();
+  const open = () => {
+    if (!channelId) return;
+    openRecord({
+      contentType: PIPELINE_CONTENT_TYPE,
+      contentId: getPipelineDraftId(channelId),
+    });
+  };
+  useScopedHotkeys('c', open, PipelineHotkeyScope.PipelineSettingsPage);
 
   if (!channelId) return null;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('create-pipeline', 'Create pipeline')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0">
-        <CreatePipelineSheetForm
-          channelId={channelId}
-          onClose={() => setOpen(false)}
-        />
-      </Sheet.View>
-    </Sheet>
+    <Button onClick={open}>
+      <IconPlus />
+      {t('create-pipeline', 'Create pipeline')}
+      <Kbd>C</Kbd>
+    </Button>
   );
 };

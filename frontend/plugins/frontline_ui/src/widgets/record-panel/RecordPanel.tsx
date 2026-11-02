@@ -18,6 +18,13 @@ import {
 } from '@/knowledgebase/constants';
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
+
+const SettingsRecordPanel = lazy(() =>
+  import('./SettingsRecordPanel').then((module) => ({
+    default: module.SettingsRecordPanel,
+  })),
+);
 
 const KNOWLEDGE_BASE_CONTENT_TYPES: string[] = [
   ...Object.values(KB_RECORD_CONTENT_TYPES),
@@ -123,6 +130,13 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
+  if (SETTINGS_RECORD_CONTENT_TYPES.has(props.contentType)) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <SettingsRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.contentType === INTEGRATION_CONTENT_TYPE) {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>

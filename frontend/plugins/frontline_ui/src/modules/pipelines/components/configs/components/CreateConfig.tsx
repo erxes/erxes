@@ -1,107 +1,89 @@
-import { useCallback, useEffect } from 'react';
-import { Button, Form, Sheet, Spinner, toast } from 'erxes-ui';
+import { useEffect } from 'react';
+import { Form, Sheet, toast } from 'erxes-ui';
 import { usePipelineConfigForm } from '../hooks/usePipelineConfigForm';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
-import { type UseFormReturn, type SubmitHandler } from 'react-hook-form';
+import { type SubmitHandler } from 'react-hook-form';
 import { type TPipelineConfig } from '@/pipelines/types';
 import { useAtom } from 'jotai';
 import { configCreateModalAtom } from '../states';
 import { ConfigsForm } from './ConfigsForm';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { TICKET_CONFIG_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
+import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
+import type { ITicketConfigDetail } from '../hooks/useGetTicketConfigDetail';
 
-const CreateConfigSheetForm = ({
-  methods,
-  loading,
-  onSubmit,
-  onCancel,
+export const TicketConfigEditor = ({
+  config,
+  onClose,
 }: {
-  methods: UseFormReturn<TPipelineConfig>;
-  loading: boolean;
-  onSubmit: SubmitHandler<TPipelineConfig>;
-  onCancel: () => void;
+  config?: ITicketConfigDetail;
+  onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
-
+  const { methods } = usePipelineConfigForm();
+  const { saveTicketsConfig, loading } = useSaveTicketsConfig();
+  const onSubmit: SubmitHandler<TPipelineConfig> = (data) => {
+    saveTicketsConfig({
+      variables: { input: data },
+      onCompleted: () => {
+        toast({
+          title: t('success', 'Success!'),
+          description: t(
+            'tickets-config-saved-successfully',
+            'Tickets config saved successfully',
+          ),
+          variant: 'success',
+        });
+        methods.reset();
+        onClose();
+      },
+      onError: (error) =>
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        }),
+    });
+  };
+  useEffect(() => {
+    methods.setFocus('name');
+  }, [methods]);
   return (
     <Form {...methods}>
       <form
         onSubmit={methods.handleSubmit(onSubmit)}
-        className="flex flex-col gap-0 size-full box-border overflow-hidden"
+        className="flex flex-1 min-h-0 flex-col overflow-hidden"
       >
-        <Sheet.Header>
-          <Sheet.Title>
-            {t('new-configuration', 'New Configuration')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="flex-1 w-full flex flex-col px-5 py-4 space-y-4 overflow-y-auto hide-scroll styled-scroll">
-          <ConfigsForm form={methods} />
+        <Sheet.Content className="flex-1 flex flex-col px-5 py-4 space-y-4 overflow-y-auto styled-scroll">
+          <ConfigsForm form={methods} defaultValues={config} />
         </Sheet.Content>
-        <Sheet.Footer className="shrink-0">
-          <Button variant="ghost" onClick={onCancel}>
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : t('add', 'Add')}
-          </Button>
-        </Sheet.Footer>
+        <SettingsPanelFooter
+          onCancel={onClose}
+          cancelLabel={t('cancel', 'Cancel')}
+          submitLabel={config ? t('save', 'Save') : t('add', 'Add')}
+          loading={loading}
+        />
       </form>
     </Form>
   );
 };
 
 export const CreateConfig = () => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const [open, setOpen] = useAtom(configCreateModalAtom);
-  const { saveTicketsConfig, loading } = useSaveTicketsConfig();
-  const { methods } = usePipelineConfigForm();
-
-  const { reset } = methods;
-
-  const onSubmit: SubmitHandler<TPipelineConfig> = useCallback(
-    (data) => {
-      saveTicketsConfig({
-        variables: {
-          input: data,
-        },
-        onCompleted: () => {
-          toast({
-            title: t('success', 'Success!'),
-            description: t(
-              'tickets-config-saved-successfully',
-              'Tickets config saved successfully',
-            ),
-            variant: 'success',
-          });
-          reset();
-          setOpen(false);
-        },
-        onError: (error) => {
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          });
-        },
-      });
-    },
-    [saveTicketsConfig, reset, setOpen, t],
-  );
-
+  const { id: channelId, pipelineId } = useSettingsParams();
+  const { openRecord, record } = useSidePanel();
   useEffect(() => {
-    methods.setFocus('name');
-  }, [methods]);
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.View className="p-0 max-w-xl">
-        <CreateConfigSheetForm
-          methods={methods}
-          loading={loading}
-          onSubmit={onSubmit}
-          onCancel={() => setOpen(false)}
-        />
-      </Sheet.View>
-    </Sheet>
-  );
+    if (!open || !channelId || !pipelineId) return;
+    setOpen(false);
+    openRecord(
+      {
+        contentType: TICKET_CONFIG_CONTENT_TYPE,
+        contentId: `new~${channelId}~${pipelineId}`,
+      },
+      { stack: Boolean(record) },
+    );
+  }, [channelId, open, openRecord, pipelineId, record, setOpen]);
+  return null;
 };

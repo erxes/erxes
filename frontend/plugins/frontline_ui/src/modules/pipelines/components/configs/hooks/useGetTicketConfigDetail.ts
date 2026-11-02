@@ -15,9 +15,10 @@ export const useGetTicketConfigDetail = (
     TicketConfigDetailQueryVariables
   >,
 ) => {
-  const { data, loading } = useQuery(GET_CONFIG_DETAIL, options);
+  const { data, loading, error } = useQuery(GET_CONFIG_DETAIL, options);
   return {
     ticketConfigDetail: data?.ticketConfigDetail ?? undefined,
     loading,
+    error,
   };
 };

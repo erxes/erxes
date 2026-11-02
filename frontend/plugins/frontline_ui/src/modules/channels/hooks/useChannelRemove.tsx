@@ -1,3 +1,4 @@
+import { CHANNEL_REFETCH_QUERIES } from '@/channels/constants/refetchQueries';
 import { useMutation } from '@apollo/client';
 import { REMOVE_CHANNEL } from '../graphql/mutations';
 import { toast } from 'erxes-ui';
@@ -9,7 +10,13 @@ export const useChannelRemove = () => {
     onCompleted: (data) => {
       toast({ title: t('channel-removed', 'Channel removed successfully') });
     },
-    refetchQueries: ['frontlineChannelList'],
+    refetchQueries: CHANNEL_REFETCH_QUERIES,
+    onError: (error) =>
+      toast({
+        title: t('error', 'Error'),
+        description: error.message,
+        variant: 'destructive',
+      }),
   });
   return { removeChannel, loading, error };
 };

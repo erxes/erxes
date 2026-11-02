@@ -1,3 +1,4 @@
+import { CHANNEL_REFETCH_QUERIES } from '@/channels/constants/refetchQueries';
 import { REMOVE_CHANNEL_MEMBER } from '@/channels/graphql';
 import { MutationFunctionOptions, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
@@ -32,7 +33,7 @@ export const useChannelMemberRemove = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['GetChannelMembers'],
+      refetchQueries: CHANNEL_REFETCH_QUERIES,
     });
   };
   return { removeChannelMember: handleRemoveChannelMember, loading, error };

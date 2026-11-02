@@ -28,23 +28,64 @@ import { useRemoveResponse } from '../hooks/useRemoveResponse';
 import { MoveToChannelDialog } from '@/channels/components/move-resources/MoveToChannelDialog';
 import { ChannelResourceType } from '@/channels/types';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
+import { RESPONSE_TEMPLATE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+
+const ResponseListMenu = ({
+  onEdit,
+  onDelete,
+  loading,
+  onMove,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+  loading: boolean;
+  onMove: () => void;
+}) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={onEdit}>
+          <IconEdit /> {t('edit', 'Edit')}
+        </Command.Item>
+        <Command.Item value="move" onSelect={onMove}>
+          <IconArrowBarToRight />
+          {t('move-to-channel', 'Move to Channel')}
+        </Command.Item>
+        <Command.Item
+          value="delete"
+          onSelect={onDelete}
+          className="text-destructive"
+        >
+          {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
+          {t('delete', 'Delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+};
 
 const ResponseMoreCell = ({
   cell,
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   const { _id, channelId } = cell.row.original;
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
   const { removeResponse, loading } = useRemoveResponse();
   const { confirm } = useConfirm();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
   const handleEdit = () => {
-    navigate(`/frontline/settings/channels/${channelId}/response/${_id}`);
+    setMenuOpen(false);
+    openRecord({ contentType: RESPONSE_TEMPLATE_CONTENT_TYPE, contentId: _id });
   };
 
   const handleDelete = () => {
@@ -66,31 +107,15 @@ const ResponseMoreCell = ({
           <RecordTable.MoreButton className="w-full h-full" />
         </Popover.Trigger>
         <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit /> {t('edit', 'Edit')}
-              </Command.Item>
-              <Command.Item
-                value="move"
-                onSelect={() => {
-                  setMenuOpen(false);
-                  setMoveOpen(true);
-                }}
-              >
-                <IconArrowBarToRight />
-                {t('move-to-channel', 'Move to Channel')}
-              </Command.Item>
-              <Command.Item
-                value="delete"
-                onSelect={handleDelete}
-                className="text-destructive"
-              >
-                {loading ? <Spinner size="sm" /> : <IconTrash />}{' '}
-                {t('delete', 'Delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
+          <ResponseListMenu
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            loading={loading}
+            onMove={() => {
+              setMenuOpen(false);
+              setMoveOpen(true);
+            }}
+          />
         </Combobox.Content>
       </Popover>
       <MoveToChannelDialog
@@ -109,21 +134,37 @@ const ResponseNameCell = ({
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
-  const navigate = useNavigate();
-  const { _id, channelId } = cell.row.original;
+  const { openRecord } = useSidePanel();
+  const { _id } = cell.row.original;
   return (
     <RecordTableInlineCell
       onClick={() =>
-        navigate(`/frontline/settings/channels/${channelId}/response/${_id}`)
+        openRecord({
+          contentType: RESPONSE_TEMPLATE_CONTENT_TYPE,
+          contentId: _id,
+        })
       }
     >
-      {cell.getValue() as string}
+      {cell.row.original.name}
     </RecordTableInlineCell>
   );
 };
 
+const ResponseDateCell = ({ value }: { value?: string | null }) => {
+  if (!value) return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  return (
+    <RelativeDateDisplay value={value} asChild>
+      <RecordTableInlineCell>
+        <RelativeDateDisplay.Value value={value} />
+      </RecordTableInlineCell>
+    </RelativeDateDisplay>
+  );
+};
+
 export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   return [
     {
       id: 'more',
@@ -153,11 +194,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       ),
       size: 120,
       cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
+        <ResponseDateCell value={cell.row.original.createdAt} />
       ),
     },
     {
@@ -171,18 +208,16 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
       ),
       size: 120,
       cell: ({ cell }) => (
-        <RelativeDateDisplay value={cell.getValue() as string} asChild>
-          <RecordTableInlineCell>
-            <RelativeDateDisplay.Value value={cell.getValue() as string} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
+        <ResponseDateCell value={cell.row.original.updatedAt} />
       ),
     },
   ];
 };
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.response-template',
+  });
   const responseColumns = useResponseColumns();
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',

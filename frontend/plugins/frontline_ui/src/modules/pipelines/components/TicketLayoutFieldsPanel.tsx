@@ -2,20 +2,48 @@ import { IconPlus, IconSearch } from '@tabler/icons-react';
 import { Badge, Button, Checkbox, Input, Switch, cn } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ILayoutAsideApi, PropertyAddSheet } from 'ui-modules';
+import { ILayoutAsideApi } from 'ui-modules';
 import {
   TTicketLayoutField,
   TTicketLayoutFieldRef,
 } from '@/pipelines/hooks/useTicketLayoutFields';
-import {
-  TICKET_PROPERTY_CONTENT_TYPE,
-  toLayoutPropertyId,
-} from '@/ticket/constants/createLayout';
+import { toLayoutPropertyId } from '@/ticket/constants/createLayout';
+import { TicketLayoutPropertyPanel } from './TicketLayoutPropertyPanel';
 
 type TFieldActions = {
   setCreateOn: (item: TTicketLayoutFieldRef, on: boolean) => Promise<boolean>;
   setRequired: (item: TTicketLayoutFieldRef, on: boolean) => Promise<boolean>;
   saving: boolean;
+};
+
+const TicketLayoutFieldHint = ({
+  item,
+  actions,
+}: {
+  item: TTicketLayoutField;
+  actions: TFieldActions;
+}) => {
+  const { t } = useTranslation('frontline');
+  if (item.unsupported) {
+    return t(
+      'unsupported-type-hint',
+      'Saved with an unsupported type; fix it in Settings → Properties',
+    );
+  }
+  if (item.createOn) return item.typeLabel;
+  return (
+    <>
+      {t('off-for-create', 'Off for create')} ·{' '}
+      <button
+        type="button"
+        className="text-primary hover:underline"
+        disabled={actions.saving}
+        onClick={() => actions.setCreateOn(item, true)}
+      >
+        {t('turn-on', 'Turn on')}
+      </button>
+    </>
+  );
 };
 
 /**
@@ -108,26 +136,7 @@ export const TicketLayoutFieldsPanel = ({
                   )}
                 </div>
                 <span className="truncate text-xs text-muted-foreground">
-                  {item.unsupported ? (
-                    t(
-                      'unsupported-type-hint',
-                      'Saved with an unsupported type; fix it in Settings → Properties',
-                    )
-                  ) : item.createOn ? (
-                    item.typeLabel
-                  ) : (
-                    <>
-                      {t('off-for-create', 'Off for create')} ·{' '}
-                      <button
-                        type="button"
-                        className="text-primary hover:underline"
-                        disabled={actions.saving}
-                        onClick={() => actions.setCreateOn(item, true)}
-                      >
-                        {t('turn-on', 'Turn on')}
-                      </button>
-                    </>
-                  )}
+                  <TicketLayoutFieldHint item={item} actions={actions} />
                 </span>
               </div>
               <Switch
@@ -158,14 +167,15 @@ export const TicketLayoutFieldsPanel = ({
           {t('new-property', 'New property')}
         </Button>
       </div>
-      <PropertyAddSheet
-        contentType={TICKET_PROPERTY_CONTENT_TYPE}
+      <TicketLayoutPropertyPanel
         open={adding}
-        onClose={() => setAdding(false)}
+        onOpenChange={setAdding}
         onCreated={async (fieldId) => {
-          // A field made here is meant for this form, so it shows on create.
-          await actions.setCreateOn({ kind: 'property', key: fieldId }, true);
-          api.placeItem(toLayoutPropertyId(fieldId));
+          const enabled = await actions.setCreateOn(
+            { kind: 'property', key: fieldId },
+            true,
+          );
+          if (enabled) api.placeItem(toLayoutPropertyId(fieldId));
         }}
       />
     </div>

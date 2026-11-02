@@ -28,122 +28,13 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
-import React, { useEffect, useRef, useState } from 'react';
-import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FormFieldDetail } from './FormFieldDetail';
+import { SettingsLocalPanel } from '@/settings/components/SettingsLocalPanel';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
 
 const DRAG_DISTANCE = 10;
-
-export const FormDndField = ({
-  field,
-  step,
-}: {
-  field: UniqueIdentifier;
-  step: UniqueIdentifier;
-}) => {
-  const [open, setOpen] = useState(false);
-  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
-  const {
-    attributes,
-    setNodeRef,
-    setActivatorNodeRef,
-    listeners,
-    isDragging,
-    transform,
-    transition,
-  } = useSortable({
-    id: field,
-  });
-  const { getFieldValue, newFieldId, clearNewFieldId } = useFormDnd();
-  const fieldData = getFieldValue(step, field);
-  const mounted = useMountStatus();
-
-  useEffect(() => {
-    if (newFieldId !== field) return;
-
-    setOpen(true);
-    clearNewFieldId();
-  }, [newFieldId, field, clearNewFieldId]);
-
-  const mountedWhileDragging = isDragging && !mounted;
-
-  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const start = pointerDownAt.current;
-    pointerDownAt.current = null;
-    if (
-      start &&
-      Math.hypot(e.clientX - start.x, e.clientY - start.y) >= DRAG_DISTANCE
-    ) {
-      return;
-    }
-    setOpen(true);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key !== 'Enter') return;
-    if (isDragging) {
-      e.preventDefault();
-      return;
-    }
-    e.stopPropagation();
-  };
-
-  const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === ' ') e.preventDefault();
-  };
-
-  // const handleChangeSpan = (span: number) => {
-  //   fieldData &&
-  //     handleChangeField(step, field, {
-  //       ...fieldData,
-  //       span,
-  //     });
-  // };
-
-  return (
-    <>
-      <div
-        className={cn(
-          'group p-1 text-sm border rounded-md flex items-center px-2 gap-2 min-w-0 cursor-grab bg-background hover:border-muted-foreground/40',
-          fieldData?.span === 2 && 'col-span-2',
-          mountedWhileDragging && 'fade-in',
-          isDragging &&
-            'relative z-10 cursor-grabbing shadow-lg border-primary ring-2 ring-primary/20',
-        )}
-        ref={setNodeRef}
-        style={{ transition, transform: CSS.Translate.toString(transform) }}
-        {...listeners}
-      >
-        <button
-          type="button"
-          ref={setActivatorNodeRef}
-          {...attributes}
-          className="flex flex-1 items-center gap-2 min-w-0 text-left cursor-[inherit] rounded-sm [&>svg]:size-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-          onPointerDown={(e) => {
-            pointerDownAt.current = { x: e.clientX, y: e.clientY };
-          }}
-          onClick={handleClick}
-          onKeyDown={handleKeyDown}
-          onKeyUp={handleKeyUp}
-        >
-          <IconDragDrop2 className="shrink-0 text-muted-foreground opacity-60 group-hover:opacity-100" />
-          <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
-          <span className="truncate min-w-0">{fieldData?.label}</span>
-        </button>
-        <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
-      </div>
-      <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
-        <FormFieldDetail
-          fieldData={fieldData}
-          fieldId={field}
-          stepId={step}
-          handleClose={() => setOpen(false)}
-        />
-      </FormFieldDetailSheet>
-    </>
-  );
-};
 
 export const FormDndFieldIcon = ({ type }: { type: string }) => {
   switch (type) {
@@ -317,5 +208,123 @@ export const FieldContextMenu = ({
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
+  );
+};
+
+export const FormDndField = ({
+  field,
+  step,
+}: {
+  field: UniqueIdentifier;
+  step: UniqueIdentifier;
+}) => {
+  const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
+  const {
+    attributes,
+    setNodeRef,
+    setActivatorNodeRef,
+    listeners,
+    isDragging,
+    transform,
+    transition,
+  } = useSortable({
+    id: field,
+  });
+  const {
+    getFieldValue,
+    newFieldId,
+    clearNewFieldId,
+    editingFieldId,
+    setEditingFieldId,
+  } = useFormDnd();
+  const open = editingFieldId === field;
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) {
+        setEditingFieldId(field);
+        return;
+      }
+      setEditingFieldId((current) => (current === field ? null : current));
+    },
+    [field, setEditingFieldId],
+  );
+  const fieldData = getFieldValue(step, field);
+  const mounted = useMountStatus();
+
+  useEffect(() => {
+    if (newFieldId !== field) return;
+
+    setOpen(true);
+    clearNewFieldId();
+  }, [newFieldId, field, clearNewFieldId, setOpen]);
+
+  const mountedWhileDragging = isDragging && !mounted;
+
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const start = pointerDownAt.current;
+    pointerDownAt.current = null;
+    if (
+      start &&
+      Math.hypot(e.clientX - start.x, e.clientY - start.y) >= DRAG_DISTANCE
+    ) {
+      return;
+    }
+    setOpen(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key !== 'Enter') return;
+    if (isDragging) {
+      e.preventDefault();
+      return;
+    }
+    e.stopPropagation();
+  };
+
+  const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === ' ') e.preventDefault();
+  };
+
+  return (
+    <>
+      <div
+        className={cn(
+          'group p-1 text-sm border rounded-md flex items-center px-2 gap-2 min-w-0 cursor-grab bg-background hover:border-muted-foreground/40',
+          fieldData?.span === 2 && 'col-span-2',
+          mountedWhileDragging && 'fade-in',
+          isDragging &&
+            'relative z-10 cursor-grabbing shadow-lg border-primary ring-2 ring-primary/20',
+        )}
+        ref={setNodeRef}
+        style={{ transition, transform: CSS.Translate.toString(transform) }}
+        {...listeners}
+      >
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          {...attributes}
+          className="flex flex-1 items-center gap-2 min-w-0 text-left cursor-[inherit] rounded-sm [&>svg]:size-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          onPointerDown={(e) => {
+            pointerDownAt.current = { x: e.clientX, y: e.clientY };
+          }}
+          onClick={handleClick}
+          onKeyDown={handleKeyDown}
+          onKeyUp={handleKeyUp}
+        >
+          <IconDragDrop2 className="shrink-0 text-muted-foreground opacity-60 group-hover:opacity-100" />
+          <FormDndFieldIcon type={fieldData?.type ?? 'text'} />
+          <span className="truncate min-w-0">{fieldData?.label}</span>
+        </button>
+        <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
+      </div>
+      <SettingsLocalPanel open={open} onOpenChange={setOpen}>
+        <FormFieldDetail
+          fieldData={fieldData}
+          fieldId={field}
+          stepId={step}
+          handleClose={() => setOpen(false)}
+        />
+      </SettingsLocalPanel>
+    </>
   );
 };
