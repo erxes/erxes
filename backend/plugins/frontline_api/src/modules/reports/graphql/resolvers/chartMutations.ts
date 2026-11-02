@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import {
   IReportChartAddArgs,
   IReportChartEditArgs,
@@ -18,9 +17,9 @@ export const reportChartMutations = {
   async reportChartAdd(
     _parent: undefined,
     { name, chartType, visualType, colSpan, filters }: IReportChartAddArgs,
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) {
-    const chart = await models.ReportCharts.createReportChart(
+    return models.ReportCharts.createReportChart(
       {
         name,
         chartType,
@@ -30,36 +29,30 @@ export const reportChartMutations = {
       },
       requireUserId(user),
     );
-    await publishReportUpdate(subdomain, ['charts']);
-    return chart;
   },
 
   async reportChartEdit(
     _parent: undefined,
     { _id, name, visualType, colSpan, filters }: IReportChartEditArgs,
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) {
     requireUserId(user);
 
-    const chart = await models.ReportCharts.updateReportChart(_id, {
+    return models.ReportCharts.updateReportChart(_id, {
       name,
       visualType,
       colSpan,
       filters: filters ? pickReportChartFilters(filters) : undefined,
     });
-    await publishReportUpdate(subdomain, ['charts']);
-    return chart;
   },
 
   async reportChartRemove(
     _parent: undefined,
     { _id }: { _id: string },
-    { models, user, subdomain }: IContext,
+    { models, user }: IContext,
   ) {
     requireUserId(user);
 
-    const result = await models.ReportCharts.removeReportChart(_id);
-    await publishReportUpdate(subdomain, ['charts']);
-    return result;
+    return models.ReportCharts.removeReportChart(_id);
   },
 };

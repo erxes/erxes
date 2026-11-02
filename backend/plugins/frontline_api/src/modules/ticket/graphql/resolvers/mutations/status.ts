@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { IContext } from '~/connectionResolvers';
 import { IStatusEditInput } from '@/ticket/@types/status';
 import { checkPipeline } from '~/modules/ticket/utils/ticket';
@@ -8,7 +7,7 @@ export const statusMutations = {
   addTicketStatus: async (
     _parent: undefined,
     params: IStatusEditInput,
-    { models, checkPermission, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
     await checkPermission('ticketStatusesManage');
 
@@ -23,14 +22,13 @@ export const statusMutations = {
       ticketStatusListChanged: { type: 'create', status },
     });
 
-    await publishReportUpdate(subdomain, ['ticket']);
     return status;
   },
 
   updateTicketStatus: async (
     _parent: undefined,
     { _id, ...params }: IStatusEditInput,
-    { models, checkPermission, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
     await checkPermission('ticketStatusesManage');
 
@@ -45,14 +43,13 @@ export const statusMutations = {
       ticketStatusListChanged: { type: 'update', status: updatedStatus },
     });
 
-    await publishReportUpdate(subdomain, ['ticket']);
     return updatedStatus;
   },
 
   deleteTicketStatus: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission, subdomain }: IContext,
+    { models, checkPermission }: IContext,
   ) => {
     await checkPermission('ticketStatusesManage');
 
@@ -67,7 +64,6 @@ export const statusMutations = {
       ticketStatusListChanged: { type: 'delete', statusId: _id },
     });
 
-    await publishReportUpdate(subdomain, ['ticket']);
     return deleted;
   },
 };

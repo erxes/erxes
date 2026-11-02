@@ -1,13 +1,4 @@
-import { ApolloClient, NetworkStatus } from '@apollo/client';
-import type { FrontlineReportScope } from '~/gql/graphql';
-
-export const REPORT_SCOPES: readonly FrontlineReportScope[] = [
-  'inbox',
-  'ticket',
-  'facebook',
-  'call',
-  'charts',
-];
+import type { ApolloClient } from '@apollo/client';
 
 const CALL_REPORT_QUERIES = new Set([
   'CallReportsDashboard',
@@ -23,67 +14,23 @@ const CALL_REPORT_QUERIES = new Set([
   'callReportIntegrations',
 ]);
 
-export const getReportQueryScope = (
-  queryName?: string,
-): FrontlineReportScope | undefined => {
-  if (!queryName || queryName.endsWith('Export')) return undefined;
-  if (queryName === 'ReportCharts') return 'charts';
-  if (queryName.startsWith('ReportConversation')) return 'inbox';
-  if (queryName.startsWith('ReportTicket')) return 'ticket';
-  if (queryName.startsWith('ReportFacebook')) return 'facebook';
-  if (CALL_REPORT_QUERIES.has(queryName)) return 'call';
-  return undefined;
-};
+const isReportQuery = (queryName?: string): boolean =>
+  Boolean(
+    queryName &&
+      !queryName.endsWith('Export') &&
+      (queryName === 'ReportCharts' ||
+        queryName.startsWith('ReportConversation') ||
+        queryName.startsWith('ReportTicket') ||
+        queryName.startsWith('ReportFacebook') ||
+        CALL_REPORT_QUERIES.has(queryName)),
+  );
 
 export const refetchReportQueries = async (
   client: ApolloClient<object>,
-  scopes: ReadonlySet<FrontlineReportScope>,
-  signal: AbortSignal,
 ): Promise<void> => {
-  const queries = [...client.getObservableQueries('active').values()].filter(
-    ({ queryName }) => {
-      const scope = getReportQueryScope(queryName);
-      return scope !== undefined && scopes.has(scope);
-    },
-  );
-
-  await Promise.allSettled(
-    queries.map(async (query) => {
-      const context: Record<string, unknown> & { fetchOptions?: RequestInit } =
-        query.options.context ?? {};
-      const controller = new AbortController();
-      const abort = () => controller.abort();
-      const signals = [
-        signal,
-        ...(context.fetchOptions?.signal ? [context.fetchOptions.signal] : []),
-      ];
-      signals.forEach((source) => source.addEventListener('abort', abort));
-      if (signals.some((source) => source.aborted)) controller.abort();
-
-      try {
-        // A disposable refetch preserves the card's query options and error state.
-        // Disable deduplication so aborting this refresh cannot cancel another owner.
-        await query.reobserve(
-          {
-            fetchPolicy:
-              query.options.fetchPolicy === 'no-cache'
-                ? 'no-cache'
-                : 'network-only',
-            pollInterval: 0,
-            context: {
-              ...context,
-              queryDeduplication: false,
-              fetchOptions: {
-                ...context.fetchOptions,
-                signal: controller.signal,
-              },
-            },
-          },
-          NetworkStatus.refetch,
-        );
-      } finally {
-        signals.forEach((source) => source.removeEventListener('abort', abort));
-      }
-    }),
-  );
+  await client.refetchQueries({
+    include: 'active',
+    onQueryUpdated: (query) =>
+      isReportQuery(query.queryName) ? query.refetch() : false,
+  });
 };

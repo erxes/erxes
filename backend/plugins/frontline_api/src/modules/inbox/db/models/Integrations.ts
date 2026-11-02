@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import {
   IIntegration,
   IIntegrationDocument,
@@ -249,15 +248,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Create an integration, intended as a private method
      */
-    public static async createIntegration(doc: IIntegration, userId: string) {
-      const integration = await models.Integrations.create({
+    public static createIntegration(doc: IIntegration, userId: string) {
+      return models.Integrations.create({
         ...doc,
         isActive: true,
         createdUserId: userId,
         createdAt: new Date(),
       });
-      await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
-      return integration;
     }
 
     /**
@@ -461,17 +458,11 @@ export const loadClass = (models: IModels, subdomain: string) => {
      * Remove integration in addition with its messages, conversations, customers
      */
     public static async removeIntegration(_id: string) {
-      const result = await models.Integrations.deleteMany({ _id });
-      await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
-      return result;
+      return models.Integrations.deleteMany({ _id });
     }
 
     public static async removeIntegrations(_ids: string[]) {
-      const result = await models.Integrations.deleteMany({
-        _id: { $in: _ids },
-      });
-      await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
-      return result;
+      return models.Integrations.deleteMany({ _id: { $in: _ids } });
     }
 
     public static async updateBasicInfo(
@@ -479,7 +470,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       doc: IIntegrationBasicInfo,
     ) {
       await models.Integrations.updateOne({ _id }, { $set: doc });
-      await publishReportUpdate(subdomain, ['inbox', 'ticket', 'facebook', 'call']);
 
       return models.Integrations.findOne({ _id });
     }

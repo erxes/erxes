@@ -1,16 +1,4 @@
 export const types = `
-  enum FrontlineReportScope {
-    inbox
-    ticket
-    facebook
-    call
-    charts
-  }
-
-  type FrontlineReportsChanged {
-    scopes: [FrontlineReportScope!]!
-  }
-
   type ReportChartPropertyValueFilter {
     propertyId: String
     type: String

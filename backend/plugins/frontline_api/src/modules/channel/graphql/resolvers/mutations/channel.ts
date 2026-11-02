@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { IContext } from '~/connectionResolvers';
 import {
   ChannelMemberRoles,
@@ -6,7 +5,7 @@ import {
   IChannelDocument,
   IChannelsEdit,
 } from '@/channel/@types/channel';
-import { checkUserRole } from '@/channel/utils';
+import { checkUserRole } from '../../../utils';
 import {
   IChannelMoveResourcesArgs,
   moveChannelResources,
@@ -230,18 +229,6 @@ export const channelMutations = {
     args: IChannelMoveResourcesArgs,
     context: IContext,
   ) => {
-    const result = await moveChannelResources(args, context);
-    if (
-      args.resourceType === 'integration' ||
-      args.resourceType === 'pipeline'
-    ) {
-      await publishReportUpdate(
-        context.subdomain,
-        args.resourceType === 'pipeline'
-          ? ['ticket']
-          : ['inbox', 'ticket', 'facebook', 'call'],
-      );
-    }
-    return result;
+    return moveChannelResources(args, context);
   },
 };

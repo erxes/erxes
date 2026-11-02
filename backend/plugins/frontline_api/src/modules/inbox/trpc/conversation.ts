@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { conversationsChanged } from '@/inbox/meta/segments';
@@ -34,7 +33,6 @@ export const conversationTrpcRouter = t.router({
         );
 
         conversationsChanged(subdomain, targetIds, { tagIds });
-        await publishReportUpdate(subdomain, ['inbox']);
 
         response = await models.Conversations.find({
           _id: { $in: targetIds },

@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 import {
   AUTOMATED_REPLY_STATUS,
@@ -200,7 +199,7 @@ export const conversationMutations = {
   async conversationsResolve(
     _root,
     params: { ids: string[] },
-    { user, models, subdomain }: IContext,
+    { user, models }: IContext,
   ) {
     if (!params.ids?.length) {
       throw new Error('conversationIds parameter is required');
@@ -217,7 +216,6 @@ export const conversationMutations = {
       { $set: updateFields },
     );
 
-    if (result.modifiedCount) await publishReportUpdate(subdomain, ['inbox']);
     return result.modifiedCount || 0;
   },
 

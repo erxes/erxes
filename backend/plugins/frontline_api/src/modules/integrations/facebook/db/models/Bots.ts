@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { SUBSCRIBED_FIELDS } from '@/integrations/facebook/constants';
 import { debugError } from '@/integrations/facebook/debuggers';
 import {
@@ -1116,7 +1115,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           },
         });
 
-        await publishReportUpdate(subdomain, ['facebook']);
         return await this.getBot(bot._id);
       } catch (error) {
         await models.FacebookBots.deleteOne({ _id: bot._id });
@@ -1310,7 +1308,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
           },
         },
       );
-      await publishReportUpdate(subdomain, ['facebook']);
       return await this.getBot(_id);
     }
 
@@ -1318,7 +1315,6 @@ export const loadFacebookBotClass = (models: IModels, subdomain: string) => {
       await this.disconnectBotPageMessenger(_id);
 
       await models.FacebookBots.deleteOne({ _id });
-      await publishReportUpdate(subdomain, ['facebook']);
 
       return { status: 'success' };
     }

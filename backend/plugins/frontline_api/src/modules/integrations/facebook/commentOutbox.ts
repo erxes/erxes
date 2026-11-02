@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { reserveSendSlot } from '@/integrations/facebook/commentGuard';
 import { generateAttachmentUrl } from '@/integrations/facebook/commonUtils';
 import { debugError } from '@/integrations/facebook/debuggers';
@@ -193,7 +192,6 @@ const completion = async (
   status: 'success' | 'error',
   result: any,
 ) => {
-  if (status === 'success') await publishReportUpdate(subdomain, ['facebook']);
   try {
     await sendAutomationDeferredCompletion(subdomain, {
       executionId: outbox.executionId,

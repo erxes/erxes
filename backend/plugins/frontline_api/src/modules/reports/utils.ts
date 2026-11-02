@@ -198,9 +198,15 @@ export async function buildConversationResponsesPipeline(
     {
       $lookup: {
         from: models.Conversations.collection.name,
-        localField: 'conversationId',
-        foreignField: '_id',
-        pipeline: [{ $match: conversationMatch }],
+        let: { conversationId: '$conversationId' },
+        pipeline: [
+          {
+            $match: {
+              ...conversationMatch,
+              $expr: { $eq: ['$_id', '$$conversationId'] },
+            },
+          },
+        ],
         as: 'conversation',
       },
     },

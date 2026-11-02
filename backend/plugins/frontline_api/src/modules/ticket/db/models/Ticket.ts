@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import {
   ITicketDocument,
   ITicket,
@@ -42,7 +41,7 @@ export interface ITicketModel extends Model<ITicketDocument> {
 
 export const loadTicketClass = (
   models: IModels,
-  { sendDbEventLog, getContext }: EventDispatcherReturn,
+  { sendDbEventLog }: EventDispatcherReturn,
 ) => {
   class Ticket {
     public static async getTicket(_id: string): Promise<ITicketDocument> {
@@ -134,7 +133,6 @@ export const loadTicketClass = (
         docId: ticket._id,
         currentDocument: ticket.toObject(),
       });
-      await publishReportUpdate(subdomain, ['ticket']);
       return ticket;
     }
 
@@ -302,7 +300,6 @@ export const loadTicketClass = (
           prevDocument: ticket.toObject(),
         });
       }
-      if (detail) await publishReportUpdate(subdomain, ['ticket']);
       return detail;
     }
 
@@ -316,8 +313,6 @@ export const loadTicketClass = (
           docId: _id,
         });
       }
-      if (result.deletedCount)
-        await publishReportUpdate(getContext().subdomain, ['ticket']);
       return { ok: result.deletedCount || 0 };
     }
   }

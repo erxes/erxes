@@ -1,5 +1,4 @@
 import { IEngageData } from '@/inbox/@types/conversationMessages';
-import { publishReportUpdate } from '@/reports/realtime';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
@@ -469,7 +468,7 @@ export const conversationsRouter = t.router({
   changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { id, status } = input;
-      const { models, subdomain } = ctx;
+      const { models } = ctx;
 
       if (!id || !status) {
         return {
@@ -488,10 +487,6 @@ export const conversationsRouter = t.router({
           status: 'not_found',
           message: 'No conversation found with the provided ID',
         };
-      }
-
-      if (result.modifiedCount) {
-        await publishReportUpdate(subdomain, ['inbox']);
       }
 
       return {
@@ -807,7 +802,7 @@ export const inboxTrpcRouter = t.router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { models } = ctx;
         const { _id } = input;
 
         try {
@@ -817,10 +812,6 @@ export const inboxTrpcRouter = t.router({
           const conversationResult = await models.Conversations.deleteOne({
             _id,
           });
-
-          if (conversationResult.deletedCount || messagesResult.deletedCount) {
-            await publishReportUpdate(subdomain, ['inbox', 'ticket']);
-          }
 
           return {
             status: 'success',

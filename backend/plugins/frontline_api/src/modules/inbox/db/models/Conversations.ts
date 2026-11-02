@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { IMessageDocument } from '@/inbox/@types/conversationMessages';
 import {
   IConversation,
@@ -139,7 +138,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       });
 
       conversationsChanged(subdomain, [result._id]);
-      await publishReportUpdate(subdomain, ['inbox']);
 
       return result;
     }
@@ -209,7 +207,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       );
 
       conversationsChanged(subdomain, [_id], doc);
-      await publishReportUpdate(subdomain, ['inbox']);
 
       return updated;
     }
@@ -285,7 +282,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
         assignedUserIds: ids,
       });
 
-      await publishReportUpdate(subdomain, ['inbox']);
       return models.Conversations.find({ _id: { $in: conversationIds } });
     }
 
@@ -305,7 +301,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
         assignedUserIds: [],
       });
 
-      await publishReportUpdate(subdomain, ['inbox']);
       return models.Conversations.find({ _id: { $in: conversationIds } });
     }
     /**
@@ -343,7 +338,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Change conversation status
      */
-    public static async changeStatusConversation(
+    public static changeStatusConversation(
       conversationIds: string[],
       status: string,
       userId: string,
@@ -358,7 +353,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         closedUserId = userId;
       }
 
-      const result = await models.Conversations.updateMany(
+      return models.Conversations.updateMany(
         { _id: { $in: conversationIds } },
         {
           $set: {
@@ -369,8 +364,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
           ...(!closedAt ? { $unset: { closedAt: 1, closedUserId: 1 } } : {}),
         },
       );
-      await publishReportUpdate(subdomain, ['inbox']);
-      return result;
     }
 
     /**
@@ -463,8 +456,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
         { $set: { customerId: newCustomerId } },
       );
 
-      await publishReportUpdate(subdomain, ['inbox']);
-
       // Returning updated list of conversation of new customer
       return models.Conversations.find({ customerId: newCustomerId });
     }
@@ -482,7 +473,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
       const conversationIds = conversations.map((conv) => conv._id);
 
       await models.Conversations.deleteMany({ _id: { $in: conversationIds } });
-      if (conversationIds.length) await publishReportUpdate(subdomain, ['inbox', 'ticket']);
     }
 
     /**
@@ -495,7 +485,6 @@ export const loadClass = (models: IModels, subdomain: string) => {
             conversationId: { $in: chunk },
           });
           await models.Conversations.deleteMany({ _id: { $in: chunk } });
-          await publishReportUpdate(subdomain, ['inbox', 'ticket']);
         },
         (variables, root: any) => {
           const parentIds = variables.parentIds || [];
@@ -537,15 +526,13 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Resolve all conversation
      */
-    public static async resolveAllConversation(
+    public static resolveAllConversation(
       query: FilterQuery<IConversationDocument>,
       param: Partial<IConversation>,
     ) {
-      const result = await models.Conversations.updateMany(query, {
+      return models.Conversations.updateMany(query, {
         $set: param,
       });
-      await publishReportUpdate(subdomain, ['inbox']);
-      return result;
     }
   }
 

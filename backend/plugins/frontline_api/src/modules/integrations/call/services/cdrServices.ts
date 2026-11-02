@@ -1,4 +1,3 @@
-import { publishReportUpdate } from '@/reports/realtime';
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
 import { debugCall } from '@/integrations/call/debuggers';
@@ -371,6 +370,5 @@ const processCdrLocked = async (
     }
   }
 
-  await publishReportUpdate(subdomain, ['call', 'inbox']);
   return 'success';
 };
