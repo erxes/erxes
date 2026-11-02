@@ -26,13 +26,7 @@ import {
 } from 'erxes-ui';
 
 type FileVariant =
-  | 'image'
-  | 'text'
-  | 'pdf'
-  | 'spreadsheet'
-  | 'archive'
-  | 'code'
-  | 'other';
+  'image' | 'text' | 'pdf' | 'spreadsheet' | 'archive' | 'code' | 'other';
 
 const getFileVariant = (url: string): FileVariant => {
   const ext = url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
