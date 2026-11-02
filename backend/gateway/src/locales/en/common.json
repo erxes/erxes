@@ -654,7 +654,7 @@
   },
   "not-found": {
     "message": "Oops! Page not found.",
-    "go-back": "Go back"
+    "go-home": "Go to Home"
   },
   "agent": {
     "title": "AI Agent",

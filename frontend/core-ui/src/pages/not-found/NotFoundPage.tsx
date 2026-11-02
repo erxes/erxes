@@ -20,7 +20,7 @@ export const NotFoundPage = () => {
       <h1 className="text-6xl font-bold text-gray-800 mb-4">404</h1>
       <p className="text-xl text-gray-600 mb-8">{t('message')}</p>
       <Button variant="link" onClick={() => navigate('/')}>
-        {t('go-back')}
+        {t('go-home', 'Go to Home')}
       </Button>
     </div>
   );
