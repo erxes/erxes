@@ -56,6 +56,7 @@ export const projectsColumns = (
         const { updateProject } = useUpdateProject();
         const navigate = useNavigate();
 
+        /** Saves the project name when its value has changed. */
         const handleUpdate = () => {
           if (value !== name) {
             updateProject({
@@ -89,7 +90,6 @@ export const projectsColumns = (
               <Input
                 value={value || ''}
                 onChange={(e) => setValue(e.target.value)}
-                autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
