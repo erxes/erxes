@@ -82,6 +82,7 @@
   "filter": {
     "_": "Filter",
     "search": "Search",
+    "enter-search-text": "Enter search text",
     "brand": "Brand",
     "assigned-to": "Assigned To",
     "created-at": "Created At",
