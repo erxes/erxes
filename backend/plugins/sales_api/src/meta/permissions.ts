@@ -43,7 +43,11 @@ export const permissions: IPermissionConfig = {
           name: 'dealsArchive',
           description: 'Archive / unarchive deals',
         },
-        { title: 'Export deals', name: 'dealsExportManage', description: 'Export deals' },
+        {
+          title: 'Export deals',
+          name: 'dealsExportManage',
+          description: 'Export deals',
+        },
       ],
     },
     {
@@ -262,8 +266,16 @@ export const permissions: IPermissionConfig = {
           name: 'posCoversRemove',
           description: 'Remove POS covers',
         },
-        { title: 'Export POS items', name: 'posItemsExportManage', description: 'Export POS items' },
-        { title: 'Export POS orders', name: 'posOrdersExportManage', description: 'Export POS orders' },
+        {
+          title: 'Export POS items',
+          name: 'posItemsExportManage',
+          description: 'Export POS items',
+        },
+        {
+          title: 'Export POS orders',
+          name: 'posOrdersExportManage',
+          description: 'Export POS orders',
+        },
       ],
     },
   ],
