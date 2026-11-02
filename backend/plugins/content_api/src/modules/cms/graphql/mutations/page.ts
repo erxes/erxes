@@ -6,10 +6,7 @@ import {
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import {
-  getCmsDefaultLanguage,
-  getCmsTranslationLanguage,
-} from '@/cms/utils/common';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -164,54 +161,52 @@ const mutations: Record<string, Resolver> = {
 
     await assertCmsAccessByClientPortal(context, clientPortalId);
 
-    if (clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'page',
+      language,
+    );
+
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'page',
+      };
+
+      // PAGE translatable fields: name → title, description → content
+      if (pageInput.name !== undefined) translationDoc.title = pageInput.name;
+      if (pageInput.description !== undefined)
+        translationDoc.content = pageInput.description;
+      if (pageInput.customFieldsData !== undefined)
+        translationDoc.customFieldsData = pageInput.customFieldsData;
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      // Strip translatable fields — only update shared fields on the page
+      const { name, description, customFieldsData, ...safePageInput } =
+        pageInput;
+
+      if (safePageInput.pdfAttachment !== undefined) {
+        safePageInput.pdfAttachment = await preparePdfAttachmentPages({
+          subdomain,
+          pdfAttachment: safePageInput.pdfAttachment,
+          previousPdfAttachment: existingPage.pdfAttachment,
+        });
+      }
+
+      const page = await models.Pages.updatePage(_id, safePageInput);
+
+      await savePageTranslations(
         models,
-        clientPortalId,
         _id,
-        'page',
-        language,
+        translations || [],
+        skippedLanguage,
       );
 
-      if (translationLanguage) {
-        const translationDoc: any = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'page',
-        };
-
-        // PAGE translatable fields: name → title, description → content
-        if (pageInput.name !== undefined) translationDoc.title = pageInput.name;
-        if (pageInput.description !== undefined)
-          translationDoc.content = pageInput.description;
-        if (pageInput.customFieldsData !== undefined)
-          translationDoc.customFieldsData = pageInput.customFieldsData;
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        // Strip translatable fields — only update shared fields on the page
-        const { name, description, customFieldsData, ...safePageInput } =
-          pageInput;
-
-        if (safePageInput.pdfAttachment !== undefined) {
-          safePageInput.pdfAttachment = await preparePdfAttachmentPages({
-            subdomain,
-            pdfAttachment: safePageInput.pdfAttachment,
-            previousPdfAttachment: existingPage.pdfAttachment,
-          });
-        }
-
-        const page = await models.Pages.updatePage(_id, safePageInput);
-
-        await savePageTranslations(
-          models,
-          _id,
-          translations || [],
-          translationLanguage,
-        );
-
-        return page;
-      }
+      return page;
     }
 
     if (pageInput.pdfAttachment !== undefined) {
@@ -225,7 +220,12 @@ const mutations: Record<string, Resolver> = {
     // Default language edit — update everything on the page document
     const page = await models.Pages.updatePage(_id, pageInput);
 
-    await savePageTranslations(models, _id, translations || []);
+    await savePageTranslations(
+      models,
+      _id,
+      translations || [],
+      skippedLanguage,
+    );
 
     return page;
   },

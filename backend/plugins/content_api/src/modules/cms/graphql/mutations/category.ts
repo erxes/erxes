@@ -4,10 +4,7 @@ import {
   assertOwnedDocument,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
-import {
-  getCmsDefaultLanguage,
-  getCmsTranslationLanguage,
-} from '@/cms/utils/common';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -162,58 +159,61 @@ export const contentCmsCategoryMutations : Record<string, Resolver> = {
           .lean()
       )?.clientPortalId;
 
-    if (clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
-        models,
-        clientPortalId,
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'category',
+      language,
+    );
+
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'category',
+      };
+
+      if (categoryInput.name !== undefined) {
+        translationDoc.title = categoryInput.name;
+      }
+      if (categoryInput.description !== undefined) {
+        translationDoc.content = categoryInput.description;
+      }
+      if (categoryInput.customFieldsData !== undefined) {
+        translationDoc.customFieldsData = categoryInput.customFieldsData;
+      }
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      const { name, description, customFieldsData, ...safeCategoryInput } =
+        categoryInput;
+
+      safeCategoryInput.clientPortalId = clientPortalId;
+
+      const category = await models.Categories.updateCategory(
         _id,
-        'category',
-        language,
+        safeCategoryInput,
       );
 
-      if (translationLanguage) {
-        const translationDoc: any = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'category',
-        };
+      await saveCategoryTranslations(
+        models,
+        _id,
+        translations || [],
+        skippedLanguage,
+      );
 
-        if (categoryInput.name !== undefined) {
-          translationDoc.title = categoryInput.name;
-        }
-        if (categoryInput.description !== undefined) {
-          translationDoc.content = categoryInput.description;
-        }
-        if (categoryInput.customFieldsData !== undefined) {
-          translationDoc.customFieldsData = categoryInput.customFieldsData;
-        }
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        const { name, description, customFieldsData, ...safeCategoryInput } =
-          categoryInput;
-
-        safeCategoryInput.clientPortalId = clientPortalId;
-
-        const category = await models.Categories.updateCategory(
-          _id,
-          safeCategoryInput,
-        );
-
-        await saveCategoryTranslations(
-          models,
-          _id,
-          translations || [],
-          translationLanguage,
-        );
-
-        return category;
-      }
+      return category;
     }
 
     const category = await models.Categories.updateCategory(_id, categoryInput);
 
-    await saveCategoryTranslations(models, _id, translations || []);
+    await saveCategoryTranslations(
+      models,
+      _id,
+      translations || [],
+      skippedLanguage,
+    );
 
     return category;
   },

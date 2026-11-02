@@ -17,10 +17,7 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import {
-  getCmsDefaultLanguage,
-  getCmsTranslationLanguage,
-} from '@/cms/utils/common';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 import { sendPublishedPostNotification } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
@@ -48,11 +45,16 @@ const saveTranslations = async (
   models: IContext['models'],
   objectId: string,
   translations: TPostTranslationInput[],
+  excludeLanguage?: string,
 ) => {
   if (!Array.isArray(translations) || translations.length === 0) return;
 
+  const filtered = excludeLanguage
+    ? translations.filter((t) => t?.language !== excludeLanguage)
+    : translations;
+
   await Promise.all(
-    translations.map((t) =>
+    filtered.map((t) =>
       models.Translations.upsertTranslation({
         ...t,
         objectId,
@@ -244,53 +246,47 @@ export const postMutations: Record<string, Resolver> = {
     const clientPortalId =
       postInput.clientPortalId || existingPost.clientPortalId;
 
-    if (clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
-        models,
-        clientPortalId,
-        _id,
-        'post',
-        language,
-      );
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'post',
+      language,
+    );
 
-      if (translationLanguage) {
-        const translationDoc: ITranslation = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'post',
-        };
+    if (translationLanguage) {
+      const translationDoc: ITranslation = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'post',
+      };
 
-        if (postInput.title !== undefined)
-          translationDoc.title = postInput.title;
-        if (postInput.content !== undefined)
-          translationDoc.content = postInput.content;
-        if (postInput.excerpt !== undefined)
-          translationDoc.excerpt = postInput.excerpt;
-        if (postInput.customFieldsData !== undefined)
-          translationDoc.customFieldsData = postInput.customFieldsData;
+      if (postInput.title !== undefined) translationDoc.title = postInput.title;
+      if (postInput.content !== undefined)
+        translationDoc.content = postInput.content;
+      if (postInput.excerpt !== undefined)
+        translationDoc.excerpt = postInput.excerpt;
+      if (postInput.customFieldsData !== undefined)
+        translationDoc.customFieldsData = postInput.customFieldsData;
 
-        await models.Translations.upsertTranslation(translationDoc);
+      await models.Translations.upsertTranslation(translationDoc);
 
-        const { title, content, excerpt, customFieldsData, ...safePostInput } =
-          postInput;
+      const { title, content, excerpt, customFieldsData, ...safePostInput } =
+        postInput;
 
-        if (safePostInput.pdfAttachment !== undefined) {
-          safePostInput.pdfAttachment = await preparePdfAttachmentPages({
-            subdomain,
-            pdfAttachment: safePostInput.pdfAttachment,
-            previousPdfAttachment: existingPost.pdfAttachment,
-          });
-        }
-
-        const post = await models.Posts.updatePost(_id, safePostInput);
-
-        const remainingTranslations = (
-          (translations || []) as TPostTranslationInput[]
-        ).filter((t) => t?.language !== translationLanguage);
-        await saveTranslations(models, _id, remainingTranslations);
-
-        return post;
+      if (safePostInput.pdfAttachment !== undefined) {
+        safePostInput.pdfAttachment = await preparePdfAttachmentPages({
+          subdomain,
+          pdfAttachment: safePostInput.pdfAttachment,
+          previousPdfAttachment: existingPost.pdfAttachment,
+        });
       }
+
+      const post = await models.Posts.updatePost(_id, safePostInput);
+
+      await saveTranslations(models, _id, translations || [], skippedLanguage);
+
+      return post;
     }
 
     if (postInput.pdfAttachment !== undefined) {
@@ -303,7 +299,7 @@ export const postMutations: Record<string, Resolver> = {
 
     const post = await models.Posts.updatePost(_id, postInput);
 
-    await saveTranslations(models, _id, translations || []);
+    await saveTranslations(models, _id, translations || [], skippedLanguage);
 
     return post;
   },

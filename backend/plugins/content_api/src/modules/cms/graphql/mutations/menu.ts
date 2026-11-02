@@ -1,9 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import {
-  getCmsDefaultLanguage,
-  getCmsTranslationLanguage,
-} from '@/cms/utils/common';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -74,45 +71,47 @@ const mutations: Record<string, Resolver> = {
     const { _id, input } = args;
     const { translations, language, ...menuInput } = input;
 
-    if (menuInput.clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      menuInput.clientPortalId,
+      _id,
+      'menu',
+      language,
+    );
+
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'menu',
+      };
+
+      if (menuInput.label !== undefined) translationDoc.title = menuInput.label;
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      const { label, ...safeMenuInput } = menuInput;
+
+      const menu = await models.MenuItems.updateMenuItem(_id, safeMenuInput);
+
+      await saveMenuTranslations(
         models,
-        menuInput.clientPortalId,
         _id,
-        'menu',
-        language,
+        translations || [],
+        skippedLanguage,
       );
 
-      if (translationLanguage) {
-        const translationDoc: any = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'menu',
-        };
-
-        if (menuInput.label !== undefined)
-          translationDoc.title = menuInput.label;
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        const { label, ...safeMenuInput } = menuInput;
-
-        const menu = await models.MenuItems.updateMenuItem(_id, safeMenuInput);
-
-        await saveMenuTranslations(
-          models,
-          _id,
-          translations || [],
-          translationLanguage,
-        );
-
-        return models.MenuItems.hydrateMenuItem(menu);
-      }
+      return models.MenuItems.hydrateMenuItem(menu);
     }
 
     const menu = await models.MenuItems.updateMenuItem(_id, menuInput);
 
-    await saveMenuTranslations(models, _id, translations || []);
+    await saveMenuTranslations(
+      models,
+      _id,
+      translations || [],
+      skippedLanguage,
+    );
 
     return models.MenuItems.hydrateMenuItem(menu);
   },
@@ -178,43 +177,40 @@ const mutations: Record<string, Resolver> = {
 
     const clientPortalId = clientPortal?._id;
 
-    if (clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
-        models,
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'menu',
+      language,
+    );
+
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'menu',
+      };
+
+      if (restInput.label !== undefined) translationDoc.title = restInput.label;
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      const { label, ...safeRestInput } = restInput;
+
+      const menu = await models.MenuItems.updateMenuItem(_id, {
+        ...safeRestInput,
         clientPortalId,
+      });
+
+      await saveMenuTranslations(
+        models,
         _id,
-        'menu',
-        language,
+        translations || [],
+        skippedLanguage,
       );
 
-      if (translationLanguage) {
-        const translationDoc: any = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'menu',
-        };
-
-        if (restInput.label !== undefined)
-          translationDoc.title = restInput.label;
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        const { label, ...safeRestInput } = restInput;
-
-        const menu = await models.MenuItems.updateMenuItem(_id, {
-          ...safeRestInput,
-          clientPortalId,
-        });
-
-        await saveMenuTranslations(
-          models,
-          _id,
-          translations || [],
-          translationLanguage,
-        );
-
-        return models.MenuItems.hydrateMenuItem(menu);
-      }
+      return models.MenuItems.hydrateMenuItem(menu);
     }
 
     const menu = await models.MenuItems.updateMenuItem(_id, {
@@ -222,7 +218,12 @@ const mutations: Record<string, Resolver> = {
       clientPortalId,
     });
 
-    await saveMenuTranslations(models, _id, translations || []);
+    await saveMenuTranslations(
+      models,
+      _id,
+      translations || [],
+      skippedLanguage,
+    );
 
     return models.MenuItems.hydrateMenuItem(menu);
   },

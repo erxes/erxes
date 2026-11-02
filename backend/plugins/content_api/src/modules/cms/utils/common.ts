@@ -5,19 +5,27 @@ export const getCmsDefaultLanguage = (
   cms?: { language?: string; languages?: string[] } | null,
 ) => cms?.language || cms?.languages?.[0];
 
-export const getCmsTranslationLanguage = async (
+export const getCmsSaveLanguages = async (
   models: IModels,
-  clientPortalId: string,
+  clientPortalId: string | undefined,
   objectId: string,
   type: string,
   language?: string,
-) => {
+): Promise<{ translationLanguage?: string; skippedLanguage?: string }> => {
+  if (!clientPortalId) return {};
+
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
   const defaultLanguage = getCmsDefaultLanguage(cms) || 'en';
   const targetLanguage = language || defaultLanguage;
 
-  if (targetLanguage !== defaultLanguage) return targetLanguage;
-  if (!cms || cms.language) return undefined;
+  if (targetLanguage !== defaultLanguage) {
+    return {
+      translationLanguage: targetLanguage,
+      skippedLanguage: targetLanguage,
+    };
+  }
+
+  if (!cms || cms.language) return {};
 
   const hasTranslation = await models.Translations.exists({
     objectId,
@@ -25,7 +33,10 @@ export const getCmsTranslationLanguage = async (
     type,
   });
 
-  return hasTranslation ? targetLanguage : undefined;
+  return {
+    translationLanguage: hasTranslation ? targetLanguage : undefined,
+    skippedLanguage: targetLanguage,
+  };
 };
 
 export const getConfig = async (

@@ -1,10 +1,7 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
-import {
-  getCmsDefaultLanguage,
-  getCmsTranslationLanguage,
-} from '@/cms/utils/common';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -142,48 +139,46 @@ export const contentCmsTagMutations : Record<string, Resolver> = {
           .lean()
       )?.clientPortalId;
 
-    if (clientPortalId) {
-      const translationLanguage = await getCmsTranslationLanguage(
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'tag',
+      language,
+    );
+
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'tag',
+      };
+
+      if (tagInput.name !== undefined) {
+        translationDoc.title = tagInput.name;
+      }
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      const { name, ...safeTagInput } = tagInput;
+
+      safeTagInput.clientPortalId = clientPortalId;
+
+      const tag = await models.PostTags.updateTag(_id, safeTagInput);
+
+      await saveTagTranslations(
         models,
-        clientPortalId,
         _id,
-        'tag',
-        language,
+        translations || [],
+        skippedLanguage,
       );
 
-      if (translationLanguage) {
-        const translationDoc: any = {
-          objectId: _id,
-          language: translationLanguage,
-          type: 'tag',
-        };
-
-        if (tagInput.name !== undefined) {
-          translationDoc.title = tagInput.name;
-        }
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        const { name, ...safeTagInput } = tagInput;
-
-        safeTagInput.clientPortalId = clientPortalId;
-
-        const tag = await models.PostTags.updateTag(_id, safeTagInput);
-
-        await saveTagTranslations(
-          models,
-          _id,
-          translations || [],
-          translationLanguage,
-        );
-
-        return tag;
-      }
+      return tag;
     }
 
     const tag = await models.PostTags.updateTag(_id, tagInput);
 
-    await saveTagTranslations(models, _id, translations || []);
+    await saveTagTranslations(models, _id, translations || [], skippedLanguage);
 
     return tag;
   },
