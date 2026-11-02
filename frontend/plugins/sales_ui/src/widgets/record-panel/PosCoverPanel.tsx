@@ -213,11 +213,7 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
             >
               <PosPanelText>{formatDate(cover.modifiedAt)}</PosPanelText>
             </PanelField>
-            <PanelField
-              icon={IconNote}
-              label={t('closing-note')}
-              cell={false}
-            >
+            <PanelField icon={IconNote} label={t('closing-note')} cell={false}>
               <div className="min-w-0 whitespace-pre-wrap break-words px-2 py-1.5 text-xs">
                 {cover.description || '-'}
               </div>
