@@ -18,6 +18,7 @@ import {
   getCmsDefaultLanguage,
   getInitialCmsLanguage,
 } from '@/cms/shared/utils';
+import { CmsSavedRowLoadError } from '@/cms/shared/components/CmsSavedRowLoadError';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
@@ -115,12 +116,12 @@ export function TagDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
@@ -131,7 +132,7 @@ export function TagDrawer({
     setSelectedLanguage,
     translations,
     defaultLangData,
-    isLoadingTranslations,
+    savedRowLoad,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -140,11 +141,10 @@ export function TagDrawer({
     type: 'tag',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
-
-  const isLoadingSavedRow =
-    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const { data: tagDetailData } = useQuery(CMS_TAG_DETAIL, {
     variables: {
@@ -370,7 +370,7 @@ export function TagDrawer({
   });
 
   const onSubmit = (data: TagFormData) => {
-    if (isLoadingSavedRow) return;
+    if (savedRowLoad.isBlocked) return;
 
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
@@ -458,6 +458,9 @@ export function TagDrawer({
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
           >
+            {savedRowLoad.hasFailed && (
+              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+            )}
             {availableLanguages.length > 0 && (
               <LanguageSelector
                 selectedLanguage={selectedLanguage}
@@ -541,7 +544,10 @@ export function TagDrawer({
               <Button
                 type="submit"
                 disabled={
-                  saving || editing || hasPermissionError || isLoadingSavedRow
+                  saving ||
+                  editing ||
+                  hasPermissionError ||
+                  savedRowLoad.isBlocked
                 }
               >
                 {saving || editing

@@ -21,6 +21,7 @@ import {
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
 import {
@@ -224,7 +225,8 @@ interface PageFormProps extends IPageDrawerProps {
   onFormReady?: (formState: {
     form: UseFormReturn<IPageFormData>;
     onSubmit: (data: IPageFormData) => void;
-    getSaving: () => boolean;
+    saving: boolean;
+    isSaveBlocked: boolean;
     handleLanguageChange: (lang: string) => void;
   }) => void;
 }
@@ -241,12 +243,12 @@ export function PageDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
@@ -260,17 +262,16 @@ export function PageDrawer({
     handleLanguageChange,
     defaultLangData,
     translations,
-    isLoadingTranslations,
+    savedRowLoad,
   } = useCmsTranslation({
     objectId: storedPage?._id,
     type: 'page',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: clientPortalId,
   });
-
-  const isLoadingSavedRow =
-    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const page = useRecordInDefaultLanguage(
     storedPage,
@@ -408,12 +409,7 @@ export function PageDrawer({
 
   const { editPage, loading: savingEdit } = useEditPage();
   const { addPage, loading: savingAdd } = useAddPage();
-  const saving = savingEdit || savingAdd || isLoadingSavedRow;
-
-  const savingRef = useRef(saving);
-  useEffect(() => {
-    savingRef.current = saving;
-  }, [saving]);
+  const saving = savingEdit || savingAdd;
 
   useEffect(() => {
     if (isEditing && page) {
@@ -613,7 +609,7 @@ export function PageDrawer({
   const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
   onSubmitRef.current = (data: IPageFormData) => {
-    if (isLoadingSavedRow) return;
+    if (savedRowLoad.isBlocked) return;
 
     const curSelectedLanguage = selectedLanguageRef.current;
     const curDefaultLanguage = defaultLanguageRef.current;
@@ -765,26 +761,32 @@ export function PageDrawer({
     [form],
   );
 
-  const formInitializedRef = useRef(false);
-
-  const getSaving = useCallback(() => savingRef.current, []);
-
   useEffect(() => {
-    if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({
-        form,
-        onSubmit,
-        getSaving,
-        handleLanguageChange: onLanguageChange,
-      });
-      formInitializedRef.current = true;
-    }
-  }, [form, onSubmit, getSaving, onFormReady, onLanguageChange]);
+    onFormReady?.({
+      form,
+      onSubmit,
+      saving,
+      isSaveBlocked: savedRowLoad.isBlocked,
+      handleLanguageChange: onLanguageChange,
+    });
+  }, [
+    form,
+    onSubmit,
+    saving,
+    savedRowLoad.isBlocked,
+    onFormReady,
+    onLanguageChange,
+  ]);
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       <Form {...form}>
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
+          {savedRowLoad.hasFailed && (
+            <div className="mb-4">
+              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+            </div>
+          )}
           {hasPermissionError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
               <div className="flex items-start gap-2">

@@ -32,6 +32,7 @@ import {
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
 import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 
 interface ITreeOption {
   _id: string;
@@ -232,12 +233,12 @@ export function CmsCategoryDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
@@ -248,7 +249,7 @@ export function CmsCategoryDrawer({
     setSelectedLanguage,
     translations,
     defaultLangData,
-    isLoadingTranslations,
+    savedRowLoad,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -257,11 +258,10 @@ export function CmsCategoryDrawer({
     type: 'category',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
-
-  const isLoadingSavedRow =
-    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const { data: categoryDetailData } = useQuery(CMS_CATEGORY_DETAIL, {
     variables: {
@@ -570,7 +570,7 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
-    if (isLoadingSavedRow) return;
+    if (savedRowLoad.isBlocked) return;
 
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
@@ -653,6 +653,9 @@ export function CmsCategoryDrawer({
               onSubmit={form.handleSubmit(onSubmit)}
               className="p-4 space-y-4"
             >
+              {savedRowLoad.hasFailed && (
+                <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+              )}
               {availableLanguages.length > 0 && (
                 <LanguageSelector
                   selectedLanguage={selectedLanguage}
@@ -823,7 +826,7 @@ export function CmsCategoryDrawer({
                 </Button>
                 <Button
                   type="submit"
-                  disabled={adding || editing || isLoadingSavedRow}
+                  disabled={adding || editing || savedRowLoad.isBlocked}
                 >
                   {adding || editing
                     ? isEditing

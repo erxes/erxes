@@ -102,12 +102,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
 
-  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
@@ -120,17 +120,16 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange,
     defaultLangData,
     translations,
-    isLoadingTranslations,
+    savedRowLoad,
   } = useCmsTranslation({
     objectId: storedMenu?._id,
     type: 'menu',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: isOpen,
   });
-
-  const isLoadingSavedRow =
-    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const menu = useRecordInDefaultLanguage(
     storedMenu,
@@ -155,7 +154,10 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     if (isOpen) {
       form.reset(
         {
-          label: menu?.label || '',
+          label:
+            (isTranslationMode
+              ? translations[selectedLanguage]?.title
+              : menu?.label) || '',
           url: menu?.url || '',
           kind: menu?.kind || '',
           clientPortalId,
@@ -303,7 +305,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const saving = adding || editing;
 
   const onSubmit = (data: MenuFormData) => {
-    if (isLoadingSavedRow) return;
+    if (savedRowLoad.isBlocked) return;
 
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
@@ -380,7 +382,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     isEditing,
     hasPermissionError,
     saving,
-    isLoadingSavedRow,
+    savedRowLoad,
     selectedLanguage,
     isTranslationMode,
     languageOptions,

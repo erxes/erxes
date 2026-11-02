@@ -94,7 +94,7 @@ interface UsePostSubmissionProps {
   defaultLanguage?: string;
   defaultLangData?: DefaultLangData | null;
   translations?: Record<string, TranslationEntry>;
-  isLoadingSavedRow?: boolean;
+  isSaveBlocked?: boolean;
   onClose?: () => void;
   /**
    * Called after a successful save, before any navigation, with the form
@@ -369,7 +369,7 @@ export const usePostSubmission = ({
   defaultLanguage,
   defaultLangData,
   translations,
-  isLoadingSavedRow,
+  isSaveBlocked,
   onClose,
   onSaved,
 }: UsePostSubmissionProps) => {
@@ -471,7 +471,7 @@ export const usePostSubmission = ({
   );
 
   onSubmitRef.current = async (data: PostFormData, options?: SubmitOptions) => {
-    if (pendingPublishRef.current || isLoadingSavedRow) return;
+    if (pendingPublishRef.current || isSaveBlocked) return;
     if (!data.type) {
       if (options?.silent) {
         return;
@@ -576,7 +576,7 @@ export const usePostSubmission = ({
   return {
     onSubmit,
     creating: creating || checkingPostiz,
-    saving: saving || checkingPostiz || Boolean(isLoadingSavedRow),
+    saving: saving || checkingPostiz,
     postizSheet: pendingPublish && (
       <PostizPublishSheet
         websiteId={websiteId}

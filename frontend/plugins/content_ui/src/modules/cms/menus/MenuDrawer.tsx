@@ -2,6 +2,7 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { Button, Checkbox, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { LanguageSelector } from '../shared/LanguageSelector';
+import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 import { MenuLinkField } from './components/MenuLinkField';
 import { useMenuDrawer } from './hooks/useMenuDrawer';
 import { MenuDrawerProps } from './types/menuDrawerTypes';
@@ -15,7 +16,7 @@ export function MenuDrawer(props: MenuDrawerProps) {
     isEditing,
     hasPermissionError,
     saving,
-    isLoadingSavedRow,
+    savedRowLoad,
     selectedLanguage,
     isTranslationMode,
     languageOptions,
@@ -43,6 +44,9 @@ export function MenuDrawer(props: MenuDrawerProps) {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="p-4 space-y-4">
+            {savedRowLoad.hasFailed && (
+              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+            )}
             {hasPermissionError && (
               <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
                 <div className="flex items-start gap-2">
@@ -182,7 +186,9 @@ export function MenuDrawer(props: MenuDrawerProps) {
               </Button>
               <Button
                 type="submit"
-                disabled={saving || hasPermissionError || isLoadingSavedRow}
+                disabled={
+                  saving || hasPermissionError || savedRowLoad.isBlocked
+                }
               >
                 {saving ? t('saving') : isEditing ? t('save-changes') : t('create-menu')}
               </Button>

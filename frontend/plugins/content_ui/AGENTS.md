@@ -92,8 +92,13 @@
   another site is ignored. Records go through `useRecordInDefaultLanguage`: when
   the site has no stored `language`, a saved row in the implied default fills the
   form, matching what `content_api` reads and writes. A row that arrives late
-  keeps dirty fields, and saving waits on `isLoadingSavedRow`, so stored text
-  never overwrites a row that has not loaded yet.
+  keeps dirty fields.
+- Saving follows `savedRowLoad` from `getSavedRowLoad` in
+  `shared/hooks/useCmsTranslation.ts`. While the CMS settings or a no-default
+  site's rows are loading, or after that load fails, `isBlocked` is on: the save
+  handler refuses and the save button is disabled, without a "Saving" label. A
+  failed load also shows `CmsSavedRowLoadError` with a retry. While blocked, never
+  keep a copy of the default language's text, because it may be stale stored text.
 - Post and page edit payloads always send the gallery (`images`/`pageImages`),
   `documents`, and `attachments` lists, even when empty: the backend applies
   edits with `$set`, so an omitted list keeps its removed files.

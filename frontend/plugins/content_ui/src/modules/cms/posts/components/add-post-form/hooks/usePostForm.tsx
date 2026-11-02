@@ -11,6 +11,7 @@ import {
 } from '../../../../graphql/queries';
 import {
   CMS_TRANSLATION_FIELDS,
+  getSavedRowLoad,
   useRecordInDefaultLanguage,
 } from '../../../../shared/hooks/useCmsTranslation';
 import { createSlug } from '../../../../utils/createSlug';
@@ -184,12 +185,12 @@ export const usePostForm = (
     | TLoadedPost
     | undefined;
 
-  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !websiteId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
   );
 
@@ -200,18 +201,14 @@ export const usePostForm = (
     CMS_TRANSLATION_FIELDS.post,
   );
 
-  const { data: translationsData, loading: isLoadingTranslations } = useQuery(
-    CMS_TRANSLATIONS,
-    {
-      variables: { objectId: editingPost?._id, type: 'post' },
-      skip: !editingPost?._id,
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: false,
-    },
-  );
-
-  const isLoadingSavedRow =
-    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
+  const translationsQuery = useQuery(CMS_TRANSLATIONS, {
+    variables: { objectId: editingPost?._id, type: 'post' },
+    skip: !editingPost?._id,
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: false,
+  });
+  const translationsData = translationsQuery.data;
+  const savedRowLoad = getSavedRowLoad(cmsConfig, cmsQuery, translationsQuery);
 
   const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);
 
@@ -310,7 +307,7 @@ export const usePostForm = (
     previousTypeRef,
     handleEditorChange,
     fullPost,
-    isLoadingSavedRow,
+    savedRowLoad,
     saveTranslation,
     updateCustomFieldValue,
     getCustomFieldValue,
