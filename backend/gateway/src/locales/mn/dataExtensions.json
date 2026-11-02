@@ -536,6 +536,8 @@
     "delete-confirm": "{{name}} вебхүүкийг устгах уу?",
     "last-ok": "Сүүлийн илгээлт: HTTP {{status}}",
     "last-failed": "Сүүлийн илгээлт амжилтгүй: {{error}}",
+    "failed-deliveries_one": "{{count}} илгээлт бүх оролдлогын дараа амжилтгүй болсон",
+    "failed-deliveries_other": "{{count}} илгээлт бүх оролдлогын дараа амжилтгүй болсон",
     "failed": "Амжилтгүй боллоо"
   },
   "csv": {

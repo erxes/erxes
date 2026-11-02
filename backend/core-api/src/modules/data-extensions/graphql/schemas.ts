@@ -124,6 +124,7 @@ export const types = `
     secret: String
     lastStatus: Int
     lastError: String
+    failedDeliveries: Int
     lastAt: Date
     createdAt: Date
   }

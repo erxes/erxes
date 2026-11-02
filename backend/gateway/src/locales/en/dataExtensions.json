@@ -536,6 +536,8 @@
     "delete-confirm": "Delete the webhook {{name}}?",
     "last-ok": "Last delivery: HTTP {{status}}",
     "last-failed": "Last delivery failed: {{error}}",
+    "failed-deliveries_one": "{{count}} delivery failed after every retry",
+    "failed-deliveries_other": "{{count}} deliveries failed after every retry",
     "failed": "That didn’t work"
   },
   "csv": {

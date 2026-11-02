@@ -33,6 +33,7 @@ const WEBHOOK_FIELDS = `
   lastStatus
   lastError
   lastAt
+  failedDeliveries
 `;
 
 const WEBHOOKS = gql`
@@ -68,6 +69,7 @@ interface IWebhook {
   lastStatus?: number | null;
   lastError?: string | null;
   lastAt?: string | null;
+  failedDeliveries?: number | null;
 }
 
 /**
@@ -250,6 +252,11 @@ export const DataExtensionWebhooksSheet = ({
                           : t('webhooks.last-ok', { status: hook.lastStatus })}
                         {' · '}
                         {new Date(hook.lastAt).toLocaleString(i18n.language)}
+                      </span>
+                    )}
+                    {!!hook.failedDeliveries && (
+                      <span className="text-xs text-destructive">
+                        {t('webhooks.failed-deliveries', { count: hook.failedDeliveries })}
                       </span>
                     )}
                   </div>
