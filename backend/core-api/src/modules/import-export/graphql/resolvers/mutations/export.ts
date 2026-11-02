@@ -5,7 +5,10 @@ import {
   getImportExportJobOptions,
 } from 'erxes-api-shared/core-modules';
 import { validateExportConfig } from '~/modules/import-export/utils/validateConfig';
-import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
+import {
+  checkImportExportPermissions,
+  getRequiredImportExportPermissions,
+} from '~/modules/import-export/utils/getRequiredPermissions';
 
 async function getJobIdFromQueue(
   subdomain: string,
@@ -91,7 +94,7 @@ export const exportMutations = {
       { $set: { jobId: String(job.id) } },
     );
 
-    return { ...exportDoc, jobId: String(job.id) };
+    return { ...exportDoc.toObject(), jobId: String(job.id) };
   },
 
   async exportCancel(
@@ -99,8 +102,6 @@ export const exportMutations = {
     { exportId }: { exportId: string },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('exportsManage');
-
     const exportDoc = await models.Exports.getExport(exportId);
 
     if (!exportDoc) {
@@ -110,6 +111,13 @@ export const exportMutations = {
     if (exportDoc.userId !== user._id) {
       throw new Error('Unauthorized');
     }
+
+    await checkImportExportPermissions({
+      checkPermission,
+      pluginName: exportDoc.pluginName,
+      operation: 'export',
+      entityType: exportDoc.entityType,
+    });
 
     if (exportDoc.status === 'completed' || exportDoc.status === 'failed') {
       throw new Error(`Cannot cancel ${exportDoc.status} export`);
@@ -147,8 +155,6 @@ export const exportMutations = {
     { exportId }: { exportId: string },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('exportsManage');
-
     const exportDoc = await models.Exports.getExport(exportId);
 
     if (!exportDoc) {
@@ -159,22 +165,23 @@ export const exportMutations = {
       throw new Error('Unauthorized');
     }
 
+    await checkImportExportPermissions({
+      checkPermission,
+      pluginName: exportDoc.pluginName,
+      operation: 'export',
+      entityType: exportDoc.entityType,
+    });
+
     if (exportDoc.status !== 'failed') {
       throw new Error('Can only retry failed exports');
-    }
-
-    if (!exportDoc.lastCursor) {
-      throw new Error('Cannot retry: no cursor position saved');
     }
 
     // Reset status and restart the job
     await models.Exports.updateOne(
       { _id: exportId },
       {
-        $set: {
-          status: 'pending',
-          errorMessage: undefined,
-        },
+        $set: { status: 'pending', processedRows: 0 },
+        $unset: { errorMessage: '', terminalError: '', lastCursor: '' },
       },
     );
 

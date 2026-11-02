@@ -48,8 +48,8 @@ export const TeamMemberCommandBar = () => {
           <Separator.Inline />
           <Export
             pluginName="core"
-            moduleName="user"
-            collectionName="user"
+            moduleName="organization"
+            collectionName="users"
             buttonVariant="secondary"
             ids={table
               .getFilteredSelectedRowModel()

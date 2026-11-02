@@ -7,7 +7,10 @@ import {
   ImportColumnMapping,
 } from 'erxes-api-shared/core-modules';
 import { validateImportConfig } from '~/modules/import-export/utils/validateConfig';
-import { getRequiredImportExportPermissions } from '~/modules/import-export/utils/getRequiredPermissions';
+import {
+  checkImportExportPermissions,
+  getRequiredImportExportPermissions,
+} from '~/modules/import-export/utils/getRequiredPermissions';
 
 async function getJobIdFromQueue(
   subdomain: string,
@@ -100,7 +103,7 @@ export const importMutations = {
       { $set: { jobId: String(job.id) } },
     );
 
-    return { ...importDoc, jobId: String(job.id) };
+    return { ...importDoc.toObject(), jobId: String(job.id) };
   },
 
   async importCancel(
@@ -108,8 +111,6 @@ export const importMutations = {
     { importId }: { importId: string },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('importsManage');
-
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -119,6 +120,13 @@ export const importMutations = {
     if (importDoc.userId !== user._id) {
       throw new Error('Unauthorized');
     }
+
+    await checkImportExportPermissions({
+      checkPermission,
+      pluginName: importDoc.pluginName,
+      operation: 'import',
+      entityType: importDoc.entityType,
+    });
 
     if (
       importDoc.status === 'completed' ||
@@ -184,8 +192,6 @@ export const importMutations = {
     { importId }: { importId: string },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('importsManage');
-
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -195,6 +201,13 @@ export const importMutations = {
     if (importDoc.userId !== user._id) {
       throw new Error('Unauthorized');
     }
+
+    await checkImportExportPermissions({
+      checkPermission,
+      pluginName: importDoc.pluginName,
+      operation: 'import',
+      entityType: importDoc.entityType,
+    });
 
     if (importDoc.status !== 'failed') {
       throw new Error(
@@ -246,8 +259,6 @@ export const importMutations = {
     { importId }: { importId: string },
     { models, subdomain, user, checkPermission }: IContext,
   ) {
-    await checkPermission('importsManage');
-
     const importDoc = await models.Imports.getImport(importId);
 
     if (!importDoc) {
@@ -257,6 +268,13 @@ export const importMutations = {
     if (importDoc.userId !== user._id) {
       throw new Error('Unauthorized');
     }
+
+    await checkImportExportPermissions({
+      checkPermission,
+      pluginName: importDoc.pluginName,
+      operation: 'import',
+      entityType: importDoc.entityType,
+    });
 
     if (importDoc.status !== 'cancelled' && importDoc.status !== 'failed') {
       throw new Error(

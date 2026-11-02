@@ -1,5 +1,6 @@
 import { useMutation } from '@apollo/client';
-import { REACT_APP_API_URL } from 'erxes-ui';
+import { REACT_APP_API_URL, useToast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { TImportProgress } from 'ui-modules';
 import {
   IMPORT_CANCEL,
@@ -14,6 +15,8 @@ export const useImportHistoryActionsCell = ({
   importItem: TImportProgress;
 }) => {
   const { _id, status, fileKey, errorFileUrl } = importItem;
+  const { t } = useTranslation('importExport');
+  const { toast } = useToast();
 
   const canCancel =
     status === 'pending' || status === 'validating' || status === 'processing';
@@ -78,21 +81,47 @@ export const useImportHistoryActionsCell = ({
     window.open(fileUrl, '_blank');
   }
 
-  async function handleCancel() {
-    await cancelImport({
-      variables: { importId: _id },
+  async function runAction(
+    action: () => Promise<unknown>,
+    messages: { success: string; description: string; failed: string },
+  ) {
+    try {
+      await action();
+      toast({
+        title: t(messages.success),
+        description: t(messages.description),
+      });
+    } catch (error) {
+      toast({
+        title: t(messages.failed),
+        description:
+          error instanceof Error ? error.message : t(messages.failed),
+        variant: 'destructive',
+      });
+    }
+  }
+
+  function handleCancel() {
+    return runAction(() => cancelImport({ variables: { importId: _id } }), {
+      success: 'import-cancelled',
+      description: 'import-cancelled-description',
+      failed: 'import-cancel-failed',
     });
   }
 
-  async function handleRetry() {
-    await retryImport({
-      variables: { importId: _id },
+  function handleRetry() {
+    return runAction(() => retryImport({ variables: { importId: _id } }), {
+      success: 'import-restarted',
+      description: 'import-restarted-description',
+      failed: 'import-restart-failed',
     });
   }
 
-  async function handleResume() {
-    await resumeImport({
-      variables: { importId: _id },
+  function handleResume() {
+    return runAction(() => resumeImport({ variables: { importId: _id } }), {
+      success: 'import-resumed',
+      description: 'import-resumed-description',
+      failed: 'import-resume-failed',
     });
   }
 

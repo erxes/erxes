@@ -15,13 +15,27 @@ const escapeCsvField = (
         ? field
         : String(field);
 
-  if (value.includes('"') || value.includes(',') || value.includes('\n')) {
+  if (
+    value.includes('"') ||
+    value.includes(',') ||
+    value.includes('\n') ||
+    value.includes('\r')
+  ) {
     return `"${value.replace(/"/g, '""')}"`;
   }
 
   return value;
 };
 
+/**
+ * Write the rows an import refused back out as a CSV the user can fix and
+ * upload again.
+ *
+ * The file starts with a UTF-8 BOM so spreadsheet apps read Cyrillic as text
+ * rather than mojibake. `columnKeys` gives the field each file column was
+ * mapped to, by position; without it two columns sharing a header name would
+ * both show the same value.
+ */
 export const saveErrorFile = async (
   subdomain: string,
   headerRow: string[],
@@ -29,6 +43,7 @@ export const saveErrorFile = async (
   keyToHeaderMap: Record<string, string>,
   models: IModels,
   importId?: string,
+  columnKeys?: string[],
 ): Promise<string> => {
   const csvHeaders =
     headerRow && headerRow.length > 0
@@ -45,8 +60,8 @@ export const saveErrorFile = async (
   });
 
   for (const row of errorRows) {
-    const dataValues = csvHeaders.map((header) => {
-      const lookupKey = headerToKeyMap[header] || header;
+    const dataValues = csvHeaders.map((header, index) => {
+      const lookupKey = columnKeys?.[index] || headerToKeyMap[header] || header;
       return escapeCsvField(row?.[lookupKey]);
     });
 
@@ -61,7 +76,11 @@ export const saveErrorFile = async (
   const tempFileName = `import-errors-${importId || nanoid()}.csv`;
   const tempFilePath = path.join(os.tmpdir(), tempFileName);
 
-  await fs.promises.writeFile(tempFilePath, csvLines.join('\n'), 'utf8');
+  await fs.promises.writeFile(
+    tempFilePath,
+    `\uFEFF${csvLines.join('\n')}`,
+    'utf8',
+  );
 
   try {
     const fileKey = await uploadFile(

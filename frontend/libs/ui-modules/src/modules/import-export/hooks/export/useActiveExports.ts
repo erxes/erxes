@@ -86,10 +86,7 @@ export const useActiveExports = ({ entityType }: { entityType: string }) => {
   const handleRetry = (exportId: string) => {
     retryExport(exportId)
       .then(() => {
-        toast({
-          title: t('export-restarted'),
-          description: t('export-restarted-description'),
-        });
+        toast({ title: t('export-restarted') });
       })
       .catch((error: Error) => {
         toast({

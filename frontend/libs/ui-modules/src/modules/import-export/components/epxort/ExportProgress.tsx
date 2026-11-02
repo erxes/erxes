@@ -48,7 +48,7 @@ function ExportFailedNotice({
               onClick={() => onRetry(exportItem._id)}
             >
               <IconRefresh className="size-4 text-primary" />
-              {t('retry-from-last-position')}
+              {t('restart')}
             </Button>
           )}
         </div>

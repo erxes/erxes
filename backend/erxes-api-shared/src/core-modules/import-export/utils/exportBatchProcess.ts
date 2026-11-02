@@ -290,18 +290,22 @@ export const createExportBatchProcessor = (
           ),
       });
 
-      // Use selectedFields if provided, otherwise use all headers
-      const selectedFields =
-        exportDoc.selectedFields && exportDoc.selectedFields.length > 0
-          ? exportDoc.selectedFields
-          : exportHeaders.map((h: { label: string; key: string }) => h.key);
+      const requestedFields = new Set<string>(exportDoc.selectedFields || []);
+      const columns = requestedFields.size
+        ? exportHeaders.filter((header) => requestedFields.has(header.key))
+        : exportHeaders;
 
-      const headerLabels = exportHeaders
-        .filter((h: { label: string; key: string }) =>
-          selectedFields.includes(h.key),
-        )
-        .map((h: { label: string; key: string }) => h.label);
-      const headerKeys = selectedFields;
+      if (!columns.length) {
+        throw new ImportExportError({
+          stage: 'FETCH_HEADERS',
+          message: 'None of the selected fields can be exported',
+          code: 'NO_EXPORTABLE_FIELDS',
+          retryable: false,
+        });
+      }
+
+      const headerLabels = columns.map((header) => header.label);
+      const headerKeys = columns.map((header) => header.key);
 
       const tempWorkspace = await createImportExportTempWorkspace({
         kind: 'export',
@@ -323,8 +327,6 @@ export const createExportBatchProcessor = (
         let writerFinalized = false;
 
         try {
-          // Resume from last cursor if export was interrupted
-          cursor = exportDoc.lastCursor;
           let hasMoreData = true;
           const startTime = Date.now();
           let lastProgressUpdate = Date.now();
@@ -345,10 +347,7 @@ export const createExportBatchProcessor = (
                 ...(exportDoc.ids && exportDoc.ids.length > 0
                   ? { ids: exportDoc.ids }
                   : {}),
-                ...(exportDoc.selectedFields &&
-                exportDoc.selectedFields.length > 0
-                  ? { selectedFields: exportDoc.selectedFields }
-                  : {}),
+                ...(requestedFields.size ? { selectedFields: headerKeys } : {}),
               },
             } as GetExportDataArgs;
 

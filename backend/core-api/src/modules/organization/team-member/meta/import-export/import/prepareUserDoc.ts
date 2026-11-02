@@ -52,8 +52,13 @@ const parseBool = (v: any) => {
 
 export async function prepareUserDoc(models: IModels, row: any) {
   const doc: any = {};
+  const propertyColumns: Record<string, unknown> = { ...row };
 
-  await extractPropertiesData(models, doc);
+  await extractPropertiesData(models, propertyColumns);
+
+  if (propertyColumns.propertiesData) {
+    doc.propertiesData = propertyColumns.propertiesData;
+  }
 
   if (row.username) doc.username = String(row.username).trim();
   if (row.email) doc.email = String(row.email).toLowerCase().trim();

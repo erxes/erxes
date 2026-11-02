@@ -143,7 +143,7 @@ const generateImportExportRouter = (
   return trpcMiddleware;
 };
 
-export const startImportExportWorker = ({
+export const startImportExportWorker = async ({
   pluginName,
   config,
   app,
@@ -158,7 +158,7 @@ export const startImportExportWorker = ({
 
   const { import: importConfig, export: exportConfig } = config || {};
 
-  initializePluginConfig(pluginName, 'importExport', {
+  await initializePluginConfig(pluginName, 'importExport', {
     import: {
       configured: !!importConfig,
       hasGetImportHeaders: !!importConfig?.getImportHeaders,

@@ -1,13 +1,12 @@
 import { IModels } from '~/connectionResolvers';
 import {
   buildImportUpdateDoc,
-  readImportBulkOutcome,
+  runImportBulkWrite,
 } from '~/meta/import-export/utils';
 import { prepareCustomerDoc } from './utils';
 
 type OpMeta =
-  | { row: any; type: 'insert' }
-  | { row: any; type: 'update'; _id: any };
+  { row: any; type: 'insert' } | { row: any; type: 'update'; _id: any };
 
 export async function processCustomerRows(
   models: IModels,
@@ -112,39 +111,11 @@ export async function processCustomerRows(
     }
 
     if (operations.length > 0) {
-      let bulkResult: any;
-      const failedIndexes = new Set<number>();
-
-      try {
-        bulkResult = await models.Customers.bulkWrite(operations, {
-          ordered: false,
-        });
-      } catch (error: any) {
-        bulkResult = error.result || {};
-        for (const writeError of error.writeErrors || []) {
-          if (typeof writeError.index === 'number') {
-            failedIndexes.add(writeError.index);
-            const meta = opMeta[writeError.index];
-            errorRows.push({
-              ...(meta?.row || {}),
-              error:
-                writeError.errmsg || writeError.message || 'Bulk write failed',
-            });
-          }
-        }
-      }
+      const outcomes = await runImportBulkWrite(models.Customers, operations);
 
       for (let opIndex = 0; opIndex < opMeta.length; opIndex++) {
-        if (failedIndexes.has(opIndex)) {
-          continue;
-        }
-
         const meta = opMeta[opIndex];
-        const { error, insertedId } = readImportBulkOutcome({
-          bulkResult,
-          operationIndex: opIndex,
-          isInsert: meta.type === 'insert',
-        });
+        const { error, insertedId } = outcomes[opIndex];
 
         if (error) {
           errorRows.push({ ...meta.row, error });

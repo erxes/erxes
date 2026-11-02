@@ -85,6 +85,7 @@ export const importRouter = t.router({
         z.object({
           importId: z.string(),
           headerRow: z.array(z.string()),
+          columnKeys: z.array(z.string()).optional(),
           errorRows: z.array(z.any()),
           keyToHeaderMap: z.record(z.string()),
         }),
@@ -103,6 +104,7 @@ export const importRouter = t.router({
           input.keyToHeaderMap,
           ctx.models,
           input.importId,
+          input.columnKeys,
         );
 
         return fileKey;
