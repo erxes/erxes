@@ -91,7 +91,7 @@ export const TransactionsDelete = () => {
     <Button
       variant="secondary"
       className="text-destructive"
-      disabled={loading}
+      disabled={loading || !parentIds.length}
       onClick={handleDelete}
     >
       <IconTrash />
