@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -69,6 +69,7 @@
   register Core customers through the synced `customerCreateConfig` layout.
 - Persists order item `discountInfos` so pricing, loyalty/voucher, score, and direct/manual discounts keep their source, amount, and percent breakdown.
 - Adds POS order payments through atomic cash increments and paid-amount pushes so concurrent order updates do not overwrite recorded card payments.
+- Settles an order when its paid invoices cover the order total: `paymentCallbackClient` calls `updateMobileAmount`, which reads the POS from the stored order, records each invoice once, confirms the sale, and settles. An overpaid order settles too: `mobileAmounts` keeps what each invoice paid, while `mobileAmount` and the receipt stay at the order total. A repeated callback for a paid order changes nothing.
 
 ## Architecture
 
@@ -269,6 +270,9 @@
   calculations must reconstruct the pre-discount base as
   `count * unitPrice + discountAmount`.
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
+- `cpOrdersAddPayment` and `cpOrdersSettlePayment` apply client amounts and bill types only for a logged-in POS user. Any other caller, including a signed-in portal customer, works from the order's paid invoices, as payment reports them, and fails with `FORBIDDEN` without them. Only invoices with one of the `ORDER_INVOICE_CONTENT_TYPES` count, the same four `sales` forwards to `paymentCallbackClient`. `cpOrdersAddPayment` runs `recordPaidInvoices`: it records them and settles, but on an eBarimt POS with no bill type on the order it leaves the receipt for the settle call. A paid pre-order deposit replies with the order, unpaid. `cpOrdersSettlePayment` runs `settleFromPaidInvoices`: on an unpaid order with no cashier it first applies a bill type of `1` or `3` and the register number sent with the call, then settles, waiting up to 10 seconds when paid invoices cover the total. Client amounts never reach the order, `billType: 9` is ignored on that path, and an already paid order returns as success so a repeated call is safe. The one exception: asking for a company on an order already settled with a citizen receipt fails with `CONFLICT`. A sale has one receipt, and it is never replaced through this path.
+- `prepareSettlePayment` claims the order with an atomic `settlingAt` write first, then re-reads the order and its items and checks amounts on that copy. One caller settles; a losing callback returns with no receipt, and a losing cashier gets an error. Success or failure clears the claim, and a claim older than 60 seconds counts as dead. `ordersEdit` holds the same claim for the whole edit, so an order never changes under a settlement. A second edit that overlaps it is refused and can retry. Every path that settles or edits items must go through this claim.
+- Invoice settlement never reads the POS token from the invoice: `order.posToken` decides the POS config. An order with no cashier (`userId` empty) has nobody to choose a bill type later, so it settles as `billType: '1'` when it has none, or when it is `'3'` without a register number. A cashier's order keeps waiting for the cashier's choice.
 
 ## Validation
 
@@ -307,6 +311,8 @@
 - POS remainder smoke scenario: show-only loads stock without blocking orders;
   check-only validates Core balances with display disabled; category-excluded
   products bypass validation; enabling `saveRemainder` persists fetched stock.
+- Invoice settlement smoke scenario: pay an invoice with `contentType: sales:order` and `contentTypeId` set to a portal order, with no `data.posToken` and eBarimt configured; the order gets `paidDate` and `billType: '1'` once. Check the invoice again, or send callbacks in parallel: no second receipt. Pay part of the total: no `paidDate`. Pay more than the total: the order settles and the receipt shows the total. A refused receipt leaves no claim, and the next check settles. A cashier's order with no bill type records the amount and stays unpaid.
+- Portal payment smoke scenario: with app and POS tokens only, and again as a signed-in portal customer, `cpOrdersAddPayment` and `cpOrdersSettlePayment` on an unpaid order fail with `Order payment is not confirmed` and change nothing. With a paid invoice for the full total, both succeed and only the invoice amount is recorded. With eBarimt and `billType: 3` plus a register number on `cpOrdersAdd` or at settle before the callback, the receipt is a company one; at settle after the callback the call fails with a clear error and the citizen receipt stands. An invoice of another content type does not count. A paid pre-order deposit replies unpaid with no error. With a cashier's `pos-auth-token` both work as before.
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
 - POS customer smoke scenario: as a cashier with `createCustomer`, `poscCustomerForm.canCreate` is true; `poscCustomersAdd` with a new phone creates a customer with `createdVia.sourceId` = POS id; repeating it returns `duplicate` instead.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.
