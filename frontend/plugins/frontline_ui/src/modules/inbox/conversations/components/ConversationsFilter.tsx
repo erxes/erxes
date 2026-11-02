@@ -277,6 +277,63 @@ export const FilterConversationsPopover = () => {
   );
 };
 
+const IntegrationFilterBar = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
+  const [integrationId] = useQueryState<string>('integrationId');
+  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
+  const { integration, loading } = useIntegrationInline({
+    variables: { _id: integrationIds[0] || '' },
+    skip: integrationIds.length !== 1,
+  });
+
+  if (!integrationId) {
+    return null;
+  }
+
+  const label =
+    integrationIds.length > 1
+      ? t('selected-integrations', 'Selected integrations', {
+          count: integrationIds.length,
+          defaultValue: '{{count}} integrations',
+        })
+      : integration?.name ||
+        integration?.kind ||
+        t('integration', 'Integration');
+
+  return (
+    <Filter.BarItem queryKey="integrationId">
+      <Filter.BarName>
+        <IconInbox />
+        {loading ? <Skeleton className="h-4 w-20" /> : label}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
+const BrandFilterBar = () => {
+  const [brandId] = useQueryState<string>('brandId');
+  const { data, loading } = useQuery(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
+    variables: brandId ? { _id: brandId } : undefined,
+    skip: !brandId,
+  });
+
+  if (!brandId) {
+    return null;
+  }
+
+  const brandName =
+    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
+
+  return (
+    <Filter.BarItem queryKey="brandId">
+      <Filter.BarName>
+        <IconBuildingStore />
+        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
+      </Filter.BarName>
+    </Filter.BarItem>
+  );
+};
+
 export const ConversationFilterBar = ({
   children,
   className,
@@ -392,62 +449,5 @@ export const ConversationFilterBar = ({
       <DiscordChannelFilterBar iconOnly />
       {children}
     </Filter.Bar>
-  );
-};
-
-const IntegrationFilterBar = () => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
-  const [integrationId] = useQueryState<string>('integrationId');
-  const integrationIds = integrationId?.split(',').filter(Boolean) ?? [];
-  const { integration, loading } = useIntegrationInline({
-    variables: { _id: integrationIds[0] || '' },
-    skip: integrationIds.length !== 1,
-  });
-
-  if (!integrationId) {
-    return null;
-  }
-
-  const label =
-    integrationIds.length > 1
-      ? t('selected-integrations', 'Selected integrations', {
-          count: integrationIds.length,
-          defaultValue: '{{count}} integrations',
-        })
-      : integration?.name ||
-        integration?.kind ||
-        t('integration', 'Integration');
-
-  return (
-    <Filter.BarItem queryKey="integrationId">
-      <Filter.BarName>
-        <IconInbox />
-        {loading ? <Skeleton className="h-4 w-20" /> : label}
-      </Filter.BarName>
-    </Filter.BarItem>
-  );
-};
-
-const BrandFilterBar = () => {
-  const [brandId] = useQueryState<string>('brandId');
-  const { data, loading } = useQuery(FRONTLINE_INBOX_BRAND_FILTER_DETAIL, {
-    variables: brandId ? { _id: brandId } : undefined,
-    skip: !brandId,
-  });
-
-  if (!brandId) {
-    return null;
-  }
-
-  const brandName =
-    data?.brandDetail?._id === brandId ? data.brandDetail.name : undefined;
-
-  return (
-    <Filter.BarItem queryKey="brandId">
-      <Filter.BarName>
-        <IconBuildingStore />
-        {loading || !brandName ? <Skeleton className="h-4 w-20" /> : brandName}
-      </Filter.BarName>
-    </Filter.BarItem>
   );
 };

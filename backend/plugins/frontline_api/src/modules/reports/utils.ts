@@ -1,6 +1,7 @@
 import type { FilterQuery, PipelineStage } from 'mongoose';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
 import type { IIntegrationDocument } from '@/inbox/@types/integrations';
+import type { ITicketDocument } from '@/ticket/@types/ticket';
 import { buildAssigneeFilter } from '@/inbox/utils/conversationAssignees';
 import { propertyDataPath } from 'erxes-api-shared/core-modules';
 import { IReportChartFilters } from '@/reports/@types/chart';
@@ -159,7 +160,7 @@ export async function buildConversationDateReport(
   filters: IReportFilters,
   models: IModels,
   dateField: string,
-  extraMatch?: Record<string, any>,
+  extraMatch?: FilterQuery<IConversationDocument>,
 ): Promise<Array<{ date: string; count: number }>> {
   const pipeline = await buildConversationPipeline(filters, models);
 
@@ -173,7 +174,10 @@ export async function buildConversationDateReport(
     pipeline.push({ $limit: filters.limit });
   }
 
-  const result = await models.Conversations.aggregate(pipeline);
+  const result = await models.Conversations.aggregate<{
+    _id: string;
+    count: number;
+  }>(pipeline);
   return result.map((r) => ({ date: r._id, count: r.count }));
 }
 
@@ -282,10 +286,16 @@ export function buildConversationMatch(filters: IReportFilters) {
   return match;
 }
 
-export function buildTicketMatch(filters: IReportFilters) {
-  const match: Record<string, unknown> = { type: 'ticket' };
-  const andConditions: Record<string, unknown>[] = [];
+type TicketMatch = FilterQuery<ITicketDocument>;
+type TicketPropertyFilter = NonNullable<
+  IReportFilters['propertyValueFilters']
+>[number];
 
+function applyTicketStatusFilters(
+  match: TicketMatch,
+  andConditions: TicketMatch[],
+  filters: IReportFilters,
+): void {
   if (filters.status) {
     match.statusId = filters.status;
   }
@@ -305,39 +315,34 @@ export function buildTicketMatch(filters: IReportFilters) {
       match.state = state;
     }
   }
+}
 
-  if (filters.channelIds?.length) {
-    match.channelId = { $in: filters.channelIds };
+function applyTicketSelectionFilters(
+  match: TicketMatch,
+  filters: IReportFilters,
+): void {
+  const selections = [
+    ['channelId', filters.channelIds],
+    ['assigneeId', filters.memberIds],
+    ['statusChangedBy', filters.statusChangedByIds],
+    ['updatedBy', filters.updatedByIds],
+    ['pipelineId', filters.pipelineIds],
+    ['tagIds', filters.tagIds],
+    ['branchId', filters.branchIds],
+  ] as const;
+
+  for (const [field, values] of selections) {
+    if (values?.length) {
+      match[field] = { $in: values };
+    }
   }
+}
 
-  if (filters.memberIds?.length) {
-    match.assigneeId = { $in: filters.memberIds };
-  }
-
-  if (filters.statusChangedByIds?.length) {
-    match.statusChangedBy = { $in: filters.statusChangedByIds };
-  }
-
-  if (filters.updatedByIds?.length) {
-    match.updatedBy = { $in: filters.updatedByIds };
-  }
-
-  const description = filters.description?.trim();
-  if (description) {
-    match.description = {
-      $regex: escapeRegExp(description),
-      $options: 'i',
-    };
-  }
-
-  if (filters.pipelineIds?.length) {
-    match.pipelineId = { $in: filters.pipelineIds };
-  }
-
-  if (filters.tagIds?.length) {
-    match.tagIds = { $in: filters.tagIds };
-  }
-
+function applyTicketPriorityFilter(
+  match: TicketMatch,
+  andConditions: TicketMatch[],
+  filters: IReportFilters,
+): void {
   if (filters.priority?.length) {
     const hasPriorityZero = filters.priority.includes(0);
     if (hasPriorityZero) {
@@ -351,112 +356,118 @@ export function buildTicketMatch(filters: IReportFilters) {
       match.priority = { $in: filters.priority };
     }
   }
+}
 
-  if (filters.branchIds?.length) {
-    match.branchId = { $in: filters.branchIds };
+function buildTicketPropertyDateCondition(
+  fieldPath: string,
+  values: string[],
+): TicketMatch | null {
+  const dateValues = values.filter((value) =>
+    /^\d{4}-\d{2}-\d{2}$/.test(value),
+  );
+
+  if (!dateValues.length) {
+    return null;
   }
 
-  for (const propertyFilter of filters.propertyValueFilters || []) {
-    if (!propertyFilter.propertyId) {
-      continue;
-    }
-
-    const fieldPath = propertyDataPath(propertyFilter.propertyId);
-    const values = propertyFilter.values || [];
-
-    if (!values.length) {
-      continue;
-    }
-
-    if (propertyFilter.type === 'date') {
-      const dateValues = values.filter((value) =>
-        /^\d{4}-\d{2}-\d{2}$/.test(value),
-      );
-
-      if (!dateValues.length) {
-        continue;
-      }
-
-      const dateStringExpression = {
-        $dateToString: {
-          date: {
-            $convert: {
-              input: `$${fieldPath}`,
-              to: 'date',
-              onError: null,
-              onNull: null,
-            },
-          },
-          format: '%Y-%m-%d',
-          timezone: process.env.TZ || 'Asia/Ulaanbaatar',
+  const dateStringExpression = {
+    $dateToString: {
+      date: {
+        $convert: {
+          input: `$${fieldPath}`,
+          to: 'date',
+          onError: null,
+          onNull: null,
         },
-      };
+      },
+      format: '%Y-%m-%d',
+      timezone: process.env.TZ || 'Asia/Ulaanbaatar',
+    },
+  };
 
-      if (dateValues.length > 1) {
-        const [fromDateKey, toDateKey] = dateValues
-          .slice(0, 2)
-          .sort((a, b) => a.localeCompare(b));
+  if (dateValues.length > 1) {
+    const [fromDateKey, toDateKey] = dateValues
+      .slice(0, 2)
+      .sort((a, b) => a.localeCompare(b));
 
-        andConditions.push({
-          $or: [
-            {
-              [fieldPath]: {
-                $gte: fromDateKey,
-                $lte: `${toDateKey}T23:59:59.999Z`,
-              },
-            },
-            {
-              $expr: {
-                $and: [
-                  { $gte: [dateStringExpression, fromDateKey] },
-                  { $lte: [dateStringExpression, toDateKey] },
-                ],
-              },
-            },
-          ],
-        });
-        continue;
-      }
-
-      const [year, month, day] = dateValues[0].split('-').map(Number);
-
-      if (!year || !month || !day) {
-        continue;
-      }
-
-      const dateKey = [
-        year.toString().padStart(4, '0'),
-        month.toString().padStart(2, '0'),
-        day.toString().padStart(2, '0'),
-      ].join('-');
-
-      andConditions.push({
-        $or: [
-          { [fieldPath]: { $regex: `^${escapeRegExp(dateKey)}` } },
-          {
-            $expr: {
-              $eq: [dateStringExpression, dateKey],
-            },
+    return {
+      $or: [
+        {
+          [fieldPath]: {
+            $gte: fromDateKey,
+            $lte: `${toDateKey}T23:59:59.999Z`,
           },
-        ],
-      });
-      continue;
-    }
-
-    if (
-      propertyFilter.type === 'select' ||
-      propertyFilter.type === 'multiSelect' ||
-      propertyFilter.type === 'radio'
-    ) {
-      andConditions.push({ [fieldPath]: { $in: values } });
-      continue;
-    }
-
-    andConditions.push(
-      ...values.map((value) => ({ [fieldPath]: { $all: [value] } })),
-    );
+        },
+        {
+          $expr: {
+            $and: [
+              { $gte: [dateStringExpression, fromDateKey] },
+              { $lte: [dateStringExpression, toDateKey] },
+            ],
+          },
+        },
+      ],
+    };
   }
 
+  const [year, month, day] = dateValues[0].split('-').map(Number);
+
+  if (!year || !month || !day) {
+    return null;
+  }
+
+  const dateKey = [
+    year.toString().padStart(4, '0'),
+    month.toString().padStart(2, '0'),
+    day.toString().padStart(2, '0'),
+  ].join('-');
+
+  return {
+    $or: [
+      { [fieldPath]: { $regex: `^${escapeRegExp(dateKey)}` } },
+      {
+        $expr: {
+          $eq: [dateStringExpression, dateKey],
+        },
+      },
+    ],
+  };
+}
+
+function buildTicketPropertyConditions(
+  propertyFilter: TicketPropertyFilter,
+): TicketMatch[] {
+  if (!propertyFilter.propertyId) {
+    return [];
+  }
+
+  const fieldPath = propertyDataPath(propertyFilter.propertyId);
+  const values = propertyFilter.values || [];
+
+  if (!values.length) {
+    return [];
+  }
+
+  if (propertyFilter.type === 'date') {
+    const condition = buildTicketPropertyDateCondition(fieldPath, values);
+    return condition ? [condition] : [];
+  }
+
+  if (
+    propertyFilter.type === 'select' ||
+    propertyFilter.type === 'multiSelect' ||
+    propertyFilter.type === 'radio'
+  ) {
+    return [{ [fieldPath]: { $in: values } }];
+  }
+
+  return values.map((value) => ({ [fieldPath]: { $all: [value] } }));
+}
+
+function applyTicketDateFilters(
+  match: TicketMatch,
+  filters: IReportFilters,
+): void {
   if (filters.startDate) {
     match.startDate = { $gte: new Date(filters.startDate) };
   }
@@ -486,6 +497,30 @@ export function buildTicketMatch(filters: IReportFilters) {
       'updatedAt',
     ),
   );
+}
+
+export function buildTicketMatch(filters: IReportFilters): TicketMatch {
+  const match: TicketMatch = { type: 'ticket' };
+  const andConditions: TicketMatch[] = [];
+
+  applyTicketStatusFilters(match, andConditions, filters);
+  applyTicketSelectionFilters(match, filters);
+
+  const description = filters.description?.trim();
+  if (description) {
+    match.description = {
+      $regex: escapeRegExp(description),
+      $options: 'i',
+    };
+  }
+
+  applyTicketPriorityFilter(match, andConditions, filters);
+  andConditions.push(
+    ...(filters.propertyValueFilters || []).flatMap(
+      buildTicketPropertyConditions,
+    ),
+  );
+  applyTicketDateFilters(match, filters);
 
   if (andConditions.length) {
     match.$and = andConditions;
@@ -497,7 +532,7 @@ export function buildTicketMatch(filters: IReportFilters) {
 // Report contact filters: tickets keep their customer and company
 // themselves, so a filter of several contacts matches either of them.
 export function narrowTicketMatchByContacts(
-  match: Record<string, any>,
+  match: TicketMatch,
   filters: IReportFilters,
 ) {
   if (filters.customerIds?.length) {
@@ -511,14 +546,16 @@ export function narrowTicketMatchByContacts(
   return match;
 }
 
-export const buildTicketPipeline = (filters: IReportFilters): any[] => {
+export const buildTicketPipeline = (
+  filters: IReportFilters,
+): PipelineStage[] => {
   const match = narrowTicketMatchByContacts(buildTicketMatch(filters), filters);
 
   return [{ $match: match }];
 };
 
 export function buildTicketTagMatch(filters: IReportFilters) {
-  const match = buildTicketMatch(filters) as any;
+  const match = buildTicketMatch(filters);
   match.tagIds = { $exists: true, $ne: [] };
   return match;
 }

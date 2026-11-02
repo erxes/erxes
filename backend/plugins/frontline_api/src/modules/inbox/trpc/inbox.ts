@@ -13,7 +13,7 @@ import { IModels } from '~/connectionResolvers';
 import { FrontlineTRPCContext } from '~/init-trpc';
 import { IConversationDocument } from '@/inbox/@types/conversations';
 
-const t = initTRPC.context<FrontlineTRPCContext>().create();
+const trpc = initTRPC.context<FrontlineTRPCContext>().create();
 interface CreateConversationAndMessageParams {
   userId?: string;
   status?: string;
@@ -73,8 +73,8 @@ export const createConversationAndMessage = async (
   return { conversation, message };
 };
 
-export const integrationsRouter = t.router({
-  receive: t.procedure.input(z.any()).mutation(async ({ input, ctx }) => {
+export const integrationsRouter = trpc.router({
+  receive: trpc.procedure.input(z.any()).mutation(async ({ input, ctx }) => {
     const { subdomain } = ctx;
     try {
       const result = await receiveInboxMessage(subdomain, input);
@@ -103,7 +103,7 @@ export const integrationsRouter = t.router({
     }
   }),
 
-  remove: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+  remove: trpc.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { _id } = input;
     if (!_id) {
       return {
@@ -143,7 +143,7 @@ export const integrationsRouter = t.router({
     }
   }),
 
-  find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  find: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { query = {}, options } = input;
     const { models } = ctx;
     try {
@@ -178,7 +178,7 @@ export const integrationsRouter = t.router({
     }
   }),
 
-  copyLeadIntegration: t.procedure
+  copyLeadIntegration: trpc.procedure
     .input(z.any())
     .mutation(async ({ ctx, input }) => {
       const { _id, userId } = input;
@@ -214,7 +214,7 @@ export const integrationsRouter = t.router({
       }
     }),
 
-  count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  count: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     const { selector = {}, filters } = input;
 
@@ -253,7 +253,7 @@ export const integrationsRouter = t.router({
     }
   }),
 
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  findOne: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     try {
       const result = await models.Integrations.findOne(input).lean();
@@ -294,8 +294,8 @@ export const integrationsRouter = t.router({
   }),
 });
 
-export const conversationMessagesRouter = t.router({
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+export const conversationMessagesRouter = trpc.router({
+  findOne: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     try {
       // Build the query from validated input
@@ -336,7 +336,7 @@ export const conversationMessagesRouter = t.router({
     }
   }),
 
-  find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  find: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { skip, limit } = input;
       const { models } = ctx;
@@ -374,7 +374,7 @@ export const conversationMessagesRouter = t.router({
     }
   }),
 
-  updateOne: t.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
+  updateOne: trpc.procedure.input(z.any()).mutation(async ({ ctx, input }) => {
     const { filter, updateDoc } = input;
     const { models } = ctx;
 
@@ -384,8 +384,8 @@ export const conversationMessagesRouter = t.router({
   }),
 });
 
-export const conversationsRouter = t.router({
-  count: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+export const conversationsRouter = trpc.router({
+  count: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { query = {}, options } = input;
       const { models } = ctx;
@@ -414,7 +414,7 @@ export const conversationsRouter = t.router({
     }
   }),
 
-  findOne: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  findOne: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { query } = input;
       const { models } = ctx;
@@ -451,7 +451,7 @@ export const conversationsRouter = t.router({
     }
   }),
 
-  changeStatus: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+  changeStatus: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     try {
       const { id, status } = input;
       const { models } = ctx;
@@ -465,7 +465,7 @@ export const conversationsRouter = t.router({
 
       const result = await models.Conversations.updateOne(
         { _id: id },
-        { status: status },
+        { status },
       );
 
       if (result.matchedCount === 0) {
@@ -491,9 +491,9 @@ export const conversationsRouter = t.router({
   }),
 });
 
-export const visitorRouter = t.router({});
-export const channelsRouter = t.router({
-  find: t.procedure.input(z.any()).query(async ({ ctx, input }) => {
+export const visitorRouter = trpc.router({});
+export const channelsRouter = trpc.router({
+  find: trpc.procedure.input(z.any()).query(async ({ ctx, input }) => {
     const { models } = ctx;
     try {
       const data = await models.Channels.find(input)
@@ -522,14 +522,14 @@ export const channelsRouter = t.router({
   }),
 });
 
-export const inboxTrpcRouter = t.router({
-  inbox: t.router({
+export const inboxTrpcRouter = trpc.router({
+  inbox: trpc.router({
     integrations: integrationsRouter,
     conversationMessages: conversationMessagesRouter,
     conversations: conversationsRouter,
     visitor: visitorRouter,
     channels: channelsRouter,
-    createConversationAndMessage: t.procedure
+    createConversationAndMessage: trpc.procedure
       .input(
         z.object({
           userId: z.string().min(1, 'User ID is required'),
@@ -581,7 +581,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    createOnlyMessage: t.procedure
+    createOnlyMessage: trpc.procedure
       .input(
         z.object({
           conversationId: z.string().min(1, 'Conversation ID is required'),
@@ -629,7 +629,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    integrationsNotification: t.procedure
+    integrationsNotification: trpc.procedure
       .input(
         z.object({
           payload: z.record(z.unknown()),
@@ -670,7 +670,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    getConversations: t.procedure
+    getConversations: trpc.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query = {} } = input;
@@ -695,7 +695,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    removeCustomersConversations: t.procedure
+    removeCustomersConversations: trpc.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { customerIds } = input;
@@ -723,7 +723,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    changeCustomer: t.procedure
+    changeCustomer: trpc.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { customerId, customerIds } = input;
@@ -753,7 +753,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    updateConversationMessage: t.procedure
+    updateConversationMessage: trpc.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
         const { filter, updateDoc } = input;
@@ -780,7 +780,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    removeConversation: t.procedure
+    removeConversation: trpc.procedure
       .input(
         z.object({
           _id: z.string().min(1, 'Conversation ID is required'),
@@ -832,7 +832,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    updateUserChannels: t.procedure
+    updateUserChannels: trpc.procedure
       .input(
         z.object({
           channelIds: z.array(z.string()),
@@ -861,7 +861,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    getIntegrationKinds: t.procedure.input(z.any()).query(async () => {
+    getIntegrationKinds: trpc.procedure.input(z.any()).query(async () => {
       try {
         const data = await getIntegrationsKinds();
         return {
@@ -880,7 +880,7 @@ export const inboxTrpcRouter = t.router({
       }
     }),
 
-    getConversationsList: t.procedure
+    getConversationsList: trpc.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, listParams } = input;
@@ -890,7 +890,7 @@ export const inboxTrpcRouter = t.router({
           await cursorPaginate<IConversationDocument>({
             model: models.Conversations,
             params: listParams,
-            query: query,
+            query,
           });
 
         return {
@@ -899,7 +899,7 @@ export const inboxTrpcRouter = t.router({
         };
       }),
 
-    getModuleRelation: t.procedure.input(z.any()).query(async ({ input }) => {
+    getModuleRelation: trpc.procedure.input(z.any()).query(({ input }) => {
       try {
         const { module, target } = input;
         let filter: { _id: string } | null = null;
@@ -938,7 +938,7 @@ export const inboxTrpcRouter = t.router({
       }
     }),
 
-    sendNotifications: t.procedure
+    sendNotifications: trpc.procedure
       .input(z.any()) // Consider replacing with proper input validation
       .mutation(async ({ ctx, input }) => {
         const { subdomain } = ctx;
@@ -957,10 +957,10 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    conversationClientMessageInserted: t.procedure
+    conversationClientMessageInserted: trpc.procedure
       .input(z.any())
       .mutation(async ({ ctx, input }) => {
-        const { models, subdomain } = ctx;
+        const { subdomain } = ctx;
         try {
           const result = await pConversationClientMessageInserted(
             subdomain,
@@ -982,7 +982,7 @@ export const inboxTrpcRouter = t.router({
         }
       }),
 
-    widgetsGetUnreadMessagesCount: t.procedure
+    widgetsGetUnreadMessagesCount: trpc.procedure
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { conversationId } = input;

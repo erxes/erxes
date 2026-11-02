@@ -13,6 +13,7 @@ import {
   stream,
 } from 'erxes-api-shared/utils';
 import { FilterQuery, Model } from 'mongoose';
+import type { UpdateResult } from 'mongodb';
 import { conversationsChanged } from '@/inbox/meta/segments';
 import { IModels } from '~/connectionResolvers';
 import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees';
@@ -20,12 +21,18 @@ import { getConversationAssigneeIds } from '@/inbox/utils/conversationAssignees'
 export interface IConversationModel extends Model<IConversationDocument> {
   getConversation(_id: string): Promise<IConversationDocument>;
   createConversation(doc: IConversation): Promise<IConversationDocument>;
-  updateConversation(_id: string, doc): Promise<IConversationDocument>;
+  updateConversation(
+    _id: string,
+    doc: Partial<IConversation>,
+  ): Promise<UpdateResult>;
   setAutomatedReplyControl(
     _id: string,
     doc: TAutomatedReplyControl,
   ): Promise<IConversationDocument | null>;
-  checkExistanceConversations(ids: string[]): any;
+  checkExistanceConversations(ids: string[]): Promise<{
+    selector: FilterQuery<IConversationDocument>;
+    conversations: IConversationDocument[];
+  }>;
   reopen(_id: string): Promise<IConversationDocument>;
 
   assignUserConversation(
@@ -42,7 +49,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
     status: string,
     customerId: string,
     integrationId: string,
-  ): Promise<any[]>;
+  ): Promise<IMessageDocument[]>;
 
   changeStatusConversation(
     conversationIds: string[],
@@ -55,7 +62,7 @@ export interface IConversationModel extends Model<IConversationDocument> {
     userId: string,
   ): Promise<IConversationDocument>;
 
-  newOrOpenConversation(): IConversationDocument[];
+  newOrOpenConversation(): Promise<IConversationDocument[]>;
 
   addParticipatedUsers(
     conversationId: string,
@@ -74,20 +81,22 @@ export interface IConversationModel extends Model<IConversationDocument> {
   removeCustomersConversations(
     customerId: string[],
   ): Promise<{ n: number; ok: number }>;
-  widgetsUnreadMessagesQuery(conversations: IConversationDocument[]): any;
+  widgetsUnreadMessagesQuery(
+    conversations: IConversationDocument[],
+  ): FilterQuery<IMessageDocument>;
 
-  removeEngageConversations(engageMessageId: string): any;
+  removeEngageConversations(engageMessageId: string): Promise<void>;
 
   getUserRelevance(args: { skillId: string }): Promise<string>;
 
   resolveAllConversation(
-    query: any,
-    param: any,
-  ): Promise<{ n: number; nModified: number; ok: number }>;
+    query: FilterQuery<IConversationDocument>,
+    param: Partial<IConversation>,
+  ): Promise<UpdateResult>;
 }
 
 export const loadClass = (models: IModels, subdomain: string) => {
-  class Conversation {
+  class Conversation extends Model<IConversationDocument> {
     /**
      * Retrieves conversation
      */
@@ -405,7 +414,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
     /**
      * Get new or open conversation
      */
-    public static async newOrOpenConversation() {
+    public static newOrOpenConversation() {
       return models.Conversations.find({
         status: {
           $in: [CONVERSATION_STATUSES.NEW, CONVERSATION_STATUSES.OPEN],
@@ -413,7 +422,7 @@ export const loadClass = (models: IModels, subdomain: string) => {
         updatedAt: {
           $gte: new Date(new Date().getTime() - 12 * 60 * 1000),
         },
-      });
+      }).exec();
     }
 
     /**
@@ -479,29 +488,32 @@ export const loadClass = (models: IModels, subdomain: string) => {
      * Remove engage conversations
      */
     public static async removeEngageConversations(engageMessageId: string) {
-      await stream(
+      await stream<string>(
         async (chunk) => {
           await models.ConversationMessages.deleteMany({
             conversationId: { $in: chunk },
           });
           await models.Conversations.deleteMany({ _id: { $in: chunk } });
         },
-        (variables, root: any) => {
+        (variables, conversationId) => {
           const parentIds = variables.parentIds || [];
 
-          parentIds.push(root.conversationId);
+          parentIds.push(conversationId);
 
           variables.parentIds = parentIds;
         },
-        () => {
-          return models.ConversationMessages.find(
-            {
-              engageData: { $exists: true, $ne: null },
-              'engageData.messageId': engageMessageId,
-            },
-            { conversationId: 1, _id: 0 },
-          ) as any;
-        },
+        () => ({
+          cursor: () =>
+            models.ConversationMessages.find(
+              {
+                engageData: { $exists: true, $ne: null },
+                'engageData.messageId': engageMessageId,
+              },
+              { conversationId: 1, _id: 0 },
+            )
+              .cursor()
+              .map((message) => message.conversationId),
+        }),
         1000,
       );
     }

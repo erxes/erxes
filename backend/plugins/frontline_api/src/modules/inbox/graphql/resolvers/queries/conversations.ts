@@ -182,18 +182,21 @@ export const conversationQueries = {
     // resolved count
     response.resolved = await count(models, {
       ...mainQuery,
-      ...qb.statusFilter(['closed']),
+      ...QueryBuilder.statusFilter(['closed']),
     });
 
     // awaiting response count
     response.awaitingResponse = await count(models, {
       ...mainQuery,
-      ...qb.awaitingResponse(),
+      ...QueryBuilder.awaitingResponse(),
     });
 
     const automationCounts = await Promise.all(
       CONVERSATION_AUTOMATION_STATUS.ALL.map((key) =>
-        count(models, { ...mainQuery, ...qb.automationStatusFilter(key) }),
+        count(models, {
+          ...mainQuery,
+          ...QueryBuilder.automationStatusFilter(key),
+        }),
       ),
     );
 
@@ -207,12 +210,8 @@ export const conversationQueries = {
   /**
    * Get one conversation
    */
-  async conversationDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
-    return models.Conversations.findOne({ _id });
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Conversations.findOne({ _id }).exec();
   },
 
   async conversationConvertedItems(
@@ -309,7 +308,7 @@ export const conversationQueries = {
           ...args,
           limit: perPage,
         },
-        query: query,
+        query,
       });
 
     return { list, totalCount, pageInfo };

@@ -230,7 +230,7 @@ export const useConversations = (
 
   useEffect(() => {
     if (!userId) {
-      return;
+      return undefined;
     }
 
     const unsubscribe = subscribeToMoreRef.current({
@@ -400,7 +400,7 @@ export const useConversations = (
     }
 
     lastAutoFetchCursorRef.current = endCursor;
-    void fetchNextPage();
+    fetchNextPage();
   }, [
     fetchNextPage,
     isNearBottom,
@@ -411,7 +411,7 @@ export const useConversations = (
 
   const handleScroll = useCallback(() => {
     if (isNearBottom()) {
-      void fetchNextPage();
+      fetchNextPage();
     }
   }, [fetchNextPage, isNearBottom]);
 

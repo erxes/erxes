@@ -162,7 +162,7 @@ export const useInboxUnreadConversationCount = () => {
     variables: userId ? { userId } : undefined,
     skip: !userId,
     onData: () => {
-      void refetch();
+      refetch().catch(() => undefined);
     },
   });
 

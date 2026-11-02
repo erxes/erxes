@@ -25,20 +25,22 @@ export const ReportsRefreshButton = () => {
     }
   };
 
+  const refreshButton = (
+    <Button
+      variant="outline"
+      size="icon"
+      disabled={refreshing}
+      onClick={handleRefresh}
+    >
+      {refreshing ? <Spinner /> : <IconRefresh />}
+      <span className="sr-only">{label}</span>
+    </Button>
+  );
+
   return (
     <Tooltip.Provider>
       <Tooltip>
-        <Tooltip.Trigger asChild>
-          <Button
-            variant="outline"
-            size="icon"
-            disabled={refreshing}
-            onClick={handleRefresh}
-          >
-            {refreshing ? <Spinner /> : <IconRefresh />}
-            <span className="sr-only">{label}</span>
-          </Button>
-        </Tooltip.Trigger>
+        <Tooltip.Trigger asChild>{refreshButton}</Tooltip.Trigger>
         <Tooltip.Content>{label}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>

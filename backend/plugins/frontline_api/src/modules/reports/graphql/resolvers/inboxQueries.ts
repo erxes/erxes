@@ -3,6 +3,12 @@ import {
   getConversationAssigneeIds,
 } from '@/inbox/utils/conversationAssignees';
 import type { IConversationDocument } from '@/inbox/@types/conversations';
+import type { IIntegrationDocument } from '@/inbox/@types/integrations';
+import type {
+  ICustomerDocument,
+  ITagDocument,
+  IUserDocument,
+} from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { CONVERSATION_STATUSES } from '@/inbox/db/definitions/constants';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -16,6 +22,25 @@ import {
   calculatePercentage,
 } from '@/reports/utils';
 import { IReportFilters } from '@/reports/@types/reportFilters';
+
+type ConversationStatusCounts = {
+  new: number;
+  open: number;
+  closed: number;
+  resolved: number;
+};
+
+type ConversationProgress = ConversationStatusCounts & { date: string };
+type MemberProgress = ConversationStatusCounts & { assigneeId: string };
+type ProgressFacet<T> = { [Status in keyof ConversationStatusCounts]: T[] };
+type TagCount = { _id: string; count: number };
+type ReportTag = Pick<ITagDocument, '_id' | 'name' | 'colorCode'>;
+type ReportMember = Pick<IUserDocument, '_id' | 'details' | 'email'>;
+type ReportCustomer = Pick<
+  ICustomerDocument,
+  '_id' | 'firstName' | 'lastName' | 'primaryEmail' | 'primaryPhone'
+>;
+type ReportIntegration = Pick<IIntegrationDocument, '_id' | 'name'>;
 
 export interface IProgressArgs {
   customerId: string;
@@ -110,10 +135,11 @@ export const reportInboxQueries = {
       { $sort: { date: 1 } },
     ];
 
-    const chartData = await models.Conversations.aggregate(pipeline);
+    const chartData =
+      await models.Conversations.aggregate<ConversationProgress>(pipeline);
 
     const total = chartData.reduce(
-      (sum: number, d: any) => sum + d.new + d.open + d.closed + d.resolved,
+      (sum, d) => sum + d.new + d.open + d.closed + d.resolved,
       0,
     );
 
@@ -123,14 +149,14 @@ export const reportInboxQueries = {
     };
   },
 
-  async conversationMemberProgress(
+  conversationMemberProgress(
     _parent: undefined,
     { customerId, fromDate, toDate }: IProgressArgs,
     { models }: IContext,
   ) {
     const statuses = ['new', 'open', 'closed', 'resolved'];
 
-    return models.Conversations.aggregate([
+    return models.Conversations.aggregate<MemberProgress>([
       {
         $match: {
           customerId,
@@ -174,7 +200,7 @@ export const reportInboxQueries = {
           resolved: { $ifNull: ['$counts.resolved', 0] },
         },
       },
-    ]);
+    ]).exec();
   },
 
   async conversationSourceProgress(
@@ -189,7 +215,7 @@ export const reportInboxQueries = {
       CONVERSATION_STATUSES.RESOLVED,
     ];
 
-    const facet: Record<string, any[]> = {};
+    const facet: Record<string, PipelineStage.FacetPipelineStage[]> = {};
 
     statuses.forEach((status) => {
       facet[status.toLowerCase()] = [
@@ -229,7 +255,9 @@ export const reportInboxQueries = {
         { $sort: { count: -1 } },
       ];
     });
-    const result = await models.Conversations.aggregate([
+    const result = await models.Conversations.aggregate<
+      ProgressFacet<{ source: string; count: number }>
+    >([
       {
         $match: {
           customerId,
@@ -255,7 +283,7 @@ export const reportInboxQueries = {
       CONVERSATION_STATUSES.RESOLVED,
     ];
 
-    const facet: Record<string, any[]> = {};
+    const facet: Record<string, PipelineStage.FacetPipelineStage[]> = {};
 
     statuses.forEach((status) => {
       facet[status.toLowerCase()] = [
@@ -287,7 +315,9 @@ export const reportInboxQueries = {
       ];
     });
 
-    const result = await models.Conversations.aggregate([
+    const result = await models.Conversations.aggregate<
+      ProgressFacet<{ tagId: string; count: number }>
+    >([
       {
         $match: {
           customerId,
@@ -302,7 +332,7 @@ export const reportInboxQueries = {
     return result[0] ?? { new: [], open: [], closed: [], resolved: [] };
   },
 
-  async reportConversationOpenDate(
+  reportConversationOpenDate(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
@@ -310,7 +340,7 @@ export const reportInboxQueries = {
     return buildConversationDateReport(filters, models, 'createdAt');
   },
 
-  async reportConversationOpen(
+  reportConversationOpen(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
@@ -321,15 +351,17 @@ export const reportInboxQueries = {
     });
   },
 
-  async reportConversationResolvedDate(
+  reportConversationResolvedDate(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
   ) {
-    return buildConversationDateReport(filters, models, 'closedAt', {
-      status: CONVERSATION_STATUSES.CLOSED,
-      ...buildDateMatch(filters, 'closedAt'),
-    });
+    return Promise.resolve().then(() =>
+      buildConversationDateReport(filters, models, 'closedAt', {
+        status: CONVERSATION_STATUSES.CLOSED,
+        ...buildDateMatch(filters, 'closedAt'),
+      }),
+    );
   },
 
   async reportConversationList(
@@ -352,8 +384,12 @@ export const reportInboxQueries = {
     const countPipeline = [...basePipeline, { $count: 'total' as const }];
 
     const [list, countResult] = await Promise.all([
-      models.Conversations.aggregate(pipeline, { allowDiskUse: true }),
-      models.Conversations.aggregate(countPipeline, { allowDiskUse: true }),
+      models.Conversations.aggregate<IConversationDocument>(pipeline, {
+        allowDiskUse: true,
+      }),
+      models.Conversations.aggregate<{ total: number }>(countPipeline, {
+        allowDiskUse: true,
+      }),
     ]);
 
     const totalCount = countResult[0]?.total ?? 0;
@@ -407,7 +443,7 @@ export const reportInboxQueries = {
     return models.ConversationMessages.aggregate(pipeline);
   },
 
-  async reportConversationClosed(
+  reportConversationClosed(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
@@ -418,7 +454,7 @@ export const reportInboxQueries = {
     });
   },
 
-  async reportConversationResolved(
+  reportConversationResolved(
     _parent: undefined,
     { filters = {} }: { filters?: IReportFilters },
     { models }: IContext,
@@ -448,8 +484,7 @@ export const reportInboxQueries = {
       { $limit: filters.limit ?? 100 },
     );
 
-    const tagCounts: Array<{ _id: any; count: number }> =
-      await models.Conversations.aggregate(pipeline);
+    const tagCounts = await models.Conversations.aggregate<TagCount>(pipeline);
 
     if (!tagCounts.length) {
       return [];
@@ -458,20 +493,19 @@ export const reportInboxQueries = {
     const total = tagCounts.reduce((sum, t) => sum + t.count, 0);
     const tagIds = tagCounts.map((t) => t._id);
 
-    const tags: Array<{ _id: any; name: string; colorCode?: string }> =
-      await sendTRPCMessage({
-        subdomain,
-        pluginName: 'core',
-        method: 'query',
-        module: 'tags',
-        action: 'find',
-        input: {
-          type: 'frontline:ticket',
-          query: { _id: { $in: tagIds } },
-          fields: { _id: 1, name: 1, colorCode: 1 },
-        },
-        defaultValue: [],
-      });
+    const tags: ReportTag[] = await sendTRPCMessage({
+      subdomain,
+      pluginName: 'core',
+      method: 'query',
+      module: 'tags',
+      action: 'find',
+      input: {
+        type: 'frontline:ticket',
+        query: { _id: { $in: tagIds } },
+        fields: { _id: 1, name: 1, colorCode: 1 },
+      },
+      defaultValue: [],
+    });
 
     const tagMap = new Map<string, ITagInfo>(
       tags.map((t) => [
@@ -504,7 +538,8 @@ export const reportInboxQueries = {
     const pipeline = await buildConversationPipeline(filters, models);
     pipeline.push({ $sort: { createdAt: -1 } });
 
-    const conversations = await models.Conversations.aggregate(pipeline);
+    const conversations =
+      await models.Conversations.aggregate<IConversationDocument>(pipeline);
 
     if (!conversations.length) {
       return [];
@@ -512,24 +547,27 @@ export const reportInboxQueries = {
 
     const assigneeIds = [
       ...new Set(
-        conversations.flatMap((conversation: IConversationDocument) =>
+        conversations.flatMap((conversation) =>
           getConversationAssigneeIds(conversation),
         ),
       ),
     ];
     const customerIds = [
-      ...new Set(conversations.map((c: any) => c.customerId).filter(Boolean)),
+      ...new Set(conversations.map((c) => c.customerId).filter(Boolean)),
     ];
     const integrationIds = [
-      ...new Set(
-        conversations.map((c: any) => c.integrationId).filter(Boolean),
-      ),
+      ...new Set(conversations.map((c) => c.integrationId).filter(Boolean)),
     ];
     const allTagIds = [
-      ...new Set(conversations.flatMap((c: any) => c.tagIds || [])),
+      ...new Set(conversations.flatMap((c) => c.tagIds || [])),
     ];
 
-    const [members, customers, integrations, tags] = await Promise.all([
+    const [members, customers, integrations, tags]: [
+      ReportMember[],
+      ReportCustomer[],
+      ReportIntegration[],
+      ReportTag[],
+    ] = await Promise.all([
       assigneeIds.length
         ? sendTRPCMessage({
             subdomain,
@@ -569,13 +607,13 @@ export const reportInboxQueries = {
     ]);
 
     const memberMap = new Map(
-      (members as any[]).map((m: any) => [
+      members.map((m) => [
         m._id.toString(),
         m.details?.fullName || m.email || 'Unknown',
       ]),
     );
     const customerMap = new Map(
-      (customers as any[]).map((c: any) => [
+      customers.map((c) => [
         c._id.toString(),
         c.firstName
           ? `${c.firstName} ${c.lastName || ''}`.trim()
@@ -583,13 +621,11 @@ export const reportInboxQueries = {
       ]),
     );
     const integrationMap = new Map(
-      (integrations as any[]).map((i: any) => [i._id.toString(), i.name]),
+      integrations.map((i) => [i._id.toString(), i.name]),
     );
-    const tagMap = new Map(
-      (tags as any[]).map((t: any) => [t._id.toString(), t.name]),
-    );
+    const tagMap = new Map(tags.map((t) => [t._id.toString(), t.name]));
 
-    return conversations.map((c: any) => ({
+    return conversations.map((c) => ({
       _id: c._id,
       content: c.content || '',
       status: c.status || '',
@@ -622,20 +658,24 @@ export const reportInboxQueries = {
     ).lean();
 
     const integrationById = new Map(
-      (integrations as any[]).map((i) => [i._id.toString(), i]),
+      integrations.map((i) => [i._id.toString(), i]),
     );
 
     const pipeline = await buildConversationPipeline(filters, models);
 
     pipeline.push({ $group: { _id: '$integrationId', count: { $sum: 1 } } });
 
-    const rows = await models.Conversations.aggregate(pipeline);
+    const rows = await models.Conversations.aggregate<{
+      _id: string | null;
+      count: number;
+    }>(pipeline);
 
     const kindMap = new Map<string, { name: string; count: number }>();
     for (const row of rows) {
-      const integration = integrationById.get(row._id?.toString());
+      if (row._id === null) continue;
+      const integration = integrationById.get(row._id.toString());
       if (!integration) continue;
-      const kind = integration.kind as string;
+      const kind = integration.kind;
       const existing = kindMap.get(kind);
       if (existing) {
         existing.count += row.count;
