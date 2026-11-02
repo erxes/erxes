@@ -24,8 +24,9 @@ import { IconChartHistogram } from '@tabler/icons-react';
 import { ReportsView } from '@/report/components/ReportsView';
 import { TicketReportsList } from '@/report/components/TicketReportsList';
 import { useTranslation } from 'react-i18next';
+import { ReportsRefreshButton } from '@/report/components/ReportsRefreshButton';
 
-export default function ReportIndexPage() {
+export function ReportIndexPage() {
   const { t } = useTranslation('frontline');
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,11 +98,12 @@ export default function ReportIndexPage() {
             icon="IconChartHistogram"
           />
         </PageHeader.Start>
-        {activeSection !== 'call' && (
-          <PageHeader.End>
+        <PageHeader.End>
+          <ReportsRefreshButton />
+          {activeSection !== 'call' && (
             <ReportKpiDateFilter filterId={kpiDateFilterId} />
-          </PageHeader.End>
-        )}
+          )}
+        </PageHeader.End>
       </PageHeader>
 
       {reportContent}

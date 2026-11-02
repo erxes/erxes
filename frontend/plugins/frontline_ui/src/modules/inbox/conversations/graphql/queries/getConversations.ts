@@ -1,7 +1,7 @@
 import { gql } from '~/gql';
 
 export const GET_CONVERSATIONS = gql(`
-  query Conversations($channelId: String, $integrationId: String, $status: String, $unassigned: String, $tag: String, $integrationType: String, $starred: String, $startDate: String, $endDate: String, $segment: String, $awaitingResponse: String, $withSurvey: String, $automationStatus: String, $participating: String, $mentioned: String, $unread: String, $customerId: String, $brandId: String, $searchValue: String, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
+  query Conversations($channelId: String, $integrationId: String, $status: String, $unassigned: String, $tag: String, $integrationType: String, $starred: String, $startDate: String, $endDate: String, $closedAtFrom: String, $closedAtTo: String, $segment: String, $awaitingResponse: String, $withSurvey: String, $automationStatus: String, $participating: String, $mentioned: String, $unread: String, $customerId: String, $brandId: String, $searchValue: String, $cursor: String, $cursorMode: CURSOR_MODE, $direction: CURSOR_DIRECTION, $limit: Int) {
     conversations(
       channelId: $channelId
       integrationId: $integrationId
@@ -12,6 +12,8 @@ export const GET_CONVERSATIONS = gql(`
       starred: $starred
       startDate: $startDate
       endDate: $endDate
+      closedAtFrom: $closedAtFrom
+      closedAtTo: $closedAtTo
       segment: $segment
       awaitingResponse: $awaitingResponse
       withSurvey: $withSurvey
