@@ -411,14 +411,16 @@ const SidePanelSavedRecord = ({
                   : 'core:contact.company'
               }
             />
-          ) : panelPluginName && (
-            <PluginRecordPanel
-              pluginName={panelPluginName}
-              contentType={record.contentType}
-              contentId={record.contentId}
-              view="actions"
-              quiet
-            />
+          ) : (
+            panelPluginName && (
+              <PluginRecordPanel
+                pluginName={panelPluginName}
+                contentType={record.contentType}
+                contentId={record.contentId}
+                view="actions"
+                quiet
+              />
+            )
           )
         }
         onBack={onBack}
