@@ -106,7 +106,9 @@
 - The tickets Sort control names the active order on its trigger ("Sort:
   Created"), marks the selected field and direction, and offers newest or oldest
   first. Field and direction live in `localStorage` (`ticketSort`,
-  `ticketSortDirection`), not in the URL.
+  `ticketSortDirection`), not in the URL. A ticket arriving by subscription is
+  inserted in the active order; one that sorts past the loaded rows waits for its
+  page.
 - Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
   settings (channel detail / pipeline General tab), and the new-ticket footer
   shows "Edit form" to the selected pipeline's Properties tab. Both appear

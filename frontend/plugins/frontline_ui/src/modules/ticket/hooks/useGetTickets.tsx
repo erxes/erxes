@@ -131,6 +131,23 @@ export const useTicketsVariables = (
   };
 };
 
+const insertTicketInOrder = <T extends Record<TicketSortField, unknown>>(
+  list: T[],
+  ticket: T,
+  field: TicketSortField,
+  direction: TicketSortDirection,
+  hasMore: boolean,
+) => {
+  const sortValue = (item: T) => new Date(String(item[field])).getTime();
+  const index = list.findIndex(
+    (item) => (sortValue(item) - sortValue(ticket)) * direction > 0,
+  );
+
+  if (index === -1) return hasMore ? list : [...list, ticket];
+
+  return [...list.slice(0, index), ticket, ...list.slice(index)];
+};
+
 export const useTickets = (
   options?: QueryHookOptions<GetTicketsQuery, GetTicketsQueryVariables> & {
     variables?: ITicketFilter;
@@ -138,6 +155,8 @@ export const useTickets = (
 ) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const variables = useTicketsVariables(options?.variables);
+  const sortField = useAtomValue(ticketSortAtom);
+  const sortDirection = useAtomValue(ticketSortDirectionAtom);
   const { toast } = useToast();
   const { data, loading, fetchMore, subscribeToMore } = useQuery(GET_TICKETS, {
     ...options,
@@ -186,6 +205,15 @@ export const useTickets = (
         let updatedList = currentList;
         let countDelta = 0;
 
+        const insertTicket = () =>
+          insertTicketInOrder(
+            currentList,
+            ticket,
+            sortField,
+            sortDirection,
+            Boolean(prev.getTickets?.pageInfo?.hasNextPage),
+          );
+
         const listState = variables.state || 'active';
         const ticketState = ticket.state || 'active';
         const matchesFilter =
@@ -195,7 +223,7 @@ export const useTickets = (
         if (type === 'create') {
           const exists = currentList.some((item) => item._id === ticket._id);
           if (!exists && matchesFilter) {
-            updatedList = [ticket, ...currentList];
+            updatedList = insertTicket();
             countDelta = 1;
           }
         }
@@ -215,7 +243,7 @@ export const useTickets = (
               item._id === ticket._id ? { ...item, ...ticket } : item,
             );
           } else if (matchesFilter) {
-            updatedList = [ticket, ...currentList];
+            updatedList = insertTicket();
             countDelta = 1;
           }
         }
@@ -238,7 +266,7 @@ export const useTickets = (
     });
 
     return unsubscribe;
-  }, [variables, subscribeToMore]);
+  }, [variables, subscribeToMore, sortField, sortDirection]);
 
   const handleFetchMore = ({
     direction,
