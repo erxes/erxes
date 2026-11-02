@@ -8,7 +8,9 @@ const QUARTER_TOKEN = /^(\d{4})-quarter-([1-4])$/;
 const HALF_TOKEN = /^(\d{4})-half-([1-2])$/;
 
 export const normalizeFixedDate = (value: string): string =>
-  RENAMED_FIXED_DATES[value] ?? value;
+  Object.prototype.hasOwnProperty.call(RENAMED_FIXED_DATES, value)
+    ? RENAMED_FIXED_DATES[value]
+    : value;
 
 export const parseQuarterToken = (
   value: string,
