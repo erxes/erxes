@@ -450,8 +450,6 @@ const applyOrderEdit = async (
 
   checkOrderStatus(order);
 
-  await validateOrder(subdomain, models, config, doc, order);
-
   const before = await getOrderChangeSnapshot(models, doc._id);
 
   await syncOrderVoucher({
@@ -554,9 +552,12 @@ export const ordersEdit = async (
   doc: IOrderEditParams,
   context: OrderMutationCtx,
 ) => {
-  const { models } = context;
+  const { models, config, subdomain } = context;
+  const order = await models.Orders.getOrder(doc._id);
 
-  checkOrderStatus(await models.Orders.getOrder(doc._id));
+  checkOrderStatus(order);
+
+  await validateOrder(subdomain, models, config, doc, order);
 
   if (!(await claimSettlement(models, doc._id))) {
     throw new ExpectedError('Order is busy, try again', 'CONFLICT');
