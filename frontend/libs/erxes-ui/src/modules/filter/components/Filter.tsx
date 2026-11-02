@@ -405,13 +405,9 @@ const FilterDialogStringView = ({
   };
 
   const isSearch = !label && filterKey === 'searchValue';
-  const keyWords = filterKey
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .replace(/[_-]/g, ' ')
-    .toLowerCase();
   const displayPlaceholder = isSearch
     ? t('filter.enter-search-text', 'Enter search text')
-    : label || keyWords.charAt(0).toUpperCase() + keyWords.slice(1);
+    : label || filterKey.charAt(0).toUpperCase() + filterKey.slice(1);
 
   return (
     <Dialog.Content>
@@ -420,7 +416,7 @@ const FilterDialogStringView = ({
           <Dialog.Title className="font-medium text-lg">
             {isSearch
               ? t('filter.search', 'Search')
-              : `Filter by ${label || keyWords}...`}
+              : `Filter by ${label || filterKey}...`}
           </Dialog.Title>
         </Dialog.Header>
 
