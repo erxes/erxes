@@ -65,8 +65,6 @@ const TRANSLATABLE_CONTENT_TYPES: TranslatableContentConfig[] = [
   },
 ];
 
-const IMPLIED_BASE_LANGUAGE = 'en';
-
 const hasTranslatableValue = (value: unknown): boolean => {
   if (value === undefined || value === null) return false;
   if (typeof value === 'string') return value.trim() !== '';
@@ -87,8 +85,7 @@ const buildRehomeOpsForDocument = (
   oldLanguage: string,
   newLanguage: string,
   type: string,
-  newTranslation?: any,
-  savedOldTranslation?: any,
+  newTranslationMap: Map<string, any>,
 ): { translationOps: any[]; documentOp: Record<string, any> } => {
   const objectId = String(doc._id);
   const translationOps: any[] = [];
@@ -97,11 +94,7 @@ const buildRehomeOpsForDocument = (
   //    translation so it remains reachable after the switch.
   const oldTranslationFields: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
-    oldTranslationFields[translationField] = hasTranslatableValue(
-      savedOldTranslation?.[translationField],
-    )
-      ? savedOldTranslation[translationField]
-      : (doc[baseField] ?? '');
+    oldTranslationFields[translationField] = doc[baseField] ?? '';
   }
 
   translationOps.push({
@@ -120,13 +113,12 @@ const buildRehomeOpsForDocument = (
   //    the new language left empty has to become empty, otherwise the previous
   //    default's text leaks into the new default. Missing/empty values are reset
   //    to an empty value matching the field's shape (array vs. string).
+  const newTranslation = newTranslationMap.get(objectId);
   const baseUpdate: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
     const value = newTranslation?.[translationField];
     const emptyValue = Array.isArray(doc[baseField]) ? [] : '';
-    const fallbackValue =
-      oldLanguage === newLanguage ? (doc[baseField] ?? emptyValue) : emptyValue;
-    baseUpdate[baseField] = hasTranslatableValue(value) ? value : fallbackValue;
+    baseUpdate[baseField] = hasTranslatableValue(value) ? value : emptyValue;
   }
 
   const documentOp = {
@@ -153,7 +145,6 @@ const rehomeDefaultLanguageContent = async (
   clientPortalId: string,
   oldLanguage: string,
   newLanguage: string,
-  isImpliedDefault: boolean,
 ) => {
   for (const { type, modelKey, fieldMappings } of TRANSLATABLE_CONTENT_TYPES) {
     const model = models[modelKey] as any;
@@ -164,15 +155,15 @@ const rehomeDefaultLanguageContent = async (
     }
 
     const objectIds = documents.map((doc: any) => String(doc._id));
-    const translations = await models.Translations.find({
+    const newTranslations = await models.Translations.find({
       objectId: { $in: objectIds },
-      language: { $in: [oldLanguage, newLanguage, IMPLIED_BASE_LANGUAGE] },
+      language: newLanguage,
       type,
     }).lean();
 
-    const translationMap = new Map<string, any>(
-      translations.map((translation: any) => [
-        `${translation.objectId}:${translation.language}`,
+    const newTranslationMap = new Map<string, any>(
+      newTranslations.map((translation: any) => [
+        String(translation.objectId),
         translation,
       ]),
     );
@@ -181,27 +172,14 @@ const rehomeDefaultLanguageContent = async (
     const documentOps: any[] = [];
 
     for (const doc of documents) {
-      const baseLanguage =
-        isImpliedDefault && translationMap.has(`${doc._id}:${oldLanguage}`)
-          ? IMPLIED_BASE_LANGUAGE
-          : oldLanguage;
-      const newTranslation = translationMap.get(`${doc._id}:${newLanguage}`);
-
-      if (baseLanguage === newLanguage && !newTranslation) {
-        continue;
-      }
-
       const { translationOps: docTranslationOps, documentOp } =
         buildRehomeOpsForDocument(
           doc,
           fieldMappings,
-          baseLanguage,
+          oldLanguage,
           newLanguage,
           type,
-          newTranslation,
-          isImpliedDefault
-            ? translationMap.get(`${doc._id}:${baseLanguage}`)
-            : undefined,
+          newTranslationMap,
         );
 
       translationOps.push(...docTranslationOps);
@@ -281,6 +259,23 @@ export const loadCmsClass = (models: IModels) => {
       };
     }
 
+    private static keepImpliedDefault(
+      existing: { language?: string; languages?: string[] } | null,
+      doc: IContentCMSInput,
+    ) {
+      const impliedLanguage = getCmsDefaultLanguage({
+        languages: doc.languages ?? existing?.languages,
+      });
+
+      if (existing?.language || doc.language !== impliedLanguage) {
+        return doc;
+      }
+
+      const { language, ...docWithoutLanguage } = doc;
+
+      return docWithoutLanguage;
+    }
+
     public static async getContentCMS(_id: string) {
       return models.CMS.findOne({ _id });
     }
@@ -294,29 +289,29 @@ export const loadCmsClass = (models: IModels) => {
     public static async updateContentCMS(_id: string, doc: IContentCMSInput) {
       const existing = await models.CMS.findOne({ _id }).lean();
 
-      const previousLanguage = getCmsDefaultLanguage(existing);
+      const previousLanguage = existing?.language;
       const nextLanguage = doc.language;
-      const isImpliedDefault = !existing?.language;
 
       // Default language changed: re-home content so nothing disappears.
       if (
         existing?.clientPortalId &&
         previousLanguage &&
         nextLanguage &&
-        (isImpliedDefault || previousLanguage !== nextLanguage)
+        previousLanguage !== nextLanguage
       ) {
         await rehomeDefaultLanguageContent(
           models,
           existing.clientPortalId,
           previousLanguage,
           nextLanguage,
-          isImpliedDefault,
         );
       }
 
-      return models.CMS.findOneAndUpdate({ _id }, this.buildCmsDoc(doc), {
-        new: true,
-      });
+      return models.CMS.findOneAndUpdate(
+        { _id },
+        this.buildCmsDoc(this.keepImpliedDefault(existing, doc)),
+        { new: true },
+      );
     }
     public static async deleteContentCMS(_id: string) {
       return models.CMS.findOneAndDelete({ _id });
