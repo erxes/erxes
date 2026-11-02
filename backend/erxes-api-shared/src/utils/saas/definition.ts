@@ -82,6 +82,9 @@ export const saasOrganizationsSchema = new mongoose.Schema({
   helpCenterDomains: { type: [Object], default: undefined },
 });
 
+saasOrganizationsSchema.index({ subdomain: 1 }, { unique: true, sparse: true });
+saasOrganizationsSchema.index({ onboardedPlugins: 1 });
+
 export const saasInstallationSchema = new mongoose.Schema({
   createdAt: { type: Date, label: 'Created at', default: new Date() },
   userId: { type: String, label: 'Owner user' },

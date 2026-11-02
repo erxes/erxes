@@ -1,12 +1,15 @@
 import { Queue } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
 import {
-  processScheduledPosts,
+  processScheduledPostJob,
   scheduledPostsDispatcher,
 } from '~/worker/scheduledPosts';
 
 type TRedisConnection = Parameters<typeof createMQWorkerWithListeners>[3];
 
+/**
+ * Registers delayed post workers and the 15-minute reconciliation scheduler.
+ */
 export const initMQWorkers = async (redis: TRedisConnection) => {
   const scheduledPostsQueue = new Queue('content-scheduled-posts-check', {
     connection: redis,
@@ -19,7 +22,7 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
   await scheduledPostsQueue.upsertJobScheduler(
     'content-scheduled-posts-check',
     {
-      pattern: '* * * * *',
+      pattern: '*/15 * * * *',
       tz: 'UTC',
     },
     {
@@ -32,18 +35,14 @@ export const initMQWorkers = async (redis: TRedisConnection) => {
     'scheduled-posts-check',
     scheduledPostsDispatcher,
     redis,
-    () => {
-      console.log('Worker for queue content-scheduled-posts-check is ready');
-    },
+    () => undefined,
   );
 
   createMQWorkerWithListeners(
     'content',
     'schedule',
-    processScheduledPosts,
+    processScheduledPostJob,
     redis,
-    () => {
-      console.log('Worker for queue content-schedule is ready');
-    },
+    () => undefined,
   );
 };

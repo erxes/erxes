@@ -18,6 +18,7 @@ import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
 import { sendPublishedPostNotification } from '@/cms/utils/notifications';
+import { syncPostScheduleSafely } from '~/worker/postScheduling';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -130,6 +131,7 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.createPost(postInput);
 
     await saveTranslations(models, post._id, translations || []);
+    await syncPostScheduleSafely({ subdomain, currentPost: post });
 
     return post;
   },
@@ -205,6 +207,7 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.createPost(postInput);
 
     await saveTranslations(models, post._id, translations || []);
+    await syncPostScheduleSafely({ subdomain, currentPost: post });
 
     return post;
   },
@@ -280,6 +283,11 @@ export const postMutations: Record<string, Resolver> = {
           (translations || []) as TPostTranslationInput[]
         ).filter((t) => t?.language !== language);
         await saveTranslations(models, _id, remainingTranslations);
+        await syncPostScheduleSafely({
+          subdomain,
+          previousPost: existingPost,
+          currentPost: post,
+        });
 
         return post;
       }
@@ -296,12 +304,17 @@ export const postMutations: Record<string, Resolver> = {
     const post = await models.Posts.updatePost(_id, postInput);
 
     await saveTranslations(models, _id, translations || []);
+    await syncPostScheduleSafely({
+      subdomain,
+      previousPost: existingPost,
+      currentPost: post,
+    });
 
     return post;
   },
 
   cmsPostsRemove: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _id } = args;
     const post = await models.Posts.findOne({ _id }).lean();
 
@@ -320,11 +333,18 @@ export const postMutations: Record<string, Resolver> = {
     await models.Translations.deleteMany({
       $or: [{ objectId: _id }, { postId: _id }],
     });
-    return models.Posts.deleteOne({ _id });
+    const result = await models.Posts.deleteOne({ _id });
+
+    await syncPostScheduleSafely({
+      subdomain,
+      previousPost: post,
+    });
+
+    return result;
   },
 
   cmsPostsRemoveMany: async (_parent, args, context: IContext) => {
-    const { models } = context;
+    const { models, subdomain } = context;
     const { _ids } = args;
     const uniqueIds = [
       ...new Set((_ids || []).map((id: string) => String(id))),
@@ -351,6 +371,16 @@ export const postMutations: Record<string, Resolver> = {
       $or: [{ objectId: { $in: uniqueIds } }, { postId: { $in: uniqueIds } }],
     });
     const result = await models.Posts.deleteMany({ _id: { $in: uniqueIds } });
+
+    await Promise.all(
+      posts.map((post) =>
+        syncPostScheduleSafely({
+          subdomain,
+          previousPost: post,
+        }),
+      ),
+    );
+
     return { deletedCount: result.deletedCount };
   },
 
@@ -380,6 +410,12 @@ export const postMutations: Record<string, Resolver> = {
     });
 
     const updatedPost = await models.Posts.changeStatus(_id, status);
+
+    await syncPostScheduleSafely({
+      subdomain,
+      previousPost: post,
+      currentPost: updatedPost,
+    });
 
     return updatedPost;
   },
