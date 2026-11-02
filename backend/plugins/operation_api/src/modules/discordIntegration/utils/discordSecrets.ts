@@ -3,7 +3,7 @@ import {
   createDecipheriv,
   randomBytes,
   scryptSync,
-} from 'crypto';
+} from 'node:crypto';
 import { getEnv } from 'erxes-api-shared/utils';
 
 const PREFIX = 'enc:v1';

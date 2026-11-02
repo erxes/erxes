@@ -1,4 +1,4 @@
-import { randomBytes } from 'crypto';
+import { randomBytes } from 'node:crypto';
 import { Request, Response } from 'express';
 import { getEnv, getSubdomain, redis } from 'erxes-api-shared/utils';
 import {
@@ -27,7 +27,15 @@ import {
 
 const STATE_PATTERN = /^[a-f0-9]{48}$/;
 
-const withoutTrailingSlash = (value: string) => value.replace(/\/+$/, '');
+const withoutTrailingSlash = (value: string) => {
+  let end = value.length;
+
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+
+  return value.slice(0, end);
+};
 
 const getDomain = (subdomain: string) =>
   withoutTrailingSlash(getEnv({ name: 'DOMAIN', subdomain }));
@@ -236,7 +244,7 @@ export const handleDiscordOAuthCallback = async (
       [DISCORD_LINK_ERROR_PARAM]: reason,
     });
 
-  if (!linkState || linkState.subdomain !== subdomain) {
+  if (linkState?.subdomain !== subdomain) {
     return fail('expired');
   }
 
@@ -312,7 +320,7 @@ export const confirmDiscordAccountLink = async ({
 }) => {
   const result = await consumeDiscordLinkResult(token);
 
-  if (!result || result.subdomain !== subdomain || result.userId !== userId) {
+  if (result?.subdomain !== subdomain || result.userId !== userId) {
     throw new Error(
       'This Discord sign-in has expired or was started from another erxes account. Start again from your own account.',
     );

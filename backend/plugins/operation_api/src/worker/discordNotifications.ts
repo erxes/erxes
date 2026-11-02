@@ -4,7 +4,9 @@ import { IDiscordConfigDocument } from '@/discordIntegration/@types/discordConfi
 import {
   TDiscordCleanupJob,
   TDiscordNotificationJob,
+  TDiscordRemovedRecord,
 } from '@/discordIntegration/@types/discordNotification';
+import { IDiscordMessage } from '@/discordIntegration/@types/discordMessage';
 import { DISCORD_ERROR_CODES } from '@/discordIntegration/constants';
 import { getDiscordAccountPageUrl } from '@/discordIntegration/utils/discordAccountLink';
 import { recordDiscordFailure } from '@/discordIntegration/utils/discordBot';
@@ -19,6 +21,7 @@ import {
   TDiscordCardMention,
 } from '@/discordIntegration/utils/discordCard';
 import { generateModels, IModels } from '~/connectionResolvers';
+import { runSequentially } from '~/utils/runSequentially';
 import {
   createDiscordMessage,
   DiscordApiError,
@@ -283,69 +286,99 @@ const findThreadConnection = async (
     : null;
 };
 
+type TCleanupThread = Pick<
+  IDiscordMessage,
+  | 'entityId'
+  | 'configId'
+  | 'channelId'
+  | 'messageId'
+  | 'audience'
+  | 'discordUserId'
+> & { _id: unknown };
+
+const replyTo = (messageId?: string) =>
+  messageId
+    ? {
+        message_reference: { message_id: messageId, fail_if_not_exists: false },
+      }
+    : {};
+
+const removeThreadMessage = (
+  token: string,
+  thread: TCleanupThread,
+  record: TDiscordRemovedRecord,
+) => {
+  if (thread.audience === 'customer') {
+    return createDiscordMessage(token, thread.channelId, {
+      ...buildDiscordCustomerRemoval({
+        label: record.label,
+        name: record.name,
+        reporterId: thread.discordUserId,
+      }),
+      ...replyTo(thread.messageId),
+    });
+  }
+
+  return thread.messageId
+    ? deleteDiscordMessage(token, thread.channelId, thread.messageId)
+    : Promise.resolve();
+};
+
+const cleanupThread = async (
+  models: IModels,
+  subdomain: string,
+  thread: TCleanupThread,
+  record: TDiscordRemovedRecord,
+) => {
+  const connection = await findThreadConnection(
+    models,
+    subdomain,
+    thread,
+    record.companyId,
+  );
+
+  if (connection) {
+    try {
+      await removeThreadMessage(connection.token, thread, record);
+    } catch (error) {
+      await recordDiscordFailure({
+        models,
+        error,
+        connectionId: String(connection._id),
+      });
+
+      if (isRetryableDiscordError(error)) {
+        throw error;
+      }
+    }
+  }
+
+  await models.DiscordMessage.deleteOne({ _id: thread._id });
+};
+
 const cleanupDiscordCards = async ({
   subdomain,
   records,
   configIds,
 }: TDiscordCleanupJob) => {
   const models = await generateModels(subdomain);
+  const recordsById = new Map(
+    records.map((record) => [record.entityId, record]),
+  );
 
-  for (const record of records) {
-    const threads = await models.DiscordMessage.find({
-      entityId: record.entityId,
-      subdomain,
-      ...(configIds ? { configId: { $in: configIds } } : {}),
-    }).lean();
+  const threads = await models.DiscordMessage.find({
+    entityId: { $in: [...recordsById.keys()] },
+    subdomain,
+    ...(configIds ? { configId: { $in: configIds } } : {}),
+  }).lean();
 
-    for (const thread of threads) {
-      const connection = await findThreadConnection(
-        models,
-        subdomain,
-        thread,
-        record.companyId,
-      );
+  await runSequentially(threads, (thread) => {
+    const record = recordsById.get(thread.entityId);
 
-      if (connection) {
-        try {
-          if (thread.audience === 'customer') {
-            await createDiscordMessage(connection.token, thread.channelId, {
-              ...buildDiscordCustomerRemoval({
-                label: record.label,
-                name: record.name,
-                reporterId: thread.discordUserId,
-              }),
-              ...(thread.messageId
-                ? {
-                    message_reference: {
-                      message_id: thread.messageId,
-                      fail_if_not_exists: false,
-                    },
-                  }
-                : {}),
-            });
-          } else if (thread.messageId) {
-            await deleteDiscordMessage(
-              connection.token,
-              thread.channelId,
-              thread.messageId,
-            );
-          }
-        } catch (error) {
-          await recordDiscordFailure({
-            models,
-            error,
-            connectionId: String(connection._id),
-          });
-
-          if (isRetryableDiscordError(error)) {
-            throw error;
-          }
-        }
-      }
-
-      await models.DiscordMessage.deleteOne({ _id: thread._id });
-    }
-  }
+    return record
+      ? cleanupThread(models, subdomain, thread, record)
+      : Promise.resolve();
+  });
 
   return 'cleaned';
 };

@@ -49,7 +49,7 @@ const parseBody = (text: string): unknown => {
 
 const getRetryAfterMs = (response: Response, body: TDiscordErrorBody) => {
   const headerValue = response.headers.get('retry-after');
-  const header = headerValue === null ? NaN : Number(headerValue);
+  const header = headerValue === null ? Number.NaN : Number(headerValue);
   const seconds = Number.isFinite(header) ? header : Number(body.retry_after);
 
   return Math.max((Number.isFinite(seconds) ? seconds : 1) * 1000, 0);

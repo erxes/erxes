@@ -7,7 +7,7 @@ import { IContext } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
 export const discordAccountMutations = {
-  async operationDiscordStartAccountLink(
+  operationDiscordStartAccountLink(
     _parent: undefined,
     _args: undefined,
     { models, subdomain, user }: IContext,
@@ -17,7 +17,7 @@ export const discordAccountMutations = {
     return startDiscordAccountLink({ models, subdomain, userId });
   },
 
-  async operationDiscordConfirmAccountLink(
+  operationDiscordConfirmAccountLink(
     _parent: undefined,
     { token }: { token: string },
     { models, subdomain, user }: IContext,

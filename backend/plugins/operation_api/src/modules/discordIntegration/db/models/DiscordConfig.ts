@@ -17,7 +17,7 @@ export interface IDiscordConfigModel extends Model<IDiscordConfigDocument> {
 
 export const loadDiscordConfigClass = (models: IModels) => {
   class DiscordConfigClass {
-    public static async findByTeam(teamId: string, subdomain: string) {
+    public static findByTeam(teamId: string, subdomain: string) {
       return models.DiscordConfig.findOne({ teamId, subdomain }).lean();
     }
 

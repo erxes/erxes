@@ -1,4 +1,4 @@
-import { createPublicKey, verify } from 'crypto';
+import { createPublicKey, verify } from 'node:crypto';
 import { DISCORD_SIGNATURE_TOLERANCE_SECONDS } from '@/discordIntegration/constants';
 
 const ED25519_SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');

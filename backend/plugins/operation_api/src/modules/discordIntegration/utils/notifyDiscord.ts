@@ -56,10 +56,7 @@ const hasCustomerThread = async (
     [source.channelId],
   );
 
-  if (
-    !customerChannel ||
-    customerChannel.companyId !== String(record.companyId)
-  ) {
+  if (customerChannel?.companyId !== String(record.companyId)) {
     return false;
   }
 

@@ -53,6 +53,32 @@ export interface ITaskModel extends Model<ITaskDocument> {
   ): Promise<mongoose.Types.ObjectId[]>;
 }
 
+const notifyDiscordTaskAssigned = async ({
+  models,
+  task,
+  userId,
+  subdomain,
+  skipDiscord,
+}: {
+  models: IModels;
+  task: ITaskDocument;
+  userId: string;
+  subdomain: string;
+  skipDiscord: boolean;
+}) => {
+  if (!task.assigneeId || skipDiscord) {
+    return;
+  }
+
+  await notifyDiscord(models, {
+    subdomain,
+    event: 'taskAssigned',
+    entityId: String(task._id),
+    teamId: String(task.teamId),
+    actorId: userId,
+  });
+};
+
 export const loadTaskClass = (
   models: IModels,
   { sendDbEventLog }: EventDispatcherReturn,
@@ -200,15 +226,13 @@ export const loadTaskClass = (
         currentDocument: task.toObject(),
       });
 
-      if (doc.assigneeId && !skipDiscord) {
-        await notifyDiscord(models, {
-          subdomain,
-          event: 'taskAssigned',
-          entityId: String(task._id),
-          teamId: String(task.teamId),
-          actorId: userId,
-        });
-      }
+      await notifyDiscordTaskAssigned({
+        models,
+        task,
+        userId,
+        subdomain,
+        skipDiscord,
+      });
 
       return task;
     }

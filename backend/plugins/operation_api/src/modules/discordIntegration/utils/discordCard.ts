@@ -180,7 +180,7 @@ const EVENT_EMOJIS: Record<TDiscordNotificationEvent, string> = {
 };
 
 export const escapeDiscordMarkdown = (value: string) =>
-  value.replace(/[\\*_`~|>[\]]/g, '\\$&');
+  value.replace(/[\\*_`~|>[\]]/g, String.raw`\$&`);
 
 export const capitalize = (value: string) =>
   `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
@@ -228,7 +228,9 @@ const getStatusName = async (
 };
 
 const formatDiscordDate = (value?: Date | string | null) => {
-  const seconds = value ? Math.floor(new Date(value).getTime() / 1000) : NaN;
+  const seconds = value
+    ? Math.floor(new Date(value).getTime() / 1000)
+    : Number.NaN;
 
   return Number.isFinite(seconds) ? `<t:${seconds}:D> · <t:${seconds}:R>` : '';
 };
@@ -283,14 +285,131 @@ const buildLinkRow = (
 ): TDiscordActionRow[] => {
   const buttons = links
     .filter(({ url }) => url && isHttpUrl(url))
-    .map(({ label, url }): TDiscordLinkButton => ({
-      type: 2,
-      style: 5,
-      label,
-      url: url || '',
-    }));
+    .map(
+      ({ label, url }): TDiscordLinkButton => ({
+        type: 2,
+        style: 5,
+        label,
+        url: url || '',
+      }),
+    );
 
   return buttons.length ? [{ type: 1, components: buttons }] : [];
+};
+
+const getFallbackActorName = (record: TDiscordCardRecord) => {
+  if (record.discordSource?.username) {
+    return `@${record.discordSource.username} (Discord)`;
+  }
+
+  return record.githubIssueUrl ? 'GitHub' : 'erxes';
+};
+
+const buildCardReply = ({
+  job,
+  actorName,
+  assigneeName,
+  mention,
+  reason,
+}: {
+  job: TDiscordNotificationJob;
+  actorName: string;
+  assigneeName?: string;
+  mention: TDiscordCardMention;
+  reason?: string;
+}): TDiscordMessagePayload => ({
+  content: truncateDiscordText(
+    [
+      `${EVENT_EMOJIS[job.event]} ${describeActivity({
+        job,
+        actorName,
+        assigneeName,
+        assigneeMention: mention.discordUserId,
+        markdown: true,
+      })}`,
+      reason ? `> ${escapeDiscordMarkdown(reason)}` : '',
+      mention.linkAccountUrl
+        ? `-# ${escapeDiscordMarkdown(
+            assigneeName || 'The assignee',
+          )} hasn't linked a Discord account yet, so they weren't mentioned.`
+        : '',
+    ]
+      .filter(Boolean)
+      .join('\n'),
+    DISCORD_LIMITS.content,
+  ),
+  allowed_mentions: mention.discordUserId
+    ? { users: [mention.discordUserId] }
+    : { parse: [] },
+  ...(mention.linkAccountUrl
+    ? {
+        components: buildLinkRow([
+          { label: 'Link Discord account', url: mention.linkAccountUrl },
+        ]),
+      }
+    : {}),
+});
+
+const buildCardFields = ({
+  entity,
+  state,
+  statusName,
+  assigneeName,
+  contacts,
+  reason,
+}: {
+  entity: TDiscordCardEntity;
+  state: TDiscordCardState;
+  statusName: string;
+  assigneeName?: string;
+  contacts: Awaited<ReturnType<typeof getContactNames>>;
+  reason?: string;
+}) => {
+  const priority = entity.record.priority ?? 0;
+  const isTask = entity.kind === 'task';
+  const due =
+    isTask && state === 'open'
+      ? formatDiscordDate(entity.record.targetDate)
+      : '';
+
+  const optional: [boolean, () => TDiscordEmbedField][] = [
+    [
+      isTask && Boolean(assigneeName || state === 'open'),
+      () =>
+        buildField(
+          'Assignee',
+          assigneeName ? escapeDiscordMarkdown(assigneeName) : 'Unassigned',
+        ),
+    ],
+    [Boolean(due), () => buildField('Due', due)],
+    [
+      Boolean(contacts.customerName),
+      () =>
+        buildField(
+          'Customer',
+          escapeDiscordMarkdown(contacts.customerName ?? ''),
+        ),
+    ],
+    [
+      Boolean(contacts.companyName),
+      () =>
+        buildField(
+          'Company',
+          escapeDiscordMarkdown(contacts.companyName ?? ''),
+        ),
+    ],
+    [
+      Boolean(reason),
+      () =>
+        buildField('Reason', `> ${escapeDiscordMarkdown(reason ?? '')}`, false),
+    ],
+  ];
+
+  return [
+    buildField('Status', statusName),
+    buildField('Priority', PRIORITY_LABELS[priority] || PRIORITY_LABELS[0]),
+    ...optional.filter(([include]) => include).map(([, build]) => build()),
+  ];
 };
 
 export const buildDiscordCard = async ({
@@ -321,96 +440,32 @@ export const buildDiscordCard = async ({
     getContactNames(job.subdomain, record),
   ]);
 
-  const actorName =
-    userNames.get(actorId) ||
-    (record.discordSource?.username
-      ? `@${record.discordSource.username} (Discord)`
-      : record.githubIssueUrl
-        ? 'GitHub'
-        : 'erxes');
+  const actorName = userNames.get(actorId) || getFallbackActorName(record);
   const assigneeName = assigneeId ? userNames.get(assigneeId) : undefined;
   const reason = job.event === 'triageDeclined' ? job.reason?.trim() : '';
-  const priority = record.priority ?? 0;
   const link = getCardLink(job.subdomain, entity);
 
-  const reply: TDiscordMessagePayload = {
-    content: truncateDiscordText(
-      [
-        `${EVENT_EMOJIS[job.event]} ${describeActivity({
-          job,
-          actorName,
-          assigneeName,
-          assigneeMention: mention.discordUserId,
-          markdown: true,
-        })}`,
-        reason ? `> ${escapeDiscordMarkdown(reason)}` : '',
-        mention.linkAccountUrl
-          ? `-# ${escapeDiscordMarkdown(
-              assigneeName || 'The assignee',
-            )} hasn't linked a Discord account yet, so they weren't mentioned.`
-          : '',
-      ]
-        .filter(Boolean)
-        .join('\n'),
-      DISCORD_LIMITS.content,
-    ),
-    allowed_mentions: mention.discordUserId
-      ? { users: [mention.discordUserId] }
-      : { parse: [] },
-    ...(mention.linkAccountUrl
-      ? {
-          components: buildLinkRow([
-            { label: 'Link Discord account', url: mention.linkAccountUrl },
-          ]),
-        }
-      : {}),
-  };
+  const reply = buildCardReply({
+    job,
+    actorName,
+    assigneeName,
+    mention,
+    reason,
+  });
 
   const preview = truncateDiscordText(
     blockNoteToPlainText(record.description),
     DISCORD_LIMITS.descriptionPreview,
   );
 
-  const fields: TDiscordEmbedField[] = [
-    buildField('Status', statusName),
-    buildField('Priority', PRIORITY_LABELS[priority] || PRIORITY_LABELS[0]),
-  ];
-
-  if (entity.kind === 'task' && (assigneeName || state === 'open')) {
-    fields.push(
-      buildField(
-        'Assignee',
-        assigneeName ? escapeDiscordMarkdown(assigneeName) : 'Unassigned',
-      ),
-    );
-  }
-
-  const due =
-    entity.kind === 'task' && state === 'open'
-      ? formatDiscordDate(entity.record.targetDate)
-      : '';
-
-  if (due) {
-    fields.push(buildField('Due', due));
-  }
-
-  if (contacts.customerName) {
-    fields.push(
-      buildField('Customer', escapeDiscordMarkdown(contacts.customerName)),
-    );
-  }
-
-  if (contacts.companyName) {
-    fields.push(
-      buildField('Company', escapeDiscordMarkdown(contacts.companyName)),
-    );
-  }
-
-  if (reason) {
-    fields.push(
-      buildField('Reason', `> ${escapeDiscordMarkdown(reason)}`, false),
-    );
-  }
+  const fields = buildCardFields({
+    entity,
+    state,
+    statusName,
+    assigneeName,
+    contacts,
+    reason,
+  });
 
   const kindLabel = entity.kind === 'task' ? 'Task' : 'Triage';
 

@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 import { redis } from 'erxes-api-shared/utils';
 import { IDiscordConnectionDocument } from '@/discordIntegration/@types/discordConnection';
 import {
@@ -10,6 +10,7 @@ import {
 import { getDiscordGatewayUrl } from '@/discordIntegration/utils/discordAccountLink';
 import { runDiscordRequest } from '@/discordIntegration/utils/discordBot';
 import { IModels } from '~/connectionResolvers';
+import { runSequentially } from '~/utils/runSequentially';
 import {
   DiscordApiError,
   buildDiscordInviteUrl,
@@ -38,7 +39,7 @@ const COMMAND_NAMES = new Set(DISCORD_SLASH_COMMANDS.map(({ name }) => name));
 
 const LISTED_COMMANDS_LIMIT = 5;
 
-const DISCORD_COMMANDS_VERSION = createHash('sha1')
+const DISCORD_COMMANDS_VERSION = createHash('sha256')
   .update(JSON.stringify(DISCORD_SLASH_COMMANDS))
   .digest('hex');
 
@@ -79,9 +80,9 @@ const setInteractionsEndpoint = async (token: string, url: string) => {
 
 const upsertGuildCommands = async (args: TGuildCommandsArgs) => {
   try {
-    for (const command of DISCORD_SLASH_COMMANDS) {
-      await upsertDiscordGuildCommand({ ...args, command });
-    }
+    await runSequentially(DISCORD_SLASH_COMMANDS, (command) =>
+      upsertDiscordGuildCommand({ ...args, command }),
+    );
   } catch (error) {
     if (isMissingAccess(error)) {
       throw new Error(
@@ -97,11 +98,10 @@ const upsertGuildCommands = async (args: TGuildCommandsArgs) => {
 const removeGuildCommands = async (args: TGuildCommandsArgs) => {
   const commands = await listDiscordGuildCommands(args);
 
-  for (const command of commands) {
-    if (COMMAND_NAMES.has(command.name)) {
-      await deleteDiscordGuildCommand({ ...args, commandId: command.id });
-    }
-  }
+  await runSequentially(
+    commands.filter(({ name }) => COMMAND_NAMES.has(name)),
+    (command) => deleteDiscordGuildCommand({ ...args, commandId: command.id }),
+  );
 };
 
 const assertBotHasNoCommands = async (args: TGuildCommandsArgs) => {

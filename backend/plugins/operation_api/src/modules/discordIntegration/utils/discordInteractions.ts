@@ -440,9 +440,9 @@ const handleComponent = (
   return { type: DISCORD_RESPONSE_TYPES.DEFERRED_UPDATE_MESSAGE };
 };
 
-const dispatchInteraction = async (
+const dispatchInteraction = (
   context: TInteractionContext,
-): Promise<TDiscordInteractionResponse> => {
+): TDiscordInteractionResponse | Promise<TDiscordInteractionResponse> => {
   switch (context.interaction.type) {
     case DISCORD_INTERACTION_TYPES.APPLICATION_COMMAND:
       return handleCommand(context);
@@ -521,10 +521,7 @@ export const handleDiscordInteraction = async (
       [interaction.channel_id ?? '', interaction.channel?.parent_id ?? ''],
     );
 
-    if (
-      !customerChannel ||
-      customerChannel.connectionId !== String(connection._id)
-    ) {
+    if (customerChannel?.connectionId !== String(connection._id)) {
       res.json(ephemeral(NOT_LINKED_MESSAGE));
       return;
     }

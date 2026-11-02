@@ -52,7 +52,9 @@ const NAME_PREVIEW_LENGTH = 80;
 const CLOSED_STATUS_TYPES = [STATUS_TYPES.COMPLETED, STATUS_TYPES.CANCELLED];
 
 const formatDue = (value?: Date | string | null) => {
-  const seconds = value ? Math.floor(new Date(value).getTime() / 1000) : NaN;
+  const seconds = value
+    ? Math.floor(new Date(value).getTime() / 1000)
+    : Number.NaN;
 
   return Number.isFinite(seconds) ? ` · due <t:${seconds}:R>` : '';
 };

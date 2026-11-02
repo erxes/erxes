@@ -25,7 +25,7 @@ export interface IDiscordMessageModel extends Model<IDiscordMessageDocument> {
 
 export const loadDiscordMessageClass = (models: IModels) => {
   class DiscordMessageClass {
-    public static async findCard(key: TDiscordCardKey) {
+    public static findCard(key: TDiscordCardKey) {
       return models.DiscordMessage.findOne(key).lean();
     }
 
