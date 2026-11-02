@@ -167,7 +167,7 @@ export default {
     _args,
     { subdomain, cpUser }: IContext,
   ) {
-    if (!product.pdfAttachment || !cpUser) {
+    if (!cpUser) {
       return null;
     }
 
