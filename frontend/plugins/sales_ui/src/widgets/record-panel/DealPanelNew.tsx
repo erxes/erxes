@@ -81,10 +81,9 @@ const DealDraftProperties = ({
   );
 };
 
-export const DealPanelNew = () => {
+const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
-  const draft = useSidePanelDraft<TDealDraft>('sales:deal');
   const { back, canGoBack, close } = useSidePanel();
   const { addDeals, loading } = useDealsAdd();
   const form = useForm<TDealDraftForm>({
@@ -285,4 +284,10 @@ export const DealPanelNew = () => {
       </form>
     </Form>
   );
+};
+
+export const DealPanelNew = () => {
+  const draft = useSidePanelDraft<TDealDraft>('sales:deal');
+
+  return <DealPanelNewForm key={JSON.stringify(draft)} draft={draft} />;
 };

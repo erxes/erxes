@@ -168,6 +168,7 @@ export const DealPanelStageCell = ({
   return (
     <SelectStage.Provider
       mode="single"
+      autoSelectFirst={false}
       value={value}
       pipelineId={pipelineId}
       onValueChange={(next, isAutoSelection) => {
