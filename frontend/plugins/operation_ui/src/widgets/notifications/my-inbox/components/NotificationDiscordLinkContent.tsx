@@ -9,7 +9,7 @@ export const NotificationDiscordLinkContent = ({
   createdAt,
   fromUser,
   message,
-}: NotificationTeamContentProps) => (
+}: Readonly<NotificationTeamContentProps>) => (
   <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-6 py-8">
     <header className="flex flex-wrap items-start justify-between gap-4 border-b pb-6">
       <div className="flex min-w-0 flex-1 items-start gap-4">

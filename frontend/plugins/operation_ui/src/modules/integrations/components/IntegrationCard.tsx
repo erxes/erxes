@@ -8,13 +8,13 @@ export const IntegrationCard = ({
   name,
   description,
   status,
-}: {
+}: Readonly<{
   to: string;
   icon: ComponentType<{ className?: string }>;
   name: string;
   description: string;
   status: ReactNode;
-}) => (
+}>) => (
   <Link
     to={to}
     className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-colors hover:bg-sidebar/50"

@@ -23,6 +23,65 @@ export const DiscordIntegrationPage = () => {
   const { customerChannels } = useDiscordCustomerChannels();
   const isConnected = connections.length > 0;
 
+  const renderServers = () => {
+    if (loading && !isConnected) {
+      return (
+        <div className="flex justify-center py-12">
+          <Spinner />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <Alert.Description>
+            Failed to load Discord servers. Please refresh.
+          </Alert.Description>
+        </Alert>
+      );
+    }
+
+    if (!isConnected) {
+      return (
+        <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
+          <IconBrandDiscord className="size-16" />
+          <div>
+            <h3 className="font-semibold">No servers connected</h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              Connect a Discord server to post new triages, assignments and
+              completed tasks to its channels.
+            </p>
+          </div>
+          <Button onClick={() => setDialogOpen(true)}>
+            Connect Discord server
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        {connections.map((connection) => (
+          <DiscordConnectionCard
+            key={connection._id}
+            connection={connection}
+            linkedTeamCount={
+              configs.filter((config) => config.connectionId === connection._id)
+                .length
+            }
+            customerChannelCount={
+              customerChannels.filter(
+                (channel) => channel.connectionId === connection._id,
+              ).length
+            }
+            onUpdateToken={() => setDialogOpen(true)}
+          />
+        ))}
+      </div>
+    );
+  };
+
   return (
     <PageContainer>
       <ScrollArea>
@@ -55,53 +114,7 @@ export const DiscordIntegrationPage = () => {
               )}
             </Card.Header>
 
-            <Card.Content>
-              {loading && !isConnected ? (
-                <div className="flex justify-center py-12">
-                  <Spinner />
-                </div>
-              ) : error ? (
-                <Alert variant="destructive">
-                  <Alert.Description>
-                    Failed to load Discord servers. Please refresh.
-                  </Alert.Description>
-                </Alert>
-              ) : isConnected ? (
-                <div className="space-y-2">
-                  {connections.map((connection) => (
-                    <DiscordConnectionCard
-                      key={connection._id}
-                      connection={connection}
-                      linkedTeamCount={
-                        configs.filter(
-                          (config) => config.connectionId === connection._id,
-                        ).length
-                      }
-                      customerChannelCount={
-                        customerChannels.filter(
-                          (channel) => channel.connectionId === connection._id,
-                        ).length
-                      }
-                      onUpdateToken={() => setDialogOpen(true)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
-                  <IconBrandDiscord className="size-16" />
-                  <div>
-                    <h3 className="font-semibold">No servers connected</h3>
-                    <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-                      Connect a Discord server to post new triages, assignments
-                      and completed tasks to its channels.
-                    </p>
-                  </div>
-                  <Button onClick={() => setDialogOpen(true)}>
-                    Connect Discord server
-                  </Button>
-                </div>
-              )}
-            </Card.Content>
+            <Card.Content>{renderServers()}</Card.Content>
           </Card>
 
           {isConnected ? (
@@ -130,7 +143,7 @@ export const DiscordIntegrationPage = () => {
                 ))}
                 <li className="flex items-center gap-2">
                   <span>✗</span>
-                  No access to message content
+                  <span>No access to message content</span>
                 </li>
               </ul>
             </Card.Content>

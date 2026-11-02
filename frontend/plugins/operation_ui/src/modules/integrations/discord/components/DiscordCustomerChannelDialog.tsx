@@ -44,12 +44,12 @@ function CustomerChannelChecklist({
   value,
   onChange,
   emptyMessage,
-}: {
+}: Readonly<{
   channels: IDiscordChannel[];
   value: string[];
   onChange: (value: string[]) => void;
   emptyMessage: string;
-}) {
+}>) {
   if (!channels.length) {
     return (
       <p className="rounded border border-border p-3 text-sm text-muted-foreground">
@@ -59,26 +59,25 @@ function CustomerChannelChecklist({
   }
 
   return (
-    <div
-      role="group"
-      aria-label="Channels"
-      className="max-h-48 space-y-1 overflow-y-auto rounded border border-border p-2"
-    >
-      {channels.map((channel) => (
-        <label
-          key={channel.id}
-          className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-accent"
-        >
-          <Checkbox
-            checked={value.includes(channel.id)}
-            onCheckedChange={(checked) =>
-              onChange(toggleValue(value, channel.id, checked === true))
-            }
-          />
-          #{channel.name}
-        </label>
-      ))}
-    </div>
+    <fieldset className="min-w-0">
+      <legend className="sr-only">Channels</legend>
+      <div className="max-h-48 space-y-1 overflow-y-auto rounded border border-border p-2">
+        {channels.map((channel) => (
+          <label
+            key={channel.id}
+            className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-accent"
+          >
+            <Checkbox
+              checked={value.includes(channel.id)}
+              onCheckedChange={(checked) =>
+                onChange(toggleValue(value, channel.id, checked === true))
+              }
+            />
+            #{channel.name}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -90,7 +89,7 @@ export function DiscordCustomerChannelDialog({
   customerChannels,
   current,
   defaultCompanyId = '',
-}: {
+}: Readonly<{
   open: boolean;
   onClose: () => void;
   connections: IDiscordConnection[];
@@ -98,7 +97,7 @@ export function DiscordCustomerChannelDialog({
   customerChannels: IDiscordCustomerChannel[];
   current: IDiscordCustomerChannel | null;
   defaultCompanyId?: string;
-}) {
+}>) {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const defaultValues = useMemo<TDiscordCustomerChannelForm>(
@@ -270,7 +269,7 @@ export function DiscordCustomerChannelDialog({
                     {channelsLoading && (
                       <div
                         className="flex h-8 w-full items-center gap-2 rounded border border-border px-3 text-sm text-muted-foreground"
-                        role="status"
+                        aria-live="polite"
                       >
                         <Spinner
                           size="sm"

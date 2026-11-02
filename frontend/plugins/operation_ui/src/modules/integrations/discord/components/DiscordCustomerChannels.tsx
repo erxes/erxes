@@ -70,13 +70,13 @@ function CustomerChannelRow({
   onEdit,
   onRemove,
   removing,
-}: {
+}: Readonly<{
   channel: IDiscordCustomerChannel;
   connection?: IDiscordConnection;
   onEdit: () => void;
   onRemove: () => void;
   removing: boolean;
-}) {
+}>) {
   return (
     <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_2rem] items-center gap-3 px-3 py-2">
       <div className="flex min-w-0 items-center gap-3">
@@ -142,14 +142,14 @@ function CompanyChannelGroup({
   onEdit,
   onRemove,
   removing,
-}: {
+}: Readonly<{
   group: TCompanyChannelGroup;
   connectionsById: Map<string, IDiscordConnection>;
   onAdd: () => void;
   onEdit: (channel: IDiscordCustomerChannel) => void;
   onRemove: (channel: IDiscordCustomerChannel) => void;
   removing: boolean;
-}) {
+}>) {
   const summary = [
     pluralize(group.channels.length, 'channel'),
     group.teamCount > 1 ? pluralize(group.teamCount, 'team') : '',
@@ -196,10 +196,10 @@ function CompanyChannelGroup({
 export function DiscordCustomerChannels({
   connections,
   configs,
-}: {
+}: Readonly<{
   connections: IDiscordConnection[];
   configs: IDiscordConfigSummary[];
-}) {
+}>) {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const { customerChannels, loading, error } = useDiscordCustomerChannels();
@@ -237,6 +237,67 @@ export function DiscordCustomerChannels({
     setCurrent(channel);
     setDefaultCompanyId(companyId);
     setDialogOpen(true);
+  }
+
+  function renderChannels() {
+    if (loading && !customerChannels.length) {
+      return (
+        <div className="space-y-2">
+          {[0, 1, 2].map((row) => (
+            <Skeleton key={row} className="h-12 w-full" />
+          ))}
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <Alert.Description>
+            Failed to load the customer channels. Please refresh.
+          </Alert.Description>
+        </Alert>
+      );
+    }
+
+    if (!customerChannels.length) {
+      return (
+        <Empty className="border border-dashed border-border py-8">
+          <Empty.Header>
+            <Empty.Media variant="icon">
+              <IconBrandDiscord />
+            </Empty.Media>
+            <Empty.Title>No customer channels yet</Empty.Title>
+            <Empty.Description>
+              Link a company’s channels so its people can report issues and see
+              their tasks without leaving Discord.
+            </Empty.Description>
+          </Empty.Header>
+          <Empty.Content>
+            <Button size="sm" onClick={() => openDialog(null)}>
+              <IconPlus className="size-4" />
+              Link channels
+            </Button>
+          </Empty.Content>
+        </Empty>
+      );
+    }
+
+    return (
+      <div className="space-y-2">
+        {groups.map((group) => (
+          <CompanyChannelGroup
+            key={group.companyId}
+            group={group}
+            connectionsById={connectionsById}
+            onAdd={() => openDialog(null, group.companyId)}
+            onEdit={(channel) => openDialog(channel)}
+            onRemove={handleRemove}
+            removing={removing}
+          />
+        ))}
+      </div>
+    );
   }
 
   function handleRemove(channel: IDiscordCustomerChannel) {
@@ -290,52 +351,7 @@ export function DiscordCustomerChannels({
             </Alert>
           ) : null}
 
-          {loading && !customerChannels.length ? (
-            <div className="space-y-2">
-              {[0, 1, 2].map((row) => (
-                <Skeleton key={row} className="h-12 w-full" />
-              ))}
-            </div>
-          ) : error ? (
-            <Alert variant="destructive">
-              <Alert.Description>
-                Failed to load the customer channels. Please refresh.
-              </Alert.Description>
-            </Alert>
-          ) : customerChannels.length === 0 ? (
-            <Empty className="border border-dashed border-border py-8">
-              <Empty.Header>
-                <Empty.Media variant="icon">
-                  <IconBrandDiscord />
-                </Empty.Media>
-                <Empty.Title>No customer channels yet</Empty.Title>
-                <Empty.Description>
-                  Link a company’s channels so its people can report issues and
-                  see their tasks without leaving Discord.
-                </Empty.Description>
-              </Empty.Header>
-              <Empty.Content>
-                <Button size="sm" onClick={() => openDialog(null)}>
-                  <IconPlus className="size-4" />
-                  Link channels
-                </Button>
-              </Empty.Content>
-            </Empty>
-          ) : (
-            <div className="space-y-2">
-              {groups.map((group) => (
-                <CompanyChannelGroup
-                  key={group.companyId}
-                  group={group}
-                  connectionsById={connectionsById}
-                  onAdd={() => openDialog(null, group.companyId)}
-                  onEdit={(channel) => openDialog(channel)}
-                  onRemove={handleRemove}
-                  removing={removing}
-                />
-              ))}
-            </div>
-          )}
+          {renderChannels()}
         </Card.Content>
       </Card>
 

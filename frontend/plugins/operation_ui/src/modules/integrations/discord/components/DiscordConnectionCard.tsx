@@ -43,12 +43,12 @@ export function DiscordConnectionCard({
   linkedTeamCount,
   customerChannelCount,
   onUpdateToken,
-}: {
+}: Readonly<{
   connection: IDiscordConnection;
   linkedTeamCount: number;
   customerChannelCount: number;
   onUpdateToken: () => void;
-}) {
+}>) {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const isBroken = connection.health?.status === 'broken';

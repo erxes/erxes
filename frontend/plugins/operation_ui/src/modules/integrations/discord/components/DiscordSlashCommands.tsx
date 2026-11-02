@@ -21,9 +21,9 @@ const getCommandsStatus = (connection: IDiscordConnection) => {
 
 export function DiscordSlashCommands({
   connection,
-}: {
+}: Readonly<{
   connection: IDiscordConnection;
-}) {
+}>) {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const status = getCommandsStatus(connection);

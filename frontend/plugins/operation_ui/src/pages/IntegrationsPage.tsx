@@ -13,12 +13,12 @@ const ConnectionStatus = ({
   failed,
   count,
   noun,
-}: {
+}: Readonly<{
   loading: boolean;
   failed: boolean;
   count: number;
   noun: string;
-}) => {
+}>) => {
   if (loading) {
     return <Spinner size="sm" containerClassName="h-auto flex-none" />;
   }

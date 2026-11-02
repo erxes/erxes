@@ -8,7 +8,7 @@ import { useDiscordMyAccount } from '../hooks/useDiscordAccount';
 import { useDiscordConfigByTeam } from '../hooks/useDiscordIntegration';
 import { discordLinkBannerDismissedState } from '../states/discordLinkBannerState';
 
-export function DiscordLinkBanner({ teamId }: { teamId: string }) {
+export function DiscordLinkBanner({ teamId }: Readonly<{ teamId: string }>) {
   const currentUser = useAtomValue(currentUserState);
   const [dismissedKeys, setDismissedKeys] = useAtom(
     discordLinkBannerDismissedState,

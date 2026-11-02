@@ -29,7 +29,7 @@ export function TeamDiscordDialog({
   teamId,
   connections,
   currentConfig,
-}: TeamDiscordDialogProps) {
+}: Readonly<TeamDiscordDialogProps>) {
   const { toast } = useToast();
   const defaultValues = useMemo<TDiscordTeamConfigForm>(() => {
     const hasCurrentConnection = connections.some(
@@ -148,7 +148,7 @@ export function TeamDiscordDialog({
                     {channelsLoading ? (
                       <div
                         className="flex h-8 w-full items-center gap-2 rounded border border-border px-3 text-sm text-muted-foreground"
-                        role="status"
+                        aria-live="polite"
                       >
                         <Spinner
                           size="sm"

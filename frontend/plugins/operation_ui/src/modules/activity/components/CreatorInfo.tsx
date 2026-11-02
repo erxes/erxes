@@ -17,33 +17,45 @@ export const CreatorInfo = ({ contentDetail }: CreatorInfoProps) => {
   const githubTriage = isGithubTriage(contentDetail);
   const discordReport = isDiscordReported(contentDetail) ? contentDetail : null;
 
+  const renderAvatar = () => {
+    if (githubTriage) {
+      return <IconBrandGithub className="size-4" />;
+    }
+
+    if (discordReport) {
+      return <IconBrandDiscord className="size-4" />;
+    }
+
+    return <ActivityActor.Avatar />;
+  };
+
+  const renderLabel = () => {
+    if (githubTriage) {
+      return t('created-from-github-issue');
+    }
+
+    if (discordReport) {
+      return t('created-from-discord', {
+        defaultValue: 'Reported in Discord by @{{username}}',
+        username: discordReport.discordSource.username,
+      });
+    }
+
+    return (
+      <>
+        {t('created-by')} <ActivityActor.Name />
+      </>
+    );
+  };
+
   return (
     <ActivityActor.Provider actorId={contentDetail.createdBy}>
       <ActivityTimelineItem
-        avatar={
-          githubTriage ? (
-            <IconBrandGithub className="size-4" />
-          ) : discordReport ? (
-            <IconBrandDiscord className="size-4" />
-          ) : (
-            <ActivityActor.Avatar />
-          )
-        }
+        avatar={renderAvatar()}
         createdAt={contentDetail.createdAt?.toLocaleString()}
         id={contentDetail._id}
       >
-        {githubTriage ? (
-          t('created-from-github-issue')
-        ) : discordReport ? (
-          t('created-from-discord', {
-            defaultValue: 'Reported in Discord by @{{username}}',
-            username: discordReport.discordSource.username,
-          })
-        ) : (
-          <>
-            {t('created-by')} <ActivityActor.Name />
-          </>
-        )}
+        {renderLabel()}
       </ActivityTimelineItem>
     </ActivityActor.Provider>
   );

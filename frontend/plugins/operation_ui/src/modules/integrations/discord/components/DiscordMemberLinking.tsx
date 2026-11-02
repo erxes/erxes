@@ -25,9 +25,9 @@ import { IDiscordConnection } from '../types';
 
 export function DiscordMemberLinking({
   connection,
-}: {
+}: Readonly<{
   connection: IDiscordConnection;
-}) {
+}>) {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const [expanded, setExpanded] = useState(false);
@@ -60,6 +60,26 @@ export function DiscordMemberLinking({
         variant: 'destructive',
       }),
   });
+
+  function renderRedirectUri() {
+    if (redirectLoading) {
+      return <Spinner size="sm" containerClassName="h-auto justify-start" />;
+    }
+
+    if (redirectError) {
+      return <span className="text-destructive">{redirectError.message}</span>;
+    }
+
+    return (
+      <CopyText
+        value={redirectUri}
+        className="max-w-full rounded bg-accent px-2 py-1 font-mono text-xs text-foreground"
+      >
+        <span className="truncate">{redirectUri}</span>
+        <IconCopy className="size-3.5 shrink-0" />
+      </CopyText>
+    );
+  }
 
   function handleTurnOff() {
     confirm({
@@ -125,23 +145,7 @@ export function DiscordMemberLinking({
           <li>
             In the Discord Developer Portal, open this bot’s application, go to
             OAuth2 → Redirects and add this URL:
-            <div className="mt-1">
-              {redirectLoading ? (
-                <Spinner size="sm" containerClassName="h-auto justify-start" />
-              ) : redirectError ? (
-                <span className="text-destructive">
-                  {redirectError.message}
-                </span>
-              ) : (
-                <CopyText
-                  value={redirectUri}
-                  className="max-w-full rounded bg-accent px-2 py-1 font-mono text-xs text-foreground"
-                >
-                  <span className="truncate">{redirectUri}</span>
-                  <IconCopy className="size-3.5 shrink-0" />
-                </CopyText>
-              )}
-            </div>
+            <div className="mt-1">{renderRedirectUri()}</div>
           </li>
           <li>Copy the Client Secret from the same page and paste it below.</li>
         </ol>

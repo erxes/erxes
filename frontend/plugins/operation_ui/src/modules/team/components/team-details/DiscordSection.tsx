@@ -1,16 +1,15 @@
 import { IconChevronRight } from '@tabler/icons-react';
 import { ITeam } from '@/team/types';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-export const DiscordSection = ({ team }: { team: ITeam }) => {
+export const DiscordSection = ({ team }: Readonly<{ team: ITeam }>) => {
   const { t } = useTranslation('operation');
-  const navigate = useNavigate();
 
   return (
-    <div
-      className="mt-4 w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50 cursor-pointer"
-      onClick={() => navigate(`/operation/settings/team/discord/${team._id}`)}
+    <Link
+      to={`/operation/settings/team/discord/${team._id}`}
+      className="mt-4 block w-full border border-muted-foreground/15 rounded-md hover:bg-sidebar/50"
     >
       <section className="w-full p-4">
         <div className="flex items-center justify-between">
@@ -21,6 +20,6 @@ export const DiscordSection = ({ team }: { team: ITeam }) => {
           </div>
         </div>
       </section>
-    </div>
+    </Link>
   );
 };

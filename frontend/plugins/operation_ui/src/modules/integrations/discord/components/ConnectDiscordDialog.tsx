@@ -42,7 +42,7 @@ export function ConnectDiscordDialog({
   open,
   onClose,
   onConnected,
-}: ConnectDiscordDialogProps) {
+}: Readonly<ConnectDiscordDialogProps>) {
   const { toast } = useToast();
   const [checkedToken, setCheckedToken] = useState('');
   const form = useForm<TDiscordConnectForm>({

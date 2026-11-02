@@ -16,7 +16,7 @@ import {
 } from '../hooks/useDiscordAccount';
 import { IDiscordTeamMember } from '../types';
 
-function MemberLinkBadge({ member }: { member: IDiscordTeamMember }) {
+function MemberLinkBadge({ member }: Readonly<{ member: IDiscordTeamMember }>) {
   if (!member.link) {
     return <Badge variant="secondary">Not linked</Badge>;
   }
@@ -32,7 +32,7 @@ function MemberLinkBadge({ member }: { member: IDiscordTeamMember }) {
   return <Badge variant="secondary">Linked</Badge>;
 }
 
-export function TeamDiscordMembers({ teamId }: { teamId: string }) {
+export function TeamDiscordMembers({ teamId }: Readonly<{ teamId: string }>) {
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const { members, loading, error } = useDiscordTeamMembers(teamId);
@@ -59,6 +59,90 @@ export function TeamDiscordMembers({ teamId }: { teamId: string }) {
         variant: 'destructive',
       }),
   });
+
+  function renderMemberAction(member: IDiscordTeamMember) {
+    if (member.link) {
+      return (
+        <Button
+          size="sm"
+          variant="ghost"
+          onClick={() => handleUnlink(member)}
+          disabled={unlinking}
+        >
+          Unlink
+        </Button>
+      );
+    }
+
+    if (!linkingEnabled) {
+      return null;
+    }
+
+    return (
+      <Button
+        size="sm"
+        variant="secondary"
+        onClick={() =>
+          remindMember({ variables: { teamId, userId: member.userId } })
+        }
+        disabled={reminding}
+      >
+        Remind
+      </Button>
+    );
+  }
+
+  function renderMembers() {
+    if (loading && !members.length) {
+      return (
+        <div className="flex justify-center py-8">
+          <Spinner />
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <Alert variant="destructive">
+          <Alert.Description>
+            Failed to load the team’s Discord accounts. Please refresh.
+          </Alert.Description>
+        </Alert>
+      );
+    }
+
+    if (!members.length) {
+      return (
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          This team has no members yet.
+        </p>
+      );
+    }
+
+    return (
+      <div className="divide-y divide-border">
+        {members.map((member) => (
+          <div
+            key={member.userId}
+            className="flex items-center justify-between gap-3 py-2"
+          >
+            <div className="min-w-0 flex-1 truncate">
+              <MembersInline memberIds={[member.userId]} />
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {member.link ? (
+                <span className="text-xs text-muted-foreground">
+                  @{member.link.username}
+                </span>
+              ) : null}
+              <MemberLinkBadge member={member} />
+              {renderMemberAction(member)}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   function handleUnlink(member: IDiscordTeamMember) {
     confirm({
@@ -89,65 +173,7 @@ export function TeamDiscordMembers({ teamId }: { teamId: string }) {
           </Alert>
         ) : null}
 
-        {loading && !members.length ? (
-          <div className="flex justify-center py-8">
-            <Spinner />
-          </div>
-        ) : error ? (
-          <Alert variant="destructive">
-            <Alert.Description>
-              Failed to load the team’s Discord accounts. Please refresh.
-            </Alert.Description>
-          </Alert>
-        ) : members.length === 0 ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            This team has no members yet.
-          </p>
-        ) : (
-          <div className="divide-y divide-border">
-            {members.map((member) => (
-              <div
-                key={member.userId}
-                className="flex items-center justify-between gap-3 py-2"
-              >
-                <div className="min-w-0 flex-1 truncate">
-                  <MembersInline memberIds={[member.userId]} />
-                </div>
-                <div className="flex shrink-0 items-center gap-2">
-                  {member.link ? (
-                    <span className="text-xs text-muted-foreground">
-                      @{member.link.username}
-                    </span>
-                  ) : null}
-                  <MemberLinkBadge member={member} />
-                  {member.link ? (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleUnlink(member)}
-                      disabled={unlinking}
-                    >
-                      Unlink
-                    </Button>
-                  ) : linkingEnabled ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() =>
-                        remindMember({
-                          variables: { teamId, userId: member.userId },
-                        })
-                      }
-                      disabled={reminding}
-                    >
-                      Remind
-                    </Button>
-                  ) : null}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        {renderMembers()}
       </Card.Content>
     </Card>
   );
