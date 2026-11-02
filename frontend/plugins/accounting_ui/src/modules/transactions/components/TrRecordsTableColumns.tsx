@@ -60,19 +60,31 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+const SideAmountCell = ({
+  row,
+  columnSide,
+}: {
+  row: Row<ITrRecord>;
+  columnSide: string;
+}) => {
   const { details, side } = row.original;
-  const { amount } = details ?? {};
 
-  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
+  if (!side) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+
+  return (
+    <AmountCell value={side === columnSide ? fixNum(details?.amount) : 0} />
+  );
 };
 
-const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} columnSide={TR_SIDES.DEBIT} />
+);
 
-  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
-};
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} columnSide={TR_SIDES.CREDIT} />
+);
 
 const AmountItemCell = ({
   row,

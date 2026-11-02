@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -34,7 +34,7 @@
 - Displays, creates, updates, prints, and removes accounting transactions.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
-- Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
+- Transaction record rows place each detail amount in the debit or credit column using the transaction-level side. A record with no side shows `-` in both columns, never `0`.
 - Transaction record tables initialize journal-specific columns before the table provider mounts so structural action and checkbox columns retain their fixed width.
 - Keeps cash, bank, payable, and receivable transaction main-currency and foreign-currency amounts manually editable while syncing the paired amount from exchange rates without update cycles.
 - Provides adjustment navigation and pages for inventory, fixed asset, fund rate, and debt rate adjustments.
