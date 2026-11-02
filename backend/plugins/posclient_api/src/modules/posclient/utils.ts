@@ -9,6 +9,7 @@ import { IModels } from '~/connectionResolvers';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import {
   BILL_TYPES,
+  ORDER_INVOICE_CONTENT_TYPES,
   ORDER_SALE_STATUS,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
@@ -263,12 +264,25 @@ const getPaidInvoices = (subdomain: string, _id: string) =>
     method: 'query',
     module: 'invoices',
     action: 'find',
-    input: { contentTypeId: _id, status: 'paid' },
+    input: {
+      contentTypeId: _id,
+      contentType: { $in: ORDER_INVOICE_CONTENT_TYPES },
+      status: 'paid',
+    },
     defaultValue: [],
   });
 
 const paymentNotConfirmed = () =>
   new ExpectedError('Order payment is not confirmed', 'FORBIDDEN');
+
+const assertReceiptType = (order: IOrderDocument, billType: string) => {
+  if (billType === BILL_TYPES.ENTITY && order.billType === BILL_TYPES.CITIZEN) {
+    throw new ExpectedError(
+      'Order is already settled with a citizen receipt',
+      'CONFLICT',
+    );
+  }
+};
 
 const waitForSettlement = async (models: IModels, _id: string) => {
   for (let attempt = 0; attempt < SETTLE_WAIT_ATTEMPTS; attempt++) {
@@ -323,6 +337,8 @@ export const settleFromPaidInvoices = async (
   const order = await models.Orders.getOrder(_id);
 
   if (order.paidDate) {
+    assertReceiptType(order, billType);
+
     return order;
   }
 
@@ -347,6 +363,8 @@ export const settleFromPaidInvoices = async (
   if (!settledOrder.paidDate) {
     throw paymentNotConfirmed();
   }
+
+  assertReceiptType(settledOrder, billType);
 
   return settledOrder;
 };
