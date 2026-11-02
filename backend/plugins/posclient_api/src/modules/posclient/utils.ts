@@ -20,7 +20,9 @@ import {
 } from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
+  checkOrderLines,
   checkOrderStatus,
+  checkOrderType,
   prepareEbarimtData,
   validateOrderPayment,
 } from '~/modules/posclient/utils/orderUtils';
@@ -314,6 +316,8 @@ export const recordPaidInvoices = async (
     throw paymentNotConfirmed();
   }
 
+  checkOrderType(order);
+
   await updateMobileAmount(subdomain, models, invoices, { deferReceipt: true });
 
   const recordedOrder = await models.Orders.getOrder(_id);
@@ -347,6 +351,8 @@ export const settleFromPaidInvoices = async (
   if (!invoices.length) {
     throw paymentNotConfirmed();
   }
+
+  checkOrderType(order);
 
   if (!order.userId && PORTAL_BILL_TYPES.includes(billType)) {
     await models.Orders.updateOne(
@@ -408,6 +414,8 @@ export const prepareSettlePayment = async (
       orderId: order._id,
     }).lean();
 
+    checkOrderType(order);
+    checkOrderLines(order, items);
     validateOrderPayment(order, { billType });
 
     const ebarimtResponses: any[] = [];

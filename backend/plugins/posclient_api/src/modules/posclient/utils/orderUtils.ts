@@ -119,6 +119,9 @@ const validDueDate = (doc: IOrderInput, order?: IOrderDocument) => {
   return false;
 };
 
+const isNegativeLine = (item: { count?: number; unitPrice?: number }) =>
+  (item.count || 0) < 0 || (item.unitPrice || 0) < 0;
+
 export const validateOrder = async (
   subdomain: string,
   models: IModels,
@@ -127,6 +130,14 @@ export const validateOrder = async (
   order?: IOrderDocument,
 ) => {
   const { items = [] } = doc;
+
+  if (items.some(isNegativeLine)) {
+    throw new Error('Order lines cannot be negative');
+  }
+
+  if (doc.dueDate && Number.isNaN(new Date(doc.dueDate).getTime())) {
+    throw new Error('Invalid due date');
+  }
 
   if (!items.filter((i) => !i.isPackage).length) {
     throw new Error('Products missing in order. Please add products');
@@ -256,6 +267,7 @@ export const updateOrderItems = async (
   models: IModels,
 ) => {
   const oldItems = await models.OrderItems.find({
+    orderId,
     _id: { $in: items.map((item) => item._id) },
   }).lean();
 
@@ -728,6 +740,27 @@ export const checkOrderStatus = (order: IOrderDocument) => {
   }
 };
 
+export const checkOrderType = (order: IOrderDocument) => {
+  if (!ORDER_TYPES.SALES.includes(order.type || '')) {
+    throw new Error(
+      'Зөвхөн борлуулах төрөлтэй захиалгын төлбөрийг төлөх боломжтой',
+    );
+  }
+};
+
+export const checkOrderLines = (
+  order: IOrderDocument,
+  items: IOrderItemDocument[],
+) => {
+  if (items.some(isNegativeLine)) {
+    throw new Error('Order lines cannot be negative');
+  }
+
+  if (Math.abs(getTotalAmount(items) - order.totalAmount) >= 1) {
+    throw new Error('Order lines do not match the order total');
+  }
+};
+
 export const checkOrderAmount = (order: IOrderDocument, amount: number) => {
   const { cashAmount = 0, mobileAmount = 0, paidAmounts } = order;
 
@@ -860,10 +893,12 @@ export const checkCouponCode = async ({
 export const reverseItemStatus = async (
   models: IModels,
   items: IOrderItemInput[],
+  orderId: string,
 ) => {
   const newPreparedDocItems: IOrderItemInput[] = [...items];
   try {
     const oldOrderItems = await models.OrderItems.find({
+      orderId,
       _id: { $in: items.map((item) => item._id) },
     }).lean();
     if (oldOrderItems) {

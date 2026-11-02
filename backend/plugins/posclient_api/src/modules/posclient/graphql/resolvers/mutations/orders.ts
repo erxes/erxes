@@ -434,23 +434,47 @@ export const ordersAdd = async (
   }
 };
 
+const clearLineDiscounts = (items: IOrderItemInput[] = []) =>
+  items.map((item) => ({
+    ...item,
+    discountAmount: undefined,
+    discountPercent: undefined,
+    discountInfos: undefined,
+  }));
+
+const restoreLineDiscounts = async (
+  models: IModels,
+  orderId: string,
+  items: IOrderItemInput[],
+) => {
+  const storedItems = await models.OrderItems.find({ orderId }).lean();
+
+  return items.map((item) => {
+    const storedItem = storedItems.find(
+      ({ _id, productId }) => _id === item._id && productId === item.productId,
+    );
+
+    if (!storedItem) {
+      return item;
+    }
+
+    const { discountAmount, discountPercent, discountInfos } = storedItem;
+
+    return { ...item, discountAmount, discountPercent, discountInfos };
+  });
+};
+
 const applyOrderEdit = async (
   doc: IOrderEditParams,
-  {
-    posUser,
-    config,
-    models,
-    subdomain,
-  }: {
-    posUser?: IPosUserDocument;
-    config: IConfigDocument;
-    models: IModels;
-    subdomain: string;
-  },
+  { posUser, config, models, subdomain, useStoredDiscounts }: OrderMutationCtx,
 ) => {
   const order = await models.Orders.getOrder(doc._id);
 
   checkOrderStatus(order);
+
+  if (useStoredDiscounts) {
+    doc.items = await restoreLineDiscounts(models, doc._id, doc.items);
+  }
 
   const before = await getOrderChangeSnapshot(models, doc._id);
 
@@ -475,7 +499,11 @@ const applyOrderEdit = async (
     posUser,
   );
 
-  preparedDoc.items = await reverseItemStatus(models, preparedDoc.items);
+  preparedDoc.items = await reverseItemStatus(
+    models,
+    preparedDoc.items,
+    doc._id,
+  );
 
   await updateOrderItems(doc._id, preparedDoc.items, models);
 
@@ -609,6 +637,7 @@ type OrderMutationCtx = {
   config: IConfigDocument;
   models: IModels;
   subdomain: string;
+  useStoredDiscounts?: boolean;
 };
 
 async function findOpenQrMenuOrderForSlot(
@@ -689,13 +718,10 @@ async function applyOrderSaleStatusChange(
   _id: string,
   saleStatus: string,
 ) {
-  const oldOrder = await models.Orders.getOrder(_id);
-
-  await models.Orders.updateOrder(_id, {
-    ...oldOrder,
-    saleStatus,
-    modifiedAt: new Date(),
-  });
+  await models.Orders.updateOne(
+    { _id },
+    { $set: { saleStatus, modifiedAt: new Date() } },
+  );
 
   return models.Orders.getOrder(_id);
 }
@@ -744,6 +770,10 @@ const orderMutations: Record<string, Resolver> = {
       throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
     }
 
+    if (!posUser) {
+      doc.items = clearLineDiscounts(doc.items);
+    }
+
     const merged = await tryMergeQrMenuIntoExistingSlotOrder(doc, {
       posUser,
       config,
@@ -766,7 +796,17 @@ const orderMutations: Record<string, Resolver> = {
       throw new ExpectedError('Client portal user required', 'UNAUTHORIZED');
     }
 
-    return ordersEdit(doc, { posUser, config, models, subdomain });
+    if (!posUser) {
+      doc.items = clearLineDiscounts(doc.items);
+    }
+
+    return ordersEdit(doc, {
+      posUser,
+      config,
+      models,
+      subdomain,
+      useStoredDiscounts: !posUser,
+    });
   },
 
   async ordersEdit(
