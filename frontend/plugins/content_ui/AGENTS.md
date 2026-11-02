@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -107,6 +107,9 @@
   failures with a toast instead of silently doing nothing.
 - Post form category option labels show the full parent path, while option
   values remain category IDs and multiple selections remain available.
+- `LanguageSelector` drops the empty value Radix Select emits when the current
+  language has no matching option. Passing it on loops with the editor's
+  language effect and starves route changes.
 - Asynchronous legacy HTML restoration must capture a revision before parsing
   and must not replace editor blocks after a newer user edit.
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
