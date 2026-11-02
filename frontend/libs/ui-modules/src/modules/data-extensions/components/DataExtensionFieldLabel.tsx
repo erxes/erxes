@@ -18,7 +18,7 @@ export const DataExtensionFieldLabel = ({
     <Label
       htmlFor={htmlFor}
       className={cn(
-        'truncate text-xs font-medium text-accent-foreground',
+        'truncate font-sans text-xs font-medium normal-case tracking-normal text-accent-foreground',
         field.description && 'cursor-help',
         className,
       )}

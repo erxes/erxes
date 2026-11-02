@@ -8,7 +8,7 @@ import {
 } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, ScrollArea, Skeleton } from 'erxes-ui';
 import { useAtom } from 'jotai';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { companyCustomActivities } from '@/contacts/companies/company-detail/CompanyActivityRows';
 import { AssistantPanel } from './chat/AssistantPanel';
@@ -25,6 +25,7 @@ import { CompanyPanelDetail } from './details/CompanyPanelDetail';
 import { CompanyPanelProperties } from './details/CompanyPanelProperties';
 import { CompanyPanelNew } from './details/CompanyPanelNew';
 import { CustomerPanelDetail } from './details/CustomerPanelDetail';
+import { DataExtensionsDetailSection } from './details/DataExtensionsDetailSection';
 import { CustomerPanelNew } from './details/CustomerPanelNew';
 import { CustomerPanelProperties } from './details/CustomerPanelProperties';
 import { PluginRecordPanel } from './PluginRecordPanel';
@@ -42,6 +43,7 @@ import {
   TRelationEntity,
   useCompanyDetail,
   useCustomerDetail,
+  useDataExtensionRecordName,
   useDataExtensionRecordTypes,
   useRelationWidgetTabs,
   useSidePanel,
@@ -53,18 +55,28 @@ const DATA_EXTENSIONS_TAB = 'data-extensions';
 const RELATIONS_TAB = 'relations';
 const ACTIVITY_TAB = 'activity';
 
-// The record's own views, for the types core knows how to show.
-const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
+// The record's own views, for the types core knows how to show. `extra`
+// is drawn under the record's own fields in the Detail tab.
+const getRecordViews = (
+  { contentType, contentId }: TRelationEntity,
+  extra?: ReactNode,
+) => {
   if (contentType === 'core:customer') {
     return {
-      detail: <CustomerPanelDetail customerId={contentId} />,
+      detail: (
+        <CustomerPanelDetail customerId={contentId}>
+          {extra}
+        </CustomerPanelDetail>
+      ),
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
 
   if (contentType === 'core:company') {
     return {
-      detail: <CompanyPanelDetail companyId={contentId} />,
+      detail: (
+        <CompanyPanelDetail companyId={contentId}>{extra}</CompanyPanelDetail>
+      ),
       properties: <CompanyPanelProperties companyId={contentId} />,
     };
   }
@@ -131,6 +143,15 @@ const useRecordHeading = (
     { variables: { _id: contentId }, skip: !isCompany },
     true,
   );
+  // A custom object's record, opened from a link: titled by its name.
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const customType = contentType.startsWith('custom:')
+    ? recordTypes.find((recordType) => recordType.recordType === contentType)
+    : undefined;
+  const { name: customName } = useDataExtensionRecordName(
+    customType,
+    contentId,
+  );
 
   if (isCustomer && customerDetail) {
     const { firstName, lastName, primaryEmail, primaryPhone, avatar } =
@@ -179,6 +200,13 @@ const useRecordHeading = (
     };
   }
 
+  if (customType) {
+    return {
+      title: customName || <Skeleton className="h-4 w-32" />,
+      avatar: undefined,
+    };
+  }
+
   return { title: getContentTypeLabel(contentType), avatar: undefined };
 };
 
@@ -222,17 +250,8 @@ const SidePanelSavedRecord = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const coreViews = getRecordViews(record);
-  // Types core has no views for may be drawn by the plugin owning them.
-  const { pluginName, hasProperties } = useRecordPanelPlugin(
-    record.contentType,
-  );
-  const panelPluginName = coreViews ? null : pluginName;
-  const { title, avatar } = useRecordHeading(record, panelPluginName);
-  const views =
-    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   // Data Extension fields of any record type registered for this content
-  // type, the same for core and plugin records.
+  // type, the same for core and plugin records: a group of the Detail tab.
   const { t: tDataExtensions } = useTranslation('dataExtensions');
   const { recordTypes } = useDataExtensionRecordTypes();
   const hasDataExtensions = recordTypes.some(
@@ -240,6 +259,39 @@ const SidePanelSavedRecord = ({
       recordType.fieldCount &&
       recordType.contentTypes.includes(record.contentType),
   );
+  const extensionSection = hasDataExtensions ? (
+    <DataExtensionsDetailSection
+      contentType={record.contentType}
+      recordId={record.contentId}
+    />
+  ) : null;
+  const coreViews = getRecordViews(record, extensionSection);
+  // Types core has no views for may be drawn by the plugin owning them.
+  const { pluginName, hasProperties } = useRecordPanelPlugin(
+    record.contentType,
+  );
+  const panelPluginName = coreViews ? null : pluginName;
+  const { title, avatar } = useRecordHeading(record, panelPluginName);
+  const pluginViews = coreViews
+    ? null
+    : getPluginRecordViews(record, panelPluginName, hasProperties);
+  // A plugin draws its own detail; the custom fields follow it.
+  const views =
+    coreViews ||
+    (pluginViews && extensionSection
+      ? {
+          ...pluginViews,
+          detail: (
+            <ScrollArea
+              className="flex-1 min-h-0"
+              viewportClassName="[&>div]:block!"
+            >
+              {pluginViews.detail}
+              {extensionSection}
+            </ScrollArea>
+          ),
+        }
+      : pluginViews);
   const relationTabs = useRelationWidgetTabs({
     ...record,
     // Linked customers and companies are in a contact's Detail tab already.
@@ -308,7 +360,9 @@ const SidePanelSavedRecord = ({
         ),
       }))
     : [];
-  const [tab, setTab] = useState(views ? DETAIL_TAB : ACTIVITY_TAB);
+  const [tab, setTab] = useState(
+    views ? DETAIL_TAB : hasDataExtensions ? DATA_EXTENSIONS_TAB : ACTIVITY_TAB,
+  );
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -331,7 +385,8 @@ const SidePanelSavedRecord = ({
             : []),
         ]
       : []),
-    ...(hasDataExtensions
+    // A record without a Detail tab keeps its custom fields in a tab.
+    ...(hasDataExtensions && !views
       ? [
           {
             value: DATA_EXTENSIONS_TAB,

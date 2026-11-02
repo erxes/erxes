@@ -1,10 +1,13 @@
-import { Badge, Input, Textarea } from 'erxes-ui';
+import { IconPencil, IconPlus } from '@tabler/icons-react';
+import { Badge, badgeVariants, Button, cn, Input, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules/modules/widget/record-side-panel/useSidePanel';
 import { useDataExtensionRecordTypes } from '../hooks/useDataExtensionRecordTypes';
 import {
   DataExtensionValue,
   IDataExtensionField,
   IDataExtensionLinkedRecord,
+  IDataExtensionRecordType,
   isListRelation,
 } from '../types';
 import { LINKED_RECORDS_PAGE } from '../utils/typedOperations';
@@ -13,26 +16,82 @@ import {
   DataExtensionRecordPicker,
 } from './DataExtensionRecordPicker';
 
+/**
+ * The content type the record side panel opens a linked record as, or none
+ * when it has no single one: team members have their own screens, and
+ * vendors and clients may be a company or a customer.
+ */
+export const sidePanelContentTypeOf = (
+  recordType: string,
+  recordTypes: IDataExtensionRecordType[],
+) => {
+  const descriptor = recordTypes.find(
+    (candidate) => candidate.recordType === recordType,
+  );
+
+  if (
+    !descriptor ||
+    recordType === 'core:teamMember' ||
+    descriptor.contentTypes.length !== 1
+  ) {
+    return null;
+  }
+
+  return descriptor.contentTypes[0];
+};
+
+/** Linked records; each opens in the side panel when it has a view there. */
 const LinkedRecords = ({
   records,
   emptyLabel,
+  recordType,
 }: {
   records: IDataExtensionLinkedRecord[];
-  emptyLabel: string;
-}) =>
-  records.length ? (
+  emptyLabel?: string;
+  recordType: string;
+}) => {
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const { open, openRecord } = useSidePanel();
+  const contentType = sidePanelContentTypeOf(recordType, recordTypes);
+
+  if (!records.length) {
+    return emptyLabel ? (
+      <p className="text-xs text-muted-foreground">{emptyLabel}</p>
+    ) : null;
+  }
+
+  return (
     <ul className="flex flex-wrap gap-1.5">
       {records.map((record) => (
         <li key={record._id}>
-          <Badge variant="secondary" title={record._id}>
-            {record.name}
-          </Badge>
+          {contentType ? (
+            <button
+              type="button"
+              title={record.name}
+              className={cn(
+                badgeVariants({ variant: 'secondary' }),
+                'cursor-pointer hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              )}
+              onClick={() =>
+                // From inside the panel it stacks, so Back returns here.
+                openRecord(
+                  { contentType, contentId: record._id },
+                  { stack: open },
+                )
+              }
+            >
+              {record.name}
+            </button>
+          ) : (
+            <Badge variant="secondary" title={record._id}>
+              {record.name}
+            </Badge>
+          )}
         </li>
       ))}
     </ul>
-  ) : (
-    <p className="text-xs text-muted-foreground">{emptyLabel}</p>
   );
+};
 
 /**
  * Edits a relation from either side: the link a record stores, or the
@@ -71,7 +130,11 @@ export const DataExtensionRelationValue = ({
 
     return (
       <div id={id} className="flex flex-col gap-1.5">
-        <LinkedRecords records={links} emptyLabel={t('values.no-links-here')} />
+        <LinkedRecords
+          records={links}
+          emptyLabel={t('values.no-links-here')}
+          recordType={relation.targetRecordType}
+        />
         <p className="text-xs text-muted-foreground">
           {t('values.too-many-links', {
             count: LINKED_RECORDS_PAGE,
@@ -86,32 +149,58 @@ export const DataExtensionRelationValue = ({
 
   if (canPickRecordType(relation.targetRecordType, recordTypes)) {
     const list = isListRelation(relation);
+    const ids = list
+      ? Array.isArray(value)
+        ? (value as unknown[]).filter(
+            (id): id is string => typeof id === 'string',
+          )
+        : []
+      : typeof value === 'string'
+      ? [value]
+      : [];
+    // Names of the links still in the draft; a link just picked shows once
+    // the save returns its name.
+    const shown = links.filter((link) => ids.includes(link._id));
 
     return (
-      <DataExtensionRecordPicker
-        id={id}
-        recordType={relation.targetRecordType}
-        known={links}
-        mode={list ? 'multiple' : 'single'}
-        value={
-          list
-            ? Array.isArray(value)
-              ? (value as unknown[]).filter(
-                  (id): id is string => typeof id === 'string',
-                )
-              : []
-            : typeof value === 'string'
-            ? value
-            : undefined
-        }
-        onChange={(next) => {
-          const ids = (Array.isArray(next) ? next : next ? [next] : []).filter(
-            Boolean,
-          );
+      <div className="flex flex-wrap items-center gap-1.5">
+        <LinkedRecords records={shown} recordType={relation.targetRecordType} />
+        <DataExtensionRecordPicker
+          id={id}
+          recordType={relation.targetRecordType}
+          known={links}
+          mode={list ? 'multiple' : 'single'}
+          trigger={
+            ids.length ? (
+              <Button
+                id={id}
+                variant="ghost"
+                size="icon"
+                className="size-6"
+                aria-label={t('values.change-links')}
+                title={t('values.change-links')}
+              >
+                <IconPencil />
+              </Button>
+            ) : (
+              <Button id={id} variant="ghost" size="sm" className="h-6 px-1.5">
+                <IconPlus />
+                {t('values.add-link')}
+              </Button>
+            )
+          }
+          value={list ? ids : ids[0]}
+          onChange={(next) => {
+            const picked = (
+              Array.isArray(next) ? next : next ? [next] : []
+            ).filter(Boolean);
 
-          onChange(list ? (ids.length ? ids : null) : ids[0] || null);
-        }}
-      />
+            onChange(
+              list ? (picked.length ? picked : null) : picked[0] || null,
+            );
+          }}
+        />
+      </div>
     );
   }
 
@@ -134,7 +223,11 @@ export const DataExtensionRelationValue = ({
             onChange(next.length ? next : null);
           }}
         />
-        <LinkedRecords records={links} emptyLabel={t('values.no-links')} />
+        <LinkedRecords
+          records={links}
+          emptyLabel={t('values.no-links')}
+          recordType={relation.targetRecordType}
+        />
       </div>
     );
   }
@@ -148,7 +241,11 @@ export const DataExtensionRelationValue = ({
         value={typeof value === 'string' ? value : ''}
         onChange={(event) => onChange(event.target.value.trim() || null)}
       />
-      <LinkedRecords records={links} emptyLabel={t('values.no-links')} />
+      <LinkedRecords
+        records={links}
+        emptyLabel={t('values.no-links')}
+        recordType={relation.targetRecordType}
+      />
     </div>
   );
 };

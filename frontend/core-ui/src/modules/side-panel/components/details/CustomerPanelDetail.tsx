@@ -14,7 +14,7 @@ import {
   Switch,
   TextField,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CustomerEmails,
@@ -193,7 +193,14 @@ const CustomerDescriptionField = ({
 };
 
 // The customer's fields as record table cells: click a value to edit it.
-export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
+export const CustomerPanelDetail = ({
+  customerId,
+  children,
+}: {
+  customerId: string;
+  /** Sections drawn under the customer's own fields, such as custom fields. */
+  children?: ReactNode;
+}) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
   const { customerDetail, loading } = useCustomerDetail({
@@ -323,6 +330,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
         </PanelField>
         <CustomerDescriptionField customer={customer} />
       </div>
+      {children}
     </ScrollArea>
   );
 };

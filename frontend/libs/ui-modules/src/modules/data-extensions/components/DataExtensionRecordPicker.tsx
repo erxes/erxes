@@ -39,9 +39,12 @@ export const DataExtensionRecordPicker = ({
   onChange,
   id,
   known,
+  trigger,
 }: PickerProps & {
   recordType: string;
   known?: IDataExtensionLinkedRecord[];
+  /** Opens the picker instead of the default select-like trigger. */
+  trigger?: ReactNode;
 }) => {
   const [open, setOpen] = useState(false);
   const { recordTypes } = useDataExtensionRecordTypes();
@@ -55,9 +58,13 @@ export const DataExtensionRecordPicker = ({
 
   const popover = (valueNode: ReactNode, contentNode: ReactNode) => (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger id={id} className="w-full shadow-xs">
-        {valueNode}
-      </Combobox.Trigger>
+      {trigger ? (
+        <Popover.Trigger asChild>{trigger}</Popover.Trigger>
+      ) : (
+        <Combobox.Trigger id={id} className="w-full shadow-xs">
+          {valueNode}
+        </Combobox.Trigger>
+      )}
       <Combobox.Content>{contentNode}</Combobox.Content>
     </Popover>
   );
@@ -114,6 +121,7 @@ export const DataExtensionRecordPicker = ({
       value={value}
       known={known}
       onChange={onChange}
+      trigger={trigger}
     />
   );
 };

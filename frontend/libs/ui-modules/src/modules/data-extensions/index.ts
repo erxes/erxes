@@ -18,3 +18,4 @@ export * from './components/DataExtensionValueDisplay';
 export * from './utils/fieldDisplay';
 export * from './hooks/useDataExtensionRecordList';
 export * from './hooks/useDataExtensionAggregate';
+export * from './hooks/useDataExtensionRecordName';

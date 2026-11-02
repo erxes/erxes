@@ -1,7 +1,7 @@
 import { gql, useApolloClient } from '@apollo/client';
 import { IconX } from '@tabler/icons-react';
 import { Combobox, Command, Popover, Skeleton } from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDebounce } from 'use-debounce';
 import { IDataExtensionLinkedRecord, IDataExtensionRecordType } from '../types';
@@ -38,6 +38,7 @@ export const DataExtensionRecordSearchPicker = ({
   onChange,
   id,
   known = [],
+  trigger,
 }: {
   recordType: IDataExtensionRecordType;
   value: string | string[] | undefined;
@@ -46,6 +47,8 @@ export const DataExtensionRecordSearchPicker = ({
   id?: string;
   /** Records already resolved by the caller, used for names. */
   known?: IDataExtensionLinkedRecord[];
+  /** Opens the picker instead of the default select-like trigger. */
+  trigger?: ReactNode;
 }) => {
   const { t } = useTranslation('dataExtensions');
   const client = useApolloClient();
@@ -184,12 +187,16 @@ export const DataExtensionRecordSearchPicker = ({
         }
       }}
     >
-      <Combobox.Trigger id={id} className="w-full shadow-xs">
-        <Combobox.Value
-          value={display}
-          placeholder={t('values.pick-records', { label })}
-        />
-      </Combobox.Trigger>
+      {trigger ? (
+        <Popover.Trigger asChild>{trigger}</Popover.Trigger>
+      ) : (
+        <Combobox.Trigger id={id} className="w-full shadow-xs">
+          <Combobox.Value
+            value={display}
+            placeholder={t('values.pick-records', { label })}
+          />
+        </Combobox.Trigger>
+      )}
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.Input

@@ -193,7 +193,9 @@
     "rating-of": "{{value}} of {{scale}}",
     "upload": "Upload files",
     "remove-file": "Remove {{name}}",
-    "json-invalid": "Not valid JSON yet. Use an object { } or a list [ ]."
+    "json-invalid": "Not valid JSON yet. Use an object { } or a list [ ].",
+    "change-links": "Change links",
+    "add-link": "Link"
   },
   "api": {
     "title": "Typed API for this record type",
