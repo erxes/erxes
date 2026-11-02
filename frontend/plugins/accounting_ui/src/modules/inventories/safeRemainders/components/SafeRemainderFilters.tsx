@@ -6,7 +6,15 @@ import {
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import {
+  AccountsFilterTrStatus,
+  FilterBarTrStatus,
+} from '@/settings/account/components/filters/FilterHelpers';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
+import {
+  SAFE_REMAINDER_STATUS_LABELS,
+  SAFE_REMAINDER_STATUSES,
+} from '@/inventories/safeRemainders/types/SafeRemainder';
 
 const SafeRemainderFilterPopover = () => {
   const { t } = useTranslation('accounting');
@@ -44,7 +52,7 @@ const SafeRemainderFilterPopover = () => {
                   value="departmentId"
                   label={t('department')}
                 />
-                <Filter.Item value="statuses" disabled={true}>
+                <Filter.Item value="statuses">
                   <IconToggleRightFilled />
                   {t('statuses')}
                 </Filter.Item>
@@ -77,6 +85,12 @@ const SafeRemainderFilterPopover = () => {
             mode="single"
             filterKey="departmentId"
           />
+          <Filter.View filterKey="statuses">
+            <AccountsFilterTrStatus
+              statuses={SAFE_REMAINDER_STATUSES.ALL}
+              labels={SAFE_REMAINDER_STATUS_LABELS}
+            />
+          </Filter.View>
 
           <SelectMember.FilterView mode="single" queryKey="createdUserId" />
           <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
@@ -149,6 +163,11 @@ export const SafeRemainderFilter = ({
           label={t('department')}
           filterKey="departmentId"
           mode="single"
+        />
+        <FilterBarTrStatus
+          labelKey="statuses"
+          statuses={SAFE_REMAINDER_STATUSES.ALL}
+          labels={SAFE_REMAINDER_STATUS_LABELS}
         />
 
         <SelectMember.FilterBar

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -32,6 +32,8 @@
 - Job master, item, cost and unwound-output response types derive from generated fragments/queries. Lists, details and selectors preserve nullable response fields; only `jobFormValues` converts them to editable form defaults, reused when selecting execution jobs. Do not restore response-wide `normalizeJob` adapters or handwritten Job response interfaces.
 - Rspack awaits gateway schema composition and codegen before its first build or watch compilation, including remotes launched directly by the Module Federation host without Nx task dependencies.
 - Displays, creates, updates, prints, and removes accounting transactions.
+- Transaction filters include account type, account status, account category (with its child categories), and off-balance account through the `accountKind`, `accountStatus`, `accountCategoryId`, and `accountIsOutBalance` query params. The same variables drive the list, record list, and export.
+- The safe remainder list filters by one or more count statuses through the `statuses` query param.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
 - Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
@@ -134,7 +136,7 @@
 | Pages               | `src/pages`                                                                                                        | Exposes route-level page components for accounting surfaces.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Relation widgets    | `src/widgets/relation/RelationWidgets.tsx`                                                                         | Provides accounting relation widget exports.                                                                                                                                                                                                                                                                                                                                                                                                                               |
 | Settings panels     | `src/modules/settings/components/panel`                                                                            | Shared side panel building blocks for settings records: draft form, detail layout, title, activity, add button, delete action, and inline fields.                                                                                                                                                                                                                                                                                                                          |
-| Record panel        | `src/widgets/record-panel/RecordPanel.tsx`                                                                         | `./recordPanel` remote mapping each settings, fixed asset, fixed asset custodian, adjustment and safe remainder content type (`RECORD_PANELS`) to its `ISettingsPanelViews` (new, title, actions, detail) plus shared activity in the core side panel.                                                                                                                                                                                                                                                         |
+| Record panel        | `src/widgets/record-panel/RecordPanel.tsx`                                                                         | `./recordPanel` remote mapping each settings, fixed asset, fixed asset custodian, adjustment and safe remainder content type (`RECORD_PANELS`) to its `ISettingsPanelViews` (new, title, actions, detail) plus shared activity in the core side panel.                                                                                                                                                                                                                     |
 | Adjustment panels   | `src/modules/adjustments/components/AdjustPanelFields.tsx`, `src/modules/adjustments/constants/adjustmentPanel.ts` | Shared adjustment panel rows and adjustment content types.                                                                                                                                                                                                                                                                                                                                                                                                                 |
 
 ## Contracts
@@ -201,11 +203,14 @@
 - Inventory row defaults initialize count to one; bulk-added rows also initialize all count-derived amount and weight values, batch journal-specific last-price, product, or current-cost lookup before append, and preserve sale/sale-return follow-journal unit cost by generated detail id.
 - Jotai atoms under `src/modules/transactions/transaction-form/states` hold transaction form UI state, tax percentages, follow transactions, and rendering selections.
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
+- `settings/account/components/filters/FilterHelpers.tsx` is the single source for account filter views and bar items. Reuse them on other pages through `queryKey`, `filterKey`, and `labelKey`; `AccountsFilterTrStatus` and `FilterBarTrStatus` also take `statuses` and `labels` so other documents reuse the same multi-select.
+- Filter helpers read the cursor key from the surrounding `Filter sessionKey`, so a filter change resets the table cursor. Transaction filters pass `ACCTRANSACTIONS_CURSOR_SESSION_KEY`, the key `useTransactionsVariables` reads on both the main and record lists.
 - Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
 
+- Use `accountIsOutBalance`, never the top-level `isOutBalance`, for the transaction off-balance filter; the backend reads only the account-prefixed argument.
 - Never render a raw record id as visible text. Resolve names (`AccountsInline`, `SelectBranches.InlineCell`, `useStageDetail`, `POS_DETAIL`, job/transaction lookups) and fall back to `-` or a translated label such as `untitled-rule`; ids stay only in values, keys and URLs.
 - Check-sync rule pickers label untitled rules by their POS name (order) or sales stage name (deal), then `untitled-rule`, and pass that label as `Command.Item` `keywords` so search matches what users see. Adjustment detail transaction columns show document numbers via `adjustments/utils/getTransactionNumbers.ts`.
 - Fixed asset adjustment GraphQL documents and hooks live in `src/modules/adjustments/fxa`; add, remove, run and transaction mutations each own a document and hook file. Header and depreciation-row queries share `graphql/adjustFixedAssetQueries.ts`, and their view types share `types/AdjustFixedAsset.ts` because details belong to the parent adjustment; mutation hooks preserve success/error callbacks, list/detail refetches and navigation.
