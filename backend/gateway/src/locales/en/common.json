@@ -652,6 +652,7 @@
     "title": "Access Denied",
     "description": "You don't have permission to access this page. Contact your administrator to request access."
   },
+  "close": "Close",
   "not-found": {
     "message": "Oops! Page not found.",
     "go-back": "Go back"
