@@ -548,6 +548,7 @@
   "no-pos-orders-to-display": "Одоогоор харуулах ПОС захиалга байхгүй.",
   "select-pipeline-first": "Эхлээд дамжлага сонгоно уу",
   "failed-to-load-deal": "Хэлцлийг ачаалж чадсангүй",
+  "failed-to-load-pos-orders": "ПОС захиалгуудыг ачаалж чадсангүй",
   "notification-content-unavailable": "Мэдэгдлийн агуулга байхгүй",
   "notification-missing-deal": "Энэ борлуулалтын мэдэгдэлд холбогдох хэлцэл алга байна.",
   "notification-no-detail-view": "Энэ борлуулалтын мэдэгдэлд холбогдох дэлгэрэнгүй харагдац хараахан байхгүй байна.",

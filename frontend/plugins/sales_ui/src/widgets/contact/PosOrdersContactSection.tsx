@@ -7,6 +7,7 @@ import {
   ContactWidgetRow,
   ContactWidgetSection,
   IContactWidgetProps,
+  usePermissionCheck,
   useSidePanel,
 } from 'ui-modules';
 import { SALES_CONTACT_POS_ORDERS } from '~/widgets/contact/contactPosOrders';
@@ -19,17 +20,24 @@ export const PosOrdersContactSection = ({
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('sales');
   const { openRecord } = useSidePanel();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canReadOrders = isLoaded && hasActionPermission('posOrderRead');
   const { data, loading, error } = useQuery(SALES_CONTACT_POS_ORDERS, {
     variables: {
       customerId: contentId,
       customerType: contentType === 'core:company' ? 'company' : 'customer',
       perPage: CONTACT_RECORDS_LIMIT,
     },
+    skip: !canReadOrders,
   });
   const orders = (data?.posOrders || []).flatMap((order) =>
     order?._id ? [{ ...order, _id: order._id }] : [],
   );
   const ordersById = new Map(orders.map((order) => [order._id, order]));
+
+  if (!canReadOrders) {
+    return null;
+  }
 
   return (
     <ContactWidgetSection
@@ -37,7 +45,7 @@ export const PosOrdersContactSection = ({
       label={t('pos-orders')}
       ids={[...ordersById.keys()]}
       loading={loading}
-      emptyText={error?.message}
+      emptyText={error ? t('failed-to-load-pos-orders') : undefined}
       renderItem={(orderId) => {
         const order = ordersById.get(orderId);
         const date = order?.paidDate || order?.createdAt;

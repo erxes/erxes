@@ -548,6 +548,7 @@
   "no-pos-orders-to-display": "No POS orders to display at the moment.",
   "select-pipeline-first": "Please select a pipeline first",
   "failed-to-load-deal": "Failed to load deal",
+  "failed-to-load-pos-orders": "Failed to load POS orders",
   "notification-content-unavailable": "Notification content unavailable",
   "notification-missing-deal": "This sales notification is missing a linked deal.",
   "notification-no-detail-view": "This sales notification does not have a linked detail view yet.",

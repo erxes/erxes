@@ -5,9 +5,13 @@ import { OrderRecordTable } from '../modules/pos/orders/components/OrderRecordTa
 import { PosBreadcrumb } from '../modules/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrderFilter } from '../modules/pos/orders/components/PosOrderFilter';
 import { PosOrderSideWidget } from '../modules/pos/orders/detail/PosOrderSideWidget';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
 
 export const OrdersPage = () => {
   const { posId } = useParams();
+
+  useOpenPosPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
 
   return (
     <>

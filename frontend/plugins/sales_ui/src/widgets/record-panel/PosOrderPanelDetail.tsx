@@ -121,6 +121,14 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
             </Alert.Description>
           </Alert>
         )}
+        <div className="flex justify-between w-full gap-1">
+          <span className="text-base font-medium text-muted-foreground">
+            {t('total-amount')}:
+          </span>
+          <span className="text-base font-medium">
+            {(order.totalAmount || 0).toLocaleString()}
+          </span>
+        </div>
         <PosOrderForm
           control={methods.control}
           summary={paymentSummary}
@@ -153,9 +161,7 @@ export const PosOrderPanelDetail = ({ orderId }: { orderId: string }) => {
       quantity,
       unitPrice,
       amount:
-        item.amount != null
-          ? toNumber(item.amount)
-          : quantity * unitPrice - toNumber(item.discountAmount),
+        item.amount != null ? toNumber(item.amount) : quantity * unitPrice,
     };
   });
 
@@ -230,14 +236,18 @@ export const PosOrderPanelDetail = ({ orderId }: { orderId: string }) => {
               label={t('accounting-response')}
               cell={false}
             >
-              <PosPanelText>{order.accountingResponse || '-'}</PosPanelText>
+              <div className="min-w-0 whitespace-pre-wrap break-words px-2 py-1.5 text-xs">
+                {order.accountingResponse || '-'}
+              </div>
             </PanelField>
             <PanelField
               icon={IconRefresh}
               label={t('erkhet-info')}
               cell={false}
             >
-              <PosPanelText>{order.syncErkhetInfo || '-'}</PosPanelText>
+              <div className="min-w-0 whitespace-pre-wrap break-words px-2 py-1.5 text-xs">
+                {order.syncErkhetInfo || '-'}
+              </div>
             </PanelField>
             <PanelField icon={IconSandbox} label={t('deal')} cell={false}>
               <PosPanelText>{order.deal?.searchText || '-'}</PosPanelText>

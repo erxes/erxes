@@ -108,6 +108,14 @@ export const toPosItemOrderId = ({
   return suffix && _id.endsWith(suffix) ? _id.slice(0, -suffix.length) : _id;
 };
 
+const POS_ITEM_ID_SUFFIX_LENGTH = 22;
+
+export const toLegacyPosItemOrderId = (rowId: string) =>
+  rowId.length > POS_ITEM_ID_SUFFIX_LENGTH &&
+  rowId[rowId.length - POS_ITEM_ID_SUFFIX_LENGTH] === '_'
+    ? rowId.slice(0, -POS_ITEM_ID_SUFFIX_LENGTH)
+    : rowId;
+
 export const toPosOrderDetail = <
   T extends NonNullable<SalesPosOrderDetailQuery['posOrderDetail']>,
 >(

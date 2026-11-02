@@ -4,9 +4,13 @@ import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosCoverFilter } from '~/modules/pos/pos-covers/components/PosCoverFilter';
 import { CoversRecordTable } from '@/pos/pos-covers/components/CoversRecordTable';
+import { POS_COVER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
 
 export const CoversPage = () => {
   const { posId } = useParams();
+
+  useOpenPosPanelFromQuery('pos_cover_id', POS_COVER_CONTENT_TYPE);
 
   return (
     <>

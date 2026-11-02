@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -198,6 +198,10 @@
 - The POS order event trigger's set-property targets are the order itself and
   "Order customer" (`targetField` on `customerId`), so a POS automation can
   update the buyer's properties, e.g. a purchase counter a reward is built on.
+- The POS order automation `link` output (`pos/meta/automations/constants.ts`)
+  is the Orders page URL with the side panel query key:
+  `/sales/pos/<posId>/orders?panel=<encoded /detail/sales:pos.orders/<_id>>`.
+  Keep it in the format `sales_ui` opens; do not emit `pos_order_id`.
 - Product changes reach POS clients through `afterMutation` (`meta/productUtils.ts`);
   core's bulk `productsSetConditionCodes` / `productCategorySetConditionCodes`
   bypass `productsEdit`, so each touched product in a POS's groups is resent.

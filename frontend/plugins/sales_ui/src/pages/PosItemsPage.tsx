@@ -5,9 +5,18 @@ import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
 import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
+import { toLegacyPosItemOrderId } from '@/pos/utils/posOrderJson';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
+
+  useOpenPosPanelFromQuery(
+    'pos_order_id',
+    POS_ORDER_CONTENT_TYPE,
+    toLegacyPosItemOrderId,
+  );
   const { variables } = usePosItemsList();
   const getFilters = () => {
     const { ...filters } = variables || {};

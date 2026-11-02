@@ -45,8 +45,6 @@ import {
 const formatDate = (value?: string | number | Date | null) =>
   value ? dayjs(value).format('YYYY-MM-DD HH:mm') : '-';
 
-const CASH_PAID_TYPE = 'cashAmount';
-
 const coverNoteSchema = z.object({ note: z.string() });
 
 const PosCoverNoteForm = ({
@@ -223,32 +221,24 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
             <Label>{t('payments')}</Label>
             {details.length ? (
               <div className="flex flex-col gap-2">
-                {details.map((detail) => {
-                  const isCash = detail.paidType === CASH_PAID_TYPE;
-
-                  return (
-                    <DealCardProducts
-                      key={detail._id}
-                      icon={IconCreditCard}
-                      label={<CoverPaidType detail={detail} />}
-                      totalLabel={t('total')}
-                      items={(detail.paidSummary || [])
-                        .filter(isDefined)
-                        .map((summary, index) => ({
-                          _id: summary._id || `${index}`,
-                          name: isCash
-                            ? (summary.kindOfVal || 0).toLocaleString()
-                            : detail.paidType || '-',
-                          quantity: isCash ? summary.value || 0 : 1,
-                          unitPrice: isCash
-                            ? summary.kindOfVal || 0
-                            : summary.amount || 0,
-                          amount: summary.amount || 0,
-                        }))}
-                      maxVisible={(detail.paidSummary || []).length}
-                    />
-                  );
-                })}
+                {details.map((detail) => (
+                  <DealCardProducts
+                    key={detail._id}
+                    icon={IconCreditCard}
+                    label={<CoverPaidType detail={detail} />}
+                    totalLabel={t('total')}
+                    items={(detail.paidSummary || [])
+                      .filter(isDefined)
+                      .map((summary, index) => ({
+                        _id: summary._id || `${index}`,
+                        name: summary.kind || '-',
+                        quantity: summary.value || 0,
+                        unitPrice: summary.kindOfVal || 0,
+                        amount: summary.amount || 0,
+                      }))}
+                    maxVisible={(detail.paidSummary || []).length}
+                  />
+                ))}
                 <div className="flex items-center justify-between gap-2 px-2.5 text-sm font-medium">
                   <span>{t('total-amount')}</span>
                   <span className="tabular-nums">{total.toLocaleString()}</span>
