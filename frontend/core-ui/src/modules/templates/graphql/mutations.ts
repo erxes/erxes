@@ -6,6 +6,27 @@ export const REMOVE_TICKETS = gql`
   }
 `;
 
+export const TEMPLATE_EDIT = gql`
+  mutation TemplateEdit(
+    $_id: String!
+    $name: String
+    $description: String
+    $categoryIds: [String]
+  ) {
+    templateEdit(
+      _id: $_id
+      name: $name
+      description: $description
+      categoryIds: $categoryIds
+    ) {
+      _id
+      name
+      description
+      categoryIds
+    }
+  }
+`;
+
 export const USE_TEMPLATE = gql`
   mutation TemplateUse($id: String!) {
     templateUse(_id: $id)
