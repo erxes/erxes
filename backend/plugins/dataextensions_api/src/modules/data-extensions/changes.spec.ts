@@ -1,6 +1,7 @@
 import { createHmac } from 'crypto';
 import {
   isRetryableWebhookStatus,
+  publicLookup,
   signWebhookBody,
   validateWebhookUrl,
 } from './changes';
@@ -64,5 +65,82 @@ describe('isRetryableWebhookStatus', () => {
 
   it.each([400, 401, 403, 404, 410, 422, 301])('stops on %s', (status) => {
     expect(isRetryableWebhookStatus(status)).toBe(false);
+  });
+});
+
+describe('webhook address checks', () => {
+  it.each([
+    'https://redis.saas-prod.svc.cluster.local/x',
+    'https://core-api.svc/x',
+    'https://erxes-prod-redis-prod-0.us-west1-a.c.erxes-saas-production.internal/x',
+    'https://localhost/x',
+    'https://printer.local/x',
+    'https://[::ffff:a00:1]/x',
+    'https://[64:ff9b::a00:1]/x',
+    'https://[fec0::1]/x',
+    'https://198.18.0.1/x',
+  ])('refuses %s', (url) => {
+    expect(() => validateWebhookUrl(url)).toThrow('private');
+  });
+
+  it('refuses a host that resolves to a private address when connecting', (done) => {
+    publicLookup('localhost', {}, (error) => {
+      expect(error?.code).toBe('EPRIVATE');
+      done();
+    });
+  });
+
+  it('refuses addresses listed in DATA_EXTENSIONS_WEBHOOKS_BLOCKED', () => {
+    process.env.DATA_EXTENSIONS_WEBHOOKS_BLOCKED =
+      '203.0.113.7, 198.51.100.0/24';
+
+    jest.isolateModules(() => {
+      const isolated = require('./changes');
+
+      expect(isolated.isRefusedAddress('203.0.113.7')).toBe(true);
+      expect(isolated.isRefusedAddress('::ffff:203.0.113.7')).toBe(true);
+      expect(isolated.isRefusedAddress('198.51.100.20')).toBe(true);
+      expect(isolated.isRefusedAddress('203.0.113.8')).toBe(false);
+      expect(() =>
+        isolated.validateWebhookUrl('https://198.51.100.20/x'),
+      ).toThrow('private');
+    });
+
+    delete process.env.DATA_EXTENSIONS_WEBHOOKS_BLOCKED;
+  });
+
+  it('allows only port 443 on SaaS unless ports are configured', () => {
+    const version = process.env.VERSION;
+    process.env.VERSION = 'saas';
+
+    jest.isolateModules(() => {
+      const isolated = require('./changes');
+
+      expect(
+        isolated.validateWebhookUrl('https://hooks.example.com/x').port,
+      ).toBe('');
+      expect(() =>
+        isolated.validateWebhookUrl('https://hooks.example.com:9200/x'),
+      ).toThrow('port 443');
+    });
+
+    process.env.DATA_EXTENSIONS_WEBHOOKS_PORTS = '443,8443';
+
+    jest.isolateModules(() => {
+      const isolated = require('./changes');
+
+      expect(
+        isolated.validateWebhookUrl('https://hooks.example.com:8443/x').port,
+      ).toBe('8443');
+    });
+
+    process.env.VERSION = version;
+    delete process.env.DATA_EXTENSIONS_WEBHOOKS_PORTS;
+  });
+
+  it('allows any port outside SaaS', () => {
+    expect(validateWebhookUrl('https://hooks.example.com:5678/x').port).toBe(
+      '5678',
+    );
   });
 });

@@ -125,6 +125,9 @@ export const types = `
     lastStatus: Int
     lastError: String
     failedDeliveries: Int
+    consecutiveFailures: Int
+    pausedReason: String
+    pausedAt: Date
     lastAt: Date
     createdAt: Date
   }

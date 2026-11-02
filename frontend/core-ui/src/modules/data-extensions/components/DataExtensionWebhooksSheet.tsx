@@ -34,6 +34,9 @@ const WEBHOOK_FIELDS = `
   lastError
   lastAt
   failedDeliveries
+  consecutiveFailures
+  pausedReason
+  pausedAt
 `;
 
 const WEBHOOKS = gql`
@@ -70,6 +73,10 @@ interface IWebhook {
   lastError?: string | null;
   lastAt?: string | null;
   failedDeliveries?: number | null;
+  consecutiveFailures?: number | null;
+  /** 'failing' when the webhook was paused automatically. */
+  pausedReason?: string | null;
+  pausedAt?: string | null;
 }
 
 /**
@@ -235,7 +242,12 @@ export const DataExtensionWebhooksSheet = ({
                   <div className="flex min-w-0 flex-1 flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <span className="truncate text-sm font-medium">{hook.name}</span>
-                      {!hook.active && <Badge variant="secondary">{t('webhooks.paused')}</Badge>}
+                      {!hook.active &&
+                        (hook.pausedReason === 'failing' ? (
+                          <Badge variant="destructive">{t('webhooks.paused-failing')}</Badge>
+                        ) : (
+                          <Badge variant="secondary">{t('webhooks.paused')}</Badge>
+                        ))}
                     </div>
                     <span className="truncate font-mono text-xs text-muted-foreground">{hook.url}</span>
                     {hook.lastAt && (
@@ -253,6 +265,16 @@ export const DataExtensionWebhooksSheet = ({
                         {' · '}
                         {new Date(hook.lastAt).toLocaleString(i18n.language)}
                       </span>
+                    )}
+                    {!hook.active && hook.pausedReason === 'failing' && (
+                      <p className="text-xs text-destructive">
+                        {t('webhooks.paused-failing-hint', {
+                          count: hook.consecutiveFailures || 0,
+                          date: hook.pausedAt
+                            ? new Date(hook.pausedAt).toLocaleString(i18n.language)
+                            : '',
+                        })}
+                      </p>
                     )}
                     {!!hook.failedDeliveries && (
                       <span className="text-xs text-destructive">

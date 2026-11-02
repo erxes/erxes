@@ -3,7 +3,7 @@ import { UnrecoverableError } from 'bullmq';
 import { lookup, LookupAddress } from 'dns';
 import { request as httpRequest } from 'http';
 import { request as httpsRequest } from 'https';
-import { isIP } from 'net';
+import { BlockList, isIP } from 'net';
 import { Connection, Model, Schema } from 'mongoose';
 import {
   DataExtensionValidationError,
@@ -40,6 +40,11 @@ export interface IDataExtensionWebhook {
   lastAt?: Date;
   /** Deliveries that failed every try. */
   failedDeliveries?: number;
+  /** Deliveries in a row that failed every try; a success resets it. */
+  consecutiveFailures?: number;
+  /** Set when the webhook was paused for failing, not by a person. */
+  pausedReason?: 'failing';
+  pausedAt?: Date;
 }
 
 const CHANGES_COLLECTION = 'data_extensions_changes';
@@ -78,6 +83,9 @@ const webhookSchema = new Schema(
     lastError: { type: String },
     lastAt: { type: Date },
     failedDeliveries: { type: Number, default: 0 },
+    consecutiveFailures: { type: Number, default: 0 },
+    pausedReason: { type: String },
+    pausedAt: { type: Date },
   },
   { timestamps: true },
 );
@@ -153,28 +161,87 @@ export const listDataExtensionChanges = (
 const allowHttp = () =>
   process.env.DATA_EXTENSIONS_WEBHOOKS_ALLOW_HTTP === 'true';
 
+const readList = (name: string) =>
+  (process.env[name] || '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+/**
+ * Extra addresses webhooks may not reach, as IPs or CIDRs in
+ * DATA_EXTENSIONS_WEBHOOKS_BLOCKED. Internal services can sit on public
+ * addresses (SaaS reaches its Redis, RabbitMQ and Elasticsearch that way),
+ * which the private-range check alone would let through.
+ */
+const blockedAddresses = (() => {
+  const list = new BlockList();
+
+  for (const entry of readList('DATA_EXTENSIONS_WEBHOOKS_BLOCKED')) {
+    const [address, prefix] = entry.split('/');
+    const family = isIP(address) === 6 ? 'ipv6' : 'ipv4';
+
+    if (!isIP(address)) {
+      console.warn(`DATA_EXTENSIONS_WEBHOOKS_BLOCKED: "${entry}" is not an IP`);
+      continue;
+    }
+
+    if (prefix === undefined) {
+      list.addAddress(address, family);
+    } else {
+      list.addSubnet(address, Number(prefix), family);
+    }
+  }
+
+  return list;
+})();
+
+/**
+ * Ports webhooks may use. DATA_EXTENSIONS_WEBHOOKS_PORTS lists them; when it
+ * is not set, SaaS allows 443 only and other installs allow any port.
+ */
+const allowedPorts = (() => {
+  const configured = readList('DATA_EXTENSIONS_WEBHOOKS_PORTS');
+
+  if (configured.length) {
+    return configured.includes('*') ? null : new Set(configured);
+  }
+
+  return process.env.VERSION === 'saas' ? new Set(['443']) : null;
+})();
+
+/** Names that only mean something inside a network or cluster. */
+const INTERNAL_HOST =
+  /(^|\.)(localhost|local|internal|localdomain|home\.arpa|intranet|lan|svc|cluster\.local)$/i;
+
+/**
+ * The IPv4 address inside an IPv4-mapped IPv6 one, dotted (::ffff:127.0.0.1)
+ * or hex (::ffff:7f00:1); null when it can't be read.
+ */
+const mappedIPv4 = (address: string): string | null => {
+  const mapped = address.slice(7);
+
+  if (isIP(mapped) === 4) {
+    return mapped;
+  }
+
+  const [high, low] = mapped.split(':').map((part) => parseInt(part, 16));
+
+  if (Number.isNaN(high) || Number.isNaN(low)) {
+    return null;
+  }
+
+  return [high >> 8, high & 255, low >> 8, low & 255].join('.');
+};
+
 /** Loopback, private, link-local, CGNAT, multicast and metadata ranges. */
-const isPrivateAddress = (address: string) => {
+const isPrivateAddress = (address: string): boolean => {
   if (isIP(address) === 6) {
     const lower = address.toLowerCase();
 
-    // IPv4-mapped addresses, dotted (::ffff:127.0.0.1) or hex (::ffff:7f00:1).
     if (lower.startsWith('::ffff:')) {
-      const mapped = lower.slice(7);
+      const mapped = mappedIPv4(lower);
 
-      if (isIP(mapped) === 4) {
-        return isPrivateAddress(mapped);
-      }
-
-      const [high, low] = mapped.split(':').map((part) => parseInt(part, 16));
-
-      if (Number.isNaN(high) || Number.isNaN(low)) {
-        return true;
-      }
-
-      return isPrivateAddress(
-        [high >> 8, high & 255, low >> 8, low & 255].join('.'),
-      );
+      return mapped === null || isPrivateAddress(mapped);
     }
 
     return (
@@ -182,12 +249,15 @@ const isPrivateAddress = (address: string) => {
       lower === '::' ||
       lower.startsWith('fc') ||
       lower.startsWith('fd') ||
-      lower.startsWith('fe80') ||
-      lower.startsWith('ff')
+      /^fe[89a-f]/.test(lower) ||
+      lower.startsWith('ff') ||
+      // NAT64 and 6to4 can wrap a private IPv4 address.
+      lower.startsWith('64:ff9b:') ||
+      lower.startsWith('2002:')
     );
   }
 
-  const [a, b] = address.split('.').map(Number);
+  const [a, b, c] = address.split('.').map(Number);
 
   return (
     a === 0 ||
@@ -197,7 +267,29 @@ const isPrivateAddress = (address: string) => {
     (a === 169 && b === 254) ||
     (a === 172 && b >= 16 && b <= 31) ||
     (a === 192 && b === 168) ||
+    (a === 192 && b === 0 && (c === 0 || c === 2)) ||
+    (a === 198 && (b === 18 || b === 19)) ||
     a >= 224
+  );
+};
+
+/** Whether a webhook may not connect to this resolved address. */
+export const isRefusedAddress = (address: string) => {
+  const family = isIP(address);
+
+  if (!family) {
+    return true;
+  }
+
+  if (family === 6 && address.toLowerCase().startsWith('::ffff:')) {
+    const mapped = mappedIPv4(address.toLowerCase());
+
+    return mapped === null || isRefusedAddress(mapped);
+  }
+
+  return (
+    isPrivateAddress(address) ||
+    blockedAddresses.check(address, family === 6 ? 'ipv6' : 'ipv4')
   );
 };
 
@@ -223,11 +315,16 @@ export const validateWebhookUrl = (raw: unknown): URL => {
     fail('Put credentials in the signing secret, not in the URL');
   }
 
-  if (
-    isIP(url.hostname.replace(/^\[|\]$/g, '')) &&
-    isPrivateAddress(url.hostname.replace(/^\[|\]$/g, ''))
-  ) {
+  const host = url.hostname.replace(/^\[|\]$/g, '');
+
+  if (isIP(host) ? isRefusedAddress(host) : INTERNAL_HOST.test(host)) {
     fail('Webhooks cannot target private or local addresses');
+  }
+
+  const port = url.port || (url.protocol === 'https:' ? '443' : '80');
+
+  if (allowedPorts && !allowedPorts.has(port)) {
+    fail(`Webhooks can use port ${[...allowedPorts].join(', ')} only`);
   }
 
   return url;
@@ -238,7 +335,7 @@ export const validateWebhookUrl = (raw: unknown): URL => {
  * runs inside the connection itself, so a host cannot resolve to a public
  * address for a check and a private one for the request.
  */
-const publicLookup = (
+export const publicLookup = (
   hostname: string,
   options: object,
   callback: (
@@ -259,7 +356,7 @@ const publicLookup = (
 
       if (
         !list.length ||
-        list.some(({ address }) => isPrivateAddress(address))
+        list.some(({ address }) => isRefusedAddress(address))
       ) {
         return callback(
           Object.assign(
@@ -393,10 +490,19 @@ export const editDataExtensionWebhook = async (
     return fail('Webhook not found');
   }
 
+  const update = normalizeWebhook(input, existing);
+  // Pausing or resuming by hand clears an automatic pause and its streak.
+  const resetsPause = update.active !== undefined;
+
   const updated = await webhooksOf(models)
     .findOneAndUpdate(
       { _id },
-      { $set: normalizeWebhook(input, existing) },
+      resetsPause
+        ? {
+            $set: { ...update, consecutiveFailures: 0 },
+            $unset: { pausedReason: 1, pausedAt: 1 },
+          }
+        : { $set: update },
       { new: true },
     )
     .lean<IDataExtensionWebhook | null>();
@@ -428,6 +534,16 @@ export const WEBHOOK_QUEUE = { service: 'dataextensions', name: 'webhooks' };
 /** 6 tries: now, then 30s, 1m, 2m, 4m and 8m later (about 16 minutes). */
 export const WEBHOOK_ATTEMPTS = 6;
 const WEBHOOK_BACKOFF_MS = 30_000;
+/**
+ * A webhook is paused after this many deliveries in a row failed every try
+ * (DATA_EXTENSIONS_WEBHOOKS_PAUSE_AFTER), so a dead receiver stops taking
+ * queue time. Resuming it in the Webhooks sheet starts the count again.
+ */
+const PAUSE_AFTER = (() => {
+  const value = Number(process.env.DATA_EXTENSIONS_WEBHOOKS_PAUSE_AFTER);
+
+  return Number.isInteger(value) && value > 0 ? value : 20;
+})();
 /** Deliveries that failed every try are kept this long for inspection. */
 const FAILED_DELIVERY_SECONDS = 7 * 24 * 3600;
 
@@ -550,17 +666,37 @@ export const attemptWebhookDelivery = async (
     error !== '' && !refused && isRetryableWebhookStatus(status);
   const final = error !== '' && (!retryable || isLastAttempt);
 
-  await webhooksOf(models).updateOne(
-    { _id: hook._id },
-    {
-      $set: {
-        lastStatus: status || undefined,
-        lastError: error,
-        lastAt: new Date(),
+  const updated = await webhooksOf(models)
+    .findOneAndUpdate(
+      { _id: hook._id },
+      {
+        $set: {
+          lastStatus: status || undefined,
+          lastError: error,
+          lastAt: new Date(),
+          ...(error ? {} : { consecutiveFailures: 0 }),
+        },
+        ...(final
+          ? { $inc: { failedDeliveries: 1, consecutiveFailures: 1 } }
+          : {}),
       },
-      ...(final ? { $inc: { failedDeliveries: 1 } } : {}),
-    },
-  );
+      { new: true, projection: { consecutiveFailures: 1 } },
+    )
+    .lean<Pick<IDataExtensionWebhook, 'consecutiveFailures'> | null>();
+
+  if (final && (updated?.consecutiveFailures || 0) >= PAUSE_AFTER) {
+    await webhooksOf(models).updateOne(
+      // Not if someone resumed it meanwhile, which reset the count.
+      {
+        _id: hook._id,
+        active: true,
+        consecutiveFailures: { $gte: PAUSE_AFTER },
+      },
+      {
+        $set: { active: false, pausedReason: 'failing', pausedAt: new Date() },
+      },
+    );
+  }
 
   if (!error) {
     return;

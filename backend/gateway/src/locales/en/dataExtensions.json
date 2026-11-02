@@ -530,6 +530,8 @@
     "add": "Add webhook",
     "none": "No webhooks yet",
     "paused": "Paused",
+    "paused-failing": "Paused: failing",
+    "paused-failing-hint": "Paused automatically on {{date}} after {{count}} deliveries in a row failed every try. Fix the receiver, then resume.",
     "pause": "Pause",
     "resume": "Resume",
     "delete": "Delete webhook {{name}}",
