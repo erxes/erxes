@@ -7,6 +7,7 @@ import {
   AccountingSidebarFooter,
   AccountingSettingsLayout,
 } from '~/Sidebar';
+import { AccountingNotFound } from '@/layout/components/AccountingNotFound';
 import { PageChangeEffect } from './app/AccountingPageChangeEffect';
 
 const TransactionList = lazy(() =>
@@ -241,6 +242,7 @@ const PluginAccounting = () => {
             path="adjustment/closing/:id"
             element={<AdjustClosingDetail />}
           />
+          <Route path="*" element={<AccountingNotFound />} />
         </Routes>
         <PageChangeEffect />
       </Suspense>
