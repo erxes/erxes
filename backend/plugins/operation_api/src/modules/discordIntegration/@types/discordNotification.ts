@@ -9,6 +9,7 @@ export type TDiscordRemovedRecord = {
   entityId: string;
   label: string;
   name: string;
+  companyId?: string | null;
 };
 
 export type TDiscordCleanupJob = {

@@ -29,6 +29,7 @@ export const queries = `
 
 export const mutations = `
   operationDiscordStartAccountLink: String!
+  operationDiscordConfirmAccountLink(token: String!): OperationDiscordUserLink
   operationDiscordUnlinkMyAccount: DisconnectResponse
   operationDiscordUnlinkMember(userId: String!): DisconnectResponse
   operationDiscordRemindMember(teamId: String!, userId: String!): DisconnectResponse

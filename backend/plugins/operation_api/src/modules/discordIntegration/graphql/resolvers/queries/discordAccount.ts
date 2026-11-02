@@ -71,6 +71,8 @@ export const discordAccountQueries = {
   ) {
     const userId = requireDiscordLinkUser(user);
 
+    await models.DiscordConnection.dropUnreadableClientSecrets(subdomain);
+
     const [linkingEnabled, link] = await Promise.all([
       models.DiscordConnection.exists({ subdomain, hasClientSecret: true }),
       models.DiscordUserLink.findOne({ userId, subdomain }).lean(),
@@ -115,7 +117,7 @@ export const discordAccountQueries = {
     }).lean();
 
     const connection = config
-      ? await models.DiscordConnection.findWithSecrets({
+      ? await models.DiscordConnection.findWithToken({
           _id: config.connectionId,
           subdomain,
         })

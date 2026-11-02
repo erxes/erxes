@@ -1,4 +1,4 @@
-import { Job } from 'bullmq';
+import { DelayedError, Job } from 'bullmq';
 import { TDiscordMessagePayload } from '@/discordIntegration/@types/discordApi';
 import { IDiscordConfigDocument } from '@/discordIntegration/@types/discordConfig';
 import {
@@ -185,7 +185,7 @@ const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
     return 'skipped';
   }
 
-  const connection = await models.DiscordConnection.findWithSecrets({
+  const connection = await models.DiscordConnection.findWithToken({
     _id: customerChannel.connectionId,
     subdomain,
   });
@@ -196,7 +196,10 @@ const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
 
   const entity = await loadDiscordCardEntity(models, entityId);
 
-  if (!entity) {
+  if (
+    !entity ||
+    customerChannel.companyId !== String(entity.record.companyId ?? '')
+  ) {
     return 'skipped';
   }
 
@@ -248,6 +251,7 @@ const findThreadConnection = async (
   models: IModels,
   subdomain: string,
   thread: { configId: string; audience?: string },
+  companyId?: string | null,
 ) => {
   const owner =
     thread.audience === 'customer'
@@ -260,11 +264,16 @@ const findThreadConnection = async (
           subdomain,
         }).lean();
 
-  if (!owner) {
+  if (
+    !owner ||
+    ('companyId' in owner &&
+      companyId !== undefined &&
+      owner.companyId !== companyId)
+  ) {
     return null;
   }
 
-  const connection = await models.DiscordConnection.findWithSecrets({
+  const connection = await models.DiscordConnection.findWithToken({
     _id: owner.connectionId,
     subdomain,
   });
@@ -289,7 +298,12 @@ const cleanupDiscordCards = async ({
     }).lean();
 
     for (const thread of threads) {
-      const connection = await findThreadConnection(models, subdomain, thread);
+      const connection = await findThreadConnection(
+        models,
+        subdomain,
+        thread,
+        record.companyId,
+      );
 
       if (connection) {
         try {
@@ -336,11 +350,14 @@ const cleanupDiscordCards = async ({
   return 'cleaned';
 };
 
-export const deliverDiscordNotification = async (
-  job: Job<TDiscordNotificationJob | TDiscordCleanupJob>,
-) => {
-  const data = job.data;
+const getRateLimitDelayMs = (error: unknown) =>
+  error instanceof DiscordApiError && error.status === 429
+    ? error.retryAfterMs
+    : undefined;
 
+const processDiscordJob = async (
+  data: TDiscordNotificationJob | TDiscordCleanupJob,
+) => {
   if (isCleanupJob(data)) {
     return cleanupDiscordCards(data);
   }
@@ -363,7 +380,7 @@ export const deliverDiscordNotification = async (
     return 'skipped';
   }
 
-  const connection = await models.DiscordConnection.findWithSecrets({
+  const connection = await models.DiscordConnection.findWithToken({
     _id: config.connectionId,
     subdomain,
   });
@@ -443,4 +460,23 @@ export const deliverDiscordNotification = async (
   );
 
   return 'sent';
+};
+
+export const deliverDiscordNotification = async (
+  job: Job<TDiscordNotificationJob | TDiscordCleanupJob>,
+  token?: string,
+) => {
+  try {
+    return await processDiscordJob(job.data);
+  } catch (error) {
+    const delayMs = getRateLimitDelayMs(error);
+
+    if (delayMs === undefined || !token) {
+      throw error;
+    }
+
+    await job.moveToDelayed(Date.now() + delayMs, token);
+
+    throw new DelayedError();
+  }
 };

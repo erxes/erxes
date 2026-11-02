@@ -21,13 +21,31 @@ export interface IDiscordConnectionModel
     _id: string,
     subdomain: string,
   ): Promise<IDiscordConnectionDocument>;
-  findWithSecrets(
+  findWithToken(
     filter: FilterQuery<IDiscordConnectionDocument>,
   ): Promise<IDiscordConnectionDocument | null>;
+  findWithClientSecret(
+    filter: FilterQuery<IDiscordConnectionDocument>,
+  ): Promise<Omit<IDiscordConnectionDocument, 'token'> | null>;
+  dropUnreadableClientSecrets(subdomain: string): Promise<void>;
   markBroken(_id: string, error: string): Promise<void>;
 }
 
+const openReadableSecret = (value: string) => {
+  try {
+    return openDiscordSecret(value);
+  } catch {
+    return null;
+  }
+};
+
 export const loadDiscordConnectionClass = (models: IModels) => {
+  const dropClientSecrets = (ids: string[]) =>
+    models.DiscordConnection.updateMany(
+      { _id: { $in: ids } },
+      { $unset: { clientSecret: '' }, $set: { hasClientSecret: false } },
+    );
+
   class DiscordConnectionClass {
     public static async upsertConnection(connection: IDiscordConnection) {
       const filter = {
@@ -53,11 +71,11 @@ export const loadDiscordConnectionClass = (models: IModels) => {
       }
     }
 
-    public static async findWithSecrets(
+    public static async findWithToken(
       filter: FilterQuery<IDiscordConnectionDocument>,
     ) {
       const connection = await models.DiscordConnection.findOne(filter)
-        .select('+token +clientSecret')
+        .select('+token')
         .lean();
 
       if (!connection) {
@@ -65,39 +83,80 @@ export const loadDiscordConnectionClass = (models: IModels) => {
       }
 
       const token = openDiscordSecret(connection.token);
-      const clientSecret = connection.clientSecret
-        ? openDiscordSecret(connection.clientSecret)
-        : undefined;
-      const resealed: Record<string, string> = {};
 
       if (token && !isSealedDiscordSecret(connection.token)) {
         const sealed = sealDiscordSecret(token);
 
         if (isSealedDiscordSecret(sealed)) {
-          resealed.token = sealed;
+          await models.DiscordConnection.updateOne(
+            { _id: connection._id },
+            { $set: { token: sealed } },
+          );
         }
       }
 
-      if (clientSecret && !isSealedDiscordSecret(connection.clientSecret)) {
+      return { ...connection, token };
+    }
+
+    public static async findWithClientSecret(
+      filter: FilterQuery<IDiscordConnectionDocument>,
+    ) {
+      const connection = await models.DiscordConnection.findOne(filter)
+        .select('+clientSecret')
+        .lean();
+
+      if (!connection?.clientSecret) {
+        return connection;
+      }
+
+      const clientSecret = openReadableSecret(connection.clientSecret);
+
+      if (clientSecret === null) {
+        await dropClientSecrets([connection._id]);
+
+        return {
+          ...connection,
+          clientSecret: undefined,
+          hasClientSecret: false,
+        };
+      }
+
+      if (!isSealedDiscordSecret(connection.clientSecret)) {
         const sealed = sealDiscordSecret(clientSecret);
 
         if (isSealedDiscordSecret(sealed)) {
-          resealed.clientSecret = sealed;
+          await models.DiscordConnection.updateOne(
+            { _id: connection._id },
+            { $set: { clientSecret: sealed } },
+          );
         }
       }
 
-      if (Object.keys(resealed).length) {
-        await models.DiscordConnection.updateOne(
-          { _id: connection._id },
-          { $set: resealed },
-        );
-      }
+      return { ...connection, clientSecret };
+    }
 
-      return { ...connection, token, clientSecret };
+    public static async dropUnreadableClientSecrets(subdomain: string) {
+      const connections = await models.DiscordConnection.find({
+        subdomain,
+        clientSecret: { $nin: [null, ''] },
+      })
+        .select('+clientSecret')
+        .lean();
+
+      const unreadable = connections
+        .filter(
+          ({ clientSecret }) =>
+            clientSecret && openReadableSecret(clientSecret) === null,
+        )
+        .map(({ _id }) => _id);
+
+      if (unreadable.length) {
+        await dropClientSecrets(unreadable);
+      }
     }
 
     public static async getConnectionWithToken(_id: string, subdomain: string) {
-      const connection = await models.DiscordConnection.findWithSecrets({
+      const connection = await models.DiscordConnection.findWithToken({
         _id,
         subdomain,
       });

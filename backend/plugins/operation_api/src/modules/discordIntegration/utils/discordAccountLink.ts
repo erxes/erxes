@@ -1,10 +1,16 @@
 import { randomBytes } from 'crypto';
 import { Request, Response } from 'express';
 import { getEnv, getSubdomain, redis } from 'erxes-api-shared/utils';
-import { TDiscordLinkState } from '@/discordIntegration/@types/discordUserLink';
+import {
+  TDiscordLinkErrorCode,
+  TDiscordLinkResult,
+  TDiscordLinkState,
+} from '@/discordIntegration/@types/discordUserLink';
 import {
   DISCORD_ACCOUNT_PAGE_PATH,
-  DISCORD_LINK_MESSAGE_TYPE,
+  DISCORD_LINK_ERROR_PARAM,
+  DISCORD_LINK_RESULT_PARAM,
+  DISCORD_LINK_RESULT_PREFIX,
   DISCORD_LINK_STATE_PREFIX,
   DISCORD_LINK_STATE_TTL_SECONDS,
   DISCORD_OAUTH_AUTHORIZE_URL,
@@ -46,14 +52,6 @@ export const getDiscordGatewayUrl = (subdomain: string) => {
   );
 };
 
-const getUiOrigin = (subdomain: string) => {
-  try {
-    return new URL(getDomain(subdomain)).origin;
-  } catch {
-    return '';
-  }
-};
-
 export const isSaasVersion = () => getEnv({ name: 'VERSION' }) === 'saas';
 
 export const requireDiscordLinkUser = (user?: { _id?: string } | null) => {
@@ -77,14 +75,17 @@ export const getDiscordAccountPageUrl = (subdomain: string) => {
     : '';
 };
 
-export const findDiscordLinkingConnection = (
+export const findDiscordLinkingConnection = async (
   models: IModels,
   subdomain: string,
-) =>
-  models.DiscordConnection.findWithSecrets({
+) => {
+  await models.DiscordConnection.dropUnreadableClientSecrets(subdomain);
+
+  return models.DiscordConnection.findWithClientSecret({
     subdomain,
     hasClientSecret: true,
   });
+};
 
 export const startDiscordAccountLink = async ({
   models,
@@ -128,6 +129,13 @@ export const startDiscordAccountLink = async ({
   return `${DISCORD_OAUTH_AUTHORIZE_URL}?${params.toString()}`;
 };
 
+const consumeRedisValue = async (key: string) => {
+  const results = await redis.multi().get(key).del(key).exec();
+  const value = results?.[0]?.[1];
+
+  return typeof value === 'string' ? value : null;
+};
+
 const consumeDiscordLinkState = async (
   state: string,
 ): Promise<TDiscordLinkState | null> => {
@@ -135,11 +143,9 @@ const consumeDiscordLinkState = async (
     return null;
   }
 
-  const key = `${DISCORD_LINK_STATE_PREFIX}${state}`;
-  const results = await redis.multi().get(key).del(key).exec();
-  const value = results?.[0]?.[1];
+  const value = await consumeRedisValue(`${DISCORD_LINK_STATE_PREFIX}${state}`);
 
-  if (typeof value !== 'string') {
+  if (!value) {
     return null;
   }
 
@@ -158,36 +164,57 @@ const consumeDiscordLinkState = async (
   }
 };
 
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
-
-const sendLinkResult = (
-  res: Response,
-  {
-    ok,
-    message,
-    accountUrl,
-    uiOrigin,
-  }: { ok: boolean; message: string; accountUrl: string; uiOrigin: string },
-) => {
-  const payload = JSON.stringify({
-    type: DISCORD_LINK_MESSAGE_TYPE,
-    ok,
-    message,
-  }).replace(/</g, '\\u003c');
-  const targetOrigin = JSON.stringify(uiOrigin).replace(/</g, '\\u003c');
-
-  const backLink = accountUrl
-    ? `<p><a href="${escapeHtml(accountUrl)}">Back to erxes</a></p>`
-    : '';
-
-  res.send(`<!DOCTYPE html>
-<html><body><script>
-  if (window.opener) {
-    window.opener.postMessage(${payload}, ${targetOrigin} || window.location.origin);
-    window.close();
+const consumeDiscordLinkResult = async (
+  token: string,
+): Promise<TDiscordLinkResult | null> => {
+  if (!STATE_PATTERN.test(token)) {
+    return null;
   }
-</script><p>${escapeHtml(message)}</p>${backLink}</body></html>`);
+
+  const value = await consumeRedisValue(
+    `${DISCORD_LINK_RESULT_PREFIX}${token}`,
+  );
+
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed: Partial<TDiscordLinkResult> = JSON.parse(value);
+
+    return parsed.subdomain &&
+      parsed.userId &&
+      parsed.discordUserId &&
+      parsed.username
+      ? {
+          subdomain: parsed.subdomain,
+          userId: parsed.userId,
+          discordUserId: parsed.discordUserId,
+          username: parsed.username,
+          globalName: parsed.globalName ?? null,
+          avatarUrl: parsed.avatarUrl ?? null,
+        }
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const redirectToAccountPage = (
+  res: Response,
+  accountUrl: string,
+  params: Record<string, string>,
+) => {
+  if (!accountUrl) {
+    res
+      .status(500)
+      .send(
+        'Discord sign-in cannot return to erxes because DOMAIN is not an http(s) address.',
+      );
+    return;
+  }
+
+  res.redirect(`${accountUrl}?${new URLSearchParams(params).toString()}`);
 };
 
 export const handleDiscordOAuthCallback = async (
@@ -203,30 +230,29 @@ export const handleDiscordOAuthCallback = async (
   const subdomain =
     linkState && !isSaasVersion() ? linkState.subdomain : hostSubdomain;
   const accountUrl = getDiscordAccountPageUrl(subdomain);
-  const uiOrigin = getUiOrigin(subdomain);
 
-  const fail = (message: string) =>
-    sendLinkResult(res, { ok: false, message, accountUrl, uiOrigin });
+  const fail = (reason: TDiscordLinkErrorCode) =>
+    redirectToAccountPage(res, accountUrl, {
+      [DISCORD_LINK_ERROR_PARAM]: reason,
+    });
 
   if (!linkState || linkState.subdomain !== subdomain) {
-    return fail(
-      'This Discord sign-in link is invalid or has expired. Start again from erxes.',
-    );
+    return fail('expired');
   }
 
   if (typeof error === 'string' || typeof code !== 'string' || !code) {
-    return fail('Discord sign-in was cancelled.');
+    return fail('cancelled');
   }
 
   try {
     const models = await generateModels(subdomain);
-    const connection = await models.DiscordConnection.findWithSecrets({
+    const connection = await models.DiscordConnection.findWithClientSecret({
       _id: linkState.connectionId,
       subdomain,
     });
 
     if (!connection?.clientSecret) {
-      return fail('Discord account linking is no longer set up.');
+      return fail('not-set-up');
     }
 
     const client = {
@@ -244,25 +270,61 @@ export const handleDiscordOAuthCallback = async (
 
     await revokeDiscordOAuthToken(client, token.access_token).catch(() => null);
 
-    await models.DiscordUserLink.linkAccount({
+    const result: TDiscordLinkResult = {
+      subdomain,
       userId: linkState.userId,
       discordUserId: discordUser.id,
       username: discordUser.username,
       globalName: discordUser.global_name ?? null,
       avatarUrl: getDiscordAvatarUrl(discordUser),
-      linkedAt: new Date(),
-      subdomain,
-    });
+    };
+    const resultToken = randomBytes(24).toString('hex');
 
-    return sendLinkResult(res, {
-      ok: true,
-      message: `Linked the Discord account ${
-        discordUser.global_name || discordUser.username
-      }.`,
-      accountUrl,
-      uiOrigin,
+    await redis.set(
+      `${DISCORD_LINK_RESULT_PREFIX}${resultToken}`,
+      JSON.stringify(result),
+      'EX',
+      DISCORD_LINK_STATE_TTL_SECONDS,
+    );
+
+    return redirectToAccountPage(res, accountUrl, {
+      [DISCORD_LINK_RESULT_PARAM]: resultToken,
     });
   } catch (linkError) {
-    return fail(describeDiscordError(linkError));
+    console.error(
+      `Discord account link failed: ${describeDiscordError(linkError)}`,
+    );
+
+    return fail('failed');
   }
+};
+
+export const confirmDiscordAccountLink = async ({
+  models,
+  subdomain,
+  userId,
+  token,
+}: {
+  models: IModels;
+  subdomain: string;
+  userId: string;
+  token: string;
+}) => {
+  const result = await consumeDiscordLinkResult(token);
+
+  if (!result || result.subdomain !== subdomain || result.userId !== userId) {
+    throw new Error(
+      'This Discord sign-in has expired or was started from another erxes account. Start again from your own account.',
+    );
+  }
+
+  return models.DiscordUserLink.linkAccount({
+    userId,
+    discordUserId: result.discordUserId,
+    username: result.username,
+    globalName: result.globalName,
+    avatarUrl: result.avatarUrl,
+    linkedAt: new Date(),
+    subdomain,
+  });
 };

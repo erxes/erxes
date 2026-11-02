@@ -153,12 +153,17 @@ export type TDiscordSlashCommand = {
   options?: TDiscordCommandOption[];
 };
 
+export type TDiscordRegisteredCommand = TDiscordSlashCommand & {
+  id: string;
+  guild_id?: string;
+};
+
 export type TDiscordRequestArgs = {
   token: string;
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   path: string;
   body?:
     | TDiscordMessagePayload
-    | TDiscordSlashCommand[]
+    | TDiscordSlashCommand
     | TDiscordApplicationUpdate;
 };

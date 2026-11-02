@@ -9,6 +9,7 @@ import {
   TDiscordMessagePayload,
   TDiscordOAuthClient,
   TDiscordOAuthToken,
+  TDiscordRegisteredCommand,
   TDiscordRequestArgs,
   TDiscordSlashCommand,
   TDiscordUser,
@@ -20,6 +21,7 @@ import {
   DISCORD_ERROR_CODES,
   DISCORD_MAX_RATE_LIMIT_RETRIES,
   DISCORD_MESSAGE_CHANNEL_TYPES,
+  DISCORD_RATE_LIMIT_INLINE_WAIT_MS,
 } from '@/discordIntegration/constants';
 
 export class DiscordApiError extends Error {
@@ -27,6 +29,7 @@ export class DiscordApiError extends Error {
     public readonly status: number,
     message: string,
     public readonly code?: number,
+    public readonly retryAfterMs?: number,
   ) {
     super(message);
     this.name = 'DiscordApiError';
@@ -49,10 +52,7 @@ const getRetryAfterMs = (response: Response, body: TDiscordErrorBody) => {
   const header = headerValue === null ? NaN : Number(headerValue);
   const seconds = Number.isFinite(header) ? header : Number(body.retry_after);
 
-  return Math.min(
-    Math.max((Number.isFinite(seconds) ? seconds : 1) * 1000, 0),
-    10_000,
-  );
+  return Math.max((Number.isFinite(seconds) ? seconds : 1) * 1000, 0);
 };
 
 const discordRequest = async <T>(
@@ -71,10 +71,15 @@ const discordRequest = async <T>(
   const data = parseBody(await response.text());
   const errorBody = data as TDiscordErrorBody;
 
-  if (response.status === 429 && attempt < DISCORD_MAX_RATE_LIMIT_RETRIES) {
-    await new Promise((resolve) =>
-      setTimeout(resolve, getRetryAfterMs(response, errorBody)),
-    );
+  const retryAfterMs =
+    response.status === 429 ? getRetryAfterMs(response, errorBody) : undefined;
+
+  if (
+    retryAfterMs !== undefined &&
+    retryAfterMs <= DISCORD_RATE_LIMIT_INLINE_WAIT_MS &&
+    attempt < DISCORD_MAX_RATE_LIMIT_RETRIES
+  ) {
+    await new Promise((resolve) => setTimeout(resolve, retryAfterMs));
 
     return discordRequest<T>({ token, method, path, body }, attempt + 1);
   }
@@ -86,6 +91,7 @@ const discordRequest = async <T>(
         errorBody.message || response.statusText
       }`,
       errorBody.code,
+      retryAfterMs,
     );
   }
 
@@ -201,24 +207,61 @@ export const getDiscordGuildMember = async (
   }
 };
 
-export const registerDiscordGuildCommands = ({
-  token,
-  applicationId,
-  guildId,
-  commands,
-}: {
+type TDiscordGuildCommandsArgs = {
   token: string;
   applicationId: string;
   guildId: string;
-  commands: TDiscordSlashCommand[];
-}) =>
-  discordRequest<TDiscordSlashCommand[]>({
+};
+
+const getGuildCommandsPath = (applicationId: string, guildId: string) =>
+  `/applications/${encodeURIComponent(
+    applicationId,
+  )}/guilds/${encodeURIComponent(guildId)}/commands`;
+
+export const listDiscordGlobalCommands = (
+  token: string,
+  applicationId: string,
+) =>
+  discordRequest<TDiscordRegisteredCommand[]>({
     token,
-    method: 'PUT',
-    path: `/applications/${encodeURIComponent(
-      applicationId,
-    )}/guilds/${encodeURIComponent(guildId)}/commands`,
-    body: commands,
+    path: `/applications/${encodeURIComponent(applicationId)}/commands`,
+  });
+
+export const listDiscordGuildCommands = ({
+  token,
+  applicationId,
+  guildId,
+}: TDiscordGuildCommandsArgs) =>
+  discordRequest<TDiscordRegisteredCommand[]>({
+    token,
+    path: getGuildCommandsPath(applicationId, guildId),
+  });
+
+export const upsertDiscordGuildCommand = ({
+  token,
+  applicationId,
+  guildId,
+  command,
+}: TDiscordGuildCommandsArgs & { command: TDiscordSlashCommand }) =>
+  discordRequest<TDiscordRegisteredCommand>({
+    token,
+    method: 'POST',
+    path: getGuildCommandsPath(applicationId, guildId),
+    body: command,
+  });
+
+export const deleteDiscordGuildCommand = ({
+  token,
+  applicationId,
+  guildId,
+  commandId,
+}: TDiscordGuildCommandsArgs & { commandId: string }) =>
+  discordRequest<unknown>({
+    token,
+    method: 'DELETE',
+    path: `${getGuildCommandsPath(applicationId, guildId)}/${encodeURIComponent(
+      commandId,
+    )}`,
   });
 
 export const editDiscordInteractionResponse = async ({
@@ -359,6 +402,10 @@ export const describeDiscordError = (error: unknown): string => {
   if (error instanceof DiscordApiError) {
     if (error.status === 401) {
       return 'Discord rejected the bot token';
+    }
+
+    if (error.status === 429) {
+      return 'Discord is rate limiting this bot. Try again in a few seconds.';
     }
 
     if (

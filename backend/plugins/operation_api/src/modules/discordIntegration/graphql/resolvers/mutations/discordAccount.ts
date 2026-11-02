@@ -1,4 +1,5 @@
 import {
+  confirmDiscordAccountLink,
   requireDiscordLinkUser,
   startDiscordAccountLink,
 } from '@/discordIntegration/utils/discordAccountLink';
@@ -14,6 +15,16 @@ export const discordAccountMutations = {
     const userId = requireDiscordLinkUser(user);
 
     return startDiscordAccountLink({ models, subdomain, userId });
+  },
+
+  async operationDiscordConfirmAccountLink(
+    _parent: undefined,
+    { token }: { token: string },
+    { models, subdomain, user }: IContext,
+  ) {
+    const userId = requireDiscordLinkUser(user);
+
+    return confirmDiscordAccountLink({ models, subdomain, userId, token });
   },
 
   async operationDiscordUnlinkMyAccount(

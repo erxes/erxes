@@ -1,6 +1,9 @@
 import { Queue } from 'bullmq';
 import { createMQWorkerWithListeners } from 'erxes-api-shared/utils';
-import { DISCORD_NOTIFY_QUEUE } from '@/discordIntegration/constants';
+import {
+  DISCORD_NOTIFY_CONCURRENCY,
+  DISCORD_NOTIFY_QUEUE,
+} from '@/discordIntegration/constants';
 import { checkCycle, dailyCheckCycles } from '~/worker/dailyCheckCycles';
 import { deliverDiscordNotification } from '~/worker/discordNotifications';
 
@@ -54,5 +57,6 @@ export const initMQWorkers = async (redis: any) => {
         `Worker for queue operations-${DISCORD_NOTIFY_QUEUE} is ready`,
       );
     },
+    { concurrency: DISCORD_NOTIFY_CONCURRENCY },
   );
 };

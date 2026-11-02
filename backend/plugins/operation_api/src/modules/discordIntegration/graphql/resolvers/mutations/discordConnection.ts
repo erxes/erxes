@@ -2,7 +2,10 @@ import {
   inspectDiscordBot,
   requireDiscordToken,
 } from '@/discordIntegration/utils/discordBot';
-import { enableDiscordCommands } from '@/discordIntegration/utils/discordCommands';
+import {
+  enableDiscordCommands,
+  releaseDiscordCommands,
+} from '@/discordIntegration/utils/discordCommands';
 import { sealDiscordSecret } from '@/discordIntegration/utils/discordSecrets';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -35,6 +38,14 @@ export const discordConnectionMutations = {
       guildId,
       subdomain,
     }).lean();
+
+    const previousWithToken =
+      previous && previous.applicationId !== application.id
+        ? await models.DiscordConnection.findWithToken({
+            _id: previous._id,
+            subdomain,
+          }).catch(() => null)
+        : null;
 
     const connection = await models.DiscordConnection.upsertConnection({
       guildId,
@@ -87,6 +98,18 @@ export const discordConnectionMutations = {
           $set: { hasClientSecret: false },
         },
       );
+
+      if (previousWithToken) {
+        await releaseDiscordCommands({
+          models,
+          subdomain,
+          connectionId: String(connection._id),
+          token: previousWithToken.token,
+          applicationId: previous.applicationId,
+          guildId,
+          commandsRegistered: Boolean(previous.commandsRegisteredAt),
+        });
+      }
     }
 
     return enableDiscordCommands({
@@ -202,6 +225,23 @@ export const discordConnectionMutations = {
           linkedTeamCount === 1 ? '' : 's'
         }`,
       );
+    }
+
+    const withToken = await models.DiscordConnection.findWithToken({
+      _id,
+      subdomain,
+    }).catch(() => null);
+
+    if (withToken) {
+      await releaseDiscordCommands({
+        models,
+        subdomain,
+        connectionId: _id,
+        token: withToken.token,
+        applicationId: withToken.applicationId,
+        guildId: withToken.guildId,
+        commandsRegistered: Boolean(withToken.commandsRegisteredAt),
+      });
     }
 
     await models.DiscordConnection.deleteOne({ _id, subdomain });

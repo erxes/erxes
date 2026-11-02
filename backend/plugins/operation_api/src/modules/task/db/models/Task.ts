@@ -28,19 +28,23 @@ export interface ITaskModel extends Model<ITaskDocument> {
     doc,
     userId,
     subdomain,
+    skipDiscord,
   }: {
     doc: ITask & { triageId?: string };
     userId: string;
     subdomain: string;
+    skipDiscord?: boolean;
   }): Promise<ITaskDocument>;
   updateTask({
     doc,
     userId,
     subdomain,
+    skipDiscord,
   }: {
     doc: ITaskUpdate;
     userId: string;
     subdomain: string;
+    skipDiscord?: boolean;
   }): Promise<ITaskDocument>;
   removeTask(taskIds: string[]): Promise<DeleteResult>;
   moveCycle(
@@ -116,10 +120,12 @@ export const loadTaskClass = (
       doc,
       userId,
       subdomain,
+      skipDiscord = false,
     }: {
       doc: ITask & { triageId?: string; _id?: mongoose.Types.ObjectId };
       userId: string;
       subdomain: string;
+      skipDiscord?: boolean;
     }): Promise<ITaskDocument> {
       const [result] = await models.Task.aggregate([
         { $match: { teamId: doc.teamId } },
@@ -194,7 +200,7 @@ export const loadTaskClass = (
         currentDocument: task.toObject(),
       });
 
-      if (doc.assigneeId) {
+      if (doc.assigneeId && !skipDiscord) {
         await notifyDiscord(models, {
           subdomain,
           event: 'taskAssigned',
@@ -211,10 +217,12 @@ export const loadTaskClass = (
       doc,
       userId,
       subdomain,
+      skipDiscord = false,
     }: {
       doc: ITaskUpdate;
       userId: string;
       subdomain: string;
+      skipDiscord?: boolean;
     }) {
       const { _id, ...rest } = doc;
 
@@ -357,11 +365,16 @@ export const loadTaskClass = (
           actorId: userId,
         };
 
-        if (doc.assigneeId && doc.assigneeId !== task.assigneeId) {
+        if (
+          !skipDiscord &&
+          doc.assigneeId &&
+          doc.assigneeId !== task.assigneeId
+        ) {
           await notifyDiscord(models, { ...discordJob, event: 'taskAssigned' });
         }
 
         if (
+          !skipDiscord &&
           rest.statusType === STATUS_TYPES.COMPLETED &&
           task.statusType !== STATUS_TYPES.COMPLETED
         ) {

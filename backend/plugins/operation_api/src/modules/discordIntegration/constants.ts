@@ -14,7 +14,12 @@ export const DISCORD_LINK_STATE_PREFIX = 'operation:discord:account-link:';
 
 export const DISCORD_LINK_STATE_TTL_SECONDS = 600;
 
-export const DISCORD_LINK_MESSAGE_TYPE = 'operation-discord-account-link';
+export const DISCORD_LINK_RESULT_PREFIX =
+  'operation:discord:account-link-result:';
+
+export const DISCORD_LINK_RESULT_PARAM = 'discordLink';
+
+export const DISCORD_LINK_ERROR_PARAM = 'discordLinkError';
 
 export const DISCORD_NOTIFICATION_EVENTS = [
   'triageCreated',
@@ -41,6 +46,10 @@ export const DISCORD_NOTIFY_JOB_OPTIONS: JobsOptions = {
 export const DISCORD_CARD_CLAIM_TIMEOUT_MS = 60_000;
 
 export const DISCORD_MAX_RATE_LIMIT_RETRIES = 2;
+
+export const DISCORD_RATE_LIMIT_INLINE_WAIT_MS = 2000;
+
+export const DISCORD_NOTIFY_CONCURRENCY = 5;
 
 export const DISCORD_BOT_PERMISSIONS =
   (1 << 10) | (1 << 11) | (1 << 14) | (1 << 16);
@@ -112,6 +121,8 @@ export const DISCORD_TASKS_BUTTON_PREFIX = 'operation:tasks';
 export const DISCORD_TASKS_PAGE_SIZE = 10;
 
 export const DISCORD_TASKS_FETCH_LIMIT = 200;
+
+export const DISCORD_CUSTOMER_CHANNEL_LINK_LIMIT = 25;
 
 export const DISCORD_TRIAGE_RATE_LIMIT = {
   max: 10,

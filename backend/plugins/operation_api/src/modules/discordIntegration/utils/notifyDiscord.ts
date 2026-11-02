@@ -12,23 +12,22 @@ import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
 type TDiscordSourceRecord = {
+  companyId?: string | null;
   discordSource?: { userId?: string; channelId?: string } | null;
 };
 
-const findReportedSource = async (models: IModels, entityId: string) => {
+const findReportedRecord = async (models: IModels, entityId: string) => {
   const task = await models.Task.findOne({ _id: entityId })
-    .select('discordSource')
+    .select('companyId discordSource')
     .lean<TDiscordSourceRecord>();
 
   if (task) {
-    return task.discordSource ?? null;
+    return task;
   }
 
-  const triage = await models.Triage.findOne({ _id: entityId })
-    .select('discordSource')
+  return models.Triage.findOne({ _id: entityId })
+    .select('companyId discordSource')
     .lean<TDiscordSourceRecord>();
-
-  return triage?.discordSource ?? null;
 };
 
 const hasCustomerThread = async (
@@ -45,9 +44,10 @@ const hasCustomerThread = async (
     return true;
   }
 
-  const source = await findReportedSource(models, job.entityId);
+  const record = await findReportedRecord(models, job.entityId);
+  const source = record?.discordSource;
 
-  if (!source?.channelId) {
+  if (!source?.channelId || !record?.companyId) {
     return false;
   }
 
@@ -56,7 +56,10 @@ const hasCustomerThread = async (
     [source.channelId],
   );
 
-  if (!customerChannel) {
+  if (
+    !customerChannel ||
+    customerChannel.companyId !== String(record.companyId)
+  ) {
     return false;
   }
 
@@ -78,7 +81,12 @@ const hasCustomerThread = async (
   return true;
 };
 
-type TDiscordRemovableRecord = { _id: unknown; number?: number; name: string };
+type TDiscordRemovableRecord = {
+  _id: unknown;
+  number?: number;
+  name: string;
+  companyId?: string | null;
+};
 
 export const notifyDiscordRemoval = async (
   models: IModels,
@@ -105,6 +113,7 @@ export const notifyDiscordRemoval = async (
         entityId: String(record._id),
         label: `Task #${record.number ?? 0}`,
         name: record.name,
+        companyId: record.companyId ?? null,
       })),
       ...(configIds ? { configIds } : {}),
     };

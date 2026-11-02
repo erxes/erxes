@@ -13,9 +13,13 @@ import { IModels } from '~/connectionResolvers';
 import {
   DiscordApiError,
   buildDiscordInviteUrl,
+  deleteDiscordGuildCommand,
+  describeDiscordError,
   getDiscordApplication,
-  registerDiscordGuildCommands,
+  listDiscordGlobalCommands,
+  listDiscordGuildCommands,
   updateDiscordApplication,
+  upsertDiscordGuildCommand,
 } from '~/utils/discordClient';
 
 type TDiscordCommandsArgs = {
@@ -23,6 +27,16 @@ type TDiscordCommandsArgs = {
   subdomain: string;
   connectionId: string;
 };
+
+type TGuildCommandsArgs = {
+  token: string;
+  applicationId: string;
+  guildId: string;
+};
+
+const COMMAND_NAMES = new Set(DISCORD_SLASH_COMMANDS.map(({ name }) => name));
+
+const LISTED_COMMANDS_LIMIT = 5;
 
 const DISCORD_COMMANDS_VERSION = createHash('sha1')
   .update(JSON.stringify(DISCORD_SLASH_COMMANDS))
@@ -63,16 +77,11 @@ const setInteractionsEndpoint = async (token: string, url: string) => {
   }
 };
 
-const putGuildCommands = async (args: {
-  token: string;
-  applicationId: string;
-  guildId: string;
-}) => {
+const upsertGuildCommands = async (args: TGuildCommandsArgs) => {
   try {
-    await registerDiscordGuildCommands({
-      ...args,
-      commands: DISCORD_SLASH_COMMANDS,
-    });
+    for (const command of DISCORD_SLASH_COMMANDS) {
+      await upsertDiscordGuildCommand({ ...args, command });
+    }
   } catch (error) {
     if (isMissingAccess(error)) {
       throw new Error(
@@ -83,6 +92,37 @@ const putGuildCommands = async (args: {
     }
     throw error;
   }
+};
+
+const removeGuildCommands = async (args: TGuildCommandsArgs) => {
+  const commands = await listDiscordGuildCommands(args);
+
+  for (const command of commands) {
+    if (COMMAND_NAMES.has(command.name)) {
+      await deleteDiscordGuildCommand({ ...args, commandId: command.id });
+    }
+  }
+};
+
+const assertBotHasNoCommands = async (args: TGuildCommandsArgs) => {
+  const [globalCommands, guildCommands] = await Promise.all([
+    listDiscordGlobalCommands(args.token, args.applicationId),
+    listDiscordGuildCommands(args),
+  ]);
+  const names = [...globalCommands, ...guildCommands].map(
+    ({ name }) => `/${name}`,
+  );
+
+  if (!names.length) {
+    return;
+  }
+
+  const listed = names.slice(0, LISTED_COMMANDS_LIMIT).join(', ');
+  const more = names.length > LISTED_COMMANDS_LIMIT ? ', …' : '';
+
+  throw new Error(
+    `This bot already has its own slash commands (${listed}${more}). Once erxes receives the bot's interactions, Discord stops sending them to the bot. Use a bot made only for erxes, or turn slash commands on here to accept that.`,
+  );
 };
 
 const registerDiscordCommands = async ({
@@ -115,21 +155,27 @@ const registerDiscordCommands = async ({
         { $set: { publicKey: application.verify_key } },
       );
 
-      if (currentUrl && currentUrl !== interactionsUrl && !replaceEndpoint) {
-        throw new Error(
-          `This bot already sends slash commands to ${currentUrl}. Turn them on here to point it to erxes instead.`,
-        );
+      const guildCommandsArgs = {
+        token: connection.token,
+        applicationId: application.id,
+        guildId: connection.guildId,
+      };
+
+      if (currentUrl !== interactionsUrl && !replaceEndpoint) {
+        if (currentUrl) {
+          throw new Error(
+            `This bot already sends slash commands to ${currentUrl}. Turn them on here to point it to erxes instead.`,
+          );
+        }
+
+        await assertBotHasNoCommands(guildCommandsArgs);
       }
 
       if (currentUrl !== interactionsUrl) {
         await setInteractionsEndpoint(connection.token, interactionsUrl);
       }
 
-      await putGuildCommands({
-        token: connection.token,
-        applicationId: application.id,
-        guildId: connection.guildId,
-      });
+      await upsertGuildCommands(guildCommandsArgs);
     },
   });
 };
@@ -178,6 +224,60 @@ export const enableDiscordCommands = async ({
   );
 };
 
+export const releaseDiscordCommands = async ({
+  models,
+  subdomain,
+  connectionId,
+  token,
+  applicationId,
+  guildId,
+  commandsRegistered,
+}: TDiscordCommandsArgs &
+  TGuildCommandsArgs & {
+    commandsRegistered: boolean;
+  }) => {
+  if (commandsRegistered) {
+    try {
+      await removeGuildCommands({ token, applicationId, guildId });
+    } catch (error) {
+      console.error(
+        `Could not remove the Discord slash commands from ${guildId}: ${describeDiscordError(
+          error,
+        )}`,
+      );
+    }
+  }
+
+  try {
+    const sharedApplication = await models.DiscordConnection.exists({
+      subdomain,
+      applicationId,
+      _id: { $ne: connectionId },
+    });
+
+    if (sharedApplication) {
+      return;
+    }
+
+    const application = await getDiscordApplication(token);
+
+    if (
+      application.interactions_endpoint_url ===
+      getDiscordInteractionsUrl(subdomain)
+    ) {
+      await updateDiscordApplication(token, {
+        interactions_endpoint_url: null,
+      });
+    }
+  } catch (error) {
+    console.error(
+      `Could not clear the Discord interactions endpoint of ${applicationId}: ${describeDiscordError(
+        error,
+      )}`,
+    );
+  }
+};
+
 export const disableDiscordCommands = async ({
   models,
   subdomain,
@@ -193,11 +293,10 @@ export const disableDiscordCommands = async ({
     connectionId,
     request: async () => {
       try {
-        await registerDiscordGuildCommands({
+        await removeGuildCommands({
           token: connection.token,
           applicationId: connection.applicationId,
           guildId: connection.guildId,
-          commands: [],
         });
       } catch (error) {
         if (!isMissingAccess(error)) {
@@ -261,7 +360,7 @@ export const syncDiscordCommands = async ({
   await runDiscordRequest({
     models,
     connectionId,
-    request: () => putGuildCommands({ token, applicationId, guildId }),
+    request: () => upsertGuildCommands({ token, applicationId, guildId }),
   });
 
   await models.DiscordConnection.updateOne(
