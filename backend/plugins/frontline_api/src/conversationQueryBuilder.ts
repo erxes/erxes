@@ -5,6 +5,9 @@ import {
 } from '@/inbox/db/definitions/constants';
 import { escapeRegExp, fixDate, sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as _ from 'underscore';
+import type { FilterQuery } from 'mongoose';
+import type { IConversationDocument } from '@/inbox/@types/conversations';
+import { buildClosedAtFilter } from '@/inbox/utils/closedAtFilter';
 import { IModels } from '~/connectionResolvers';
 import {
   buildAssigneeFilter,
@@ -39,6 +42,8 @@ export interface IListArgs {
   ids?: string[];
   startDate?: string;
   endDate?: string;
+  closedAtFrom?: string;
+  closedAtTo?: string;
   only?: string;
   page?: number;
   perPage?: number;
@@ -67,7 +72,9 @@ export default class Builder {
   public subdomain: string;
   public params: IListArgs;
   public user: IUserArgs;
-  public queries: any;
+  public queries: Record<string, FilterQuery<IConversationDocument>> & {
+    integrations: IIntersectIntegrationIds;
+  } = { integrations: { integrationId: { $in: [] } } };
   public unassignedQuery?: IUnassignedFilter;
   public activeIntegrationIds: string[] = [];
 
@@ -115,27 +122,31 @@ export default class Builder {
     ];
   }
 
-  public async defaultFilters(): Promise<any> {
+  public async defaultFilters(): Promise<{ status: IIn }> {
     const activeIntegrations = await this.models.Integrations.find({
       isActive: { $ne: false },
     });
 
     this.activeIntegrationIds = activeIntegrations.map((integ) => integ._id);
 
-    let statusFilter = this.statusFilter([
+    let statusFilter = Builder.statusFilter([
       CONVERSATION_STATUSES.NEW,
       CONVERSATION_STATUSES.OPEN,
     ]);
 
-    if (this.params.status === 'closed') {
-      statusFilter = this.statusFilter([CONVERSATION_STATUSES.CLOSED]);
+    if (
+      this.params.status === CONVERSATION_STATUSES.CLOSED ||
+      (!this.params.status &&
+        (this.params.closedAtFrom || this.params.closedAtTo))
+    ) {
+      statusFilter = Builder.statusFilter([CONVERSATION_STATUSES.CLOSED]);
     }
 
     return statusFilter;
   }
 
-  public async intersectIntegrationIds(
-    ...queries: any[]
+  public static intersectIntegrationIds(
+    ...queries: IIntersectIntegrationIds[]
   ): Promise<{ integrationId: IIn }> {
     const withIn = queries.filter((q) => q.integrationId?.$in?.length);
 
@@ -145,9 +156,9 @@ export default class Builder {
 
     const integrationids: string[] = _.intersection(...nestedIntegrationIds);
 
-    return {
+    return Promise.resolve({
       integrationId: { $in: integrationids },
-    };
+    });
   }
 
   public async integrationsFilter(): Promise<IIntersectIntegrationIds> {
@@ -204,7 +215,7 @@ export default class Builder {
       }
     }
 
-    return this.intersectIntegrationIds(...nestedIntegrationIds);
+    return Builder.intersectIntegrationIds(...nestedIntegrationIds);
   }
 
   public async channelFilter(
@@ -288,31 +299,31 @@ export default class Builder {
     };
   }
 
-  public statusFilter(statusChoices: string[]): { status: IIn } {
+  public static statusFilter(statusChoices: string[]): { status: IIn } {
     return {
       status: { $in: statusChoices },
     };
   }
 
-  public awaitingResponse(): { isCustomerRespondedLast: boolean } {
+  public static awaitingResponse(): { isCustomerRespondedLast: boolean } {
     return {
       isCustomerRespondedLast: true,
     };
   }
 
-  public withSurveyFilter(): { hasSurvey: boolean } {
+  public static withSurveyFilter(): { hasSurvey: boolean } {
     return {
       hasSurvey: true,
     };
   }
 
-  public withoutSurveyFilter(): { hasSurvey: { $ne: true } } {
+  public static withoutSurveyFilter(): { hasSurvey: { $ne: true } } {
     return {
       hasSurvey: { $ne: true },
     };
   }
 
-  public automationStatusFilter(value: string): {
+  public static automationStatusFilter(value: string): {
     'automatedReplyControl.status'?: IIn | IExists;
   } {
     const keys = value.split(',').map((key) => key.trim());
@@ -371,7 +382,7 @@ export default class Builder {
     };
   }
 
-  public dateFilter(startDate: string, endDate: string) {
+  public static dateFilter(startDate: string, endDate: string) {
     return {
       $and: [
         {
@@ -416,7 +427,7 @@ export default class Builder {
           ],
         };
 
-    const customers = await sendTRPCMessage({
+    const customers: { _id: string }[] = await sendTRPCMessage({
       subdomain: this.subdomain,
 
       pluginName: 'core',
@@ -427,7 +438,7 @@ export default class Builder {
       defaultValue: [],
     });
 
-    const customerIds = (customers || []).map((customer: any) =>
+    const customerIds = (customers || []).map((customer) =>
       customer._id.toString(),
     );
 
@@ -488,7 +499,7 @@ export default class Builder {
       channel: {},
       integrationType: {},
 
-      integrations: {},
+      integrations: { integrationId: { $in: [] } },
 
       participating: {},
       mentioned: {},
@@ -526,23 +537,23 @@ export default class Builder {
     }
 
     if (this.params.awaitingResponse) {
-      this.queries.awaitingResponse = this.awaitingResponse();
+      this.queries.awaitingResponse = Builder.awaitingResponse();
     }
 
     if (this.params.withSurvey || this.params.withPoll) {
-      this.queries.withSurvey = this.withSurveyFilter();
+      this.queries.withSurvey = Builder.withSurveyFilter();
     } else if (this.params.integrationType) {
-      this.queries.withSurvey = this.withoutSurveyFilter();
+      this.queries.withSurvey = Builder.withoutSurveyFilter();
     }
 
     if (this.params.automationStatus) {
-      this.queries.automationStatus = this.automationStatusFilter(
+      this.queries.automationStatus = Builder.automationStatusFilter(
         this.params.automationStatus,
       );
     }
 
     if (this.params.status) {
-      this.queries.status = this.statusFilter([this.params.status]);
+      this.queries.status = Builder.statusFilter([this.params.status]);
     }
 
     if (this.params.tag) {
@@ -550,7 +561,7 @@ export default class Builder {
     }
 
     if (this.params.startDate && this.params.endDate) {
-      this.queries.createdAt = this.dateFilter(
+      this.queries.createdAt = Builder.dateFilter(
         this.params.startDate,
         this.params.endDate,
       );
@@ -563,7 +574,7 @@ export default class Builder {
     this.queries.extended = await this.extendedQueryFilter(this.params);
   }
 
-  public mainQuery(): any {
+  public mainQuery(): FilterQuery<IConversationDocument> {
     return {
       ...this.queries.default,
       ...this.queries.integrations,
@@ -576,6 +587,7 @@ export default class Builder {
       ...this.queries.starred,
       ...this.queries.tag,
       ...this.queries.createdAt,
+      ...buildClosedAtFilter(this.params),
       ...this.queries.awaitingResponse,
       ...this.queries.automationStatus,
       ...this.queries.withSurvey,

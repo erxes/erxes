@@ -1,4 +1,6 @@
-import { AppLayout } from 'erxes-ui';
+import { AppLayout, AppLayoutFooterLink } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { DocumentsContextNavigation } from '@/documents/components/DocumentsContextNavigation';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationChildControlsProvider } from '@/navigation/components/app-sidebar/NavigationChildControlsProvider';
@@ -29,6 +31,20 @@ const getCoreModuleSidebar = (
 
   if (activity.modules.some((module) => module.submenus?.length)) {
     return <NavigationCorePanelContent activity={activity} />;
+  }
+
+  return null;
+};
+
+const getCoreModuleSidebarFooter = (pathname: string, label: string) => {
+  if (pathname.startsWith(`/${AppPath.Automations}`)) {
+    return (
+      <AppLayoutFooterLink
+        path={AutomationSettingsPath.Index}
+        name={label}
+        icon={IconSettings}
+      />
+    );
   }
 
   return null;
@@ -79,6 +95,7 @@ export const CoreAppOutlet = () => {
     <AppLayout
       id={activity.id}
       title={activity.label}
+      footer={getCoreModuleSidebarFooter(pathname, t('app-settings'))}
       sidebar={
         <NavigationChildControlsProvider activity={activity}>
           {sidebar}

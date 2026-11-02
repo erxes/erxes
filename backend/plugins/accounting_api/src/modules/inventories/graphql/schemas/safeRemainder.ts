@@ -53,6 +53,7 @@ export const queries = `
     departmentId: String,
     productId: String,
     searchValue: String,
+    statuses: [String],
     beginDate: Date,
     endDate: Date,
     createdUserId: String,

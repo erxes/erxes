@@ -1,8 +1,16 @@
 import {
+  AccountsFilterCategory,
   AccountsFilterCurrency,
+  AccountsFilterIsOutBalance,
+  AccountsFilterKind,
+  AccountsFilterStatus,
   AccountsFilterTrJournal,
   AccountsFilterTrStatus,
+  FilterBarCategory,
   FilterBarCurrency,
+  FilterBarIsOutBalance,
+  FilterBarKind,
+  FilterBarStatus,
   FilterBarTrJournal,
   FilterBarTrStatus,
 } from '@/settings/account/components/filters/FilterHelpers';
@@ -20,18 +28,118 @@ import {
 } from '@tabler/icons-react';
 import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
 
+import { ACCTRANSACTIONS_CURSOR_SESSION_KEY } from '~/modules/accountsSessionKeys';
 import { SelectAccount } from '~/modules/settings/account/components/SelectAccount';
 import { useTransactionsQueryParams } from '../hooks/useTransactionVars';
 import { useTranslation } from 'react-i18next';
 
 const SIDEBAR_FILTER_KEYS = new Set(['branchId', 'departmentId', 'journal']);
 
-const TransactionsFilterPopover = ({
+const TransactionsFilterMenu = ({
   sidebarFilters,
 }: {
   sidebarFilters?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
+
+  return (
+    <Command>
+      <Filter.CommandInput
+        placeholder={t('filter')}
+        variant="secondary"
+        className="bg-background"
+      />
+      <Command.List className="p-1">
+        <Filter.Item value="searchValue" inDialog>
+          <IconSearch />
+          {t('search')}
+        </Filter.Item>
+        <Filter.Item value="number" inDialog>
+          <IconNumber />
+          {t('number')}
+        </Filter.Item>
+        <Filter.Item value="date" inDialog>
+          <IconCalendar />
+          {t('date')}
+        </Filter.Item>
+        {!sidebarFilters && (
+          <>
+            <SelectBranches.FilterItem value="branchId" label={t('branch')} />
+            <SelectDepartments.FilterItem
+              value="departmentId"
+              label={t('department')}
+            />
+          </>
+        )}
+        <Filter.Item value="currency">
+          <IconCoins />
+          {t('currency')}
+        </Filter.Item>
+        {!sidebarFilters && (
+          <Filter.Item value="journal">
+            <IconNotebook />
+            {t('journal')}
+          </Filter.Item>
+        )}
+
+        <Command.Separator className="my-1" />
+        <Filter.Item value="statuses">
+          <IconToggleRightFilled />
+          {t('status')}
+        </Filter.Item>
+        <SelectMember.FilterItem
+          value="mentionOwnerId"
+          label={t('performed-by')}
+        />
+        <SelectMember.FilterItem value="mentionUserId" label={t('approver')} />
+
+        <Command.Separator className="my-1" />
+        <SelectAccount.FilterItem value="accountIds" />
+        <Filter.Item value="accountKind">
+          <IconToggleRightFilled />
+          {t('account-type')}
+        </Filter.Item>
+        <Filter.Item value="accountStatus">
+          <IconToggleRightFilled />
+          {t('account-status')}
+        </Filter.Item>
+        <Filter.Item value="accountCategoryId">
+          <IconLayoutGridAdd />
+          {t('account-category')}
+        </Filter.Item>
+        <Filter.Item value="accountSearchValue" inDialog>
+          <IconSearch />
+          {t('search-accounts')}
+        </Filter.Item>
+        <Filter.Item value="accountIsOutBalance">
+          <IconToggleRightFilled />
+          {t('off-balance-sheet-account')}
+        </Filter.Item>
+
+        <Command.Separator className="my-1" />
+        <SelectMember.FilterItem
+          value="createdUserId"
+          label={t('date-type-created')}
+        />
+        <SelectMember.FilterItem value="modifiedUserId" label={t('modified')} />
+        <Filter.Item value="updatedDate" inDialog>
+          <IconCalendar />
+          {t('modified')}
+        </Filter.Item>
+        <Filter.Item value="createdDate" inDialog>
+          <IconCalendar />
+          {t('date-type-created')}
+        </Filter.Item>
+      </Command.List>
+    </Command>
+  );
+};
+
+const TransactionsFilterPopover = ({
+  sidebarFilters,
+}: {
+  sidebarFilters?: boolean;
+}) => {
   const queryParams = useTransactionsQueryParams();
   const hasFilters = Object.entries(queryParams || {}).some(
     ([key, value]) =>
@@ -44,104 +152,7 @@ const TransactionsFilterPopover = ({
         <Filter.Trigger isFiltered={hasFilters} />
         <Combobox.Content>
           <Filter.View>
-            <Command>
-              <Filter.CommandInput
-                placeholder={t('filter')}
-                variant="secondary"
-                className="bg-background"
-              />
-              <Command.List className="p-1">
-                <Filter.Item value="searchValue" inDialog>
-                  <IconSearch />
-                  {t('search')}
-                </Filter.Item>
-                <Filter.Item value="number" inDialog>
-                  <IconNumber />
-                  {t('number')}
-                </Filter.Item>
-                <Filter.Item value="date" inDialog>
-                  <IconCalendar />
-                  {t('date')}
-                </Filter.Item>
-                {!sidebarFilters && (
-                  <>
-                    <SelectBranches.FilterItem
-                      value="branchId"
-                      label={t('branch')}
-                    />
-                    <SelectDepartments.FilterItem
-                      value="departmentId"
-                      label={t('department')}
-                    />
-                  </>
-                )}
-                <Filter.Item value="currency">
-                  <IconCoins />
-                  {t('currency')}
-                </Filter.Item>
-                {!sidebarFilters && (
-                  <Filter.Item value="journal">
-                    <IconNotebook />
-                    {t('journal')}
-                  </Filter.Item>
-                )}
-
-                <Command.Separator className="my-1" />
-                <Filter.Item value="statuses">
-                  <IconToggleRightFilled />
-                  {t('status')}
-                </Filter.Item>
-                <SelectMember.FilterItem
-                  value="mentionOwnerId"
-                  label={t('performed-by')}
-                />
-                <SelectMember.FilterItem
-                  value="mentionUserId"
-                  label={t('approver')}
-                />
-
-                <Command.Separator className="my-1" />
-                <SelectAccount.FilterItem value="accountIds" />
-                <Filter.Item value="accountKind" disabled={true}>
-                  <IconToggleRightFilled />
-                  {t('account-type')}
-                </Filter.Item>
-                <Filter.Item value="accountStatus" disabled={true}>
-                  <IconToggleRightFilled />
-                  {t('account-status')}
-                </Filter.Item>
-                <Filter.Item value="accountCategoryId" disabled={true}>
-                  <IconLayoutGridAdd />
-                  {t('account-category')}
-                </Filter.Item>
-                <Filter.Item value="accountSearchValue" inDialog>
-                  <IconSearch />
-                  {t('search-accounts')}
-                </Filter.Item>
-                <Filter.Item value="isOutBalance" disabled={true}>
-                  <IconToggleRightFilled />
-                  {t('off-balance-sheet-account')}
-                </Filter.Item>
-
-                <Command.Separator className="my-1" />
-                <SelectMember.FilterItem
-                  value="createdUserId"
-                  label={t('date-type-created')}
-                />
-                <SelectMember.FilterItem
-                  value="modifiedUserId"
-                  label={t('modified')}
-                />
-                <Filter.Item value="updatedDate" inDialog>
-                  <IconCalendar />
-                  {t('modified')}
-                </Filter.Item>
-                <Filter.Item value="createdDate" inDialog>
-                  <IconCalendar />
-                  {t('date-type-created')}
-                </Filter.Item>
-              </Command.List>
-            </Command>
+            <TransactionsFilterMenu sidebarFilters={sidebarFilters} />
           </Filter.View>
           <Filter.View filterKey="date">
             <Filter.DateView filterKey="date" />
@@ -170,6 +181,19 @@ const TransactionsFilterPopover = ({
             </Filter.View>
           )}
           <SelectAccount.FilterView mode="multiple" queryKey="accountIds" />
+          <Filter.View filterKey="accountKind">
+            <AccountsFilterKind queryKey="accountKind" />
+          </Filter.View>
+          <Filter.View filterKey="accountStatus">
+            <AccountsFilterStatus queryKey="accountStatus" />
+          </Filter.View>
+          <AccountsFilterCategory
+            filterKey="accountCategoryId"
+            queryKey="accountCategoryId"
+          />
+          <Filter.View filterKey="accountIsOutBalance">
+            <AccountsFilterIsOutBalance queryKey="accountIsOutBalance" />
+          </Filter.View>
 
           <SelectMember.FilterView mode="single" queryKey="createdUserId" />
           <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
@@ -222,7 +246,10 @@ export const TransactionsFilter = ({
   const { number, searchValue, accountSearchValue } = queries;
 
   return (
-    <Filter id="accounts-filter">
+    <Filter
+      id="accounts-filter"
+      sessionKey={ACCTRANSACTIONS_CURSOR_SESSION_KEY}
+    >
       <Filter.Bar>
         <TransactionsFilterPopover sidebarFilters={sidebarFilters} />
         <Filter.BarItem queryKey="searchValue">
@@ -269,6 +296,16 @@ export const TransactionsFilter = ({
         {!sidebarFilters && <FilterBarTrJournal />}
 
         <SelectAccount.FilterBar queryKey="accountIds" mode="multiple" />
+        <FilterBarKind queryKey="accountKind" labelKey="account-type" />
+        <FilterBarStatus queryKey="accountStatus" labelKey="account-status" />
+        <FilterBarCategory
+          queryKey="accountCategoryId"
+          labelKey="account-category"
+        />
+        <FilterBarIsOutBalance
+          queryKey="accountIsOutBalance"
+          labelKey="off-balance-sheet-account"
+        />
         <Filter.BarItem queryKey="accountSearchValue">
           <Filter.BarName>
             <IconLabelFilled />

@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-01`
 
 ## Scope
 
@@ -460,6 +460,12 @@
   link to the conversation.
   (Media added to an existing ticket goes through Find object and Manage
   properties' `attachments` field; there is no separate add-to-ticket action.)
+- Ticket automations: **Ticket status changed** (`frontline:tickets.tickets.statusChanged`,
+  custom, always re-runs) needs no segment. `checkCustomTrigger` passes only
+  an update whose `eventUpdateDescription.updated.statusId` moved, on the
+  configured `pipelineId`, and — when `toStatusIds` is not empty — to one of
+  them (`ticket/meta/automations/trigger/checkStatusChangedTrigger.ts`). A new
+  ticket never fires it: a create carries no previous status.
   Conversation media is stored on the ticket with a MIME `type` (from the URL
   extension, else `<kind>/*`), never the message's bare kind (`image`): the
   ticket detail's `erxes-ui` Attachments only shows MIME-typed files.
