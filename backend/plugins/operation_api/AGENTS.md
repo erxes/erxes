@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -133,9 +133,6 @@ propertiesData? } })`
 
 ## Local Invariants
 
-- Task status and team ids are stored as MongoDB ObjectIds; compare normalized lowercase string values when detecting changes. Team-move side effects (status remapping, status-history deletion, cycle clearing and renumbering) run only for a real team change; metadata-only updates, including GitHub sync after creation, preserve those fields.
-- Every supplied task status refreshes `statusType`, including an unchanged status whose `statusChangedDate` is preserved; team moves derive the type from the final mapped status.
-- Task updates reject explicit null or blank team ids; an absent legacy team must not prevent assigning a valid replacement team. Project membership checks compare normalized team ids and tolerate null entries in legacy project team lists.
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
 - Every automation action declares a `configSchema` (`src/modules/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create task (`name`, `teamId`, `status`) and create project (`name`, a team). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
@@ -241,7 +238,6 @@ propertiesData? } })`
 
 ## Validation
 
-- Status smoke: create and update tasks with custom statuses in each of Backlog, Todo, In progress, Done and Cancelled on a team with two-way GitHub sync; confirm the exact selected status and cycle persist. Moving to a different team still maps the status to that team's matching type. Uppercase ids must behave like lowercase ids; re-saving a status repairs stale type metadata without resetting its change date. Reject null/blank team updates and confirm a legacy task without a team accepts a valid replacement team.
 - `pnpm nx run operation_api:schema:print` - writes `generated/schema.graphql`.
 - `pnpm nx lint operation_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
