@@ -22,7 +22,6 @@ import { permissions } from '~/meta/permissions';
 import { properties } from './meta/properties';
 import { salesReferences } from './meta/references';
 import { documents } from './meta/documents';
-import { handleCreateDealFromPayment } from '~/modules/sales/meta/payments/createDealFromPayment';
 import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 
 import { beforeResolvers } from '~/meta/beforeResolvers';
@@ -130,13 +129,6 @@ startPlugin({
     payments: {
       transactionCallback: async () => {
         // TODO: implement transaction callback if necessary
-      },
-      createDealFromPayment: async ({ subdomain }, data) => {
-        if (data?.status !== 'paid') {
-          return;
-        }
-
-        return handleCreateDealFromPayment(subdomain, data);
       },
       callback: async ({ subdomain }, data) => {
         const { status, contentType } = data;

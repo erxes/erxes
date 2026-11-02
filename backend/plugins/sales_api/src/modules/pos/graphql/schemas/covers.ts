@@ -1,4 +1,10 @@
 export const types = `
+  type PosCoverTerminalResult {
+    _id: String!
+    bank: String!
+    response: String
+    createdAt: Date!
+  }
   type PosCoverSummary {
     _id: String
     kind: String
@@ -8,6 +14,7 @@ export const types = `
   }
 
   type PosCoverDetail {
+    terminalResults: [PosCoverTerminalResult!]
     _id: String
     paidType: String
     

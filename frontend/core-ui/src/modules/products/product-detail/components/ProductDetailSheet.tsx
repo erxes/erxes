@@ -154,6 +154,8 @@ export const ProductDetailSheet = () => {
           variant: 'destructive',
         });
       },
+      refetchQueries: ['ProductsMain'],
+      awaitRefetchQueries: true,
     });
   };
 

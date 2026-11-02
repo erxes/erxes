@@ -1,5 +1,12 @@
-import { calcAmountsAtom, currentAmountsAtom } from "@/store/cover.store"
-import { useAtom } from "jotai"
+import {
+  calcAmountsAtom,
+  currentAmountsAtom,
+  terminalResultsAtom,
+  coverStatusAtom,
+  terminalFetchBusyAtom,
+  coverValidationAttemptedAtom,
+} from "@/store/cover.store"
+import { useAtom, useAtomValue } from "jotai"
 import { DownloadCloudIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -8,23 +15,27 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 
-const BankAmountUi = ({
+export const BankAmountUi = ({
   name,
   type,
   getCover,
   loading,
-  description,
-  onDescriptionChange,
-  descriptionDisabled,
 }: {
   name?: string
   type: string
   getCover?: () => void
   loading?: boolean
-  description?: string
-  onDescriptionChange?: React.ChangeEventHandler<HTMLTextAreaElement>
-  descriptionDisabled?: boolean
 }) => {
+  const results = useAtomValue(terminalResultsAtom).filter(
+    (entry) => entry.bank === type
+  )
+  const status = useAtomValue(coverStatusAtom)
+  const busy = useAtomValue(terminalFetchBusyAtom)
+  const attempted = useAtomValue(coverValidationAttemptedAtom)
+  const invalid =
+    attempted && !results.some((result) => !!result.response?.trim())
+  const descriptionId = `cover-terminal-description-${type}`
+  const disabled = busy || status === "confirm" || status === "confirming"
   const [calcAmounts] = useAtom(calcAmountsAtom)
   const [currentAmounts, setCurrentAmounts] = useAtom(currentAmountsAtom)
   const calcAmount = (calcAmounts || {})[type] || 0
@@ -38,6 +49,7 @@ const BankAmountUi = ({
           size="sm"
           loading={loading}
           onClick={getCover}
+          disabled={disabled || !getCover}
         >
           {!loading && (
             <DownloadCloudIcon className="mr-0.5 h-5 w-5 -translate-x-0.5" />
@@ -59,6 +71,7 @@ const BankAmountUi = ({
             <Label>Бүгд</Label>
             <Input
               value={currentAmount}
+              disabled={disabled}
               onChange={(e) =>
                 setCurrentAmounts({
                   ...currentAmounts,
@@ -71,16 +84,35 @@ const BankAmountUi = ({
           </div>
         </div>
         <div className="w-full space-y-1">
-          <Label>Tэмдэглэл</Label>
+          <Label htmlFor={descriptionId}>Tэмдэглэл *</Label>
           <Textarea
-            value={description}
-            onChange={onDescriptionChange}
-            disabled={descriptionDisabled}
+            id={descriptionId}
+            aria-required="true"
+            aria-invalid={invalid}
+            aria-describedby={invalid ? `${descriptionId}-error` : undefined}
+            className={invalid ? "border-destructive" : undefined}
+            value={results
+              .map(
+                (entry) =>
+                  `${entry.createdAt}\n${
+                    entry.response ?? "Хариу хүлээгдэж байна"
+                  }`
+              )
+              .join("\n\n")}
+            readOnly
+            rows={6}
           />
+          {invalid && (
+            <p
+              id={`${descriptionId}-error`}
+              role="alert"
+              className="text-sm font-medium text-destructive"
+            >
+              Терминалаас хаалт татаж, тэмдэглэлийг бөглөнө үү.
+            </p>
+          )}
         </div>
       </CardContent>
     </Card>
   )
 }
-
-export default BankAmountUi

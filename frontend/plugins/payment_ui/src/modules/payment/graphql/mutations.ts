@@ -38,20 +38,3 @@ export const INVOICE_EDIT = gql`
     }
   }
 `;
-
-export const INVOICE_SCAN_BARCODE = gql`
-  mutation InvoiceScanBarcode($code: String!) {
-    invoiceScanBarcode(code: $code) {
-      _id
-      invoiceNumber
-      amount
-      currency
-      description
-      status
-      scannedAt
-      scannedCount
-      ticketCount
-      createdAt
-    }
-  }
-`;

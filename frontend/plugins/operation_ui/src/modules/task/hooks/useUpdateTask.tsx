@@ -21,13 +21,21 @@ const TASK_OPTIMISTIC_FIELDS = gql(`
   }
 `);
 
+// Task lists never filter or sort by these fields, so saving them alone (the
+// description autosave, custom properties) must not refetch every task list.
+const LIST_NEUTRAL_FIELDS = new Set(['_id', 'description', 'propertiesData']);
+
+const affectsTaskLists = (variables?: UpdateTaskMutationVariables) =>
+  !variables ||
+  Object.entries(variables).some(
+    ([key, value]) => value !== undefined && !LIST_NEUTRAL_FIELDS.has(key),
+  );
+
 export const useUpdateTask = () => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
   const client = useApolloClient();
-  const [_updateTask, { loading, error }] = useMutation(UPDATE_TASK_MUTATION, {
-    refetchQueries: ['GetTasks'],
-  });
+  const [_updateTask, { loading, error }] = useMutation(UPDATE_TASK_MUTATION);
   const updateTask = (
     options: MutationFunctionOptions<
       UpdateTaskMutation,
@@ -58,6 +66,7 @@ export const useUpdateTask = () => {
         : undefined);
 
     return _updateTask({
+      refetchQueries: affectsTaskLists(variables) ? ['GetTasks'] : [],
       ...options,
       ...(optimisticResponse ? { optimisticResponse } : {}),
       onError: (error) => {

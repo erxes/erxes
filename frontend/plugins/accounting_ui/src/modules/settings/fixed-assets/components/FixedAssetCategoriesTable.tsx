@@ -12,7 +12,6 @@ import {
   RecordTableInlineCell,
   Separator,
   useConfirm,
-  useQueryState,
 } from 'erxes-ui';
 import {
   SettingsRowsTable,
@@ -22,6 +21,8 @@ import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedA
 import { useFixedAssetCategoryRemove } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
 import { IFixedAssetCategory } from '@/settings/fixed-assets/types/FixedAsset';
 import { AddFixedAssetCategory } from '@/settings/fixed-assets/components/AddFixedAssetCategory';
+import { FIXED_ASSET_CATEGORY_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 const FixedAssetCategoryMoreCell = ({
   cell,
@@ -29,7 +30,7 @@ const FixedAssetCategoryMoreCell = ({
   cell: Cell<IFixedAssetCategory, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('fixedAssetCategoryId');
+  const { openDetail } = useSettingsPanel(FIXED_ASSET_CATEGORY_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeFixedAssetCategory } = useFixedAssetCategoryRemove();
 
@@ -56,7 +57,7 @@ const FixedAssetCategoryMoreCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => setOpen(cell.row.original._id)}
+              onSelect={() => openDetail(cell.row.original._id)}
             >
               <IconEdit /> {t('edit')}
             </Command.Item>

@@ -77,17 +77,28 @@ export const emailTrpcRouter = t.router({
 
   emailSenders: t.router({
     isAllowed: t.procedure
-      .input(z.object({ email: z.string() }))
+      .input(
+        z.object({
+          email: z.string(),
+          fromPlaceholder: z.boolean().optional(),
+        }),
+      )
       .query(async ({ ctx, input }) => {
         const { models } = ctx;
 
-        return { allowed: await isSenderAllowed(models, input.email) };
+        return {
+          allowed: await isSenderAllowed(models, input.email, 'transactional', {
+            fromPlaceholder: input.fromPlaceholder,
+          }),
+        };
       }),
 
-    alignedFrom: t.procedure.query(async ({ ctx }) => {
-      const { models } = ctx;
+    alignedFrom: t.procedure
+      .input(z.object({ email: z.string().optional() }).optional())
+      .query(async ({ ctx, input }) => {
+        const { models } = ctx;
 
-      return await resolveAlignedFrom(models);
-    }),
+        return await resolveAlignedFrom(models, 'transactional', input?.email);
+      }),
   }),
 });

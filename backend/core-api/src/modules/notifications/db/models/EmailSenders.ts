@@ -20,7 +20,16 @@ export interface IEmailSenderModel extends Model<IEmailSenderDocument> {
   listActive(scope: string): Promise<IEmailSenderDocument[]>;
   listClaimed(scope: string): Promise<IEmailSenderDocument[]>;
   confirmByToken(token: string): Promise<IEmailSenderDocument | null>;
-  hasActiveDomain(scope: string): Promise<boolean>;
+  markDomain(
+    domain: string,
+    scope: string,
+    credentialHash: string,
+  ): Promise<IEmailSenderDocument | null>;
+  hasActiveDomain(
+    scope: string,
+    domain: string,
+    credentialHash: string,
+  ): Promise<boolean>;
 }
 
 const TOKEN_TTL_HOURS = 24;
@@ -91,11 +100,38 @@ export const loadEmailSenderClass = (models: IModels) => {
       return models.EmailSenders.find({ scope, state: 'active' }).lean();
     }
 
-    public static async hasActiveDomain(scope: string) {
+    public static async markDomain(
+      domain: string,
+      scope: string,
+      credentialHash: string,
+    ) {
+      return models.EmailSenders.findOneAndUpdate(
+        { email: domain.toLowerCase().trim(), scope },
+        {
+          $set: {
+            type: 'domain',
+            state: 'active',
+            credentialHash,
+            verifiedAt: new Date(),
+            updatedAt: new Date(),
+          },
+          $setOnInsert: { createdAt: new Date() },
+        },
+        { upsert: true, new: true },
+      );
+    }
+
+    public static async hasActiveDomain(
+      scope: string,
+      domain: string,
+      credentialHash: string,
+    ) {
       return !!(await models.EmailSenders.exists({
         scope,
         type: 'domain',
         state: 'active',
+        email: domain,
+        credentialHash,
       }));
     }
 

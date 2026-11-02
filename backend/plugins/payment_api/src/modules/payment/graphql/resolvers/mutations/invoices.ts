@@ -1,14 +1,10 @@
+import { splitType } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub, sendWorkerQueue } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
-import {
-  enqueuePaidInvoiceCallback,
-  resolvePaymentForInvoice,
-  sendPaidInvoiceQrEmail,
-} from '~/modules/payment/services/paidInvoiceCallback';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
   async generateInvoiceUrl(
@@ -83,15 +79,32 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      const payment = await resolvePaymentForInvoice(models, invoice);
+      if (invoice.contentType) {
+        const [pluginName, moduleName, collectionType] = splitType(
+          invoice.contentType,
+        );
 
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        invoice,
-        payment,
-        'invoicesCheck',
-      );
+        sendWorkerQueue(pluginName, 'payments')
+          .add(
+            'callback',
+            {
+              subdomain,
+              data: {
+                ...invoice,
+                status: 'paid',
+                moduleName,
+                collectionType,
+                apiResponse: 'success',
+              },
+            },
+            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+          )
+          .catch((err) => {
+            process.stderr.write(
+              `[invoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
+            );
+          });
+      }
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -134,15 +147,32 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (status === 'paid') {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
-      const payment = await resolvePaymentForInvoice(models, invoice);
+      if (invoice.contentType) {
+        const [pluginName, moduleName, collectionType] = splitType(
+          invoice.contentType,
+        );
 
-      enqueuePaidInvoiceCallback(
-        subdomain,
-        models,
-        invoice,
-        payment,
-        'cpInvoicesCheck',
-      );
+        sendWorkerQueue(pluginName, 'payments')
+          .add(
+            'callback',
+            {
+              subdomain,
+              data: {
+                ...invoice,
+                status: 'paid',
+                moduleName,
+                collectionType,
+                apiResponse: 'success',
+              },
+            },
+            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+          )
+          .catch((err) => {
+            process.stderr.write(
+              `[cpInvoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
+            );
+          });
+      }
 
       if (invoice.callback) {
         // Fire callback – do not await
@@ -174,24 +204,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     return status;
   },
 
-  async invoiceScanBarcode(
-    _root,
-    { code, eventSlug }: { code: string; eventSlug?: string },
-    { models }: IContext,
-  ) {
-    const scanned = await models.Invoices.scanBarcode(code, eventSlug);
-
-    graphqlPubsub.publish(`invoiceUpdated:${scanned._id}`, {
-      invoiceUpdated: scanned,
-    });
-
-    graphqlPubsub.publish('invoiceScanned', {
-      invoiceScanned: scanned,
-    });
-
-    return scanned;
-  },
-
   async invoicesRemove(
     _root,
     { _ids }: { _ids: string[] },
@@ -220,7 +232,7 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
   async invoiceEdit(
     _root,
     { _id, input }: { _id: string; input: IInvoiceEditInput },
-    { models, subdomain, checkPermission }: IContext,
+    { models, checkPermission }: IContext,
   ) {
     await checkPermission('paymentInvoiceEdit');
 
@@ -273,19 +285,6 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
           status: updated.status,
         },
       });
-
-      if (doc.status === PAYMENT_STATUS.PAID) {
-        const paidInvoice = await models.Invoices.getInvoice({ _id }, true);
-        const payment = await resolvePaymentForInvoice(models, paidInvoice);
-
-        sendPaidInvoiceQrEmail(
-          subdomain,
-          models,
-          paidInvoice,
-          payment,
-          'invoiceEdit',
-        );
-      }
     }
 
     return updated;
@@ -329,10 +328,6 @@ mutations.invoicesCheck.wrapperConfig = {
 };
 
 mutations.cpInvoiceCreate.wrapperConfig = {
-  skipPermission: true,
-};
-
-mutations.invoiceScanBarcode.wrapperConfig = {
   skipPermission: true,
 };
 

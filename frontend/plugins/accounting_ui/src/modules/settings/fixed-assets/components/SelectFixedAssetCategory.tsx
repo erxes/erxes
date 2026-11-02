@@ -9,12 +9,16 @@ export const SelectFixedAssetCategory = ({
   recordId,
   nullable,
   className,
+  variant = 'outline',
+  hideChevron,
 }: {
   selected?: string;
   onSelect: (value?: string) => void;
   recordId?: string;
   nullable?: boolean;
   className?: string;
+  variant?: 'outline' | 'ghost';
+  hideChevron?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [open, setOpen] = useState(false);
@@ -25,7 +29,11 @@ export const SelectFixedAssetCategory = ({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <Combobox.Trigger className={cn('w-full shadow-xs', className)}>
+      <Combobox.Trigger
+        variant={variant}
+        hideChevron={hideChevron}
+        className={cn('w-full shadow-xs', className)}
+      >
         <span className="truncate">
           {selectedCategory
             ? `${selectedCategory.code} - ${selectedCategory.name}`

@@ -37,6 +37,7 @@ import { ApolloError } from '@apollo/client';
 import { TeamMemberEmailField } from '@/settings/team-member/components/record/team-member-edit/TeammemberEmailField';
 import clsx from 'clsx';
 import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
+import { MemberPresenceDot } from '@/settings/team-member/sessions/components/MemberPresenceDot';
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
   return [
@@ -47,16 +48,19 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
       accessorKey: 'avatar',
       header: () => <RecordTable.InlineHead icon={IconUser} label="" />,
       cell: ({ cell }) => {
-        const { details } = cell.row.original;
+        const { details, sessionState } = cell.row.original;
         const { firstName, lastName, avatar } = details || {};
         return (
           <div className="flex items-center justify-center h-8">
-            <Avatar size="lg">
-              <Avatar.Image src={readImage(avatar, 200)} />
-              <Avatar.Fallback>
-                {firstName?.charAt(0) || lastName?.charAt(0) || '-'}
-              </Avatar.Fallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar size="lg">
+                <Avatar.Image src={readImage(avatar, 200)} />
+                <Avatar.Fallback>
+                  {firstName?.charAt(0) || lastName?.charAt(0) || '-'}
+                </Avatar.Fallback>
+              </Avatar>
+              <MemberPresenceDot state={sessionState} />
+            </div>
           </div>
         );
       },

@@ -127,7 +127,7 @@ const generateFilter = async (
     tokens: { $in: [token] },
   };
 
-  if (isSimilarity && !searchValue) {
+  if (isSimilarity) {
     const similarityGroups = await sendTRPCMessage({
       subdomain,
       pluginName: 'core',

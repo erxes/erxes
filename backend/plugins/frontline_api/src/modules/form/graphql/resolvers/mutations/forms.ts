@@ -3,6 +3,7 @@ import { AnyBulkWriteOperation } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IFormSubmission } from '~/modules/form/@types/form';
 import { IForm } from '~/modules/form/db/definitions/forms';
+import { withFormSubmissionGuard } from '~/modules/form/formWriteGuard';
 
 export const formMutations = {
   /**
@@ -22,7 +23,6 @@ export const formMutations = {
         contactsGathered: 0,
       };
     }
-    console.log('createForm');
     return await models.Forms.createForm(doc, user._id);
   },
 
@@ -99,8 +99,8 @@ export const formMutations = {
       const newStatus = status
         ? status
         : form.status === 'active'
-          ? 'archived'
-          : 'active';
+        ? 'archived'
+        : 'active';
 
       _forms.push({
         updateOne: {
@@ -127,41 +127,56 @@ export const formMutations = {
     }: IFormSubmission,
     { models }: IContext,
   ) => {
-    const cleanedFormSubmissions = await models.Fields.cleanMulti(
-      formSubmissions || {},
-    );
+    const fieldFormIds = await models.Fields.find({
+      _id: { $in: Object.keys(formSubmissions || {}) },
+      contentType: 'form',
+    }).distinct('contentTypeId');
+    const formIds = await models.Forms.find({
+      _id: { $in: fieldFormIds },
+    }).distinct('_id');
+    return withFormSubmissionGuard(models, formIds, async (guard) => {
+      const cleanedFormSubmissions = await models.Fields.cleanMulti(
+        formSubmissions || {},
+      );
 
-    for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
-      const formSubmission = await models.FormSubmissions.findOne({
-        contentTypeId,
-        contentType,
-        formFieldId,
+      return guard.commit(async (session) => {
+        for (const formFieldId of Object.keys(cleanedFormSubmissions)) {
+          const formSubmission = await models.FormSubmissions.findOne({
+            contentTypeId,
+            contentType,
+            formFieldId,
+          }).session(session ?? null);
+
+          if (formSubmission) {
+            formSubmission.value = cleanedFormSubmissions[formFieldId];
+
+            await formSubmission.save({ session });
+          } else {
+            const doc = {
+              contentTypeId,
+              contentType,
+              formFieldId,
+              formId,
+              userId,
+              value: formSubmissions[formFieldId],
+            };
+
+            await models.FormSubmissions.createFormSubmission(doc, session);
+          }
+        }
+
+        return true;
       });
-
-      if (formSubmission) {
-        formSubmission.value = cleanedFormSubmissions[formFieldId];
-
-        formSubmission.save();
-      } else {
-        const doc = {
-          contentTypeId,
-          contentType,
-          formFieldId,
-          formId,
-          userId,
-          value: formSubmissions[formFieldId],
-        };
-
-        await models.FormSubmissions.createFormSubmission(doc);
-      }
-    }
-
-    return true;
+    });
   },
 
   formSubmissionsEdit: async (
     _root: undefined,
-    params,
+    params: {
+      contentTypeId: string;
+      customerId: string;
+      submissions?: { _id: string; value: unknown }[];
+    },
     { models }: IContext,
   ) => {
     const { contentTypeId, customerId, submissions } = params;
@@ -175,10 +190,28 @@ export const formMutations = {
       throw new Error('Form submission not found !');
     }
 
-    for (const submission of submissions) {
-      const { _id, value } = submission;
-      await models.FormSubmissions.updateOne({ _id }, { $set: { value } });
-    }
+    const answerFields = await models.FormSubmissions.find({
+      _id: { $in: (submissions ?? []).map((answer) => answer._id) },
+    }).distinct('formFieldId');
+    const fieldFormIds = await models.Fields.find({
+      _id: { $in: answerFields },
+      contentType: 'form',
+    }).distinct('contentTypeId');
+    const formIds = await models.Forms.find({
+      _id: { $in: fieldFormIds },
+    }).distinct('_id');
+    await withFormSubmissionGuard(models, formIds, (guard) =>
+      guard.commit(async (session) => {
+        for (const submission of submissions ?? []) {
+          const { _id, value } = submission;
+          await models.FormSubmissions.updateOne(
+            { _id },
+            { $set: { value } },
+            { session },
+          );
+        }
+      }),
+    );
 
     const formSubmissions = await models.FormSubmissions.find({
       contentTypeId,
