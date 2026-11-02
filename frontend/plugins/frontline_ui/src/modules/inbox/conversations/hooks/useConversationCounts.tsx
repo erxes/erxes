@@ -44,7 +44,10 @@ export const useConversationFilterCounts = (
           responded: readCount(conversationCounts, 'responded'),
           standby: readCount(conversationCounts, 'standby'),
           handoff: readCount(conversationCounts, 'handoff'),
-          unresolved: data.unresolved ?? undefined,
+          unresolved:
+            variables.closedAtFrom || variables.closedAtTo
+              ? 0
+              : (data.unresolved ?? undefined),
         }
       : undefined,
     loading,
@@ -159,7 +162,7 @@ export const useInboxUnreadConversationCount = () => {
     variables: userId ? { userId } : undefined,
     skip: !userId,
     onData: () => {
-      void refetch();
+      refetch().catch(() => undefined);
     },
   });
 
