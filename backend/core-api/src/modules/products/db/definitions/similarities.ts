@@ -49,3 +49,12 @@ export const productSimilaritySchema = schemaWrapper(
     },
   ),
 );
+
+productSimilaritySchema.index(
+  { 'info.pdfAttachment.pdf.url': 1 },
+  { sparse: true },
+);
+productSimilaritySchema.index(
+  { 'info.pdfAttachment.pages.url': 1 },
+  { sparse: true },
+);

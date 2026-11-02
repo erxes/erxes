@@ -108,6 +108,26 @@ const azureStreamToBuffer = (
   });
 };
 
+export const getStorageKeys = async (key: string, models?: IModels) => {
+  const storedKey = key.replace(/^\/+/, '');
+  const keys = new Set([key, storedKey]);
+
+  const { UPLOAD_SERVICE_TYPE, CLOUDFLARE_BUCKET_NAME } =
+    await getFileUploadConfigs(models);
+
+  if (UPLOAD_SERVICE_TYPE === 'CLOUDFLARE' && CLOUDFLARE_BUCKET_NAME) {
+    const bucketPrefix = `${CLOUDFLARE_BUCKET_NAME}/`;
+
+    keys.add(
+      storedKey.startsWith(bucketPrefix)
+        ? storedKey.slice(bucketPrefix.length)
+        : `${bucketPrefix}${storedKey}`,
+    );
+  }
+
+  return [...keys];
+};
+
 export const readFileRequest = async ({
   key,
   models,

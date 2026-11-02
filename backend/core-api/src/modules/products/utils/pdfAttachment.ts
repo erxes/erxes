@@ -27,7 +27,7 @@ const signPdfFile = <T extends IAttachment>(subdomain: string, file: T): T => {
 
 export const verifyPdfFileToken = (
   token: unknown,
-  key: string,
+  keys: string[],
   subdomain: string,
 ) => {
   if (typeof token !== 'string') {
@@ -37,18 +37,32 @@ export const verifyPdfFileToken = (
   try {
     const payload = jwt.verify(token, getFileTokenSecret()) as JwtPayload;
 
-    return payload.key === key && payload.subdomain === subdomain;
+    return keys.includes(payload.key) && payload.subdomain === subdomain;
   } catch {
     return false;
   }
 };
 
-export const isPdfAttachmentFile = async (models: IModels, key: string) => {
+export const isPdfAttachmentFile = async (models: IModels, keys: string[]) => {
   const product = await models.Products.exists({
-    $or: [{ 'pdfAttachment.pdf.url': key }, { 'pdfAttachment.pages.url': key }],
+    $or: [
+      { 'pdfAttachment.pdf.url': { $in: keys } },
+      { 'pdfAttachment.pages.url': { $in: keys } },
+    ],
   });
 
-  return Boolean(product);
+  if (product) {
+    return true;
+  }
+
+  const similarity = await models.ProductSimilarities.exists({
+    $or: [
+      { 'info.pdfAttachment.pdf.url': { $in: keys } },
+      { 'info.pdfAttachment.pages.url': { $in: keys } },
+    ],
+  });
+
+  return Boolean(similarity);
 };
 
 const hasPaidOrder = async (

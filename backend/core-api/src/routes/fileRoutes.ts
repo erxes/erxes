@@ -21,7 +21,7 @@ import {
   resizeImage,
   uploadFile,
 } from '~/utils/file';
-import { readFileRequest } from '~/utils/file/read';
+import { getStorageKeys, readFileRequest } from '~/utils/file/read';
 import crypto from 'crypto';
 import multer from 'multer';
 import tmp from 'tmp';
@@ -105,11 +105,17 @@ const canReadFile = async (
   key: string,
   subdomain: string,
 ) => {
-  if (req.headers.userid || !(await isPdfAttachmentFile(models, key))) {
+  if (req.headers.userid) {
     return true;
   }
 
-  return verifyPdfFileToken(req.query.token, key, subdomain);
+  const keys = await getStorageKeys(key, models);
+
+  if (!(await isPdfAttachmentFile(models, keys))) {
+    return true;
+  }
+
+  return verifyPdfFileToken(req.query.token, keys, subdomain);
 };
 
 router.get(
