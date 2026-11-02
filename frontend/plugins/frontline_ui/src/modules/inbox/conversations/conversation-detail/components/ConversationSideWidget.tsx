@@ -177,12 +177,14 @@ export const ConversationSideWidget = ({
             key={module.name}
             value={module.name}
             label={getRelationWidgetLabel(module)}
+            aria-label={getRelationWidgetLabel(module)}
             Icon={module.icon}
           />
         ))}
         <SideMenu.Trigger
           value="properties"
           label={t('common:properties', 'Properties')}
+          aria-label={t('common:properties', 'Properties')}
           Icon={IconHierarchy2}
         />
       </SideMenu.Sidebar>

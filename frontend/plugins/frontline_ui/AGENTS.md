@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -115,6 +115,10 @@
   properties via `PropertyFormField`. Property logic hides cells; required
   system fields, properties and description block Save with a toast and a red
   ring. Only shown properties are sent as `propertiesData`.
+- Inbox icon-only controls carry their own names: select-all and row checkboxes,
+  filter, layout, refresh, the conversation back arrow and the right rail tabs.
+  `SideMenu.Trigger` only uses `label` for its tooltip, so the rail passes
+  `aria-label` as well.
 - The conversation header shows a warning badge "+N same email" when other
   customers hold exactly the conversation customer's email (primary or listed).
   Its popover lists them (links to `/contacts/customers?contactId=`) and
