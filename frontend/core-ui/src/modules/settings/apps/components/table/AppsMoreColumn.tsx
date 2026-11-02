@@ -67,11 +67,13 @@ export const AppsMoreColumnCell = ({ cell }: { cell: Cell<IApp, unknown> }) => {
         <Command shouldFilter={false}>
           <Command.List>
             {status === 'active' && (
-              <Command.Item value="revoke" onSelect={handleRevoke}>
-                <IconLock /> {t('revoke')}
-              </Command.Item>
+              <>
+                <Command.Item value="revoke" onSelect={handleRevoke}>
+                  <IconLock /> {t('revoke')}
+                </Command.Item>
+                <Command.Separator className="my-1" />
+              </>
             )}
-            <Command.Separator className="my-1" />
             <Command.Item
               value="delete"
               className="text-destructive"
