@@ -51,9 +51,10 @@ export const normalizeFormWidgetData = (data: unknown): IFormWidgetItem[] => {
 
 export const formatFormWidgetValue = (value: unknown): string => {
   if (value == null) return '';
+  if (typeof value === 'string') return value;
 
   try {
-    return String(value);
+    return JSON.stringify(value) ?? '';
   } catch {
     return '';
   }

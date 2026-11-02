@@ -82,6 +82,7 @@ export const ConversationFormDisplay = ({
         <div className="bg-background p-4 rounded-lg grid grid-cols-6 gap-6">
           {items.map((item) => {
             const text = formatFormWidgetValue(item.value);
+            const TextField = text.length > 60 ? Textarea : Input;
             const avatar =
               item.type === 'core:customer:avatar'
                 ? getFormWidgetResource(item.value)
@@ -102,13 +103,9 @@ export const ConversationFormDisplay = ({
               >
                 <Label>{item.text}</Label>
                 {item.type !== 'file' &&
-                item.type !== 'core:customer:avatar' ? (
-                  text.length > 60 ? (
-                    <Textarea value={text} readOnly />
-                  ) : (
-                    <Input value={text} readOnly />
-                  )
-                ) : null}
+                  item.type !== 'core:customer:avatar' && (
+                    <TextField value={text} readOnly />
+                  )}
                 {item.type === 'file' && (
                   <div className="flex items-center overflow-x-auto hide-scroll snap-x">
                     {Array.isArray(item.value) &&
