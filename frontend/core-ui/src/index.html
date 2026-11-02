@@ -13,6 +13,39 @@
     />
     <link rel="icon" type="image/svg+xml" href="/assets/erxes-logo.svg" />
     <link rel="icon" type="image/x-icon" href="/assets/erxes-logo.ico" />
+    <script>
+      window.addEventListener(
+        'error',
+        function (event) {
+          var target = event.target;
+          var isAsset =
+            target instanceof HTMLScriptElement ||
+            (target instanceof HTMLLinkElement && target.rel === 'stylesheet');
+          var root = document.getElementById('root');
+
+          if (
+            !isAsset ||
+            !root ||
+            root.childElementCount ||
+            new URL(target.src || target.href).origin !== location.origin
+          ) {
+            return;
+          }
+
+          var lastReload = Number(sessionStorage.getItem('assetErrorReloadAt'));
+
+          if (Date.now() - lastReload > 60000) {
+            sessionStorage.setItem('assetErrorReloadAt', String(Date.now()));
+            location.reload();
+            return;
+          }
+
+          root.textContent =
+            'erxes could not load. Reload the page to try again.';
+        },
+        true,
+      );
+    </script>
   </head>
   <body class="font-sans text-base">
     <div id="root"></div>
