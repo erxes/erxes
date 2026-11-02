@@ -140,6 +140,7 @@
     "activate": "Activate",
     "invitation-resent": "Invitation has been resent",
     "resend-invite": "Resend Invite",
+    "access-and-security": "Access and security",
     "selected": "{{selectedCount}} selected",
     "assign-permissions": "Assign Permissions",
     "permission-groups-assigned": "Permission groups assigned",

@@ -59,56 +59,7 @@ export const TeamMemberActionItems = ({
 
   return (
     <Command.List>
-      <Can action="permissionsManage">
-        <Command.Item value="permissions" onSelect={select(onEditPermissions)}>
-          <IconSettings size={18} /> {t('edit-permission-groups')}
-        </Command.Item>
-      </Can>
-      {!isLinked(_id) && (
-        <Can action="teamMembersResetPassword">
-          <Command.Item
-            value="reset-password"
-            onSelect={select(() => {
-              setResetPasswordOpen(_id);
-              setRenderingResetPassword(true);
-            })}
-          >
-            <IconLock /> {t('reset-password')}
-          </Command.Item>
-        </Can>
-      )}
-      <MemberResetTwoFactorMenuItem
-        userId={_id}
-        onDone={() => onAction?.()}
-      />
       <LdapMemberMenuItem userId={_id} onDone={() => onAction?.()} />
-      <MemberSignOutMenuItem userId={_id} onDone={() => onAction?.()} />
-      <Can action="teamMembersRemove">
-        <Command.Item
-          value="toggle-status"
-          onSelect={select(() =>
-            editStatus({
-              variables: { _id },
-              onCompleted: () =>
-                toast({
-                  title: isActive
-                    ? t('user-deactivated-successfully')
-                    : t('user-activated-successfully'),
-                  variant: 'success',
-                }),
-              onError: (error) =>
-                toast({ title: error.message, variant: 'destructive' }),
-            }),
-          )}
-        >
-          {isActive ? (
-            <IconToggleLeft size={18} />
-          ) : (
-            <IconToggleRight size={18} />
-          )}
-          {isActive ? t('deactivate') : t('activate')}
-        </Command.Item>
-      </Can>
       <Can action="teamMembersInvite">
         <Command.Item
           value="status"
@@ -143,6 +94,64 @@ export const TeamMemberActionItems = ({
           <IconPrinter /> {t('print', 'Print')}
         </Command.Item>
       </Can>
+      <Command.Group
+        heading={t('access-and-security', 'Access and security')}
+        className="border-t [&:not(:has([cmdk-item]))]:hidden"
+      >
+        <Can action="permissionsManage">
+          <Command.Item
+            value="permissions"
+            onSelect={select(onEditPermissions)}
+          >
+            <IconSettings size={18} /> {t('edit-permission-groups')}
+          </Command.Item>
+        </Can>
+        {!isLinked(_id) && (
+          <Can action="teamMembersResetPassword">
+            <Command.Item
+              value="reset-password"
+              onSelect={select(() => {
+                setResetPasswordOpen(_id);
+                setRenderingResetPassword(true);
+              })}
+            >
+              <IconLock /> {t('reset-password')}
+            </Command.Item>
+          </Can>
+        )}
+        <MemberResetTwoFactorMenuItem
+          userId={_id}
+          onDone={() => onAction?.()}
+        />
+        <MemberSignOutMenuItem userId={_id} onDone={() => onAction?.()} />
+        <Can action="teamMembersRemove">
+          <Command.Item
+            value="toggle-status"
+            className={isActive ? 'text-destructive' : undefined}
+            onSelect={select(() =>
+              editStatus({
+                variables: { _id },
+                onCompleted: () =>
+                  toast({
+                    title: isActive
+                      ? t('user-deactivated-successfully')
+                      : t('user-activated-successfully'),
+                    variant: 'success',
+                  }),
+                onError: (error) =>
+                  toast({ title: error.message, variant: 'destructive' }),
+              }),
+            )}
+          >
+            {isActive ? (
+              <IconToggleLeft size={18} />
+            ) : (
+              <IconToggleRight size={18} />
+            )}
+            {isActive ? t('deactivate') : t('activate')}
+          </Command.Item>
+        </Can>
+      </Command.Group>
     </Command.List>
   );
 };
