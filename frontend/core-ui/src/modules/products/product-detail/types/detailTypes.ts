@@ -38,6 +38,11 @@ export interface ProductSimilarity {
   products?: ProductSimilarityProduct[];
 }
 
+export interface ProductPdfAttachment {
+  pdf?: ProductAttachment | null;
+  pages?: ProductAttachment[];
+}
+
 export interface ProductDetail {
   _id?: string;
   name?: string;
@@ -51,6 +56,7 @@ export interface ProductDetail {
   attachmentMore?: ProductAttachment[] | ProductAttachment;
   videos?: ProductAttachment[] | ProductAttachment;
   files?: ProductAttachment[];
+  pdfAttachment?: ProductPdfAttachment | null;
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;

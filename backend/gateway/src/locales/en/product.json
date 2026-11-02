@@ -199,7 +199,8 @@
     "product-detail": "Product detail",
     "none": "None",
     "conditions": "Conditions",
-    "files": "Files"
+    "files": "Files",
+    "pdf-attachment": "PDF (reader pages)"
   },
   "general-config-form": {
     "general-settings": "General settings",
@@ -608,5 +609,19 @@
     "limit": "Up to {{count}} files can be added",
     "pending": "Link on save",
     "pending-hint": "The public link is created when you save the product."
+  },
+  "pdf-attachment": {
+    "upload": "Upload PDF",
+    "replace": "Replace PDF",
+    "remove": "Remove",
+    "empty": "No PDF yet",
+    "removed": "PDF will be removed on save",
+    "pages-only": "Reader pages (no source PDF stored)",
+    "page-count": "{{count}} reader pages",
+    "pending": "Pages are generated after you save. Current pages stay visible until then.",
+    "hint": "Upload a PDF to create reader pages",
+    "only-pdf": "Only PDF files can be used",
+    "upload-failed": "Could not upload the PDF",
+    "description": "Customers who bought this product read these pages in the storefront reader. Replacing the PDF keeps access for existing buyers."
   }
 }

@@ -154,7 +154,8 @@ export const ProductDetailSheet = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['ProductsMain'],
+      // Refetch the detail too so the PDF card shows the stored PDF after save
+      refetchQueries: ['ProductsMain', 'PRODUCT_DETAIL_QUERY'],
       awaitRefetchQueries: true,
     });
   };

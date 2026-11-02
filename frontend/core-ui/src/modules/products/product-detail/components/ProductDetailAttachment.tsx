@@ -17,18 +17,21 @@ import {
 import { ProductFilesUpload } from 'ui-modules/modules/products/components/ProductFilesUpload';
 import { ProductFileItem } from 'ui-modules/modules/products/hooks/useProductFiles';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
-import { ProductAttachment } from '../types/detailTypes';
+import { ProductAttachment, ProductPdfAttachment } from '../types/detailTypes';
+import { ProductPdfAttachmentUpload } from './ProductPdfAttachmentUpload';
 
 export const ProductDetailAttachment = ({
   attachment,
   attachmentMore = [],
   videos = [],
   files,
+  pdfAttachment,
 }: {
   attachment?: ProductAttachment | null;
   attachmentMore?: ProductAttachment[] | ProductAttachment | null;
   videos?: ProductAttachment[] | ProductAttachment | null;
   files?: ProductAttachment[] | null;
+  pdfAttachment?: ProductPdfAttachment | null;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
@@ -108,6 +111,17 @@ export const ProductDetailAttachment = ({
             value={videoItems}
             onChange={setVideoItems}
             maxVideos={PRODUCT_VIDEO_LIMIT}
+          />
+        </InfoCard.Content>
+      </InfoCard>
+      <InfoCard title={t('pdf-attachment', 'PDF (reader pages)')}>
+        <InfoCard.Content>
+          <ProductPdfAttachmentUpload
+            current={pdfAttachment}
+            value={form.watch('pdfAttachment')}
+            onChange={(next) =>
+              form.setValue('pdfAttachment', next, { shouldDirty: true })
+            }
           />
         </InfoCard.Content>
       </InfoCard>

@@ -28,6 +28,7 @@ export const ProductDetailFields = ({
         attachmentMore={productDetail.attachmentMore}
         videos={productDetail.videos}
         files={productDetail.files}
+        pdfAttachment={productDetail.pdfAttachment}
       />
       <ProductDetailInfo />
     </div>
