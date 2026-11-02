@@ -7,7 +7,7 @@ import {
 } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
-import { toExportHeaders } from '~/meta/export/utils';
+import { parseExportHeaders } from '~/meta/export/utils';
 
 const DEAL_PROPERTY_CONTENT_TYPE = 'sales:deal';
 
@@ -21,40 +21,40 @@ interface IDealPropertyField {
   groupId?: string;
 }
 
-export const DEAL_EXPORT_SYSTEM_HEADERS = toExportHeaders([
-  ['number', 'Number', true],
-  ['name', 'Name', true],
-  ['boardName', 'Board'],
-  ['pipelineName', 'Pipeline', true],
-  ['stageName', 'Stage', true],
-  ['status', 'Status'],
-  ['priority', 'Priority'],
-  ['labels', 'Labels'],
-  ['tags', 'Tags'],
-  ['customer', 'Customer', true],
-  ['customerEmail', 'Customer Email'],
-  ['customerPhone', 'Customer Phone'],
-  ['company', 'Company', true],
-  ['createdBy', 'Created By'],
-  ['assignedUsers', 'Assigned Users', true],
-  ['branches', 'Branches'],
-  ['departments', 'Departments'],
-  ['startDate', 'Start Date'],
-  ['closeDate', 'Close Date', true],
-  ['stageChangedDate', 'Stage Changed Date'],
-  ['isComplete', 'Is Complete'],
-  ['products', 'Products'],
-  ['productCount', 'Product Count'],
-  ['currency', 'Currency'],
-  ['totalAmount', 'Total Amount', true],
-  ['unUsedTotalAmount', 'Unused Total Amount'],
-  ['paidAmount', 'Paid Amount'],
-  ['payments', 'Payments'],
-  ['description', 'Description'],
-  ['score', 'Score'],
-  ['createdAt', 'Created At', true],
-  ['updatedAt', 'Updated At'],
-]);
+export const DEAL_EXPORT_SYSTEM_HEADERS = parseExportHeaders(`
+  number            | Number              | default
+  name              | Name                | default
+  boardName         | Board
+  pipelineName      | Pipeline            | default
+  stageName         | Stage               | default
+  status            | Status
+  priority          | Priority
+  labels            | Labels
+  tags              | Tags
+  customer          | Customer            | default
+  customerEmail     | Customer Email
+  customerPhone     | Customer Phone
+  company           | Company             | default
+  createdBy         | Created By
+  assignedUsers     | Assigned Users      | default
+  branches          | Branches
+  departments       | Departments
+  startDate         | Start Date
+  closeDate         | Close Date          | default
+  stageChangedDate  | Stage Changed Date
+  isComplete        | Is Complete
+  products          | Products
+  productCount      | Product Count
+  currency          | Currency
+  totalAmount       | Total Amount        | default
+  unUsedTotalAmount | Unused Total Amount
+  paidAmount        | Paid Amount
+  payments          | Payments
+  description       | Description
+  score             | Score
+  createdAt         | Created At          | default
+  updatedAt         | Updated At
+`);
 
 /**
  * Core does not expose field groups to plugins, so a group counts as

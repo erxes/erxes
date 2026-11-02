@@ -3,18 +3,21 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
 export type ExportRow = Record<string, string | number>;
 
-/** One export column as `[key, label, isDefault]`. */
-export type ExportHeaderRow = [key: string, label: string, isDefault?: boolean];
-
-/** Builds export header definitions from compact `[key, label, isDefault]` rows. */
-export const toExportHeaders = (
-  rows: ExportHeaderRow[],
-): ImportHeaderDefinition[] =>
-  rows.map(([key, label, isDefault]) => ({
-    key,
-    label,
-    ...(isDefault ? { isDefault } : {}),
-  }));
+/**
+ * Builds export header definitions from a text table with one column per
+ * line: `key | Label` or `key | Label | default`. A table reads like the
+ * export itself and keeps the column lists free of repeated object syntax.
+ */
+export const parseExportHeaders = (table: string): ImportHeaderDefinition[] =>
+  table
+    .split('\n')
+    .map((line) => line.split('|').map((cell) => cell.trim()))
+    .filter(([key]) => Boolean(key))
+    .map(([key, label, flag]) => ({
+      key,
+      label: label || key,
+      ...(flag === 'default' ? { isDefault: true } : {}),
+    }));
 
 type CoreLookupModule =
   | 'users'
