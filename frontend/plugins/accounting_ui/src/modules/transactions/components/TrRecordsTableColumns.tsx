@@ -60,6 +60,18 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
+const getRecordSide = ({ side, sumDt, sumCt }: ITrRecord) => {
+  if (side) {
+    return side;
+  }
+
+  if (sumDt) {
+    return TR_SIDES.DEBIT;
+  }
+
+  return sumCt ? TR_SIDES.CREDIT : undefined;
+};
+
 const SideAmountCell = ({
   row,
   columnSide,
@@ -67,7 +79,8 @@ const SideAmountCell = ({
   row: Row<ITrRecord>;
   columnSide: string;
 }) => {
-  const { details, side } = row.original;
+  const { details } = row.original;
+  const side = getRecordSide(row.original);
 
   if (!side) {
     return <RecordTableInlineCell>-</RecordTableInlineCell>;
