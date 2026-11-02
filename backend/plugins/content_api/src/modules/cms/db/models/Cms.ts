@@ -271,7 +271,9 @@ export const loadCmsClass = (models: IModels) => {
         return doc;
       }
 
-      const { language, ...docWithoutLanguage } = doc;
+      const docWithoutLanguage = { ...doc };
+
+      delete docWithoutLanguage.language;
 
       return docWithoutLanguage;
     }
