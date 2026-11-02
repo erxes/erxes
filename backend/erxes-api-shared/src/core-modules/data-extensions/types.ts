@@ -89,6 +89,11 @@ export interface IDataExtensionRecordType {
    * segments refresh and automations fire.
    */
   eventContentType?: string;
+  /**
+   * The change event segments know these records by, when it differs from
+   * `eventContentType`: leads change as customers, their shared collection.
+   */
+  segmentEventContentType?: string;
   /** A tenant-defined object: records are created and listed here. */
   custom?: boolean;
   icon?: string;

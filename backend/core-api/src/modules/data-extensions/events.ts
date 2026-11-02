@@ -35,7 +35,11 @@ export const announceDataExtensionChange = async (
     return;
   }
 
-  sendSegmentChanged({ subdomain, contentType, docIds: [recordId] });
+  sendSegmentChanged({
+    subdomain,
+    contentType: descriptor.segmentEventContentType || contentType,
+    docIds: [recordId],
+  });
 
   if (fromAutomation) {
     return;

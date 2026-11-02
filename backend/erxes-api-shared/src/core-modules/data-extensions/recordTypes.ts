@@ -98,6 +98,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   {
     recordType: 'core:lead',
     eventContentType: 'core:contacts.leads',
+    segmentEventContentType: 'core:contacts.customers',
     contentTypes: ['core:customer'],
     createMutations: ['customersAdd'],
     owner: 'core',
