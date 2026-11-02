@@ -1,8 +1,5 @@
 export type TFacebookHistoryImportStatus =
-  | 'queued'
-  | 'running'
-  | 'completed'
-  | 'failed';
+  'queued' | 'running' | 'completed' | 'failed';
 
 export interface IFacebookHistoryImport {
   status: TFacebookHistoryImportStatus;
@@ -29,8 +26,7 @@ export interface IFacebookIntegration {
 }
 
 export interface IFacebookIntegrationDocument
-  extends IFacebookIntegration,
-    Document {
+  extends IFacebookIntegration, Document {
   _id: string;
 }
 
