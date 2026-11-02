@@ -380,7 +380,6 @@ const RecordTypeFields = ({
   );
 };
 
-
 /**
  * Every Data Extension field that applies to a record, from the current
  * definitions: the record types registered for its content type, read and
@@ -391,12 +390,15 @@ export const DataExtensionRecordFields = ({
   contentType,
   recordId,
   readOnly = false,
+  hideRecordTypeLabels = false,
   className,
 }: {
   /** erxes content type of the record, e.g. `core:customer`. */
   contentType: string;
   recordId: string;
   readOnly?: boolean;
+  /** Leaves out the record type name above each type's fields. */
+  hideRecordTypeLabels?: boolean;
   className?: string;
 }) => {
   const { recordTypes, loading } = useDataExtensionRecordTypes();
@@ -417,7 +419,7 @@ export const DataExtensionRecordFields = ({
           descriptor={descriptor}
           recordTypes={recordTypes}
           recordId={recordId}
-          showLabel={applicable.length > 1}
+          showLabel={!hideRecordTypeLabels && applicable.length > 1}
           readOnly={readOnly}
         />
       ))}

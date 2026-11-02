@@ -27,6 +27,7 @@ import {
   PanelField,
   PanelFieldTrigger,
 } from 'ui-modules';
+import { DataExtensionsDetailSection } from '@/side-panel/components/details/DataExtensionsDetailSection';
 
 const SCOPE = 'team-member-panel';
 
@@ -317,6 +318,7 @@ export const MemberPanelDetail = () => {
           onSave={(description) => editDetails({ description })}
         />
       </div>
+      <DataExtensionsDetailSection contentType="core:user" recordId={_id} />
     </ScrollArea>
   );
 };

@@ -398,6 +398,7 @@ const SidePanelSavedRecord = ({
                   <DataExtensionRecordFields
                     contentType={record.contentType}
                     recordId={record.contentId}
+                    hideRecordTypeLabels
                     className="p-4"
                   />
                 </ScrollArea>
