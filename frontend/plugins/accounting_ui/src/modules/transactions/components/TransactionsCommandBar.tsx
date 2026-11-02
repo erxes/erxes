@@ -55,30 +55,45 @@ export const TransactionsDelete = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeTrRecords, loading } = useTrRecordsRemove();
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
+  const parentIds = Array.from(
+    new Set(
+      selectedRows
+        .map((row: Row<ITrRecord>) => row.original.parentId)
+        .filter((id): id is string => Boolean(id)),
+    ),
+  );
 
   const handleDelete = () =>
     confirm({
-      message: t('are-you-sure-delete-tr-records'),
+      message: t('are-you-sure-delete-selected-transactions', {
+        count: parentIds.length,
+      }),
       options: {
         okLabel: t('delete'),
         cancelLabel: t('cancel'),
       },
-    }).then(() => {
-      const selectedRows = table.getFilteredSelectedRowModel().rows;
+    }).then(async () => {
+      const failedParentIds = await removeTrRecords(parentIds);
 
-      // Delete each transaction record by parentId
-      selectedRows.forEach((row) => {
-        if (row.original.parentId) {
-          removeTrRecords(row.original.parentId);
-        }
-      });
-
-      // Clear selection after deletion
-      table.setRowSelection({});
+      table.setRowSelection(
+        Object.fromEntries(
+          selectedRows
+            .filter((row: Row<ITrRecord>) =>
+              failedParentIds.includes(row.original.parentId),
+            )
+            .map((row: Row<ITrRecord>) => [row.id, true]),
+        ),
+      );
     });
 
   return (
-    <Button variant="secondary" disabled={loading} onClick={handleDelete}>
+    <Button
+      variant="secondary"
+      className="text-destructive"
+      disabled={loading || !parentIds.length}
+      onClick={handleDelete}
+    >
       <IconTrash />
       {t('delete')}
     </Button>
