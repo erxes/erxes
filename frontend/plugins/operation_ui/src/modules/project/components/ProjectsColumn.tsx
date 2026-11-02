@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useTranslation } from 'react-i18next';
+import { useApolloClient } from '@apollo/client';
+import { useAtom } from 'jotai';
 import { useNavigate } from 'react-router-dom';
 import { useUpdateProject } from '@/project/hooks/useUpdateProject';
 import {
@@ -10,7 +12,7 @@ import {
   IconUser,
   IconUsersGroup,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/table-core';
+import { CellContext, ColumnDef } from '@tanstack/table-core';
 import {
   Input,
   RecordTable,
@@ -34,6 +36,52 @@ import { useDebounce } from 'use-debounce';
 import { projectsMoreColumn } from './ProjectsMoreColumn';
 import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 import { compactList } from '@/operation/utils/cursorList';
+import { getProjectTagUpdates } from '@/project/states/projectTagUpdateState';
+
+/** Edits project tags immediately and saves selections in order. */
+const ProjectTagsCell = ({ cell }: CellContext<IProject, unknown>) => {
+  const client = useApolloClient();
+  const { updateProject } = useUpdateProject();
+  const tagUpdates = getProjectTagUpdates(client, cell.row.original._id);
+  const [pendingTagIds, setPendingTagIds] = useAtom(tagUpdates.pendingTagIds);
+
+  return (
+    <TagsSelect.InlineCell
+      type="operation:project"
+      mode="multiple"
+      value={pendingTagIds ?? compactList(cell.row.original.tagIds)}
+      onValueChange={(tagIds) => {
+        setPendingTagIds(tagIds);
+        const version = ++tagUpdates.version;
+
+        tagUpdates.queue = tagUpdates.queue
+          .then(async () => {
+            await updateProject({
+              variables: { _id: cell.row.original._id, tagIds },
+              optimisticResponse: { updateProject: null },
+              update: (cache) => {
+                cache.modify({
+                  id: cache.identify({
+                    __typename: 'Project',
+                    _id: cell.row.original._id,
+                  }),
+                  fields: {
+                    tagIds: () => tagIds,
+                  },
+                });
+              },
+            });
+          })
+          .catch(() => undefined)
+          .finally(() => {
+            if (version === tagUpdates.version) {
+              setPendingTagIds(null);
+            }
+          });
+      }}
+    />
+  );
+};
 
 /** Builds the project table columns with inline editing controls. */
 export const projectsColumns = (
@@ -146,33 +194,7 @@ export const projectsColumns = (
       header: () => (
         <RecordTable.InlineHead label={t('tags')} icon={IconLabelFilled} />
       ),
-      cell: ({ cell }) => {
-        const { updateProject } = useUpdateProject();
-        return (
-          <TagsSelect.InlineCell
-            type="operation:project"
-            mode="multiple"
-            value={compactList(cell.row.original.tagIds)}
-            onValueChange={(tagIds) => {
-              updateProject({
-                variables: { _id: cell.row.original._id, tagIds },
-                optimisticResponse: { updateProject: null },
-                update: (cache) => {
-                  cache.modify({
-                    id: cache.identify({
-                      __typename: 'Project',
-                      _id: cell.row.original._id,
-                    }),
-                    fields: {
-                      tagIds: () => tagIds,
-                    },
-                  });
-                },
-              });
-            }}
-          />
-        );
-      },
+      cell: ProjectTagsCell,
       size: 200,
     },
     {
