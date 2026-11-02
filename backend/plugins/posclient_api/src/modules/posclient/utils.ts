@@ -9,6 +9,7 @@ import { IModels } from '~/connectionResolvers';
 import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import {
   BILL_TYPES,
+  ORDER_SALE_STATUS,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
 import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -20,6 +21,8 @@ import {
 } from '~/modules/posclient/utils/orderUtils';
 import * as crypto from 'node:crypto';
 import { debugError } from '~/modules/posclient/debugError';
+
+const SETTLE_CLAIM_MS = 60 * 1000;
 
 export interface ICountBy {
   [index: string]: number;
@@ -69,6 +72,38 @@ const getSettleBillType = (order: IOrderDocument) => {
   return order.billType || BILL_TYPES.CITIZEN;
 };
 
+const isMobileCovered = (mobileAmount: number, totalAmount: number) =>
+  Math.round(mobileAmount) >= Math.round(totalAmount);
+
+const getAppliedMobileAmount = (
+  order: IOrderDocument,
+  sumMobileAmount: number,
+) => {
+  if (!isMobileCovered(sumMobileAmount, order.totalAmount)) {
+    return sumMobileAmount;
+  }
+
+  const otherAmount = (order.paidAmounts || []).reduce(
+    (sum, i) => sum + Number(i.amount),
+    order.cashAmount || 0,
+  );
+
+  return Math.max(order.totalAmount - otherAmount, 0);
+};
+
+const claimSettlement = (models: IModels, _id: string) =>
+  models.Orders.findOneAndUpdate(
+    {
+      _id,
+      paidDate: null,
+      $or: [
+        { settlingAt: null },
+        { settlingAt: { $lt: new Date(Date.now() - SETTLE_CLAIM_MS) } },
+      ],
+    },
+    { $set: { settlingAt: new Date() } },
+  ).lean();
+
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
@@ -116,7 +151,10 @@ export const updateMobileAmount = async (
   );
 
   await models.Orders.updateOne(orderSelector, {
-    $set: { mobileAmount: sumMobileAmount },
+    $set: {
+      mobileAmount: getAppliedMobileAmount(order, sumMobileAmount),
+      saleStatus: ORDER_SALE_STATUS.CONFIRMED,
+    },
   });
 
   order = await models.Orders.findOne(orderSelector).lean();
@@ -143,7 +181,7 @@ export const updateMobileAmount = async (
     billType = BILL_TYPES.INNER;
   }
 
-  if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
+  if (isMobileCovered(sumMobileAmount, totalAmount)) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
       billType === BILL_TYPES.CITIZEN ||
@@ -219,6 +257,11 @@ export const prepareSettlePayment = async (
   }).lean();
 
   validateOrderPayment(order, { billType });
+
+  if (!(await claimSettlement(models, _id))) {
+    return [];
+  }
+
   const now = new Date();
 
   const ebarimtConfig: any = config.ebarimtConfig;
@@ -298,8 +341,11 @@ export const prepareSettlePayment = async (
               { ...order },
             ),
           },
+          $unset: { settlingAt: '' },
         },
       );
+    } else {
+      await models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
     }
 
     order = await models.Orders.getOrder(_id);
@@ -421,6 +467,8 @@ export const prepareSettlePayment = async (
 
     return ebarimtResponses;
   } catch (e) {
+    await models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
+
     debugError(e);
 
     return e;
