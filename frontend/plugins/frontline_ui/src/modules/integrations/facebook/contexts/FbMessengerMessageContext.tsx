@@ -2,6 +2,13 @@ import { createContext, useContext } from 'react';
 import { IFacebookConversationMessage } from '../types/FacebookTypes';
 import { differenceInMinutes } from 'date-fns';
 
+export const isFacebookOutgoing = (
+  message: Pick<
+    IFacebookConversationMessage,
+    'userId' | 'customerId' | 'botData'
+  >,
+) => !!message.userId || !!message.botData?.length || !message.customerId;
+
 export const FbMessengerMessageContext = createContext<
   | (IFacebookConversationMessage & {
       previousMessage?: IFacebookConversationMessage;
@@ -18,22 +25,15 @@ export const useFbMessengerMessageContext = () => {
     );
   }
 
-  const {
-    previousMessage,
-    nextMessage,
-    userId,
-    customerId,
-    createdAt,
-    botData,
-  } = context;
-  const isOutgoing = !!userId || !!botData?.length;
+  const { previousMessage, nextMessage, customerId, createdAt } = context;
+  const isOutgoing = isFacebookOutgoing(context);
 
   const checkHasSibling = (message?: IFacebookConversationMessage) => {
     if (!message) {
       return false;
     }
 
-    const isMessageOutgoing = !!message.userId || !!message.botData?.length;
+    const isMessageOutgoing = isFacebookOutgoing(message);
 
     if (!isOutgoing) {
       return !isMessageOutgoing && message.customerId === customerId;

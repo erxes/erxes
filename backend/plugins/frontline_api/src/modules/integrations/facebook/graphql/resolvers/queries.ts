@@ -17,6 +17,7 @@ import {
   facebookAppSelector,
   resolveFacebookApp,
 } from '@/integrations/facebook/commonUtils';
+import { getMessengerHistoryImport } from '@/integrations/facebook/services/historyImport';
 
 /** How many posts one reply text lists before the count speaks for itself. */
 const TOP_POSTS_PER_REPLY = 5;
@@ -154,6 +155,14 @@ export const facebookQueries = {
       { erxesApiId },
       { facebookPageTokensMap: 0 },
     );
+  },
+
+  async facebookMessengerHistoryImportStatus(
+    _root,
+    { integrationId }: { integrationId: string },
+    { models }: IContext,
+  ) {
+    return getMessengerHistoryImport(models, integrationId);
   },
 
   async facebookGetComments(

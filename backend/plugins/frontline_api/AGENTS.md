@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -371,6 +371,23 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- Imports a Facebook page's Messenger inbox history on demand
+  (`facebookImportMessengerHistory`): the `facebookHistoryImport` queue
+  (`frontline`, one job at a time) walks `/{page-id}/conversations?platform=messenger`
+  and `/{conversation-id}/messages` with the stored page token at two Graph
+  calls a second, creates missing customers (`getOrCreateCustomer`) and
+  `conversations_facebooks` rows, inserts messages the inbox does not hold yet
+  (deduplicated by `mid`), and creates the inbox conversation when none exists:
+  `createdAt` is the oldest message, `updatedAt` the newest, status `closed`
+  when the newest message is older than the 7-day reply window, else `new`.
+  Existing inbox conversations only gain the missing messages and their
+  `messageCount`. Customer messages carry `customerId`; page-sent messages
+  carry neither `customerId` nor `userId`. Progress and the final result are
+  stored on `facebook_integrations.historyImport` and read through
+  `facebookMessengerHistoryImportStatus`. A conversation whose messages cannot
+  be read (Meta returns a deleted-message error for older messages on some
+  accounts) keeps what was read; a conversation that fails entirely is counted
+  in `skippedConversations` and does not stop the run.
 - Instagram DMs select only `instagram-messenger` integrations; comments select
   `instagram-post`. Sender profile fields are optional, as in Facebook: keep the
   Instagram user ID and use the comment author username when profile lookup is
@@ -679,6 +696,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB client portal         | `src/modules/integrations/facebook/graphql/resolvers/clientPortal.ts`                                                                                            | `facebookGetPosts`: recent posts of connected pages, read from a client portal session                                                                                                                                 |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
+| FB history import        | `src/modules/integrations/facebook/services/historyImport.ts`, `historyImportWorker.ts`                                                                         | Page inbox history import: Graph pagination, dedup by `mid`, inbox conversation creation, progress on the integration record, and the `facebookHistoryImport` worker                                                  |
 | FB messenger services    | `src/modules/integrations/facebook/services/`                                                                                                                    | `messengerSend` (messaging params, bot text send with tag retry), `messageEvents` (reaction replace, message publish, reply-to), `automatedReplyControl`, `conversationSync`, `messageNormalization`, `messagePreview` |
 | IG messenger services    | `src/modules/integrations/instagram/services/`, `normalizeMessage.ts`                                                                                            | `messageEvents` (sender reaction replace, inbox publish), `copyInstagramImage` (allow-listed image proxy), webhook payload normalization to the shared message contract                                                |
 | Ticket                   | `src/modules/ticket/`                                                                                                                                            | Boards, pipelines, statuses, tickets, activities, notes                                                                                                                                                                |
@@ -778,6 +796,13 @@ The root router mounts its authenticated webhook at `/telegram`.
   returns `FacebookCreatePostResult` (`postId`, `permalinkUrl`). The
   `*UpdateConfigs`, `integrationsRepair` and `instagramRepair` results stay
   `JSON`.
+- GraphQL Facebook history import: `facebookImportMessengerHistory(integrationId)`
+  (requires `integrationsEdit`; `integrationId` is the inbox integration `_id`;
+  rejects while a run is `queued` or `running` and younger than six hours) and
+  `facebookMessengerHistoryImportStatus(integrationId)` both return
+  `FacebookMessengerHistoryImport` (`status`, `startedAt`, `finishedAt`,
+  `conversations`, `messages`, `skippedConversations`, `error`) or `null`
+  before the first run.
 - GraphQL Call Pro: `callProCustomersByPhone` returns `[Customer]`, the core
   federated entity this plugin extends by `_id`; the resolver still returns the
   core customer documents and the gateway resolves the selected fields from
@@ -1447,6 +1472,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   strings; deduplication, poll/reaction updates and reply lookup are scoped by
   tenant, integration and chat, with topic identity included where applicable.
 
+- `facebook_integrations.historyImport` holds the last Messenger history
+  import run (`status` `queued | running | completed | failed`, timestamps,
+  counts, `error`); it is progress state, never a list of imported IDs.
+
 ## Local Invariants
 
 - Removing a Facebook integration keeps its page's bot, marked `broken` with its config intact. `facebookCreateIntegration` reconnects such a bot through `FacebookBots.reconnectByPageId` (new token and account, then `repair`, which re-syncs and verifies the profile); a failed reconnect is logged on the bot and never undoes the integration.
@@ -1723,6 +1752,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 - `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
+- `pnpm nx test frontline_api` (`src/modules/integrations/facebook/__tests__/historyImport.test.ts`: Graph pagination into a closed inbox conversation, page replies without `customerId`, dedup against stored `mid`s, failed-run status, single queued run)
 - `pnpm nx test frontline_api` (`src/modules/inbox/services/__tests__/storeDispatchedMessage.test.ts`: content priority, Facebook delivery trimming, forwarded snapshot on the first Instagram part only, ordered multipart storage and publish)
 - `pnpm nx run frontline_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local

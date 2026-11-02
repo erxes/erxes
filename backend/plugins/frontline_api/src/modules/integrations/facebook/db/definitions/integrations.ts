@@ -20,5 +20,18 @@ export const integrationSchema = schemaWrapper(
     },
     healthStatus: String,
     error: String,
+    historyImport: {
+      type: {
+        status: String,
+        startedAt: Date,
+        finishedAt: Date,
+        conversations: Number,
+        messages: Number,
+        skippedConversations: Number,
+        error: String,
+      },
+      _id: false,
+      optional: true,
+    },
   }),
 );

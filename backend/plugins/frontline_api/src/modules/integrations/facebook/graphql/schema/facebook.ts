@@ -63,6 +63,16 @@ export const types = `
     isResolved: Boolean
   }
 
+  type FacebookMessengerHistoryImport {
+    status: String
+    startedAt: Date
+    finishedAt: Date
+    conversations: Int
+    messages: Int
+    skippedConversations: Int
+    error: String
+  }
+
   type FacebookConversationMessage {
     _id: String!
     ${commonCommentAndMessageFields}
@@ -251,6 +261,7 @@ export const queries = `
   facebookGetAccounts(kind: String, integrationKind: String): [FacebookAccount]
   facebookGetIntegrations(kind: String): [FacebookIntegrationRecord]
   facebookGetIntegrationDetail(erxesApiId: String): JSON
+  facebookMessengerHistoryImportStatus(integrationId: String!): FacebookMessengerHistoryImport
   facebookGetConfigs: [FacebookConfig]
   facebookGetComments(conversationId: String!, getFirst: Boolean, ${pageParams}): [FacebookPostMessage]
   facebookGetCommentCount(${commentQueryParamDefs}): JSON
@@ -275,6 +286,7 @@ export const queries = `
 export const mutations = `
   facebookUpdateConfigs(configsMap: JSON!): JSON
   facebookRepair(_id: String!): JSON
+  facebookImportMessengerHistory(integrationId: String!): FacebookMessengerHistoryImport
   facebookReplyToComment(conversationId: String, commentId: String, content: String): FacebookComment
   facebookCreatePost(erxesApiId: String!, pageId: String!, message: String!, link: String, imageKeys: [String]): FacebookCreatePostResult
   facebookMessengerAddBot(${commonBotMutationParams}):FacebookMessengerBot
