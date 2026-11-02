@@ -183,8 +183,8 @@ export const ConversationSideWidget = ({
         ))}
         <SideMenu.Trigger
           value="properties"
-          label={t('common:properties', 'Properties')}
-          aria-label={t('common:properties', 'Properties')}
+          label={t('modules.inbox.properties', 'Properties')}
+          aria-label={t('modules.inbox.properties', 'Properties')}
           Icon={IconHierarchy2}
         />
       </SideMenu.Sidebar>
