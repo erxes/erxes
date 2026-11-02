@@ -12,7 +12,11 @@ import {
   ORDER_SALE_STATUS,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  ExpectedError,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,
@@ -91,7 +95,7 @@ const getAppliedMobileAmount = (
   return Math.max(order.totalAmount - otherAmount, 0);
 };
 
-const claimSettlement = (models: IModels, _id: string) =>
+export const claimSettlement = (models: IModels, _id: string) =>
   models.Orders.findOneAndUpdate(
     {
       _id,
@@ -103,6 +107,9 @@ const claimSettlement = (models: IModels, _id: string) =>
     },
     { $set: { settlingAt: new Date() } },
   ).lean();
+
+export const releaseSettlement = (models: IModels, _id: string) =>
+  models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
 
 export const updateMobileAmount = async (
   subdomain: string,
@@ -252,13 +259,11 @@ export const prepareSettlePayment = async (
 ) => {
   checkOrderStatus(order);
 
-  const items = await models.OrderItems.find({
-    orderId: order._id,
-  }).lean();
-
-  validateOrderPayment(order, { billType });
-
   if (!(await claimSettlement(models, _id))) {
+    if (user) {
+      throw new ExpectedError('Order is being settled', 'CONFLICT');
+    }
+
     return [];
   }
 
@@ -277,6 +282,14 @@ export const prepareSettlePayment = async (
   }
 
   try {
+    order = await models.Orders.getOrder(_id);
+
+    const items = await models.OrderItems.find({
+      orderId: order._id,
+    }).lean();
+
+    validateOrderPayment(order, { billType });
+
     const ebarimtResponses: any[] = [];
 
     if (billType !== BILL_TYPES.INNER) {
@@ -345,7 +358,7 @@ export const prepareSettlePayment = async (
         },
       );
     } else {
-      await models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
+      await releaseSettlement(models, _id);
     }
 
     order = await models.Orders.getOrder(_id);
@@ -467,7 +480,7 @@ export const prepareSettlePayment = async (
 
     return ebarimtResponses;
   } catch (e) {
-    await models.Orders.updateOne({ _id }, { $unset: { settlingAt: '' } });
+    await releaseSettlement(models, _id);
 
     debugError(e);
 

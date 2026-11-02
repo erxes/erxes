@@ -270,7 +270,7 @@
   calculations must reconstruct the pre-discount base as
   `count * unitPrice + discountAmount`.
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
-- `prepareSettlePayment` claims the order with an atomic `settlingAt` write before any receipt, so one caller settles and the others return with no receipt. Success or failure clears the claim, and a claim older than 60 seconds counts as dead. Every path that settles must go through it.
+- `prepareSettlePayment` claims the order with an atomic `settlingAt` write first, then re-reads the order and its items and checks amounts on that copy. One caller settles; a losing callback returns with no receipt, and a losing cashier gets an error. Success or failure clears the claim, and a claim older than 60 seconds counts as dead. `ordersEdit` holds the same claim for the whole edit, so an order never changes under a settlement. A second edit that overlaps it is refused and can retry. Every path that settles or edits items must go through this claim.
 - Invoice settlement never reads the POS token from the invoice: `order.posToken` decides the POS config. An order with no cashier (`userId` empty) has nobody to choose a bill type later, so it settles as `billType: '1'` when it has none, or when it is `'3'` without a register number. A cashier's order keeps waiting for the cashier's choice.
 
 ## Validation
