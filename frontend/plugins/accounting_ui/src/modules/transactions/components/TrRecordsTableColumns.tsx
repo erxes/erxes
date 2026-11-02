@@ -222,7 +222,7 @@ const TransactionMoreColumnCell = ({
         cancelLabel: t('cancel'),
       },
     }).then(() => {
-      removeTrRecords(parentId);
+      removeTrRecords([parentId]);
     });
 
   return (

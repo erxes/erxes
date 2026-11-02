@@ -55,11 +55,11 @@ export const TransactionsDelete = () => {
   const { table } = RecordTable.useRecordTable();
   const { confirm } = useConfirm();
   const { removeTrRecords, loading } = useTrRecordsRemove();
+  const selectedRows = table.getFilteredSelectedRowModel().rows;
   const parentIds = Array.from(
     new Set(
-      table
-        .getFilteredSelectedRowModel()
-        .rows.map((row: Row<ITrRecord>) => row.original.parentId)
+      selectedRows
+        .map((row: Row<ITrRecord>) => row.original.parentId)
         .filter((id): id is string => Boolean(id)),
     ),
   );
@@ -73,12 +73,18 @@ export const TransactionsDelete = () => {
         okLabel: t('delete'),
         cancelLabel: t('cancel'),
       },
-    }).then(() => {
-      parentIds.forEach((parentId) => {
-        removeTrRecords(parentId);
-      });
+    }).then(async () => {
+      const failedParentIds = await removeTrRecords(parentIds);
 
-      table.setRowSelection({});
+      table.setRowSelection(
+        Object.fromEntries(
+          selectedRows
+            .filter((row: Row<ITrRecord>) =>
+              failedParentIds.includes(row.original.parentId),
+            )
+            .map((row: Row<ITrRecord>) => [row.id, true]),
+        ),
+      );
     });
 
   return (

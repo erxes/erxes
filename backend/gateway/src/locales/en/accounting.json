@@ -80,6 +80,7 @@
   "are-you-sure-delete-tr-record": "Delete this journal entry?",
   "are-you-sure-delete-transactions": "Are you sure you want to delete these transactions?",
   "are-you-sure-delete-tr-records": "Delete these journal entries?",
+  "are-you-sure-delete-selected-transactions_one": "Delete the {{count}} selected transaction?",
   "are-you-sure-delete-selected-transactions": "Delete the {{count}} selected transactions?",
   "transaction-deleted-successfully": "Transaction deleted successfully",
   "transactions-deleted-successfully": "Transactions deleted successfully",
