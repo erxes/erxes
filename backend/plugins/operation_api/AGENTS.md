@@ -82,9 +82,10 @@
   commands turn on by themselves when a server is connected
   (`operationDiscordConnect` for a new server, or for a server reconnected
   with a different bot application; a token update on the same application
-  keeps the current on/off state) and again whenever a customer channel is
-  saved on a server whose commands are off
-  (`operationDiscordSaveCustomerChannel`; the channel is saved either way).
+  keeps the current on/off state) and again whenever customer channels are
+  linked or edited on a server whose commands are off
+  (`operationDiscordLinkCustomerChannels` / `operationDiscordSaveCustomerChannel`;
+  the channels are saved either way).
   The server card can turn them on again or off
   (`operationDiscordEnableCommands`). Turning them on points the bot application's
   Interactions Endpoint URL at the gateway itself
@@ -95,11 +96,28 @@
   localhost or `http` URL is refused before Discord is called, with a hint
   to set `GATEWAY_URL`. The automatic turn-on never replaces an endpoint URL
   the bot already points elsewhere (another system or deployment may use
-  it); only the manual turn-on does. A failed turn-on never fails the
+  it), and when the bot has no endpoint URL it refuses while the bot has any
+  slash command of its own (global, or in that server): such a bot gets its
+  interactions over the Gateway, and setting an endpoint URL would stop
+  them. Only the manual turn-on, behind a confirm in the UI, does either.
+  `/triage` and `/tasks` are created one by one
+  (`POST .../guilds/{guild}/commands`, which replaces a command of the same
+  name) and turning them off deletes only those two, so the bot's other
+  guild commands are never touched. A failed turn-on never fails the
   mutation: the connection keeps commands off and stores the reason in
   `commandsError`, cleared by the next success or by turning them off.
   Turning them off removes the server's commands and leaves the endpoint
-  URL as it is.
+  URL as it is. Disconnecting a server, or reconnecting it with a different
+  bot application, releases the old bot (`releaseDiscordCommands`, with the
+  old token read before it is replaced): it deletes `/triage` and `/tasks`
+  from that server when erxes had registered them (`commandsRegisteredAt`),
+  and sets the application's endpoint URL to `null` when it is exactly
+  erxes' interactions URL and no other connection in the tenant uses that
+  application, so the bot gets its interactions over the Gateway again.
+  Release is best effort: Discord errors (revoked token, missing access) and
+  an undecryptable token are logged and never block the disconnect or the
+  switch, and it calls Discord directly, so a failure never marks the new
+  connection broken.
   `/triage new` opens a modal built from Label components (Title, Details,
   and an optional Priority select: Critical, High, Medium, Minor, No priority)
   and creates a triage for that company and team with that priority (none
@@ -121,9 +139,14 @@
 - Discord account linking: an admin turns on member linking per connection
   with the application's client secret (checked with a client-credentials
   grant) after adding the OAuth redirect URI in the Developer Portal. A member
-  signs in with Discord (`identify` scope) from a popup; the callback stores
-  the Discord user id, username, display name and avatar, then revokes the
-  token. A `taskAssigned` reply mentions the assignee as `<@id>` when they are
+  signs in with Discord (`identify` scope) from a popup. The callback reads
+  the Discord user id, username, display name and avatar, revokes the token,
+  stores them in Redis under a one-time result token
+  (`operation:discord:account-link-result:<token>`, 10 minutes) and
+  redirects to the account page with `?discordLink=<token>`; the signed-in
+  erxes user there links it through `operationDiscordConfirmAccountLink`,
+  which refuses (and consumes) a result started by another user. Callback
+  failures redirect with `?discordLinkError=expired|cancelled|not-set-up|failed`. A `taskAssigned` reply mentions the assignee as `<@id>` when they are
   linked and in the server; when they are not linked and linking is on, the
   reply says so and carries a "Link Discord account" button. Admins see each
   team member's link and server status, unlink members and send a reminder
@@ -176,7 +199,8 @@
   `operationDiscordCheckToken(token)`, `operationDiscordChannels(connectionId)`,
   `operationDiscordConfigByTeam(teamId)`, `operationDiscordConfigs(connectionId)`;
   mutations `operationDiscordConnect(token, guildId)`,
-  `operationDiscordDisconnect(_id)` (refused while a team uses the server),
+  `operationDiscordDisconnect(_id)` (refused while a team or a customer
+  channel uses the server),
   `operationDiscordSaveTeamConfig`, `operationDiscordDisconnectTeam(teamId)`,
   `operationDiscordSendTestMessage(teamId)`. Events are the
   `OperationDiscordNotificationEvent` enum built from
@@ -193,11 +217,26 @@
   `<gateway>/pl:operation/integrations/discord/oauth/callback`, where the
   gateway is `GATEWAY_URL`, else `${DOMAIN}/gateway` in production, else
   `REACT_APP_API_URL` (the dev UI server proxies neither `/pl:*` nor
-  `/gateway`). It answers with a page that posts
-  `operation-discord-account-link` to its opener at the `DOMAIN` origin and
-  closes.
+  `/gateway`). It always redirects to `${DOMAIN}/operation/settings/discord-account`
+  with `discordLink` or `discordLinkError`, and answers 500 only when
+  `DOMAIN` is not an http(s) address.
+- `operationDiscordConfirmAccountLink(token)` (signed-in user) links the
+  Discord account the callback stored for that user.
 - Discord customer channel GraphQL: `operationDiscordCustomerChannels`
-  (`teamRead`); `operationDiscordSaveCustomerChannel`,
+  (`teamRead`); `operationDiscordLinkCustomerChannels(connectionId,
+  channelIds, companyId, teamId)` links up to
+  `DISCORD_CUSTOMER_CHANNEL_LINK_LIMIT` (25) channels of one server to one
+  company and team at once and returns them; it validates every channel
+  first (already linked, a team's notification channel, or not visible to
+  the bot, naming the offending channels) and saves none on failure, and if
+  another link wins the unique index meanwhile it deletes the rows it
+  inserted. `operationDiscordSaveCustomerChannel(_id, connectionId,
+  channelIds, companyId, teamId)` edits one link and returns every link it
+  leaves: the link stays (with the new company and team) while its channel
+  is in `channelIds`, is deleted with its customer threads when it is not,
+  and every other channel in `channelIds` becomes a new link with the same
+  company and team (validated and inserted like the link mutation);
+  changing the company also deletes the kept link's customer threads;
   `operationDiscordRemoveCustomerChannel`,
   `operationDiscordEnableCommands(_id)` and
   `operationDiscordDisableCommands(_id)` (`teamUpdate`).
@@ -241,8 +280,9 @@ propertiesData? } })`
   `/triage new` rate limit (`operation:discord:triage-rate:<subdomain>:<user>`).
 - Discord interactions: Ed25519 signatures checked with the application's
   `verify_key`, the endpoint URL set through `PATCH /applications/@me`,
-  guild command registration
-  (`PUT /applications/{app}/guilds/{guild}/commands`) and deferred answers
+  guild commands listed, created one by one and deleted by id
+  (`/applications/{app}/guilds/{guild}/commands`), global commands listed
+  (`/applications/{app}/commands`) and deferred answers
   edited through `PATCH /webhooks/{app}/{token}/messages/@original`. Core's
   `companies.findOne` names the company and validates the link.
 - Core's `users.find`, `customers.findOne` and `companies.findOne` tRPC
@@ -266,10 +306,16 @@ propertiesData? } })`
   bot token and client secret with `select: false`, sealed with AES-256-GCM
   as `enc:v1:<k|j>:<iv>:<tag>:<data>` (`utils/discordSecrets.ts`). The key is
   scrypt-derived from `OPERATION_DISCORD_SECRET_KEY` (`k`), else
-  `JWT_TOKEN_SECRET` (`j`); with neither set values stay plaintext. Read
-  secrets only through `findWithSecrets` / `getConnectionWithToken`, which
-  decrypt and re-seal legacy plaintext values; changing the key that sealed
-  a value makes that server need reconnecting. A 401 marks the connection
+  `JWT_TOKEN_SECRET` (`j`); with neither set values stay plaintext. Bot work
+  reads only the token (`findWithToken` / `getConnectionWithToken`) and
+  OAuth reads only the client secret (`findWithClientSecret`); both re-seal
+  legacy plaintext values, so an unreadable client secret never stops bot
+  traffic. A client secret that can no longer be decrypted counts as absent:
+  `findWithClientSecret` and `dropUnreadableClientSecrets` (run by
+  `operationDiscordConnections`, `operationDiscordMyAccount` and before
+  picking the linking server) unset it and set `hasClientSecret: false`, so
+  member linking shows Off until an admin adds the secret again. A token
+  sealed with a lost key still needs the server reconnected. A 401 marks the connection
   `health.status: 'broken'` and the worker skips it until it is reconnected.
 - `operation_discord_configs` holds one config per team (unique `teamId` +
   `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
@@ -335,7 +381,9 @@ propertiesData? } })`
   `operationCancelTriage`. `taskAssigned` fires only when the assignee
   actually changes, and `taskCompleted` only on entering a completed status.
   `notifyDiscord` never throws and queues nothing unless an active config for
-  the team subscribes to the event.
+  the team subscribes to the event. Task import passes `skipDiscord` to
+  `createTask` / `updateTask`, so imported rows queue no Discord
+  notifications (team-change cleanup still runs).
 - Every Discord message is sent with `allowed_mentions: { parse: [] }`, so a
   record name can never ping `@everyone` or a role.
 - The worker posts a card only after `DiscordMessage.claimCard` succeeds, so
@@ -344,7 +392,11 @@ propertiesData? } })`
   errors are retried by BullMQ (`DISCORD_NOTIFY_JOB_OPTIONS`); other Discord
   errors are recorded on the config and dropped. A card that cannot be
   edited (Unknown Message, or 50005 when another bot posted it) is posted
-  again. A 429 waits for `Retry-After`, else the body's `retry_after`.
+  again. A 429 is retried in place only when `Retry-After` (else the body's
+  `retry_after`) is at most `DISCORD_RATE_LIMIT_INLINE_WAIT_MS`; a longer
+  one throws `DiscordApiError` with `retryAfterMs`, and the worker moves the
+  job to delayed for that long (`DelayedError`, no attempt used) instead of
+  sleeping. The worker runs `DISCORD_NOTIFY_CONCURRENCY` jobs at once.
 - The bot token never leaves the server: no GraphQL type exposes it and the
   frontend sends it only to `operationDiscordCheckToken` and
   `operationDiscordConnect`. The client secret likewise reaches the server
@@ -366,7 +418,11 @@ propertiesData? } })`
 - `notifyDiscord` queues a `team` job when the team config subscribes to
   the event and a `customer` job when the record has a customer thread and
   the event is in `DISCORD_CUSTOMER_EVENTS`; a customer update goes only to
-  the thread's own channel, never to another company's channel.
+  the thread's own channel, never to another company's channel. The
+  backfill from `discordSource.channelId` creates a thread only when that
+  channel is linked to the record's company, the worker skips a customer
+  update or removal notice when the channel's company is no longer the
+  record's, and changing a link's channel or company deletes its threads.
 - An interaction that fails answers people in Discord with the generic
   `DISCORD_INTERACTION_ERROR_MESSAGE` and logs the real error on the server;
   internal error text never reaches a customer channel.
@@ -377,7 +433,10 @@ propertiesData? } })`
   nothing; in SaaS the host-derived subdomain must match.
 - A member can link only their own Discord account: the OAuth `state` is
   random, stored in Redis with the user and subdomain, consumed once, and
-  must match the callback's subdomain. Mentions only ever allow the one
+  must match the callback's subdomain; the callback never links by itself,
+  and the result is linked only when the signed-in user confirming it is the
+  one who started it (a link URL sent to someone else cannot attach their
+  Discord account to the sender). Mentions only ever allow the one
   assignee id (`allowed_mentions.users`), never `parse`.
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.

@@ -13,9 +13,16 @@ export const type = `
 `;
 
 const saveCustomerChannelParams = `
-  _id: String
+  _id: String!
   connectionId: String!
-  channelId: String!
+  channelIds: [String!]!
+  companyId: String!
+  teamId: String!
+`;
+
+const linkCustomerChannelsParams = `
+  connectionId: String!
+  channelIds: [String!]!
   companyId: String!
   teamId: String!
 `;
@@ -25,7 +32,8 @@ export const queries = `
 `;
 
 export const mutations = `
-  operationDiscordSaveCustomerChannel(${saveCustomerChannelParams}): OperationDiscordCustomerChannel
+  operationDiscordLinkCustomerChannels(${linkCustomerChannelsParams}): [OperationDiscordCustomerChannel!]!
+  operationDiscordSaveCustomerChannel(${saveCustomerChannelParams}): [OperationDiscordCustomerChannel!]!
   operationDiscordRemoveCustomerChannel(_id: String!): DisconnectResponse
   operationDiscordEnableCommands(_id: String!): OperationDiscordConnection
   operationDiscordDisableCommands(_id: String!): OperationDiscordConnection
