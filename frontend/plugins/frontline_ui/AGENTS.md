@@ -716,12 +716,12 @@
 
 ## Architecture
 
-| Area | Path | Responsibility |
-| --- | --- | --- |
-| Settings panel dispatch | `src/widgets/record-panel/SettingsRecordPanel.tsx` | Lazy named editors registered by settings content type |
-| Settings resource IDs | `src/modules/settings/constants/recordPanels.ts` | Channel, pipeline, status, configuration, layout, response and submission panel types |
-| Settings scope | `src/modules/settings/contexts/SettingsPanelContext.tsx` | Authoritative loaded channel/pipeline IDs, with route fallback only outside a panel provider |
-| Local editor panels | `src/modules/settings/components/SettingsLocalPanel.tsx` | Resizable nonmodal panel, keyboard close, entry and return focus while preserving parent context |
+| Area                    | Path                                                     | Responsibility                                                                                   |
+| ----------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| Settings panel dispatch | `src/widgets/record-panel/SettingsRecordPanel.tsx`       | Lazy named editors registered by settings content type                                           |
+| Settings resource IDs   | `src/modules/settings/constants/recordPanels.ts`         | Channel, pipeline, status, configuration, layout, response and submission panel types            |
+| Settings scope          | `src/modules/settings/contexts/SettingsPanelContext.tsx` | Authoritative loaded channel/pipeline IDs, with route fallback only outside a panel provider     |
+| Local editor panels     | `src/modules/settings/components/SettingsLocalPanel.tsx` | Resizable nonmodal panel, keyboard close, entry and return focus while preserving parent context |
 
 Telegram setup and provider-specific presentation live in
 `src/modules/integrations/telegram/`. It reuses `ComposerShell`, `ComposerEditor`,
