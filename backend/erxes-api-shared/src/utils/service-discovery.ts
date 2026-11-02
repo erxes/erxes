@@ -143,6 +143,27 @@ export const getPlugin = async (
   return result;
 };
 
+/** Drops every user's cached permission map (`user_actions_<userId>`). */
+const clearCachedPermissionMaps = async () => {
+  let cursor = '0';
+
+  do {
+    const [next, keys] = await redis.scan(
+      cursor,
+      'MATCH',
+      'user_actions_*',
+      'COUNT',
+      500,
+    );
+
+    cursor = next;
+
+    if (keys.length) {
+      await redis.del(...keys);
+    }
+  } while (cursor !== '0');
+};
+
 export const joinErxesGateway = async ({
   name,
   port,
@@ -160,6 +181,11 @@ export const joinErxesGateway = async ({
     ? JSON.parse(existingConfigJson)
     : {};
 
+  const permissionsChanged =
+    meta?.permissions !== undefined &&
+    JSON.stringify(meta.permissions) !==
+      JSON.stringify(existingConfig?.meta?.permissions);
+
   await redis.set(
     keyForConfig(name),
 
@@ -174,6 +200,13 @@ export const joinErxesGateway = async ({
       uiEntry,
     }),
   );
+
+  // Cached permission maps were built from the old definitions (an upgrade
+  // that adds actions to a default group would otherwise keep refusing them
+  // until each user's groups change); they rebuild on the next request.
+  if (permissionsChanged) {
+    await clearCachedPermissionMaps();
+  }
 
   const address =
     LOAD_BALANCER_ADDRESS ||
