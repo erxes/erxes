@@ -1,3 +1,16 @@
+export type TFacebookHistoryImportStatus =
+  'queued' | 'running' | 'completed' | 'failed';
+
+export interface IFacebookHistoryImport {
+  status: TFacebookHistoryImportStatus;
+  startedAt?: Date;
+  finishedAt?: Date;
+  conversations: number;
+  messages: number;
+  skippedConversations: number;
+  error?: string;
+}
+
 export interface IFacebookIntegration {
   kind: string;
   accountId: string;
@@ -9,11 +22,11 @@ export interface IFacebookIntegration {
   expiration?: string;
   healthStatus?: string;
   error?: string;
+  historyImport?: IFacebookHistoryImport;
 }
 
 export interface IFacebookIntegrationDocument
-  extends IFacebookIntegration,
-    Document {
+  extends IFacebookIntegration, Document {
   _id: string;
 }
 

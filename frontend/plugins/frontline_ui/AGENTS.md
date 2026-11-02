@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -612,6 +612,16 @@
   integration of that channel with kind, Facebook page names and health —
   broken first, archived last — plus a Repair button on broken rows and the
   full row action menu, without leaving the list.
+- A facebook-messenger integration's row menu has `Import message history`
+  (`FacebookHistoryImport`): it runs `facebookImportMessengerHistory`, then
+  polls `facebookMessengerHistoryImportStatus` every three seconds while the
+  run is `queued` or `running`, shows the conversation and message counts in
+  the item, and on completion toasts the totals and refetches `Conversations`;
+  a failed run toasts its error. The item is inert while a run is active.
+- Messenger messages with neither `customerId` nor `userId` (and not
+  `fromBot`) were sent by the page itself, such as imported history replies:
+  `FacebookMessageRow` sends them through the Facebook renderer and
+  `isFacebookOutgoing` places them on the outgoing side.
 - The erxes Messenger setup keeps its six steps; their labelled progress
   segments jump to any step (`IntegrationSteps` `onStepClick`), and an edit can
   be saved from every step (`useEMEditSave`). The Config step puts name and
@@ -868,6 +878,8 @@ owns the setup form and connection actions.
 
 ### Consumes
 
+- `frontline_api` GraphQL `FacebookImportMessengerHistory` and
+  `FacebookMessengerHistoryImportStatus` (`FacebookMessengerHistoryImport`).
 - `ui-modules` `AutomationConditionalField` for conditional action values; it
   is a drop-in for `Form.Field` taking the action form, the field names, a label
   and the same `render`. It needs the automations host's
@@ -968,7 +980,7 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
   note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
-  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
   when a reply cannot be mailed (no customer email, or the workspace cannot
   send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
@@ -2407,7 +2419,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
+  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
@@ -2695,6 +2707,10 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
+- Smoke: on a facebook-messenger integration row open `...` →
+  `Import message history`; the item shows a spinner with rising counts, a
+  toast reports the totals when it finishes, and the inbox lists the imported
+  conversations with page replies on the right without a reload.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.

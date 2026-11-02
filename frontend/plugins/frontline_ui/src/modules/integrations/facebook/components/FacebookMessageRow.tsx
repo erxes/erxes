@@ -12,9 +12,11 @@ export const FacebookMessageRow = ({
   previousMessage,
   nextMessage,
 }: FacebookMessageRowProps) => {
-  const needsFacebookRenderer = Boolean(
-    message.botData?.length || message.source || message.relatedMessage,
-  );
+  const isPageSent = !message.customerId && !message.userId && !message.fromBot;
+  const needsFacebookRenderer =
+    Boolean(
+      message.botData?.length || message.source || message.relatedMessage,
+    ) || isPageSent;
   const contextValue = useMemo(
     () => ({
       ...message,

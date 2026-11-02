@@ -4,6 +4,7 @@ import { initDiscord } from '@/integrations/discord/services/gateway/ownership';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commentOutboxWorker';
 import { startFacebookInputTimeoutWorker } from '@/integrations/facebook/meta/automation/messages/inputWait';
+import { startFacebookHistoryImportWorker } from '@/integrations/facebook/historyImportWorker';
 import { startCustomDomainWorker } from '@/customdomain/worker';
 import { startScheduledPublishWorker } from '@/knowledgebase/utils/scheduledPublish';
 import {
@@ -79,6 +80,7 @@ startPlugin({
     // initDiscord();
     startFacebookCommentOutboxWorker();
     startFacebookInputTimeoutWorker();
+    startFacebookHistoryImportWorker();
     startCustomDomainWorker();
     startScheduledPublishWorker();
   },

@@ -7,6 +7,7 @@ import { ArchiveIntegration } from '@/integrations/components/ArchiveIntegration
 import { RemoveIntegration } from '@/integrations/components/RemoveIntegration';
 import { IntegrationType } from '@/types/Integration';
 import { FacebookIntegrationRepair } from '../facebook/components/FacebookIntegrationRepair';
+import { FacebookHistoryImport } from '../facebook/components/FacebookHistoryImport';
 import { InstagramIntegrationRepair } from '../instagram/components/InstagramIntegrationRepair';
 import { DiscordIntegrationRepair } from '../discord/components/DiscordIntegrationActions';
 import { EMInstallScript } from '../erxes-messenger/components/EMInstallScript';
@@ -188,6 +189,11 @@ export const IntegrationActionsMenu = ({
               {isRepairableIntegration(kind) && (
                 <Command.Item value="repair">
                   <IntegrationRepairAction integration={integration} />
+                </Command.Item>
+              )}
+              {kind === IntegrationType.FACEBOOK_MESSENGER && (
+                <Command.Item value="import-history">
+                  <FacebookHistoryImport integration={integration} />
                 </Command.Item>
               )}
               <Command.Item

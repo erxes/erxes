@@ -11,6 +11,7 @@ import {
 } from '@/integrations/facebook/postService';
 import { sendNotifications } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { TCreateBotInputDoc } from '../../db/models/Bots';
+import { enqueueMessengerHistoryImport } from '@/integrations/facebook/services/historyImport';
 export const facebookMutations = {
   async facebookUpdateConfigs(
     _root,
@@ -31,6 +32,16 @@ export const facebookMutations = {
     await repairIntegrations(subdomain, _id);
 
     return 'success';
+  },
+
+  async facebookImportMessengerHistory(
+    _root,
+    { integrationId }: { integrationId: string },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('integrationsEdit');
+
+    return enqueueMessengerHistoryImport(models, subdomain, integrationId);
   },
 
   async facebookReplyToComment(

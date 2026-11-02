@@ -1,6 +1,9 @@
 import { INTERNAL_NOTE_BACKGROUND } from '@/inbox/constants/internalNoteStyles';
 import { Button, RelativeDateDisplay, cn, useQueryState } from 'erxes-ui';
-import { useFbMessengerMessageContext } from '@/integrations/facebook/contexts/FbMessengerMessageContext';
+import {
+  isFacebookOutgoing,
+  useFbMessengerMessageContext,
+} from '@/integrations/facebook/contexts/FbMessengerMessageContext';
 import { useAtomValue } from 'jotai';
 import { activeConversationState } from '@/inbox/conversations/states/activeConversationState';
 import { CustomersInline, MembersInline } from 'ui-modules';
@@ -19,12 +22,14 @@ export const FbMessengerMessage = () => {
     createdAt,
     _id,
     userId,
+    customerId,
     separatePrevious,
     attachments,
     botData,
   } = useFbMessengerMessageContext();
   const [focusedMessageId] = useQueryState<string>('messageId');
   const isFocused = focusedMessageId === _id;
+  const isOutgoing = isFacebookOutgoing({ userId, customerId, botData });
 
   if (botData?.length) {
     return (
@@ -54,7 +59,7 @@ export const FbMessengerMessage = () => {
             variant="secondary"
             className={cn(
               'mt-2 h-auto py-2 text-left **:whitespace-pre-wrap block font-normal space-y-2 overflow-x-hidden text-pretty wrap-break-word [&_a]:text-primary [&_a]:underline [&_img]:aspect-square [&_img]:object-cover [&_img]:rounded',
-              userId && 'bg-primary/10 hover:bg-primary/10',
+              isOutgoing && 'bg-primary/10 hover:bg-primary/10',
               internal && INTERNAL_NOTE_BACKGROUND,
               separatePrevious && 'mt-8',
             )}
@@ -99,7 +104,7 @@ export const MessageWrapper = ({
   const { separateNext, customerId, userId, botData } =
     useFbMessengerMessageContext();
   const isBotMessage = !!botData?.length;
-  const isOutgoing = !!userId || isBotMessage;
+  const isOutgoing = isFacebookOutgoing({ userId, customerId, botData });
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   const { customer } = useAtomValue(activeConversationState) || {};
