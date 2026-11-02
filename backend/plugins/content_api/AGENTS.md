@@ -64,7 +64,9 @@
 
 ## Local Invariants
 
-- A site's default language comes from `getCmsDefaultLanguage` in `src/modules/cms/utils/common.ts`: the stored `language`, then the first entry of `languages`. Base document fields hold that language and `Translations` hold the others, so mutations, read translation and language permissions must all use it. `content_ui` resolves it the same way.
+- A site's default language comes from `getCmsDefaultLanguage` in `src/modules/cms/utils/common.ts`: the stored `language`, then the first entry of `languages`. Base document fields hold that language and `Translations` hold the others, so mutations and language permissions must all use it. `content_ui` resolves it the same way.
+- When `language` is unset the default is only implied, and older data can hold a row in it. Reads apply a saved row and otherwise use the base fields (`shouldSkipTranslation`). Edits go through `getCmsTranslationLanguage`, which writes to that row when one exists, so a save is never masked. Language-filtered reads filter only on an explicit default.
+- `updateContentCMS` re-homes from the computed previous default. From an implied default, a document with a row in that language treats its base fields as `en`, the old fallback, and never overwrites a saved row.
 - Sharing is only for ordinary published posts. Recheck CMS assignment, publishing/sharing permissions, author scope and language access before enqueue and dispatch.
 - Journalist 2's sharing grant does not grant approval or immediate publication. That role alone still cannot dispatch a share; the existing publish/approve and Postiz membership requirements remain mandatory.
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.

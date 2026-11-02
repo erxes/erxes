@@ -9,6 +9,7 @@ import {
   IContentCMSInput,
 } from '@/cms/@types/cms';
 import { cmsSchema } from '@/cms/db/definitions/cms';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 /**
  * Content whose translatable fields live in the base document for the default
@@ -64,6 +65,8 @@ const TRANSLATABLE_CONTENT_TYPES: TranslatableContentConfig[] = [
   },
 ];
 
+const IMPLIED_BASE_LANGUAGE = 'en';
+
 const hasTranslatableValue = (value: unknown): boolean => {
   if (value === undefined || value === null) return false;
   if (typeof value === 'string') return value.trim() !== '';
@@ -84,7 +87,8 @@ const buildRehomeOpsForDocument = (
   oldLanguage: string,
   newLanguage: string,
   type: string,
-  newTranslationMap: Map<string, any>,
+  newTranslation?: any,
+  savedOldTranslation?: any,
 ): { translationOps: any[]; documentOp: Record<string, any> } => {
   const objectId = String(doc._id);
   const translationOps: any[] = [];
@@ -93,7 +97,11 @@ const buildRehomeOpsForDocument = (
   //    translation so it remains reachable after the switch.
   const oldTranslationFields: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
-    oldTranslationFields[translationField] = doc[baseField] ?? '';
+    oldTranslationFields[translationField] = hasTranslatableValue(
+      savedOldTranslation?.[translationField],
+    )
+      ? savedOldTranslation[translationField]
+      : (doc[baseField] ?? '');
   }
 
   translationOps.push({
@@ -112,12 +120,13 @@ const buildRehomeOpsForDocument = (
   //    the new language left empty has to become empty, otherwise the previous
   //    default's text leaks into the new default. Missing/empty values are reset
   //    to an empty value matching the field's shape (array vs. string).
-  const newTranslation = newTranslationMap.get(objectId);
   const baseUpdate: Record<string, any> = {};
   for (const [baseField, translationField] of Object.entries(fieldMappings)) {
     const value = newTranslation?.[translationField];
     const emptyValue = Array.isArray(doc[baseField]) ? [] : '';
-    baseUpdate[baseField] = hasTranslatableValue(value) ? value : emptyValue;
+    const fallbackValue =
+      oldLanguage === newLanguage ? (doc[baseField] ?? emptyValue) : emptyValue;
+    baseUpdate[baseField] = hasTranslatableValue(value) ? value : fallbackValue;
   }
 
   const documentOp = {
@@ -144,6 +153,7 @@ const rehomeDefaultLanguageContent = async (
   clientPortalId: string,
   oldLanguage: string,
   newLanguage: string,
+  isImpliedDefault: boolean,
 ) => {
   for (const { type, modelKey, fieldMappings } of TRANSLATABLE_CONTENT_TYPES) {
     const model = models[modelKey] as any;
@@ -154,15 +164,15 @@ const rehomeDefaultLanguageContent = async (
     }
 
     const objectIds = documents.map((doc: any) => String(doc._id));
-    const newTranslations = await models.Translations.find({
+    const translations = await models.Translations.find({
       objectId: { $in: objectIds },
-      language: newLanguage,
+      language: { $in: [oldLanguage, newLanguage, IMPLIED_BASE_LANGUAGE] },
       type,
     }).lean();
 
-    const newTranslationMap = new Map<string, any>(
-      newTranslations.map((translation: any) => [
-        String(translation.objectId),
+    const translationMap = new Map<string, any>(
+      translations.map((translation: any) => [
+        `${translation.objectId}:${translation.language}`,
         translation,
       ]),
     );
@@ -171,14 +181,27 @@ const rehomeDefaultLanguageContent = async (
     const documentOps: any[] = [];
 
     for (const doc of documents) {
+      const baseLanguage =
+        isImpliedDefault && translationMap.has(`${doc._id}:${oldLanguage}`)
+          ? IMPLIED_BASE_LANGUAGE
+          : oldLanguage;
+      const newTranslation = translationMap.get(`${doc._id}:${newLanguage}`);
+
+      if (baseLanguage === newLanguage && !newTranslation) {
+        continue;
+      }
+
       const { translationOps: docTranslationOps, documentOp } =
         buildRehomeOpsForDocument(
           doc,
           fieldMappings,
-          oldLanguage,
+          baseLanguage,
           newLanguage,
           type,
-          newTranslationMap,
+          newTranslation,
+          isImpliedDefault
+            ? translationMap.get(`${doc._id}:${baseLanguage}`)
+            : undefined,
         );
 
       translationOps.push(...docTranslationOps);
@@ -271,21 +294,23 @@ export const loadCmsClass = (models: IModels) => {
     public static async updateContentCMS(_id: string, doc: IContentCMSInput) {
       const existing = await models.CMS.findOne({ _id }).lean();
 
-      const previousLanguage = existing?.language;
+      const previousLanguage = getCmsDefaultLanguage(existing);
       const nextLanguage = doc.language;
+      const isImpliedDefault = !existing?.language;
 
       // Default language changed: re-home content so nothing disappears.
       if (
         existing?.clientPortalId &&
         previousLanguage &&
         nextLanguage &&
-        previousLanguage !== nextLanguage
+        (isImpliedDefault || previousLanguage !== nextLanguage)
       ) {
         await rehomeDefaultLanguageContent(
           models,
           existing.clientPortalId,
           previousLanguage,
           nextLanguage,
+          isImpliedDefault,
         );
       }
 
