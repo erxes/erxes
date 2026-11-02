@@ -6,7 +6,7 @@ import {
   buildPropertyDataColumns,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
-import { IDeal } from '~/modules/sales/@types';
+import { IDeal, IProductData } from '~/modules/sales/@types';
 import { generateFilter } from '@/sales/graphql/resolvers/queries/deals';
 import {
   ExportRow,
@@ -193,6 +193,44 @@ const summarizePayments = (deal: ExportDeal) => {
   };
 };
 
+/** Columns that turn the export into one row per deal product line. */
+const PRODUCT_LINE_FIELDS = [
+  'productCode',
+  'productName',
+  'productQuantity',
+  'productUnitPrice',
+  'productDiscount',
+  'productAmount',
+];
+
+/** True when the export should repeat each deal once per product line. */
+const wantsProductLines = (selectedFields?: string[]): boolean =>
+  !selectedFields?.length ||
+  selectedFields.some((field) => PRODUCT_LINE_FIELDS.includes(field));
+
+/** Product-line columns for one entry of a deal's `productsData`. */
+export const buildProductLineColumns = (
+  productData: IProductData | undefined,
+  lookups: Pick<DealExportLookups, 'products'>,
+): ExportRow => {
+  if (!productData) {
+    return Object.fromEntries(PRODUCT_LINE_FIELDS.map((field) => [field, '']));
+  }
+
+  const product = productData.productId
+    ? lookups.products.get(productData.productId)
+    : undefined;
+
+  return {
+    productCode: product?.code || '',
+    productName: product?.name || productData.name || '',
+    productQuantity: toExportNumber(productData.quantity),
+    productUnitPrice: toExportNumber(productData.unitPrice),
+    productDiscount: toExportNumber(productData.discount),
+    productAmount: toExportNumber(productData.amount),
+  };
+};
+
 export const buildDealExportRow = (
   deal: ExportDeal,
   lookups: DealExportLookups,
@@ -266,25 +304,24 @@ export async function getDealExportData(
     throw new Error('Models not available in context');
   }
 
-  // Selected rows are exported as chosen; list filters apply only without ids.
-  const baseQuery = ids?.length
-    ? {}
-    : await generateFilter(models, subdomain, EXPORT_USER_ID, filters || {});
-
-  const { query, isIdsMode } = buildExportCursorQuery({
-    baseQuery,
-    cursor,
-    ids,
-    limit,
-  });
-
-  if (isIdsMode && query._id?.$in?.length === 0) {
-    return [];
-  }
+  // Selected rows are exported as chosen, and all at once: the worker's ids
+  // cursor counts rows, and product lines make rows outnumber deals.
+  const query = ids?.length
+    ? { _id: { $in: ids } }
+    : buildExportCursorQuery({
+        baseQuery: await generateFilter(
+          models,
+          subdomain,
+          EXPORT_USER_ID,
+          filters || {},
+        ),
+        cursor,
+        limit,
+      }).query;
 
   const deals = await models.Deals.find(query)
     .sort({ _id: 1 })
-    .limit(limit)
+    .limit(ids?.length ? ids.length : limit)
     .lean<ExportDeal[]>();
 
   if (!deals.length) {
@@ -293,11 +330,25 @@ export async function getDealExportData(
 
   const lookups = await loadLookups(models, subdomain, deals);
 
-  return deals.map((deal) =>
-    pickExportFields(
-      String(deal._id),
-      buildDealExportRow(deal, lookups),
-      selectedFields,
-    ),
-  );
+  const productLines = wantsProductLines(selectedFields);
+
+  // Every deal yields at least one row (a deal without products keeps empty
+  // product columns), so each row's `_id` stays a valid deal cursor.
+  return deals.flatMap((deal) => {
+    const dealRow = buildDealExportRow(deal, lookups);
+    const lines: Array<IProductData | undefined> =
+      productLines && deal.productsData?.length
+        ? deal.productsData
+        : [undefined];
+
+    return lines.map((productData) =>
+      pickExportFields(
+        String(deal._id),
+        productLines
+          ? { ...dealRow, ...buildProductLineColumns(productData, lookups) }
+          : dealRow,
+        selectedFields,
+      ),
+    );
+  });
 }

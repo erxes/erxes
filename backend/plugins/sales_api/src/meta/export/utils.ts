@@ -26,7 +26,8 @@ type CoreLookupModule =
   | 'tags'
   | 'branches'
   | 'departments'
-  | 'products';
+  | 'products'
+  | 'productCategories';
 
 interface ICoreUser {
   _id: string;
@@ -64,6 +65,8 @@ interface ICoreProduct {
   _id: string;
   name?: string;
   code?: string;
+  barcodes?: string[];
+  categoryId?: string;
 }
 
 /**
@@ -257,6 +260,20 @@ export const fetchProducts = async (subdomain: string, ids: string[]) =>
     (await findCoreRecords<ICoreProduct>(subdomain, 'products', ids)).map(
       (product) => [String(product._id), product],
     ),
+  );
+
+/** Product category code and name by id. */
+export const fetchProductCategories = async (
+  subdomain: string,
+  ids: string[],
+) =>
+  new Map(
+    (
+      await findCoreRecords<ICoreNamed>(subdomain, 'productCategories', ids)
+    ).map((category) => [
+      String(category._id),
+      { code: category.code || '', name: category.name || '' },
+    ]),
   );
 
 /** Resolves ids to names and joins them into one `; `-separated cell. */

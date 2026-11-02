@@ -28,9 +28,9 @@ import {
 /** The export worker has no signed-in user, so `userId: 'me'` matches none. */
 const EXPORT_USER_ID = '';
 
-type ExportPosOrder = IPosOrder & { _id: string };
+export type ExportPosOrder = IPosOrder & { _id: string };
 
-type PosOrderExportLookups = {
+export type PosOrderExportLookups = {
   posNames: Map<string, string>;
   dealNumbers: Map<string, string>;
   branchNames: Map<string, string>;
@@ -217,10 +217,17 @@ export const buildPosOrderExportRow = (
   };
 };
 
-export async function getPosOrdersExportData(
+/**
+ * Reads one batch of POS orders for an export, with everything their rows
+ * need. Orders are read in `_id` order so the worker can page by the last
+ * `_id`; selected ids are read all at once, since item rows can outnumber
+ * orders and the worker's ids cursor counts rows. Returns null when there is
+ * nothing left to export.
+ */
+export const loadPosOrderBatch = async (
   args: GetExportDataArgs,
   { subdomain, models }: IImportExportContext<IModels>,
-): Promise<ExportRow[]> {
+) => {
   const { cursor, limit, filters, ids, selectedFields } =
     unwrapExportPayload<GetExportData>(args);
 
@@ -228,39 +235,50 @@ export async function getPosOrdersExportData(
     throw new Error('Models not available in context');
   }
 
-  const baseQuery = await generateFilterPosQuery(
-    models,
-    filters || {},
-    EXPORT_USER_ID,
-  );
-
-  const { query, isIdsMode } = buildExportCursorQuery({
-    baseQuery,
-    cursor,
-    ids,
-    limit,
-  });
-
-  if (isIdsMode && query._id?.$in?.length === 0) {
-    return [];
-  }
+  const query = ids?.length
+    ? { _id: { $in: ids } }
+    : buildExportCursorQuery({
+        baseQuery: await generateFilterPosQuery(
+          models,
+          filters || {},
+          EXPORT_USER_ID,
+        ),
+        cursor,
+        limit,
+      }).query;
 
   const orders = await models.PosOrders.find(query)
     .sort({ _id: 1 })
-    .limit(limit)
+    .limit(ids?.length ? ids.length : limit)
     .lean<ExportPosOrder[]>();
 
   if (!orders.length) {
+    return null;
+  }
+
+  return {
+    orders,
+    selectedFields,
+    lookups: await loadLookups(models, subdomain, orders),
+  };
+};
+
+/** One CSV row per POS order. */
+export async function getPosOrdersExportData(
+  args: GetExportDataArgs,
+  ctx: IImportExportContext<IModels>,
+): Promise<ExportRow[]> {
+  const batch = await loadPosOrderBatch(args, ctx);
+
+  if (!batch) {
     return [];
   }
 
-  const lookups = await loadLookups(models, subdomain, orders);
-
-  return orders.map((order) =>
+  return batch.orders.map((order) =>
     pickExportFields(
       String(order._id),
-      buildPosOrderExportRow(order, lookups),
-      selectedFields,
+      buildPosOrderExportRow(order, batch.lookups),
+      batch.selectedFields,
     ),
   );
 }

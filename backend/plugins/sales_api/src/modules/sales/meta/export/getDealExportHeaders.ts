@@ -45,6 +45,12 @@ export const DEAL_EXPORT_SYSTEM_HEADERS = parseExportHeaders(`
   isComplete        | Is Complete
   products          | Products
   productCount      | Product Count
+  productCode       | Product Code       | default
+  productName       | Product Name       | default
+  productQuantity   | Quantity           | default
+  productUnitPrice  | Unit Price
+  productDiscount   | Discount           | default
+  productAmount     | Amount             | default
   currency          | Currency
   totalAmount       | Total Amount        | default
   unUsedTotalAmount | Unused Total Amount
