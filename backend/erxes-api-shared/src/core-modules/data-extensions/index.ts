@@ -9,3 +9,4 @@ export * from './requestProof';
 export * from './ownerCalls';
 export * from './query';
 export * from './formula';
+export * from './segments';

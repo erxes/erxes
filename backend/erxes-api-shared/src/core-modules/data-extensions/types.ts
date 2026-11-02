@@ -83,6 +83,12 @@ export interface IDataExtensionRecordType {
    * create form; the UI writes the form's values right after they return.
    */
   createMutations?: string[];
+  /**
+   * Segment and automation type of these records, e.g.
+   * `core:contacts.customers`. Value changes are announced under it so
+   * segments refresh and automations fire.
+   */
+  eventContentType?: string;
   /** A tenant-defined object: records are created and listed here. */
   custom?: boolean;
   icon?: string;

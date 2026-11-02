@@ -68,6 +68,7 @@ const teamMemberFields: IDataExtensionNativeField[] = [
 export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   {
     recordType: 'core:company',
+    eventContentType: 'core:contacts.companies',
     contentTypes: ['core:company'],
     createMutations: ['companiesAdd'],
     owner: 'core',
@@ -81,6 +82,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:customer',
+    eventContentType: 'core:contacts.customers',
     contentTypes: ['core:customer'],
     createMutations: ['customersAdd'],
     owner: 'core',
@@ -95,6 +97,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:lead',
+    eventContentType: 'core:contacts.leads',
     contentTypes: ['core:customer'],
     createMutations: ['customersAdd'],
     owner: 'core',
@@ -135,6 +138,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:teamMember',
+    eventContentType: 'core:organization.users',
     contentTypes: ['core:user'],
     owner: 'core',
     typeName: 'TeamMember',
@@ -147,6 +151,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'operation:task',
+    eventContentType: 'operation:task.tasks',
     contentTypes: ['operation:task'],
     createMutations: ['createTask'],
     owner: 'operation',
@@ -314,6 +319,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'core:product',
+    eventContentType: 'core:products.products',
     contentTypes: ['core:product'],
     createMutations: ['productsAdd'],
     owner: 'core',
@@ -336,6 +342,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'sales:deal',
+    eventContentType: 'sales:sales.deals',
     contentTypes: ['sales:deal', 'sales:sales.deal'],
     createMutations: ['dealsAdd'],
     owner: 'sales',
@@ -358,6 +365,7 @@ export const DATA_EXTENSION_RECORD_TYPES: IDataExtensionRecordType[] = [
   },
   {
     recordType: 'frontline:ticket',
+    eventContentType: 'frontline:tickets.tickets',
     contentTypes: ['frontline:ticket'],
     createMutations: ['createTicket'],
     owner: 'frontline',
