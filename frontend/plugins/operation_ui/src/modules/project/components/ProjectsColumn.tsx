@@ -33,6 +33,7 @@ import { SelectMember, TagsSelect } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { projectsMoreColumn } from './ProjectsMoreColumn';
 import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
+import { compactList } from '@/operation/utils/cursorList';
 
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
@@ -145,26 +146,29 @@ export const projectsColumns = (
         <RecordTable.InlineHead label={t('tags')} icon={IconLabelFilled} />
       ),
       cell: ({ cell }) => {
-        const tagIds = cell.getValue() as string[];
+        const { updateProject } = useUpdateProject();
         return (
           <TagsSelect.InlineCell
             type="operation:project"
             mode="multiple"
-            value={tagIds}
-            targetIds={[cell.row.original._id]}
-            options={(newSelectedTagIds: string[]) => ({
-              update: (cache: any) => {
-                cache.modify({
-                  id: cache.identify({
-                    __typename: 'Project',
-                    _id: cell.row.original._id,
-                  }),
-                  fields: {
-                    tagIds: () => newSelectedTagIds,
-                  },
-                });
-              },
-            })}
+            value={compactList(cell.row.original.tagIds)}
+            onValueChange={(tagIds) => {
+              updateProject({
+                variables: { _id: cell.row.original._id, tagIds },
+                optimisticResponse: { updateProject: null },
+                update: (cache) => {
+                  cache.modify({
+                    id: cache.identify({
+                      __typename: 'Project',
+                      _id: cell.row.original._id,
+                    }),
+                    fields: {
+                      tagIds: () => tagIds,
+                    },
+                  });
+                },
+              });
+            }}
           />
         );
       },
