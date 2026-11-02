@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -95,6 +95,7 @@
 - VAT and city tax (НХАТ) row add, edit, and remove hooks show a destructive `onError` toast; add hooks also toast success while still forwarding call-site `onError`/`onCompleted`. Because a call-site `onCompleted` replaces a hook-level one, single-row and bulk remove success toasts live at the call sites (`VatsTable`/`CtaxsTable` row actions, the panel delete actions, and the commandbars); panel inline edits show no success toast.
 - VAT and city tax tables edit `number` and `name` inline: `getSharedRowColumns` takes a required `RowTextField` component (`VatRowTextField`, `CtaxRowTextField`) that wraps erxes-ui `TextField`, sends only `_id` plus the changed field to the edit mutation, toasts success on completion, and ignores blank values.
 - The account category page has its own `AccountCategoriesFilter` (search and category subtree only, `searchValue` / `categoryId` query params, a category match count); never reuse `AccountsFilter` there, whose account-only filters the category table cannot apply. Filtering runs on the client in `filterAccountCategories` (code or name match, ancestors kept as muted context rows; the tree provider's `length` prop resets folded branches whenever the visible row count changes, so matches never stay hidden) because the backend `searchValue` matches names only and server-side filtering would drop ancestors and break the tree. When a filter matches nothing, the table shows the same `AccountingEmptyState` overlay with `empty-filter-description` and no add action.
+- Transaction and safe remainder filters label member filters `created-by` / `modified-by`, and transaction date filters `created-date` / `modified-date`, so no two menu items share a label.
 - Account add, edit, and remove mutations likewise evict the `accountsMain` cache field besides refetching `accountingAccountsMain`, so closed `SelectAccount` popovers (for example in general settings) show new or changed accounts without a page refresh. A call-site `update` callback runs before that eviction instead of being replaced.
 - `SelectAccount` (root) defaults `mode` to `'single'`, matching its provider, so a single selection closes the popover even when callers omit `mode`; `mode="multiple"` keeps it open.
 - The account category list and detail queries select every field the category panel edits (including `description`); the VAT and city tax detail queries select `kind` and `status` (VAT also `tabCount` and `isBold`) so the panel detail shows every editable field.
