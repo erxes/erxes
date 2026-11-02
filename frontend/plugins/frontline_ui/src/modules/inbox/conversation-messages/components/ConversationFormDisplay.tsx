@@ -83,6 +83,16 @@ export const ConversationFormDisplay = ({
           {items.map((item) => {
             const text = formatFormWidgetValue(item.value);
             const TextField = text.length > 60 ? Textarea : Input;
+            const fileUrls =
+              item.type === 'file' && Array.isArray(item.value)
+                ? Array.from(
+                    new Set(
+                      item.value
+                        .map(getFormWidgetResource)
+                        .filter((url): url is string => url !== undefined),
+                    ),
+                  )
+                : [];
             const avatar =
               item.type === 'core:customer:avatar'
                 ? getFormWidgetResource(item.value)
@@ -108,50 +118,46 @@ export const ConversationFormDisplay = ({
                   )}
                 {item.type === 'file' && (
                   <div className="flex items-center overflow-x-auto hide-scroll snap-x">
-                    {Array.isArray(item.value) &&
-                      item.value.map((value: unknown, i: number) => {
-                        const url = getFormWidgetResource(value);
-                        if (!url) return null;
+                    {fileUrls.map((url) => {
+                      const variant = getFileVariant(url);
+                      const resolvedUrl = readImage(url);
 
-                        const variant = getFileVariant(url);
-                        const resolvedUrl = readImage(url);
-
-                        if (variant === 'image') {
-                          return (
-                            <Upload.Root
-                              key={i}
-                              value={url}
-                              className="w-full"
-                              onChange={() => undefined}
-                            >
-                              <Upload.Preview />
-                              <Upload.Button
-                                size="sm"
-                                variant="outline"
-                                type="button"
-                                className="items-center gap-1 cursor-pointer text-sm w-full justify-center hidden"
-                              >
-                                {t('view-attachments', 'View attachments')}
-                              </Upload.Button>
-                            </Upload.Root>
-                          );
-                        }
+                      if (variant === 'image') {
                         return (
-                          <a
-                            key={`${url}-${i}`}
-                            href={resolvedUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center w-6 h-6 min-w-6 min-h-6 rounded border bg-muted shadow-sm text-muted-foreground hover:text-primary transition-colors snap-start"
-                            title={url.split('/').pop()}
+                          <Upload.Root
+                            key={url}
+                            value={url}
+                            className="w-full"
+                            onChange={() => undefined}
                           >
-                            <FileVariantIcon
-                              variant={variant}
-                              className="w-4 h-4"
-                            />
-                          </a>
+                            <Upload.Preview />
+                            <Upload.Button
+                              size="sm"
+                              variant="outline"
+                              type="button"
+                              className="items-center gap-1 cursor-pointer text-sm w-full justify-center hidden"
+                            >
+                              {t('view-attachments', 'View attachments')}
+                            </Upload.Button>
+                          </Upload.Root>
                         );
-                      })}
+                      }
+                      return (
+                        <a
+                          key={url}
+                          href={resolvedUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center w-6 h-6 min-w-6 min-h-6 rounded border bg-muted shadow-sm text-muted-foreground hover:text-primary transition-colors snap-start"
+                          title={url.split('/').pop()}
+                        >
+                          <FileVariantIcon
+                            variant={variant}
+                            className="w-4 h-4"
+                          />
+                        </a>
+                      );
+                    })}
                   </div>
                 )}
                 {item.type === 'core:customer:avatar' && (
