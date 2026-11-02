@@ -41,10 +41,12 @@ const readFromCFImages = async (
     throw new Error('Cloudflare Account Hash is not configured');
   }
 
-  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/public`;
+  const urlPath = fileName.split('/').map(encodeURIComponent).join('/');
+
+  let url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${urlPath}/public`;
 
   if (width) {
-    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${fileName}/w=${width}`;
+    url = `https://imagedelivery.net/${CLOUDFLARE_ACCOUNT_HASH}/${urlPath}/w=${width}`;
   }
 
   try {
