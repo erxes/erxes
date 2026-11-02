@@ -35,6 +35,7 @@ import { projectsMoreColumn } from './ProjectsMoreColumn';
 import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 import { compactList } from '@/operation/utils/cursorList';
 
+/** Builds the project table columns with inline editing controls. */
 export const projectsColumns = (
   _teams: ITeam[] | undefined,
   t: (key: string) => string,
