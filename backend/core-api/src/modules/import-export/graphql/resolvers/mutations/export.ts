@@ -176,18 +176,12 @@ export const exportMutations = {
       throw new Error('Can only retry failed exports');
     }
 
-    if (!exportDoc.lastCursor) {
-      throw new Error('Cannot retry: no cursor position saved');
-    }
-
     // Reset status and restart the job
     await models.Exports.updateOne(
       { _id: exportId },
       {
-        $set: {
-          status: 'pending',
-          errorMessage: undefined,
-        },
+        $set: { status: 'pending', processedRows: 0 },
+        $unset: { errorMessage: '', terminalError: '', lastCursor: '' },
       },
     );
 

@@ -28,7 +28,7 @@ export function useExportProgress(
       ? Math.round(exportItem.estimatedSecondsRemaining / 60)
       : 0;
 
-    const canRetry = exportItem.status === 'failed' && !!exportItem.lastCursor;
+    const canRetry = exportItem.status === 'failed';
 
     return {
       percentage,
