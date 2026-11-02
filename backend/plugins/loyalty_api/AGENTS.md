@@ -160,6 +160,12 @@
   bonus voucher usage; POS and deal callers may sell weighted products with
   decimal counts. Confirmation must also accept null or omitted voucher IDs
   and counts for sale lines without a selected bonus voucher.
+- A coupon campaign's `codeRule` is stored with the campaign form's names
+  (`numberOfCodes`, `prefixUppercase`, `postfixUppercase`, `characterSet`
+  string); `couponAdd` reads it through `normalizeCodeRule`
+  (`modules/coupon/utils/codeRule.ts`) into the generator's `size`, `prefix`,
+  `postfix`, `charSet`. Read a stored `codeRule` only through it; without it
+  every generation made one code.
 
 ## Validation
 
