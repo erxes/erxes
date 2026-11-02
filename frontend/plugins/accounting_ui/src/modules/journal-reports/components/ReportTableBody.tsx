@@ -1,6 +1,7 @@
 import { ReportTable, Skeleton, cn } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
 import { useJournalReportMore } from '../hooks/useJournalReportMore';
@@ -38,6 +39,7 @@ export function useQueryObject(): QueryObject {
 }
 
 export const ReportTableBody = () => {
+  const { t } = useTranslation('accounting');
   const {
     report: reportParam,
     groupKey: groupKeyParam,
@@ -118,6 +120,18 @@ export const ReportTableBody = () => {
 
   if (loading || (isMore && detailLoading)) {
     return <ReportTableBodySkeleton columnCount={colCount + 2} />;
+  }
+
+  if (!records.length) {
+    return (
+      <tbody data-slot="table-body">
+        <ReportTable.Row>
+          <ReportTable.Cell colSpan={colCount + 2} className="text-center">
+            {t('no-transactions')}
+          </ReportTable.Cell>
+        </ReportTable.Row>
+      </tbody>
+    );
   }
 
   return (
