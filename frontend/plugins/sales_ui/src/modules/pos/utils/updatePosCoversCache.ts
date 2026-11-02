@@ -13,10 +13,7 @@ export const updateCacheAfterRemove = (
     fields: {
       posCovers(
         existing:
-          | readonly (Reference | StoreObject)[]
-          | Reference
-          | null
-          | undefined,
+          readonly (Reference | StoreObject)[] | Reference | null | undefined,
         { readField },
       ) {
         if (existing === null || isReference(existing)) return existing;
