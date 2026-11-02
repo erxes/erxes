@@ -270,6 +270,7 @@
   calculations must reconstruct the pre-discount base as
   `count * unitPrice + discountAmount`.
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
+- `cpOrdersAddPayment` and `cpOrdersSettlePayment` apply client amounts and bill types only for a logged-in POS user. Any other caller, including a signed-in portal customer, runs `settleFromPaidInvoices`: it asks payment for the order's paid invoices and settles from those, or fails with `FORBIDDEN`. When paid invoices already cover the total it waits up to 10 seconds, because the payment callback may be mid-settlement on another request. Client values never reach the order on that path, and an already paid order returns as success so a repeated call is safe.
 - Invoice settlement never reads the POS token from the invoice: `order.posToken` decides the POS config. An order with no cashier (`userId` empty) has nobody to choose a bill type later, so it settles as `billType: '1'` when it has none, or when it is `'3'` without a register number. A cashier's order keeps waiting for the cashier's choice.
 
 ## Validation
@@ -310,6 +311,7 @@
   check-only validates Core balances with display disabled; category-excluded
   products bypass validation; enabling `saveRemainder` persists fetched stock.
 - Invoice settlement smoke scenario: pay an invoice with `contentType: sales:order` and `contentTypeId` set to a portal order, with no `data.posToken` and eBarimt configured; the order gets `paidDate` and `billType: '1'` once. Check the invoice again: no second receipt. Pay part of the total: no `paidDate`. A cashier's order with no bill type records the amount and stays unpaid.
+- Portal payment smoke scenario: with app and POS tokens only, and again as a signed-in portal customer, `cpOrdersAddPayment` and `cpOrdersSettlePayment` on an unpaid order fail with `Order payment is not confirmed` and change nothing. With a paid invoice for the full total, both succeed and only the invoice amount is recorded. With a cashier's `pos-auth-token` both work as before.
 - POS report smoke scenario: as a cashier without `seeReport`, `dailyReport` returns permission denied; after enabling it, the same cashier can fetch the report.
 - POS customer smoke scenario: as a cashier with `createCustomer`, `poscCustomerForm.canCreate` is true; `poscCustomersAdd` with a new phone creates a customer with `createdVia.sourceId` = POS id; repeating it returns `duplicate` instead.
 - POS product smoke scenario: querying `poscProducts(propertiesData: "<fieldId>:eq:<value>")` and `poscProductsTotalCount` returns the same filtered product set/count.

@@ -11,7 +11,11 @@ import {
   BILL_TYPES,
   SUBSCRIPTION_INFO_STATUS,
 } from '~/modules/posclient/db/definitions/constants';
-import { graphqlPubsub, sendTRPCMessage } from 'erxes-api-shared/utils';
+import {
+  ExpectedError,
+  graphqlPubsub,
+  sendTRPCMessage,
+} from 'erxes-api-shared/utils';
 import { IDoc } from '~/modules/posclient/db/models/PutData';
 import {
   checkOrderStatus,
@@ -20,6 +24,9 @@ import {
 } from '~/modules/posclient/utils/orderUtils';
 import * as crypto from 'node:crypto';
 import { debugError } from '~/modules/posclient/debugError';
+
+const SETTLE_WAIT_MS = 500;
+const SETTLE_WAIT_ATTEMPTS = 20;
 
 export interface ICountBy {
   [index: string]: number;
@@ -202,6 +209,54 @@ export const updateMobileAmount = async (
   });
 
   return sumMobileAmount;
+};
+
+const waitForSettlement = async (models: IModels, _id: string) => {
+  for (let attempt = 0; attempt < SETTLE_WAIT_ATTEMPTS; attempt++) {
+    const { paidDate, mobileAmount, totalAmount } =
+      await models.Orders.getOrder(_id);
+
+    if (paidDate || Math.round(mobileAmount || 0) < Math.round(totalAmount)) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, SETTLE_WAIT_MS));
+  }
+};
+
+export const settleFromPaidInvoices = async (
+  subdomain: string,
+  models: IModels,
+  _id: string,
+) => {
+  const order = await models.Orders.getOrder(_id);
+
+  if (order.paidDate) {
+    return order;
+  }
+
+  const invoices = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'payment',
+    method: 'query',
+    module: 'invoices',
+    action: 'find',
+    input: { contentTypeId: _id, status: 'paid' },
+    defaultValue: [],
+  });
+
+  if (invoices.length) {
+    await updateMobileAmount(subdomain, models, invoices);
+    await waitForSettlement(models, _id);
+  }
+
+  const settledOrder = await models.Orders.getOrder(_id);
+
+  if (!settledOrder.paidDate) {
+    throw new ExpectedError('Order payment is not confirmed', 'FORBIDDEN');
+  }
+
+  return settledOrder;
 };
 
 export const prepareSettlePayment = async (

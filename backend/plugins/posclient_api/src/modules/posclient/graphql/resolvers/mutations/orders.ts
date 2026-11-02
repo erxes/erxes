@@ -46,7 +46,10 @@ import { IPosUserDocument } from '~/modules/posclient/@types/posUsers';
 import { IOrderItemInput } from '~/modules/posclient/@types/types';
 import { checkSlotStatus } from '~/modules/posclient/utils/slots';
 import { IModels } from '~/connectionResolvers';
-import { prepareSettlePayment } from '~/modules/posclient/utils';
+import {
+  prepareSettlePayment,
+  settleFromPaidInvoices,
+} from '~/modules/posclient/utils';
 import { debugError } from '~/modules/posclient/debugError';
 import { assertPosUser } from '~/modules/posclient/utils/assertPosUser';
 import { cancelPosOrder } from '~/modules/posclient/utils/cancelOrder';
@@ -1144,8 +1147,12 @@ const orderMutations: Record<string, Resolver> = {
       cashAmount?: number;
       paidAmounts?: IPaidAmount[];
     },
-    { models, config, subdomain }: IContext,
+    { models, config, subdomain, posUser }: IContext,
   ) {
+    if (!posUser) {
+      return settleFromPaidInvoices(subdomain, models, _id);
+    }
+
     const order = await models.Orders.getOrder(_id);
 
     const amount =
@@ -1255,6 +1262,17 @@ const orderMutations: Record<string, Resolver> = {
     { _id, billType, registerNumber }: ISettlePaymentParams,
     { config, models, subdomain, posUser }: IContext,
   ) {
+    if (!posUser) {
+      await settleFromPaidInvoices(subdomain, models, _id);
+
+      const putResponse = await models.PutResponses.putHistory({
+        contentType: 'pos',
+        contentId: _id,
+      });
+
+      return putResponse ?? {};
+    }
+
     const order = await models.Orders.getOrder(_id);
 
     if (!ORDER_TYPES.SALES.includes(order.type || '')) {
