@@ -1,5 +1,7 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
 import {
   ADD_TOPIC,
   EDIT_TOPIC,
@@ -56,6 +58,7 @@ export const useSaveTopic = () => {
 
 export const useRemoveTopics = () => {
   const client = useApolloClient();
+  const { record, close } = useSidePanel();
   const [removeTopic, { loading }] = useMutation(REMOVE_TOPIC);
 
   const removeTopics = async (ids: string[]) => {
@@ -74,6 +77,12 @@ export const useRemoveTopics = () => {
     );
 
     await client.refetchQueries({ include: [TOPICS, TOPIC_OPTIONS] });
+    if (
+      record?.contentType === KB_RECORD_CONTENT_TYPES.topic &&
+      ids.includes(record.contentId)
+    ) {
+      close();
+    }
   };
 
   return { removeTopics, loading };

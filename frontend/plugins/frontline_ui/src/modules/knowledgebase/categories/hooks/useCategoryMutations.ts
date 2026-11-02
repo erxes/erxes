@@ -1,6 +1,8 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
 import {
   ADD_CATEGORY,
   EDIT_CATEGORY,
@@ -90,6 +92,7 @@ export const useEditCategoryField = (topicId: string) => {
 
 export const useRemoveCategories = () => {
   const client = useApolloClient();
+  const { record, close } = useSidePanel();
   const [removeCategory, { loading }] = useMutation(REMOVE_CATEGORY);
 
   const removeCategories = async (ids: string[]) => {
@@ -110,6 +113,12 @@ export const useRemoveCategories = () => {
     await client.refetchQueries({
       include: [...CATEGORY_QUERIES, ARTICLES],
     });
+    if (
+      record?.contentType === KB_RECORD_CONTENT_TYPES.category &&
+      ids.includes(record.contentId)
+    ) {
+      close();
+    }
   };
 
   return { removeCategories, loading };

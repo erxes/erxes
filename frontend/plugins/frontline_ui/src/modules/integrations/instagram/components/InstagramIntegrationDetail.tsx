@@ -1,30 +1,38 @@
+import {
+  IntegrationFormItem,
+  INTEGRATION_CONTENT_TYPE,
+  IntegrationEditButton,
+} from '@/integrations/components/IntegrationPanelForm';
+import { isRecord } from '@/shared/utils/isRecord';
+
+import {
+  getSidePanelRecordPath,
+  sidePanelDraftState,
+  SelectBrand,
+} from 'ui-modules';
 import { InstagramIntegrationFormSheet } from './InstagramIntegrationForm';
 import { IIntegration } from '@/integrations/types/Integration';
 import {
   Button,
-  Dialog,
   Separator,
-  Sheet,
   Spinner,
   Form,
   Input,
   toast,
   Label,
 } from 'erxes-ui';
-import { IconEdit } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { INSTAGRAM_INTEGRATION_SCHEMA } from '../constants/IgMessengerSchema';
 import { useSearchParams } from 'react-router-dom';
-import { SelectBrand } from 'ui-modules';
+
 import { useSetAtom } from 'jotai';
 import {
-  instagramFormSheetAtom,
   selectedInstagramAccountAtom,
   activeInstagramFormStepAtom,
 } from '../states/instagramStates';
@@ -35,7 +43,7 @@ export const InstagramIntegrationDetail = ({
   isPost?: boolean;
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const setInstagramFormSheet = useSetAtom(instagramFormSheetAtom);
+  const setDraft = useSetAtom(sidePanelDraftState);
   const setSelectedAccount = useSetAtom(selectedInstagramAccountAtom);
   const setActiveStep = useSetAtom(activeInstagramFormStepAtom);
 
@@ -44,8 +52,7 @@ export const InstagramIntegrationDetail = ({
     const accountId = searchParams.get('accountId');
 
     if (igAuthorized === 'true') {
-      setInstagramFormSheet(true);
-
+      setDraft(null);
       if (accountId) {
         setSelectedAccount(accountId);
         setActiveStep(2);
@@ -53,12 +60,19 @@ export const InstagramIntegrationDetail = ({
 
       searchParams.delete('igAuthorized');
       searchParams.delete('accountId');
+      searchParams.set(
+        'panel',
+        getSidePanelRecordPath({
+          contentType: INTEGRATION_CONTENT_TYPE,
+          contentId: 'new',
+        }),
+      );
       setSearchParams(searchParams, { replace: true });
     }
   }, [
     searchParams,
     setSearchParams,
-    setInstagramFormSheet,
+    setDraft,
     setSelectedAccount,
     setActiveStep,
   ]);
@@ -78,25 +92,9 @@ export const InstagramIntegrationActions = ({
   return <InstagramIntegrationEditSheet id={integration._id} />;
 };
 
-export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
-        <InstagramIntegrationEditForm id={id} setOpen={setOpen} />
-      </Dialog.Content>
-    </Dialog>
-  );
-};
+export const InstagramIntegrationEditSheet = ({ id }: { id: string }) => (
+  <IntegrationEditButton integration={{ _id: id }} />
+);
 
 export const InstagramIntegrationEditForm = ({
   id,
@@ -146,65 +144,67 @@ export const InstagramIntegrationEditForm = ({
   if (loading) return <Spinner className="p-20" />;
 
   return (
-    <>
-      <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3">
-        <Dialog.Title>{integrationDetail?.name}</Dialog.Title>
-        <Sheet.Close />
-      </Dialog.Header>
-      <Separator />
-
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="p-6 pb-8 space-y-6">
-            <div>
-              <Label htmlFor="pageName">{t('page-name')}</Label>
-              <Input
-                id="pageName"
-                value={(integrationDetail as any)?.instagramPage?.[0]?.name ?? ''}
-                className="mt-2"
-                readOnly
-              />
-            </div>
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
-                  <SelectBrand
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    placeholder={t('select-a-brand')}
-                    className="w-full h-10 rounded-lg border bg-background"
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
+    <Form {...form}>
+      <form
+        className="flex flex-1 min-h-0 flex-col"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+          <div>
+            <Label htmlFor="pageName">{t('page-name')}</Label>
+            <Input
+              id="pageName"
+              value={
+                Array.isArray(integrationDetail?.instagramPage) &&
+                isRecord(integrationDetail.instagramPage[0]) &&
+                typeof integrationDetail.instagramPage[0].name === 'string'
+                  ? integrationDetail.instagramPage[0].name
+                  : ''
+              }
+              className="mt-2"
+              readOnly
             />
           </div>
-          <Separator />
-          <Dialog.Footer className="flex justify-end py-4 px-6">
-            <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
-                {t('close')}
-              </Button>
-            </Dialog.Close>
-            <Button type="submit" disabled={loading || editLoading}>
-              {t('save')}
-            </Button>
-          </Dialog.Footer>
-        </form>
-      </Form>
-    </>
+          <Form.Field
+            name="name"
+            render={({ field }) => (
+              <IntegrationFormItem label={t('name')}>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+              </IntegrationFormItem>
+            )}
+          />
+          <Form.Field
+            name="brandId"
+            render={({ field }) => (
+              <IntegrationFormItem label={t('brand')}>
+                <SelectBrand
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  placeholder={t('select-a-brand')}
+                  className="w-full h-10 rounded-lg border bg-background"
+                />
+                <Form.Message />
+              </IntegrationFormItem>
+            )}
+          />
+        </div>
+        <Separator />
+        <div className="flex shrink-0 justify-end gap-1 p-2">
+          <Button
+            type="button"
+            onClick={() => setOpen(false)}
+            disabled={loading || editLoading}
+            variant="ghost"
+          >
+            {t('close')}
+          </Button>
+          <Button type="submit" disabled={loading || editLoading}>
+            {t('save')}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };

@@ -1,5 +1,8 @@
-import { Form, Input, Textarea } from 'erxes-ui';
+import { cn, Form, Input, Textarea } from 'erxes-ui';
+import { useContext } from 'react';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
 import type { Control, FieldValues, Path } from 'react-hook-form';
+import { KbFormItem, KbFormPanelContext } from './KbFormLayout';
 
 export function KbTextField<T extends FieldValues>({
   control,
@@ -20,34 +23,26 @@ export function KbTextField<T extends FieldValues>({
   multiline?: boolean;
   className?: string;
 }>) {
+  const panel = useContext(KbFormPanelContext);
   return (
     <Form.Field
       control={control}
       name={name}
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {label}
-            {required ? (
-              <>
-                {' '}
-                <span className="text-destructive">*</span>
-              </>
-            ) : null}
-          </Form.Label>
+        <KbFormItem label={label} required={required} wide={multiline}>
           <Form.Control>
             {multiline ? (
               <Textarea
                 {...field}
-                value={(field.value as string) ?? ''}
+                value={typeof field.value === 'string' ? field.value : ''}
                 className={className}
                 placeholder={placeholder}
               />
             ) : (
               <Input
                 {...field}
-                value={(field.value as string) ?? ''}
-                className={className}
+                value={typeof field.value === 'string' ? field.value : ''}
+                className={cn(panel && PANEL_INPUT_CLASS_NAME, className)}
                 placeholder={placeholder}
               />
             )}
@@ -56,7 +51,7 @@ export function KbTextField<T extends FieldValues>({
             <Form.Description>{description}</Form.Description>
           ) : null}
           <Form.Message />
-        </Form.Item>
+        </KbFormItem>
       )}
     />
   );

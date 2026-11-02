@@ -1,5 +1,9 @@
+import {
+  KbFormItem,
+  KbFormSection,
+} from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, InfoCard } from 'erxes-ui';
+import { Form } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -38,12 +42,14 @@ export const CategoryDrawer = ({
   isOpen,
   onClose,
   onSaved,
+  panel = false,
 }: {
   category?: ICategoryFields;
   topicId: string;
   isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
+  panel?: boolean;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -92,6 +98,7 @@ export const CategoryDrawer = ({
   return (
     <KbFormSheet
       isOpen={isOpen}
+      panel={panel}
       onClose={onClose}
       title={
         isEditing
@@ -107,9 +114,12 @@ export const CategoryDrawer = ({
       onSubmit={submit}
     >
       <Form {...form}>
-        <form onSubmit={submit} className="grid gap-4 p-4">
-          <InfoCard title={t('general', 'General')}>
-            <InfoCard.Content>
+        <form
+          onSubmit={submit}
+          className={panel ? 'grid gap-2 p-3' : 'grid gap-4 p-4'}
+        >
+          <KbFormSection title={t('general', 'General')}>
+            <KbFormSection.Content>
               <KbTextField
                 control={form.control}
                 name="title"
@@ -136,17 +146,16 @@ export const CategoryDrawer = ({
                 label={t('kb-code', 'Code')}
                 placeholder={t('kb-enter-category-code', 'Enter category code')}
               />
-            </InfoCard.Content>
-          </InfoCard>
+            </KbFormSection.Content>
+          </KbFormSection>
 
-          <InfoCard title={t('kb-placement', 'Placement')}>
-            <InfoCard.Content>
+          <KbFormSection title={t('kb-placement', 'Placement')}>
+            <KbFormSection.Content>
               <Form.Field
                 control={form.control}
                 name="icon"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('icon', 'Icon')}</Form.Label>
+                  <KbFormItem label={t('icon', 'Icon')}>
                     <Form.Control>
                       <IconPicker
                         value={field.value}
@@ -154,7 +163,7 @@ export const CategoryDrawer = ({
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </KbFormItem>
                 )}
               />
 
@@ -162,11 +171,10 @@ export const CategoryDrawer = ({
                 control={form.control}
                 name="topicId"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('knowledge-base', 'Knowledge Base')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
+                  <KbFormItem
+                    required
+                    label={t('knowledge-base', 'Knowledge Base')}
+                  >
                     <Form.Control>
                       <SelectKbTopic
                         value={field.value}
@@ -187,7 +195,7 @@ export const CategoryDrawer = ({
                       </Form.Description>
                     )}
                     <Form.Message />
-                  </Form.Item>
+                  </KbFormItem>
                 )}
               />
 
@@ -195,10 +203,9 @@ export const CategoryDrawer = ({
                 control={form.control}
                 name="parentCategoryId"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('kb-parent-category', 'Parent category')}
-                    </Form.Label>
+                  <KbFormItem
+                    label={t('kb-parent-category', 'Parent category')}
+                  >
                     <Form.Control>
                       <SelectKbCategory
                         topicId={selectedTopicId}
@@ -213,11 +220,11 @@ export const CategoryDrawer = ({
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </KbFormItem>
                 )}
               />
-            </InfoCard.Content>
-          </InfoCard>
+            </KbFormSection.Content>
+          </KbFormSection>
         </form>
       </Form>
     </KbFormSheet>

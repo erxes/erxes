@@ -1,3 +1,5 @@
+import { KbFormPanelContext } from '@/knowledgebase/shared/components/KbFormLayout';
+import { useContext } from 'react';
 import { Form, Input } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { Control } from 'react-hook-form';
@@ -11,8 +13,13 @@ export function HelpCenterHeaderFields({
   control: Control<IHelpCenterConfigInput>;
   t: TFunction;
 }>) {
+  const compact = useContext(KbFormPanelContext);
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div
+      className={
+        compact ? 'grid gap-3' : 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3'
+      }
+    >
       {HELP_CENTER_HEADER_FIELDS.map((field) => (
         <Form.Field
           key={field.name}

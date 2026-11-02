@@ -8,7 +8,10 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import { TelegramIntegrationDetail } from '../TelegramIntegrationDetail';
+import {
+  TelegramIntegrationDetail,
+  TelegramSetup,
+} from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
@@ -81,6 +84,9 @@ jest.mock('erxes-ui', () => {
   };
 });
 jest.mock('ui-modules', () => ({
+  useSidePanel: () => ({ openNewRecord: mockOpenNewRecord, record: null }),
+  useSidePanelDraft: () => ({}),
+  PanelFormRow: ({ children }: PropsWithChildren) => <div>{children}</div>,
   SelectBrand: ({
     value,
     onValueChange,
@@ -94,6 +100,9 @@ jest.mock('ui-modules', () => ({
       onChange={(event) => onValueChange(event.target.value)}
     />
   ),
+}));
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
 }));
 jest.mock('react-router', () => ({ useParams: () => ({}) }));
 jest.mock('../translations', () => ({
@@ -111,7 +120,17 @@ const bot = {
   canReadAllGroupMessages: false,
   lastVerifiedAt: '2026-10-06',
 };
+const mockOpenNewRecord = jest.fn();
 beforeEach(() => jest.clearAllMocks());
+
+test('opens Telegram setup through the integration draft panel', () => {
+  render(<TelegramIntegrationDetail />);
+  fireEvent.click(screen.getByRole('button', { name: 'connect' }));
+  expect(mockOpenNewRecord).toHaveBeenCalledWith('frontline:integration', {
+    kind: 'telegram-messenger',
+    channelId: undefined,
+  });
+});
 
 test.each([false, true])(
   'resumes webhook registration after a lost create response, even when the first refresh is stale (%s)',
@@ -188,11 +207,10 @@ test.each([false, true])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramIntegrationDetail />
+          <TelegramSetup integrationId={null} />
         </Provider>
       </MockedProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Open setup' }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'brandId' }), {
       target: { value: 'brand' },
     });

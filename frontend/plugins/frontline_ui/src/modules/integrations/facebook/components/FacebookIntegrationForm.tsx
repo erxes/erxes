@@ -1,12 +1,13 @@
-import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { useTranslation } from 'react-i18next';
 import {
-  FbIntegrationProvider,
-  useFbIntegrationContext,
-} from '@/integrations/facebook/contexts/FbIntegrationContext';
+  IntegrationCreateButton,
+  IntegrationFormSession,
+} from '@/integrations/components/IntegrationPanelForm';
+import { IntegrationType } from '@/types/Integration';
+import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
+import { Button, Sheet } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
+import { useTranslation } from 'react-i18next';
+import { FbIntegrationProvider } from '@/integrations/facebook/contexts/FbIntegrationContext';
 import {
   activeFacebookFormStepAtom,
   facebookFormSheetAtom,
@@ -24,30 +25,38 @@ export const FacebookIntegrationFormSheet = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [facebookFormSheet, setFacebookFormSheet] = useAtom(
-    facebookFormSheetAtom,
-  );
-
+  const reset = useSetAtom(resetFacebookAddStateAtom);
   return (
-    <FbIntegrationProvider isPost={isPost}>
-      <div>
-        <Sheet open={facebookFormSheet} onOpenChange={setFacebookFormSheet}>
-          <Sheet.Trigger asChild>
-            <Button>
-              <IconPlus />
-              {isPost
-                ? t('add-facebook-post-integration')
-                : t('add-facebook-messenger-integration')}
-            </Button>
-          </Sheet.Trigger>
-          <Sheet.View>
-            <FacebookIntegrationForm />
-          </Sheet.View>
-        </Sheet>
-      </div>
-    </FbIntegrationProvider>
+    <IntegrationCreateButton
+      kind={
+        isPost
+          ? IntegrationType.FACEBOOK_POST
+          : IntegrationType.FACEBOOK_MESSENGER
+      }
+      onClick={reset}
+    >
+      {isPost
+        ? t('add-facebook-post-integration')
+        : t('add-facebook-messenger-integration')}
+    </IntegrationCreateButton>
   );
 };
+
+export const FacebookIntegrationPanelForm = ({
+  isPost,
+}: {
+  isPost?: boolean;
+}) => (
+  <IntegrationFormSession
+    state={facebookFormSheetAtom}
+    value={true}
+    closedValue={false}
+  >
+    <FbIntegrationProvider isPost={isPost}>
+      <FacebookIntegrationForm />
+    </FbIntegrationProvider>
+  </IntegrationFormSession>
+);
 
 export const FacebookIntegrationForm = () => {
   const activeStep = useAtomValue(activeFacebookFormStepAtom);
@@ -72,20 +81,13 @@ export const FacebookIntegrationFormLayout = ({
     keyPrefix: 'modules.integrations',
   });
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
-  const { isPost } = useFbIntegrationContext();
 
   return (
     <>
-      <Sheet.Header>
-        <Sheet.Title>
-          {isPost ? t('add-facebook-post') : t('add-facebook-messenger')}
-        </Sheet.Title>
-        <Sheet.Close />
-      </Sheet.Header>
       <Sheet.Content className="flex flex-col overflow-hidden">
         {children}
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
         <Sheet.Close asChild>
           <Button
             className="mr-auto text-muted-foreground"

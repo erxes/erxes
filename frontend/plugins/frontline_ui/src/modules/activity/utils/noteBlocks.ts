@@ -33,15 +33,18 @@ export const hasNoteText = (content?: string | null) => {
 };
 
 export const parseTemplateToBlocks = (templateHtml: string) => {
-  try {
-    const parsed = JSON.parse(templateHtml);
-    if (Array.isArray(parsed)) return parsed;
-  } catch {}
-  return [
+  const fallback = [
     {
       type: 'paragraph',
       content: templateHtml.replace(/<[^<>]*>/g, '').trim(),
       props: {},
     },
   ];
+  try {
+    const parsed = JSON.parse(templateHtml);
+    if (Array.isArray(parsed)) return parsed;
+  } catch {
+    return fallback;
+  }
+  return fallback;
 };

@@ -1,6 +1,8 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { isDefined } from 'erxes-ui';
 import { useState } from 'react';
+import { useSidePanel } from 'ui-modules';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
 import { useTranslation } from 'react-i18next';
 import {
   ADD_ARTICLE,
@@ -170,7 +172,7 @@ export const useDuplicateArticle = (topicId: string) => {
     awaitRefetchQueries: true,
   });
 
-  const duplicateArticle = (article: IArticle) =>
+  const duplicateArticle = (article: Pick<IArticle, '_id'>) =>
     run(async () => {
       const detail = await fetchDetail(article._id);
 
@@ -208,6 +210,7 @@ export const useDuplicateArticle = (topicId: string) => {
 
 export const useRemoveArticles = () => {
   const client = useApolloClient();
+  const { record, close } = useSidePanel();
   const [removeArticle, { loading }] = useMutation(REMOVE_ARTICLE);
 
   const removeArticles = async (ids: string[]) => {
@@ -226,6 +229,12 @@ export const useRemoveArticles = () => {
     );
 
     await client.refetchQueries({ include: ARTICLE_QUERIES });
+    if (
+      record?.contentType === KB_RECORD_CONTENT_TYPES.article &&
+      ids.includes(record.contentId)
+    ) {
+      close();
+    }
   };
 
   return { removeArticles, loading };

@@ -335,10 +335,12 @@ const SelectChannelFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -348,10 +350,10 @@ const SelectChannelFormItem = ({
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectChannelValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectChannelContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>

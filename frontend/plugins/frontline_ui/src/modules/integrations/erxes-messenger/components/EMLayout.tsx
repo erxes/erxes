@@ -47,7 +47,7 @@ export const EMLayout = ({
         />
         {children}
       </Sheet.Content>
-      <Sheet.Footer>
+      <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1 flex-wrap">
         <Button
           variant="secondary"
           className="mr-auto bg-border"

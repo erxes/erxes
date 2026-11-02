@@ -1,16 +1,13 @@
+import {
+  IntegrationFormItem,
+  IntegrationEditButton,
+} from '@/integrations/components/IntegrationPanelForm';
+
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconEdit, IconTool } from '@tabler/icons-react';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  Separator,
-  Spinner,
-  toast,
-} from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { IconTool } from '@tabler/icons-react';
+import { Button, Form, Input, Separator, Spinner, toast } from 'erxes-ui';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
@@ -31,7 +28,7 @@ const REPAIR_INTEGRATION = gql(`
 `);
 
 /** Edit form for a Discord integration's name and brand. */
-const DiscordIntegrationEditForm = ({
+export const DiscordIntegrationEditForm = ({
   id,
   setOpen,
 }: {
@@ -82,54 +79,52 @@ const DiscordIntegrationEditForm = ({
 
   return (
     // skipcq: JS-0415
-    <>
-      <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3">
-        <Dialog.Title>{integrationDetail?.name}</Dialog.Title>
-      </Dialog.Header>
-      <Separator />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="p-6 pb-8 space-y-6">
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
-                  <SelectBrands.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-          </div>
-          <Separator />
-          <Dialog.Footer className="flex justify-end py-4 px-6">
-            <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
-                {t('close')}
-              </Button>
-            </Dialog.Close>
-            <Button type="submit" disabled={loading || editLoading}>
-              {t('save')}
-            </Button>
-          </Dialog.Footer>
-        </form>
-      </Form>
-    </>
+    <Form {...form}>
+      <form
+        className="flex flex-1 min-h-0 flex-col"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+          <Form.Field
+            name="name"
+            render={({ field }) => (
+              <IntegrationFormItem label={t('name')}>
+                <Form.Control>
+                  <Input {...field} />
+                </Form.Control>
+                <Form.Message />
+              </IntegrationFormItem>
+            )}
+          />
+          <Form.Field
+            name="brandId"
+            render={({ field }) => (
+              <IntegrationFormItem label={t('brand')}>
+                <SelectBrands.FormItem
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+                <Form.Message />
+              </IntegrationFormItem>
+            )}
+          />
+        </div>
+        <Separator />
+        <div className="flex shrink-0 justify-end gap-1 p-2">
+          <Button
+            type="button"
+            onClick={() => setOpen(false)}
+            disabled={loading || editLoading}
+            variant="ghost"
+          >
+            {t('close')}
+          </Button>
+          <Button type="submit" disabled={loading || editLoading}>
+            {t('save')}
+          </Button>
+        </div>
+      </form>
+    </Form>
   );
 };
 
@@ -139,27 +134,7 @@ export const DiscordIntegrationActions = ({
 }: {
   integration: IIntegration;
 }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
-        <DiscordIntegrationEditForm
-          id={integration._id}
-          setOpen={setOpen}
-        />
-      </Dialog.Content>
-    </Dialog>
-  );
+  return <IntegrationEditButton integration={integration} />;
 };
 
 /** Repair action that re-syncs a broken Discord integration. */

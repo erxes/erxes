@@ -6,41 +6,19 @@ import {
   PageContainer,
   PageSubHeader,
   Separator,
-  useQueryState,
 } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
+import { PageHeader, createFavoriteBreadcrumb, useSidePanel } from 'ui-modules';
 import { HelpCenterFilter } from '@/helpcenter/components/HelpCenterFilter';
 import { HelpCenterRecordTable } from '@/helpcenter/components/HelpCenterRecordTable';
-import {
-  useAllHelpCenters,
-  useHelpCenters,
-} from '@/helpcenter/hooks/useHelpCenters';
-import { HelpCenterDrawer } from '@/helpcenter/components/help-center-drawer';
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
+import { KnowledgeBaseDetailLink } from '@/knowledgebase/shared/components/KnowledgeBaseDetailLink';
 
-const HelpCenterIndexPage = () => {
+export const HelpCenterIndexPage = () => {
   const { t } = useTranslation('frontline');
-  const { refetch } = useHelpCenters();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-
-  const [editId, setEditId] = useQueryState<string>('editId');
-  const { helpCenters, refetch: refetchAll } = useAllHelpCenters();
-
-  const editing = (helpCenters ?? []).find(
-    (helpCenter) => helpCenter._id === editId,
-  );
-
-  const handleCloseDrawer = () => {
-    setIsCreateOpen(false);
-    setEditId(null);
-  };
-
-  const handleSaved = () => {
-    refetch();
-    refetchAll();
-  };
+  const { openNewRecord } = useSidePanel();
+  const openCreate = () => openNewRecord(HELP_CENTER_CONTENT_TYPE);
 
   return (
     <PageContainer>
@@ -67,7 +45,7 @@ const HelpCenterIndexPage = () => {
           />
         </PageHeader.Start>
         <PageHeader.End>
-          <Button onClick={() => setIsCreateOpen(true)} className="h-7 py-1">
+          <Button onClick={openCreate} className="h-7 py-1">
             <IconPlus />
             {t('helpcenter-create', 'Create Help Center')}
             <Kbd>C</Kbd>
@@ -79,17 +57,9 @@ const HelpCenterIndexPage = () => {
         <HelpCenterFilter />
       </PageSubHeader>
 
-      <HelpCenterRecordTable onCreate={() => setIsCreateOpen(true)} />
+      <HelpCenterRecordTable onCreate={openCreate} />
 
-      <HelpCenterDrawer
-        key={editing?._id ?? 'create'}
-        helpCenter={editing}
-        isOpen={isCreateOpen || !!editing}
-        onClose={handleCloseDrawer}
-        onSaved={handleSaved}
-      />
+      <KnowledgeBaseDetailLink contentType={HELP_CENTER_CONTENT_TYPE} />
     </PageContainer>
   );
 };
-
-export default HelpCenterIndexPage;

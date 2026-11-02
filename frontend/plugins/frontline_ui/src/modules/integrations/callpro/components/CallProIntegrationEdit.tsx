@@ -1,4 +1,5 @@
-import { Sheet, Spinner, toast } from 'erxes-ui';
+import { IntegrationFormSession } from '@/integrations/components/IntegrationPanelForm';
+import { Spinner, toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -12,22 +13,15 @@ import { CallProIntegrationForm } from '@/integrations/callpro/components/CallPr
 import { useCallProIntegrationDetail } from '@/integrations/callpro/hooks/useCallProIntegrationDetail';
 import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
 
-export const CallProIntegrationSheetEdit = () => {
-  const [callProEditSheet, setCallProEditSheet] = useAtom(
-    callProEditSheetAtom,
-  );
-
-  return (
-    <Sheet
-      open={!!callProEditSheet}
-      onOpenChange={() => setCallProEditSheet(null)}
-    >
-      <Sheet.View className="sm:max-w-3xl">
-        <CallProIntegrationEdit />
-      </Sheet.View>
-    </Sheet>
-  );
-};
+export const CallProIntegrationSheetEdit = ({ id }: { id: string }) => (
+  <IntegrationFormSession
+    state={callProEditSheetAtom}
+    value={id}
+    closedValue={null}
+  >
+    <CallProIntegrationEdit />
+  </IntegrationFormSession>
+);
 
 export const CallProIntegrationEdit = () => {
   const { t } = useTranslation('frontline', {
@@ -94,8 +88,13 @@ export const CallProIntegrationEdit = () => {
         recordUrl: callProIntegrationDetail?.recordUrl || '',
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationDetail, callProIntegrationDetail, callProLoading, loading]);
+  }, [
+    integrationDetail,
+    callProIntegrationDetail,
+    callProLoading,
+    loading,
+    form,
+  ]);
 
   if (loading || callProLoading) {
     return <Spinner className="h-full" />;

@@ -1,3 +1,4 @@
+import { IntegrationFormItem } from '@/integrations/components/IntegrationPanelForm';
 import { Button, ColorPicker, Form, Label, Upload } from 'erxes-ui';
 import {
   EMLayout,
@@ -63,59 +64,56 @@ export const EMAppearance = () => {
         >
           <div className="space-y-6 p-4 pt-0 overflow-y-auto hide-scroll styled-scroll">
             <Label className="text-foreground">{t('brand-colors')}</Label>
-            <div className="flex gap-3">
+            <div className="flex flex-col gap-1">
               <Form.Field
                 name="primary.DEFAULT"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('brand-color')}</Form.Label>
+                  <IntegrationFormItem label={t('brand-color')}>
                     <Form.Control>
                       <ColorPicker
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
                         }}
-                        className="w-32"
+                        className="w-full"
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </IntegrationFormItem>
                 )}
               />
               <Form.Field
                 name="primary.foreground"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('text-color')}</Form.Label>
+                  <IntegrationFormItem label={t('text-color')}>
                     <Form.Control>
                       <ColorPicker
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
                         }}
-                        className="w-32"
+                        className="w-full"
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </IntegrationFormItem>
                 )}
               />
               <Form.Field
                 name="backgroundColor"
                 render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('background-color')}</Form.Label>
+                  <IntegrationFormItem label={t('background-color')}>
                     <Form.Control>
                       <ColorPicker
                         value={field.value}
                         onValueChange={(value) => {
                           field.onChange(value);
                         }}
-                        className="w-32"
+                        className="w-full"
                       />
                     </Form.Control>
                     <Form.Message />
-                  </Form.Item>
+                  </IntegrationFormItem>
                 )}
               />
             </div>
@@ -141,7 +139,7 @@ export const EMAppearance = () => {
                         <Upload.Preview className="[&_img]:bg-muted border-dashed border border-border rounded" />
                         <Upload.Button variant={'outline'} size="sm">
                           <IconUpload />
-                          {!!field.value ? t('replace') : t('upload')}
+                          {field.value ? t('replace') : t('upload')}
                         </Upload.Button>
                         <Upload.RemoveButton
                           size="sm"
@@ -174,7 +172,7 @@ export const EMAppearance = () => {
                         <Upload.Preview className="[&_img]:bg-muted border-dashed border border-border rounded" />
                         <Upload.Button variant={'outline'} size="sm">
                           <IconUpload />
-                          {!!field.value ? t('replace') : t('upload')}
+                          {field.value ? t('replace') : t('upload')}
                         </Upload.Button>
                         <Upload.RemoveButton
                           size="sm"

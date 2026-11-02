@@ -379,11 +379,13 @@ const SelectPipelineFormItem = <
   onValueChange,
   form,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   form?: UseFormReturn<TFieldValues>;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const control = form?.control as Control<FieldValues> | undefined;
   const channelId: string | undefined = useWatch({
@@ -413,10 +415,10 @@ const SelectPipelineFormItem = <
       channelId={channelId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectPipelineValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectPipelineContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>

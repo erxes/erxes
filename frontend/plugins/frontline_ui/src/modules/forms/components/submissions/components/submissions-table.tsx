@@ -73,8 +73,7 @@ function buildColumnsAndRows(
   const submittedAtColumn: ColumnDef<FlatRow> = {
     id: '__submittedAt',
     accessorKey: '__submittedAt',
-    header: () => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    header: function SubmittedAtHeader() {
       const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
       return (
         <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
@@ -103,8 +102,7 @@ function buildColumnsAndRows(
     id: field._id,
     accessorFn: (row) => row[field._id],
     header: () => <RecordTable.InlineHead label={field.text || field._id} />,
-    cell: ({ getValue }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
+    cell: function SubmissionFieldCell({ getValue }) {
       const { t } = useTranslation('frontline', {
         keyPrefix: 'modules.forms',
       });

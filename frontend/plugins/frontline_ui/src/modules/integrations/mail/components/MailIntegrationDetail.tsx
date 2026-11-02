@@ -1,3 +1,8 @@
+import {
+  IntegrationFormItem,
+  IntegrationEditButton,
+} from '@/integrations/components/IntegrationPanelForm';
+
 import { IIntegration } from '@/integrations/types/Integration';
 import {
   Alert,
@@ -8,12 +13,12 @@ import {
   Spinner,
   toast,
 } from 'erxes-ui';
-import { IconAlertTriangle, IconEdit } from '@tabler/icons-react';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
 import {
@@ -60,8 +65,7 @@ const MailIntegrationBrandField = ({
       name="brandId"
       control={control}
       render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('brand')}</Form.Label>
+        <IntegrationFormItem label={t('brand')}>
           <Form.Control>
             <SelectBrand
               value={field.value}
@@ -71,13 +75,13 @@ const MailIntegrationBrandField = ({
             />
           </Form.Control>
           <Form.Message />
-        </Form.Item>
+        </IntegrationFormItem>
       )}
     />
   );
 };
 
-const MailIntegrationEditForm = ({
+export const MailIntegrationEditForm = ({
   id,
   setOpen,
 }: {
@@ -200,7 +204,7 @@ const MailIntegrationEditForm = ({
   );
 
   const footer = (
-    <Sheet.Footer>
+    <Sheet.Footer className="h-auto min-h-12 shrink-0 border-t px-2 gap-1">
       <Sheet.Close asChild>
         <Button type="button" variant="ghost" disabled={editLoading}>
           {t('close')}
@@ -219,11 +223,6 @@ const MailIntegrationEditForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex h-full flex-col overflow-hidden"
       >
-        <Sheet.Header>
-          <Sheet.Title>{integrationDetail?.name || t('edit')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-
         {content}
 
         {footer}
@@ -232,31 +231,10 @@ const MailIntegrationEditForm = ({
   );
 };
 
-const MailIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <div className="flex items-center gap-2 w-full cursor-pointer">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-xl">
-        <MailIntegrationEditForm id={id} setOpen={setOpen} />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
 export const MailIntegrationActions = ({
   integration,
 }: {
   integration: IIntegration;
-}) => <MailIntegrationEditSheet id={integration._id} />;
+}) => <IntegrationEditButton integration={integration} />;
 
 export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

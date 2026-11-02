@@ -6,7 +6,7 @@ import { toast } from 'erxes-ui';
 import type { IIntegration } from '@/integrations/types/Integration';
 import {
   TelegramIntegrationActions,
-  TelegramIntegrationDetail,
+  TelegramSetup,
 } from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_BOTS,
@@ -48,7 +48,13 @@ jest.mock('erxes-ui', () => {
     REACT_APP_API_URL: 'https://api.example.com',
   };
 });
-jest.mock('ui-modules', () => ({ SelectBrand: () => null }));
+jest.mock('ui-modules', () => ({
+  SelectBrand: () => null,
+  useSidePanel: () => ({ openRecord: mockOpenRecord }),
+}));
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
 jest.mock('react-router', () => ({ useParams: () => ({}) }));
 jest.mock('../translations', () => ({
   useTelegramTranslation: () => ({ t: (key: string) => key }),
@@ -70,6 +76,7 @@ const integration: IIntegration = {
   name: 'Telegram',
   kind: 'telegram',
 };
+const mockOpenRecord = jest.fn();
 beforeEach(() => jest.clearAllMocks());
 
 test.each([true, false])(
@@ -107,11 +114,15 @@ test.each([true, false])(
       >
         <Provider store={createStore()}>
           <TelegramIntegrationActions integration={integration} />
-          <TelegramIntegrationDetail />
+          <TelegramSetup integrationId={integration._id} />
         </Provider>
       </MockedProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'configure' }));
+    fireEvent.click(screen.getByRole('button', { name: 'edit' }));
+    expect(mockOpenRecord).toHaveBeenCalledWith({
+      contentType: 'frontline:integration',
+      contentId: integration._id,
+    });
     await waitFor(() =>
       expect(screen.getByRole('alert').textContent).toBe('statusFailed'),
     );

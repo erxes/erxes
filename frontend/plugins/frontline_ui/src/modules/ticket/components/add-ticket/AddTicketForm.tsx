@@ -7,16 +7,18 @@ import { TicketCreateLayoutRows } from '@/ticket/components/add-ticket/TicketCre
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
-import { TICKET_LAYOUT_SYSTEM_LABELS } from '@/ticket/constants/createLayout';
+import {
+  TICKET_LAYOUT_SYSTEM_LABELS,
+  TICKET_PROPERTY_CONTENT_TYPE,
+} from '@/ticket/constants/createLayout';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 import { useTicketCreateFields } from '@/ticket/hooks/useTicketCreateFields';
 import {
   TTicketLayoutCell,
   useTicketCreateLayout,
 } from '@/ticket/hooks/useTicketCreateLayout';
-import { ticketCreateDefaultValuesState } from '@/ticket/states/ticketCreateSheetState';
-import { TAddTicket, addTicketSchema } from '@/ticket/types';
-import { Block } from '@blocknote/core';
+import { TTicketDraft } from '@/ticket/hooks/useCreateTicketRecord';
+import { TAddTicket, addTicketSchema, TicketHotKeyScope } from '@/ticket/types';
 import { IconSettings } from '@tabler/icons-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -24,54 +26,45 @@ import {
   Button,
   Form,
   Input,
-  Separator,
-  Sheet,
+  IBlockEditor,
   useBlockEditor,
-  useQueryState,
   useToast,
+  usePreviousHotkeyScope,
+  useScopedHotkeys,
 } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { currentUserState } from 'ui-modules';
+import {
+  currentUserState,
+  sidePanelDraftState,
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormLayout,
+  PanelFormRow,
+  useSidePanel,
+  useSidePanelDraft,
+} from 'ui-modules';
 
-export const AddTicketForm = ({
-  onClose,
-  onComplete,
-  contacts,
-}: {
-  onClose: () => void;
-  onComplete?: (ticketId: string) => void;
-  // Customers / companies the ticket is created for; linked on the server.
-  contacts?: { customerId?: string; companyId?: string };
-}) => {
+export const AddTicketForm = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
-  const [pipelineId] = useQueryState<string>('pipelineId');
-  const [channelId] = useQueryState<string>('channelId');
+  const draft = useSidePanelDraft<TTicketDraft>(TICKET_PROPERTY_CONTENT_TYPE);
+  const panelDraft = useAtomValue(sidePanelDraftState);
+  const { back, canGoBack, close, openRecord } = useSidePanel();
+  const onClose = () => (canGoBack ? back() : close());
   const { toast } = useToast();
   const currentUser = useAtomValue(currentUserState);
   const { createTicket, loading: createTicketLoading } = useCreateTicket();
-  const [descriptionContent, setDescriptionContent] = useState<Block[]>();
+  const [descriptionContent, setDescriptionContent] =
+    useState<IBlockEditor['document']>();
   const editor = useBlockEditor();
-  const [defaultValuesState, setDefaultValues] = useAtom(
-    ticketCreateDefaultValuesState,
-  );
-
-  const resolvedPipelineId =
-    defaultValuesState?.pipelineId || pipelineId || undefined;
-  const defaultValues = {
-    channelId: defaultValuesState?.channelId || channelId || undefined,
-    pipelineId: resolvedPipelineId,
-    statusId: defaultValuesState?.statusId || undefined,
+  const resolvedPipelineId = draft.pipelineId;
+  const defaultValues: Partial<TAddTicket> = {
     name: '',
     priority: 0,
     assigneeId: resolvedPipelineId ? undefined : currentUser?._id,
-    branchId: undefined,
-    departmentId: undefined,
-    startDate: undefined,
-    targetDate: undefined,
+    ...draft,
   };
   const form = useForm<TAddTicket>({
     resolver: zodResolver(addTicketSchema),
@@ -83,7 +76,9 @@ export const AddTicketForm = ({
   const canManageChannel = useCanManageChannels(
     selectedChannelId ? [selectedChannelId] : [],
   );
-  const { rows, rules } = useTicketCreateLayout(selectedPipelineId || undefined);
+  const { rows, rules } = useTicketCreateLayout(
+    selectedPipelineId || undefined,
+  );
   const {
     visibleRows,
     propertiesData,
@@ -91,8 +86,24 @@ export const AddTicketForm = ({
     setPropertyValue,
     findMissing,
     shownPropertiesData,
-    reset: resetFields,
+    reset: resetProperties,
   } = useTicketCreateFields({ rows, rules });
+
+  const previousDraft = useRef(panelDraft);
+  useEffect(() => {
+    if (previousDraft.current === panelDraft) return;
+    previousDraft.current = panelDraft;
+    form.reset({
+      name: '',
+      priority: 0,
+      assigneeId: draft.pipelineId ? undefined : currentUser?._id,
+      ...draft,
+    });
+    setDescriptionContent(undefined);
+    editor.replaceBlocks(editor.document, []);
+    resetProperties();
+    form.setFocus('name');
+  }, [panelDraft, draft, form, currentUser?._id, editor, resetProperties]);
 
   const labelOf = (cell: TTicketLayoutCell) =>
     cell.kind === 'system'
@@ -106,20 +117,24 @@ export const AddTicketForm = ({
     form.setFocus('name');
   }, [form]);
 
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
   useEffect(() => {
-    if (defaultValuesState) {
-      form.reset({ ...defaultValues, ...defaultValuesState });
-      setDefaultValues(undefined);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [defaultValuesState, form, setDefaultValues]);
+    setHotkeyScopeAndMemorizePreviousScope(TicketHotKeyScope.TicketAddSheet);
+    return goBackToPreviousHotkeyScope;
+  }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
+  useScopedHotkeys(
+    'esc',
+    onClose,
+    TicketHotKeyScope.TicketAddSheet,
+    [onClose],
+    { enableOnFormTags: true },
+  );
 
-  const handleDescriptionChange = async () => {
-    const content = await editor?.document;
-    if (content) {
-      content.pop();
-      setDescriptionContent(content as Block[]);
-    }
+  const handleDescriptionChange = () => {
+    setDescriptionContent(editor.document.slice(0, -1));
   };
 
   const onSubmit = async (data: TAddTicket) => {
@@ -146,7 +161,8 @@ export const AddTicketForm = ({
         priority: data.priority || 0,
         statusId: data.statusId,
         propertiesData: shownPropertiesData(),
-        ...contacts,
+        customerId: draft.customerId,
+        companyId: draft.companyId,
       },
       // The ticket keeps its contacts itself; contacts' ticket lists are
       // read again.
@@ -161,9 +177,15 @@ export const AddTicketForm = ({
           ),
           variant: 'default',
         });
-        onClose();
         if (data.createTicket) {
-          onComplete?.(data.createTicket._id);
+          openRecord(
+            {
+              contentType: TICKET_PROPERTY_CONTENT_TYPE,
+              contentId: data.createTicket._id,
+            },
+            { replace: true },
+          );
+          draft.onComplete?.(data.createTicket._id);
         }
       },
     });
@@ -179,53 +201,63 @@ export const AddTicketForm = ({
             variant: 'destructive',
           });
         })}
-        className="h-full flex flex-col"
+        className="flex flex-1 min-h-0 flex-col"
       >
-        <Sheet.Header className="flex items-center gap-2 ">
-          <Sheet.Title className="">
-            {t('new-ticket', 'New ticket')}
-          </Sheet.Title>
-        </Sheet.Header>
-        <Sheet.Content className="px-7 py-4 gap-2 flex flex-col min-h-0">
+        <PanelFormLayout
+          onCancel={onClose}
+          saving={createTicketLoading}
+          saveLabel={t('add-ticket', 'Add ticket')}
+        >
           <Form.Field
             name="name"
             control={form.control}
             render={({ field }) => (
               <Form.Item>
-                <Form.Label className="sr-only">{t('name', 'Name')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-                    placeholder={t('ticket-name', 'Ticket Name')}
-                  />
-                </Form.Control>
+                <PanelFormRow
+                  label={
+                    <Form.Label className="font-sans text-xs font-medium normal-case text-accent-foreground">
+                      {t('name', 'Name')}
+                    </Form.Label>
+                  }
+                  required
+                  error={form.formState.errors.name?.message}
+                >
+                  <Form.Control>
+                    <Input
+                      {...field}
+                      className={PANEL_INPUT_CLASS_NAME}
+                      placeholder={t('ticket-name', 'Ticket Name')}
+                    />
+                  </Form.Control>
+                </PanelFormRow>
               </Form.Item>
             )}
           />
-          <div className="flex gap-2 w-full flex-wrap items-center">
+          <div className="flex flex-col gap-1">
             <Form.Field
               name="channelId"
               control={form.control}
               render={({ field, fieldState }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('channels', 'Channels')}
-                  </Form.Label>
-                  <SelectChannel.FormItem
-                    label={t('channel')}
-                    value={field.value || ''}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('pipelineId', '');
-                      form.setValue('statusId', '');
-                    }}
-                  />
-                  {fieldState.error && (
-                    <p className="text-destructive text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
+                  <PanelFormRow
+                    label={
+                      <Form.Label className="font-sans text-xs font-medium normal-case text-accent-foreground">
+                        {t('channel', 'Channel')}
+                      </Form.Label>
+                    }
+                    required
+                    error={fieldState.error?.message}
+                  >
+                    <SelectChannel.FormItem
+                      variant="table"
+                      value={field.value || ''}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('pipelineId', '');
+                        form.setValue('statusId', '');
+                      }}
+                    />
+                  </PanelFormRow>
                 </Form.Item>
               )}
             />
@@ -234,23 +266,25 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('pipeline-label', 'Pipeline')}
-                  </Form.Label>
-                  <SelectPipeline.FormItem
-                    label={t('pipeline')}
-                    value={field.value || ''}
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                      form.setValue('statusId', '');
-                    }}
-                    form={form}
-                  />
-                  {fieldState.error && (
-                    <p className="text-destructive text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
+                  <PanelFormRow
+                    label={
+                      <Form.Label className="font-sans text-xs font-medium normal-case text-accent-foreground">
+                        {t('pipeline-label', 'Pipeline')}
+                      </Form.Label>
+                    }
+                    required
+                    error={fieldState.error?.message}
+                  >
+                    <SelectPipeline.FormItem
+                      variant="table"
+                      value={field.value || ''}
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('statusId', '');
+                      }}
+                      form={form}
+                    />
+                  </PanelFormRow>
                 </Form.Item>
               )}
             />
@@ -259,20 +293,22 @@ export const AddTicketForm = ({
               control={form.control}
               render={({ field, fieldState }) => (
                 <Form.Item>
-                  <Form.Label className="sr-only">
-                    {t('status-label', 'Status')}
-                  </Form.Label>
-                  <SelectStatusTicket.FormItem
-                    label={t('status')}
-                    value={field.value || ''}
-                    onValueChange={(value) => field.onChange(value)}
-                    form={form}
-                  />
-                  {fieldState.error && (
-                    <p className="text-destructive text-sm mt-1">
-                      {fieldState.error.message}
-                    </p>
-                  )}
+                  <PanelFormRow
+                    label={
+                      <Form.Label className="font-sans text-xs font-medium normal-case text-accent-foreground">
+                        {t('status-label', 'Status')}
+                      </Form.Label>
+                    }
+                    required
+                    error={fieldState.error?.message}
+                  >
+                    <SelectStatusTicket.FormItem
+                      variant="table"
+                      value={field.value || ''}
+                      onValueChange={(value) => field.onChange(value)}
+                      form={form}
+                    />
+                  </PanelFormRow>
                 </Form.Item>
               )}
             />
@@ -284,16 +320,17 @@ export const AddTicketForm = ({
             missingIds={missingIds}
             onPropertyChange={setPropertyValue}
           />
-          <Separator className="my-4" />
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex min-w-0 flex-col gap-1.5 pt-2">
+            <span className="text-xs font-medium text-accent-foreground">
+              {t('description', 'Description')}
+            </span>
             <BlockEditor
               editor={editor}
               onChange={handleDescriptionChange}
-              className="read-only min-h-full"
+              className="read-only min-h-40"
             />
           </div>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
+
           {selectedChannelId &&
             selectedPipelineId &&
             canManageChannel(selectedChannelId) && (
@@ -315,28 +352,7 @@ export const AddTicketForm = ({
                 </Link>
               </Button>
             )}
-          <Button
-            type="button"
-            variant="ghost"
-            className="bg-background hover:bg-background/90"
-            onClick={() => {
-              onClose();
-              form.reset();
-              resetFields();
-              editor?.removeBlocks(editor?.document);
-              setDescriptionContent(undefined);
-            }}
-          >
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button
-            type="submit"
-            className="bg-primary text-primary-foreground hover:bg-primary/90"
-            disabled={createTicketLoading}
-          >
-            {t('save', 'Save')}
-          </Button>
-        </Sheet.Footer>
+        </PanelFormLayout>
       </form>
     </Form>
   );

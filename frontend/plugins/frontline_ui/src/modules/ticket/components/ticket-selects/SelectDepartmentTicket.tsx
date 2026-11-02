@@ -13,10 +13,12 @@ const SelectDepartmentTicketFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
@@ -31,13 +33,13 @@ const SelectDepartmentTicketFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectDepartments.List
             placeholder={label ? t('none') : t('department-label')}
             renderAsPlainText
           />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectDepartments.Content />
         </SelectTicketContent>
       </PopoverScoped>
@@ -91,9 +93,7 @@ const SelectDepartmentTicketRoot = ({
           label={label}
         >
           <SelectDepartments.List
-            placeholder={
-              label ? t('none') : t('department-label')
-            }
+            placeholder={label ? t('none') : t('department-label')}
             renderAsPlainText
           />
         </SelectTriggerTicket>

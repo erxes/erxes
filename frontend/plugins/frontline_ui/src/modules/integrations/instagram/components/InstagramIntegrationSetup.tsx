@@ -1,3 +1,7 @@
+import {
+  IntegrationFormItem,
+  useIntegrationChannelId,
+} from '@/integrations/components/IntegrationPanelForm';
 import { Button, Form, Input } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { SelectBrand } from 'ui-modules';
@@ -18,7 +22,6 @@ import { INSTAGRAM_INTEGRATION_SCHEMA } from '@/integrations/instagram/constants
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { useIgIntegrationContext } from '@/integrations/instagram/context/IgIntegrationContext';
-import { useParams } from 'react-router';
 
 const INTEGRATION_KINDS = {
   POST: 'instagram-post',
@@ -29,7 +32,7 @@ export const InstagramIntegrationSetup = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const { id: channelId } = useParams();
+  const channelId = useIntegrationChannelId();
   const { isPost } = useIgIntegrationContext();
   const form = useForm<z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>>({
     resolver: zodResolver(INSTAGRAM_INTEGRATION_SCHEMA),
@@ -90,8 +93,7 @@ export const InstagramIntegrationSetup = () => {
             <Form.Field
               name="name"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('integration-name')}</Form.Label>
+                <IntegrationFormItem label={t('integration-name')}>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -99,15 +101,14 @@ export const InstagramIntegrationSetup = () => {
                     {t('integration-name-description')}
                   </Form.Description>
                   <Form.Message />
-                </Form.Item>
+                </IntegrationFormItem>
               )}
             />
 
             <Form.Field
               name="brandId"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
+                <IntegrationFormItem label={t('brand')}>
                   <Form.Control>
                     <SelectBrand
                       value={field.value}
@@ -120,7 +121,7 @@ export const InstagramIntegrationSetup = () => {
                     {t('choose-brand-description')}
                   </Form.Description>
                   <Form.Message />
-                </Form.Item>
+                </IntegrationFormItem>
               )}
             />
           </div>
