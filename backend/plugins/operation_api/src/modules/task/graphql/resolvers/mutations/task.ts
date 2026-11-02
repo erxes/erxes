@@ -211,13 +211,13 @@ export const taskMutations = {
   removeTask: async (
     _parent: undefined,
     { _id },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('taskRemove');
 
     const deletedTask = await models.Task.getTask(_id);
 
-    await models.Task.removeTask([_id]);
+    await models.Task.removeTask([_id], subdomain);
 
     graphqlPubsub.publish(`operationTaskChanged:${_id}`, {
       operationTaskChanged: {

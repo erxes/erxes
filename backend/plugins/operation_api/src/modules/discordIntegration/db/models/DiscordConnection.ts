@@ -3,6 +3,7 @@ import {
   IDiscordConnection,
   IDiscordConnectionDocument,
 } from '@/discordIntegration/@types/discordConnection';
+import { DISCORD_UNREADABLE_TOKEN_MESSAGE } from '@/discordIntegration/constants';
 import { discordConnectionSchema } from '@/discordIntegration/db/definitions/discordConnection';
 import {
   isSealedDiscordSecret,
@@ -12,7 +13,8 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
-export interface IDiscordConnectionModel extends Model<IDiscordConnectionDocument> {
+export interface IDiscordConnectionModel
+  extends Model<IDiscordConnectionDocument> {
   upsertConnection(
     connection: IDiscordConnection,
   ): Promise<IDiscordConnectionDocument | null>;
@@ -81,7 +83,16 @@ export const loadDiscordConnectionClass = (models: IModels) => {
         return null;
       }
 
-      const token = openDiscordSecret(connection.token);
+      const token = openReadableSecret(connection.token);
+
+      if (token === null) {
+        await models.DiscordConnection.markBroken(
+          String(connection._id),
+          DISCORD_UNREADABLE_TOKEN_MESSAGE,
+        );
+
+        return null;
+      }
 
       if (token && !isSealedDiscordSecret(connection.token)) {
         const sealed = sealDiscordSecret(token);
@@ -161,7 +172,16 @@ export const loadDiscordConnectionClass = (models: IModels) => {
       });
 
       if (!connection) {
-        throw new Error('Discord connection not found');
+        const exists = await models.DiscordConnection.exists({
+          _id,
+          subdomain,
+        });
+
+        throw new Error(
+          exists
+            ? DISCORD_UNREADABLE_TOKEN_MESSAGE
+            : 'Discord connection not found',
+        );
       }
 
       return connection;

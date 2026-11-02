@@ -49,6 +49,11 @@ export const DISCORD_MAX_RATE_LIMIT_RETRIES = 2;
 
 export const DISCORD_RATE_LIMIT_INLINE_WAIT_MS = 2000;
 
+export const DISCORD_REQUEST_TIMEOUT_MS = 15_000;
+
+export const DISCORD_UNREADABLE_TOKEN_MESSAGE =
+  'The bot token can no longer be decrypted, so the bot is paused. Update the token in Discord Integration settings.';
+
 export const DISCORD_NOTIFY_CONCURRENCY = 5;
 
 export const DISCORD_BOT_PERMISSIONS =

@@ -315,9 +315,14 @@ propertiesData? } })`
   `findWithClientSecret` and `dropUnreadableClientSecrets` (run by
   `operationDiscordConnections`, `operationDiscordMyAccount` and before
   picking the linking server) unset it and set `hasClientSecret: false`, so
-  member linking shows Off until an admin adds the secret again. A token
-  sealed with a lost key still needs the server reconnected. A 401 marks the connection
-  `health.status: 'broken'` and the worker skips it until it is reconnected.
+  member linking shows Off until an admin adds the secret again. A bot token
+  that can no longer be decrypted makes `findWithToken` mark the connection
+  `health.status: 'broken'` with `DISCORD_UNREADABLE_TOKEN_MESSAGE` and
+  return `null`, so the worker skips it, the team members list still loads
+  (without the in-server check), and `getConnectionWithToken` throws that
+  message; reconnecting the server with Update token stores a readable token
+  and clears it. A 401 also marks the connection broken, and the worker
+  skips it until it is reconnected.
 - `operation_discord_configs` holds one config per team (unique `teamId` +
   `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
   test message. Several teams may share a channel.
@@ -389,8 +394,12 @@ propertiesData? } })`
   `operationConvertTriageToTask` (after the triage is deleted) and
   `operationCancelTriage`. `taskAssigned` fires only when the assignee
   actually changes, and `taskCompleted` only on entering a completed status.
-  `notifyDiscord` never throws and queues nothing unless an active config for
-  the team subscribes to the event. Task import passes `skipDiscord` to
+  `notifyDiscord` never throws. It queues a `team` job only when an active
+  config for the team subscribes to the event, and a `customer` job only when
+  the record has a customer thread (see below); either can be queued without
+  the other. `notifyDiscordRemoval` and `notifyDiscordTeamChange` take the
+  caller's `subdomain` and filter every lookup by it (`Task.removeTask` takes
+  `subdomain` for this). Task import passes `skipDiscord` to
   `createTask` / `updateTask`, so imported rows queue no Discord
   notifications (team-change cleanup still runs).
 - Every Discord message is sent with `allowed_mentions: { parse: [] }`, so a
@@ -406,6 +415,12 @@ propertiesData? } })`
   one throws `DiscordApiError` with `retryAfterMs`, and the worker moves the
   job to delayed for that long (`DelayedError`, no attempt used) instead of
   sleeping. The worker runs `DISCORD_NOTIFY_CONCURRENCY` jobs at once.
+- Every Discord HTTP call (bot REST, OAuth and the interaction-response
+  edit) is aborted after `DISCORD_REQUEST_TIMEOUT_MS` (15 seconds, well below
+  `DISCORD_CARD_CLAIM_TIMEOUT_MS`), so a stalled request cannot hold a worker
+  slot or outlive a card claim. A timeout is not a `DiscordApiError`, so
+  BullMQ retries it, and `describeDiscordError` reports it as "Discord did not
+  respond in time".
 - The bot token never leaves the server: no GraphQL type exposes it and the
   frontend sends it only to `operationDiscordCheckToken` and
   `operationDiscordConnect`. The client secret likewise reaches the server

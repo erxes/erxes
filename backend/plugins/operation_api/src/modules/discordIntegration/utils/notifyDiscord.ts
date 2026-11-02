@@ -87,25 +87,25 @@ type TDiscordRemovableRecord = {
 
 export const notifyDiscordRemoval = async (
   models: IModels,
+  subdomain: string,
   records: TDiscordRemovableRecord[],
   { configIds }: { configIds?: string[] } = {},
 ) => {
   try {
     const entityIds = records.map((record) => String(record._id));
-    const thread = await models.DiscordMessage.findOne({
+    const hasThread = await models.DiscordMessage.exists({
       entityId: { $in: entityIds },
+      subdomain,
       ...(configIds ? { configId: { $in: configIds } } : {}),
-    })
-      .select('subdomain')
-      .lean();
+    });
 
-    if (!thread) {
+    if (!hasThread) {
       return;
     }
 
     const job: TDiscordCleanupJob = {
       type: 'cleanup',
-      subdomain: thread.subdomain,
+      subdomain,
       records: records.map((record) => ({
         entityId: String(record._id),
         label: `Task #${record.number ?? 0}`,
@@ -131,21 +131,22 @@ export const notifyDiscordRemoval = async (
 
 export const notifyDiscordTeamChange = async (
   models: IModels,
+  subdomain: string,
   record: TDiscordRemovableRecord & { teamId: unknown },
   previousTeamId: string,
 ) => {
   try {
     const [previousConfig, nextConfig] = await Promise.all([
-      models.DiscordConfig.findOne({ teamId: previousTeamId })
+      models.DiscordConfig.findOne({ teamId: previousTeamId, subdomain })
         .select('_id channelId')
         .lean(),
-      models.DiscordConfig.findOne({ teamId: record.teamId })
+      models.DiscordConfig.findOne({ teamId: record.teamId, subdomain })
         .select('channelId')
         .lean(),
     ]);
 
     if (previousConfig && previousConfig.channelId !== nextConfig?.channelId) {
-      await notifyDiscordRemoval(models, [record], {
+      await notifyDiscordRemoval(models, subdomain, [record], {
         configIds: [String(previousConfig._id)],
       });
     }

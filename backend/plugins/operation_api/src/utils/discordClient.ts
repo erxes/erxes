@@ -22,6 +22,7 @@ import {
   DISCORD_MAX_RATE_LIMIT_RETRIES,
   DISCORD_MESSAGE_CHANNEL_TYPES,
   DISCORD_RATE_LIMIT_INLINE_WAIT_MS,
+  DISCORD_REQUEST_TIMEOUT_MS,
 } from '@/discordIntegration/constants';
 
 export class DiscordApiError extends Error {
@@ -55,6 +56,12 @@ const getRetryAfterMs = (response: Response, body: TDiscordErrorBody) => {
   return Math.max((Number.isFinite(seconds) ? seconds : 1) * 1000, 0);
 };
 
+const requestSignal = () => AbortSignal.timeout(DISCORD_REQUEST_TIMEOUT_MS);
+
+const isTimeoutError = (error: unknown) =>
+  error instanceof Error &&
+  (error.name === 'TimeoutError' || error.name === 'AbortError');
+
 const discordRequest = async <T>(
   { token, method = 'GET', path, body }: TDiscordRequestArgs,
   attempt = 0,
@@ -66,6 +73,7 @@ const discordRequest = async <T>(
       'Content-Type': 'application/json',
     },
     body: body === undefined ? undefined : JSON.stringify(body),
+    signal: requestSignal(),
   });
 
   const data = parseBody(await response.text());
@@ -135,6 +143,7 @@ const discordOAuthRequest = async <T>(
       'Content-Type': 'application/x-www-form-urlencoded',
     },
     body: new URLSearchParams(params).toString(),
+    signal: requestSignal(),
   });
 
   return readDiscordResponse<T>(response);
@@ -179,6 +188,7 @@ export const verifyDiscordClientSecret = async (
 export const getDiscordOAuthUser = async (accessToken: string) => {
   const response = await fetch(`${DISCORD_API_URL}/users/@me`, {
     headers: { Authorization: `Bearer ${accessToken}` },
+    signal: requestSignal(),
   });
 
   return readDiscordResponse<TDiscordUser>(response);
@@ -281,6 +291,7 @@ export const editDiscordInteractionResponse = async ({
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ allowed_mentions: { parse: [] }, ...payload }),
+      signal: requestSignal(),
     },
   );
 
@@ -418,6 +429,10 @@ export const describeDiscordError = (error: unknown): string => {
     if (error.code === DISCORD_ERROR_CODES.UNKNOWN_CHANNEL) {
       return 'The Discord channel no longer exists';
     }
+  }
+
+  if (isTimeoutError(error)) {
+    return 'Discord did not respond in time. Try again in a moment.';
   }
 
   return error instanceof Error ? error.message : String(error);

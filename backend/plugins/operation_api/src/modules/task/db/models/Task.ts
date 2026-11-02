@@ -46,7 +46,7 @@ export interface ITaskModel extends Model<ITaskDocument> {
     subdomain: string;
     skipDiscord?: boolean;
   }): Promise<ITaskDocument>;
-  removeTask(taskIds: string[]): Promise<DeleteResult>;
+  removeTask(taskIds: string[], subdomain: string): Promise<DeleteResult>;
   moveCycle(
     cycleId: string,
     newCycleId: string,
@@ -377,6 +377,7 @@ export const loadTaskClass = (
         if (doc.teamId && String(doc.teamId) !== String(task.teamId)) {
           await notifyDiscordTeamChange(
             models,
+            subdomain,
             updatedTask,
             String(task.teamId),
           );
@@ -411,7 +412,7 @@ export const loadTaskClass = (
       return updatedTask;
     }
 
-    public static async removeTask(taskIds: string[]) {
+    public static async removeTask(taskIds: string[], subdomain: string) {
       const tasks = await models.Task.find({ _id: { $in: taskIds } });
 
       for (const task of tasks) {
@@ -423,7 +424,7 @@ export const loadTaskClass = (
 
       const result = await models.Task.deleteMany({ _id: { $in: taskIds } });
 
-      await notifyDiscordRemoval(models, tasks);
+      await notifyDiscordRemoval(models, subdomain, tasks);
 
       return result;
     }
