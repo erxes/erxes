@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -87,7 +87,7 @@
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
   batch of them through the `evaluateFields` segment producer. The `tagIds`
   lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
-- POS items export (`sales:pos.posItems`): the module dispatcher reads `collectionName` from the unwrapped `data` the module producer passes, or from `{ data }`. `getPosItemsExportData` returns one page of up to 5000 order items per call; each row's `_id` is its position in the export, so the pipeline's `cursor` is the offset of the next page.
+- POS items export (`sales:pos.posItems`): the module dispatcher reads `collectionName` from the unwrapped `data` the module producer passes, or from `{ data }`. `getPosItemsExportData` returns one page of up to 5000 order items per call; each row's `_id` is its position in the export, so the pipeline's `cursor` is the offset of the next page. It refuses `ids` (selected rows) with an error: `posOrderRecordsQuery` has no row-id filter and the pipeline ends an `ids` export after as many rows as ids, so it would write unselected items. The POS items page exports by filters only.
 
 ## Architecture
 
@@ -602,6 +602,7 @@
   must keep the Sales cover available for retry.
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/configSchemas.test.ts`)
+- `pnpm nx test sales_api` (`src/modules/pos/meta/export/__tests__/getPosItemsExportData.test.ts`: refuses `ids`, pages filtered items by the cursor offset)
 - `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
 - `pnpm nx run sales_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
 - `pnpm nx lint sales_api`

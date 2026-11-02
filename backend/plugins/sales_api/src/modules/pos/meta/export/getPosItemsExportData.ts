@@ -114,6 +114,10 @@ const DEFAULT_FIELDS = [
  * Rows are order items, not orders, so each row's `_id` is its position in
  * the export. The pipeline hands the last one back as `cursor`, which is the
  * offset of the next page; a page shorter than `limit` ends the export.
+ *
+ * Selected rows (`ids`) are refused: the POS order query has no row-id
+ * filter, and the pipeline ends an `ids` export once it has written as many
+ * rows as there are ids, so it would write unselected items.
  */
 export async function getPosItemsExportData(
   args: GetExportDataArgs | GetExportData,
@@ -127,6 +131,12 @@ export async function getPosItemsExportData(
     selectedFields,
   } = 'data' in args ? args.data : args;
 
+  if (ids && ids.length > 0) {
+    throw new Error(
+      'POS items export does not support selected rows; export with filters instead',
+    );
+  }
+
   if (!models) {
     throw new Error('Models not available in context');
   }
@@ -136,7 +146,6 @@ export async function getPosItemsExportData(
 
   const orders = (await posOrderRecordsQuery(models, subdomain, {
     ...(filters ?? {}),
-    ...(ids && ids.length > 0 ? { ids } : {}),
     perPage,
     page: Math.floor(offset / perPage) + 1,
   })) as IOrderRecord[];
