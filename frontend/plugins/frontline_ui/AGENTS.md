@@ -969,7 +969,7 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
   note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
-  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
   when a reply cannot be mailed (no customer email, or the workspace cannot
   send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
@@ -2408,7 +2408,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
+  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
