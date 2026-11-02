@@ -53,6 +53,13 @@ import {
 } from '@/cms/graphql/schemas/page';
 
 import {
+  inputs as adminInputs,
+  mutations as adminMutations,
+  queries as adminQueries,
+  types as adminTypes,
+} from '@/cms/graphql/schemas/admin';
+
+import {
   inputs as webInputs,
   mutations as webMutations,
   queries as webQueries,
@@ -106,6 +113,8 @@ export const types = `
     ${menuInputs}
     ${pageTypes}
     ${pageInputs}
+    ${adminTypes}
+    ${adminInputs}
 `;
 
 export const queries = `
@@ -119,6 +128,7 @@ export const queries = `
     ${tagQueries}
     ${menuQueries}
     ${pageQueries}
+    ${adminQueries}
   `;
 
 export const mutations = `
@@ -132,6 +142,7 @@ export const mutations = `
     ${tagMutations}
     ${menuMutations}
     ${pageMutations}
+    ${adminMutations}
 `;
 
 export default { types, queries, mutations };
