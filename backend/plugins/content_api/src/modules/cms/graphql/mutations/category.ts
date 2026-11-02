@@ -4,7 +4,10 @@ import {
   assertOwnedDocument,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
+import {
+  getCmsDefaultLanguage,
+  getCmsTranslationLanguage,
+} from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -159,13 +162,19 @@ export const contentCmsCategoryMutations : Record<string, Resolver> = {
           .lean()
       )?.clientPortalId;
 
-    if (language && clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
+    if (clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
+        models,
+        clientPortalId,
+        _id,
+        'category',
+        language,
+      );
 
-      if (language !== defaultLanguage) {
+      if (translationLanguage) {
         const translationDoc: any = {
           objectId: _id,
-          language,
+          language: translationLanguage,
           type: 'category',
         };
 
@@ -195,7 +204,7 @@ export const contentCmsCategoryMutations : Record<string, Resolver> = {
           models,
           _id,
           translations || [],
-          language,
+          translationLanguage,
         );
 
         return category;

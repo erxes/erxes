@@ -1,8 +1,32 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
+import type { IModels } from '~/connectionResolvers';
 
 export const getCmsDefaultLanguage = (
   cms?: { language?: string; languages?: string[] } | null,
 ) => cms?.language || cms?.languages?.[0];
+
+export const getCmsTranslationLanguage = async (
+  models: IModels,
+  clientPortalId: string,
+  objectId: string,
+  type: string,
+  language?: string,
+) => {
+  const cms = await models.CMS.findOne({ clientPortalId }).lean();
+  const defaultLanguage = getCmsDefaultLanguage(cms) || 'en';
+  const targetLanguage = language || defaultLanguage;
+
+  if (targetLanguage !== defaultLanguage) return targetLanguage;
+  if (!cms || cms.language) return undefined;
+
+  const hasTranslation = await models.Translations.exists({
+    objectId,
+    language: targetLanguage,
+    type,
+  });
+
+  return hasTranslation ? targetLanguage : undefined;
+};
 
 export const getConfig = async (
   subdomain: string,

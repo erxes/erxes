@@ -263,7 +263,7 @@ export const isCmsLanguageAllowed = async (
   return canCms(context, `cmsLanguage:${normalized}`);
 };
 
-const getDefaultLanguage = async (
+const getCmsLanguages = async (
   context: CmsContext,
   clientPortalId?: string,
 ) => {
@@ -271,12 +271,15 @@ const getDefaultLanguage = async (
     return undefined;
   }
 
-  const cms = await context.models.CMS.findOne({ clientPortalId })
+  return context.models.CMS.findOne({ clientPortalId })
     .select({ language: 1, languages: 1 })
     .lean();
-
-  return getCmsDefaultLanguage(cms);
 };
+
+const getDefaultLanguage = async (
+  context: CmsContext,
+  clientPortalId?: string,
+) => getCmsDefaultLanguage(await getCmsLanguages(context, clientPortalId));
 
 export const assertCmsLanguageAccess = async ({
   context,
@@ -341,15 +344,14 @@ export const getCmsReadAccess = async (
       language: requestedLanguage,
     });
 
-    const defaultLanguage = await getDefaultLanguage(context, clientPortalId);
+    const cms = await getCmsLanguages(context, clientPortalId);
     const normalizedLanguage = normalizeLanguage(requestedLanguage);
 
     return {
       query,
       language: normalizedLanguage,
       translationLanguage:
-        defaultLanguage &&
-        normalizeLanguage(defaultLanguage) !== normalizedLanguage
+        cms?.language && normalizeLanguage(cms.language) !== normalizedLanguage
           ? normalizedLanguage
           : undefined,
     };

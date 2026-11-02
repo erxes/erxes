@@ -1,7 +1,10 @@
 import { Resolver } from 'erxes-api-shared/core-types';
 import { IContext } from '~/connectionResolvers';
 import { requireClientPortalId } from '@/cms/graphql/utils/clientPortal';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
+import {
+  getCmsDefaultLanguage,
+  getCmsTranslationLanguage,
+} from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -139,13 +142,19 @@ export const contentCmsTagMutations : Record<string, Resolver> = {
           .lean()
       )?.clientPortalId;
 
-    if (language && clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(models, clientPortalId);
+    if (clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
+        models,
+        clientPortalId,
+        _id,
+        'tag',
+        language,
+      );
 
-      if (language !== defaultLanguage) {
+      if (translationLanguage) {
         const translationDoc: any = {
           objectId: _id,
-          language,
+          language: translationLanguage,
           type: 'tag',
         };
 
@@ -161,7 +170,12 @@ export const contentCmsTagMutations : Record<string, Resolver> = {
 
         const tag = await models.PostTags.updateTag(_id, safeTagInput);
 
-        await saveTagTranslations(models, _id, translations || [], language);
+        await saveTagTranslations(
+          models,
+          _id,
+          translations || [],
+          translationLanguage,
+        );
 
         return tag;
       }

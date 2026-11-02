@@ -1,6 +1,9 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
+import {
+  getCmsDefaultLanguage,
+  getCmsTranslationLanguage,
+} from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -71,15 +74,21 @@ const mutations: Record<string, Resolver> = {
     const { _id, input } = args;
     const { translations, language, ...menuInput } = input;
 
-    if (language && menuInput.clientPortalId) {
-      const rawDefault = await getDefaultLanguage(
+    if (menuInput.clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
         models,
         menuInput.clientPortalId,
+        _id,
+        'menu',
+        language,
       );
-      const defaultLanguage = rawDefault || 'en';
 
-      if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'menu' };
+      if (translationLanguage) {
+        const translationDoc: any = {
+          objectId: _id,
+          language: translationLanguage,
+          type: 'menu',
+        };
 
         if (menuInput.label !== undefined)
           translationDoc.title = menuInput.label;
@@ -90,7 +99,12 @@ const mutations: Record<string, Resolver> = {
 
         const menu = await models.MenuItems.updateMenuItem(_id, safeMenuInput);
 
-        await saveMenuTranslations(models, _id, translations || [], language);
+        await saveMenuTranslations(
+          models,
+          _id,
+          translations || [],
+          translationLanguage,
+        );
 
         return models.MenuItems.hydrateMenuItem(menu);
       }
@@ -164,12 +178,21 @@ const mutations: Record<string, Resolver> = {
 
     const clientPortalId = clientPortal?._id;
 
-    if (language && clientPortalId) {
-      const rawDefault = await getDefaultLanguage(models, clientPortalId);
-      const defaultLanguage = rawDefault || 'en';
+    if (clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
+        models,
+        clientPortalId,
+        _id,
+        'menu',
+        language,
+      );
 
-      if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'menu' };
+      if (translationLanguage) {
+        const translationDoc: any = {
+          objectId: _id,
+          language: translationLanguage,
+          type: 'menu',
+        };
 
         if (restInput.label !== undefined)
           translationDoc.title = restInput.label;
@@ -183,7 +206,12 @@ const mutations: Record<string, Resolver> = {
           clientPortalId,
         });
 
-        await saveMenuTranslations(models, _id, translations || [], language);
+        await saveMenuTranslations(
+          models,
+          _id,
+          translations || [],
+          translationLanguage,
+        );
 
         return models.MenuItems.hydrateMenuItem(menu);
       }

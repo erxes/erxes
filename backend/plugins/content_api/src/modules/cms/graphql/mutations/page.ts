@@ -6,7 +6,10 @@ import {
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
+import {
+  getCmsDefaultLanguage,
+  getCmsTranslationLanguage,
+} from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
@@ -156,19 +159,26 @@ const mutations: Record<string, Resolver> = {
       throw new Error('Page not found');
     }
 
-    await assertCmsAccessByClientPortal(
-      context,
-      pageInput.clientPortalId || existingPage.clientPortalId,
-    );
+    const clientPortalId =
+      pageInput.clientPortalId || existingPage.clientPortalId;
 
-    if (language && pageInput.clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
+    if (clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
         models,
-        pageInput.clientPortalId,
+        clientPortalId,
+        _id,
+        'page',
+        language,
       );
 
-      if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'page' };
+      if (translationLanguage) {
+        const translationDoc: any = {
+          objectId: _id,
+          language: translationLanguage,
+          type: 'page',
+        };
 
         // PAGE translatable fields: name → title, description → content
         if (pageInput.name !== undefined) translationDoc.title = pageInput.name;
@@ -193,7 +203,12 @@ const mutations: Record<string, Resolver> = {
 
         const page = await models.Pages.updatePage(_id, safePageInput);
 
-        await savePageTranslations(models, _id, translations || [], language);
+        await savePageTranslations(
+          models,
+          _id,
+          translations || [],
+          translationLanguage,
+        );
 
         return page;
       }

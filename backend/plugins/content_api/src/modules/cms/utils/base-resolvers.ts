@@ -1,7 +1,6 @@
 import { cursorPaginate, defaultPaginate } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { SortOrder } from 'mongoose';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 export interface BaseQueryArgs {
   searchValue?: string;
@@ -138,7 +137,7 @@ export class BaseQueryResolver {
 
     const cms = await this.models.CMS.findOne({ clientPortalId }).lean();
 
-    return !cms || getCmsDefaultLanguage(cms) === language;
+    return !cms || cms.language === language;
   }
 
   private resolveClientPortalId(args: BaseQueryArgs): string {

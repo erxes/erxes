@@ -17,7 +17,10 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
-import { getCmsDefaultLanguage } from '@/cms/utils/common';
+import {
+  getCmsDefaultLanguage,
+  getCmsTranslationLanguage,
+} from '@/cms/utils/common';
 import { sendPublishedPostNotification } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
@@ -241,15 +244,19 @@ export const postMutations: Record<string, Resolver> = {
     const clientPortalId =
       postInput.clientPortalId || existingPost.clientPortalId;
 
-    if (language && clientPortalId) {
-      const rawDefault = await getDefaultLanguage(models, clientPortalId);
+    if (clientPortalId) {
+      const translationLanguage = await getCmsTranslationLanguage(
+        models,
+        clientPortalId,
+        _id,
+        'post',
+        language,
+      );
 
-      const defaultLanguage = rawDefault || 'en';
-
-      if (language !== defaultLanguage) {
+      if (translationLanguage) {
         const translationDoc: ITranslation = {
           objectId: _id,
-          language,
+          language: translationLanguage,
           type: 'post',
         };
 
@@ -279,7 +286,7 @@ export const postMutations: Record<string, Resolver> = {
 
         const remainingTranslations = (
           (translations || []) as TPostTranslationInput[]
-        ).filter((t) => t?.language !== language);
+        ).filter((t) => t?.language !== translationLanguage);
         await saveTranslations(models, _id, remainingTranslations);
 
         return post;
