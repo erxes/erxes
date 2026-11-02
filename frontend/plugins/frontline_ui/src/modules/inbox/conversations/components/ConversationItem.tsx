@@ -125,7 +125,10 @@ export const ConversationItem = ({
             )}
           >
             {(updatedAt || createdAt) && (
-              <RelativeDateDisplay value={updatedAt || createdAt || ''}>
+              <RelativeDateDisplay
+                value={updatedAt || createdAt || ''}
+                onClick={(event) => event.stopPropagation()}
+              >
                 <RelativeDateDisplay.Value
                   value={updatedAt || createdAt || ''}
                   isShort

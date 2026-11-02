@@ -445,7 +445,8 @@
   channel is a collapsible row over the integration types in use inside it.
   Discord servers and Brands groups follow.
 - A conversation row is a focusable `role="button"`. Enter or Space on the row
-  opens it; the row ignores keys that come from its own checkbox or time button.
+  opens it. Its checkbox and time button are separate controls: neither opens
+  the row, by key or by click.
   A focused row checkbox shows in place of the avatar.
 - `Team inbox` channel rows carry the caller's unread count from
   `Channel.unreadConversationCount` and dim when it is zero; integration-type
