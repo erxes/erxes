@@ -28,6 +28,8 @@ import { CustomerPanelNew } from './details/CustomerPanelNew';
 import { CustomerPanelProperties } from './details/CustomerPanelProperties';
 import { PluginRecordPanel } from './PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
+import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
   ActivityLogs,
   AddInternalNote,
@@ -53,9 +55,7 @@ const ACTIVITY_TAB = 'activity';
 const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
   if (contentType === 'core:customer') {
     return {
-      detail: (
-<CustomerPanelDetail customerId={contentId} />
-      ),
+      detail: <CustomerPanelDetail customerId={contentId} />,
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
@@ -227,7 +227,8 @@ const SidePanelSavedRecord = ({
   );
   const panelPluginName = coreViews ? null : pluginName;
   const { title, avatar } = useRecordHeading(record, panelPluginName);
-  const views = coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+  const views =
+    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRelationWidgetTabs({
     ...record,
     // Linked customers and companies are in a contact's Detail tab already.
@@ -296,7 +297,7 @@ const SidePanelSavedRecord = ({
         ),
       }))
     : [];
-  const [tab, setTab] = useState(views ? DETAIL_TAB : ACTIVITY_TAB);
+  const { tab: selectedTab, setTab } = useSidePanel();
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -351,49 +352,56 @@ const SidePanelSavedRecord = ({
         ]
       : []),
     ...[
-          {
-            value: ACTIVITY_TAB,
-            label: t('activity', 'Activity'),
-            icon: IconHistory,
-            content: panelPluginName ? (
-              // A plugin keeps its records' activity (and comments) itself.
-              <PluginRecordPanel
-                pluginName={panelPluginName}
-                contentType={record.contentType}
-                contentId={record.contentId}
-                view="activity"
-              />
-            ) : (
-              <div className="flex flex-col flex-1 min-h-0">
-                {/* The log and note box are spaced for the wide detail sheet; in the
+      {
+        value: ACTIVITY_TAB,
+        label: t('activity', 'Activity'),
+        icon: IconHistory,
+        content: panelPluginName ? (
+          // A plugin keeps its records' activity (and comments) itself.
+          <PluginRecordPanel
+            pluginName={panelPluginName}
+            contentType={record.contentType}
+            contentId={record.contentId}
+            view="activity"
+          />
+        ) : (
+          <div className="flex flex-col flex-1 min-h-0">
+            {/* The log and note box are spaced for the wide detail sheet; in the
                     panel both sit 16px in, and the log never widens the panel. */}
-                <ScrollArea
-                  className="flex-1 min-h-0"
-                  viewportClassName="[&>div]:block!"
-                >
-                  <div className="pt-3 [&_.px-6]:px-2">
-                    <ActivityLogs
-                      targetId={record.contentId}
-                      customActivities={
-                        record.contentType === 'core:company'
-                          ? companyCustomActivities
-                          : undefined
-                      }
-                      variant="backward"
-                    />
-                  </div>
-                </ScrollArea>
-                <div className="shrink-0 pb-4 pt-2 [&_.ml-10]:ml-4 [&_.mr-8]:mr-4">
-                  <AddInternalNote
-                    contentTypeId={record.contentId}
-                    contentType={record.contentType}
-                  />
-                </div>
+            <ScrollArea
+              className="flex-1 min-h-0"
+              viewportClassName="[&>div]:block!"
+            >
+              <div className="pt-3 [&_.px-6]:px-2">
+                <ActivityLogs
+                  targetId={record.contentId}
+                  customActivities={
+                    record.contentType === 'core:company'
+                      ? companyCustomActivities
+                      : undefined
+                  }
+                  variant="backward"
+                />
               </div>
-            ),
-          },
-        ],
+            </ScrollArea>
+            <div className="shrink-0 pb-4 pt-2 [&_.ml-10]:ml-4 [&_.mr-8]:mr-4">
+              <AddInternalNote
+                contentTypeId={record.contentId}
+                contentType={record.contentType}
+              />
+            </div>
+          </div>
+        ),
+      },
+    ],
   ];
+
+  const tab =
+    selectedTab && tabs.some((entry) => entry.value === selectedTab)
+      ? selectedTab
+      : views
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>
@@ -436,7 +444,9 @@ const SidePanelDraft = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const { pluginName } = useRecordPanelPlugin(record.contentType);
+  const { pluginName, hasDraftTitle } = useRecordPanelPlugin(
+    record.contentType,
+  );
 
   const renderDraft = () => {
     if (record.contentType === 'core:customer') {
@@ -462,9 +472,21 @@ const SidePanelDraft = ({
   return (
     <>
       <RecordSidePanel.Header
-        title={t('new-record', 'New {{type}}', {
-          type: getContentTypeLabel(record.contentType).toLowerCase(),
-        })}
+        title={
+          pluginName && hasDraftTitle ? (
+            <PluginRecordPanel
+              pluginName={pluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="title"
+              quiet
+            />
+          ) : (
+            t('new-record', 'New {{type}}', {
+              type: getContentTypeLabel(record.contentType).toLowerCase(),
+            })
+          )
+        }
         onBack={onBack}
         onClose={onClose}
       />
@@ -477,12 +499,17 @@ const SidePanelDraft = ({
 // `RecordViewContext` so it can be drawn where the panel cannot reach.
 export const SidePanelRecord = (
   props: React.ComponentProps<typeof SidePanelSavedRecord>,
-) =>
-  props.record.contentId === NEW_RECORD_ID ? (
+) => {
+  if (props.record.contentType === USER_CONTENT_TYPE) {
+    return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
+  }
+
+  return props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
     <SidePanelSavedRecord {...props} />
   );
+};
 
 const SidePanelEmpty = ({
   title,
@@ -528,6 +555,16 @@ export const SidePanelLayout = () => {
   const [width, setWidth] = useAtom(sidePanelWidthState);
 
   const renderRoute = () => {
+    if (record?.contentType === USER_CONTENT_TYPE) {
+      return (
+        <MemberDetail
+          key={`${record.contentType}:${record.contentId}`}
+          onBack={onBack}
+          onClose={close}
+        />
+      );
+    }
+
     if (record) {
       return (
         <SidePanelRecord

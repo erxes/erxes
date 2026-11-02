@@ -241,7 +241,7 @@ const deliverEmails: TDrainDeliver = async ({
   const log = createDeliveryLogPort(models);
   const suppression = createSuppressionPort(models);
   const postalAddress = formatPostalAddress(await getPostalAddress(models));
-  const alignedFrom = await getBroadcastAlignedFrom(models);
+  const alignedFrom = await getBroadcastAlignedFrom(models, run.fromEmail);
 
   let sent = 0;
   const fieldCounts: TFieldCounts = new Map();

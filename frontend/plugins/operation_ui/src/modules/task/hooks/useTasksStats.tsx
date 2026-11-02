@@ -2,9 +2,11 @@ import { getTaskDateFilterVariables } from '@/task/utils/dateFilters';
 import { compactList } from '@/operation/utils/cursorList';
 import type { CycleFilterType } from '~/gql/graphql';
 import { PROJECT_PRIORITIES_OPTIONS } from '@/operation/constants/priorityLabels';
-import { useProjects } from '@/project/hooks/useGetProjects';
-import { IProject } from '@/project/types';
+import { GET_PROJECTS_INLINE } from '@/project/graphql/queries/getProjects';
 import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
+import { useStatusTypesByTeams } from '@/task/hooks/useStatusTypesByTeams';
+import { STATUS_TYPES } from '@/operation/constants/statusConstants';
 import { ITask } from '@/task/types';
 import { useQuery } from '@apollo/client';
 import { useNonNullMultiQueryState } from 'erxes-ui';
@@ -111,40 +113,51 @@ export const useTasksStats = ({
   const effectiveUserId = userId || (!teamId ? currentUser?._id : undefined);
   const effectiveTeamId = teamId || team;
 
-  const { data: tasksData, loading: tasksLoading } = useQuery(GET_TASKS, {
-    variables: {
-      filter: {
-        teamId: effectiveTeamId || undefined,
-        userId: effectiveUserId || undefined,
-        cycleFilter: cycleFilter || undefined,
-        name: searchValue || undefined,
-        assigneeId: assignee || undefined,
-        createdBy: createdBy || undefined,
-        priority: priority || undefined,
-        status:
-          effectiveTeamId && typeof status === 'string' ? status : undefined,
-        statusType:
-          !effectiveTeamId && typeof status === 'number' ? status : undefined,
-        milestoneId: milestone || undefined,
-        tagIds: tags || undefined,
-        estimatePoint: estimatePoint || undefined,
-        ...getTaskDateFilterVariables({
-          targetDateStartDate,
-          createdStartDate,
-          updatedStartDate,
-          startDateStartDate,
-          completedStartDate,
-        }),
-        projectId: project || undefined,
-        projectStatus,
-        projectPriority,
-        projectLeadId: projectLeadId || undefined,
-        projectMilestoneName: projectMilestoneName || undefined,
-        limit: 100,
-      },
-    },
+  const rawFilter = {
+    teamId: effectiveTeamId || undefined,
+    userId: effectiveUserId || undefined,
+    cycleFilter: cycleFilter || undefined,
+    name: searchValue || undefined,
+    assigneeId: assignee || undefined,
+    createdBy: createdBy || undefined,
+    priority: priority || undefined,
+    status: effectiveTeamId && typeof status === 'string' ? status : undefined,
+    statusType:
+      !effectiveTeamId && typeof status === 'number' ? status : undefined,
+    milestoneId: milestone || undefined,
+    tagIds: tags || undefined,
+    estimatePoint: estimatePoint || undefined,
+    ...getTaskDateFilterVariables({
+      targetDateStartDate,
+      createdStartDate,
+      updatedStartDate,
+      startDateStartDate,
+      completedStartDate,
+    }),
+    projectId: project || undefined,
+    projectStatus,
+    projectPriority,
+    projectLeadId: projectLeadId || undefined,
+    projectMilestoneName: projectMilestoneName || undefined,
+    limit: 100,
+  };
+  const filter = useMemo(
+    () => rawFilter,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(rawFilter)],
+  );
+
+  const {
+    data: tasksData,
+    loading: tasksLoading,
+    refetch,
+  } = useQuery(GET_TASKS, {
+    variables: { filter },
     fetchPolicy: 'cache-and-network',
   });
+
+  // Other users' task changes update the report as well as this user's own.
+  useRefetchOnTaskListChange({ filter, refetch });
 
   const tasks: ITask[] = useMemo(
     () => compactList(tasksData?.getTasks?.list),
@@ -161,16 +174,21 @@ export const useTasksStats = ({
     return Array.from(ids);
   }, [tasks]);
 
-  const { projects: projectsList } = useProjects({
-    variables: {
-      _ids: projectIds,
-    },
+  // Names only, by id: the Projects page's URL filters and list
+  // subscription do not apply to these stats.
+  const { data: projectsData } = useQuery(GET_PROJECTS_INLINE, {
+    variables: { filter: { _ids: projectIds, limit: projectIds.length } },
     skip: projectIds.length === 0,
   });
 
-  const projects: IProject[] = useMemo(() => {
-    return projectsList || [];
-  }, [projectsList]);
+  const projects = useMemo(
+    () => compactList(projectsData?.getProjects?.list),
+    [projectsData],
+  );
+
+  const statusTypes = useStatusTypesByTeams(
+    useMemo(() => tasks.map((task) => task.teamId), [tasks]),
+  );
 
   const tagIds = useMemo(() => {
     const ids = new Set<string>();
@@ -212,8 +230,9 @@ export const useTasksStats = ({
     tasks.forEach((task) => {
       totalTasks++;
 
-      const isCompleted = task.status === 'done';
-      const isStarted = task.status !== 'backlog' && !isCompleted;
+      const statusType = statusTypes.get(task.status);
+      const isCompleted = statusType === STATUS_TYPES.COMPLETED;
+      const isStarted = statusType === STATUS_TYPES.STARTED;
 
       if (isCompleted) {
         completedTasks++;
@@ -311,7 +330,7 @@ export const useTasksStats = ({
       projectStats,
       tagStats,
     };
-  }, [tasks, projects, tagsData, t]);
+  }, [tasks, projects, tagsData, statusTypes, t]);
 
   return {
     tasks,

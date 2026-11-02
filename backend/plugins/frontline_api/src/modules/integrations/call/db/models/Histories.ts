@@ -89,15 +89,17 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<number> {
       try {
-        const { integration, operator } = await this.validateUserIntegration(
-          models,
-          user,
-          filterOptions.integrationId,
-        );
+        const { integration, operator, inboxIds } =
+          await this.validateUserIntegration(
+            models,
+            user,
+            filterOptions.integrationId,
+          );
 
         const pipeline = this.buildCdrPipeline(
           operator,
           integration,
+          inboxIds,
           filterOptions,
           {
             forCount: true,
@@ -137,17 +139,20 @@ export const loadCallHistoryClass = (models: IModels) => {
         throw new Error(ERROR_MESSAGES.OPERATOR_NOT_FOUND);
       }
 
-      return { integration, operator };
+      const peers = await models.CallIntegrations.findPeers(integration);
+      const inboxIds = peers.map((peer) => peer.inboxId);
+
+      return { integration, operator, inboxIds };
     }
 
     private static buildCdrPipeline(
       operator: any,
       integration: any,
+      inboxIds: string[],
       filterOptions: ICallHistoryFilterOptions,
       { forCount }: { forCount?: boolean } = {},
     ): any[] {
       const ext = operator?.gsUsername ? String(operator.gsUsername) : '';
-      const integrationId = filterOptions.integrationId;
 
       const extVals: (string | number)[] = /^\d+$/.test(ext)
         ? [ext, Number(ext)]
@@ -164,8 +169,8 @@ export const loadCallHistoryClass = (models: IModels) => {
       const match: any = involvement.length
         ? { $or: involvement }
         : { _id: null };
-      if (integrationId && involvement.length) {
-        match.inboxIntegrationId = integrationId;
+      if (inboxIds.length && involvement.length) {
+        match.inboxIntegrationId = { $in: inboxIds };
       }
 
       const dateRange: any = {};
@@ -321,15 +326,17 @@ export const loadCallHistoryClass = (models: IModels) => {
       user: IUserDocument,
     ): Promise<(Partial<ICallHistory> & { _id: string })[]> {
       try {
-        const { integration, operator } = await this.validateUserIntegration(
-          models,
-          user,
-          filterOptions.integrationId,
-        );
+        const { integration, operator, inboxIds } =
+          await this.validateUserIntegration(
+            models,
+            user,
+            filterOptions.integrationId,
+          );
 
         const pipeline = this.buildCdrPipeline(
           operator,
           integration,
+          inboxIds,
           filterOptions,
         );
 

@@ -155,12 +155,6 @@ export const dealSchema = schemaWrapper(
       searchText: { type: String, optional: true, index: true },
       priority: { type: String, optional: true, label: 'Priority' },
       // TODO remove after migration
-      sourceInvoiceId: {
-        type: String,
-        optional: true,
-        index: true,
-        label: 'Source invoice',
-      },
       timeTrack: {
         type: timeTrackSchema,
       },

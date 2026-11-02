@@ -20,7 +20,9 @@ import {
 } from '@/settings/syncSettings/SyncTableShared';
 
 type TMovementAccountKey = 'sourceAccountId' | 'destinationAccountId';
-type TMovementBranchKey = 'defaultSourceBranchId' | 'defaultDestinationBranchId';
+type TMovementBranchKey =
+  | 'defaultSourceBranchId'
+  | 'defaultDestinationBranchId';
 type TMovementDepartmentKey =
   | 'defaultSourceDepartmentId'
   | 'defaultDestinationDepartmentId';

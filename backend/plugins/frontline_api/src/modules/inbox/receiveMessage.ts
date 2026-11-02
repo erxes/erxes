@@ -178,12 +178,14 @@ export const receiveInboxMessage = async (
         const updatedDoc = {
           content,
           assignedUserId,
-          integrationId,
           updatedAt,
 
           readUserIds: [],
           status: CONVERSATION_STATUSES.OPEN,
         } as any;
+        if (integrationId) {
+          updatedDoc.integrationId = integrationId;
+        }
         if (customerId) {
           updatedDoc.customerId = customerId;
         }

@@ -25,7 +25,33 @@ jest.mock('../../graphql/jobQueries', () => ({
   GET_JOB_PRODUCT_UNITS: {},
 }));
 jest.mock('../JobCosts', () => ({ JobCosts: () => null }));
-jest.mock('ui-modules', () => ({ SelectProduct: () => null }));
+jest.mock('ui-modules', () => ({
+  SelectProduct: () => null,
+  PANEL_INPUT_CLASS_NAME: '',
+  PanelFormRow: ({ children }: { children?: ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
+jest.mock('@/settings/components/panel/SettingsPanelFields', () => ({
+  SettingsPanelDescriptionInput: () => null,
+  SettingsPanelSelect: () => null,
+}));
+jest.mock('@/settings/components/panel/SettingsPanelLayout', () => ({
+  SettingsPanelDraftForm: ({
+    children,
+    onCancel,
+  }: {
+    children?: ReactNode;
+    onCancel: () => void;
+  }) => (
+    <form>
+      {children}
+      <button type="button" onClick={onCancel}>
+        cancel
+      </button>
+    </form>
+  ),
+}));
 jest.mock('erxes-ui', () => {
   const React = jest.requireActual<typeof import('react')>('react');
   const Wrapper = ({ children }: { children?: ReactNode }) => <>{children}</>;
@@ -48,7 +74,6 @@ jest.mock('erxes-ui', () => {
     Input: 'input',
     Textarea: 'textarea',
     Select: 'select',
-    Sheet: { Footer: Wrapper, Close: Wrapper },
     Spinner: () => null,
     RecordTableInlineCell: Wrapper,
     Table: Object.assign(
@@ -59,11 +84,19 @@ jest.mock('erxes-ui', () => {
 });
 
 test('edit bootstrap and later resets tolerate unset product arrays without overwriting saved units', () => {
+  const onCancel = jest.fn();
   let form: UseFormReturn<TJobForm> | undefined;
   const Harness = () => {
     const currentForm = useForm<TJobForm>();
     form = currentForm;
-    return <JobForm form={currentForm} onSubmit={jest.fn()} loading={false} />;
+    return (
+      <JobForm
+        form={currentForm}
+        onSubmit={jest.fn()}
+        onCancel={onCancel}
+        loading={false}
+      />
+    );
   };
   expect(() => render(<Harness />)).not.toThrow();
   if (!form) throw new Error('Form did not mount');
@@ -83,6 +116,28 @@ test('edit bootstrap and later resets tolerate unset product arrays without over
   expect(() =>
     act(() => mountedForm.reset({ name: 'Next card', durationType: 'real' })),
   ).not.toThrow();
+});
+
+test('cancelling the master card form hands control back to the side panel', () => {
+  const onCancel = jest.fn();
+  const Harness = () => {
+    const currentForm = useForm<TJobForm>({
+      defaultValues: { name: 'Bread', durationType: 'real' },
+    });
+    return (
+      <JobForm
+        form={currentForm}
+        onSubmit={jest.fn()}
+        onCancel={onCancel}
+        loading={false}
+      />
+    );
+  };
+  render(<Harness />);
+
+  act(() => screen.getByText('cancel').click());
+
+  expect(onCancel).toHaveBeenCalledTimes(1);
 });
 
 test('embedded job tables do not create nested HTML forms or per-job save footers', () => {

@@ -5,8 +5,19 @@ import {
   settedFormDetailAtom,
 } from '../states/formSetupStates';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { FormDraftScope } from './FormDraftScope';
 
 export const FormCreate = () => {
+  const { id } = useParams<{ id: string }>();
+  return (
+    <FormDraftScope scope={`create:${id ?? 'global'}`}>
+      <FormCreateContent />
+    </FormDraftScope>
+  );
+};
+
+const FormCreateContent = () => {
   const settedFormDetail = useAtomValue(settedFormDetailAtom);
   const resetFormSetup = useSetAtom(resetFormSetupAtom);
   useEffect(() => {

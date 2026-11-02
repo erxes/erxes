@@ -1,6 +1,6 @@
-import { useQuery, useSubscription } from '@apollo/client';
+import { useQuery } from '@apollo/client';
 import { GET_PROJECT_PROGRESS_CHART } from '@/project/graphql/queries/getProjectProgressChart';
-import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
+import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
 
 export const useGetProjectProgressChart = (projectId?: string | null) => {
   const { data, loading, refetch } = useQuery(GET_PROJECT_PROGRESS_CHART, {
@@ -8,13 +8,10 @@ export const useGetProjectProgressChart = (projectId?: string | null) => {
     skip: !projectId,
   });
 
-  useSubscription(TASK_LIST_CHANGED, {
-    variables: { filter: { projectId } },
+  useRefetchOnTaskListChange({
+    filter: { projectId },
     skip: !projectId,
-    ignoreResults: true,
-    onData: () => {
-      refetch();
-    },
+    refetch,
   });
 
   const getProjectProgressChart = data?.getProjectProgressChart;

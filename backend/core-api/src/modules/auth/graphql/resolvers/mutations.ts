@@ -1,15 +1,19 @@
 import { WorkOS } from '@workos-inc/node';
+import { randomUUID } from 'crypto';
 import {
-  authCookieOptions,
   getEnv,
+  escapeRegExp,
   logHandler,
   markResolvers,
-  redis,
   updateSaasOrganization,
 } from 'erxes-api-shared/utils';
 import * as jwt from 'jsonwebtoken';
-import { IContext } from '~/connectionResolvers';
+import { IContext, IModels } from '~/connectionResolvers';
 import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
+import { LoginError } from '~/modules/auth/loginError';
+import { endSession, startSession } from '~/modules/auth/session';
+import { createTwoFactorChallenge } from '~/modules/auth/twoFactor/challenge';
+import { armLdapRecheck } from '~/modules/auth/ldap/worker';
 import {
   assertLoginAllowed,
   clearLoginFailures,
@@ -19,7 +23,7 @@ import {
   recordLoginFailure,
   sendSaasMagicLinkEmail,
 } from '~/modules/auth/utils';
-import { assertSaasEnvironment } from '~/utils/saas';
+import { assertSaasEnvironment, MAGIC_LINK_STATE } from '~/utils/saas';
 import { sendEmail } from '~/utils/email';
 
 type LoginParams = {
@@ -28,14 +32,30 @@ type LoginParams = {
   deviceToken?: string;
 };
 
+// Matches Users.login so attempts by username reach the user's log too
+const findLoginUser = (models: IModels, identifier: string) => {
+  const pattern = new RegExp(
+    `^${escapeRegExp((identifier || '').trim())}$`,
+    'i',
+  );
+
+  return models.Users.findOne(
+    { $or: [{ email: pattern }, { username: pattern }] },
+    { _id: 1 },
+  ).lean();
+};
+
 export const authMutations = {
   /*
    * Login   */
   async login(
     _parent: undefined,
     args: LoginParams,
-    { req, res, requestInfo, models, subdomain }: IContext,
+    { req, res, models, subdomain }: IContext,
   ) {
+    // Filled once the method is known; logHandler merges it on success
+    const loginResult: { method?: string } = {};
+
     return await logHandler(
       async () => {
         await assertLoginAllowed(subdomain, getRequestIp(req), args.email);
@@ -45,27 +65,53 @@ export const authMutations = {
         try {
           response = await models.Users.login(args);
         } catch (e) {
-          await recordLoginFailure(subdomain, args.email);
+          // An unreachable directory is not the user's mistake, so it must not lock them out
+          if (
+            !(e instanceof LoginError && e.reason === 'directory_unreachable')
+          ) {
+            await recordLoginFailure(subdomain, args.email);
+          }
           throw e;
         }
 
         await clearLoginFailures(subdomain, args.email);
 
-        const { token } = response;
+        const { user, method } = response;
+        loginResult.method = method;
 
-        const sameSite = getEnv({ name: 'SAME_SITE' });
-        const DOMAIN = getEnv({ name: 'DOMAIN', subdomain });
+        const twoFactor = await models.TwoFactors.requirement(user);
 
-        const cookieOptions: any = { secure: requestInfo.secure };
-        if (
-          sameSite &&
-          sameSite === 'none' &&
-          res.req.headers.origin !== DOMAIN
-        ) {
-          cookieOptions.sameSite = sameSite;
+        if (twoFactor !== 'none') {
+          const challenge = await createTwoFactorChallenge(subdomain, {
+            userId: user._id,
+            method,
+            setup: twoFactor === 'setup',
+          });
+
+          // An error, so a client unaware of 2FA can never look signed in
+          throw new LoginError(
+            twoFactor === 'setup'
+              ? 'two_factor_setup_required'
+              : 'two_factor_required',
+            challenge,
+          );
         }
 
-        res.cookie('auth-token', token, authCookieOptions(cookieOptions));
+        await startSession({
+          models,
+          subdomain,
+          userId: user._id,
+          method,
+          req,
+          res,
+        });
+
+        if (method === 'ldap') {
+          // Re-arms the directory recheck after a restart; never blocks sign-in
+          await armLdapRecheck(models, subdomain).catch((e: Error) =>
+            console.error(`LDAP recheck scheduling failed: ${e.message}`),
+          );
+        }
 
         return 'loggedIn';
       },
@@ -73,14 +119,13 @@ export const authMutations = {
         subdomain,
         source: 'auth',
         action: 'login',
-        userId: (await models.Users.findOne({ email: args.email }).lean())?._id,
+        userId: (await findLoginUser(models, args.email))?._id,
         payload: {
           headers: req.headers,
           email: args?.email,
-          method: 'email/password',
         },
       },
-      null,
+      loginResult,
       null,
       true,
     );
@@ -96,12 +141,15 @@ export const authMutations = {
   ) {
     await logHandler(
       async () => {
-        const logout = await models.Users.logout(
-          user,
-          requestInfo.cookies['auth-token'],
-        );
-        res.clearCookie('auth-token');
-        return logout;
+        await endSession({ subdomain, req, res });
+
+        const legacyToken = requestInfo.cookies['auth-token'];
+
+        if (legacyToken) {
+          res.clearCookie('auth-token');
+        }
+
+        return models.Users.logout(user, legacyToken);
       },
       {
         subdomain,
@@ -229,9 +277,12 @@ export const authMutations = {
       return 'Invalid login';
     }
 
-    const token = await jwt.sign(
+    // Only proves the link was issued; the callback starts the real session
+    const state = await jwt.sign(
       {
-        user: await models.Users.getTokenFields(user),
+        typ: MAGIC_LINK_STATE,
+        jti: randomUUID(),
+        userId: user._id,
         subdomain,
         redirectUri: getCallbackRedirectUrl(subdomain, 'ml-callback'),
       },
@@ -239,19 +290,10 @@ export const authMutations = {
       { expiresIn: '1d' },
     );
 
-    // validated tokens are checked at user middleware
-    await models.Users.updateOne(
-      { _id: user._id },
-      { $push: { validatedTokens: token } },
-    );
-
-    // will use subdomain when workos callback data arrives
-    await redis.set('subdomain', subdomain);
-
     const session = await workosClient.passwordless.createSession({
       email,
       type: 'MagicLink',
-      state: token,
+      state,
       redirectURI: `${CORE_DOMAIN}/saas-ml-callback`,
     });
 

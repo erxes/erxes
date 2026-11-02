@@ -1,4 +1,4 @@
-import { useGetCycle } from '@/cycle/hooks/useGetCycle';
+import { useGetCycleInline } from '@/cycle/hooks/useGetCycleInline';
 import { cn } from 'erxes-ui';
 import { forwardRef } from 'react';
 
@@ -6,7 +6,7 @@ export const CycleInline = forwardRef<
   HTMLDivElement,
   { cycleId: string | null | undefined } & React.HTMLAttributes<HTMLDivElement>
 >(({ cycleId, className, ...props }, ref) => {
-  const { cycleDetail } = useGetCycle(cycleId);
+  const { cycle } = useGetCycleInline(cycleId);
 
   return (
     <div
@@ -14,7 +14,7 @@ export const CycleInline = forwardRef<
       className={cn('inline-flex gap-1 items-center font-medium', className)}
       {...props}
     >
-      {cycleDetail?.name || 'No cycle'}
+      {cycle?.name || 'No cycle'}
     </div>
   );
 });

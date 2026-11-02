@@ -37,10 +37,12 @@ export const SyncDealReturnConfigForm = ({
   form,
   onSubmit,
   loading,
+  onCancel,
 }: {
   form: UseFormReturn<ConfigFormValues>;
   onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
   const { boardId, pipelineId } = usePipelineReset(form);
@@ -57,7 +59,7 @@ export const SyncDealReturnConfigForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col flex-1 min-h-0 bg-background"
       >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
           <SyncSettingSection title={t('general')}>
             <SyncConfigGeneralFields control={form.control} />
             <SyncConfigReturnTypeField control={form.control} />
@@ -77,7 +79,7 @@ export const SyncDealReturnConfigForm = ({
             />
           </SyncSettingSection>
         </div>
-        <SyncConfigFormFooter loading={loading} />
+        <SyncConfigFormFooter loading={loading} onCancel={onCancel} />
       </form>
     </Form>
   );

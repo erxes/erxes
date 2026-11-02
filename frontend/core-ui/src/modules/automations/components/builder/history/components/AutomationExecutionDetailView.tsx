@@ -1,6 +1,7 @@
 import { AutomationHistoryFlow } from '@/automations/components/builder/history/components/flow/AutomationHistoryFlow';
 import { AutomationHistoryByTable } from '@/automations/components/builder/history/components/AutomationHistoryByTable';
 import { AutomationHistoryResultName } from '@/automations/components/builder/history/components/AutomationHistoryResultName';
+import { AutomationHistoryTimeline } from '@/automations/components/builder/history/components/timeline/AutomationHistoryTimeline';
 import { useAutomationExecutionDetail } from '@/automations/components/builder/history/context/AutomationExecutionDetailContext';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 import { AutomationExecutionResultPanel } from '@/automations/components/builder/history/components/result/AutomationExecutionResultPanel';
@@ -12,6 +13,7 @@ import { useAutomationHistoryDetail } from '@/automations/components/builder/his
 import {
   IconArrowLeft,
   IconAutomaticGearbox,
+  IconTimeline,
   IconTournament,
 } from '@tabler/icons-react';
 import { Button, Resizable, Tabs } from 'erxes-ui';
@@ -38,6 +40,10 @@ const AutomationExecutionDetailBody = () => {
 
         <Tabs.Content value="table" className="flex-1 min-h-0">
           <AutomationHistoryByTable />
+        </Tabs.Content>
+
+        <Tabs.Content value="timeline" className="flex-1 min-h-0">
+          <AutomationHistoryTimeline />
         </Tabs.Content>
       </Resizable.Panel>
 
@@ -137,6 +143,13 @@ export const AutomationExecutionDetailTabs = ({
             >
               <IconTournament className="scale-x-[-1]" />
               {t('history-flow')}
+            </Tabs.Trigger>
+            <Tabs.Trigger
+              value="timeline"
+              className="h-7 gap-1.5 px-2.5 text-xs [&>svg]:size-3.5"
+            >
+              <IconTimeline />
+              {t('history-timeline')}
             </Tabs.Trigger>
           </Tabs.List>
           <AutomationExecutionResultName />
