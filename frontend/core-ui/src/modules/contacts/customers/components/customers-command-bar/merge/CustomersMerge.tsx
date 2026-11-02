@@ -22,6 +22,12 @@ interface FieldMapping {
   parentKey?: string;
 }
 
+const getCustomerMergeName = (customer: ICustomer) =>
+  customer.firstName ||
+  customer.primaryEmail ||
+  customer.primaryPhone ||
+  customer._id;
+
 export const CustomersMerge = ({
   disabled = false,
   customers,
@@ -254,6 +260,11 @@ export const CustomersMerge = ({
       className="p-6 flex gap-2 items-start"
       open={sheetOpen}
       onOpenChange={setSheetOpen}
+      notice={t('merge-notice', {
+        first: getCustomerMergeName(customers[0]),
+        second: getCustomerMergeName(customers[1]),
+      })}
+      saveLabel={t('action-merge-customers', { mergeCount: customers.length })}
       onDiscard={() => {
         setSheetOpen(false);
       }}
