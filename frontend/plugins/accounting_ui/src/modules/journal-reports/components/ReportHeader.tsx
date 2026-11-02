@@ -40,7 +40,9 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
       </div>
       <div className="flex justify-between pb-[2em]">
         <div className="flex flex-col gap-1">
-          <p className="font-bold">{currentOrganization?.name ?? 'OrgName'}</p>
+          <p className="font-bold">
+            {currentOrganization?.name || currentOrganization?.orgShortName}
+          </p>
           <Separator className="print:bg-foreground bg-border" />
           <p>{t('organization-name')}</p>
         </div>

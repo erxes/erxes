@@ -43,7 +43,8 @@ export const ReportExcelExportButton = ({
     try {
       await exportJournalReportExcel(reportContainerRef.current, {
         title,
-        organizationName: organization?.name || '',
+        organizationName:
+          organization?.name || organization?.orgShortName || '',
         dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
           .filter(Boolean)
           .join(' - '),
