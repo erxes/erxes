@@ -1,5 +1,9 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { OperationDiscordEnableCommandsMutation } from '~/gql/graphql';
+import {
+  OperationDiscordEnableCommandsMutation,
+  OperationDiscordLinkCustomerChannelsMutation,
+  OperationDiscordSaveCustomerChannelMutation,
+} from '~/gql/graphql';
 import {
   GET_DISCORD_CONNECTIONS,
   GET_DISCORD_CUSTOMER_CHANNELS,
@@ -7,6 +11,7 @@ import {
 import {
   DISABLE_DISCORD_COMMANDS,
   ENABLE_DISCORD_COMMANDS,
+  LINK_DISCORD_CUSTOMER_CHANNELS,
   REMOVE_DISCORD_CUSTOMER_CHANNEL,
   SAVE_DISCORD_CUSTOMER_CHANNEL,
 } from '../graphql/mutations/discordMutations';
@@ -58,7 +63,10 @@ export function useDiscordCustomerChannels() {
 export function useSaveDiscordCustomerChannel({
   onCompleted,
   onError,
-}: TMutationCallbacks) {
+}: {
+  onCompleted: (data: OperationDiscordSaveCustomerChannelMutation) => void;
+  onError: (error: Error) => void;
+}) {
   const [saveCustomerChannel, { loading: saving }] = useMutation(
     SAVE_DISCORD_CUSTOMER_CHANNEL,
     {
@@ -73,6 +81,29 @@ export function useSaveDiscordCustomerChannel({
   );
 
   return { saveCustomerChannel, saving };
+}
+
+export function useLinkDiscordCustomerChannels({
+  onCompleted,
+  onError,
+}: {
+  onCompleted: (data: OperationDiscordLinkCustomerChannelsMutation) => void;
+  onError: (error: Error) => void;
+}) {
+  const [linkCustomerChannels, { loading: linking }] = useMutation(
+    LINK_DISCORD_CUSTOMER_CHANNELS,
+    {
+      onCompleted,
+      onError,
+      refetchQueries: [
+        { query: GET_DISCORD_CUSTOMER_CHANNELS },
+        { query: GET_DISCORD_CONNECTIONS },
+      ],
+      awaitRefetchQueries: true,
+    },
+  );
+
+  return { linkCustomerChannels, linking };
 }
 
 export function useRemoveDiscordCustomerChannel({

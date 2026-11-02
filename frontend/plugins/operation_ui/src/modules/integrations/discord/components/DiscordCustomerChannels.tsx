@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import {
   IconAlertTriangle,
+  IconArrowRight,
   IconBrandDiscord,
   IconDotsVertical,
   IconHash,
@@ -13,6 +14,7 @@ import {
   Badge,
   Button,
   Card,
+  Collapsible,
   DropdownMenu,
   Empty,
   Skeleton,
@@ -32,8 +34,35 @@ import {
 } from '../types';
 import { DiscordCustomerChannelDialog } from './DiscordCustomerChannelDialog';
 
-const GRID_COLUMNS =
-  'grid grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_2rem] items-center gap-3';
+type TCompanyChannelGroup = {
+  companyId: string;
+  channels: IDiscordCustomerChannel[];
+  teamCount: number;
+};
+
+const pluralize = (count: number, noun: string) =>
+  `${count} ${noun}${count === 1 ? '' : 's'}`;
+
+const groupByCompany = (
+  channels: IDiscordCustomerChannel[],
+): TCompanyChannelGroup[] => {
+  const groups = new Map<string, IDiscordCustomerChannel[]>();
+
+  for (const channel of channels) {
+    groups.set(channel.companyId, [
+      ...(groups.get(channel.companyId) ?? []),
+      channel,
+    ]);
+  }
+
+  return [...groups].map(([companyId, items]) => ({
+    companyId,
+    channels: [...items].sort((a, b) =>
+      a.channelName.localeCompare(b.channelName),
+    ),
+    teamCount: new Set(items.map((item) => item.teamId)).size,
+  }));
+};
 
 function CustomerChannelRow({
   channel,
@@ -49,13 +78,13 @@ function CustomerChannelRow({
   removing: boolean;
 }) {
   return (
-    <div className={`${GRID_COLUMNS} px-3 py-2.5`}>
+    <div className="grid grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_2rem] items-center gap-3 px-3 py-2">
       <div className="flex min-w-0 items-center gap-3">
-        <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent text-muted-foreground">
+        <div className="flex size-7 shrink-0 items-center justify-center rounded-md bg-accent text-muted-foreground">
           <IconHash className="size-4" />
         </div>
         <div className="min-w-0">
-          <p className="truncate font-medium">{channel.channelName}</p>
+          <p className="truncate text-sm font-medium">{channel.channelName}</p>
           <div className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
             <span className="truncate">
               {connection?.guildName ?? 'Disconnected server'}
@@ -69,10 +98,13 @@ function CustomerChannelRow({
         </div>
       </div>
       <div className="flex min-w-0 items-center gap-2 text-sm">
-        <CompaniesInline companyIds={[channel.companyId]} />
-      </div>
-      <div className="min-w-0 truncate text-sm">
-        <TeamInline teamId={channel.teamId} />
+        <IconArrowRight
+          className="size-4 shrink-0 text-muted-foreground"
+          aria-label="Sends triages to"
+        />
+        <span className="min-w-0 truncate">
+          <TeamInline teamId={channel.teamId} />
+        </span>
       </div>
       <DropdownMenu>
         <DropdownMenu.Trigger asChild>
@@ -103,6 +135,64 @@ function CustomerChannelRow({
   );
 }
 
+function CompanyChannelGroup({
+  group,
+  connectionsById,
+  onAdd,
+  onEdit,
+  onRemove,
+  removing,
+}: {
+  group: TCompanyChannelGroup;
+  connectionsById: Map<string, IDiscordConnection>;
+  onAdd: () => void;
+  onEdit: (channel: IDiscordCustomerChannel) => void;
+  onRemove: (channel: IDiscordCustomerChannel) => void;
+  removing: boolean;
+}) {
+  const summary = [
+    pluralize(group.channels.length, 'channel'),
+    group.teamCount > 1 ? pluralize(group.teamCount, 'team') : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
+  return (
+    <Collapsible
+      defaultOpen
+      className="overflow-hidden rounded-lg border border-border"
+    >
+      <div className="flex items-center justify-between gap-3 bg-accent/40 px-2 py-1.5">
+        <Collapsible.TriggerButton className="w-auto min-w-0 gap-2 px-1 font-medium">
+          <Collapsible.TriggerIcon className="size-3 shrink-0" />
+          <CompaniesInline companyIds={[group.companyId]} />
+        </Collapsible.TriggerButton>
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="text-xs text-muted-foreground">{summary}</span>
+          <Button size="sm" variant="ghost" onClick={onAdd}>
+            <IconPlus className="size-4" />
+            Add channel
+          </Button>
+        </div>
+      </div>
+      <Collapsible.Content>
+        <div className="divide-y divide-border border-t border-border">
+          {group.channels.map((channel) => (
+            <CustomerChannelRow
+              key={channel._id}
+              channel={channel}
+              connection={connectionsById.get(channel.connectionId)}
+              onEdit={() => onEdit(channel)}
+              onRemove={() => onRemove(channel)}
+              removing={removing}
+            />
+          ))}
+        </div>
+      </Collapsible.Content>
+    </Collapsible>
+  );
+}
+
 export function DiscordCustomerChannels({
   connections,
   configs,
@@ -115,6 +205,7 @@ export function DiscordCustomerChannels({
   const { customerChannels, loading, error } = useDiscordCustomerChannels();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [current, setCurrent] = useState<IDiscordCustomerChannel | null>(null);
+  const [defaultCompanyId, setDefaultCompanyId] = useState('');
 
   const { removeCustomerChannel, removing } = useRemoveDiscordCustomerChannel({
     onCompleted: () => toast({ title: 'Customer channel unlinked' }),
@@ -129,6 +220,7 @@ export function DiscordCustomerChannels({
   const connectionsById = new Map(
     connections.map((connection) => [connection._id, connection]),
   );
+  const groups = groupByCompany(customerChannels);
   const serversWithoutCommands = [
     ...new Set(
       customerChannels
@@ -141,8 +233,9 @@ export function DiscordCustomerChannels({
     ),
   ];
 
-  function openDialog(channel: IDiscordCustomerChannel | null) {
+  function openDialog(channel: IDiscordCustomerChannel | null, companyId = '') {
     setCurrent(channel);
+    setDefaultCompanyId(companyId);
     setDialogOpen(true);
   }
 
@@ -167,8 +260,9 @@ export function DiscordCustomerChannels({
             </div>
             <Card.Description>
               Company Discord channels where people report issues with /triage
-              new and follow their tasks with /tasks. Updates on what they
-              report are posted back to the same channel.
+              new and follow their tasks with /tasks. Each channel sends its
+              reports to its own team, and updates are posted back to the
+              channel they came from.
             </Card.Description>
           </div>
           {customerChannels.length ? (
@@ -176,7 +270,6 @@ export function DiscordCustomerChannels({
               size="sm"
               className="shrink-0"
               onClick={() => openDialog(null)}
-              disabled={!connections.length}
             >
               <IconPlus className="size-4" />
               Link channel
@@ -217,42 +310,30 @@ export function DiscordCustomerChannels({
                 </Empty.Media>
                 <Empty.Title>No customer channels yet</Empty.Title>
                 <Empty.Description>
-                  {connections.length
-                    ? 'Link a company’s channel so its people can report issues and see their tasks without leaving Discord.'
-                    : 'Connect a Discord server above, then link each company’s channel here.'}
+                  Link a company’s channels so its people can report issues and
+                  see their tasks without leaving Discord.
                 </Empty.Description>
               </Empty.Header>
-              {connections.length ? (
-                <Empty.Content>
-                  <Button size="sm" onClick={() => openDialog(null)}>
-                    <IconPlus className="size-4" />
-                    Link a channel
-                  </Button>
-                </Empty.Content>
-              ) : null}
+              <Empty.Content>
+                <Button size="sm" onClick={() => openDialog(null)}>
+                  <IconPlus className="size-4" />
+                  Link channels
+                </Button>
+              </Empty.Content>
             </Empty>
           ) : (
-            <div className="overflow-hidden rounded-lg border border-border">
-              <div
-                className={`${GRID_COLUMNS} border-b border-border bg-accent/40 px-3 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground`}
-              >
-                <span>Channel</span>
-                <span>Company</span>
-                <span>Receives triages</span>
-                <span />
-              </div>
-              <div className="divide-y divide-border">
-                {customerChannels.map((channel) => (
-                  <CustomerChannelRow
-                    key={channel._id}
-                    channel={channel}
-                    connection={connectionsById.get(channel.connectionId)}
-                    onEdit={() => openDialog(channel)}
-                    onRemove={() => handleRemove(channel)}
-                    removing={removing}
-                  />
-                ))}
-              </div>
+            <div className="space-y-2">
+              {groups.map((group) => (
+                <CompanyChannelGroup
+                  key={group.companyId}
+                  group={group}
+                  connectionsById={connectionsById}
+                  onAdd={() => openDialog(null, group.companyId)}
+                  onEdit={(channel) => openDialog(channel)}
+                  onRemove={handleRemove}
+                  removing={removing}
+                />
+              ))}
             </div>
           )}
         </Card.Content>
@@ -265,6 +346,7 @@ export function DiscordCustomerChannels({
         configs={configs}
         customerChannels={customerChannels}
         current={current}
+        defaultCompanyId={defaultCompanyId}
       />
     </>
   );

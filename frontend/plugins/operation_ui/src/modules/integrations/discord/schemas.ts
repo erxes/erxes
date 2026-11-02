@@ -29,7 +29,7 @@ export type TDiscordClientSecretForm = z.infer<
 
 export const DISCORD_CUSTOMER_CHANNEL_SCHEMA = z.object({
   connectionId: z.string().min(1, 'Choose a Discord server'),
-  channelId: z.string().min(1, 'Choose a channel'),
+  channelIds: z.array(z.string()).min(1, 'Choose at least one channel'),
   companyId: z.string().min(1, 'Choose a company'),
   teamId: z.string().min(1, 'Choose a team'),
 });

@@ -100,6 +100,16 @@ export const START_DISCORD_ACCOUNT_LINK = gql(`
   }
 `);
 
+export const CONFIRM_DISCORD_ACCOUNT_LINK = gql(`
+  mutation operationDiscordConfirmAccountLink($token: String!) {
+    operationDiscordConfirmAccountLink(token: $token) {
+      _id
+      username
+      globalName
+    }
+  }
+`);
+
 export const UNLINK_MY_DISCORD_ACCOUNT = gql(`
   mutation operationDiscordUnlinkMyAccount {
     operationDiscordUnlinkMyAccount {
@@ -144,18 +154,42 @@ export const DISABLE_DISCORD_COMMANDS = gql(`
   }
 `);
 
+export const LINK_DISCORD_CUSTOMER_CHANNELS = gql(`
+  mutation operationDiscordLinkCustomerChannels(
+    $connectionId: String!
+    $channelIds: [String!]!
+    $companyId: String!
+    $teamId: String!
+  ) {
+    operationDiscordLinkCustomerChannels(
+      connectionId: $connectionId
+      channelIds: $channelIds
+      companyId: $companyId
+      teamId: $teamId
+    ) {
+      _id
+      connectionId
+      guildId
+      channelId
+      channelName
+      companyId
+      teamId
+    }
+  }
+`);
+
 export const SAVE_DISCORD_CUSTOMER_CHANNEL = gql(`
   mutation operationDiscordSaveCustomerChannel(
-    $_id: String
+    $_id: String!
     $connectionId: String!
-    $channelId: String!
+    $channelIds: [String!]!
     $companyId: String!
     $teamId: String!
   ) {
     operationDiscordSaveCustomerChannel(
       _id: $_id
       connectionId: $connectionId
-      channelId: $channelId
+      channelIds: $channelIds
       companyId: $companyId
       teamId: $teamId
     ) {
