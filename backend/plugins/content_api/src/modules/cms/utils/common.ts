@@ -1,5 +1,9 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
+export const getCmsDefaultLanguage = (
+  cms?: { language?: string; languages?: string[] } | null,
+) => cms?.language || cms?.languages?.[0];
+
 export const getConfig = async (
   subdomain: string,
   code: string,

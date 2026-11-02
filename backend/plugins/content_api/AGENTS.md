@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-10-26`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -64,6 +64,7 @@
 
 ## Local Invariants
 
+- A site's default language comes from `getCmsDefaultLanguage` in `src/modules/cms/utils/common.ts`: the stored `language`, then the first entry of `languages`. Base document fields hold that language and `Translations` hold the others, so mutations, read translation and language permissions must all use it. `content_ui` resolves it the same way.
 - Sharing is only for ordinary published posts. Recheck CMS assignment, publishing/sharing permissions, author scope and language access before enqueue and dispatch.
 - Journalist 2's sharing grant does not grant approval or immediate publication. That role alone still cannot dispatch a share; the existing publish/approve and Postiz membership requirements remain mandatory.
 - Never accept browser workspace IDs or Postiz credentials; agent_api owns workspace routing and Postiz membership.
@@ -85,4 +86,5 @@
 - `node --test backend/plugins/content_api/test/dockerfile.test.cjs`
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`
 - `pnpm exec jest --config backend/plugins/content_api/jest.postiz.cjs --runInBand`
-- No Nx `lint` or `test` target is defined.
+- `pnpm nx lint content_api`
+- No Nx `test` target is defined.

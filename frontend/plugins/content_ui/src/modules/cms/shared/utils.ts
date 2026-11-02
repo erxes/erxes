@@ -12,6 +12,15 @@ export const getTranslation = <T extends { language: string }>(
   return translations.find((t) => t.language === language);
 };
 
+export const getCmsDefaultLanguage = (cms?: {
+  language?: string | null;
+  languages?: string[] | null;
+}) => {
+  if (!cms) return '';
+
+  return cms.language || cms.languages?.[0] || 'en';
+};
+
 interface RecordTableRow<T extends { _id: string }> {
   original: T;
 }

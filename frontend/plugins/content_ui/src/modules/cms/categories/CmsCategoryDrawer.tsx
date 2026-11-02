@@ -29,6 +29,7 @@ import {
   useCmsTranslation,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage } from '../shared/utils';
 
 interface ITreeOption {
   _id: string;
@@ -238,7 +239,7 @@ export function CmsCategoryDrawer({
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,

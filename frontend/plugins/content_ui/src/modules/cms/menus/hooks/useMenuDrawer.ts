@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage } from '../../shared/utils';
 import { useCmsTranslation } from '../../shared/hooks/useCmsTranslation';
 import {
   CMS_MENU_ADD,
@@ -103,7 +104,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,

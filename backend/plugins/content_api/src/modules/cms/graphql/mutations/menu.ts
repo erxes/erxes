@@ -1,12 +1,13 @@
 import { IContext } from '~/connectionResolvers';
 import { Resolver } from 'erxes-api-shared/core-types';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
   clientPortalId: string,
 ): Promise<string | undefined> => {
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
-  return cms?.language;
+  return getCmsDefaultLanguage(cms);
 };
 
 const saveMenuTranslations = async (

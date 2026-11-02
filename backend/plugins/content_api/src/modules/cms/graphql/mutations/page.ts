@@ -6,13 +6,14 @@ import {
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
   clientPortalId: string,
 ): Promise<string> => {
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
-  return cms?.language || 'en';
+  return getCmsDefaultLanguage(cms) || 'en';
 };
 
 const savePageTranslations = async (

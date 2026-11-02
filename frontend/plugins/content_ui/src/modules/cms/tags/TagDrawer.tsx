@@ -12,6 +12,7 @@ import {
   useCmsTranslation,
 } from '@/cms/shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage } from '@/cms/shared/utils';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
@@ -118,7 +119,7 @@ export function TagDrawer({
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,

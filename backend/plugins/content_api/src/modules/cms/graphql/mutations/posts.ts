@@ -17,6 +17,7 @@ import {
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { preparePdfAttachmentPages } from '@/cms/utils/pdfAttachments';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 import { sendPublishedPostNotification } from '@/cms/utils/notifications';
 
 const getDefaultLanguage = async (
@@ -24,7 +25,7 @@ const getDefaultLanguage = async (
   clientPortalId: string,
 ): Promise<string | undefined> => {
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
-  return cms?.language;
+  return getCmsDefaultLanguage(cms);
 };
 
 // Translation entries arrive from PostInput without an objectId; it is

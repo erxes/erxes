@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -83,6 +83,11 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- A site's default language comes from `getCmsDefaultLanguage` in
+  `src/modules/cms/shared/utils.ts`: the stored `language`, then the first entry
+  of `languages`, then `en`. It is empty until the CMS list has loaded, so editors
+  wait for it. `content_api` resolves it the same way; never add a local
+  `|| 'en'` fallback.
 - Post and page edit payloads always send the gallery (`images`/`pageImages`),
   `documents`, and `attachments` lists, even when empty: the backend applies
   edits with `$set`, so an omitted list keeps its removed files.

@@ -221,7 +221,10 @@ export const AddPostForm = ({
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
-      const initialLang = cmsLanguage || defaultLanguage;
+      const initialLang =
+        cmsLanguage && availableLanguages.includes(cmsLanguage)
+          ? cmsLanguage
+          : defaultLanguage;
       // Set form values BEFORE setting selectedLanguage so the Editor
       // (which remounts on key change including selectedLanguage) reads
       // the correct values when it re-initialises.
@@ -234,6 +237,7 @@ export const AddPostForm = ({
     }
   }, [
     applyTranslationToForm,
+    availableLanguages,
     cmsLanguage,
     defaultLanguage,
     finishLanguageSwitch,

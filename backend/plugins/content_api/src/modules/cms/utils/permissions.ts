@@ -2,6 +2,7 @@ import { canGroup, getGroupActionsMap } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { CMS_POST_ACTIONS, permissions } from '~/meta/permissions';
 import type { IContext } from '~/connectionResolvers';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 type CmsContext = Pick<IContext, 'user' | 'models' | 'subdomain'>;
 
@@ -271,10 +272,10 @@ const getDefaultLanguage = async (
   }
 
   const cms = await context.models.CMS.findOne({ clientPortalId })
-    .select({ language: 1 })
+    .select({ language: 1, languages: 1 })
     .lean();
 
-  return cms?.language;
+  return getCmsDefaultLanguage(cms);
 };
 
 export const assertCmsLanguageAccess = async ({

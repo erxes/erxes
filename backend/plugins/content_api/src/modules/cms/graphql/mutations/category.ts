@@ -4,13 +4,14 @@ import {
   assertOwnedDocument,
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
   clientPortalId: string,
 ): Promise<string> => {
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
-  return cms?.language || 'en';
+  return getCmsDefaultLanguage(cms) || 'en';
 };
 
 const saveCategoryTranslations = async (
