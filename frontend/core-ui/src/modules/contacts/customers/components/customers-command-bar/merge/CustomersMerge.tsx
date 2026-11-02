@@ -4,7 +4,7 @@ import { MergeSheet } from './MergeSheet';
 import { ICustomer } from '@/contacts/types/customerType';
 import { MergingFieldContainer } from './MergingFieldContainer';
 import { MergeMap, FieldType } from './MergeMap';
-import { ChoiceboxGroup, useToast } from 'erxes-ui';
+import { ChoiceboxGroup, renderFullName, useToast } from 'erxes-ui';
 import { useMergeCustomers } from '@/contacts/customers/hooks/useMergeCustomers';
 import { ApolloError } from '@apollo/client';
 import { Row } from '@tanstack/table-core';
@@ -21,12 +21,6 @@ interface FieldMapping {
   type: FieldType;
   parentKey?: string;
 }
-
-const getCustomerMergeName = (customer: ICustomer) =>
-  customer.firstName ||
-  customer.primaryEmail ||
-  customer.primaryPhone ||
-  customer._id;
 
 export const CustomersMerge = ({
   disabled = false,
@@ -261,8 +255,8 @@ export const CustomersMerge = ({
       open={sheetOpen}
       onOpenChange={setSheetOpen}
       notice={t('merge-notice', {
-        first: getCustomerMergeName(customers[0]),
-        second: getCustomerMergeName(customers[1]),
+        first: renderFullName(customers[0]),
+        second: renderFullName(customers[1]),
       })}
       saveLabel={t('action-merge-customers', { mergeCount: customers.length })}
       onDiscard={() => {
