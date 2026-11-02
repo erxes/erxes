@@ -31,7 +31,7 @@ import { CORE_FIND_OBJECT_TARGETS_CONST } from './findObjectTargets';
 import {
   validateAiAgentConfig,
   validateMessageProConfig,
-  validateSendEmailReplyTo,
+  validateSendEmailSenders,
 } from './configValidators';
 import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
@@ -249,7 +249,7 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       allowTargetFromActions: true,
       output: SEND_EMAIL_ACTION_OUTPUT,
       configSchema: sendEmailActionConfigSchema,
-      validateConfig: validateSendEmailReplyTo,
+      validateConfig: validateSendEmailSenders,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.OUTGOING_WEBHOOK,

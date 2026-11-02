@@ -42,7 +42,7 @@ export const sendEmailActionConfigSchema = z
     sender: described(z.string(), 'Sender display name.').optional(),
     fromEmailPlaceHolder: described(
       z.string(),
-      'Sender address, or a {{ }} placeholder that resolves to one. Required unless type is default. While emailSenderOptions.alignedFrom is set it holds the verified reply-to sender instead.',
+      "Sender address, or a {{ }} placeholder that resolves to one. Required unless type is default. A typed address must be on a verified domain or a verified sender; a placeholder must resolve to a team member's email or a verified sender. While emailSenderOptions.alignedFrom is set it holds the verified reply-to sender instead.",
     ).optional(),
     toEmailsPlaceHolders: requiredText(
       'Recipients: comma-separated addresses and/or {{ }} placeholders.',
@@ -53,7 +53,7 @@ export const sendEmailActionConfigSchema = z
     ).optional(),
     replyToEmail: described(
       z.string(),
-      'Reply-to address: a verified sender from emailSenderOptions. Required unless emailSenderOptions.alignedFrom is set.',
+      'Reply-to address: a verified sender from emailSenderOptions. Optional: without it replies go to the From. Unused while emailSenderOptions.alignedFrom is set.',
     ).optional(),
     subject: requiredText('Subject; {{ }} placeholders allowed.'),
     html: described(

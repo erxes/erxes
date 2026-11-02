@@ -60,7 +60,7 @@ export const sendEmails = async (
     pluginName: 'core',
     module: 'emailSenders',
     action: 'alignedFrom',
-    input: {},
+    input: { email: requested },
   });
 
   const { from, replyTo } = alignSender(
