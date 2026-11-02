@@ -6,13 +6,7 @@ import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { productRowActionsAtom } from '../../productTableAtom';
-
-export const ProductMoreColumnCell = ({
-  cell,
-}: {
-  cell: Cell<DealProductData, unknown>;
-}) => <ProductMoreMenu productData={cell.row.original} />;
+import { productRowActionsAtom } from '@/deals/cards/components/detail/product/productTableAtom';
 
 export const ProductMoreMenu = ({
   productData,
@@ -72,6 +66,12 @@ export const ProductMoreMenu = ({
     </Popover>
   );
 };
+
+export const ProductMoreColumnCell = ({
+  cell,
+}: {
+  cell: Cell<DealProductData, unknown>;
+}) => <ProductMoreMenu productData={cell.row.original} />;
 
 export const productMoreColumn = (): ColumnDef<DealProductData> => ({
   id: 'more',

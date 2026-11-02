@@ -222,7 +222,7 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
       <RecordTable.InlineHead icon={IconCircleCheck} label={t('tick-used')} />
     ),
     cell: ({ cell }) => {
-      const value = !!cell.getValue() as boolean;
+      const value = Boolean(cell.getValue());
       return (
         <CheckInputField
           value={value}
@@ -240,7 +240,7 @@ export const productColumns = (t: TFunction): ColumnDef<DealProductData>[] => [
       <RecordTable.InlineHead icon={IconFileCheck} label={t('vat-applied')} />
     ),
     cell: ({ cell }) => {
-      const value = !!cell.getValue() as boolean;
+      const value = Boolean(cell.getValue());
       return (
         <CheckInputField
           value={value}

@@ -50,7 +50,7 @@ export const ProductsList = ({
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!compact || !container) return;
+    if (!compact || !container) return undefined;
     const observer = new ResizeObserver(([entry]) =>
       setIsNarrow(entry.contentRect.width < COMPACT_MAX_WIDTH),
     );

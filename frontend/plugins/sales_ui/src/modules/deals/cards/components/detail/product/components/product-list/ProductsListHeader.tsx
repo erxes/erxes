@@ -1,5 +1,8 @@
 import { Button, cn, Filter, Input, Label, Switch } from 'erxes-ui';
-import { FilterButton, ProductFilterBar } from '../FilterButton';
+import {
+  FilterButton,
+  ProductFilterBar,
+} from '@/deals/cards/components/detail/product/components/FilterButton';
 
 import {
   IconArrowsMaximize,
@@ -7,6 +10,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ProductsListHeaderProps {
@@ -26,28 +30,31 @@ interface ProductsListHeaderProps {
   compact?: boolean;
 }
 
-export const ProductsListHeader = ({
-  filters,
-  onFiltersChange,
-  vatPercent,
-  vatPercentDraft,
-  onVatPercentChange,
-  onVatPercentBlur,
-  onApplyVat,
+type TViewTogglesProps = Pick<
+  ProductsListHeaderProps,
+  | 'showAdvancedView'
+  | 'onShowAdvancedViewChange'
+  | 'showTaxView'
+  | 'onShowTaxViewChange'
+  | 'showExpandedView'
+  | 'onShowExpandedViewChange'
+> & { compact: boolean };
+
+const ProductViewToggles = ({
   showAdvancedView,
   onShowAdvancedViewChange,
   showTaxView,
   onShowTaxViewChange,
   showExpandedView,
   onShowExpandedViewChange,
-  compact = false,
-}: ProductsListHeaderProps) => {
+  compact,
+}: TViewTogglesProps) => {
   const { t } = useTranslation('sales');
   const ExpandedViewIcon = showExpandedView
     ? IconArrowsMinimize
     : IconArrowsMaximize;
 
-  const viewToggles = (
+  return (
     <>
       <div className="flex h-9 items-center gap-2">
         <Switch
@@ -99,6 +106,150 @@ export const ProductsListHeader = ({
       </div>
     </>
   );
+};
+
+const ProductSearchInput = ({
+  filters,
+  onFiltersChange,
+}: Pick<ProductsListHeaderProps, 'filters' | 'onFiltersChange'>) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <div className="relative w-full max-w-2xl flex-1">
+      <IconSearch
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        size={16}
+      />
+      <Input
+        placeholder={t('search')}
+        className="w-full pl-9"
+        value={filters.productSearch || ''}
+        onChange={(event) =>
+          onFiltersChange({
+            ...filters,
+            productSearch: event.target.value,
+          })
+        }
+      />
+    </div>
+  );
+};
+
+const ProductVatControls = ({
+  filters,
+  onFiltersChange,
+  vatPercent,
+  vatPercentDraft,
+  onVatPercentChange,
+  onVatPercentBlur,
+  onApplyVat,
+  compact,
+}: Pick<
+  ProductsListHeaderProps,
+  | 'filters'
+  | 'onFiltersChange'
+  | 'vatPercent'
+  | 'vatPercentDraft'
+  | 'onVatPercentChange'
+  | 'onVatPercentBlur'
+  | 'onApplyVat'
+> & { compact: boolean }) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div
+        className={cn(
+          'flex items-center gap-2',
+          compact && 'w-full [&>button]:shrink-0',
+        )}
+      >
+        {compact && (
+          <FilterButton filters={filters} onFilterChange={onFiltersChange} />
+        )}
+        <Label
+          htmlFor="product-vat-percent"
+          className={cn(
+            'whitespace-nowrap text-xs font-medium text-muted-foreground',
+            compact && 'ml-auto',
+          )}
+        >
+          {t('vat-percent')}
+        </Label>
+        <Input
+          id="product-vat-percent"
+          type="number"
+          min={0}
+          max={100}
+          step="any"
+          className={cn(
+            'px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+            compact ? 'h-7 w-16 text-right' : 'h-9 w-20',
+          )}
+          value={vatPercentDraft ?? vatPercent}
+          onChange={(event) => onVatPercentChange(event.target.value)}
+          onBlur={onVatPercentBlur}
+        />
+        <Button
+          type="button"
+          variant={compact ? 'secondary' : 'outline'}
+          size="sm"
+          className={compact ? 'h-7' : 'h-9'}
+          onClick={onApplyVat}
+        >
+          {t('apply')}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const CompactFilterRows = ({
+  filters,
+  onFiltersChange,
+  viewToggles,
+}: Pick<ProductsListHeaderProps, 'filters' | 'onFiltersChange'> & {
+  viewToggles: ReactNode;
+}) => (
+  <>
+    <div className="mt-2 flex flex-wrap gap-2 empty:hidden">
+      <ProductFilterBar filters={filters} onChange={onFiltersChange} />
+    </div>
+    <div className="@container mt-1">
+      <div className="grid grid-cols-1 gap-x-3 @md:grid-cols-3">
+        {viewToggles}
+      </div>
+    </div>
+  </>
+);
+
+export const ProductsListHeader = ({
+  filters,
+  onFiltersChange,
+  vatPercent,
+  vatPercentDraft,
+  onVatPercentChange,
+  onVatPercentBlur,
+  onApplyVat,
+  showAdvancedView,
+  onShowAdvancedViewChange,
+  showTaxView,
+  onShowTaxViewChange,
+  showExpandedView,
+  onShowExpandedViewChange,
+  compact = false,
+}: ProductsListHeaderProps) => {
+  const viewToggles = (
+    <ProductViewToggles
+      showAdvancedView={showAdvancedView}
+      onShowAdvancedViewChange={onShowAdvancedViewChange}
+      showTaxView={showTaxView}
+      onShowTaxViewChange={onShowTaxViewChange}
+      showExpandedView={showExpandedView}
+      onShowExpandedViewChange={onShowExpandedViewChange}
+      compact={compact}
+    />
+  );
 
   return (
     <Filter id="product-filter">
@@ -109,84 +260,28 @@ export const ProductsListHeader = ({
             !compact && 'xl:flex-row xl:items-center',
           )}
         >
-          <div className="relative w-full max-w-2xl flex-1">
-            <IconSearch
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              size={16}
-            />
-            <Input
-              placeholder={t('search')}
-              className="w-full pl-9"
-              value={filters.productSearch || ''}
-              onChange={(event) =>
-                onFiltersChange({
-                  ...filters,
-                  productSearch: event.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div
-              className={cn(
-                'flex items-center gap-2',
-                compact && 'w-full [&>button]:shrink-0',
-              )}
-            >
-              {compact && (
-                <FilterButton
-                  filters={filters}
-                  onFilterChange={onFiltersChange}
-                />
-              )}
-              <Label
-                htmlFor="product-vat-percent"
-                className={cn(
-                  'whitespace-nowrap text-xs font-medium text-muted-foreground',
-                  compact && 'ml-auto',
-                )}
-              >
-                {t('vat-percent')}
-              </Label>
-              <Input
-                id="product-vat-percent"
-                type="number"
-                min={0}
-                max={100}
-                step="any"
-                className={cn(
-                  'px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
-                  compact ? 'h-7 w-16 text-right' : 'h-9 w-20',
-                )}
-                value={vatPercentDraft ?? vatPercent}
-                onChange={(event) => onVatPercentChange(event.target.value)}
-                onBlur={onVatPercentBlur}
-              />
-              <Button
-                type="button"
-                variant={compact ? 'secondary' : 'outline'}
-                size="sm"
-                className={compact ? 'h-7' : 'h-9'}
-                onClick={onApplyVat}
-              >
-                {t('apply')}
-              </Button>
-            </div>
-          </div>
+          <ProductSearchInput
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+          />
+          <ProductVatControls
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            vatPercent={vatPercent}
+            vatPercentDraft={vatPercentDraft}
+            onVatPercentChange={onVatPercentChange}
+            onVatPercentBlur={onVatPercentBlur}
+            onApplyVat={onApplyVat}
+            compact={compact}
+          />
         </div>
 
         {compact ? (
-          <>
-            <div className="mt-2 flex flex-wrap gap-2 empty:hidden">
-              <ProductFilterBar filters={filters} onChange={onFiltersChange} />
-            </div>
-            <div className="@container mt-1">
-              <div className="grid grid-cols-1 gap-x-3 @md:grid-cols-3">
-                {viewToggles}
-              </div>
-            </div>
-          </>
+          <CompactFilterRows
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            viewToggles={viewToggles}
+          />
         ) : (
           <div className="mt-2 flex min-h-9 items-center gap-2 overflow-x-auto">
             <FilterButton filters={filters} onFilterChange={onFiltersChange} />

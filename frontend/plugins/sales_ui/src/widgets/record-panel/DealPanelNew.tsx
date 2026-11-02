@@ -4,7 +4,7 @@ import { salesFormSchema } from '@/deals/constants/formSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconInfoCircle } from '@tabler/icons-react';
 import { Editor, Form, Input, Spinner } from 'erxes-ui';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -111,6 +111,14 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
   const hasStage = !!draft.stageId;
 
   const finish = () => (canGoBack ? back() : close());
+  const mountedRef = useRef(false);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const updateCustomFieldValue = useCallback(
     (fieldId: string, value: unknown) => {
@@ -142,7 +150,9 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
           : undefined,
       },
       update: (cache) => cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' }),
-      onCompleted: finish,
+      onCompleted: () => {
+        if (mountedRef.current) finish();
+      },
     });
   };
 
