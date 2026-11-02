@@ -125,7 +125,6 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
           control={methods.control}
           summary={paymentSummary}
           paidAmounts={order.paidAmounts}
-          posName={order.posName ?? undefined}
           disabled={isLocked}
         />
         <Button type="submit" disabled={saving || isLocked}>

@@ -9,7 +9,6 @@ interface PosOrderFormProps {
   control: Control<TPosOrderFormData>;
   summary?: Record<string, number>;
   paidAmounts?: PosPaidAmount[];
-  posName?: string;
   disabled?: boolean;
 }
 
@@ -23,7 +22,6 @@ export const PosOrderForm = ({
   control,
   summary,
   paidAmounts,
-  posName,
   disabled,
 }: PosOrderFormProps) => {
   const paymentTypes = React.useMemo(() => {

@@ -28,6 +28,53 @@ const PosOrderPanelTitle = ({ orderId }: { orderId: string }) => {
   return posOrder?.number ? `#${posOrder.number}` : t('order-detail');
 };
 
+const renderPosOrderView = (
+  orderId: string,
+  view: IRecordPanelProps['view'],
+  tab?: string,
+) => {
+  if (view === 'title') {
+    return <PosOrderPanelTitle orderId={orderId} />;
+  }
+
+  if (view === 'detail') {
+    return <PosOrderPanelDetail orderId={orderId} />;
+  }
+
+  if (view === 'tab' && tab === 'payments') {
+    return <PosOrderPanelPayments orderId={orderId} />;
+  }
+
+  if (view === 'activity') {
+    return <PosPanelActivity contentId={orderId} />;
+  }
+
+  return null;
+};
+
+const renderPosCoverView = (
+  coverId: string,
+  view: IRecordPanelProps['view'],
+) => {
+  if (view === 'title') {
+    return <PosCoverPanelTitle coverId={coverId} />;
+  }
+
+  if (view === 'actions') {
+    return <PosCoverPanelActions coverId={coverId} />;
+  }
+
+  if (view === 'detail') {
+    return <PosCoverPanelDetail coverId={coverId} />;
+  }
+
+  if (view === 'activity') {
+    return <PosPanelActivity contentId={coverId} />;
+  }
+
+  return null;
+};
+
 export const RecordPanel = ({
   contentType,
   contentId,
@@ -35,38 +82,11 @@ export const RecordPanel = ({
   tab,
 }: IRecordPanelProps) => {
   if (contentType === POS_ORDER_CONTENT_TYPE) {
-    if (view === 'title') {
-      return <PosOrderPanelTitle orderId={contentId} />;
-    }
-
-    if (view === 'detail') {
-      return <PosOrderPanelDetail orderId={contentId} />;
-    }
-
-    if (view === 'tab' && tab === 'payments') {
-      return <PosOrderPanelPayments orderId={contentId} />;
-    }
+    return renderPosOrderView(contentId, view, tab);
   }
 
   if (contentType === POS_COVER_CONTENT_TYPE) {
-    if (view === 'title') {
-      return <PosCoverPanelTitle coverId={contentId} />;
-    }
-
-    if (view === 'actions') {
-      return <PosCoverPanelActions coverId={contentId} />;
-    }
-
-    if (view === 'detail') {
-      return <PosCoverPanelDetail coverId={contentId} />;
-    }
-  }
-
-  if (
-    view === 'activity' &&
-    [POS_ORDER_CONTENT_TYPE, POS_COVER_CONTENT_TYPE].includes(contentType)
-  ) {
-    return <PosPanelActivity contentId={contentId} />;
+    return renderPosCoverView(contentId, view);
   }
 
   return null;
