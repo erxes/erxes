@@ -192,7 +192,9 @@ export const projectsColumns = (
     },
     {
       id: 'leadId',
-      header: () => <RecordTable.InlineHead label={t('lead')} icon={IconUser} />,
+      header: () => (
+        <RecordTable.InlineHead label={t('lead')} icon={IconUser} />
+      ),
       cell: ({ cell }) => {
         return (
           <SelectLead.InlineCell
@@ -277,7 +279,10 @@ export const projectsColumns = (
       id: 'startDate',
       accessorKey: 'startDate',
       header: () => (
-        <RecordTable.InlineHead label={t('start-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('start-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const startDate = cell.getValue() as string;
@@ -297,7 +302,10 @@ export const projectsColumns = (
       id: 'targetDate',
       accessorKey: 'targetDate',
       header: () => (
-        <RecordTable.InlineHead label={t('target-date')} icon={IconCalendarFilled} />
+        <RecordTable.InlineHead
+          label={t('target-date')}
+          icon={IconCalendarFilled}
+        />
       ),
       cell: ({ cell }) => {
         const targetDate = cell.getValue() as string;
