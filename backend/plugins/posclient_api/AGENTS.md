@@ -264,7 +264,7 @@
 - Cashiers may access `dailyReport` only when `permissionConfig.cashiers.seeReport` is true; admins remain allowed by `adminIds`.
 - `poscCustomersAdd` sends Core only fields placed in `customerCreateConfig.layout`, requires e-mail or phone, and always sets `state: 'customer'`, `createdVia: { source: 'pos', sourceId: posId, sourceName: posName, actorId: posUserId }` (the `schemaWrapper` provenance field; no core change); `ownerId` is the POS user only when `assignCashierAsOwner` is on. No offline queue: Core must be reachable.
 - `poscProducts` and `poscProductsTotalCount` must share the same product filter builder so lists and counts stay consistent.
-- `PoscProduct.pdfAttachment` and `cpPoscProduct.pdfAttachment` never return the synced copy. Core tRPC `products.buyerPdfAttachment` decides, for a signed-in portal customer with a paid order holding the product. `similarity` drops `info.pdfAttachment`.
+- `PoscProduct.pdfAttachment` and `cpPoscProduct.pdfAttachment` never read the synced copy, which a POS client that pulls its products does not have. Core tRPC `products.buyerPdfAttachment` decides for every signed-in portal customer, by a paid order holding the product. `similarity` drops `info.pdfAttachment`.
 - Automatic pricing and loyalty/voucher recalculation must preserve existing `hand` discounts and replace only the matching automatic source entry.
 - POS order item `unitPrice` is stored after discounts; discount base
   calculations must reconstruct the pre-discount base as
