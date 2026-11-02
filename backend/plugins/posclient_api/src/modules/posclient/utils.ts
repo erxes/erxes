@@ -57,6 +57,18 @@ export const segmentProductIds = async (
   return ids;
 };
 
+const getSettleBillType = (order: IOrderDocument) => {
+  if (order.userId) {
+    return order.billType;
+  }
+
+  if (order.billType === BILL_TYPES.ENTITY && !order.registerNumber) {
+    return BILL_TYPES.CITIZEN;
+  }
+
+  return order.billType || BILL_TYPES.CITIZEN;
+};
+
 export const updateMobileAmount = async (
   subdomain: string,
   models: IModels,
@@ -64,7 +76,14 @@ export const updateMobileAmount = async (
 ) => {
   const firstData = (paymentParams || [])[0] || {};
   const { contentTypeId } = firstData;
-  const { posToken } = firstData.data;
+
+  let order = await models.Orders.findOne({ _id: contentTypeId }).lean();
+
+  if (!order) {
+    throw new Error(`Order not found`);
+  }
+
+  const posToken = order.posToken;
   const orderSelector = { _id: contentTypeId, posToken };
 
   const conf = await models.Configs.findOne({ token: posToken });
@@ -75,12 +94,8 @@ export const updateMobileAmount = async (
 
   for (const payData of paymentParams) {
     const { contentTypeId, amount, _id } = payData;
-    const { posToken } = payData.data;
 
-    if (
-      orderSelector._id !== contentTypeId ||
-      orderSelector.posToken !== posToken
-    ) {
+    if (orderSelector._id !== contentTypeId) {
       continue;
     }
 
@@ -89,7 +104,7 @@ export const updateMobileAmount = async (
     });
   }
 
-  let order = await models.Orders.findOne(orderSelector).lean();
+  order = await models.Orders.findOne(orderSelector).lean();
 
   if (!order) {
     throw new Error(`Order not found`);
@@ -110,8 +125,12 @@ export const updateMobileAmount = async (
     throw new Error(`Order not found`);
   }
 
+  if (order.paidDate) {
+    return sumMobileAmount;
+  }
+
   const { totalAmount, registerNumber, _id } = order;
-  let billType = order.billType;
+  let billType = getSettleBillType(order);
 
   const ebarimtConfig: any = conf.ebarimtConfig;
   if (
@@ -123,12 +142,7 @@ export const updateMobileAmount = async (
   ) {
     billType = BILL_TYPES.INNER;
   }
-  console.log('[SETTLE CHECK]', {
-    totalAmount,
-    sumMobileAmount,
-    billType,
-    registerNumber,
-  });
+
   if (Math.round(totalAmount) === Math.round(sumMobileAmount)) {
     if (
       (billType === BILL_TYPES.ENTITY && registerNumber) ||
