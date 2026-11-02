@@ -1,4 +1,5 @@
 import {
+  Icon,
   IconBuilding,
   IconBuildingSkyscraper,
   IconGitBranch,
@@ -26,6 +27,7 @@ type DealCardProductsProps = {
   items: DealCardProductItem[];
   label: React.ReactNode;
   totalLabel: string;
+  icon?: Icon;
   muted?: boolean;
   maxVisible?: number;
 };
@@ -81,6 +83,7 @@ export const DealCardProducts = ({
   items,
   label,
   totalLabel,
+  icon: ItemIcon = IconPackage,
   muted,
   maxVisible = MAX_VISIBLE_PRODUCTS,
 }: DealCardProductsProps) => {
@@ -106,7 +109,7 @@ export const DealCardProducts = ({
       >
         <div className="flex items-center justify-between gap-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           <span className="flex min-w-0 items-center gap-1.5">
-            <IconPackage className="size-3.5 shrink-0" />
+            <ItemIcon className="size-3.5 shrink-0" />
             <span className="truncate">{label}</span>
           </span>
           <span className="shrink-0 tabular-nums">{items.length}</span>

@@ -1,4 +1,9 @@
-import { IconBriefcase, IconReceipt, IconSandbox } from '@tabler/icons-react';
+import {
+  IconBriefcase,
+  IconCreditCard,
+  IconReceipt,
+  IconSandbox,
+} from '@tabler/icons-react';
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
@@ -53,7 +58,18 @@ export const CONFIG: IUIConfig = {
       { name: 'posOrders', label: 'POS orders', icon: IconReceipt },
     ],
     recordPanels: [
-      { contentType: POS_ORDER_CONTENT_TYPE, properties: false },
+      {
+        contentType: POS_ORDER_CONTENT_TYPE,
+        properties: false,
+        tabs: [
+          {
+            value: 'payments',
+            label: 'Payments',
+            icon: IconCreditCard,
+            after: 'detail',
+          },
+        ],
+      },
       { contentType: POS_COVER_CONTENT_TYPE, properties: false },
     ],
     relationWidgets: [

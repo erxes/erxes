@@ -11,7 +11,10 @@ import {
   PosCoverPanelDetail,
   PosCoverPanelTitle,
 } from '~/widgets/record-panel/PosCoverPanel';
-import { PosOrderPanelDetail } from '~/widgets/record-panel/PosOrderPanelDetail';
+import {
+  PosOrderPanelDetail,
+  PosOrderPanelPayments,
+} from '~/widgets/record-panel/PosOrderPanelDetail';
 import { PosPanelActivity } from '~/widgets/record-panel/PosPanelShared';
 
 const PosOrderPanelTitle = ({ orderId }: { orderId: string }) => {
@@ -29,6 +32,7 @@ export const RecordPanel = ({
   contentType,
   contentId,
   view,
+  tab,
 }: IRecordPanelProps) => {
   if (contentType === POS_ORDER_CONTENT_TYPE) {
     if (view === 'title') {
@@ -37,6 +41,10 @@ export const RecordPanel = ({
 
     if (view === 'detail') {
       return <PosOrderPanelDetail orderId={contentId} />;
+    }
+
+    if (view === 'tab' && tab === 'payments') {
+      return <PosOrderPanelPayments orderId={contentId} />;
     }
   }
 

@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 
 type TPosOrder = NonNullable<ReturnType<typeof usePosOrderQuery>['posOrder']>;
 
-const LOCKED_STATUSES = new Set(['returned', 'completed']);
+const LOCKED_STATUSES = new Set(['return']);
 
 export const usePosOrderPayments = (posOrder?: TPosOrder) => {
   const { t } = useTranslation('sales');

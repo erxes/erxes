@@ -318,6 +318,7 @@
   "erkhet-info": "Эрхэт мэдээлэл",
   "cover-detail": "Хаалтын дэлгэрэнгүй",
   "cover-description": "Хаалтын тэмдэглэл",
+  "closing-note": "Хаалтын тэмдэглэл",
   "cover-not-found": "Хаалт олдсонгүй",
   "cover-terminal-results": "Терминалын хариунууд",
   "cover-terminal-results-for": "{{paidType}}: Терминалын хариунууд",

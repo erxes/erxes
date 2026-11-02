@@ -11,13 +11,14 @@ import {
   IconCircleDot,
   IconExternalLink,
   IconFileInvoice,
+  IconLock,
   IconReceipt,
   IconRefresh,
   IconSandbox,
   IconUser,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
-import { Badge, Button, CopyText, Form, isEnabled } from 'erxes-ui';
+import { Alert, Badge, Button, CopyText, Form, isEnabled } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PanelField, useSidePanel } from 'ui-modules';
 import {
@@ -111,12 +112,21 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
   return (
     <Form {...methods}>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
-        <span className="text-sm font-medium">{t('payments')}</span>
+        {isLocked && (
+          <Alert variant="warning">
+            <IconLock />
+            <Alert.Title>{t('cannot-modify-payment')}</Alert.Title>
+            <Alert.Description>
+              {t('order-returned-cannot-modify')}
+            </Alert.Description>
+          </Alert>
+        )}
         <PosOrderForm
           control={methods.control}
           summary={paymentSummary}
           paidAmounts={order.paidAmounts}
           posName={order.posName ?? undefined}
+          disabled={isLocked}
         />
         <Button type="submit" disabled={saving || isLocked}>
           {t('save-payments-change')}
@@ -241,10 +251,29 @@ export const PosOrderPanelDetail = ({ orderId }: { orderId: string }) => {
               totalLabel={t('total-amount')}
               maxVisible={items.length}
             />
-            <PosOrderPayments order={order} />
           </PosPanelAside>
         </>
       )}
+    </PosPanelDetailLayout>
+  );
+};
+
+export const PosOrderPanelPayments = ({ orderId }: { orderId: string }) => {
+  const { t } = useTranslation('sales');
+  const {
+    posOrder: order,
+    loading,
+    error,
+  } = usePosOrderQuery(orderId, 'cache-first');
+
+  return (
+    <PosPanelDetailLayout
+      loading={loading}
+      hasRecord={!!order}
+      error={error}
+      emptyMessage={t('order-not-found')}
+    >
+      {order && <PosOrderPayments order={order} />}
     </PosPanelDetailLayout>
   );
 };

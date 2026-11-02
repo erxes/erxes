@@ -1,3 +1,4 @@
+import type { Icon } from '@tabler/icons-react';
 import type {
   ApolloQueryResult,
   OperationVariables,
@@ -183,6 +184,12 @@ export type IUIConfig = {
       // `false` when the type has no custom properties: no Properties tab.
       properties?: boolean;
       draftTitle?: boolean;
+      tabs?: {
+        value: string;
+        label: string;
+        icon?: Icon;
+        after?: 'detail' | 'properties' | 'relations' | 'activity';
+      }[];
     }[];
     // Sections a plugin adds to a customer's or company's overview (its
     // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):

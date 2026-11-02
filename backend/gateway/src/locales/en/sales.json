@@ -318,6 +318,7 @@
   "erkhet-info": "Erkhet Info",
   "cover-detail": "Cover detail",
   "cover-description": "POS closing note",
+  "closing-note": "Closing note",
   "cover-not-found": "Closing not found",
   "cover-terminal-results": "Terminal responses",
   "cover-terminal-results-for": "{{paidType}}: Terminal responses",

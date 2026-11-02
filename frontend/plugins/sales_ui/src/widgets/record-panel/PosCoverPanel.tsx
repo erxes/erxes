@@ -1,5 +1,4 @@
 import { DealCardProducts } from '@/deals/boards/components/DealsBoardCardDetails';
-import { CoverDescription } from '@/pos/pos-covers/components/CoverDescription';
 import { CoverPaidType } from '@/pos/pos-covers/components/CoverPaidType';
 import { POS_COVER_DETAIL_QUERY } from '@/pos/pos-covers/detail/graphql/queries/posCoverDetailQuery';
 import { usePosCoversEdit } from '@/pos/pos-covers/detail/hook/usePosCoversEdit';
@@ -14,6 +13,8 @@ import {
   IconCircleDot,
   IconClock,
   IconClockEdit,
+  IconCreditCard,
+  IconNote,
   IconTrash,
   IconUser,
 } from '@tabler/icons-react';
@@ -23,6 +24,7 @@ import {
   Empty,
   Form,
   isDefined,
+  Label,
   Skeleton,
   Textarea,
   useConfirm,
@@ -211,21 +213,27 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
             >
               <PosPanelText>{formatDate(cover.modifiedAt)}</PosPanelText>
             </PanelField>
+            <PanelField
+              icon={IconNote}
+              label={t('closing-note')}
+              cell={false}
+            >
+              <div className="min-w-0 whitespace-pre-wrap break-words px-2 py-1.5 text-xs">
+                {cover.description || '-'}
+              </div>
+            </PanelField>
           </PosPanelFields>
           <PosPanelAside>
-            <CoverDescription description={cover.description} />
-            <div className="flex items-center justify-between gap-2 px-1 text-sm font-medium">
-              <span>{t('total-amount')}</span>
-              <span className="tabular-nums">{total.toLocaleString()}</span>
-            </div>
+            <Label>{t('payments')}</Label>
             {details.length ? (
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-2">
                 {details.map((detail) => {
                   const isCash = detail.paidType === CASH_PAID_TYPE;
 
                   return (
                     <DealCardProducts
                       key={detail._id}
+                      icon={IconCreditCard}
                       label={<CoverPaidType detail={detail} />}
                       totalLabel={t('total')}
                       items={(detail.paidSummary || [])
@@ -245,6 +253,10 @@ export const PosCoverPanelDetail = ({ coverId }: { coverId: string }) => {
                     />
                   );
                 })}
+                <div className="flex items-center justify-between gap-2 px-2.5 text-sm font-medium">
+                  <span>{t('total-amount')}</span>
+                  <span className="tabular-nums">{total.toLocaleString()}</span>
+                </div>
               </div>
             ) : (
               <Empty className="py-6">

@@ -10,6 +10,7 @@ interface PosOrderFormProps {
   summary?: Record<string, number>;
   paidAmounts?: PosPaidAmount[];
   posName?: string;
+  disabled?: boolean;
 }
 
 const formatNumberWithCommas = (value: string | number | undefined) => {
@@ -23,6 +24,7 @@ export const PosOrderForm = ({
   summary,
   paidAmounts,
   posName,
+  disabled,
 }: PosOrderFormProps) => {
   const paymentTypes = React.useMemo(() => {
     const summaryKeys = Object.keys(summary || {});
@@ -59,6 +61,7 @@ export const PosOrderForm = ({
                     {...field}
                     type="text"
                     placeholder="0"
+                    disabled={disabled}
                     value={formatNumberWithCommas(field.value)}
                     onChange={(e) => {
                       const raw = e.target.value.replace(/,/g, '');
