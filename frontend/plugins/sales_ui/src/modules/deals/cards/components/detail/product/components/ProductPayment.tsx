@@ -88,7 +88,7 @@ export const ProductsPayment = ({
 
   const defaultCurrency = Object.keys(total)[0] || 'MNT';
   const paidMobileAmount = Number(deal.mobileAmount || 0);
-  const hasMobilePayments = !!deal.pipeline?.paymentIds?.length;
+  const hasMobilePayments = Boolean(deal.pipeline?.paymentIds?.length);
 
   const paidAmounts = useMemo(() => {
     const paid: { [currency: string]: number } = {};

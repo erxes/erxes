@@ -8,6 +8,7 @@ import {
   Button,
   CurrencyCode,
   CurrencyField,
+  cn,
   Dialog,
   Input,
   Sheet,
@@ -89,7 +90,7 @@ const formatNumber = (value: number | string) => {
   const num =
     typeof value === 'number' ? value : Number(value.replace(/,/g, ''));
 
-  if (isNaN(num)) return '';
+  if (Number.isNaN(num)) return '';
   return num.toLocaleString();
 };
 
@@ -138,6 +139,8 @@ export const PaymentTotals = ({
   defaultCurrency: string;
 }) => {
   const { t } = useTranslation('sales');
+  const hasPositive = Object.values(changeAmounts).some((amount) => amount > 0);
+  const hasNegative = Object.values(changeAmounts).some((amount) => amount < 0);
 
   return (
     <div className="grid grid-cols-2 border-y bg-muted/15">
@@ -150,15 +153,13 @@ export const PaymentTotals = ({
       <div className="flex flex-col items-center border-l px-4 py-5">
         <span className={PAYMENT_LABEL_CLASS_NAME}>{t('change')}</span>
         <div
-          className={`mt-1 flex text-lg font-semibold tabular-nums ${
-            Object.values(changeAmounts).some((amount) => amount > 0)
-              ? 'text-success'
-              : Object.values(changeAmounts).some((amount) => amount < 0)
-              ? 'text-destructive'
-              : ''
-          }`}
+          className={cn(
+            'mt-1 flex text-lg font-semibold tabular-nums',
+            hasPositive && 'text-success',
+            !hasPositive && hasNegative && 'text-destructive',
+          )}
         >
-          {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
+          {hasPositive && '+'}
           {renderTotals(changeAmounts, defaultCurrency)}
         </div>
       </div>
@@ -433,7 +434,7 @@ export const PaymentTypeRow = ({
   const paymentConfig = parsePaymentConfig(paymentType.config);
   const isQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
   const showQrUnlockInput = isQr && !payInfo.validQr;
-  const paysWithPoints = !!paymentType.scoreCampaignId;
+  const paysWithPoints = Boolean(paymentType.scoreCampaignId);
   // Locked until loyalty says how much the customer may pay.
   const pointsLocked = paysWithPoints && payInfo.unavailable !== false;
 
