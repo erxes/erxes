@@ -25,11 +25,13 @@ import {
 } from '../constants/categoryFormSchema';
 import { LanguageSelector } from '../shared/LanguageSelector';
 import {
+  CMS_TRANSLATION_FIELDS,
   TranslationData,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { getCmsDefaultLanguage } from '../shared/utils';
+import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
 
 interface ITreeOption {
   _id: string;
@@ -266,8 +268,14 @@ export function CmsCategoryDrawer({
     skip: !isOpen || !category?._id,
   });
 
-  const baseCategory: Partial<Category> | undefined =
+  const storedCategory: Partial<Category> | undefined =
     categoryDetailData?.cmsCategory || category;
+  const baseCategory = useRecordInDefaultLanguage(
+    storedCategory,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.category,
+  );
 
   // Fetch custom field groups first to create schema
   const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
@@ -441,25 +449,30 @@ export function CmsCategoryDrawer({
     ],
   );
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
 
-    applyTranslationToForm(cmsLanguage);
-    setSelectedLanguage(cmsLanguage);
+    applyTranslationToForm(initialLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     isOpen,
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
   ]);

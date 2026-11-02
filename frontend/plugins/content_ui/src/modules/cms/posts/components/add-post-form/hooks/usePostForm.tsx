@@ -7,7 +7,12 @@ import {
   CMS_POST,
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
+  CONTENT_CMS_LIST,
 } from '../../../../graphql/queries';
+import {
+  CMS_TRANSLATION_FIELDS,
+  useRecordInDefaultLanguage,
+} from '../../../../shared/hooks/useCmsTranslation';
 import { createSlug } from '../../../../utils/createSlug';
 
 // A single custom-field value as stored on the form and in translation snapshots.
@@ -112,7 +117,10 @@ const buildPostFormValues = (fullPost: TLoadedPost): PostFormData => ({
   ...buildScheduleFormValues(fullPost),
 });
 
-export const usePostForm = (editingPost?: { _id: string }) => {
+export const usePostForm = (
+  websiteId: string,
+  editingPost?: { _id: string },
+) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [translations, setTranslations] = useState<
     Record<
@@ -172,9 +180,25 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost || editingPost) as
+  const loadedPost = (fullPostData?.cmsPost || editingPost) as
     | TLoadedPost
     | undefined;
+
+  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !websiteId,
+  });
+
+  const cmsConfig = cmsData?.contentCMSList?.find(
+    (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
+  );
+
+  const fullPost = useRecordInDefaultLanguage(
+    loadedPost,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.post,
+  );
 
   const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },
@@ -222,8 +246,8 @@ export const usePostForm = (editingPost?: { _id: string }) => {
       // full cmsPost) changes. Refetches triggered by saves return a new object
       // with the same data — resetting on those would clobber in-flight typing.
       const resetKey = `${fullPost._id}:${
-        fullPost === fullPostData?.cmsPost ? 'full' : 'partial'
-      }`;
+        loadedPost === fullPostData?.cmsPost ? 'full' : 'partial'
+      }:${fullPost === loadedPost ? 'stored' : 'translated'}`;
 
       if (lastResetKeyRef.current === resetKey) {
         return;

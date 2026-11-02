@@ -14,11 +14,13 @@ import { useAddPage } from './hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
 import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
+  CMS_TRANSLATION_FIELDS,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
   TranslationData,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { getCmsDefaultLanguage } from '../shared/utils';
+import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
 import {
@@ -228,13 +230,13 @@ interface PageFormProps extends IPageDrawerProps {
 }
 
 export function PageDrawer({
-  page,
+  page: storedPage,
   onClose,
   clientPortalId,
   onFormReady,
 }: PageFormProps) {
   const { t } = useTranslation('content');
-  const isEditing = Boolean(page);
+  const isEditing = Boolean(storedPage);
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
@@ -259,12 +261,19 @@ export function PageDrawer({
     defaultLangData,
     translations,
   } = useCmsTranslation({
-    objectId: page?._id,
+    objectId: storedPage?._id,
     type: 'page',
     availableLanguages,
     defaultLanguage,
     resetKey: clientPortalId,
   });
+
+  const page = useRecordInDefaultLanguage(
+    storedPage,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.page,
+  );
 
   // Mirror the active language into the shared atom (one-way). The header
   // language tabs read this atom for their active state, so this keeps the tab
@@ -451,22 +460,27 @@ export function PageDrawer({
   // overwrites the default-lang data, and it must call form.setValue
   // BEFORE setSelectedLanguage so the Editor (which remounts on key
   // change) reads the correct initialContent.
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
-    applyTranslationToForm(cmsLanguage);
-    setSelectedLanguage(cmsLanguage);
+    applyTranslationToForm(initialLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
   ]);

@@ -88,6 +88,10 @@
   of `languages`, then `en`. It is empty until the CMS list has loaded, so editors
   wait for it. `content_api` resolves it the same way; never add a local
   `|| 'en'` fallback.
+- Every CMS editor opens in `getInitialCmsLanguage`, so a language left over from
+  another site is ignored. Records go through `useRecordInDefaultLanguage`: when
+  the site has no stored `language`, a saved row in the implied default fills the
+  form, matching what `content_api` reads and writes.
 - Post and page edit payloads always send the gallery (`images`/`pageImages`),
   `documents`, and `attachments` lists, even when empty: the backend applies
   edits with `$set`, so an omitted list keeps its removed files.

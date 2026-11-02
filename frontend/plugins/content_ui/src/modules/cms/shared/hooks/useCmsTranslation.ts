@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { useQuery } from '@apollo/client';
 import { CMS_TRANSLATIONS } from '../../graphql/queries';
+import { getCmsDefaultLanguage } from '../utils';
 
 interface CmsTranslationRecord {
   language: string;
@@ -16,6 +17,49 @@ export interface TranslationData {
   excerpt?: string;
   customFieldsData?: unknown[];
 }
+
+export const CMS_TRANSLATION_FIELDS = {
+  post: {
+    title: 'title',
+    content: 'content',
+    excerpt: 'excerpt',
+    customFieldsData: 'customFieldsData',
+  },
+  category: {
+    name: 'title',
+    description: 'content',
+    customFieldsData: 'customFieldsData',
+  },
+  tag: { name: 'title' },
+  page: {
+    name: 'title',
+    description: 'content',
+    customFieldsData: 'customFieldsData',
+  },
+  menu: { label: 'title' },
+} as const;
+
+export const useRecordInDefaultLanguage = <T extends object | null | undefined>(
+  record: T,
+  cmsConfig: { language?: string | null } | undefined,
+  translations: Record<string, TranslationData>,
+  fields: Record<string, keyof TranslationData>,
+): T => {
+  const translation =
+    cmsConfig && !cmsConfig.language
+      ? translations[getCmsDefaultLanguage(cmsConfig)]
+      : undefined;
+
+  return useMemo(() => {
+    if (!record || !translation) return record;
+
+    const savedFields = Object.entries(fields)
+      .filter(([, field]) => translation[field]?.length)
+      .map(([recordField, field]) => [recordField, translation[field]]);
+
+    return { ...record, ...Object.fromEntries(savedFields) };
+  }, [record, translation, fields]);
+};
 
 const hasNonEmptyValue = (data: TranslationData | undefined): boolean => {
   if (!data) return false;

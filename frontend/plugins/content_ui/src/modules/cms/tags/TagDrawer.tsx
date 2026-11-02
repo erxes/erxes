@@ -8,11 +8,16 @@ import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
+  CMS_TRANSLATION_FIELDS,
   TranslationData,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
 } from '@/cms/shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
-import { getCmsDefaultLanguage } from '@/cms/shared/utils';
+import {
+  getCmsDefaultLanguage,
+  getInitialCmsLanguage,
+} from '@/cms/shared/utils';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
@@ -146,7 +151,13 @@ export function TagDrawer({
     skip: !isOpen || !tag?._id,
   });
 
-  const baseTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
+  const storedTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
+  const baseTag = useRecordInDefaultLanguage(
+    storedTag,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.tag,
+  );
 
   const form = useForm<TagFormData>({
     defaultValues: getEmptyTagFormValues(clientPortalId),
@@ -198,27 +209,32 @@ export function TagDrawer({
     ],
   );
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
 
     if (!form.getValues('name')) {
-      applyTranslationToForm(cmsLanguage);
+      applyTranslationToForm(initialLanguage);
     }
-    setSelectedLanguage(cmsLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     isOpen,
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
     form,

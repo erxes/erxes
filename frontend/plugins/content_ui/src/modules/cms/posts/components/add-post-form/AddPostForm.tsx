@@ -14,6 +14,7 @@ import { usePostAutosave } from './hooks/usePostAutosave';
 import { PostEditorColumn } from './PostEditorColumn';
 import { PostSidebarPanel } from './PostSidebarPanel';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { getInitialCmsLanguage } from '~/modules/cms/shared/utils';
 import { CmsUnsavedChangesAlert } from '~/modules/cms/shared/components/CmsUnsavedChangesAlert';
 
 // A post being edited: only _id matters here, everything else is read via
@@ -69,7 +70,7 @@ export const AddPostForm = ({
     fullPost,
     updateCustomFieldValue,
     getCustomFieldValue,
-  } = usePostForm(currentEditingPost);
+  } = usePostForm(websiteId, currentEditingPost);
 
   const selectedType = form.watch('type');
 
@@ -221,10 +222,11 @@ export const AddPostForm = ({
 
   useEffect(() => {
     if (!selectedLanguage && defaultLanguage) {
-      const initialLang =
-        cmsLanguage && availableLanguages.includes(cmsLanguage)
-          ? cmsLanguage
-          : defaultLanguage;
+      const initialLang = getInitialCmsLanguage(
+        cmsLanguage,
+        availableLanguages,
+        defaultLanguage,
+      );
       // Set form values BEFORE setting selectedLanguage so the Editor
       // (which remounts on key change including selectedLanguage) reads
       // the correct values when it re-initialises.
