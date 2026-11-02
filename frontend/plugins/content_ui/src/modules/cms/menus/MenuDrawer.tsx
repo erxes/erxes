@@ -15,6 +15,7 @@ export function MenuDrawer(props: MenuDrawerProps) {
     isEditing,
     hasPermissionError,
     saving,
+    isLoadingSavedRow,
     selectedLanguage,
     isTranslationMode,
     languageOptions,
@@ -179,7 +180,10 @@ export function MenuDrawer(props: MenuDrawerProps) {
               <Button onClick={onClose} variant="outline">
                 {t('cancel')}
               </Button>
-              <Button type="submit" disabled={saving || hasPermissionError}>
+              <Button
+                type="submit"
+                disabled={saving || hasPermissionError || isLoadingSavedRow}
+              >
                 {saving ? t('saving') : isEditing ? t('save-changes') : t('create-menu')}
               </Button>
             </div>

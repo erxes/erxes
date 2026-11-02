@@ -91,7 +91,9 @@
 - Every CMS editor opens in `getInitialCmsLanguage`, so a language left over from
   another site is ignored. Records go through `useRecordInDefaultLanguage`: when
   the site has no stored `language`, a saved row in the implied default fills the
-  form, matching what `content_api` reads and writes.
+  form, matching what `content_api` reads and writes. A row that arrives late
+  keeps dirty fields, and saving waits on `isLoadingSavedRow`, so stored text
+  never overwrites a row that has not loaded yet.
 - Post and page edit payloads always send the gallery (`images`/`pageImages`),
   `documents`, and `attachments` lists, even when empty: the backend applies
   edits with `$set`, so an omitted list keeps its removed files.

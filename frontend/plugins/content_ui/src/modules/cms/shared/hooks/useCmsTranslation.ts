@@ -113,11 +113,14 @@ export const useCmsTranslation = ({
   }, [objectId, resetKey]);
 
   // Fetch existing translations
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { objectId, type },
-    skip: !objectId,
-    fetchPolicy: 'network-only',
-  });
+  const { data: translationsData, loading: isLoadingTranslations } = useQuery(
+    CMS_TRANSLATIONS,
+    {
+      variables: { objectId, type },
+      skip: !objectId,
+      fetchPolicy: 'network-only',
+    },
+  );
 
   // Load fetched translations into state, and push to form if the user
   // already switched to a non-default language before the query returned.
@@ -219,6 +222,7 @@ export const useCmsTranslation = ({
     setDefaultLangData,
     isTranslationMode,
     isHydrated,
+    isLoadingTranslations,
     languageOptions,
     handleLanguageChange,
   };

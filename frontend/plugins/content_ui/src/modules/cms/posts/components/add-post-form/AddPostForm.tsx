@@ -68,6 +68,7 @@ export const AddPostForm = ({
     previousTypeRef,
     handleEditorChange,
     fullPost,
+    isLoadingSavedRow,
     updateCustomFieldValue,
     getCustomFieldValue,
   } = usePostForm(websiteId, currentEditingPost);
@@ -123,6 +124,7 @@ export const AddPostForm = ({
     defaultLanguage,
     defaultLangData,
     translations,
+    isLoadingSavedRow,
     onClose,
     onSaved: handleSaved,
   });

@@ -232,7 +232,7 @@ export function CmsCategoryDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
@@ -248,6 +248,7 @@ export function CmsCategoryDrawer({
     setSelectedLanguage,
     translations,
     defaultLangData,
+    isLoadingTranslations,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -258,6 +259,9 @@ export function CmsCategoryDrawer({
     defaultLanguage,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
+
+  const isLoadingSavedRow =
+    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const { data: categoryDetailData } = useQuery(CMS_CATEGORY_DETAIL, {
     variables: {
@@ -315,9 +319,11 @@ export function CmsCategoryDrawer({
 
   useEffect(() => {
     if (!isOpen) return;
-    form.reset(categoryToFormValues(baseCategory));
+    form.reset(categoryToFormValues(baseCategory), {
+      keepDirtyValues: baseCategory !== storedCategory,
+    });
     setIsSlugManuallyEdited(false);
-  }, [baseCategory, isOpen, form]);
+  }, [baseCategory, storedCategory, isOpen, form]);
 
   // Watch for name changes and update slug accordingly
   const nameValue = form.watch('name');
@@ -564,6 +570,8 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
+    if (isLoadingSavedRow) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -813,7 +821,10 @@ export function CmsCategoryDrawer({
                 <Button onClick={() => onClose()} variant="outline">
                   {t('cancel')}
                 </Button>
-                <Button type="submit" disabled={adding || editing}>
+                <Button
+                  type="submit"
+                  disabled={adding || editing || isLoadingSavedRow}
+                >
                   {adding || editing
                     ? isEditing
                       ? t('saving')

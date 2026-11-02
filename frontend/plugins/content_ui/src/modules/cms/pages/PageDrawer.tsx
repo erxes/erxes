@@ -241,7 +241,7 @@ export function PageDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
@@ -260,6 +260,7 @@ export function PageDrawer({
     handleLanguageChange,
     defaultLangData,
     translations,
+    isLoadingTranslations,
   } = useCmsTranslation({
     objectId: storedPage?._id,
     type: 'page',
@@ -267,6 +268,9 @@ export function PageDrawer({
     defaultLanguage,
     resetKey: clientPortalId,
   });
+
+  const isLoadingSavedRow =
+    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const page = useRecordInDefaultLanguage(
     storedPage,
@@ -404,7 +408,7 @@ export function PageDrawer({
 
   const { editPage, loading: savingEdit } = useEditPage();
   const { addPage, loading: savingAdd } = useAddPage();
-  const saving = savingEdit || savingAdd;
+  const saving = savingEdit || savingAdd || isLoadingSavedRow;
 
   const savingRef = useRef(saving);
   useEffect(() => {
@@ -413,20 +417,25 @@ export function PageDrawer({
 
   useEffect(() => {
     if (isEditing && page) {
-      form.reset({
-        name: page.name || '',
-        path: page.slug || '',
-        description: page.description || '',
-        parentId: page.parentId || '',
-        status: toFormStatus(page.status),
-        clientPortalId,
-        thumbnail: toFormThumbnail(page.thumbnail),
-        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
-        videoUrl: page.videoUrl || '',
-        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
-        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
-        customFieldsData: page.customFieldsData || [],
-      });
+      form.reset(
+        {
+          name: page.name || '',
+          path: page.slug || '',
+          description: page.description || '',
+          parentId: page.parentId || '',
+          status: toFormStatus(page.status),
+          clientPortalId,
+          thumbnail: toFormThumbnail(page.thumbnail),
+          gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+          videoUrl: page.videoUrl || '',
+          documents: (page.documents || []).map((d) => d.url).filter(Boolean),
+          attachments: (page.attachments || [])
+            .map((a) => a.url)
+            .filter(Boolean),
+          customFieldsData: page.customFieldsData || [],
+        },
+        { keepDirtyValues: page !== storedPage },
+      );
     } else {
       form.reset({
         name: '',
@@ -443,7 +452,7 @@ export function PageDrawer({
         customFieldsData: [],
       });
     }
-  }, [page, isEditing, clientPortalId, form]);
+  }, [page, storedPage, isEditing, clientPortalId, form]);
 
   // Helper: apply translation (or clear) translatable fields
   const applyTranslationToForm = useCallback(
@@ -604,6 +613,8 @@ export function PageDrawer({
   const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
   onSubmitRef.current = (data: IPageFormData) => {
+    if (isLoadingSavedRow) return;
+
     const curSelectedLanguage = selectedLanguageRef.current;
     const curDefaultLanguage = defaultLanguageRef.current;
     const curDefaultLangData = defaultLangDataRef.current;
@@ -749,7 +760,7 @@ export function PageDrawer({
   const handleEditorChange = useCallback(
     (content: string) => {
       if (isSwitchingLanguageRef.current) return;
-      form.setValue('description', content);
+      form.setValue('description', content, { shouldDirty: true });
     },
     [form],
   );

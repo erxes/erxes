@@ -115,7 +115,7 @@ export function TagDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
@@ -131,6 +131,7 @@ export function TagDrawer({
     setSelectedLanguage,
     translations,
     defaultLangData,
+    isLoadingTranslations,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -141,6 +142,9 @@ export function TagDrawer({
     defaultLanguage,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
+
+  const isLoadingSavedRow =
+    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const { data: tagDetailData } = useQuery(CMS_TAG_DETAIL, {
     variables: {
@@ -166,9 +170,11 @@ export function TagDrawer({
   useEffect(() => {
     if (!isOpen) return;
 
-    form.reset(tagToFormValues(baseTag, clientPortalId));
+    form.reset(tagToFormValues(baseTag, clientPortalId), {
+      keepDirtyValues: baseTag !== storedTag,
+    });
     setHasPermissionError(false);
-  }, [baseTag, form, isOpen, clientPortalId]);
+  }, [baseTag, storedTag, form, isOpen, clientPortalId]);
 
   const getCurrentTranslationData = useCallback(
     (): TranslationData => ({
@@ -364,6 +370,8 @@ export function TagDrawer({
   });
 
   const onSubmit = (data: TagFormData) => {
+    if (isLoadingSavedRow) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -532,7 +540,9 @@ export function TagDrawer({
               </Button>
               <Button
                 type="submit"
-                disabled={saving || editing || hasPermissionError}
+                disabled={
+                  saving || editing || hasPermissionError || isLoadingSavedRow
+                }
               >
                 {saving || editing
                   ? isEditing

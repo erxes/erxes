@@ -102,7 +102,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
@@ -120,6 +120,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange,
     defaultLangData,
     translations,
+    isLoadingTranslations,
   } = useCmsTranslation({
     objectId: storedMenu?._id,
     type: 'menu',
@@ -127,6 +128,9 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     defaultLanguage,
     resetKey: isOpen,
   });
+
+  const isLoadingSavedRow =
+    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const menu = useRecordInDefaultLanguage(
     storedMenu,
@@ -149,18 +153,21 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
   useEffect(() => {
     if (isOpen) {
-      form.reset({
-        label: menu?.label || '',
-        url: menu?.url || '',
-        kind: menu?.kind || '',
-        clientPortalId,
-        parentId: menu?.parentId || '',
-        linkType: detectLinkType(menu?.url || ''),
-        target: menu?.target === '_blank',
-      });
+      form.reset(
+        {
+          label: menu?.label || '',
+          url: menu?.url || '',
+          kind: menu?.kind || '',
+          clientPortalId,
+          parentId: menu?.parentId || '',
+          linkType: detectLinkType(menu?.url || ''),
+          target: menu?.target === '_blank',
+        },
+        { keepDirtyValues: menu !== storedMenu },
+      );
       setHasPermissionError(false);
     }
-  }, [isOpen, clientPortalId, menu]);
+  }, [isOpen, clientPortalId, menu, storedMenu]);
 
   const { data: menusData } = useQuery(CMS_MENU_LIST, {
     variables: { clientPortalId, limit: 100 },
@@ -296,6 +303,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const saving = adding || editing;
 
   const onSubmit = (data: MenuFormData) => {
+    if (isLoadingSavedRow) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -371,6 +380,7 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     isEditing,
     hasPermissionError,
     saving,
+    isLoadingSavedRow,
     selectedLanguage,
     isTranslationMode,
     languageOptions,

@@ -184,7 +184,7 @@ export const usePostForm = (
     | TLoadedPost
     | undefined;
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const { data: cmsData, loading: isLoadingCms } = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !websiteId,
   });
@@ -200,12 +200,18 @@ export const usePostForm = (
     CMS_TRANSLATION_FIELDS.post,
   );
 
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
-    variables: { objectId: editingPost?._id, type: 'post' },
-    skip: !editingPost?._id,
-    fetchPolicy: 'network-only',
-    notifyOnNetworkStatusChange: false,
-  });
+  const { data: translationsData, loading: isLoadingTranslations } = useQuery(
+    CMS_TRANSLATIONS,
+    {
+      variables: { objectId: editingPost?._id, type: 'post' },
+      skip: !editingPost?._id,
+      fetchPolicy: 'network-only',
+      notifyOnNetworkStatusChange: false,
+    },
+  );
+
+  const isLoadingSavedRow =
+    isLoadingCms || (!cmsConfig?.language && isLoadingTranslations);
 
   const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);
 
@@ -254,7 +260,9 @@ export const usePostForm = (
       }
       lastResetKeyRef.current = resetKey;
 
-      form.reset(buildPostFormValues(fullPost));
+      form.reset(buildPostFormValues(fullPost), {
+        keepDirtyValues: fullPost !== loadedPost,
+      });
     } else {
       const title = form.getValues('title');
       if (title && !form.getValues('slug')) {
@@ -302,6 +310,7 @@ export const usePostForm = (
     previousTypeRef,
     handleEditorChange,
     fullPost,
+    isLoadingSavedRow,
     saveTranslation,
     updateCustomFieldValue,
     getCustomFieldValue,
