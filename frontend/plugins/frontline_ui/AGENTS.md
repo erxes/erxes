@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -103,6 +103,10 @@
   changes that rule. Reset clears the layout back to
   `DEFAULT_TICKET_CREATE_LAYOUT`. It is the only card on the page; there is no
   detail selection.
+- The tickets Sort control names the active order on its trigger ("Sort:
+  Created"), marks the selected field and direction, and offers newest or oldest
+  first. Field and direction live in `localStorage` (`ticketSort`,
+  `ticketSortDirection`), not in the URL.
 - Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
   settings (channel detail / pipeline General tab), and the new-ticket footer
   shows "Edit form" to the selected pipeline's Properties tab. Both appear

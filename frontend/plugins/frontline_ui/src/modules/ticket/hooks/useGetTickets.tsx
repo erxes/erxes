@@ -1,6 +1,9 @@
 import { GET_TICKETS } from '@/ticket/graphql/queries/getTickets';
 import { TICKET_LIST_CHANGED } from '@/ticket/graphql/subscriptions/ticketListChanged';
-import { ticketSortAtom } from '@/ticket/states/ticketSortState';
+import {
+  ticketSortAtom,
+  ticketSortDirectionAtom,
+} from '@/ticket/states/ticketSortState';
 import {
   compactList,
   mergeCursorList,
@@ -31,7 +34,14 @@ export const TICKET_SORT_FIELDS = [
   { labelKey: 'sort-created', value: 'createdAt' },
 ] as const;
 
+export const TICKET_SORT_DIRECTIONS = [
+  { labelKey: 'sort-newest-first', label: 'Newest first', value: -1 },
+  { labelKey: 'sort-oldest-first', label: 'Oldest first', value: 1 },
+] as const;
+
 export type TicketSortField = (typeof TICKET_SORT_FIELDS)[number]['value'];
+export type TicketSortDirection =
+  (typeof TICKET_SORT_DIRECTIONS)[number]['value'];
 
 export const useTicketsVariables = (
   variables?: ITicketFilter,
@@ -87,12 +97,13 @@ export const useTicketsVariables = (
   ]);
 
   const sortField = useAtomValue(ticketSortAtom);
+  const sortDirection = useAtomValue(ticketSortDirectionAtom);
 
   return {
     cursor: '',
     limit: TICKETS_PER_PAGE,
     orderBy: {
-      [sortField]: -1,
+      [sortField]: sortDirection,
     },
     direction: 'forward',
 
