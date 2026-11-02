@@ -33,11 +33,6 @@ export const CONFIG: IUIConfig = {
       path: 'accounting/records',
     },
     {
-      name: 'odd-transactions',
-      icon: IconCashBanknote,
-      path: 'accounting/odd-transactions',
-    },
-    {
       name: 'journal-reports',
       icon: IconCashBanknote,
       path: 'accounting/journal-reports',
