@@ -14,12 +14,12 @@ export const useOpenPosPanelFromQuery = (
 
   useEffect(() => {
     if (!value) {
-      return;
+      return undefined;
     }
 
     let cancelled = false;
 
-    Promise.resolve(toContentId(value)).then((contentId) => {
+    void Promise.resolve(toContentId(value)).then((contentId) => {
       if (cancelled) {
         return;
       }
