@@ -6,7 +6,6 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-29`
 - **Last synchronized:** `2026-10-30`
 
 ## Scope

@@ -34,8 +34,6 @@ export const POS_ORDER_EXPORT_HEADERS = parseExportHeaders(`
 `);
 
 /** Fixed column list for POS order exports. */
-export async function getPosOrdersExportHeaders(): Promise<
-  ImportHeaderDefinition[]
-> {
-  return POS_ORDER_EXPORT_HEADERS;
+export function getPosOrdersExportHeaders(): Promise<ImportHeaderDefinition[]> {
+  return Promise.resolve(POS_ORDER_EXPORT_HEADERS);
 }
