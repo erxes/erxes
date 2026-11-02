@@ -17,12 +17,12 @@ const CALL_REPORT_QUERIES = new Set([
 const isReportQuery = (queryName?: string): boolean =>
   Boolean(
     queryName &&
-      !queryName.endsWith('Export') &&
-      (queryName === 'ReportCharts' ||
-        queryName.startsWith('ReportConversation') ||
-        queryName.startsWith('ReportTicket') ||
-        queryName.startsWith('ReportFacebook') ||
-        CALL_REPORT_QUERIES.has(queryName)),
+    !queryName.endsWith('Export') &&
+    (queryName === 'ReportCharts' ||
+      queryName.startsWith('ReportConversation') ||
+      queryName.startsWith('ReportTicket') ||
+      queryName.startsWith('ReportFacebook') ||
+      CALL_REPORT_QUERIES.has(queryName)),
   );
 
 export const refetchReportQueries = async (

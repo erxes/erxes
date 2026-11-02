@@ -72,8 +72,7 @@ const FRONTLINE_INBOX_BRAND_FILTER_DETAIL = gql(`
 
 type ConversationFilterQueryValues = {
   [Key in keyof ConversationFilterQueries]:
-    | ConversationFilterQueries[Key]
-    | null;
+    ConversationFilterQueries[Key] | null;
 };
 
 type ConversationFilterCounts = {

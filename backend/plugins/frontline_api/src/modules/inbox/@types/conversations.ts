@@ -6,15 +6,10 @@ import {
 } from 'erxes-api-shared/core-types';
 
 export type TAutomatedReplyControlStatus =
-  | 'active'
-  | 'handoff_requested'
-  | 'human_active';
+  'active' | 'handoff_requested' | 'human_active';
 
 export type TAutomatedReplyControlReason =
-  | 'customer_requested'
-  | 'operator_reply'
-  | 'manual'
-  | 'timeout_expired';
+  'customer_requested' | 'operator_reply' | 'manual' | 'timeout_expired';
 
 export type TAutomatedReplyControl = {
   status: TAutomatedReplyControlStatus;
@@ -74,9 +69,7 @@ export interface IConversationDocument extends IConversation, Document {
 }
 
 export interface IConversationListParams
-  extends IListParams,
-    ICursorPaginateParams,
-    IConversation {
+  extends IListParams, ICursorPaginateParams, IConversation {
   limit?: number;
   channelId?: string;
   status?: string;

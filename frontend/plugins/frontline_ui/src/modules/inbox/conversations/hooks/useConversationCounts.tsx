@@ -47,7 +47,7 @@ export const useConversationFilterCounts = (
           unresolved:
             variables.closedAtFrom || variables.closedAtTo
               ? 0
-              : data.unresolved ?? undefined,
+              : (data.unresolved ?? undefined),
         }
       : undefined,
     loading,
