@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useApolloClient, useMutation, useQuery } from '@apollo/client';
-import { REACT_APP_API_URL } from 'erxes-ui';
+import { useSearchParams } from 'react-router-dom';
 import {
   GET_DISCORD_CONNECTIONS,
   GET_DISCORD_MY_ACCOUNT,
@@ -9,6 +9,7 @@ import {
 } from '../graphql/queries/discordQueries';
 import {
   CLEAR_DISCORD_CLIENT_SECRET,
+  CONFIRM_DISCORD_ACCOUNT_LINK,
   REMIND_DISCORD_MEMBER,
   SET_DISCORD_CLIENT_SECRET,
   START_DISCORD_ACCOUNT_LINK,
@@ -16,8 +17,11 @@ import {
   UNLINK_MY_DISCORD_ACCOUNT,
 } from '../graphql/mutations/discordMutations';
 import {
+  DISCORD_LINK_ERROR_MESSAGES,
+  DISCORD_LINK_ERROR_PARAM,
   DISCORD_LINK_MESSAGE_TYPE,
   DISCORD_LINK_POPUP_FEATURES,
+  DISCORD_LINK_RESULT_PARAM,
 } from '../constants';
 import { TDiscordLinkMessage } from '../types';
 
@@ -30,16 +34,22 @@ const ACCOUNT_QUERIES = [GET_DISCORD_MY_ACCOUNT, GET_DISCORD_TEAM_MEMBERS];
 
 const LINK_PENDING_MS = 10 * 60 * 1000;
 
-const getOrigin = (url: string) => {
+const isWindow = (value: unknown): value is Window =>
+  typeof value === 'object' && value !== null && 'postMessage' in value;
+
+const getLinkOpener = () => {
+  const opener: unknown = window.opener;
+
   try {
-    return new URL(url).origin;
+    return isWindow(opener) &&
+      !opener.closed &&
+      opener.location.origin === window.location.origin
+      ? opener
+      : null;
   } catch {
-    return '';
+    return null;
   }
 };
-
-const isTrustedOrigin = (origin: string) =>
-  origin === window.location.origin || origin === getOrigin(REACT_APP_API_URL);
 
 const isDiscordLinkMessage = (data: unknown): data is TDiscordLinkMessage =>
   typeof data === 'object' &&
@@ -188,20 +198,89 @@ export function useDiscordAccountLinkPopup({
   const apolloClient = useApolloClient();
   const callbacks = useRef({ onLinked, onError });
   const pendingUntil = useRef(0);
+  const handledReturn = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const linkToken = searchParams.get(DISCORD_LINK_RESULT_PARAM);
+  const linkError = searchParams.get(DISCORD_LINK_ERROR_PARAM);
   const [startAccountLink, { loading: starting }] = useMutation(
     START_DISCORD_ACCOUNT_LINK,
   );
+  const [confirmAccountLink] = useMutation(CONFIRM_DISCORD_ACCOUNT_LINK, {
+    refetchQueries: ACCOUNT_QUERIES,
+    awaitRefetchQueries: true,
+  });
 
   useEffect(() => {
     callbacks.current = { onLinked, onError };
   }, [onLinked, onError]);
 
   useEffect(() => {
+    if (handledReturn.current || (!linkToken && !linkError)) {
+      return;
+    }
+
+    handledReturn.current = true;
+
+    setSearchParams(
+      (params) => {
+        params.delete(DISCORD_LINK_RESULT_PARAM);
+        params.delete(DISCORD_LINK_ERROR_PARAM);
+        return params;
+      },
+      { replace: true },
+    );
+
+    const report = (ok: boolean, message: string) => {
+      const opener = getLinkOpener();
+
+      if (opener) {
+        opener.postMessage(
+          { type: DISCORD_LINK_MESSAGE_TYPE, ok, message },
+          window.location.origin,
+        );
+        window.close();
+        return;
+      }
+
+      if (ok) {
+        callbacks.current.onLinked(message);
+      } else {
+        callbacks.current.onError(message);
+      }
+    };
+
+    if (!linkToken) {
+      report(
+        false,
+        DISCORD_LINK_ERROR_MESSAGES[linkError ?? ''] ??
+          DISCORD_LINK_ERROR_MESSAGES.failed,
+      );
+      return;
+    }
+
+    confirmAccountLink({ variables: { token: linkToken } })
+      .then(({ data }) => {
+        const link = data?.operationDiscordConfirmAccountLink;
+
+        report(
+          true,
+          `Linked the Discord account ${
+            link?.globalName || link?.username || ''
+          }.`,
+        );
+      })
+      .catch((error: Error) => report(false, error.message));
+  }, [confirmAccountLink, linkError, linkToken, setSearchParams]);
+
+  useEffect(() => {
     const refetchAccount = () =>
       apolloClient.refetchQueries({ include: ACCOUNT_QUERIES });
 
     const handleMessage = (event: MessageEvent) => {
-      if (!isTrustedOrigin(event.origin) || !isDiscordLinkMessage(event.data)) {
+      if (
+        event.origin !== window.location.origin ||
+        !isDiscordLinkMessage(event.data)
+      ) {
         return;
       }
 

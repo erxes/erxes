@@ -52,6 +52,18 @@ export const DISCORD_BOT_PERMISSIONS = [
 
 export const DISCORD_LINK_MESSAGE_TYPE = 'operation-discord-account-link';
 
+export const DISCORD_LINK_RESULT_PARAM = 'discordLink';
+
+export const DISCORD_LINK_ERROR_PARAM = 'discordLinkError';
+
+export const DISCORD_LINK_ERROR_MESSAGES: Record<string, string> = {
+  expired: 'This Discord sign-in link is invalid or has expired. Start again.',
+  cancelled: 'Discord sign-in was cancelled.',
+  'not-set-up':
+    'Discord account linking is no longer set up. Ask an admin to add the client secret.',
+  failed: 'Discord sign-in failed. Try again.',
+};
+
 export const DISCORD_ACCOUNT_PATH = '/operation/settings/discord-account';
 
 export const DISCORD_LINK_POPUP_FEATURES = 'width=520,height=760';

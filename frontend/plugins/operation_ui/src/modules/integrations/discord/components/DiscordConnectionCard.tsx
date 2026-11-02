@@ -11,18 +11,51 @@ const formatDate = (value: string) =>
     day: 'numeric',
   });
 
+const pluralize = (count: number, noun: string) =>
+  `${count} ${noun}${count === 1 ? '' : 's'}`;
+
+const describeDisconnectBlockers = (
+  linkedTeamCount: number,
+  customerChannelCount: number,
+) => {
+  const steps = [
+    customerChannelCount > 0
+      ? `unlink its ${pluralize(
+          customerChannelCount,
+          'customer channel',
+        )} below`
+      : '',
+    linkedTeamCount > 0
+      ? `disconnect its ${pluralize(
+          linkedTeamCount,
+          'team',
+        )} in Team settings → Discord`
+      : '',
+  ].filter(Boolean);
+
+  return steps.length
+    ? `Before removing the server, ${steps.join(' and ')}.`
+    : '';
+};
+
 export function DiscordConnectionCard({
   connection,
   linkedTeamCount,
+  customerChannelCount,
   onUpdateToken,
 }: {
   connection: IDiscordConnection;
   linkedTeamCount: number;
+  customerChannelCount: number;
   onUpdateToken: () => void;
 }) {
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const isBroken = connection.health?.status === 'broken';
+  const disconnectBlockers = describeDisconnectBlockers(
+    linkedTeamCount,
+    customerChannelCount,
+  );
   const { disconnectDiscord, disconnecting } = useDisconnectDiscord({
     onCompleted: () => toast({ title: 'Discord server disconnected' }),
     onError: (error) =>
@@ -35,7 +68,7 @@ export function DiscordConnectionCard({
 
   function handleDisconnect() {
     confirm({
-      message: `Disconnect ${connection.guildName}? erxes forgets the bot token. The bot stays in the server until you remove it in Discord.`,
+      message: `Disconnect ${connection.guildName}? erxes removes /triage and /tasks from the server, stops receiving this bot's interactions and forgets the bot token. The bot stays in the server until you remove it in Discord.`,
     }).then(() => {
       disconnectDiscord({ variables: { _id: connection._id } });
     });
@@ -78,7 +111,7 @@ export function DiscordConnectionCard({
             size="sm"
             variant="destructive"
             onClick={handleDisconnect}
-            disabled={disconnecting || linkedTeamCount > 0}
+            disabled={disconnecting || Boolean(disconnectBlockers)}
           >
             {disconnecting ? <Spinner size="sm" /> : 'Disconnect'}
           </Button>
@@ -89,11 +122,8 @@ export function DiscordConnectionCard({
           {connection.health.lastError}
         </p>
       ) : null}
-      {linkedTeamCount > 0 ? (
-        <p className="text-xs text-muted-foreground">
-          Disconnect its teams in Team settings → Discord before removing the
-          server.
-        </p>
+      {disconnectBlockers ? (
+        <p className="text-xs text-muted-foreground">{disconnectBlockers}</p>
       ) : null}
       <DiscordMemberLinking connection={connection} />
       <DiscordSlashCommands connection={connection} />

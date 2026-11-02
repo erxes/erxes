@@ -65,7 +65,11 @@ export function DiscordSlashCommands({
   });
 
   function handleTurnOn() {
-    enableCommands({ variables: { _id: connection._id } });
+    confirm({
+      message: `Turn on slash commands for ${connection.guildName}? erxes becomes this bot's interactions endpoint, so slash commands and buttons the bot handles anywhere else stop working. Use a bot made only for erxes.`,
+    }).then(() => {
+      enableCommands({ variables: { _id: connection._id } });
+    });
   }
 
   function handleTurnOff() {

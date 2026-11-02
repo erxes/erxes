@@ -12,6 +12,7 @@ import { ConnectDiscordDialog } from '@/integrations/discord/components/ConnectD
 import { DiscordConnectionCard } from '@/integrations/discord/components/DiscordConnectionCard';
 import { DISCORD_BOT_PERMISSIONS } from '@/integrations/discord/constants';
 import { useDiscordConnections } from '@/integrations/discord/hooks/useDiscordIntegration';
+import { useDiscordCustomerChannels } from '@/integrations/discord/hooks/useDiscordCommands';
 import { MyDiscordAccountCard } from '@/integrations/discord/components/MyDiscordAccountCard';
 import { DiscordCustomerChannels } from '@/integrations/discord/components/DiscordCustomerChannels';
 import { IntegrationsBackLink } from '@/integrations/components/IntegrationsBackLink';
@@ -19,6 +20,7 @@ import { IntegrationsBackLink } from '@/integrations/components/IntegrationsBack
 export const DiscordIntegrationPage = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { connections, configs, loading, error } = useDiscordConnections();
+  const { customerChannels } = useDiscordCustomerChannels();
   const isConnected = connections.length > 0;
 
   return (
@@ -73,6 +75,11 @@ export const DiscordIntegrationPage = () => {
                       linkedTeamCount={
                         configs.filter(
                           (config) => config.connectionId === connection._id,
+                        ).length
+                      }
+                      customerChannelCount={
+                        customerChannels.filter(
+                          (channel) => channel.connectionId === connection._id,
                         ).length
                       }
                       onUpdateToken={() => setDialogOpen(true)}
