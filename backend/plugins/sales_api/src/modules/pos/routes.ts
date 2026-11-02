@@ -1,5 +1,6 @@
 import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
+import { omitPdfAttachment } from '~/modules/ecommerce/utils';
 import { IPosDocument } from './@types/pos';
 import { USER_FIELDS } from './db/definitions/constants';
 import { calcProductsTaxRule, getChildCategories } from './utils';
@@ -275,6 +276,22 @@ export const getProductsData = async (
   return productGroups;
 };
 
+const getPublicProductsData = async (
+  subdomain: string,
+  models: IModels,
+  pos: IPosDocument,
+) => {
+  const productGroups = await getProductsData(subdomain, models, pos);
+
+  return productGroups.map((group) => ({
+    ...group,
+    categories: group.categories.map((category) => ({
+      ...category,
+      products: category.products.map(omitPdfAttachment),
+    })),
+  }));
+};
+
 export const posInit = async (req, res) => {
   const subdomain = getSubdomain(req);
   const models = await generateModels(subdomain);
@@ -288,7 +305,7 @@ export const posInit = async (req, res) => {
   const data: any = await getConfigData(subdomain, {
     ...pos,
   });
-  data.productGroups = await getProductsData(subdomain, models, pos);
+  data.productGroups = await getPublicProductsData(subdomain, models, pos);
   data.posId = pos._id;
 
   return res.send(data);
@@ -313,7 +330,7 @@ export const posSyncConfig = async (req, res) => {
       return res.send(await getConfigData(subdomain, pos));
     case 'products':
       return res.send({
-        productGroups: await getProductsData(subdomain, models, pos),
+        productGroups: await getPublicProductsData(subdomain, models, pos),
       });
     case 'slots':
       return res.send({

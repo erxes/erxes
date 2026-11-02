@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -68,6 +68,9 @@
   Returned orders are retained; missing orders allow idempotent retries.
 - POS configuration exposes `isShowRemainder` for remainder display separately
   from `isCheckRemainder` and validation category exclusions.
+- `/pos-init`, `/pos-sync-config` and the `/ecommerce-*` routes return products
+  without `pdfAttachment`. Pushes from sales to POS client keep it, since POS
+  client only uses it to know a product has a reader.
 - POS configuration stores `customerCreateConfig` (`enabled`,
   `assignCashierAsOwner`, `layout`) for POS client customer registration and
   syncs it to POS client.

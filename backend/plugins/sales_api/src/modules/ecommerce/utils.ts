@@ -1,5 +1,15 @@
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 
+export const omitPdfAttachment = <T extends { pdfAttachment?: unknown }>(
+  product: T,
+): T => {
+  const publicProduct = { ...product };
+
+  delete publicProduct.pdfAttachment;
+
+  return publicProduct;
+};
+
 /**
  * Fetch products from core service
  */
@@ -18,7 +28,7 @@ export const fetchProducts = async (
     return [];
   }
 
-  return sendTRPCMessage({
+  const products = await sendTRPCMessage({
     subdomain,
     pluginName: 'core',
     module: 'products',
@@ -34,6 +44,8 @@ export const fetchProducts = async (
     },
     defaultValue: [],
   });
+
+  return products.map(omitPdfAttachment);
 };
 
 /**
