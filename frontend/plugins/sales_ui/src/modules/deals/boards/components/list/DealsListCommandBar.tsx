@@ -21,7 +21,11 @@ export const DealsCommandBar = () => {
         <CommandBar.Value>
           {selectedCount} {t('selected')}
         </CommandBar.Value>
-        <DealsActions deals={selectedDeals} selectedCount={selectedCount} />
+        <DealsActions
+          deals={selectedDeals}
+          selectedCount={selectedCount}
+          triggerLabel={t('action')}
+        />
         <Separator.Inline />
         <DealsExport
           buttonVariant="secondary"

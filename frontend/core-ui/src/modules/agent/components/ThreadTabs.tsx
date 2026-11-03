@@ -156,8 +156,8 @@ export const ThreadTabs = ({
   };
 
   return (
-    <div className="shrink-0 border-b bg-sidebar">
-      <div className="flex h-11 min-w-0 items-stretch gap-0.5 pl-2 pr-1">
+    <div className="shrink-0 bg-sidebar">
+      <div className="flex h-12 min-w-0 items-stretch gap-0.5 border-b pl-2 pr-1">
         {(overflow.left || overflow.right) && (
           <Button
             variant="ghost"
@@ -290,7 +290,7 @@ export const ThreadTabs = ({
         <div className="flex shrink-0 items-center">{controls}</div>
       </div>
       {error && (
-        <div className="flex items-center gap-2 px-3 py-2 text-xs text-destructive">
+        <div className="flex items-center gap-2 border-b px-3 py-2 text-xs text-destructive">
           <span className="min-w-0 flex-1">{error}</span>
           <Button
             variant="ghost"

@@ -109,14 +109,35 @@ erxes is built as an **Nx-powered monorepo** with a modern microservices archite
 
 ## Quick Start
 
-### Prerequisites
+### Run erxes with one command
+
+Try erxes on your computer or a server with Docker. No source code or Node.js
+needed:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/erxes/erxes/main/scripts/install.sh | bash
+```
+
+Pick the plugins to start with, then open `http://localhost:3000`. On a server,
+use a domain that points to it and HTTPS is set up automatically:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/erxes/erxes/main/scripts/install.sh | bash -s -- --domain crm.example.com --plugins sales,frontline
+```
+
+Run the same command again to upgrade or change plugins. For every option, end
+the command with `bash -s -- --help`.
+
+### Develop erxes
+
+#### Prerequisites
 
 - **Node.js** 18+
 - **pnpm** ≥ 8 (required)
 - **MongoDB** 27017
 - **Redis** 6379
 
-### Installation
+#### Installation
 
 ```bash
 # Clone the repository
@@ -142,7 +163,7 @@ pnpm dev:uis
 
 Access the application at `http://localhost:3001`
 
-### Development with Nx
+#### Development with Nx
 
 ```bash
 # Run specific service
@@ -234,11 +255,3 @@ For general help using erxes, please refer to the erxes documentation. For addit
  
 ## License
 See the <a href="https://github.com/erxes/erxes/blob/master/LICENSE.md" >**LICENSE**</a> file for licensing information.
-
-## ⚡ Quick Start (5 minutes)
-
-docker compose up -d
-open http://localhost:3000
-
-
-

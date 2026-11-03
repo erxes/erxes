@@ -16,21 +16,21 @@ import {
   getAutomatedReplyReason,
   getAutomatedReplyStatus,
   publishUnreadCountsSafely,
-} from './conversationAutomation';
+} from '@/inbox/graphql/resolvers/mutations/conversationAutomation';
 import { sendFacebookAutomatedReplyControlMessage } from '@/integrations/facebook/services/automatedReplyControl';
 import {
   publishConversationsChanged,
   sendNotifications,
-} from './conversationNotifications';
-import { conversationMessageMutations } from './conversationMessageMutations';
+} from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
+import { conversationMessageMutations } from '@/inbox/graphql/resolvers/mutations/conversationMessageMutations';
 
-export { dispatchConversationToService } from './conversationAutomation';
+export { dispatchConversationToService } from '@/inbox/graphql/resolvers/mutations/conversationAutomation';
 export {
   conversationNotifReceivers,
   publishConversationsChanged,
   publishMessage,
   sendNotifications,
-} from './conversationNotifications';
+} from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
 
 const getConversationById = async (models: IModels, selector) => {
   const oldConversations = await models.Conversations.find(selector).lean();

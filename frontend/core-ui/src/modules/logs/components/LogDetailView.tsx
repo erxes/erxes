@@ -121,7 +121,8 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
     return error?.message || t('something-went-wrong');
   }
 
-  const { _id, source, status, createdAt, user, payload } = detail;
+  const { _id, source, status, createdAt, user, payload, docId, recordName } =
+    detail;
 
   const Component =
     LogDetailComponents[source] || LogDetailComponents[ILogSourceType.WEBHOOK];
@@ -166,6 +167,22 @@ export const LogDetailView = ({ logId }: { logId: string }) => {
                 {formatLabel(source)}
               </SummaryBadge>
             </div>
+
+            {(recordName || docId) && (
+              <div className="px-6 pb-4">
+                <p className="text-xs text-muted-foreground">{t('record')}</p>
+                {recordName && (
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {recordName}
+                  </p>
+                )}
+                {docId && (
+                  <p className="truncate font-mono text-xs text-muted-foreground">
+                    {docId}
+                  </p>
+                )}
+              </div>
+            )}
 
             {(user || detailEmail) && (
               <div className="px-6 pb-6">

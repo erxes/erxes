@@ -94,6 +94,14 @@ export const useSettingsNavigationSearchItems = () => {
           t('team-member', 'Team member'),
           settingsPrefix,
         ),
+        toSettingsSearchItem(
+          {
+            name: tSettings('Activity', 'Activity'),
+            path: `${SettingsWorkspacePath.TeamMember}${TeamMembersPath.TeamActivity}`,
+          },
+          t('team-member', 'Team member'),
+          settingsPrefix,
+        ),
       );
     }
 
