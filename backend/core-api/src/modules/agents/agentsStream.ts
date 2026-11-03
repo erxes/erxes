@@ -132,25 +132,45 @@ export const pipeAgentsStream = async (
   output: MastraModelOutput,
   {
     describeError = describeAgentsStreamError,
-    keepAliveMs = AGENTS_STREAM_KEEP_ALIVE_MS,
-    observed = false,
+    ...options
   }: {
     describeError?: (error: unknown) => string;
     keepAliveMs?: number;
     observed?: boolean;
   } = {},
 ): Promise<void> => {
+  // '@mastra/ai-sdk' is ESM-only; load it dynamically from CommonJS.
+  const { toAISdkStream } = await import('@mastra/ai-sdk');
+
+  await pipeAgentsUIStream(
+    res,
+    threadId,
+    toAISdkStream(output, {
+      from: 'agent',
+      version: 'v7',
+      onError: describeError,
+    }),
+    options,
+  );
+};
+
+/**
+ * Pipes a UI message stream (from `pipeAgentsStream` or Mastra's
+ * `handleChatStream`) with keep-alives and the shutdown handling above.
+ */
+export const pipeAgentsUIStream = async (
+  res: ServerResponse,
+  threadId: string,
+  stream: ReadableStream<UIMessageChunk>,
+  {
+    keepAliveMs = AGENTS_STREAM_KEEP_ALIVE_MS,
+    observed = false,
+  }: { keepAliveMs?: number; observed?: boolean } = {},
+): Promise<void> => {
   res.setHeader('X-Agents-Thread-Id', threadId);
 
-  // 'ai' and '@mastra/ai-sdk' are ESM-only; load them dynamically from
-  // CommonJS.
+  // 'ai' is ESM-only; load it dynamically from CommonJS.
   const { pipeUIMessageStreamToResponse } = await import('ai');
-  const { toAISdkStream } = await import('@mastra/ai-sdk');
-  const stream = toAISdkStream(output, {
-    from: 'agent',
-    version: 'v7',
-    onError: describeError,
-  });
 
   if (observed) dropOnShutdown(res);
 

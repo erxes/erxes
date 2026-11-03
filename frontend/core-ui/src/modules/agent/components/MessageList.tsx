@@ -30,13 +30,14 @@ import {
   readMessageAskUserAnswerCard,
 } from './MessagePart';
 import { AgentTurnActivity } from './AgentTurnActivity';
+import type { IAskUserAnswer } from './AskUserPrompt';
 import {
   agentTurnActivity,
   buildAgentTurnLayout,
 } from '../utils/agentTurnTimeline';
 import { withoutFileOnlyText } from '../agentsFiles';
 import { extractPageContext } from '../utils/pageContext';
-import { getMessageText, isAgentsAnswerTurn } from '../utils/messages';
+import { getMessageText } from '../utils/messages';
 import {
   AGENT_CHAT_WIDTH_CLASSES,
   AGENT_CHAT_WIDTH_PADDING,
@@ -60,7 +61,7 @@ export interface IMessageListProps {
     reason?: string;
   }) => void;
   answerBusy: boolean;
-  onAnswer: (answer: string | string[] | (string | string[])[]) => void;
+  onAnswer: (answers: IAskUserAnswer[]) => void;
   onRetryTurn: () => void;
   onEditMessage: (messageId: string, text: string) => void;
   editingDisabled: boolean;
@@ -110,13 +111,6 @@ const isHiddenTurn = (
     return false;
   }
 
-  // Ask_user answers display as the assistant's answered Q&A card — never
-  // as a bubble of their own. The send marks them with
-  // `metadata.agentsAnswer`.
-  if (isAgentsAnswerTurn(message)) {
-    return true;
-  }
-
   // Answer turns from before the backend stopped storing them as
   // their own user message have no marker in history. The answered
   // Q&A card on the ask_user assistant message right above already
@@ -157,7 +151,7 @@ interface IMessageRowProps {
     reason?: string;
   }) => void;
   answerBusy: boolean;
-  onAnswer: (answer: string | string[] | (string | string[])[]) => void;
+  onAnswer: (answers: IAskUserAnswer[]) => void;
   editing: boolean;
   editingDisabled: boolean;
   onEditingChange: (messageId: string | null) => void;

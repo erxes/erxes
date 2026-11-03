@@ -1,5 +1,5 @@
 import { buildQuestionAnswer, hasQuestionAnswer } from '../questionDrafts';
-import { buildAskUserResult, readAskUserAnswers } from '../askUserAnswers';
+import { readAskUserAnswers } from '../askUserAnswers';
 
 const single = {
   question: 'What should the report cover?',
@@ -37,31 +37,33 @@ describe('question answers', () => {
     ).toBe(false);
   });
 
-  it('round-trips single multi-select plus custom text live and after reload', () => {
+  it('reads single multi-select plus custom text live and after reload', () => {
     const answer = buildQuestionAnswer(
       multi,
       ['Sales', 'Support'],
       'Include renewals',
     );
-    const result = buildAskUserResult([multi], answer);
     const expected = [
       { question: multi.question, answer: 'Sales, Support, Include renewals' },
     ];
-    expect(readAskUserAnswers([multi], result)).toEqual(expected);
-    expect(readAskUserAnswers([multi], { content: result.content })).toEqual(
+    expect(readAskUserAnswers([multi], { answers: [answer] })).toEqual(
       expected,
     );
+    expect(
+      readAskUserAnswers([multi], {
+        content: `User answered:\n${multi.question}: Sales, Support, Include renewals`,
+      }),
+    ).toEqual(expected);
   });
 
-  it('round-trips a batch mixing custom text, selected options, and multiple choices', () => {
+  it('reads a batch mixing custom text, selected options, and multiple choices', () => {
     const questions = [single, { question: 'Which period?' }, multi];
     const answers = [
       buildQuestionAnswer(single, [], 'Inventory'),
       'Since Monday',
       buildQuestionAnswer(multi, ['Sales', 'Support'], 'Regional only'),
     ];
-    const result = buildAskUserResult(questions, answers);
-    expect(readAskUserAnswers(questions, result)).toEqual([
+    expect(readAskUserAnswers(questions, { answers })).toEqual([
       { question: single.question, answer: 'Inventory' },
       { question: 'Which period?', answer: 'Since Monday' },
       { question: multi.question, answer: 'Sales, Support, Regional only' },

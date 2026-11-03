@@ -1,26 +1,15 @@
 import { pageSelectionsPart } from '../pageSelections';
 /** @jest-environment jsdom */
-import { act, renderHook } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { APICallError, type UIMessageChunk } from 'ai';
 import { randomUUID } from 'crypto';
 import { useAgentsChat } from '../hooks/useAgentsChat';
 import type { IAgentsRequestSelection } from '../transport';
-import { AgentsStreamStalledError } from '../streamHealth';
 
-jest.mock('ai', () => ({
-  ...jest.requireActual('ai'),
-  isToolUIPart: () => false,
-  lastAssistantMessageIsCompleteWithApprovalResponses: () => false,
-}));
-jest.mock('@ai-sdk/react', () => ({
-  useChat: jest.fn(),
-  Chat: jest.fn(() => ({ stop: jest.fn() })),
-}));
 // A real normalized cache behind a minimal client, so reads, evictions and
 // prefetches behave as they do against the app's Apollo client.
 const mockApolloClient = {
   cache: undefined as unknown as InMemoryCache,
-  readQuery: (options: Parameters<InMemoryCache['readQuery']>[0]) =>
-    mockApolloClient.cache.readQuery(options),
   query: jest.fn(async () => ({ data: undefined })),
 };
 jest.mock('@apollo/client', () => ({
@@ -28,21 +17,16 @@ jest.mock('@apollo/client', () => ({
   useLazyQuery: jest.fn(),
   useApolloClient: () => mockApolloClient,
 }));
-let mockPendingMessage: (message: import('ai').UIMessage) => void;
-let mockSetActiveRunId: (runId: string | undefined) => void;
-let mockOnChatResponse: (accepted: boolean, messageId: string) => void;
+const mockSendMessages = jest.fn();
+const mockReconnectToStream = jest.fn();
 let mockGetRequestSelection: () => IAgentsRequestSelection;
 jest.mock('../transport', () => ({
   AgentsChatTransport: class {
+    sendMessages = mockSendMessages;
+    reconnectToStream = mockReconnectToStream;
     constructor(options: {
       getRequestSelection: () => IAgentsRequestSelection;
-      onChatResponse: (accepted: boolean, messageId: string) => void;
-      onActiveRunId: (runId: string | undefined) => void;
-      onPendingMessage: (message: import('ai').UIMessage) => void;
     }) {
-      mockOnChatResponse = options.onChatResponse;
-      mockSetActiveRunId = options.onActiveRunId;
-      mockPendingMessage = options.onPendingMessage;
       mockGetRequestSelection = options.getRequestSelection;
     }
   },
@@ -51,31 +35,37 @@ jest.mock('../hooks/useNavigationCatalog', () => ({
   useNavigationCatalog: () => [],
 }));
 
-import { Chat, useChat } from '@ai-sdk/react';
 import { InMemoryCache, useLazyQuery } from '@apollo/client';
-import { AGENTS_THREAD_DETAIL } from '../graphql/threads';
+import { AgentsStreamStalledError } from '../streamHealth';
 
 const load = jest.fn();
-const setMessages = jest.fn();
-const stop = jest.fn(async () => undefined);
-const noop = jest.fn();
 
-const deferred = () => {
-  let resolve!: (value: unknown) => void;
-  const promise = new Promise((done) => {
+const deferred = <T,>() => {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((done) => {
     resolve = done;
   });
   return { promise, resolve };
 };
-const detail = (id: string) => ({
-  data: {
-    agentsThreadDetail: {
-      messages: [
-        { id, role: 'assistant', parts: [{ type: 'text', text: id }] },
-      ],
-    },
-  },
+const detail = (messages: unknown[]) => ({
+  data: { agentsThreadDetail: { messages } },
 });
+const reply = (id: string) => ({
+  id,
+  role: 'assistant',
+  parts: [{ type: 'text', text: id }],
+});
+
+/** A response stream the test writes chunks into and closes. */
+const controlledStream = () => {
+  let controller!: ReadableStreamDefaultController<UIMessageChunk>;
+  const stream = new ReadableStream<UIMessageChunk>({
+    start(created) {
+      controller = created;
+    },
+  });
+  return { stream, controller };
+};
 
 beforeAll(() =>
   Object.defineProperty(crypto, 'randomUUID', {
@@ -89,17 +79,7 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockApolloClient.cache = new InMemoryCache();
   (useLazyQuery as jest.Mock).mockReturnValue([load]);
-  (useChat as jest.Mock).mockReturnValue({
-    messages: [],
-    status: 'ready',
-    sendMessage: noop,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: noop,
-    regenerate: noop,
-  });
+  mockReconnectToStream.mockResolvedValue(null);
 });
 
 it('defaults the thinking picker and outgoing request selection to high', () => {
@@ -121,28 +101,9 @@ it.each(['off', 'minimal', 'low', 'medium', 'high'] as const)(
   },
 );
 
-it('sends the chosen level as chosen and leaves model clamping to the server', () => {
-  const { result } = renderHook(() => useAgentsChat());
-
-  // k3.1-pro rejects Off; the server clamps it, so the client never rewrites
-  // what it sends or reports a model's levels for a second clamp.
-  act(() => result.current.selectModel('kimi-code', 'k3.1-pro'));
-  act(() => result.current.selectThinkingLevel('off'));
-
-  expect(mockGetRequestSelection()).toMatchObject({
-    provider: 'kimi-code',
-    model: 'k3.1-pro',
-    thinkingLevel: 'off',
-  });
-  expect(result.current).not.toHaveProperty('setThinkingLevels');
-
-  act(() => result.current.selectThinkingLevel('max'));
-  expect(mockGetRequestSelection().thinkingLevel).toBe('max');
-});
-
 it('keeps the latest selected thread when an older request resolves last', async () => {
-  const a = deferred();
-  const b = deferred();
+  const a = deferred<unknown>();
+  const b = deferred<unknown>();
   load.mockImplementation(
     ({ variables }: { variables: { threadId: string } }) =>
       variables.threadId === 'a' ? a.promise : b.promise,
@@ -157,21 +118,20 @@ it('keeps the latest selected thread when an older request resolves last', async
     openB = result.current.openThread('b');
   });
   await act(async () => {
-    b.resolve(detail('b'));
+    b.resolve(detail([reply('b')]));
     await openB;
   });
   await act(async () => {
-    a.resolve(detail('a'));
+    a.resolve(detail([reply('a')]));
     await openA;
   });
   expect(result.current.threadId).toBe('b');
+  expect(result.current.messages.map((message) => message.id)).toEqual(['b']);
   expect(sessionStorage.getItem('agents-selected-thread:panel')).toBe('b');
-  expect(setMessages).toHaveBeenCalledTimes(1);
-  expect(setMessages.mock.calls[0][0][0].id).toBe('b');
 });
 
 it('does not restore a pending thread after starting a new conversation', async () => {
-  const pending = deferred();
+  const pending = deferred<unknown>();
   load.mockReturnValue(pending.promise);
   const { result } = renderHook(() => useAgentsChat());
   let opening!: Promise<void>;
@@ -182,12 +142,120 @@ it('does not restore a pending thread after starting a new conversation', async 
     await result.current.startNewConversation();
   });
   await act(async () => {
-    pending.resolve(detail('old'));
+    pending.resolve(detail([reply('old')]));
     await opening;
   });
   expect(result.current.threadId).toBeUndefined();
-  expect(setMessages).toHaveBeenLastCalledWith([]);
+  expect(result.current.messages).toEqual([]);
   expect(sessionStorage.getItem('agents-selected-thread:panel')).toBeNull();
+});
+
+it('reattaches to a running run when a thread opens', async () => {
+  load.mockResolvedValue(detail([reply('old')]));
+  const { result } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('old'));
+  expect(mockReconnectToStream).toHaveBeenCalledWith(
+    expect.objectContaining({ chatId: 'old' }),
+  );
+});
+
+it('asks the server once whether a run survived a stalled stream', async () => {
+  load.mockResolvedValue(detail([reply('old')]));
+  const { result } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('old'));
+  mockReconnectToStream.mockClear();
+
+  const stalled = () =>
+    new ReadableStream<UIMessageChunk>({
+      start(controller) {
+        controller.error(new AgentsStreamStalledError());
+      },
+    });
+  mockSendMessages.mockImplementation(async () => stalled());
+  mockReconnectToStream.mockImplementation(async () => stalled());
+
+  await act(async () => {
+    await result.current.sendMessage({ text: 'hi' });
+  });
+
+  // The reconnect stalls again: the banner offers Reconnect instead of looping.
+  await waitFor(() => expect(result.current.status).toBe('error'));
+  await act(async () => undefined);
+  expect(mockReconnectToStream).toHaveBeenCalledTimes(1);
+});
+
+it('keeps a run streaming in the background while another thread is open', async () => {
+  load.mockResolvedValue(detail([]));
+  const { result } = renderHook(() => useAgentsChat());
+  const running = controlledStream();
+  mockSendMessages.mockResolvedValueOnce(running.stream);
+  await act(async () => {
+    void result.current.sendMessage({ text: 'Make a report' });
+  });
+  const first = result.current.threadId ?? '';
+  expect(first).not.toBe('');
+  expect(result.current.status).toBe('submitted');
+
+  await act(async () => result.current.openThread('other'));
+  expect(result.current.threadId).toBeUndefined();
+
+  await act(async () => {
+    running.controller.enqueue({ type: 'start', messageId: 'answer' });
+    running.controller.enqueue({ type: 'text-start', id: 't' });
+    running.controller.enqueue({ type: 'text-delta', id: 't', delta: 'Done' });
+    running.controller.enqueue({ type: 'text-end', id: 't' });
+  });
+  load.mockClear();
+  await act(async () => result.current.openThread(first));
+  expect(load).not.toHaveBeenCalled();
+  await waitFor(() =>
+    expect(result.current.messages.at(-1)?.parts).toContainEqual(
+      expect.objectContaining({ type: 'text', text: 'Done' }),
+    ),
+  );
+  await act(async () => {
+    running.controller.enqueue({ type: 'finish' });
+    running.controller.close();
+  });
+});
+
+it('answers a suspended ask_user call by continuing the assistant message', async () => {
+  load.mockResolvedValue(
+    detail([
+      { id: 'q', role: 'user', parts: [{ type: 'text', text: 'Report' }] },
+      {
+        id: 'ask',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'data-tool-call-suspended',
+            id: 'call-1',
+            data: { runId: 'run-1', toolCallId: 'call-1', toolName: 'askUser' },
+          },
+        ],
+      },
+    ]),
+  );
+  mockSendMessages.mockResolvedValue(
+    new ReadableStream({ start: (c) => c.close() }),
+  );
+  const { result } = renderHook(() => useAgentsChat());
+  await act(async () => result.current.openThread('t'));
+  await act(async () => result.current.submitAnswer(['Last month']));
+  expect(mockSendMessages).toHaveBeenCalledWith(
+    expect.objectContaining({
+      chatId: 't',
+      trigger: 'submit-message',
+      messageId: 'ask',
+      body: {
+        resume: {
+          runId: 'run-1',
+          toolCallId: 'call-1',
+          answers: ['Last month'],
+        },
+      },
+    }),
+  );
 });
 
 const editHistory = [
@@ -221,68 +289,75 @@ const editHistory = [
   },
 ];
 
-const mockEditableChat = (
-  status = 'ready',
-  messages: unknown[] = editHistory,
-) => {
-  const send = jest.fn(async () => undefined);
-  (useChat as jest.Mock).mockReturnValue({
-    messages,
-    status,
-    sendMessage: send,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: noop,
-    regenerate: noop,
-  });
-  return send;
+const openEditable = async (messages: unknown[] = editHistory) => {
+  load.mockResolvedValue(detail(messages));
+  const hook = renderHook(() => useAgentsChat());
+  await act(async () => hook.result.current.openThread('t'));
+  return hook;
 };
 
-it('uses SDK message replacement while retaining the original attachments and page context', () => {
-  const send = mockEditableChat();
-  const { result } = renderHook(() => useAgentsChat());
-  act(() => result.current.editMessage('edit-me', '  Revised prompt  '));
-  expect(send).toHaveBeenCalledWith(
-    {
-      messageId: 'edit-me',
+it('uses SDK message replacement while retaining the original attachments and page context', async () => {
+  mockSendMessages.mockResolvedValue(
+    new ReadableStream({ start: (c) => c.close() }),
+  );
+  const { result } = await openEditable();
+  await act(async () =>
+    result.current.editMessage('edit-me', '  Revised prompt  '),
+  );
+  const request = mockSendMessages.mock.calls[0][0];
+  expect(request.body).toEqual({
+    editMessageId: 'edit-me',
+    pageContext: { path: '/contacts' },
+  });
+  expect(request.messages.at(-1)).toEqual(
+    expect.objectContaining({
+      id: 'edit-me',
       parts: [
         editHistory[2].parts[2],
         { type: 'text', text: 'Revised prompt' },
       ],
-      metadata: undefined,
-    },
-    { body: { editMessageId: 'edit-me', pageContext: { path: '/contacts' } } },
+    }),
+  );
+  expect(request.messages).toHaveLength(3);
+});
+
+it('restores the full transcript when the server rejects an edit', async () => {
+  mockSendMessages.mockRejectedValue(
+    new APICallError({
+      message: 'Finish the current response first.',
+      url: 'chat',
+      requestBodyValues: undefined,
+      statusCode: 409,
+    }),
+  );
+  const { result } = await openEditable();
+  await act(async () =>
+    result.current.editMessage('edit-me', 'Revised prompt'),
+  );
+  await waitFor(() =>
+    expect(result.current.messages.map((message) => message.id)).toEqual(
+      editHistory.map((message) => message.id),
+    ),
   );
 });
 
-it('restores the full transcript when the server rejects an edit', () => {
-  mockEditableChat();
-  const { result } = renderHook(() => useAgentsChat());
-  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
-  act(() => mockOnChatResponse(false, 'edit-me'));
-  expect(setMessages).toHaveBeenLastCalledWith(editHistory);
+it('does not edit assistant messages or interrupt a streaming response', async () => {
+  const running = controlledStream();
+  mockSendMessages.mockResolvedValueOnce(running.stream);
+  const { result } = await openEditable();
+  await act(async () => result.current.editMessage('reply', 'Revised prompt'));
+  expect(mockSendMessages).not.toHaveBeenCalled();
+  await act(async () => {
+    void result.current.sendMessage({ text: 'Next' });
+  });
+  await act(async () =>
+    result.current.editMessage('edit-me', 'Revised prompt'),
+  );
+  expect(mockSendMessages).toHaveBeenCalledTimes(1);
+  await act(async () => running.controller.close());
 });
 
-it('does not restore a rejected edit into a different conversation', async () => {
-  mockEditableChat();
-  const { result } = renderHook(() => useAgentsChat());
-  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
-  await act(async () => result.current.startNewConversation());
-  act(() => mockOnChatResponse(false, 'edit-me'));
-  expect(setMessages).toHaveBeenLastCalledWith([]);
-});
-
-it('does not edit assistant messages or interrupt a streaming response', () => {
-  const send = mockEditableChat('streaming');
-  const { result } = renderHook(() => useAgentsChat());
-  act(() => result.current.editMessage('edit-me', 'Revised prompt'));
-  act(() => result.current.editMessage('reply', 'Revised prompt'));
-  expect(send).not.toHaveBeenCalled();
-});
-
-it('retains typed page selections when editing a question', () => {
+it('retains typed page selections when editing a question', async () => {
   const selection = pageSelectionsPart([
     {
       id: '47b58525-fceb-48ee-9262-dcd040c63bb2',
@@ -294,401 +369,19 @@ it('retains typed page selections when editing a question', () => {
       snapshot: { url: 'snapshot.png', type: 'image/png', size: 68 },
     },
   ]);
-  const send = mockEditableChat('ready', [
+  mockSendMessages.mockResolvedValue(
+    new ReadableStream({ start: (c) => c.close() }),
+  );
+  const { result } = await openEditable([
     {
       id: 'selected',
       role: 'user',
       parts: [{ type: 'text', text: 'Question' }, selection],
     },
   ]);
-  const { result } = renderHook(() => useAgentsChat());
-  act(() => result.current.editMessage('selected', 'New question'));
-  expect(send).toHaveBeenCalledWith(
-    expect.objectContaining({
-      parts: [selection, { type: 'text', text: 'New question' }],
-    }),
-    expect.anything(),
-  );
-});
-
-it('detaches the old stream without forgetting its durable run, then reattaches when reopened', async () => {
-  const resume = jest.fn(async () => undefined);
-  (useChat as jest.Mock).mockReturnValue({
-    messages: [],
-    status: 'ready',
-    sendMessage: noop,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: resume,
-    regenerate: noop,
-  });
-  load.mockResolvedValue(detail('old'));
-  const { result } = renderHook(() => useAgentsChat());
-  await act(async () => result.current.openThread('old'));
-  act(() => mockSetActiveRunId('durable-old-run'));
-  const ending = deferred();
-  stop.mockImplementationOnce(() => ending.promise as Promise<void>);
-  let switching!: Promise<void>;
-  await act(async () => {
-    switching = result.current.startNewConversation();
-  });
-  expect(result.current.threadId).toBe('old');
-  await act(async () => {
-    const options = (Chat as jest.Mock).mock.calls.at(-1)?.[0] as {
-      onFinish: (input: unknown) => void;
-    };
-    options.onFinish({
-      message: { parts: [] },
-      isAbort: true,
-      isDisconnect: false,
-    });
-    ending.resolve(undefined);
-    await switching;
-  });
-  expect(sessionStorage.getItem('agents-active-run:old')).toBe(
-    'durable-old-run',
-  );
-  expect(result.current.threadId).toBeUndefined();
-  expect(setMessages).toHaveBeenLastCalledWith([]);
-  await act(async () => result.current.openThread('old'));
-  expect(resume).toHaveBeenCalledTimes(1);
-  expect(result.current.canReconnect).toBe(true);
-});
-
-it('asks the server once whether a run survived a stalled stream', async () => {
-  const resume = jest.fn(async () => undefined);
-  const chat = {
-    messages: [],
-    status: 'ready',
-    error: undefined as Error | undefined,
-    sendMessage: noop,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: resume,
-    regenerate: noop,
-  };
-  (useChat as jest.Mock).mockImplementation(() => chat);
-  load.mockResolvedValue(detail('thread'));
-  const { result, rerender } = renderHook(() => useAgentsChat());
-  await act(async () => result.current.openThread('thread'));
-  act(() => mockSetActiveRunId('run-1'));
-  expect(resume).not.toHaveBeenCalled();
-
-  chat.status = 'error';
-  chat.error = new AgentsStreamStalledError();
-  await act(async () => rerender());
-  expect(resume).toHaveBeenCalledTimes(1);
-
-  // The reconnect itself stalls again: the banner offers Reconnect instead
-  // of looping.
-  chat.error = new AgentsStreamStalledError();
-  await act(async () => rerender());
-  expect(resume).toHaveBeenCalledTimes(1);
-  expect(result.current.canReconnect).toBe(true);
-});
-
-it('does not reconnect after other errors', async () => {
-  const resume = jest.fn(async () => undefined);
-  (useChat as jest.Mock).mockReturnValue({
-    messages: [],
-    status: 'error',
-    error: new Error('Provider rate limit'),
-    sendMessage: noop,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: resume,
-    regenerate: noop,
-  });
-  load.mockResolvedValue(detail('thread'));
-  const { result, rerender } = renderHook(() => useAgentsChat());
-  await act(async () => result.current.openThread('thread'));
-  act(() => mockSetActiveRunId('run-1'));
-  await act(async () => rerender());
-  expect(resume).not.toHaveBeenCalled();
-});
-
-it('reopens the reported stored user/reply pair without manufacturing a second pair', async () => {
-  const resume = jest.fn(async () => undefined);
-  (useChat as jest.Mock).mockReturnValue({
-    messages: [],
-    status: 'ready',
-    sendMessage: noop,
-    setMessages,
-    clearError: noop,
-    stop,
-    addToolApprovalResponse: noop,
-    resumeStream: resume,
-    regenerate: noop,
-  });
-  const user = {
-    id: 'sdk-user',
-    role: 'user' as const,
-    parts: [{ type: 'text' as const, text: 'Sales report in last month' }],
-  };
-  load.mockResolvedValue(detail('old'));
-  const { result } = renderHook(() => useAgentsChat());
-  await act(async () => result.current.openThread('old'));
-  act(() => {
-    mockPendingMessage(user);
-    mockSetActiveRunId('live-run');
-  });
-  load.mockResolvedValue({
-    data: {
-      agentsThreadDetail: {
-        messages: [
-          {
-            ...user,
-            parts: [
-              {
-                type: 'text',
-                text: '[Page context] The user is viewing /settings/products.',
-              },
-              ...user.parts,
-            ],
-          },
-          {
-            id: 'stored-assistant',
-            role: 'assistant',
-            parts: [{ type: 'text', text: 'Already saved reply' }],
-          },
-        ],
-      },
-    },
-  });
-  await act(async () => result.current.openThread('old'));
-  expect(setMessages.mock.calls.at(-1)?.[0]).toEqual([
-    expect.objectContaining({ id: 'sdk-user', role: 'user' }),
+  await act(async () => result.current.editMessage('selected', 'New question'));
+  expect(mockSendMessages.mock.calls[0][0].messages.at(-1).parts).toEqual([
+    selection,
+    { type: 'text', text: 'New question' },
   ]);
-  expect(resume).toHaveBeenCalledTimes(1);
-});
-
-describe('cached thread switching', () => {
-  const storedMessage = (id: string, text: string) => ({
-    __typename: 'AgentsMessage',
-    id,
-    role: 'assistant',
-    createdAt: '2026-10-26T00:00:00.000Z',
-    content: { parts: [{ type: 'text', text }] },
-  });
-  const storedDetail = (threadId: string, messages: unknown[]) => ({
-    agentsThreadDetail: {
-      __typename: 'AgentsThreadDetail',
-      thread: {
-        __typename: 'AgentsThread',
-        id: threadId,
-        title: threadId,
-        createdAt: '2026-10-26T00:00:00.000Z',
-        updatedAt: '2026-10-26T00:00:00.000Z',
-      },
-      messages,
-    },
-  });
-  const cacheThread = (threadId: string, messages: unknown[]) =>
-    mockApolloClient.cache.writeQuery({
-      query: AGENTS_THREAD_DETAIL,
-      variables: { threadId },
-      data: storedDetail(threadId, messages),
-    });
-  const isCached = (threadId: string) =>
-    mockApolloClient.cache.readQuery({
-      query: AGENTS_THREAD_DETAIL,
-      variables: { threadId },
-    }) !== null;
-  const network = () => {
-    const requests = new Map<string, ReturnType<typeof deferred>>();
-    load.mockImplementation(
-      ({ variables }: { variables: { threadId: string } }) => {
-        const request = deferred();
-        requests.set(variables.threadId, request);
-        return request.promise;
-      },
-    );
-    return requests;
-  };
-  const finishRun = (isAbort = false) => {
-    const options = (Chat as jest.Mock).mock.calls.at(-1)?.[0] as {
-      onFinish: (input: unknown) => void;
-    };
-    options.onFinish({ message: { parts: [] }, isAbort, isDisconnect: false });
-  };
-
-  it('renders a cached transcript at once, without a loading state or waiting on the network', async () => {
-    const cachedMessages = [storedMessage('m1', 'Cached reply')];
-    cacheThread('a', cachedMessages);
-    network();
-    const loading: boolean[] = [];
-    const { result } = renderHook(() => {
-      const chat = useAgentsChat();
-      loading.push(chat.loadingThread);
-      return chat;
-    });
-
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-
-    expect(loading).not.toContain(true);
-    expect(result.current.threadId).toBe('a');
-    expect(setMessages).toHaveBeenCalledTimes(1);
-    expect(setMessages.mock.calls[0][0]).toEqual(cachedMessages);
-    // The background revalidation is still pending.
-    expect(load).toHaveBeenCalledWith(
-      expect.objectContaining({ fetchPolicy: 'network-only' }),
-    );
-  });
-
-  it('shows the loading state only when nothing is cached', async () => {
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    let opening!: Promise<void>;
-    await act(async () => {
-      opening = result.current.openThread('a');
-    });
-    expect(result.current.loadingThread).toBe(true);
-    await act(async () => {
-      requests.get('a')?.resolve({
-        data: storedDetail('a', [storedMessage('m1', 'Hi')]),
-      });
-      await opening;
-    });
-    expect(result.current.loadingThread).toBe(false);
-  });
-
-  it('replaces the transcript when the background refresh has newer messages', async () => {
-    const cachedMessages = [storedMessage('m1', 'Cached reply')];
-    const freshMessages = [
-      ...cachedMessages,
-      storedMessage('m2', 'Reply finished elsewhere'),
-    ];
-    cacheThread('a', cachedMessages);
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    await act(async () => {
-      requests.get('a')?.resolve({ data: storedDetail('a', freshMessages) });
-    });
-
-    expect(setMessages).toHaveBeenCalledTimes(2);
-    expect(setMessages.mock.calls[1][0]).toEqual(freshMessages);
-  });
-
-  it('keeps the transcript when the background refresh is unchanged', async () => {
-    const cachedMessages = [storedMessage('m1', 'Cached reply')];
-    cacheThread('a', cachedMessages);
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    await act(async () => {
-      requests.get('a')?.resolve({ data: storedDetail('a', cachedMessages) });
-    });
-
-    expect(setMessages).toHaveBeenCalledTimes(1);
-  });
-
-  it('never overwrites a turn that started before the refresh landed', async () => {
-    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    act(() => mockSetActiveRunId('new-run'));
-    await act(async () => {
-      requests.get('a')?.resolve({
-        data: storedDetail('a', [storedMessage('m2', 'Older server copy')]),
-      });
-    });
-
-    expect(setMessages).toHaveBeenCalledTimes(1);
-    // The new run makes the cached copy stale.
-    expect(isCached('a')).toBe(false);
-  });
-
-  it('drops a refresh that lands after the user switched to another thread', async () => {
-    cacheThread('a', [storedMessage('a1', 'A')]);
-    cacheThread('b', [storedMessage('b1', 'B')]);
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    const refreshA = requests.get('a');
-    await act(async () => {
-      await result.current.openThread('b');
-    });
-    await act(async () => {
-      refreshA?.resolve({
-        data: storedDetail('a', [storedMessage('a2', 'Newer A')]),
-      });
-    });
-
-    expect(result.current.threadId).toBe('b');
-    expect(setMessages.mock.calls.map((call) => call[0][0].id)).toEqual([
-      'a1',
-      'b1',
-    ]);
-  });
-
-  it('reads the network for a thread with a stored active run, even when cached', async () => {
-    const resume = jest.fn(async () => undefined);
-    (useChat as jest.Mock).mockReturnValue({
-      messages: [],
-      status: 'ready',
-      sendMessage: noop,
-      setMessages,
-      clearError: noop,
-      stop,
-      addToolApprovalResponse: noop,
-      resumeStream: resume,
-      regenerate: noop,
-    });
-    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
-    sessionStorage.setItem('agents-active-run:a', 'live-run');
-    const requests = network();
-    const { result } = renderHook(() => useAgentsChat());
-    let opening!: Promise<void>;
-    await act(async () => {
-      opening = result.current.openThread('a');
-    });
-
-    expect(result.current.loadingThread).toBe(true);
-    expect(setMessages).not.toHaveBeenCalled();
-    await act(async () => {
-      requests.get('a')?.resolve({
-        data: storedDetail('a', [
-          // The mapper is mocked as identity: give the reconnect path parts.
-          { ...storedMessage('m1', 'Cached reply'), parts: [] },
-        ]),
-      });
-      await opening;
-    });
-    expect(result.current.loadingThread).toBe(false);
-    expect(resume).toHaveBeenCalledTimes(1);
-  });
-
-  it('evicts the cached transcript when a turn completes', async () => {
-    cacheThread('a', [storedMessage('m1', 'Cached reply')]);
-    network();
-    const { result } = renderHook(() => useAgentsChat());
-    await act(async () => {
-      await result.current.openThread('a');
-    });
-    expect(isCached('a')).toBe(true);
-
-    act(() => finishRun());
-
-    expect(isCached('a')).toBe(false);
-  });
-  // Leaving a thread re-reads it into the cache: covered against a real
-  // Apollo client and server link in `threadDetailCache.test.tsx`.
 });

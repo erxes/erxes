@@ -16,17 +16,23 @@ import { useAgentsChat } from '../hooks/useAgentsChat';
 
 jest.mock('ai', () => ({
   isToolUIPart: () => false,
-  lastAssistantMessageIsCompleteWithApprovalResponses: () => false,
 }));
+// A Chat stand-in holding what the hook reads: its id, messages and status.
 jest.mock('@ai-sdk/react', () => ({
   useChat: jest.fn(),
-  Chat: jest.fn(() => ({ stop: jest.fn() })),
+  Chat: jest.fn((options: { id: string; messages?: unknown[] }) => ({
+    id: options.id,
+    messages: options.messages ?? [],
+    status: 'ready',
+    stop: jest.fn(),
+    resumeStream: jest.fn(async () => undefined),
+  })),
 }));
-let mockSetActiveRunId: (runId: string | undefined) => void = () => undefined;
+let mockOnRequest: (threadId: string) => void = () => undefined;
 jest.mock('../transport', () => ({
   AgentsChatTransport: class {
-    constructor(options: { onActiveRunId: (runId?: string) => void }) {
-      mockSetActiveRunId = options.onActiveRunId;
+    constructor(options: { onRequest: (threadId: string) => void }) {
+      mockOnRequest = options.onRequest;
     }
   },
 }));
@@ -125,8 +131,8 @@ beforeAll(() =>
 beforeEach(() => {
   sessionStorage.clear();
   jest.clearAllMocks();
-  (useChat as jest.Mock).mockReturnValue({
-    messages: [],
+  (useChat as jest.Mock).mockImplementation(({ chat }) => ({
+    messages: chat.messages,
     status: 'ready',
     sendMessage: jest.fn(),
     setMessages: jest.fn(),
@@ -135,7 +141,7 @@ beforeEach(() => {
     addToolApprovalResponse: jest.fn(),
     resumeStream: jest.fn(async () => undefined),
     regenerate: jest.fn(),
-  });
+  }));
 });
 
 describe('thread detail cache', () => {
@@ -225,7 +231,7 @@ describe('thread detail cache', () => {
     });
     expect(cachedMessageIds(client, 'a')).toEqual(['a-m']);
 
-    act(() => mockSetActiveRunId('run-1'));
+    act(() => mockOnRequest('a'));
     act(() => finishRun());
 
     const snapshot = client.cache.extract();
@@ -249,7 +255,7 @@ describe('thread detail cache', () => {
     });
     const before = requests.length;
 
-    act(() => mockSetActiveRunId('run-1'));
+    act(() => mockOnRequest('a'));
     act(() => finishRun());
     await act(async () => {
       await new Promise((resolve) => setTimeout(resolve, 0));

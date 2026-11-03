@@ -5,7 +5,6 @@ import {
   readAgentMentions,
   withAgentMentionsParts,
 } from '../agentMentions';
-import { decodeInFlightPrompt } from '../inFlightPrompt';
 import { withUserDisplayText } from '../utils/messages';
 import { buildThreadMarkdown } from '../utils/exportThreadMarkdown';
 
@@ -77,13 +76,6 @@ it('restores the canonical display text and keeps the page context line', () => 
     },
   ]);
   expect(agentMentionsDisplayText(message.parts)).toBe(wire);
-});
-
-it('restores mention data for in-flight prompts', () => {
-  expect(decodeInFlightPrompt(wire)).toEqual([
-    { type: 'text', text: wire },
-    { type: AGENTS_MENTIONS_DATA_TYPE, data: { mentions: [ann] } },
-  ]);
 });
 
 it('exports mentions as their record names', () => {
