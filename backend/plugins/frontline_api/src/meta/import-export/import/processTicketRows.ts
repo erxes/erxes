@@ -24,20 +24,20 @@ async function prepareTicketDoc(subdomain: string, row: any): Promise<any> {
   const priorityVal = row.priority || row.Priority || '';
   if (priorityVal) {
     const num = Number(priorityVal);
-    if (!isNaN(num)) {
-      doc.priority = num;
-    } else {
+    if (Number.isNaN(num)) {
       doc.priority = priorityByName.get(priorityVal.toLowerCase()) || 0;
+    } else {
+      doc.priority = num;
     }
   }
 
   const statusVal = row.statusType || row['Status'] || '';
   if (statusVal) {
     const num = Number(statusVal);
-    if (!isNaN(num)) {
-      doc.statusType = num;
-    } else {
+    if (Number.isNaN(num)) {
       doc.statusType = statusByName.get(statusVal.toLowerCase()) || 0;
+    } else {
+      doc.statusType = num;
     }
   }
 
@@ -55,12 +55,12 @@ async function prepareTicketDoc(subdomain: string, row: any): Promise<any> {
 
   if (row.startDate || row['Start Date']) {
     const d = new Date(row.startDate || row['Start Date']);
-    if (!isNaN(d.getTime())) doc.startDate = d;
+    if (!Number.isNaN(d.getTime())) doc.startDate = d;
   }
 
   if (row.targetDate || row['Due Date']) {
     const d = new Date(row.targetDate || row['Due Date']);
-    if (!isNaN(d.getTime())) doc.targetDate = d;
+    if (!Number.isNaN(d.getTime())) doc.targetDate = d;
   }
 
   if (row.tags || row.Tags) {
