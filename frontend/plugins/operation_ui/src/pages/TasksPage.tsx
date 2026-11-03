@@ -60,7 +60,7 @@ export const TasksPage = () => {
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">
-          <PageSubHeader>
+          <PageSubHeader className="flex-wrap">
             <TasksFilter />
             <TasksImportButton />
             <TasksExportButton />
