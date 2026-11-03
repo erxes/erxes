@@ -119,16 +119,19 @@ const TransactionsFilterMenu = ({
         <Command.Separator className="my-1" />
         <SelectMember.FilterItem
           value="createdUserId"
-          label={t('date-type-created')}
+          label={t('created-by')}
         />
-        <SelectMember.FilterItem value="modifiedUserId" label={t('modified')} />
+        <SelectMember.FilterItem
+          value="modifiedUserId"
+          label={t('modified-by')}
+        />
         <Filter.Item value="updatedDate" inDialog>
           <IconCalendar />
-          {t('modified')}
+          {t('modified-date')}
         </Filter.Item>
         <Filter.Item value="createdDate" inDialog>
           <IconCalendar />
-          {t('date-type-created')}
+          {t('created-date')}
         </Filter.Item>
       </Command.List>
     </Command>
@@ -328,12 +331,12 @@ export const TransactionsFilter = ({
         />
         <SelectMember.FilterBar
           queryKey="createdUserId"
-          label={t('date-type-created')}
+          label={t('created-by')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="modifiedUserId"
-          label={t('modified')}
+          label={t('modified-by')}
           mode="single"
         />
         <Filter.BarItem queryKey="createdDate">

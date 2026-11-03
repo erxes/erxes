@@ -60,11 +60,11 @@ const SafeRemainderFilterPopover = () => {
                 <Command.Separator className="my-1" />
                 <SelectMember.FilterItem
                   value="createdUserId"
-                  label={t('date-type-created')}
+                  label={t('created-by')}
                 />
                 <SelectMember.FilterItem
                   value="modifiedUserId"
-                  label={t('modified')}
+                  label={t('modified-by')}
                 />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
@@ -172,12 +172,12 @@ export const SafeRemainderFilter = ({
 
         <SelectMember.FilterBar
           queryKey="createdUserId"
-          label={t('date-type-created')}
+          label={t('created-by')}
           mode="single"
         />
         <SelectMember.FilterBar
           queryKey="modifiedUserId"
-          label={t('modified')}
+          label={t('modified-by')}
           mode="single"
         />
         <Filter.BarItem queryKey="createdDate">
