@@ -68,14 +68,11 @@ export const SegmentFormFooter = ({
   });
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
-  const validateForm = () => form.trigger(undefined, { shouldFocus: true });
-
-  const saveSegment = async () => {
-    const isValid = await validateForm();
-
+  const runIfValid = async (action: () => void | Promise<void>) => {
+    const isValid = await form.trigger(undefined, { shouldFocus: true });
     if (!isValid) return;
 
-    handleSave(form.getValues());
+    await action();
   };
 
   const {
@@ -89,17 +86,9 @@ export const SegmentFormFooter = ({
     checking,
     requestSave,
   } = useSegmentSaveGuard({
-    onConfirm: saveSegment,
+    onConfirm: () => runIfValid(() => handleSave(form.getValues())),
     onOpenExisting,
   });
-
-  const handleSaveClick = async () => {
-    const isValid = await validateForm();
-
-    if (!isValid) return;
-
-    await requestSave();
-  };
 
   return (
     <>
@@ -146,33 +135,34 @@ export const SegmentFormFooter = ({
             <Can action="segmentsManage">
               {/* While it runs, the useful action is stopping it - not queueing
                 a second one behind the first. */}
-            {segment.status === 'building' ? (
-              <Button
-                variant="outline"
-                type="button"
-                className="text-destructive"
-                onClick={stop}
-                disabled={stopping || segment.buildCancelRequested}
-              >
-                <IconPlayerStop />
-                {segment.buildCancelRequested
-                  ? t('stopping-rebuild')
-                  : t('stop-rebuild')}
-              </Button>
-            ) : (
-              <SegmentRebuildButton segment={segment} />
-            )}
+              {segment.status === 'building' ? (
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="text-destructive"
+                  onClick={stop}
+                  disabled={stopping || segment.buildCancelRequested}
+                >
+                  <IconPlayerStop />
+                  {segment.buildCancelRequested
+                    ? t('stopping-rebuild')
+                    : t('stop-rebuild')}
+                </Button>
+              ) : (
+                <SegmentRebuildButton segment={segment} />
+              )}
+            </Can>
+          )}
+          <Can action="segmentsManage">
+            <Button
+              type="button"
+              disabled={saving || checking}
+              onClick={() => runIfValid(requestSave)}
+            >
+              {saving || checking ? t('saving') : t('save-segment')}
+            </Button>
           </Can>
-        )}
-        <Can action="segmentsManage">
-          <Button
-            type="button"
-            disabled={saving || checking}
-            onClick={handleSaveClick}
-          >
-            {saving || checking ? t('saving') : t('save-segment')}
-          </Button>
-        </Can>
+        </div>
       </Sheet.Footer>
 
       {/* No "save anyway": a button like that gets clicked without reading,
