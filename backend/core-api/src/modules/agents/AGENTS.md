@@ -106,7 +106,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   name and validated deal board/pipeline, or an unavailable response. It never
   calls a model, accepts a model URL, or bypasses normal resolver permissions;
 - **pageContext**: `POST /agents/chat` accepts `pageContext: { path, record? }
-  ` — strictly validated (path starts `/`, ≤200 chars, no control chars;
+` — strictly validated (path starts `/`, ≤200 chars, no control chars;
   record.type from the reference-type set; record.id matches
   `^[A-Za-z0-9_-]{1,64}$`; invalid parts silently dropped) and prepended to
   the newest user message as a `[Page context] ...` text part, which Mastra
@@ -137,10 +137,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   never grant permission; later reads still use resolver permissions;
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
-  'destructive'` — default `'writes'`, stamped per run into RequestContext;
+'destructive'` — default `'writes'`, stamped per run into RequestContext;
   `'writes'` asks before every GraphQL mutation; `'destructive'` asks before
   deletes, merges, archives, publishes and customer-facing sends/replies.
-
 
 ## Surfaces
 
@@ -172,14 +171,14 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsConnections`, `agentsModels` (server-side provider /models fetch,
   filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
   order, additive `catalog: [AgentsModelInfo { id, family, recommended, name,
-  thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
+thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
   name/thinking = not in the snapshot), and
   a key-free `error` that says why when the stored key cannot be opened
   (missing vs changed `JWT_TOKEN_SECRET`, or no key) or the listing fails
   (OpenAI keys without Models: Read / `api.model.read`, 401, 403, 429, 5xx);
   every saved provider is returned, never silently dropped),
   `agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
-  { provider model ok error }` (`agentsChat`; own saved connection only;
+{ provider model ok error }` (`agentsChat`; own saved connection only;
   `modelProbe.ts` sends one minimal request through `providers.ts` +
   Mastra `resolveModelConfig` — 16 output tokens, kimi-code with the
   `MIN_ANTHROPIC_THINKING_BUDGET` (1,024) thinking budget because `k3.1-pro`
@@ -230,7 +229,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `MongoDBStore` (`core-agents-store`) on the dedicated `{db}_agents_memory`
   sub-database via the shared mongoose `connectorHandler`; installs the
   MongoDB 4.4 workflow-snapshot codec; `Mastra({ logger:false, workers:false,
-  pubsub })`.
+pubsub })`.
 - DurableAgent explicitly persists all workflow statuses. Reconnect and
   concurrent-turn guards require stored running snapshots; Mastra's default skips
   them with automatic crash recovery off. Terminal snapshots prevent completed
@@ -258,7 +257,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `main.ts` on SIGINT/SIGTERM before the HTTP server closes: chat, approve and
   answer streams (runs produced in this process, which die with it) end with
   an `error` chunk whose text is the JSON `{ error, code:
-  'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
+'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
   pass `observed`: their run may live on another replica, so shutdown only
   drops the connection and the client's stall detection reconnects.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
