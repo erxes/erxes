@@ -57,7 +57,7 @@ export const loadDealClass = (
     public static async createDeal(doc: IDeal) {
       await assertDealBoardIsActive(models, doc.stageId);
       // Calculate totals
-      if (doc.productsData) {
+      if (Array.isArray(doc.productsData)) {
         doc.productsData = normalizeProductDiscountInfos(
           await normalizeProductUomInfo(
             subdomain,
