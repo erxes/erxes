@@ -2,12 +2,13 @@ import { IUserDocument } from 'erxes-api-shared/core-types';
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 
-// Ways a support visit could outlast its grant or widen itself; denied whatever its groups allow
+// Ways a support visit could outlast its grant, widen itself or watch staff; denied whatever its groups allow
 export const DENIED_DURING_SUPPORT = new Set([
   'teamMembersInvite',
   'teamMembersUpdate',
   'teamMembersResetPassword',
   'teamMembersRemove',
+  'teamMembersViewActivity',
   'permissionsManage',
   'appsManage',
   'manageAgentsSettings',

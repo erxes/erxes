@@ -2,7 +2,12 @@ import {
   ICursorPaginateParams,
   IUserDocument,
 } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { USER_ACTIVITY_SLOT_MS } from 'erxes-api-shared/core-modules';
+import {
+  cursorPaginate,
+  redis,
+  userActivityTrackingKey,
+} from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { listUserSessions, readSessionCookie } from '@/auth/session';
 
@@ -138,6 +143,63 @@ export const userQueries = {
       _id,
       readSessionCookie(requestInfo.cookies),
     );
+  },
+
+  async userActivitySlots(
+    _parent: undefined,
+    { _id, days = 30 }: { _id: string; days?: number },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) {
+    // Own activity is always visible; others' only with the permission
+    if (user?._id !== _id) {
+      await checkPermission('teamMembersViewActivity');
+    }
+
+    const slotMinutes = USER_ACTIVITY_SLOT_MS / 60_000;
+
+    if (!(await redis.exists(userActivityTrackingKey(subdomain)))) {
+      return { enabled: false, slotMinutes, slots: [] };
+    }
+
+    return {
+      enabled: true,
+      slotMinutes,
+      slots: await models.UserActivities.getActivitySlots(_id, days),
+    };
+  },
+
+  async userActivityRanking(
+    _parent: undefined,
+    { days = 7, timeZone = 'UTC' }: { days?: number; timeZone?: string },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamMembersViewActivity');
+
+    if (!(await redis.exists(userActivityTrackingKey(subdomain)))) {
+      return { enabled: false, items: [], series: [] };
+    }
+
+    const users = await models.Users.find({ isActive: true }).lean();
+    const userIds = users.map((user) => user._id);
+    const [byUser, series] = await Promise.all([
+      models.UserActivities.getActivityByUser(userIds, days),
+      models.UserActivities.getTeamDailySeries(userIds, days, timeZone),
+    ]);
+
+    // Members with no activity stay in the list so inactive ones are visible
+    const items = users.map((user) => ({
+      user,
+      activeMinutes: byUser.get(user._id)?.activeMinutes ?? 0,
+      lastActiveAt: byUser.get(user._id)?.lastActiveAt ?? null,
+    }));
+
+    items.sort(
+      (a, b) =>
+        b.activeMinutes - a.activeMinutes ||
+        (b.lastActiveAt?.getTime() ?? 0) - (a.lastActiveAt?.getTime() ?? 0),
+    );
+
+    return { enabled: true, items, series };
   },
 
   async userDetail(

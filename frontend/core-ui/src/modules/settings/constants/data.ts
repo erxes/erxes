@@ -6,6 +6,7 @@ import {
 import {
   IconAdjustmentsAlt,
   IconBolt,
+  IconBroadcast,
   IconBuilding,
   IconChessKnight,
   IconFile,
@@ -198,6 +199,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.MessagePro,
     },
     {
+      name: t('broadcast-config', 'Broadcast config'),
+      icon: IconBroadcast,
+      path: SettingsWorkspacePath.Broadcast,
+    },
+    {
       name: t('agents', 'Agents'),
       icon: IconSparkles,
       path: SettingsWorkspacePath.Agent,
@@ -281,7 +287,10 @@ export const GET_SETTINGS_PATH_DATA = (
 export type TSettingSubPath = {
   name: string;
   path: string;
+  onClick?: () => void;
 };
+
+export const SETTINGS_INLINE_TYPES_LIMIT = 5;
 
 type TSettingSubNavigation = {
   name: string;
@@ -304,6 +313,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       {
         name: t('Permission groups'),
         path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+      },
+      {
+        name: t('Activity'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamActivity}`,
       },
     ],
   },

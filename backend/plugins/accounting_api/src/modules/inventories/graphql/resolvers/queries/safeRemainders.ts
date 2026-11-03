@@ -8,6 +8,7 @@ interface ISafeRemainderQueryParams {
   departmentId?: string;
   productId?: string;
   searchValue?: string;
+  statuses?: string[];
   beginDate?: Date | string;
   endDate?: Date | string;
   createdUserId?: string;
@@ -52,6 +53,10 @@ const safeRemainderQueries = {
         $regex: escapeRegExp(params.searchValue),
         $options: 'i',
       };
+    }
+
+    if (params.statuses?.length) {
+      query.status = { $in: params.statuses };
     }
 
     const dateRange = buildDateRange(params.beginDate, params.endDate);

@@ -2,8 +2,15 @@
 // (e.g. `2026-quarter-3`, `2026-half-1`) so the range parser and the
 // display-label helper derive the numbers from a single source of truth.
 
+import { RENAMED_FIXED_DATES } from '../constants/dateTypes';
+
 const QUARTER_TOKEN = /^(\d{4})-quarter-([1-4])$/;
 const HALF_TOKEN = /^(\d{4})-half-([1-2])$/;
+
+export const normalizeFixedDate = (value: string): string =>
+  Object.prototype.hasOwnProperty.call(RENAMED_FIXED_DATES, value)
+    ? RENAMED_FIXED_DATES[value]
+    : value;
 
 export const parseQuarterToken = (
   value: string,

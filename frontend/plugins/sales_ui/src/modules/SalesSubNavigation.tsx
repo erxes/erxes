@@ -224,7 +224,7 @@ const DealsNavigation = () => {
     const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
     const storedBoard = boards.find((board) => board._id === storedBoardId);
     const nextBoardId = storedBoard?._id || boards[0]?._id || null;
-    if (nextBoardId !== boardId) setBoardId(nextBoardId);
+    if (nextBoardId !== boardId) setBoardId(nextBoardId, { replace: true });
   }, [boards, setBoardId, boardId]);
 
   // Keep the selected pipeline within the selected board.
@@ -250,7 +250,10 @@ const DealsNavigation = () => {
       (pipeline) => pipeline._id === storedPipelineId,
     );
 
-    setPipelineId(storedPipeline?._id || pipelines[0]?._id || null);
+    const nextPipelineId = storedPipeline?._id || pipelines[0]?._id || null;
+    if (nextPipelineId !== pipelineId) {
+      setPipelineId(nextPipelineId, { replace: true });
+    }
   }, [boards, boardId, pipelineId, setPipelineId]);
 
   return (

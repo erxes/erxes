@@ -52,6 +52,7 @@ export const NodeDropdownActions = ({
           onClick={(e) => e.stopPropagation()}
           onDoubleClick={(e) => e.stopPropagation()}
           size={'icon'}
+          aria-label={t('step-actions', 'Step actions')}
           className="data-[state=open]:bg-accent-foreground/10"
         >
           <IconDots className="size-4" />
