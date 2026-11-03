@@ -138,6 +138,9 @@ export const buildRecordPanelTabs = ({
   ) : (
     <SidePanelRelations tabs={moreTabs} />
   );
+  const hasRelations = contactType
+    ? allEntries.length > 0
+    : moreTabs.length > 0;
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -179,7 +182,7 @@ export const buildRecordPanelTabs = ({
           },
         ]
       : []),
-    ...((contactType ? allEntries.length : moreTabs.length)
+    ...(hasRelations
       ? [
           {
             value: RELATIONS_TAB,
