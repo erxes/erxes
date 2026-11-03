@@ -1,23 +1,9 @@
 import { useEffect, useState } from 'react';
 import { IconFileText } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
-import {
-  Breadcrumb,
-  Button,
-  Label,
-  Separator,
-  Spinner,
-  Textarea,
-  toast,
-} from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Button, Label, Spinner, Textarea, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  PageHeader,
-  usePermissionCheck,
-  SIDE_PANEL_CHAT_PATH,
-  useSidePanel,
-} from 'ui-modules';
+import { usePermissionCheck } from 'ui-modules';
 
 import {
   AGENTS_SETTINGS,
@@ -29,6 +15,8 @@ import type {
 } from '@/agent/graphql/settings';
 import { useAgentsSettings } from '@/agent/hooks/useAgentsSettings';
 
+import { AgentSettingsPageHeader } from './AgentSettingsPageHeader';
+
 // Mirrors AGENTS_INSTRUCTIONS_MAX_LENGTH on the server, which enforces it.
 const MAX_LENGTH = 8000;
 
@@ -38,7 +26,6 @@ const MAX_LENGTH = 8000;
  * it; only admins (`manageAgentsSettings`) can change it.
  */
 export const AgentSettingsInstructionsPage = () => {
-  const { openPath } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -73,40 +60,12 @@ export const AgentSettingsInstructionsPage = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
-                  <IconFileText />
-                  {t('assistant', 'Assistant')}
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">{t('settings', 'Settings')}</Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <span className="text-muted-foreground">
-                  {t('instructions', 'Instructions')}
-                </span>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={['AI Agent', 'Settings', 'Instructions']}
-            icon="IconFileText"
-          />
-        </PageHeader.Start>
-      </PageHeader>
+      <AgentSettingsPageHeader
+        icon={IconFileText}
+        iconName="IconFileText"
+        title={t('instructions', 'Instructions')}
+        favoriteTitle="Instructions"
+      />
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (

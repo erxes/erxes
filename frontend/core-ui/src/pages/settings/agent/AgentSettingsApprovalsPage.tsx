@@ -1,23 +1,9 @@
 import { useState } from 'react';
 import { IconShieldCheck } from '@tabler/icons-react';
 import { useMutation } from '@apollo/client';
-import {
-  Breadcrumb,
-  Button,
-  Label,
-  RadioGroup,
-  Separator,
-  Spinner,
-  toast,
-} from 'erxes-ui';
-import { Link } from 'react-router-dom';
+import { Label, RadioGroup, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  PageHeader,
-  usePermissionCheck,
-  SIDE_PANEL_CHAT_PATH,
-  useSidePanel,
-} from 'ui-modules';
+import { usePermissionCheck } from 'ui-modules';
 
 import {
   AGENTS_SETTINGS,
@@ -29,6 +15,8 @@ import type {
   IAgentsSettingsUpdateVariables,
 } from '@/agent/graphql/settings';
 import { useAgentsSettings } from '@/agent/hooks/useAgentsSettings';
+
+import { AgentSettingsPageHeader } from './AgentSettingsPageHeader';
 
 const MODES: {
   value: AgentsApprovalMode;
@@ -54,7 +42,6 @@ const MODES: {
  * everyone else.
  */
 export const AgentSettingsApprovalsPage = () => {
-  const { openPath } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const { settings, loading, error } = useAgentsSettings();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -95,40 +82,12 @@ export const AgentSettingsApprovalsPage = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
-                  <IconShieldCheck />
-                  {t('assistant', 'Assistant')}
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">{t('settings', 'Settings')}</Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <span className="text-muted-foreground">
-                  {t('approvals', 'Approvals')}
-                </span>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={['AI Agent', 'Settings', 'Approvals']}
-            icon="IconShieldCheck"
-          />
-        </PageHeader.Start>
-      </PageHeader>
+      <AgentSettingsPageHeader
+        icon={IconShieldCheck}
+        iconName="IconShieldCheck"
+        title={t('approvals', 'Approvals')}
+        favoriteTitle="Approvals"
+      />
 
       <div className="flex-1 overflow-y-auto">
         {loading ? (

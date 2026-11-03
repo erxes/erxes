@@ -1,11 +1,10 @@
 import { IconPalette } from '@tabler/icons-react';
-import { Breadcrumb, Button, Label, Separator, ToggleGroup } from 'erxes-ui';
+import { Button, Label, ToggleGroup } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { PageHeader, SIDE_PANEL_CHAT_PATH, useSidePanel } from 'ui-modules';
 
+import { AgentSettingsPageHeader } from './AgentSettingsPageHeader';
 import { BloubAvatar } from '@/agent/bloub/BloubAvatar';
 import { defaultCycle } from '@/agent/bloub/engine/cycles';
 import {
@@ -72,7 +71,6 @@ const BotThumb = ({
  * Preferences live in localStorage, hence the "Saved on this device" note.
  */
 export const AgentSettingsAppearancePage = () => {
-  const { openPath } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'agent' });
   const appearance = useAtomValue(agentBotAppearanceState);
   const setAppearance = useSetAtom(agentBotAppearanceWriteState);
@@ -93,40 +91,12 @@ export const AgentSettingsAppearancePage = () => {
 
   return (
     <div className="flex h-full flex-col">
-      <PageHeader>
-        <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              <Breadcrumb.Item>
-                <Button
-                  variant="ghost"
-                  onClick={() => openPath(SIDE_PANEL_CHAT_PATH)}
-                >
-                  <IconPalette />
-                  {t('assistant', 'Assistant')}
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <Button variant="ghost" asChild>
-                  <Link to="/settings/agent">{t('settings', 'Settings')}</Link>
-                </Button>
-              </Breadcrumb.Item>
-              <Breadcrumb.Separator />
-              <Breadcrumb.Item>
-                <span className="text-muted-foreground">
-                  {t('appearance', 'Appearance')}
-                </span>
-              </Breadcrumb.Item>
-            </Breadcrumb.List>
-          </Breadcrumb>
-          <Separator.Inline />
-          <PageHeader.FavoriteToggleButton
-            breadcrumb={['AI Agent', 'Settings', 'Appearance']}
-            icon="IconPalette"
-          />
-        </PageHeader.Start>
-      </PageHeader>
+      <AgentSettingsPageHeader
+        icon={IconPalette}
+        iconName="IconPalette"
+        title={t('appearance', 'Appearance')}
+        favoriteTitle="Appearance"
+      />
 
       <div className="flex-1 overflow-y-auto">
         <div className="mx-auto max-w-xl space-y-4 p-6">
