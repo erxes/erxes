@@ -83,6 +83,7 @@
   "filter": {
     "_": "Шүүлтүүр",
     "search": "Хайх",
+    "enter-search-text": "Хайх үгээ оруулна уу",
     "brand": "Брэнд",
     "assigned-to": "Хариуцсан",
     "created-at": "Үүсгэсэн огноо",
