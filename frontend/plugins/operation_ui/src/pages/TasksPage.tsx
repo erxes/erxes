@@ -63,7 +63,7 @@ export const TasksPage = () => {
           <PageSubHeader>
             <TasksFilter />
             <TasksImportButton />
-            <TasksExportButton />
+            <TasksExportButton isCreatedView={isCreatedView} />
             <TasksViewControl />
           </PageSubHeader>
           <TasksView isCreatedView={isCreatedView} />

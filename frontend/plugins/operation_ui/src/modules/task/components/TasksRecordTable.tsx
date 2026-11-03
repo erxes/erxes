@@ -1,7 +1,7 @@
 import { tasksColumns } from '@/task/components/TasksColumn';
 import { isUndefinedOrNull, RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useTasks } from '@/task/hooks/useGetTasks';
+import { useTaskListScope, useTasks } from '@/task/hooks/useGetTasks';
 import { TASKS_CURSOR_SESSION_KEY } from '@/task/constants';
 import { useGetTeams } from '@/team/hooks/useGetTeams';
 import { useAtomValue, useSetAtom } from 'jotai';
@@ -19,21 +19,11 @@ export const TasksRecordTable = ({
   isCreatedView = false,
 }: TasksRecordTableProps) => {
   const { t } = useTranslation('operation');
-  const { projectId, cycleId, teamId } = useParams();
+  const { teamId } = useParams();
   const currentUser = useAtomValue(currentUserState);
   const setTaskTotalCount = useSetAtom(taskTotalCountAtom);
 
-  const variables = isCreatedView
-    ? {
-        ...(projectId && { projectId }),
-        ...(cycleId && { cycleId }),
-        createdBy: currentUser?._id,
-      }
-    : {
-        ...(projectId && { projectId }),
-        ...(cycleId && { cycleId }),
-        userId: currentUser?._id,
-      };
+  const variables = useTaskListScope(isCreatedView);
 
   const { tasks, handleFetchMore, pageInfo, loading, totalCount } = useTasks({
     variables,

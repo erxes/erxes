@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-10-28`
 
 ## Scope
 
@@ -132,6 +132,8 @@ propertiesData? } })`
   GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
+
+- Task export (`meta/import-export/export/getTaskExportData.ts`) follows the `getTasks` list rules: with no `teamId`, `assigneeId` or `projectId` filter, `userId` exports that user's assigned tasks; `createdBy` exports the Created view; `teamId` with a real `projectId` drops the team filter, since a project can span several teams (`teamIds`).
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.
