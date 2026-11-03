@@ -29,6 +29,7 @@ import {
   ticketExportHandlers,
   formSubmissionExportHandlers,
 } from '~/meta/import-export/export/exportHandlers';
+import { agent } from '~/meta/agent';
 import { frontlineReferences } from '~/meta/references';
 import segments from '~/meta/segments';
 
@@ -102,6 +103,7 @@ startPlugin({
   },
 
   meta: {
+    agent,
     // Tickets keep their own customerId / companyId; core tells frontline
     // when a contact is merged or removed.
     contactFields: { contentTypes: ['frontline:ticket'] },

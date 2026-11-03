@@ -10,6 +10,7 @@ import { properties } from './meta/properties';
 import { notifications } from './meta/notifications';
 import { automations } from './meta/automations';
 import segments from './meta/segments';
+import { agent } from './meta/agent';
 import {
   createCoreModuleProducerHandler,
   TImportExportProducers,
@@ -71,6 +72,7 @@ startPlugin({
   expressRouter: router,
 
   meta: {
+    agent,
     // Tasks, projects and triages keep their own customerId / companyId;
     // core tells operation when a contact is merged or removed.
     contactFields: {

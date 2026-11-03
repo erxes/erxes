@@ -1,4 +1,5 @@
 import { IAgentPluginMeta } from 'erxes-api-shared/core-modules';
+import { DEALS_SKILL } from '~/meta/agentSkills';
 
 const PIPELINE_ANALYSIS = `# Deal pipeline analysis
 
@@ -38,6 +39,13 @@ export const agent: IAgentPluginMeta = {
         'dealsTotalAmounts',
         'deals',
       ],
+    },
+    {
+      name: 'deals',
+      description:
+        'Verified GraphQL for deal lists and counts, deal amounts, won revenue, deals stuck in a stage, top customers by deal value, and deals per owner or product.',
+      instructions: DEALS_SKILL,
+      operations: ['deals', 'dealsTotalCount', 'dealsTotalAmounts', 'salesStages'],
     },
   ],
   hiddenOperations: {
