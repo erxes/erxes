@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useSetAtom } from 'jotai';
 import { Separator, useQueryState } from 'erxes-ui';
 
 import { ConversationProvider } from '@/inbox/conversations/context/ConversationContext';
@@ -36,7 +36,9 @@ export const ConversationDetail = () => {
   const [relatedConversationId] = useQueryState<string>(
     'relatedConversationId',
   );
-  const activeConversationCandidate = useAtomValue(activeConversationState);
+  const [activeConversationCandidate, setActiveConversation] = useAtom(
+    activeConversationState,
+  );
   const setExtraInfo = useSetAtom(messageExtraInfoState);
   const setReplyTo = useSetAtom(messageReplyState);
 
@@ -62,6 +64,25 @@ export const ConversationDetail = () => {
     variables: integrationId ? { _id: integrationId } : undefined,
     skip: !integrationId,
   });
+
+  useEffect(() => {
+    if (currentConversation) {
+      return;
+    }
+    setActiveConversation(
+      detailId && conversationDetail?._id === detailId
+        ? toConversationContextValue({
+            _id: detailId,
+            detail: conversationDetail,
+          })
+        : null,
+    );
+  }, [
+    currentConversation,
+    detailId,
+    conversationDetail,
+    setActiveConversation,
+  ]);
 
   useEffect(() => {
     if (!conversationId) {
