@@ -1,9 +1,10 @@
 import { useApolloClient } from '@apollo/client';
 import dayjs from 'dayjs';
 import { useConfirm, useToast } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { useAtomValue, useStore } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { TRANSACTIONS_DETAIL_QUERY } from '@/transactions/transaction-form/graphql/queries/accTransactionsDetail';
+import { trRecordsDeletingState } from '@/transactions/states/trRecordsDeletingStates';
 import { ITrRecord } from '@/transactions/types/Transaction';
 import {
   buildTrRecordsDeleteScope,
@@ -22,18 +23,18 @@ export const useTrRecordsDelete = () => {
   const client = useApolloClient();
   const { confirm } = useConfirm();
   const { toast } = useToast();
-  const { removeTrRecords, loading: removing } = useTrRecordsRemove();
-  const [preparing, setPreparing] = useState(false);
-  const inFlight = useRef(false);
+  const { removeTrRecords } = useTrRecordsRemove();
+  const store = useStore();
+  const deleting = useAtomValue(trRecordsDeletingState);
 
-  const deleteParents = async (records: ITrRecord[]) => {
+  const deleteTrRecords = async (records: ITrRecord[]) => {
     const parents = getTrRecordsParents(records);
 
-    if (!parents.length) {
+    if (!parents.length || store.get(trRecordsDeletingState)) {
       return false;
     }
 
-    setPreparing(true);
+    store.set(trRecordsDeletingState, true);
 
     let trsByParentId: TrRecordsByParentId;
 
@@ -65,74 +66,62 @@ export const useTrRecordsDelete = () => {
 
       return false;
     } finally {
-      setPreparing(false);
+      store.set(trRecordsDeletingState, false);
     }
 
     const scope = buildTrRecordsDeleteScope(records, trsByParentId);
 
-    try {
-      await confirm({
-        message: t('delete-tr-records-transactions', {
-          count: scope.transactions.length,
-        }),
-        options: {
-          description: t('delete-tr-records-lines', { count: scope.lineCount }),
-          content: (
-            <div className="flex flex-col gap-2 text-sm">
-              <ul className="max-h-40 overflow-y-auto rounded-md border divide-y">
-                {scope.transactions.map((tr) => (
-                  <li
-                    key={tr.parentId}
-                    className="flex items-center justify-between gap-3 px-3 py-1.5"
-                  >
-                    <span className="font-medium">{tr.number || '-'}</span>
-                    <span className="text-muted-foreground tabular-nums">
-                      {formatDate(tr.date)} ·{' '}
-                      {t('tr-records-line-count', { count: tr.lineCount })}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              {scope.hasPublished && (
-                <p className="text-destructive">
-                  {t('delete-tr-records-published')}
-                </p>
-              )}
-            </div>
-          ),
-          okLabel: t('delete'),
-          cancelLabel: t('cancel'),
-          variants: { ok: 'destructive' },
-        },
-      });
-    } catch {
-      return false;
-    }
+    await confirm({
+      message: t('delete-tr-records-transactions', {
+        count: scope.transactions.length,
+      }),
+      options: {
+        description: t('delete-tr-records-lines', { count: scope.lineCount }),
+        content: (
+          <div className="flex flex-col gap-2 text-sm">
+            <ul className="max-h-40 overflow-y-auto rounded-md border divide-y">
+              {scope.transactions.map((tr) => (
+                <li
+                  key={tr.parentId}
+                  className="flex items-center justify-between gap-3 px-3 py-1.5"
+                >
+                  <span className="font-medium">{tr.number || '-'}</span>
+                  <span className="text-muted-foreground tabular-nums">
+                    {formatDate(tr.date)} ·{' '}
+                    {t('tr-records-line-count', { count: tr.lineCount })}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {scope.hasPublished && (
+              <p className="text-destructive">
+                {t('delete-tr-records-published')}
+              </p>
+            )}
+          </div>
+        ),
+        okLabel: t('delete'),
+        cancelLabel: t('cancel'),
+        variants: { ok: 'destructive' },
+      },
+    });
 
     let allRemoved = true;
 
-    for (const { parentId } of parents) {
-      const { errors } = await removeTrRecords(parentId);
+    store.set(trRecordsDeletingState, true);
 
-      allRemoved = allRemoved && !errors;
+    try {
+      for (const { parentId } of parents) {
+        const { errors } = await removeTrRecords(parentId);
+
+        allRemoved = allRemoved && !errors;
+      }
+    } finally {
+      store.set(trRecordsDeletingState, false);
     }
 
     return allRemoved;
   };
 
-  const deleteTrRecords = async (records: ITrRecord[]) => {
-    if (inFlight.current) {
-      return false;
-    }
-
-    inFlight.current = true;
-
-    try {
-      return await deleteParents(records);
-    } finally {
-      inFlight.current = false;
-    }
-  };
-
-  return { deleteTrRecords, loading: preparing || removing };
+  return { deleteTrRecords, loading: deleting };
 };

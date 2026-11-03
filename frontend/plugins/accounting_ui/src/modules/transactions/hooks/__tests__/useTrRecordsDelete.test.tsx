@@ -1,4 +1,4 @@
-import type { ReactElement } from 'react';
+import type { ReactElement, ReactNode } from 'react';
 import {
   act,
   render,
@@ -6,6 +6,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
+import { Provider } from 'jotai';
 import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import { ITrRecord } from '@/transactions/types/Transaction';
 
@@ -62,6 +63,24 @@ const twoLineTransaction = [
 
 const lastConfirm = () => mockConfirm.mock.calls[0][0];
 
+const PageStore = ({ children }: { children: ReactNode }) => (
+  <Provider>{children}</Provider>
+);
+
+const renderDeleteHook = () =>
+  renderHook(() => useTrRecordsDelete(), { wrapper: PageStore });
+
+const renderSelectionBarAndRowMenu = () =>
+  renderHook(
+    () => ({
+      selectionBar: useTrRecordsDelete(),
+      rowMenu: useTrRecordsDelete(),
+    }),
+    { wrapper: PageStore },
+  );
+
+const neverSettles = () => new Promise<void>(() => undefined);
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockQuery.mockResolvedValue({
@@ -72,7 +91,7 @@ beforeEach(() => {
 });
 
 test('two lines of one transaction ask about one transaction with every line and remove it once', async () => {
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   let deleted = false;
   await act(async () => {
@@ -89,7 +108,7 @@ test('two lines of one transaction ask about one transaction with every line and
 });
 
 test('a single selected line still reports the whole transaction with its number and date', async () => {
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   await act(async () => {
     await result.current.deleteTrRecords([bankLine]);
@@ -117,7 +136,7 @@ test('lines from different transactions are counted per transaction and warn abo
         },
       }),
   );
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   await act(async () => {
     await result.current.deleteTrRecords([bankLine, otherLine]);
@@ -136,7 +155,7 @@ test('the next transaction is removed only after the previous one finishes', asy
   mockRemoveTrRecords.mockImplementationOnce(
     () => new Promise((resolve) => (finishFirst = resolve)),
   );
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   let deleting: Promise<boolean> = Promise.resolve(false);
   act(() => {
@@ -154,43 +173,65 @@ test('the next transaction is removed only after the previous one finishes', asy
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1'], ['parent-2']]);
 });
 
-test('clicking Delete again while the first delete is still open is ignored, and works again after cancelling', async () => {
-  let cancelFirst: (reason: Error) => void = () => null;
-  mockConfirm.mockImplementationOnce(
-    () => new Promise((_resolve, reject) => (cancelFirst = reject)),
+test('a row-menu Delete while the selection bar is still loading details is ignored', async () => {
+  let finishLoading: (value: object) => void = () => null;
+  mockQuery.mockImplementationOnce(
+    () => new Promise((resolve) => (finishLoading = resolve)),
   );
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderSelectionBarAndRowMenu();
 
-  let firstDelete: Promise<boolean> = Promise.resolve(true);
+  let barDelete: Promise<boolean> = Promise.resolve(false);
   act(() => {
-    firstDelete = result.current.deleteTrRecords([bankLine]);
+    barDelete = result.current.selectionBar.deleteTrRecords([bankLine]);
   });
-  await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(result.current.rowMenu.loading).toBe(true));
 
-  let secondDeleted = true;
+  let rowDeleted = true;
   await act(async () => {
-    secondDeleted = await result.current.deleteTrRecords([bankLine]);
+    rowDeleted = await result.current.rowMenu.deleteTrRecords([cashLine]);
   });
 
-  expect(secondDeleted).toBe(false);
+  expect(rowDeleted).toBe(false);
   expect(mockQuery).toHaveBeenCalledTimes(1);
+
+  let barDeleted = false;
+  await act(async () => {
+    finishLoading({ data: { accTransactionsDetail: twoLineTransaction } });
+    barDeleted = await barDelete;
+  });
+
+  expect(barDeleted).toBe(true);
   expect(mockConfirm).toHaveBeenCalledTimes(1);
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
+  expect(result.current.rowMenu.loading).toBe(false);
+});
 
-  let firstDeleted = true;
+test('a Delete from another row while a transaction is being removed is ignored', async () => {
+  let finishRemoving: (value: object) => void = () => null;
+  mockRemoveTrRecords.mockImplementationOnce(
+    () => new Promise((resolve) => (finishRemoving = resolve)),
+  );
+  const { result } = renderSelectionBarAndRowMenu();
+
+  let barDelete: Promise<boolean> = Promise.resolve(false);
+  act(() => {
+    barDelete = result.current.selectionBar.deleteTrRecords([bankLine]);
+  });
+  await waitFor(() => expect(mockRemoveTrRecords).toHaveBeenCalledTimes(1));
+
+  let rowDeleted = true;
   await act(async () => {
-    cancelFirst(new Error('cancelled'));
-    firstDeleted = await firstDelete;
+    rowDeleted = await result.current.rowMenu.deleteTrRecords([otherLine]);
   });
 
-  expect(firstDeleted).toBe(false);
-  expect(mockRemoveTrRecords).not.toHaveBeenCalled();
+  expect(rowDeleted).toBe(false);
+  expect(mockQuery).toHaveBeenCalledTimes(1);
 
-  let retried = false;
   await act(async () => {
-    retried = await result.current.deleteTrRecords([bankLine]);
+    finishRemoving({});
+    await barDelete;
   });
 
-  expect(retried).toBe(true);
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
 });
 
@@ -200,7 +241,7 @@ test('a transaction the server refuses to remove keeps the selection', async () 
       "can't remove this transaction. Remove the dependent transaction first",
     ),
   });
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   let deleted = true;
   await act(async () => {
@@ -211,22 +252,36 @@ test('a transaction the server refuses to remove keeps the selection', async () 
   expect(deleted).toBe(false);
 });
 
-test('cancelling the dialog deletes nothing', async () => {
-  mockConfirm.mockRejectedValue(new Error('cancelled'));
-  const { result } = renderHook(() => useTrRecordsDelete());
+test('cancelling the dialog deletes nothing and Delete works again afterwards', async () => {
+  mockConfirm.mockImplementationOnce(neverSettles);
+  const { result } = renderDeleteHook();
 
-  let deleted = true;
+  let cancelledDelete: Promise<boolean | string> = Promise.resolve(true);
+  act(() => {
+    cancelledDelete = result.current.deleteTrRecords([bankLine]);
+  });
+  await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1));
+
+  expect(await Promise.race([cancelledDelete, Promise.resolve('open')])).toBe(
+    'open',
+  );
+  expect(mockRemoveTrRecords).not.toHaveBeenCalled();
+  expect(result.current.loading).toBe(false);
+
+  let deletedAfterCancel = false;
   await act(async () => {
-    deleted = await result.current.deleteTrRecords([bankLine]);
+    deletedAfterCancel = await result.current.deleteTrRecords([bankLine]);
   });
 
-  expect(mockRemoveTrRecords).not.toHaveBeenCalled();
-  expect(deleted).toBe(false);
+  expect(mockQuery).toHaveBeenCalledTimes(2);
+  expect(mockConfirm).toHaveBeenCalledTimes(2);
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
+  expect(deletedAfterCancel).toBe(true);
 });
 
 test('a transaction that cannot be loaded shows the error and never asks to delete', async () => {
   mockQuery.mockRejectedValue(new Error('Permission required'));
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   let deleted = true;
   await act(async () => {
@@ -245,7 +300,7 @@ test('a transaction that cannot be loaded shows the error and never asks to dele
 });
 
 test('rows without a parent transaction do nothing', async () => {
-  const { result } = renderHook(() => useTrRecordsDelete());
+  const { result } = renderDeleteHook();
 
   let deleted = true;
   await act(async () => {
