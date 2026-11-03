@@ -107,8 +107,11 @@ const buildCustomerSearchFilter = (
   return {
     $or: [
       isContactSearch ? { $and: [tokenFilter, fieldsFilter] } : tokenFilter,
-      { ...fieldsFilter, searchTokens: { $exists: false } },
-      { ...fieldsFilter, searchTokens: [], state: { $ne: 'visitor' } },
+      {
+        ...fieldsFilter,
+        searchTokens: { $in: [null, []] },
+        state: { $ne: 'visitor' },
+      },
     ],
   };
 };
