@@ -11,7 +11,7 @@ type Maps = {
 
 const stripHtml = (input: string) =>
   input
-    .replace(/<[^>]*>/g, ' ')
+    .replace(/<[^<>]*>/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 

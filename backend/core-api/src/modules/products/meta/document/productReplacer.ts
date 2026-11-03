@@ -5,7 +5,7 @@ import { generateBarcodeSvg } from '~/modules/documents/barcode';
 import { blocksToHtml } from 'erxes-api-shared/core-modules';
 
 export const readFileUrl = (key: string, subdomain: string) => {
-  if (key.startsWith('http://') || key.startsWith('https://')) {
+  if (/^(https?:)?\/\//i.test(key)) {
     return key;
   }
 

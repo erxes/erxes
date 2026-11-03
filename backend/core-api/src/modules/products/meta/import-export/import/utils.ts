@@ -116,7 +116,7 @@ const parseImage = (value: string): IAttachment => {
     : '';
 
   return {
-    url: value,
+    url: url.href,
     name,
     type: IMAGE_MIME_TYPES[extension] || 'image',
     size: 0,
