@@ -34,7 +34,9 @@ export const agentsPageSelectionSchema = z.object({
       .max(2 * 1024 * 1024),
   }),
 });
-export type IAgentPageSelectionContext = z.infer<typeof agentsPageSelectionSchema>;
+export type IAgentPageSelectionContext = z.infer<
+  typeof agentsPageSelectionSchema
+>;
 
 export const agentsPageSelectionsSchema = z
   .array(agentsPageSelectionSchema)

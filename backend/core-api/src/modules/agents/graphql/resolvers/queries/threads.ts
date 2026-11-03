@@ -108,10 +108,7 @@ export const agentsThreadsQueries = {
     }
 
     if (thread.resourceId !== ctx.user._id) {
-      throw new ExpectedError(
-        'Thread belongs to another user.',
-        'FORBIDDEN',
-      );
+      throw new ExpectedError('Thread belongs to another user.', 'FORBIDDEN');
     }
 
     const result = await memory.recall({

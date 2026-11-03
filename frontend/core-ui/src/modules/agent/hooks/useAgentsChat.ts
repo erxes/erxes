@@ -39,13 +39,7 @@ import type { AgentsUIMessage } from '../types';
 
 /** Thinking depth selectable per turn in the chat UI, shallowest first. */
 export type IAgentsThinkingLevel =
-  | 'off'
-  | 'minimal'
-  | 'low'
-  | 'medium'
-  | 'high'
-  | 'xhigh'
-  | 'max';
+  'off' | 'minimal' | 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
 const DEFAULT_THINKING_LEVEL: IAgentsThinkingLevel = 'high';
 
@@ -350,7 +344,8 @@ export const useAgentsChat = (options?: {
    */
   const pendingAnswerRef = useRef<IPendingAnswer | undefined>(undefined);
   const pendingEditRef = useRef<
-    { messages: AgentsUIMessage[]; selection: number; messageId: string } | undefined
+    | { messages: AgentsUIMessage[]; selection: number; messageId: string }
+    | undefined
   >(undefined);
   const restoreEditRef = useRef<(messages: AgentsUIMessage[]) => void>(
     () => undefined,

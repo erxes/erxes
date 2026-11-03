@@ -82,7 +82,10 @@ const summarizeGraphqlCall = (
  * Translates one fixed label (`agent.<key>`), falling back to its English
  * text. Pure callers without i18n get the English default.
  */
-export type TAgentLabelTranslate = (key: string, defaultValue: string) => string;
+export type TAgentLabelTranslate = (
+  key: string,
+  defaultValue: string,
+) => string;
 
 const inEnglish: TAgentLabelTranslate = (_key, defaultValue) => defaultValue;
 
@@ -99,14 +102,15 @@ const isSchemaLookupCall = (toolName: string, input: unknown): boolean => {
 
   return Boolean(
     summary?.operation === 'query' &&
-      summary.fields.length > 0 &&
-      summary.fields.every((field) => field.startsWith('__')),
+    summary.fields.length > 0 &&
+    summary.fields.every((field) => field.startsWith('__')),
   );
 };
 
 /** Schema look-up steps share one plain label and collapse into one step. */
 export const isSchemaLookupStep = (step: TAgentWorkStep): boolean =>
-  step.kind === 'tool' && isSchemaLookupCall(step.tool.toolName, step.tool.input);
+  step.kind === 'tool' &&
+  isSchemaLookupCall(step.tool.toolName, step.tool.input);
 
 const graphqlCallLabel = (input: Record<string, unknown>): string => {
   const summary = summarizeGraphqlCall(input);
@@ -199,8 +203,8 @@ const singularize = (noun: string): string =>
   noun.endsWith('ies')
     ? `${noun.slice(0, -3)}y`
     : noun.endsWith('s')
-    ? noun.slice(0, -1)
-    : noun;
+      ? noun.slice(0, -1)
+      : noun;
 
 const pluralize = (noun: string): string =>
   noun.endsWith('s') ? noun : `${noun}s`;

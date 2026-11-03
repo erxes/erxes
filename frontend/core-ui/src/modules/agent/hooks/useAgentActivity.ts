@@ -84,8 +84,8 @@ export const useAgentActivity = (
         finishedAt !== null && !panelOpen
           ? previous.unread + 1
           : panelOpen
-          ? 0
-          : previous.unread,
+            ? 0
+            : previous.unread,
       finishedAt: finishedAt ?? (busy ? null : previous.finishedAt),
       errorAt:
         phase === 'error' && previous.phase !== 'error'

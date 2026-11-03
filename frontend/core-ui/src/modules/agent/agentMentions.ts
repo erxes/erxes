@@ -43,12 +43,16 @@ const agentMentionsPart = (
 });
 
 /** Mention parts for wire text; empty when the text has no mention tokens. */
-export const agentMentionsPartsForText = (text: string): AgentsUIMessage['parts'] => {
+export const agentMentionsPartsForText = (
+  text: string,
+): AgentsUIMessage['parts'] => {
   const mentions = agentMentionsFromText(text);
   return mentions.length ? [agentMentionsPart(mentions)] : [];
 };
 
-export const readAgentMentions = (parts: AgentsUIMessage['parts']): IAgentMention[] =>
+export const readAgentMentions = (
+  parts: AgentsUIMessage['parts'],
+): IAgentMention[] =>
   parts.flatMap((part) => {
     if (part.type !== AGENTS_MENTIONS_DATA_TYPE || !('data' in part)) return [];
     const result = mentionsDataSchema.safeParse(part.data);

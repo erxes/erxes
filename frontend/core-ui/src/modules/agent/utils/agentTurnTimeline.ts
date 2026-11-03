@@ -28,9 +28,7 @@ const hasText = (part: TUIPart): part is TextUIPart =>
  */
 const isTimelineWork = (part: TUIPart): boolean => {
   if (isReasoningUIPart(part)) {
-    return (
-      part.text.trim().length > 0 || part.state === 'streaming'
-    );
+    return part.text.trim().length > 0 || part.state === 'streaming';
   }
 
   return isToolUIPart(part) && !isStandalonePart(part);

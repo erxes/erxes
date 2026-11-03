@@ -146,6 +146,6 @@ export const referenceNamesForHtmlExport = (
           '>': '&gt;',
           '"': '&quot;',
           "'": '&#39;',
-        }[character] ?? character),
+        })[character] ?? character,
     );
   });
