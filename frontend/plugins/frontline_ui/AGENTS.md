@@ -460,6 +460,18 @@
   caller's personal channel, listed flat — and **Team inbox**, where every team
   channel is a collapsible row over the integration types in use inside it.
   Discord servers and Brands groups follow.
+- A conversation row is a focusable `role="button"`. Enter or Space on the row
+  opens it. Its checkbox and time button are separate controls: neither opens
+  the row, by key or by click.
+  A keyboard-focused row checkbox shows in place of the avatar.
+  A keyboard-focused row shows an Enter key hint in place of its time; hover
+  alone does not.
+- Opening a conversation from the list pushes a history entry: Back returns to
+  the list or the previous conversation, and Forward reopens it.
+- `ConversationDetail` keeps `activeConversationState` on the `conversationId`
+  in the URL, so Back and Forward move it too; the notification sound skips
+  only the conversation on screen. Message avatars use that state's customer
+  only when it is the message's own customer.
 - `Team inbox` channel rows carry the caller's unread count from
   `Channel.unreadConversationCount` and dim when it is zero; integration-type
   rows in both groups carry their open-conversation count from

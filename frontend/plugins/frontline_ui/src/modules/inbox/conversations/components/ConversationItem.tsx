@@ -6,14 +6,16 @@ import {
   Button,
   Checkbox,
   cn,
+  Kbd,
   RelativeDateDisplay,
   Skeleton,
   TextOverflowTooltip,
   Tooltip,
   readImage,
-  useMultiQueryState,
+  useQueryState,
 } from 'erxes-ui';
 import {
+  IconCornerDownLeft,
   IconInbox,
   IconPhoneIncoming,
   IconPhoneOutgoing,
@@ -120,12 +122,23 @@ export const ConversationItem = ({
           </div>
           <span
             className={cn(
-              'col-start-2 row-start-1 justify-self-end text-[11px] font-normal tabular-nums text-muted-foreground',
+              'relative col-start-2 row-start-1 justify-self-end text-[11px] font-normal tabular-nums text-muted-foreground',
               !split && '@min-[640px]:col-start-3',
             )}
           >
+            <Kbd
+              aria-hidden
+              variant="foreground"
+              className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-focus-visible/row:opacity-70"
+            >
+              <IconCornerDownLeft size={12} />
+            </Kbd>
             {(updatedAt || createdAt) && (
-              <RelativeDateDisplay value={updatedAt || createdAt || ''}>
+              <RelativeDateDisplay
+                value={updatedAt || createdAt || ''}
+                className="truncate transition-opacity group-focus-visible/row:opacity-0"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <RelativeDateDisplay.Value
                   value={updatedAt || createdAt || ''}
                   isShort
@@ -267,33 +280,43 @@ const ConversationContainer = ({
   className?: string;
   onConversationSelect: () => void;
 }) => {
-  const [{ conversationId }, setValues] = useMultiQueryState<{
-    conversationId: string;
-  }>(['conversationId']);
+  const [conversationId, setConversationId] =
+    useQueryState<string>('conversationId');
   const setActiveConversation = useSetAtom(activeConversationState);
   const conversation = useConversationContext();
   const { _id, readUserIds } = conversation;
   const currentUser = useAtomValue(currentUserState);
   const isRead = readUserIds?.includes(currentUser?._id || '');
+
+  const openConversation = () => {
+    setActiveConversation(conversation);
+    setConversationId(_id);
+    onConversationSelect();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      openConversation();
+    }
+  };
+
   return (
     <Button
       variant="ghost"
       size="lg"
       asChild
       className={cn(
-        'relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent',
+        'group/row relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent ring-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
         isRead && 'text-muted-foreground',
         className,
         conversationId === _id &&
           'border-l-primary bg-primary/10 text-foreground hover:bg-primary/10',
       )}
-      onClick={() => {
-        setActiveConversation(conversation);
-        setValues({ conversationId: _id });
-        onConversationSelect();
-      }}
+      onClick={openConversation}
     >
-      <div>
+      <div role="button" tabIndex={0} onKeyDown={handleKeyDown}>
         {children}
         <ConversationIdleIndicator conversation={conversation} />
       </div>
@@ -319,7 +342,7 @@ const ConversationSelector = ({
   return (
     <div className="group relative grid size-9 shrink-0 place-items-center">
       <ConversationCheckbox />
-      <div className="relative size-full transition-opacity group-hover:opacity-0 peer-data-[state=checked]:opacity-0">
+      <div className="relative size-full transition-opacity group-hover:opacity-0 group-has-[:focus-visible]:opacity-0 peer-data-[state=checked]:opacity-0">
         {isPending ? (
           <Skeleton className="size-9 rounded-full" />
         ) : (
@@ -349,7 +372,7 @@ const ConversationCheckbox = () => {
     <>
       <Checkbox
         checked={isChecked}
-        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100 z-10"
+        className="absolute transition-opacity duration-200 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 data-[state=checked]:opacity-100 z-10"
         onClick={(e) => e.stopPropagation()}
         onCheckedChange={() => setSelectConversations(_id || '')}
         aria-label={t('select-conversation', 'Select conversation')}
