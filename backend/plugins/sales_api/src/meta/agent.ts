@@ -45,7 +45,12 @@ export const agent: IAgentPluginMeta = {
       description:
         'Verified GraphQL for deal lists and counts, deal amounts, won revenue, deals stuck in a stage, top customers by deal value, and deals per owner or product.',
       instructions: DEALS_SKILL,
-      operations: ['deals', 'dealsTotalCount', 'dealsTotalAmounts', 'salesStages'],
+      operations: [
+        'deals',
+        'dealsTotalCount',
+        'dealsTotalAmounts',
+        'salesStages',
+      ],
     },
   ],
   hiddenOperations: {

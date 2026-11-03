@@ -7,7 +7,7 @@ export const agent: IAgentPluginMeta = {
     {
       name: 'tasks',
       description:
-        'Tasks (overdue, assigned to me, created by me, in a project, a person\'s work since a date), project reports, teams and members, cycles, triage, task activity, and creating or updating tasks, projects or teams.',
+        "Tasks (overdue, assigned to me, created by me, in a project, a person's work since a date), project reports, teams and members, cycles, triage, task activity, and creating or updating tasks, projects or teams.",
       instructions: TASKS_SKILL,
     },
   ],

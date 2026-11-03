@@ -20,10 +20,18 @@ Every recipe below ran against the live API. Copy selections and variables as wr
 
 ```graphql
 query ContactTotals {
-  leads: customers(type: "lead", limit: 1) { totalCount }
-  customers: customers(type: "customer", limit: 1) { totalCount }
-  visitors: customers(type: "visitor", limit: 1) { totalCount }
-  companies: companies(limit: 1) { totalCount }
+  leads: customers(type: "lead", limit: 1) {
+    totalCount
+  }
+  customers: customers(type: "customer", limit: 1) {
+    totalCount
+  }
+  visitors: customers(type: "visitor", limit: 1) {
+    totalCount
+  }
+  companies: companies(limit: 1) {
+    totalCount
+  }
 }
 ```
 
@@ -33,15 +41,20 @@ query ContactTotals {
 
 ```graphql
 query NewCustomersByMonth($m01: String, $m02: String, $m03: String) {
-  m01: customers(type: "customer", dateFilters: $m01, limit: 1) { totalCount }
-  m02: customers(type: "customer", dateFilters: $m02, limit: 1) { totalCount }
-  m03: customers(type: "customer", dateFilters: $m03, limit: 1) { totalCount }
+  m01: customers(type: "customer", dateFilters: $m01, limit: 1) {
+    totalCount
+  }
+  m02: customers(type: "customer", dateFilters: $m02, limit: 1) {
+    totalCount
+  }
+  m03: customers(type: "customer", dateFilters: $m03, limit: 1) {
+    totalCount
+  }
 }
 ```
+
 ```json
-{ "m01": "{\"createdAt\":{\"gte\":\"2026-01-01T00:00:00.000Z\",\"lte\":\"2026-01-31T23:59:59.999Z\"}}",
-  "m02": "{\"createdAt\":{\"gte\":\"2026-02-01T00:00:00.000Z\",\"lte\":\"2026-02-28T23:59:59.999Z\"}}",
-  "m03": "{\"createdAt\":{\"gte\":\"2026-03-01T00:00:00.000Z\",\"lte\":\"2026-03-31T23:59:59.999Z\"}}" }
+{ "m01": "{\"createdAt\":{\"gte\":\"2026-01-01T00:00:00.000Z\",\"lte\":\"2026-01-31T23:59:59.999Z\"}}", "m02": "{\"createdAt\":{\"gte\":\"2026-02-01T00:00:00.000Z\",\"lte\":\"2026-02-28T23:59:59.999Z\"}}", "m03": "{\"createdAt\":{\"gte\":\"2026-03-01T00:00:00.000Z\",\"lte\":\"2026-03-31T23:59:59.999Z\"}}" }
 ```
 
 Extend to twelve aliases for a full year; stop at the current month. Boundaries are UTC unless you write an offset (`2026-01-01T00:00:00+08:00` works). `createdAt` is when the record was created; there is no "became a customer" timestamp. Run the same document with `type: "lead"` for new leads.
@@ -52,11 +65,18 @@ Extend to twelve aliases for a full year; stop at the current month. Boundaries 
 
 ```graphql
 query EngagedSince($since: String) {
-  all: customers(dateFilters: $since, limit: 1) { totalCount }
-  leads: customers(type: "lead", dateFilters: $since, limit: 1) { totalCount }
-  customers: customers(type: "customer", dateFilters: $since, limit: 1) { totalCount }
+  all: customers(dateFilters: $since, limit: 1) {
+    totalCount
+  }
+  leads: customers(type: "lead", dateFilters: $since, limit: 1) {
+    totalCount
+  }
+  customers: customers(type: "customer", dateFilters: $since, limit: 1) {
+    totalCount
+  }
 }
 ```
+
 ```json
 { "since": "{\"lastSeenAt\":{\"gte\":\"2026-10-08T00:00:00.000Z\"}}" }
 ```
@@ -71,10 +91,22 @@ Say which signal you used. Engagement through conversations, deals or tickets be
 query FindContact($q: String) {
   customers(searchValue: $q, limit: 20) {
     totalCount
-    list { _id state firstName lastName primaryEmail emails primaryPhone phones createdAt lastSeenAt }
+    list {
+      _id
+      state
+      firstName
+      lastName
+      primaryEmail
+      emails
+      primaryPhone
+      phones
+      createdAt
+      lastSeenAt
+    }
   }
 }
 ```
+
 ```json
 { "q": "<email, phone or name>" }
 ```
@@ -88,9 +120,9 @@ Prefix matching returns near misses (`ann@x.com` also finds `anna@x.com`). Confi
 **The whole base** has no grouping endpoint. The cheapest correct method is a sorted scan in code mode: sort by the field descending (empty values sort last), compare keys, stop at the first empty value. One state per scan; without `type` the sort covers every visitor and each page takes seconds. A program has 15 seconds, so it stops at 10 s and returns `nextCursor`; run it again with that cursor until `finished`, and merge groups that share a value across runs.
 
 ```js
-const field = "primaryEmail"; // or "primaryPhone"
-const type = "lead";          // or "customer"
-let cursor = null;            // previous run's nextCursor
+const field = 'primaryEmail'; // or "primaryPhone"
+const type = 'lead'; // or "customer"
+let cursor = null; // previous run's nextCursor
 const query = `query DuplicateScan($type: String, $orderBy: JSON, $cursor: String) {
   customers(type: $type, orderBy: $orderBy, limit: 100, cursor: $cursor) {
     list { _id primaryEmail primaryPhone firstName lastName }
@@ -98,15 +130,21 @@ const query = `query DuplicateScan($type: String, $orderBy: JSON, $cursor: Strin
   }
 }`;
 const groups = new Map();
-let scanned = 0, finished = false;
+let scanned = 0,
+  finished = false;
 const started = Date.now();
 while (!finished && Date.now() - started < 10000) {
   const { data, errors } = await external_callGraphql({ query, variables: { type, orderBy: { [field]: -1 }, cursor } });
   if (errors) return { errors };
   const { list, pageInfo } = data.customers;
   for (const c of list) {
-    const key = String(c[field] ?? "").replace(/\s+/g, "").toLowerCase();
-    if (!key) { finished = true; break; }
+    const key = String(c[field] ?? '')
+      .replace(/\s+/g, '')
+      .toLowerCase();
+    if (!key) {
+      finished = true;
+      break;
+    }
     scanned += 1;
     groups.set(key, [...(groups.get(key) ?? []), c._id]);
   }
@@ -121,12 +159,16 @@ A run covers about 9,000 records. Get the denominator first, the number of recor
 
 ```graphql
 query CountWithEmail($root: JSON!) {
-  segmentsPreviewCount(contentType: "core:contacts.leads", root: $root) { count unsupported exceeded }
+  segmentsPreviewCount(contentType: "core:contacts.leads", root: $root) {
+    count
+    unsupported
+    exceeded
+  }
 }
 ```
+
 ```json
-{ "root": { "kind": "group", "conjunction": "and", "children": [
-  { "kind": "field", "contentType": "core:contacts.leads", "fieldKey": "primaryEmail", "operator": "is" } ] } }
+{ "root": { "kind": "group", "conjunction": "and", "children": [{ "kind": "field", "contentType": "core:contacts.leads", "fieldKey": "primaryEmail", "operator": "is" }] } }
 ```
 
 For the customer state use `contentType: "core:contacts.customers"` in both places and add `{ "kind": "field", "contentType": "core:contacts.customers", "fieldKey": "state", "operator": "e", "value": "customer" }` to `children`, since that content type also covers visitors. Treat the count as an upper bound.
@@ -139,7 +181,12 @@ Label the answer with its scope: the field, the state, "scanned X of Y", and tha
 query CustomerTags($q: String) {
   tags(type: "core:customer", searchValue: $q, limit: 100) {
     totalCount
-    list { _id name parentId objectCount }
+    list {
+      _id
+      name
+      parentId
+      objectCount
+    }
   }
 }
 ```
@@ -148,8 +195,12 @@ query CustomerTags($q: String) {
 
 ```graphql
 query CustomersByTag($tagIds: [String]) {
-  leads: customers(type: "lead", tagIds: $tagIds, limit: 1) { totalCount }
-  customers: customers(type: "customer", tagIds: $tagIds, limit: 1) { totalCount }
+  leads: customers(type: "lead", tagIds: $tagIds, limit: 1) {
+    totalCount
+  }
+  customers: customers(type: "customer", tagIds: $tagIds, limit: 1) {
+    totalCount
+  }
 }
 ```
 
@@ -158,7 +209,12 @@ query CustomersByTag($tagIds: [String]) {
 ```graphql
 query ContactSegments {
   segments(contentTypes: ["core:contacts.customers", "core:contacts.leads"]) {
-    _id name contentType status membersCount membersCountedAt
+    _id
+    name
+    contentType
+    status
+    membersCount
+    membersCountedAt
   }
 }
 ```
@@ -167,8 +223,14 @@ query ContactSegments {
 
 ```graphql
 query SegmentSize($segmentId: String!, $segmentIds: [String]) {
-  segmentMemberCount(segmentId: $segmentId) { count unsupported exceeded }
-  customers(segmentIds: $segmentIds, limit: 1) { totalCount }
+  segmentMemberCount(segmentId: $segmentId) {
+    count
+    unsupported
+    exceeded
+  }
+  customers(segmentIds: $segmentIds, limit: 1) {
+    totalCount
+  }
 }
 ```
 
@@ -178,7 +240,15 @@ query SegmentSize($segmentId: String!, $segmentIds: [String]) {
 query FindCompany($q: String) {
   companies(searchValue: $q, limit: 20) {
     totalCount
-    list { _id primaryName primaryEmail primaryPhone website industry createdAt }
+    list {
+      _id
+      primaryName
+      primaryEmail
+      primaryPhone
+      website
+      industry
+      createdAt
+    }
   }
 }
 ```
@@ -188,7 +258,10 @@ Read links from Relations, then fetch the records by id. `Customer.companies` an
 ```graphql
 query CustomerCompanies($customerId: String!) {
   getRelationsByEntity(contentType: "core:customer", contentId: $customerId, relatedContentType: "core:company") {
-    entities { contentType contentId }
+    entities {
+      contentType
+      contentId
+    }
   }
 }
 ```
@@ -201,7 +274,21 @@ Each relation lists both ends; keep the `contentId` whose `contentType` matches 
 
 ```graphql
 query Me {
-  currentUser { _id username email isOwner details { fullName firstName lastName position operatorPhone } departmentIds branchIds }
+  currentUser {
+    _id
+    username
+    email
+    isOwner
+    details {
+      fullName
+      firstName
+      lastName
+      position
+      operatorPhone
+    }
+    departmentIds
+    branchIds
+  }
 }
 ```
 
@@ -211,8 +298,23 @@ query TeamMembers($q: String, $cursor: String) {
   deactivated: usersTotalCount(isActive: false)
   users(searchValue: $q, limit: 100, cursor: $cursor) {
     totalCount
-    list { _id username email isActive details { fullName firstName lastName position operatorPhone } }
-    pageInfo { hasNextPage endCursor }
+    list {
+      _id
+      username
+      email
+      isActive
+      details {
+        fullName
+        firstName
+        lastName
+        position
+        operatorPhone
+      }
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
   }
 }
 ```
