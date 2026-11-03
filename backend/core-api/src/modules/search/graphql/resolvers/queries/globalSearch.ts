@@ -60,7 +60,26 @@ export const buildIdentifierSearchRegex = (
 
 const IDENTIFIER_SEARCH_PATTERN = /^[\d\s\-+()./]+$/;
 const CONTACT_SEARCH_PATTERN = /[@.]/;
-const MIN_WORD_LENGTH = 2;
+const MIN_TOKEN_WORD_LENGTH = 3;
+
+const isTokenWord = (word: string): boolean =>
+  word.length >= MIN_TOKEN_WORD_LENGTH;
+
+const getContactTokenValue = (words: string[]): string | undefined => {
+  const [longestWord] = [...words]
+    .reverse()
+    .sort((a, b) => b.length - a.length);
+
+  return longestWord && isTokenWord(longestWord) ? longestWord : undefined;
+};
+
+const getNameTokenValue = (words: string[]): string | undefined => {
+  const tokenWords = words.at(-1)?.length === 1 ? words.slice(0, -1) : words;
+
+  return tokenWords.length && tokenWords.every(isTokenWord)
+    ? tokenWords.join(' ')
+    : undefined;
+};
 
 const buildCustomerSearchFilter = (
   rawSearch: string,
@@ -72,22 +91,24 @@ const buildCustomerSearchFilter = (
 
   const isContactSearch = CONTACT_SEARCH_PATTERN.test(rawSearch);
   const words = splitSearchWords(rawSearch);
-  const tokenWords = isContactSearch
-    ? words.sort((a, b) => b.length - a.length).slice(0, 1)
-    : words.filter((word) => word.length >= MIN_WORD_LENGTH);
+  const tokenValue = isContactSearch
+    ? getContactTokenValue(words)
+    : getNameTokenValue(words);
+
+  if (!tokenValue) {
+    return fieldsFilter;
+  }
+
   const tokenFilter = buildSearchTokenFilter<ICustomerDocument>(
-    tokenWords.join(' ') || rawSearch,
+    tokenValue,
     customerSearchTokenConfig,
   );
 
   return {
     $or: [
       isContactSearch ? { $and: [tokenFilter, fieldsFilter] } : tokenFilter,
-      {
-        ...fieldsFilter,
-        searchTokens: { $in: [null, []] },
-        state: { $ne: 'visitor' },
-      },
+      { ...fieldsFilter, searchTokens: { $exists: false } },
+      { ...fieldsFilter, searchTokens: [], state: { $ne: 'visitor' } },
     ],
   };
 };
