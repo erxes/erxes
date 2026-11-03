@@ -12,11 +12,11 @@ export interface IBookingModel extends Model<IOTABookingDocument> {
 
 export const loadBookingClass = (models: IModels) => {
   class Bookings {
-    public static createBooking = async (data: IOTABooking) => {
+    public static readonly createBooking = async (data: IOTABooking) => {
       return models.Bookings.create(data);
     };
 
-    public static cancelBooking = async (_id: string) => {
+    public static readonly cancelBooking = async (_id: string) => {
       return models.Bookings.findOneAndUpdate({ _id }, { status: 'cancelled' });
     };
   }
