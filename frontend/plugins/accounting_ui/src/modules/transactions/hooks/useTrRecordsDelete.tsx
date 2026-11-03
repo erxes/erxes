@@ -1,7 +1,7 @@
 import { useApolloClient } from '@apollo/client';
 import dayjs from 'dayjs';
 import { useConfirm, useToast } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TRANSACTIONS_DETAIL_QUERY } from '@/transactions/transaction-form/graphql/queries/accTransactionsDetail';
 import { ITrRecord } from '@/transactions/types/Transaction';
@@ -24,8 +24,9 @@ export const useTrRecordsDelete = () => {
   const { toast } = useToast();
   const { removeTrRecords, loading: removing } = useTrRecordsRemove();
   const [preparing, setPreparing] = useState(false);
+  const inFlight = useRef(false);
 
-  const deleteTrRecords = async (records: ITrRecord[]) => {
+  const deleteParents = async (records: ITrRecord[]) => {
     const parents = getTrRecordsParents(records);
 
     if (!parents.length) {
@@ -117,6 +118,20 @@ export const useTrRecordsDelete = () => {
     }
 
     return allRemoved;
+  };
+
+  const deleteTrRecords = async (records: ITrRecord[]) => {
+    if (inFlight.current) {
+      return false;
+    }
+
+    inFlight.current = true;
+
+    try {
+      return await deleteParents(records);
+    } finally {
+      inFlight.current = false;
+    }
   };
 
   return { deleteTrRecords, loading: preparing || removing };

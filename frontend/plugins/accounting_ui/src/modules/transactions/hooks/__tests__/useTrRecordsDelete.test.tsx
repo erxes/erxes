@@ -154,6 +154,46 @@ test('the next transaction is removed only after the previous one finishes', asy
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1'], ['parent-2']]);
 });
 
+test('clicking Delete again while the first delete is still open is ignored, and works again after cancelling', async () => {
+  let cancelFirst: (reason: Error) => void = () => null;
+  mockConfirm.mockImplementationOnce(
+    () => new Promise((_resolve, reject) => (cancelFirst = reject)),
+  );
+  const { result } = renderHook(() => useTrRecordsDelete());
+
+  let firstDelete: Promise<boolean> = Promise.resolve(true);
+  act(() => {
+    firstDelete = result.current.deleteTrRecords([bankLine]);
+  });
+  await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1));
+
+  let secondDeleted = true;
+  await act(async () => {
+    secondDeleted = await result.current.deleteTrRecords([bankLine]);
+  });
+
+  expect(secondDeleted).toBe(false);
+  expect(mockQuery).toHaveBeenCalledTimes(1);
+  expect(mockConfirm).toHaveBeenCalledTimes(1);
+
+  let firstDeleted = true;
+  await act(async () => {
+    cancelFirst(new Error('cancelled'));
+    firstDeleted = await firstDelete;
+  });
+
+  expect(firstDeleted).toBe(false);
+  expect(mockRemoveTrRecords).not.toHaveBeenCalled();
+
+  let retried = false;
+  await act(async () => {
+    retried = await result.current.deleteTrRecords([bankLine]);
+  });
+
+  expect(retried).toBe(true);
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
+});
+
 test('a transaction the server refuses to remove keeps the selection', async () => {
   mockRemoveTrRecords.mockResolvedValue({
     errors: new Error(
