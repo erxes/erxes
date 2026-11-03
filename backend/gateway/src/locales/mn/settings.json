@@ -140,6 +140,7 @@
     "activate": "Идэвхжүүлэх",
     "invitation-resent": "Урилга дахин илгээгдлээ",
     "resend-invite": "Урилга дахин илгээх",
+    "access-and-security": "Хандалт ба аюулгүй байдал",
     "selected": "{{selectedCount}} сонгосон",
     "assign-permissions": "Зөвшөөрөл оноох",
     "permission-groups-assigned": "Зөвшөөрлийн бүлгүүд оноогдлоо",
