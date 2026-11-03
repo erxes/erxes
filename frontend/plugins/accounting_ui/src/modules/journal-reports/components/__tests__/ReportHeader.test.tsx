@@ -12,6 +12,7 @@ jest.mock('react-i18next', () => {
 });
 jest.mock('erxes-ui', () => ({
   Separator: () => <hr />,
+  Skeleton: () => <span>organization-loading</span>,
   useQueryState: (key: string) =>
     [
       {
@@ -34,6 +35,11 @@ const structureResponse = (title: string | null): MockedResponse => ({
       structureDetail: title === null ? null : { _id: 'company', title },
     },
   },
+});
+
+const slowStructureResponse = (title: string): MockedResponse => ({
+  ...structureResponse(title),
+  delay: 30,
 });
 
 const failingStructureResponse: MockedResponse = {
@@ -61,6 +67,16 @@ describe('ReportHeader organization name', () => {
 
     expect(await screen.findByText('Altai Taiga Tour LLC')).toBeTruthy();
     expect(screen.queryByText('OrgName')).toBeNull();
+  });
+
+  it('shows a loading placeholder instead of a wrong name until the Structure title arrives', async () => {
+    mockOrganization = { name: 'Nomad Trading' };
+    renderHeader([slowStructureResponse('Altai Taiga Tour LLC')]);
+
+    expect(screen.getByText('organization-loading')).toBeTruthy();
+    expect(screen.queryByText('Nomad Trading')).toBeNull();
+    expect(await screen.findByText('Altai Taiga Tour LLC')).toBeTruthy();
+    expect(screen.queryByText('organization-loading')).toBeNull();
   });
 
   it('falls back to the SaaS organization name when the structure has no title', async () => {

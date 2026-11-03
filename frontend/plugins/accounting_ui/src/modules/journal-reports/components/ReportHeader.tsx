@@ -1,6 +1,6 @@
 import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
-import { Separator, useQueryState } from 'erxes-ui';
+import { Separator, Skeleton, useQueryState } from 'erxes-ui';
 import type { RefObject } from 'react';
 import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
 import { ReportRules } from '../types/reportsMap';
@@ -18,7 +18,8 @@ const parseQueryDate = (value?: string): string => {
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const { t } = useTranslation('accounting');
-  const { organizationName } = useJournalReportOrganizationName();
+  const { organizationName, loading: organizationLoading } =
+    useJournalReportOrganizationName();
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
@@ -39,7 +40,11 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
       </div>
       <div className="flex justify-between pb-[2em]">
         <div className="flex flex-col gap-1">
-          <p className="font-bold min-h-[1.5em]">{organizationName}</p>
+          {organizationLoading ? (
+            <Skeleton className="h-[1.5em] w-40" />
+          ) : (
+            <p className="font-bold min-h-[1.5em]">{organizationName}</p>
+          )}
           <Separator className="print:bg-foreground bg-border" />
           <p>{t('organization-name')}</p>
         </div>
