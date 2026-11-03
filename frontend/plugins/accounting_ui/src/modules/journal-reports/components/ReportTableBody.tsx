@@ -1,6 +1,7 @@
 import { ReportTable, Skeleton, cn } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import React, { useEffect, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
 import { useJournalReportMore } from '../hooks/useJournalReportMore';
@@ -37,7 +38,34 @@ export function useQueryObject(): QueryObject {
   return obj;
 }
 
+const SKELETON_ROW_KEYS = Array.from(
+  { length: 8 },
+  (_value, rowIndex) => `journal-report-loading-row-${rowIndex}`,
+);
+
+const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => {
+  const cells = Array.from({ length: columnCount }, (_value, cellIndex) => ({
+    key: `journal-report-loading-cell-${cellIndex}`,
+    className: cellIndex < 2 ? 'w-32' : 'w-full',
+  }));
+
+  return (
+    <tbody data-slot="table-body" className={cn('[&_tr:last-child]:border-0')}>
+      {SKELETON_ROW_KEYS.map((rowKey) => (
+        <ReportTable.Row key={rowKey}>
+          {cells.map((cell) => (
+            <ReportTable.Cell key={cell.key}>
+              <Skeleton className={cn('h-4 min-w-12', cell.className)} />
+            </ReportTable.Cell>
+          ))}
+        </ReportTable.Row>
+      ))}
+    </tbody>
+  );
+};
+
 export const ReportTableBody = () => {
+  const { t } = useTranslation('accounting');
   const {
     report: reportParam,
     groupKey: groupKeyParam,
@@ -120,6 +148,21 @@ export const ReportTableBody = () => {
     return <ReportTableBodySkeleton columnCount={colCount + 2} />;
   }
 
+  if (!records.length) {
+    return (
+      <tbody data-slot="table-body">
+        <ReportTable.Row>
+          <ReportTable.Cell
+            colSpan={colCount + 2}
+            className="py-6 text-center text-muted-foreground"
+          >
+            {t('no-transactions-in-period')}
+          </ReportTable.Cell>
+        </ReportTable.Row>
+      </tbody>
+    );
+  }
+
   return (
     <tbody
       data-slot="table-body"
@@ -137,24 +180,6 @@ export const ReportTableBody = () => {
     </tbody>
   );
 };
-
-const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => (
-  <tbody data-slot="table-body" className={cn('[&_tr:last-child]:border-0')}>
-    {Array.from({ length: 8 }).map((_, rowIndex) => (
-      <ReportTable.Row key={`journal-report-loading-row-${rowIndex}`}>
-        {Array.from({ length: columnCount }).map((__, cellIndex) => (
-          <ReportTable.Cell
-            key={`journal-report-loading-cell-${rowIndex}-${cellIndex}`}
-          >
-            <Skeleton
-              className={cn('h-4 min-w-12', cellIndex < 2 ? 'w-32' : 'w-full')}
-            />
-          </ReportTable.Cell>
-        ))}
-      </ReportTable.Row>
-    ))}
-  </tbody>
-);
 
 // extract and render
 interface ReportRendererProps {
@@ -215,6 +240,42 @@ const openDetailedReport = (report: string, attr: string, isMore?: boolean) => {
   );
 };
 
+const RenderMore = ({
+  report,
+  treeIds,
+  leafId,
+  nodeExtra,
+}: {
+  report: string;
+  treeIds: string;
+  leafId: string;
+  nodeExtra?: Record<string, unknown>;
+}) => {
+  const ReportMore = getRenderMoreHandler(report);
+
+  const treeIdsStr = treeIds ? `${treeIds}#` : '';
+  const perkey = `${treeIdsStr}${leafId}`;
+
+  const allMoreData = useAtomValue(moreDataState);
+  const moreData = useMemo(() => {
+    return allMoreData?.[perkey] || [];
+  }, [perkey, allMoreData]);
+
+  if (!ReportMore) {
+    return null;
+  }
+
+  // moreData Context
+  return (
+    <ReportMore
+      report={report}
+      moreData={moreData}
+      currentKey={perkey}
+      nodeExtra={nodeExtra}
+    />
+  );
+};
+
 function renderGroup(
   groupedDic: Record<string, unknown>,
   groupRule: IGroupRule,
@@ -264,7 +325,7 @@ function renderGroup(
               onDoubleClick={() => openDetailedReport(report, attr, isMore)}
             >
               <ReportTable.Cell
-                className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+                className={cn('text-left', padding && 'pl-(--cellPadding)')}
                 style={
                   { '--cellPadding': `${padding}px` } as React.CSSProperties
                 }
@@ -325,7 +386,7 @@ function renderGroup(
           onDoubleClick={() => openDetailedReport(report, attr, isMore)}
         >
           <ReportTable.Cell
-            className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+            className={cn('text-left', padding && 'pl-(--cellPadding)')}
             style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
           >
             {groupCode}
@@ -348,39 +409,3 @@ function renderGroup(
     );
   });
 }
-
-const RenderMore = ({
-  report,
-  treeIds,
-  leafId,
-  nodeExtra,
-}: {
-  report: string;
-  treeIds: string;
-  leafId: string;
-  nodeExtra?: Record<string, unknown>;
-}) => {
-  const ReportMore = getRenderMoreHandler(report);
-
-  const treeIdsStr = treeIds ? `${treeIds}#` : '';
-  const perkey = `${treeIdsStr}${leafId}`;
-
-  const allMoreData = useAtomValue(moreDataState);
-  const moreData = useMemo(() => {
-    return allMoreData?.[perkey] || [];
-  }, [perkey, allMoreData]);
-
-  if (!ReportMore) {
-    return null;
-  }
-
-  // moreData Context
-  return (
-    <ReportMore
-      report={report}
-      moreData={moreData}
-      currentKey={perkey}
-      nodeExtra={nodeExtra}
-    />
-  );
-};
