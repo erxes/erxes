@@ -5,8 +5,9 @@ import { isClosingStatus } from '@/ticket/utils/cpNotifications';
 
 const MAX_OPEN_TICKETS = 5;
 
-// Automation targets carry either the inbox conversation id or, for Facebook,
-// the integration's own conversation id; tickets relate to the inbox one.
+// Automation targets carry either the inbox conversation id or, for Facebook
+// and Instagram, the integration's own conversation id; tickets relate to the
+// inbox one.
 export const resolveInboxConversationId = async (
   models: IModels,
   conversationId?: string,
@@ -19,12 +20,18 @@ export const resolveInboxConversationId = async (
     return conversationId;
   }
 
-  const facebookConversation = await models.FacebookConversations.findOne(
-    { _id: conversationId },
-    { erxesApiId: 1 },
-  ).lean<{ erxesApiId?: string }>();
+  const projection = { erxesApiId: 1 };
+  const providerConversation =
+    (await models.FacebookConversations.findOne(
+      { _id: conversationId },
+      projection,
+    ).lean<{ erxesApiId?: string }>()) ||
+    (await models.InstagramConversations.findOne(
+      { _id: conversationId },
+      projection,
+    ).lean<{ erxesApiId?: string }>());
 
-  return facebookConversation?.erxesApiId || undefined;
+  return providerConversation?.erxesApiId || undefined;
 };
 
 // The open tickets of a conversation's customer, newest first: tickets keep
@@ -51,7 +58,12 @@ export const findOpenConversationTickets = async ({
   )
     .sort({ createdAt: -1 })
     .lean<
-      Array<{ _id: string; number?: string; name?: string; statusType?: number }>
+      Array<{
+        _id: string;
+        number?: string;
+        name?: string;
+        statusType?: number;
+      }>
     >();
 
   return tickets
