@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -35,6 +35,7 @@
 - Transaction filters include account type, account status, account category (with its child categories), and off-balance account through the `accountKind`, `accountStatus`, `accountCategoryId`, and `accountIsOutBalance` query params. The same variables drive the list, record list, and export.
 - The safe remainder list filters by one or more count statuses through the `statuses` query param.
 - Transaction form save actions keep submit behavior unchanged but render `DRAFTED` status-group saves with the shared secondary button variant, warning-colored draft icon/text, and warning-colored debit/credit totals.
+- Journal entry deletion (selection bar Delete and row more-menu Delete) goes through `useTrRecordsDelete`: it dedupes the selected lines by `parentId`, loads each parent with `accountingAccTransactionsDetail` (network-only), and confirms with the real scope — transaction count, total journal lines including unselected ones, each transaction's number/date/line count, and a warning when published transactions are included — before sending one `accountingAccTransactionsRemove` per parent. The selection-bar Delete uses `variant="secondary"` with `text-destructive`, and the confirm OK button uses the destructive variant. The selection is cleared only when every parent removal succeeds. Never call the remove mutation per selected row: one parent removes every line in it.
 - Exports accounting main and journal record transaction lists through the platform import/export UI using the current frontend filters or selected rows.
 - Transaction record rows place each detail amount in the debit or credit column using the transaction-level side.
 - Transaction record tables initialize journal-specific columns before the table provider mounts so structural action and checkbox columns retain their fixed width.

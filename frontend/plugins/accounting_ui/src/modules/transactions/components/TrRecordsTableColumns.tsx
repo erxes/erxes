@@ -17,13 +17,12 @@ import {
   Popover,
   RecordTable,
   RecordTableInlineCell,
-  useConfirm,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import { ProductsInline } from 'ui-modules';
 import { SelectFixedAsset } from '@/settings/fixed-assets/components/SelectFixedAsset';
-import { useTrRecordsRemove } from '../hooks/useTrRecordsRemove';
+import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import {
   TR_JOURNAL_LABELS,
   TR_SIDES,
@@ -201,8 +200,7 @@ const TransactionMoreColumnCell = ({
   const { parentId, trId, originId } = cell.row.original;
   const navigate = useNavigate();
   const location = useLocation();
-  const { confirm } = useConfirm();
-  const { removeTrRecords } = useTrRecordsRemove();
+  const { deleteTrRecords } = useTrRecordsDelete();
 
   const handleEdit = () => {
     navigate(
@@ -214,16 +212,7 @@ const TransactionMoreColumnCell = ({
     );
   };
 
-  const handleDelete = () =>
-    confirm({
-      message: t('are-you-sure-delete-tr-record'),
-      options: {
-        okLabel: t('delete'),
-        cancelLabel: t('cancel'),
-      },
-    }).then(() => {
-      removeTrRecords(parentId);
-    });
+  const handleDelete = () => deleteTrRecords([cell.row.original]);
 
   return (
     <Popover>
