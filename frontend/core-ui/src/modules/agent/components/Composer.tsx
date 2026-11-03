@@ -145,9 +145,9 @@ export const Composer = ({
     item.context ? [item.context] : [],
   );
   const selectionCount = attachments.filter((item) => item.selection).length;
+  // While a run streams, Enter still sends: the message waits for the run.
   const canSend =
     !disabled &&
-    !isStreaming &&
     !hasPending &&
     !hasError &&
     (trimmed.length > 0 ||
@@ -461,10 +461,7 @@ export const Composer = ({
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p
-                    className="truncate text-xs font-medium"
-                    title={item.name}
-                  >
+                  <p className="truncate text-xs font-medium" title={item.name}>
                     {item.name}
                   </p>
                   <p className="truncate text-[11px] text-muted-foreground">
