@@ -586,15 +586,25 @@ check_reachable() {
   fi
 }
 
+open_browser() {
+  [ -z "$ERXES_DOMAIN" ] && can_ask || return 0
+  if [ "$OS" = Darwin ]; then
+    open "$1" >/dev/null 2>&1 || true
+  elif [ -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ] && command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$1" >/dev/null 2>&1 || true
+  fi
+}
+
 summary() {
-  local compose="cd $ERXES_DIR && $DOCKER compose"
+  local compose="cd $ERXES_DIR && $DOCKER compose" start_url="$ERXES_URL"
+  if curl -fsS --max-time 5 "$ERXES_URL/gateway/pl:core/initial-setup" 2>/dev/null | grep -q '"hasOwner":false'; then
+    start_url="$ERXES_URL/create-owner"
+  fi
   say ''
   ok "${C_BOLD}erxes $ERXES_VERSION is running${C_RESET}"
   say ''
-  say "  Open:      $ERXES_URL"
-  if curl -fsS --max-time 5 "$ERXES_URL/gateway/pl:core/initial-setup" 2>/dev/null | grep -q '"hasOwner":false'; then
-    say "  Next:      create the owner account at $ERXES_URL/create-owner"
-  fi
+  say "  Open:      $start_url"
+  [ "$start_url" = "$ERXES_URL" ] || say "             ${C_DIM}Create the owner account there, then sign in.${C_RESET}"
   say "  Plugins:   ${ENABLED_PLUGINS:-none}"
   say "  Files:     $ERXES_DIR"
   say ''
@@ -604,6 +614,7 @@ summary() {
   say "  Upgrade:   run the install command again"
   say "  Remove:    $compose down -v ${C_DIM}(deletes all data)${C_RESET}"
   say ''
+  open_browser "$start_url"
 }
 
 main() {
