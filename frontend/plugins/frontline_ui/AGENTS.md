@@ -658,6 +658,11 @@
   pipeline metadata is loading. A terminally missing selection falls back to
   the tickets-only breadcrumb, while query failures render an explicit error
   state.
+- Every report card names its icon-only controls after the card: the drag
+  handle, the chart-type trigger, and the Previous and Next page buttons, for
+  example "Next page of Conversation Open". `SelectChartType` and
+  `ChartPagination` read the title from the enclosing `FrontlineCard` through
+  `useFrontlineCardTitle`, so callers pass nothing.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,

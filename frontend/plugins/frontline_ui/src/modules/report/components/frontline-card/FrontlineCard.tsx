@@ -33,6 +33,9 @@ function useFrontlineCardContext() {
   return context;
 }
 
+export const useFrontlineCardTitle = () =>
+  useContext(FrontlineCardContext)?.title;
+
 type FrontlineCardRootProps = {
   id: string;
   title: string;
@@ -130,6 +133,10 @@ export function FrontlineCardHeader({
       >
         <button
           type="button"
+          aria-label={t('reorder-chart', {
+            title,
+            defaultValue: 'Reorder {{title}}',
+          })}
           className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded shrink-0"
           {...dragHandleProps}
         >
