@@ -72,7 +72,9 @@ it('does not offer unavailable messaging or email actions', () => {
 it.each([
   ['example.com', 'https://example.com/'],
   ['http://example.com/path', 'http://example.com/path'],
+  // skipcq: JS-0087 -- Negative security fixture; verify no link is rendered.
   ['javascript:alert(1)', null],
+  // skipcq: JS-0087 -- Negative security fixture; verify no link is rendered.
   ['javascript://example.com/alert(1)', null],
   ['not a valid host', null],
 ] as const)(
