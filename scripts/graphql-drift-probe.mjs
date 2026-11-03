@@ -23,13 +23,15 @@ import {
   parse,
 } from 'graphql';
 
-const subgraph = process.argv[2];
+// A plain name only, so the SDL path below cannot leave backend/.
+const subgraph = /^[a-z][a-z0-9_]*$/.test(process.argv[2] ?? '')
+  ? process.argv[2]
+  : undefined;
 const gateway = process.env.ERXES_GATEWAY_URL ?? 'http://localhost:4000';
 const token = process.env.ERXES_AUTH_TOKEN;
-const sdlPath =
-  subgraph === 'core'
-    ? 'backend/core-api/generated/schema.graphql'
-    : `backend/plugins/${subgraph}_api/generated/schema.graphql`;
+const sdlDir =
+  subgraph === 'core' ? 'backend/core-api' : `backend/plugins/${subgraph}_api`;
+const sdlPath = subgraph ? `${sdlDir}/generated/schema.graphql` : '';
 
 if (!subgraph || !token || !existsSync(sdlPath)) {
   console.error(
@@ -62,18 +64,20 @@ const schema = buildClientSchema((await run(getIntrospectionQuery())).data);
 // Paging and sorting change order or size, not membership.
 const PAGING =
   /^(limit|cursor|direction|orderBy|sortField|sortDirection|page|perPage|cursorMode|sortMode|aggregationPipeline)$/;
-const DATE = /date|from|start|end|since|until|to$/i;
+const DATE = /(?:date|from|start|end|since|until)|(?:to$)/i;
+const UPPER_BOUND = /(?:end|until)|(?:to$)/i;
 
 // A value that should match nothing, or undefined when no such value is unambiguous.
+const noMatchScalar = (arg) => {
+  if (DATE.test(arg.name))
+    return UPPER_BOUND.test(arg.name) ? '1971-01-01' : '2099-01-01';
+  if (['String', 'ID'].includes(getNamedType(arg.type).name))
+    return 'graphql_drift_probe_no_match';
+  return undefined;
+};
+
 const noMatch = (arg) => {
-  const type = getNamedType(arg.type).name;
-  const value = DATE.test(arg.name)
-    ? /end|to$|until/i.test(arg.name)
-      ? '1971-01-01'
-      : '2099-01-01'
-    : ['String', 'ID'].includes(type)
-    ? 'graphql_drift_probe_no_match'
-    : undefined;
+  const value = noMatchScalar(arg);
   return value === undefined || !isListType(getNullableType(arg.type))
     ? value
     : [value];
