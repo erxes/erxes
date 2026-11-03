@@ -55,6 +55,8 @@ query LogsMainList(
       source
       action
       name
+      docId
+      recordName
       status
       userId
       cursor
@@ -85,6 +87,8 @@ export const LOG_DETAIL = gql`
       userId
       processId
       contentType
+      docId
+      recordName
       user {
         _id
         email

@@ -97,6 +97,7 @@
     "source": "Source",
     "action": "Action",
     "operation": "Operation",
+    "record": "Record",
     "user": "User",
     "no-user": "No User",
     "system-logs": "System Logs",
