@@ -21,6 +21,7 @@
     "tab-shortcuts": "Tab shortcuts",
     "toggle-panel": "Toggle navigation panel",
     "open-plugin": "Open a plugin",
+    "skip-to-main-content": "Focus page content",
     "search": "Search",
     "go-to": "Go to",
     "no-plugins-match": "No plugins match your search",
@@ -82,6 +83,7 @@
   "filter": {
     "_": "Filter",
     "search": "Search",
+    "enter-search-text": "Enter search text",
     "brand": "Brand",
     "assigned-to": "Assigned To",
     "created-at": "Created At",
@@ -96,6 +98,7 @@
     "source": "Source",
     "action": "Action",
     "operation": "Operation",
+    "record": "Record",
     "user": "User",
     "no-user": "No User",
     "system-logs": "System Logs",
@@ -652,6 +655,7 @@
     "title": "Access Denied",
     "description": "You don't have permission to access this page. Contact your administrator to request access."
   },
+  "close": "Close",
   "not-found": {
     "message": "Oops! Page not found.",
     "go-back": "Go back"

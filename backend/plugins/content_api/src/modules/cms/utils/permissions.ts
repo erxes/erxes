@@ -2,6 +2,7 @@ import { canGroup, getGroupActionsMap } from 'erxes-api-shared/core-modules';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { CMS_POST_ACTIONS, permissions } from '~/meta/permissions';
 import type { IContext } from '~/connectionResolvers';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 type CmsContext = Pick<IContext, 'user' | 'models' | 'subdomain'>;
 
@@ -262,7 +263,7 @@ export const isCmsLanguageAllowed = async (
   return canCms(context, `cmsLanguage:${normalized}`);
 };
 
-const getDefaultLanguage = async (
+const getCmsLanguages = async (
   context: CmsContext,
   clientPortalId?: string,
 ) => {
@@ -270,12 +271,15 @@ const getDefaultLanguage = async (
     return undefined;
   }
 
-  const cms = await context.models.CMS.findOne({ clientPortalId })
-    .select({ language: 1 })
+  return context.models.CMS.findOne({ clientPortalId })
+    .select({ language: 1, languages: 1 })
     .lean();
-
-  return cms?.language;
 };
+
+const getDefaultLanguage = async (
+  context: CmsContext,
+  clientPortalId?: string,
+) => getCmsDefaultLanguage(await getCmsLanguages(context, clientPortalId));
 
 export const assertCmsLanguageAccess = async ({
   context,
@@ -340,15 +344,14 @@ export const getCmsReadAccess = async (
       language: requestedLanguage,
     });
 
-    const defaultLanguage = await getDefaultLanguage(context, clientPortalId);
+    const cms = await getCmsLanguages(context, clientPortalId);
     const normalizedLanguage = normalizeLanguage(requestedLanguage);
 
     return {
       query,
       language: normalizedLanguage,
       translationLanguage:
-        defaultLanguage &&
-        normalizeLanguage(defaultLanguage) !== normalizedLanguage
+        cms?.language && normalizeLanguage(cms.language) !== normalizedLanguage
           ? normalizedLanguage
           : undefined,
     };

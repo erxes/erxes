@@ -105,9 +105,11 @@ const AutomationCardMenu = ({ automation }: { automation: IAutomation }) => {
 
 const AutomationCardStatus = ({
   id,
+  name,
   status,
 }: {
   id: string;
+  name: string;
   status: string;
 }) => {
   const [open, setOpen] = useState(false);
@@ -124,6 +126,7 @@ const AutomationCardStatus = ({
       </Popover.Trigger>
       <Popover.Content align="end" className="w-auto p-1">
         <AutomationStatusToggle
+          name={name}
           status={status}
           loading={loading}
           setActive={setActive}
@@ -147,7 +150,7 @@ export const AutomationCard = ({ automation }: { automation: IAutomation }) => {
         >
           {name}
         </Link>
-        <AutomationCardStatus id={_id} status={status} />
+        <AutomationCardStatus id={_id} name={name} status={status} />
         <AutomationCardMenu automation={automation} />
       </div>
 

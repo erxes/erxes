@@ -11,6 +11,8 @@ export const types = `
       processId:String,
       contentType:String,
       name:String,
+      docId:String,
+      recordName:String,
 
       user:User
       prevObject:JSON

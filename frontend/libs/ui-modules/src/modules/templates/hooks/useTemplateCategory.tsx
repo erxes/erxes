@@ -6,7 +6,7 @@ export const useTemplateCategory = (options: QueryHookOptions) => {
     ...options,
   });
 
-  const category = data?.templateCategory || {};
+  const category = data?.templateCategory;
 
   return {
     category,
