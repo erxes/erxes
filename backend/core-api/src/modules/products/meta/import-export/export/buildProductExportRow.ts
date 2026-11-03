@@ -6,6 +6,7 @@ type Maps = {
   vendorMap: Map<string, string>;
   tagMap: Map<string, string>;
   brandMap: Map<string, string>;
+  fileUrl: (key: string) => string;
 };
 
 const stripHtml = (input: string) => input.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
@@ -99,6 +100,9 @@ export const buildProductExportRow = (
   const tagNames = joinNames(product.tagIds || [], maps?.tagMap || new Map());
   const brandNames = joinNames(product.scopeBrandIds || [], maps?.brandMap || new Map());
 
+  const imageKey = product.attachment?.url || '';
+  const imageUrl = imageKey && maps?.fileUrl ? maps.fileUrl(imageKey) : imageKey;
+
   const allFields: Record<string, any> = {
     _id: formatValue(product._id), 
     name: formatValue(product.name),
@@ -119,6 +123,7 @@ export const buildProductExportRow = (
 
     barcodes: formatValue(Array.isArray(product.barcodes) ? product.barcodes.join('; ') : product.barcodes),
     barcodeDescription: formatValue(toPlainText(product.barcodeDescription)),
+    image: formatValue(imageUrl),
     currency: formatValue(product.currency),
 
     createdAt: formatValue(product.createdAt ? new Date(product.createdAt) : ''),

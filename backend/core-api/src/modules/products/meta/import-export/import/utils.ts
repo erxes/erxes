@@ -1,4 +1,8 @@
-import { IProduct, ProductDurationType } from 'erxes-api-shared/core-types';
+import {
+  IAttachment,
+  IProduct,
+  ProductDurationType,
+} from 'erxes-api-shared/core-types';
 import { splitImportTagNames } from '~/meta/import-export/utils';
 import { PRODUCT_DURATION_TYPES, PRODUCT_TYPES } from '@/products/constants';
 
@@ -17,7 +21,8 @@ export type ProductImportRow = Partial<
     | 'type'
     | 'barcodes'
     | 'duration'
-    | 'durationType',
+    | 'durationType'
+    | 'image',
     string
   >
 >;
@@ -73,6 +78,51 @@ const parseNumber = (value: string, field: string) => {
 const isDurationType = (value: string): value is ProductDurationType =>
   PRODUCT_DURATION_TYPES.ALL.includes(value);
 
+const IMAGE_MIME_TYPES: Record<string, string> = {
+  avif: 'image/avif',
+  gif: 'image/gif',
+  jpeg: 'image/jpeg',
+  jpg: 'image/jpeg',
+  png: 'image/png',
+  svg: 'image/svg+xml',
+  webp: 'image/webp',
+};
+
+const decodeFileName = (value: string) => {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+};
+
+const parseImage = (value: string): IAttachment => {
+  let url: URL;
+
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error('image must be a URL starting with http:// or https://');
+  }
+
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    throw new Error('image must be a URL starting with http:// or https://');
+  }
+
+  const path = url.searchParams.get('key') || url.pathname;
+  const name = decodeFileName(path.split('/').pop() || '') || 'image';
+  const extension = name.includes('.')
+    ? name.split('.').pop()?.toLowerCase() || ''
+    : '';
+
+  return {
+    url: value,
+    name,
+    type: IMAGE_MIME_TYPES[extension] || 'image',
+    size: 0,
+  };
+};
+
 /**
  * Cell text to typed values only. Product rules (category, uom, vendor, code
  * mask, duration) belong to the Products model. A field the row leaves out
@@ -116,6 +166,12 @@ export const parseProductRow = (
     }
 
     doc.durationType = row.durationType;
+  }
+
+  const image = cleanCellValue(row.image);
+
+  if (image) {
+    doc.attachment = parseImage(image);
   }
 
   if (row.tags !== undefined) {

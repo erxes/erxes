@@ -22,6 +22,7 @@ export async function getProductExportHeaders(
     { label: 'Description', key: 'description' },
     { label: 'Barcodes', key: 'barcodes' },
     { label: 'Barcode Description', key: 'barcodeDescription' },
+    { label: 'Image', key: 'image' },
     { label: 'Created At', key: 'createdAt' },
     { label: 'Updated At', key: 'updatedAt' },
   ];
