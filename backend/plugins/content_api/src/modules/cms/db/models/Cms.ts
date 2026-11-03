@@ -9,6 +9,7 @@ import {
   IContentCMSInput,
 } from '@/cms/@types/cms';
 import { cmsSchema } from '@/cms/db/definitions/cms';
+import { getCmsDefaultLanguage } from '@/cms/utils/common';
 
 /**
  * Content whose translatable fields live in the base document for the default
@@ -258,6 +259,25 @@ export const loadCmsClass = (models: IModels) => {
       };
     }
 
+    private static keepImpliedDefault(
+      existing: { language?: string; languages?: string[] } | null,
+      doc: IContentCMSInput,
+    ) {
+      const impliedLanguage = getCmsDefaultLanguage({
+        languages: doc.languages ?? existing?.languages,
+      });
+
+      if (existing?.language || doc.language !== impliedLanguage) {
+        return doc;
+      }
+
+      const docWithoutLanguage = { ...doc };
+
+      delete docWithoutLanguage.language;
+
+      return docWithoutLanguage;
+    }
+
     public static async getContentCMS(_id: string) {
       return models.CMS.findOne({ _id });
     }
@@ -289,9 +309,11 @@ export const loadCmsClass = (models: IModels) => {
         );
       }
 
-      return models.CMS.findOneAndUpdate({ _id }, this.buildCmsDoc(doc), {
-        new: true,
-      });
+      return models.CMS.findOneAndUpdate(
+        { _id },
+        this.buildCmsDoc(this.keepImpliedDefault(existing, doc)),
+        { new: true },
+      );
     }
     public static async deleteContentCMS(_id: string) {
       return models.CMS.findOneAndDelete({ _id });

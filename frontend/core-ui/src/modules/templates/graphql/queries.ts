@@ -67,6 +67,17 @@ export const QUERY_TEMPLATES = gql`
   }
 `;
 
+export const QUERY_TEMPLATE_DETAIL = gql`
+  query TemplateDetail($_id: String!) {
+    templateDetail(_id: $_id) {
+      _id
+      name
+      description
+      categoryIds
+    }
+  }
+`;
+
 export const QUERY_TEMPLATE_TYPES = gql`
   query templatesGetTypes {
     templatesGetTypes

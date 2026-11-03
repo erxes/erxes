@@ -40,6 +40,7 @@ interface AddPostHeaderActionsProps {
   onSubmit: (data?: FieldValues) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
+  isSaveBlocked: boolean;
 }
 
 export const AddPostHeaderActions = ({
@@ -47,6 +48,7 @@ export const AddPostHeaderActions = ({
   onSubmit,
   creating,
   saving,
+  isSaveBlocked,
 }: AddPostHeaderActionsProps) => {
   const { t } = useTranslation('content');
   const status = useWatch({
@@ -192,7 +194,7 @@ export const AddPostHeaderActions = ({
       </Form>
       <Button
         onClick={() => form.handleSubmit(onSubmit)()}
-        disabled={creating || saving}
+        disabled={creating || saving || isSaveBlocked}
       >
         {creating || saving ? (
           <>

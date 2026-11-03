@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -126,6 +126,10 @@
 
 ## Local Invariants
 
+- Quantity pricing bonuses of type `every` award exactly
+  `floor(quantity / rule.value)` units of `discountBonusProduct`, without an
+  initial extra unit; `exact` and `minimum` award one unit when eligible.
+
 - Every automation action declares a `configSchema` (`src/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: issue voucher and award spin (campaign; owner defaults to the run's record), adjust score (`attribution`; wallet for fixed, campaign otherwise, a campaign never subtracts) and set tier (`attribution`, wallet, bands for amount mode). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Users see an account type as a "wallet" (en) / "хэтэвч" (mn) inside the owner's loyalty account; user-facing errors say wallet. Code, models, GraphQL (`LoyaltyAccountType`, `accountTypeId`) keep the `accountType` name.
 - Preserve tenant isolation by using the request `subdomain` for every model and service access.
@@ -168,6 +172,10 @@
   every generation made one code.
 
 ## Validation
+
+- `pnpm nx test loyalty_api --testPathPattern quantityBonus --runInBand`
+- Pricing bonus smoke: for every three A, award one free B; two A gives none,
+  three A gives one B, five A gives one B, and six A gives two B.
 
 - `pnpm nx test loyalty_api` (`src/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test loyalty_api` (`src/meta/automations/__tests__/configSchemas.test.ts`)

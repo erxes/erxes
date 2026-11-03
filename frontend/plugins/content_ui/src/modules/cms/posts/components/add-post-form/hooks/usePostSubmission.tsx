@@ -94,6 +94,7 @@ interface UsePostSubmissionProps {
   defaultLanguage?: string;
   defaultLangData?: DefaultLangData | null;
   translations?: Record<string, TranslationEntry>;
+  isSaveBlocked?: boolean;
   onClose?: () => void;
   /**
    * Called after a successful save, before any navigation, with the form
@@ -368,6 +369,7 @@ export const usePostSubmission = ({
   defaultLanguage,
   defaultLangData,
   translations,
+  isSaveBlocked,
   onClose,
   onSaved,
 }: UsePostSubmissionProps) => {
@@ -469,7 +471,7 @@ export const usePostSubmission = ({
   );
 
   onSubmitRef.current = async (data: PostFormData, options?: SubmitOptions) => {
-    if (pendingPublishRef.current) return;
+    if (pendingPublishRef.current || isSaveBlocked) return;
     if (!data.type) {
       if (options?.silent) {
         return;
