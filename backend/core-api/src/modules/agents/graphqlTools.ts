@@ -25,16 +25,16 @@ import {
 import {
   agentToolResponseTooLargeError,
   agentToolsAuthHeaderName,
+  assertGraphqlResultAllowed,
   encodeAgentToolsAuthHeader,
   getAgentToolMaxResponseBytes,
   getPluginAddress,
   getPlugins,
+  isDeniedGraphqlField,
   oversizedAgentToolResultBytes,
 } from 'erxes-api-shared/utils';
 import { gatewayUrl } from '~/utils/email/links';
 import {
-  AGENT_GRAPHQL_DENIED_FIELD,
-  assertAgentGraphqlResultAllowed,
   parseAgentGraphqlOperation,
   requiresGraphqlApproval,
 } from './graphqlPolicy';
@@ -311,7 +311,7 @@ const collectRootFields = ({
       // of discovery and remain callable.
       if (
         name === STUB_ROOT_FIELD ||
-        AGENT_GRAPHQL_DENIED_FIELD.test(name) ||
+        isDeniedGraphqlField(name) ||
         hiddenOperations.has(`${operation}.${name}`)
       ) {
         continue;
@@ -677,7 +677,7 @@ export const buildGraphqlTools = async (): Promise<{
             }
 
             try {
-              assertAgentGraphqlResultAllowed(parsed.document, data);
+              assertGraphqlResultAllowed(parsed.document, data, 'agent');
             } catch (error) {
               return toToolFailure(error);
             }

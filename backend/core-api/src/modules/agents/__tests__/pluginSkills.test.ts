@@ -15,6 +15,7 @@ jest.mock('erxes-api-shared/core-modules', () =>
 jest.mock('erxes-api-shared/utils', () => ({
   ...jest.requireActual('erxes-api-shared/utils/agent-tools/auth'),
   ...jest.requireActual('erxes-api-shared/utils/agent-tools/responseLimit'),
+  ...jest.requireActual('erxes-api-shared/utils/graphqlPolicy'),
   getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
     process.env[name] || defaultValue || '',
   getPluginAddress: async (plugin: string) => `http://${plugin}:1`,

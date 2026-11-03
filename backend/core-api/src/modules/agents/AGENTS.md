@@ -59,8 +59,10 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   next-step offers. Ordinary replies keep their existing presentation.
 - GraphQL discovery (`searchGraphql`) and execution (`callGraphql`) through
   the gateway as the acting user, using a fresh HMAC-signed identity header.
-  `graphqlPolicy.ts` denies authentication, credential and system-security
-  operations. Its AST checks include nested canonical field/argument names,
+  The deny checks in `erxes-api-shared/src/utils/graphqlPolicy.ts` (shared
+  with the extensions runtime) refuse authentication, credential and
+  system-security operations; `graphqlPolicy.ts` here binds them to the agent
+  and adds the approval rule. The AST checks include nested canonical field/argument names,
   fragments, literal/default input objects and supplied variable object keys;
   aliases cannot rename a restricted field. Direct and code-mode calls share
   this policy before approval and execution. JSON-valued results are checked
@@ -79,7 +81,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   says core rules, approval, unavailable operations, permissions and
   references win over any skill. `hiddenOperations` drop root fields from
   `searchGraphql` and `agentsTools` only; `callGraphql` still executes them
-  and `graphqlPolicy.ts` is unchanged. A plugin hides only fields its own SDL
+  and the deny checks are unchanged. A plugin hides only fields its own SDL
   defines; hints naming hidden operations are dropped;
 - optional code mode exposes only `searchGraphql` and `callGraphql` in a
   QuickJS sandbox; approval-gated mutations must run interactively in chat.
@@ -101,7 +103,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   name and validated deal board/pipeline, or an unavailable response. It never
   calls a model, accepts a model URL, or bypasses normal resolver permissions;
 - **pageContext**: `POST /agents/chat` accepts `pageContext: { path, record? }
-  ` — strictly validated (path starts `/`, ≤200 chars, no control chars;
+` — strictly validated (path starts `/`, ≤200 chars, no control chars;
   record.type from the reference-type set; record.id matches
   `^[A-Za-z0-9_-]{1,64}$`; invalid parts silently dropped) and prepended to
   the newest user message as a `[Page context] ...` text part, which Mastra
@@ -132,10 +134,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   never grant permission; later reads still use resolver permissions;
 - tenant-wide `AgentsSettings` on `agents_settings` (`codeModeEnabled`,
   `codeModeEnvironment: 'in-process'`, `approvalMode: 'writes' |
-  'destructive'` — default `'writes'`, stamped per run into RequestContext;
+'destructive'` — default `'writes'`, stamped per run into RequestContext;
   `'writes'` asks before every GraphQL mutation; `'destructive'` asks before
   deletes, merges, archives, publishes and customer-facing sends/replies.
-
 
 ## Surfaces
 
@@ -167,21 +168,21 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `agentsConnections`, `agentsModels` (server-side provider /models fetch,
   filtered by `modelCatalog.ts`; per provider `models` = usable ids in rank
   order, additive `catalog: [AgentsModelInfo { id, family, recommended, name,
-  thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
+thinking: AgentsModelThinking { kind, levels } }]` (`modelThinking.ts`; null
   name/thinking = not in the snapshot), and
   a key-free `error` that says why when the stored key cannot be opened
   (missing vs changed `JWT_TOKEN_SECRET`, or no key) or the listing fails
   (OpenAI keys without Models: Read / `api.model.read`, 401, 403, 429, 5xx);
   every saved provider is returned, never silently dropped),
   `agentsModelVerify(provider: String!, model: String!): AgentsModelVerification
-  { provider model ok error }` (`agentsChat`; own saved connection only;
+{ provider model ok error }` (`agentsChat`; own saved connection only;
   `modelProbe.ts` sends one minimal request through `providers.ts` +
   Mastra `resolveModelConfig` — 16 output tokens, kimi-code with the
   `MIN_ANTHROPIC_THINKING_BUDGET` (1,024) thinking budget because `k3.1-pro`
   rejects thinking off; ok only after an output, metadata or finish chunk,
   otherwise a "no response" error; id shape and `isUsableProviderModel` are
   checked first; nothing is persisted; like
-  `agentsConnectionSetDefault`, denied to the agent by `graphqlPolicy.ts`),
+  `agentsConnectionSetDefault`, denied to the agent by the shared deny checks),
   `agentsConnectionUpsert`/`agentsConnectionRemove` (BYOK; key never read
   back; `AgentsConnectionEntry.isDefault` is the effective default),
   `agentsConnectionSetDefault(provider: String): [AgentsConnectionEntry]`
@@ -225,7 +226,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `MongoDBStore` (`core-agents-store`) on the dedicated `{db}_agents_memory`
   sub-database via the shared mongoose `connectorHandler`; installs the
   MongoDB 4.4 workflow-snapshot codec; `Mastra({ logger:false, workers:false,
-  pubsub })`.
+pubsub })`.
 - DurableAgent explicitly persists all workflow statuses. Reconnect and
   concurrent-turn guards require stored running snapshots; Mastra's default skips
   them with automatic crash recovery off. Terminal snapshots prevent completed
@@ -253,7 +254,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   `main.ts` on SIGINT/SIGTERM before the HTTP server closes: chat, approve and
   answer streams (runs produced in this process, which die with it) end with
   an `error` chunk whose text is the JSON `{ error, code:
-  'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
+'AGENTS_RUN_INTERRUPTED' }` body (also the reconnect 409). Reconnect streams
   pass `observed`: their run may live on another replica, so shutdown only
   drops the connection and the client's stall detection reconnects.
 - `pubsub.ts` — process-wide `RedisStreamsPubSub` (key prefix `core-agents`,
@@ -445,7 +446,8 @@ export const agent: IAgentPluginMeta = {
   rules; they take precedence anyway.
 - Hide operations the agent cannot use well (e.g. client portal `cp*`
   operations). Hiding is not security: keep resolver permissions, and use
-  `graphqlPolicy.ts` (a core change) for anything that must be denied.
+  the shared deny checks in `erxes-api-shared/src/utils/graphqlPolicy.ts`
+  (a shared change) for anything that must be denied.
 - Plugin names must be lowercase letters and digits to namespace skills.
   Changes reach the agent within one catalog refresh (≤60s) after the plugin
   registers.
