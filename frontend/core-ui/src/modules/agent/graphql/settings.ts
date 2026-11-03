@@ -21,8 +21,18 @@ export const AGENTS_SETTINGS = gql`
 `;
 
 export const AGENTS_SETTINGS_UPDATE = gql`
-  mutation AgentsSettingsUpdate($codeModeEnabled: Boolean, $codeModeEnvironment: String, $approvalMode: String, $instructions: String) {
-    agentsSettingsUpdate(codeModeEnabled: $codeModeEnabled, codeModeEnvironment: $codeModeEnvironment, approvalMode: $approvalMode, instructions: $instructions) {
+  mutation AgentsSettingsUpdate(
+    $codeModeEnabled: Boolean
+    $codeModeEnvironment: String
+    $approvalMode: String
+    $instructions: String
+  ) {
+    agentsSettingsUpdate(
+      codeModeEnabled: $codeModeEnabled
+      codeModeEnvironment: $codeModeEnvironment
+      approvalMode: $approvalMode
+      instructions: $instructions
+    ) {
       codeModeEnabled
       codeModeEnvironment
       approvalMode

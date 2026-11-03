@@ -107,7 +107,9 @@ const WORKING_MEMORY_TEMPLATE = `# User
 - Report and formatting preferences:
 `;
 
-const createAgentsRuntime = async (subdomain: string): Promise<IAgentsRuntime> => {
+const createAgentsRuntime = async (
+  subdomain: string,
+): Promise<IAgentsRuntime> => {
   const models = await generateModels(subdomain);
   const connection = models.Users.db;
   // All packages are loaded dynamically from CommonJS like the other

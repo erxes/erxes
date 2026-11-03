@@ -95,13 +95,16 @@ export const buildAgentsInstructions = (
   now: Date,
   codeModeInstructions?: string,
   workspaceInstructions?: string,
-): string => [
-  DEFAULT_INSTRUCTIONS,
-  `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
-  codeModeInstructions,
-  workspaceInstructions &&
-    `Workspace instructions from an administrator. Follow them unless they conflict with the rules above:\n${workspaceInstructions}`,
-].filter(Boolean).join('\n\n');
+): string =>
+  [
+    DEFAULT_INSTRUCTIONS,
+    `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
+    codeModeInstructions,
+    workspaceInstructions &&
+      `Workspace instructions from an administrator. Follow them unless they conflict with the rules above:\n${workspaceInstructions}`,
+  ]
+    .filter(Boolean)
+    .join('\n\n');
 
 /** The tenant's admin-written instructions, read per run so edits apply at once. */
 const loadWorkspaceInstructions = async (subdomain: unknown) => {
@@ -195,9 +198,7 @@ const resolveRunConnection = async (
     throw new Error('Add your API key to start using Agents.');
   }
 
-  const storedConnection = doc.connections.find(
-    (c) => c.provider === provider,
-  );
+  const storedConnection = doc.connections.find((c) => c.provider === provider);
 
   if (!storedConnection) {
     throw new Error(
@@ -246,18 +247,19 @@ export interface IAgentsModelEntry {
  * with no credentials. It can never generate successfully (any accidental
  * use fails loudly at the provider), but it lets construction succeed.
  */
-export const buildFallbackAgentsModelEntry =
-  async (): Promise<IAgentsModelEntry[]> => {
-    const fallback = await createModelConfig({
-      provider: 'openai',
-      model: getProviderDefaultModel('openai'),
-      baseUrl: PROVIDER_DEFAULTS.openai.baseUrl,
-      apiKey: '',
-      headers: {},
-    });
+export const buildFallbackAgentsModelEntry = async (): Promise<
+  IAgentsModelEntry[]
+> => {
+  const fallback = await createModelConfig({
+    provider: 'openai',
+    model: getProviderDefaultModel('openai'),
+    baseUrl: PROVIDER_DEFAULTS.openai.baseUrl,
+    apiKey: '',
+    headers: {},
+  });
 
-    return [{ model: fallback }];
-  };
+  return [{ model: fallback }];
+};
 
 /**
  * Resolves the base agent's model-fallback list. Real runs (chat, resume,
@@ -267,9 +269,11 @@ export const buildFallbackAgentsModelEntry =
  * instead of throwing. Accepts any `.get(key)` context shape, covering
  * both the RequestContext instance and the plain-record form.
  */
-export const resolveAgentsModelEntry = async (requestContext?: {
-  get(key: string): unknown;
-} | null): Promise<IAgentsModelEntry[]> => {
+export const resolveAgentsModelEntry = async (
+  requestContext?: {
+    get(key: string): unknown;
+  } | null,
+): Promise<IAgentsModelEntry[]> => {
   const subdomain = requestContext?.get('subdomain');
   const userId = requestContext?.get('userId');
 
@@ -277,10 +281,14 @@ export const resolveAgentsModelEntry = async (requestContext?: {
     return buildFallbackAgentsModelEntry();
   }
 
-  const { connection, provider, model: modelId, thinkingLevel } =
-    await resolveRunConnection(
-      requestContext as RequestContext<IAgentsRequestContext>,
-    );
+  const {
+    connection,
+    provider,
+    model: modelId,
+    thinkingLevel,
+  } = await resolveRunConnection(
+    requestContext as RequestContext<IAgentsRequestContext>,
+  );
   const resolved = resolveModelConnection({ connection });
   const model = await createModelConfig(resolved);
   const providerOptions = buildThinkingProviderOptions(
@@ -337,8 +345,7 @@ export const buildBaseAgentsAgent = async ({
     id: 'agents',
     name: 'agents',
     instructions: async ({ requestContext }) => {
-      const codeModeEnabled =
-        requestContext?.get('codeModeEnabled') === true;
+      const codeModeEnabled = requestContext?.get('codeModeEnabled') === true;
 
       return buildAgentsInstructions(
         new Date(),
@@ -362,8 +369,7 @@ export const buildBaseAgentsAgent = async ({
     // the tenant flag is on. Tool objects are built once above; this
     // callback only controls which are included per run.
     tools: async ({ requestContext }) => {
-      const codeModeEnabled =
-        requestContext?.get('codeModeEnabled') === true;
+      const codeModeEnabled = requestContext?.get('codeModeEnabled') === true;
 
       return {
         searchGraphql,

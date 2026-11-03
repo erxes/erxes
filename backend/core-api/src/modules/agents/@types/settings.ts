@@ -19,9 +19,7 @@ export interface IAgentsSettings {
   instructions?: string;
 }
 
-export interface IAgentsSettingsDocument
-  extends IAgentsSettings,
-    Document {
+export interface IAgentsSettingsDocument extends IAgentsSettings, Document {
   _id: string;
   createdAt?: Date;
   updatedAt?: Date;
