@@ -1,6 +1,7 @@
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
 import { ContactPanelBreadcrumb } from '@/side-panel/components/details/ContactPanelBreadcrumb';
 import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
+import { useRecordRelationTabs } from '@/side-panel/hooks/useRecordRelationTabs';
 import { RecordPagePortal } from '@/side-panel/components/RecordPageSlot';
 import { IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
@@ -35,7 +36,6 @@ import {
   usePanelExpanded,
   useCompanyDetail,
   useCustomerDetail,
-  useRelationWidgetTabs,
   usePermissionCheck,
   useSidePanel,
 } from 'ui-modules';
@@ -281,14 +281,11 @@ const SidePanelSavedRecord = ({
   );
   const views =
     coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
-  const relationTabs = useRelationWidgetTabs({
-    ...record,
+  const relationTabs = useRecordRelationTabs({
+    record,
     access,
-    // Linked customers and companies are in a contact's Detail tab already.
-    hiddenModules: coreViews ? ['customer', 'company'] : [],
-    // A plugin's record keeps its customers and companies in its detail,
-    // and everything else links through them: it has no Relations tab.
-    skip: Boolean(panelPluginName),
+    hasCoreViews: Boolean(coreViews),
+    isPluginRecord: Boolean(panelPluginName),
   });
   const overview = useContactPanelOverview(record.contentType, relationTabs);
   const { contactType } = overview;
@@ -342,12 +339,15 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-        ? DETAIL_TAB
-        : ACTIVITY_TAB;
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>
       <RecordSidePanel.Header
+        className={
+          contactType && expanded ? 'h-10 bg-background px-3' : undefined
+        }
         avatar={contactType ? undefined : avatar}
         title={
           contactType && expanded ? (
@@ -518,8 +518,8 @@ export const SidePanelLayout = () => {
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const pageExpanded = Boolean(
     expanded &&
-    record &&
-    ['core:customer', 'core:company'].includes(record.contentType),
+      record &&
+      ['core:customer', 'core:company'].includes(record.contentType),
   );
 
   /** Selects a retained record stack or a recoverable empty state. */
@@ -572,8 +572,8 @@ export const SidePanelLayout = () => {
             onExpandedChange={setExpanded}
             width={
               moduleEntry && path
-                ? (moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0))
+                ? moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0)
                 : width
             }
             maxWidth={moduleEntry?.maxWidth}

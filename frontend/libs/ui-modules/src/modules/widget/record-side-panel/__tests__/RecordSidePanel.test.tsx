@@ -343,7 +343,7 @@ it('exposes every tab vertically in fullscreen and keeps the active editor mount
 it.each([false, true])(
   'respects reduced motion when toggling (%s)',
   (reducedMotion) => {
-    const animate = jest.fn();
+    const animate = jest.fn().mockReturnValue({ cancel: jest.fn() });
     const originalAnimate = HTMLElement.prototype.animate;
     const originalMatchMedia = window.matchMedia;
     HTMLElement.prototype.animate = animate;
@@ -365,6 +365,45 @@ it.each([false, true])(
     }
   },
 );
+
+it('animates committed mode changes without fading and cancels interrupted motion', () => {
+  const cancel = jest.fn();
+  const animate = jest.fn().mockReturnValue({ cancel });
+  const originalAnimate = HTMLElement.prototype.animate;
+  const originalMatchMedia = window.matchMedia;
+  HTMLElement.prototype.animate = animate;
+  window.matchMedia = jest.fn().mockReturnValue({ matches: false });
+  const onExpandedChange = jest.fn();
+  const panel = (expanded: boolean) => (
+    <RecordSidePanel expanded={expanded} onExpandedChange={onExpandedChange}>
+      <RecordSidePanel.Header title="Contact" onClose={jest.fn()} />
+      <input aria-label="Draft" defaultValue="Unsaved" />
+    </RecordSidePanel>
+  );
+  try {
+    const { rerender, unmount } = render(panel(false));
+    const draft = screen.getByRole('textbox');
+    expect(animate).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+    expect(onExpandedChange).toHaveBeenCalledWith(true);
+    expect(animate).not.toHaveBeenCalled();
+    rerender(panel(true));
+    expect(animate).toHaveBeenCalledTimes(1);
+    const keyframes: Keyframe[] = animate.mock.calls[0][0];
+    expect(keyframes.every((frame) => frame.opacity === undefined)).toBe(true);
+    expect(keyframes[0].transform).not.toBe(keyframes[1].transform);
+    rerender(panel(false));
+    expect(cancel).toHaveBeenCalledTimes(1);
+    expect(animate).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('textbox')).toBe(draft);
+    expect((draft as HTMLInputElement).value).toBe('Unsaved');
+    unmount();
+    expect(cancel).toHaveBeenCalledTimes(2);
+  } finally {
+    HTMLElement.prototype.animate = originalAnimate;
+    window.matchMedia = originalMatchMedia;
+  }
+});
 
 it('keeps record details beside activity in the full contact layout without remounting fields', () => {
   const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
@@ -517,4 +556,37 @@ it('keeps overflow tabs reachable from More in a narrow full contact page', () =
     width.mockRestore();
     tabWidth.mockRestore();
   }
+});
+
+it('does not replay entry motion when rapidly expanding and compressing a retained editor', () => {
+  render(
+    <RecordSidePanel>
+      <RecordSidePanel.Header title="Contact" onClose={jest.fn()} />
+      <input aria-label="Contact draft" />
+    </RecordSidePanel>,
+  );
+  const panel = screen.getByRole('complementary');
+  const draft = screen.getByRole<HTMLInputElement>('textbox');
+  fireEvent.change(draft, { target: { value: 'Keep this edit' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(panel.classList.contains('animate-in')).toBe(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(panel.classList.contains('animate-in')).toBe(false);
+  expect(screen.getByRole('textbox')).toBe(draft);
+  expect(draft.value).toBe('Keep this edit');
+});
+
+it('finishes its initial entry once without reacting to a child animation', () => {
+  render(
+    <RecordSidePanel>
+      <span>Nested content</span>
+    </RecordSidePanel>,
+  );
+  const panel = screen.getByRole('complementary');
+  fireEvent.animationEnd(screen.getByText('Nested content'), {
+    animationName: 'enter',
+  });
+  expect(panel.classList.contains('animate-in')).toBe(true);
+  fireEvent.animationEnd(panel, { animationName: 'enter' });
+  expect(panel.classList.contains('animate-in')).toBe(false);
 });

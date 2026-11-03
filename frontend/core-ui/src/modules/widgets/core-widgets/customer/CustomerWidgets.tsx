@@ -1,3 +1,4 @@
+import { ContactRelationWidget } from '../ContactRelationWidget';
 import {
   CustomerWidget,
   IRelationWidgetProps,
@@ -6,12 +7,16 @@ import {
 import { IconUserSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * The host record's customer: the one it keeps itself (`customerId`). Records
- * set it in their own form; no relation is read or written here.
- */
-export const CustomerWidgets = ({ customerId, access }: IRelationWidgetProps) => {
+/** Shows reciprocal customer links for contacts and explicit host fields for other records. */
+export const CustomerWidgets = (props: IRelationWidgetProps) => {
+  const { customerId, access } = props;
   const { t } = useTranslation('common', { keyPrefix: 'widgets' });
+
+  if (props.contentType === 'core:company') {
+    return (
+      <ContactRelationWidget {...props} relatedContentType="core:customer" />
+    );
+  }
 
   if (!customerId) {
     return (

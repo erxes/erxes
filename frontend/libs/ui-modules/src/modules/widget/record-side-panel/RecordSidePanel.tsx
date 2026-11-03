@@ -225,21 +225,39 @@ const RecordSidePanelRoot = ({
 }) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const expanded = controlledExpanded ?? internalExpanded;
+  const [entering, setEntering] = useState(true);
   const panelRef = useRef<HTMLElement>(null);
-  const toggle = useCallback(() => {
+  const previousExpanded = useRef(expanded);
+  const showEntryMotion = entering && previousExpanded.current === expanded;
+
+  useLayoutEffect(() => {
+    const changed = previousExpanded.current !== expanded;
+    previousExpanded.current = expanded;
+    if (!changed) return;
+    setEntering(false);
     const panel = panelRef.current;
     if (
-      panel?.animate &&
-      !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      !panel?.animate ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      panel.animate(
-        [
-          { opacity: 0.7, transform: `translateX(${expanded ? -12 : 24}px)` },
-          { opacity: 1, transform: 'translateX(0)' },
-        ],
-        { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
-      );
+      return;
     }
+    // Animate the committed layout without fading or restarting entry motion.
+    const animation = panel.animate(
+      [
+        {
+          transform: `translateX(${expanded ? 20 : -12}px) scaleX(0.985)`,
+          transformOrigin: 'top right',
+        },
+        { transform: 'none', transformOrigin: 'top right' },
+      ],
+      { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+    );
+    return () => animation.cancel();
+  }, [expanded]);
+
+  const toggle = useCallback(() => {
+    setEntering(false);
     setInternalExpanded(!expanded);
     onExpandedChange?.(!expanded);
   }, [expanded, onExpandedChange]);
@@ -252,6 +270,9 @@ const RecordSidePanelRoot = ({
         ref={panelRef}
         data-record-side-panel
         data-expanded={expanded || undefined}
+        onAnimationEnd={(event) => {
+          if (event.target === event.currentTarget) setEntering(false);
+        }}
         style={{ width: expanded ? '100%' : panelWidth }}
         className={cn(
           '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
@@ -260,7 +281,8 @@ const RecordSidePanelRoot = ({
               ? 'relative h-full min-w-0 flex-1 border-l-0'
               : 'fixed inset-0 z-40 h-svh border-l-0'),
           // Animate entry only: duration-200 must never ease drag width changes.
-          'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
+          showEntryMotion &&
+            'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
           className,
         )}
       >
@@ -279,6 +301,7 @@ const RecordSidePanelRoot = ({
 
 /** Renders record navigation, actions, and the guarded expansion shortcut. */
 const RecordSidePanelHeader = ({
+  className,
   avatar,
   title,
   actions,
@@ -286,6 +309,7 @@ const RecordSidePanelHeader = ({
   onExpand,
   onClose,
 }: {
+  className?: string;
   // Shown when the panel came here from another record.
   onBack?: () => void;
   avatar?: React.ReactNode;
@@ -349,7 +373,12 @@ const RecordSidePanelHeader = ({
 
   return (
     // Same height and surface as the app's top bar, so the two read as one.
-    <div className="flex items-center gap-1 h-12 px-2 border-b bg-sidebar flex-none">
+    <div
+      className={cn(
+        'flex items-center gap-1 h-12 px-2 border-b bg-sidebar flex-none',
+        className,
+      )}
+    >
       {onBack && (
         <Button
           variant="ghost"
