@@ -57,8 +57,25 @@ const otherLine: ITrRecord = {
   date: new Date(2026, 9, 30).toISOString(),
 };
 
-const twoLineTransaction = [
-  { status: 'draft', details: [{ _id: 'debit' }, { _id: 'credit' }] },
+const bankWithVatPair = [
+  {
+    _id: 'tr-bank',
+    parentId: 'parent-1',
+    number: 'BNK-0042',
+    journal: 'bank',
+    date: bankLine.date,
+    status: 'draft',
+    details: [{ _id: 'bank-debit' }, { _id: 'bank-credit' }],
+  },
+  {
+    _id: 'tr-vat',
+    parentId: 'parent-1',
+    number: 'TAX-0042',
+    journal: 'tax',
+    date: bankLine.date,
+    status: 'draft',
+    details: [{ _id: 'vat-debit' }, { _id: 'vat-credit' }],
+  },
 ];
 
 const lastConfirm = () => mockConfirm.mock.calls[0][0];
@@ -84,13 +101,13 @@ const neverSettles = () => new Promise<void>(() => undefined);
 beforeEach(() => {
   jest.clearAllMocks();
   mockQuery.mockResolvedValue({
-    data: { accTransactionsDetail: twoLineTransaction },
+    data: { accTransactionsDetail: bankWithVatPair },
   });
   mockConfirm.mockResolvedValue(true);
   mockRemoveTrRecords.mockResolvedValue({});
 });
 
-test('two lines of one transaction ask about one transaction with every line and remove it once', async () => {
+test('two lines of a bank + VAT pair ask about both transactions with every line and remove the pair once', async () => {
   const { result } = renderDeleteHook();
 
   let deleted = false;
@@ -99,25 +116,27 @@ test('two lines of one transaction ask about one transaction with every line and
   });
 
   expect(mockQuery).toHaveBeenCalledTimes(1);
-  expect(lastConfirm().message).toBe('delete-tr-records-transactions:1');
-  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:2');
+  expect(lastConfirm().message).toBe('delete-tr-records-transactions:2');
+  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:4');
   expect(lastConfirm().options.variants).toEqual({ ok: 'destructive' });
   expect(mockRemoveTrRecords).toHaveBeenCalledTimes(1);
   expect(mockRemoveTrRecords).toHaveBeenCalledWith('parent-1');
   expect(deleted).toBe(true);
 });
 
-test('a single selected line still reports the whole transaction with its number and date', async () => {
+test('selecting only the bank line still lists its paired VAT transaction that will be deleted with it', async () => {
   const { result } = renderDeleteHook();
 
   await act(async () => {
     await result.current.deleteTrRecords([bankLine]);
   });
 
-  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:2');
+  expect(lastConfirm().message).toBe('delete-tr-records-transactions:2');
+  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:4');
   render(lastConfirm().options.content as ReactElement);
-  expect(screen.getByText('BNK-0042')).toBeTruthy();
-  expect(screen.getByText(/2026-11-02/)).toBeTruthy();
+  expect(screen.getByText('BNK-0042 · bank')).toBeTruthy();
+  expect(screen.getByText('TAX-0042 · tax')).toBeTruthy();
+  expect(screen.getAllByText(/2026-11-02/)).toHaveLength(2);
   expect(screen.queryByText('delete-tr-records-published')).toBeNull();
 });
 
@@ -129,10 +148,17 @@ test('lines from different transactions are counted per transaction and warn abo
           accTransactionsDetail:
             variables._id === 'parent-2'
               ? [
-                  { status: 'complete', details: [{ _id: 'a' }, { _id: 'b' }] },
-                  { status: 'complete', details: [{ _id: 'c' }] },
+                  {
+                    _id: 'tr-general',
+                    parentId: 'parent-2',
+                    number: 'GEN-0007',
+                    journal: 'main',
+                    date: otherLine.date,
+                    status: 'complete',
+                    details: [{ _id: 'a' }, { _id: 'b' }, { _id: 'c' }],
+                  },
                 ]
-              : twoLineTransaction,
+              : bankWithVatPair,
         },
       }),
   );
@@ -142,12 +168,44 @@ test('lines from different transactions are counted per transaction and warn abo
     await result.current.deleteTrRecords([bankLine, otherLine]);
   });
 
-  expect(lastConfirm().message).toBe('delete-tr-records-transactions:2');
-  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:5');
+  expect(lastConfirm().message).toBe('delete-tr-records-transactions:3');
+  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:7');
   render(lastConfirm().options.content as ReactElement);
+  expect(screen.getByText('GEN-0007 · general')).toBeTruthy();
   expect(screen.getByText(/tr-records-line-count:3/)).toBeTruthy();
   expect(screen.getByText('delete-tr-records-published')).toBeTruthy();
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1'], ['parent-2']]);
+});
+
+test('a related transaction from another parent is not listed, because removing this parent keeps it', async () => {
+  mockQuery.mockResolvedValue({
+    data: {
+      accTransactionsDetail: [
+        ...bankWithVatPair,
+        {
+          _id: 'tr-linked',
+          parentId: 'parent-9',
+          number: 'BNK-0099',
+          journal: 'bank',
+          date: bankLine.date,
+          status: 'complete',
+          details: [{ _id: 'linked-debit' }],
+        },
+      ],
+    },
+  });
+  const { result } = renderDeleteHook();
+
+  await act(async () => {
+    await result.current.deleteTrRecords([bankLine]);
+  });
+
+  expect(lastConfirm().message).toBe('delete-tr-records-transactions:2');
+  expect(lastConfirm().options.description).toBe('delete-tr-records-lines:4');
+  render(lastConfirm().options.content as ReactElement);
+  expect(screen.queryByText(/BNK-0099/)).toBeNull();
+  expect(screen.queryByText('delete-tr-records-published')).toBeNull();
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
 });
 
 test('the next transaction is removed only after the previous one finishes', async () => {
@@ -196,7 +254,7 @@ test('a row-menu Delete while the selection bar is still loading details is igno
 
   let barDeleted = false;
   await act(async () => {
-    finishLoading({ data: { accTransactionsDetail: twoLineTransaction } });
+    finishLoading({ data: { accTransactionsDetail: bankWithVatPair } });
     barDeleted = await barDelete;
   });
 

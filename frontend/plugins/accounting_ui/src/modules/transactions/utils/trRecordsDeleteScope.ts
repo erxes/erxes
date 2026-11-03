@@ -2,11 +2,14 @@ import { TR_STATUS_GROUPS } from '@/transactions/types/constants';
 
 type TrRecordRef = {
   parentId?: string | null;
-  number?: string | null;
-  date?: unknown;
 };
 
 type ParentTr = {
+  _id?: string | null;
+  parentId?: string | null;
+  number?: string | null;
+  date?: unknown;
+  journal?: string | null;
   status?: string | null;
   details?: readonly unknown[] | null;
 };
@@ -14,9 +17,10 @@ type ParentTr = {
 export type TrRecordsByParentId = Record<string, readonly ParentTr[]>;
 
 export type TrRecordsDeleteTransaction = {
-  parentId: string;
+  _id: string;
   number?: string | null;
   date?: unknown;
+  journal?: string | null;
   lineCount: number;
 };
 
@@ -47,24 +51,28 @@ export const buildTrRecordsDeleteScope = (
   records: TrRecordRef[],
   trsByParentId: TrRecordsByParentId,
 ): TrRecordsDeleteScope => {
-  const transactions = getTrRecordsParents(records).map(
-    ({ parentId, number, date }) => {
-      const trs = trsByParentId[parentId] ?? [];
+  const removedTrs = getTrRecordsParents(records).flatMap(({ parentId }) =>
+    (trsByParentId[parentId] ?? []).filter(
+      (tr): tr is ParentTr & { _id: string } =>
+        tr.parentId === parentId && Boolean(tr._id),
+    ),
+  );
 
-      return {
-        parentId,
-        number,
-        date,
-        lineCount: trs.reduce((sum, tr) => sum + (tr.details?.length ?? 0), 0),
-      };
-    },
+  const transactions = removedTrs.map(
+    ({ _id, number, date, journal, details }) => ({
+      _id,
+      number,
+      date,
+      journal,
+      lineCount: details?.length ?? 0,
+    }),
   );
 
   return {
     transactions,
     lineCount: transactions.reduce((sum, tr) => sum + tr.lineCount, 0),
-    hasPublished: Object.values(trsByParentId).some((trs) =>
-      trs.some((tr) => PUBLISHED_STATUSES.includes(tr.status ?? '')),
+    hasPublished: removedTrs.some((tr) =>
+      PUBLISHED_STATUSES.includes(tr.status ?? ''),
     ),
   };
 };

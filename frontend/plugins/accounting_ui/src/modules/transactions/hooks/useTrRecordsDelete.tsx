@@ -5,6 +5,7 @@ import { useAtomValue, useStore } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { TRANSACTIONS_DETAIL_QUERY } from '@/transactions/transaction-form/graphql/queries/accTransactionsDetail';
 import { trRecordsDeletingState } from '@/transactions/states/trRecordsDeletingStates';
+import { TR_JOURNAL_LABELS } from '@/transactions/types/constants';
 import { ITrRecord } from '@/transactions/types/Transaction';
 import {
   buildTrRecordsDeleteScope,
@@ -17,6 +18,10 @@ const formatDate = (date: unknown) =>
   typeof date === 'string' || date instanceof Date
     ? dayjs(date).format('YYYY-MM-DD')
     : '';
+
+const getJournalLabel = (journal?: string | null) =>
+  Object.entries(TR_JOURNAL_LABELS).find(([key]) => key === journal)?.[1] ??
+  'main';
 
 export const useTrRecordsDelete = () => {
   const { t } = useTranslation('accounting');
@@ -82,10 +87,12 @@ export const useTrRecordsDelete = () => {
             <ul className="max-h-40 overflow-y-auto rounded-md border divide-y">
               {scope.transactions.map((tr) => (
                 <li
-                  key={tr.parentId}
+                  key={tr._id}
                   className="flex items-center justify-between gap-3 px-3 py-1.5"
                 >
-                  <span className="font-medium">{tr.number || '-'}</span>
+                  <span className="font-medium">
+                    {tr.number || '-'} · {t(getJournalLabel(tr.journal))}
+                  </span>
                   <span className="text-muted-foreground tabular-nums">
                     {formatDate(tr.date)} ·{' '}
                     {t('tr-records-line-count', { count: tr.lineCount })}
