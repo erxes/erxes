@@ -31,7 +31,7 @@ jest.mock('react-i18next', () => ({
 
 jest.mock('erxes-ui', () => {
   const Passthrough = ({ children }: { children?: React.ReactNode }) => (
-    <>{children}</>
+    <div>{children}</div>
   );
   const nothing = () => null;
 

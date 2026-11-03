@@ -3,8 +3,13 @@ import {
   IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
+import {
+  FilterAuthorViews,
+  FilterBarAuthors,
+  FilterPopoverAuthorItems,
+} from '@/settings/account/components/filters/AuthorFilters';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import {
   AccountsFilterTrStatus,
@@ -58,14 +63,7 @@ const SafeRemainderFilterPopover = () => {
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
-                <SelectMember.FilterItem
-                  value="createdUserId"
-                  label={t('created-by')}
-                />
-                <SelectMember.FilterItem
-                  value="modifiedUserId"
-                  label={t('modified-by')}
-                />
+                <FilterPopoverAuthorItems />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
                   {t('updated-date')}
@@ -92,8 +90,7 @@ const SafeRemainderFilterPopover = () => {
             />
           </Filter.View>
 
-          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
-          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
+          <FilterAuthorViews />
           <Filter.View filterKey="updatedDate">
             <Filter.DateView filterKey="updatedDate" />
           </Filter.View>
@@ -170,16 +167,7 @@ export const SafeRemainderFilter = ({
           labels={SAFE_REMAINDER_STATUS_LABELS}
         />
 
-        <SelectMember.FilterBar
-          queryKey="createdUserId"
-          label={t('created-by')}
-          mode="single"
-        />
-        <SelectMember.FilterBar
-          queryKey="modifiedUserId"
-          label={t('modified-by')}
-          mode="single"
-        />
+        <FilterBarAuthors />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />
