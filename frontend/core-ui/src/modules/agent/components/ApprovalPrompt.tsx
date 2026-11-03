@@ -1,15 +1,24 @@
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { getToolName, type DynamicToolUIPart, type ToolUIPart } from 'ai';
 import { useState } from 'react';
+
+import {
+  Confirmation,
+  ConfirmationAccepted,
+  ConfirmationAction,
+  ConfirmationActions,
+  ConfirmationRejected,
+  ConfirmationRequest,
+} from '../elements/confirmation';
 
 import { POSES } from '../bloub/engine/states';
 import { BotBadge } from './BotBadge';
 
 import { ChatInput } from './ChatInput';
-import { describeToolCall, type IAgentToolStep } from '../utils/agentWorkSteps';
+import { describeToolCall } from '../utils/agentWorkSteps';
 
 export interface IApprovalPromptProps {
-  tool: IAgentToolStep;
+  part: ToolUIPart | DynamicToolUIPart;
   busy: boolean;
   onRespond: (decision: { approved: boolean; reason?: string }) => void;
 }
@@ -50,131 +59,115 @@ const ApprovalInputList = ({ input }: { input: unknown }) => {
 };
 
 /**
- * Inline confirmation for a destructive tool call. The run is suspended
- * server-side until the user decides; approving or declining records the
- * decision on the tool part, and the framework automatically resumes the
- * run through the transport's approval endpoint.
+ * Inline confirmation for a gated tool call. The run is suspended
+ * server-side until the user decides; the decision is recorded on the tool
+ * part and the Chat resumes the run. Once decided, the card collapses into a
+ * one-line status.
  */
 export const ApprovalPrompt = ({
-  tool,
+  part,
   busy,
   onRespond,
 }: IApprovalPromptProps) => {
   const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState('');
-  const { label, args } = describeToolCall(tool.toolName, tool.input);
+  const { label, args } = describeToolCall(getToolName(part), part.input);
 
   return (
-    <div className="my-2 rounded-xl border bg-card text-foreground">
-      <div className="flex items-start gap-3 px-4 py-3.5">
-        <BotBadge
-          size={20}
-          state="alert"
-          frozenAt={POSES.alert}
-          className="size-8 rounded-lg"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium">Approve action?</p>
-          <p className="mt-0.5 break-all text-xs text-muted-foreground">
-            The agent wants to run{' '}
-            <span className="font-medium text-foreground">{label}</span>.
-          </p>
-          <ApprovalInputList input={args} />
+    <Confirmation approval={part.approval} state={part.state}>
+      <ConfirmationRequest>
+        <div className="my-2 rounded-xl border bg-card text-foreground">
+          <div className="flex items-start gap-3 px-4 py-3.5">
+            <BotBadge
+              size={20}
+              state="alert"
+              frozenAt={POSES.alert}
+              className="size-8 rounded-lg"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium">Approve action?</p>
+              <p className="mt-0.5 break-all text-xs text-muted-foreground">
+                The agent wants to run{' '}
+                <span className="font-medium text-foreground">{label}</span>.
+              </p>
+              <ApprovalInputList input={args} />
 
-          {declining ? (
-            <div className="mt-2.5 space-y-2">
-              <div className="rounded-lg border bg-background px-3 py-2">
-                <ChatInput
-                  value={reason}
-                  onChange={setReason}
-                  placeholder="Optional reason (shared with the assistant)"
-                  disabled={busy}
-                  maxHeight={96}
-                  className="text-xs md:text-xs"
-                  ariaLabel="Decline reason"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  disabled={busy}
-                  onClick={() =>
-                    onRespond({
-                      approved: false,
-                      reason: reason.trim() || undefined,
-                    })
-                  }
-                >
-                  <IconX />
-                  Decline
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  disabled={busy}
-                  onClick={() => setDeclining(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
+              {declining ? (
+                <div className="mt-2.5 space-y-2">
+                  <div className="rounded-lg border bg-background px-3 py-2">
+                    <ChatInput
+                      value={reason}
+                      onChange={setReason}
+                      placeholder="Optional reason (shared with the assistant)"
+                      disabled={busy}
+                      maxHeight={96}
+                      className="text-xs md:text-xs"
+                      ariaLabel="Decline reason"
+                    />
+                  </div>
+                  <ConfirmationActions>
+                    <ConfirmationAction
+                      variant="destructive"
+                      disabled={busy}
+                      onClick={() =>
+                        onRespond({
+                          approved: false,
+                          reason: reason.trim() || undefined,
+                        })
+                      }
+                    >
+                      <IconX />
+                      Decline
+                    </ConfirmationAction>
+                    <ConfirmationAction
+                      variant="ghost"
+                      disabled={busy}
+                      onClick={() => setDeclining(false)}
+                    >
+                      Cancel
+                    </ConfirmationAction>
+                  </ConfirmationActions>
+                </div>
+              ) : (
+                <ConfirmationActions className="mt-2.5">
+                  <ConfirmationAction
+                    disabled={busy}
+                    onClick={() => onRespond({ approved: true })}
+                  >
+                    <IconCheck />
+                    Approve
+                  </ConfirmationAction>
+                  <ConfirmationAction
+                    variant="outline"
+                    disabled={busy}
+                    onClick={() => setDeclining(true)}
+                  >
+                    <IconX />
+                    Decline
+                  </ConfirmationAction>
+                </ConfirmationActions>
+              )}
             </div>
-          ) : (
-            <div className="mt-2.5 flex gap-2">
-              <Button
-                size="sm"
-                disabled={busy}
-                onClick={() => onRespond({ approved: true })}
-              >
-                <IconCheck />
-                Approve
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={busy}
-                onClick={() => setDeclining(true)}
-              >
-                <IconX />
-                Decline
-              </Button>
-            </div>
-          )}
+          </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-/**
- * Compact settled state that replaces the approval card once the decision
- * is recorded (approval-responded, or output-denied when the backend
- * reports the decline outcome).
- */
-export const ApprovalStatusRow = ({ tool }: { tool: IAgentToolStep }) => {
-  const { label } = describeToolCall(tool.toolName, tool.input);
-  const approved = tool.approval?.approved === true;
-
-  return (
-    <div
-      className={cn(
-        'my-1.5 flex items-center gap-2 px-1 py-1 text-xs',
-        approved ? 'text-muted-foreground' : 'text-destructive',
-      )}
-    >
-      {approved ? (
-        <IconCheck className="size-3.5 shrink-0" />
-      ) : (
-        <IconX className="size-3.5 shrink-0" />
-      )}
-      <span className="min-w-0 truncate">
-        {approved ? 'Approved' : 'Declined'}: {label}
-      </span>
-      {!approved && tool.approval?.reason && (
-        <span className="truncate text-muted-foreground">
-          — {tool.approval.reason}
-        </span>
-      )}
-    </div>
+      </ConfirmationRequest>
+      <ConfirmationAccepted>
+        <p className="my-1.5 flex items-center gap-2 px-1 py-1 text-xs text-muted-foreground">
+          <IconCheck className="size-3.5 shrink-0" />
+          <span className="min-w-0 truncate">Approved: {label}</span>
+        </p>
+      </ConfirmationAccepted>
+      <ConfirmationRejected>
+        <p className="my-1.5 flex items-center gap-2 px-1 py-1 text-xs text-destructive">
+          <IconX className="size-3.5 shrink-0" />
+          <span className="min-w-0 truncate">Declined: {label}</span>
+          {part.approval?.reason && (
+            <span className="truncate text-muted-foreground">
+              — {part.approval.reason}
+            </span>
+          )}
+        </p>
+      </ConfirmationRejected>
+    </Confirmation>
   );
 };

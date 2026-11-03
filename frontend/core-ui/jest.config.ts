@@ -8,7 +8,7 @@ export default {
   // `ai` and its @ai-sdk dependencies ship ESM only. Transform them like
   // source so code and tests import the SDK's own helpers.
   transformIgnorePatterns: [
-    '/node_modules/(?!(\\.pnpm|ai|@ai-sdk|@workflow|@standard-schema|eventsource-parser|@opentelemetry)(/|@))',
+    '/node_modules/(?!(\\.pnpm|ai|@ai-sdk|@workflow|@standard-schema|eventsource-parser|@opentelemetry|use-stick-to-bottom)(/|@))',
   ],
   setupFiles: ['<rootDir>/jest.setup.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
