@@ -9,8 +9,10 @@ export const organizationConfigMutations = {
   async configsUpdate(
     _parent: undefined,
     { configsMap }: { configsMap: Record<string, string> },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('configsManage');
+
     const codes = Object.keys(configsMap);
 
     for (const code of codes) {
@@ -32,7 +34,10 @@ export const organizationConfigMutations = {
   async configsActivateInstallation(
     _parent: undefined,
     args: { token: string; hostname: string },
+    { checkPermission }: IContext,
   ) {
+    await checkPermission('configsManage');
+
     try {
       return await fetch(`${getCoreDomain()}/activate-installation`, {
         method: 'POST',

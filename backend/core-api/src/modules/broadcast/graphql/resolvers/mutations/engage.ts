@@ -190,8 +190,10 @@ export const engageMutations = {
   async engageMessageVerifyEmail(
     _root: undefined,
     { scope, ...input }: ISingleSenderInput & { scope?: TEmailScope },
-    { models, subdomain }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastConfigsManage');
+
     const response = await verifySender(models, subdomain, input, scope);
 
     return JSON.stringify(response);
@@ -203,8 +205,10 @@ export const engageMutations = {
   async engageMessageRemoveVerifiedEmail(
     _root: undefined,
     { email, scope }: { email: string; scope?: TEmailScope },
-    { models }: IContext,
+    { models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastConfigsManage');
+
     await removeVerifiedSender(models, email, scope);
 
     return JSON.stringify({ email });
@@ -219,8 +223,10 @@ export const engageMutations = {
       contentFormat?: TEmailContentFormat;
       title: string;
     },
-    { subdomain, models }: IContext,
+    { subdomain, models, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastCreate');
+
     const { content, contentFormat, from, to, title } = args;
 
     if (!(content && from && to && title)) {
@@ -303,8 +309,10 @@ export const engageMutations = {
   async engageSendMail(
     _root: undefined,
     args: any,
-    { user, models, subdomain }: IContext,
+    { user, models, subdomain, checkPermission }: IContext,
   ) {
+    await checkPermission('broadcastCreate');
+
     const { body, customerId, ...doc } = args;
 
     const customerQuery = customerId

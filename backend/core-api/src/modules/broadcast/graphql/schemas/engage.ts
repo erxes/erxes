@@ -435,7 +435,6 @@ export const mutations = `
   engageMessageSetLive(_id: String!): EngageMessage
   engageMessageSetPause(_id: String!): EngageMessage
   engageMessageSetLiveManual(_id: String!): EngageMessage
-  engagesUpdateConfigs(configsMap: JSON!): JSON
   engageMessageVerifyEmail(
     email: String!
     name: String
