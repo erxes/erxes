@@ -22,10 +22,10 @@ export const RecordPageSlot = ({ children }: React.PropsWithChildren) => {
   );
   const active = Boolean(
     !appPageTarget &&
-      expanded &&
-      open &&
-      record &&
-      ['core:customer', 'core:company'].includes(record.contentType),
+    expanded &&
+    open &&
+    record &&
+    ['core:customer', 'core:company'].includes(record.contentType),
   );
 
   return (
