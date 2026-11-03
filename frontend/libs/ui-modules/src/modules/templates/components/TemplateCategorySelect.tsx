@@ -22,6 +22,7 @@ import { useDebounce } from 'use-debounce';
 import { useTemplateCategories } from '../hooks/useTemplateCategories';
 import { TemplateCategory } from '../types';
 import { TemplateCategoriesInline } from './TemplateCategoryInline';
+import { t } from 'i18next';
 
 const SelectCategoryProvider = ({
   children,
@@ -76,7 +77,7 @@ const SelectCategoryProvider = ({
   const categoryIds = !value ? [] : Array.isArray(value) ? value : [value];
 
   const loading = categoryIds.some(
-    (id) => !_categories.find((m) => m._id === id),
+    (id) => !_categories.some((m) => m._id === id),
   );
 
   return (
@@ -194,12 +195,7 @@ const SelectCategoryContent = () => {
 
         {!loading &&
           (templateCategories || [])
-            .filter(
-              (category) =>
-                !categoryIds.find(
-                  (categoryIds) => categoryIds === category._id,
-                ),
-            )
+            .filter((category) => !categoryIds.includes(category._id))
             .map((category) => (
               <SelectCategoryCommandItem
                 key={category._id}
@@ -264,13 +260,11 @@ export const SelectCategoryFilterView = ({
 };
 
 export const SelectCategoryFilterBar = ({
-  iconOnly,
   onValueChange,
   queryKey,
   mode = 'single',
   label,
 }: {
-  iconOnly?: boolean;
   onValueChange?: (value: string[] | string | null) => void;
   queryKey?: string;
   mode?: 'single' | 'multiple';
@@ -289,14 +283,14 @@ export const SelectCategoryFilterBar = ({
     <Filter.BarItem queryKey={queryKey || 'categoryId'}>
       <Filter.BarName>
         <IconCategory />
-        {label ? label : !iconOnly && 'Assigned To'}
+        {label || t('Category')}
       </Filter.BarName>
       <SelectCategoryProvider
         mode={mode}
         value={categoryId || (mode === 'single' ? '' : [])}
         onValueChange={(value) => {
           if (value && value.length > 0) {
-            setAssignedTo(value as string[] | string);
+            setAssignedTo(value);
           } else {
             setAssignedTo(null);
           }
@@ -424,7 +418,7 @@ export const SelectCategoryDetail = ({
     >
       <Popover open={open} onOpenChange={setOpen}>
         <Popover.Trigger asChild>
-          {!value ? (
+          {value === null || value === undefined ? (
             <Combobox.TriggerBase className="font-medium">
               Add Owner <IconPlus />
             </Combobox.TriggerBase>
