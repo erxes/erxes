@@ -87,7 +87,7 @@ export const ComboboxValue = React.forwardRef<
     <span
       ref={ref}
       {...props}
-      className={cn('truncate', className, !value && 'text-accent-foreground')}
+      className={cn('truncate', className, !value && 'text-muted-foreground')}
     >
       {value || placeholder || ''}
     </span>

@@ -340,7 +340,7 @@ export const DatePicker = ({
         onBlur={handleInputBlur}
         onKeyDown={handleInputKeyDown}
         autoComplete="off"
-        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-accent-foreground/70 focus-visible:outline-hidden disabled:cursor-not-allowed"
+        className="h-full w-full min-w-0 flex-1 bg-transparent p-0 placeholder:text-muted-foreground focus-visible:outline-hidden disabled:cursor-not-allowed"
       />
       {canClear ? (
         <button
