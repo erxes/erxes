@@ -1,3 +1,4 @@
+import { AppLayoutPageSlot } from './AppLayoutPageSlot';
 import * as React from 'react';
 
 import {
@@ -249,7 +250,7 @@ const AppLayoutPage = ({ children }: { children: React.ReactNode }) => {
       ref={pageRef}
       className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
     >
-      {children}
+      <AppLayoutPageSlot>{children}</AppLayoutPageSlot>
     </div>
   );
 };

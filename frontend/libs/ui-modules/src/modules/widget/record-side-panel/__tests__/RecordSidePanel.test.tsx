@@ -365,3 +365,156 @@ it.each([false, true])(
     }
   },
 );
+
+it('keeps record details beside activity in the full contact layout without remounting fields', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  const ContactPanel = () => {
+    const [value, setValue] = useState('detail');
+    return (
+      <RecordSidePanel width={440}>
+        <RecordSidePanel.Header title="Contact" onClose={jest.fn()} />
+        <RecordSidePanel.Tabs
+          value={value}
+          onValueChange={setValue}
+          overviewTab="detail"
+          expandedDefaultTab="activity"
+          tabs={[
+            {
+              value: 'detail',
+              label: 'Details',
+              icon: IconId,
+              content: <input aria-label="Contact name" defaultValue="Draft" />,
+            },
+            {
+              value: 'activity',
+              label: 'Activity',
+              icon: IconId,
+              content: <p>Contact timeline</p>,
+            },
+          ]}
+        />
+      </RecordSidePanel>
+    );
+  };
+  render(<ContactPanel />);
+  const field = screen.getByRole<HTMLInputElement>('textbox', {
+    name: 'Contact name',
+  });
+  fireEvent.change(field, { target: { value: 'Unsaved contact' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  expect(screen.getByRole('textbox', { name: 'Contact name' })).toBe(field);
+  expect(screen.getByText('Contact timeline')).toBeTruthy();
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'horizontal',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(screen.getByRole('textbox', { name: 'Contact name' })).toBe(field);
+  expect(field.value).toBe('Unsaved contact');
+  expect(screen.getByRole('complementary').style.width).toBe('440px');
+});
+
+it('keeps an unsaved activity note after expanding from Details, collapsing, and switching tabs', () => {
+  jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(400);
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  const Contact = () => {
+    const [tab, setTab] = useState('detail');
+    return (
+      <RecordSidePanel>
+        <RecordSidePanel.Header title="Contact" onClose={jest.fn()} />
+        <RecordSidePanel.Tabs
+          value={tab}
+          onValueChange={setTab}
+          overviewTab="detail"
+          expandedDefaultTab="activity"
+          tabs={[
+            {
+              value: 'detail',
+              label: 'Details',
+              icon: IconId,
+              content: <p>Contact details</p>,
+            },
+            {
+              value: 'activity',
+              label: 'Activity',
+              icon: IconId,
+              content: <textarea aria-label="Unsaved note" />,
+            },
+          ]}
+        />
+      </RecordSidePanel>
+    );
+  };
+  render(<Contact />);
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+  const note = screen.getByRole<HTMLTextAreaElement>('textbox', {
+    name: 'Unsaved note',
+  });
+  fireEvent.change(note, { target: { value: 'Keep my note' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'Activity' }));
+  expect(screen.getByRole('textbox', { name: 'Unsaved note' })).toBe(note);
+  expect(note.value).toBe('Keep my note');
+  fireEvent.click(screen.getByRole('tab', { name: 'Details' }));
+  fireEvent.click(screen.getByRole('tab', { name: 'Activity' }));
+  expect(screen.getByRole('textbox', { name: 'Unsaved note' })).toBe(note);
+});
+
+it('keeps overflow tabs reachable from More in a narrow full contact page', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  const width = jest
+    .spyOn(HTMLElement.prototype, 'clientWidth', 'get')
+    .mockReturnValue(375);
+  const tabWidth = jest
+    .spyOn(HTMLElement.prototype, 'offsetWidth', 'get')
+    .mockReturnValue(100);
+  const Contact = () => {
+    const [tab, setTab] = useState('detail');
+    return (
+      <RecordSidePanel>
+        <RecordSidePanel.Header title="Contact" onClose={jest.fn()} />
+        <RecordSidePanel.Tabs
+          value={tab}
+          onValueChange={setTab}
+          visibleCount={8}
+          overviewTab="detail"
+          expandedDefaultTab="activity"
+          tabs={[
+            'detail',
+            'activity',
+            'messages',
+            'relations',
+            'tasks',
+            'notes',
+            'files',
+            'calendar',
+          ].map((value) => ({
+            value,
+            label: value,
+            icon: IconId,
+            content: <p>{value} content</p>,
+          }))}
+        />
+      </RecordSidePanel>
+    );
+  };
+  try {
+    render(<Contact />);
+    fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+    const more = screen.getByRole('button', { name: /More/ });
+    fireEvent.keyDown(more, { key: 'Enter' });
+    fireEvent.click(screen.getByRole('menuitem', { name: 'calendar' }));
+    expect(
+      screen.getByRole('tab', { name: 'calendar' }).getAttribute('data-state'),
+    ).toBe('active');
+    expect(screen.getByText('calendar content')).toBeTruthy();
+  } finally {
+    width.mockRestore();
+    tabWidth.mockRestore();
+  }
+});

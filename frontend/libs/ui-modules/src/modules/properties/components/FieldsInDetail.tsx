@@ -43,10 +43,11 @@ import {
   IField,
   IFieldGroup,
   IPropertyRow,
-  mutateFunction,
+  IFieldMutation,
 } from '../types/fieldsTypes';
 import {
   formatFieldValue,
+  getPropertyRowsUpdate,
   hasFieldValue,
   isFieldVisibleByLogic,
   toPropertyGroupKey,
@@ -105,11 +106,8 @@ const FieldGroupContent = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
 }) => {
   const { configs } = group || {};
   const { fields, loading } = useFields({ groupId: group._id, contentType });
@@ -164,11 +162,8 @@ export const FieldsInDetail = ({
   bare = false,
 }: {
   fieldContentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   id: string;
   className?: string;
   // Only the property groups, without the outer "… Properties" card; for
@@ -224,11 +219,8 @@ export const FieldsInGroup = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   fields: IField[];
 }) => {
   return (
@@ -269,11 +261,8 @@ const PropertyGroupRow = forwardRef<
     fields: IField[];
     row: IPropertyRow;
     index: number;
-    propertiesData: Record<string, any>;
-    mutateHook: () => {
-      mutate: mutateFunction;
-      loading: boolean;
-    };
+    propertiesData: Record<string, unknown>;
+    mutateHook: () => IFieldMutation;
     id: string;
     open: boolean;
     onOpenChange: (open: boolean) => void;
@@ -432,14 +421,11 @@ export const MultipleFieldsInGroup = ({
   id: string;
   inCell?: boolean;
   contentType: string;
-  propertiesData: Record<string, any>;
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  propertiesData: Record<string, unknown>;
+  mutateHook: () => IFieldMutation;
   fields: IField[];
 }) => {
-  const { mutate, loading } = mutateHook();
+  const { mutate, loading, propertiesDataMode } = mutateHook();
 
   const groupKey = toPropertyGroupKey(group._id);
   const rows = (propertiesData[groupKey] || []) as IPropertyRow[];
@@ -467,7 +453,12 @@ export const MultipleFieldsInGroup = ({
   const saveRows = (nextRows: IPropertyRow[]) =>
     mutate({
       _id: id,
-      propertiesData: { ...propertiesData, [groupKey]: nextRows },
+      propertiesData: getPropertyRowsUpdate(
+        propertiesData,
+        groupKey,
+        nextRows,
+        propertiesDataMode,
+      ),
     });
 
   // persisted on add, so every row is drag-ordered and id-addressable at once

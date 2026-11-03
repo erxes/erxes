@@ -90,7 +90,7 @@ export const TextField = React.forwardRef<
           ref={ref}
         >
           {children}
-          <TextOverflowTooltip value={editingValue ?? placeholder} />
+          <TextOverflowTooltip value={editingValue || placeholder} />
         </RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Content asChild>
           <form onSubmit={handleAction}>

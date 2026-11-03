@@ -379,7 +379,7 @@ const RelationValueInput = ({
       return <SelectProduct {...commonProps} />;
     case 'relation:core:user':
     case 'relation:core:teamMembers':
-      return <SelectMember {...commonProps} />;
+      return <SelectMember {...commonProps} showInactive />;
     case 'relation:core:branch':
       return (
         <SelectBranches.Root

@@ -1,3 +1,17 @@
+import {
+  IconBell,
+  IconBuilding,
+  IconBuildingFactory,
+  IconForms,
+  IconHash,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconTag,
+  IconUser,
+  IconUsers,
+  IconWorld,
+} from '@tabler/icons-react';
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { ContactDetailIdProvider } from '@/contacts/contexts/ContactDetailIdContext';
 import { TCompany } from '@/contacts/types/companyType';
@@ -48,7 +62,14 @@ const CompanyTextField = ({
       onSave={(next) =>
         companiesEdit({ variables: { _id: company._id, [code]: next } })
       }
-    />
+    >
+      {!company[code] && (
+        <IconForms
+          className="size-3.5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
+    </TextField>
   );
 };
 
@@ -81,14 +102,18 @@ const CompanyFields = () => {
           contentType="core:contact.company"
         />
       </div>
-      <PanelField label={t('field.primaryName', 'Name')}>
+      <PanelField icon={IconBuilding} label={t('field.primaryName', 'Name')}>
         <CompanyTextField
           company={company}
           code="primaryName"
           placeholder={t('field.primaryName', 'Name')}
         />
       </PanelField>
-      <PanelField label={t('tags', 'Tags')}>
+      <PanelField
+        icon={IconTag}
+        label={t('tags', 'Tags')}
+        placeholder={!company.tagIds?.length ? t('tags', 'Tags') : undefined}
+      >
         <TagsSelect.InlineCell
           type="core:company"
           mode="multiple"
@@ -107,7 +132,7 @@ const CompanyFields = () => {
           })}
         />
       </PanelField>
-      <PanelField label={t('emails', 'Emails')}>
+      <PanelField icon={IconMail} label={t('emails', 'Emails')}>
         <CompanyEmails
           _id={company._id}
           primaryEmail={company.primaryEmail || ''}
@@ -117,7 +142,7 @@ const CompanyFields = () => {
           Trigger={PanelFieldTrigger}
         />
       </PanelField>
-      <PanelField label={t('phones', 'Phones')}>
+      <PanelField icon={IconPhone} label={t('phones', 'Phones')}>
         <CompanyPhones
           _id={company._id}
           primaryPhone={company.primaryPhone || ''}
@@ -127,7 +152,11 @@ const CompanyFields = () => {
           Trigger={PanelFieldTrigger}
         />
       </PanelField>
-      <PanelField label={t('owner', 'Owner')}>
+      <PanelField
+        icon={IconUser}
+        label={t('owner', 'Owner')}
+        placeholder={!company.ownerId ? t('owner', 'Owner') : undefined}
+      >
         <SelectMember.InlineCell
           scope={`${SCOPE}.owner`}
           value={company.ownerId}
@@ -139,35 +168,38 @@ const CompanyFields = () => {
           }
         />
       </PanelField>
-      <PanelField label={t('code', 'Code')}>
+      <PanelField icon={IconHash} label={t('code', 'Code')}>
         <CompanyTextField
           company={company}
           code="code"
           placeholder={t('code', 'Code')}
         />
       </PanelField>
-      <PanelField label={t('website', 'Website')}>
+      <PanelField icon={IconWorld} label={t('website', 'Website')}>
         <CompanyTextField
           company={company}
           code="website"
           placeholder={t('website', 'Website')}
         />
       </PanelField>
-      <PanelField label={t('location', 'Location')}>
+      <PanelField icon={IconMapPin} label={t('location', 'Location')}>
         <CompanyTextField
           company={company}
           code="location"
           placeholder={t('location', 'Location')}
         />
       </PanelField>
-      <PanelField label={t('business-type', 'Business type')}>
+      <PanelField
+        icon={IconBuildingFactory}
+        label={t('business-type', 'Business type')}
+      >
         <CompanyTextField
           company={company}
           code="businessType"
           placeholder={t('business-type', 'Business type')}
         />
       </PanelField>
-      <PanelField label={t('size', 'Size')}>
+      <PanelField icon={IconUsers} label={t('size', 'Size')}>
         <NumberField
           scope={`${SCOPE}.size`}
           value={company.size || 0}
@@ -177,7 +209,7 @@ const CompanyFields = () => {
           }
         />
       </PanelField>
-      <PanelField label={t('subscribed', 'Subscribed')}>
+      <PanelField icon={IconBell} label={t('subscribed', 'Subscribed')}>
         <div className="flex h-7 items-center px-2">
           <Switch
             size="sm"

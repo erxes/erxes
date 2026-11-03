@@ -234,6 +234,23 @@ export const useSidePanel = () => {
   const record = useMemo(() => parseSidePanelRecord(path), [path]);
 
   const openPath = (nextPath: string, options?: IOpenRecordOptions) => {
+    const current = latest.current;
+    if (
+      options?.replace &&
+      current.sourcePath &&
+      current.sourcePath !== current.path
+    ) {
+      if (current.history.includes(current.sourcePath)) {
+        current.navigate(
+          current.path,
+          current.history.map((entry) =>
+            entry === current.sourcePath ? nextPath : entry,
+          ),
+          true,
+        );
+      }
+      return;
+    }
     if (nextPath === path) return;
     let nextHistory: string[] = [];
     if (options?.replace) {

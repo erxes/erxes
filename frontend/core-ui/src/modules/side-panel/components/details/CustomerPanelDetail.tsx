@@ -1,3 +1,14 @@
+import {
+  IconBell,
+  IconCalendar,
+  IconCircle,
+  IconGenderBigender,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconTag,
+  IconUser,
+} from '@tabler/icons-react';
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { format } from 'date-fns';
 import {
@@ -61,7 +72,20 @@ const CustomerTextField = ({
       onSave={(next) =>
         customerEdit({ variables: { _id: customer._id, [code]: next } })
       }
-    />
+    >
+      {!value &&
+        (code === 'code' ? (
+          <IconHash
+            className="size-3.5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+        ) : (
+          <IconUser
+            className="size-3.5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+        ))}
+    </TextField>
   );
 };
 
@@ -113,7 +137,10 @@ const CustomerBirthDateField = ({
         {date ? (
           format(date, 'yyyy/MM/dd')
         ) : (
-          <span className="text-muted-foreground">YYYY/MM/DD</span>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <IconCalendar className="size-3.5" aria-hidden="true" />
+            YYYY/MM/DD
+          </span>
         )}
       </PanelFieldTrigger>
       <RecordTableInlineCell.Content className="w-auto">
@@ -229,28 +256,32 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             contentType="core:contact.customer"
           />
         </div>
-        <PanelField label={addT('first-name', 'First name')}>
+        <PanelField icon={IconUser} label={addT('first-name', 'First name')}>
           <CustomerTextField
             customer={customer}
             code="firstName"
             placeholder={addT('first-name', 'First name')}
           />
         </PanelField>
-        <PanelField label={addT('middle-name', 'Middle name')}>
+        <PanelField icon={IconUser} label={addT('middle-name', 'Middle name')}>
           <CustomerTextField
             customer={customer}
             code="middleName"
             placeholder={addT('middle-name', 'Middle name')}
           />
         </PanelField>
-        <PanelField label={addT('last-name', 'Last name')}>
+        <PanelField icon={IconUser} label={addT('last-name', 'Last name')}>
           <CustomerTextField
             customer={customer}
             code="lastName"
             placeholder={addT('last-name', 'Last name')}
           />
         </PanelField>
-        <PanelField label={t('tags', 'Tags')}>
+        <PanelField
+          icon={IconTag}
+          label={t('tags', 'Tags')}
+          placeholder={!customer.tagIds?.length ? t('tags', 'Tags') : undefined}
+        >
           <TagsSelect.InlineCell
             type="core:customer"
             mode="multiple"
@@ -272,7 +303,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             })}
           />
         </PanelField>
-        <PanelField label={t('emails', 'Emails')}>
+        <PanelField icon={IconMail} label={t('emails', 'Emails')}>
           <CustomerEmails
             _id={customer._id}
             primaryEmail={customer.primaryEmail || ''}
@@ -282,7 +313,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             Trigger={PanelFieldTrigger}
           />
         </PanelField>
-        <PanelField label={t('phones', 'Phones')}>
+        <PanelField icon={IconPhone} label={t('phones', 'Phones')}>
           <CustomerPhones
             _id={customer._id}
             primaryPhone={customer.primaryPhone || ''}
@@ -294,7 +325,11 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             Trigger={PanelFieldTrigger}
           />
         </PanelField>
-        <PanelField label={t('owner', 'Owner')}>
+        <PanelField
+          icon={IconUser}
+          label={t('owner', 'Owner')}
+          placeholder={!customer.ownerId ? t('owner', 'Owner') : undefined}
+        >
           <CustomerOwner
             _id={customer._id}
             ownerId={customer.ownerId || ''}
@@ -302,23 +337,30 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             inTable
           />
         </PanelField>
-        <PanelField label={addT('code', 'Code')}>
+        <PanelField icon={IconHash} label={addT('code', 'Code')}>
           <CustomerTextField
             customer={customer}
             code="code"
             placeholder={addT('code', 'Code')}
           />
         </PanelField>
-        <PanelField label={t('sex', 'Sex')}>
+        <PanelField
+          icon={IconGenderBigender}
+          label={t('sex', 'Sex')}
+          placeholder={!customer.sex ? t('sex', 'Sex') : undefined}
+        >
           <CustomerSexField customer={customer} />
         </PanelField>
-        <PanelField label={addT('birth-date', 'Birth date')}>
+        <PanelField
+          icon={IconCalendar}
+          label={addT('birth-date', 'Birth date')}
+        >
           <CustomerBirthDateField customer={customer} />
         </PanelField>
-        <PanelField label={addT('state', 'State')}>
+        <PanelField icon={IconCircle} label={addT('state', 'State')}>
           <CustomerStateField customer={customer} />
         </PanelField>
-        <PanelField label={addT('subscribed', 'Subscribed')}>
+        <PanelField icon={IconBell} label={addT('subscribed', 'Subscribed')}>
           <CustomerSubscribedField customer={customer} />
         </PanelField>
         <CustomerDescriptionField customer={customer} />

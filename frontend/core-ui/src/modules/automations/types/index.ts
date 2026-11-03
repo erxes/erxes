@@ -6,7 +6,6 @@ import {
 import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 import {
   TAutomationBuilderActions,
-  TAutomationBuilderForm,
   TAutomationBuilderTriggers,
   TAutomationBuilderWorkflows,
 } from '@/automations/utils/automationFormDefinitions';

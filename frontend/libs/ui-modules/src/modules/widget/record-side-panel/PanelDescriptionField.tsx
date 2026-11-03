@@ -1,5 +1,6 @@
 import { Editor } from 'erxes-ui';
 import { useRef } from 'react';
+import { IconAlignLeft } from '@tabler/icons-react';
 
 // The editor reports its content this long after the last keystroke.
 const EDITOR_SETTLE_MS = 350;
@@ -35,7 +36,8 @@ export const PanelDescriptionField = ({
 
   return (
     <div className="flex flex-col gap-1.5 pt-2">
-      <span className="text-xs font-medium text-accent-foreground">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+        <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
         {label}
       </span>
       <div onBlur={handleBlur}>

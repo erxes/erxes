@@ -195,6 +195,9 @@ const RecordSidePanelRoot = ({
   width = SIDE_PANEL_WIDTH.default,
   maxWidth = SIDE_PANEL_WIDTH.max,
   onWidthChange,
+  expanded: controlledExpanded,
+  expandedMode = 'viewport',
+  onExpandedChange,
   children,
 }: {
   className?: string;
@@ -203,9 +206,13 @@ const RecordSidePanelRoot = ({
   maxWidth?: number;
   // Makes the panel resizable from its left edge.
   onWidthChange?: (width: number) => void;
+  expanded?: boolean;
+  expandedMode?: 'viewport' | 'page';
+  onExpandedChange?: (expanded: boolean) => void;
   children: React.ReactNode;
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [internalExpanded, setExpanded] = useState(false);
+  const expanded = controlledExpanded ?? internalExpanded;
   const panelRef = useRef<HTMLElement>(null);
   const toggle = useCallback(() => {
     const panel = panelRef.current;
@@ -221,8 +228,9 @@ const RecordSidePanelRoot = ({
         { duration: 240, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
       );
     }
-    setExpanded((value) => !value);
-  }, [expanded]);
+    setExpanded(!expanded);
+    onExpandedChange?.(!expanded);
+  }, [expanded, onExpandedChange]);
   const expansion = useMemo(() => ({ expanded, toggle }), [expanded, toggle]);
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
@@ -235,7 +243,10 @@ const RecordSidePanelRoot = ({
         style={{ width: expanded ? '100%' : panelWidth }}
         className={cn(
           '@container/record-panel relative flex flex-col flex-none max-w-full min-h-0 border-l bg-background transition-none',
-          expanded && 'fixed inset-0 z-40 h-svh border-l-0',
+          expanded &&
+            (expandedMode === 'page'
+              ? 'relative h-full min-w-0 flex-1 border-l-0'
+              : 'fixed inset-0 z-40 h-svh border-l-0'),
           // Animate entry only: duration-200 must never ease drag width changes.
           'animate-in fade-in-0 slide-in-from-right-8 duration-200 ease-out motion-reduce:animate-none',
           className,
@@ -391,14 +402,37 @@ const RecordSidePanelTabs = ({
   value,
   onValueChange,
   visibleCount = 3,
+  overviewTab,
+  expandedDefaultTab,
 }: {
   tabs: IRecordSidePanelTab[];
   value: string;
   onValueChange: (value: string) => void;
   visibleCount?: number;
+  overviewTab?: string;
+  expandedDefaultTab?: string;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = useContext(PanelExpansionContext)?.expanded ?? false;
+  const splitOverview = expanded && !!overviewTab;
+  const navigationTabs = splitOverview
+    ? tabs.filter((tab) => tab.value !== overviewTab)
+    : tabs;
+  const selectedValue =
+    splitOverview && value === overviewTab
+      ? expandedDefaultTab || navigationTabs[0]?.value || value
+      : value;
+  const [visitedTabs, setVisitedTabs] = useState<string[]>([]);
+  useLayoutEffect(() => {
+    if (overviewTab) {
+      setVisitedTabs((previous) =>
+        previous.includes(selectedValue)
+          ? previous
+          : [...previous, selectedValue],
+      );
+    }
+    if (splitOverview && selectedValue !== value) onValueChange(selectedValue);
+  }, [overviewTab, selectedValue, splitOverview, value, onValueChange]);
   const barRef = useRef<HTMLDivElement>(null);
   const tabWidths = useRef(new Map<string, number>());
   const tabsRef = useRef(tabs);
@@ -411,7 +445,7 @@ const RecordSidePanelTabs = ({
   const measure = useCallback(() => {
     const bar = barRef.current;
 
-    if (!bar || expanded) {
+    if (!bar || (expanded && !splitOverview)) {
       return;
     }
 
@@ -424,7 +458,9 @@ const RecordSidePanelTabs = ({
         ),
       );
 
-    const candidates = tabsRef.current.slice(0, visibleCount);
+    const candidates = tabsRef.current
+      .filter((tab) => !splitOverview || tab.value !== overviewTab)
+      .slice(0, visibleCount);
     const widths = candidates.map(
       (tab) => tabWidths.current.get(tab.value) ?? TAB_FALLBACK_WIDTH,
     );
@@ -437,7 +473,9 @@ const RecordSidePanelTabs = ({
       widths.reduce((sum, width) => sum + width, 0) +
       TAB_GAP * (widths.length - 1);
     const needsMore =
-      tabsRef.current.length > visibleCount || total > available;
+      tabsRef.current.filter(
+        (tab) => !splitOverview || tab.value !== overviewTab,
+      ).length > visibleCount || total > available;
     const budget = needsMore ? available - MORE_BUTTON_WIDTH : available;
 
     let used = 0;
@@ -455,7 +493,7 @@ const RecordSidePanelTabs = ({
     }
 
     setFitCount(Math.max(1, count));
-  }, [visibleCount, expanded]);
+  }, [visibleCount, expanded, splitOverview, overviewTab]);
 
   useLayoutEffect(() => {
     const bar = barRef.current;
@@ -481,28 +519,40 @@ const RecordSidePanelTabs = ({
     };
   }, [measure, tabsKey]);
 
-  const shownCount = expanded ? tabs.length : Math.min(visibleCount, fitCount);
+  const shownCount =
+    expanded && !splitOverview
+      ? navigationTabs.length
+      : Math.min(visibleCount, fitCount);
 
   // Tabs shown for the first time are measured once drawn; their real width
   // then settles the count (each width is measured once, so it converges).
   useLayoutEffect(() => {
     measure();
   }, [shownCount, measure]);
-  const activeIndex = tabs.findIndex((tab) => tab.value === value);
+  const activeIndex = navigationTabs.findIndex(
+    (tab) => tab.value === selectedValue,
+  );
   const visible =
     activeIndex >= shownCount
-      ? [...tabs.slice(0, shownCount - 1), tabs[activeIndex]]
-      : tabs.slice(0, shownCount);
-  const overflow = tabs.filter((tab) => !visible.includes(tab));
+      ? [
+          ...navigationTabs.slice(0, shownCount - 1),
+          navigationTabs[activeIndex],
+        ]
+      : navigationTabs.slice(0, shownCount);
+  const overflow = navigationTabs.filter((tab) => !visible.includes(tab));
 
   return (
     <Tabs
-      value={value}
+      value={selectedValue}
       onValueChange={onValueChange}
-      orientation={expanded ? 'vertical' : 'horizontal'}
+      orientation={expanded && !splitOverview ? 'vertical' : 'horizontal'}
       className={cn(
-        'flex flex-1 min-h-0 min-w-0',
-        expanded ? 'flex-row' : 'flex-col',
+        'flex-1 min-h-0 min-w-0',
+        splitOverview
+          ? 'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]'
+          : expanded
+          ? 'flex flex-row'
+          : 'flex flex-col',
       )}
     >
       {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
@@ -512,7 +562,9 @@ const RecordSidePanelTabs = ({
         ref={barRef}
         className={cn(
           'flex flex-none min-w-0 overflow-hidden',
-          expanded
+          splitOverview
+            ? 'col-start-1 row-start-2 box-content h-10 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1'
+            : expanded
             ? 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3'
             : 'box-content items-center gap-1 h-10 px-2 border-b bg-background',
         )}
@@ -521,7 +573,7 @@ const RecordSidePanelTabs = ({
           aria-label={t('navigation', 'Record navigation')}
           className={cn(
             'flex min-w-0 items-stretch border-b-0 gap-1 py-0',
-            expanded ? 'flex-col' : 'h-full',
+            expanded && !splitOverview ? 'flex-col' : 'h-full',
           )}
         >
           {visible.map((tab) => (
@@ -534,13 +586,19 @@ const RecordSidePanelTabs = ({
               title={expanded ? tab.label : undefined}
               className={cn(
                 'text-xs motion-reduce:transition-none',
-                expanded
+                expanded && !splitOverview
                   ? 'h-9 justify-start gap-2.5 rounded-md px-2.5 after:hidden data-[state=active]:bg-primary/10 data-[state=active]:hover:bg-primary/10'
                   : 'h-full gap-1.5 rounded-none after:-mb-px',
               )}
             >
               <tab.icon className="size-4 shrink-0" aria-hidden="true" />
-              <span className={expanded ? 'sr-only sm:not-sr-only' : undefined}>
+              <span
+                className={
+                  expanded && !splitOverview
+                    ? 'sr-only sm:not-sr-only'
+                    : undefined
+                }
+              >
                 {tab.label}
               </span>
             </Tabs.Trigger>
@@ -576,9 +634,22 @@ const RecordSidePanelTabs = ({
         <Tabs.Content
           key={tab.value}
           value={tab.value}
+          forceMount={
+            tab.value === overviewTab ||
+            (!!overviewTab && visitedTabs.includes(tab.value)) ||
+            undefined
+          }
           // A widget's own header lines up with a page's filter row (37px).
           // A quick fade when switching tabs or opening another record.
-          className="flex-1 min-h-0 data-[state=active]:flex flex-col [&_[data-side-menu-header]]:h-9 data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none"
+          className={cn(
+            'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9 data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
+            splitOverview && tab.value === overviewTab
+              ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
+              : 'data-[state=active]:flex data-[state=inactive]:hidden',
+            splitOverview &&
+              tab.value !== overviewTab &&
+              'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
+          )}
         >
           {tab.content}
         </Tabs.Content>

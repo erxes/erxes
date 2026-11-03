@@ -1,3 +1,4 @@
+import { IconAlignLeft } from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -226,7 +227,8 @@ export const CustomerPanelNew = () => {
           )}
           {rules.isShown('description') && (
             <div className="flex flex-col gap-1.5 pt-2">
-              <span className="text-xs font-medium text-accent-foreground">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+                <IconAlignLeft className="size-3.5" aria-hidden="true" />
                 {t('description', 'Description')}
               </span>
               <Form.Field

@@ -1,4 +1,19 @@
-import { IField, IFieldLogicRule } from './types/fieldsTypes';
+import {
+  IField,
+  IFieldLogicRule,
+  IFieldMutation,
+  IPropertyRow,
+} from './types/fieldsTypes';
+
+export const getPropertyRowsUpdate = (
+  propertiesData: Record<string, unknown>,
+  groupKey: string,
+  rows: IPropertyRow[],
+  mode?: IFieldMutation['propertiesDataMode'],
+): Record<string, unknown> =>
+  mode === 'patch'
+    ? { [groupKey]: rows }
+    : { ...propertiesData, [groupKey]: rows };
 
 // Mirrors `erxes-api-shared/core-modules/properties`.
 export const PROPERTY_GROUP_KEY_PREFIX = 'g:';

@@ -3,13 +3,24 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { useQueryState } from 'erxes-ui';
 import { Provider } from 'jotai';
 import { startTransition, Suspense, useState } from 'react';
-import { BrowserRouter, useNavigate } from 'react-router-dom';
+import {
+  BrowserRouter,
+  createMemoryRouter,
+  RouterProvider,
+  useNavigate,
+} from 'react-router-dom';
 import { SidePanelRecordPathContext, useSidePanel } from '../useSidePanel';
 
 jest.mock('react-router-dom', () => {
   const { TextEncoder } = jest.requireActual<typeof import('util')>('util');
   Object.defineProperty(globalThis, 'TextEncoder', { value: TextEncoder });
-  return jest.requireActual('react-router-dom');
+  const { Request } =
+    jest.requireActual<typeof import('node-fetch')>('node-fetch');
+  Object.defineProperty(globalThis, 'Request', {
+    value: Request,
+    configurable: true,
+  });
+  return jest.requireActual('react-router');
 });
 
 jest.mock('erxes-ui', () =>
@@ -185,4 +196,105 @@ it('keeps tab state when a page filter is updated in the same event', () => {
   const params = new URLSearchParams(window.location.search);
   expect(params.get('searchValue')).toBe('Alice');
   expect(params.get('panel')).toBe('/detail/customer/customer-a');
+});
+
+const CompletePluginSave = () => {
+  const { openRecord } = useSidePanel();
+  return (
+    <button
+      onClick={() =>
+        openRecord(
+          { contentType: 'operation:task', contentId: 'saved-task' },
+          { replace: true },
+        )
+      }
+    >
+      Complete task save
+    </button>
+  );
+};
+
+it('keeps the active contact when a hidden plugin draft saves through openRecord', async () => {
+  const taskDraft = '/detail/operation:task/new/task-draft';
+  const params = new URLSearchParams({
+    panel: '/detail/company/related-company',
+    panelHistory: JSON.stringify([taskDraft]),
+    searchValue: 'preserved-filter',
+  });
+  window.history.replaceState(null, '', `?${params}`);
+  render(
+    <Provider>
+      <BrowserRouter>
+        <SidePanelRecordPathContext.Provider value={taskDraft}>
+          <CompletePluginSave />
+        </SidePanelRecordPathContext.Provider>
+        <PanelNavigation />
+      </BrowserRouter>
+    </Provider>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Complete task save' }));
+  await waitFor(() =>
+    expect(new URLSearchParams(window.location.search).get('panel')).toBe(
+      '/detail/company/related-company',
+    ),
+  );
+  expect(
+    JSON.parse(
+      new URLSearchParams(window.location.search).get('panelHistory') || '[]',
+    ),
+  ).toEqual(['/detail/operation:task/saved-task']);
+  expect(new URLSearchParams(window.location.search).get('searchValue')).toBe(
+    'preserved-filter',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Panel back' }));
+  await waitFor(() =>
+    expect(new URLSearchParams(window.location.search).get('panel')).toBe(
+      '/detail/operation:task/saved-task',
+    ),
+  );
+});
+
+it('replaces a hidden plugin draft through the app data router and returns to its saved record', async () => {
+  const taskDraft = '/detail/operation:task/new/data-router-draft';
+  const params = new URLSearchParams({
+    panel: '/detail/company/related-company',
+    panelHistory: JSON.stringify([taskDraft]),
+  });
+  const router = createMemoryRouter(
+    [
+      {
+        path: '/',
+        element: (
+          <>
+            <SidePanelRecordPathContext.Provider value={taskDraft}>
+              <CompletePluginSave />
+            </SidePanelRecordPathContext.Provider>
+            <PanelNavigation />
+          </>
+        ),
+      },
+    ],
+    { initialEntries: [`/?${params}`] },
+  );
+  render(
+    <Provider>
+      <RouterProvider router={router} />
+    </Provider>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Complete task save' }));
+  await waitFor(() =>
+    expect(
+      new URLSearchParams(router.state.location.search).get('panelHistory'),
+    ).toBe('["/detail/operation:task/saved-task"]'),
+  );
+  expect(new URLSearchParams(router.state.location.search).get('panel')).toBe(
+    '/detail/company/related-company',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Panel back' }));
+  await waitFor(() =>
+    expect(new URLSearchParams(router.state.location.search).get('panel')).toBe(
+      '/detail/operation:task/saved-task',
+    ),
+  );
+  router.dispose();
 });
