@@ -59,7 +59,9 @@ export const TemplateEditForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('name')}</Form.Label>
-                  <Input {...field} />
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
                   <Form.Message />
                 </Form.Item>
               )}
@@ -71,7 +73,9 @@ export const TemplateEditForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('description')}</Form.Label>
-                  <Textarea {...field} rows={5} />
+                  <Form.Control>
+                    <Textarea {...field} rows={5} />
+                  </Form.Control>
                   <Form.Message />
                 </Form.Item>
               )}
