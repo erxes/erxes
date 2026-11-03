@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -21,6 +21,14 @@
   data ownership, shared UI libraries, or other plugin UIs.
 
 ## Current Capabilities
+
+- Pricing common, price, quantity, expiry, and condition forms share
+  `src/modules/pricing/components/PriceAdjustFactorLabel.tsx`: a keyboard-focusable
+  info tooltip explaining factors -2 through 3 and the inclusive -10 to +10
+  limit through English/Mongolian loyalty translations. All five forms validate
+  factors as integers in that range through `schemas/priceAdjustFactorSchema.ts`;
+  condition rules use the Zod resolver and other forms use field validation.
+  Blank factors in the string-based rule forms retain their existing zero default.
 
 - Renders pricing list/detail/create/edit UI under `src/modules/pricing` and
   `src/pages/pricing`.
@@ -170,6 +178,12 @@
 - Loyalty list filters (donates, spin, coupons, assignments, agents, lotteries, scores, vouchers, accounts) render the filter popover trigger as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; total counts stay last.
 
 ## Validation
+
+- Pricing help smoke: in English and Mongolian, hover or focus the info icon
+  beside the factor label in all five pricing forms; confirm translated steps
+  and the limit appear, the form does not submit, and the input still has its label.
+- Factor validation smoke: all five forms accept -10, -1, 0, and 10, and reject
+  -11, 11, and fractional values with a translated inline error.
 
 - `pnpm nx build loyalty_ui`
 - Account types smoke scenario: create an account type, bind it to a new score campaign,
