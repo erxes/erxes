@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import { getConfig } from '@/integrations/instagram/commonUtils';
 import { receiveComment } from '@/integrations/instagram/controller/receiveComment';
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
-import { debugError, debugInstagram } from '@/integrations/instagram/debuggers';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { createHmac, timingSafeEqual } from 'node:crypto';
@@ -30,7 +29,8 @@ const hasValidWebhookSignature = (
 
 export const instagramGetPost = async (req, res, next) => {
   try {
-    debugInstagram(
+    console.log(
+      '[instagram]',
       `Request to get post data with: ${JSON.stringify(req.query)}`,
     );
 
@@ -103,13 +103,32 @@ const processIncomingMessage = async (
   subdomain: string,
   messageData: IMessageData,
 ) => {
+  const recipientId = messageData.recipient?.id;
+  console.log(
+    '[instagram]',
+    `Processing messaging event for subdomain ${subdomain}:`,
+    JSON.stringify(messageData),
+  );
   const integration = await models.InstagramIntegrations.findOne({
-    instagramPageId: messageData.recipient?.id,
+    instagramPageId: recipientId,
     kind: INTEGRATION_KINDS.MESSENGER,
   });
-  if (integration) {
-    await receiveMessage(models, subdomain, integration, messageData);
+  if (!integration) {
+    console.log(
+      '[instagram]',
+      `No Instagram messenger integration found for instagramPageId ${recipientId}`,
+    );
+    return;
   }
+  console.log(
+    '[instagram]',
+    `Matched integration ${integration._id} (erxesApiId ${integration.erxesApiId}) for page ${recipientId}`,
+  );
+  await receiveMessage(models, subdomain, integration, messageData);
+  console.log(
+    '[instagram]',
+    `Finished messaging event for page ${recipientId}`,
+  );
 };
 
 type InstagramWebhookBody = {
@@ -133,16 +152,34 @@ export const instagramWebhook = async (
 ) => {
   try {
     const subdomain = isDev ? 'localhost' : getSubdomain(req);
+    console.log(
+      '[instagram]',
+      `Received webhook for subdomain ${subdomain}:`,
+      JSON.stringify(req.body || {}),
+    );
     const models = await generateModels(subdomain);
     const appSecret = await getConfig(models, 'INSTAGRAM_APP_SECRET');
     const signature = req.get('x-hub-signature-256');
     if (!hasValidWebhookSignature(req.rawBody, signature, appSecret)) {
+      console.error(
+        '[instagram]',
+        `Rejected webhook: invalid signature (hasRawBody=${!!req.rawBody}, hasSignature=${!!signature}, hasAppSecret=${!!appSecret})`,
+      );
       return res.status(401).send('Invalid webhook signature');
     }
     const data = req.body;
-    if (data.object !== 'instagram') return res.send('OK');
+    if (data.object !== 'instagram') {
+      console.log('[instagram]', `Ignored webhook for object ${data.object}`);
+      return res.send('OK');
+    }
 
     for (const entry of data.entry || []) {
+      console.log(
+        '[instagram]',
+        `Entry ${entry.id}: messaging=${entry.messaging?.length ?? 0} standby=${
+          entry.standby?.length ?? 0
+        } changes=${entry.changes?.length ?? 0}`,
+      );
       for (const messageData of [
         ...(entry.messaging || []),
         ...(entry.standby || []),
@@ -157,7 +194,11 @@ export const instagramWebhook = async (
     }
     return res.send('success');
   } catch (error: unknown) {
-    debugError(`Error processing Instagram webhook: ${getErrorMessage(error)}`);
+    console.error(
+      '[instagram]',
+      `Error processing Instagram webhook: ${getErrorMessage(error)}`,
+      error,
+    );
     return res.status(500).send('Instagram webhook processing failed');
   }
 };
