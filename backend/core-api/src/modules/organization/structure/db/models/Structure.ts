@@ -174,7 +174,7 @@ export const loadDepartmentClass = (
     ) {
       const department = await models.Departments.getDepartment({ _id });
       if (department?.code !== doc.code) {
-        await checkCollectionCodeDuplication(models.Departments, doc.code);
+        await checkCollectionCodeDuplication(models.Departments, doc.code, _id);
       }
 
       const parent = await models.Departments.findOne({
@@ -408,7 +408,7 @@ export const loadBranchClass = (
       const branch = await models.Branches.getBranch({ _id });
 
       if (branch?.code !== doc.code) {
-        await checkCollectionCodeDuplication(models.Branches, doc.code);
+        await checkCollectionCodeDuplication(models.Branches, doc.code, _id);
       }
 
       const parent = await models.Branches.findOne({ _id: doc.parentId });
@@ -567,7 +567,7 @@ export const loadPositionClass = (
       const position = await models.Positions.getPosition({ _id });
 
       if (position?.code !== doc.code) {
-        await checkCollectionCodeDuplication(models.Positions, doc.code);
+        await checkCollectionCodeDuplication(models.Positions, doc.code, _id);
       }
 
       const parent = await models.Positions.findOne({ _id: doc.parentId });
