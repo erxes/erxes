@@ -1,4 +1,4 @@
-import type { UIMessage } from 'ai';
+import type { AgentsUIMessage } from './types';
 import { z } from 'zod';
 import { AGENT_REFERENCE_ID_RE } from './references/parseAgentReferences';
 import {
@@ -37,18 +37,22 @@ const storedMentionsDataSchema = mentionsDataSchema.extend({
 
 const agentMentionsPart = (
   mentions: IAgentMention[],
-): UIMessage['parts'][number] => ({
+): AgentsUIMessage['parts'][number] => ({
   type: AGENTS_MENTIONS_DATA_TYPE,
   data: { mentions },
 });
 
 /** Mention parts for wire text; empty when the text has no mention tokens. */
-export const agentMentionsPartsForText = (text: string): UIMessage['parts'] => {
+export const agentMentionsPartsForText = (
+  text: string,
+): AgentsUIMessage['parts'] => {
   const mentions = agentMentionsFromText(text);
   return mentions.length ? [agentMentionsPart(mentions)] : [];
 };
 
-export const readAgentMentions = (parts: UIMessage['parts']): IAgentMention[] =>
+export const readAgentMentions = (
+  parts: AgentsUIMessage['parts'],
+): IAgentMention[] =>
   parts.flatMap((part) => {
     if (part.type !== AGENTS_MENTIONS_DATA_TYPE || !('data' in part)) return [];
     const result = mentionsDataSchema.safeParse(part.data);
@@ -58,7 +62,7 @@ export const readAgentMentions = (parts: UIMessage['parts']): IAgentMention[] =>
 /** Stored text with canonical mention tokens; the model-facing text part
  * reads `@Label` plus a verified list instead. */
 export const agentMentionsDisplayText = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
 ): string | undefined => {
   for (const part of parts) {
     if (part.type !== AGENTS_MENTIONS_DATA_TYPE || !('data' in part)) continue;
@@ -70,9 +74,9 @@ export const agentMentionsDisplayText = (
 
 /** Replaces a turn's mention part with the mentions of its new text. */
 export const withAgentMentionsParts = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
   text: string,
-): UIMessage['parts'] => [
+): AgentsUIMessage['parts'] => [
   ...parts.filter((part) => part.type !== AGENTS_MENTIONS_DATA_TYPE),
   ...agentMentionsPartsForText(text),
 ];

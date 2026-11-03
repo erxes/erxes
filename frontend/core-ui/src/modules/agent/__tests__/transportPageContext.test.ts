@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { UIMessage } from 'ai';
 
-import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
+import { withUserDisplayText } from '../utils/messages';
 import { AgentsChatTransport } from '../transport';
 
 const mockSent: { messages: UIMessage[] }[] = [];
@@ -35,25 +35,21 @@ const wire = 'Email [[customer:c1:Ann Lee]] today';
 it('sends a restored turn without its stored page context on Regenerate', async () => {
   // After a reload the turn comes back from storage with the server's
   // page-context line, the model text and the mention/file data parts.
-  const [restored] = mapStoredMessagesToUIMessages([
+  const [restored] = withUserDisplayText([
     {
       id: 'm1',
       role: 'user',
-      createdAt: '2026-10-01T00:00:00.000Z',
-      content: {
-        format: 2,
-        parts: [
-          { type: 'text', text: PAGE_CONTEXT },
-          { type: 'text', text: 'Email @Ann Lee today\n\n[Mentions] …' },
-          {
-            type: 'data-agents-mentions',
-            data: {
-              mentions: [{ type: 'customer', id: 'c1', label: 'Ann Lee' }],
-              displayText: wire,
-            },
+      parts: [
+        { type: 'text', text: PAGE_CONTEXT },
+        { type: 'text', text: 'Email @Ann Lee today\n\n[Mentions] …' },
+        {
+          type: 'data-agents-mentions',
+          data: {
+            mentions: [{ type: 'customer', id: 'c1', label: 'Ann Lee' }],
+            displayText: wire,
           },
-        ],
-      },
+        },
+      ],
     },
   ]);
   expect(restored.parts[0]).toEqual({ type: 'text', text: PAGE_CONTEXT });

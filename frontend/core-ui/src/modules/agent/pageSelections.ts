@@ -1,5 +1,5 @@
-import type { UIMessage } from 'ai';
 import { z } from 'zod';
+import type { AgentsUIMessage } from './types';
 
 export const AGENTS_PAGE_SELECTIONS_DATA_TYPE = 'data-agents-page-selections';
 export const AGENTS_PAGE_SELECTION_MAX_PER_TURN = 3;
@@ -34,7 +34,9 @@ export const agentsPageSelectionSchema = z.object({
       .max(2 * 1024 * 1024),
   }),
 });
-export type IAgentPageSelectionContext = z.infer<typeof agentsPageSelectionSchema>;
+export type IAgentPageSelectionContext = z.infer<
+  typeof agentsPageSelectionSchema
+>;
 
 export const agentsPageSelectionsSchema = z
   .array(agentsPageSelectionSchema)
@@ -52,12 +54,12 @@ export const agentsPageSelectionsSchema = z
 
 export const pageSelectionsPart = (
   selections: IAgentPageSelectionContext[],
-): UIMessage['parts'][number] => ({
+): AgentsUIMessage['parts'][number] => ({
   type: AGENTS_PAGE_SELECTIONS_DATA_TYPE,
   data: { selections },
 });
 export const readPageSelectionsPart = (
-  part: UIMessage['parts'][number],
+  part: AgentsUIMessage['parts'][number],
 ): IAgentPageSelectionContext[] => {
   if (part.type !== AGENTS_PAGE_SELECTIONS_DATA_TYPE || !('data' in part))
     return [];
@@ -67,7 +69,7 @@ export const readPageSelectionsPart = (
   return result.success ? result.data.selections : [];
 };
 export const pageSelectionsDisplayText = (
-  parts: UIMessage['parts'],
+  parts: AgentsUIMessage['parts'],
 ): string | undefined => {
   for (const part of parts) {
     if (part.type !== AGENTS_PAGE_SELECTIONS_DATA_TYPE || !('data' in part))

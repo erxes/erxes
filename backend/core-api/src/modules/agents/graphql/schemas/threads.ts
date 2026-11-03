@@ -24,16 +24,10 @@ export const types = `
     hasMore: Boolean
   }
 
-  type AgentsMessage {
-    id: String
-    role: String
-    createdAt: Date
-    content: JSON
-  }
-
   type AgentsThreadDetail {
     thread: AgentsThread
-    messages: [AgentsMessage]
+    "AI SDK v7 UIMessages, converted from stored Mastra messages."
+    messages: [JSON]
   }
 
   """

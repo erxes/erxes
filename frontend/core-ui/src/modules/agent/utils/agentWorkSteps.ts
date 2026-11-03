@@ -1,21 +1,15 @@
-import type { DynamicToolUIPart, ToolUIPart, UIMessage } from 'ai';
+import {
+  getToolName,
+  isReasoningUIPart,
+  isToolUIPart,
+  type DynamicToolUIPart,
+  type ToolUIPart,
+} from 'ai';
 import { parse } from 'graphql';
 
-import type { ICallToolInput } from '../types';
+import type { AgentsUIMessage, ICallToolInput } from '../types';
 
-type TUIPart = UIMessage['parts'][number];
-
-// Local predicates instead of the `ai` package's is*UIPart helpers: `ai`
-// is ESM-only and the module would pull it into every consumer (including
-// jest, which runs CJS) for three one-line checks.
-export const isReasoningPart = (
-  part: TUIPart,
-): part is TUIPart & { text: string } => part.type === 'reasoning';
-
-export const isToolPart = (
-  part: TUIPart,
-): part is DynamicToolUIPart | ToolUIPart =>
-  part.type === 'dynamic-tool' || part.type.startsWith('tool-');
+type TUIPart = AgentsUIMessage['parts'][number];
 
 /** Normalized view of one tool part (live stream or mapped history). */
 export interface IAgentToolStep {
@@ -88,7 +82,10 @@ const summarizeGraphqlCall = (
  * Translates one fixed label (`agent.<key>`), falling back to its English
  * text. Pure callers without i18n get the English default.
  */
-export type TAgentLabelTranslate = (key: string, defaultValue: string) => string;
+export type TAgentLabelTranslate = (
+  key: string,
+  defaultValue: string,
+) => string;
 
 const inEnglish: TAgentLabelTranslate = (_key, defaultValue) => defaultValue;
 
@@ -105,14 +102,15 @@ const isSchemaLookupCall = (toolName: string, input: unknown): boolean => {
 
   return Boolean(
     summary?.operation === 'query' &&
-      summary.fields.length > 0 &&
-      summary.fields.every((field) => field.startsWith('__')),
+    summary.fields.length > 0 &&
+    summary.fields.every((field) => field.startsWith('__')),
   );
 };
 
 /** Schema look-up steps share one plain label and collapse into one step. */
 export const isSchemaLookupStep = (step: TAgentWorkStep): boolean =>
-  step.kind === 'tool' && isSchemaLookupCall(step.tool.toolName, step.tool.input);
+  step.kind === 'tool' &&
+  isSchemaLookupCall(step.tool.toolName, step.tool.input);
 
 const graphqlCallLabel = (input: Record<string, unknown>): string => {
   const summary = summarizeGraphqlCall(input);
@@ -157,19 +155,14 @@ export const describeToolCall = (
   return { label: toolName, args: input };
 };
 
-const toolNameOf = (part: TUIPart): string =>
-  'toolName' in part && typeof part.toolName === 'string'
-    ? part.toolName
-    : part.type.slice('tool-'.length);
-
 /**
  * Parts rendered as their own cards — pending approvals, ask_user
  * suspensions/results and file cards — are never folded into the turn's
  * work timeline; they surface on their own in the response body.
  */
 export const isStandalonePart = (part: TUIPart): boolean => {
-  if (isToolPart(part)) {
-    const name = toolNameOf(part);
+  if (isToolUIPart(part)) {
+    const name = getToolName(part);
 
     return (
       /^ask_?user$/i.test(name) ||
@@ -185,16 +178,16 @@ export const isStandalonePart = (part: TUIPart): boolean => {
 
 /** Timeline entry for one work part, or null for any other part. */
 export const toAgentWorkStep = (part: TUIPart): TAgentWorkStep | null => {
-  if (isReasoningPart(part)) {
+  if (isReasoningUIPart(part)) {
     return { kind: 'reasoning', text: part.text };
   }
 
-  if (isToolPart(part) && !isStandalonePart(part)) {
+  if (isToolUIPart(part) && !isStandalonePart(part)) {
     return {
       kind: 'tool',
       tool: {
         toolCallId: part.toolCallId,
-        toolName: toolNameOf(part),
+        toolName: getToolName(part),
         state: part.state,
         input: part.input,
         output: 'output' in part ? part.output : undefined,
@@ -210,8 +203,8 @@ const singularize = (noun: string): string =>
   noun.endsWith('ies')
     ? `${noun.slice(0, -3)}y`
     : noun.endsWith('s')
-    ? noun.slice(0, -1)
-    : noun;
+      ? noun.slice(0, -1)
+      : noun;
 
 const pluralize = (noun: string): string =>
   noun.endsWith('s') ? noun : `${noun}s`;
@@ -340,7 +333,7 @@ export const agentToolActivity = (
   t: TAgentLabelTranslate = inEnglish,
 ): string => {
   const input = isRecord(part.input) ? part.input : {};
-  const toolName = toolNameOf(part);
+  const toolName = getToolName(part);
 
   if (isSchemaLookupCall(toolName, input)) {
     return t('schema-checking', 'Checking the API schema…');

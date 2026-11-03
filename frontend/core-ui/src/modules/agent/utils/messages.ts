@@ -1,9 +1,10 @@
-import type { TextUIPart, UIMessage } from 'ai';
+import { isTextUIPart } from 'ai';
 
-// `ai` is ESM-only — this util stays `import type`-only so jest (CJS) can
-// load it; the predicate is local, same rule as `utils/agentWorkSteps.ts`.
-const isTextPart = (part: UIMessage['parts'][number]): part is TextUIPart =>
-  part.type === 'text';
+import { agentMentionsDisplayText } from '../agentMentions';
+import { agentsFilesDisplayText } from '../agentsFiles';
+import { pageSelectionsDisplayText } from '../pageSelections';
+import type { AgentsUIMessage } from '../types';
+import { AGENT_PAGE_CONTEXT_PREFIX } from './pageContext';
 
 /**
  * Ask_user answers travel through the send pipeline as user messages (the
@@ -11,20 +12,42 @@ const isTextPart = (part: UIMessage['parts'][number]): part is TextUIPart =>
  * assistant's answered Q&A card — never as a bubble of their own. The send
  * marks them with `metadata.agentsAnswer`.
  */
-export const isAgentsAnswerTurn = (message: UIMessage): boolean => {
-  const { metadata } = message;
-
-  return (
-    !!metadata &&
-    typeof metadata === 'object' &&
-    !Array.isArray(metadata) &&
-    (metadata as { agentsAnswer?: unknown }).agentsAnswer === true
-  );
-};
+export const isAgentsAnswerTurn = (message: AgentsUIMessage): boolean =>
+  message.metadata?.agentsAnswer === true;
 
 /** Joins a message's text parts — the only parts shown as bubbles. */
-export const getMessageText = (message: UIMessage): string =>
+export const getMessageText = (message: AgentsUIMessage): string =>
   message.parts
-    .filter(isTextPart)
+    .filter(isTextUIPart)
     .map((part) => part.text)
     .join('');
+
+/**
+ * A user message that carried mentions, files or page selections shows its
+ * short display text, not the text the turn injected for the model. A
+ * leading page context line stays so editing the turn keeps its context.
+ */
+export const withUserDisplayText = (
+  messages: AgentsUIMessage[],
+): AgentsUIMessage[] =>
+  messages.map((message) => {
+    if (message.role !== 'user') return message;
+    const displayText =
+      agentMentionsDisplayText(message.parts) ??
+      agentsFilesDisplayText(message.parts) ??
+      pageSelectionsDisplayText(message.parts);
+    if (displayText === undefined) return message;
+    const [first] = message.parts;
+    const pageContext =
+      first?.type === 'text' && first.text.startsWith(AGENT_PAGE_CONTEXT_PREFIX)
+        ? [first]
+        : [];
+    return {
+      ...message,
+      parts: [
+        ...pageContext,
+        { type: 'text', text: displayText },
+        ...message.parts.filter((part) => part.type !== 'text'),
+      ],
+    };
+  });

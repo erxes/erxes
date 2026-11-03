@@ -1,4 +1,9 @@
 import { z } from 'zod';
+import type { MastraDBMessage } from '@mastra/core/memory' with {
+  'resolution-mode': 'import',
+};
+
+type IStoredMessagePart = MastraDBMessage['content']['parts'][number];
 
 export const AGENTS_PAGE_SELECTIONS_DATA_TYPE = 'data-agents-page-selections';
 export const AGENTS_PAGE_SELECTION_MAX_PER_TURN = 3;
@@ -33,7 +38,9 @@ export const agentsPageSelectionSchema = z.object({
       .max(2 * 1024 * 1024),
   }),
 });
-export type IAgentPageSelectionContext = z.infer<typeof agentsPageSelectionSchema>;
+export type IAgentPageSelectionContext = z.infer<
+  typeof agentsPageSelectionSchema
+>;
 
 export const agentsPageSelectionsSchema = z
   .array(agentsPageSelectionSchema)
@@ -111,7 +118,9 @@ const legacyFilesSchema = z.object({
 
 /** Read compatibility for the original PNG+TXT format. No filename alone is
  * enough: recover only the exact pair and validated context written by v1. */
-export const migrateLegacyPageSelections = (parts: unknown[]): unknown[] => {
+export const migrateLegacyPageSelections = (
+  parts: IStoredMessagePart[],
+): IStoredMessagePart[] => {
   if (
     parts.some(
       (part) =>
@@ -142,7 +151,7 @@ export const migrateLegacyPageSelections = (parts: unknown[]): unknown[] => {
   }
   const recovered: IAgentPageSelectionContext[] = [];
   let displayText = '';
-  const rewritten = parts.flatMap((part) => {
+  const rewritten = parts.flatMap((part): IStoredMessagePart[] => {
     const parsed = legacyFilesSchema.safeParse(part);
     if (!parsed.success) return [part];
     const moved = new Set<string>();

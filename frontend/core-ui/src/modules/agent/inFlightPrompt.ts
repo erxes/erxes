@@ -4,7 +4,6 @@ import {
   pageSelectionsPart,
   readPageSelectionsPart,
 } from './pageSelections';
-import type { UIMessage } from 'ai';
 import { agentMentionsPartsForText } from './agentMentions';
 import {
   AGENTS_FILE_ONLY_TEXT,
@@ -12,9 +11,12 @@ import {
   isAgentsFileMeta,
   readAgentsFilesPart,
 } from './agentsFiles';
+import type { AgentsUIMessage } from './types';
 
 /** Uses the existing prompt sessionStorage key; legacy values are plain text. */
-export const encodeInFlightPrompt = (parts: UIMessage['parts']): string => {
+export const encodeInFlightPrompt = (
+  parts: AgentsUIMessage['parts'],
+): string => {
   const text = parts
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
     .join('\n\n');
@@ -29,7 +31,7 @@ export const encodeInFlightPrompt = (parts: UIMessage['parts']): string => {
   });
 };
 
-export const decodeInFlightPrompt = (raw: string): UIMessage['parts'] => {
+export const decodeInFlightPrompt = (raw: string): AgentsUIMessage['parts'] => {
   try {
     const value: unknown = JSON.parse(raw);
     if (
@@ -59,22 +61,22 @@ export const decodeInFlightPrompt = (raw: string): UIMessage['parts'] => {
   return [{ type: 'text', text: raw }, ...agentMentionsPartsForText(raw)];
 };
 
-const fileIdsKey = (parts: UIMessage['parts']): string =>
+const fileIdsKey = (parts: AgentsUIMessage['parts']): string =>
   parts
     .flatMap(readAgentsFilesPart)
     .map((file) => file.url)
     .sort()
     .join(',');
 
-const textKey = (parts: UIMessage['parts']): string =>
+const textKey = (parts: AgentsUIMessage['parts']): string =>
   parts
     .flatMap((part) => (part.type === 'text' ? [part.text] : []))
     .join('\n\n');
 
 /** True when a stored user message is the same in-flight prompt, including files. */
 export const inFlightPromptMatches = (
-  inFlight: UIMessage['parts'],
-  message: Pick<UIMessage, 'role' | 'parts'>,
+  inFlight: AgentsUIMessage['parts'],
+  message: Pick<AgentsUIMessage, 'role' | 'parts'>,
 ): boolean =>
   message.role === 'user' &&
   textKey(inFlight) === textKey(extractPageContext(message.parts).parts) &&
@@ -93,9 +95,9 @@ export const inFlightPromptMatches = (
 /** Persist the actual SDK message identity before its HTTP request starts. */
 export interface IInFlightTurn {
   id?: string;
-  parts: UIMessage['parts'];
+  parts: AgentsUIMessage['parts'];
 }
-export const encodeInFlightTurn = (message: UIMessage): string =>
+export const encodeInFlightTurn = (message: AgentsUIMessage): string =>
   JSON.stringify({
     version: 1,
     id: message.id,
@@ -126,11 +128,11 @@ export const decodeInFlightTurn = (raw: string): IInFlightTurn => {
 /** A replay replaces its active turn's response; it must not append to stored
  * output from the same run. Earlier turns, including identical prompts, stay. */
 export const restoreInFlightTurn = (
-  messages: UIMessage[],
+  messages: AgentsUIMessage[],
   turn: IInFlightTurn | undefined,
   threadId: string,
   replay: boolean,
-): UIMessage[] => {
+): AgentsUIMessage[] => {
   let index = -1;
   for (let cursor = messages.length - 1; cursor >= 0; cursor -= 1) {
     const message = messages[cursor];
