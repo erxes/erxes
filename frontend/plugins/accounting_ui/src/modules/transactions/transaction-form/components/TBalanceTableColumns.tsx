@@ -11,13 +11,34 @@ import {
   RecordTable,
   RecordTableInlineCell,
   fixNum,
+  Skeleton,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
-import { ProductsInline } from 'ui-modules';
+import { ProductsInline, BranchesInline, DepartmentsInline } from 'ui-modules';
+import { useFixedAssetDetail } from '@/settings/fixed-assets/hooks/useFixedAssetDetail';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
 import { activeJournalState } from '../states/trStates';
 import { ITBalanceTransaction } from '../types/TBalance';
+
+export const getTBalanceLocation = (
+  row: ITBalanceTransaction,
+  dimension: 'branch' | 'department',
+) => {
+  const idKey = dimension === 'branch' ? 'branchId' : 'departmentId';
+  const detailLocation = row.detail[dimension];
+  const rootLocation = row[dimension];
+  const id =
+    row.detail[idKey] ??
+    row[idKey] ??
+    detailLocation?._id ??
+    rootLocation?._id ??
+    '';
+  const location = [detailLocation, rootLocation].find(
+    (value) => value?._id === id,
+  );
+  return { id, location };
+};
 
 // Create named components for cell renderers to fix React Hook usage
 const NumberCell = ({ getValue, row }: any) => {
@@ -73,10 +94,16 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const AmountProdCell = ({ row, value }: { row: any; value: number }) => {
+const AmountProdCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITBalanceTransaction>;
+  value: number;
+}) => {
   const { detail } = row.original;
-  if (!detail.productId) {
-    return undefined;
+  if (!detail.productId && !detail.fixedAssetId) {
+    return null;
   }
 
   return (
@@ -106,21 +133,31 @@ const CreditCell = ({ row }: any) => {
 };
 
 const BranchCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
-  const branch = row.original.detail.branch || row.original.branch;
-
+  const { id, location } = getTBalanceLocation(row.original, 'branch');
   return (
     <RecordTableInlineCell>
-      {[branch?.code, branch?.title].filter(Boolean).join(' - ')}
+      {!id ? (
+        '-'
+      ) : location ? (
+        [location.code, location.title].filter(Boolean).join(' - ') || '-'
+      ) : (
+        <BranchesInline branchIds={[id]} placeholder="-" />
+      )}
     </RecordTableInlineCell>
   );
 };
 
 const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
-  const department = row.original.detail.department || row.original.department;
-
+  const { id, location } = getTBalanceLocation(row.original, 'department');
   return (
     <RecordTableInlineCell>
-      {[department?.code, department?.title].filter(Boolean).join(' - ')}
+      {!id ? (
+        '-'
+      ) : location ? (
+        [location.code, location.title].filter(Boolean).join(' - ') || '-'
+      ) : (
+        <DepartmentsInline departmentIds={[id]} placeholder="-" />
+      )}
     </RecordTableInlineCell>
   );
 };
@@ -151,20 +188,34 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const ProductCell = ({ row }: any) => {
-  const { detail } = row.original;
-  if (!detail.productId) {
-    return undefined;
-  }
-
+const FixedAssetItemCell = ({ fixedAssetId }: { fixedAssetId: string }) => {
+  const { fixedAssetDetail, loading } = useFixedAssetDetail(fixedAssetId);
   return (
     <RecordTableInlineCell>
-      <ProductsInline
-        productIds={[detail.productId]}
-        products={detail.product && [detail.product]}
-      />
+      {loading ? (
+        <Skeleton className="h-4 w-32" />
+      ) : (
+        [fixedAssetDetail?.code, fixedAssetDetail?.name]
+          .filter(Boolean)
+          .join(' - ') || '-'
+      )}
     </RecordTableInlineCell>
   );
+};
+
+const ItemCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
+  const { detail } = row.original;
+  if (detail.productId) {
+    return (
+      <RecordTableInlineCell>
+        <ProductsInline productIds={[detail.productId]} />
+      </RecordTableInlineCell>
+    );
+  }
+  if (detail.fixedAssetId) {
+    return <FixedAssetItemCell fixedAssetId={detail.fixedAssetId} />;
+  }
+  return null;
 };
 
 const TransactionMoreColumnCell = ({
@@ -237,29 +288,29 @@ export const tbalanceColumns = (
     cell: ({ getValue, row }) => <CreditCell getValue={getValue} row={row} />,
   },
   {
-    id: 'product-inv',
+    id: 'item-details',
     header: () => (
-      <RecordTable.InlineHead icon={IconMoneybag} label={t('inventory')} />
+      <RecordTable.InlineHead icon={IconMoneybag} label={t('item')} />
     ),
-    accessorKey: 'product-inv',
-    cell: ({ row }) => <ProductCell row={row} />,
+    accessorKey: 'item-details',
+    cell: ({ row }) => <ItemCell row={row} />,
   },
   {
-    id: 'unitPrice-inv',
+    id: 'unitPrice-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('unit-price')} />
     ),
-    accessorKey: 'unitPrice-inv',
+    accessorKey: 'unitPrice-details',
     cell: ({ row }) => (
       <AmountProdCell row={row} value={row.original?.detail?.unitPrice ?? 0} />
     ),
   },
   {
-    id: 'count-inv',
+    id: 'count-details',
     header: () => (
       <RecordTable.InlineHead icon={IconMoneybag} label={t('quantity-label')} />
     ),
-    accessorKey: 'count-inv',
+    accessorKey: 'count-details',
     cell: ({ row }) => (
       <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
     ),

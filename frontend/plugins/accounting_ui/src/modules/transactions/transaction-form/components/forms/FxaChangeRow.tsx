@@ -7,7 +7,9 @@ import {
   Button,
   Form,
   Input,
+  PopoverScoped,
   RecordTable,
+  RecordTableInlineCell,
   Select,
   Sheet,
   Skeleton,
@@ -104,11 +106,12 @@ export const FxaChangeRow = ({
       ? t('fxa-capital-no-quantity')
       : '');
   return (
-    <Table.Row>
-      <Table.Cell className="w-8">
+    <Table.Row className="overflow-hidden h-cell hover:bg-background!">
+      <Table.Cell className="w-8 p-0">
         <Sheet>
           <Sheet.Trigger asChild>
             <RecordTable.MoreButton
+              className="h-8 w-8 p-0"
               type="button"
               aria-label={t(
                 capital ? 'fxa-capital-details' : 'fxa-correction-details',
@@ -242,7 +245,8 @@ export const FxaChangeRow = ({
           name={`trDocs.${index}.details.${detailIndex}.fixedAssetId`}
           render={({ field }) => (
             <Form.Item>
-              <SelectFixedAsset.FormItem
+              <SelectFixedAsset.InlineCell
+                scope={`trDocs.${index}.details.${detailIndex}.fixedAssetId`}
                 value={field.value || ''}
                 onCallback={(asset) => {
                   accountRef.current = asset.accountId || '';
@@ -270,11 +274,13 @@ export const FxaChangeRow = ({
       </Table.Cell>
       {capital && (
         <Table.Cell className="tabular-nums">
-          {loading ? (
-            <Skeleton className="h-5 w-24" />
-          ) : (
-            valuation?.originalCost.toLocaleString() || '-'
-          )}
+          <RecordTableInlineCell>
+            {loading ? (
+              <Skeleton className="h-5 w-24" />
+            ) : (
+              valuation?.originalCost.toLocaleString() || '-'
+            )}
+          </RecordTableInlineCell>
         </Table.Cell>
       )}
       <Table.Cell>
@@ -291,18 +297,30 @@ export const FxaChangeRow = ({
             name={`trDocs.${index}.details.${detailIndex}.amount`}
             render={({ field }) => (
               <Form.Item>
-                <Form.Control>
-                  <Input
-                    type="number"
-                    aria-label={t('fxa-correction-amount')}
-                    min={0}
-                    step="any"
-                    value={field.value ?? 0}
-                    onChange={(event) =>
-                      field.onChange(Number(event.target.value))
-                    }
-                  />
-                </Form.Control>
+                <PopoverScoped
+                  scope={`trDocs.${index}.details.${detailIndex}.amount`}
+                  closeOnEnter
+                >
+                  <Form.Control>
+                    <RecordTableInlineCell.Trigger
+                      aria-label={t('fxa-correction-amount')}
+                    >
+                      {(field.value ?? 0).toLocaleString()}
+                    </RecordTableInlineCell.Trigger>
+                  </Form.Control>
+                  <RecordTableInlineCell.Content>
+                    <Input
+                      type="number"
+                      aria-label={t('fxa-correction-amount')}
+                      min={0}
+                      step="any"
+                      value={field.value ?? 0}
+                      onChange={(event) =>
+                        field.onChange(Number(event.target.value))
+                      }
+                    />
+                  </RecordTableInlineCell.Content>
+                </PopoverScoped>
                 <Form.Message />
               </Form.Item>
             )}
@@ -320,20 +338,23 @@ export const FxaChangeRow = ({
       </Table.Cell>
       {capital && (
         <Table.Cell className="tabular-nums">
-          {valuation
-            ? (
-                ((detail.followInfos?.originalCost || 0) -
-                  valuation.originalCost) *
-                valuation.count
-              ).toLocaleString()
-            : '-'}
+          <RecordTableInlineCell>
+            {valuation
+              ? (
+                  ((detail.followInfos?.originalCost || 0) -
+                    valuation.originalCost) *
+                  valuation.count
+                ).toLocaleString()
+              : '-'}
+          </RecordTableInlineCell>
         </Table.Cell>
       )}
-      <Table.Cell className="w-8">
+      <Table.Cell className="w-8 p-0">
         <Button
           type="button"
           variant="ghost"
           size="icon"
+          className="h-8 w-8 p-0"
           aria-label={t('fxa-remove-row')}
           title={t('fxa-remove-row')}
           onClick={onRemove}

@@ -1,7 +1,7 @@
 import type { ResultOf } from '@graphql-typed-document-node/core';
 import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
 import { TTrDoc } from '@/transactions/transaction-form/types/JournalForms';
-import { ITransaction } from '@/transactions/types/Transaction';
+import { ITransaction, ITrDetail } from '@/transactions/types/Transaction';
 import { TrJournalEnum, TR_SIDES } from '@/transactions/types/constants';
 
 export type TFxaCapitalValuation = ResultOf<
@@ -21,6 +21,7 @@ const buildFxaCapitalAssetPreview = (
     info.originalCost <= 0
   )
     return undefined;
+  const sourceDetails: ITrDetail[] = trDoc.details;
   const costDelta = info.originalCost - valuation.originalCost;
   const depreciationDelta =
     (info.preDeprecation ?? valuation.preDeprecation) -
@@ -51,6 +52,11 @@ const buildFxaCapitalAssetPreview = (
     accountId: valuation.accountId,
     branchId: location.branchId,
     departmentId: location.departmentId,
+    branch: sourceDetails.find((row) => row.branch?._id === location.branchId)
+      ?.branch,
+    department: sourceDetails.find(
+      (row) => row.department?._id === location.departmentId,
+    )?.department,
     count: 0 as const,
     unitPrice: 0,
     amount: round(costDelta * location.count),
@@ -67,6 +73,10 @@ const buildFxaCapitalAssetPreview = (
       accountId: valuation.depreciationAccountId,
       branchId: location.branchId,
       departmentId: location.departmentId,
+      branch: details.find((row) => row.branchId === location.branchId)?.branch,
+      department: details.find(
+        (row) => row.departmentId === location.departmentId,
+      )?.department,
       count: 0,
       amount: round(depreciationDelta * location.count),
     }))

@@ -88,6 +88,7 @@
   "tr-record-deleted-successfully": "Журналын бичилтийг устгалаа",
   "activities": "Үйл ажиллагаа",
   "inventory": "Бараа материал",
+  "item": "Зүйл",
   "select-a-kind": "Төрөл сонгох",
   "inventory-adjustment-detail": "Бараа материалын өртөг тооцооллын дэлгэрэнгүй",
   "run-btn": "АЖИЛЛУУЛАХ",

@@ -88,6 +88,7 @@
   "tr-record-deleted-successfully": "Journal entry deleted successfully",
   "activities": "Activities",
   "inventory": "Inventory",
+  "item": "Item",
   "select-a-kind": "Select a kind",
   "inventory-adjustment-detail": "Inventory costing details",
   "run-btn": "RUN",

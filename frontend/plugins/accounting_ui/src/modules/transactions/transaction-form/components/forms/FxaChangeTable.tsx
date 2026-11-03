@@ -154,22 +154,30 @@ export const FxaChangeTable = ({
         </p>
       )}
       <ScrollArea className="w-full pb-3">
-        <Table className="min-w-full w-max">
+        <Table className={capital ? 'min-w-[960px]' : 'min-w-[640px]'}>
           <Table.Header>
             <Table.Row>
-              <Table.Head className="w-8" />
+              <Table.Head className="w-8 p-0" />
               <Table.Head>{t('fixed-asset')}</Table.Head>
-              {capital && <Table.Head>{t('fxa-old-unit-cost')}</Table.Head>}
-              <Table.Head>
+              {capital && (
+                <Table.Head className="w-44">
+                  {t('fxa-old-unit-cost')}
+                </Table.Head>
+              )}
+              <Table.Head className="w-44">
                 {t(capital ? 'fxa-new-unit-cost' : 'fxa-correction-amount')}
               </Table.Head>
-              <Table.Head>
+              <Table.Head className="w-44">
                 {t(
                   capital ? 'fxa-new-useful-years' : 'annual-depreciation-rate',
                 )}
               </Table.Head>
-              {capital && <Table.Head>{t('fxa-capital-total')}</Table.Head>}
-              <Table.Head className="w-8" />
+              {capital && (
+                <Table.Head className="w-44">
+                  {t('fxa-capital-total')}
+                </Table.Head>
+              )}
+              <Table.Head className="w-8 p-0" />
             </Table.Row>
           </Table.Header>
           <Table.Body>

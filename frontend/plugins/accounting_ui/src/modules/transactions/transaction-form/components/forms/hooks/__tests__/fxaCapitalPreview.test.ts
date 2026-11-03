@@ -183,3 +183,20 @@ test('batch preview identifies mixed cost directions without treating zero-cost 
   doc.details[1].followInfos.originalCost = 100;
   expect(buildFxaCapitalPreview(doc, valuations)?.mixedDirections).toBe(false);
 });
+
+test('location allocation never reuses another branch label and carries known labels to follows', () => {
+  const doc = journal();
+  if (doc.journal !== TrJournalEnum.FXA_CAPITAL)
+    throw new Error('Invalid test journal');
+  doc.details[0].branchId = 'a';
+  Object.assign(doc.details[0], {
+    branch: { _id: 'a', code: '1000', title: 'First branch' },
+  });
+  const preview = buildFxaCapitalPreview(doc, valuation);
+  expect(preview?.details[0].branch?.title).toBe('First branch');
+  expect(preview?.details[1].branchId).toBe('b');
+  expect(preview?.details[1].branch).toBeUndefined();
+  expect(preview?.follows[0].details[0].branch?.title).toBe('First branch');
+  expect(preview?.follows[0].details[1].branchId).toBe('b');
+  expect(preview?.follows[0].details[1].branch).toBeUndefined();
+});

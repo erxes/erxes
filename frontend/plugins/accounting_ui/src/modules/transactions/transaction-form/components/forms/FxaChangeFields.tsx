@@ -1,4 +1,10 @@
-import { Form, Input, Select } from 'erxes-ui';
+import {
+  Form,
+  Input,
+  PopoverScoped,
+  RecordTableInlineCell,
+  Select,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { ITransactionGroupForm } from '@/transactions/transaction-form/types/JournalForms';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '@/settings/fixed-assets/constants/depreciationMethods';
@@ -36,39 +42,57 @@ export const FxaChangeNumberField = ({
     <Form.Field
       control={form.control}
       name={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}
-      render={({ field }) => (
-        <Form.Item className="min-w-32">
-          {!compact && <Form.Label>{t(label)}</Form.Label>}
-          <Form.Control>
-            <Input
-              type="number"
-              aria-label={t(label)}
-              min={usefulYears ? 1 : 0}
-              max={
-                rule === 'annualDepreciationRate' && !usefulYears
-                  ? 100
-                  : undefined
-              }
-              step="any"
-              value={
-                (usefulYears
-                  ? getUsefulLifeFromRate(field.value)
-                  : field.value) ?? ''
-              }
-              onChange={(event) =>
-                field.onChange(
-                  event.target.value === ''
-                    ? undefined
-                    : usefulYears
-                    ? getRateFromUsefulLife(Number(event.target.value))
-                    : Number(event.target.value),
-                )
-              }
-            />
-          </Form.Control>
-          <Form.Message />
-        </Form.Item>
-      )}
+      render={({ field }) => {
+        const value = usefulYears
+          ? getUsefulLifeFromRate(field.value)
+          : field.value;
+        const input = (
+          <Input
+            type="number"
+            aria-label={t(label)}
+            min={usefulYears ? 1 : 0}
+            max={
+              rule === 'annualDepreciationRate' && !usefulYears
+                ? 100
+                : undefined
+            }
+            step="any"
+            value={value ?? ''}
+            onChange={(event) =>
+              field.onChange(
+                event.target.value === ''
+                  ? undefined
+                  : usefulYears
+                  ? getRateFromUsefulLife(Number(event.target.value))
+                  : Number(event.target.value),
+              )
+            }
+          />
+        );
+        return (
+          <Form.Item className={compact ? 'min-w-0' : 'min-w-32'}>
+            {!compact && <Form.Label>{t(label)}</Form.Label>}
+            {compact ? (
+              <PopoverScoped
+                scope={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}
+                closeOnEnter
+              >
+                <Form.Control>
+                  <RecordTableInlineCell.Trigger aria-label={t(label)}>
+                    {value?.toLocaleString() ?? '-'}
+                  </RecordTableInlineCell.Trigger>
+                </Form.Control>
+                <RecordTableInlineCell.Content>
+                  {input}
+                </RecordTableInlineCell.Content>
+              </PopoverScoped>
+            ) : (
+              <Form.Control>{input}</Form.Control>
+            )}
+            <Form.Message />
+          </Form.Item>
+        );
+      }}
     />
   );
 };
