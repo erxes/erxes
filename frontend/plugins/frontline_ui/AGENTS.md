@@ -581,6 +581,18 @@
   `{{ actions.<agentNodeId>.text }}` (`utils/buildAiReplySeedLink.ts`). The
   messenger trigger is a direct condition with no keyword rules (any text);
   the comment trigger is `postType: 'any'`.
+- The Instagram bot sheet (`instagram/components/bots/components/AutomationBotForm.tsx`)
+  carries the same menu: `InstagramBotCreateAutomationButton` seeds a message
+  or comment trigger with the bot, and "AI messenger reply" / "AI comment
+  reply" open `InstagramBotAiReplyDialog` (`aiReply` query; the sheet itself
+  reopens from `instagramBotId`). It reuses the Facebook `automationsAiAgents`
+  hook and `useFacebookBotAutomations` with the Instagram trigger types;
+  `useInstagramBotAiReplyClaims` blocks on an active automation that already
+  answers any text or any post. `utils/buildAiReplySeedLink.ts` seeds trigger
+  → `aiAgent` → `frontline:instagram.messages.create` (text
+  `{{ actions.<agentNodeId>.text }}`) or `frontline:instagram.comments.create`
+  (`text`, the single field its form writes). The Instagram message trigger
+  schema accepts a direct condition without keyword rules for this reason.
 - Attaches a Facebook Messenger bot to an integration from the integration list
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
@@ -1129,10 +1141,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
   mirrors the server rule — Get Started joins `items` only when there is a user
   menu item — and keeps `getStartedTitle` apart for the welcome-screen button.
-- An AI reply seed always ends in a Facebook reply action: the `aiAgent` node
-  only writes text. `FacebookBotAiReplyDialog` blocks when another **active**
-  automation on the bot already answers any text (`directCatchAll`) or any post
-  (`anyPost`); a draft one is shown, never blocking.
+- An AI reply seed always ends in a Facebook or Instagram reply action: the
+  `aiAgent` node only writes text. `FacebookBotAiReplyDialog` and
+  `InstagramBotAiReplyDialog` block when another **active** automation on the
+  bot already answers any text (`directCatchAll`) or any post (`anyPost`); a
+  draft one is shown, never blocking.
 - Instagram history includes internal notes in the same paginated timeline.
   Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
   merge all message fields so deletion, receipt and reaction updates remain
