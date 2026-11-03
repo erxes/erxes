@@ -83,6 +83,12 @@ export const AGENTS_THREAD_REMOVE = gql`
   }
 `;
 
+export const AGENTS_THREAD_STOP = gql`
+  mutation AgentsThreadStop($threadId: String!) {
+    agentsThreadStop(threadId: $threadId)
+  }
+`;
+
 export const AGENTS_THREADS_CHANGED = gql`
   subscription AgentsThreadsChanged {
     agentsThreadsChanged {
@@ -124,4 +130,8 @@ export interface IAgentsThreadRemoveData {
 
 export interface IAgentsThreadRemoveVariables {
   threadId: string;
+}
+
+export interface IAgentsThreadStopData {
+  agentsThreadStop: boolean;
 }
