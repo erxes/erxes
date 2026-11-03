@@ -16,7 +16,7 @@ export const DealsExport = ({
   buttonVariant = 'outline',
 }: DealsExportProps) => {
   const [searchParams] = useSearchParams();
-   /** The list's current filters, without sorting, so the export matches the page. */
+  /** The list's current filters, without sorting, so the export matches the page. */
   const getFilters = () => {
     const filters = getDealsQueryVariables(searchParams);
     // Sorting only shapes the list view; the export reads in `_id` order.
