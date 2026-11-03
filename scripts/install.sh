@@ -159,7 +159,7 @@ detect_platform() {
         grep -qw avx /proc/cpuinfo 2>/dev/null || die "This CPU has no AVX support, which MongoDB 7 requires. Use a newer server or VM CPU type."
         ;;
       aarch64 | arm64)
-        warn "ARM server: erxes core images are x86_64-only for now, so they run through emulation and start slower."
+        die "erxes core images are built for x86_64 only for now. Use an x86_64 server."
         ;;
       *) die "Unsupported CPU: $ARCH" ;;
     esac
@@ -224,23 +224,6 @@ ensure_docker() {
   if [ "$major" -lt 2 ] || { [ "$major" -eq 2 ] && [ "$minor" -lt 17 ]; }; then
     die "Docker Compose $version is too old. Update Docker to get Compose 2.17 or newer."
   fi
-}
-
-x86_emulation_ready() {
-  [ -e /proc/sys/fs/binfmt_misc/qemu-x86_64 ]
-}
-
-ensure_x86_emulation() {
-  [ "$OS" = Linux ] || return 0
-  case "$ARCH" in aarch64 | arm64) ;; *) return 0 ;; esac
-  x86_emulation_ready && return 0
-
-  command -v apt-get >/dev/null 2>&1 || die "This ARM server needs x86_64 emulation. Install qemu-user-static with binfmt support, then run this command again."
-  step "Installing x86_64 emulation (qemu-user-static)"
-  as_root apt-get update -qq >/dev/null
-  as_root env DEBIAN_FRONTEND=noninteractive apt-get install -y -qq qemu-user-static binfmt-support >/dev/null
-  x86_emulation_ready || as_root systemctl restart systemd-binfmt >/dev/null 2>&1 || true
-  x86_emulation_ready || die "x86_64 emulation could not be enabled. Check: ls /proc/sys/fs/binfmt_misc"
 }
 
 env_value() {
@@ -639,7 +622,6 @@ main() {
   need curl
   detect_platform
   ensure_docker
-  ensure_x86_emulation
 
   if [ -n "$OPT_DIR" ]; then
     ERXES_DIR="$OPT_DIR"
