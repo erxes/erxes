@@ -230,7 +230,7 @@ export const buildProductLineColumns = (
     productAmount: toExportNumber(productData.amount),
   };
 };
-
+/** Builds one deal's export columns, with names resolved from the batch lookups. */
 export const buildDealExportRow = (
   deal: ExportDeal,
   lookups: DealExportLookups,
@@ -292,7 +292,10 @@ export const buildDealExportRow = (
 
   return row;
 };
-
+/**
+ * One CSV row per deal, or one per product line when a product column is
+ * selected. Reads deals in `_id` order so the worker can page by the last `_id`.
+ */
 export async function getDealExportData(
   args: GetExportDataArgs,
   { subdomain, models }: IImportExportContext<IModels>,

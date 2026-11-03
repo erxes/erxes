@@ -81,7 +81,7 @@ const countStoredPropertyRows = async (
 
   return Math.min(Number(largest?.size) || 0, MAX_PROPERTY_ROWS);
 };
-
+/** One column per live `sales:deal` property; stored repeating groups get numbered columns. */
 const getDealPropertyHeaders = async (
   subdomain: string,
   models: IModels,
@@ -141,7 +141,7 @@ const getDealPropertyHeaders = async (
     ];
   });
 };
-
+/** Deal export columns: fixed system fields followed by deal properties. */
 export async function getDealExportHeaders(
   _args: unknown,
   { subdomain, models }: IImportExportContext<IModels>,
