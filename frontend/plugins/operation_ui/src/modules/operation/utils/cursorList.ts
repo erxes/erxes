@@ -30,9 +30,22 @@ export const toCursorPageInfo = (
       }
     : undefined;
 
+const compactedLists = new WeakMap<object, unknown[]>();
+
+// Returns the same array for the same Apollo list, so hook results stay
+// referentially stable across renders and effects keyed on them do not rerun
+// (the task board re-rendered endlessly when this built a new array each call).
+// Callers must not mutate the result.
 export const compactList = <T>(
   list: readonly (T | null)[] | null | undefined,
-) => (list ?? []).filter((item): item is T => item !== null);
+): T[] => {
+  if (!list) return [];
+  const cached = compactedLists.get(list);
+  if (cached) return cached as T[];
+  const compacted = list.filter((item): item is T => item !== null);
+  compactedLists.set(list, compacted);
+  return compacted;
+};
 
 export const mergeCursorList = <T, L extends GqlCursorList<T>>(
   direction: EnumCursorDirection,

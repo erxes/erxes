@@ -12,6 +12,7 @@ import {
 import { IPosOrder } from '~/modules/pos/@types/orders';
 import { posOrderPaidAmount, posOrderPurchaseItems } from './purchase';
 import { resolvePosOrderPaymentUrl } from './resolvers/resolvePosOrderPaymentUrl';
+import { posOrderCreateActionConfigSchema } from './configSchemas';
 
 type TPosOrderAutomationTarget = IPosOrder & {
   _id?: string;
@@ -185,6 +186,7 @@ export const posAutomationConstants = {
       moduleName: 'pos',
       collectionName: 'orders',
       method: 'create',
+      configSchema: posOrderCreateActionConfigSchema,
       icon: 'IconShoppingCartPlus',
       label: 'Create POS order',
       description: 'Create a POS order record.',

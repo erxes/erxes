@@ -8,17 +8,20 @@ export const JobNumberInput = ({
   onChange,
   min,
   max,
+  className,
 }: {
   value?: number;
   onChange: (value?: number) => void;
   min?: number;
   max?: number;
+  className?: string;
 }) => (
   <Input
     type="number"
     value={value ?? ''}
     min={min}
     max={max}
+    className={className}
     onChange={(event) => onChange(numberValue(event.target.value))}
   />
 );

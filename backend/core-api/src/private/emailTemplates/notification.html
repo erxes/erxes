@@ -33,6 +33,11 @@
             line-height: 22px;
           "
         >
+          {{#if brand}}
+          <div style="padding: 28px 30px 0; text-align: center">
+            {{{ brand.header }}}
+          </div>
+          {{else}}
           <div
             style="
               position: relative;
@@ -71,6 +76,7 @@
               </tr>
             </table>
           </div>
+          {{/if}}
 
           <p
             style="
@@ -92,7 +98,7 @@
               style="
                 color: #666;
                 text-align: justify;
-                border-left: 5px solid #5628b6;
+                border-left: 5px solid {{#if brand}}{{ brand.color }}{{else}}#5628b6{{/if}};
                 padding-left: 10px;
                 font-size: 12px;
               "
@@ -125,7 +131,7 @@
                         color, background-color, border-color;
                       font-size: 14px;
                       /* text-transform: uppercase; */
-                      background-color: #63d2d6;
+                      background-color: {{#if brand}}{{ brand.color }}{{else}}#63d2d6{{/if}};
                       font-weight: 300;
                       text-decoration: none;
                       border: 1px solid transparent;
@@ -141,7 +147,7 @@
                     <div>
                       or click the
                       <a
-                        style="color: #63d2d6"
+                        style="color: {{#if brand}}{{ brand.color }}{{else}}#63d2d6{{/if}}"
                         href="{{ notification.link }}"
                         target="_blank"
                         ><strong> link </strong></a
@@ -152,6 +158,9 @@
               </tr>
             </tbody>
           </table>
+          {{#if brand}}
+          <div style="padding: 0 30px">{{{ brand.footer }}}</div>
+          {{else}}
           <div>
             <a
               style="color: #5629b6; text-decoration: none"
@@ -173,16 +182,18 @@
             <a
               style="color: #5629b6; text-decoration: none"
               target="_blank"
-              href="{{ domain }}/gateway/pl:core/unsubscribe?uid={{uid}}"
-              alt="Click here to unsubscribe"
-              >&nbsp; Unsubscribe
+              href="{{ domain }}/settings/notification"
+              alt="Manage notification settings"
+              >&nbsp; Notification settings
             </a>
           </div>
+          {{/if}}
         </div>
       </td>
     </tr>
   </tbody>
 </table>
+{{#unless brand}}
 <!--footer-->
 <table style="margin-top: 20px" align="center" border="0">
   <tbody>
@@ -304,6 +315,7 @@
     </tr>
   </tbody>
 </table>
+{{/unless}}
 
 <script>
   document.getElementById('year').innerHTML = new Date().getFullYear();

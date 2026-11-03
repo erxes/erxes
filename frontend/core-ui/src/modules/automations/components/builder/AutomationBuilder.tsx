@@ -32,9 +32,15 @@ type AutomationBuilderProps = {
   // Prefilled nodes for a fresh automation opened from another module; never
   // set alongside a saved detail.
   seed?: TAutomationSeed;
+  // Edit page only: reloads the saved automation and remounts this builder.
+  refetchDetail?: () => Promise<void>;
 };
 
-export const AutomationBuilder = ({ detail, seed }: AutomationBuilderProps) => {
+export const AutomationBuilder = ({
+  detail,
+  seed,
+  refetchDetail,
+}: AutomationBuilderProps) => {
   const [activeTab, setActiveTab] = useAtom(automationBuilderActiveTabState);
   const setOpenSidebar = useSetAtom(automationBuilderSiderbarOpenState);
   const [queryParams] = useMultiQueryState<{
@@ -78,7 +84,7 @@ export const AutomationBuilder = ({ detail, seed }: AutomationBuilderProps) => {
   }, [queryParams.activeNodeId, setOpenSidebar]);
 
   return (
-    <AutomationProvider detail={detail}>
+    <AutomationProvider detail={detail} refetchDetail={refetchDetail}>
       <ReactFlowProvider>
         <AutomationBuilderDnDProvider>
           <FormProvider {...form}>

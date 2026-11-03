@@ -94,7 +94,7 @@ export const MessageAttachments = ({
 }: {
   attachments?: IAttachment[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [failedKeys, setFailedKeys] = useState<Set<string>>(() => new Set());
 
   if (!attachments?.length) return null;

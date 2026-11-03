@@ -65,43 +65,40 @@ export const currentCashTotalAtom = atom((get) =>
   )
 )
 export const descriptionAtom = atom<string>("")
+export const terminalResultsAtom = atom((get) =>
+  get(detailsAtom).flatMap((detail) =>
+    (detail.terminalResults || []).map((result) => ({
+      ...result,
+      bank: detail.paidType,
+    }))
+  )
+)
+export const terminalFetchBusyAtom = atom(false)
+export const coverValidationAttemptedAtom = atom(false)
+export const activeCoverIdAtom = atom("")
+export const coverStatusAtom = atom<Cover["status"]>("new")
 
 export const setCoverAmountAtom = atom(
   null,
   (get, set, { startDate, cashAmount, endDate, ...rest }) => {
     set(beginDateAtom, startDate)
+    if (endDate) set(endDateAtom, endDate)
     set(calcCashAtom, cashAmount || 0)
     set(calcAmountsAtom, rest)
     set(currentAmountsAtom, rest)
   }
 )
 
-export const golomtResponseAtom = atom<string>("")
-export const tdbResponseAtom = atom<string>("")
-export const capitronResponseAtom = atom<string>("")
-
-// (Object.keys(rest) || []).map((pt) => ({
-//   _id: Math.random(),
-//   paidType: pt,
-//   paidSummary: [
-//     {
-//       _id: Math.random() + "",
-//       amount: rest[pt],
-//       kind: "1",
-//       kindOfVal: 1,
-//       value: rest[pt],
-//     },
-//   ],
-// }))
-// _id: string | number
-// paidType: string
-// paidSummary: PaidSum[]
-// paidDetail?: string | number
-
 export const setCoverDetailAtom = atom(
   null,
-  (get, set, { beginDate, endDate, details, description }: Cover) => {
+  (
+    get,
+    set,
+    { beginDate, endDate, details, description, status, _id }: Cover
+  ) => {
     set(beginDateAtom, beginDate)
+    if (get(activeCoverIdAtom) !== _id) set(coverValidationAttemptedAtom, false)
+    set(activeCoverIdAtom, _id)
     set(endDateAtom, endDate)
     const cashData = (details || []).find((d) => d.paidType === "cashAmount")
     const cashDataSyncWithInitial = {
@@ -119,17 +116,31 @@ export const setCoverDetailAtom = atom(
       (detail) => detail.paidType !== "cashAmount"
     )
     set(cashAtom, cashDataSyncWithInitial)
+    set(calcCashAtom, Number(cashData?.paidDetail) || 0)
+    set(
+      calcAmountsAtom,
+      Object.fromEntries(
+        exceptCash.map((detail) => [
+          detail.paidType,
+          Number(detail.paidDetail) || 0,
+        ])
+      )
+    )
 
-    let amounts = {} as { [key: string]: number }
+    const amounts: { [key: string]: number } = {}
     exceptCash.forEach((detail) => {
-      amounts[detail.paidType] = detail.paidSummary[0].value || 0
+      amounts[detail.paidType] = detail.paidSummary[0]?.value || 0
     })
     set(currentAmountsAtom, amounts)
-    set(descriptionAtom, description || "")
+    set(descriptionAtom, description ?? "")
+    set(detailsAtom, details || [])
+    set(coverStatusAtom, status)
   }
 )
 
 export const resetCoverDetailAtom = atom(null, (get, set) => {
+  set(activeCoverIdAtom, "")
+  set(coverValidationAttemptedAtom, false)
   set(calcCashAtom, 0)
   set(calcAmountsAtom, null)
   set(beginDateAtom, null)
@@ -139,9 +150,7 @@ export const resetCoverDetailAtom = atom(null, (get, set) => {
   set(cashAtom, cashInitial)
   set(currentAmountsAtom, {})
   set(descriptionAtom, "")
-  set(golomtResponseAtom, "")
-  set(tdbResponseAtom, "")
-  set(capitronResponseAtom, "")
+  set(coverStatusAtom, "new")
 })
 
 export const description = atom<string>("")

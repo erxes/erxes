@@ -36,7 +36,9 @@ export const MailDraftEditForm: React.FC<MailDraftEditFormProps> = ({
   onSave,
   onCancel,
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const bodyRef = useRef<HTMLDivElement>(null);
   const initialBody = useRef(body ?? '');
 

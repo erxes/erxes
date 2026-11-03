@@ -5,8 +5,8 @@ export const GET_SALES_STAGE = gql`
     $isNotLost: Boolean
     $pipelineId: String!
     $search: String
-    $customerIds: [String]
-    $companyIds: [String]
+    $customerId: String
+    $companyId: String
     $assignedUserIds: [String]
     $labelIds: [String]
     $extraParams: JSON
@@ -28,8 +28,8 @@ export const GET_SALES_STAGE = gql`
       isNotLost: $isNotLost
       pipelineId: $pipelineId
       search: $search
-      customerIds: $customerIds
-      companyIds: $companyIds
+      customerId: $customerId
+      companyId: $companyId
       assignedUserIds: $assignedUserIds
       labelIds: $labelIds
       extraParams: $extraParams

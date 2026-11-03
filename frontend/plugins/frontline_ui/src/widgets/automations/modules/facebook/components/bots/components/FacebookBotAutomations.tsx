@@ -24,7 +24,7 @@ export const FacebookBotAutomations = ({
   botId?: string;
   openInNewTab?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { automations, loading } = useFacebookBotAutomations(
     botId,
     BOT_TRIGGER_TYPES,

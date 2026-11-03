@@ -5,6 +5,7 @@ import {
 } from '@/operation/components/SelectOperation';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { ITeam } from '@/team/types';
+import { IconUsersGroup } from '@tabler/icons-react';
 import {
   Badge,
   Combobox,
@@ -96,7 +97,8 @@ const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (!teams || teams.length === 0 || !value?.length) {
     return (
-      <span className="text-muted-foreground">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        <IconUsersGroup className="size-4 shrink-0" aria-hidden="true" />
         {placeholder || 'Select teams...'}
       </span>
     );
@@ -245,6 +247,7 @@ const SelectTeamFilterView = () => {
 };
 
 const SelectTeamFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   mode = 'multiple',
@@ -254,6 +257,8 @@ const SelectTeamFormItem = ({
   onValueChange: (value: string | string[]) => void;
   mode?: 'single' | 'multiple';
   isTriageEnabled?: boolean;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -265,10 +270,10 @@ const SelectTeamFormItem = ({
       isTriageEnabled={isTriageEnabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form">
+        <SelectTriggerOperation variant={variant}>
           <SelectTeamValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectTeamContent />
         </SelectOperationContent>
       </PopoverScoped>

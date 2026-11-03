@@ -18,6 +18,8 @@ export const CREATE_TICKET = gql(`
     $assignedMembers: [String]
     $attachments: [AttachmentInput]
     $propertiesData: JSON
+    $customerId: String
+    $companyId: String
   ) {
     createTicket(
       name: $name
@@ -36,6 +38,8 @@ export const CREATE_TICKET = gql(`
       assignedMembers: $assignedMembers
       attachments: $attachments
       propertiesData: $propertiesData
+      customerId: $customerId
+      companyId: $companyId
     ) {
       ...FrontlineTicketFields
     }

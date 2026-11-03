@@ -140,6 +140,15 @@ export const generateFilter = async (
     filterQuery.status = filter.status;
   }
 
+  // The tickets of these customers / companies.
+  if (filter.customerId) {
+    filterQuery.customerId = filter.customerId;
+  }
+
+  if (filter.companyId) {
+    filterQuery.companyId = filter.companyId;
+  }
+
   if (filter.statusId) {
     filterQuery.statusId = filter.statusId;
   }

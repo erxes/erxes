@@ -25,36 +25,43 @@ export const EmailDisplay = ({
           email.email && (
             <span key={email.email} className="inline-flex">
               {onEmailClick ? (
+                // Rendered inside table/detail triggers, which are buttons
+                // themselves, so the chip is a span acting as a button.
                 <Button
-                  type="button"
+                  asChild
                   size="sm"
                   variant="secondary"
                   className="h-6 w-fit rounded-sm border gap-1 cursor-pointer hover:bg-primary/10 hover:text-primary focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    const activate =
-                      event.detail === 0
-                        ? onEmailKeyActivate || onEmailClick
-                        : onEmailClick;
-                    activate(email.email || '');
-                  }}
-                  onDoubleClick={(event) => {
-                    event.stopPropagation();
-                    onEmailDoubleClick?.(email.email || '');
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === 'Enter' || event.key === ' ') {
-                      event.stopPropagation();
-                    }
-                  }}
                 >
-                  {email.isPrimary &&
-                    (email.status === ValidationStatus.Valid ? (
-                      <IconCircleDashedCheck className="text-success size-4" />
-                    ) : (
-                      <IconCircleDashed className="text-muted-foreground size-4" />
-                    ))}
-                  {email.email}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      onEmailClick(email.email || '');
+                    }}
+                    onDoubleClick={(event) => {
+                      event.stopPropagation();
+                      onEmailDoubleClick?.(email.email || '');
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                      }
+
+                      event.preventDefault();
+                      event.stopPropagation();
+                      (onEmailKeyActivate || onEmailClick)(email.email || '');
+                    }}
+                  >
+                    {email.isPrimary &&
+                      (email.status === ValidationStatus.Valid ? (
+                        <IconCircleDashedCheck className="text-success size-4" />
+                      ) : (
+                        <IconCircleDashed className="text-muted-foreground size-4" />
+                      ))}
+                    {email.email}
+                  </span>
                 </Button>
               ) : (
                 <Badge variant="secondary">

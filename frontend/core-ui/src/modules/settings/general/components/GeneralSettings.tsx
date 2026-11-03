@@ -6,6 +6,7 @@ import { SelectCurrency } from '@/settings/general/components/SelectCurrency';
 import { SelectMainCurrency } from '@/settings/general/components/SelectMainCurrency';
 import { SelectTeamMemberMasterUsers } from '@/settings/general/components/SelectTeamMemberMasterUsers';
 import { SelectTimezone } from '@/settings/general/components/SelectTimezone';
+import { UserActivityTracking } from '@/settings/general/components/UserActivityTracking';
 import { LANGUAGES } from '@/settings/general/constants/data';
 import { useGeneralSettingsForms } from '@/settings/general/hooks/useGeneralSettingsForms';
 import { TGeneralSettingsProps } from '@/settings/general/types';
@@ -81,6 +82,9 @@ const GeneralSettings = () => {
       const departmentMasterUserIds = configs?.find(
         (data: any) => data.code === 'DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS',
       );
+      const activityTracking = configs?.find(
+        ({ code }: { code: string }) => code === 'USER_ACTIVITY_TRACKING',
+      );
 
       methods.setValue('dealCurrency', currencies?.value ?? []);
       methods.setValue('mainCurrency', mainCurrency?.value);
@@ -98,6 +102,10 @@ const GeneralSettings = () => {
       );
 
       methods.setValue('TIMEZONE', timezone?.value ?? '');
+      methods.setValue(
+        'USER_ACTIVITY_TRACKING',
+        String(activityTracking?.value) === 'true',
+      );
     }
   }, [configs, methods]);
 
@@ -124,6 +132,7 @@ const GeneralSettings = () => {
         <SelectCurrency />
         <SelectTimezone />
         <SelectTeamMemberMasterUsers />
+        <UserActivityTracking />
         <Button disabled={isLoading} type="submit" className="w-1/4 ml-auto">
           {isLoading ? (
             <Spinner className="stroke-white/90 w-4 h-4" />

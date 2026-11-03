@@ -23,6 +23,10 @@ export type EnvironmentVariable = {
   value: string;
 };
 
+export interface IWebTexts {
+  [key: string]: string | IWebTexts;
+}
+
 export interface IWeb {
   clientPortalId?: string;
   name: string;
@@ -38,6 +42,7 @@ export interface IWeb {
   templateType?: string;
   erxesAppToken?: string;
   externalLinks?: Record<string, string>;
+  texts?: IWebTexts | null;
   integrations?: IIntegrations;
   environmentVariables?: EnvironmentVariable[];
   // deployment fields

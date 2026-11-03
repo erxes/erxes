@@ -25,7 +25,7 @@ export const useFacebookBotSave = (
   // their own state rather than in the query string.
   botId?: string | null,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [queryBotId] = useQueryState<string>('facebookBotId');
   const facebookBotId = botId ?? queryBotId;
   const resetForm = useSetAtom(resetFacebookAddStateAtom);

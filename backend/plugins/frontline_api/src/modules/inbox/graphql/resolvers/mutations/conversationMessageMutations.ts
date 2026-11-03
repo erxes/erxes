@@ -118,6 +118,7 @@ export const conversationMessageMutations = {
           fromUserId: userId,
           subdomain,
           notificationType: 'internalNote',
+          event: 'frontline:conversations:conversationMention',
           userIds,
           action: 'created',
         });

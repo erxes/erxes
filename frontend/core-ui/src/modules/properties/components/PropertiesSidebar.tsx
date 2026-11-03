@@ -1,5 +1,6 @@
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { IPropertyType } from '@/properties/types/Properties';
+import { SETTINGS_INLINE_TYPES_LIMIT } from '@/settings/constants/data';
 import { Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -10,10 +11,16 @@ export const PropertiesSidebar = () => {
   const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const { propertyTypes } = usePropertyTypes();
   const { pluginName: scopePluginName } = usePropertiesScope();
-  // Inside a plugin's settings only that plugin's types are listed.
   const groups = Object.entries(propertyTypes).filter(
     ([pluginName]) => !scopePluginName || pluginName === scopePluginName,
   );
+
+  if (
+    scopePluginName &&
+    (propertyTypes[scopePluginName]?.length ?? 0) <= SETTINGS_INLINE_TYPES_LIMIT
+  ) {
+    return null;
+  }
 
   return (
     <Sidebar.Panel

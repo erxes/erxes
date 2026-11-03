@@ -4,7 +4,7 @@ import { useReplyMessageAction } from '~/widgets/automations/modules/facebook/co
 import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 
 export const MessageSequenceHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { messages, maxMessages, addMessage } = useReplyMessageAction();
 
   return (

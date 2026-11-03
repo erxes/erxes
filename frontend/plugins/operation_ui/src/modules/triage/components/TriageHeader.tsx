@@ -1,7 +1,7 @@
 import { IconCaretLeftRight } from '@tabler/icons-react';
 import { Button, Separator, Sidebar } from 'erxes-ui';
 import { Link, useParams } from 'react-router-dom';
-import { AddTriageSheet } from './add-triage/AddTriageSheet';
+import { AddTriageButton } from './add-triage/AddTriageButton';
 import { useTranslation } from 'react-i18next';
 
 export const TriageHeader = () => {
@@ -20,7 +20,7 @@ export const TriageHeader = () => {
             </Link>
           </Button>
           <div className="ml-auto">
-            <AddTriageSheet />
+            <AddTriageButton />
           </div>
         </div>
       </div>

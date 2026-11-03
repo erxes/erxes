@@ -49,7 +49,9 @@ export const MailThread: React.FC<MailThreadProps> = ({
   beforeCompose,
   scrollViewportRef,
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [composeMode, setComposeMode] = useState<ComposeMode | null>(null);
   const [composeTarget, setComposeTarget] = useState<MailMessage | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);

@@ -26,6 +26,8 @@ export const types = `
     githubIssueUrl: String
     githubRepoName: String
     propertiesData: JSON
+    customerId: String
+    companyId: String
   }
 
   type TaskListResponse {
@@ -52,6 +54,8 @@ export const types = `
     cycleId: String
     labelIds: [String]
     tagIds: [String]
+    customerId: String
+    companyId: String
     projectId: String 
     teamId: String
     estimatePoint: Int
@@ -99,6 +103,8 @@ const createTaskParams = `
   estimatePoint: Int
   milestoneId: String
   propertiesData: JSON
+  customerId: String
+  companyId: String
 `;
 
 const updateTaskParams = `
@@ -118,6 +124,8 @@ const updateTaskParams = `
   estimatePoint: Int
   milestoneId: String
   propertiesData: JSON
+  customerId: String
+  companyId: String
 `;
 
 export const queries = `

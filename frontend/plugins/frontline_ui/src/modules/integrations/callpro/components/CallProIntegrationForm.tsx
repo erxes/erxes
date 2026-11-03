@@ -18,7 +18,9 @@ export const CallProIntegrationForm = ({
   onSubmit: (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => void;
   loading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <Form {...form}>
@@ -100,7 +102,9 @@ export const CallProIntegrationForm = ({
 };
 
 export const CallProWebhookHint = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { webhookUrl } = useCallProConfig();
 
   if (!webhookUrl) {
@@ -128,7 +132,9 @@ export const CallProIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const callProEditSheet = useAtomValue(callProEditSheetAtom);
 
   return (

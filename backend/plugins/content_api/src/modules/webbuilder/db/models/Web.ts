@@ -2,6 +2,7 @@ import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { IWeb, IWebDocument } from '~/modules/webbuilder/@types/web';
 import { webSchema } from '../definitions/web';
+import { normalizeWebTexts } from '~/modules/webbuilder/utils/webTexts';
 
 export interface IWebModel extends Model<IWebDocument> {
   getWebList(): Promise<IWebDocument[]>;
@@ -53,9 +54,18 @@ export const loadWebClass = (models: IModels) => {
         throw new Error('clientPortalId cannot be changed for an existing web');
       }
 
+      const { texts, ...fields } = docFields;
+      const normalizedTexts = normalizeWebTexts(texts);
+
       const update = await models.Web.findOneAndUpdate(
         { _id },
-        { $set: { ...docFields, clientPortalId: existing.clientPortalId } },
+        {
+          $set: {
+            ...fields,
+            ...(normalizedTexts !== undefined && { texts: normalizedTexts }),
+            clientPortalId: existing.clientPortalId,
+          },
+        },
         { new: true },
       );
       if (!update) throw new Error('Web not found');

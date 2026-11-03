@@ -1,182 +1,167 @@
 import { useTranslation } from 'react-i18next';
+import { JournalEnum } from '@/settings/account/types/Account';
+import { CurrencyField, Form, Input } from 'erxes-ui';
 import {
-  ACCOUNT_KIND_LABELS,
-  ACCOUNT_STATUS_LABELS,
-  AccountKind,
-  AccountStatus,
-  JournalEnum,
-} from '../types/Account';
-import {
-  Button,
-  Checkbox,
-  CurrencyField,
-  Form,
-  Input,
-  Select,
-  Sheet,
-  Spinner,
-  Textarea,
-} from 'erxes-ui';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormRow,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 import { UseFormReturn, useWatch } from 'react-hook-form';
 
-import { JOURNAL_LABELS } from '../constants/journalLabel';
-import { SelectAccountCategory } from '../account-categories/components/SelectAccountCategory';
-import { TAccountForm } from '../types/accountForm';
+import { SETTINGS_PANEL_CELL_CLASS_NAME } from '@/settings/constants/settingsPanel';
+import {
+  SettingsPanelDescriptionInput,
+  SettingsPanelSelect,
+  SettingsPanelSwitch,
+} from '@/settings/components/panel/SettingsPanelFields';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
+import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
+import { TAccountForm } from '@/settings/account/types/accountForm';
+import {
+  getAccountJournalOptions,
+  getAccountKindOptions,
+} from '@/settings/account/utils/accountOptions';
 import {
   getCurrencyCodeFromOptions,
   useCurrencyConfigs,
-} from '../../hooks/useCurrencyConfigs';
+} from '@/settings/hooks/useCurrencyConfigs';
+
+const SCOPE = 'side-panel-account-new';
 
 const AccountFormFields = ({
   control,
-  status,
-  journal,
 }: {
   control: UseFormReturn<TAccountForm>['control'];
-  status: string | undefined;
-  journal: string | undefined;
 }) => {
   const { t } = useTranslation('accounting');
   const { dealCurrencyOptions } = useCurrencyConfigs();
+  const journal = useWatch({ control, name: 'journal' });
 
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <>
       <Form.Field
         control={control}
         name="name"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('name')}</Form.Label>
-            <Form.Control>
-              <Input
-                placeholder={t('enter-account-name')}
-                {...field}
-                autoComplete="off"
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('name')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoFocus
+              autoComplete="off"
+              placeholder={t('enter-account-name')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
 
       <Form.Field
         control={control}
         name="code"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('code')}</Form.Label>
-            <Form.Control>
-              <Input placeholder={t('enter-account-code')} {...field} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('code')}
+            required
+            error={fieldState.error?.message}
+          >
+            <Input
+              {...field}
+              autoComplete="off"
+              placeholder={t('enter-account-code')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
 
       <Form.Field
         control={control}
         name="categoryId"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('category')}</Form.Label>
-            <Form.Control>
-              <SelectAccountCategory
-                tabIndex={0}
-                selected={field.value}
-                onSelect={field.onChange}
-                recordId={field.name}
-                allowCreate
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('category')}
+            required
+            error={fieldState.error?.message}
+          >
+            <SelectAccountCategory
+              selected={field.value}
+              onSelect={field.onChange}
+              recordId={`${SCOPE}.category`}
+              variant="ghost"
+              hideChevron
+              className={SETTINGS_PANEL_CELL_CLASS_NAME}
+              allowCreate
+            />
+          </PanelFormRow>
         )}
       />
 
       <Form.Field
         control={control}
         name="currency"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('currency')}</Form.Label>
-            <Form.Control>
-              <CurrencyField.SelectCurrency
-                value={getCurrencyCodeFromOptions(
-                  field.value,
-                  dealCurrencyOptions,
-                )}
-                onChange={field.onChange}
-                className="w-full"
-                currencies={dealCurrencyOptions}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-
-      <Form.Field
-        control={control}
-        name="description"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{t('description')}</Form.Label>
-            <Form.Control>
-              <Textarea placeholder={t('enter-description-label')} {...field} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('currency')}
+            required
+            error={fieldState.error?.message}
+          >
+            <CurrencyField.SelectCurrency
+              value={getCurrencyCodeFromOptions(
+                field.value,
+                dealCurrencyOptions,
+              )}
+              onChange={field.onChange}
+              variant="ghost"
+              hideChevron
+              className={SETTINGS_PANEL_CELL_CLASS_NAME}
+              currencies={dealCurrencyOptions}
+            />
+          </PanelFormRow>
         )}
       />
 
       <Form.Field
         control={control}
         name="kind"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('type')}</Form.Label>
-            <Form.Control>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <Select.Trigger>
-                  <Select.Value placeholder={t('select-type')} />
-                </Select.Trigger>
-                <Select.Content>
-                  {Object.values(AccountKind).map((kind) => (
-                    <Select.Item key={kind} value={kind}>
-                      {t(ACCOUNT_KIND_LABELS[kind] || '')}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('type')}
+            required
+            error={fieldState.error?.message}
+          >
+            <SettingsPanelSelect
+              value={field.value}
+              placeholder={t('select-type')}
+              options={getAccountKindOptions(t)}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
 
       <Form.Field
         control={control}
         name="journal"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('journal')}</Form.Label>
-            <Form.Control>
-              <Select onValueChange={field.onChange} value={field.value}>
-                <Select.Trigger>
-                  <Select.Value placeholder={t('select-journal')} />
-                </Select.Trigger>
-                <Select.Content>
-                  {Object.values(JournalEnum).map((journal) => (
-                    <Select.Item key={journal} value={journal}>
-                      {t(JOURNAL_LABELS[journal] || '')}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+        render={({ field, fieldState }) => (
+          <PanelFormRow
+            label={t('journal')}
+            required
+            error={fieldState.error?.message}
+          >
+            <SettingsPanelSelect
+              value={field.value}
+              placeholder={t('select-journal')}
+              options={getAccountJournalOptions(t)}
+              onValueChange={field.onChange}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
         )}
       />
 
@@ -185,31 +170,38 @@ const AccountFormFields = ({
           <Form.Field
             control={control}
             name="extra.bank"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('bank-label')}</Form.Label>
-                <Form.Control>
-                  <Input placeholder={t('enter-bank-name')} {...field} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            render={({ field, fieldState }) => (
+              <PanelFormRow
+                label={t('bank-label')}
+                required
+                error={fieldState.error?.message}
+              >
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  placeholder={t('enter-bank-name')}
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
             )}
           />
 
           <Form.Field
             control={control}
             name="extra.bankAccount"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('bank-account')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    placeholder={t('enter-bank-account-number')}
-                    {...field}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            render={({ field, fieldState }) => (
+              <PanelFormRow
+                label={t('bank-account')}
+                required
+                error={fieldState.error?.message}
+              >
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  placeholder={t('enter-bank-account-number')}
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
             )}
           />
         </>
@@ -219,17 +211,14 @@ const AccountFormFields = ({
         control={control}
         name="branchId"
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('branch')}</Form.Label>
-            <Form.Control>
-              <SelectBranches.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+          <PanelFormRow label={t('branch')}>
+            <SelectBranches.InlineCell
+              mode="single"
+              scope={`${SCOPE}.branch`}
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+          </PanelFormRow>
         )}
       />
 
@@ -237,17 +226,14 @@ const AccountFormFields = ({
         control={control}
         name="departmentId"
         render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('department')}</Form.Label>
-            <Form.Control>
-              <SelectDepartments.FormItem
-                mode="single"
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
+          <PanelFormRow label={t('department')}>
+            <SelectDepartments.InlineCell
+              mode="single"
+              scope={`${SCOPE}.department`}
+              value={field.value}
+              onValueChange={field.onChange}
+            />
+          </PanelFormRow>
         )}
       />
 
@@ -255,15 +241,12 @@ const AccountFormFields = ({
         control={control}
         name="isTemp"
         render={({ field }) => (
-          <Form.Item className="flex items-center gap-2 space-y-0">
-            <Form.Control>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Label variant="peer">{t('temporary-account')}</Form.Label>
-          </Form.Item>
+          <PanelFormRow label={t('temporary-account')}>
+            <SettingsPanelSwitch
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          </PanelFormRow>
         )}
       />
 
@@ -271,97 +254,51 @@ const AccountFormFields = ({
         control={control}
         name="isOutBalance"
         render={({ field }) => (
-          <Form.Item className="flex items-center gap-2 space-y-0">
-            <Form.Control>
-              <Checkbox
-                checked={field.value}
-                onCheckedChange={field.onChange}
-              />
-            </Form.Control>
-            <Form.Label variant="peer">{t('off-balance-sheet')}</Form.Label>
-          </Form.Item>
+          <PanelFormRow label={t('off-balance-sheet')}>
+            <SettingsPanelSwitch
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          </PanelFormRow>
         )}
       />
 
-      {status && (
-        <Form.Field
-          control={control}
-          name="status"
-          render={({ field }) => (
-            <Form.Item>
-              <Form.Label>{t('status')}</Form.Label>
-              <Form.Control>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <Select.Trigger>
-                    <Select.Value placeholder={t('select-status')} />
-                  </Select.Trigger>
-                  <Select.Content>
-                    {Object.values(AccountStatus).map((status) => (
-                      <Select.Item key={status} value={status}>
-                        {t(ACCOUNT_STATUS_LABELS[status] || '')}
-                      </Select.Item>
-                    ))}
-                  </Select.Content>
-                </Select>
-              </Form.Control>
-              <Form.Message />
-            </Form.Item>
-          )}
-        />
-      )}
-    </div>
+      <Form.Field
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <SettingsPanelDescriptionInput
+            value={field.value}
+            onChange={field.onChange}
+          />
+        )}
+      />
+    </>
   );
 };
 
 export const AccountForm = ({
   form,
-  handleSubmit,
-  loading,
+  onSubmit,
+  onCancel,
+  saving,
 }: {
   form: UseFormReturn<TAccountForm>;
-  handleSubmit: (data: TAccountForm) => void;
-  loading: boolean;
+  onSubmit: (data: TAccountForm) => void;
+  onCancel: () => void;
+  saving: boolean;
 }) => {
   const { t } = useTranslation('accounting');
-  const status = useWatch({
-    control: form.control,
-    name: 'status',
-  });
-
-  const journal = useWatch({
-    control: form.control,
-    name: 'journal',
-  });
-
-  const footer = (
-    <Sheet.Footer className="shrink-0 border-t bg-background">
-      <Sheet.Close asChild>
-        <Button variant="outline" type="button" size="lg">
-          {t('cancel-label')}
-        </Button>
-      </Sheet.Close>
-
-      <Button type="submit" size="lg" disabled={loading}>
-        {loading ? <Spinner /> : t('save-account')}
-      </Button>
-    </Sheet.Footer>
-  );
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col flex-1 bg-background min-h-0"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5">
-          <AccountFormFields
-            control={form.control}
-            status={status}
-            journal={journal}
-          />
-        </div>
-        {footer}
-      </form>
-    </Form>
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+      saving={saving}
+      saveLabel={t('save-account')}
+    >
+      <AccountFormFields control={form.control} />
+    </SettingsPanelDraftForm>
   );
 };

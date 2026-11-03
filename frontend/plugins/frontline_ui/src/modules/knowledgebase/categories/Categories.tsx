@@ -12,7 +12,9 @@ import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
 export const Categories = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
   const { categories, refetch } = useCategories(topicId, {

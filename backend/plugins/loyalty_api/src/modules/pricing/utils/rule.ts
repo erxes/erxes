@@ -300,7 +300,7 @@ const processQuantityRule = (
 
   if (rule.discountType === 'bonus' && rule.discountBonusProduct) {
     type = rule.discountType;
-    let newBonusProducts = [...updatedBonusProducts, rule.discountBonusProduct];
+    let newBonusProducts = [...updatedBonusProducts];
     
     if (rule.type === 'every') {
       newBonusProducts = addBonusProductsForEveryRule(
@@ -309,6 +309,8 @@ const processQuantityRule = (
         rule.value,
         newBonusProducts
       );
+    } else {
+      newBonusProducts.push(rule.discountBonusProduct);
     }
     
     return { type, value, bonusProducts: newBonusProducts, passed };

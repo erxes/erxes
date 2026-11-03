@@ -166,7 +166,7 @@ export const DateSelectorCommandItem = ({
 };
 
 export const DateSelectorCustomDate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { value, onValueChange } = useDateSelectorContext();
 
   const getCustomDate = (): DateRange | undefined => {
@@ -251,7 +251,7 @@ const DateSelectorRoot = ({
   value: DateSelectorValue | string;
   onValueChange: (value: DateSelectorValue | string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
   return (
     <DateSelectorProvider

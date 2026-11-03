@@ -39,6 +39,9 @@ export const useFocusSheet = () => {
   return context;
 };
 
+// The enclosing FocusSheet's state, or `null` outside one.
+export const useOptionalFocusSheet = () => useContext(FocusSheetContext);
+
 const FocusSheetRoot = ({ ...props }: React.ComponentProps<typeof Sheet>) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [hasSidebar, setHasSidebar] = useState(false);

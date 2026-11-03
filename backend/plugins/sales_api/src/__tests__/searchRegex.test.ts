@@ -96,11 +96,8 @@ describe.each(searches)('$name search', ({ fields, getFilter }) => {
   });
 });
 
-it('preserves formatted customer-phone matching and tenant-scoped relation lookup', async () => {
-  jest
-    .mocked(sendTRPCMessage)
-    .mockResolvedValueOnce([{ _id: 'customer' }])
-    .mockResolvedValueOnce(['deal']);
+it('preserves formatted customer-phone matching and filters by the deal customer', async () => {
+  jest.mocked(sendTRPCMessage).mockResolvedValueOnce([{ _id: 'customer' }]);
   const filter = await getDealFilter('+976 (9911) 2233');
   const request = jest.mocked(sendTRPCMessage).mock.calls[0][0];
   expect(request.subdomain).toBe('tenant');
@@ -109,19 +106,9 @@ it('preserves formatted customer-phone matching and tenant-scoped relation looku
   expect(matches({ primaryPhone: '(976) 9911-2233' })).toBe(true);
   expect(matches({ phones: ['976.9911.2233'] })).toBe(true);
   expect(matches({ primaryPhone: '976 9911 2244' })).toBe(false);
-  expect(filter.$or).toContainEqual({ _id: { $in: ['deal'] } });
-  expect(sendTRPCMessage).toHaveBeenNthCalledWith(
-    2,
-    expect.objectContaining({
-      subdomain: 'tenant',
-      action: 'filterRelationIds',
-      input: {
-        contentType: 'core:customer',
-        contentIds: ['customer'],
-        relatedContentType: 'sales:deal',
-      },
-    }),
-  );
+  // Deals keep their customer themselves; no relation lookup.
+  expect(filter.$or).toContainEqual({ customerId: { $in: ['customer'] } });
+  expect(sendTRPCMessage).toHaveBeenCalledTimes(1);
 });
 
 it.each(['INV9911', '9911.*'])(

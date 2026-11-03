@@ -63,10 +63,11 @@ function ChannelItem({ channel }: ChannelItemProps) {
 }
 
 export function TicketNavigations() {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { channels, loading } = useGetChannels();
 
   return (
-    <NavigationMenuGroup name="Channels" className="p-0">
+    <NavigationMenuGroup name={t('channels')} className="p-0">
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -79,7 +80,7 @@ export function TicketNavigations() {
 }
 
 const PipelineItem = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { pipelines } = useGetPipelines({
     variables: { filter: { channelId, applyVisibilityFilter: true } },
   });

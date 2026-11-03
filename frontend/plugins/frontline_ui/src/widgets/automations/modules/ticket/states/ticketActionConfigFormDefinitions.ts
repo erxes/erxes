@@ -12,7 +12,7 @@ export const ticketActionConfigFormSchema = z.object({
   targetDate: z.string().optional(),
   labelIds: z.string().optional(),
   tagIds: z.string().optional(),
-  companyIds: z.string().optional(),
+  companyId: z.string().optional(),
   attachmentIds: z.string().optional(),
 });
 

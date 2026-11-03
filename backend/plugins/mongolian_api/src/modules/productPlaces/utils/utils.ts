@@ -1,3 +1,4 @@
+import { getDealContactIds } from '@/ebarimt/utils/dealContacts';
 import * as _ from 'lodash';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '../../../connectionResolvers';
@@ -224,19 +225,7 @@ const getCustomerName = (customer) => {
 };
 
 export const getCustomer = async (subdomain, deal) => {
-  const companyIds =
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType: 'core:company',
-      },
-      defaultValue: [],
-    })) || [];
+  const companyIds = await getDealContactIds(subdomain, deal, 'company');
 
   if (companyIds?.length) {
     const companies =
@@ -262,19 +251,7 @@ export const getCustomer = async (subdomain, deal) => {
     }
   }
 
-  const customerIds =
-    (await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    })) || [];
+  const customerIds = await getDealContactIds(subdomain, deal, 'customer');
 
   if (customerIds?.length) {
     const customers =

@@ -1,3 +1,8 @@
+import {
+  INotificationsConfig,
+  TNotificationEventKey,
+} from 'erxes-api-shared/core-modules';
+
 export const notifications = {
   plugin: 'sales',
 
@@ -14,24 +19,20 @@ export const notifications = {
           description: 'Triggered when a user is assigned to a deal',
         },
         {
+          name: 'dealUpdated',
+          title: 'Deal updated',
+          description: 'Triggered when a deal you are assigned to or watch is updated',
+        },
+        {
           name: 'dealStatus',
           title: 'Deal status changed',
-          description: 'Triggered when a deal status is changed',
-        },
-      ],
-    },
-    {
-      name: 'note',
-      description: 'Note',
-      icon: 'IconNote',
-
-      events: [
-        {
-          name: 'note',
-          title: 'Mentioned in note',
-          description: 'Triggered when a user is mentioned in a note',
+          description: 'Triggered when a deal is archived or activated',
         },
       ],
     },
   ],
-};
+} as const satisfies INotificationsConfig;
+
+export type TSalesNotificationEvent = TNotificationEventKey<
+  typeof notifications
+>;

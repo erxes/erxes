@@ -18,7 +18,7 @@ const SelectBranchTicketFormItem = ({
   onValueChange: (value: string) => void;
   label?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
 
   return (
@@ -33,7 +33,7 @@ const SelectBranchTicketFormItem = ({
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <SelectTriggerTicket variant="form" label={label}>
           <SelectBranches.List
-            placeholder={label ? t('none', 'None') : t('branch-label', 'Branch')}
+            placeholder={label ? t('none') : t('branch-label')}
             renderAsPlainText
           />
         </SelectTriggerTicket>
@@ -62,7 +62,7 @@ const SelectBranchTicketRoot = ({
   onValueChange?: (value: string) => void;
   id?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
 
@@ -90,7 +90,7 @@ const SelectBranchTicketRoot = ({
         >
           <SelectBranches.List
             placeholder={
-              label ? t('none', 'None') : t('branch-label', 'Branch')
+              label ? t('none') : t('branch-label')
             }
             renderAsPlainText
           />

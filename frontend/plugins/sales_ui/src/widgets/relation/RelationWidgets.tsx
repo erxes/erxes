@@ -14,25 +14,12 @@ const PosOrders = lazy(() =>
   })),
 );
 
-export const RelationWidgets = ({
-  module,
-  contentId,
-  contentType,
-  customerId,
-  companyId,
-}: IRelationWidgetProps) => {
+export const RelationWidgets = ({ module, ...props }: IRelationWidgetProps) => {
   return (
     <Suspense>
-      {module === 'deals' ? (
-        <Deal
-          contentId={contentId}
-          contentType={contentType}
-          customerId={customerId}
-          companyId={companyId}
-        />
-      ) : null}
+      {module === 'deals' ? <Deal {...props} /> : null}
       {module === 'posOrders' ? (
-        <PosOrders contentId={contentId} />
+        <PosOrders contentId={props.contentId} />
       ) : null}
     </Suspense>
   );

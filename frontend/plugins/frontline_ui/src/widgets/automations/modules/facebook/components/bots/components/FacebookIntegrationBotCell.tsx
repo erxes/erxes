@@ -10,7 +10,7 @@ export const FacebookIntegrationBotCell = ({
 }: {
   integrationId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { loading, page, bot } = useFacebookIntegrationBot(integrationId);
 
   if (loading) {

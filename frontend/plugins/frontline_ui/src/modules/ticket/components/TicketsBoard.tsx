@@ -38,7 +38,7 @@ import {
 } from '@/ticket/hooks/useTicketPermissions';
 
 export const TicketsBoard = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const [pipelineId] = useQueryState<string | null>('pipelineId');
   const [channelId] = useQueryState<string | null>('channelId');

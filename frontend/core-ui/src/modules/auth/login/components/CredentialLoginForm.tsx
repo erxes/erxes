@@ -5,10 +5,15 @@ import { Link } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { IconEye, IconEyeOff } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { ITwoFactorChallenge } from '@/auth/two-factor/types';
 
 const PASSWORD_REVEAL_TIMEOUT = 10000;
 
-export const CredentialLoginForm = () => {
+export const CredentialLoginForm = ({
+  onTwoFactor,
+}: {
+  onTwoFactor: (step: ITwoFactorChallenge) => void;
+}) => {
   const { t } = useTranslation('common', { keyPrefix: 'auth' });
   const { form } = useSignInUpForm();
   const { handleCrendentialsLogin } = useLogin();
@@ -26,7 +31,9 @@ export const CredentialLoginForm = () => {
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => handleCrendentialsLogin(data))}
+        onSubmit={form.handleSubmit((data) =>
+          handleCrendentialsLogin(data, onTwoFactor),
+        )}
         className="mx-auto grid gap-6"
       >
         <Form.Field

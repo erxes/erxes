@@ -40,6 +40,7 @@ import {
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useProjects } from '@/project/hooks/useGetProjects';
+import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
@@ -420,6 +421,7 @@ const SelectAssigneeTaskRoot = ({
   const navigate = useNavigate();
   const { teamId } = useParams();
   const [internalValue, setInternalValue] = useState(value);
+  const cachedMembers = useCachedMembers(value);
 
   useEffect(() => {
     setInternalValue(value);
@@ -475,6 +477,7 @@ const SelectAssigneeTaskRoot = ({
     <SelectAssigneeProvider
       value={internalValue ?? undefined}
       onValueChange={handleValueChange}
+      members={cachedMembers}
       mode="single"
       allowUnassigned
     >
@@ -489,6 +492,7 @@ const SelectAssigneeTaskRoot = ({
 };
 
 export const SelectAssigneeTaskFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   scope,
@@ -500,6 +504,8 @@ export const SelectAssigneeTaskFormItem = ({
   scope?: string;
   teamIds?: string[] | string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -513,12 +519,12 @@ export const SelectAssigneeTaskFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectAssigneeValue />
         </SelectTriggerOperation>
-        <Combobox.Content>
+        <SelectOperationContent variant={variant}>
           <SelectTeamMemberContent teamIds={teamIds} exclude={false} />
-        </Combobox.Content>
+        </SelectOperationContent>
       </PopoverScoped>
     </SelectAssigneeProvider>
   );

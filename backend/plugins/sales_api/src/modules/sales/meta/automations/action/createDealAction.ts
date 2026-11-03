@@ -3,10 +3,9 @@ import {
   splitType,
 } from 'erxes-api-shared/core-modules';
 import { TCreatedVia } from 'erxes-api-shared/core-types';
-import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import { IDeal } from '~/modules/sales/@types';
-import { itemsAdd } from '~/modules/sales/utils';
+import { itemsAdd, setDealContacts } from '~/modules/sales/utils';
 import { syncWrittenDealPoints } from '~/modules/sales/utils/dealPoints';
 
 export const createDealAction = async ({
@@ -48,22 +47,11 @@ export const createDealAction = async ({
   // Not who pressed create — what produced it.
   newData.createdVia = createdVia;
 
-  if (execution?.triggerType === 'inbox:conversation') {
-    newData.sourceConversationIds = [execution.targetId];
-  }
-
-  if (
-    ['core:customer', 'core:lead'].includes(execution?.triggerType) &&
-    execution?.target?.isFormSubmission
-  ) {
-    newData.sourceConversationIds = [execution.target.conversationId];
-  }
-
   if (
     ['customers', 'leads', 'companies'].includes(collectionName) &&
     pluginName === 'core'
   ) {
-    newData.customerIds = toIds(execution.targetId);
+    newData.customerId = toIds(execution.targetId)[0];
   }
 
   if (hasOwn(newData, 'attachments')) {
@@ -83,8 +71,8 @@ export const createDealAction = async ({
     models.Deals.createDeal,
   );
 
-  await createSourceRelation({
-    subdomain,
+  await setSourceContact({
+    models,
     execution,
     dealId: item._id,
   });
@@ -126,13 +114,14 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     delete newData.cardName;
   }
 
+  // A deal keeps one customer and one company: the first chosen.
   if (hasOwn(newData, 'customers')) {
-    newData.customerIds = toIds(newData.customers);
+    newData.customerId = toIds(newData.customers)[0];
     delete newData.customers;
   }
 
   if (hasOwn(newData, 'companies')) {
-    newData.companyIds = toIds(newData.companies);
+    newData.companyId = toIds(newData.companies)[0];
     delete newData.companies;
   }
 
@@ -142,9 +131,6 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     'tagIds',
     'branchIds',
     'departmentIds',
-    'customerIds',
-    'companyIds',
-    'sourceConversationIds',
   ].forEach((key) => {
     if (hasOwn(newData, key)) {
       newData[key] = toIds(newData[key]);
@@ -201,83 +187,48 @@ const toIds = (value: unknown): string[] => {
     .filter(Boolean);
 };
 
-const createSourceRelation = async ({
-  subdomain,
+// The contact the automation ran for becomes the deal's own contact.
+const setSourceContact = async ({
+  models,
   execution,
   dealId,
 }: {
-  subdomain: string;
+  models: IModels;
   execution: any;
   dealId: string;
 }) => {
   if (execution?.triggerType === 'inbox:conversation') {
     const customerId = execution?.target?.customerId;
 
-    if (!customerId) {
-      return;
+    if (customerId) {
+      await setDealContacts(models, { dealId, customerId });
     }
 
-    return sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        entities: [
-          {
-            contentType: 'core:customer',
-            contentId: customerId,
-          },
-          {
-            contentType: 'sales:deal',
-            contentId: dealId,
-          },
-        ],
-      },
-    });
+    return;
   }
 
   const [serviceName, , sourceType] = splitType(execution?.triggerType || '');
 
-  if (!serviceName || serviceName === 'sales' || !execution?.targetId) {
+  if (
+    !serviceName ||
+    serviceName === 'sales' ||
+    !execution?.targetId ||
+    !sourceType
+  ) {
     return;
   }
 
-  if (!sourceType) {
-    return;
+  if (['customers', 'leads'].includes(sourceType)) {
+    await setDealContacts(models, {
+      dealId,
+      customerId: execution.targetId,
+    });
   }
-  const isContactTrigger = ['customers', 'leads', 'companies'].includes(
-    sourceType,
-  );
 
-  if (isContactTrigger) {
-    const contentTypes = {
-      customers: 'core:customer',
-      leads: 'core:customer',
-      companies: 'core:company',
-    };
-
-    return sendTRPCMessage({
-      subdomain,
-      method: 'mutation',
-      pluginName: 'core',
-      module: 'relation',
-      action: 'createRelation',
-      input: {
-        relation: {
-          entities: [
-            {
-              contentType: contentTypes[sourceType],
-              contentId: execution.targetId,
-            },
-            {
-              contentType: 'sales:deal',
-              contentId: dealId,
-            },
-          ],
-        },
-      },
+  if (sourceType === 'companies') {
+    await setDealContacts(models, {
+      dealId,
+      companyId: execution.targetId,
     });
   }
 };

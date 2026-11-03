@@ -14,7 +14,6 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   checkInvoice(_id: string, subdomain: string): Promise<string>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
-  scanBarcode(code: string, eventSlug?: string): Promise<IInvoiceDocument>;
 }
 
 export const loadInvoiceClass = (models: IModels) => {
@@ -32,7 +31,6 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async createInvoice(doc: IInvoice, subdomain?: string) {
-
       if (!doc.amount || doc.amount === 0) {
         throw new Error('Amount is required');
       }
@@ -206,74 +204,6 @@ export const loadInvoiceClass = (models: IModels) => {
       redis.removeInvoices(_ids);
 
       return 'removed';
-    }
-
-    public static async scanBarcode(code: string, eventSlug?: string) {
-      const invoice =
-        (await models.Invoices.findOne({ 'ticketCodes.code': code })) ||
-        (await models.Invoices.findOne({ invoiceNumber: code }));
-
-      if (!invoice) {
-        throw new Error(`Invoice not found for barcode: ${code}`);
-      }
-
-      if (invoice.status !== 'paid') {
-        throw new Error('Invoice is not paid');
-      }
-
-      const expectedEventSlug = eventSlug?.trim();
-      let storedEventSlug: string | undefined;
-      if (expectedEventSlug) {
-        storedEventSlug =
-          typeof invoice.data?.eventSlug === 'string'
-            ? invoice.data.eventSlug
-            : undefined;
-        if (storedEventSlug?.trim() !== expectedEventSlug) {
-          throw new Error('Ticket belongs to a different event');
-        }
-      }
-
-      const eventFilter = storedEventSlug
-        ? { 'data.eventSlug': storedEventSlug }
-        : {};
-
-      const hasTicketCodes =
-        Array.isArray(invoice.ticketCodes) && invoice.ticketCodes.length > 0;
-
-      if (hasTicketCodes) {
-        const scanned = await models.Invoices.findOneAndUpdate(
-          {
-            _id: invoice._id,
-            ...eventFilter,
-            ticketCodes: { $elemMatch: { code, scannedAt: null } },
-          },
-          {
-            $set: {
-              'ticketCodes.$.scannedAt': new Date(),
-              scannedAt: new Date(),
-            },
-          },
-          { new: true },
-        );
-
-        if (!scanned) {
-          throw new Error('Barcode already scanned');
-        }
-
-        return scanned;
-      }
-
-      const scanned = await models.Invoices.findOneAndUpdate(
-        { _id: invoice._id, ...eventFilter, scannedAt: null },
-        { $set: { scannedAt: new Date() } },
-        { new: true },
-      );
-
-      if (!scanned) {
-        throw new Error('Barcode already scanned');
-      }
-
-      return scanned;
     }
 
     public static async markAsPaid(_id: string) {

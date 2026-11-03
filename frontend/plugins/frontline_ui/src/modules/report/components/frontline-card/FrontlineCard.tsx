@@ -33,6 +33,9 @@ function useFrontlineCardContext() {
   return context;
 }
 
+export const useFrontlineCardTitle = () =>
+  useContext(FrontlineCardContext)?.title;
+
 type FrontlineCardRootProps = {
   id: string;
   title: string;
@@ -106,7 +109,7 @@ export function FrontlineCardHeader({
   filter?: React.ReactNode;
   titleAccessory?: React.ReactNode;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { title, dragHandleProps, colSpan, onColSpanChange } =
     useFrontlineCardContext();
 
@@ -130,6 +133,10 @@ export function FrontlineCardHeader({
       >
         <button
           type="button"
+          aria-label={t('reorder-chart', {
+            title,
+            defaultValue: 'Reorder {{title}}',
+          })}
           className="cursor-grab active:cursor-grabbing p-0.5 hover:bg-accent rounded shrink-0"
           {...dragHandleProps}
         >
@@ -171,7 +178,7 @@ export function FrontlineCardHeader({
 }
 
 export function FrontlineCardEmpty() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { description } = useFrontlineCardContext();
   return (
     <Empty>

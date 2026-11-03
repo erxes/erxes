@@ -7,8 +7,10 @@ import {
 import { useMessageReaction } from '@/inbox/conversation-messages/hooks/useMessageReaction';
 import { useReactionTarget } from '@/inbox/conversation-messages/hooks/useReactionTarget';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
+import { useTranslation } from 'react-i18next';
 
 export function ReactionMenu() {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const {
     visible,
     isInstagram,
@@ -32,11 +34,11 @@ export function ReactionMenu() {
     const reaction = reactions[0];
     const selected = selectedReactions.includes(reaction);
 
-    let reactionLabel = 'Add love reaction';
+    let reactionLabel = t('add-love-reaction');
     if (disabled) {
       reactionLabel = disabledReason;
     } else if (selected) {
-      reactionLabel = 'Remove love reaction';
+      reactionLabel = t('remove-love-reaction');
     }
 
     return (
@@ -78,7 +80,7 @@ export function ReactionMenu() {
           type="button"
           variant="ghost"
           size="icon"
-          aria-label="Add reaction"
+          aria-label={t('add-reaction')}
           disabled={loading}
           className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground"
         >

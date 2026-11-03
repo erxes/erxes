@@ -26,7 +26,9 @@ const evictDraft = (cache: ApolloCache<unknown>, _id: string) => {
 };
 
 export const useMailDrafts = (conversationId?: string) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const showDeliveryOutcome = useDeliveryToast();
 
   const { data, loading, error, refetch } = useQuery(

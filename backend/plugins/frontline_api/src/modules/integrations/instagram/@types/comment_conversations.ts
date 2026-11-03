@@ -1,3 +1,5 @@
+import { Document } from 'mongoose';
+
 export interface IInstagramCommentConversation {
   postId: string;
   mid: string;
@@ -7,6 +9,7 @@ export interface IInstagramCommentConversation {
   senderId: string;
   content: string;
   erxesApiId?: string;
+  inboxSyncPending?: boolean;
   customerId?: string;
   isResolved?: boolean;
   timestamp?: Date;
@@ -16,4 +19,7 @@ export interface IInstagramCommentConversation {
 }
 
 export interface IInstagramCommentConversationDocument
-  extends IInstagramCommentConversation, Document {}
+  extends IInstagramCommentConversation,
+    Document {
+  _id: string;
+}

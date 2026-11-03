@@ -47,7 +47,7 @@ import {
   IAdjustFxaDetailModel,
   loadAdjustFixedAssetClass,
   loadAdjustFxaDetailClass,
-} from './modules/accounting/db/models/FixedAssets';
+} from './modules/accounting/db/models/AdjustFixedAssets';
 import {
   IPermissionModel,
   loadPermissionClass,

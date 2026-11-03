@@ -8,7 +8,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useConversationAutomatedReplyControl = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [setAutomatedReplyControl, { loading }] = useMutation(
     CONVERSATION_SET_AUTOMATED_REPLY_CONTROL,
   );

@@ -11,6 +11,7 @@ import { useIntegrations } from '@/integrations/hooks/useIntegrations';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { IIntegration } from '@/integrations/types/Integration';
 import { REACT_APP_WIDGETS_URL } from '@/utils';
+import { useTranslation } from 'react-i18next';
 
 const MESSENGER_KIND = 'messenger';
 
@@ -37,6 +38,9 @@ const SelectEMValue = ({
   integrationId?: string;
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationDetail, loading } = useIntegrationDetail({
     integrationId: integrationId || null,
   });
@@ -44,7 +48,7 @@ const SelectEMValue = ({
   if (!integrationId) {
     return (
       <span className="text-muted-foreground">
-        {placeholder || 'Select erxes messenger integration'}
+        {placeholder || t('select-erxes-messenger-integration')}
       </span>
     );
   }
@@ -63,6 +67,9 @@ export const SelectErxesMessenger = ({
   disabled,
   className,
 }: SelectEMProps) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
@@ -99,7 +106,7 @@ export const SelectErxesMessenger = ({
           <Command.Input
             value={search}
             onValueChange={setSearch}
-            placeholder="Search erxes messenger integrations..."
+            placeholder={t('search-erxes-messenger-integrations')}
           />
           <Command.List>
             <Combobox.Empty loading={loading} />

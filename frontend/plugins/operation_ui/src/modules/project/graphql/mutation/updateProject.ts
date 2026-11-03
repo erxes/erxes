@@ -15,6 +15,8 @@ export const UPDATE_PROJECT_MUTATION = gql(`
     $memberIds: [String]
     $tagIds: [String]
     $propertiesData: JSON
+    $customerId: String
+    $companyId: String
   ) {
     updateProject(
       _id: $_id
@@ -30,6 +32,8 @@ export const UPDATE_PROJECT_MUTATION = gql(`
       memberIds: $memberIds
       tagIds: $tagIds
       propertiesData: $propertiesData
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
       name
@@ -48,6 +52,8 @@ export const UPDATE_PROJECT_MUTATION = gql(`
       updatedAt
       convertedFromId
       propertiesData
+      customerId
+      companyId
     }
   }
 `);

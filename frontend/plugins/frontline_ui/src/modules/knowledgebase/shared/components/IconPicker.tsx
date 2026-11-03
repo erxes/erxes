@@ -20,7 +20,9 @@ export const IconPicker = ({
   variant?: 'form' | 'table';
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [open, setOpen] = useState(false);
   const selected = ICONS.find((item) => item.value === value);
 

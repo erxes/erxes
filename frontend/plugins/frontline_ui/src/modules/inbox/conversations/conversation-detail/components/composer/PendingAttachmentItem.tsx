@@ -57,7 +57,7 @@ export const PendingAttachmentPreview = ({
 };
 
 const PendingAttachmentTrigger = ({ file }: { file: PendingAttachment }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Dialog.Trigger asChild>
       <button
@@ -111,7 +111,7 @@ export const PendingAttachmentItem = ({
   file: PendingAttachment;
   onRemove: (url: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { uploadedUrl } = file;
 
   return (

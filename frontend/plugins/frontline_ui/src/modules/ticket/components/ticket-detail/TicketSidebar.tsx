@@ -2,7 +2,7 @@ import { Sidebar, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const TicketSidebar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
 
   return (

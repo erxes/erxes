@@ -31,6 +31,7 @@ import { RemoveForm } from './actions/remove-form';
 import { FormToggleStatus } from './actions/toggle-form';
 import { FormCommandBar } from './form-page/command-bar/form-command-bar';
 import { FormsCreateButton } from './form-page/forms-create';
+import { FormsNoMatch } from './FormsNoMatch';
 import { OpenLiveForm } from './actions/open-live-form';
 import { OpenSubmissionsAction } from './actions/open-submissions';
 import { DownloadResponsesAction } from './actions/download-responses';
@@ -40,7 +41,7 @@ import { ChannelResourceType } from '@/channels/types';
 export const FormsList = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { id: channelId } = useParams<{ id: string }>();
-  const [{ searchValue, status, tagId }] = useMultiQueryState<{
+  const [{ searchValue, status, tagId }, setQueries] = useMultiQueryState<{
     searchValue?: string;
     status?: string;
     tagId?: string;
@@ -55,6 +56,16 @@ export const FormsList = () => {
     },
   });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
+
+  if (forms?.length === 0 && (searchValue || status || tagId)) {
+    return (
+      <FormsNoMatch
+        onClear={() =>
+          setQueries({ searchValue: null, status: null, tagId: null })
+        }
+      />
+    );
+  }
 
   if (forms?.length === 0) {
     return (

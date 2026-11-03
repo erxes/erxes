@@ -6,7 +6,7 @@ import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
 export const ConversationDisplay = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [view, setView] = useAtom(inboxLayoutState);
   const canSplit = useCanSplitInbox();
 
@@ -17,6 +17,11 @@ export const ConversationDisplay = () => {
     return null;
   }
 
+  const label =
+    view === 'split'
+      ? t('list-view', 'List view')
+      : t('split-view', 'Split view');
+
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={0}>
@@ -24,16 +29,13 @@ export const ConversationDisplay = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={label}
             onClick={() => setView(view === 'split' ? 'list' : 'split')}
           >
             <Icon size={20} />
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>
-          {view === 'split'
-            ? t('list-view', 'List view')
-            : t('split-view', 'Split view')}
-        </Tooltip.Content>
+        <Tooltip.Content>{label}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );

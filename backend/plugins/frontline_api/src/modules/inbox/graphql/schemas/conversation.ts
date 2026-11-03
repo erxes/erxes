@@ -17,28 +17,12 @@ const mutationFilterParams = `
   starred: String
   startDate: String
   endDate: String
+  closedAtFrom: String
+  closedAtTo: String
   segment: String
   customerId: String
   brandId: String
   searchValue: String
-`;
-
-const convertParams = `
-  _id: String!
-  type: String!
-  itemName: String
-  stageId: String
-  customFieldsData: JSON
-  priority: String
-  assignedUserIds: [String]
-  labelIds: [String]
-  tagIds: [String]
-  branchIds: [String]
-  departmentIds: [String]
-  startDate: Date
-  closeDate: Date
-  attachments: [AttachmentInput]
-  description: String
 `;
 
 export const cursorParams = `
@@ -74,7 +58,6 @@ export const queries = `
   conversationsGetLast(${filterParams}): Conversation
   conversationsTotalUnreadCount: Int
   userConversations(_id: String, ${GQL_CURSOR_PARAM_DEFS}, perPage: Int): UserConversationListResponse
-  conversationConvertedItems(_id: String!): [ConversationConvertedItem]
 `;
 
 export const mutations = `
@@ -123,6 +106,5 @@ export const mutations = `
     pausedUntil: Date
   ): Conversation
   conversationsResolve(ids: [String!]!): Int
-  conversationConvertToCard(${convertParams}): String
   conversationEditCustomFields(_id: String!, propertiesData: JSON, customFieldsData: JSON): Conversation
 `;

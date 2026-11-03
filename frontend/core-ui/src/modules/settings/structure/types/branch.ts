@@ -6,9 +6,11 @@ export interface IBranchListItem {
   code: string;
   address: string;
   parentId: string;
+  supervisorId?: string;
   userCount: number;
   title: string;
   order: string;
+  coordinate?: { latitude?: string | null; longitude?: string | null } | null;
   hasChildren?: boolean;
 }
 export enum BranchHotKeyScope {

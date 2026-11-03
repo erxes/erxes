@@ -2,19 +2,12 @@ import { initTRPC } from '@trpc/server';
 import { z } from 'zod';
 import { createOrUpdate } from '../utils';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const companyTrpcRouter = t.router({
   companies: t.router({
     find: t.procedure
-      .meta(
-        agentMeta(
-          'Search companies with a MongoDB-style filter: { query: {...} }, e.g. { query: { primaryName: "Acme" } } or { query: { industry: "Technology" } }. Returns full company documents. Use companies.findOne when you already know a unique key.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query } = input;
@@ -24,12 +17,6 @@ export const companyTrpcRouter = t.router({
       }),
 
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single company by a unique key: { _id }, { name } or { companyPrimaryName }, { email } or { companyPrimaryEmail }, { phone } or { companyPrimaryPhone }, or { companyCode }. Deleted companies are excluded automatically. Returns {} when nothing matches. Call this before companies.updateCompany.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const query = input?.query || input?.selector || input;
@@ -95,12 +82,6 @@ export const companyTrpcRouter = t.router({
       }),
 
     findActiveCompanies: t.procedure
-      .meta(
-        agentMeta(
-          'List active (non-deleted) companies with optional projection and pagination: { query, fields, skip, limit }. Prefer companies.find unless you need field projection or pagination.',
-          { module: 'contacts', action: 'contactsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, fields, skip, limit } = input;

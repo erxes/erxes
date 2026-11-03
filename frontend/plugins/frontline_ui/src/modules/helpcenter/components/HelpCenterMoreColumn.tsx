@@ -19,7 +19,9 @@ export const HelpCenterMoreColumnCell = ({
 }: {
   cell: Cell<IHelpCenter, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const { _id, title } = cell.row.original;
   const [, setEditId] = useQueryState<string>('editId');
   const { confirm } = useConfirm();

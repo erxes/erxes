@@ -43,6 +43,8 @@ export const CONFIG: IUIConfig = {
     },
   ],
   widgets: {
+    // A customer's / company's deals on their overview (`./contactWidget`).
+    contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
     relationWidgets: [
       {
         name: 'deals',

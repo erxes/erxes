@@ -13,7 +13,9 @@ import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emCon
 import { erxesMessengerSetupValuesAtom } from '@/integrations/erxes-messenger/states/EMStateValues';
 
 export const useCreateMessenger = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [createMessengerMutation, { loading: createLoading }] = useMutation(
     CREATE_EM_MESSENGER_MUTATION,
   );

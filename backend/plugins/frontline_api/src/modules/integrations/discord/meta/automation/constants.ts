@@ -2,6 +2,7 @@ import {
   DISCORD_MESSAGE_COLLECTION,
   DISCORD_MODULE_NAME,
 } from '@/integrations/discord/constants';
+import { discordMessageActionConfigSchema } from '~/meta/automationConfigSchemas';
 
 // Trigger fields, addressable in actions as {{ trigger.<key> }} — e.g.
 // {{ trigger.content }} feeds the AI Agent input.
@@ -33,6 +34,7 @@ export const discordConstants = {
       moduleName: DISCORD_MODULE_NAME,
       collectionName: DISCORD_MESSAGE_COLLECTION,
       method: 'create',
+      configSchema: discordMessageActionConfigSchema,
       icon: 'IconBrandDiscord',
       label: 'Send Discord Message',
       description: 'Reply to the Discord channel as the bot.',

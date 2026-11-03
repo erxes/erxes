@@ -39,6 +39,12 @@ export const CONFIG: IUIConfig = {
     icon: IconStackFront,
   },
   widgets: {
+    // A customer's / company's tickets and conversations on their overview
+    // (`./contactWidget`).
+    contactWidgets: [
+      { name: 'ticket', label: 'Tickets', icon: IconTicket },
+      { name: 'conversation', label: 'Conversations', icon: IconMail },
+    ],
     relationWidgets: [
       {
         name: 'conversation',

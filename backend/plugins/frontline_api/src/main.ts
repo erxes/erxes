@@ -102,6 +102,9 @@ startPlugin({
   },
 
   meta: {
+    // Tickets keep their own customerId / companyId; core tells frontline
+    // when a contact is merged or removed.
+    contactFields: { contentTypes: ['frontline:ticket'] },
     importExport: {
       import: {
         types: ticketImportTypes,

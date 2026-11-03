@@ -1,3 +1,4 @@
+import { getDealContactIds } from '@/ebarimt/utils/dealContacts';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
 import { calcProductsTaxRule } from './productsByTaxType';
@@ -60,18 +61,7 @@ export const getConfigPostData = async (
   let billType = 1;
   let customerCode = '';
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
+  const companyIds = await getDealContactIds(subdomain, deal, 'company');
 
   if (companyIds.length > 0) {
     const companies = await sendTRPCMessage({
@@ -97,18 +87,7 @@ export const getConfigPostData = async (
   }
 
   if (billType === 1) {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
+    const customerIds = await getDealContactIds(subdomain, deal, 'customer');
 
     if (customerIds.length > 0) {
       const customers = await sendTRPCMessage({
@@ -360,18 +339,7 @@ export const getConfigPostData = async (
 export const getMoveData = async (subdomain, config, deal, dateType = '') => {
   let customerCode = '';
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: deal._id,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
+  const companyIds = await getDealContactIds(subdomain, deal, 'company');
 
   if (companyIds.length > 0) {
     const companies = await sendTRPCMessage({
@@ -395,18 +363,7 @@ export const getMoveData = async (subdomain, config, deal, dateType = '') => {
   }
 
   if (!customerCode) {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType: 'sales:deal',
-        contentId: deal._id,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
+    const customerIds = await getDealContactIds(subdomain, deal, 'customer');
 
     if (customerIds.length > 0) {
       const customers = await sendTRPCMessage({

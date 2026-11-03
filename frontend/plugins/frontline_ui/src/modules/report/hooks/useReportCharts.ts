@@ -51,7 +51,11 @@ export const useReportChartMutations = () => {
       const created = data?.reportChartAdd;
 
       if (created) {
-        updateCachedCharts(cache, (charts) => [...charts, created]);
+        updateCachedCharts(cache, (charts) =>
+          charts.some((chart) => chart._id === created._id)
+            ? charts
+            : [...charts, created],
+        );
       }
     },
   });

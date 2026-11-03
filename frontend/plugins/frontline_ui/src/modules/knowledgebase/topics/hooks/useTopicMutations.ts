@@ -11,7 +11,9 @@ import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 
 export const useSaveTopic = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { run } = useKbToast();
 
   const refetchQueries = [TOPICS, TOPIC_OPTIONS];

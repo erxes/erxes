@@ -4,6 +4,7 @@ import {
   MAIL_MESSAGE_COLLECTION,
   MAIL_MODULE_NAME,
 } from '@/integrations/mail/constants';
+import { mailReplyActionConfigSchema } from '~/meta/automationConfigSchemas';
 
 const MAIL_MESSAGE_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -60,6 +61,7 @@ export const mailConstants = {
       moduleName: MAIL_MODULE_NAME,
       collectionName: MAIL_MESSAGE_COLLECTION,
       method: 'create',
+      configSchema: mailReplyActionConfigSchema,
       icon: 'IconMail',
       label: 'Send Email',
       description:
@@ -70,6 +72,7 @@ export const mailConstants = {
       moduleName: MAIL_MODULE_NAME,
       collectionName: MAIL_DRAFT_COLLECTION,
       method: 'create',
+      configSchema: mailReplyActionConfigSchema,
       icon: 'IconMailFast',
       label: 'Draft Email Reply',
       description:

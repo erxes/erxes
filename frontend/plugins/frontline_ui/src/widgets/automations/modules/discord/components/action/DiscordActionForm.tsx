@@ -124,7 +124,9 @@ export const DiscordActionForm = ({
   onSaveActionConfig,
   targetType,
 }: AutomationActionFormProps<TDiscordMessageActionForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-discord',
+  });
   const form = useForm<TDiscordMessageActionForm>({
     resolver: zodResolver(discordMessageActionSchema),
     defaultValues: defaultsFromConfig(currentAction?.config),

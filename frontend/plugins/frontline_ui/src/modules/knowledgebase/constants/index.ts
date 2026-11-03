@@ -178,14 +178,14 @@ export const REACTIONS = REACTION_ICONS.map(([name, label]) => ({
 }));
 
 const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English',
-  mn: 'Mongolian',
-  zh: 'Chinese',
-  ja: 'Japanese',
-  ko: 'Korean',
-  ru: 'Russian',
+  en: 'language-english',
+  mn: 'language-mongolian',
+  zh: 'language-chinese',
+  ja: 'language-japanese',
+  ko: 'language-korean',
+  ru: 'language-russian',
 };
 
 export const LANGUAGES = Object.entries(LANGUAGE_NAMES).map(
-  ([value, label]) => ({ value, label }),
+  ([value, labelKey]) => ({ value, labelKey }),
 );

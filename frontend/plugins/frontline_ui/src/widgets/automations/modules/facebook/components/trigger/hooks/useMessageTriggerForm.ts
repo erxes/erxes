@@ -18,7 +18,7 @@ export const useMessageTriggerForm = ({
   AutomationTriggerFormProps<TMessageTriggerForm>,
   'activeTrigger' | 'onSaveTriggerConfig' | 'formRef'
 >) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const form = useForm<TMessageTriggerForm>({
     resolver: zodResolver(messageTriggerSchema),
     values: { ...((activeTrigger?.config || {}) as TMessageTriggerForm) },

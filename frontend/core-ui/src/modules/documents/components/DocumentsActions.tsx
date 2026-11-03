@@ -1,24 +1,16 @@
-import { useApolloClient } from '@apollo/client';
-import { useDocumentRemove } from '@/documents/hooks/useDocumentRemove';
+import { useTranslation } from 'react-i18next';
+import { useDocumentActions } from '../hooks/useDocumentActions';
+import { useDocumentAccessRefresh } from '../hooks/useDocumentAccessRefresh';
 import {
   IconDotsVertical,
   IconEdit,
+  IconCopy,
   IconLock,
   IconLockOpen,
   IconPrinter,
   IconTrash,
 } from '@tabler/icons-react';
-import {
-  Button,
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  toast,
-  useConfirm,
-  useSetQueryStateByKey,
-} from 'erxes-ui';
-import { useState } from 'react';
+import { Button, Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import {
   ApprovalLockDialog,
   Can,
@@ -26,14 +18,13 @@ import {
   useApprovalLock,
 } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
-import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
 
 import { IDocument } from '../types';
+import { DocumentTypeDialog } from './DocumentTypeDialog';
 import {
   DocumentPrintDialog,
   hasDocumentReplacerSelect,
 } from './DocumentPrintDialog';
-import { useTranslation } from 'react-i18next';
 
 type DocumentsActionsMenuProps = {
   documentItem: IDocument;
@@ -43,15 +34,15 @@ type DocumentsActionsMenuProps = {
   onEdit: () => void;
   onOpenChange: (open: boolean) => void;
   onPrint: () => void;
+  onDuplicate: () => void;
   variant: 'grid' | 'table';
 };
 
-/** Offer approval lock controls in grid and record-table document menus. */
 function DocumentLockMenuItem({
   documentItem,
 }: Readonly<{ documentItem: IDocument }>) {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const client = useApolloClient();
+  const refreshAccess = useDocumentAccessRefresh();
   const {
     open,
     setOpen,
@@ -66,18 +57,7 @@ function DocumentLockMenuItem({
     contentId: documentItem._id,
     ownerId: documentItem.createdUser?._id,
     action: 'edit',
-    onChanged: () => {
-      client
-        .refetchQueries({
-          include: [GET_DOCUMENTS, GET_DOCUMENT_DETAIL, 'ApprovalLockState'],
-        })
-        .catch(() => {
-          toast({
-            title: t('refresh-access-failed'),
-            variant: 'destructive',
-          });
-        });
-    },
+    onChanged: refreshAccess,
   });
 
   if (isLocked) {
@@ -118,17 +98,20 @@ function DocumentsActionsList({
   onDelete,
   onEdit,
   onPrint,
+  onDuplicate,
 }: Pick<
   DocumentsActionsMenuProps,
-  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint'
+  'documentItem' | 'loading' | 'onDelete' | 'onEdit' | 'onPrint' | 'onDuplicate'
 >) {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-
   return (
     <Command.List>
       <Can action="manageDocuments">
         <Command.Item value="edit" onSelect={onEdit}>
           <IconEdit /> {t('edit')}
+        </Command.Item>
+        <Command.Item value="duplicate" onSelect={onDuplicate}>
+          <IconCopy /> {t('duplicate')}
         </Command.Item>
       </Can>
       <Command.Item value="print" onSelect={onPrint}>
@@ -159,6 +142,7 @@ function DocumentsActionsMenu({
   onEdit,
   onOpenChange,
   onPrint,
+  onDuplicate,
   variant,
 }: DocumentsActionsMenuProps) {
   return (
@@ -185,6 +169,7 @@ function DocumentsActionsMenu({
             onDelete={onDelete}
             onEdit={onEdit}
             onPrint={onPrint}
+            onDuplicate={onDuplicate}
           />
         </Command>
       </Combobox.Content>
@@ -199,41 +184,21 @@ export function DocumentsActions({
   documentItem: IDocument;
   variant: 'grid' | 'table';
 }) {
-  const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const [open, setOpen] = useState(false);
-  const [printOpen, setPrintOpen] = useState(false);
-  const setQuery = useSetQueryStateByKey();
-  const { confirm } = useConfirm();
-  const { removeDocument, loading } = useDocumentRemove();
-
-  function handleEdit() {
-    setOpen(false);
-    setQuery('documentId', documentItem._id);
-    setQuery('contentType', documentItem.contentType);
-  }
-
-  function handlePrint() {
-    setOpen(false);
-    setPrintOpen(true);
-  }
-
-  function handleDelete() {
-    setOpen(false);
-    confirm({
-      message: t('delete-title', {
-        name: documentItem.name || t('untitled'),
-      }),
-      options: {
-        description: t('delete-description'),
-        okLabel: t('delete-document'),
-      },
-    }).then(() =>
-      removeDocument({
-        variables: { id: documentItem._id },
-        refetchQueries: ['Documents'],
-      }),
-    );
-  }
+  const {
+    open,
+    setOpen,
+    printOpen,
+    setPrintOpen,
+    duplicateOpen,
+    setDuplicateOpen,
+    loading,
+    duplicating,
+    handleEdit,
+    handlePrint,
+    handleOpenDuplicate,
+    handleDuplicate,
+    handleDelete,
+  } = useDocumentActions(documentItem);
 
   if (documentItem.approvalLockState?.hasAccess === false) {
     return null;
@@ -249,8 +214,19 @@ export function DocumentsActions({
         onEdit={handleEdit}
         onOpenChange={setOpen}
         onPrint={handlePrint}
+        onDuplicate={handleOpenDuplicate}
         variant={variant}
       />
+      {duplicateOpen && (
+        <DocumentTypeDialog
+          open={duplicateOpen}
+          onOpenChange={setDuplicateOpen}
+          onSelect={handleDuplicate}
+          initialContentType={documentItem.contentType}
+          duplicate
+          loading={duplicating}
+        />
+      )}
       {hasDocumentReplacerSelect(documentItem.contentType) ? (
         <DocumentPrintDialog
           documentItem={documentItem}

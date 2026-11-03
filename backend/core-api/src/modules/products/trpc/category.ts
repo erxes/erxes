@@ -2,19 +2,12 @@ import { initTRPC } from '@trpc/server';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { CoreTRPCContext } from '~/init-trpc';
-import { agentMeta } from '~/utils/agentMeta';
 
 const t = initTRPC.context<CoreTRPCContext>().create();
 
 export const productCategoryTrpcRouter = t.router({
   productCategories: t.router({
     find: t.procedure
-      .meta(
-        agentMeta(
-          'List product categories: { query?, sort? }. Categories form a tree via parentId/order. Use this to resolve a category name or code to its _id before creating/updating products or filtering products by categoryId.',
-          { module: 'products', action: 'productsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query, sort, regData } = input;
@@ -31,12 +24,6 @@ export const productCategoryTrpcRouter = t.router({
       }),
 
     findOne: t.procedure
-      .meta(
-        agentMeta(
-          'Get a single product category by { _id }, { code }, or any MongoDB-style query. Returns {} when nothing matches. Call before productCategories.updateProductCategory.',
-          { module: 'products', action: 'productsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const query = input?.query || input?.selector || input;
@@ -52,12 +39,6 @@ export const productCategoryTrpcRouter = t.router({
       }),
 
     withChilds: t.procedure
-      .meta(
-        agentMeta(
-          'Get categories plus ALL their descendants. Input: { ids: ["categoryId", ...] }. Use to gather every subcategory under a parent, e.g. before bulk product operations across a whole category tree. (products.find/count already expand a single categoryId automatically.)',
-          { module: 'products', action: 'productsRead' },
-        ),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { ids } = input;
@@ -97,12 +78,6 @@ export const productCategoryTrpcRouter = t.router({
       }),
 
     count: t.procedure
-      .meta(
-        agentMeta('Count product categories matching a filter: { query? }.', {
-          module: 'products',
-          action: 'productsRead',
-        }),
-      )
       .input(z.any())
       .query(async ({ ctx, input }) => {
         const { query } = input;

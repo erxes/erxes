@@ -61,6 +61,7 @@ export const FORM_CONTENT_SCHEMA = z.object({
         z.object({
           id: z.string(),
           type: z.string(),
+          expectedType: z.string().optional(),
           label: z.string(),
           description: z.string(),
           placeholder: z.string().optional(),

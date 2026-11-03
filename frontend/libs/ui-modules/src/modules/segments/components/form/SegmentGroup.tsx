@@ -5,7 +5,7 @@ import {
 } from '@dnd-kit/sortable';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { Button, cn } from 'erxes-ui';
-import { Fragment } from 'react';
+import { Fragment, ReactNode } from 'react';
 import { FieldPath, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSegment } from '../../context/SegmentProvider';
@@ -33,12 +33,14 @@ type SegmentGroupBodyProps = {
   path: TNodePath;
   onRemove?: () => void;
   depth?: number;
+  header?: ReactNode;
 };
 
 const SegmentGroupBody = ({
   path,
   onRemove,
   depth = 0,
+  header,
 }: SegmentGroupBodyProps) => {
   const { form } = useSegment();
   const { contentType, sortable, onEnterGroup } = useSegmentScope();
@@ -106,9 +108,20 @@ const SegmentGroupBody = ({
     <div
       className={cn(
         'group/group rounded-md',
-        isRoot ? 'border  p-2' : 'bg-accent/80 p-1.5',
+        isRoot ? 'border p-2' : 'bg-accent/80 p-1.5',
       )}
     >
+      {isRoot && header && (
+        <div
+          className={cn(
+            showRail && (sortable ? 'pl-16' : 'pl-11'),
+            !showRail && sortable && 'pl-5',
+          )}
+        >
+          {header}
+        </div>
+      )}
+
       <div className="flex items-stretch">
         {showRail && (
           <SegmentConjunctionRail
@@ -149,7 +162,9 @@ const SegmentGroupBody = ({
         </div>
       </div>
 
-      <div className="flex items-center gap-1 pt-1.5">
+      <div
+        className={cn('flex items-center gap-1 pt-1.5', showRail && 'pl-11')}
+      >
         <Button
           variant="ghost"
           size="sm"

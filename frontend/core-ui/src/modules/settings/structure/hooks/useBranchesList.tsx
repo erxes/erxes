@@ -15,12 +15,12 @@ export const useBranchesList = (operationVariables?: OperationVariables) => {
       searchValue,
       parentId,
       status,
-      withoutUserFilter: true
+      withoutUserFilter: true,
     },
     ...operationVariables,
   });
 
-  const branches = data?.branchesMain?.list || [];
+  const branches = data?.branches || [];
   const branchesWithHasChildren = branches?.map((branch: IBranchListItem) => ({
     ...branch,
     hasChildren: branches?.some(
@@ -33,7 +33,7 @@ export const useBranchesList = (operationVariables?: OperationVariables) => {
     sortedBranches: [...(branchesWithHasChildren || [])].sort((a, b) =>
       a.order?.localeCompare(b.order),
     ),
-    totalCount: data ? data?.branchesMain?.totalCount : 0,
+    totalCount: branches.length,
     loading,
     error,
   };

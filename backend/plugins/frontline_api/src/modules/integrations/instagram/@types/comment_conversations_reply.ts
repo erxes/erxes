@@ -15,7 +15,10 @@ export interface IInstagramCommentConversationReply {
   attachments?: any;
   userId?: string;
   customerId?: string;
+  inboxSyncPending?: boolean;
 }
 
 export interface IInstagramCommentConversationReplyDocument
-  extends IInstagramCommentConversationReply, Document {}
+  extends IInstagramCommentConversationReply, Document {
+  _id: string;
+}

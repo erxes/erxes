@@ -5,10 +5,7 @@ import {
   defaultStyleSpecs,
   createStyleSpec,
 } from '@blocknote/core';
-import {
-  Attribute,
-  Mention,
-} from 'erxes-ui/modules/blocks/components/BlockEditor';
+import { Attribute, Mention } from '../components/BlockEditorInlineContent';
 import { customFileBlock } from 'erxes-ui/modules/blocks/components/CustomFileBlock';
 import { customImageBlock } from 'erxes-ui/modules/blocks/components/CustomImageBlock';
 import { documentPlaceholderBlock } from 'erxes-ui/modules/blocks/components/DocumentPlaceholderBlock';
@@ -30,6 +27,38 @@ export const fontFamily = createStyleSpec(
     },
   },
 );
+
+const fontSizeStyle = createStyleSpec(
+  {
+    type: 'fontSize',
+    propSchema: 'string',
+  },
+  {
+    render: (value) => {
+      const span = document.createElement('span');
+      span.style.fontSize = value;
+      return { dom: span };
+    },
+  },
+);
+
+export const fontSize = {
+  ...fontSizeStyle,
+  implementation: {
+    ...fontSizeStyle.implementation,
+    mark: fontSizeStyle.implementation.mark.extend({
+      parseHTML() {
+        return [
+          ...(this.parent?.() ?? []),
+          {
+            style: 'font-size',
+            getAttrs: (value) => ({ stringValue: value }),
+          },
+        ];
+      },
+    }),
+  },
+};
 
 export const BLOCK_SCHEMA = BlockNoteSchema.create({
   blockSpecs: {
@@ -71,6 +100,7 @@ export const BLOCK_SCHEMA = BlockNoteSchema.create({
       },
     },
     fontFamily,
+    fontSize,
   },
 });
 

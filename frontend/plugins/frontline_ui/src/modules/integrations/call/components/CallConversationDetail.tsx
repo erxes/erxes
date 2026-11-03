@@ -172,7 +172,7 @@ export function CallConversationDetail() {
                 {recordUrl && (
                   <audio controls className="w-full">
                     <source src={getRecordingUrl(recordUrl)} type="audio/wav" />
-                    Your browser does not support the audio element.
+                    {t('audio-not-supported')}
                   </audio>
                 )}
                 <div className="font-medium">

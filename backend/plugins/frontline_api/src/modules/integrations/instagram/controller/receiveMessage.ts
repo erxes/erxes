@@ -3,9 +3,7 @@ import type { IInstagramIntegrationDocument } from '@/integrations/instagram/@ty
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { getOrCreateCustomer } from '@/integrations/instagram/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { debugInstagram } from '@/integrations/instagram/debuggers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
-import { pConversationClientMessageInserted } from '@/inbox/graphql/resolvers/mutations/widget';
 import {
   checkIsBot,
   triggerInstagramAutomation,
@@ -16,6 +14,13 @@ import {
   publishInstagramMessage,
   replaceSenderReaction,
 } from '@/integrations/instagram/services/messageEvents';
+
+import {
+  getOrCreateInstagramRecord,
+  instagramRecordId,
+  syncInstagramInboxMessage,
+  withInstagramDeliveryLease,
+} from '@/integrations/instagram/services/persistence';
 
 const HAS_ATTACHMENT = 'This message has an attachment';
 
@@ -176,18 +181,51 @@ export const receiveMessage = async (
   const userId = activity.sender.id;
   const { recipient, timestamp } = activity;
 
-  if (await handleReactionEvent(models, activity)) return;
-  if (await handleReceiptEvent(models, integration, activity)) return;
+  if (await handleReactionEvent(models, activity)) {
+    console.log('[instagram]', `Handled reaction event from ${userId}`);
+    return;
+  }
+  if (await handleReceiptEvent(models, integration, activity)) {
+    console.log('[instagram]', `Handled read/delivery receipt from ${userId}`);
+    return;
+  }
 
   let message = activity.message;
   const postback = activity.postback;
 
   const pageId = recipient.id;
   const kind = INTEGRATION_KINDS.MESSENGER;
-  const mid = message?.mid || postback?.mid;
+  const mid =
+    message?.mid ||
+    postback?.mid ||
+    (postback
+      ? instagramRecordId(
+          'postback',
+          pageId,
+          userId,
+          String(timestamp),
+          postback.payload,
+        )
+      : undefined);
+  if (!mid) {
+    console.log(
+      '[instagram]',
+      `Skipped event from ${userId} without mid:`,
+      JSON.stringify(activity),
+    );
+    return;
+  }
   const attachments = message?.attachments;
 
-  debugInstagram(`Received message from ${userId} → page ${pageId}`);
+  console.log(
+    '[instagram]',
+    `Received message ${mid} from ${userId} → page ${pageId}:`,
+    JSON.stringify({
+      text: activity.text || message?.text,
+      attachments,
+      postback,
+    }),
+  );
 
   let text = activity.text || message?.text;
 
@@ -209,54 +247,76 @@ export const receiveMessage = async (
     text,
   });
 
+  const selector = { senderId: userId, recipientId: pageId };
+  const bot = await checkIsBot(models, message, recipient.id);
+  const botId = bot?._id;
+  const conversation = await getOrCreateInstagramRecord(
+    () => models.InstagramConversations.findOne(selector),
+    () =>
+      models.InstagramConversations.create({
+        _id: instagramRecordId('conversation', pageId, userId),
+        timestamp,
+        ...selector,
+        content: text,
+        integrationId: integration._id,
+        isBot: !!botId,
+        botId,
+      }),
+  );
+  // Resolve the stored owner after creation so a concurrent insert wins too.
+  const conversationIntegration = await models.InstagramIntegrations.findOne({
+    _id: conversation.integrationId,
+    instagramPageId: pageId,
+    kind,
+  });
+  console.log(
+    '[instagram]',
+    `Conversation ${conversation._id} (erxesApiId ${conversation.erxesApiId}) for ${userId}`,
+  );
+  if (!conversationIntegration?.erxesApiId) {
+    throw new Error('Instagram conversation Messenger integration not found');
+  }
+
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
+    conversationIntegration,
     userId,
-    kind,
   );
 
   if (!customer) {
     throw new Error('Customer not found');
   }
+  console.log(
+    '[instagram]',
+    `Customer ${customer._id} (erxesApiId ${customer.erxesApiId}) for ${userId}`,
+  );
 
-  let conversation = await models.InstagramConversations.findOne({
-    senderId: userId,
-    recipientId: pageId,
-  });
+  const messageSelector = { mid, conversationId: conversation._id };
+  const existingMessage = await models.InstagramConversationMessages.findOne(
+    messageSelector,
+  );
 
-  const bot = await checkIsBot(models, message, recipient.id);
-  const botId = bot?._id;
-  let isNewConversation = false;
-
-  if (!conversation) {
-    isNewConversation = true;
-    try {
-      conversation = await models.InstagramConversations.create({
-        timestamp,
-        senderId: userId,
-        recipientId: pageId,
-        content: text,
-        integrationId: integration._id,
-        isBot: !!botId,
-        botId,
+  if (normalizedMessage.messageKind !== 'deleted') {
+    if (existingMessage?.inboxSyncPending === false) {
+      console.log('[instagram]', `Message ${mid} already synced, skipping`);
+      return;
+    }
+    if (existingMessage && existingMessage.inboxSyncPending === undefined) {
+      const legacyInboxMessage = await models.ConversationMessages.findOne({
+        conversationId: conversation.erxesApiId,
+        $or: [{ 'providerData.messageId': mid }, { mid }],
       });
-    } catch (e) {
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation duplication'
-          : e.message,
-      );
+      if (legacyInboxMessage) {
+        console.log('[instagram]', `Message ${mid} already in inbox, skipping`);
+        return;
+      }
     }
-  } else {
-    const existingBot = await models.InstagramBots.findOne({ _id: botId });
-    if (existingBot) {
-      conversation.botId = botId;
-    }
-    conversation.content = text || '';
-    await conversation.save();
   }
+
+  if (botId) conversation.botId = botId;
+  conversation.content = text || '';
+  await conversation.save();
 
   const formattedAttachments = (attachments || [])
     .filter((att) => att.type !== 'fallback')
@@ -265,44 +325,34 @@ export const receiveMessage = async (
       url: att.payload?.url ?? '',
     }));
 
-  try {
-    const apiConversationResponse = await receiveInboxMessage(subdomain, {
-      action: 'create-or-update-conversation',
-      payload: JSON.stringify({
-        customerId: customer.erxesApiId,
-        integrationId: integration.erxesApiId,
-        content: text || '',
-        attachments: formattedAttachments,
-        conversationId: conversation.erxesApiId,
-        updatedAt: timestamp,
-      }),
-    });
-
-    if (apiConversationResponse.status === 'success') {
-      conversation.erxesApiId = apiConversationResponse.data._id;
-      await conversation.save();
-    } else {
-      throw new Error(
-        `Conversation creation failed: ${JSON.stringify(
-          apiConversationResponse,
-        )}`,
-      );
-    }
-  } catch (e) {
-    if (isNewConversation) {
-      await models.InstagramConversations.deleteOne({ _id: conversation._id });
-    }
-    throw new Error(e.message);
+  const apiConversationResponse = await receiveInboxMessage(subdomain, {
+    action: 'create-or-update-conversation',
+    payload: JSON.stringify({
+      customerId: customer.erxesApiId,
+      integrationId: conversationIntegration.erxesApiId,
+      content: text || '',
+      attachments: formattedAttachments,
+      conversationId:
+        conversation.erxesApiId || `instagram-${conversation._id}`,
+      updatedAt: timestamp,
+    }),
+  });
+  if (apiConversationResponse.status !== 'success') {
+    throw new Error(
+      `Conversation creation failed: ${apiConversationResponse.errorMessage}`,
+    );
   }
+  conversation.erxesApiId = apiConversationResponse.data._id;
+  await conversation.save();
+  console.log(
+    '[instagram]',
+    `Inbox conversation ${conversation.erxesApiId} ready for message ${mid}`,
+  );
 
   const erxesConversationId = conversation.erxesApiId;
   if (!erxesConversationId) {
     throw new Error('Erxes conversation ID is unavailable');
   }
-
-  const existingMessage = await models.InstagramConversationMessages.findOne({
-    mid,
-  });
 
   if (
     mid &&
@@ -318,55 +368,51 @@ export const receiveMessage = async (
     return;
   }
 
-  if (!existingMessage) {
-    let inboxMessageId: string | undefined;
-    let createdMessageId: string | undefined;
-    try {
-      const content =
-        text || (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
-
-      const created = await models.InstagramConversationMessages.create({
-        conversationId: conversation._id,
-        mid,
+  const content =
+    text || (formattedAttachments.length > 0 ? HAS_ATTACHMENT : '');
+  const stored = await getOrCreateInstagramRecord(
+    () => models.InstagramConversationMessages.findOne(messageSelector),
+    () =>
+      models.InstagramConversationMessages.create({
+        _id: instagramRecordId('message', pageId, mid),
+        ...messageSelector,
         createdAt: timestamp,
         content,
         customerId: customer.erxesApiId,
         attachments: formattedAttachments,
         botId,
         ...normalizedMessage,
-      });
-      createdMessageId = created._id;
+        inboxSyncPending: true,
+      }),
+  );
 
-      const inboxMessage = await models.ConversationMessages.createMessage({
-        conversationId: erxesConversationId,
-        content,
-        customerId: customer.erxesApiId,
-        attachments: formattedAttachments,
-        createdAt: new Date(timestamp),
-        ...normalizedMessage,
-      });
-      inboxMessageId = inboxMessage._id;
-
-      await pConversationClientMessageInserted(subdomain, inboxMessage);
+  await withInstagramDeliveryLease(
+    models.InstagramConversationMessages,
+    stored._id,
+    async () => {
+      await syncInstagramInboxMessage(
+        models,
+        subdomain,
+        `instagram-${stored._id}`,
+        {
+          conversationId: erxesConversationId,
+          content,
+          customerId: customer.erxesApiId,
+          attachments: formattedAttachments,
+          createdAt: new Date(timestamp),
+          ...normalizedMessage,
+        },
+        mid,
+      );
+      console.log(
+        '[instagram]',
+        `Inbox message synced for ${mid} in conversation ${erxesConversationId}`,
+      );
 
       await triggerInstagramAutomation(subdomain, {
-        conversationMessage: created.toObject(),
+        conversationMessage: stored.toObject(),
         payload: message?.payload,
       });
-    } catch (e) {
-      if (createdMessageId) {
-        await models.InstagramConversationMessages.deleteOne({
-          _id: createdMessageId,
-        });
-      }
-      if (inboxMessageId) {
-        await models.ConversationMessages.deleteOne({ _id: inboxMessageId });
-      }
-      throw new Error(
-        e.message.includes('duplicate')
-          ? 'Concurrent request: conversation message duplication'
-          : e.message,
-      );
-    }
-  }
+    },
+  );
 };

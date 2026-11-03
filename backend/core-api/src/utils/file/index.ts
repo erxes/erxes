@@ -1,4 +1,3 @@
-import { fileTypeFromBuffer } from 'file-type/core';
 import * as fs from 'fs';
 import { Jimp } from 'jimp';
 import { tmpdir } from 'os';
@@ -67,7 +66,9 @@ export const checkFile = async (
   // read file
   const buffer = await fs.promises.readFile(file.filepath);
 
-  // determine file type using magic numbers
+  // determine file type using magic numbers (file-type is ESM-only; load it
+  // dynamically so nodenext does not downlevel it to require)
+  const { fileTypeFromBuffer } = await import('file-type/core');
   const ft = await fileTypeFromBuffer(buffer);
   const unsupportedMimeTypes = [
     'text/csv',

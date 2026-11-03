@@ -228,7 +228,6 @@ export const facebookAutomationWorkers = {
     const openTickets = inboxConversationId
       ? await findOpenConversationTickets({
           models,
-          subdomain,
           conversationId: inboxConversationId,
         })
       : [];

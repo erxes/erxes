@@ -94,7 +94,7 @@ const getValueByPath = (
   return { found: true, value: current };
 };
 
-const replaceMessageTemplateString = (
+export const replaceMessageTemplateString = (
   value: string,
   context: TMessageTemplateContext,
 ) => {

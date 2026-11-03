@@ -31,7 +31,7 @@ export const FacebookIceBreakerGenerator = ({
   setIceBreakers: (iceBreakers: TIceBreaker[]) => void;
   limit: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
@@ -50,6 +50,14 @@ export const FacebookIceBreakerGenerator = ({
 
   return (
     <div className="space-y-2">
+      {!iceBreakers.length && (
+        <p className="text-sm text-muted-foreground">
+          {t('ice-breakers-empty', {
+            defaultValue:
+              'No ice breakers. Messenger shows no suggested questions.',
+          })}
+        </p>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -106,7 +114,7 @@ const FacebookIceBreakerRow = ({
   onChange: (iceBreaker: TIceBreaker) => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: iceBreaker._id });
 

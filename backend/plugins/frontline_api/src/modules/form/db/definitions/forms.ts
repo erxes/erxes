@@ -28,6 +28,8 @@ export interface IForm {
   channelId?: string;
   leadData?: ILeadData;
   integrationId?: string;
+  conversionRevision?: number;
+  activeSubmissions?: { token: string; expiresAt: Date }[];
 }
 
 export interface IFormSubmissionFilter {
@@ -118,6 +120,9 @@ export const formSubmissionSchema = schemaWrapper(
     conversationId: field({ type: String, optional: true }),
   }),
 );
+
+// Conversion checks read one field in stable order without scanning other forms.
+formSubmissionSchema.index({ formId: 1, formFieldId: 1, _id: 1 });
 
 export const calloutSchema = new Schema(
   {
@@ -293,6 +298,11 @@ export const leadDataSchema = new Schema(
 export const formSchema = schemaWrapper(
   new Schema<IForm>({
     _id: mongooseStringRandomId,
+    conversionRevision: { type: Number, default: 0 },
+    activeSubmissions: {
+      type: [new Schema({ token: String, expiresAt: Date }, { _id: false })],
+      default: undefined,
+    },
     name: field({ type: String, required: true }),
     title: field({ type: String, optional: true }),
     type: field({ type: String, required: true }),

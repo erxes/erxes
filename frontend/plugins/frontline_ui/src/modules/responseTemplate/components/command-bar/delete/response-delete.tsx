@@ -11,7 +11,7 @@ export const ResponseDelete = ({
   responseIds: string[];
   rows: Row<any>[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const { confirm } = useConfirm();
   const { removeResponse, loading } = useRemoveResponse();
 

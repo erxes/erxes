@@ -25,7 +25,9 @@ export const DiscordTriggerForm = ({
   onSaveTriggerConfig,
   formRef,
 }: AutomationTriggerFormProps<TDiscordTriggerForm>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-discord',
+  });
   const form = useForm<TDiscordTriggerForm>({
     resolver: zodResolver(discordTriggerSchema),
     defaultValues: {

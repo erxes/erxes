@@ -11,6 +11,7 @@ type SettingsRule = {
     form: UseFormReturn<any>;
     onSubmit: (data: any) => void;
     loading: boolean;
+    onCancel: () => void;
   }>;
 };
 

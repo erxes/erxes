@@ -22,7 +22,7 @@ interface ReportFilterProps {
 }
 
 export const ReportFilter = ({ cardId }: ReportFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [sourceFilter, setSourceFilter] = useAtom(
     getReportSourceFilterAtom(cardId),
   );

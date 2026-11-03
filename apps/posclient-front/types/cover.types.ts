@@ -9,21 +9,27 @@ export interface PaidSum {
 }
 
 export interface Detail {
+  terminalResults?: CoverTerminalResult[]
   _id: string | number
   paidType: string
   paidSummary: PaidSum[]
   paidDetail?: string | number
 }
 
-export interface CoverAmounts {}
-
 export interface Cover {
   beginDate: Date
   endDate: Date
   details?: Detail[]
   _id: string
-  status: "confirm" | "new" | "unconfirm"
+  status: "draft" | "confirm" | "confirming" | "new" | "unconfirm" | "reconf"
   createdUser: Customer
   modifiedUser?: Customer
   description?: string
+}
+
+export interface CoverTerminalResult {
+  _id: string
+  bank: string
+  response?: string | null
+  createdAt: string
 }

@@ -25,7 +25,9 @@ export const TopicTreeItem = ({
   onAddCategory: (topicId: string) => void;
   onEditCategory: (topicId: string, category: ICategoryFields) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const navigate = useNavigate();
   const { topicId, section, categoryId } = useKnowledgeBaseRoute();
   const { isOpen, setOpen } = useTopicOpenState(topic._id);

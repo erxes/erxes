@@ -6,9 +6,11 @@ import { useAtom } from 'jotai';
 export const AddDealSheet = ({
   onComplete: onCompleteProp,
   showWorkflowFields,
+  contacts,
 }: {
   onComplete?: (dealId: string) => void;
   showWorkflowFields?: boolean;
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
   const [open, setOpen] = useAtom(dealCreateSheetState);
 
@@ -32,6 +34,7 @@ export const AddDealSheet = ({
           onCloseSheet={onClose}
           onComplete={onCompleteProp}
           showWorkflowFields={showWorkflowFields}
+          contacts={contacts}
         />
       </Sheet.View>
     </Sheet>

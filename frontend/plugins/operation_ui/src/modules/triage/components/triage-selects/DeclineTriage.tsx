@@ -4,7 +4,14 @@ import { Button, Dialog, Textarea } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const DeclineTriage = ({ triageId }: { triageId: string }) => {
+export const DeclineTriage = ({
+  triageId,
+  size,
+}: {
+  triageId: string;
+  // `sm` in the side panel's top bar.
+  size?: 'sm';
+}) => {
   const { t } = useTranslation('operation');
   const [reason, setReason] = useState('');
   const [open, setOpen] = useState(false);
@@ -25,7 +32,9 @@ export const DeclineTriage = ({ triageId }: { triageId: string }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <Button variant="outline">{t('decline-triage')}</Button>
+        <Button variant="outline" size={size}>
+          {t('decline-triage')}
+        </Button>
       </Dialog.Trigger>
       <Dialog.Content>
         <Dialog.Header>

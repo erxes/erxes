@@ -3,7 +3,9 @@ import { useRemoveCategories } from '@/knowledgebase/categories/hooks/useCategor
 import { KbSelectionCommandBar } from '@/knowledgebase/shared/components/KbSelectionCommandBar';
 
 export const CategoriesCommandBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { removeCategories, loading } = useRemoveCategories();
 
   return (

@@ -64,9 +64,9 @@ export interface IDeal {
    */
   createdVia?: TCreatedVia;
   name?: string;
-  // TODO migrate after remove 2row
-  companyIds?: string[];
-  customerIds?: string[];
+  // The deal's one company and one customer.
+  companyId?: string | null;
+  customerId?: string | null;
   startDate?: Date;
   closeDate?: Date;
   stageChangedDate?: Date;
@@ -83,7 +83,6 @@ export interface IDeal {
   order?: number;
   searchText?: string;
   priority?: string;
-  sourceConversationIds?: string[];
   status?: string;
   timeTrack?: {
     status: string;
@@ -108,7 +107,6 @@ export interface IDeal {
   extraData?: any;
   brokerType?: 'customer' | 'company' | 'user';
   brokerId?: string;
-  sourceInvoiceId?: string;
 }
 
 export interface IDealDocument extends IDeal, Document {
@@ -133,8 +131,8 @@ export interface IDealQueryParams extends IListParams, ICursorPaginateParams {
   limit?: number;
   date?: IDate;
   search?: string;
-  customerIds?: string[];
-  companyIds?: string[];
+  customerId?: string;
+  companyId?: string;
   assignedUserIds?: string[];
   labelIds?: string[];
   userIds?: string[];
@@ -156,8 +154,8 @@ export interface IArchiveArgs extends ICursorPaginateParams {
   assignedUserIds?: string[];
   labelIds?: string[];
   productIds?: string[];
-  companyIds?: string[];
-  customerIds?: string[];
+  companyId?: string;
+  customerId?: string;
   startDate?: string;
   endDate?: string;
   sources?: string[];

@@ -1,7 +1,7 @@
 import { ExpectedError } from 'erxes-api-shared/utils';
 import { Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
-import { getConfig } from '~/modules/organization/settings/utils/configs';
+import { getFilesConfig } from '@/files/utils/config';
 import { FILES_USAGE_ID } from '@/files/constants';
 import {
   fileUsageSchema,
@@ -28,7 +28,7 @@ export interface IFileUsageModel extends Model<IFileUsageDocument> {
 export const loadFileUsageClass = (models: IModels) => {
   // Empty or 0 means no quota.
   const getQuotaBytes = async (): Promise<number | null> => {
-    const quotaGb = Number(await getConfig('FILES_QUOTA_GB', '', models));
+    const quotaGb = Number(await getFilesConfig('FILES_QUOTA_GB', '', models));
 
     return Number.isFinite(quotaGb) && quotaGb > 0 ? quotaGb * GB : null;
   };

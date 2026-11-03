@@ -18,7 +18,11 @@ export const DealsCommandBar = () => {
     <CommandBar open={isSelected}>
       <CommandBar.Bar>
         <CommandBar.Value>{selectedCount} {t('selected')}</CommandBar.Value>
-        <DealsActions deals={selectedDeals} selectedCount={selectedCount} />
+        <DealsActions
+          deals={selectedDeals}
+          selectedCount={selectedCount}
+          triggerLabel={t('action')}
+        />
         <Separator.Inline />
       </CommandBar.Bar>
     </CommandBar>

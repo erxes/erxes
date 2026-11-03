@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDebouncedCallback } from 'use-debounce';
 import { currentUserState } from 'ui-modules';
 import type {
   CycleFilterType,
@@ -54,6 +55,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority,
     projectLeadId,
     projectMilestoneName,
+    customerId,
+    companyId,
   } = useNonNullMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -75,6 +78,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority: number;
     projectLeadId: string;
     projectMilestoneName: string;
+    customerId: string;
+    companyId: string;
   }>([
     'searchValue',
     'assignee',
@@ -96,6 +101,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     'projectPriority',
     'projectLeadId',
     'projectMilestoneName',
+    'customerId',
+    'companyId',
   ]);
   const currentUser = useAtomValue(currentUserState);
 
@@ -126,6 +133,8 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     projectPriority: projectPriority,
     projectLeadId: projectLeadId,
     projectMilestoneName: projectMilestoneName,
+    customerId,
+    companyId,
     ...variables,
     ...(!variables?.teamId &&
       !variables?.userId &&
@@ -171,6 +180,11 @@ export const useTasks = (
   const pageInfo = toCursorPageInfo(data?.getTasks?.pageInfo);
   const totalCount = data?.getTasks?.totalCount;
 
+  // A burst of task events (imports, bulk edits) refetches the list once.
+  const refetchDebounced = useDebouncedCallback(() => {
+    void refetch();
+  }, 1000);
+
   useSubscription(TASK_LIST_CHANGED, {
     variables: { filter: variables },
     ignoreResults: true,
@@ -180,8 +194,11 @@ export const useTasks = (
       if (!task) return;
 
       // Recheck date membership when a task enters or leaves the selected range.
-      if (TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)) {
-        void refetch();
+      if (
+        variables.cycleFilter ||
+        TASK_DATE_RANGE_KEYS.some((key) => variables[key] != null)
+      ) {
+        refetchDebounced();
         return;
       }
 

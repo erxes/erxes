@@ -16,7 +16,7 @@ import {
 import { FilterItem } from '../types/actionBarTypes';
 
 export const ActionBarFilters: FilterItem[][] = [
-  [{ key: 'companyIds', value: 'Company / Project', icon: IconBuilding }],
+  [{ key: 'companyId', value: 'Company / Project', icon: IconBuilding }],
   [
     { key: 'userIds', value: 'Created By', icon: IconUserPlus },
     { key: 'assignedUserIds', value: 'Assigned To', icon: IconUserShare },

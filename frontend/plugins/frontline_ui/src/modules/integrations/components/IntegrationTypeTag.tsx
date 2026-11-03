@@ -12,7 +12,9 @@ import { IIntegrationType } from '../types/Integration';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationTypeTag = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [integrationTypeId, setIntegrationTypeId] =
     useQueryState<string>('integrationType');
   const { integrationTypes, loading } = useUsedIntegrationTypes();

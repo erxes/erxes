@@ -1,3 +1,4 @@
+import { getDealContactIds } from './utils/dealContacts';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import * as QRCode from 'qrcode';
 import { IReceipt } from './@types';
@@ -76,19 +77,11 @@ const getRelatedContacts = async (
   contactType: 'company' | 'customer',
 ): Promise<RelatedContact[]> => {
   const isCustomer = contactType === 'customer';
-  const relatedIds: string[] = await sendTRPCMessage({
+  const relatedIds: string[] = await getDealContactIds(
     subdomain,
-    pluginName: 'core',
-    method: 'query',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType: 'sales:deal',
-      contentId: dealId,
-      relatedContentType: isCustomer ? 'core:customer' : 'core:company',
-    },
-    defaultValue: [],
-  });
+    dealId,
+    contactType,
+  );
 
   if (!relatedIds.length) {
     return [];
@@ -145,10 +138,16 @@ const getReceiptRows = (receipts: IReceipt[]) => {
           </td>
         </tr>
         <tr>
-          <td style="padding:5px;text-align:right">${formatAmount(item.unitPrice)}</td>
+          <td style="padding:5px;text-align:right">${formatAmount(
+            item.unitPrice,
+          )}</td>
           <td style="padding:5px;text-align:right">${escapeHtml(item.qty)}</td>
-          <td style="padding:5px;text-align:right">${formatAmount(discount)}</td>
-          <td style="padding:5px;text-align:right">${formatAmount(item.totalAmount)}</td>
+          <td style="padding:5px;text-align:right">${formatAmount(
+            discount,
+          )}</td>
+          <td style="padding:5px;text-align:right">${formatAmount(
+            item.totalAmount,
+          )}</td>
         </tr>
       `);
     }
@@ -165,9 +164,25 @@ const getCustomerInfo = (response: EbarimtEmailResponse) => {
   return `
     <div style="margin-top:16px">
       <p style="margin:5px 0 10px"><strong>Худалдан авагч:</strong></p>
-      ${response.customerTin ? `<p style="margin:5px 0">ТТД: ${escapeHtml(response.customerTin)}</p>` : ''}
-      ${response.consumerNo ? `<p style="margin:5px 0">РД: ${escapeHtml(response.consumerNo)}</p>` : ''}
-      ${response.customerName ? `<p style="margin:5px 0">Нэр: ${escapeHtml(response.customerName)}</p>` : ''}
+      ${
+        response.customerTin
+          ? `<p style="margin:5px 0">ТТД: ${escapeHtml(
+              response.customerTin,
+            )}</p>`
+          : ''
+      }
+      ${
+        response.consumerNo
+          ? `<p style="margin:5px 0">РД: ${escapeHtml(response.consumerNo)}</p>`
+          : ''
+      }
+      ${
+        response.customerName
+          ? `<p style="margin:5px 0">Нэр: ${escapeHtml(
+              response.customerName,
+            )}</p>`
+          : ''
+      }
     </div>
   `;
 };
@@ -184,17 +199,37 @@ const getReceiptSection = (
 
   return `
     <div style="width:270px;margin:0 auto;padding:16px 0;color:#000;font-family:Arial,Helvetica,sans-serif;font-size:13px">
-      ${index > 0 ? '<div style="margin-bottom:16px;border-top:1px dashed #444"></div>' : ''}
+      ${
+        index > 0
+          ? '<div style="margin-bottom:16px;border-top:1px dashed #444"></div>'
+          : ''
+      }
       <div style="text-align:center">
         <img src="https://nmgplugins.s3.us-west-2.amazonaws.com/ebarimt/ebarimt.png" alt="eBarimt" style="max-width:90px" />
       </div>
-      ${response.companyName ? `<p style="margin:5px 0 10px;text-align:center">${escapeHtml(response.companyName)}</p>` : ''}
+      ${
+        response.companyName
+          ? `<p style="margin:5px 0 10px;text-align:center">${escapeHtml(
+              response.companyName,
+            )}</p>`
+          : ''
+      }
 
       <div>
-        ${response.merchantTin ? `<p style="margin:5px 0">ТТД: ${escapeHtml(response.merchantTin)}</p>` : ''}
+        ${
+          response.merchantTin
+            ? `<p style="margin:5px 0">ТТД: ${escapeHtml(
+                response.merchantTin,
+              )}</p>`
+            : ''
+        }
         <p style="margin:5px 0">ДДТД: ${escapeHtml(response.id)}</p>
         <p style="margin:5px 0">Огноо: ${escapeHtml(response.date)}</p>
-        ${response.number ? `<p style="margin:5px 0">№: ${escapeHtml(response.number)}</p>` : ''}
+        ${
+          response.number
+            ? `<p style="margin:5px 0">№: ${escapeHtml(response.number)}</p>`
+            : ''
+        }
       </div>
 
       ${getCustomerInfo(response)}
@@ -213,17 +248,54 @@ const getReceiptSection = (
       </table>
 
       <div style="margin-top:30px;text-align:right">
-        ${response.totalVAT && response.totalVAT > 0 ? `<p style="margin:5px 0"><strong>НӨАТ:</strong> ${formatAmount(response.totalVAT)}</p>` : ''}
-        ${response.totalCityTax && response.totalCityTax > 0 ? `<p style="margin:5px 0"><strong>НХАТ:</strong> ${formatAmount(response.totalCityTax)}</p>` : ''}
-        <p style="margin:5px 0"><strong>Бүгд үнэ:</strong> ${formatAmount(response.totalAmount)}</p>
-        ${totalDiscount > 0 ? `<p style="margin:5px 0"><strong>ХӨН:</strong> ${formatAmount(totalDiscount)}</p>` : ''}
+        ${
+          response.totalVAT && response.totalVAT > 0
+            ? `<p style="margin:5px 0"><strong>НӨАТ:</strong> ${formatAmount(
+                response.totalVAT,
+              )}</p>`
+            : ''
+        }
+        ${
+          response.totalCityTax && response.totalCityTax > 0
+            ? `<p style="margin:5px 0"><strong>НХАТ:</strong> ${formatAmount(
+                response.totalCityTax,
+              )}</p>`
+            : ''
+        }
+        <p style="margin:5px 0"><strong>Бүгд үнэ:</strong> ${formatAmount(
+          response.totalAmount,
+        )}</p>
+        ${
+          totalDiscount > 0
+            ? `<p style="margin:5px 0"><strong>ХӨН:</strong> ${formatAmount(
+                totalDiscount,
+              )}</p>`
+            : ''
+        }
       </div>
 
       <div style="text-align:center">
-        ${response.lottery ? `<div style="margin-top:20px;font-weight:bold">Сугалаа: ${escapeHtml(response.lottery)}</div>` : ''}
-        ${qrImage ? `<img src="${qrImage}" width="220" height="220" alt="И-Баримтын QR код" style="display:block;margin:10px auto" />` : ''}
-        ${getConfiguredText(response.footerText, '<p style="margin:5px 0;font-weight:bold;font-size:12px">Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>')}
-        ${response.description ? `<div>${formatText(response.description)}</div>` : ''}
+        ${
+          response.lottery
+            ? `<div style="margin-top:20px;font-weight:bold">Сугалаа: ${escapeHtml(
+                response.lottery,
+              )}</div>`
+            : ''
+        }
+        ${
+          qrImage
+            ? `<img src="${qrImage}" width="220" height="220" alt="И-Баримтын QR код" style="display:block;margin:10px auto" />`
+            : ''
+        }
+        ${getConfiguredText(
+          response.footerText,
+          '<p style="margin:5px 0;font-weight:bold;font-size:12px">Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>',
+        )}
+        ${
+          response.description
+            ? `<div>${formatText(response.description)}</div>`
+            : ''
+        }
       </div>
     </div>
   `;

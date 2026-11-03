@@ -13,8 +13,8 @@ export const TICKET_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
         label: 'Customers',
         reference: {
           type: 'core:customer',
-          kind: 'relation',
-          relType: 'customer',
+          kind: 'field',
+          path: 'customerId',
         },
       },
       {

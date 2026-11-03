@@ -246,6 +246,9 @@ export const SendEmailConfigForm = ({
                               },
                             }}
                           />
+                          <Form.Description>
+                            {t('custom-sender-email-hint')}
+                          </Form.Description>
                         </Form.Item>
                       )}
                     />

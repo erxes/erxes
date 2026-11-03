@@ -121,8 +121,8 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
         label: 'Customers',
         reference: {
           type: 'core:customer',
-          kind: 'relation',
-          relType: 'customer',
+          kind: 'field',
+          path: 'customerId',
         },
       },
 
@@ -131,8 +131,8 @@ export const SALES_REFERENCE_TYPES: TRecordReferencesConfig['types'] = [
         label: 'Companies',
         reference: {
           type: 'core:company',
-          kind: 'relation',
-          relType: 'company',
+          kind: 'field',
+          path: 'companyId',
         },
       },
 

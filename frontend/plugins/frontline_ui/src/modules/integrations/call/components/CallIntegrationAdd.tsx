@@ -13,7 +13,9 @@ import { IntegrationType } from '@/types/Integration';
 import { useParams } from 'react-router';
 
 export const CallIntegrationAddSheet = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callAddSheet, setCallAddSheet] = useAtom(callAddSheetAtom);
 
   return (

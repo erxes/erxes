@@ -147,23 +147,59 @@ test('internal notes never send a provider reply ID and retain all editor blocks
   ).toEqual({ blocks: multiBlock, internal: true });
 });
 
-test('Facebook partial delivery retains only unsent attachments for retry', async () => {
-  const sent = {
-    url: 'sent.png',
-    name: 'sent.png',
-    type: 'image/png',
-    size: 10,
-  };
-  const pending = { ...sent, url: 'pending.png' };
+test.each(['Facebook', 'Instagram'])(
+  '%s partial delivery retains only unsent attachments for retry',
+  async (provider) => {
+    const sent = {
+      url: 'sent.png',
+      name: 'sent.png',
+      type: 'image/png',
+      size: 10,
+    };
+    const pending = { ...sent, url: 'pending.png' };
+    mockAddMessage.mockImplementation((options: MutationOptions) => {
+      const data = {
+        conversationMessageAdd: {
+          _id: 'saved',
+          extraData: {
+            [provider === 'Facebook'
+              ? 'facebookDelivery'
+              : 'instagramDelivery']: {
+              status: 'partial' as const,
+              textSent: true,
+              sentAttachmentUrls: [sent.url],
+            },
+          },
+        },
+      };
+      options.onCompleted?.(data);
+      return Promise.resolve({ data });
+    });
+    const { result, options } = setup({
+      isFacebook: provider === 'Facebook',
+      isInstagram: provider === 'Instagram',
+      attachments: [sent, pending],
+    });
+    await act(() => result.current.handleSubmit());
+    expect(options.onPartialDelivery).toHaveBeenCalledWith([pending]);
+    expect(options.resetComposer).not.toHaveBeenCalled();
+    expect(toast).toHaveBeenCalledWith(
+      expect.objectContaining({ title: 'Message partially sent' }),
+    );
+  },
+);
+
+test('an Instagram history failure after acknowledgement clears all accepted parts and warns against resending', async () => {
   mockAddMessage.mockImplementation((options: MutationOptions) => {
     const data = {
       conversationMessageAdd: {
-        _id: 'saved',
+        _id: 'accepted',
         extraData: {
-          facebookDelivery: {
-            status: 'partial' as const,
+          instagramDelivery: {
+            status: 'partial',
             textSent: true,
-            sentAttachmentUrls: [sent.url],
+            sentAttachmentUrls: [],
+            error: 'Provider history unavailable',
           },
         },
       },
@@ -171,15 +207,14 @@ test('Facebook partial delivery retains only unsent attachments for retry', asyn
     options.onCompleted?.(data);
     return Promise.resolve({ data });
   });
-  const { result, options } = setup({
-    isFacebook: true,
-    attachments: [sent, pending],
-  });
+  const { result, options } = setup({ isInstagram: true });
   await act(() => result.current.handleSubmit());
-  expect(options.onPartialDelivery).toHaveBeenCalledWith([pending]);
-  expect(options.resetComposer).not.toHaveBeenCalled();
+  expect(options.onPartialDelivery).toHaveBeenCalledWith([]);
   expect(toast).toHaveBeenCalledWith(
-    expect.objectContaining({ title: 'Message partially sent' }),
+    expect.objectContaining({
+      title: 'Message sent with a warning',
+      description: expect.stringContaining('Do not resend'),
+    }),
   );
 });
 

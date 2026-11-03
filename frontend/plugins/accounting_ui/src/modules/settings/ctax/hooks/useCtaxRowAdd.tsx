@@ -1,4 +1,8 @@
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import {
+  notifyMutationResult,
+  withMutationToast,
+} from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
 import { CTAX_ROWS_ADD } from '../graphql/mutations/ctaxMutations';
 
@@ -9,8 +13,8 @@ export const useAddCtaxRow = () => {
   const [_addCtax, { loading }] = useMutation(CTAX_ROWS_ADD);
 
   const addCtax = (options?: GraphqlMutationOptions<typeof CTAX_ROWS_ADD>) => {
-    _addCtax({
-      ...options,
+    void _addCtax({
+      ...withMutationToast(options ?? {}, notifyMutationResult, ''),
       variables: { ...options?.variables },
       update: (cache, { data }) => {
         const existingData = cache.readQuery({

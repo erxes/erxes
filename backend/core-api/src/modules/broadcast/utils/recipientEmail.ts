@@ -60,7 +60,7 @@ export const getRecipientEmail = async ({
 
   const [postalAddress, alignedFrom, events] = await Promise.all([
     getPostalAddress(models).then(formatPostalAddress),
-    getBroadcastAlignedFrom(models),
+    getBroadcastAlignedFrom(models, run.fromEmail),
     models.DeliveryReports.find({
       engageMessageId: run.engageMessageId,
       customerId: customer._id,

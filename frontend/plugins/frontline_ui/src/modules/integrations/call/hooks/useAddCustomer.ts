@@ -7,7 +7,9 @@ import { ICallChannels, ICustomer } from '@/integrations/call/types/callTypes';
 import { useTranslation } from 'react-i18next';
 
 export const useAddCallCustomer = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [createCustomerMutation, { loading }] = useMutation(CALL_CUSTOMER_ADD);
   const [customer, setCustomer] = useState<Partial<ICustomer>>({});
 

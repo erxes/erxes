@@ -34,7 +34,9 @@ const TopicTree = ({
   onAddCategory: (topicId: string) => void;
   onEditCategory: (topicId: string, category: ICategoryFields) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   if (loading && !topics) {
     return (
@@ -75,7 +77,9 @@ const TopicTree = ({
 };
 
 export const KnowledgeBaseSidebar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { topicId } = useKnowledgeBaseRoute();
   const { setOpen: openCurrentTopic } = useTopicOpenState(topicId);
   const { topics, loading, error } = useTopics();

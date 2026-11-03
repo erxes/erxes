@@ -94,6 +94,7 @@
     "dompurify": "^3.2.4",
     "emblor": "^1.4.8",
     "imask": "7.6.1",
+    "input-otp": "^1.4.2",
     "js-cookie": "^3.0.5",
     "libphonenumber-js": "^1.11.20",
     "motion": "^11.11.17",

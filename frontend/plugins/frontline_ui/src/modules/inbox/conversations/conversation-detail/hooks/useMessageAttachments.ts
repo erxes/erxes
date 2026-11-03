@@ -14,7 +14,7 @@ export const useMessageAttachments = (
   isDiscord: boolean,
   isTelegram = false,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [attachments, setAttachments] = useState<IAttachment[]>([]);
   const attachmentsRef = useRef<IAttachment[]>([]);
   const [pendingAttachments, setPendingAttachments] = useState<

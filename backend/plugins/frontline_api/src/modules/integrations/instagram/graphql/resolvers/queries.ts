@@ -16,31 +16,24 @@ import {
   IConversationId,
 } from '@/integrations/instagram/@types/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
-import { IInstagramConversationMessageDocument } from '@/integrations/instagram/@types/conversationMessages';
-import { normalizeStoredInstagramMessage } from '@/integrations/instagram/normalizeMessage';
+import { authorizeConversationAccess } from '@/inbox/utils/conversationAccess';
+import {
+  readInstagramHistory,
+  countInstagramHistory,
+} from '@/integrations/instagram/services/history';
 import { normalizeFilterIds } from '@/integrations/instagram/utils/filterIds';
 
-const buildSelector = async (conversationId: string, model: any) => {
-  const query = { conversationId: '' };
-
-  const conversation = await model.findOne({
-    erxesApiId: conversationId,
-  });
-
-  if (conversation) {
-    query.conversationId = conversation._id;
-  }
-
-  return query;
+const buildSelector = async (
+  conversationId: string,
+  model: {
+    findOne(query: {
+      erxesApiId: string;
+    }): PromiseLike<{ _id: unknown } | null>;
+  },
+) => {
+  const conversation = await model.findOne({ erxesApiId: conversationId });
+  return { conversationId: conversation ? String(conversation._id) : '' };
 };
-
-const toChronologicalMessages = (
-  messages: IInstagramConversationMessageDocument[],
-  isAscending: boolean,
-) =>
-  (isAscending ? messages : [...messages].reverse()).map((message) =>
-    normalizeStoredInstagramMessage(message.toObject()),
-  );
 
 export const instagramQueries = {
   async frontlineInstagramCopyImage(
@@ -235,78 +228,28 @@ export const instagramQueries = {
   },
 
   async instagramConversationMessages(
-    _root,
+    _root: unknown,
     args: IMessagesParams,
-    { models }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
-    const { conversationId, limit, skip, getFirst } = args;
-
-    const conversation = await models.InstagramConversations.findOne({
-      erxesApiId: conversationId,
-    });
-    let messages: IInstagramConversationMessageDocument[] = [];
-    const query = await buildSelector(
-      conversationId,
-      models.InstagramConversations,
+    await checkPermission('showConversations');
+    await authorizeConversationAccess(
+      models,
+      user,
+      args.conversationId,
+      subdomain,
     );
-
-    if (conversation) {
-      if (limit) {
-        const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-
-        messages = await models.InstagramConversationMessages.find(query)
-          .sort(sort)
-          .skip(skip || 0)
-          .limit(limit);
-
-        return toChronologicalMessages(messages, Boolean(getFirst));
-      }
-
-      messages = await models.InstagramConversationMessages.find(query)
-        .sort({ createdAt: -1 })
-        .limit(50);
-
-      return toChronologicalMessages(messages, false);
-    } else {
-      let comment: any[] = [];
-      const sort: any = getFirst ? { createdAt: 1 } : { createdAt: -1 };
-      comment = await models.InstagramCommentConversation.find({
-        erxesApiId: conversationId,
-      })
-        .sort(sort)
-        .skip(skip || 0);
-
-      const comment_ids = comment?.map((item) => item.comment_id);
-      const search = await models.InstagramCommentConversationReply.find({
-        parentId: comment_ids,
-      })
-        .sort(sort)
-        .skip(skip || 0);
-
-      if (search.length > 0) {
-        const combinedResult = [...comment, ...search].sort((a, b) =>
-          a.createdAt > b.createdAt ? 1 : -1,
-        );
-        return combinedResult;
-      } else {
-        return comment;
-      }
-    }
+    return readInstagramHistory(models, args);
   },
-  /**
-   *  Get all conversation messages count. We will use it in pager
-   */
-  async instagramConversationMessagesCount(
-    _root,
-    { conversationId }: { conversationId: string },
-    { models }: IContext,
-  ) {
-    const selector = await buildSelector(
-      conversationId,
-      models.InstagramConversations,
-    );
 
-    return models.InstagramConversationMessages.countDocuments(selector);
+  async instagramConversationMessagesCount(
+    _root: unknown,
+    { conversationId }: { conversationId: string },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('showConversations');
+    await authorizeConversationAccess(models, user, conversationId, subdomain);
+    return countInstagramHistory(models, conversationId);
   },
 
   async instagramGetPost(

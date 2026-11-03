@@ -15,7 +15,9 @@ export const FacebookPostImagesField = ({
 }: {
   images: TFacebookPostImages;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <>

@@ -30,7 +30,9 @@ const StatusCommand = ({
   value: string | null;
   onValueChange: (status: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <Command>
@@ -59,7 +61,9 @@ const CategoryCommand = ({
   value: string | null;
   onValueChange: (categoryId: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { categories, loading } = useCategories(topicId);
 
   return (
@@ -164,7 +168,9 @@ const renderCategoryCommand =
     );
 
 const StatusFilterBar = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <QueryFilterBar
@@ -182,7 +188,9 @@ const StatusFilterBar = () => {
 };
 
 const CategoryFilterBar = ({ topicId }: { topicId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { categories } = useCategories(topicId);
 
   return (
@@ -200,7 +208,9 @@ const CategoryFilterBar = ({ topicId }: { topicId: string }) => {
 };
 
 export const ArticlesFilter = ({ topicId }: { topicId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     status: string;

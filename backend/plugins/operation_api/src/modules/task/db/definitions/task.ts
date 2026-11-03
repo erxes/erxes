@@ -9,6 +9,9 @@ export const taskSchema = new Schema(
     priority: { type: Number, label: 'Priority', default: 0 },
     labelIds: { type: [String], label: 'Label IDs' },
     tagIds: { type: [String], label: 'Tag IDs' },
+    // The task's one customer and one company, kept on the task.
+    customerId: { type: String, label: 'Customer', default: null, index: true },
+    companyId: { type: String, label: 'Company', default: null, index: true },
     assigneeId: { type: String, label: 'Assignee' },
     createdBy: { type: String, label: 'Created By' },
     startDate: { type: Date, label: 'Start Date' },
@@ -49,3 +52,6 @@ export const taskSchema = new Schema(
 
 taskSchema.index({ assigneeId: 1 }, { sparse: true });
 taskSchema.index({ createdBy: 1 }, { sparse: true });
+taskSchema.index({ customerId: 1 });
+taskSchema.index({ companyId: 1 });
+

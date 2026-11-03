@@ -4,12 +4,11 @@ import {
   IconUser,
   IconUserCog,
 } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
 
 import { CustomersInline } from './CustomersInline';
 import { SelectCustomersBulk } from './SelectCustomersBulk';
 import { useCustomerDetail } from '../hooks';
-import { IRelationWidgetProps } from 'ui-modules/modules/widget';
+import { IRelationWidgetProps, useSidePanel } from 'ui-modules/modules/widget';
 
 const CustomerWidgetItem = ({
   customerId,
@@ -18,7 +17,7 @@ const CustomerWidgetItem = ({
   customerId: string;
   scope: string;
 }) => {
-  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
 
   const { customerDetail, loading } = useCustomerDetail(
     {
@@ -62,7 +61,13 @@ const CustomerWidgetItem = ({
             size="sm"
             className="w-full text-accent-foreground"
             onClick={() =>
-              navigate(`/contacts/customers?contactId=${customerId}`)
+              openRecord(
+                {
+                  contentType: 'core:customer',
+                  contentId: customerId,
+                },
+                { stack: true },
+              )
             }
           >
             View details

@@ -26,7 +26,7 @@ export const DirectMessageConditionCard = ({
   ) => void;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const {
     hasKeywords,
     draftKeyword,
@@ -85,7 +85,7 @@ export const DirectMessageConditionCard = ({
           <div className="flex flex-col items-center text-muted-foreground">
             <IconSquareKey />
             <span className="text-xs">
-              {t('no-keywords-configured', 'There is no keywords configured')}
+              {t('no-keywords-configured', 'No keywords are configured')}
             </span>
           </div>
         ) : (

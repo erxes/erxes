@@ -5,7 +5,9 @@ import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 export const IntegrationNavigation = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationTypes, loading } = useUsedIntegrationTypes();
   const { pathname } = useLocation();
 

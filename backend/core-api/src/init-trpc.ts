@@ -3,6 +3,7 @@ import { ITRPCContext } from 'erxes-api-shared/utils';
 import { z } from 'zod';
 import { conformityTrpcRouter } from '~/modules/conformities/trpc/conformity';
 import { contactTrpcRouter } from '~/modules/contacts/trpc';
+import { internalNoteTrpcRouter } from '~/modules/internalNote/trpc/internalNote';
 import { brandTrpcRouter } from '~/modules/organization/brand/trpc/brand';
 import { configTrpcRouter } from '~/modules/organization/settings/trpc/config';
 import { structureTrpcRouter } from '~/modules/organization/structure/trpc';
@@ -44,6 +45,7 @@ export const appRouter = t.mergeRouters(
   configTrpcRouter,
   formsTrpcRouter,
   contactTrpcRouter,
+  internalNoteTrpcRouter,
   conformityTrpcRouter,
   relationTrpcRouter,
   userTrpcRouter,
