@@ -32,7 +32,13 @@ export const useDealDetail = (
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
   const overrideId = useDealIdOverride();
-  const { close: closePanel } = useSidePanel();
+  const {
+    record: panelRecord,
+    back: backPanel,
+    canGoBack,
+    close: closePanel,
+  } = useSidePanel();
+  const panelRecordId = panelRecord?.contentId;
   const passedId = options?.variables?._id;
   const finalId = passedId || overrideId || salesItemId || activeDealId;
 
@@ -91,8 +97,12 @@ export const useDealDetail = (
             setSalesItemId(null);
           }
 
-          if (overrideId === finalId) {
-            closePanel();
+          if (overrideId === finalId && panelRecordId === finalId) {
+            if (canGoBack) {
+              backPanel();
+            } else {
+              closePanel();
+            }
           }
 
           return prev;
@@ -152,8 +162,11 @@ export const useDealDetail = (
     return subscribeToMore(subscriptionOptions);
   }, [
     activeDealId,
+    backPanel,
+    canGoBack,
     closePanel,
     finalId,
+    panelRecordId,
     options?.skip,
     overrideId,
     refetch,

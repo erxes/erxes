@@ -85,7 +85,6 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const { back, canGoBack, close } = useSidePanel();
-  const { addDeals, loading } = useDealsAdd();
   const form = useForm<TDealDraftForm>({
     resolver: zodResolver(dealDraftSchema),
     defaultValues: {
@@ -120,6 +119,12 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
     };
   }, []);
 
+  const { addDeals, loading } = useDealsAdd({
+    onCompleted: () => {
+      if (mountedRef.current) finish();
+    },
+  });
+
   const updateCustomFieldValue = useCallback(
     (fieldId: string, value: unknown) => {
       const current = form.getValues('propertiesData') || {};
@@ -150,9 +155,6 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
           : undefined,
       },
       update: (cache) => cache.evict({ id: 'ROOT_QUERY', fieldName: 'deals' }),
-      onCompleted: () => {
-        if (mountedRef.current) finish();
-      },
     });
   };
 
@@ -188,6 +190,7 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
                     form.setValue('boardId', toSingleId(value));
                     form.setValue('pipelineId', null);
                     form.setValue('stageId', '');
+                    form.setValue('labelIds', []);
                   }}
                 />
               </PanelFormRow>
@@ -199,6 +202,7 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
                   onValueChange={(value) => {
                     form.setValue('pipelineId', toSingleId(value));
                     form.setValue('stageId', '');
+                    form.setValue('labelIds', []);
                   }}
                 />
               </PanelFormRow>
@@ -237,6 +241,7 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
           <PanelFormRow label={t('labels')}>
             <SelectLabels.FormItem
               mode="multiple"
+              pipelineId={pipelineId ?? undefined}
               value={form.watch('labelIds')}
               onValueChange={(value) =>
                 form.setValue(

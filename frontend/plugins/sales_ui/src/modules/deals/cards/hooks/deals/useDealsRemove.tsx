@@ -25,6 +25,20 @@ export function useDealsRemove(
     ...options,
     variables: _id ? { ...options?.variables, _id } : options?.variables,
     awaitRefetchQueries: true,
+    update: (cache, result, context) => {
+      if (result.data?.dealsRemove) {
+        cache.modify({
+          id: 'ROOT_QUERY',
+          fields: {
+            deals: (existing, { DELETE, storeFieldName }) =>
+              /"(customerId|companyId)":/.test(storeFieldName)
+                ? DELETE
+                : existing,
+          },
+        });
+      }
+      options?.update?.(cache, result, context);
+    },
     onCompleted: (...args) => {
       toast({
         title: t('deal-removed'),

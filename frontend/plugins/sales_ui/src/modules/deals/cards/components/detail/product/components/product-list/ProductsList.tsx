@@ -1,6 +1,12 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { currentUserState } from 'ui-modules';
 
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
@@ -15,12 +21,14 @@ import {
   useVatPercent,
 } from '../../hooks/useProductsListState';
 import {
+  dealProductsDraftAtomFamily,
   onLocalChangeAtom,
   productRowActionsAtom,
 } from '../../productTableAtom';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
+import { getProductsDraftPatches } from '../../utils/productsDraft';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
@@ -60,11 +68,23 @@ export const ProductsList = ({
 
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
-  const [localProductsData, setLocalProductsData] =
-    useState<DealProductData[]>(productsData);
+  const [productsDraft, setProductsDraft] = useAtom(
+    dealProductsDraftAtomFamily(dealId),
+  );
+  const [localProductsData, setLocalProductsData] = useState<DealProductData[]>(
+    () => productsDraft ?? productsData,
+  );
   const pendingProductPatchesRef = useRef<
     Record<string, Partial<DealProductData>>
-  >({});
+  >(productsDraft ? getProductsDraftPatches(productsDraft, productsData) : {});
+  const hasUnsavedEditsRef = useRef(Boolean(productsDraft));
+  const editLocalProductsData = useCallback(
+    (update: SetStateAction<DealProductData[]>) => {
+      hasUnsavedEditsRef.current = true;
+      setLocalProductsData(update);
+    },
+    [],
+  );
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
@@ -88,9 +108,15 @@ export const ProductsList = ({
     updateTotal,
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
-  const { editDeals } = useDealsEdit(undefined, {
-    toastOptions: DEAL_TOAST_OPTIONS,
-  });
+  const { editDeals } = useDealsEdit(
+    {
+      onCompleted: () => {
+        hasUnsavedEditsRef.current = false;
+        setProductsDraft(null);
+      },
+    },
+    { toastOptions: DEAL_TOAST_OPTIONS },
+  );
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [showTaxView, setShowTaxView] = useState(false);
   const [showExpandedView, setShowExpandedView] = useState(false);
@@ -176,7 +202,7 @@ export const ProductsList = ({
     applyVat,
   } = useVatPercent({
     localProductsData,
-    setLocalProductsData,
+    setLocalProductsData: editLocalProductsData,
     updateTotal,
     calculatePerProductAmount,
   });
@@ -231,6 +257,12 @@ export const ProductsList = ({
     },
     [updateTotal],
   );
+
+  useEffect(() => {
+    if (hasUnsavedEditsRef.current) {
+      setProductsDraft(localProductsData);
+    }
+  }, [localProductsData, setProductsDraft]);
 
   useSyncLocalProductsData({
     productsData,
@@ -335,10 +367,11 @@ export const ProductsList = ({
         showTaxView={showTaxView}
         productsData={localProductsData}
         pipelineId={pipelineId}
-        onChangeProductsData={setLocalProductsData}
+        onChangeProductsData={editLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}
         onSave={handleSave}
+        hasUnsavedChanges={Boolean(productsDraft)}
       />
     </>
   );

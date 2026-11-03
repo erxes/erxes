@@ -414,7 +414,7 @@ export const SelectLabelsFilterBar = ({
 
   const [urlQuery, setUrlQuery] = useQueryState<string[] | string>(filterKey);
   const [open, setOpen] = useState<boolean>(false);
-  const { labelPipelineLabel } = usePipelineLabelLabel();
+  const { labelPipelineLabel } = usePipelineLabelLabel(undefined, pipelineId);
   const optimisticLabels = useOptimisticField({
     value: initialValue || [],
     resetKey: targetId,

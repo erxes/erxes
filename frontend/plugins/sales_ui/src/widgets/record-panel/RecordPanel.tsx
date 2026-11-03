@@ -11,6 +11,10 @@ import type { IRecordPanelProps } from 'ui-modules';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
 import { DealPanelDetail } from '~/widgets/record-panel/DealPanelDetail';
 import { DealPanelNew } from '~/widgets/record-panel/DealPanelNew';
+import {
+  DealPanelError,
+  DealPanelNotFound,
+} from '~/widgets/record-panel/DealPanelStates';
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
@@ -26,7 +30,7 @@ const DealPanelTitle = ({ dealId }: { dealId: string }) => {
 };
 
 const DealPanelProperties = ({ dealId }: { dealId: string }) => {
-  const { deal, loading } = useDealDetail(
+  const { deal, loading, error } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
   );
@@ -35,8 +39,12 @@ const DealPanelProperties = ({ dealId }: { dealId: string }) => {
     return <Spinner containerClassName="py-12" />;
   }
 
+  if (error && !deal) {
+    return <DealPanelError error={error} />;
+  }
+
   if (!deal) {
-    return null;
+    return <DealPanelNotFound />;
   }
 
   return (
@@ -55,7 +63,7 @@ const DealPanelProperties = ({ dealId }: { dealId: string }) => {
 };
 
 const DealPanelProductsTab = ({ dealId }: { dealId: string }) => {
-  const { deal, loading, refetch } = useDealDetail(
+  const { deal, loading, error, refetch } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
   );
@@ -64,8 +72,12 @@ const DealPanelProductsTab = ({ dealId }: { dealId: string }) => {
     return <Spinner containerClassName="py-12" />;
   }
 
+  if (error && !deal) {
+    return <DealPanelError error={error} />;
+  }
+
   if (!deal) {
-    return null;
+    return <DealPanelNotFound />;
   }
 
   return (

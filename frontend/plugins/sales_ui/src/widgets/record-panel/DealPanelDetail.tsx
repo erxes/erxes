@@ -30,14 +30,7 @@ import {
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import {
-  CopyText,
-  Empty,
-  isDefined,
-  ScrollArea,
-  Spinner,
-  TextField,
-} from 'erxes-ui';
+import { CopyText, isDefined, ScrollArea, Spinner, TextField } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -55,6 +48,10 @@ import {
   DealPanelTagsCell,
 } from '~/widgets/record-panel/DealPanelCells';
 import { DealPanelStage } from '~/widgets/record-panel/DealPanelStage';
+import {
+  DealPanelError,
+  DealPanelNotFound,
+} from '~/widgets/record-panel/DealPanelStates';
 
 const SCOPE = 'side-panel-deal';
 
@@ -331,8 +328,7 @@ const DealPanelOverview = ({ deal }: { deal: IDealDetail }) => {
 };
 
 export const DealPanelDetail = ({ dealId }: { dealId: string }) => {
-  const { t } = useTranslation('sales');
-  const { deal, loading } = useDealDetail(
+  const { deal, loading, error } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
   );
@@ -341,14 +337,12 @@ export const DealPanelDetail = ({ dealId }: { dealId: string }) => {
     return <Spinner containerClassName="py-12" />;
   }
 
+  if (error && !deal) {
+    return <DealPanelError error={error} />;
+  }
+
   if (!deal) {
-    return (
-      <Empty className="py-12">
-        <Empty.Header>
-          <Empty.Title>{t('deal-not-found')}</Empty.Title>
-        </Empty.Header>
-      </Empty>
-    );
+    return <DealPanelNotFound />;
   }
 
   return (

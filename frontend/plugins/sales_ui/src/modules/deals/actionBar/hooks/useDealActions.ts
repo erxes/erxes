@@ -28,7 +28,7 @@ export const useDealActions = ({
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
   const panelDealId = useDealIdOverride();
-  const { close: closePanel } = useSidePanel();
+  const { back: backPanel, canGoBack, close: closePanel } = useSidePanel();
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
@@ -91,9 +91,13 @@ export const useDealActions = ({
       dealIds.map((id) => removeDeals({ variables: { _id: id } })),
     );
     const removedDealIds = new Set(
-      dealIds.filter(
-        (_id, index) => removalResults[index].status === 'fulfilled',
-      ),
+      dealIds.filter((_id, index) => {
+        const result = removalResults[index];
+
+        return (
+          result.status === 'fulfilled' && !!result.value.data?.dealsRemove
+        );
+      }),
     );
 
     if (activeDealId && removedDealIds.has(activeDealId)) {
@@ -105,15 +109,11 @@ export const useDealActions = ({
     }
 
     if (panelDealId && removedDealIds.has(panelDealId)) {
-      closePanel();
-    }
-
-    const failedRemoval = removalResults.find(
-      (result) => result.status === 'rejected',
-    );
-
-    if (failedRemoval?.status === 'rejected') {
-      throw failedRemoval.reason;
+      if (canGoBack) {
+        backPanel();
+      } else {
+        closePanel();
+      }
     }
   };
 

@@ -35,6 +35,7 @@ type ProductFooterProps = {
   updateTotal: (data: DealProductData[]) => void;
   onAddProducts: (products: DealProduct[]) => void;
   onSave: () => void;
+  hasUnsavedChanges?: boolean;
 };
 
 const formatTotal = (total: TotalByCurrency) => {
@@ -100,6 +101,7 @@ export const ProductFooter = ({
   updateTotal,
   onAddProducts,
   onSave,
+  hasUnsavedChanges,
 }: ProductFooterProps) => {
   const [discountPercentDraft, setDiscountPercentDraft] = useState<
     Record<string, string>
@@ -384,6 +386,11 @@ export const ProductFooter = ({
               {t('add-products')}
             </Button>
           </SelectProductsBulk>
+          {hasUnsavedChanges && (
+            <span className="self-center text-xs text-muted-foreground">
+              {t('unsaved-changes')}
+            </span>
+          )}
           <Button onClick={onSave} className="flex-1 @2xl:flex-none">
             <IconDeviceFloppy size={16} />
             {t('save')}

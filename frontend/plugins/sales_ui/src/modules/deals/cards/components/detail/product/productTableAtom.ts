@@ -1,5 +1,6 @@
 import type { DealProductData } from '@/deals/utils/dealJson';
 import { atom } from 'jotai';
+import { atomFamily } from 'jotai/utils';
 
 import { ProductDataWithDiscountInfos } from './utils/discountInfos';
 
@@ -22,3 +23,7 @@ export interface ProductRowActions {
 }
 
 export const productRowActionsAtom = atom<ProductRowActions | null>(null);
+
+export const dealProductsDraftAtomFamily = atomFamily((_dealId: string) =>
+  atom<DealProductData[] | null>(null),
+);
