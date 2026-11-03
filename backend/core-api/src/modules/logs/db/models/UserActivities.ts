@@ -19,8 +19,7 @@ export interface IUserActivityDay {
   minutes: number;
 }
 
-export interface IUserActivitiesModel
-  extends Model<IUserActivityDailyDocument> {
+export interface IUserActivitiesModel extends Model<IUserActivityDailyDocument> {
   getActivitySummary(
     userId: string,
     days: number,
