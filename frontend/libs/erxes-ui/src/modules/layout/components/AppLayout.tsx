@@ -28,11 +28,13 @@ const APP_LAYOUT_MIN_WIDTH = 180;
 const APP_LAYOUT_MAX_WIDTH = 480;
 const APP_LAYOUT_KEYBOARD_STEP = 16;
 
+/** Persists the sidebar visibility separately for each application layout. */
 const createOpenAtom = (id: string) =>
   atomWithStorage<boolean>(`app-layout:${id}:open`, true, undefined, {
     getOnInit: true,
   });
 
+/** Persists a custom sidebar width, with null selecting the default width. */
 const createWidthAtom = (id: string) =>
   atomWithStorage<number | null>(`app-layout:${id}:width`, null, undefined, {
     getOnInit: true,
@@ -47,6 +49,7 @@ type TAppLayoutAtoms = {
 
 const appLayoutAtoms = new Map<string, TAppLayoutAtoms>();
 
+/** Reuses the same persisted atoms for every instance of an application layout. */
 const getAppLayoutAtoms = (id: string) => {
   const existing = appLayoutAtoms.get(id);
 
@@ -64,11 +67,13 @@ const getAppLayoutAtoms = (id: string) => {
   return atoms;
 };
 
+/** Keeps a resized pane within its configured width limits. */
 const clampWidth = (value: number) =>
   Math.round(
     Math.min(APP_LAYOUT_MAX_WIDTH, Math.max(APP_LAYOUT_MIN_WIDTH, value)),
   );
 
+/** Resizes the application sidebar with pointer capture or keyboard steps. */
 const AppLayoutResizeHandle = ({
   panelRef,
   onResize,
@@ -82,6 +87,7 @@ const AppLayoutResizeHandle = ({
 }) => {
   const drag = useRef<{ startX: number; startWidth: number } | null>(null);
 
+  /** Ends the captured pointer drag and restores the sidebar resizing state. */
   const stopDrag = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (!drag.current) {
       return;
@@ -152,6 +158,7 @@ const AppLayoutResizeHandle = ({
   );
 };
 
+/** Keeps the sidebar toggle accessible when the navigation pane is hidden. */
 const AppLayoutFloatingButton = ({
   label,
   icon,
@@ -217,6 +224,7 @@ export const AppLayoutFooterLink = ({
 
 const APP_LAYOUT_PAGE_ENTER: Keyframe[] = [{ opacity: 0.4 }, { opacity: 1 }];
 
+/** Groups nested routes by application and page for page-entry animations. */
 const getPageKey = (pathname: string) =>
   pathname.split('/').filter(Boolean).slice(0, 2).join('/');
 
@@ -231,7 +239,7 @@ const AppLayoutPage = ({ children }: { children: ReactNode }) => {
     const page = pageRef.current;
 
     if (previousKey.current === pageKey) {
-      return;
+      return undefined;
     }
 
     previousKey.current = pageKey;
@@ -240,7 +248,7 @@ const AppLayoutPage = ({ children }: { children: ReactNode }) => {
       !page?.animate ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      return;
+      return undefined;
     }
 
     const animation = page.animate(APP_LAYOUT_PAGE_ENTER, {
@@ -261,6 +269,34 @@ const AppLayoutPage = ({ children }: { children: ReactNode }) => {
   );
 };
 
+/** Keeps the desktop sidebar title and collapse action in a single header row. */
+const AppLayoutSidebarHeader = ({
+  title,
+  onCollapse,
+}: {
+  title?: ReactNode;
+  onCollapse: () => void;
+}) => (
+  <div className="flex h-10 shrink-0 items-center px-2">
+    <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
+      {title}
+    </div>
+    <Button
+      aria-expanded
+      aria-label="Collapse sidebar"
+      className="size-8 shrink-0 rounded-md"
+      size="icon"
+      title="Collapse sidebar"
+      type="button"
+      variant="ghost"
+      onClick={onCollapse}
+    >
+      <IconLayoutSidebarLeftCollapse />
+    </Button>
+  </div>
+);
+
+/** Renders the persisted desktop sidebar beside the application page slot. */
 const AppLayoutDesktop = ({
   atoms,
   children,
@@ -303,23 +339,10 @@ const AppLayoutDesktop = ({
           className="flex h-full flex-col"
           style={{ minWidth: currentWidth }}
         >
-          <div className="flex h-10 shrink-0 items-center px-2">
-            <div className="min-w-0 flex-1 truncate px-2 text-sm font-medium">
-              {title}
-            </div>
-            <Button
-              aria-expanded
-              aria-label="Collapse sidebar"
-              className="size-8 shrink-0 rounded-md"
-              size="icon"
-              title="Collapse sidebar"
-              type="button"
-              variant="ghost"
-              onClick={() => setOpen(false)}
-            >
-              <IconLayoutSidebarLeftCollapse />
-            </Button>
-          </div>
+          <AppLayoutSidebarHeader
+            title={title}
+            onCollapse={() => setOpen(false)}
+          />
           <div
             data-navigation-context
             className="styled-scroll min-h-0 flex-1 overflow-x-hidden overflow-y-auto pb-1"
@@ -351,6 +374,7 @@ const AppLayoutDesktop = ({
   );
 };
 
+/** Renders mobile navigation in the shared off-canvas sidebar. */
 const AppLayoutMobile = ({
   children,
   footer,
@@ -390,6 +414,7 @@ const AppLayoutMobile = ({
   );
 };
 
+/** Selects the application layout for the current sidebar breakpoint. */
 const AppLayoutBody = (props: {
   atoms: TAppLayoutAtoms;
   children: ReactNode;

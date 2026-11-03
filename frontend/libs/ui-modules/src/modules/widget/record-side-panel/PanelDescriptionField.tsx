@@ -21,6 +21,7 @@ export const PanelDescriptionField = ({
   const latest = useRef(value);
   const saved = useRef(value);
 
+  /** Saves a changed description when its editor loses focus. */
   const handleBlur = (event: React.FocusEvent<HTMLDivElement>) => {
     if (event.currentTarget.contains(event.relatedTarget as Node | null)) {
       return;

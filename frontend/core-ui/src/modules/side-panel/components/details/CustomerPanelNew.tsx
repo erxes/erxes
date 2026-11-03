@@ -69,8 +69,10 @@ export const CustomerPanelNew = () => {
   });
   const { errors } = form.formState;
 
+  /** Returns to the previous record or closes a top-level unsaved draft. */
   const cancel = () => (canGoBack ? back() : close());
 
+  /** Creates the contact, invalidates its list, and replaces the draft after success. */
   const save = (values: ICustomerFormValues) =>
     customersAdd({
       variables: {
@@ -104,7 +106,8 @@ export const CustomerPanelNew = () => {
     return <Spinner containerClassName="py-12" />;
   }
 
-  const textRow = (code: TTextCode, label: string, autoFocus = false) =>
+  /** Renders a registered text input with its field label and validation error. */
+  const textRow = (code: TTextCode, label: string) =>
     rules.isShown(code) && (
       <PanelFormRow
         key={code}
@@ -114,7 +117,6 @@ export const CustomerPanelNew = () => {
       >
         <Input
           {...form.register(code)}
-          autoFocus={autoFocus}
           placeholder={label}
           className={PANEL_INPUT_CLASS_NAME}
         />
@@ -136,7 +138,7 @@ export const CustomerPanelNew = () => {
               : addT('create', 'Create customer')
           }
         >
-          {textRow('firstName', addT('first-name', 'First name'), true)}
+          {textRow('firstName', addT('first-name', 'First name'))}
           {textRow('middleName', addT('middle-name', 'Middle name'))}
           {textRow('lastName', addT('last-name', 'Last name'))}
           {textRow('primaryEmail', t('email', 'Email'))}

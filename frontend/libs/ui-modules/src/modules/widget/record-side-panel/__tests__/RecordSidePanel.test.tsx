@@ -54,7 +54,7 @@ const paint = () =>
   act(() => {
     const pending = [...frames.values()];
     frames.clear();
-    pending.forEach((callback) => callback(0));
+    pending.forEach((renderFrame) => renderFrame(0));
   });
 const pointer = (
   target: Element | Document,

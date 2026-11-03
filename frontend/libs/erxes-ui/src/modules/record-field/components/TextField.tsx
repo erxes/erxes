@@ -1,10 +1,6 @@
-import {
-  ButtonProps,
-  Input,
-  TextOverflowTooltip,
-  Popover,
-} from 'erxes-ui/components';
+import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import React, { useEffect, useState } from 'react';
 
@@ -51,6 +47,7 @@ export const TextField = React.forwardRef<
       }
     }, [isOpen, value]);
 
+    /** Saves a changed text value and closes the inline editor. */
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
       if (editingValue === value) {
@@ -61,6 +58,7 @@ export const TextField = React.forwardRef<
       setIsOpen(false);
     };
 
+    /** Submits on Enter and discards the local edit on Escape. */
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -73,7 +71,8 @@ export const TextField = React.forwardRef<
     };
 
     return (
-      <Popover
+      <PopoverScoped
+        scope={scope}
         open={isOpen}
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
@@ -101,14 +100,13 @@ export const TextField = React.forwardRef<
                 onValueChange?.(e.target.value);
               }}
               onKeyDown={handleKeyDown}
-              autoFocus
             />
             <button type="submit" className="sr-only">
               Save
             </button>
           </form>
         </RecordTableInlineCell.Content>
-      </Popover>
+      </PopoverScoped>
     );
   },
 );

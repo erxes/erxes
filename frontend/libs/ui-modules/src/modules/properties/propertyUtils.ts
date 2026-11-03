@@ -5,6 +5,7 @@ import {
   IPropertyRow,
 } from './types/fieldsTypes';
 
+/** Builds a group-only patch or a complete property replacement for the mutation contract. */
 export const getPropertyRowsUpdate = (
   propertiesData: Record<string, unknown>,
   groupKey: string,

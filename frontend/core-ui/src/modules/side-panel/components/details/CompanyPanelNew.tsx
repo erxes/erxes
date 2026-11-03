@@ -11,7 +11,7 @@ import {
   toast,
 } from 'erxes-ui';
 import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 import { useDebounce } from 'use-debounce';
@@ -54,12 +54,37 @@ const companySchema = z
     size: z.string().optional(),
     description: z.string().optional(),
   })
-  .refine((data) => !!data.primaryName?.trim() || !!data.code?.trim(), {
+  .refine((data) => Boolean(data.primaryName?.trim() || data.code?.trim()), {
     message: 'Company name or code is required',
     path: ['primaryName'],
   });
 
 type TCompanyForm = z.infer<typeof companySchema>;
+
+/** Edits the draft description using the surrounding company form context. */
+const CompanyDescriptionInput = () => {
+  const { control } = useFormContext<TCompanyForm>();
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  return (
+    <div className="flex flex-col gap-1.5 pt-2">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+        <IconAlignLeft className="size-3.5" aria-hidden="true" />
+        {t('description', 'Description')}
+      </span>
+      <Form.Field
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <Editor
+            initialContent={field.value}
+            onChange={field.onChange}
+            scope="side-panel-company-new.description"
+          />
+        )}
+      />
+    </div>
+  );
+};
 
 /**
  * A company not created yet, drawn like its Detail tab: nothing saved until
@@ -126,15 +151,14 @@ export const CompanyPanelNew = () => {
       },
     });
 
+  /** Renders a registered text input with its field label and validation error. */
   const textRow = (
     name: 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website',
     label: string,
-    autoFocus = false,
   ) => (
     <PanelFormRow label={label} error={errors[name]?.message}>
       <Input
         {...form.register(name)}
-        autoFocus={autoFocus}
         placeholder={label}
         className={PANEL_INPUT_CLASS_NAME}
       />
@@ -152,7 +176,7 @@ export const CompanyPanelNew = () => {
           saving={loading}
           saveLabel={t('add._', 'Add company')}
         >
-          {textRow('primaryName', t('field.primaryName', 'Name'), true)}
+          {textRow('primaryName', t('field.primaryName', 'Name'))}
           {textRow('code', t('code', 'Code'))}
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
@@ -255,23 +279,7 @@ export const CompanyPanelNew = () => {
               className={PANEL_INPUT_CLASS_NAME}
             />
           </PanelFormRow>
-          <div className="flex flex-col gap-1.5 pt-2">
-            <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
-              <IconAlignLeft className="size-3.5" aria-hidden="true" />
-              {t('description', 'Description')}
-            </span>
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="side-panel-company-new.description"
-                />
-              )}
-            />
-          </div>
+          <CompanyDescriptionInput />
         </PanelFormLayout>
       </form>
     </Form>

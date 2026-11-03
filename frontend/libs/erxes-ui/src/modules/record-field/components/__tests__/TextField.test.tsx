@@ -2,9 +2,11 @@
 import { render, screen } from '@testing-library/react';
 import { TextField } from '../TextField';
 jest.mock('erxes-ui/components', () => ({
-  Popover: ({ children }: React.PropsWithChildren) => <>{children}</>,
   Input: (props: React.ComponentProps<'input'>) => <input {...props} />,
   TextOverflowTooltip: ({ value }: { value?: string }) => <span>{value}</span>,
+}));
+jest.mock('erxes-ui/modules/hotkey', () => ({
+  PopoverScoped: ({ children }: React.PropsWithChildren) => children,
 }));
 jest.mock('erxes-ui/modules/record-table', () => ({
   RecordTableInlineCell: {

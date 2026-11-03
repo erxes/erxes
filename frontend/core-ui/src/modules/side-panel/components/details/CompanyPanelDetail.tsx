@@ -36,7 +36,11 @@ const SCOPE = 'side-panel-company';
 type TPanelCompany = TCompany & { isSubscribed?: string };
 
 type TTextCode =
-  'primaryName' | 'code' | 'website' | 'location' | 'businessType';
+  | 'primaryName'
+  | 'code'
+  | 'website'
+  | 'location'
+  | 'businessType';
 
 /** Edits one company text field using the existing inline mutation flow. */
 const CompanyTextField = ({
@@ -70,6 +74,7 @@ const CompanyTextField = ({
   );
 };
 
+/** Edits company fields through the contact mutation hooks. */
 const CompanyFields = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { companyDetail, loading } = useCompanyDetailWithQuery();

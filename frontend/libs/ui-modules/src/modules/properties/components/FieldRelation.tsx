@@ -18,6 +18,7 @@ type RelationSelectProps = {
 
 const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
 
+/** Uses the shared member selector for core user relations, including inactive saved values. */
 const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
   inCell ? (
     <SelectMember.InlineCell {...props} {...COMMON_PROPS} showInactive />

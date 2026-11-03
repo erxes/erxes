@@ -119,6 +119,23 @@ export const buildRecordPanelTabs = ({
     contactType === 'core:customer'
       ? allEntries.find((entry) => entry.key === 'frontline.conversation')
       : undefined;
+  const relationsContent = contactType ? (
+    <ContactOverview
+      contactType={contactType}
+      contentId={record.contentId}
+      access={access}
+      entries={overviewEntries}
+      customize={{
+        entries: allEntries,
+        tabs: layout.tabs,
+        onReorder,
+        onToggleTab,
+      }}
+      onUnavailable={onUnavailable}
+    />
+  ) : (
+    <SidePanelRelations tabs={moreTabs} />
+  );
 
   const tabs: IRecordSidePanelTab[] = [
     ...(views
@@ -166,40 +183,22 @@ export const buildRecordPanelTabs = ({
             value: RELATIONS_TAB,
             label: labels.relations,
             icon: IconLink,
-            content: contactType ? (
-              <ContactOverview
-                contactType={contactType}
-                contentId={record.contentId}
-                access={access}
-                entries={overviewEntries}
-                customize={{
-                  entries: allEntries,
-                  tabs: layout.tabs,
-                  onReorder,
-                  onToggleTab,
-                }}
-                onUnavailable={onUnavailable}
-              />
-            ) : (
-              <SidePanelRelations tabs={moreTabs} />
-            ),
+            content: relationsContent,
           },
         ]
       : []),
-    ...[
-      {
-        value: ACTIVITY_TAB,
-        label: labels.activity,
-        icon: IconHistory,
-        content: (
-          <RecordPanelActivity
-            record={record}
-            pluginName={pluginName}
-            noteRef={noteRef}
-          />
-        ),
-      },
-    ],
+    {
+      value: ACTIVITY_TAB,
+      label: labels.activity,
+      icon: IconHistory,
+      content: (
+        <RecordPanelActivity
+          record={record}
+          pluginName={pluginName}
+          noteRef={noteRef}
+        />
+      ),
+    },
   ];
 
   return tabs;

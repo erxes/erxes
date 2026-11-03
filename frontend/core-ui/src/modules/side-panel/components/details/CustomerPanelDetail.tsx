@@ -51,6 +51,7 @@ type TTextCode = 'firstName' | 'middleName' | 'lastName' | 'code';
 const toCellPhoneStatus = (status: ICustomerDetail['phoneValidationStatus']) =>
   status === 'valid' || status === 'invalid' ? status : undefined;
 
+/** Saves one customer name or code field without submitting the other fields. */
 const CustomerTextField = ({
   customer,
   code,
@@ -89,6 +90,7 @@ const CustomerTextField = ({
   );
 };
 
+/** Edits the customer pronoun and closes its picker after selection. */
 const CustomerSexField = ({ customer }: { customer: ICustomerDetail }) => {
   const { customerEdit } = useCustomerEdit();
   const [open, setOpen] = useState(false);
@@ -113,6 +115,7 @@ const CustomerSexField = ({ customer }: { customer: ICustomerDetail }) => {
   );
 };
 
+/** Saves a changed birth date when the date picker closes. */
 const CustomerBirthDateField = ({
   customer,
 }: {
@@ -154,6 +157,7 @@ const CustomerBirthDateField = ({
   );
 };
 
+/** Switches the contact between lead and customer states. */
 const CustomerStateField = ({ customer }: { customer: ICustomerDetail }) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { changeCustomerState } = useChangeCustomerState();
@@ -174,6 +178,7 @@ const CustomerStateField = ({ customer }: { customer: ICustomerDetail }) => {
   );
 };
 
+/** Maps the subscription switch to the stored Yes/No values. */
 const CustomerSubscribedField = ({
   customer,
 }: {
@@ -199,6 +204,7 @@ const CustomerSubscribedField = ({
   );
 };
 
+/** Saves the customer description through the shared panel editor. */
 const CustomerDescriptionField = ({
   customer,
 }: {
