@@ -59,19 +59,30 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+const SideAmountCell = ({
+  row,
+  cellSide,
+}: {
+  row: Row<ITrRecord>;
+  cellSide: string;
+}) => {
   const { details, side } = row.original;
   const { amount } = details ?? {};
 
-  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
+  if (!side || !TR_SIDES.ALL.includes(side)) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+
+  return <AmountCell value={side === cellSide ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.DEBIT} />
+);
 
-  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
-};
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.CREDIT} />
+);
 
 const AmountItemCell = ({
   row,
@@ -188,7 +199,7 @@ const ProductCell = ({ row }: { row: Row<ITrRecord> }) => {
   );
 };
 
-const TransactionMoreActions = ({
+const TrRecordActions = ({
   onEdit,
   onDelete,
 }: {
@@ -239,7 +250,7 @@ const TransactionMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <TransactionMoreActions onEdit={handleEdit} onDelete={handleDelete} />
+        <TrRecordActions onEdit={handleEdit} onDelete={handleDelete} />
       </Combobox.Content>
     </Popover>
   );

@@ -9,6 +9,7 @@ export * from './mongo';
 export * from './mq-worker';
 export * from './random';
 export * from './redis';
+export * from './userActivity';
 export * from './saas';
 export * from './sanitize';
 export * from './service-discovery';

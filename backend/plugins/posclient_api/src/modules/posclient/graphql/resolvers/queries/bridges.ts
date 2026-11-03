@@ -410,8 +410,8 @@ const bridgesQueries = {
       },
     );
 
-    // Pricing appends a bonus as a new line; one already in the cart is
-    // discounted in place and shows up in `lines` instead.
+    // Pricing appends each bonus as a separate zero-price line, including
+    // when the same product is already in the cart.
     const bonusItems = doc.items.filter(({ _id }) => !originalByKey.has(_id));
     const products = bonusItems.length
       ? await models.Products.find(

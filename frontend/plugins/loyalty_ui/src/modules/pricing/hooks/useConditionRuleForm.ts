@@ -1,10 +1,13 @@
+import { priceAdjustFactorSchema } from '@/pricing/schemas/priceAdjustFactorSchema';
+import { type TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { IPricingConditionRule } from '@/pricing/types';
 
-const conditionRuleSchema = (takenCodes: string[]) =>
+const conditionRuleSchema = (takenCodes: string[], t: TFunction) =>
   z
     .object({
       conditionCode: z.string().min(1, 'Choose a condition'),
@@ -14,10 +17,7 @@ const conditionRuleSchema = (takenCodes: string[]) =>
         .min(0, 'At least 0'),
       discountBonusProduct: z.string().nullable().optional(),
       priceAdjustType: z.string(),
-      priceAdjustFactor: z
-        .number({ invalid_type_error: 'Enter a value' })
-        .int('Whole numbers only')
-        .min(0, 'At least 0'),
+      priceAdjustFactor: priceAdjustFactorSchema(t),
     })
     .superRefine((rule, ctx) => {
       if (takenCodes.includes(rule.conditionCode)) {
@@ -63,8 +63,9 @@ export const useConditionRuleForm = ({
   rule: IPricingConditionRule | null;
   takenCodes: string[];
 }) => {
+  const { t } = useTranslation('loyalty');
   const form = useForm<IPricingConditionRule>({
-    resolver: zodResolver(conditionRuleSchema(takenCodes)),
+    resolver: zodResolver(conditionRuleSchema(takenCodes, t)),
     defaultValues: EMPTY_RULE,
   });
 

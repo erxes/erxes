@@ -51,6 +51,11 @@ export const useTransactionsUpdate = (
         },
       ],
       awaitRefetchQueries: true,
+      update: (cache, result, updateOptions) => {
+        options?.update?.(cache, result, updateOptions);
+        cache.evict({ fieldName: 'accTrRecordsMain' });
+        cache.gc();
+      },
     });
   };
 
