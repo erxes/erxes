@@ -339,8 +339,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-      ? DETAIL_TAB
-      : ACTIVITY_TAB;
+        ? DETAIL_TAB
+        : ACTIVITY_TAB;
 
   return (
     <>
@@ -518,8 +518,8 @@ export const SidePanelLayout = () => {
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const pageExpanded = Boolean(
     expanded &&
-      record &&
-      ['core:customer', 'core:company'].includes(record.contentType),
+    record &&
+    ['core:customer', 'core:company'].includes(record.contentType),
   );
 
   /** Selects a retained record stack or a recoverable empty state. */
@@ -572,8 +572,8 @@ export const SidePanelLayout = () => {
             onExpandedChange={setExpanded}
             width={
               moduleEntry && path
-                ? moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0)
+                ? (moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0))
                 : width
             }
             maxWidth={moduleEntry?.maxWidth}
