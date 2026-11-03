@@ -11,7 +11,8 @@ import { IPageFormData } from '~/modules/cms/pages/types/pageTypes';
 interface FormState {
   form: UseFormReturn<IPageFormData>;
   onSubmit: (data: IPageFormData) => void;
-  getSaving: () => boolean;
+  saving: boolean;
+  isSaveBlocked: boolean;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -52,7 +53,8 @@ export const PagesDetailPage = ({
           <PageHeaderActions
             form={formState.form}
             onSubmit={formState.onSubmit}
-            getSaving={formState.getSaving}
+            saving={formState.saving}
+            isSaveBlocked={formState.isSaveBlocked}
           />
         )}
       </PagesHeader>

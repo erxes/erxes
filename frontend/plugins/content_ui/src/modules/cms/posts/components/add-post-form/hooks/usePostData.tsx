@@ -1,6 +1,7 @@
 import { gql, useQuery } from '@apollo/client';
 import { useAtomValue } from 'jotai';
 import { cmsLanguageAtom } from '~/modules/cms/shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage } from '~/modules/cms/shared/utils';
 import { CMS_CUSTOM_FIELD_GROUPS } from '../../../../custom-fields/graphql/queries';
 import { CONTENT_CMS_LIST } from '../../../../graphql/queries';
 import type { FieldGroup } from '../CustomFieldsSection';
@@ -172,7 +173,7 @@ export const usePostData = (
   );
 
   const availableLanguages = cmsConfig?.languages || [];
-  const defaultLanguage = cmsConfig?.language || 'en';
+  const defaultLanguage = getCmsDefaultLanguage(cmsConfig);
   const postUrlField = normalizePostUrlField(cmsConfig?.postUrlField);
 
   const fieldGroups = (

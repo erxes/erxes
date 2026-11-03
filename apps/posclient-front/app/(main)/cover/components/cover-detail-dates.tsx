@@ -7,7 +7,7 @@ import {
   terminalFetchBusyAtom,
 } from "@/store/cover.store"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { format, setHours, setMinutes } from "date-fns"
+import { format } from "date-fns"
 import { useAtom, useAtomValue } from "jotai"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
@@ -25,15 +25,9 @@ import {
 import { Input } from "@/components/ui/input"
 
 import { useCoverAmounts } from "../hooks/useCoverAmounts"
+import { createCoverDatesSchema, getCoverEndDate } from "../utils/coverDates"
 
-const FormSchema = z.object({
-  endDate: z.date({
-    required_error: "Хаалт дуусах огноог сонгоно уу",
-  }),
-  time: z.string({
-    required_error: "Хаалт дуусах цагийг сонгоно уу",
-  }),
-})
+const FormSchema = createCoverDatesSchema()
 
 export const Dates = () => {
   const beginDate = useAtomValue(beginDateAtom)
@@ -52,10 +46,7 @@ export const Dates = () => {
   })
 
   const onSubmit = ({ time, endDate }: z.infer<typeof FormSchema>) => {
-    const end = setMinutes(
-      setHours(endDate, Number(time.split(":")[0])),
-      Number(time.split(":")[1])
-    )
+    const end = getCoverEndDate(endDate, time)
     setEndDate(end)
     getCoverAmounts({
       variables: {
@@ -113,7 +104,6 @@ export const Dates = () => {
                     type="time"
                     className="w-[200px]"
                     min={"00:00"}
-                    max={format(new Date(), "HH:mm")}
                   />
                 </FormControl>
                 <FormMessage />

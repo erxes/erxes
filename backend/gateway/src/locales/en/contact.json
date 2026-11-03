@@ -72,6 +72,8 @@
     "deleted-success": "Customers deleted successfully",
     "merged-success": "Customers merged successfully",
     "merge-tooltip": "You can only merge 2 contacts",
+    "merge-notice": "{{first}} and {{second}} will be replaced by one new customer with the values under Merge. Their linked records move to the new customer. This can't be undone.",
+    "action-merge-customers": "Merge {{mergeCount}} customers",
     "not-found": "Customer not found",
     "not-found-description": "There seems to be no customer with this ID.",
     "selected": "{{selectedCount}} selected"
