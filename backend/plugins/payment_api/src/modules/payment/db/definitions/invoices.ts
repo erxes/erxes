@@ -41,7 +41,7 @@ export const invoiceSchema = schemaWrapper(
 );
 
 invoiceSchema.index({ invoiceNumber: 1 });
-
+invoiceSchema.index({ contentType: 1, contentTypeId: 1, status: 1, createdAt: -1 })
 invoiceSchema.pre<IInvoiceDocument>('save', async function (next) {
   try {
     if (!this.invoiceNumber) {
