@@ -53,7 +53,9 @@ export const useTransactionsRemove = (
         },
       ],
       awaitRefetchQueries: true,
-      update: () => {
+      update: (cache) => {
+        cache.evict({ fieldName: 'accTrRecordsMain' });
+        cache.gc();
         navigate(returnPath);
       },
     });
