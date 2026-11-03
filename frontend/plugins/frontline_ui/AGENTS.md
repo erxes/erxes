@@ -115,6 +115,12 @@
   only when `useCanManageChannels` allows the channel: owner, or the
   channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
   `removePipeline` enforce.
+- The tickets table has a read-only **Status changed date** column, shown as a
+  relative time with the exact time on hover, and the ticket detail has the same
+  date as a locked chip. The update mutation returns `statusChangedDate`, so both
+  change as soon as a status moves. A ticket that never moved shows its creation
+  moment, because the API defaults `statusChangedDate` to it; a missing value
+  shows "Not specified".
 - The new-ticket sheet renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
   (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
