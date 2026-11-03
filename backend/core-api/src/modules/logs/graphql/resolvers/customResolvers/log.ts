@@ -33,11 +33,15 @@ export default {
       null
     );
   },
+  docId({ docId }: ILogDocument) {
+    return docId ? sanitizeLogValue(String(docId), 'docId') : null;
+  },
   recordName(log: ILogDocument) {
     const { prevDocument, fullDocument, result } =
       (log as { payload?: LogPayload }).payload || {};
-    const record = prevDocument || fullDocument || result;
-    const name = record?.name || record?.title;
+    const name = [prevDocument, fullDocument, result]
+      .map((record) => record?.name || record?.title)
+      .find((value) => typeof value === 'string' && value);
 
     return typeof name === 'string' ? sanitizeLogValue(name, 'name') : null;
   },
