@@ -1,4 +1,4 @@
-/** Built-in application skill; included in each run so automation requests always follow it. */
+/** Built-in skill; the model loads it through Mastra's skill tool for automation requests. */
 export const AUTOMATION_AUTHORING_SKILL = {
   name: 'author-automation',
   description:

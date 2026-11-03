@@ -20,8 +20,9 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   result. Semantic HTML, responsive CSS and inline SVG render inline;
   scripts/external resources are unavailable. Record reference tokens belong
   verbatim in HTML text nodes, never attributes, links, styles or code;
-- `skills/automationAuthoring.ts` is the built-in automation skill, also composed
-  into every run. It authors only through the automations authoring contract
+- `skills/automationAuthoring.ts` is the built-in automation skill
+  (`author-automation`), mounted through the agent's `skills` callback with
+  `createSkill` and loaded on demand. It authors only through the automations authoring contract
   (`automationNodeCatalog` → `automationNodeSchema` → `automationNodeOutput` →
   `automationValidate` → `automationsAdd`/`automationsEdit`) and always saves
   drafts; activation stays the user's act. A trigger's conditions are written
@@ -42,8 +43,8 @@ plugin; ported from the former private `erxes-agent` service). It provides:
   and the reply ends with the saved automation's reference. Node schemas naming
   credential fields (webhook `auth`) are refused by the credential policy, so
   such nodes are left for the builder;
-- `skills/reportCreation.ts` is the built-in report skill, composed into every
-  run's instructions by `buildAgentsInstructions`. Reports are dashboard-first
+- `skills/reportCreation.ts` is the built-in report skill (`create-report`),
+  mounted the same way and loaded on demand. Reports are dashboard-first
   static HTML: one-line scope, KPI row, inline SVG or CSS bar charts, tables,
   then two to four bullet takeaways; one-sentence captions. The agent computes
   every number from verified tool data (code mode when available). What-if

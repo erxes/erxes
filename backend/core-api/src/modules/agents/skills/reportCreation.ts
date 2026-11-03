@@ -1,4 +1,4 @@
-/** Built-in application skill; included in each run so report requests always use it. */
+/** Built-in skill; the model loads it through Mastra's skill tool for report requests. */
 export const REPORT_CREATION_SKILL = {
   name: 'create-report',
   description:

@@ -261,12 +261,12 @@ describe('what every run mounts', () => {
     requestContext: contextWith({ codeModeEnabled }),
   });
 
-  it('composes the base prompt, the report skill and today’s date, adding code mode only when given', () => {
+  it('composes the base prompt and today’s date, adding code mode only when given', () => {
     const now = new Date('2026-10-26T09:30:00.000Z');
     const plain = buildAgentsInstructions(now);
 
     expect(plain.startsWith(DEFAULT_INSTRUCTIONS)).toBe(true);
-    expect(plain).toContain(REPORT_CREATION_SKILL.instructions);
+    expect(plain).not.toContain(REPORT_CREATION_SKILL.instructions);
     expect(plain).toContain('2026-10-26');
     expect(plain).not.toContain('CODE MODE ADDITION');
     expect(buildAgentsInstructions(now, 'CODE MODE ADDITION')).toContain(
@@ -286,14 +286,20 @@ describe('what every run mounts', () => {
     );
   });
 
-  it('mounts the report skill in every run and code-mode instructions only when enabled', async () => {
+  it('offers the report and automation skills on demand and code-mode instructions only when enabled', async () => {
     const config = await buildRunConfig();
     const { instructions } = await buildCodeModeAddition();
     const plain = await config.instructions(runWith(false));
     const withCode = await config.instructions(runWith(true));
+    const skills = await config.skills(runWith(false));
 
-    expect(plain).toContain(REPORT_CREATION_SKILL.instructions);
-    expect(withCode).toContain(REPORT_CREATION_SKILL.instructions);
+    expect(skills).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: 'create-report' }),
+        expect.objectContaining({ name: 'author-automation' }),
+      ]),
+    );
+    expect(plain).not.toContain(REPORT_CREATION_SKILL.instructions);
     expect(plain).not.toContain(instructions);
     expect(withCode).toContain(instructions);
   });
