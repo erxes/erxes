@@ -6,7 +6,6 @@ import {
   Filter,
   Form,
   Popover,
-  useFilterContext,
   useQueryState,
 } from 'erxes-ui';
 import React, { createContext, useContext, useState } from 'react';
@@ -53,6 +52,11 @@ export const SelectActionsProvider = ({
   const [actions, setActions] = useState<IPermissionAction[]>([]);
   const isSingleMode = mode === 'single';
 
+  let actionsNames: string[] = [];
+  if (value) {
+    actionsNames = Array.isArray(value) ? value : [value];
+  }
+
   const onSelect = (action: IPermissionAction) => {
     if (!action) {
       return;
@@ -78,7 +82,7 @@ export const SelectActionsProvider = ({
       value={{
         actions,
         setActions,
-        actionsNames: !value ? [] : Array.isArray(value) ? value : [value],
+        actionsNames,
         onSelect,
         loading: false,
         error: null,
