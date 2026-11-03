@@ -6,6 +6,7 @@ import {
 import {
   IconAdjustmentsAlt,
   IconBolt,
+  IconBroadcast,
   IconBuilding,
   IconChessKnight,
   IconFile,
@@ -198,6 +199,11 @@ export const SETTINGS_PATH_DATA = (
       path: SettingsWorkspacePath.MessagePro,
     },
     {
+      name: t('broadcast-config', 'Broadcast config'),
+      icon: IconBroadcast,
+      path: SettingsWorkspacePath.Broadcast,
+    },
+    {
       name: t('agents', 'Agents'),
       icon: IconSparkles,
       path: SettingsWorkspacePath.Agent,
@@ -281,7 +287,10 @@ export const GET_SETTINGS_PATH_DATA = (
 export type TSettingSubPath = {
   name: string;
   path: string;
+  onClick?: () => void;
 };
+
+export const SETTINGS_INLINE_TYPES_LIMIT = 5;
 
 type TSettingSubNavigation = {
   name: string;
@@ -304,6 +313,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       {
         name: t('Permission groups'),
         path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
+      },
+      {
+        name: t('Activity'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamActivity}`,
       },
     ],
   },
@@ -342,6 +355,23 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       },
     ],
   },
+  [SettingsWorkspacePath.MailConfig]: {
+    name: sidebarT('mail-config'),
+    items: [
+      {
+        name: t('mail-config.view-sending'),
+        path: settingsPath(SettingsWorkspacePath.MailConfig),
+      },
+      {
+        name: t('mail-config.view-senders'),
+        path: `${settingsPath(SettingsWorkspacePath.MailConfig)}?view=senders`,
+      },
+      {
+        name: t('mail-config.view-template'),
+        path: `${settingsPath(SettingsWorkspacePath.MailConfig)}?view=template`,
+      },
+    ],
+  },
   [SettingsWorkspacePath.ImportExport]: {
     name: 'Import & Export',
     items: [
@@ -364,7 +394,7 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       { name: 'Appearance', path: `${settingsPath('agent')}/appearance` },
     ],
   },
-  // How staff sign in: second factor and the company directory
+  // How staff sign in: second factor, the company directory and erxes support
   [SettingsWorkspacePath.Security]: {
     name: sidebarT('security', 'Security'),
     items: [
@@ -375,6 +405,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
       {
         name: sidebarT('active-directory', 'Active Directory (LDAP)'),
         path: settingsPath(SettingsWorkspacePath.Ldap),
+      },
+      {
+        name: sidebarT('support-access', 'Support access'),
+        path: settingsPath(SettingsWorkspacePath.SupportAccess),
       },
     ],
   },

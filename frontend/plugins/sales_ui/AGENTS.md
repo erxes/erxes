@@ -54,6 +54,8 @@
 - Runs as the sales Module Federation remote.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
+- The deals list's bulk bar opens an "Actions" menu. Duplicate and Archive ask
+  for confirmation with the count when more than one deal is selected.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
 - "Score earn configuration" (`deals/loyaltyRules`, button beside Add
@@ -124,6 +126,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
+- The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
+  Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
+  and `expand-sidebar`.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
@@ -261,6 +266,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Data and State
 
+- The `salesItemId` URL key alone decides whether the deal sheet is open.
+  `SalesItemDetail` copies it into `dealDetailSheetState`, so browser Back and
+  Forward close and reopen the sheet. Its not-found and error states have a
+  Close button.
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
 - `DealIdProvider` (`src/modules/deals/context/DealIdContext.tsx`) names the
@@ -284,6 +293,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- The Sales Pipeline breadcrumb links to `/sales/deals` with the current
+  `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
+  pipeline with history `replace`, so Back can leave a bare `/sales/deals`.
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
   (ui-modules `getHostContacts`: the host itself when it is a contact, else
@@ -310,6 +322,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   plugin settings, `config.tsx` has no `settingsNavigation`, and there is
   no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Money and product text on board cards and column totals is `text-xs` (12 px)
+  or larger with `tabular-nums`. Column headings are `text-base`, the same size
+  as card titles.
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. `eslint.config.js` enforces this
   with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are

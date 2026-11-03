@@ -15,6 +15,11 @@ import {
   ITwoFactorModel,
   loadTwoFactorClass,
 } from '@/auth/db/models/TwoFactors';
+import { ISupportGrantDocument } from '@/auth/db/definitions/supportAccess';
+import {
+  ISupportGrantModel,
+  loadSupportGrantClass,
+} from '@/auth/db/models/SupportAccess';
 import {
   IOAuthClientAppModel,
   loadOAuthClientAppClass,
@@ -111,6 +116,7 @@ import {
   AiAgentDocument,
   aiAgentSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailAddressDocument,
@@ -390,6 +396,10 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import {
+  IUserActivitiesModel,
+  loadUserActivitiesClass,
+} from '@/logs/db/models/UserActivities';
 import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
 import {
   IAgentsConnectionModel,
@@ -457,6 +467,7 @@ export interface IModels {
 
   AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
+  UserActivities: IUserActivitiesModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -491,6 +502,7 @@ export interface IModels {
   LdapConfigs: ILdapConfigModel;
   AuthIdentities: IAuthIdentityModel;
   TwoFactors: ITwoFactorModel;
+  SupportGrants: ISupportGrantModel;
 
   AgentsConnection: IAgentsConnectionModel;
   AgentsSettings: IAgentsSettingsModel;
@@ -1005,6 +1017,11 @@ export const loadClasses = (
     loadTwoFactorClass(models, subdomain),
   );
 
+  models.SupportGrants = db.model<ISupportGrantDocument, ISupportGrantModel>(
+    'auth_support_grants',
+    loadSupportGrantClass(models, subdomain),
+  );
+
   // Per-user BYOK agents connection; one document per user per tenant.
   models.AgentsConnection = db.model<
     IAgentsConnectionsDocument,
@@ -1028,6 +1045,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    IUserActivitiesModel
+  >('user_activity_daily', loadUserActivitiesClass(models));
 
   return models;
 };

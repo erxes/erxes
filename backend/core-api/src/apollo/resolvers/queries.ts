@@ -3,6 +3,7 @@ import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
 import { ldapQueries } from '@/auth/graphql/resolvers/ldap';
 import { twoFactorQueries } from '@/auth/graphql/resolvers/twoFactor';
+import { supportAccessQueries } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
@@ -67,6 +68,7 @@ export const queries = {
   ...authQueries,
   ...ldapQueries,
   ...twoFactorQueries,
+  ...supportAccessQueries,
   ...oauthClientAppQueries,
   ...userQueries,
   ...tagQueries,

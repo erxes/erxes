@@ -1,3 +1,4 @@
+import { nanoid } from 'nanoid';
 import { IConfigDocument } from '~/modules/posclient/@types/configs';
 import { IOrderInput, IOrderItemInput } from '~/modules/posclient/@types/types';
 import { sendTRPCMessage } from 'erxes-api-shared/utils';
@@ -19,7 +20,7 @@ export const checkPricing = async (
   subdomain: string,
   doc: IOrderInput,
   config: IConfigDocument,
-) => {
+): Promise<IOrderInput> => {
   let pricing: PricingResponse = {};
 
   try {
@@ -87,32 +88,17 @@ export const checkPricing = async (
   }
 
   for (const bonusProductId of Object.keys(bonusProductsToAdd)) {
-    const orderIndex = doc.items.findIndex(
-      (docItem: IOrderItemInput) => docItem.productId === bonusProductId,
-    );
+    // Keep paid quantities and prices intact, even for the same product.
+    // Generated lines are rebuilt by prepareOrderDoc on every save.
+    const bonusProduct: IOrderItemInput = {
+      _id: nanoid(),
+      productId: bonusProductId,
+      unitPrice: 0,
+      count: bonusProductsToAdd[bonusProductId].count,
+      isPackage: true,
+    };
 
-    if (orderIndex === -1) {
-      const bonusProduct: IOrderItemInput = {
-        _id: bonusProductId,
-        productId: bonusProductId,
-        unitPrice: 0,
-        count: bonusProductsToAdd[bonusProductId].count,
-      };
-
-      doc.items.push(bonusProduct);
-    } else {
-      const item = doc.items[orderIndex];
-      item.unitPrice = item.unitPrice || 0;
-
-      item.bonusCount = bonusProductsToAdd[bonusProductId].count;
-
-      if ((item.bonusCount || 0) > item.count) {
-        item.count = item.bonusCount || 0;
-      }
-      item.unitPrice = Math.floor(
-        (item.unitPrice * (item.count - (item.bonusCount || 0))) / item.count,
-      );
-    }
+    doc.items.push(bonusProduct);
   }
 
   return doc;

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { IContext } from '~/connectionResolvers';
 import { CMS_POST_ACTIONS } from '~/meta/permissions';
 import { assertCmsAccessByClientPortal } from '../utils/cms-access';
+import { getCmsDefaultLanguage } from '../utils/common';
 import {
   assertCmsDocumentAccess,
   assertCmsLanguageAccess,
@@ -68,7 +69,7 @@ export async function requireSharePost(
     document: post,
   });
   if (
-    language !== (cms.language || 'en') &&
+    language !== (getCmsDefaultLanguage(cms) || 'en') &&
     !(await context.models.Translations.exists({
       objectId: post._id,
       type: 'post',

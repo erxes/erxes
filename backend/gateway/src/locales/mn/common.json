@@ -21,6 +21,7 @@
     "tab-shortcuts": "Табын товчлолууд",
     "toggle-panel": "Навигацийн самбарыг нээх эсвэл хаах",
     "open-plugin": "Плагин нээх",
+    "skip-to-main-content": "Хуудасны агуулга руу шилжих",
     "search": "Хайх",
     "go-to": "Очих",
     "no-plugins-match": "Хайлтад тохирох плагин олдсонгүй",
@@ -83,6 +84,7 @@
   "filter": {
     "_": "Шүүлтүүр",
     "search": "Хайх",
+    "enter-search-text": "Хайх үгээ оруулна уу",
     "brand": "Брэнд",
     "assigned-to": "Хариуцсан",
     "created-at": "Үүсгэсэн огноо",
@@ -97,6 +99,7 @@
     "source": "Эх сурвалж",
     "action": "Үйлдэл",
     "operation": "Үйлдэл",
+    "record": "Бичлэг",
     "user": "Хэрэглэгч",
     "no-user": "Хэрэглэгч алга",
     "system-logs": "Системийн лог",
@@ -208,7 +211,8 @@
     "ldap": "LDAP",
     "two-factor": "Хоёр шатлалт баталгаажуулалт",
     "security": "Аюулгүй байдал",
-    "active-directory": "Active Directory (LDAP)"
+    "active-directory": "Active Directory (LDAP)",
+    "support-access": "Дэмжлэгийн хандалт"
   },
   "plugin": {
     "_": "Плагин",
@@ -652,6 +656,7 @@
     "title": "Нэвтрэх эрх хориглогдсон",
     "description": "Танд энэ хуудас руу нэвтрэх эрх байхгүй байна. Нэвтрэх эрх авахын тулд администратортайгаа холбогдоно уу."
   },
+  "close": "Хаах",
   "not-found": {
     "message": "Уучлаарай! Хуудас олдсонгүй.",
     "go-back": "Буцах"

@@ -10,20 +10,14 @@ import {
   Command,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  IconClipboardList,
-  IconCode,
-  IconEdit,
-  IconTag,
-  IconTrash,
-} from '@tabler/icons-react';
+import { IconCode, IconEdit, IconTag, IconTrash } from '@tabler/icons-react';
 import { useQuery } from '@apollo/client';
 import { GET_MN_CONFIGS } from '@/ebarimt/settings/pos-in-ebarimt-config/graphql/mnConfigs';
 import { IPosInEbarimtConfigRow } from '@/ebarimt/settings/pos-in-ebarimt-config/states/posInEbarimtConfigStates';
 import { useRemovePosInEbarimtConfig } from '@/ebarimt/settings/pos-in-ebarimt-config/hooks/useRemovePosInEbarimtConfig';
 import { normalizeRuleIds } from '@/ebarimt/settings/pos-in-ebarimt-config/types';
-import { AddPosInEBarimtConfig } from './AddPosInEBarimtConfig';
 import { PosInEBarimtConfigCommandbar } from './PosInEBarimtConfigCommandbar';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const usePosInEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
@@ -191,18 +185,10 @@ export const PosInEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-pos-in-ebarimt-config-yet')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('create-first-pos-in-ebarimt-config')}
-              </p>
-              <AddPosInEBarimtConfig />
-            </div>
-          </div>
+          <SettingsEmptyState
+            title={t('no-pos-in-ebarimt-config-yet')}
+            description={t('create-first-pos-in-ebarimt-config')}
+          />
         )}
       </RecordTable.Scroll>
       <PosInEBarimtConfigCommandbar />

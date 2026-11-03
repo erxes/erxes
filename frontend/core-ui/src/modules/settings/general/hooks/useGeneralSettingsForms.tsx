@@ -18,6 +18,7 @@ const useGeneralSettingsForms = () => {
       // viewer's own zone made an organization that has never set one look
       // configured, while the server kept deciding every day boundary in UTC.
       TIMEZONE: '',
+      USER_ACTIVITY_TRACKING: false,
     },
     resolver: zodResolver(generalSettingsSchema),
   });

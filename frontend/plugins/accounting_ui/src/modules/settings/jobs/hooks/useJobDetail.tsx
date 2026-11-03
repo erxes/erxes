@@ -1,17 +1,14 @@
 import { useQuery } from '@apollo/client';
-import { useQueryState } from 'erxes-ui';
-import { GET_JOB_DETAIL } from '../graphql/jobQueries';
+import { GET_JOB_DETAIL } from '@/settings/jobs/graphql/jobQueries';
 
-export const useJobDetail = () => {
-  const [jobId, setJobId] = useQueryState<string>('job_id');
+export const useJobDetail = (jobId: string) => {
   const { data, loading } = useQuery(GET_JOB_DETAIL, {
-    variables: { _id: jobId ?? '' },
+    variables: { _id: jobId },
     skip: !jobId,
   });
 
   return {
     jobDetail: data?.jobDetail,
     loading,
-    closeDetail: () => setJobId(null),
   };
 };

@@ -1,25 +1,28 @@
-import { useSenderOptions } from '@/settings/mail-config/hooks/useVerifiedSenders';
+import { BroadcastFromAddress } from '@/broadcast/components/BroadcastFromAddress';
+import { useBroadcastSender } from '@/broadcast/hooks/useBroadcastSender';
+import { domainOf } from '@/broadcast/utils/senderAddress';
+import { IconInfoCircle, IconLock } from '@tabler/icons-react';
 import { Form, Input, Skeleton } from 'erxes-ui';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router';
 import { z } from 'zod';
 
 const isEmail = (value?: string) =>
   !value || z.string().email().safeParse(value).success;
 
+const LABEL_CLASS =
+  'font-mono text-xs font-semibold uppercase text-accent-foreground';
+
 export const BroadcastFromField = () => {
-  const { control, watch } = useFormContext();
-  const { alignedFrom, loading: senderOptionsLoading } = useSenderOptions();
+  const { control } = useFormContext();
   const { t } = useTranslation('broadcasts', { keyPrefix: 'composer' });
+  const sender = useBroadcastSender();
 
-  const senderName = watch('email.sender');
-
-  if (senderOptionsLoading) {
+  if (sender.loading) {
     return (
       <div className="space-y-2">
-        <span className="font-mono text-xs font-semibold uppercase text-accent-foreground">
-          {t('from')}
-        </span>
+        <span className={LABEL_CLASS}>{t('from')}</span>
         <Skeleton className="h-8 w-full" />
       </div>
     );
@@ -27,45 +30,81 @@ export const BroadcastFromField = () => {
 
   return (
     <div className="flex flex-col gap-1.5">
-      <Form.Field
-        name="email.sender"
-        control={control}
-        rules={{ required: t('sender-required') }}
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>
-              {t('from')}
-              <span className="text-destructive">*</span>
-            </Form.Label>
-            <Form.Control>
-              <Input {...field} placeholder={t('sender-placeholder')} />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <span className={LABEL_CLASS}>
+        {t('from')}
+        <span className="text-destructive">*</span>
+      </span>
 
-      {alignedFrom ? (
-        <span className="px-1 text-xs text-muted-foreground">
-          {senderName ? `${senderName} <${alignedFrom}>` : `<${alignedFrom}>`}
-        </span>
-      ) : (
+      <div className="grid grid-cols-[2fr_3fr] gap-2">
         <Form.Field
-          name="fromEmail"
+          name="email.sender"
           control={control}
-          rules={{
-            required: t('from-required'),
-            validate: (value?: string) => isEmail(value) || t('invalid-email'),
-          }}
+          rules={{ required: t('sender-required') }}
           render={({ field }) => (
             <Form.Item>
               <Form.Control>
-                <Input {...field} placeholder="sales@yourdomain.com" />
+                <Input
+                  {...field}
+                  placeholder={t('sender-placeholder')}
+                  aria-label={t('sender-name')}
+                />
               </Form.Control>
               <Form.Message />
             </Form.Item>
           )}
         />
+
+        {sender.mode === 'locked' ? (
+          <div className="flex h-7 min-w-0 items-center gap-1.5 rounded-sm bg-muted px-3 text-sm text-muted-foreground">
+            <IconLock className="size-3.5 shrink-0" />
+            <span className="truncate">{sender.lockedAddress}</span>
+          </div>
+        ) : (
+          <Form.Field
+            name="fromEmail"
+            control={control}
+            rules={{
+              required: t('from-required'),
+              validate: (value?: string) =>
+                isEmail(value) || t('invalid-email'),
+            }}
+            render={({ field }) => (
+              <Form.Item>
+                {sender.mode === 'domains' ? (
+                  <BroadcastFromAddress
+                    value={field.value}
+                    onChange={field.onChange}
+                    domains={sender.domains}
+                    fallbackAddress={sender.defaultSenderEmail}
+                  />
+                ) : (
+                  <Form.Control>
+                    <Input {...field} placeholder="sales@yourdomain.com" />
+                  </Form.Control>
+                )}
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+      </div>
+
+      {sender.mode === 'locked' && (
+        <p className="flex flex-wrap items-center gap-1 text-xs text-muted-foreground">
+          <IconInfoCircle className="size-3.5 shrink-0" />
+          {t(`from-locked-${sender.lock}`, {
+            domain: domainOf(sender.lockedAddress),
+          })}
+          {sender.lock === 'unverified' && (
+            <Link
+              to={sender.settingsPath}
+              target="_blank"
+              className="text-primary hover:underline"
+            >
+              {t('from-locked-settings')}
+            </Link>
+          )}
+        </p>
       )}
     </div>
   );

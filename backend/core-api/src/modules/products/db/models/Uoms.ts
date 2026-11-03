@@ -13,6 +13,7 @@ export interface IUomModel extends Model<IUomDocument> {
   updateUom(_id: string, doc: IUom): Promise<IUomDocument>;
   removeUoms(_ids: string[]): Promise<{ n: number; ok: number }>;
   checkUOM(doc: ICheckUomInput): Promise<string>;
+  resolveCodes(values: Array<string | undefined>): Promise<Map<string, string>>;
 }
 
 export const loadUomClass = (
@@ -138,10 +139,40 @@ export const loadUomClass = (
       }
       const mainUom = doc.uom;
 
-      const uoms = (doc.subUoms || [])
-        .map((subUom) => subUom.uom)
-        .filter(Boolean);
-      uoms.unshift(mainUom);
+      const valueToCode = await models.Uoms.resolveCodes([
+        mainUom,
+        ...(doc.subUoms || []).map((subUom) => subUom.uom),
+      ]);
+
+      // Normalize subUoms to the canonical code as well, so they are never
+      // stored as an _id (or name).
+      if (Array.isArray(doc.subUoms)) {
+        doc.subUoms = doc.subUoms.map((subUom) => ({
+          ...subUom,
+          uom: subUom.uom
+            ? valueToCode.get(subUom.uom) ?? subUom.uom
+            : subUom.uom,
+        }));
+      }
+
+      // Always return the canonical code representation of the main uom.
+      return valueToCode.get(mainUom) ?? mainUom;
+    }
+
+    /**
+     * Map each value (code, name or _id) to its UOM code, creating the UOMs
+     * that do not exist yet. One lookup however many values are passed.
+     */
+    static async resolveCodes(
+      values: Array<string | undefined>,
+    ): Promise<Map<string, string>> {
+      const uoms = [
+        ...new Set(values.filter((value): value is string => !!value)),
+      ];
+
+      if (!uoms.length) {
+        return new Map();
+      }
 
       const existingUoms = await models.Uoms.find({
         $or: [
@@ -181,19 +212,7 @@ export const loadUomClass = (
         }
       }
 
-      // Normalize subUoms to the canonical code as well, so they are never
-      // stored as an _id (or name).
-      if (Array.isArray(doc.subUoms)) {
-        doc.subUoms = doc.subUoms.map((subUom) => ({
-          ...subUom,
-          uom: subUom.uom
-            ? (valueToCode.get(subUom.uom) ?? subUom.uom)
-            : subUom.uom,
-        }));
-      }
-
-      // Always return the canonical code representation of the main uom.
-      return valueToCode.get(mainUom) ?? mainUom;
+      return valueToCode;
     }
 
     /**

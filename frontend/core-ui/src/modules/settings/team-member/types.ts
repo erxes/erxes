@@ -25,6 +25,9 @@ export interface IUserDetailsType {
   shortName?: string;
   description?: string;
   birthDate?: Date;
+  coverPhoto?: string;
+  position?: string;
+  employeeId?: string;
 }
 
 export enum EStatus {
@@ -50,6 +53,13 @@ export interface IUser extends IUserInline {
   username?: string;
   propertiesData?: Record<string, unknown>;
   sessionState?: TSessionState;
+  // Null while the organization has tracking off or the viewer lacks permission
+  activity?: IUserActivity | null;
+}
+
+export interface IUserActivity {
+  activeMinutes: number;
+  lastActiveAt?: string | null;
 }
 
 export interface IUserDetail extends IUser {

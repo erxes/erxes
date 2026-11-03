@@ -139,7 +139,7 @@ export const DealsBoardColumnHeader = ({
     <div className="m-0 px-2 min-h-10 w-full font-semibold text-sm flex items-center justify-between flex-col">
       <div className="flex justify-between items-center w-full mt-1">
         <div>
-          <h4 className="capitalize flex items-center gap-1 pl-1">
+          <h4 className="capitalize flex items-center gap-1 pl-1 text-base">
             {name}
             <span className="text-accent-foreground font-medium pl-1">
               {loading ? (

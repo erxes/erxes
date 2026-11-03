@@ -87,6 +87,8 @@ export const PluginConfigsProvidersEffect = () => {
       };
 
       loadConfig();
+    } else {
+      setLoadingPluginsConfig(false);
     }
   }, [remotes, setPluginsConfig]);
 

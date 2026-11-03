@@ -118,6 +118,15 @@ export const useDealActions = ({
   };
 
   const handleCopy = async () => {
+    if (!isSingle) {
+      await confirm({
+        message: t('duplicate-deals-confirm', {
+          count,
+          defaultValue: 'Are you sure you want to duplicate {{count}} deals?',
+        }),
+      });
+    }
+
     await Promise.all(
       dealIds.map((id) => copyDeals({ variables: { _id: id } })),
     );
