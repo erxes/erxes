@@ -1397,5 +1397,7 @@
   "fxa-blank-rules-help": "Blank fields retain the previous depreciation rules. Enter zero to set residual value to zero.",
   "fxa-capital-mixed-direction": "Enter cost increases and decreases in separate capitalization journals.",
   "fxa-asset-already-selected": "This asset is already in the table.",
-  "fxa-empty-assets": "Add an asset row or select multiple assets."
+  "fxa-empty-assets": "Add an asset row or select multiple assets.",
+  "end-date-after-start": "End date must be on or after the start date",
+  "no-transactions-in-period": "No transactions in the selected period."
 }

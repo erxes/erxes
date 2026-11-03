@@ -1,3 +1,17 @@
+
+
+## [3.4.10](https://github.com/erxes/erxes/compare/3.4.9...3.4.10) (2026-11-03)
+
+
+### Bug Fixes
+
+* pos cover max date fix ([5ee1448](https://github.com/erxes/erxes/commit/5ee1448820190fc55919666740c1cf2191a51e53))
+
+
+### Features
+
+* **frontline:** run AI agent replies on Instagram like Facebook ([f239675](https://github.com/erxes/erxes/commit/f239675ea8801843027ade4cc35d04d8a3a5264f))
+
 # Changelog
 
 ## [3.4.9](https://github.com/erxes/erxes/compare/3.4.8...3.4.9) (2026-11-03)

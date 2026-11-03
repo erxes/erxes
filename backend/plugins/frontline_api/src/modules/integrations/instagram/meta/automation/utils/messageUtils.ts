@@ -7,6 +7,7 @@ import {
   TBotData,
 } from '@/integrations/instagram/meta/automation/types/automationTypes';
 import { sendAutomationTrigger } from 'erxes-api-shared/core-modules';
+import { getReplyDebounceMs } from '@/integrations/instagram/meta/automation/utils/turnTaking';
 
 export const triggerInstagramAutomation = async (
   subdomain: string,
@@ -20,6 +21,10 @@ export const triggerInstagramAutomation = async (
     adData?: any;
   },
 ) => {
+  if (conversationMessage.fromBot || conversationMessage.internal) {
+    return;
+  }
+
   const target: any = { ...conversationMessage };
   let type = 'frontline:instagram.messages';
   let repeatOptions;
@@ -36,6 +41,8 @@ export const triggerInstagramAutomation = async (
     type = 'instagram:ads';
   }
 
+  const isTypedMessage = !payload && !adData && !repeatOptions;
+
   sendAutomationTrigger(
     subdomain,
     {
@@ -48,6 +55,9 @@ export const triggerInstagramAutomation = async (
         priority: 1,
         removeOnComplete: true,
         removeOnFail: true,
+        ...(isTypedMessage && {
+          delay: getReplyDebounceMs(conversationMessage),
+        }),
       },
     },
   );
