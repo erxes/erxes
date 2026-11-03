@@ -78,6 +78,26 @@ export const useDealDetail = (
   useEffect(() => {
     if (!finalId || options?.skip || !subscribe) return;
 
+    const leaveDeletedDeal = () => {
+      if (activeDealId === finalId) {
+        setActiveDealId(null);
+      }
+
+      if (salesItemId === finalId) {
+        setSalesItemId(null);
+      }
+
+      if (overrideId !== finalId || panelRecordId !== finalId) {
+        return;
+      }
+
+      if (canGoBack) {
+        backPanel();
+      } else {
+        closePanel();
+      }
+    };
+
     const subscriptionOptions: SubscribeToMoreOptions<
       DealDetailQuery,
       SalesDealChangedSubscriptionVariables,
@@ -89,22 +109,7 @@ export const useDealDetail = (
         const dealChange = subscriptionData?.data?.salesDealChanged;
 
         if (dealChange?.action === 'delete') {
-          if (activeDealId === finalId) {
-            setActiveDealId(null);
-          }
-
-          if (salesItemId === finalId) {
-            setSalesItemId(null);
-          }
-
-          if (overrideId === finalId && panelRecordId === finalId) {
-            if (canGoBack) {
-              backPanel();
-            } else {
-              closePanel();
-            }
-          }
-
+          leaveDeletedDeal();
           return prev;
         }
 
