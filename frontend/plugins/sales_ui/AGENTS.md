@@ -263,6 +263,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Data and State
 
+- The `salesItemId` URL key alone decides whether the deal sheet is open.
+  `SalesItemDetail` copies it into `dealDetailSheetState`, so browser Back and
+  Forward close and reopen the sheet. Its not-found and error states have a
+  Close button.
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
