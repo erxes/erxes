@@ -7,6 +7,7 @@ jest.mock(
   () => ({
     cn: (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' '),
     useQueryState: () => [false],
+    Button: ({ children }: PropsWithChildren) => <>{children}</>,
     Sidebar: {
       Provider: ({
         children,
