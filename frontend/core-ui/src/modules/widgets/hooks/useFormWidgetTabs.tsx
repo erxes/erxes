@@ -8,6 +8,8 @@ import {
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import { useFormWidgetsModules } from '@/widgets/hooks/useFormWidgets';
 
+/** Loads permitted plugin forms as tabs in a core editor. */
+
 export const useFormWidgetTabs = <T extends FieldValues>({
   contentType,
   contentId,

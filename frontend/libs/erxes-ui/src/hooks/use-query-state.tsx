@@ -122,6 +122,7 @@ type QueryValues<T extends QueryTypes> = {
   [K in keyof T]: T[K] | null;
 };
 
+/** Reads and updates several query values through one shared navigation draft. */
 export function useMultiQueryState<T extends QueryTypes>(
   queryKeys: (keyof T)[],
 ): [
@@ -160,6 +161,7 @@ export function useMultiQueryState<T extends QueryTypes>(
     return acc;
   }, {} as QueryValues<T>);
 
+  /** Applies a batch without discarding other query changes from the same event. */
   const setQueries = (
     values: Partial<QueryValues<T>>,
     navigationOptions?: NavigateOptions,

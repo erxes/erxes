@@ -23,7 +23,7 @@ jest.mock('ui-modules', () => ({
 }));
 jest.mock('erxes-ui', () => {
   const { Dialog } = jest.requireActual<typeof import('radix-ui')>('radix-ui');
-  const pass = ({ children }: React.PropsWithChildren) => <>{children}</>;
+  const pass = ({ children }: React.PropsWithChildren) => children;
   const sheet = Object.assign(Dialog.Root, {
     ...Dialog,
     Header: pass,
@@ -151,4 +151,69 @@ it('retains the exact draft input while visiting a member and going back', async
     expect(screen.getByRole('textbox', { name: 'Draft name' })).toBe(draft),
   );
   expect(draft.value).toBe('Not saved yet');
+});
+
+it('retains a draft when an earlier history entry is removed before the next navigation', () => {
+  const DraftRecord = ({ record }: IRecordViewProps) => (
+    <input aria-label={`Draft ${record.contentId}`} defaultValue="" />
+  );
+  const first = '/detail/customer/first';
+  const draft = '/detail/customer/draft';
+  const { rerender } = render(
+    <Provider>
+      <SidePanelRecordStack
+        path="/detail/customer/current"
+        history={[first, draft]}
+        View={DraftRecord}
+        onClose={jest.fn()}
+      />
+    </Provider>,
+  );
+  const input = screen.getByLabelText<HTMLInputElement>('Draft draft');
+  fireEvent.change(input, { target: { value: 'Keep the unsaved value' } });
+  rerender(
+    <Provider>
+      <SidePanelRecordStack
+        path="/detail/customer/next"
+        history={[draft]}
+        View={DraftRecord}
+        onClose={jest.fn()}
+      />
+    </Provider>,
+  );
+  expect(screen.getByLabelText('Draft draft')).toBe(input);
+  expect(input.value).toBe('Keep the unsaved value');
+});
+
+it('keeps repeated visits to the same record distinct when navigating Back', () => {
+  const DraftRecord = ({ record }: IRecordViewProps) => (
+    <input aria-label={`Visit ${record.contentId}`} defaultValue="" />
+  );
+  const first = '/detail/customer/first';
+  const second = '/detail/customer/second';
+  const { rerender } = render(
+    <Provider>
+      <SidePanelRecordStack
+        path={first}
+        history={[first, second]}
+        View={DraftRecord}
+        onClose={jest.fn()}
+      />
+    </Provider>,
+  );
+  const visits = screen.getAllByLabelText<HTMLInputElement>('Visit first');
+  fireEvent.change(visits[0], { target: { value: 'Original visit' } });
+  fireEvent.change(visits[1], { target: { value: 'Later visit' } });
+  rerender(
+    <Provider>
+      <SidePanelRecordStack
+        path={second}
+        history={[first]}
+        View={DraftRecord}
+        onClose={jest.fn()}
+      />
+    </Provider>,
+  );
+  expect(screen.getByLabelText('Visit first')).toBe(visits[0]);
+  expect(visits[0].value).toBe('Original visit');
 });

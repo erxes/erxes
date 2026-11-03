@@ -81,31 +81,34 @@ const ModulePanelRoot = ({
   const previous = useRef<{ open: boolean; path: string } | null>(null);
   const previousRoute = useRef(panel.path);
 
+  /** Keeps controlled and internal open state synchronized. */
   const changeLocalOpen = (next: boolean) => {
     setInternalOpen(next);
     onOpenChange?.(next);
   };
+  /** Dismisses this module entry while retaining the surrounding record history. */
   const leave = () => {
     panel.dismissPath(path);
   };
+  /** Connects module open state with shared panel navigation. */
   const changeOpen = (next: boolean) => {
     if (!next) leave();
     changeLocalOpen(next);
-    if (next) panel.openPath(path, { stack: !!parent || inRecord });
+    if (next) panel.openPath(path, { stack: Boolean(parent) || inRecord });
   };
   const actions = useRef({
     panel,
     changeLocalOpen,
     changeOpen,
     leave,
-    stack: !!parent || inRecord,
+    stack: Boolean(parent) || inRecord,
   });
   actions.current = {
     panel,
     changeLocalOpen,
     changeOpen,
     leave,
-    stack: !!parent || inRecord,
+    stack: Boolean(parent) || inRecord,
   };
 
   useEffect(() => {
@@ -146,7 +149,7 @@ const ModulePanelRoot = ({
 
   const retained = open || panel.path === path || history.includes(path);
   useEffect(() => {
-    if (!retained) return;
+    if (!retained) return undefined;
     const entry = {
       onClose: () => actions.current.changeOpen(false),
       maxWidth,
@@ -156,9 +159,9 @@ const ModulePanelRoot = ({
     return () =>
       setEntries((entries) => {
         if (entries[path] !== entry) return entries;
-        const next = { ...entries };
-        delete next[path];
-        return next;
+        return Object.fromEntries(
+          Object.entries(entries).filter(([key]) => key !== path),
+        );
       });
   }, [retained, path, setEntries, maxWidth, defaultWidth]);
 
@@ -193,6 +196,7 @@ type TModulePanelViewProps = ComponentProps<typeof Sheet.View> & {
   notFoundState?: React.ReactNode;
 };
 
+/** Shows an editor status message in the panel column. */
 const ModulePanelMessage = ({ title }: { title: string }) => (
   <Empty>
     <Empty.Header>
@@ -201,6 +205,7 @@ const ModulePanelMessage = ({ title }: { title: string }) => (
   </Empty>
 );
 
+/** Selects permission, loading, error, and missing states before editor content mounts. */
 const ModulePanelStatus = ({
   allowed,
   loading,
@@ -295,6 +300,7 @@ const ModulePanelView = forwardRef<HTMLDivElement, TModulePanelViewProps>(
 );
 ModulePanelView.displayName = 'ModulePanelView';
 
+/** Returns from a nested editor through shared record history. */
 const ModulePanelBack = () => {
   const { back, canGoBack } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -312,6 +318,7 @@ const ModulePanelBack = () => {
   ) : null;
 };
 
+/** Aligns editor headings and their Back control with record panels. */
 const ModulePanelHeader = ({
   className,
   children,
@@ -345,6 +352,7 @@ const ModulePanelTrigger = forwardRef<
   );
 });
 ModulePanelTrigger.displayName = 'ModulePanelTrigger';
+/** Keeps module content scrollable within the available panel height. */
 const ModulePanelContent = ({
   className,
   ...props
@@ -354,6 +362,7 @@ const ModulePanelContent = ({
     {...props}
   />
 );
+/** Keeps editor actions outside the scrolling module body. */
 const ModulePanelFooter = ({
   className,
   ...props
@@ -375,9 +384,11 @@ export const CoreModulePanel = Object.assign(ModulePanelRoot, {
   Close: Sheet.Close,
 });
 
+/** Provides focus-sheet contexts through the shared module panel host. */
 const FocusPanelRoot = (props: TModulePanelProps) => (
   <ModulePanelRoot {...props} focus />
 );
+/** Preserves focus-sheet headings inside the shared record panel. */
 const FocusPanelHeader = ({
   className,
   title,
@@ -396,6 +407,7 @@ const FocusPanelHeader = ({
     <Sheet.Close />
   </ModulePanelHeader>
 );
+/** Constrains focus-sheet content to the module panel body. */
 const FocusPanelContent = ({
   className,
   ...props
@@ -405,6 +417,7 @@ const FocusPanelContent = ({
     {...props}
   />
 );
+/** Displays focus-sheet sections as a horizontal strip in the panel. */
 const FocusPanelSidebar = ({
   children,
 }: ComponentProps<typeof FocusSheet.SideBar>) => (

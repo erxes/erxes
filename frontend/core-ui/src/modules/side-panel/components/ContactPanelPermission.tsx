@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePermissionCheck } from 'ui-modules';
 
+/** Waits for authorization before mounting contact editors or denying creation. */
 export const ContactPanelPermission = ({
   creating = false,
   children,
@@ -17,5 +18,5 @@ export const ContactPanelPermission = ({
   if (creating && !hasActionPermission('contactsCreate')) {
     return <div className="p-4">{t('access-denied', 'Access denied')}</div>;
   }
-  return <>{children}</>;
+  return children;
 };

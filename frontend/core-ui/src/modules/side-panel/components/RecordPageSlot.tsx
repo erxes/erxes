@@ -10,6 +10,7 @@ import { useSidePanel } from 'ui-modules';
 
 const recordPageTargetState = atom<HTMLDivElement | null>(null);
 
+/** Provides a page replacement target when the route has no AppLayout host. */
 export const RecordPageSlot = ({ children }: React.PropsWithChildren) => {
   const [expanded] = useQueryState<boolean>('panelExpanded');
   const { open, record } = useSidePanel();
@@ -19,12 +20,13 @@ export const RecordPageSlot = ({ children }: React.PropsWithChildren) => {
     (element: HTMLDivElement | null) => setTarget(element),
     [setTarget],
   );
-  const active =
+  const active = Boolean(
     !appPageTarget &&
-    !!expanded &&
-    open &&
-    !!record &&
-    ['core:customer', 'core:company'].includes(record.contentType);
+      expanded &&
+      open &&
+      record &&
+      ['core:customer', 'core:company'].includes(record.contentType),
+  );
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -67,7 +69,7 @@ export const RecordPagePortal = ({
     }
   }, [active, target, appPageTarget, container]);
   useLayoutEffect(() => {
-    setOverlayOpen(active && !!appPageTarget);
+    setOverlayOpen(active && Boolean(appPageTarget));
     return () => setOverlayOpen(false);
   }, [active, appPageTarget, setOverlayOpen]);
   useLayoutEffect(() => () => container.remove(), [container]);

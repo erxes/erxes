@@ -1,5 +1,13 @@
 import { AppLayoutPageSlot } from './AppLayoutPageSlot';
-import * as React from 'react';
+import {
+  type ElementType,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+  type RefObject,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import {
   IconLayoutSidebarLeftCollapse,
@@ -67,16 +75,14 @@ const AppLayoutResizeHandle = ({
   onReset,
   onResizingChange,
 }: {
-  panelRef: React.RefObject<HTMLElement | null>;
+  panelRef: RefObject<HTMLElement | null>;
   onResize: (width: number) => void;
   onReset: () => void;
   onResizingChange: (resizing: boolean) => void;
 }) => {
-  const drag = React.useRef<{ startX: number; startWidth: number } | null>(
-    null,
-  );
+  const drag = useRef<{ startX: number; startWidth: number } | null>(null);
 
-  const stopDrag = (event: React.PointerEvent<HTMLButtonElement>) => {
+  const stopDrag = (event: ReactPointerEvent<HTMLButtonElement>) => {
     if (!drag.current) {
       return;
     }
@@ -152,7 +158,7 @@ const AppLayoutFloatingButton = ({
   onClick,
 }: {
   label: string;
-  icon: React.ReactNode;
+  icon: ReactNode;
   onClick: () => void;
 }) => (
   <div className="absolute top-0 left-0 z-30 flex h-10 w-10 items-center justify-center bg-sidebar">
@@ -173,7 +179,7 @@ const AppLayoutFloatingButton = ({
 );
 
 // Fade only: moving a full-height pane reads as a jolt.
-const AppLayoutFooter = ({ children }: { children?: React.ReactNode }) =>
+const AppLayoutFooter = ({ children }: { children?: ReactNode }) =>
   children ? (
     <div className="shrink-0 border-t px-2 py-1.5">
       <Sidebar.Menu>{children}</Sidebar.Menu>
@@ -191,7 +197,7 @@ export const AppLayoutFooterLink = ({
 }: {
   path: string;
   name: string;
-  icon?: React.ElementType;
+  icon?: ElementType;
 }) => {
   const { pathname } = useLocation();
   const fullPath = `/${path.replace(/^\/+/, '')}`;
@@ -215,13 +221,13 @@ const getPageKey = (pathname: string) =>
   pathname.split('/').filter(Boolean).slice(0, 2).join('/');
 
 /** The page pane: replays a short enter on route change, never the sidebar. */
-const AppLayoutPage = ({ children }: { children: React.ReactNode }) => {
+const AppLayoutPage = ({ children }: { children: ReactNode }) => {
   const { pathname } = useLocation();
-  const pageRef = React.useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const pageKey = getPageKey(pathname);
-  const previousKey = React.useRef(pageKey);
+  const previousKey = useRef(pageKey);
 
-  React.useLayoutEffect(() => {
+  useLayoutEffect(() => {
     const page = pageRef.current;
 
     if (previousKey.current === pageKey) {
@@ -263,15 +269,15 @@ const AppLayoutDesktop = ({
   title,
 }: {
   atoms: TAppLayoutAtoms;
-  children: React.ReactNode;
-  sidebar: React.ReactNode;
-  footer?: React.ReactNode;
-  title?: React.ReactNode;
+  children: ReactNode;
+  sidebar: ReactNode;
+  footer?: ReactNode;
+  title?: ReactNode;
 }) => {
   const [open, setOpen] = useAtom(atoms.open);
   const [width, setWidth] = useAtom(atoms.width);
-  const [resizing, setResizing] = React.useState(false);
-  const asideRef = React.useRef<HTMLElement>(null);
+  const [resizing, setResizing] = useState(false);
+  const asideRef = useRef<HTMLElement>(null);
   const currentWidth = width ?? APP_LAYOUT_DEFAULT_WIDTH;
 
   return (
@@ -351,10 +357,10 @@ const AppLayoutMobile = ({
   sidebar,
   title,
 }: {
-  children: React.ReactNode;
-  sidebar: React.ReactNode;
-  footer?: React.ReactNode;
-  title?: React.ReactNode;
+  children: ReactNode;
+  sidebar: ReactNode;
+  footer?: ReactNode;
+  title?: ReactNode;
 }) => {
   const { toggleSidebar } = Sidebar.useSidebar();
 
@@ -386,10 +392,10 @@ const AppLayoutMobile = ({
 
 const AppLayoutBody = (props: {
   atoms: TAppLayoutAtoms;
-  children: React.ReactNode;
-  sidebar: React.ReactNode;
-  footer?: React.ReactNode;
-  title?: React.ReactNode;
+  children: ReactNode;
+  sidebar: ReactNode;
+  footer?: ReactNode;
+  title?: ReactNode;
 }) => {
   const { isMobile } = Sidebar.useSidebar();
 
@@ -413,10 +419,10 @@ export const AppLayout = ({
   children,
 }: {
   id: string;
-  sidebar: React.ReactNode;
-  footer?: React.ReactNode;
-  title?: React.ReactNode;
-  children: React.ReactNode;
+  sidebar: ReactNode;
+  footer?: ReactNode;
+  title?: ReactNode;
+  children: ReactNode;
 }) => (
   <Sidebar.Provider className="min-h-0 flex-1" sidebarKeyboardShortcut={false}>
     <AppLayoutBody

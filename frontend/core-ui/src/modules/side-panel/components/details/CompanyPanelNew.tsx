@@ -92,8 +92,10 @@ export const CompanyPanelNew = () => {
     form.setValue('primaryName', registeredName, { shouldValidate: true });
   }, [registeredName, form]);
 
+  /** Returns to the previous record or closes a top-level company draft. */
   const cancel = () => (canGoBack ? back() : close());
 
+  /** Creates the company and replaces its draft panel after a successful mutation. */
   const save = ({
     industry,
     size,

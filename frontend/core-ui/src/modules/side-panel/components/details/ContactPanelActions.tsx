@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useComposeEmail, usePermissionCheck } from 'ui-modules';
 
+/** Opens existing mail, conversation, and note workflows for this contact. */
 export const ContactPanelActions = ({
   contentType,
   contentId,
