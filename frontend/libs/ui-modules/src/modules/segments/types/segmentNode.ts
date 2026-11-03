@@ -37,11 +37,7 @@ export type TSegmentOperator = {
 };
 
 export type TSegmentFieldInput =
-  | 'text'
-  | 'number'
-  | 'date'
-  | 'boolean'
-  | 'select';
+  'text' | 'number' | 'date' | 'boolean' | 'select';
 
 export type TSegmentField = {
   key: string;
