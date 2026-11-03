@@ -106,21 +106,21 @@ export const useTrRecordsDelete = () => {
       },
     });
 
-    let allRemoved = true;
-
     store.set(trRecordsDeletingState, true);
 
     try {
-      for (const { parentId } of parents) {
-        const { errors } = await removeTrRecords(parentId);
+      return await parents.reduce<Promise<boolean>>(
+        async (previous, { parentId }) => {
+          const removedSoFar = await previous;
+          const { errors } = await removeTrRecords(parentId);
 
-        allRemoved = allRemoved && !errors;
-      }
+          return removedSoFar && !errors;
+        },
+        Promise.resolve(true),
+      );
     } finally {
       store.set(trRecordsDeletingState, false);
     }
-
-    return allRemoved;
   };
 
   return { deleteTrRecords, loading: deleting };
