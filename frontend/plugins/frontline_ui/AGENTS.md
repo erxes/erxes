@@ -448,6 +448,8 @@
   opens it. Its checkbox and time button are separate controls: neither opens
   the row, by key or by click.
   A focused row checkbox shows in place of the avatar.
+  A keyboard-focused row shows an Enter key hint in place of its time; hover
+  alone does not.
 - `Team inbox` channel rows carry the caller's unread count from
   `Channel.unreadConversationCount` and dim when it is zero; integration-type
   rows in both groups carry their open-conversation count from

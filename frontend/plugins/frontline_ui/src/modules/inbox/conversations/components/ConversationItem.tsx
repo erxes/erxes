@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   cn,
+  Kbd,
   RelativeDateDisplay,
   Skeleton,
   TextOverflowTooltip,
@@ -14,6 +15,7 @@ import {
   useMultiQueryState,
 } from 'erxes-ui';
 import {
+  IconCornerDownLeft,
   IconInbox,
   IconPhoneIncoming,
   IconPhoneOutgoing,
@@ -120,13 +122,21 @@ export const ConversationItem = ({
           </div>
           <span
             className={cn(
-              'col-start-2 row-start-1 justify-self-end text-[11px] font-normal tabular-nums text-muted-foreground',
+              'relative col-start-2 row-start-1 justify-self-end text-[11px] font-normal tabular-nums text-muted-foreground',
               !split && '@min-[640px]:col-start-3',
             )}
           >
+            <Kbd
+              aria-hidden
+              variant="foreground"
+              className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-focus-visible/row:opacity-70"
+            >
+              <IconCornerDownLeft size={12} />
+            </Kbd>
             {(updatedAt || createdAt) && (
               <RelativeDateDisplay
                 value={updatedAt || createdAt || ''}
+                className="truncate transition-opacity group-focus-visible/row:opacity-0"
                 onClick={(event) => event.stopPropagation()}
               >
                 <RelativeDateDisplay.Value
@@ -299,7 +309,7 @@ const ConversationContainer = ({
       size="lg"
       asChild
       className={cn(
-        'relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent ring-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+        'group/row relative flex rounded-none justify-start px-4 gap-3 transition-colors hover:bg-primary/5 hover:text-foreground w-full overflow-hidden border-b border-border/40 border-l-2 border-l-transparent ring-inset focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary',
         isRead && 'text-muted-foreground',
         className,
         conversationId === _id &&
