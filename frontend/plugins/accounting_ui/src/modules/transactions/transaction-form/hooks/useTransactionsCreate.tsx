@@ -47,7 +47,10 @@ export const useTransactionsCreate = (
         },
       ],
       awaitRefetchQueries: true,
-      update: (_cache, { data }) => {
+      update: (cache, { data }) => {
+        cache.evict({ fieldName: 'accTrRecordsMain' });
+        cache.gc();
+
         const newParentId = data?.accTransactionsCreate?.[0]?.parentId;
 
         const pathname = newParentId
