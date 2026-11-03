@@ -14,10 +14,14 @@ import { useAddPage } from './hooks/useAddPage';
 import { IPage, IPageDrawerProps, IPageFormData } from './types/pageTypes';
 import { CONTENT_CMS_LIST, CMS_CUSTOM_FIELD_GROUPS } from '../graphql/queries';
 import {
+  CMS_TRANSLATION_FIELDS,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
   TranslationData,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 import { PageEditorColumn } from './components/PageEditorColumn';
 import { PageSidebarPanel } from './components/PageSidebarPanel';
 import {
@@ -221,33 +225,34 @@ interface PageFormProps extends IPageDrawerProps {
   onFormReady?: (formState: {
     form: UseFormReturn<IPageFormData>;
     onSubmit: (data: IPageFormData) => void;
-    getSaving: () => boolean;
+    saving: boolean;
+    isSaveBlocked: boolean;
     handleLanguageChange: (lang: string) => void;
   }) => void;
 }
 
 export function PageDrawer({
-  page,
+  page: storedPage,
   onClose,
   clientPortalId,
   onFormReady,
 }: PageFormProps) {
   const { t } = useTranslation('content');
-  const isEditing = Boolean(page);
+  const isEditing = Boolean(storedPage);
   const [hasPermissionError, setHasPermissionError] = useState(false);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,
@@ -257,13 +262,23 @@ export function PageDrawer({
     handleLanguageChange,
     defaultLangData,
     translations,
+    savedRowLoad,
   } = useCmsTranslation({
-    objectId: page?._id,
+    objectId: storedPage?._id,
     type: 'page',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: clientPortalId,
   });
+
+  const page = useRecordInDefaultLanguage(
+    storedPage,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.page,
+  );
 
   // Mirror the active language into the shared atom (one-way). The header
   // language tabs read this atom for their active state, so this keeps the tab
@@ -396,27 +411,27 @@ export function PageDrawer({
   const { addPage, loading: savingAdd } = useAddPage();
   const saving = savingEdit || savingAdd;
 
-  const savingRef = useRef(saving);
-  useEffect(() => {
-    savingRef.current = saving;
-  }, [saving]);
-
   useEffect(() => {
     if (isEditing && page) {
-      form.reset({
-        name: page.name || '',
-        path: page.slug || '',
-        description: page.description || '',
-        parentId: page.parentId || '',
-        status: toFormStatus(page.status),
-        clientPortalId,
-        thumbnail: toFormThumbnail(page.thumbnail),
-        gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
-        videoUrl: page.videoUrl || '',
-        documents: (page.documents || []).map((d) => d.url).filter(Boolean),
-        attachments: (page.attachments || []).map((a) => a.url).filter(Boolean),
-        customFieldsData: page.customFieldsData || [],
-      });
+      form.reset(
+        {
+          name: page.name || '',
+          path: page.slug || '',
+          description: page.description || '',
+          parentId: page.parentId || '',
+          status: toFormStatus(page.status),
+          clientPortalId,
+          thumbnail: toFormThumbnail(page.thumbnail),
+          gallery: (page.pageImages || []).map((i) => i.url).filter(Boolean),
+          videoUrl: page.videoUrl || '',
+          documents: (page.documents || []).map((d) => d.url).filter(Boolean),
+          attachments: (page.attachments || [])
+            .map((a) => a.url)
+            .filter(Boolean),
+          customFieldsData: page.customFieldsData || [],
+        },
+        { keepDirtyValues: page !== storedPage },
+      );
     } else {
       form.reset({
         name: '',
@@ -433,7 +448,7 @@ export function PageDrawer({
         customFieldsData: [],
       });
     }
-  }, [page, isEditing, clientPortalId, form]);
+  }, [page, storedPage, isEditing, clientPortalId, form]);
 
   // Helper: apply translation (or clear) translatable fields
   const applyTranslationToForm = useCallback(
@@ -450,22 +465,27 @@ export function PageDrawer({
   // overwrites the default-lang data, and it must call form.setValue
   // BEFORE setSelectedLanguage so the Editor (which remounts on key
   // change) reads the correct initialContent.
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
-    applyTranslationToForm(cmsLanguage);
-    setSelectedLanguage(cmsLanguage);
+    applyTranslationToForm(initialLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
   ]);
@@ -589,6 +609,8 @@ export function PageDrawer({
   const onSubmitRef = useRef<(data: IPageFormData) => void>(() => undefined);
 
   onSubmitRef.current = (data: IPageFormData) => {
+    if (savedRowLoad.isBlocked) return;
+
     const curSelectedLanguage = selectedLanguageRef.current;
     const curDefaultLanguage = defaultLanguageRef.current;
     const curDefaultLangData = defaultLangDataRef.current;
@@ -734,31 +756,37 @@ export function PageDrawer({
   const handleEditorChange = useCallback(
     (content: string) => {
       if (isSwitchingLanguageRef.current) return;
-      form.setValue('description', content);
+      form.setValue('description', content, { shouldDirty: true });
     },
     [form],
   );
 
-  const formInitializedRef = useRef(false);
-
-  const getSaving = useCallback(() => savingRef.current, []);
-
   useEffect(() => {
-    if (onFormReady && form && !formInitializedRef.current) {
-      onFormReady({
-        form,
-        onSubmit,
-        getSaving,
-        handleLanguageChange: onLanguageChange,
-      });
-      formInitializedRef.current = true;
-    }
-  }, [form, onSubmit, getSaving, onFormReady, onLanguageChange]);
+    onFormReady?.({
+      form,
+      onSubmit,
+      saving,
+      isSaveBlocked: savedRowLoad.isBlocked,
+      handleLanguageChange: onLanguageChange,
+    });
+  }, [
+    form,
+    onSubmit,
+    saving,
+    savedRowLoad.isBlocked,
+    onFormReady,
+    onLanguageChange,
+  ]);
 
   return (
     <ScrollArea className="flex-auto" viewportClassName="p-4">
       <Form {...form}>
         <div className="flex flex-col w-full mb-4 px-4 pt-4">
+          {savedRowLoad.hasFailed && (
+            <div className="mb-4">
+              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+            </div>
+          )}
           {hasPermissionError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
               <div className="flex items-start gap-2">

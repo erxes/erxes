@@ -1,40 +1,69 @@
 import {
   readLiteralConfigId,
+  TAutomationConfigIssue,
   TAutomationConfigValidator,
 } from 'erxes-api-shared/core-modules';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { isSenderAllowed, resolveAlignedFrom } from '~/utils/email/senders';
 
+const readText = (value: unknown) =>
+  typeof value === 'string' ? value.trim() : '';
+
+// a placeholder or a conditional value only names an address once it resolves
+const isTypedAddress = (value: string) =>
+  /^[^\s@{}<>]+@[^\s@{}<>]+\.[^\s@{}<>]+$/.test(value);
+
+const checkSender = async (
+  models: IModels,
+  field: string,
+  address: string,
+): Promise<TAutomationConfigIssue[]> =>
+  (await isSenderAllowed(models, address))
+    ? []
+    : [
+        {
+          path: `config.${field}`,
+          malformed: true,
+          message: `${address} is not a verified sender`,
+        },
+      ];
+
 /**
- * Replies must reach a sender the workspace verified. The builder's picker
- * writes it to replyToEmail, or to fromEmailPlaceHolder while the From is
- * aligned to the default sender — the same split the executor sends with.
+ * Checks the senders the way the executor sends. While the From is aligned to
+ * the default sender, the picker's confirmed address in fromEmailPlaceHolder
+ * is who the mail speaks for, so it is required. Otherwise replies go to the
+ * From unless replyToEmail is set, and a typed From answers to a broadcast's
+ * rule; a placeholder is checked when it resolves, at send time.
  */
-export const validateSendEmailReplyTo: TAutomationConfigValidator = async ({
+export const validateSendEmailSenders: TAutomationConfigValidator = async ({
   subdomain,
   config,
 }) => {
   const models = await generateModels(subdomain);
-  const field = (await resolveAlignedFrom(models))
-    ? 'fromEmailPlaceHolder'
-    : 'replyToEmail';
-  const value = config[field];
-  const address = typeof value === 'string' ? value.trim() : '';
-  const path = `config.${field}`;
+  const from = readText(config.fromEmailPlaceHolder);
 
-  if (!address) {
-    return [
-      { path, message: 'Choose a reply-to address from the verified senders' },
-    ];
+  if (await resolveAlignedFrom(models)) {
+    if (!from) {
+      return [
+        {
+          path: 'config.fromEmailPlaceHolder',
+          message: 'Choose a reply-to address from the verified senders',
+        },
+      ];
+    }
+
+    return checkSender(models, 'fromEmailPlaceHolder', from);
   }
 
-  if (!(await isSenderAllowed(models, address))) {
-    return [
-      { path, malformed: true, message: `${address} is not a verified sender` },
-    ];
-  }
+  const replyTo = readText(config.replyToEmail);
+  const picksFrom = (config.type ?? 'default') !== 'default';
 
-  return [];
+  return [
+    ...(replyTo ? await checkSender(models, 'replyToEmail', replyTo) : []),
+    ...(picksFrom && isTypedAddress(from)
+      ? await checkSender(models, 'fromEmailPlaceHolder', from)
+      : []),
+  ];
 };
 
 export const validateAiAgentConfig: TAutomationConfigValidator = async ({

@@ -289,19 +289,46 @@ export const types = `
     status: String
   }
 
+  type EmailDnsRecord {
+    type: String
+    host: String
+    data: String
+    valid: Boolean
+  }
+
+  """
+  Whether the account behind these credentials DKIM-signs the default From
+  domain. "missing" means the domain is not in that account (or region) at
+  all; "unchecked" means the provider could not be asked, see "error".
+  "otherVerifiedDomains" are the account's other DKIM-signed domains, null
+  when they were not listed; "listError" says why the provider refused.
+  """
+  type EmailFromDomain {
+    domain: String
+    region: String
+    state: String
+    dnsRecords: [EmailDnsRecord]
+    error: String
+    otherVerifiedDomains: [String!]
+    listError: String
+  }
+
   """
   Everything a sender picker needs, without exposing the organization's mail
-  credentials. "senders" and "supportsDynamicSender" reach the provider's API,
-  so only ask for them when they are actually rendered.
+  credentials. Only "fromDomain" reaches the provider's API, so only ask for
+  it where it is rendered. "verifiedDomains" are the domains a From goes out
+  from as it is, read from the marks the last check left.
   """
   type EmailSenderOptions {
     provider: String
     supportsSenderVerification: Boolean
     supportsDynamicSender: Boolean
+    verifiedDomains: [String!]
     defaultSenderEmail: String
     alignedFrom: String
     sameAsMailConfig: Boolean
     senders: [EmailSender]
+    fromDomain: EmailFromDomain
   }
 `;
 

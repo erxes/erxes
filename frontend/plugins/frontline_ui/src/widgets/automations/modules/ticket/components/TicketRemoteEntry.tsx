@@ -2,8 +2,11 @@ import { lazy } from 'react';
 import {
   AutomationExecutionHistoryNameProps,
   AutomationRemoteEntryProps,
+  AutomationRemoteEntryTypes,
   AutomationRemoteEntryWrapper,
+  splitAutomationNodeType,
 } from 'ui-modules';
+import { TICKET_STATUS_CHANGED_RELATION } from '../states/ticketStatusChangedTriggerForm';
 
 type TTicketHistoryTarget = {
   name?: string;
@@ -27,6 +30,21 @@ const TicketTemplateRequirement = lazy(() =>
   })),
 );
 
+const TicketStatusChangedTriggerForm = lazy(() =>
+  import('./trigger/TicketStatusChangedTriggerForm').then((module) => ({
+    default: module.TicketStatusChangedTriggerForm,
+  })),
+);
+
+const TicketStatusChangedTriggerNodeContent = lazy(() =>
+  import('./trigger/TicketStatusChangedTriggerNodeContent').then((module) => ({
+    default: module.TicketStatusChangedTriggerNodeContent,
+  })),
+);
+
+const isStatusChangedTrigger = (type?: string) =>
+  splitAutomationNodeType(type)[3] === TICKET_STATUS_CHANGED_RELATION;
+
 const CreateTicketActionResult = lazy(() =>
   import('./action/CreateTicketActionResult').then((module) => ({
     default: module.CreateTicketActionResult,
@@ -38,6 +56,8 @@ export const TicketRemoteEntry = (props: AutomationRemoteEntryProps) => {
     <AutomationRemoteEntryWrapper
       props={props}
       remoteEntries={{
+        triggerForm: renderTriggerForm,
+        triggerConfigContent: renderTriggerConfigContent,
         actionForm: TicketActionConfigForm,
         actionNodeConfiguration: TicketActionNodeContent,
         historyActionResult: CreateTicketActionResult,
@@ -50,3 +70,17 @@ export const TicketRemoteEntry = (props: AutomationRemoteEntryProps) => {
     />
   );
 };
+
+function renderTriggerForm(props: AutomationRemoteEntryTypes['triggerForm']) {
+  return isStatusChangedTrigger(props.activeTrigger?.type) ? (
+    <TicketStatusChangedTriggerForm {...props} />
+  ) : null;
+}
+
+function renderTriggerConfigContent(
+  props: AutomationRemoteEntryTypes['triggerConfigContent'],
+) {
+  return isStatusChangedTrigger(props.type) ? (
+    <TicketStatusChangedTriggerNodeContent {...props} />
+  ) : null;
+}

@@ -16,6 +16,7 @@ interface PostHeaderFormState {
   onSubmit: (data?: FieldValues) => void | Promise<void>;
   creating: boolean;
   saving: boolean;
+  isSaveBlocked: boolean;
   handleLanguageChange: (lang: string) => void;
 }
 
@@ -75,6 +76,7 @@ export const PostsDetailPage = ({
             onSubmit={formState.onSubmit}
             creating={formState.creating}
             saving={formState.saving}
+            isSaveBlocked={formState.isSaveBlocked}
           />
         )}
       </PostsHeader>

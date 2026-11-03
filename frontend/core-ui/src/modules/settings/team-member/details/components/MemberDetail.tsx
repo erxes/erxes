@@ -8,7 +8,9 @@ import { MembersPermissions } from '@/settings/team-member/details/components/Me
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { MemberSessions } from '@/settings/team-member/sessions/components/MemberSessions';
+import { MemberActivityTime } from '@/settings/team-member/activity/components/MemberActivityTime';
 import {
+  IconActivity,
   IconDeviceDesktop,
   IconHierarchy2,
   IconHistory,
@@ -24,9 +26,11 @@ import {
   Spinner,
   useQueryState,
 } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
   RecordSidePanel,
@@ -53,6 +57,7 @@ export const MemberDetail = ({
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { error, userDetail, loading } = useUserDetail();
   const { hasActionPermission } = usePermissionCheck();
+  const currentUser = useAtomValue(currentUserState);
 
   const handleClose = () => {
     setSelectedTab(null);
@@ -62,11 +67,7 @@ export const MemberDetail = ({
   const renderHeading = () => {
     if (!userDetail) {
       return {
-        title: loading ? (
-          <Skeleton className="h-4 w-32" />
-        ) : (
-          t('member-detail')
-        ),
+        title: loading ? <Skeleton className="h-4 w-32" /> : t('member-detail'),
         avatar: loading ? (
           <Skeleton className="size-7 flex-none rounded-full" />
         ) : undefined,
@@ -156,6 +157,21 @@ export const MemberDetail = ({
                   <div className="[&>section]:p-3">
                     <MemberSessions />
                   </div>
+                </MemberPanelScroll>
+              ),
+            },
+          ]
+        : []),
+      ...(currentUser?._id === userDetail._id ||
+      hasActionPermission('teamMembersViewActivity')
+        ? [
+            {
+              value: 'active-time',
+              label: t('active-time', 'Active time'),
+              icon: IconActivity,
+              content: (
+                <MemberPanelScroll>
+                  <MemberActivityTime userId={userDetail._id} />
                 </MemberPanelScroll>
               ),
             },

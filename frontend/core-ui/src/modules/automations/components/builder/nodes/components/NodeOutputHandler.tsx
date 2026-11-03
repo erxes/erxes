@@ -6,6 +6,7 @@ import { Handle, Position, useConnection } from '@xyflow/react';
 import { Button, cn } from 'erxes-ui';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { memo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface NodeOutputHandlerProps extends React.HTMLAttributes<HTMLDivElement> {
   handlerId: string;
@@ -77,6 +78,7 @@ const AwaitToConnectButton = memo(
     isVertical,
     label,
   }: AwaitToConnectButtonProps) => {
+    const { t } = useTranslation('automations');
     const {
       awaitingToConnectNodeId,
       setAwaitingToConnectNodeId,
@@ -123,6 +125,7 @@ const AwaitToConnectButton = memo(
           onClick={handleClick}
           size="sm"
           variant="outline"
+          aria-label={t('add-step', 'Add step')}
           className={cn(
             'group nodrag pointer-events-auto cursor-grab',
             addButtonClassName,

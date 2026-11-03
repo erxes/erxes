@@ -1360,5 +1360,7 @@
   "empty-list-description": "Try different filters or add a new one.",
   "empty-filter-description": "Try different filters.",
   "empty-generated-description": "These records are created from transactions. Record a transaction or try different filters.",
-  "select-a-report-description": "Choose a report from the list on the left, or start with a common one below."
+  "select-a-report-description": "Choose a report from the list on the left, or start with a common one below.",
+  "end-date-after-start": "End date must be on or after the start date",
+  "no-transactions-in-period": "No transactions in the selected period."
 }
