@@ -1,5 +1,11 @@
 import type { ReactElement } from 'react';
-import { act, render, renderHook, screen } from '@testing-library/react';
+import {
+  act,
+  render,
+  renderHook,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import { ITrRecord } from '@/transactions/types/Transaction';
 
@@ -133,10 +139,11 @@ test('the next transaction is removed only after the previous one finishes', asy
   const { result } = renderHook(() => useTrRecordsDelete());
 
   let deleting: Promise<boolean> = Promise.resolve(false);
-  await act(async () => {
+  act(() => {
     deleting = result.current.deleteTrRecords([bankLine, otherLine]);
   });
 
+  await waitFor(() => expect(mockRemoveTrRecords).toHaveBeenCalledTimes(1));
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
 
   await act(async () => {

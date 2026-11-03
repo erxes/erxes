@@ -34,13 +34,13 @@ import {
   getCurrentTransactionReturnPath,
 } from '../utils/transactionNavigation';
 
-const NumberCell = ({ row }: any) => {
+const NumberCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { number } = row.original;
 
   return <RecordTableInlineCell>{number}</RecordTableInlineCell>;
 };
 
-const DescriptionCell = ({ row }: any) => {
+const DescriptionCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { description } = row.original;
 
   return <RecordTableInlineCell>{description}</RecordTableInlineCell>;
@@ -97,7 +97,7 @@ const AmountItemCell = ({
   );
 };
 
-const BranchCell = ({ row }: any) => {
+const BranchCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { branch } = row.original;
 
   return (
@@ -107,7 +107,7 @@ const BranchCell = ({ row }: any) => {
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
+const DepartmentCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { department } = row.original;
 
   return (
@@ -142,15 +142,15 @@ const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ row }: { row: Row<ITrRecord> }) => {
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(new Date(row.original.date ?? '')).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   return (
@@ -160,7 +160,7 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   if (details?.fixedAssetId) {
@@ -183,10 +183,7 @@ const ProductCell = ({ row }: any) => {
 
   return (
     <RecordTableInlineCell>
-      <ProductsInline
-        productIds={[details.productId]}
-        products={details.product && [details.product]}
-      />
+      <ProductsInline productIds={[details.productId]} />
     </RecordTableInlineCell>
   );
 };
@@ -275,7 +272,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <NumberCell row={row} />,
   },
   {
     id: 'date',
@@ -283,7 +280,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell row={row} />,
     size: 100,
   },
   {
@@ -352,9 +349,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DescriptionCell row={row} />,
     size: 200,
   },
   {

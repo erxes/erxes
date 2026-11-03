@@ -7,6 +7,34 @@ import { useTrRecordsDelete } from '@/transactions/hooks/useTrRecordsDelete';
 import { useTransactionsFilterVariables } from '../hooks/useTransactionVars';
 import { ITrRecord } from '../types/Transaction';
 
+export const TransactionsDelete = () => {
+  const { t } = useTranslation('accounting');
+  const { table } = RecordTable.useRecordTable();
+  const { deleteTrRecords, loading } = useTrRecordsDelete();
+
+  const handleDelete = async () => {
+    const records = table
+      .getFilteredSelectedRowModel()
+      .rows.map((row: Row<ITrRecord>) => row.original);
+
+    if (await deleteTrRecords(records)) {
+      table.setRowSelection({});
+    }
+  };
+
+  return (
+    <Button
+      variant="secondary"
+      className="text-destructive"
+      disabled={loading}
+      onClick={handleDelete}
+    >
+      <IconTrash />
+      {t('delete')}
+    </Button>
+  );
+};
+
 export const TransactionsCommandbar = () => {
   const { t } = useTranslation('accounting');
   const { table } = RecordTable.useRecordTable();
@@ -41,33 +69,5 @@ export const TransactionsCommandbar = () => {
         <TransactionsDelete />
       </CommandBar.Bar>
     </CommandBar>
-  );
-};
-
-export const TransactionsDelete = () => {
-  const { t } = useTranslation('accounting');
-  const { table } = RecordTable.useRecordTable();
-  const { deleteTrRecords, loading } = useTrRecordsDelete();
-
-  const handleDelete = async () => {
-    const records = table
-      .getFilteredSelectedRowModel()
-      .rows.map((row: Row<ITrRecord>) => row.original);
-
-    if (await deleteTrRecords(records)) {
-      table.setRowSelection({});
-    }
-  };
-
-  return (
-    <Button
-      variant="secondary"
-      className="text-destructive"
-      disabled={loading}
-      onClick={handleDelete}
-    >
-      <IconTrash />
-      {t('delete')}
-    </Button>
   );
 };
