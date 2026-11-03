@@ -1,4 +1,4 @@
-import { getDealContactIds } from './dealContacts';
+import { getDealContactIds, TDealContacts } from './dealContacts';
 import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
 import lodash from 'lodash';
 import moment from 'moment';
@@ -421,49 +421,84 @@ const getCustomerName = (customer) => {
   return '';
 };
 
-const billTypeCustomFieldsData = async (config, deal) => {
-  const getPropertyValue = (fieldId) => deal.propertiesData?.[fieldId];
+interface DealBillTypeConfig {
+  checkTaxpayerUrl: string;
+  dealBillType?: {
+    groupId?: string;
+    billType?: string;
+    regNo?: string;
+    regNoField?: string;
+    companyName?: string;
+    companyNameField?: string;
+  };
+}
 
+interface BillTypeDeal extends TDealContacts {
+  propertiesData?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+interface BillTypeResult {
+  type: 'B2C_RECEIPT' | 'B2B_RECEIPT';
+  customerCode: string;
+  customerName: string;
+  customerTin: string;
+}
+
+const billTypeCustomFieldsData = async (
+  config: DealBillTypeConfig,
+  deal: BillTypeDeal,
+): Promise<BillTypeResult | undefined> => {
+  const fields = config.dealBillType;
+  if (!fields?.billType) return;
+
+  const getValue = (fieldId?: string): string => {
+    if (!fieldId) return '';
+    const value = fields.groupId === 'basic'
+      ? deal[fieldId]
+      : deal.propertiesData?.[fieldId];
+    return typeof value === 'string' || typeof value === 'number'
+      ? String(value).trim()
+      : '';
+  };
+
+  const billType = getValue(fields.billType);
+  if (['Хувь хүн', 'Customer', 'B2C', 'B2C_RECEIPT', '1'].includes(billType)) {
+    return {
+      type: 'B2C_RECEIPT',
+      customerCode: '',
+      customerName: '',
+      customerTin: '',
+    };
+  }
+
+  const regNo = getValue(fields.regNoField || fields.regNo);
+  const companyName = getValue(fields.companyNameField || fields.companyName);
   if (
-    config.dealBillType?.billType &&
-    config.dealBillType?.regNo &&
-    Object.keys(deal.propertiesData || {}).length
+    ['Байгууллага', 'Company', 'B2B', 'B2B_RECEIPT', '3'].includes(billType) &&
+    regNo && companyName
   ) {
-    const checkCompanyStrs = [
-      'Байгууллага',
-      'Company',
-      'B2B',
-      'B2B_RECEIPT',
-      '3',
-    ];
+    const resp = await getCompanyInfo({
+      checkTaxpayerUrl: config.checkTaxpayerUrl,
+      no: regNo,
+    });
 
-    const customDataBillType = getPropertyValue(config.dealBillType.billType);
-    const customDataRegNo = getPropertyValue(config.dealBillType.regNo);
-    const customDataComName = getPropertyValue(config.dealBillType.companyName);
-
-    if (
-      checkCompanyStrs.includes(customDataBillType) &&
-      customDataRegNo &&
-      customDataComName
-    ) {
-      const resp = await getCompanyInfo({
-        checkTaxpayerUrl: config.checkTaxpayerUrl,
-        no: customDataRegNo,
-      });
-
-      if (resp.status === 'checked' && resp.tin) {
-        return {
-          type: 'B2B_RECEIPT',
-          customerCode: customDataRegNo,
-          customerName: customDataComName,
-          customerTin: resp.tin,
-        };
-      }
+    if (resp.status === 'checked' && resp.tin) {
+      return {
+        type: 'B2B_RECEIPT',
+        customerCode: regNo,
+        customerName: companyName,
+        customerTin: resp.tin,
+      };
     }
   }
 };
 
-const billTypeConfomityCompany = async (subdomain, config, deal) => {
+const billTypeDealCompany = async (
+  subdomain: string,
+  config: DealBillTypeConfig,
+  deal: BillTypeDeal,
+): Promise<BillTypeResult | undefined> => {
   const companyIds = await getDealContactIds(subdomain, deal, 'company');
 
   if (companyIds.length > 0) {
@@ -501,7 +536,11 @@ const billTypeConfomityCompany = async (subdomain, config, deal) => {
   }
 };
 
-const checkBillType = async (subdomain, config, deal) => {
+export const checkBillType = async (
+  subdomain: string,
+  config: DealBillTypeConfig,
+  deal: BillTypeDeal,
+): Promise<BillTypeResult> => {
   let type: 'B2C_RECEIPT' | 'B2B_RECEIPT' = 'B2C_RECEIPT';
   let customerCode = '';
   let customerName = '';
@@ -515,8 +554,8 @@ const checkBillType = async (subdomain, config, deal) => {
     customerTin = checker.customerTin;
   }
 
-  if (type === 'B2C_RECEIPT') {
-    const checkerC = await billTypeConfomityCompany(subdomain, config, deal);
+  if (!checker) {
+    const checkerC = await billTypeDealCompany(subdomain, config, deal);
 
     if (checkerC?.type === 'B2B_RECEIPT') {
       type = 'B2B_RECEIPT';
