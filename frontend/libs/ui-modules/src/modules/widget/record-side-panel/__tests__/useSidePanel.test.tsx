@@ -109,7 +109,8 @@ it('replaces a saved draft in history without leaving the active related record'
 });
 
 const PanelNavigation = () => {
-  const { path, tab, setTab, openRecord, back } = useSidePanel();
+  const { path, tab, setTab, openRecord, back, close, dismissPath } =
+    useSidePanel();
   const [, setSearch] = useQueryState<string>('searchValue');
   const navigate = useNavigate();
   return (
@@ -128,6 +129,8 @@ const PanelNavigation = () => {
         Open related company
       </button>
       <button onClick={back}>Panel back</button>
+      <button onClick={close}>Close panel</button>
+      <button onClick={() => path && dismissPath(path)}>Dismiss panel</button>
       <button onClick={() => navigate(-1)}>Browser back</button>
       <button onClick={() => navigate(1)}>Browser forward</button>
       <button
@@ -297,4 +300,57 @@ it('replaces a hidden plugin draft through the app data router and returns to it
     ),
   );
   router.dispose();
+});
+
+it.each(['Close panel', 'Dismiss panel'])(
+  'clears full-page state atomically through %s and opens the next record compact',
+  (action) => {
+    const params = new URLSearchParams({
+      panel: '/detail/customer/customer-a',
+      panelExpanded: 'true',
+      searchValue: 'keep-filter',
+    });
+    window.history.replaceState(null, '', `?${params}`);
+    render(
+      <Provider>
+        <BrowserRouter>
+          <PanelNavigation />
+        </BrowserRouter>
+      </Provider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: action }));
+    const closed = new URLSearchParams(window.location.search);
+    expect(closed.has('panel')).toBe(false);
+    expect(closed.has('panelExpanded')).toBe(false);
+    expect(closed.get('searchValue')).toBe('keep-filter');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Open related company' }),
+    );
+    expect(
+      new URLSearchParams(window.location.search).has('panelExpanded'),
+    ).toBe(false);
+  },
+);
+
+it('preserves full-page mode while navigating between related records', () => {
+  window.history.replaceState(
+    null,
+    '',
+    '?panel=/detail/customer/customer-a&panelExpanded=true',
+  );
+  render(
+    <Provider>
+      <BrowserRouter>
+        <PanelNavigation />
+      </BrowserRouter>
+    </Provider>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Open related company' }));
+  expect(new URLSearchParams(window.location.search).get('panelExpanded')).toBe(
+    'true',
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Panel back' }));
+  expect(new URLSearchParams(window.location.search).get('panelExpanded')).toBe(
+    'true',
+  );
 });

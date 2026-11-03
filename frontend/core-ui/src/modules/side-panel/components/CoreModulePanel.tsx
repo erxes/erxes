@@ -8,6 +8,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -103,13 +104,15 @@ const ModulePanelRoot = ({
     leave,
     stack: Boolean(parent) || inRecord,
   });
-  actions.current = {
-    panel,
-    changeLocalOpen,
-    changeOpen,
-    leave,
-    stack: Boolean(parent) || inRecord,
-  };
+  useLayoutEffect(() => {
+    actions.current = {
+      panel,
+      changeLocalOpen,
+      changeOpen,
+      leave,
+      stack: Boolean(parent) || inRecord,
+    };
+  });
 
   useEffect(() => {
     const before = previous.current;

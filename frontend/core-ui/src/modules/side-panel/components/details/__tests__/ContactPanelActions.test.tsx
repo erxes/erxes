@@ -68,3 +68,27 @@ it('does not offer unavailable messaging or email actions', () => {
   expect(screen.queryByRole('button', { name: 'Email' })).toBeNull();
   expect(screen.queryByRole('button', { name: 'Message' })).toBeNull();
 });
+
+it.each([
+  ['example.com', 'https://example.com/'],
+  ['http://example.com/path', 'http://example.com/path'],
+  ['javascript:alert(1)', null],
+  ['javascript://example.com/alert(1)', null],
+  ['not a valid host', null],
+] as const)(
+  'renders only a safe website link for %s',
+  (website, expectedHref) => {
+    render(
+      <ContactPanelActions
+        contentType="core:customer"
+        contentId="customer-a"
+        title="Customer A"
+        website={website}
+        onNote={jest.fn()}
+      />,
+    );
+    const link = screen.queryByRole('link');
+    if (expectedHref) expect(link?.getAttribute('href')).toBe(expectedHref);
+    else expect(link).toBeNull();
+  },
+);

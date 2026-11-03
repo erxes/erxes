@@ -1,7 +1,8 @@
 /** @jest-environment jsdom */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { Provider } from 'jotai';
-import { useState } from 'react';
+import { Provider, useAtomValue } from 'jotai';
+import { startTransition, Suspense, useState } from 'react';
+import { modulePanelEntriesState } from '@/side-panel/states/modulePanelState';
 import { BrowserRouter } from 'react-router-dom';
 import { CoreModulePanel } from '../CoreModulePanel';
 import { CoreModulePanelSlot } from '../CoreModulePanelSlot';
@@ -216,4 +217,60 @@ it('keeps repeated visits to the same record distinct when navigating Back', () 
   );
   expect(screen.getByLabelText('Visit first')).toBe(visits[0]);
   expect(visits[0].value).toBe('Original visit');
+});
+
+it('closes the committed module when a transition to another module suspends', async () => {
+  const pending = new Promise<void>(() => undefined);
+  const SuspendAfterRoot = ({ suspend }: { suspend: boolean }) => {
+    if (suspend) throw pending;
+    return <span>Committed module</span>;
+  };
+  const PendingModule = () => {
+    const [suspend, setSuspend] = useState(false);
+    return (
+      <>
+        <button onClick={() => startTransition(() => setSuspend(true))}>
+          Suspend another module
+        </button>
+        <Suspense fallback="Loading module">
+          <CoreModulePanel name={suspend ? 'pending' : 'committed'} open>
+            <SuspendAfterRoot suspend={suspend} />
+          </CoreModulePanel>
+        </Suspense>
+      </>
+    );
+  };
+  const RegisteredClose = () => {
+    const entries = useAtomValue(modulePanelEntriesState);
+    return (
+      <button
+        disabled={!entries['/module/committed']}
+        onClick={() => entries['/module/committed']?.onClose()}
+      >
+        Close registered module
+      </button>
+    );
+  };
+  window.history.replaceState(null, '', '/');
+  render(
+    <Provider>
+      <BrowserRouter>
+        <PendingModule />
+        <RegisteredClose />
+        <Host />
+      </BrowserRouter>
+    </Provider>,
+  );
+  await waitFor(() =>
+    expect(screen.getByLabelText('Panel path').textContent).toBe(
+      '/module/committed',
+    ),
+  );
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Suspend another module' }),
+  );
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Close registered module' }),
+  );
+  expect(new URLSearchParams(window.location.search).get('panel')).toBeNull();
 });

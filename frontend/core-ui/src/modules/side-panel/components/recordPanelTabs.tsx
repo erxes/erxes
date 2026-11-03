@@ -99,26 +99,28 @@ export const buildRecordPanelTabs = ({
     onReorder,
     onToggleTab,
   } = overview;
-  const pinnedTabs: IRecordSidePanelTab[] = contactType
-    ? pinned.map((entry) => ({
-        value: `module:${entry.key}`,
-        label: entry.label,
-        icon: entry.icon || IconLink,
-        content: (
-          <PinnedModuleTab
-            entry={entry}
-            contactType={contactType}
-            contentId={record.contentId}
-            access={access}
-            onUnavailable={onUnavailable}
-          />
-        ),
-      }))
-    : [];
   const conversationEntry =
     contactType === 'core:customer'
       ? allEntries.find((entry) => entry.key === 'frontline.conversation')
       : undefined;
+  const pinnedTabs: IRecordSidePanelTab[] = contactType
+    ? pinned
+        .filter((entry) => entry.key !== conversationEntry?.key)
+        .map((entry) => ({
+          value: `module:${entry.key}`,
+          label: entry.label,
+          icon: entry.icon || IconLink,
+          content: (
+            <PinnedModuleTab
+              entry={entry}
+              contactType={contactType}
+              contentId={record.contentId}
+              access={access}
+              onUnavailable={onUnavailable}
+            />
+          ),
+        }))
+    : [];
   const relationsContent = contactType ? (
     <ContactOverview
       contactType={contactType}

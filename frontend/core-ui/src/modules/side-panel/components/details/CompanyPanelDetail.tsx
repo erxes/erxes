@@ -17,6 +17,7 @@ import { ContactDetailIdProvider } from '@/contacts/contexts/ContactDetailIdCont
 import { TCompany } from '@/contacts/types/companyType';
 import { NumberField, ScrollArea, Spinner, Switch, TextField } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useId } from 'react';
 import {
   CompanyEmails,
   CompanyPhones,
@@ -36,7 +37,11 @@ const SCOPE = 'side-panel-company';
 type TPanelCompany = TCompany & { isSubscribed?: string };
 
 type TTextCode =
-  'primaryName' | 'code' | 'website' | 'location' | 'businessType';
+  | 'primaryName'
+  | 'code'
+  | 'website'
+  | 'location'
+  | 'businessType';
 
 /** Edits one company text field using the existing inline mutation flow. */
 const CompanyTextField = ({
@@ -72,6 +77,7 @@ const CompanyTextField = ({
 
 /** Edits company fields through the contact mutation hooks. */
 const CompanyFields = () => {
+  const ownerControlId = useId();
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { companyDetail, loading } = useCompanyDetailWithQuery();
   const { companiesEdit } = useCompaniesEdit();
@@ -153,9 +159,11 @@ const CompanyFields = () => {
       <PanelField
         icon={IconUser}
         label={t('owner', 'Owner')}
+        htmlFor={ownerControlId}
         placeholder={!company.ownerId ? t('owner', 'Owner') : undefined}
       >
         <SelectMember.InlineCell
+          id={ownerControlId}
           scope={`${SCOPE}.owner`}
           value={company.ownerId}
           className="rounded-sm"

@@ -132,7 +132,8 @@ export const useSidePanel = () => {
   const [queries, setRoute] = useMultiQueryState<{
     panel: string;
     panelHistory: string[];
-  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY]);
+    panelExpanded: boolean;
+  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY, 'panelExpanded']);
   const path = typeof queries.panel === 'string' ? queries.panel : null;
   const location = useLocation();
   const routerState = location.state as {
@@ -177,6 +178,7 @@ export const useSidePanel = () => {
       {
         panel: nextPath,
         panelHistory: nextHistory.length ? nextHistory : null,
+        ...(nextPath === null ? { panelExpanded: null } : {}),
       },
       {
         replace,
