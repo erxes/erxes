@@ -108,11 +108,15 @@ export const useTrRecordsDelete = () => {
       return false;
     }
 
-    const results = await Promise.all(
-      parents.map(({ parentId }) => removeTrRecords(parentId)),
-    );
+    let allRemoved = true;
 
-    return results.every((result) => !result.errors);
+    for (const { parentId } of parents) {
+      const { errors } = await removeTrRecords(parentId);
+
+      allRemoved = allRemoved && !errors;
+    }
+
+    return allRemoved;
   };
 
   return { deleteTrRecords, loading: preparing || removing };

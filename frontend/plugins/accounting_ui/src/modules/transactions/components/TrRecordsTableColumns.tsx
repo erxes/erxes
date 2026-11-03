@@ -191,12 +191,34 @@ const ProductCell = ({ row }: any) => {
   );
 };
 
+const TransactionMoreActions = ({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={onEdit}>
+          <IconEdit /> {t('edit')}
+        </Command.Item>
+        <Command.Item value="delete" onSelect={onDelete}>
+          <IconTrash /> {t('delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
+  );
+};
+
 const TransactionMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<ITrRecord, unknown>;
 }) => {
-  const { t } = useTranslation('accounting');
   const { parentId, trId, originId } = cell.row.original;
   const navigate = useNavigate();
   const location = useLocation();
@@ -220,16 +242,7 @@ const TransactionMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
-            </Command.Item>
-          </Command.List>
-        </Command>
+        <TransactionMoreActions onEdit={handleEdit} onDelete={handleDelete} />
       </Combobox.Content>
     </Popover>
   );

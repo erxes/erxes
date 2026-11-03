@@ -40,14 +40,14 @@ const bankLine: ITrRecord = {
   _id: 'line-bank',
   parentId: 'parent-1',
   number: 'BNK-0042',
-  date: '2026-11-02T00:00:00.000Z',
+  date: new Date(2026, 10, 2).toISOString(),
 };
 const cashLine: ITrRecord = { ...bankLine, _id: 'line-cash' };
 const otherLine: ITrRecord = {
   _id: 'line-other',
   parentId: 'parent-2',
   number: 'GEN-0007',
-  date: '2026-10-30T00:00:00.000Z',
+  date: new Date(2026, 9, 30).toISOString(),
 };
 
 const twoLineTransaction = [
@@ -61,7 +61,7 @@ beforeEach(() => {
   mockQuery.mockResolvedValue({
     data: { accTransactionsDetail: twoLineTransaction },
   });
-  mockConfirm.mockResolvedValue(undefined);
+  mockConfirm.mockResolvedValue(true);
   mockRemoveTrRecords.mockResolvedValue({});
 });
 
@@ -125,6 +125,28 @@ test('lines from different transactions are counted per transaction and warn abo
   expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1'], ['parent-2']]);
 });
 
+test('the next transaction is removed only after the previous one finishes', async () => {
+  let finishFirst: (value: object) => void = () => null;
+  mockRemoveTrRecords.mockImplementationOnce(
+    () => new Promise((resolve) => (finishFirst = resolve)),
+  );
+  const { result } = renderHook(() => useTrRecordsDelete());
+
+  let deleting: Promise<boolean> = Promise.resolve(false);
+  await act(async () => {
+    deleting = result.current.deleteTrRecords([bankLine, otherLine]);
+  });
+
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1']]);
+
+  await act(async () => {
+    finishFirst({});
+    await deleting;
+  });
+
+  expect(mockRemoveTrRecords.mock.calls).toEqual([['parent-1'], ['parent-2']]);
+});
+
 test('a transaction the server refuses to remove keeps the selection', async () => {
   mockRemoveTrRecords.mockResolvedValue({
     errors: new Error(
@@ -143,7 +165,7 @@ test('a transaction the server refuses to remove keeps the selection', async () 
 });
 
 test('cancelling the dialog deletes nothing', async () => {
-  mockConfirm.mockRejectedValue(undefined);
+  mockConfirm.mockRejectedValue(new Error('cancelled'));
   const { result } = renderHook(() => useTrRecordsDelete());
 
   let deleted = true;
