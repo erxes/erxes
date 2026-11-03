@@ -18,6 +18,7 @@ jest.mock('erxes-ui', () => ({
     void size;
     return <button {...props}>{children}</button>;
   },
+  Checkbox: () => null,
   cn: (...parts: (string | boolean | undefined)[]) =>
     parts.filter(Boolean).join(' '),
 }));
