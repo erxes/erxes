@@ -529,8 +529,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-      ? DETAIL_TAB
-      : ACTIVITY_TAB;
+        ? DETAIL_TAB
+        : ACTIVITY_TAB;
 
   return (
     <>
@@ -819,8 +819,8 @@ export const SidePanelLayout = () => {
             onExpandedChange={setExpanded}
             width={
               moduleEntry && path
-                ? moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0)
+                ? (moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0))
                 : width
             }
             maxWidth={moduleEntry?.maxWidth}

@@ -551,8 +551,8 @@ const RecordSidePanelTabs = ({
         splitOverview
           ? 'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]'
           : expanded
-          ? 'flex flex-row'
-          : 'flex flex-col',
+            ? 'flex flex-row'
+            : 'flex flex-col',
       )}
     >
       {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
@@ -565,8 +565,8 @@ const RecordSidePanelTabs = ({
           splitOverview
             ? 'col-start-1 row-start-2 box-content h-10 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1'
             : expanded
-            ? 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3'
-            : 'box-content items-center gap-1 h-10 px-2 border-b bg-background',
+              ? 'w-14 flex-col overflow-y-auto border-r bg-sidebar p-2 sm:w-48 sm:p-3'
+              : 'box-content items-center gap-1 h-10 px-2 border-b bg-background',
         )}
       >
         <Tabs.List

@@ -268,8 +268,8 @@ const PropertyValueInput = ({
       const selected = Array.isArray(value)
         ? (value as string[])
         : value
-        ? [value as string]
-        : [];
+          ? [value as string]
+          : [];
 
       const toggle = (optionValue: string) => {
         if (multiple) {
@@ -316,7 +316,7 @@ const PropertyValueInput = ({
     case 'file': {
       const text = Array.isArray(value)
         ? (value as string[]).join(', ')
-        : (value as string) ?? '';
+        : ((value as string) ?? '');
       return (
         <Input
           value={text}
