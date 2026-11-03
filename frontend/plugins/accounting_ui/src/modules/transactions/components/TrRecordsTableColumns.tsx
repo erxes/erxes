@@ -35,13 +35,13 @@ import {
   getCurrentTransactionReturnPath,
 } from '../utils/transactionNavigation';
 
-const NumberCell = ({ row }: any) => {
+const NumberCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { number } = row.original;
 
   return <RecordTableInlineCell>{number}</RecordTableInlineCell>;
 };
 
-const DescriptionCell = ({ row }: any) => {
+const DescriptionCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { description } = row.original;
 
   return <RecordTableInlineCell>{description}</RecordTableInlineCell>;
@@ -60,19 +60,30 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
+const SideAmountCell = ({
+  row,
+  cellSide,
+}: {
+  row: Row<ITrRecord>;
+  cellSide: string;
+}) => {
   const { details, side } = row.original;
   const { amount } = details ?? {};
 
-  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
+  if (!side || !TR_SIDES.ALL.includes(side)) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+
+  return <AmountCell value={side === cellSide ? fixNum(amount) : 0} />;
 };
 
-const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.DEBIT} />
+);
 
-  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
-};
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} cellSide={TR_SIDES.CREDIT} />
+);
 
 const AmountItemCell = ({
   row,
@@ -98,7 +109,7 @@ const AmountItemCell = ({
   );
 };
 
-const BranchCell = ({ row }: any) => {
+const BranchCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { branch } = row.original;
 
   return (
@@ -108,7 +119,7 @@ const BranchCell = ({ row }: any) => {
   );
 };
 
-const DepartmentCell = ({ row }: any) => {
+const DepartmentCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { department } = row.original;
 
   return (
@@ -143,15 +154,17 @@ const JournalCell = ({ row }: { row: Row<ITrRecord> }) => {
   );
 };
 
-const DateCell = ({ getValue }: any) => {
+const DateCell = ({ row }: { row: Row<ITrRecord> }) => {
+  const { date } = row.original;
+
   return (
     <RecordTableInlineCell>
-      {dayjs(new Date(getValue())).format('YYYY-MM-DD')}
+      {dayjs(new Date(date)).format('YYYY-MM-DD')}
     </RecordTableInlineCell>
   );
 };
 
-const AccountCell = ({ row }: any) => {
+const AccountCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   return (
@@ -161,7 +174,7 @@ const AccountCell = ({ row }: any) => {
   );
 };
 
-const ProductCell = ({ row }: any) => {
+const ProductCell = ({ row }: { row: Row<ITrRecord> }) => {
   const { details } = row.original;
 
   if (details?.fixedAssetId) {
@@ -189,6 +202,29 @@ const ProductCell = ({ row }: any) => {
         products={details.product && [details.product]}
       />
     </RecordTableInlineCell>
+  );
+};
+
+const TrRecordActions = ({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <Command shouldFilter={false}>
+      <Command.List>
+        <Command.Item value="edit" onSelect={onEdit}>
+          <IconEdit /> {t('edit')}
+        </Command.Item>
+        <Command.Item value="delete" onSelect={onDelete}>
+          <IconTrash /> {t('delete')}
+        </Command.Item>
+      </Command.List>
+    </Command>
   );
 };
 
@@ -231,16 +267,7 @@ const TransactionMoreColumnCell = ({
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
-        <Command shouldFilter={false}>
-          <Command.List>
-            <Command.Item value="edit" onSelect={handleEdit}>
-              <IconEdit /> {t('edit')}
-            </Command.Item>
-            <Command.Item value="delete" onSelect={handleDelete}>
-              <IconTrash /> {t('delete')}
-            </Command.Item>
-          </Command.List>
-        </Command>
+        <TrRecordActions onEdit={handleEdit} onDelete={handleDelete} />
       </Combobox.Content>
     </Popover>
   );
@@ -273,7 +300,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <NumberCell row={row} />,
   },
   {
     id: 'date',
@@ -281,7 +308,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconCalendar} label={t('date')} />
     ),
     accessorKey: 'date',
-    cell: ({ getValue, row }) => <DateCell getValue={getValue} row={row} />,
+    cell: ({ row }) => <DateCell row={row} />,
     size: 100,
   },
   {
@@ -350,9 +377,7 @@ export const trRecordColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ row }) => <DescriptionCell row={row} />,
     size: 200,
   },
   {
