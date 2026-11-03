@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -373,16 +373,24 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   arguments, same document as `posCovers`) so `hasNextPage` loads pages past
   the first 30; each fetched page replaces it with that page's
   `posCoversCount`, like Items; it writes that count on every result, including
-  0, and resets it to `null` (skeleton) while a new result loads; a failed
-  `posCovers` request shows the error alert like Orders, never the empty state.
+  0, and resets it to `null` while a new result loads; the header shows the
+  skeleton only while the query loads (`posCoverTotalCountLoadingAtom`) and no
+  count after a failure; a failed `posCovers` request shows the error alert
+  like Orders, never the empty state. Fetched pages skip rows whose `_id` is
+  already loaded.
 - POS report list documents (Orders, Items, ByItems, Summary, Covers) declare
   `$posId` and pass it to the field so the `:posId` route scopes each list;
   `posOrderCustomers` and `posOrderBySubscriptions` have no backend `posId`
   argument and are not POS-scoped.
 - Product-group saves project only `GroupInput` fields and refetch that POS's
   groups before completing. Cover deletion removes each successfully deleted
-  id from every cached `posCovers` filter variant and evicts
-  `posCoversCount` so the total refetches.
+  id from every cached `posCovers` filter variant; `useRemovePosCover`, once
+  in `finally` after the whole loop (also after a partial failure), evicts
+  `posCoversCount` and refetches the active `posCovers` query with
+  `refetchQueries`. An evict alone is dropped by Apollo while a fetchMore or
+  refetch is in flight, which left loaded rows short of the count. The list
+  returns to the first page after a delete: page-number fetchMore would skip
+  rows that shifted after local removals.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
   contracts rather than declaring documents for unsupported aliases.

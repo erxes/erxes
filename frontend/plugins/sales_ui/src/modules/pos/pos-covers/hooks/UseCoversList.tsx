@@ -6,8 +6,11 @@ import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo } from 'react';
 import type { PosCoversQueryVariables } from '~/gql/graphql';
-import { posCovers } from '../graphql/queries/queries';
-import { posCoverTotalCountAtom } from '../states/usePosCoversCounts';
+import { posCovers } from '@/pos/pos-covers/graphql/queries/queries';
+import {
+  posCoverTotalCountAtom,
+  posCoverTotalCountLoadingAtom,
+} from '@/pos/pos-covers/states/usePosCoversCounts';
 
 const COVERS_PER_PAGE = 30;
 
@@ -55,6 +58,9 @@ export const useCoversList = (
 ): UseCoversListReturn => {
   const variables = useCoversVariables(options);
   const setPosCoverTotalCount = useSetAtom(posCoverTotalCountAtom);
+  const setPosCoverTotalCountLoading = useSetAtom(
+    posCoverTotalCountLoadingAtom,
+  );
   const { data, loading, error, fetchMore } = useQuery(posCovers, {
     variables,
   });
@@ -92,9 +98,17 @@ export const useCoversList = (
         if (!fetchMoreResult?.posCovers) {
           return prev;
         }
+        const existingIds = new Set(
+          (prev.posCovers || []).map((cover) => cover?._id),
+        );
         return {
           ...prev,
-          posCovers: [...(prev.posCovers || []), ...fetchMoreResult.posCovers],
+          posCovers: [
+            ...(prev.posCovers || []),
+            ...fetchMoreResult.posCovers.filter(
+              (cover) => !existingIds.has(cover?._id),
+            ),
+          ],
           posCoversCount: fetchMoreResult.posCoversCount ?? prev.posCoversCount,
         };
       },
@@ -104,6 +118,10 @@ export const useCoversList = (
   useEffect(() => {
     setPosCoverTotalCount(data?.posCovers ? totalCount : null);
   }, [data?.posCovers, totalCount, setPosCoverTotalCount]);
+
+  useEffect(() => {
+    setPosCoverTotalCountLoading(loading);
+  }, [loading, setPosCoverTotalCountLoading]);
 
   return {
     loading,

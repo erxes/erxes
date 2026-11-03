@@ -24,5 +24,4 @@ export const updateCacheAfterRemove = (
       },
     },
   });
-  cache.evict({ id: 'ROOT_QUERY', fieldName: 'posCoversCount' });
 };
