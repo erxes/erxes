@@ -3,7 +3,6 @@ import type { IInstagramIntegrationDocument } from '@/integrations/instagram/@ty
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
 import { getOrCreateCustomer } from '@/integrations/instagram/controller/store';
 import { receiveInboxMessage } from '@/inbox/receiveMessage';
-import { debugInstagram } from '@/integrations/instagram/debuggers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import {
   checkIsBot,
@@ -182,8 +181,14 @@ export const receiveMessage = async (
   const userId = activity.sender.id;
   const { recipient, timestamp } = activity;
 
-  if (await handleReactionEvent(models, activity)) return;
-  if (await handleReceiptEvent(models, integration, activity)) return;
+  if (await handleReactionEvent(models, activity)) {
+    console.log('[instagram]', `Handled reaction event from ${userId}`);
+    return;
+  }
+  if (await handleReceiptEvent(models, integration, activity)) {
+    console.log('[instagram]', `Handled read/delivery receipt from ${userId}`);
+    return;
+  }
 
   let message = activity.message;
   const postback = activity.postback;
@@ -202,10 +207,25 @@ export const receiveMessage = async (
           postback.payload,
         )
       : undefined);
-  if (!mid) return;
+  if (!mid) {
+    console.log(
+      '[instagram]',
+      `Skipped event from ${userId} without mid:`,
+      JSON.stringify(activity),
+    );
+    return;
+  }
   const attachments = message?.attachments;
 
-  debugInstagram(`Received message from ${userId} → page ${pageId}`);
+  console.log(
+    '[instagram]',
+    `Received message ${mid} from ${userId} → page ${pageId}:`,
+    JSON.stringify({
+      text: activity.text || message?.text,
+      attachments,
+      postback,
+    }),
+  );
 
   let text = activity.text || message?.text;
 
@@ -249,6 +269,10 @@ export const receiveMessage = async (
     instagramPageId: pageId,
     kind,
   });
+  console.log(
+    '[instagram]',
+    `Conversation ${conversation._id} (erxesApiId ${conversation.erxesApiId}) for ${userId}`,
+  );
   if (!conversationIntegration?.erxesApiId) {
     throw new Error('Instagram conversation Messenger integration not found');
   }
@@ -263,6 +287,10 @@ export const receiveMessage = async (
   if (!customer) {
     throw new Error('Customer not found');
   }
+  console.log(
+    '[instagram]',
+    `Customer ${customer._id} (erxesApiId ${customer.erxesApiId}) for ${userId}`,
+  );
 
   const messageSelector = { mid, conversationId: conversation._id };
   const existingMessage = await models.InstagramConversationMessages.findOne(
@@ -270,13 +298,19 @@ export const receiveMessage = async (
   );
 
   if (normalizedMessage.messageKind !== 'deleted') {
-    if (existingMessage?.inboxSyncPending === false) return;
+    if (existingMessage?.inboxSyncPending === false) {
+      console.log('[instagram]', `Message ${mid} already synced, skipping`);
+      return;
+    }
     if (existingMessage && existingMessage.inboxSyncPending === undefined) {
       const legacyInboxMessage = await models.ConversationMessages.findOne({
         conversationId: conversation.erxesApiId,
         $or: [{ 'providerData.messageId': mid }, { mid }],
       });
-      if (legacyInboxMessage) return;
+      if (legacyInboxMessage) {
+        console.log('[instagram]', `Message ${mid} already in inbox, skipping`);
+        return;
+      }
     }
   }
 
@@ -310,6 +344,10 @@ export const receiveMessage = async (
   }
   conversation.erxesApiId = apiConversationResponse.data._id;
   await conversation.save();
+  console.log(
+    '[instagram]',
+    `Inbox conversation ${conversation.erxesApiId} ready for message ${mid}`,
+  );
 
   const erxesConversationId = conversation.erxesApiId;
   if (!erxesConversationId) {
@@ -365,6 +403,10 @@ export const receiveMessage = async (
           ...normalizedMessage,
         },
         mid,
+      );
+      console.log(
+        '[instagram]',
+        `Inbox message synced for ${mid} in conversation ${erxesConversationId}`,
       );
 
       await triggerInstagramAutomation(subdomain, {
