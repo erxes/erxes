@@ -2,6 +2,7 @@ import { useConfirm, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
+import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
 
 import {
   useDealsCopy,
@@ -109,11 +110,9 @@ export const useDealActions = ({
     }
 
     if (panelDealId && removedDealIds.has(panelDealId)) {
-      if (canGoBack) {
-        backPanel();
-      } else {
-        closePanel();
-      }
+      leaveDeletedDealPanel(panelDealId, () =>
+        canGoBack ? backPanel() : closePanel(),
+      );
     }
   };
 

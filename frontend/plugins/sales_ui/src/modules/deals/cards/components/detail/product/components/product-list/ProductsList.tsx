@@ -78,10 +78,25 @@ export const ProductsList = ({
     Record<string, Partial<DealProductData>>
   >(productsDraft ? getProductsDraftPatches(productsDraft, productsData) : {});
   const hasUnsavedEditsRef = useRef(Boolean(productsDraft));
+  const editRevisionRef = useRef(0);
+  const savedRevisionRef = useRef(0);
   const editLocalProductsData = useCallback(
     (update: SetStateAction<DealProductData[]>) => {
       hasUnsavedEditsRef.current = true;
-      setLocalProductsData(update);
+      editRevisionRef.current += 1;
+      setLocalProductsData((prev) => {
+        const next = typeof update === 'function' ? update(prev) : update;
+        const patches = getProductsDraftPatches(next, prev);
+
+        Object.entries(patches).forEach(([id, patch]) => {
+          pendingProductPatchesRef.current[id] = {
+            ...pendingProductPatchesRef.current[id],
+            ...patch,
+          };
+        });
+
+        return next;
+      });
     },
     [],
   );
@@ -111,6 +126,10 @@ export const ProductsList = ({
   const { editDeals } = useDealsEdit(
     {
       onCompleted: () => {
+        if (editRevisionRef.current !== savedRevisionRef.current) {
+          return;
+        }
+
         hasUnsavedEditsRef.current = false;
         setProductsDraft(null);
       },
@@ -370,7 +389,10 @@ export const ProductsList = ({
         onChangeProductsData={editLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}
-        onSave={handleSave}
+        onSave={() => {
+          savedRevisionRef.current = editRevisionRef.current;
+          handleSave();
+        }}
         hasUnsavedChanges={Boolean(productsDraft)}
       />
     </>

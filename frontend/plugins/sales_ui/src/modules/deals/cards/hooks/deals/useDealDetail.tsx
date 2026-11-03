@@ -23,6 +23,7 @@ import { useAtom } from 'jotai';
 import { useEffect, useMemo, useRef } from 'react';
 import { useDealIdOverride } from '@/deals/context/DealIdContext';
 import { useSidePanel } from 'ui-modules';
+import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
 
 export const useDealDetail = (
   options?: QueryHookOptions<DealDetailQuery, DealDetailQueryVariables>,
@@ -39,6 +40,23 @@ export const useDealDetail = (
     close: closePanel,
   } = useSidePanel();
   const panelRecordId = panelRecord?.contentId;
+  const panelStateRef = useRef({
+    backPanel,
+    canGoBack,
+    closePanel,
+    panelRecordId,
+    setSalesItemId,
+  });
+
+  useEffect(() => {
+    panelStateRef.current = {
+      backPanel,
+      canGoBack,
+      closePanel,
+      panelRecordId,
+      setSalesItemId,
+    };
+  }, [backPanel, canGoBack, closePanel, panelRecordId, setSalesItemId]);
   const passedId = options?.variables?._id;
   const finalId = passedId || overrideId || salesItemId || activeDealId;
 
@@ -79,23 +97,23 @@ export const useDealDetail = (
     if (!finalId || options?.skip || !subscribe) return;
 
     const leaveDeletedDeal = () => {
+      const panel = panelStateRef.current;
+
       if (activeDealId === finalId) {
         setActiveDealId(null);
       }
 
       if (salesItemId === finalId) {
-        setSalesItemId(null);
+        panel.setSalesItemId(null);
       }
 
-      if (overrideId !== finalId || panelRecordId !== finalId) {
+      if (overrideId !== finalId || panel.panelRecordId !== finalId) {
         return;
       }
 
-      if (canGoBack) {
-        backPanel();
-      } else {
-        closePanel();
-      }
+      leaveDeletedDealPanel(finalId, () =>
+        panel.canGoBack ? panel.backPanel() : panel.closePanel(),
+      );
     };
 
     const subscriptionOptions: SubscribeToMoreOptions<
@@ -167,17 +185,12 @@ export const useDealDetail = (
     return subscribeToMore(subscriptionOptions);
   }, [
     activeDealId,
-    backPanel,
-    canGoBack,
-    closePanel,
     finalId,
-    panelRecordId,
     options?.skip,
     overrideId,
     refetch,
     salesItemId,
     setActiveDealId,
-    setSalesItemId,
     subscribe,
     subscribeToMore,
   ]);
