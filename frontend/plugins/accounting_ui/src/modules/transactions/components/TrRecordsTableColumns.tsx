@@ -60,19 +60,47 @@ const AmountCell = ({ value }: { value: number }) => {
   );
 };
 
-const DebitCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const getRecordSide = ({ side, sumDt, sumCt }: ITrRecord) => {
+  if (side) {
+    return side;
+  }
 
-  return <AmountCell value={side === TR_SIDES.DEBIT ? fixNum(amount) : 0} />;
+  if (sumDt) {
+    return TR_SIDES.DEBIT;
+  }
+
+  return sumCt ? TR_SIDES.CREDIT : undefined;
 };
 
-const CreditCell = ({ row }: { row: Row<ITrRecord> }) => {
-  const { details, side } = row.original;
-  const { amount } = details ?? {};
+const isRealZero = ({ details, sumDt, sumCt }: ITrRecord) =>
+  sumDt === 0 && sumCt === 0 && details?.amount === 0;
 
-  return <AmountCell value={side === TR_SIDES.CREDIT ? fixNum(amount) : 0} />;
+const SideAmountCell = ({
+  row,
+  columnSide,
+}: {
+  row: Row<ITrRecord>;
+  columnSide: string;
+}) => {
+  const { details } = row.original;
+  const side = getRecordSide(row.original);
+
+  if (!side && !isRealZero(row.original)) {
+    return <RecordTableInlineCell>-</RecordTableInlineCell>;
+  }
+
+  return (
+    <AmountCell value={side === columnSide ? fixNum(details?.amount) : 0} />
+  );
 };
+
+const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} columnSide={TR_SIDES.DEBIT} />
+);
+
+const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
+  <SideAmountCell row={row} columnSide={TR_SIDES.CREDIT} />
+);
 
 const AmountItemCell = ({
   row,
