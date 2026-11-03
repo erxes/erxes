@@ -308,6 +308,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   plugin settings, `config.tsx` has no `settingsNavigation`, and there is
   no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Money and product text on board cards and column totals is `text-xs` (12 px)
+  or larger with `tabular-nums`. Column headings are `text-base`, the same size
+  as card titles.
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. `eslint.config.js` enforces this
   with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
