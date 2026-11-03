@@ -349,7 +349,7 @@ plugin; ported from the former private `erxes-agent` service). It provides:
 - `codeMode.ts`, `askUser.ts`, `fileBinding.ts`, `fileTimeout.ts`,
   `fileValidation.ts` (allowed MIME types, including
   `AGENTS_DOCUMENT_MIME_TYPES`; keep aligned with core-ui `agentsFiles.ts`),
-  `toolSchemaCompatibility.ts`, `mongo44Compatibility.ts`, `providers.ts`,
+  `mongo44Compatibility.ts`, `providers.ts`,
   `threadsEvents.ts`.
 - `db/` — `AgentsConnection` + `AgentsSettings` models (registered in
   `src/connectionResolvers.ts`); `graphql/` — schemas + thin resolvers.

@@ -8,9 +8,8 @@ import { IModels } from '~/connectionResolvers';
 import { IInternalNote } from '~/modules/internalNote/types';
 
 /**
- * Adds an internal note and its activity log. Shared by the GraphQL
- * `internalNotesAdd` resolver (which checks `internalNotesManage` first) and
- * the agent-facing `internalNotes.add` tRPC procedure.
+ * Adds an internal note and its activity log for the GraphQL
+ * `internalNotesAdd` resolver, which checks `internalNotesManage` first.
  */
 export const addInternalNote = async ({
   models,
