@@ -2,9 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
 import { formatDate as format } from '@/utils/graphqlDate';
 import { Button, useQueryState, useToast } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState, type RefObject } from 'react';
-import { currentOrganizationState } from 'ui-modules';
+import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
 import { ReportRules } from '../types/reportsMap';
 import { exportJournalReportExcel } from '../utils/exportJournalReportExcel';
 
@@ -27,7 +26,7 @@ export const ReportExcelExportButton = ({
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
-  const organization = useAtomValue(currentOrganizationState);
+  const organizationName = useJournalReportOrganizationName();
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
 
@@ -43,7 +42,7 @@ export const ReportExcelExportButton = ({
     try {
       await exportJournalReportExcel(reportContainerRef.current, {
         title,
-        organizationName: organization?.name || '',
+        organizationName,
         dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
           .filter(Boolean)
           .join(' - '),

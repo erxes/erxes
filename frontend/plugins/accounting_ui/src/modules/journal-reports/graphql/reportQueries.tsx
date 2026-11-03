@@ -113,3 +113,12 @@ query accountingJournalReportMore($status: String, $searchValue: String, $number
   }
 }
 `);
+
+export const JOURNAL_REPORT_ORGANIZATION_QUERY = gql(`
+query accountingJournalReportOrganization {
+  structureDetail {
+    _id
+    title
+  }
+}
+`);
