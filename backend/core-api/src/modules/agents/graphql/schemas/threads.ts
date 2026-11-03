@@ -53,5 +53,6 @@ export const mutations = `
   ): AgentsThread
   agentsThreadRemove(threadId: String!): Boolean
   agentsThreadStop(threadId: String!): Boolean
+  agentsThreadFork(threadId: String!, messageId: String!): AgentsThread
   agentsThreadAllowRootFields(threadId: String!, rootFields: [String!]!): AgentsThread
 `;
