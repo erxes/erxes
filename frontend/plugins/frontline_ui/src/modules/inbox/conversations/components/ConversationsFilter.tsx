@@ -220,6 +220,7 @@ const ConversationFilterCommand = ({
 };
 
 export const FilterConversationsPopover = () => {
+  const { t } = useTranslation('common');
   const [queries, setQueries] = useMultiQueryState<ConversationFilterQueries>([
     'status',
     'unassigned',
@@ -250,7 +251,7 @@ export const FilterConversationsPopover = () => {
 
   return (
     <Filter.Popover scope={InboxHotkeyScope.MainPage}>
-      <Filter.Trigger isFiltered />
+      <Filter.Trigger isFiltered aria-label={t('filter._')} />
       <Combobox.Content className="w-64">
         <Filter.View>
           <ConversationFilterCommand

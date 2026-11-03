@@ -17,6 +17,11 @@ export const ConversationDisplay = () => {
     return null;
   }
 
+  const label =
+    view === 'split'
+      ? t('list-view', 'List view')
+      : t('split-view', 'Split view');
+
   return (
     <Tooltip.Provider>
       <Tooltip delayDuration={0}>
@@ -24,16 +29,13 @@ export const ConversationDisplay = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={label}
             onClick={() => setView(view === 'split' ? 'list' : 'split')}
           >
             <Icon size={20} />
           </Button>
         </Tooltip.Trigger>
-        <Tooltip.Content>
-          {view === 'split'
-            ? t('list-view', 'List view')
-            : t('split-view', 'Split view')}
-        </Tooltip.Content>
+        <Tooltip.Content>{label}</Tooltip.Content>
       </Tooltip>
     </Tooltip.Provider>
   );
