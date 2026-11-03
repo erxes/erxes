@@ -6,9 +6,9 @@ import { JOURNAL_REPORT_ORGANIZATION_QUERY } from '@/journal-reports/graphql/rep
 let mockOrganization: { name?: string; type?: string } | null = null;
 
 jest.mock('react-i18next', () => {
-  const t = (key: string) => key;
+  const translate = (key: string) => key;
 
-  return { useTranslation: () => ({ t }) };
+  return { useTranslation: () => ({ t: translate }) };
 });
 jest.mock('erxes-ui', () => ({
   Separator: () => <hr />,

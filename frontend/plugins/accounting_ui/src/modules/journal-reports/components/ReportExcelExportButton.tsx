@@ -26,7 +26,7 @@ export const ReportExcelExportButton = ({
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
-  const organizationName = useJournalReportOrganizationName();
+  const { organizationName, loading } = useJournalReportOrganizationName();
   const { toast } = useToast();
   const [exporting, setExporting] = useState(false);
 
@@ -70,7 +70,7 @@ export const ReportExcelExportButton = ({
       type="button"
       variant="outline"
       onClick={handleExport}
-      disabled={exporting || !reportCode}
+      disabled={exporting || loading || !reportCode}
       className="print:hidden"
     >
       <IconFileSpreadsheet />

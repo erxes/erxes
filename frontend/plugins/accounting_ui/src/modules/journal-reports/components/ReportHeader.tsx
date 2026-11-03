@@ -18,7 +18,7 @@ const parseQueryDate = (value?: string): string => {
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const { t } = useTranslation('accounting');
-  const organizationName = useJournalReportOrganizationName();
+  const { organizationName } = useJournalReportOrganizationName();
   const [report] = useQueryState<string>('report');
   const [fromDate] = useQueryState<string>('fromDate');
   const [toDate] = useQueryState<string>('toDate');
