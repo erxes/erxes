@@ -279,6 +279,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- The Sales Pipeline breadcrumb links to `/sales/deals` with the current
+  `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
+  pipeline with history `replace`, so Back can leave a bare `/sales/deals`.
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
   (ui-modules `getHostContacts`: the host itself when it is a contact, else
