@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -122,6 +122,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
+- A board card opens its deal on a click anywhere outside its pickers, the title
+  included, and on Enter while the card has focus (`SortableCard` clicks the
+  card). Space picks the card up for a keyboard drag; Enter only drops it. The
+  copy icon beside the title copies the deal name without opening the deal.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.

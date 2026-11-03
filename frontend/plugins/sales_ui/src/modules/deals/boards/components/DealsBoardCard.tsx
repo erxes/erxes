@@ -8,7 +8,7 @@ import { DealLoyaltyPointsBadge } from '@/deals/loyaltyRules/components/DealLoya
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { IDeal } from '@/deals/types/deals';
 import { dealProductsSchema, isRecord } from '@/deals/utils/dealJson';
-import { IconAlertCircleFilled } from '@tabler/icons-react';
+import { IconAlertCircleFilled, IconCopy } from '@tabler/icons-react';
 import { CopyText, isDefined, Separator, useQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { memo, useState } from 'react';
@@ -317,11 +317,18 @@ export const DealsBoardCard = memo(function DealsBoardCard({
           </div>
         )}
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">
-            <CopyText value={name || ''} className="hover:opacity-70 text-left">
-              {name}
-            </CopyText>
-          </h5>
+          <div className="group/title flex items-start gap-1">
+            <h5 className="font-semibold">{name}</h5>
+            {name && (
+              <CopyText
+                value={name}
+                className="mt-0.5 shrink-0 rounded text-muted-foreground opacity-0 hover:text-foreground focus-visible:opacity-100 group-hover/title:opacity-100"
+              >
+                <IconCopy className="size-4" />
+                <span className="sr-only">{t('copy')}</span>
+              </CopyText>
+            )}
+          </div>
           {stage?.age != null && stage.age < 0 && (
             <span className="px-2 rounded flex gap-1 bg-yellow-50 text-yellow-400 border-yellow-100 border">
               <IconAlertCircleFilled className="size-6 pt-2" />

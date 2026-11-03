@@ -7,6 +7,7 @@ import {
   pointerWithin,
   rectIntersection,
   getFirstCollision,
+  KeyboardCode,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -105,6 +106,11 @@ function GenericBoardInner<
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+      keyboardCodes: {
+        start: [KeyboardCode.Space],
+        cancel: [KeyboardCode.Esc],
+        end: [KeyboardCode.Space, KeyboardCode.Enter, KeyboardCode.Tab],
+      },
     }),
   );
 
