@@ -19,24 +19,26 @@ export const useOpenPosPanelFromQuery = (
 
     let cancelled = false;
 
-    void Promise.resolve(toContentId(value)).then((contentId) => {
-      if (cancelled) {
-        return;
-      }
+    Promise.resolve(toContentId(value))
+      .then((contentId) => {
+        if (cancelled) {
+          return;
+        }
 
-      setSearchParams(
-        (previous) => {
-          const next = new URLSearchParams(previous);
-          next.delete(queryKey);
-          next.set(
-            SIDE_PANEL_QUERY_KEY,
-            getSidePanelRecordPath({ contentType, contentId }),
-          );
-          return next;
-        },
-        { replace: true },
-      );
-    });
+        setSearchParams(
+          (previous) => {
+            const next = new URLSearchParams(previous);
+            next.delete(queryKey);
+            next.set(
+              SIDE_PANEL_QUERY_KEY,
+              getSidePanelRecordPath({ contentType, contentId }),
+            );
+            return next;
+          },
+          { replace: true },
+        );
+      })
+      .catch(() => undefined);
 
     return () => {
       cancelled = true;
