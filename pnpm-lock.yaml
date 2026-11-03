@@ -1188,7 +1188,7 @@ importers:
         specifier: ^0.2.3
         version: 0.2.3
 
-  backend/plugins/dataextensions_api:
+  backend/services/dataextensions:
     dependencies:
       erxes-api-shared:
         specifier: workspace:^

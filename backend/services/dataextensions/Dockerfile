@@ -4,12 +4,12 @@ WORKDIR /app
 RUN npm install -g pnpm@9
 
 COPY pnpm-lock.yaml ./
-COPY backend/plugins/dataextensions_api/package.json backend/plugins/dataextensions_api/
+COPY backend/services/dataextensions/package.json backend/services/dataextensions/
 COPY backend/erxes-api-shared/package.json backend/erxes-api-shared/
 RUN node -e "\
 const fs = require('fs'); \
 const shared = require('./backend/erxes-api-shared/package.json'); \
-const service = require('./backend/plugins/dataextensions_api/package.json'); \
+const service = require('./backend/services/dataextensions/package.json'); \
 const dependencies = { \
   ...(shared.dependencies || {}), \
   ...(service.dependencies || {}), \
@@ -50,7 +50,7 @@ COPY backend/erxes-api-shared/core-types ./node_modules/erxes-api-shared/core-ty
 COPY backend/erxes-api-shared/core-modules ./node_modules/erxes-api-shared/core-modules
 COPY backend/erxes-api-shared/package.json ./node_modules/erxes-api-shared/
 
-COPY backend/plugins/dataextensions_api/dist ./dist
+COPY backend/services/dataextensions/dist ./dist
 
 ENV NODE_ENV=production
 USER 1000

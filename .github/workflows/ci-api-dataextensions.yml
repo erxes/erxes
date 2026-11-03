@@ -5,12 +5,12 @@ on:
     branches:
       - main
     paths:
-      - 'backend/plugins/dataextensions_api/**'
+      - 'backend/services/dataextensions/**'
       - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-dataextensions.yml'
   pull_request:
     paths:
-      - 'backend/plugins/dataextensions_api/**'
+      - 'backend/services/dataextensions/**'
       - 'backend/erxes-api-shared/**'
       - '.github/workflows/ci-api-dataextensions.yml'
 
@@ -46,7 +46,7 @@ jobs:
         run: pnpm nx build erxes-api-shared
 
       - name: Test dataextensions_api
-        run: pnpm exec jest -c backend/plugins/dataextensions_api/jest.config.ts
+        run: pnpm exec jest -c backend/services/dataextensions/jest.config.ts
 
       - name: Build dataextensions_api
         run: pnpm nx build dataextensions_api
@@ -69,7 +69,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: backend/plugins/dataextensions_api/Dockerfile
+          file: backend/services/dataextensions/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           tags: |

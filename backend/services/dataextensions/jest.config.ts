@@ -20,6 +20,6 @@ export default {
   },
   testMatch: ['<rootDir>/src/**/*.spec.ts', '<rootDir>/src/**/*.test.ts'],
   forceExit: true,
-  coverageDirectory: '../../../coverage/backend/plugins/dataextensions_api',
+  coverageDirectory: '../../../coverage/backend/services/dataextensions',
   modulePathIgnorePatterns: ['<rootDir>/dist/'],
 };

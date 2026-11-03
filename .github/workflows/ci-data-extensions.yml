@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'backend/core-api/src/modules/data-extensions/**'
-      - 'backend/plugins/dataextensions_api/**'
+      - 'backend/services/dataextensions/**'
       - 'backend/erxes-api-shared/src/core-modules/data-extensions/**'
       - 'backend/gateway/src/proxy/**'
       - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
@@ -14,7 +14,7 @@ on:
   pull_request:
     paths:
       - 'backend/core-api/src/modules/data-extensions/**'
-      - 'backend/plugins/dataextensions_api/**'
+      - 'backend/services/dataextensions/**'
       - 'backend/erxes-api-shared/src/core-modules/data-extensions/**'
       - 'backend/gateway/src/proxy/**'
       - 'frontend/libs/ui-modules/src/modules/data-extensions/**'
@@ -53,7 +53,7 @@ jobs:
         run: pnpm exec jest -c backend/core-api/jest.config.ts backend/core-api/src/modules/data-extensions
 
       - name: Test runtime (dataextensions_api)
-        run: pnpm exec jest -c backend/plugins/dataextensions_api/jest.config.ts
+        run: pnpm exec jest -c backend/services/dataextensions/jest.config.ts
 
       - name: Test UI module
         run: pnpm exec jest -c frontend/libs/ui-modules/jest.config.ts frontend/libs/ui-modules/src/modules/data-extensions

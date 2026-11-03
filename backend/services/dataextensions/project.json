@@ -1,7 +1,7 @@
 {
   "name": "dataextensions_api",
   "$schema": "../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "backend/plugins/dataextensions_api/src",
+  "sourceRoot": "backend/services/dataextensions/src",
   "projectType": "application",
   "tags": [],
   "targets": {
@@ -9,7 +9,7 @@
       "executor": "nx:run-commands",
       "cache": true,
       "options": {
-        "cwd": "backend/plugins/dataextensions_api",
+        "cwd": "backend/services/dataextensions",
         "commands": ["pnpm build"]
       },
       "dependsOn": ["^build", "build:packageJson"]
@@ -18,9 +18,9 @@
     "build:packageJson": {
       "executor": "@nx/js:tsc",
       "options": {
-        "main": "backend/plugins/dataextensions_api/dist/src/main.js",
-        "tsConfig": "backend/plugins/dataextensions_api/tsconfig.build.json",
-        "outputPath": "backend/plugins/dataextensions_api/dist",
+        "main": "backend/services/dataextensions/dist/src/main.js",
+        "tsConfig": "backend/services/dataextensions/tsconfig.build.json",
+        "outputPath": "backend/services/dataextensions/dist",
         "updateBuildableProjectDepsInPackageJson": true,
 
         "buildableProjectDepsInPackageJsonType": "dependencies"
@@ -31,7 +31,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["typecheck", "build"],
       "options": {
-        "cwd": "backend/plugins/dataextensions_api",
+        "cwd": "backend/services/dataextensions",
         "command": "NODE_ENV=development node dist/src/main.js"
       }
     },
@@ -40,14 +40,14 @@
       "executor": "nx:run-commands",
 
       "options": {
-        "cwd": "backend/plugins/dataextensions_api",
+        "cwd": "backend/services/dataextensions",
         "command": "NODE_ENV=development pnpm dev"
       }
     },
 
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f backend/plugins/dataextensions_api/Dockerfile . -t erxes/erxes-next-dataextensions_api"
+      "command": "docker build -f backend/services/dataextensions/Dockerfile . -t erxes/erxes-next-dataextensions_api"
     },
     "schema:print": {}
   }
