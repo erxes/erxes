@@ -45,7 +45,9 @@ const STRUCTURE_RESPONSE: MockedResponse = {
   request: { query: JOURNAL_REPORT_ORGANIZATION_QUERY },
   delay: 30,
   result: {
-    data: { structureDetail: { _id: 'company', title: 'Altai Taiga Tour LLC' } },
+    data: {
+      structureDetail: { _id: 'company', title: 'Altai Taiga Tour LLC' },
+    },
   },
 };
 
