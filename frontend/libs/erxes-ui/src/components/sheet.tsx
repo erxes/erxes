@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { Dialog as SheetPrimitive } from 'radix-ui';
 import { IconX } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { Button } from './button';
 import { cn } from '../lib/utils';
@@ -61,8 +62,7 @@ export const SheetPortal = ({
 SheetPortal.displayName = SheetPrimitive.Portal.displayName;
 
 interface SheetContentProps
-  extends
-    React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
+  extends React.ComponentPropsWithoutRef<typeof SheetPrimitive.Content>,
     VariantProps<typeof sheetVariants> {}
 
 const SheetView = React.forwardRef<
@@ -87,12 +87,19 @@ export const SheetClose = React.forwardRef<
   React.ElementRef<typeof SheetPrimitive.Close>,
   React.ComponentPropsWithoutRef<typeof SheetPrimitive.Close>
 >(({ asChild, ...props }, ref) => {
+  const { t } = useTranslation();
+
   if (asChild) {
     return <SheetPrimitive.Close ref={ref} {...props} asChild />;
   }
 
   return (
-    <SheetPrimitive.Close ref={ref} {...props} asChild>
+    <SheetPrimitive.Close
+      ref={ref}
+      aria-label={t('close', 'Close')}
+      {...props}
+      asChild
+    >
       <Button
         variant="secondary"
         size="icon"

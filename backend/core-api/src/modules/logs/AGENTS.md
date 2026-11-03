@@ -138,7 +138,9 @@ is still honored when present.
   `name` field resolver (`resolvers/customResolvers/log.ts`: the exact operation —
   graphql `payload.mutationName`, else `contentType`/`collectionName` — read off the
   stored doc so the list never ships the full payload; surfaced as the **Operation**
-  column in the System Logs table) · `../../../meta/logs.ts` (optional per-entity
+  column in the System Logs table), plus `docId` (masked by `sanitizeLogValue` like
+  other ids) and a `recordName` resolver (the first of `prevDocument`, `fullDocument`
+  or `result` with a `name`/`title`), surfaced as the **Record** column · `../../../meta/logs.ts` (optional per-entity
   config) · `erxes-api-shared/.../elasticsearch/saveEs.ts`.
 
 **UI:** `frontend/core-ui/src/modules/logs/`

@@ -77,6 +77,7 @@ const WorkflowNodeContent = ({
             <Button
               variant="ghost"
               size="icon"
+              aria-label={t('open-workflow', 'Open workflow')}
               onClick={() => setEditingWorkflowId(id)}
             >
               <IconArrowsMaximize className="size-4" />
@@ -84,7 +85,11 @@ const WorkflowNodeContent = ({
           )}
           <DropdownMenu open={isOpenDropDown} onOpenChange={setOpenDropDown}>
             <DropdownMenu.Trigger asChild>
-              <Button variant="ghost" size="icon">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label={t('step-actions', 'Step actions')}
+              >
                 <IconDots className="size-4" />
               </Button>
             </DropdownMenu.Trigger>
@@ -250,7 +255,11 @@ const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Sheet.Trigger asChild>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label={t('open-workflow', 'Open workflow')}
+        >
           <IconArrowsMaximize className="size-4" />
         </Button>
       </Sheet.Trigger>

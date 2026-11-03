@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -446,8 +446,26 @@
   customer's tickets, by `customerId`, that are not resolved or closed). `actionCreateMessage` skips an
   AI-written reply as `superseded-by-newer-message` when a newer customer
   message exists.
-- AI long-term memory scopes: Facebook and Messenger `generateAiContext` set
-  `memory.scopes` to the conversation (`frontline:facebook.conversation` /
+- Takes turns on Instagram the same way (`instagram/meta/automation/utils/turnTaking.ts`):
+  a typed DM is delayed by `INSTAGRAM_REPLY_DEBOUNCE_TEXT_MS` / `_MEDIA_MS`
+  (2 s / 5 s), bot and internal messages never trigger, a direct condition
+  without keyword rules answers any text or replyable media and drops a
+  message the same person has written since, and `actionCreateMessage` skips
+  an AI-written reply as `superseded-by-newer-message`. Instagram
+  `generateAiContext` mirrors Facebook's (input merge, history, media markers,
+  `facts.openTickets`) but names media by the inbox copy id
+  (`instagram-<providerMessageId>-<index>`), since
+  `resolveConversationMedia` reads inbox rows; memory scopes use
+  `frontline:instagram.conversation`. Instagram message and comment actions
+  resolve `{{ actions.<id>.text }}` through `replaceOutputPlaceholders` and
+  `prevAction` templates (`utils/templates.ts`), so an AI agent's text reaches
+  the reply. `getOrCreateComment` dispatches `frontline:instagram.comments`
+  (target: the comment row plus the inbox `erxesApiId` / `conversationId`)
+  once the comment's inbox copy is synced, and the comment action looks up the
+  inbox conversation by that id to find the integration.
+- AI long-term memory scopes: Facebook, Instagram and Messenger
+  `generateAiContext` set `memory.scopes` to the conversation
+  (`frontline:facebook.conversation` / `frontline:instagram.conversation` /
   `frontline:inbox.conversation`) and `core:customer`
   (`modules/inbox/meta/automation/aiMemoryScopes.ts`). The automations service
   files what an agent's tool branches did under these scopes. **Create
@@ -682,6 +700,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Call reporting           | `src/modules/reports/callReportService.ts`                                                                                                                       | CDR filter, leg-to-call folding, and the per-queue/agent/number report computation                                                                                                                                     |
 | Call SLA report          | `src/modules/reports/callSlaService.ts`                                                                                                                          | Inbound answered ÷ offered, callbacks count as answered, missed reasons, series, queues, breaches                                                                                                                      |
 | FB automation            | `src/modules/integrations/facebook/meta/automation/`                                                                                                             | Comment/message triggers and actions, bot message generation                                                                                                                                                           |
+| IG automation            | `src/modules/integrations/instagram/meta/automation/`                                                                                                            | Message/comment triggers and actions, turn-taking, AI context, placeholder templates |
 | FB page posting          | `src/modules/integrations/facebook/postService.ts`, `postGuard.ts`                                                                                               | Post publishing pipeline (validation, photo staging, cleanup, permalink) and its rate limit + audit log                                                                                                                |
 | FB client portal         | `src/modules/integrations/facebook/graphql/resolvers/clientPortal.ts`                                                                                            | `facebookGetPosts`: recent posts of connected pages, read from a client portal session                                                                                                                                 |
 | FB app resolution        | `src/modules/integrations/facebook/commonUtils.ts`                                                                                                               | `resolveFacebookApp`, `facebookAppSelector`, `facebookAccountSelector`                                                                                                                                                 |
@@ -1527,7 +1546,7 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   looks it up in the triggering conversation only, so no id can attach a file
   from another conversation. URLs never pass through the model.
 - Automation ticket code resolves the inbox conversation through
-  `resolveInboxConversationId`: Facebook targets carry the integration's own
+  `resolveInboxConversationId`: Facebook and Instagram targets carry the integration's own
   conversation id, never the inbox one.
 
 - A `scheduled` article is published by a delayed BullMQ job on the

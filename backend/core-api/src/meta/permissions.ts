@@ -480,6 +480,11 @@ export const permissions: IPermissionConfig = {
           description: 'Reset team member password',
         },
         {
+          title: 'View member activity',
+          name: 'teamMembersViewActivity',
+          description: 'See when and how long other team members are active',
+        },
+        {
           title: 'Import team members',
           name: 'teamMembersImportManage',
           description: 'Import team members',
@@ -881,6 +886,7 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersViewActivity',
             'teamMembersImportManage',
             'teamMembersExportManage',
           ],

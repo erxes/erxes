@@ -1,7 +1,7 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
 import { useConversationExport } from '@/report/hooks/useConversationExport';
-import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineCard } from '@/report/components/frontline-card/FrontlineCard';
 import {
   Alert,
   Badge,
@@ -23,10 +23,10 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { ReportFilter } from '../filter-popover/report-filter';
+import { ReportFilter } from '@/report/components/filter-popover/report-filter';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
-import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { ReportChartActions } from '@/report/components/report-chart/ReportChartActions';
 import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 const PER_PAGE = 10;
@@ -49,6 +49,218 @@ const CONVERSATION_LIST_EXPORT_COLUMNS = [
   { key: 'createdAt', header: 'Created At', width: 18 },
   { key: 'closedAt', header: 'Closed At', width: 18 },
 ] as const;
+
+export const MoreCell = ({
+  cell,
+}: {
+  cell: Cell<ConversationListItem, unknown>;
+}) => {
+  const { _id } = cell.row.original || {};
+  const navigate = useNavigate();
+  return (
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      onClick={() => {
+        navigate(`/frontline/inbox?conversationId=${_id}`);
+      }}
+    >
+      <IconMessageShare />
+    </RecordTable.MoreButton>
+  );
+};
+
+export const conversationListColumns = (
+  t: TFunction,
+): ColumnDef<ConversationListItem>[] => [
+  {
+    id: 'createdAt',
+    header: t('created-at', 'Created At'),
+    accessorKey: 'createdAt',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <span className="text-xs text-muted-foreground">
+            {formatDate(cell.getValue() as string, 'dd/MM/yyyy HH:mm')}
+          </span>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'customerId',
+    header: t('customer', 'Customer'),
+    accessorKey: 'customerId',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <CustomersInline.Provider customerIds={[cell.getValue() as string]}>
+            <CustomersInline.Avatar size="sm" />
+            <CustomersInline.Title className="text-xs text-muted-foreground" />
+          </CustomersInline.Provider>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'userId',
+    header: t('last-conversation-by', 'Last Conversation by'),
+    accessorKey: 'userId',
+    size: 100,
+    cell: ({ cell }) => {
+      const { userId } = cell.row.original || {};
+      if (!userId) {
+        return (
+          <RecordTableInlineCell className="flex items-center justify-center">
+            <Badge variant="secondary" className="text-xs">
+              {t('customer', 'Customer')}
+            </Badge>
+          </RecordTableInlineCell>
+        );
+      }
+      return (
+        <RecordTableInlineCell className="flex items-center justify-center">
+          <Badge variant="secondary" className="text-xs">
+            {t('member', 'Member')}
+          </Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'status',
+    header: t('status', 'Status'),
+    accessorKey: 'status',
+    size: 100,
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell className="flex items-center justify-center">
+          <Badge>{cell.getValue() as string}</Badge>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'assignedUserId',
+    header: t('assigned-to', 'Assigned to'),
+    accessorKey: 'assignedUserId',
+    cell: ({ cell }) => {
+      return (
+        <RecordTableInlineCell>
+          <MembersInline.Provider memberIds={[cell.getValue() as string]}>
+            <MembersInline.Avatar size="sm" />
+            <MembersInline.Title className="text-xs text-muted-foreground" />
+          </MembersInline.Provider>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'readUsers',
+    header: t('opened-by', 'Opened by'),
+    accessorKey: 'readUsers',
+    cell: ({ cell }) => {
+      const { readUsers } = cell.row.original || {};
+      if (!readUsers) {
+        return <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>;
+      }
+      return (
+        <RecordTableInlineCell>
+          <MembersInline.Provider
+            memberIds={readUsers.map((user) => user?._id).filter(isDefined)}
+          >
+            <MembersInline.Avatar size="sm" />
+            <MembersInline.Title className="text-xs text-muted-foreground" />
+          </MembersInline.Provider>
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'open',
+    header: () => <RecordTable.ColumnSelector />,
+    size: 33,
+    cell: ({ cell }) => <MoreCell cell={cell} />,
+  },
+];
+
+const ConversationListTable = memo(function ConversationListTable({
+  conversationList,
+}: {
+  conversationList: ConversationListItem[];
+}) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  const records = (
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+
+  return (
+    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
+      <RecordTable.Provider
+        data={conversationList}
+        columns={conversationListColumns(t)}
+        className="m-3"
+        tableId="frontline_conversation_report_record_table"
+      >
+        <RecordTable.Scroll>{records}</RecordTable.Scroll>
+      </RecordTable.Provider>
+    </div>
+  );
+});
+
+const Pagination = memo(function Pagination({
+  page,
+  totalPages,
+  totalCount,
+  onPrev,
+  onNext,
+}: {
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PER_PAGE + 1;
+  const to = Math.min(page * PER_PAGE, totalCount);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t">
+      <span className="text-xs text-muted-foreground">
+        {t('range-of-total', { from, to, total: totalCount })}
+      </span>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
+          <IconChevronLeft className="size-4" />
+          {t('prev', 'Prev')}
+        </Button>
+        <span className="text-xs text-muted-foreground px-2">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
+          {t('next', 'Next')}
+          <IconChevronRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+});
 
 export const ConversationList = ({
   title,
@@ -78,6 +290,13 @@ export const ConversationList = ({
       },
       skip: !filtersRestored,
     });
+
+  useEffect(() => {
+    if (isFetching || error || !conversationList) return;
+
+    const lastPage = Math.max(1, conversationList.totalPages ?? 1);
+    setPage((current) => Math.min(current, lastPage));
+  }, [conversationList, error, isFetching]);
 
   const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
   const handleNext = useCallback(() => setPage((p) => p + 1), []);
@@ -256,215 +475,5 @@ export const ConversationList = ({
         />
       </FrontlineCard.Content>
     </FrontlineCard>
-  );
-};
-
-const Pagination = memo(function Pagination({
-  page,
-  totalPages,
-  totalCount,
-  onPrev,
-  onNext,
-}: {
-  page: number;
-  totalPages: number;
-  totalCount: number;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  if (totalPages <= 1) return null;
-  const from = (page - 1) * PER_PAGE + 1;
-  const to = Math.min(page * PER_PAGE, totalCount);
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3 border-t">
-      <span className="text-xs text-muted-foreground">
-        {t('range-of-total', { from, to, total: totalCount })}
-      </span>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrev}
-          disabled={page <= 1}
-        >
-          <IconChevronLeft className="size-4" />
-          {t('prev', 'Prev')}
-        </Button>
-        <span className="text-xs text-muted-foreground px-2">
-          {page} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={page >= totalPages}
-        >
-          {t('next', 'Next')}
-          <IconChevronRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-});
-
-const ConversationListTable = memo(function ConversationListTable({
-  conversationList,
-}: {
-  conversationList: ConversationListItem[];
-}) {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
-  return (
-    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider
-        data={conversationList}
-        columns={conversationListColumns(t)}
-        className="m-3"
-        tableId="frontline_conversation_report_record_table"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
-    </div>
-  );
-});
-
-export const conversationListColumns = (
-  t: TFunction,
-): ColumnDef<ConversationListItem>[] => [
-  {
-    id: 'createdAt',
-    header: t('created-at', 'Created At'),
-    accessorKey: 'createdAt',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <span className="text-xs text-muted-foreground">
-            {formatDate(cell.getValue() as string, 'dd/MM/yyyy HH:mm')}
-          </span>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'customerId',
-    header: t('customer', 'Customer'),
-    accessorKey: 'customerId',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <CustomersInline.Provider customerIds={[cell.getValue() as string]}>
-            <CustomersInline.Avatar size="sm" />
-            <CustomersInline.Title className="text-xs text-muted-foreground" />
-          </CustomersInline.Provider>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'userId',
-    header: t('last-conversation-by', 'Last Conversation by'),
-    accessorKey: 'userId',
-    size: 100,
-    cell: ({ cell }) => {
-      const { userId } = cell.row.original || {};
-      if (!userId) {
-        return (
-          <RecordTableInlineCell className="flex items-center justify-center">
-            <Badge variant="secondary" className="text-xs">
-              {t('customer', 'Customer')}
-            </Badge>
-          </RecordTableInlineCell>
-        );
-      }
-      return (
-        <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge variant="secondary" className="text-xs">
-            {t('member', 'Member')}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'status',
-    header: t('status', 'Status'),
-    accessorKey: 'status',
-    size: 100,
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell className="flex items-center justify-center">
-          <Badge>{cell.getValue() as string}</Badge>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'assignedUserId',
-    header: t('assigned-to', 'Assigned to'),
-    accessorKey: 'assignedUserId',
-    cell: ({ cell }) => {
-      return (
-        <RecordTableInlineCell>
-          <MembersInline.Provider memberIds={[cell.getValue() as string]}>
-            <MembersInline.Avatar size="sm" />
-            <MembersInline.Title className="text-xs text-muted-foreground" />
-          </MembersInline.Provider>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'readUsers',
-    header: t('opened-by', 'Opened by'),
-    accessorKey: 'readUsers',
-    cell: ({ cell }) => {
-      const { readUsers } = cell.row.original || {};
-      if (!readUsers) {
-        return <RecordTableInlineCell>{t('n-a', 'N/A')}</RecordTableInlineCell>;
-      }
-      return (
-        <RecordTableInlineCell>
-          <MembersInline.Provider
-            memberIds={readUsers.map((user) => user?._id).filter(isDefined)}
-          >
-            <MembersInline.Avatar size="sm" />
-            <MembersInline.Title className="text-xs text-muted-foreground" />
-          </MembersInline.Provider>
-        </RecordTableInlineCell>
-      );
-    },
-  },
-  {
-    id: 'open',
-    header: () => <RecordTable.ColumnSelector />,
-    size: 33,
-    cell: ({ cell }) => <MoreCell cell={cell} />,
-  },
-];
-
-export const MoreCell = ({
-  cell,
-}: {
-  cell: Cell<ConversationListItem, unknown>;
-}) => {
-  const { _id } = cell.row.original || {};
-  const navigate = useNavigate();
-  return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        navigate(`/frontline/inbox?conversationId=${_id}`);
-      }}
-    >
-      <IconMessageShare />
-    </RecordTable.MoreButton>
   );
 };

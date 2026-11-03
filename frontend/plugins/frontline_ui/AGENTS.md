@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-01`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -103,18 +103,34 @@
   changes that rule. Reset clears the layout back to
   `DEFAULT_TICKET_CREATE_LAYOUT`. It is the only card on the page; there is no
   detail selection.
+- The tickets Sort control names the active order on its trigger ("Sort:
+  Created"), marks the selected field and direction, and offers newest or oldest
+  first. Field and direction live in `localStorage` (`ticketSort`,
+  `ticketSortDirection`), not in the URL. A ticket arriving by subscription is
+  inserted in the active order; one that sorts past the loaded rows waits for its
+  page.
 - Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
   settings (channel detail / pipeline General tab), and the new-ticket footer
   shows "Edit form" to the selected pipeline's Properties tab. Both appear
   only when `useCanManageChannels` allows the channel: owner, or the
   channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
   `removePipeline` enforce.
+- The tickets table has a read-only **Status changed date** column, shown as a
+  relative time with the exact time on hover, and the ticket detail has the same
+  date as a locked chip. The update mutation returns `statusChangedDate`, so both
+  change as soon as a status moves. A ticket that never moved shows its creation
+  moment, because the API defaults `statusChangedDate` to it; a missing value
+  shows "Not specified".
 - The new-ticket sheet renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
   (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
   properties via `PropertyFormField`. Property logic hides cells; required
   system fields, properties and description block Save with a toast and a red
   ring. Only shown properties are sent as `propertiesData`.
+- Inbox icon-only controls carry their own names: select-all and row checkboxes,
+  filter, layout, refresh, the conversation back arrow and the right rail tabs.
+  `SideMenu.Trigger` only uses `label` for its tooltip, so the rail passes
+  `aria-label` as well.
 - The conversation header shows a warning badge "+N same email" when other
   customers hold exactly the conversation customer's email (primary or listed).
   Its popover lists them (links to `/contacts/customers?contactId=`) and
@@ -565,6 +581,18 @@
   `{{ actions.<agentNodeId>.text }}` (`utils/buildAiReplySeedLink.ts`). The
   messenger trigger is a direct condition with no keyword rules (any text);
   the comment trigger is `postType: 'any'`.
+- The Instagram bot sheet (`instagram/components/bots/components/AutomationBotForm.tsx`)
+  carries the same menu: `InstagramBotCreateAutomationButton` seeds a message
+  or comment trigger with the bot, and "AI messenger reply" / "AI comment
+  reply" open `InstagramBotAiReplyDialog` (`aiReply` query; the sheet itself
+  reopens from `instagramBotId`). It reuses the Facebook `automationsAiAgents`
+  hook and `useFacebookBotAutomations` with the Instagram trigger types;
+  `useInstagramBotAiReplyClaims` blocks on an active automation that already
+  answers any text or any post. `utils/buildAiReplySeedLink.ts` seeds trigger
+  → `aiAgent` → `frontline:instagram.messages.create` (text
+  `{{ actions.<agentNodeId>.text }}`) or `frontline:instagram.comments.create`
+  (`text`, the single field its form writes). The Instagram message trigger
+  schema accepts a direct condition without keyword rules for this reason.
 - Attaches a Facebook Messenger bot to an integration from the integration list
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
@@ -652,6 +680,11 @@
   pipeline metadata is loading. A terminally missing selection falls back to
   the tickets-only breadcrumb, while query failures render an explicit error
   state.
+- Every report card names its icon-only controls after the card: the drag
+  handle, the chart-type trigger, and the Previous and Next page buttons, for
+  example "Next page of Conversation Open". `SelectChartType` and
+  `ChartPagination` read the title from the enclosing `FrontlineCard` through
+  `useFrontlineCardTitle`, so callers pass nothing.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,
@@ -796,6 +829,8 @@ owns the setup form and connection actions.
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+- A filtered Forms list with no rows shows `FormsNoMatch` with Clear filters;
+  first-use creation onboarding shows only when no filter is active.
 
 ## Contracts
 
@@ -1106,10 +1141,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
   mirrors the server rule — Get Started joins `items` only when there is a user
   menu item — and keeps `getStartedTitle` apart for the welcome-screen button.
-- An AI reply seed always ends in a Facebook reply action: the `aiAgent` node
-  only writes text. `FacebookBotAiReplyDialog` blocks when another **active**
-  automation on the bot already answers any text (`directCatchAll`) or any post
-  (`anyPost`); a draft one is shown, never blocking.
+- An AI reply seed always ends in a Facebook or Instagram reply action: the
+  `aiAgent` node only writes text. `FacebookBotAiReplyDialog` and
+  `InstagramBotAiReplyDialog` block when another **active** automation on the
+  bot already answers any text (`directCatchAll`) or any post (`anyPost`); a
+  draft one is shown, never blocking.
 - Instagram history includes internal notes in the same paginated timeline.
   Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
   merge all message fields so deletion, receipt and reaction updates remain

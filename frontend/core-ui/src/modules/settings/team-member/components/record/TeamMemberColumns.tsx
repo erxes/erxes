@@ -1,5 +1,7 @@
 import {
+  IconActivity,
   IconAlignLeft,
+  IconClock,
   IconGitBranch,
   IconFolder,
   IconUsers,
@@ -23,6 +25,7 @@ import {
   DatePicker,
   readImage,
   RecordTableInlineCell,
+  RelativeDateDisplay,
   toast,
 } from 'erxes-ui';
 import { IUser } from '@/settings/team-member/types';
@@ -38,6 +41,64 @@ import { TeamMemberEmailField } from '@/settings/team-member/components/record/t
 import clsx from 'clsx';
 import { teamMemberMoreColumn } from './TeamMemberMoreColumn';
 import { MemberPresenceDot } from '@/settings/team-member/sessions/components/MemberPresenceDot';
+
+const activityColumns = (t: TFunction): ColumnDef<IUser>[] => [
+  {
+    id: 'lastActiveAt',
+    accessorFn: (user) => user.activity?.lastActiveAt ?? '',
+    header: () => (
+      <RecordTable.InlineHead icon={IconClock} label={t('last-active')} />
+    ),
+    cell: ({ cell }) => {
+      const { activity } = cell.row.original;
+      // The Date scalar may arrive as a timestamp; the display expects ISO
+      const lastActiveAt = activity?.lastActiveAt
+        ? new Date(activity.lastActiveAt).toISOString()
+        : '';
+
+      if (!activity) {
+        return <RecordTableInlineCell>—</RecordTableInlineCell>;
+      }
+
+      return (
+        <RecordTableInlineCell>
+          {lastActiveAt ? (
+            <RelativeDateDisplay value={lastActiveAt}>
+              <RelativeDateDisplay.Value value={lastActiveAt} />
+            </RelativeDateDisplay>
+          ) : (
+            <span className="text-muted-foreground">{t('never-active')}</span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'activeMinutes',
+    accessorFn: (user) => user.activity?.activeMinutes ?? 0,
+    header: () => (
+      <RecordTable.InlineHead icon={IconActivity} label={t('active-7-days')} />
+    ),
+    cell: ({ cell }) => {
+      const { activity } = cell.row.original;
+
+      if (!activity) {
+        return <RecordTableInlineCell>—</RecordTableInlineCell>;
+      }
+
+      const minutes = activity.activeMinutes;
+
+      return (
+        <RecordTableInlineCell>
+          {t('active-duration', {
+            hours: Math.floor(minutes / 60),
+            minutes: minutes % 60,
+          })}
+        </RecordTableInlineCell>
+      );
+    },
+  },
+];
 
 export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
   return [
@@ -362,6 +423,7 @@ export const teamMemberColumns: (t: TFunction) => ColumnDef<IUser>[] = (t) => {
         );
       },
     },
+    ...activityColumns(t),
     // {
     //   id: 'isActive',
     //   accessorKey: 'isActive',

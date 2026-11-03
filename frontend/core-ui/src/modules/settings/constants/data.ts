@@ -314,6 +314,10 @@ export const GET_SETTINGS_SUB_NAVIGATION = (
         name: t('Permission groups'),
         path: `${TeamMembersPath.Index}${TeamMembersPath.TeamPermissions}`,
       },
+      {
+        name: t('Activity'),
+        path: `${TeamMembersPath.Index}${TeamMembersPath.TeamActivity}`,
+      },
     ],
   },
   [SettingsWorkspacePath.Structure]: {

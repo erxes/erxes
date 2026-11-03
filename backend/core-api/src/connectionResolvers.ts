@@ -116,6 +116,7 @@ import {
   AiAgentDocument,
   aiAgentSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   IAutomationDocument,
   IAutomationExecutionDocument,
   IEmailAddressDocument,
@@ -395,6 +396,10 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import {
+  IUserActivitiesModel,
+  loadUserActivitiesClass,
+} from '@/logs/db/models/UserActivities';
 import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
 import {
   IAgentsConnectionModel,
@@ -462,6 +467,7 @@ export interface IModels {
 
   AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
+  UserActivities: IUserActivitiesModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -1039,6 +1045,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    IUserActivitiesModel
+  >('user_activity_daily', loadUserActivitiesClass(models));
 
   return models;
 };
