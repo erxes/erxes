@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -122,7 +122,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - A board card opens its deal on a click anywhere outside its pickers, the title
   included, and on Enter while the card has focus (`SortableCard` clicks the
-  card). Space picks the card up for a keyboard drag; Enter only drops it.
+  card). Space picks the card up for a keyboard drag; Enter only drops it. The
+  copy icon beside the title copies the deal name without opening the deal.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
