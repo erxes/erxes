@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -643,6 +643,12 @@
   filters them and the trigger is clickable) and refuse selection in
   `onSelect`. The Instagram page step names
   the channel and integration of a page in use.
+- Account lists inside a sheet (`InstagramGetAccounts`,
+  `InstagramBotPageAccountsStep`) must not keep the `erxes-ui` `Command.List`
+  default `max-h-72` with its hidden scrollbar: the sheet content is a
+  `flex flex-col overflow-hidden` column and the list gets
+  `max-h-none overflow-y-auto` inside a `flex-1` radio group, so every account
+  stays reachable however many are connected.
 - The channel list's integrations cell opens a popover
   (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
   integration of that channel with kind, Facebook page names and health —
