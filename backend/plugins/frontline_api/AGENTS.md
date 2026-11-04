@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -125,7 +125,15 @@
   `frontline:ticket`, so the help center can link straight back to the ticket.
 - A ticket holds a single `branchId` / `departmentId`, settable on both
   `createTicket` and `updateTicket`; changing them can move the ticket out of
-  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline.
+  view for users on an `isCheckBranch` / `isCheckDepartment` pipeline, or
+  outside the caller's own branch / department when the core team member
+  restriction is on.
+- Core's general setting "With team member restrictions"
+  (`CHECK_TEAM_MEMBER_SHOWN`) applies to staff ticket lists: a user sees only
+  tickets whose `branchId` is in their branches (with child branches) and whose
+  `departmentId` is in their departments (with child departments). Users in
+  `BRANCHES_MASTER_TEAM_MEMBERS_IDS` / `DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS`
+  skip the matching half; owners and `role: 'system'` skip both.
 - `src/migrations/migrateForms.ts` copies a v2 form field into
   `frontline_form_fields` when its `contentType` is `form` or its
   `contentTypeId` is a migrated form, and always writes `contentType: 'form'`,
@@ -1445,6 +1453,12 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   The portal account behind a ticket is resolved from its `cp:<id>` author with
   `cpUsers.get` by `{ id }` and then by `{ erxesCustomerId }`, because a ticket
   records whichever of the two the portal session carried.
+- `core` over tRPC — `configs.getConfigs` (query, `{ codes }` → `{ [code]:
+  value }`), which reads `CHECK_TEAM_MEMBER_SHOWN`,
+  `BRANCHES_MASTER_TEAM_MEMBERS_IDS` and `DEPARTMENTS_MASTER_TEAM_MEMBERS_IDS`
+  for `buildTeamMemberRestriction`; and `branches.findWithChild` /
+  `departments.findWithChild` (query, `{ query, fields }`), which expand the
+  user's own structure ids to include their child units.
 - `core` over tRPC — `segment.fetchSegment`
   (`{ segmentId, cursor?, limit? }` → `{ ids, nextCursor? }`), which backs the
   conversation list `segment` filter. `segmentFilter` pages until `nextCursor`
@@ -1641,6 +1655,19 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   by `supervisorId`, intersected with the pipeline's `departmentIds`).
   `isCheckDate` stays an extra AND condition. `generateFilter` needs the
   request `subdomain` to resolve supervised departments.
+- The core team member restriction is a separate AND condition on top of the
+  pipeline rules. `buildTeamMemberRestriction` in
+  `src/modules/ticket/utils/teamMemberRestriction.ts` returns `null` unless
+  `CHECK_TEAM_MEMBER_SHOWN` is exactly `true`; it never exempts `createdBy` /
+  `assigneeId`, so a ticket outside the user's branch or department stays
+  hidden even when it is theirs. A user with no branches (or no departments)
+  gets no branch (or department) condition, matching `accounting_api`'s
+  transaction filter, and a ticket with an empty `branchId` / `departmentId` is
+  hidden from every restricted user. A request `branchIds` / `departmentIds`
+  filter narrows within the restriction; it cannot widen it. `generateFilter`
+  applies it only with a `subdomain`, a `user`, and `skipPipelineVisibility`
+  off, so client portal `createdBy` reads and exports are unaffected.
+  `getTicket` (single read) does not apply it, like the pipeline rules.
 - Staff pipeline rules (private-pipeline hiding and `isCheck*` visibility) never
   apply to client portal reads scoped by `createdBy`: `cpGetTickets` and
   `cpGetTicketTotalCount` pass `skipPipelineVisibility` to `generateFilter`, so
@@ -1760,6 +1787,11 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - `pnpm nx lint frontline_api` - runs ESLint with the plugin-local
   `eslint.config.js` (regex-escaping rules).
 - `pnpm nx build frontline_api`
+- Team member restriction: turn on Settings → General → "With team member
+  restrictions", give a non-owner user one branch, and confirm `getTickets`
+  returns only tickets in that branch (and its child branches) across every
+  pipeline, that adding the user to "Team members who can access all branches"
+  restores the full list, and that turning the setting off removes the filter.
 - `pnpm nx test frontline_api` — Jest over `src/**/*.test.ts` and the
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
