@@ -1,5 +1,13 @@
 
 
+## [3.4.12](https://github.com/erxes/erxes/compare/3.4.11...3.4.12) (2026-11-04)
+
+
+### Bug Fixes
+
+* **accounting:** show the real scope when deleting journal entries ([#10323](https://github.com/erxes/erxes/issues/10323)) ([fec3d65](https://github.com/erxes/erxes/commit/fec3d652373c74ba1c1b0c2b3f8e1b72d59a3e83))
+* **frontline:** call the Instagram page hook before early returns ([1dfb0c4](https://github.com/erxes/erxes/commit/1dfb0c449c2700768a492e648c3c73d03b41323f))
+
 ## [3.4.11](https://github.com/erxes/erxes/compare/3.4.10...3.4.11) (2026-11-04)
 
 
