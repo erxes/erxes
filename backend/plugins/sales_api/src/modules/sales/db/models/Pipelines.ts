@@ -91,7 +91,10 @@ export const loadPipelineClass = (
         doc.lastNum = await generateLastNum(models, doc);
       }
 
-      const pipeline = await models.Pipelines.create({ ...doc, userId });
+      const pipeline = await models.Pipelines.create({
+        ...doc,
+        userId: userId ?? doc.userId,
+      });
 
       if (stages) {
         await createOrUpdatePipelineStages(models, stages, pipeline._id);

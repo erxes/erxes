@@ -61,10 +61,12 @@
 - The deals settings pipelines table (`/sales/settings/deals`) filters by
   name (`searchValue`), status (`pipelineStatus`: active / archived) and
   creator (`createdBy`, matched on `userId`) through `PipelinesSubHeader`.
+  A pipeline without a stored `status` counts as `active`, matching the
+  backend's active group.
   `salesPipelines` takes none of these arguments, so `PipelineRecordTable`
   filters the loaded rows and, while any filter is set, keeps loading every
   page; a failed page stops that loading with a toast and the bottom skeleton
-  row retries it.
+  row retries it, showing the same toast when the retry fails.
 - The add deal form's properties hint opens
   `/sales/settings/properties/sales:deal`, inside Sales settings.
 - "Score earn configuration" (`deals/loyaltyRules`, button beside Add
@@ -327,7 +329,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Below the shared Tags/Properties items, `SalesSettingsLayout` renders two
   route-scoped `NavigationMenuGroup`s, and neither page has a side panel:
-  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`, titled
+  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`, matched
+  with `useIsMatchingLocation` so a trailing slash still counts, titled
   `Boards (N)` with the board count as before) lists every board (archived
   ones badged); a row links to `?activeBoardId=<id>`,
   its `⋯` menu edits (`boardId`), archives or deletes the board, and the group

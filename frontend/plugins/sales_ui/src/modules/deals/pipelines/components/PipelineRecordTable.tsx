@@ -339,6 +339,14 @@ const PipelineTable = ({
   </RecordTable.Scroll>
 );
 
+const showFetchMoreError = (fetchError: unknown) => {
+  toast({
+    title:
+      fetchError instanceof Error ? fetchError.message : String(fetchError),
+    variant: 'destructive',
+  });
+};
+
 export const PipelineRecordTable = () => {
   const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
@@ -382,7 +390,7 @@ export const PipelineRecordTable = () => {
   const visiblePipelines = (pipelines || []).filter(
     (pipeline) =>
       (!search || pipeline.name?.toLowerCase().includes(search)) &&
-      (!statusFilter || pipeline.status === statusFilter) &&
+      (!statusFilter || (pipeline.status ?? 'active') === statusFilter) &&
       (!createdBy || pipeline.userId === createdBy),
   );
 
@@ -401,13 +409,13 @@ export const PipelineRecordTable = () => {
     handleFetchMore()?.catch((fetchError: unknown) => {
       requestedCursor.current = undefined;
       setFailedCursor(cursor);
-      toast({
-        title:
-          fetchError instanceof Error ? fetchError.message : String(fetchError),
-        variant: 'destructive',
-      });
+      showFetchMoreError(fetchError);
     });
   }, [loadingRemainingPages, loading, pageInfo?.endCursor, handleFetchMore]);
+
+  const handleInViewFetchMore = () => {
+    handleFetchMore()?.catch(showFetchMoreError);
+  };
 
   if (!boardsLoading && !boardsError && boards && !hasSelectedBoard) {
     return <BoardEmptyState isSettings hasBoards={boards.length > 0} />;
@@ -445,7 +453,7 @@ export const PipelineRecordTable = () => {
               Boolean(pageInfo?.hasNextPage) &&
               !loadingRemainingPages
             }
-            onFetchMore={handleFetchMore}
+            onFetchMore={handleInViewFetchMore}
           />
         </RecordTableTree>
       </RecordTable.Provider>

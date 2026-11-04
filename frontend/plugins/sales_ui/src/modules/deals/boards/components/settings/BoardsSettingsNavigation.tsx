@@ -6,6 +6,7 @@ import {
   Sidebar,
   TextOverflowTooltip,
   useConfirm,
+  useIsMatchingLocation,
   useQueryState,
 } from 'erxes-ui';
 import { IconDots, IconPencil, IconPlus, IconTrash } from '@tabler/icons-react';
@@ -154,7 +155,8 @@ export const BoardsSettingsNavigation = () => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const location = useLocation();
-  const onDealsPage = location.pathname === DEALS_SETTINGS_PATH;
+  const isMatchingLocation = useIsMatchingLocation();
+  const onDealsPage = isMatchingLocation(DEALS_SETTINGS_PATH);
   const { boards, loading, error } = useBoards({
     variables: { includeArchived: true },
     skip: !onDealsPage,

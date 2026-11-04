@@ -85,7 +85,7 @@ export const BoardForm = () => {
   const { boardDetail, loading: boardDetailLoading } = useBoardDetail();
 
   React.useEffect(() => {
-    setOpen(!!boardId || isCreating);
+    setOpen(Boolean(boardId) || isCreating);
     if (!boardId) reset();
   }, [boardId, isCreating, reset]);
 

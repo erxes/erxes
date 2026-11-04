@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -287,6 +287,9 @@
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
+- `Boards.createBoard` and `Pipelines.createPipeline` store `userId` from their
+  `userId` argument, falling back to `doc.userId`; resolvers pass the creator
+  in `doc`, and a copied pipeline keeps its source's creator.
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
   callers submit `false` or omit the field. This applies to GraphQL and tRPC
   creation; transport-side `onServer`/offline routing checks remain in place.

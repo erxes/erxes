@@ -212,7 +212,10 @@ export const loadBoardClass = (
 
     /** Create board */
     public static async createBoard(doc: IBoard, userId?: string) {
-      const board = await models.Boards.create({ ...doc, userId });
+      const board = await models.Boards.create({
+        ...doc,
+        userId: userId ?? doc.userId,
+      });
 
       sendDbEventLog?.({
         action: 'create',
