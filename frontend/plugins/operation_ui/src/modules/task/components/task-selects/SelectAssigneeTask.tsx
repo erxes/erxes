@@ -249,16 +249,23 @@ const SelectAssigneeValue = ({
 }) => {
   const { t } = useTranslation('operation');
   const { memberIds, members, setMembers } = useSelectMemberContext();
-  if (variant === SelectTriggerVariant.CARD) {
+  if (
+    variant === SelectTriggerVariant.CARD ||
+    variant === SelectTriggerVariant.TABLE
+  ) {
     return (
       <MembersInline.Provider
         memberIds={memberIds}
         members={members}
+        placeholder={placeholder || t('select-assignee')}
         allowUnassigned
         showInactive
         updateMembers={setMembers}
       >
-        <MembersInline.Avatar />
+        <MembersInline.Avatar
+          className={variant === SelectTriggerVariant.TABLE ? 'size-5' : undefined}
+        />
+        {variant === SelectTriggerVariant.TABLE && <MembersInline.Title />}
       </MembersInline.Provider>
     );
   }
@@ -520,7 +527,7 @@ export const SelectAssigneeTaskFormItem = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <SelectTriggerOperation variant={variant} label={label}>
-          <SelectAssigneeValue />
+          <SelectAssigneeValue variant={variant} />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
           <SelectTeamMemberContent teamIds={teamIds} exclude={false} />

@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -101,6 +101,7 @@
 
 ## Local Invariants
 
+- Task side-panel names use the shared `PanelField` columns and inherit its text sizing. Their `TextField` uses `data-panel-inline` for automatic height and wraps long names within the value column, including unbroken text. Table-variant task statuses inherit their trigger's font size with normal weight; table-variant assignees use the shared `MembersInline` composition with a 20px (`size-5`) avatar, including draft form fields.
 - Tasks and projects listed for another record (overview sections, the `tasks` / `projects` relation widgets in `dense` mode) are one-line rows: `widgets/rows/TaskRow` (name and due date; falls back to the triage when the id is one; opens the task stacked in the side panel, a triage in a sheet) and `ProjectRow` (opens `/operation/projects/<id>/overview`). There are no widget cards.
 - Task details (the side panel's `TaskPanelDetail` rows and the full-page `TaskFields` chips) show Cycle only when the team has `cycleEnabled`, Estimate only when the team has estimate choices, and Milestone only when the task's project has milestones, all from `useTaskOptionalFields` (it reuses the selects' queries).
 - `useTaskDetailSheet()` is the task open in the side panel: `[taskId | null, setTask]`, where `setTask(id, { stack: true })` opens it from inside the panel (relation cards, so the panel's Back returns to the previous record) and a plain `setTask(id)` (lists, boards) starts the panel's history afresh; `setTask(id)` opens it there and `setTask(null)` closes the panel only when it shows a task. Never reintroduce a task popup or `?task_id=` state; `TaskDetailLink` (rendered by the tasks and triage views) only redirects old links.
@@ -195,6 +196,7 @@
 
 ## Validation
 
+- Task panel smoke: short names sit beside Name, long names wrap without truncation, selected statuses match neighboring field text, and assignee avatars are 20px. Name editing still saves with Enter and cancels with Escape.
 - `pnpm nx lint operation_ui`
 - `pnpm nx build operation_ui`
 - `pnpm nx test operation_ui --passWithNoTests` (the inferred Jest target currently has no test files)
