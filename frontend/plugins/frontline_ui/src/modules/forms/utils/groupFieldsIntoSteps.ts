@@ -66,7 +66,7 @@ export const groupFieldsIntoSteps = <
     const stepKey =
       field.pageNumber == null
         ? firstStepKey
-        : keyByOrder.get(field.pageNumber) ?? firstStepKey;
+        : (keyByOrder.get(field.pageNumber) ?? firstStepKey);
     grouped[stepKey].fields.push(field);
   }
   return grouped;
