@@ -1,5 +1,20 @@
 import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
-import { IconAlignLeft, IconUser } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconBriefcase,
+  IconBuilding,
+  IconBuildingFactory,
+  IconHash,
+  IconHierarchy,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconUser,
+  IconUserCircle,
+  IconUsers,
+  IconWorld,
+  type Icon,
+} from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -61,6 +76,22 @@ const companySchema = z
   });
 
 type TCompanyForm = z.infer<typeof companySchema>;
+type TCompanyTextField =
+  | 'primaryName'
+  | 'code'
+  | 'primaryEmail'
+  | 'primaryPhone'
+  | 'website';
+
+const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
+  primaryName: IconBuilding,
+  code: IconHash,
+  primaryEmail: IconMail,
+  primaryPhone: IconPhone,
+  website: IconWorld,
+};
+
+const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
 /** Edits the draft description using the surrounding company form context. */
 const CompanyDescriptionInput = () => {
@@ -157,15 +188,16 @@ export const CompanyPanelNew = () => {
     });
 
   /** Renders a registered text input with its field label and validation error. */
-  const textRow = (
-    name: 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website',
-    label: string,
-  ) => (
-    <PanelFormRow label={label} error={errors[name]?.message}>
+  const textRow = (name: TCompanyTextField, label: string) => (
+    <PanelFormRow
+      icon={TEXT_FIELD_ICONS[name]}
+      label={label}
+      error={errors[name]?.message}
+    >
       <Input
         {...form.register(name)}
         placeholder={label}
-        className={PANEL_INPUT_CLASS_NAME}
+        className={INPUT_CLASS_NAME}
       />
     </PanelFormRow>
   );
@@ -173,7 +205,7 @@ export const CompanyPanelNew = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-1 min-h-0 flex-col"
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(save)}
       >
         <PanelFormLayout
@@ -194,7 +226,7 @@ export const CompanyPanelNew = () => {
           </PanelFormRow>
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
-          <PanelFormRow label={t('owner', 'Owner')}>
+          <PanelFormRow icon={IconUserCircle} label={t('owner', 'Owner')}>
             <Form.Field
               control={form.control}
               name="ownerId"
@@ -207,7 +239,10 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('parent-company', 'Parent company')}>
+          <PanelFormRow
+            icon={IconHierarchy}
+            label={t('parent-company', 'Parent company')}
+          >
             <Form.Field
               control={form.control}
               name="parentCompanyId"
@@ -221,7 +256,10 @@ export const CompanyPanelNew = () => {
             />
           </PanelFormRow>
           {textRow('website', t('website', 'Website'))}
-          <PanelFormRow label={t('industries', 'Industries')}>
+          <PanelFormRow
+            icon={IconBuildingFactory}
+            label={t('industries', 'Industries')}
+          >
             <Form.Field
               control={form.control}
               name="industry"
@@ -237,7 +275,7 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('location', 'Location')}>
+          <PanelFormRow icon={IconMapPin} label={t('location', 'Location')}>
             <Form.Field
               control={form.control}
               name="location"
@@ -246,7 +284,7 @@ export const CompanyPanelNew = () => {
                   value={field.value || ''}
                   onValueChange={field.onChange}
                 >
-                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+                  <Select.Trigger className={INPUT_CLASS_NAME}>
                     <Select.Value placeholder={t('location', 'Location')} />
                   </Select.Trigger>
                   <Select.Content>
@@ -265,7 +303,10 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('business-type', 'Business type')}>
+          <PanelFormRow
+            icon={IconBriefcase}
+            label={t('business-type', 'Business type')}
+          >
             <Form.Field
               control={form.control}
               name="businessType"
@@ -274,7 +315,7 @@ export const CompanyPanelNew = () => {
                   value={field.value || ''}
                   onValueChange={field.onChange}
                 >
-                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+                  <Select.Trigger className={INPUT_CLASS_NAME}>
                     <Select.Value
                       placeholder={t('business-type', 'Business type')}
                     />
@@ -290,13 +331,13 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('size', 'Size')}>
+          <PanelFormRow icon={IconUsers} label={t('size', 'Size')}>
             <Input
               {...form.register('size')}
               type="number"
               placeholder={t('size', 'Size')}
               min={0}
-              className={PANEL_INPUT_CLASS_NAME}
+              className={INPUT_CLASS_NAME}
             />
           </PanelFormRow>
           <CompanyDescriptionInput />

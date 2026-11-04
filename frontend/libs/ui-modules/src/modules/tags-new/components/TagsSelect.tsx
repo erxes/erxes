@@ -15,7 +15,7 @@ import { useGetTags } from 'ui-modules/modules/tags-new/hooks/useTags';
 import { useTagsTypes } from 'ui-modules/modules/tags/hooks/useTagsTypes';
 import { getTagTypeDescription } from 'ui-modules/modules/tags-new/utils/getTagTypeDescription';
 import type { VariantProps } from 'class-variance-authority';
-import React, { useState, useEffect, useMemo, forwardRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, forwardRef } from 'react';
 import { TagInline } from './TagInline';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 import { IconCheck, IconPlus, IconTag, IconTags } from '@tabler/icons-react';
@@ -31,16 +31,22 @@ import {
 
 type ButtonProps = VariantProps<typeof buttonVariants>;
 
-const TagsSelectProvider = ({
-  type,
-  mode = 'single',
-  value,
-  onValueChange,
-  children,
-  scope,
-  targetIds,
-  options,
-}: TagsSelectProps) => {
+/** Normalizes controlled and optimistic tag values without dropping unresolved IDs. */
+const toTagIds = (value: string | string[] | undefined): string[] => {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+};
+
+const TagsSelectProvider = (props: TagsSelectProps) => {
+  const {
+    type,
+    mode = 'single',
+    value,
+    children,
+    scope,
+    targetIds,
+    options,
+  } = props;
   const [open, setOpen] = useState(false);
   const { rootTags, tagsByParentId, tags, tagGroups, loading } = useGetTags({
     variables: {
@@ -48,10 +54,27 @@ const TagsSelectProvider = ({
     },
   });
 
-  const selectedIds = useMemo(
-    () => (Array.isArray(value) ? value : value ? [value] : []),
-    [value],
-  );
+  const valueKey = JSON.stringify(value ?? null);
+  const previousValueKey = useRef(valueKey);
+  const [selectedIds, setSelectedIds] = useState(() => toTagIds(value));
+  // Reconcile actual prop changes, not new array references with the same IDs.
+  // Until then, consecutive toggles use the complete local optimistic selection.
+  useEffect(() => {
+    if (previousValueKey.current === valueKey) return;
+    previousValueKey.current = valueKey;
+    setSelectedIds(toTagIds(value));
+  }, [value, valueKey]);
+
+  /** Updates local IDs before notifying a parent that may save asynchronously. */
+  const handleValueChange = (next: string | string[] | undefined) => {
+    const ids = toTagIds(next);
+    setSelectedIds(ids);
+    if (props.mode === 'multiple') {
+      props.onValueChange?.(ids);
+    } else {
+      props.onValueChange?.(ids[0]);
+    }
+  };
 
   const initialTags = useMemo(
     () => tags?.filter((tag) => selectedIds.includes(tag._id)) || [],
@@ -80,16 +103,12 @@ const TagsSelectProvider = ({
           ...options?.([tag._id]),
         });
       }
-      (onValueChange as ((value: string) => void) | undefined)?.(tag._id);
+      handleValueChange(tag._id);
     } else {
-      const currentIds =
-        value === undefined
-          ? selectedTags.map((item) => item._id)
-          : selectedIds;
-      const isSelected = currentIds.includes(tag._id);
+      const isSelected = selectedIds.includes(tag._id);
       const newIds = isSelected
-        ? currentIds.filter((id) => id !== tag._id)
-        : [...currentIds, tag._id];
+        ? selectedIds.filter((id) => id !== tag._id)
+        : [...selectedIds, tag._id];
       let newTags: ITag[];
       if (isSelected) {
         newTags = selectedTags.filter((t) => t._id !== tag._id);
@@ -108,7 +127,7 @@ const TagsSelectProvider = ({
         });
       }
 
-      (onValueChange as ((value: string[]) => void) | undefined)?.(newIds);
+      handleValueChange(newIds);
     }
   };
 
@@ -116,10 +135,8 @@ const TagsSelectProvider = ({
     <TagsSelectContext.Provider
       value={{
         loading,
-        value,
-        onValueChange: onValueChange as (
-          value: string | string[] | undefined,
-        ) => void,
+        value: mode === 'single' ? selectedIds[0] : selectedIds,
+        onValueChange: handleValueChange,
         open,
         setOpen,
         selectedTags,

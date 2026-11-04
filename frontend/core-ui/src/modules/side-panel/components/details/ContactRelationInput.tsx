@@ -124,7 +124,7 @@ export const ContactRelationInput = ({
       { stack: true },
     );
   const handleChange = (next: string[] | string) => {
-    setOpen(false);
+    if (disabled) return;
     const ids = Array.isArray(next) ? next : [next].filter(Boolean);
     onValueChange?.(ids);
   };

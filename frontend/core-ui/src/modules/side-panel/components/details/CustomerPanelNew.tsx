@@ -1,5 +1,17 @@
 import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
-import { IconAlignLeft, IconBuilding } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconBell,
+  IconBuilding,
+  IconCalendar,
+  IconGenderBigender,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconUser,
+  IconUserCircle,
+  type Icon,
+} from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -38,6 +50,17 @@ type TTextCode =
   | 'primaryEmail'
   | 'primaryPhone'
   | 'code';
+
+const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
+  firstName: IconUser,
+  middleName: IconUser,
+  lastName: IconUser,
+  primaryEmail: IconMail,
+  primaryPhone: IconPhone,
+  code: IconHash,
+};
+
+const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
 /**
  * A customer (or lead, `defaults.state`) not created yet, drawn like its
@@ -116,6 +139,7 @@ export const CustomerPanelNew = () => {
     rules.isShown(code) && (
       <PanelFormRow
         key={code}
+        icon={TEXT_FIELD_ICONS[code]}
         label={label}
         required={rules.isRequired(code)}
         error={errors[code]?.message}
@@ -123,7 +147,7 @@ export const CustomerPanelNew = () => {
         <Input
           {...form.register(code)}
           placeholder={label}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={INPUT_CLASS_NAME}
         />
       </PanelFormRow>
     );
@@ -131,7 +155,7 @@ export const CustomerPanelNew = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-1 min-h-0 flex-col"
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(save)}
       >
         <PanelFormLayout
@@ -158,7 +182,7 @@ export const CustomerPanelNew = () => {
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
           {rules.isShown('ownerId') && (
-            <PanelFormRow label={t('owner', 'Owner')}>
+            <PanelFormRow icon={IconUserCircle} label={t('owner', 'Owner')}>
               <Form.Field
                 control={form.control}
                 name="ownerId"
@@ -174,7 +198,10 @@ export const CustomerPanelNew = () => {
           )}
           {textRow('code', addT('code', 'Code'))}
           {rules.isShown('sex') && (
-            <PanelFormRow label={addT('pronoun', 'Pronoun')}>
+            <PanelFormRow
+              icon={IconGenderBigender}
+              label={addT('pronoun', 'Pronoun')}
+            >
               <Form.Field
                 control={form.control}
                 name="sex"
@@ -183,7 +210,7 @@ export const CustomerPanelNew = () => {
                     value={String(field.value ?? 0)}
                     onValueChange={(value) => field.onChange(Number(value))}
                   >
-                    <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+                    <Select.Trigger className={INPUT_CLASS_NAME}>
                       <Select.Value placeholder={addT('pronoun', 'Pronoun')} />
                     </Select.Trigger>
                     <Select.Content align="start">
@@ -204,6 +231,7 @@ export const CustomerPanelNew = () => {
           )}
           {rules.isShown('birthDate') && (
             <PanelFormRow
+              icon={IconCalendar}
               label={addT('birth-date', 'Birth date')}
               required={rules.isRequired('birthDate')}
               error={errors.birthDate?.message}
@@ -225,7 +253,10 @@ export const CustomerPanelNew = () => {
             </PanelFormRow>
           )}
           {rules.isShown('isSubscribed') && (
-            <PanelFormRow label={addT('subscribed', 'Subscribed')}>
+            <PanelFormRow
+              icon={IconBell}
+              label={addT('subscribed', 'Subscribed')}
+            >
               <Form.Field
                 control={form.control}
                 name="isSubscribed"
