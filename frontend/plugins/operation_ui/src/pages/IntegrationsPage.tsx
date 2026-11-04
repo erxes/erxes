@@ -1,6 +1,9 @@
-import { IconBrandDiscord, IconBrandGithub } from '@tabler/icons-react';
-import { Badge, PageContainer, ScrollArea, Spinner } from 'erxes-ui';
+import { ScrollArea } from 'erxes-ui';
 import { IntegrationCard } from '@/integrations/components/IntegrationCard';
+import {
+  DiscordLogo,
+  GithubLogo,
+} from '@/integrations/components/IntegrationIcons';
 import {
   DISCORD_INTEGRATION_PATH,
   GITHUB_INTEGRATION_PATH,
@@ -8,82 +11,41 @@ import {
 import { useDiscordConnections } from '@/integrations/discord/hooks/useDiscordIntegration';
 import { useGithubConnection } from '@/integrations/github/hooks/useGithubConnection';
 
-const ConnectionStatus = ({
-  loading,
-  failed,
-  count,
-  noun,
-}: Readonly<{
-  loading: boolean;
-  failed: boolean;
-  count: number;
-  noun: string;
-}>) => {
-  if (loading) {
-    return <Spinner size="sm" containerClassName="h-auto flex-none" />;
-  }
-
-  if (failed) {
-    return <Badge variant="destructive">Status unavailable</Badge>;
-  }
-
-  return count > 0 ? (
-    <Badge variant="success">
-      {count} {noun}
-      {count === 1 ? '' : 's'}
-    </Badge>
-  ) : (
-    <Badge variant="secondary">Not connected</Badge>
-  );
-};
-
 export const IntegrationsPage = () => {
   const github = useGithubConnection();
   const discord = useDiscordConnections();
 
   return (
-    <PageContainer>
-      <ScrollArea>
-        <div className="mx-auto max-w-2xl space-y-6 p-6">
-          <div>
-            <h1 className="text-xl font-semibold">Integrations</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Connect Operation with the tools your teams already use.
-            </p>
-          </div>
-
-          <div className="space-y-3">
-            <IntegrationCard
-              to={GITHUB_INTEGRATION_PATH}
-              icon={IconBrandGithub}
-              name="GitHub"
-              description="Sync GitHub issues with triages and tasks."
-              status={
-                <ConnectionStatus
-                  loading={github.loading && !github.data}
-                  failed={Boolean(github.error)}
-                  count={github.data?.getGithubConnections?.length ?? 0}
-                  noun="organization"
-                />
-              }
-            />
-            <IntegrationCard
-              to={DISCORD_INTEGRATION_PATH}
-              icon={IconBrandDiscord}
-              name="Discord"
-              description="Post triage and task updates to Discord and mention assignees. Link your own Discord account here too."
-              status={
-                <ConnectionStatus
-                  loading={discord.loading && !discord.connections.length}
-                  failed={Boolean(discord.error)}
-                  count={discord.connections.length}
-                  noun="server"
-                />
-              }
-            />
-          </div>
+    <ScrollArea>
+      <div className="mx-auto flex h-full w-full max-w-3xl flex-col gap-8 px-8 py-5">
+        <div className="flex flex-col gap-2 px-1">
+          <h1 className="text-lg font-semibold">Integrations</h1>
+          <span className="text-sm font-normal text-muted-foreground">
+            Connect Operation with the tools your teams already use.
+          </span>
         </div>
-      </ScrollArea>
-    </PageContainer>
+
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+          <IntegrationCard
+            to={GITHUB_INTEGRATION_PATH}
+            icon={GithubLogo}
+            name="GitHub"
+            description="Sync GitHub issues with triages and tasks."
+            count={github.data?.getGithubConnections?.length ?? 0}
+            loading={github.loading && !github.data}
+            failed={Boolean(github.error)}
+          />
+          <IntegrationCard
+            to={DISCORD_INTEGRATION_PATH}
+            icon={DiscordLogo}
+            name="Discord"
+            description="Post triage and task updates to Discord and let companies report issues from their own channels."
+            count={discord.connections.length}
+            loading={discord.loading && !discord.connections.length}
+            failed={Boolean(discord.error)}
+          />
+        </div>
+      </div>
+    </ScrollArea>
   );
 };

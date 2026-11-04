@@ -1,34 +1,54 @@
-import { IconChevronRight } from '@tabler/icons-react';
+import { Card, Skeleton } from 'erxes-ui';
 import { Link } from 'react-router-dom';
-import type { ComponentType, ReactNode } from 'react';
+import type { ComponentType } from 'react';
+import { IntegrationLogo } from './IntegrationLogo';
+
+const IntegrationCount = ({
+  count,
+  loading,
+  failed,
+}: Readonly<{ count: number; loading: boolean; failed: boolean }>) => {
+  if (loading) {
+    return <Skeleton className="h-4 w-3" />;
+  }
+
+  if (failed) {
+    return <span className="text-destructive">unavailable</span>;
+  }
+
+  return <span>({count})</span>;
+};
 
 export const IntegrationCard = ({
   to,
-  icon: Icon,
+  icon,
   name,
   description,
-  status,
+  count,
+  loading,
+  failed,
 }: Readonly<{
   to: string;
   icon: ComponentType<{ className?: string }>;
   name: string;
   description: string;
-  status: ReactNode;
+  count: number;
+  loading: boolean;
+  failed: boolean;
 }>) => (
   <Link
     to={to}
-    className="flex items-center gap-4 rounded-lg border border-border bg-surface p-4 transition-colors hover:bg-sidebar/50"
+    className="block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
   >
-    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent">
-      <Icon className="size-5" />
-    </div>
-    <div className="min-w-0 flex-1">
-      <p className="font-semibold">{name}</p>
-      <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-    </div>
-    <div className="flex shrink-0 items-center gap-2">
-      {status}
-      <IconChevronRight className="size-4 text-muted-foreground" />
-    </div>
+    <Card className="flex h-full flex-col gap-2 rounded-lg p-3 transition-colors hover:bg-accent/40">
+      <div className="flex gap-2">
+        <IntegrationLogo icon={icon} />
+        <h2 className="self-center text-sm font-semibold">{name}</h2>
+        <div className="ml-auto flex font-mono text-xs text-muted-foreground">
+          <IntegrationCount count={count} loading={loading} failed={failed} />
+        </div>
+      </div>
+      <p className="text-sm font-medium text-muted-foreground">{description}</p>
+    </Card>
   </Link>
 );

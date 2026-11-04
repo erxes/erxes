@@ -1,8 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { IconUserSquare } from '@tabler/icons-react';
+import { IconPlug, IconUserSquare } from '@tabler/icons-react';
 import { Button, PageContainer } from 'erxes-ui';
 import { Suspense } from 'react';
-import { Outlet, Route, Routes } from 'react-router';
+import { Link, Outlet, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { TeamDetailPage } from '~/pages/TeamDetailPage';
 import { TeamMembersPage } from '~/pages/TeamMembersPage';
@@ -17,6 +17,7 @@ import { DiscordIntegrationPage } from '~/pages/DiscordIntegrationPage';
 import { DiscordAccountPage } from '~/pages/DiscordAccountPage';
 import { IntegrationsPage } from '~/pages/IntegrationsPage';
 import { OperationPaths } from '~/types/paths';
+import { INTEGRATIONS_PATH } from '@/integrations/constants';
 import { CreateTeam } from '@/team/components/team-list/CreateTeam';
 
 const OperationSettings = () => {
@@ -78,21 +79,39 @@ const OperationSettings = () => {
           />
         </Route>
         <Route
-          path={OperationPaths.Integrations}
-          element={<IntegrationsPage />}
-        />
-        <Route
-          path={OperationPaths.GithubIntegration}
-          element={<GithubIntegrationPage />}
-        />
-        <Route
-          path={OperationPaths.DiscordIntegration}
-          element={<DiscordIntegrationPage />}
-        />
-        <Route
-          path={OperationPaths.DiscordAccount}
-          element={<DiscordAccountPage />}
-        />
+          element={
+            <PageContainer>
+              <SettingsHeader
+                breadcrumbs={
+                  <Button variant="ghost" asChild>
+                    <Link to={INTEGRATIONS_PATH}>
+                      <IconPlug />
+                      Integrations
+                    </Link>
+                  </Button>
+                }
+              />
+              <Outlet />
+            </PageContainer>
+          }
+        >
+          <Route
+            path={OperationPaths.Integrations}
+            element={<IntegrationsPage />}
+          />
+          <Route
+            path={OperationPaths.GithubIntegration}
+            element={<GithubIntegrationPage />}
+          />
+          <Route
+            path={OperationPaths.DiscordIntegration}
+            element={<DiscordIntegrationPage />}
+          />
+          <Route
+            path={OperationPaths.DiscordAccount}
+            element={<DiscordAccountPage />}
+          />
+        </Route>
       </Routes>
     </Suspense>
   );
