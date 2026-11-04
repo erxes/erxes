@@ -10,13 +10,19 @@ export const groupFieldsIntoSteps = <
   steps: Record<string, IFormStepMeta> | null | undefined,
   fields: TField[],
 ): Record<string, IFormStepMeta & { fields: TField[] }> => {
-  const pageOf = (field: TField) => field.pageNumber ?? 1;
   const savedSteps = Object.entries(steps ?? {}).sort(
     (a, b) => a[1].order - b[1].order,
   );
 
   if (!savedSteps.length) {
-    const pages = [...new Set(fields.map(pageOf))].sort((a, b) => a - b);
+    const pages = [
+      ...new Set(
+        fields
+          .map((field) => field.pageNumber)
+          .filter((page): page is number => page != null),
+      ),
+    ].sort((a, b) => a - b);
+    if (!pages.length && fields.length) pages.push(1);
     return Object.fromEntries(
       pages.map((page, index) => [
         String(index + 1),
@@ -24,7 +30,11 @@ export const groupFieldsIntoSteps = <
           name: `Step ${index + 1}`,
           description: '',
           order: index + 1,
-          fields: fields.filter((field) => pageOf(field) === page),
+          fields: fields.filter(
+            (field) =>
+              field.pageNumber === page ||
+              (field.pageNumber == null && index === 0),
+          ),
         },
       ]),
     );
@@ -43,7 +53,11 @@ export const groupFieldsIntoSteps = <
     ]),
   );
   for (const field of fields) {
-    grouped[keyByOrder.get(pageOf(field)) ?? firstStepKey].fields.push(field);
+    const stepKey =
+      field.pageNumber == null
+        ? firstStepKey
+        : keyByOrder.get(field.pageNumber) ?? firstStepKey;
+    grouped[stepKey].fields.push(field);
   }
   return grouped;
 };

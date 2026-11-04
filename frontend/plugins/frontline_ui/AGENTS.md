@@ -1311,8 +1311,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   carry `expectedType`; incompatible answers, linked custom fields and stale
   edits are rejected by `frontline_api`. Changing type resets the validator;
   returning to the original type restores its stored validation and validator,
-  including legacy `input` fields, and clears `expectedType`. Only a changed
-  type on an existing field selects the atomic conversion save path.
+  including legacy `input` fields, and clears `expectedType`. Changes to an
+  existing field's type or page, or to existing step orders, select the atomic
+  save path.
   Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
@@ -1333,9 +1334,10 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.
   Invalid stored dates render as their original value instead of breaking the
-  submissions table. Conversion saves send metadata as `formChanges` in the
-  field mutation so failure rolls back both; ordinary saves retain their existing
-  path. A busy/stale conversion keeps the draft and asks the author to retry.
+  submissions table. Conversion and page-layout saves send metadata as
+  `formChanges` in the field mutation so failure rolls back both; these saves
+  require transaction-capable MongoDB. Other edits retain their existing path.
+  A busy/stale atomic save keeps the draft and asks the author to retry.
   Builder drafts are keyed by form (or create/channel scope) in tab-owned
   `sessionStorage`, with `FormDraftScope` gating children until the scope changes.
   New-form drafts survive reloads in that tab; opening an existing form still
@@ -1343,8 +1345,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   Seeding an existing form places every saved field in an editor step
   (`groupFieldsIntoSteps`): saving sends any stored field missing from the
   editor as `removedFieldIds`, which deletes it and orphans its submissions.
-  Forms without `leadData.steps` get one step per used page, and a field whose
-  `pageNumber` is missing or matches no step goes to the first step.
+  Forms without `leadData.steps` get one step per explicit page, or one step
+  when all fields lack a page. A missing `pageNumber` always goes to the first
+  step, including when saved pages start at zero; unmatched pages do likewise.
   Match fields to saved step orders before numbering editor steps from 1
   without gaps or duplicates; preserve step keys, names and field IDs. This
   keeps public-form navigation usable after saving malformed step orders.
@@ -2745,6 +2748,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   saved field. Add a field and save; its submissions still show every column.
   Save forms with zero, duplicate or gapped step orders; their public forms
   must navigate through every step once and retain existing submission values.
+  Mix missing page numbers with zero-based pages; missing pages belong to the
+  first step. Reject a page-layout save and verify both the saved steps and
+  field pages stay unchanged, then retry successfully.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
