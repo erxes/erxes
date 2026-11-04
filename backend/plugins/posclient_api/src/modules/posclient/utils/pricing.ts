@@ -30,6 +30,7 @@ export const checkPricing = async (
       module: 'pricing',
       action: 'checkPricing',
       input: {
+        date: doc.createdAt?.toISOString(),
         prioritizeRule: 'exclude',
         totalAmount: doc.totalAmount,
         branchId: config.branchId || '',

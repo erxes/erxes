@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -126,6 +126,13 @@
 
 ## Local Invariants
 
+- Pricing checks accept optional `date` through tRPC `pricing.checkPricing`
+  (Date or ISO timestamp) and GraphQL `pricingCheckDiscount` (Date). One
+  evaluation timestamp, defaulted to now only inside `checkPricing` (adapters
+  pass optional `date` through), drives plan start/end filters
+  and repeat rules. Product expiry always compares with the current time;
+  missing manufacturing dates in the tRPC adapter also default to now.
+
 - Quantity pricing bonuses of type `every` award exactly
   `floor(quantity / rule.value)` units of `discountBonusProduct`, without an
   initial extra unit; `exact` and `minimum` award one unit when eligible.
@@ -172,6 +179,11 @@
   every generation made one code.
 
 ## Validation
+
+- `pnpm nx test loyalty_api --testPathPattern 'pricingDate|saleQuantityInput' --runInBand`
+- Pricing date smoke: a past timestamp selects that date's plan window and repeat
+  schedule; product expiry still compares with now. Omitting the timestamp
+  evaluates plan dates and repeat rules at now as well.
 
 - `pnpm nx test loyalty_api --testPathPattern quantityBonus --runInBand`
 - Pricing bonus smoke: for every three A, award one free B; two A gives none,

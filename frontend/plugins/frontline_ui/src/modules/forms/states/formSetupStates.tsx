@@ -16,6 +16,7 @@ import { z } from 'zod';
 import { atom } from 'jotai';
 import { isDefined } from 'erxes-ui';
 import { IFormDetail } from '../types/formTypes';
+import { groupFieldsIntoSteps } from '../utils/groupFieldsIntoSteps';
 
 export const formSetupStepAtom = formDraftAtom<number>(
   FORM_STORAGE_KEYS.STEP,
@@ -182,15 +183,14 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IFormDetail) => {
 
   const content = {
     steps: Object.fromEntries(
-      Object.entries(leadData.steps || {}).map(([key, step]) => [
-        key,
-        {
-          name: step.name,
-          description: step.description,
-          order: step.order,
-          fields: fields
-            .filter((field) => field.pageNumber === step.order)
-            .map((field) => ({
+      Object.entries(groupFieldsIntoSteps(leadData.steps, fields)).map(
+        ([key, step]) => [
+          key,
+          {
+            name: step.name,
+            description: step.description,
+            order: step.order,
+            fields: step.fields.map((field) => ({
               id: field._id,
               type: field.type ?? '',
               label: field.text ?? '',
@@ -207,8 +207,9 @@ export const formSetSetupAtom = atom(null, (_, set, payload: IFormDetail) => {
               validator: FIELD_VALIDATOR_SCHEMA.safeParse(field.validator).data,
               stepId: key,
             })),
-        },
-      ]),
+          },
+        ],
+      ),
     ),
   };
 

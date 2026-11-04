@@ -1403,5 +1403,6 @@
   "fxa-asset-already-selected": "This asset is already in the table.",
   "fxa-empty-assets": "Add an asset row or select multiple assets.",
   "end-date-after-start": "End date must be on or after the start date",
-  "no-transactions-in-period": "No transactions in the selected period."
+  "no-transactions-in-period": "No transactions in the selected period.",
+  "report-zero-rows-hidden": "Every row in the selected period is zero, so all rows are hidden."
 }

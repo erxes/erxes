@@ -424,6 +424,7 @@ const pricingQueryParams = `
 `;
 
 const checkDiscountParams = `
+  date: Date
   prioritizeRule: String
   totalAmount: Float
   departmentId: String

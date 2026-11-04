@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -284,6 +284,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Placement is visibility: a field not in `layout` is hidden.
 
 ## Local Invariants
+
+- Deal unit price (base and entry UOM), row discounts, and footer manual discounts
+  require `dealsProductsEdit`; restricted numeric cells remain readable. Row and bulk
+  product deletion controls require `dealsProductsDelete`.
 
 - The Sales Pipeline breadcrumb links to `/sales/deals` with the current
   `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
@@ -569,6 +573,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Deal mutations send no `sourceConversationIds`; a deal is linked to a conversation only through its customer (`customerId`), which the conversation rail's Deals tab lists by.
 
 ## Validation
+
+- Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
+  discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions
+  are hidden. Grant each action independently and verify only its controls become
+  available.
 
 - `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
 
