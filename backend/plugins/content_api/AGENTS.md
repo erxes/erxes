@@ -31,14 +31,14 @@
 
 ## Architecture
 
-| Area            | Path                         | Responsibility                                         |
-| --------------- | ---------------------------- | ------------------------------------------------------ |
-| Runtime         | `src/main.ts`                | Plugin startup.                                        |
-| Models          | `src/connectionResolvers.ts` | Tenant-scoped models.                                  |
-| CMS             | `src/modules/cms`            | CMS persistence, GraphQL and access rules.             |
-| Social delivery | `src/modules/cms/postiz`     | Signed bridge, delivery queue and triggered runs.      |
-| Web Builder     | `src/modules/webbuilder`     | Websites and page persistence.                         |
-| Permissions     | `src/meta/permissions.ts`    | CMS actions, language grants and default groups.       |
+| Area            | Path                         | Responsibility                                    |
+| --------------- | ---------------------------- | ------------------------------------------------- |
+| Runtime         | `src/main.ts`                | Plugin startup.                                   |
+| Models          | `src/connectionResolvers.ts` | Tenant-scoped models.                             |
+| CMS             | `src/modules/cms`            | CMS persistence, GraphQL and access rules.        |
+| Social delivery | `src/modules/cms/postiz`     | Signed bridge, delivery queue and triggered runs. |
+| Web Builder     | `src/modules/webbuilder`     | Websites and page persistence.                    |
+| Permissions     | `src/meta/permissions.ts`    | CMS actions, language grants and default groups.  |
 
 ## Contracts
 
