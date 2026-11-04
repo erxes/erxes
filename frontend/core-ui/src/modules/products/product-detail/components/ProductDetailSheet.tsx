@@ -46,21 +46,20 @@ export const ProductDetailSheet = () => {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  
+
   const [queries, setQueries] = useMultiQueryState<{
     [PRODUCT_QUERY_KEY]: string;
     tab: string;
   }>([PRODUCT_QUERY_KEY, 'tab']);
 
-  const { 
-    [PRODUCT_QUERY_KEY]: open, 
-    tab: selectedTab = 'overview' 
-  } = queries || {}
-  
+  const { [PRODUCT_QUERY_KEY]: open, tab: selectedTab = 'overview' } =
+    queries || {};
+
   const setSelectedTab = (tab: string | null) => setQueries({ tab });
-  
-  const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
-  
+
+  const { productDetail, productId, loading, error, refetch } =
+    useProductDetailWithQuery();
+
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { linkFiles } = useProductFileLinks();
 
@@ -154,7 +153,8 @@ export const ProductDetailSheet = () => {
           variant: 'destructive',
         });
       },
-      refetchQueries: ['ProductsMain'],
+      // Refetch the detail too so the PDF card shows the stored PDF after save
+      refetchQueries: ['ProductsMain', 'PRODUCT_DETAIL_QUERY'],
       awaitRefetchQueries: true,
     });
   };
@@ -176,9 +176,7 @@ export const ProductDetailSheet = () => {
   return (
     <FocusSheet
       open={!!open}
-      onOpenChange={() =>
-        setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
-      }
+      onOpenChange={() => setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })}
     >
       <ProductDetailSheetView
         loading={loading}
@@ -305,10 +303,7 @@ const ProductDetailSheetView = ({
 
   return (
     <FocusSheet.View
-      className={cn(
-        'transition-[width] duration-300 ease-in-out',
-        widthClass,
-      )}
+      className={cn('transition-[width] duration-300 ease-in-out', widthClass)}
       {...props}
     >
       {children}

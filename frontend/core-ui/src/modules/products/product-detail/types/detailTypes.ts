@@ -38,6 +38,11 @@ export interface ProductSimilarity {
   products?: ProductSimilarityProduct[];
 }
 
+export interface ProductPdfAttachment {
+  pdf?: ProductAttachment | null;
+  pages?: ProductAttachment[];
+}
+
 export interface ProductDetail {
   _id?: string;
   name?: string;
@@ -51,6 +56,7 @@ export interface ProductDetail {
   attachmentMore?: ProductAttachment[] | ProductAttachment;
   videos?: ProductAttachment[] | ProductAttachment;
   files?: ProductAttachment[];
+  pdfAttachment?: ProductPdfAttachment | null;
   barcodes?: string | string[];
   shortName?: string;
   unitPrice?: number;
@@ -63,13 +69,7 @@ export interface ProductDetail {
   currency?: string;
   duration?: number;
   durationType?:
-    | 'minute'
-    | 'hour'
-    | 'day'
-    | 'week'
-    | 'month'
-    | 'quarter'
-    | 'year';
+    'minute' | 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
   variants?: Record<string, unknown>;
   customFieldsData?: Record<string, unknown>;
   propertiesData?: Record<string, unknown>;
