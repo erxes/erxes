@@ -24,8 +24,8 @@ let mockConfig:
   | undefined;
 let mockStatus:
   { _id: string; name: string; pipelineId: string; type: number } | undefined;
-const mockPipelineQuery = jest.fn<void, [string | undefined]>();
-const mockStatusTypeQuery = jest.fn<void, [number]>();
+const mockPipelineQuery = jest.fn<undefined, [string | undefined]>();
+const mockStatusTypeQuery = jest.fn<undefined, [number]>();
 
 const MockScopeSnapshot = ({
   formChannelId,

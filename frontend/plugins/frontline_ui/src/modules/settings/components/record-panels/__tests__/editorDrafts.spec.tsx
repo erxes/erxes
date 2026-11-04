@@ -43,12 +43,12 @@ interface ChannelOptions {
   onCompleted?: (result: { channelAdd?: { _id: string } }) => void;
   onError?: (error: Error) => void;
 }
-const mockAddPipeline = jest.fn<void, [PipelineOptions]>();
-const mockUpdatePipeline = jest.fn<void, [SaveOptions]>();
-const mockAddMembers = jest.fn<void, [SaveOptions]>();
-const mockAddStatus = jest.fn<void, [SaveOptions]>();
-const mockUpdateStatus = jest.fn<void, [SaveOptions]>();
-const mockAddChannel = jest.fn<void, [ChannelOptions]>();
+const mockAddPipeline = jest.fn<undefined, [PipelineOptions]>();
+const mockUpdatePipeline = jest.fn<undefined, [SaveOptions]>();
+const mockAddMembers = jest.fn<undefined, [SaveOptions]>();
+const mockAddStatus = jest.fn<undefined, [SaveOptions]>();
+const mockUpdateStatus = jest.fn<undefined, [SaveOptions]>();
+const mockAddChannel = jest.fn<undefined, [ChannelOptions]>();
 let mockScope = { id: 'channel-a', pipelineId: 'pipeline-a' };
 const mockOpenRecord = ({ contentId }: { contentId: string }) => {
   mockActiveRecord = contentId;
@@ -73,9 +73,9 @@ interface ConfigOptions {
   onCompleted?: () => void;
   onError?: (error: Error) => void;
 }
-const mockAddResponse = jest.fn<void, [ResponseOptions]>();
-const mockUpdateResponse = jest.fn<void, [ResponseOptions]>();
-const mockSaveConfig = jest.fn<void, [ConfigOptions]>();
+const mockAddResponse = jest.fn<undefined, [ResponseOptions]>();
+const mockUpdateResponse = jest.fn<undefined, [ResponseOptions]>();
+const mockSaveConfig = jest.fn<undefined, [ConfigOptions]>();
 
 jest.mock('erxes-ui', () => {
   const { Controller, FormProvider } =
@@ -491,7 +491,7 @@ test('returning to a response draft restores its original channel scope', async 
 });
 
 test('a separate response channel starts with an empty rich editor', async () => {
-  mockConfirm.mockResolvedValueOnce(undefined);
+  mockConfirm.mockReturnValueOnce(Promise.resolve());
   const store = createStore();
   const editor = (channelId: string) => (
     <Provider store={store}>
@@ -730,7 +730,7 @@ test('response creation remains pending across an Activity roundtrip and can ret
   session.rerender(editor);
   expectName('One response');
   fireEvent.click(screen.getByText('Create'));
-  await act(async () => undefined);
+  await act(() => Promise.resolve());
   expect(mockAddResponse).toHaveBeenCalledTimes(1);
   act(() => mockAddResponse.mock.calls[0][0].onError?.(new Error('Offline')));
   fireEvent.click(screen.getByText('Create'));

@@ -60,6 +60,7 @@ export const StatusPanelForm = ({
       draftsState: statusPanelDraftsState,
       isNew: !editingStatus,
     });
+  /** Discards the retained status draft and closes its panel. */
   const cancel = () => {
     clearDraft();
     onClose();
@@ -84,11 +85,13 @@ export const StatusPanelForm = ({
     if (saveId === undefined) return undefined;
     const submittedValues = structuredClone(form.getValues());
     const { name, description, color } = data;
+    /** Releases the save lock and closes only this unchanged, active draft. */
     const onCompleted = () => {
       endSave(saveId);
       toast({ title: t('success', 'Success!') });
       if (markSaved(data, submittedValues) && isActive()) onClose();
     };
+    /** Releases the save lock so the retained draft can retry after an error. */
     const handleError = (error: Error) => {
       endSave(saveId);
       onError(error);

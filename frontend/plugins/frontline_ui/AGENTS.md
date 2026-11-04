@@ -1681,6 +1681,8 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   field IDs, including unanswered fields and distinct fields with equal labels.
   Invalid stored dates render as their original value instead of breaking the
   submissions table or detail panel, including its creation-date title.
+  Select-answer cells stringify only scalar fallbacks; object answers are
+  normalized as JSON before the table renders them.
   Conversion and page-layout saves send metadata as `formChanges` in the field
   mutation so failure rolls back both; these saves require transaction-capable
   MongoDB. Other edits retain their existing path. A busy/stale atomic save

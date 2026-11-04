@@ -23,6 +23,7 @@ export const ChannelMembersAddForm = ({ channelId }: { channelId: string }) => {
       values,
       draftsState: channelMembersPanelDraftsState,
     });
+  /** Discards the retained member selection and closes its panel. */
   const cancel = () => {
     clearDraft();
     close();

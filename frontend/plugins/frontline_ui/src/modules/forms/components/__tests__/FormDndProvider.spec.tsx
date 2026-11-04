@@ -81,7 +81,7 @@ test('keeps the current field and its draft when switching is dismissed', async 
 test('can switch after a dismissed confirmation when the next attempt is confirmed', async () => {
   mockConfirm
     .mockImplementationOnce(() => new Promise<void>(() => undefined))
-    .mockResolvedValueOnce(undefined);
+    .mockReturnValueOnce(Promise.resolve());
   renderEditor();
   fireEvent.click(screen.getByText('First field'));
   fireEvent.change(screen.getByLabelText('Draft label'), {
@@ -122,7 +122,7 @@ test('does not reopen a field after the editor closed while confirmation was pen
   fireEvent.click(screen.getByText('Second field'));
   fireEvent.click(screen.getByText('Close'));
 
-  await act(async () => confirmSwitch?.());
+  await act(() => Promise.resolve(confirmSwitch?.()));
 
   expect(screen.getByLabelText('Editing field').textContent).toBe('');
 });

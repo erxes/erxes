@@ -65,7 +65,7 @@ jest.mock('erxes-ui', () => {
         onSelect,
         disabled,
       }: PropsWithChildren<{
-        onSelect?: () => void | Promise<void>;
+        onSelect?: () => undefined | Promise<void>;
         disabled?: boolean;
       }>) => (
         <button disabled={disabled} onClick={() => void onSelect?.()}>
@@ -114,7 +114,7 @@ beforeEach(() => {
     contentType: 'frontline:pipeline',
     contentId: 'pipeline-1~properties',
   };
-  mockConfirm.mockReset().mockResolvedValue(undefined);
+  mockConfirm.mockReset().mockReturnValue(Promise.resolve());
   mockRemovePipeline
     .mockReset()
     .mockResolvedValue({ data: { removePipeline: { ok: 1 } } });
@@ -136,7 +136,7 @@ test('a resolved mutation error keeps the pipeline open', async () => {
   mockRemovePipeline.mockResolvedValue({ errors: [{ message: 'Denied' }] });
   render(<PipelinesList channelId="channel-1" />);
 
-  await act(async () => fireEvent.click(screen.getByText('Delete')));
+  await act(() => Promise.resolve(fireEvent.click(screen.getByText('Delete'))));
 
   expect(mockRemovePipeline).toHaveBeenCalled();
   expect(mockActiveRecord).toEqual({
@@ -149,7 +149,7 @@ test('a rejected delete keeps the pipeline open', async () => {
   mockRemovePipeline.mockRejectedValue(new Error('Offline'));
   render(<PipelinesList channelId="channel-1" />);
 
-  await act(async () => fireEvent.click(screen.getByText('Delete')));
+  await act(() => Promise.resolve(fireEvent.click(screen.getByText('Delete'))));
 
   expect(mockActiveRecord).toEqual({
     contentType: 'frontline:pipeline',
@@ -178,8 +178,10 @@ test.each([false, true])(
     if (!unmountBeforeResult)
       view.rerender(<PipelinesList channelId="channel-1" />);
 
-    await act(async () =>
-      resolveRemoval?.({ data: { removePipeline: { ok: 1 } } }),
+    await act(() =>
+      Promise.resolve(
+        resolveRemoval?.({ data: { removePipeline: { ok: 1 } } }),
+      ),
     );
 
     expect(mockActiveRecord).toEqual({

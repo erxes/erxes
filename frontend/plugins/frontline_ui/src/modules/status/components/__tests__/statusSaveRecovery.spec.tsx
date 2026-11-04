@@ -184,8 +184,10 @@ it('a failed status edit releases its scoped save after Activity so the same dra
     fireEvent.change(screen.getByLabelText('name'), {
       target: { value: 'Retry status' },
     });
-    await act(async () =>
-      fireEvent.click(screen.getByRole('button', { name: 'Update' })),
+    await act(() =>
+      Promise.resolve(
+        fireEvent.click(screen.getByRole('button', { name: 'Update' })),
+      ),
     );
     await waitFor(() => expect(attempts).toBe(1));
     expect(close).not.toHaveBeenCalled();
@@ -200,8 +202,10 @@ it('a failed status edit releases its scoped save after Activity so the same dra
     expect(screen.getByRole('button', { name: 'Update' })).toMatchObject({
       disabled: false,
     });
-    await act(async () =>
-      fireEvent.click(screen.getByRole('button', { name: 'Update' })),
+    await act(() =>
+      Promise.resolve(
+        fireEvent.click(screen.getByRole('button', { name: 'Update' })),
+      ),
     );
     await waitFor(() => expect(attempts).toBe(2));
     await waitFor(() => expect(close).toHaveBeenCalledTimes(1));

@@ -12,11 +12,13 @@ import type {
   UpdateTicketStatusMutationVariables,
 } from '~/gql/graphql';
 
+/** Updates a ticket status and forwards callbacks while refreshing status queries. */
 export const useUpdateTicketStatus = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const { toast } = useToast();
   const [updateStatus, { loading, error }] = useMutation(UPDATE_TICKET_STATUS);
 
+  /** Runs the status mutation and preserves the caller's completion and error handling. */
   const handleUpdateStatus = (
     options: MutationFunctionOptions<
       UpdateTicketStatusMutation,

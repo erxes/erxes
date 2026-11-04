@@ -113,7 +113,10 @@ const SubmissionSelectCell = ({ value }: { value: unknown }) => {
     } catch {
       options = [String(value)];
     }
-  } else if (value) {
+  } else if (
+    value &&
+    (typeof value === 'number' || typeof value === 'boolean')
+  ) {
     options = [String(value)];
   }
   if (!options.length) {
