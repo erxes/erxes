@@ -66,7 +66,9 @@ const retryPendingNotifications = async (
     try {
       await notifyPaidInvoice(models, subdomain, _id);
       retried++;
-      log(`${subdomain}: invoice ${_id} paid notification re-queued (duplicates ignored)`);
+      log(
+        `${subdomain}: invoice ${_id} paid notification re-queued (duplicates ignored)`,
+      );
     } catch (e) {
       logError(
         `${subdomain}: retry of paid notification for invoice ${_id} failed: ${e.message}`,
