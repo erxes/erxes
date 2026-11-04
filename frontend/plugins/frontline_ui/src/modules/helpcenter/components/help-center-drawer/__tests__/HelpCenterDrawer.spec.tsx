@@ -757,25 +757,17 @@ it.each(['unchanged', 'read failure', 'missing record'])(
   },
 );
 
-it('leaves B open when deletion from an unmounted A action finishes', async () => {
-  const { wrapper } = setup();
-  const title = render(
-    <HelpCenterRecordPanel
-      contentType="frontline:helpcenter"
-      contentId="help-1"
-      view="title"
-    />,
-    { wrapper },
-  );
+type TRemovalOptions = {
+  update: (
+    cache: Pick<ApolloCache<unknown>, 'evict' | 'identify' | 'gc'>,
+  ) => void;
+};
+
+/** Starts a removal whose completion can outlive its initiating action owner. */
+const startDeferredRemoval = (wrapper: ReturnType<typeof setup>['wrapper']) => {
   let finish: () => void = () => undefined;
   mockRemove.mockImplementationOnce(
-    ({
-      update,
-    }: {
-      update: (
-        cache: Pick<ApolloCache<unknown>, 'evict' | 'identify' | 'gc'>,
-      ) => void;
-    }) =>
+    ({ update }: TRemovalOptions) =>
       new Promise<void>((resolve) => {
         finish = () => {
           update({ evict: jest.fn(), identify: jest.fn(), gc: jest.fn() });
@@ -789,6 +781,56 @@ it('leaves B open when deletion from an unmounted A action finishes', async () =
     request = action.result.current.removeHelpCenters(['help-1']);
   });
   action.unmount();
+  return async () => {
+    await act(async () => {
+      finish();
+      await request;
+    });
+  };
+};
+
+/** Creates a confirmed record while retaining an unfinished image upload. */
+const createWithPendingLogo = async () => {
+  mockSave.mockImplementation((config: IHelpCenterConfigInput) =>
+    Promise.resolve({
+      data: {
+        helpCenterConfigUpdate: { ...saved, ...config, _id: 'created-1' },
+      },
+    }),
+  );
+  const { openNew, onClose } = setup();
+  const detail = openNew();
+  fireEvent.change(screen.getByLabelText('Title'), {
+    target: { value: 'Create with logo' },
+  });
+  fireEvent.click(screen.getByRole('button', { name: 'Start logo upload' }));
+  save();
+  await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
+  detail.unmount();
+  return { openNew, onClose };
+};
+
+/** Completes a removal with the same cache update used by the mutation hook. */
+const completeNextRemoval = () => {
+  mockRemove.mockImplementationOnce(({ update }: TRemovalOptions) =>
+    Promise.resolve().then(() => {
+      update({ evict: jest.fn(), identify: jest.fn(), gc: jest.fn() });
+      return {};
+    }),
+  );
+};
+
+it('leaves B open when deletion from an unmounted A action finishes', async () => {
+  const { wrapper } = setup();
+  const title = render(
+    <HelpCenterRecordPanel
+      contentType="frontline:helpcenter"
+      contentId="help-1"
+      view="title"
+    />,
+    { wrapper },
+  );
+  const finishRemoval = startDeferredRemoval(wrapper);
   title.unmount();
   mockRecordId = 'help-2';
   render(
@@ -799,10 +841,7 @@ it('leaves B open when deletion from an unmounted A action finishes', async () =
     />,
     { wrapper },
   );
-  await act(async () => {
-    finish();
-    await request;
-  });
+  await finishRemoval();
   expect(mockClose).not.toHaveBeenCalled();
   expect(mockBack).not.toHaveBeenCalled();
 });
@@ -829,32 +868,8 @@ it('returns to the parent when the selected deleted Help Center outlives its act
     />,
     { wrapper },
   );
-  let finish: () => void = () => undefined;
-  mockRemove.mockImplementationOnce(
-    ({
-      update,
-    }: {
-      update: (
-        cache: Pick<ApolloCache<unknown>, 'evict' | 'identify' | 'gc'>,
-      ) => void;
-    }) =>
-      new Promise<void>((resolve) => {
-        finish = () => {
-          update({ evict: jest.fn(), identify: jest.fn(), gc: jest.fn() });
-          resolve();
-        };
-      }),
-  );
-  const action = renderHook(useRemoveHelpCenters, { wrapper });
-  let request: Promise<void>;
-  act(() => {
-    request = action.result.current.removeHelpCenters(['help-1']);
-  });
-  action.unmount();
-  await act(async () => {
-    finish();
-    await request;
-  });
+  const finishRemoval = startDeferredRemoval(wrapper);
+  await finishRemoval();
   expect(mockBack).toHaveBeenCalledTimes(1);
   expect(mockClose).not.toHaveBeenCalled();
 });
@@ -886,22 +901,7 @@ it('does not restore an image after its draft is explicitly discarded', async ()
 });
 
 it('continues the confirmed create when an image finishes after the save and unmount', async () => {
-  mockSave.mockImplementation((config: IHelpCenterConfigInput) =>
-    Promise.resolve({
-      data: {
-        helpCenterConfigUpdate: { ...saved, ...config, _id: 'created-1' },
-      },
-    }),
-  );
-  const { openNew, onClose } = setup();
-  const detail = openNew();
-  fireEvent.change(screen.getByLabelText('Title'), {
-    target: { value: 'Create with logo' },
-  });
-  fireEvent.click(screen.getByRole('button', { name: 'Start logo upload' }));
-  save();
-  await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
-  detail.unmount();
+  const { openNew, onClose } = await createWithPendingLogo();
   await act(() => Promise.resolve(mockFinishUpload()));
   const continued = openNew();
   expect(screen.getByLabelText<HTMLInputElement>('Main logo').value).toBe(
@@ -922,22 +922,7 @@ it('continues the confirmed create when an image finishes after the save and unm
 });
 
 it('keeps Save and Cancel usable when an upload never reports completion', async () => {
-  mockSave.mockImplementation((config: IHelpCenterConfigInput) =>
-    Promise.resolve({
-      data: {
-        helpCenterConfigUpdate: { ...saved, ...config, _id: 'created-1' },
-      },
-    }),
-  );
-  const { openNew, onClose } = setup();
-  const detail = openNew();
-  fireEvent.change(screen.getByLabelText('Title'), {
-    target: { value: 'Create with logo' },
-  });
-  fireEvent.click(screen.getByRole('button', { name: 'Start logo upload' }));
-  save();
-  await waitFor(() => expect(onClose).toHaveBeenCalledTimes(1));
-  detail.unmount();
+  const { openNew, onClose } = await createWithPendingLogo();
   const continued = openNew();
   expect(
     screen.getByRole<HTMLButtonElement>('button', { name: 'Save' }).disabled,
@@ -976,19 +961,7 @@ it('invalidates the uploaded image writer when its Help Center is deleted', asyn
   const detail = open();
   fireEvent.click(screen.getByRole('button', { name: 'Start logo upload' }));
   detail.unmount();
-  mockRemove.mockImplementationOnce(
-    ({
-      update,
-    }: {
-      update: (
-        cache: Pick<ApolloCache<unknown>, 'evict' | 'identify' | 'gc'>,
-      ) => void;
-    }) =>
-      Promise.resolve().then(() => {
-        update({ evict: jest.fn(), identify: jest.fn(), gc: jest.fn() });
-        return {};
-      }),
-  );
+  completeNextRemoval();
   const deletion = renderHook(useRemoveHelpCenters, { wrapper });
   await act(() => deletion.result.current.removeHelpCenters(['help-1']));
   await act(() => Promise.resolve(mockFinishUpload()));
@@ -1015,19 +988,7 @@ it('does not recreate a deleted draft when an earlier save finishes', async () =
   save();
   await waitFor(() => expect(mockSave).toHaveBeenCalledTimes(1));
   detail.unmount();
-  mockRemove.mockImplementationOnce(
-    ({
-      update,
-    }: {
-      update: (
-        cache: Pick<ApolloCache<unknown>, 'evict' | 'identify' | 'gc'>,
-      ) => void;
-    }) =>
-      Promise.resolve().then(() => {
-        update({ evict: jest.fn(), identify: jest.fn(), gc: jest.fn() });
-        return {};
-      }),
-  );
+  completeNextRemoval();
   const deletion = renderHook(useRemoveHelpCenters, { wrapper });
   await act(() => deletion.result.current.removeHelpCenters(['help-1']));
   await act(() =>
@@ -1053,8 +1014,9 @@ it('returns to the parent when cancelling an unchanged stacked Help Center', asy
     />,
     { wrapper },
   );
-  await act(async () => {
+  await act(() => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    return Promise.resolve();
   });
   expect(mockBack).toHaveBeenCalledTimes(1);
   expect(mockClose).not.toHaveBeenCalled();

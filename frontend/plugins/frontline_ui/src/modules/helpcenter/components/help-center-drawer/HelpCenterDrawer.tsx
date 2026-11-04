@@ -90,6 +90,7 @@ export function HelpCenterDrawer({
     draftsState: helpCenterPanelDraftsState,
     isNew: !isEditing && !created,
   });
+  /** Captures image completion for this record and signed-in session. */
   const captureImageUpdate: TCaptureHelpCenterImage = (name) => {
     const update = captureUpdate(name);
     return (url) => {
@@ -173,6 +174,29 @@ export function HelpCenterDrawer({
     }
   };
 
+  /** Acknowledges only a surviving save from the originating user session. */
+  const acknowledgeSave = (
+    saved: IHelpCenter,
+    submitted: IHelpCenterConfigInput,
+  ): void => {
+    if (
+      store.get(helpCenterPanelSessionState) !== session ||
+      store.get(helpCenterRemovedIdsState).has(saved._id)
+    )
+      return;
+    const savedValues = toHelpCenterConfigInput(saved);
+    if (!isEditing) {
+      delete savedValues._id;
+      store.set(helpCenterPanelCreatedState, (previous) => ({
+        ...previous,
+        [recordKey]: { id: saved._id, values: savedValues },
+      }));
+    }
+    const completed = markSaved(savedValues, submitted);
+    if (completed && isActive()) onClose();
+    if (completed && !isEditing && !hasPendingUpdates()) finishNewDraft();
+  };
+
   /** Saves confirmed settings without dismissing another record's form. */
   const onSubmit = async (data: IHelpCenterConfigInput) => {
     if (loading) return;
@@ -213,23 +237,7 @@ export function HelpCenterDrawer({
         url: data.url.trim(),
       });
       const saved = result.data?.helpCenterConfigUpdate;
-      if (
-        !saved ||
-        store.get(helpCenterPanelSessionState) !== session ||
-        store.get(helpCenterRemovedIdsState).has(saved._id)
-      )
-        return;
-      const savedValues = toHelpCenterConfigInput(saved);
-      if (!isEditing) {
-        delete savedValues._id;
-        store.set(helpCenterPanelCreatedState, (previous) => ({
-          ...previous,
-          [recordKey]: { id: saved._id, values: savedValues },
-        }));
-      }
-      const completed = markSaved(savedValues, submitted);
-      if (completed && isActive()) onClose();
-      if (completed && !isEditing && !hasPendingUpdates()) finishNewDraft();
+      if (saved) acknowledgeSave(saved, submitted);
     } finally {
       if (store.get(helpCenterPanelSessionState) === session)
         store.set(
