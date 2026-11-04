@@ -72,8 +72,8 @@ export const loadBoardClass = (
           ...(action === 'boardArchived'
             ? { status: SALES_STATUSES.ARCHIVED }
             : action === 'boardUnarchived'
-            ? { status: SALES_STATUSES.ACTIVE }
-            : {}),
+              ? { status: SALES_STATUSES.ACTIVE }
+              : {}),
         },
       },
     });
