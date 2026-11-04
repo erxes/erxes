@@ -1,7 +1,13 @@
+import { useKbPanelFormDraft } from '@/knowledgebase/shared/hooks/useKbPanelFormDraft';
+import { categoryPanelDraftsState } from '@/knowledgebase/shared/states/panelFormDraftsState';
+import {
+  KbFormItem,
+  KbFormSection,
+} from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Form, InfoCard } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { Form } from 'erxes-ui';
+import { useForm, type UseFormReturn } from 'react-hook-form';
+import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
 import { useSaveCategory } from '@/knowledgebase/categories/hooks/useCategoryMutations';
@@ -21,8 +27,9 @@ const categorySchema = z.object({
   parentCategoryId: z.string().optional(),
 });
 
-type TCategoryForm = z.infer<typeof categorySchema>;
+export type TCategoryForm = z.infer<typeof categorySchema>;
 
+/** Seeds a new category with its owning topic and default icon. */
 const emptyCategory = (topicId: string): TCategoryForm => ({
   title: '',
   code: '',
@@ -32,23 +39,144 @@ const emptyCategory = (topicId: string): TCategoryForm => ({
   parentCategoryId: '',
 });
 
+/** Renders category metadata and placement fields with their existing form validation. */
+const CategoryFormFields = ({
+  form,
+  topicId,
+  categoryId,
+  isEditing,
+  t,
+}: {
+  form: UseFormReturn<TCategoryForm>;
+  topicId: string;
+  categoryId?: string;
+  isEditing: boolean;
+  t: TFunction;
+}) => {
+  const selectedTopicId = form.watch('topicId');
+  return (
+    <div className="grid gap-2">
+      <KbFormSection title={t('general', 'General')}>
+        <KbFormSection.Content>
+          <KbTextField
+            control={form.control}
+            name="title"
+            label={t('title-label', 'Title')}
+            placeholder={t('kb-enter-category-title', 'Enter category title')}
+            required
+          />
+          <KbTextField
+            control={form.control}
+            name="description"
+            label={t('description', 'Description')}
+            placeholder={t(
+              'kb-enter-category-description',
+              'Enter category description',
+            )}
+            multiline
+          />
+          <KbTextField
+            control={form.control}
+            name="code"
+            label={t('kb-code', 'Code')}
+            placeholder={t('kb-enter-category-code', 'Enter category code')}
+          />
+        </KbFormSection.Content>
+      </KbFormSection>
+
+      <KbFormSection title={t('kb-placement', 'Placement')}>
+        <KbFormSection.Content>
+          <Form.Field
+            control={form.control}
+            name="icon"
+            render={({ field }) => (
+              <KbFormItem label={t('icon', 'Icon')}>
+                <Form.Control>
+                  <IconPicker value={field.value} onChange={field.onChange} />
+                </Form.Control>
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="topicId"
+            render={({ field }) => (
+              <KbFormItem
+                required
+                label={t('knowledge-base', 'Knowledge Base')}
+              >
+                <Form.Control>
+                  <SelectKbTopic
+                    value={field.value}
+                    onValueChange={(nextTopicId) => {
+                      if (nextTopicId === field.value) return;
+
+                      field.onChange(nextTopicId);
+                      form.setValue('parentCategoryId', '', {
+                        shouldDirty: true,
+                      });
+                    }}
+                  />
+                </Form.Control>
+                {isEditing && field.value !== topicId && (
+                  <Form.Description>
+                    {t(
+                      'kb-move-category-help',
+                      'Its subcategories and articles move with it.',
+                    )}
+                  </Form.Description>
+                )}
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="parentCategoryId"
+            render={({ field }) => (
+              <KbFormItem label={t('kb-parent-category', 'Parent category')}>
+                <Form.Control>
+                  <SelectKbCategory
+                    topicId={selectedTopicId}
+                    value={field.value}
+                    excludeId={categoryId}
+                    allowEmpty
+                    onValueChange={field.onChange}
+                    placeholder={t(
+                      'kb-no-parent-category',
+                      'No parent category',
+                    )}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </KbFormItem>
+            )}
+          />
+        </KbFormSection.Content>
+      </KbFormSection>
+    </div>
+  );
+};
+
+/** Edits or creates a category while retaining its scoped panel draft. */
 export const CategoryDrawer = ({
   category,
   topicId,
-  isOpen,
   onClose,
   onSaved,
 }: {
   category?: ICategoryFields;
   topicId: string;
-  isOpen: boolean;
   onClose: () => void;
   onSaved?: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = !!category;
+  const isEditing = Boolean(category);
   const { saveCategory, loading } = useSaveCategory();
 
   const form = useForm<TCategoryForm>({
@@ -56,11 +184,15 @@ export const CategoryDrawer = ({
     defaultValues: emptyCategory(topicId),
   });
 
-  const selectedTopicId = form.watch('topicId');
-
-  useEffect(() => {
-    form.reset(
-      category
+  const { dirtyFields } = form.formState;
+  const { clearDraft, markSaved, isActive, save, saving } = useKbPanelFormDraft(
+    {
+      form,
+      kind: 'category',
+      recordId: category?._id,
+      context: [topicId],
+      onDeleted: onClose,
+      values: category
         ? {
             title: category.title || '',
             code: category.code || '',
@@ -70,155 +202,60 @@ export const CategoryDrawer = ({
             parentCategoryId: category.parentCategoryId || '',
           }
         : emptyCategory(topicId),
-    );
-  }, [category, topicId, form]);
+      draftsState: categoryPanelDraftsState,
+      discardMessage: t(
+        'discard-unsaved-changes',
+        'Discard your unsaved changes?',
+      ),
+    },
+  );
+
+  /** Clears the current draft before closing the panel form. */
+  const cancel = () => {
+    clearDraft();
+    onClose();
+  };
 
   const submit = form.handleSubmit(async (values) => {
-    const saved = await saveCategory(
-      {
-        ...values,
-        parentCategoryId: values.parentCategoryId || '',
-      },
-      category?._id,
+    const submittedValues = structuredClone(form.getValues());
+    const submittedDirtyFields = structuredClone(dirtyFields);
+    const saved = await save((recordId) =>
+      saveCategory(
+        {
+          ...values,
+          parentCategoryId: values.parentCategoryId || '',
+        },
+        recordId,
+        recordId ? submittedDirtyFields : undefined,
+      ),
     );
 
     if (!saved) return;
 
+    if (!markSaved(values, submittedValues)) return;
     onSaved?.();
-    onClose();
-    form.reset(emptyCategory(topicId));
+    if (isActive()) onClose();
   });
 
   return (
     <KbFormSheet
-      isOpen={isOpen}
-      onClose={onClose}
-      title={
-        isEditing
-          ? t('kb-edit-category', 'Edit Category')
-          : t('kb-new-category', 'New Category')
-      }
+      onClose={cancel}
       submitLabel={
         isEditing
           ? t('kb-save-changes', 'Save Changes')
           : t('kb-create-category', 'Create Category')
       }
-      loading={loading}
+      loading={loading || saving}
       onSubmit={submit}
     >
       <Form {...form}>
-        <form onSubmit={submit} className="grid gap-4 p-4">
-          <InfoCard title={t('general', 'General')}>
-            <InfoCard.Content>
-              <KbTextField
-                control={form.control}
-                name="title"
-                label={t('title-label', 'Title')}
-                placeholder={t(
-                  'kb-enter-category-title',
-                  'Enter category title',
-                )}
-                required
-              />
-              <KbTextField
-                control={form.control}
-                name="description"
-                label={t('description', 'Description')}
-                placeholder={t(
-                  'kb-enter-category-description',
-                  'Enter category description',
-                )}
-                multiline
-              />
-              <KbTextField
-                control={form.control}
-                name="code"
-                label={t('kb-code', 'Code')}
-                placeholder={t('kb-enter-category-code', 'Enter category code')}
-              />
-            </InfoCard.Content>
-          </InfoCard>
-
-          <InfoCard title={t('kb-placement', 'Placement')}>
-            <InfoCard.Content>
-              <Form.Field
-                control={form.control}
-                name="icon"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('icon', 'Icon')}</Form.Label>
-                    <Form.Control>
-                      <IconPicker
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="topicId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('knowledge-base', 'Knowledge Base')}{' '}
-                      <span className="text-destructive">*</span>
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectKbTopic
-                        value={field.value}
-                        onValueChange={(nextTopicId) => {
-                          if (nextTopicId === field.value) return;
-
-                          field.onChange(nextTopicId);
-                          form.setValue('parentCategoryId', '');
-                        }}
-                      />
-                    </Form.Control>
-                    {isEditing && field.value !== topicId && (
-                      <Form.Description>
-                        {t(
-                          'kb-move-category-help',
-                          'Its subcategories and articles move with it.',
-                        )}
-                      </Form.Description>
-                    )}
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="parentCategoryId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('kb-parent-category', 'Parent category')}
-                    </Form.Label>
-                    <Form.Control>
-                      <SelectKbCategory
-                        topicId={selectedTopicId}
-                        value={field.value}
-                        excludeId={category?._id}
-                        allowEmpty
-                        onValueChange={field.onChange}
-                        placeholder={t(
-                          'kb-no-parent-category',
-                          'No parent category',
-                        )}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </InfoCard.Content>
-          </InfoCard>
-        </form>
+        <CategoryFormFields
+          form={form}
+          topicId={topicId}
+          categoryId={category?._id}
+          isEditing={isEditing}
+          t={t}
+        />
       </Form>
     </KbFormSheet>
   );

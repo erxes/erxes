@@ -1,9 +1,8 @@
 import { IconPlus } from '@tabler/icons-react';
 import { Button, cn, Separator, Sidebar, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CategoryDrawer } from '@/knowledgebase/categories/components/CategoryDrawer';
 import { KbResizeHandle } from '@/knowledgebase/sidebar/components/KbResizeHandle';
 import { TopicTreeItem } from '@/knowledgebase/sidebar/components/TopicTreeItem';
 import { useKnowledgeBaseRoute } from '@/knowledgebase/sidebar/hooks/useKnowledgeBaseRoute';
@@ -12,15 +11,15 @@ import {
   kbSidebarResizingAtom,
   kbSidebarWidthAtom,
 } from '@/knowledgebase/sidebar/states/kbSidebarWidthState';
-import { TopicDrawer } from '@/knowledgebase/topics/components/TopicDrawer';
 import { useTopics } from '@/knowledgebase/topics/hooks/useTopics';
 import { ICategoryFields, ITopic } from '@/knowledgebase/types';
+import { useSidePanel } from 'ui-modules';
+import {
+  KB_RECORD_CONTENT_TYPES,
+  KB_DRAFT_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 
-type TCategoryDraft = {
-  topicId: string;
-  category?: ICategoryFields;
-};
-
+/** Renders topic tree entries with loading, error and empty states. */
 const TopicTree = ({
   topics,
   loading,
@@ -76,6 +75,7 @@ const TopicTree = ({
   );
 };
 
+/** Renders the resizable topic sidebar and scoped record-panel entry points. */
 export const KnowledgeBaseSidebar = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -83,18 +83,11 @@ export const KnowledgeBaseSidebar = () => {
   const { topicId } = useKnowledgeBaseRoute();
   const { setOpen: openCurrentTopic } = useTopicOpenState(topicId);
   const { topics, loading, error } = useTopics();
+  const { openRecord, openNewRecord } = useSidePanel();
   const [createTopic, setCreateTopic] = useQueryState<string>('createTopic');
-  const [isTopicCreateOpen, setIsTopicCreateOpen] = useState(false);
-  const [categoryDraft, setCategoryDraft] = useState<TCategoryDraft>();
-  const [isCategoryDrawerOpen, setIsCategoryDrawerOpen] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useAtom(kbSidebarWidthAtom);
   const resizing = useAtomValue(kbSidebarResizingAtom);
-
-  const openCategoryDrawer = (draft: TCategoryDraft) => {
-    setCategoryDraft(draft);
-    setIsCategoryDrawerOpen(true);
-  };
 
   useEffect(() => {
     openCurrentTopic(true);
@@ -103,9 +96,9 @@ export const KnowledgeBaseSidebar = () => {
   useEffect(() => {
     if (createTopic !== 'true') return;
 
-    setIsTopicCreateOpen(true);
     setCreateTopic(null);
-  }, [createTopic, setCreateTopic]);
+    openNewRecord(KB_DRAFT_CONTENT_TYPES.topic);
+  }, [createTopic, setCreateTopic, openNewRecord]);
 
   return (
     <Sidebar.Panel
@@ -123,7 +116,7 @@ export const KnowledgeBaseSidebar = () => {
           className="size-8 text-muted-foreground"
           aria-label={t('kb-new-topic', 'New Topic')}
           title={t('kb-new-topic', 'New Topic')}
-          onClick={() => setIsTopicCreateOpen(true)}
+          onClick={() => openNewRecord(KB_DRAFT_CONTENT_TYPES.topic)}
         >
           <IconPlus />
         </Button>
@@ -137,9 +130,14 @@ export const KnowledgeBaseSidebar = () => {
               topics={topics}
               loading={loading}
               error={error}
-              onAddCategory={(id) => openCategoryDrawer({ topicId: id })}
-              onEditCategory={(id, category) =>
-                openCategoryDrawer({ topicId: id, category })
+              onAddCategory={(id) =>
+                openNewRecord(KB_DRAFT_CONTENT_TYPES.category, { topicId: id })
+              }
+              onEditCategory={(_id, category) =>
+                openRecord({
+                  contentType: KB_RECORD_CONTENT_TYPES.category,
+                  contentId: category._id,
+                })
               }
             />
           </Sidebar.Menu>
@@ -150,19 +148,6 @@ export const KnowledgeBaseSidebar = () => {
         panelRef={panelRef}
         onResize={setWidth}
         onReset={() => setWidth(null)}
-      />
-
-      <TopicDrawer
-        isOpen={isTopicCreateOpen}
-        onClose={() => setIsTopicCreateOpen(false)}
-      />
-
-      <CategoryDrawer
-        key={categoryDraft?.category?._id ?? categoryDraft?.topicId}
-        topicId={categoryDraft?.topicId ?? ''}
-        category={categoryDraft?.category}
-        isOpen={isCategoryDrawerOpen}
-        onClose={() => setIsCategoryDrawerOpen(false)}
       />
     </Sidebar.Panel>
   );

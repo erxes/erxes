@@ -1,3 +1,4 @@
+import { useSidePanel } from 'ui-modules';
 import {
   IconCalendarPlus,
   IconFileText,
@@ -8,12 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import clsx from 'clsx';
-import {
-  Badge,
-  RecordTable,
-  RecordTableInlineCell,
-  useQueryState,
-} from 'erxes-ui';
+import { Badge, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,7 +17,10 @@ import { Link, useParams } from 'react-router-dom';
 import { categoriesMoreColumn } from '@/knowledgebase/categories/components/CategoriesMoreColumn';
 import { useEditCategoryField } from '@/knowledgebase/categories/hooks/useCategoryMutations';
 import { TCategoryRow } from '@/knowledgebase/categories/utils/sortCategoriesAsTree';
-import { KNOWLEDGE_BASE_PATH } from '@/knowledgebase/constants';
+import {
+  KNOWLEDGE_BASE_PATH,
+  KB_RECORD_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 import { IconPicker } from '@/knowledgebase/shared/components/IconPicker';
 import {
   kbColumn,
@@ -30,12 +29,14 @@ import {
 } from '@/knowledgebase/shared/components/kbColumns';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
+/** Provides the category inline edit hook scoped to the routed topic. */
 const useEditCategory = () => {
   const { topicId = '' } = useParams();
 
   return useEditCategoryField(topicId).editCategoryField;
 };
 
+/** Edits a knowledge base text field inline through its mutation hook. */
 const TextCell = ({
   cell,
   field,
@@ -62,6 +63,7 @@ const TextCell = ({
   );
 };
 
+/** Opens the record panel from the inline-editable title cell. */
 const TitleCell = ({
   cell,
   t,
@@ -70,7 +72,7 @@ const TitleCell = ({
   t: TFunction;
 }) => {
   const category = cell.row.original;
-  const [, setEditId] = useQueryState<string>('editId');
+  const { openRecord } = useSidePanel();
 
   return (
     <TextCell cell={cell} field="title" placeholder={t('unnamed-category')}>
@@ -79,7 +81,12 @@ const TitleCell = ({
         style={{ paddingLeft: category.depth * 12 }}
       >
         <RecordTableInlineCell.Anchor
-          onClick={() => setEditId(category._id)}
+          onClick={() =>
+            openRecord({
+              contentType: KB_RECORD_CONTENT_TYPES.category,
+              contentId: category._id,
+            })
+          }
           className={clsx(category.hasChildren && 'font-semibold')}
         >
           {category.title || t('unnamed-category')}
@@ -89,6 +96,7 @@ const TitleCell = ({
   );
 };
 
+/** Edits a category icon through the shared table cell controls. */
 const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
   const category = cell.row.original;
   const editCategoryField = useEditCategory();
@@ -107,6 +115,7 @@ const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
   );
 };
 
+/** Displays the category article count including nested category records. */
 const ArticleCountCell = ({
   cell,
   t,
@@ -131,6 +140,7 @@ const ArticleCountCell = ({
   );
 };
 
+/** Defines category table columns and their inline editing controls. */
 const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
   categoriesMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<TCategoryRow>,
@@ -184,6 +194,7 @@ const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
   }),
 ];
 
+/** Memoizes translated category columns for the current route. */
 export const useCategoriesColumns = (): ColumnDef<TCategoryRow>[] => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',

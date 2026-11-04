@@ -1,9 +1,10 @@
 import { IconUpload } from '@tabler/icons-react';
 import { ColorPicker, Form, Upload } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { ReactNode } from 'react';
+import { ReactNode, useReducer } from 'react';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
+import { KbFormItem } from './KbFormLayout';
 
 export function KbColorInput({
   value,
@@ -22,21 +23,35 @@ export function KbImageUpload({
   value,
   onChange,
   buttonLabel,
+  captureChange,
+  invalidateChange,
 }: Readonly<{
   value: string;
   onChange: (url: string) => void;
   buttonLabel: string;
+  captureChange?: () => (url: string) => void;
+  invalidateChange?: () => void;
 }>) {
+  const [, refresh] = useReducer((version: number) => version + 1, 0);
+  const selected = { complete: onChange };
   return (
     <Upload.Root
       value={value}
       onChange={(fileInfo) => {
         if ('url' in fileInfo) {
-          onChange(fileInfo.url);
+          if (fileInfo.url === '') {
+            invalidateChange?.();
+            onChange('');
+          } else selected.complete(fileInfo.url);
         }
       }}
     >
-      <Upload.Preview />
+      <Upload.Preview
+        onUploadStart={() => {
+          selected.complete = captureChange?.() ?? onChange;
+          refresh();
+        }}
+      />
       <div className="flex flex-col gap-2">
         <Upload.Button size="sm" variant="outline" type="button">
           <IconUpload className="mr-2 w-4 h-4" />
@@ -81,16 +96,22 @@ function KbControlField<T extends FieldValues>({
       name={name}
       rules={required ? { required } : undefined}
       render={({ field }) => (
-        <Form.Item>
-          <div className="flex items-center justify-between gap-2">
-            <Form.Label>{label}</Form.Label>
-            {renderLabelAction?.(field.value as string, field.onChange)}
-          </div>
+        <KbFormItem
+          label={label}
+          wide
+          labelAction={renderLabelAction?.(
+            typeof field.value === 'string' ? field.value : '',
+            field.onChange,
+          )}
+        >
           <Form.Control>
-            {renderControl(field.value as string, field.onChange)}
+            {renderControl(
+              typeof field.value === 'string' ? field.value : '',
+              field.onChange,
+            )}
           </Form.Control>
           <Form.Message />
-        </Form.Item>
+        </KbFormItem>
       )}
     />
   );
@@ -125,7 +146,12 @@ export const TopicBackgroundImageField = <T extends FieldValues>({
   control,
   name,
   t,
-}: TTopicFieldProps<T>) => (
+  captureChange,
+  invalidateChange,
+}: TTopicFieldProps<T> & {
+  captureChange?: () => (url: string) => void;
+  invalidateChange?: () => void;
+}) => (
   <KbControlField
     control={control}
     name={name}
@@ -135,6 +161,8 @@ export const TopicBackgroundImageField = <T extends FieldValues>({
         value={value}
         onChange={onChange}
         buttonLabel={t('kb-upload-image')}
+        captureChange={captureChange}
+        invalidateChange={invalidateChange}
       />
     )}
   />

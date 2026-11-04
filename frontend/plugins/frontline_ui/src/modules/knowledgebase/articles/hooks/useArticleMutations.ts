@@ -1,6 +1,8 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { isDefined } from 'erxes-ui';
 import { useState } from 'react';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
+import { useKbCloseRemovedRecord } from '@/knowledgebase/shared/hooks/useKbCloseRemovedRecord';
 import { useTranslation } from 'react-i18next';
 import {
   ADD_ARTICLE,
@@ -13,13 +15,61 @@ import {
   CATEGORIES,
   TOPICS,
 } from '@/knowledgebase/graphql/queries';
-import { IArticle, IArticleDoc } from '@/knowledgebase/types';
+import { IArticle, IArticleDetail, IArticleDoc } from '@/knowledgebase/types';
 import { toKbAttachment } from '@/knowledgebase/utils/toKbAttachment';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
+import type { FieldNamesMarkedBoolean } from 'react-hook-form';
+import type { KnowledgeBaseArticleDoc } from '~/gql/graphql';
 
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
 
+/** Detects true leaves in nested React Hook Form dirty metadata. */
+const hasDirtyFields = (value: unknown): boolean =>
+  value === true ||
+  (value !== null &&
+    typeof value === 'object' &&
+    Object.values(value).some(hasDirtyFields));
+
+/** Combines dirty fields with fresh required values without reverting concurrent edits. */
+const articleEditDoc = (
+  doc: IArticleDoc,
+  current: IArticleDetail,
+  dirtyFields: Partial<FieldNamesMarkedBoolean<IArticleDoc>>,
+): KnowledgeBaseArticleDoc => {
+  /** Represents edited optional fields, including explicit clears. */
+  const changed = <K extends keyof IArticleDoc>(key: K) =>
+    hasDirtyFields(dirtyFields[key]) ? { [key]: doc[key] ?? null } : {};
+  const status = dirtyFields.status ? doc.status : current.status || 'draft';
+  const scheduleChanged = dirtyFields.scheduledDate || dirtyFields.status;
+  let schedule: Pick<KnowledgeBaseArticleDoc, 'scheduledDate'> = {};
+  if (status === 'scheduled') {
+    schedule = {
+      scheduledDate: scheduleChanged
+        ? doc.scheduledDate
+        : current.scheduledDate,
+    };
+  } else if (scheduleChanged) {
+    schedule = { scheduledDate: null };
+  }
+  return {
+    title: dirtyFields.title ? doc.title : current.title || '',
+    content: dirtyFields.content ? doc.content : current.content || '<p></p>',
+    status,
+    ...changed('summary'),
+    ...changed('isPrivate'),
+    ...changed('reactionChoices'),
+    ...changed('topicId'),
+    ...changed('categoryId'),
+    ...changed('image'),
+    ...changed('attachments'),
+    ...changed('pdfAttachment'),
+    ...schedule,
+  };
+};
+
+/** Saves full article creates or dirty edit fields with fresh required values. */
 export const useSaveArticle = () => {
+  const client = useApolloClient();
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
@@ -35,23 +85,44 @@ export const useSaveArticle = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveArticle = (doc: IArticleDoc, articleId?: string) =>
-    run(
+  /** Writes the article document and returns its saved identifier or null. */
+  const saveArticle = async (
+    doc: IArticleDoc,
+    articleId?: string,
+    dirtyFields?: Partial<FieldNamesMarkedBoolean<IArticleDoc>>,
+  ): Promise<string | null> => {
+    let savedId = articleId ?? null;
+    const saved = await run(
       async () => {
         if (articleId) {
-          await editArticle({ variables: { _id: articleId, doc } });
+          let editDoc: KnowledgeBaseArticleDoc = doc;
+          if (dirtyFields) {
+            const { data } = await client.query({
+              query: ARTICLE_DETAIL,
+              variables: { _id: articleId },
+              fetchPolicy: 'network-only',
+            });
+            const current = data?.knowledgeBaseArticleDetail;
+            if (!current) throw new Error(t('kb-article-not-found'));
+            editDoc = articleEditDoc(doc, current, dirtyFields);
+          }
+          await editArticle({ variables: { _id: articleId, doc: editDoc } });
         } else {
-          await addArticle({ variables: { doc } });
+          const { data } = await addArticle({ variables: { doc } });
+          savedId = data?.knowledgeBaseArticlesAdd?._id ?? null;
         }
       },
       articleId
         ? t('kb-article-saved', 'Article saved')
         : t('kb-article-created', 'Article created'),
     );
+    return saved ? savedId : null;
+  };
 
   return { saveArticle, loading: adding || editing };
 };
 
+/** Provides a fresh article detail read for complete mutation inputs. */
 const useFetchArticleDetail = () => {
   const client = useApolloClient();
 
@@ -66,10 +137,12 @@ const useFetchArticleDetail = () => {
   };
 };
 
+/** Applies inline article patches using a fresh required document. */
 const useUpdateArticle = () => {
   const fetchDetail = useFetchArticleDetail();
   const [editArticle, { loading }] = useMutation(EDIT_ARTICLE);
 
+  /** Combines the latest article fields with the requested inline patch. */
   const updateArticle = async (
     article: IArticle,
     patch: Partial<IArticleDoc>,
@@ -97,14 +170,17 @@ const useUpdateArticle = () => {
   return { updateArticle, loading };
 };
 
+/** Identifies article changes that affect status or category list membership. */
 const movesBetweenLists = (patch: Partial<IArticleDoc>) =>
   'status' in patch || 'categoryId' in patch;
 
+/** Updates an article field and refreshes affected lists with error feedback. */
 export const useEditArticleField = () => {
   const client = useApolloClient();
   const { failure } = useKbToast();
   const { updateArticle, loading } = useUpdateArticle();
 
+  /** Persists an inline article patch and refetches moved list entries. */
   const editArticleField = async (
     article: IArticle,
     patch: Partial<IArticleDoc>,
@@ -123,6 +199,7 @@ export const useEditArticleField = () => {
   return { editArticleField, loading };
 };
 
+/** Provides bulk article editing with shared feedback and list refresh. */
 export const useBulkEditArticles = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -132,6 +209,7 @@ export const useBulkEditArticles = () => {
   const { updateArticle } = useUpdateArticle();
   const [loading, setLoading] = useState(false);
 
+  /** Updates selected articles and refreshes their affected tables. */
   const bulkEditArticles = async (
     articles: IArticle[],
     patch: Partial<IArticleDoc>,
@@ -159,6 +237,7 @@ export const useBulkEditArticles = () => {
   return { bulkEditArticles, loading };
 };
 
+/** Creates a draft copy from the full saved article detail. */
 export const useDuplicateArticle = (topicId: string) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -170,7 +249,8 @@ export const useDuplicateArticle = (topicId: string) => {
     awaitRefetchQueries: true,
   });
 
-  const duplicateArticle = (article: IArticle) =>
+  /** Copies article content, media and placement into a new draft article. */
+  const duplicateArticle = (article: Pick<IArticle, '_id'>) =>
     run(async () => {
       const detail = await fetchDetail(article._id);
 
@@ -206,16 +286,22 @@ export const useDuplicateArticle = (topicId: string) => {
   return { duplicateArticle, loading };
 };
 
+/** Removes articles, clears their drafts and refreshes affected lists. */
 export const useRemoveArticles = () => {
   const client = useApolloClient();
+  const closeRemovedRecord = useKbCloseRemovedRecord(
+    KB_RECORD_CONTENT_TYPES.article,
+  );
   const [removeArticle, { loading }] = useMutation(REMOVE_ARTICLE);
 
+  /** Deletes selected articles and evicts their normalized cache entries. */
   const removeArticles = async (ids: string[]) => {
     await Promise.all(
       ids.map((_id) =>
         removeArticle({
           variables: { _id },
           update: (cache) => {
+            closeRemovedRecord(_id);
             cache.evict({
               id: cache.identify({ __typename: 'KnowledgeBaseArticle', _id }),
             });

@@ -1,12 +1,6 @@
 import { IconEdit, IconTrash, type Icon } from '@tabler/icons-react';
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -17,19 +11,19 @@ export type TKbRowAction = {
   onSelect: () => void;
 };
 
+/** Renders working edit, delete and optional knowledge base row actions. */
 export const KbRowActions = ({
-  id,
+  onEdit,
   actions = [],
   onDelete,
 }: {
-  id: string;
+  onEdit: () => void;
   actions?: TKbRowAction[];
   onDelete: () => void;
 }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const [, setEditId] = useQueryState<string>('editId');
   const [open, setOpen] = useState(false);
 
   const items: TKbRowAction[] = [
@@ -38,7 +32,7 @@ export const KbRowActions = ({
       value: 'edit',
       icon: IconEdit,
       label: t('edit'),
-      onSelect: () => setEditId(id),
+      onSelect: onEdit,
     },
     {
       value: 'delete',
@@ -75,6 +69,7 @@ export const KbRowActions = ({
   );
 };
 
+/** Builds the reusable trailing action column for knowledge base tables. */
 export const kbMoreColumn = <T,>(
   cell: (props: { cell: Cell<T, unknown> }) => ReactNode,
 ): ColumnDef<T> => ({

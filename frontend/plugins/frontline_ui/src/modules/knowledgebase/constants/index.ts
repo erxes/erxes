@@ -69,6 +69,18 @@ import {
 
 export const KNOWLEDGE_BASE_PATH = '/frontline/knowledgebase';
 
+export const KB_RECORD_CONTENT_TYPES = {
+  article: 'frontline:knowledgebase.article',
+  topic: 'frontline:knowledgebase.topic',
+  category: 'frontline:knowledgebase.category',
+} as const;
+
+export const KB_DRAFT_CONTENT_TYPES = {
+  article: 'frontline:article',
+  topic: 'frontline:topic',
+  category: 'frontline:category',
+} as const;
+
 export const TOPICS_PER_PAGE = 100;
 export const CATEGORIES_PER_PAGE = 100;
 export const ARTICLES_PER_PAGE = 100;

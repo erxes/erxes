@@ -1,3 +1,4 @@
+import { useSidePanel } from 'ui-modules';
 import {
   IconCalendarPlus,
   IconEye,
@@ -16,14 +17,16 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { articlesMoreColumn } from '@/knowledgebase/articles/components/ArticlesMoreColumn';
 import { useEditArticleField } from '@/knowledgebase/articles/hooks/useArticleMutations';
-import { ARTICLE_STATUSES } from '@/knowledgebase/constants';
+import {
+  ARTICLE_STATUSES,
+  KB_RECORD_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 import {
   kbColumn,
   kbDateColumn,
@@ -33,6 +36,7 @@ import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import { IArticle, KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
+/** Maps article publication status to its table badge variant. */
 const statusVariant = (
   status: string,
 ): 'success' | 'destructive' | 'secondary' => {
@@ -41,6 +45,7 @@ const statusVariant = (
   return 'secondary';
 };
 
+/** Edits a knowledge base text field inline through its mutation hook. */
 const TextCell = ({
   cell,
   field,
@@ -67,6 +72,7 @@ const TextCell = ({
   );
 };
 
+/** Opens the record panel from the inline-editable title cell. */
 const TitleCell = ({
   cell,
   t,
@@ -75,7 +81,7 @@ const TitleCell = ({
   t: TFunction;
 }) => {
   const article = cell.row.original;
-  const [, setEditId] = useQueryState<string>('editId');
+  const { openRecord } = useSidePanel();
 
   return (
     <TextCell
@@ -83,13 +89,21 @@ const TitleCell = ({
       field="title"
       placeholder={t('kb-untitled-article', 'Untitled article')}
     >
-      <RecordTableInlineCell.Anchor onClick={() => setEditId(article._id)}>
+      <RecordTableInlineCell.Anchor
+        onClick={() =>
+          openRecord({
+            contentType: KB_RECORD_CONTENT_TYPES.article,
+            contentId: article._id,
+          })
+        }
+      >
         {article.title || t('kb-untitled-article', 'Untitled article')}
       </RecordTableInlineCell.Anchor>
     </TextCell>
   );
 };
 
+/** Edits publication status and supports scheduled publishing dates. */
 const StatusCell = ({
   cell,
   t,
@@ -138,6 +152,7 @@ const StatusCell = ({
   );
 };
 
+/** Edits article placement through the current topic category options. */
 const CategoryCell = ({
   cell,
   topicId,
@@ -163,6 +178,7 @@ const CategoryCell = ({
   );
 };
 
+/** Defines article table columns and their inline editing controls. */
 const createArticlesColumns = (
   t: TFunction,
   topicId: string,
@@ -238,6 +254,7 @@ const createArticlesColumns = (
   }),
 ];
 
+/** Memoizes translated article columns for the current topic. */
 export const useArticlesColumns = (topicId: string): ColumnDef<IArticle>[] => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
