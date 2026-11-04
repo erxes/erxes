@@ -20,6 +20,7 @@ import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
+import { enqueueInvoiceCallback } from '~/modules/payment/services/invoiceCallbackQueue';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
@@ -200,20 +201,14 @@ export const callbackHandler = async (req, res) => {
       }
 
       if (invoice.callback && claimed) {
+        // queued delivery: retried on network errors and non-2xx responses
         try {
-          await fetch(invoice.callback, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              _id: invoice._id,
-              amount: invoice.amount,
-              status: 'paid',
-            }),
-          });
+          await enqueueInvoiceCallback(invoice);
         } catch (e) {
-          console.error('Error: ', e);
+          console.error(
+            `[CALLBACK] Failed to queue callback for invoice ${invoice._id}`,
+            e,
+          );
         }
       }
 

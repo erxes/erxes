@@ -8,13 +8,17 @@ import {
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 import { splitType } from 'erxes-api-shared/core-modules';
-import { generateModels } from '~/connectionResolvers';
+import { generateModels, IModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS } from '~/constants';
+import {
+  enqueueInvoiceCallback,
+  INVOICE_CALLBACK_QUEUE,
+  sendInvoiceCallback,
+} from '~/modules/payment/services/invoiceCallbackQueue';
 
 const SERVICE = 'payment';
 const SCHEDULER_QUEUE = 'pending-invoices-schedule';
 const ORG_QUEUE = 'pending-invoices-check';
-const INVOICE_CALLBACK_QUEUE = 'paid-invoice-callback';
 
 // Every 5 minutes.
 const SCHEDULE_PATTERN = '*/5 * * * *';
@@ -38,55 +42,8 @@ const logError = (msg: string) =>
 const cursorKey = (subdomain: string) =>
   `payment:pendingInvoicesCursor:${subdomain}`;
 
-/**
- * Sends invoice.callback through a queue so a failed delivery (network error
- * or non-2xx response) is retried by BullMQ instead of being lost. The invoice
- * is already paid at this point, so the scheduled check would never retry it.
- */
-const enqueueInvoiceCallback = async (invoice: any) => {
-  await sendWorkerQueue(SERVICE, INVOICE_CALLBACK_QUEUE).add(
-    INVOICE_CALLBACK_QUEUE,
-    {
-      url: invoice.callback,
-      body: {
-        _id: invoice._id,
-        amount: invoice.amount,
-        status: PAYMENT_STATUS.PAID,
-      },
-    },
-    {
-      jobId: `${INVOICE_CALLBACK_QUEUE}-${invoice._id}`,
-      attempts: 5,
-      backoff: { type: 'exponential', delay: 5000 },
-      removeOnComplete: true,
-      removeOnFail: { age: 7 * 24 * 3600 },
-    },
-  );
-};
-
-const sendInvoiceCallback = async (job: Job) => {
-  const { url, body } = job.data || {};
-
-  if (!url) {
-    return;
-  }
-
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    // throwing makes BullMQ retry with backoff
-    throw new Error(
-      `Callback for invoice ${body?._id} failed: HTTP ${res.status} ${res.statusText}`,
-    );
-  }
-};
-
 const notifyPaidInvoice = async (
-  models: any,
+  models: IModels,
   subdomain: string,
   _id: string,
 ) => {
@@ -96,30 +53,44 @@ const notifyPaidInvoice = async (
     invoiceUpdated: { _id, status: PAYMENT_STATUS.PAID },
   });
 
+  // The plugin callback and the external callback are attempted
+  // independently, so one failing to enqueue does not cancel the other.
+  let firstError: unknown;
+
   // Same notification as the invoicesCheck mutation (the widget's check button)
   if (invoice.contentType) {
     const [pluginName, moduleName, collectionType] = splitType(
       invoice.contentType,
     );
 
-    await sendWorkerQueue(pluginName, 'payments').add(
-      'callback',
-      {
-        subdomain,
-        data: {
-          ...invoice,
-          status: PAYMENT_STATUS.PAID,
-          moduleName,
-          collectionType,
-          apiResponse: 'success',
+    try {
+      await sendWorkerQueue(pluginName, 'payments').add(
+        'callback',
+        {
+          subdomain,
+          data: {
+            ...invoice,
+            status: PAYMENT_STATUS.PAID,
+            moduleName,
+            collectionType,
+            apiResponse: 'success',
+          },
         },
-      },
-      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-    );
+        { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+      );
+    } catch (e) {
+      firstError = firstError || e;
+    }
   }
 
-  if (invoice.callback) {
+  try {
     await enqueueInvoiceCallback(invoice);
+  } catch (e) {
+    firstError = firstError || e;
+  }
+
+  if (firstError) {
+    throw firstError;
   }
 };
 

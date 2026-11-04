@@ -4,6 +4,7 @@ import { getEnv, graphqlPubsub, sendWorkerQueue } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
+import { enqueueInvoiceCallback } from '~/modules/payment/services/invoiceCallbackQueue';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
@@ -126,29 +127,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       }
 
       if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
+        // queued delivery: retried on network errors and non-2xx responses
+        try {
+          await enqueueInvoiceCallback(invoice);
+        } catch (err) {
+          console.error(
+            `[invoicesCheck] Failed to queue callback for invoice ${_id}:`,
+            err,
+          );
+        }
       }
     }
 
@@ -198,29 +185,15 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       }
 
       if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
+        // queued delivery: retried on network errors and non-2xx responses
+        try {
+          await enqueueInvoiceCallback(invoice);
+        } catch (err) {
+          console.error(
+            `[invoicesCheck] Failed to queue callback for invoice ${_id}:`,
+            err,
+          );
+        }
       }
     }
 
