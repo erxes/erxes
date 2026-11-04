@@ -18,6 +18,7 @@ export type IDiscordConnection = {
   token: string;
   clientSecret?: string;
   hasClientSecret?: boolean;
+  memberLinkingPaused?: boolean;
   publicKey?: string;
   commandsRegisteredAt?: Date;
   commandsVersion?: string;
@@ -28,7 +29,8 @@ export type IDiscordConnection = {
 };
 
 export interface IDiscordConnectionDocument
-  extends IDiscordConnection, Document {
+  extends IDiscordConnection,
+    Document {
   _id: string;
   createdAt: Date;
   updatedAt: Date;

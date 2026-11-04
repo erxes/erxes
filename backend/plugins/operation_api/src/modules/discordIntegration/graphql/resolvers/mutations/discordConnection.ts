@@ -92,6 +92,7 @@ export const discordConnectionMutations = {
         {
           $unset: {
             clientSecret: '',
+            memberLinkingPaused: '',
             commandsRegisteredAt: '',
             commandsVersion: '',
           },
@@ -161,6 +162,7 @@ export const discordConnectionMutations = {
         $set: {
           clientSecret: sealDiscordSecret(secret),
           hasClientSecret: true,
+          memberLinkingPaused: false,
         },
       },
       { new: true },
@@ -176,7 +178,60 @@ export const discordConnectionMutations = {
 
     const connection = await models.DiscordConnection.findOneAndUpdate(
       { _id, subdomain },
-      { $unset: { clientSecret: '' }, $set: { hasClientSecret: false } },
+      {
+        $unset: { clientSecret: '', memberLinkingPaused: '' },
+        $set: { hasClientSecret: false },
+      },
+      { new: true },
+    );
+
+    if (!connection) {
+      throw new Error('Discord connection not found');
+    }
+
+    return connection;
+  },
+
+  async operationDiscordSetMemberLinking(
+    _parent: undefined,
+    { _id, enabled }: { _id: string; enabled: boolean },
+    { models, subdomain, checkPermission }: IContext,
+  ) {
+    await checkPermission('teamUpdate');
+
+    if (enabled) {
+      const connection = await models.DiscordConnection.findWithClientSecret({
+        _id,
+        subdomain,
+      });
+
+      if (!connection) {
+        throw new Error('Discord connection not found');
+      }
+
+      if (!connection.clientSecret) {
+        throw new Error(
+          'No client secret is saved for this bot. Set up member linking first.',
+        );
+      }
+
+      try {
+        await verifyDiscordClientSecret({
+          applicationId: connection.applicationId,
+          clientSecret: connection.clientSecret,
+        });
+      } catch (error) {
+        throw new Error(
+          error instanceof DiscordApiError && error.status < 500
+            ? 'The saved client secret no longer works. Set up member linking again with a new secret.'
+            : describeDiscordError(error),
+        );
+      }
+    }
+
+    const connection = await models.DiscordConnection.findOneAndUpdate(
+      { _id, subdomain },
+      { $set: { memberLinkingPaused: !enabled } },
       { new: true },
     );
 
@@ -203,8 +258,8 @@ export const discordConnectionMutations = {
       throw new Error('Discord connection not found');
     }
 
-    const [linkedTeamCount, customerChannelCount] = await Promise.all([
-      models.DiscordConfig.countDocuments({ connectionId: _id, subdomain }),
+    const [linkedTeamIds, customerChannelCount] = await Promise.all([
+      models.DiscordConfig.distinct('teamId', { connectionId: _id, subdomain }),
       models.DiscordCustomerChannel.countDocuments({
         connectionId: _id,
         subdomain,
@@ -218,6 +273,8 @@ export const discordConnectionMutations = {
         }. Remove them first.`,
       );
     }
+
+    const linkedTeamCount = linkedTeamIds.length;
 
     if (linkedTeamCount > 0) {
       throw new Error(

@@ -13,6 +13,7 @@ import {
   DISCORD_LINK_RESULT_PREFIX,
   DISCORD_LINK_STATE_PREFIX,
   DISCORD_LINK_STATE_TTL_SECONDS,
+  DISCORD_MEMBER_LINKING_ON,
   DISCORD_OAUTH_AUTHORIZE_URL,
   DISCORD_OAUTH_CALLBACK_PATH,
 } from '@/discordIntegration/constants';
@@ -91,7 +92,7 @@ export const findDiscordLinkingConnection = async (
 
   return models.DiscordConnection.findWithClientSecret({
     subdomain,
-    hasClientSecret: true,
+    ...DISCORD_MEMBER_LINKING_ON,
   });
 };
 
@@ -259,7 +260,7 @@ export const handleDiscordOAuthCallback = async (
       subdomain,
     });
 
-    if (!connection?.clientSecret) {
+    if (!connection?.clientSecret || connection.memberLinkingPaused) {
       return fail('not-set-up');
     }
 

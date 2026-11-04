@@ -44,7 +44,10 @@ export const loadDiscordConnectionClass = (models: IModels) => {
   const dropClientSecrets = (ids: string[]) =>
     models.DiscordConnection.updateMany(
       { _id: { $in: ids } },
-      { $unset: { clientSecret: '' }, $set: { hasClientSecret: false } },
+      {
+        $unset: { clientSecret: '', memberLinkingPaused: '' },
+        $set: { hasClientSecret: false },
+      },
     );
 
   class DiscordConnectionClass {

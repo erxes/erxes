@@ -33,6 +33,11 @@ export const discordConnectionSchema = new Schema(
       label: 'Has Client Secret',
       default: false,
     },
+    memberLinkingPaused: {
+      type: Boolean,
+      label: 'Member Linking Paused',
+      default: false,
+    },
     publicKey: { type: String, label: 'Public Key' },
     commandsRegisteredAt: { type: Date, label: 'Commands Registered At' },
     commandsVersion: { type: String, label: 'Commands Version' },

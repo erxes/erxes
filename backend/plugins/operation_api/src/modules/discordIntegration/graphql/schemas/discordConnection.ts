@@ -14,6 +14,7 @@ export const type = `
     botUserId: String!
     botUsername: String!
     hasClientSecret: Boolean
+    memberLinkingPaused: Boolean
     commandsRegisteredAt: Date
     commandsError: String
     health: OperationDiscordHealth
@@ -55,4 +56,5 @@ export const mutations = `
   operationDiscordDisconnect(_id: String!): DisconnectResponse
   operationDiscordSetClientSecret(_id: String!, clientSecret: String!): OperationDiscordConnection
   operationDiscordClearClientSecret(_id: String!): OperationDiscordConnection
+  operationDiscordSetMemberLinking(_id: String!, enabled: Boolean!): OperationDiscordConnection
 `;
