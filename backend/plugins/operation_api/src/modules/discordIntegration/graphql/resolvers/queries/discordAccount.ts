@@ -1,4 +1,5 @@
 import { IDiscordUserLink } from '@/discordIntegration/@types/discordUserLink';
+import { DISCORD_MEMBER_LINKING_ON } from '@/discordIntegration/constants';
 import {
   getDiscordOAuthRedirectUri,
   requireDiscordLinkUser,
@@ -10,6 +11,21 @@ import {
 } from '~/utils/discordClient';
 
 type TLinkWithId = IDiscordUserLink & { _id: unknown };
+
+const combineMembership = (
+  memberships: Map<string, boolean | null>[],
+  discordUserId: string,
+) => {
+  const values = memberships.map(
+    (membership) => membership.get(discordUserId) ?? null,
+  );
+
+  if (values.includes(false)) {
+    return false;
+  }
+
+  return values.length && values.every(Boolean) ? true : null;
+};
 
 const checkServerMembership = async ({
   models,
@@ -74,7 +90,10 @@ export const discordAccountQueries = {
     await models.DiscordConnection.dropUnreadableClientSecrets(subdomain);
 
     const [linkingEnabled, link] = await Promise.all([
-      models.DiscordConnection.exists({ subdomain, hasClientSecret: true }),
+      models.DiscordConnection.exists({
+        subdomain,
+        ...DISCORD_MEMBER_LINKING_ON,
+      }),
       models.DiscordUserLink.findOne({ userId, subdomain }).lean(),
     ]);
 
@@ -98,9 +117,9 @@ export const discordAccountQueries = {
   ) {
     await checkPermission('teamRead');
 
-    const [members, config] = await Promise.all([
+    const [members, configs] = await Promise.all([
       models.TeamMember.find({ teamId }).lean(),
-      models.DiscordConfig.findByTeam(teamId, subdomain),
+      models.DiscordConfig.listByTeam(teamId, subdomain),
     ]);
 
     const userIds = [
@@ -116,22 +135,32 @@ export const discordAccountQueries = {
       userId: { $in: userIds },
     }).lean();
 
-    const connection = config
-      ? await models.DiscordConnection.findWithToken({
-          _id: config.connectionId,
-          subdomain,
-        })
-      : null;
+    const connectionIds = [
+      ...new Set(configs.map((config) => config.connectionId)),
+    ];
 
-    const inServer =
-      connection && connection.health?.status !== 'broken'
-        ? await checkServerMembership({
+    const connections = await Promise.all(
+      connectionIds.map((_id) =>
+        models.DiscordConnection.findWithToken({ _id, subdomain }),
+      ),
+    );
+
+    const memberships = await Promise.all(
+      connections
+        .flatMap((connection) =>
+          connection && connection.health?.status !== 'broken'
+            ? [connection]
+            : [],
+        )
+        .map((connection) =>
+          checkServerMembership({
             models,
             token: connection.token,
             guildId: connection.guildId,
             links,
-          })
-        : new Map<string, boolean | null>();
+          }),
+        ),
+    );
 
     const linkByUser = new Map(links.map((link) => [link.userId, link]));
 
@@ -141,7 +170,9 @@ export const discordAccountQueries = {
       return {
         userId,
         link,
-        inServer: link ? (inServer.get(link.discordUserId) ?? null) : null,
+        inServer: link
+          ? combineMembership(memberships, link.discordUserId)
+          : null,
       };
     });
   },

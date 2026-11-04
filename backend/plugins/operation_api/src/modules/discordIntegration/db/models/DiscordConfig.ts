@@ -3,41 +3,66 @@ import {
   IDiscordConfig,
   IDiscordConfigDocument,
 } from '@/discordIntegration/@types/discordConfig';
+import { ensureDiscordConfigIndexes } from '@/discordIntegration/db/discordConfigIndexes';
 import { discordConfigSchema } from '@/discordIntegration/db/definitions/discordConfig';
 import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
+const CHANNEL_TAKEN_MESSAGE = 'This channel is already connected to this team';
+
 export interface IDiscordConfigModel extends Model<IDiscordConfigDocument> {
-  findByTeam(
+  listByTeam(
     teamId: string,
     subdomain: string,
+  ): Promise<IDiscordConfigDocument[]>;
+  saveConfig(
+    config: IDiscordConfig,
+    _id?: string | null,
   ): Promise<IDiscordConfigDocument | null>;
-  upsertConfig(config: IDiscordConfig): Promise<IDiscordConfigDocument | null>;
 }
 
 export const loadDiscordConfigClass = (models: IModels) => {
   class DiscordConfigClass {
-    public static findByTeam(teamId: string, subdomain: string) {
-      return models.DiscordConfig.findOne({ teamId, subdomain }).lean();
+    public static listByTeam(teamId: string, subdomain: string) {
+      return models.DiscordConfig.find({ teamId, subdomain })
+        .sort({ createdAt: 1 })
+        .lean();
     }
 
-    public static async upsertConfig(config: IDiscordConfig) {
-      const filter = { teamId: config.teamId, subdomain: config.subdomain };
+    public static async saveConfig(
+      config: IDiscordConfig,
+      _id?: string | null,
+    ) {
+      const { teamId, channelId, subdomain } = config;
+
+      const taken = await models.DiscordConfig.exists({
+        teamId,
+        channelId,
+        subdomain,
+        ...(_id ? { _id: { $ne: _id } } : {}),
+      });
+
+      if (taken) {
+        throw new Error(CHANNEL_TAKEN_MESSAGE);
+      }
+
+      if (_id) {
+        return models.DiscordConfig.findOneAndUpdate(
+          { _id, teamId, subdomain },
+          { $set: config },
+          { new: true },
+        );
+      }
+
+      await ensureDiscordConfigIndexes(models, subdomain);
 
       try {
-        return await models.DiscordConfig.findOneAndUpdate(
-          filter,
-          { $set: config },
-          { new: true, upsert: true, setDefaultsOnInsert: true },
-        );
+        return await models.DiscordConfig.create(config);
       } catch (error) {
         if (isDuplicateKeyError(error)) {
-          return models.DiscordConfig.findOneAndUpdate(
-            filter,
-            { $set: config },
-            { new: true },
-          );
+          throw new Error(CHANNEL_TAKEN_MESSAGE);
         }
+
         throw error;
       }
     }

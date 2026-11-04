@@ -1,3 +1,4 @@
+import { TDiscordMentionTarget } from '@/discordIntegration/@types/discordConfig';
 import { TDiscordNotificationEvent } from '@/discordIntegration/@types/discordNotification';
 import {
   recordDiscordFailure,
@@ -11,10 +12,13 @@ import {
 } from '~/utils/discordClient';
 
 type TSaveTeamConfigParams = {
+  _id?: string | null;
   teamId: string;
   connectionId: string;
   channelId: string;
   events: TDiscordNotificationEvent[];
+  mention?: TDiscordMentionTarget | null;
+  mentionEvents?: TDiscordNotificationEvent[] | null;
   isActive?: boolean | null;
 };
 
@@ -22,10 +26,13 @@ export const discordConfigMutations = {
   async operationDiscordSaveTeamConfig(
     _parent: undefined,
     {
+      _id,
       teamId,
       connectionId,
       channelId,
       events,
+      mention,
+      mentionEvents,
       isActive,
     }: TSaveTeamConfigParams,
     { models, subdomain, checkPermission }: IContext,
@@ -40,11 +47,19 @@ export const discordConfigMutations = {
 
     const [team, previousConfig] = await Promise.all([
       models.Team.findOne({ _id: teamId }).lean(),
-      models.DiscordConfig.findByTeam(teamId, subdomain),
+      _id
+        ? models.DiscordConfig.findOne({ _id, teamId, subdomain }).lean()
+        : null,
     ]);
 
     if (!team) {
       throw new Error('Team not found');
+    }
+
+    if (_id && !previousConfig) {
+      throw new Error(
+        'This Discord channel is no longer connected to the team',
+      );
     }
 
     const connection = await models.DiscordConnection.getConnectionWithToken(
@@ -76,16 +91,23 @@ export const discordConfigMutations = {
       );
     }
 
-    const config = await models.DiscordConfig.upsertConfig({
-      teamId,
-      connectionId,
-      channelId,
-      channelName: channel.name,
-      events: uniqueEvents,
-      isActive: isActive ?? true,
-      lastError: null,
-      subdomain,
-    });
+    const config = await models.DiscordConfig.saveConfig(
+      {
+        teamId,
+        connectionId,
+        channelId,
+        channelName: channel.name,
+        events: uniqueEvents,
+        mention: mention ?? 'none',
+        mentionEvents: [...new Set(mentionEvents ?? [])].filter((event) =>
+          uniqueEvents.includes(event),
+        ),
+        isActive: isActive ?? true,
+        lastError: null,
+        subdomain,
+      },
+      _id,
+    );
 
     if (config && previousConfig && previousConfig.channelId !== channelId) {
       await models.DiscordMessage.deleteMany({
@@ -97,20 +119,17 @@ export const discordConfigMutations = {
     return config;
   },
 
-  async operationDiscordDisconnectTeam(
+  async operationDiscordRemoveTeamConfig(
     _parent: undefined,
-    { teamId }: { teamId: string },
+    { _id }: { _id: string },
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamUpdate');
 
-    const team = await models.Team.findOne({ _id: teamId }).lean();
-
-    if (!team) {
-      throw new Error('Team not found');
-    }
-
-    const config = await models.DiscordConfig.findByTeam(teamId, subdomain);
+    const config = await models.DiscordConfig.findOne({
+      _id,
+      subdomain,
+    }).lean();
 
     if (config) {
       await models.DiscordConfig.deleteOne({ _id: config._id });
@@ -125,19 +144,24 @@ export const discordConfigMutations = {
 
   async operationDiscordSendTestMessage(
     _parent: undefined,
-    { teamId }: { teamId: string },
+    { _id }: { _id: string },
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamUpdate');
 
-    const config = await models.DiscordConfig.findByTeam(teamId, subdomain);
+    const config = await models.DiscordConfig.findOne({
+      _id,
+      subdomain,
+    }).lean();
 
     if (!config) {
-      throw new Error('This team is not connected to Discord');
+      throw new Error(
+        'This Discord channel is no longer connected to the team',
+      );
     }
 
     const [team, connection] = await Promise.all([
-      models.Team.findOne({ _id: teamId }).select('name').lean(),
+      models.Team.findOne({ _id: config.teamId }).select('name').lean(),
       models.DiscordConnection.getConnectionWithToken(
         config.connectionId,
         subdomain,

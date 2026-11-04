@@ -1,14 +1,14 @@
 import { IContext } from '~/connectionResolvers';
 
 export const discordConfigQueries = {
-  async operationDiscordConfigByTeam(
+  async operationDiscordConfigsByTeam(
     _parent: undefined,
     { teamId }: { teamId: string },
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('teamRead');
 
-    return models.DiscordConfig.findByTeam(teamId, subdomain);
+    return models.DiscordConfig.listByTeam(teamId, subdomain);
   },
 
   async operationDiscordConfigs(
