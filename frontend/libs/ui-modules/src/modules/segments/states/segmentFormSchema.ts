@@ -1,13 +1,15 @@
 import { z } from 'zod';
 
+const segmentValueSchema = z
+  .union([z.string(), z.number(), z.boolean(), z.array(z.string()), z.date()])
+  .optional();
+
 const fieldNodeSchema = z.object({
   kind: z.literal('field'),
   contentType: z.string().min(1),
   fieldKey: z.string().min(1, 'Pick a property'),
   operator: z.string().min(1, 'Pick a condition'),
-  value: z
-    .union([z.string(), z.number(), z.boolean(), z.array(z.string())])
-    .optional(),
+  value: segmentValueSchema,
   meta: z.record(z.string(), z.string()).optional(),
 });
 
@@ -23,9 +25,7 @@ const relationNodeSchema = z.object({
   ]),
   child: z.unknown().optional(),
   operator: z.string().optional(),
-  value: z
-    .union([z.string(), z.number(), z.boolean(), z.array(z.string())])
-    .optional(),
+  value: segmentValueSchema,
 });
 
 const referenceNodeSchema = z.object({

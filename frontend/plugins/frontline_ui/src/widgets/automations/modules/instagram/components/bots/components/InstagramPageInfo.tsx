@@ -1,26 +1,42 @@
 import { IconCircleCheck, IconInfoTriangle } from '@tabler/icons-react';
-import { Label } from 'erxes-ui';
+import { Label, Skeleton } from 'erxes-ui';
 import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useInstagramBotPages } from '~/widgets/automations/modules/instagram/components/bots/hooks/useInstagramBotPages';
 
+type InstagramPageInfoProps = {
+  accountId: string;
+  pageId: string;
+};
+
 export const InstagramPageInfo = memo(
-  ({ accountId, pageId }: { accountId: string; pageId: string }) => {
+  ({ accountId, pageId }: InstagramPageInfoProps) => {
     const { t } = useTranslation('frontline', { keyPrefix: 'modules.instagram' });
+    const { page, loading } = useInstagramBotPages(accountId, pageId);
+
     if (!accountId || !pageId) {
       return (
         <Label className="text-lg flex gap-2 items-center">
-          <IconInfoTriangle className="size-3 text-destructive" /> {t('select-a-page')}
+          <IconInfoTriangle className="size-3 text-destructive" />{' '}
+          {t('select-a-page')}
         </Label>
       );
     }
 
-    const { page } = useInstagramBotPages(accountId, pageId);
+    if (loading) {
+      return (
+        <Label className="text-lg flex gap-2 items-center">
+          <Skeleton className="size-3 rounded-full" />
+          <Skeleton className="h-5 w-36" />
+        </Label>
+      );
+    }
 
     if (!page) {
       return (
         <Label className="text-lg flex gap-2 items-center">
-          <IconInfoTriangle className="size-3 text-destructive" /> {t('not-found')}
+          <IconInfoTriangle className="size-3 text-destructive" />{' '}
+          {t('not-found')}
         </Label>
       );
     }
@@ -32,7 +48,7 @@ export const InstagramPageInfo = memo(
       </Label>
     );
   },
-  (prevProps: any, nextProps: any) =>
+  (prevProps: InstagramPageInfoProps, nextProps: InstagramPageInfoProps) =>
     prevProps?.accountId === nextProps?.accountId &&
     prevProps?.pageId === nextProps?.pageId,
 );
