@@ -28,7 +28,6 @@ import {
   PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
-  PrintDocument,
 } from 'ui-modules';
 import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 
@@ -100,12 +99,6 @@ const CompanyFields = () => {
           companiesEdit({ variables: { _id: company._id, avatar } })
         }
       />
-      <div className="py-2">
-        <PrintDocument
-          items={[{ _id: company._id }]}
-          contentType="core:contact.company"
-        />
-      </div>
       <PanelField icon={IconBuilding} label={t('field.primaryName', 'Name')}>
         <CompanyTextField
           company={company}

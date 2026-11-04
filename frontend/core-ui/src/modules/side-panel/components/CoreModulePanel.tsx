@@ -2,6 +2,8 @@ import type {
   TModulePanelProps,
   TModulePanelViewProps,
   ModulePanelContextValue,
+  TCoreModulePanel,
+  TCoreFocusPanel,
 } from '@/side-panel/types/CoreModulePanelTypes';
 import { Button, cn, Empty, FocusSheet, Sheet, Spinner } from 'erxes-ui';
 import { IconChevronLeft } from '@tabler/icons-react';
@@ -51,7 +53,8 @@ const ModulePanelRoot = ({
   children,
 }: TModulePanelProps & { focus?: boolean }) => {
   const panel = useSidePanel();
-  const { hasActionPermission } = usePermissionCheck();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const permissionsLoaded = !requiredPermission || isLoaded;
   const allowed =
     !requiredPermission || hasActionPermission(requiredPermission);
   const history = useAtomValue(sidePanelHistoryState);
@@ -167,10 +170,19 @@ const ModulePanelRoot = ({
       name: qualifiedName,
       open: retained,
       allowed,
+      permissionsLoaded,
       onClose,
       onOpen,
     }),
-    [path, qualifiedName, retained, allowed, onClose, onOpen],
+    [
+      path,
+      qualifiedName,
+      retained,
+      allowed,
+      permissionsLoaded,
+      onClose,
+      onOpen,
+    ],
   );
   const Root = focus ? FocusSheet : Sheet;
   return (
@@ -265,10 +277,14 @@ const ModulePanelView = forwardRef<HTMLDivElement, TModulePanelViewProps>(
               'relative! inset-auto! h-full! w-full! min-w-0! max-w-none! rounded-none! shadow-none!',
             )}
           >
-            {!context.allowed || loading || error || notFound ? (
+            {!context.permissionsLoaded ||
+            !context.allowed ||
+            loading ||
+            error ||
+            notFound ? (
               <ModulePanelStatus
-                allowed={context.allowed}
-                loading={loading}
+                allowed={!context.permissionsLoaded || context.allowed}
+                loading={!context.permissionsLoaded || loading}
                 error={error}
                 errorState={errorState}
                 notFoundState={notFoundState}
@@ -359,16 +375,19 @@ const ModulePanelFooter = ({
   />
 );
 
-export const CoreModulePanel = Object.assign(ModulePanelRoot, {
-  Trigger: ModulePanelTrigger,
-  View: ModulePanelView,
-  Header: ModulePanelHeader,
-  Content: ModulePanelContent,
-  Footer: ModulePanelFooter,
-  Title: Sheet.Title,
-  Description: Sheet.Description,
-  Close: Sheet.Close,
-});
+export const CoreModulePanel: TCoreModulePanel = Object.assign(
+  ModulePanelRoot,
+  {
+    Trigger: ModulePanelTrigger,
+    View: ModulePanelView,
+    Header: ModulePanelHeader,
+    Content: ModulePanelContent,
+    Footer: ModulePanelFooter,
+    Title: Sheet.Title,
+    Description: Sheet.Description,
+    Close: Sheet.Close,
+  },
+);
 
 /** Provides focus-sheet contexts through the shared module panel host. */
 const FocusPanelRoot = (props: TModulePanelProps) => (
@@ -411,7 +430,7 @@ const FocusPanelSidebar = ({
     {children}
   </div>
 );
-export const CoreFocusPanel = Object.assign(FocusPanelRoot, {
+export const CoreFocusPanel: TCoreFocusPanel = Object.assign(FocusPanelRoot, {
   ...FocusSheet,
   Trigger: ModulePanelTrigger,
   View: ModulePanelView,

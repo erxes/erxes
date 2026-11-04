@@ -3,11 +3,13 @@ import {
   IconMail,
   IconMessage,
   IconNote,
+  IconDots,
+  IconPrinter,
 } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { Button, DropdownMenu } from 'erxes-ui';
+import { useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useComposeEmail, usePermissionCheck } from 'ui-modules';
+import { PrintDocument, useComposeEmail, usePermissionCheck } from 'ui-modules';
 
 /** Opens existing mail, conversation, and note workflows for this contact. */
 export const ContactPanelActions = ({
@@ -32,6 +34,8 @@ export const ContactPanelActions = ({
   const { t } = useTranslation('contact');
   const { canComposeEmail, composeEmail } = useComposeEmail();
   const { hasActionPermission } = usePermissionCheck();
+  const [printOpen, setPrintOpen] = useState(false);
+  const canPrint = hasActionPermission('documentsRead');
   let websiteUrl: URL | undefined;
   if (website) {
     try {
@@ -69,6 +73,32 @@ export const ContactPanelActions = ({
             </a>
           )}
         </div>
+        {canPrint && (
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="ml-auto shrink-0"
+                aria-label={t('actions', 'Actions')}
+              >
+                <IconDots className="size-4" aria-hidden="true" />
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
+              align="end"
+              onCloseAutoFocus={(event) => {
+                if (printOpen) event.preventDefault();
+              }}
+            >
+              <DropdownMenu.Item onSelect={() => setPrintOpen(true)}>
+                <IconPrinter className="size-4" aria-hidden="true" />
+                {t('print', 'Print')}
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        )}
       </div>
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {onMessage && hasActionPermission('conversationMessageAdd') && (
@@ -102,6 +132,19 @@ export const ContactPanelActions = ({
           </Button>
         )}
       </div>
+      {canPrint && (
+        <PrintDocument
+          items={[{ _id: contentId }]}
+          contentType={
+            contentType === 'core:customer'
+              ? 'core:contact.customer'
+              : 'core:contact.company'
+          }
+          open={printOpen}
+          onOpenChange={setPrintOpen}
+          trigger={null}
+        />
+      )}
     </section>
   );
 };

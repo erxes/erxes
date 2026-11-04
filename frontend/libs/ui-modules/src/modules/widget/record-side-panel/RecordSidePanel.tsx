@@ -236,7 +236,7 @@ const RecordSidePanelRoot = ({
       ],
       { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     );
-    return () => animation.cancel();
+    return () => animation?.cancel();
   }, [expanded]);
 
   const toggle = useCallback(() => {
@@ -441,8 +441,7 @@ const RecordSidePanelTabs = ({
           : [...previous, selectedValue],
       );
     }
-    if (splitOverview && selectedValue !== value) onValueChange(selectedValue);
-  }, [overviewTab, selectedValue, splitOverview, value, onValueChange]);
+  }, [overviewTab, selectedValue]);
   const barRef = useRef<HTMLDivElement>(null);
   const tabWidths = useRef(new Map<string, number>());
   const tabsRef = useRef(tabs);

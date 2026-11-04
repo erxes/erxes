@@ -145,6 +145,7 @@ export const useSidePanel = () => {
     nextHistory: string[],
     replace = false,
     nextTab = getTab(nextPath),
+    tabPath = nextPath,
   ) => {
     setHistory(nextHistory);
     setRoute(
@@ -159,22 +160,31 @@ export const useSidePanel = () => {
           ...routerState,
           sidePanel: {
             path: nextPath,
-            tab: nextTab,
+            tab: nextPath === tabPath ? nextTab : getTab(nextPath),
             history: nextHistory.map((entry) => ({
               path: entry,
-              tab: getTab(entry),
+              tab: entry === tabPath ? nextTab : getTab(entry),
             })),
           },
         },
       },
     );
   };
-  /** Replaces the active navigation entry with its selected record tab. */
-  const setTab = (nextTab: string) => navigate(path, history, true, nextTab);
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
   useLayoutEffect(() => {
     latest.current = { path, history, navigate, navigator, sourcePath };
   });
+  /** Updates the owning record's tab without changing the active stack entry. */
+  const setTab = useCallback((nextTab: string) => {
+    const current = latest.current;
+    const tabPath = current.sourcePath ?? current.path;
+    if (
+      !tabPath ||
+      (tabPath !== current.path && !current.history.includes(tabPath))
+    )
+      return;
+    current.navigate(current.path, current.history, true, nextTab, tabPath);
+  }, []);
   const replaceRecord = useCallback(
     (previous: TRelationEntity, next: TRelationEntity) => {
       const current = latest.current;
