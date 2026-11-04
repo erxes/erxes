@@ -1,3 +1,8 @@
+import {
+  INotificationsConfig,
+  TNotificationEventKey,
+} from 'erxes-api-shared/core-modules';
+
 export const notifications = {
   plugin: 'frontline',
 
@@ -12,6 +17,8 @@ export const notifications = {
           name: 'conversationAddMessage',
           title: 'Message added',
           description: 'Triggered when a message is added to a conversation',
+          // agents had a push for every chat message before it was a preference
+          defaultChannels: ['mobile'],
         },
         {
           name: 'conversationAssigneeChange',
@@ -19,25 +26,43 @@ export const notifications = {
           description: 'Triggered when a conversation assignee is changed',
         },
         {
-          name: 'conversationCreated',
-          title: 'Conversation created',
-          description: 'Triggered when a conversation is created',
-        },
-        {
-          name: 'conversationParticipantAdded',
-          title: 'Participant added',
+          name: 'conversationMention',
+          title: 'Mentioned in internal note',
           description:
-            'Triggered when a participant is added to a conversation',
+            'Triggered when a user is mentioned in a conversation internal note',
         },
         {
           name: 'conversationStateChange',
           title: 'State changed',
           description: 'Triggered when a conversation state is changed',
         },
+      ],
+    },
+    {
+      name: 'tickets',
+      description: 'Tickets',
+      icon: 'IconTicket',
+
+      events: [
         {
-          name: 'conversationTagged',
-          title: 'Conversation tagged',
-          description: 'Triggered when a conversation is tagged',
+          name: 'ticketAssignee',
+          title: 'Ticket assigned',
+          description: 'Triggered when a user is assigned to a ticket',
+        },
+        {
+          name: 'ticketUpdated',
+          title: 'Ticket updated',
+          description: 'Triggered when a ticket you follow is updated',
+        },
+        {
+          name: 'ticketMention',
+          title: 'Mentioned in ticket note',
+          description: 'Triggered when a user is mentioned in a ticket note',
+        },
+        {
+          name: 'ticketCustomerReply',
+          title: 'Customer replied',
+          description: 'Triggered when a customer replies to a ticket you follow',
         },
       ],
     },
@@ -69,4 +94,8 @@ export const notifications = {
       ],
     },
   ],
-};
+} as const satisfies INotificationsConfig;
+
+export type TFrontlineNotificationEvent = TNotificationEventKey<
+  typeof notifications
+>;

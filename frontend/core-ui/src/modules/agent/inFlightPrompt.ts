@@ -5,6 +5,7 @@ import {
   readPageSelectionsPart,
 } from './pageSelections';
 import type { UIMessage } from 'ai';
+import { agentMentionsPartsForText } from './agentMentions';
 import {
   AGENTS_FILE_ONLY_TEXT,
   agentsFilesPart,
@@ -48,12 +49,14 @@ export const decodeInFlightPrompt = (raw: string): UIMessage['parts'] => {
         { type: 'text', text: value.text },
         ...(value.files.length ? [agentsFilesPart(value.files)] : []),
         ...(selections?.success ? [pageSelectionsPart(selections.data)] : []),
+        ...agentMentionsPartsForText(value.text),
       ];
     }
   } catch {
     // Existing sessions stored the prompt as plain text.
   }
-  return [{ type: 'text', text: raw }];
+  // Mention tokens carry their records, so the structured part is derived.
+  return [{ type: 'text', text: raw }, ...agentMentionsPartsForText(raw)];
 };
 
 const fileIdsKey = (parts: UIMessage['parts']): string =>

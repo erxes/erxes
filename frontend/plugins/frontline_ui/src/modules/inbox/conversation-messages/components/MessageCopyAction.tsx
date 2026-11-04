@@ -5,6 +5,7 @@ import { ActionButton } from '@/inbox/conversation-messages/components/MessageAc
 import { CopyTextAction } from '@/inbox/conversation-messages/components/CopyTextAction';
 import { useCopyMessageImage } from '@/inbox/conversation-messages/hooks/useCopyMessageImage';
 import { canCopyAttachment } from '@/inbox/conversation-messages/utils/copyAttachment';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   text: string;
@@ -21,6 +22,7 @@ export const MessageCopyAction = ({
   messageId,
   inline,
 }: Props) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const canCopyImage = Boolean(attachment && canCopyAttachment(attachment));
   const { copied, copying, copy } = useCopyMessageImage({
     conversationId,
@@ -46,7 +48,7 @@ export const MessageCopyAction = ({
       }}
     >
       {imageIcon}
-      Copy image
+      {t('copy-image')}
     </DropdownMenu.Item>
   );
 
@@ -60,7 +62,7 @@ export const MessageCopyAction = ({
   }
   if (!text) {
     return (
-      <ActionButton label="Copy image" onClick={copy} disabled={copying}>
+      <ActionButton label={t('copy-image')} onClick={copy} disabled={copying}>
         {imageIcon}
       </ActionButton>
     );
@@ -72,7 +74,7 @@ export const MessageCopyAction = ({
           type="button"
           variant="ghost"
           size="icon"
-          aria-label="Copy"
+          aria-label={t('copy')}
           className="size-8 rounded-md text-muted-foreground hover:bg-muted"
         >
           <IconCopy className="size-4" />

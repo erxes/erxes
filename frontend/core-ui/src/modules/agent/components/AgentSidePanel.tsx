@@ -11,9 +11,11 @@ import { getPageRecordFromLocation } from '../references/getPageRecordFromLocati
 import { useAgentActivity } from '../hooks/useAgentActivity';
 import { useAgentsChat } from '../hooks/useAgentsChat';
 import { useAgentsThreads } from '../hooks/useAgentsThreads';
+import { AgentFileDropZone } from './AgentFileDropZone';
 import { AgentPageContextChip } from './AgentPageContextChip';
 import { AgentThreadActionsMenu } from './AgentThreadActionsMenu';
 import { ChatPanel } from './ChatPanel';
+import type { IComposerAttachHandle } from './Composer';
 import { ThreadTabs } from './ThreadTabs';
 import { useAgentsThreadActions } from '../hooks/useAgentsThreadActions';
 
@@ -36,6 +38,7 @@ export const AgentSidePanel = ({
   useAgentActivity(chat, active);
   const { remove } = useAgentsThreadActions();
   const [contextDismissed, setContextDismissed] = useState(false);
+  const attachRef = useRef<IComposerAttachHandle>(null);
 
   const pageRecord = getPageRecordFromLocation(
     location.pathname,
@@ -160,9 +163,17 @@ export const AgentSidePanel = ({
   ) : null;
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <AgentFileDropZone
+      attachRef={attachRef}
+      className="flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden"
+    >
       {header}
-      <ChatPanel chat={chat} width="full" contextRow={contextRow} />
-    </div>
+      <ChatPanel
+        chat={chat}
+        width="full"
+        contextRow={contextRow}
+        attachRef={attachRef}
+      />
+    </AgentFileDropZone>
   );
 };

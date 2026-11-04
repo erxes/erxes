@@ -36,7 +36,7 @@ export const TicketList = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketListProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const { fetchExport, loading: exportLoading } = useTicketExport();

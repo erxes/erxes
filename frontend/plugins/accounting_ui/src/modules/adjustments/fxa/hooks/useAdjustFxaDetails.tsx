@@ -6,7 +6,7 @@ import type { QueryHookOptions } from '@apollo/client';
 import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { ACC_TRS__PER_PAGE } from '@/transactions/types/constants';
-import { ADJUST_FXA_DETAILS_QUERY } from '../graphql/adjustFixedAssetQueries';
+import { ADJUST_FXA_DETAILS_QUERY } from '@/adjustments/fxa/graphql/adjustFixedAssetQueries';
 
 export const useAdjustFxaDetails = (
   options?: QueryHookOptions<

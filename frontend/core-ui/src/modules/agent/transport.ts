@@ -8,7 +8,13 @@ import {
   AGENTS_CHAT_RECONNECT_URL,
   AGENTS_CHAT_URL,
 } from './api';
+import {
+  AGENTS_STREAM_STALL_MS,
+  isAgentsRunInterrupted,
+  watchAgentsStream,
+} from './streamHealth';
 import type { IAgentsNavigationEntry } from './utils/navigationCatalog';
+import { withoutResentPageContext } from './utils/pageContext';
 
 /** Header the backend stamps with the resolved thread id on every chat SSE. */
 const THREAD_ID_HEADER = 'X-Agents-Thread-Id';
@@ -85,6 +91,8 @@ export interface IAgentsChatTransportOptions {
   onReconnectOutcome?: (reconnected: boolean) => void;
   /** Lets an optimistic edit restore its transcript when the server rejects it. */
   onChatResponse?: (accepted: boolean, editMessageId: string) => void;
+  /** Silence after which a stream counts as lost (`AGENTS_STREAM_STALL_MS`). */
+  stallTimeoutMs?: number;
 }
 
 const selectionToBody = (
@@ -119,6 +127,9 @@ const selectionToBody = (
  *   captured through the transport's `fetch` middleware as advisory only —
  *   a cross-origin browser cannot read a custom header unless the gateway
  *   exposes it, so continuity must never depend on it.
+ * - Every stream fails with `AgentsStreamStalledError` once it stays silent
+ *   past `stallTimeoutMs`: the backend writes keep-alive comments, but the
+ *   gateway holds a connection open after its producer process dies.
  * - When the user answers the current Mastra tool approval, the SDK auto-sends
  *   without waiting on other input-available calls in that step. The request
  *   routes to `POST /agents/approve` with `{ threadId, toolCallId, approved, reason }`
@@ -151,6 +162,8 @@ export class AgentsChatTransport
 
   private readonly onReconnectOutcome?: (reconnected: boolean) => void;
 
+  private readonly stallTimeoutMs: number;
+
   constructor({
     getThreadId,
     getRequestSelection,
@@ -163,6 +176,7 @@ export class AgentsChatTransport
     consumePendingAnswer,
     onReconnectOutcome,
     onChatResponse,
+    stallTimeoutMs = AGENTS_STREAM_STALL_MS,
   }: IAgentsChatTransportOptions) {
     super({
       api: AGENTS_CHAT_URL,
@@ -222,7 +236,15 @@ export class AgentsChatTransport
           onThreadId(threadId);
         }
 
-        return response;
+        if (!response.ok || !response.body) {
+          return response;
+        }
+
+        return new Response(watchAgentsStream(response.body, stallTimeoutMs), {
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+        });
       },
     });
 
@@ -236,6 +258,16 @@ export class AgentsChatTransport
     this.onActiveRunId = onActiveRunId;
     this.consumePendingAnswer = consumePendingAnswer;
     this.onReconnectOutcome = onReconnectOutcome;
+    this.stallTimeoutMs = stallTimeoutMs;
+  }
+
+  /** Parses an agents SSE body, failing it when the server goes silent. */
+  private readAgentsStream(
+    body: ReadableStream<Uint8Array>,
+  ): ReadableStream<UIMessageChunk> {
+    return this.processResponseStream(
+      watchAgentsStream(body, this.stallTimeoutMs),
+    );
   }
 
   async sendMessages(
@@ -258,13 +290,14 @@ export class AgentsChatTransport
       // Normal send: generate a fresh runId so the backend can track the
       // active run for reconnect. Approval/answer resumes keep the existing
       // run id (set by the original send or the prior resume).
-      const message = [...options.messages]
+      const messages = withoutResentPageContext(options.messages);
+      const message = [...messages]
         .reverse()
         .find((entry) => entry.role === 'user');
       if (message) this.onPendingMessage?.(message);
       this.onActiveRunId(crypto.randomUUID());
 
-      return super.sendMessages(options);
+      return super.sendMessages({ ...options, messages });
     }
 
     const threadId = this.getThreadId();
@@ -305,7 +338,7 @@ export class AgentsChatTransport
       throw new Error('The response body is empty.');
     }
 
-    return this.processResponseStream(response.body);
+    return this.readAgentsStream(response.body);
   }
 
   /**
@@ -355,7 +388,7 @@ export class AgentsChatTransport
 
     const suspendedToolCallId = pendingAnswer.suspendedToolCallId;
 
-    return this.processResponseStream(response.body).pipeThrough(
+    return this.readAgentsStream(response.body).pipeThrough(
       new TransformStream<UIMessageChunk, UIMessageChunk>({
         transform(chunk, controller) {
           if (
@@ -379,7 +412,8 @@ export class AgentsChatTransport
    * so replay works across browser refreshes and API replicas/processes.
    *
    * Returns null on 204 (run no longer active) and clears the stale
-   * active run id. Throws a readable error on non-2xx responses.
+   * active run id. Throws a readable error on non-2xx responses; a run whose
+   * producer is gone (409, `AGENTS_RUN_INTERRUPTED`) also clears its id.
    */
   async reconnectToStream(options: {
     chatId: string;
@@ -409,8 +443,15 @@ export class AgentsChatTransport
 
     if (!response.ok) {
       const text = await response.text().catch(() => '');
+      const error = new Error(
+        text || 'Failed to reconnect to the active stream.',
+      );
 
-      throw new Error(text || 'Failed to reconnect to the active stream.');
+      if (isAgentsRunInterrupted(error)) {
+        this.onActiveRunId(undefined);
+      }
+
+      throw error;
     }
 
     if (!response.body) {
@@ -419,6 +460,6 @@ export class AgentsChatTransport
 
     this.onReconnectOutcome?.(true);
 
-    return this.processResponseStream(response.body);
+    return this.readAgentsStream(response.body);
   }
 }

@@ -10,7 +10,7 @@ interface IProgressChartProps {
 }
 
 export const ProgressChart = ({ customerId }: IProgressChartProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversationProgressChart } = useConversationProgressChart({
     variables: customerId ? { customerId } : undefined,
     skip: !customerId,

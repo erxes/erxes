@@ -13,7 +13,7 @@ export const ReportChannelFilter = ({
   onValueChange: (value: string[]) => void;
   channels: IChannel[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const handleSelect = (id: string) => {
     if (id === 'all') {
       onValueChange([]);

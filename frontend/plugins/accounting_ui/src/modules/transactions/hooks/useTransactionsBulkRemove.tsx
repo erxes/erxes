@@ -26,6 +26,10 @@ export const useTransactionsBulkRemove = () => {
                 variables,
               },
             ],
+            update: (cache) => {
+              cache.evict({ fieldName: 'accTrRecordsMain' });
+              cache.gc();
+            },
           }),
         ),
       );

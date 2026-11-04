@@ -13,6 +13,7 @@ export const CREATE_TRIAGE_MUTATION = gql(`
       updatedAt
       priority
       status
+      tagIds
     }
   }
 `);

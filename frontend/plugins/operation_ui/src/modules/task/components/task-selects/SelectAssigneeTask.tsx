@@ -40,6 +40,7 @@ import {
   SelectTriggerVariant,
 } from '@/operation/components/SelectOperation';
 import { useProjects } from '@/project/hooks/useGetProjects';
+import { useCachedMembers } from '@/operation/hooks/useCachedMembers';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
@@ -420,6 +421,7 @@ const SelectAssigneeTaskRoot = ({
   const navigate = useNavigate();
   const { teamId } = useParams();
   const [internalValue, setInternalValue] = useState(value);
+  const cachedMembers = useCachedMembers(value);
 
   useEffect(() => {
     setInternalValue(value);
@@ -475,6 +477,7 @@ const SelectAssigneeTaskRoot = ({
     <SelectAssigneeProvider
       value={internalValue ?? undefined}
       onValueChange={handleValueChange}
+      members={cachedMembers}
       mode="single"
       allowUnassigned
     >

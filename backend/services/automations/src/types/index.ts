@@ -1,91 +1,21 @@
-export type TDelayActionConfig = {
-  value: string;
-  type: 'minute' | 'hour' | 'day' | 'month' | 'year';
-};
+import type {
+  TDelayActionConfig as TDelayActionConfigContract,
+  TOutgoingWebhookActionConfig,
+} from 'erxes-api-shared/core-modules';
 
-export interface OutgoingHeaderItem {
-  key: string;
-  value: string;
-}
+// Executors read exactly the contract the actions publish.
+export type TDelayActionConfig = TDelayActionConfigContract;
+export type TOutgoinWebhookActionConfig = TOutgoingWebhookActionConfig;
 
-interface OutgoingQueryParamItem {
-  name: string;
-  value: string;
-}
+type TOutgoingOptions = NonNullable<TOutgoingWebhookActionConfig['options']>;
 
-export interface OutgoingRetryOptions {
-  attempts?: number;
-  delay?: number;
-  backoff?: 'none' | 'fixed' | 'exponential' | 'jitter';
-}
-
-interface OutgoingProxyOptions {
-  host?: string;
-  port?: number;
-  auth?: { username?: string; password?: string };
-}
-
-interface OutgoingOptions {
-  // A non-2xx response fails the action unless the flow means to branch on it.
-  continueOnHttpError?: boolean;
-  timeout?: number;
-  ignoreSSL?: boolean;
-  followRedirect?: boolean;
-  maxRedirects?: number;
-  retry?: OutgoingRetryOptions;
-  proxy?: OutgoingProxyOptions;
-}
-
-interface BasicAuthConfig {
-  type: 'basic';
-  username: string;
-  password: string;
-}
-interface BearerAuthConfig {
-  type: 'bearer';
-  token: string;
-}
-interface NoneAuthConfig {
-  type: 'none';
-}
-interface JwtAuthConfig {
-  type: 'jwt';
-  algorithm: string;
-  secretKey: string;
-  publicKey?: string;
-  claims?: Record<string, string | number | boolean>;
-  expiresIn?: string;
-  audience?: string;
-  issuer?: string;
-  header?: Record<string, string | number | boolean>;
-  placement?: 'header' | 'query' | 'body';
-}
-
-export type OutgoingAuthConfig =
-  | BasicAuthConfig
-  | BearerAuthConfig
-  | NoneAuthConfig
-  | JwtAuthConfig;
-
-type HttpMethod =
-  | 'GET'
-  | 'POST'
-  | 'PUT'
-  | 'PATCH'
-  | 'DELETE'
-  | 'HEAD'
-  | 'OPTIONS';
-
-export type TOutgoinWebhookActionConfig = {
-  method?: HttpMethod;
-  url: string;
-  queryParams?: OutgoingQueryParamItem[];
-  bodyMode?: 'json' | 'text';
-  body?: string;
-  auth?: OutgoingAuthConfig;
-  headers?: OutgoingHeaderItem[];
-  options?: OutgoingOptions;
-};
+export type OutgoingRetryOptions = NonNullable<TOutgoingOptions['retry']>;
+export type OutgoingAuthConfig = NonNullable<
+  TOutgoingWebhookActionConfig['auth']
+>;
+export type OutgoingHeaderItem = NonNullable<
+  TOutgoingWebhookActionConfig['headers']
+>[number];
 
 export type TIfActionConfig = {
   contentId: string;

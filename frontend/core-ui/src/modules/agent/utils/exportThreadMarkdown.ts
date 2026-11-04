@@ -9,8 +9,10 @@ import {
   AGENT_REFERENCE_PLACEHOLDER_PATTERN,
   maskAgentReferences,
 } from '../references/maskAgentReferences';
+import { readAgentMentions } from '../agentMentions';
+import { agentTurnAnswerText } from './agentTurnTimeline';
 import { extractPageContext } from './pageContext';
-import { getMessageText, isAgentsAnswerTurn } from './messages';
+import { isAgentsAnswerTurn } from './messages';
 
 // `ai` is ESM-only — `import type` only so jest (CJS) can load this util.
 const isTextPart = (part: UIMessage['parts'][number]): part is TextUIPart =>
@@ -26,11 +28,13 @@ export interface IBuildThreadMarkdownArgs {
  * Rewrites valid `[[type:id:label]]` tokens as their label for export —
  * readers of the .md file get the record name, not the internal token.
  * `maskAgentReferences` masks only outside code regions, so tokens inside
- * code spans and fences stay literal.
+ * code spans and fences stay literal. The user's own mentions keep the
+ * `@Label` form they were typed in, matching Copy.
  */
 const referencesToLabels = (
   text: string,
   registry: IAgentReferenceRegistry,
+  mentioned: ReadonlySet<string> = new Set(),
 ): string => {
   const { text: masked, references } = maskAgentReferences(text, (handle) =>
     registry.byHandle.get(handle),
@@ -38,18 +42,21 @@ const referencesToLabels = (
 
   return masked.replace(AGENT_REFERENCE_PLACEHOLDER_PATTERN, (match, index) => {
     const reference = references[Number(index)];
-    return reference
-      ? registry.byIdentity.get(referenceIdentity(reference))?.label ??
-          reference.label
-      : match;
+    if (!reference) return match;
+    const label =
+      registry.byIdentity.get(referenceIdentity(reference))?.label ??
+      reference.label;
+    return mentioned.has(referenceIdentity(reference)) ? `@${label}` : label;
   });
 };
 
 /**
  * Renders a thread as Markdown: `## You` / `## AI Agent` turns with text
- * parts only. Skips reasoning/tool parts, ask_user answer echoes
- * (`metadata.agentsAnswer`), and each user turn's leading `[Page context]`
- * block.
+ * parts only. Consecutive assistant messages separated only by skipped
+ * user turns form one agent turn, exported as its final answer: narration
+ * between steps, reasoning and tool parts stay out, like Copy. Skips
+ * ask_user answer echoes (`metadata.agentsAnswer`) and each user turn's
+ * leading `[Page context]` block.
  */
 export const buildThreadMarkdown = ({
   title,
@@ -64,6 +71,24 @@ export const buildThreadMarkdown = ({
   ];
 
   const scopes = buildAgentReferenceScopes(messages);
+  let turnParts: UIMessage['parts'] = [];
+  let turnLastIndex = -1;
+
+  const flushTurn = () => {
+    const text = agentTurnAnswerText(turnParts).trim();
+
+    if (text) {
+      lines.push(
+        '## AI Agent',
+        '',
+        referencesToLabels(text, scopes[turnLastIndex]),
+        '',
+      );
+    }
+
+    turnParts = [];
+  };
+
   for (const [index, message] of messages.entries()) {
     if (message.role === 'user') {
       if (isAgentsAnswerTurn(message)) {
@@ -78,25 +103,28 @@ export const buildThreadMarkdown = ({
         .trim();
 
       if (text) {
-        lines.push('## You', '', referencesToLabels(text, scopes[index]), '');
+        flushTurn();
+        const mentioned = new Set(
+          readAgentMentions(message.parts).map(referenceIdentity),
+        );
+        lines.push(
+          '## You',
+          '',
+          referencesToLabels(text, scopes[index], mentioned),
+          '',
+        );
       }
 
       continue;
     }
 
     if (message.role === 'assistant') {
-      const text = getMessageText(message).trim();
-
-      if (text) {
-        lines.push(
-          '## AI Agent',
-          '',
-          referencesToLabels(text, scopes[index]),
-          '',
-        );
-      }
+      turnParts = [...turnParts, ...message.parts];
+      turnLastIndex = index;
     }
   }
+
+  flushTurn();
 
   return `${lines.join('\n').trimEnd()}\n`;
 };

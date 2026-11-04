@@ -17,7 +17,7 @@ import { useFacebookBotDelivery } from '~/widgets/automations/modules/facebook/c
 
 /** What this bot's page has been replying under its posts. */
 export const FacebookBotCommentActivity = ({ bot }: { bot?: IFacebookBot }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { delivery, loading } = useFacebookBotDelivery(bot?._id ?? undefined);
   const {
     stats,
@@ -136,7 +136,7 @@ const ReplyStatRow = ({
   stat: TFacebookBotCommentReplyStat;
   total: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const share = total ? Math.round(((stat.total ?? 0) / total) * 100) : 0;
 
   return (

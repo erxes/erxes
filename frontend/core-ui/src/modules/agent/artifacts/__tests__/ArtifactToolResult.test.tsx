@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { ArtifactToolResult } from '../ArtifactToolResult';
 import { readArtifactResult } from '../artifactResult';
 import { mapStoredMessagesToUIMessages } from '../../mapStoredMessages';
-import { groupAgentWorkSteps } from '../../utils/agentWorkSteps';
+import { buildAgentTurnLayout } from '../../utils/agentTurnTimeline';
 
 jest.mock('../HtmlPreview', () => ({
   HtmlPreview: () => <div>Report preview</div>,
@@ -102,9 +102,11 @@ it('preserves a structured artifact after history reload and keeps it out of wor
       ]),
     ),
   );
-  const items = groupAgentWorkSteps(messages[0].parts);
-  expect(items).toHaveLength(1);
-  expect(items[0].kind).toBe('part');
+  const layout = buildAgentTurnLayout(messages[0].parts, { streaming: false });
+  expect(layout.sections).toHaveLength(0);
+  expect(layout.body).toEqual([
+    expect.objectContaining({ part: messages[0].parts[0] }),
+  ]);
   expect(messages[0].parts[0]).toMatchObject({
     type: 'dynamic-tool',
     toolName: 'createArtifact',

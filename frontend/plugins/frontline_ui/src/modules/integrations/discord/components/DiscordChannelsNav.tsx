@@ -81,7 +81,9 @@ export const DiscordServersNav = () => {
   const { counts } = useDiscordChannelCounts();
   const { channels } = useGetMyChannels();
   const [integrationId] = useQueryState<string>('integrationId');
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   const serverGroups = useMemo(() => {
     const myChannelIds = new Set(
@@ -276,6 +278,9 @@ const DiscordCategoryItem = ({
   integrations: IIntegration[];
   counts: ChannelCounts;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [{ integrationId }, setFilters] =
     useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
   const [open, setOpen] = useState(true);
@@ -309,7 +314,11 @@ const DiscordCategoryItem = ({
           <Button
             variant="ghost"
             className="shrink-0 size-6 p-0 ml-4"
-            aria-label={open ? 'Collapse channels' : 'Expand channels'}
+            aria-label={
+              open
+                ? t('discord-collapse-channels')
+                : t('discord-expand-channels')
+            }
           >
             <span className="flex shrink-0 transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/category:rotate-90 motion-reduce:transition-none text-muted-foreground">
               <IconChevronRight className="size-3.5!" />

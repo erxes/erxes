@@ -16,7 +16,7 @@ export interface ITranscriptRow {
  * drops (stored ask_user answers, page-context-only bubbles) produce no
  * row, and an assistant message that follows another assistant row with
  * only hidden turns — or nothing — between them merges into that row so
- * consecutive work-steps cards render as one. Inputs are never mutated:
+ * the whole run renders as one activity timeline. Inputs are never mutated:
  * merged rows build a fresh message object, while single-message rows
  * keep the original identity for the memoized MessageRow.
  */

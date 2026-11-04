@@ -144,6 +144,7 @@ export const loadNoteClass = (models: IModels) => {
           fromUserId: userId,
           subdomain,
           notificationType: 'note',
+          event: 'frontline:tickets:ticketMention',
           userIds: Array.from(mentionUserIds),
           action: 'create',
         });
@@ -161,6 +162,7 @@ export const loadNoteClass = (models: IModels) => {
             fromUserId: userId,
             subdomain,
             notificationType: 'ticketCustomerReply',
+            event: 'frontline:tickets:ticketCustomerReply',
             userIds: recipients,
             action: 'replied',
           });

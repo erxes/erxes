@@ -1,7 +1,8 @@
 import { PluginSharedSettingsNavigation } from 'ui-modules';
 import { FrontlineSettingsNavigation } from '@/FrontlineSettingsNavigation';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
 import {
   AppLayoutFooterLink,
   Sidebar,
@@ -46,6 +47,7 @@ export const FrontlineSettingsLayout = ({
   children: ReactNode;
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
   const [inPreview] = useQueryState<boolean>('inPreview');
 
   // Preview iframes (messenger, form) render bare, as core's DefaultLayout does.
@@ -59,19 +61,24 @@ export const FrontlineSettingsLayout = ({
       title={t('plugin-settings-title', { name: 'Frontline' })}
       sidebar={
         <>
+          <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton asChild>
+                  <Link to="/frontline/inbox">
+                    <IconChevronLeft />
+                    <span>{tSidebar('exit-settings')}</span>
+                  </Link>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Header>
           <FrontlineSettingsNavigation />
           <PluginSharedSettingsNavigation
             pluginName="frontline"
             pathPrefix="frontline/settings"
           />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="frontline/inbox"
-          name={t('back-to-app', { name: 'Frontline' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

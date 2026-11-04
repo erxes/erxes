@@ -5,6 +5,7 @@ import {
 } from '@/operation/components/SelectOperation';
 import { useGetCurrentUsersTeams } from '@/team/hooks/useGetCurrentUsersTeams';
 import { ITeam } from '@/team/types';
+import { IconUsersGroup } from '@tabler/icons-react';
 import {
   Badge,
   Combobox,
@@ -96,7 +97,8 @@ const SelectTeamValue = ({ placeholder }: { placeholder?: string }) => {
 
   if (!teams || teams.length === 0 || !value?.length) {
     return (
-      <span className="text-muted-foreground">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        <IconUsersGroup className="size-4 shrink-0" aria-hidden="true" />
         {placeholder || 'Select teams...'}
       </span>
     );

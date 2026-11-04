@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { useQuery } from '@apollo/client';
 import type { ReactNode } from 'react';
-import { ExecutionJobSelectContent } from '../SelectExecutionJob';
+import { ExecutionJobSelectContent } from '@/inventories/job-executions/SelectExecutionJob';
 import type { IJob } from '@/settings/jobs/types/Job';
 
 jest.mock('@apollo/client', () => ({ useQuery: jest.fn() }));
@@ -38,6 +38,9 @@ jest.mock('erxes-ui', () => ({
     },
   ),
   Combobox: {
+    Value: ({ value, title }: { value: ReactNode; title?: string }) => (
+      <span title={title}>{value}</span>
+    ),
     Check: ({ checked }: { checked: boolean }) =>
       checked ? <span>selected</span> : null,
   },
@@ -107,14 +110,28 @@ test('selection preserves generated response nulls without normalizing the recor
     laborCosts: [],
     overheadCosts: [],
   };
-  jest
-    .mocked(useQuery)
-    .mockReturnValue({
-      data: { jobs: { jobs: [card] } },
-      loading: false,
-    } as never);
+  jest.mocked(useQuery).mockReturnValue({
+    data: { jobs: { jobs: [card] } },
+    loading: false,
+  } as never);
   render(<ExecutionJobSelectContent onChange={onChange} />);
   fireEvent.click(screen.getByRole('button'));
   expect(onChange).toHaveBeenCalledWith(card);
   expect(onChange.mock.calls[0][0]).toBe(card);
+});
+
+test('job options separate code and truncated name like product selectors', () => {
+  const code = 'ERKHET-TECHCARD-420';
+  const name = 'Premium Ultra Standard production job with a long product name';
+  jest.mocked(useQuery).mockReturnValue({
+    data: { jobs: { jobs: [{ _id: 'long-job', code, name }] } },
+    loading: false,
+  } as never);
+
+  render(<ExecutionJobSelectContent onChange={jest.fn()} />);
+
+  const caption = screen.getByTitle(`${code} ${name}`);
+  expect(caption.contains(screen.getByText(code))).toBe(true);
+  expect(caption.contains(screen.getByText(name))).toBe(true);
+  expect(screen.getByText(name).classList.contains('truncate')).toBe(true);
 });

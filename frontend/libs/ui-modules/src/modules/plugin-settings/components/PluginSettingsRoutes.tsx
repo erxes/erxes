@@ -5,8 +5,8 @@ import { useAtomValue } from 'jotai';
 
 /**
  * A plugin's settings routes plus the organization pages it uses: renders
- * `tags` and `properties/*` (scoped to the plugin) and `children` for
- * everything else. Mount it at the plugin's `settings/*` route.
+ * `tags`, `properties/*` and `notifications` (scoped to the plugin) and
+ * `children` for everything else. Mount it at the plugin's `settings/*` route.
  */
 export const PluginSettingsRoutes = ({
   pluginName,
@@ -18,9 +18,11 @@ export const PluginSettingsRoutes = ({
   basePath: string;
   children: ReactNode;
 }) => {
-  const { tags: Tags, properties: Properties } = useAtomValue(
-    pluginSettingsSlotsState,
-  );
+  const {
+    tags: Tags,
+    properties: Properties,
+    notifications: Notifications,
+  } = useAtomValue(pluginSettingsSlotsState);
 
   return (
     <Routes>
@@ -34,6 +36,12 @@ export const PluginSettingsRoutes = ({
               basePath={`${basePath.replace(/\/$/, '')}/properties`}
             />
           }
+        />
+      )}
+      {Notifications && (
+        <Route
+          path="notifications"
+          element={<Notifications pluginName={pluginName} />}
         />
       )}
       <Route path="*" element={children} />

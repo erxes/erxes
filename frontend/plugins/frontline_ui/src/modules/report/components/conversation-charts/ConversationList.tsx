@@ -1,7 +1,7 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
 import { useConversationList } from '@/report/hooks/useConversationList';
 import { useConversationExport } from '@/report/hooks/useConversationExport';
-import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineCard } from '@/report/components/frontline-card/FrontlineCard';
 import {
   Alert,
   Badge,
@@ -23,10 +23,10 @@ import {
   IconChevronRight,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { ReportFilter } from '../filter-popover/report-filter';
+import { ReportFilter } from '@/report/components/filter-popover/report-filter';
 import ExcelJS from 'exceljs';
 import { downloadExcel } from '@/report/utils/exportCsv';
-import { ReportChartActions } from '../report-chart/ReportChartActions';
+import { ReportChartActions } from '@/report/components/report-chart/ReportChartActions';
 import { useConversationChartCard } from '@/report/hooks/useConversationChartCard';
 
 const PER_PAGE = 10;
@@ -50,291 +50,24 @@ const CONVERSATION_LIST_EXPORT_COLUMNS = [
   { key: 'closedAt', header: 'Closed At', width: 18 },
 ] as const;
 
-export const ConversationList = ({
-  title,
-  cardId,
-  savedChart,
-  colSpan = 6,
-  onColSpanChange,
-}: ConversationListProps) => {
-  const { t } = useTranslation('frontline');
-  const { id, filterConfig, queryFilters, filtersRestored } =
-    useConversationChartCard({ title, cardId, savedChart });
-  const [exporting, setExporting] = useState(false);
-  const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    setPage(1);
-  }, [queryFilters]);
-
-  const { conversationList, isFetching, isInitialLoad, error } =
-    useConversationList({
-      variables: {
-        filters: {
-          ...queryFilters,
-          page,
-          limit: PER_PAGE,
-        },
-      },
-      skip: !filtersRestored,
-    });
-
-  const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
-  const handleNext = useCallback(() => setPage((p) => p + 1), []);
-
-  const { fetchExport } = useConversationExport();
-
-  const handleExport = useCallback(async () => {
-    setExporting(true);
-    try {
-      const result = await fetchExport({
-        variables: {
-          filters: queryFilters,
-        },
-      });
-
-      const items = (result.data?.reportConversationExport ?? []).filter(
-        isDefined,
-      );
-      if (!items.length) return;
-
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Conversations');
-
-      sheet.columns = CONVERSATION_LIST_EXPORT_COLUMNS.map((col) => ({
-        header: col.header,
-        key: col.key,
-        width: col.width,
-      }));
-
-      const headerRow = sheet.getRow(1);
-      headerRow.font = { bold: true };
-      headerRow.fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FFE9ECEF' },
-      };
-
-      const formatDateVal = (v?: string | null) => {
-        if (!v) return '';
-        try {
-          return formatDate(new Date(v), 'yyyy-MM-dd HH:mm');
-        } catch {
-          return v;
-        }
-      };
-
-      for (const item of items) {
-        sheet.addRow({
-          content: item.content || '',
-          status: item.status || '',
-          assignedUserName: item.assignedUserName || '',
-          customerName: item.customerName || '',
-          integrationName: item.integrationName || '',
-          tagNames: (item.tagNames || []).join(', '),
-          createdAt: formatDateVal(item.createdAt),
-          closedAt: formatDateVal(item.closedAt),
-        });
-      }
-
-      const buffer = await workbook.xlsx.writeBuffer();
-      const timestamp = new Date().toISOString().slice(0, 10);
-      downloadExcel(buffer, `conversation-list-${timestamp}.xlsx`);
-    } finally {
-      setExporting(false);
-    }
-  }, [fetchExport, queryFilters]);
-
-  const filterEl = useMemo(
-    () => (
-      <>
-        <ReportFilter cardId={id} />
-        <ReportChartActions
-          chartType="conversation-list"
-          colSpan={colSpan}
-          filters={filterConfig}
-          savedChart={savedChart}
-        />
-        <Button
-          variant="ghost"
-          size="icon"
-          className="size-7"
-          onClick={handleExport}
-          disabled={exporting}
-          title={t('export-excel', 'Export Excel')}
-        >
-          <IconDownload className="size-3.5" />
-        </Button>
-      </>
-    ),
-    [id, colSpan, filterConfig, savedChart, handleExport, exporting, t],
-  );
-
-  if (isInitialLoad || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Total conversations open in the last 30 days"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Total conversations open in the last 30 days"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>
-              {error.message || 'Failed to load conversation list'}
-            </Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!conversationList?.list || conversationList.list.length === 0) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="No conversations found."
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  const totalCount = conversationList.totalCount ?? 0;
-  const totalPages = conversationList.totalPages ?? 0;
-
+export const MoreCell = ({
+  cell,
+}: {
+  cell: Cell<ConversationListItem, unknown>;
+}) => {
+  const { _id } = cell.row.original || {};
+  const navigate = useNavigate();
   return (
-    <FrontlineCard
-      id={id}
-      title={title}
-      description={`${totalCount} conversations`}
-      colSpan={colSpan}
-      onColSpanChange={onColSpanChange}
+    <RecordTable.MoreButton
+      className="w-full h-full"
+      onClick={() => {
+        navigate(`/frontline/inbox?conversationId=${_id}`);
+      }}
     >
-      <FrontlineCard.Header filter={filterEl} />
-      <FrontlineCard.Content>
-        <div
-          className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
-        >
-          <ConversationListTable
-            conversationList={conversationList.list.filter(isDefined)}
-          />
-        </div>
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          totalCount={totalCount}
-          onPrev={handlePrev}
-          onNext={handleNext}
-        />
-      </FrontlineCard.Content>
-    </FrontlineCard>
+      <IconMessageShare />
+    </RecordTable.MoreButton>
   );
 };
-
-const Pagination = memo(function Pagination({
-  page,
-  totalPages,
-  totalCount,
-  onPrev,
-  onNext,
-}: {
-  page: number;
-  totalPages: number;
-  totalCount: number;
-  onPrev: () => void;
-  onNext: () => void;
-}) {
-  const { t } = useTranslation('frontline');
-  if (totalPages <= 1) return null;
-  const from = (page - 1) * PER_PAGE + 1;
-  const to = Math.min(page * PER_PAGE, totalCount);
-
-  return (
-    <div className="flex items-center justify-between px-4 py-3 border-t">
-      <span className="text-xs text-muted-foreground">
-        {from}–{to} of {totalCount}
-      </span>
-      <div className="flex items-center gap-1">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onPrev}
-          disabled={page <= 1}
-        >
-          <IconChevronLeft className="size-4" />
-          {t('prev', 'Prev')}
-        </Button>
-        <span className="text-xs text-muted-foreground px-2">
-          {page} / {totalPages}
-        </span>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onNext}
-          disabled={page >= totalPages}
-        >
-          {t('next', 'Next')}
-          <IconChevronRight className="size-4" />
-        </Button>
-      </div>
-    </div>
-  );
-});
-
-const ConversationListTable = memo(function ConversationListTable({
-  conversationList,
-}: {
-  conversationList: ConversationListItem[];
-}) {
-  const { t } = useTranslation('frontline');
-  return (
-    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
-      <RecordTable.Provider
-        data={conversationList}
-        columns={conversationListColumns(t)}
-        className="m-3"
-        tableId="frontline_conversation_report_record_table"
-      >
-        <RecordTable.Scroll>
-          <RecordTable>
-            <RecordTable.Header />
-            <RecordTable.Body>
-              <RecordTable.RowList />
-            </RecordTable.Body>
-          </RecordTable>
-        </RecordTable.Scroll>
-      </RecordTable.Provider>
-    </div>
-  );
-});
 
 export const conversationListColumns = (
   t: TFunction,
@@ -450,21 +183,297 @@ export const conversationListColumns = (
   },
 ];
 
-export const MoreCell = ({
-  cell,
+const ConversationListTable = memo(function ConversationListTable({
+  conversationList,
 }: {
-  cell: Cell<ConversationListItem, unknown>;
-}) => {
-  const { _id } = cell.row.original || {};
-  const navigate = useNavigate();
+  conversationList: ConversationListItem[];
+}) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  const records = (
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList />
+      </RecordTable.Body>
+    </RecordTable>
+  );
+
   return (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      onClick={() => {
-        navigate(`/frontline/inbox?conversationId=${_id}`);
-      }}
+    <div className="bg-sidebar w-full rounded-lg [&_th]:last-of-type:text-right">
+      <RecordTable.Provider
+        data={conversationList}
+        columns={conversationListColumns(t)}
+        className="m-3"
+        tableId="frontline_conversation_report_record_table"
+      >
+        <RecordTable.Scroll>{records}</RecordTable.Scroll>
+      </RecordTable.Provider>
+    </div>
+  );
+});
+
+const Pagination = memo(function Pagination({
+  page,
+  totalPages,
+  totalCount,
+  onPrev,
+  onNext,
+}: {
+  page: number;
+  totalPages: number;
+  totalCount: number;
+  onPrev: () => void;
+  onNext: () => void;
+}) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  if (totalPages <= 1) return null;
+  const from = (page - 1) * PER_PAGE + 1;
+  const to = Math.min(page * PER_PAGE, totalCount);
+
+  return (
+    <div className="flex items-center justify-between px-4 py-3 border-t">
+      <span className="text-xs text-muted-foreground">
+        {t('range-of-total', { from, to, total: totalCount })}
+      </span>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrev}
+          disabled={page <= 1}
+        >
+          <IconChevronLeft className="size-4" />
+          {t('prev', 'Prev')}
+        </Button>
+        <span className="text-xs text-muted-foreground px-2">
+          {page} / {totalPages}
+        </span>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={page >= totalPages}
+        >
+          {t('next', 'Next')}
+          <IconChevronRight className="size-4" />
+        </Button>
+      </div>
+    </div>
+  );
+});
+
+export const ConversationList = ({
+  title,
+  cardId,
+  savedChart,
+  colSpan = 6,
+  onColSpanChange,
+}: ConversationListProps) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  const { id, filterConfig, queryFilters, filtersRestored } =
+    useConversationChartCard({ title, cardId, savedChart });
+  const [exporting, setExporting] = useState(false);
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+  }, [queryFilters]);
+
+  const { conversationList, isFetching, isInitialLoad, error } =
+    useConversationList({
+      variables: {
+        filters: {
+          ...queryFilters,
+          page,
+          limit: PER_PAGE,
+        },
+      },
+      skip: !filtersRestored,
+    });
+
+  useEffect(() => {
+    if (isFetching || error || !conversationList) return;
+
+    const lastPage = Math.max(1, conversationList.totalPages ?? 1);
+    setPage((current) => Math.min(current, lastPage));
+  }, [conversationList, error, isFetching]);
+
+  const handlePrev = useCallback(() => setPage((p) => Math.max(1, p - 1)), []);
+  const handleNext = useCallback(() => setPage((p) => p + 1), []);
+
+  const { fetchExport } = useConversationExport();
+
+  const handleExport = useCallback(async () => {
+    setExporting(true);
+    try {
+      const result = await fetchExport({
+        variables: {
+          filters: queryFilters,
+        },
+      });
+
+      const items = (result.data?.reportConversationExport ?? []).filter(
+        isDefined,
+      );
+      if (!items.length) return;
+
+      const workbook = new ExcelJS.Workbook();
+      const sheet = workbook.addWorksheet('Conversations');
+
+      sheet.columns = CONVERSATION_LIST_EXPORT_COLUMNS.map((col) => ({
+        header: col.header,
+        key: col.key,
+        width: col.width,
+      }));
+
+      const headerRow = sheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FFE9ECEF' },
+      };
+
+      const formatDateVal = (v?: string | null) => {
+        if (!v) return '';
+        try {
+          return formatDate(new Date(v), 'yyyy-MM-dd HH:mm');
+        } catch {
+          return v;
+        }
+      };
+
+      for (const item of items) {
+        sheet.addRow({
+          content: item.content || '',
+          status: item.status || '',
+          assignedUserName: item.assignedUserName || '',
+          customerName: item.customerName || '',
+          integrationName: item.integrationName || '',
+          tagNames: (item.tagNames || []).join(', '),
+          createdAt: formatDateVal(item.createdAt),
+          closedAt: formatDateVal(item.closedAt),
+        });
+      }
+
+      const buffer = await workbook.xlsx.writeBuffer();
+      const timestamp = new Date().toISOString().slice(0, 10);
+      downloadExcel(buffer, `conversation-list-${timestamp}.xlsx`);
+    } finally {
+      setExporting(false);
+    }
+  }, [fetchExport, queryFilters]);
+
+  const filterEl = useMemo(
+    () => (
+      <>
+        <ReportFilter cardId={id} />
+        <ReportChartActions
+          chartType="conversation-list"
+          colSpan={colSpan}
+          filters={filterConfig}
+          savedChart={savedChart}
+        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={handleExport}
+          disabled={exporting}
+          title={t('export-excel', 'Export Excel')}
+        >
+          <IconDownload className="size-3.5" />
+        </Button>
+      </>
+    ),
+    [id, colSpan, filterConfig, savedChart, handleExport, exporting, t],
+  );
+
+  if (isInitialLoad || !filtersRestored) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description={t('total-conversations-open-last-30-days')}
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Header filter={filterEl} />
+        <FrontlineCard.Content>
+          <FrontlineCard.Skeleton />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
+
+  if (error) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description={t('total-conversations-open-last-30-days')}
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Content>
+          <Alert variant="destructive">
+            <Alert.Title>
+              {t('error-loading-data', 'Error loading data')}
+            </Alert.Title>
+            <Alert.Description>
+              {error.message || t('failed-to-load-conversation-list')}
+            </Alert.Description>
+          </Alert>
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
+
+  if (!conversationList?.list || conversationList.list.length === 0) {
+    return (
+      <FrontlineCard
+        id={id}
+        title={title}
+        description={t('no-conversations-found')}
+        colSpan={colSpan}
+        onColSpanChange={onColSpanChange}
+      >
+        <FrontlineCard.Header filter={filterEl} />
+        <FrontlineCard.Content>
+          <FrontlineCard.Empty />
+        </FrontlineCard.Content>
+      </FrontlineCard>
+    );
+  }
+
+  const totalCount = conversationList.totalCount ?? 0;
+  const totalPages = conversationList.totalPages ?? 0;
+
+  return (
+    <FrontlineCard
+      id={id}
+      title={title}
+      description={t('conversations-count', { count: totalCount })}
+      colSpan={colSpan}
+      onColSpanChange={onColSpanChange}
     >
-      <IconMessageShare />
-    </RecordTable.MoreButton>
+      <FrontlineCard.Header filter={filterEl} />
+      <FrontlineCard.Content>
+        <div
+          className={isFetching ? 'opacity-50 pointer-events-none' : undefined}
+        >
+          <ConversationListTable
+            conversationList={conversationList.list.filter(isDefined)}
+          />
+        </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          totalCount={totalCount}
+          onPrev={handlePrev}
+          onNext={handleNext}
+        />
+      </FrontlineCard.Content>
+    </FrontlineCard>
   );
 };

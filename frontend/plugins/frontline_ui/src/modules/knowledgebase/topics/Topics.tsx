@@ -33,7 +33,9 @@ const TopicsContent = ({
 };
 
 export const Topics = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { search } = useLocation();
   const [, setCreateTopic] = useQueryState<string>('createTopic');
   const { topics, loading, error } = useTopics();

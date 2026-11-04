@@ -22,7 +22,9 @@ export const SelectHelpCenterTopic = ({
   variant: 'table' | 'form';
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [open, setOpen] = useState(false);
 
   const { data, loading } = useQuery(GET_HELP_CENTER_TOPIC_OPTIONS, {

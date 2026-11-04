@@ -4,7 +4,9 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useIntegrationAdd = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [addIntegration, { loading }] = useMutation(ADD_INTEGRATION, {
     refetchQueries: [
       'Integrations',

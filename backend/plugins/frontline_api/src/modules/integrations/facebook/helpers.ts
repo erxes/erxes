@@ -73,8 +73,9 @@ export const removeIntegration = async (
 
     integrationRemoveBy = { fbPageIds: integration.facebookPageIds };
 
-    const conversationIds =
-      await models.FacebookConversations.find(selector).distinct('_id');
+    const conversationIds = await models.FacebookConversations.find(
+      selector,
+    ).distinct('_id');
 
     await models.FacebookCustomers.deleteMany({
       integrationId: integrationErxesApiId,
@@ -319,6 +320,20 @@ export const facebookCreateIntegration = async (
     // Save the page tokens map to the integration
     integration.facebookPageTokensMap = facebookPageTokensMap;
     await integration.save();
+
+    // A bot left from a removed integration of this page comes back to life.
+    // Its failure is recorded on the bot and must not undo the integration.
+    for (const [pageId, token] of Object.entries(facebookPageTokensMap)) {
+      await models.FacebookBots.reconnectByPageId({
+        pageId,
+        accountId,
+        token,
+      }).catch((error) => {
+        debugError(
+          `Failed to reconnect facebook bot for page ${pageId}: ${error.message}`,
+        );
+      });
+    }
 
     // Return success status
     return { status: 'success' };

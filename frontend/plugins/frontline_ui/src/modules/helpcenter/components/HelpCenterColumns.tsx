@@ -266,7 +266,9 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
 ];
 
 export const useHelpCenterColumns = (): ColumnDef<IHelpCenter>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
 
   return useMemo(() => createHelpCenterColumns(t), [t]);
 };

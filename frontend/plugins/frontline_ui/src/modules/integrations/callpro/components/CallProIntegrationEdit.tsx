@@ -30,7 +30,9 @@ export const CallProIntegrationSheetEdit = () => {
 };
 
 export const CallProIntegrationEdit = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   const [integrationId, setEditSheet] = useAtom(callProEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({

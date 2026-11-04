@@ -6,6 +6,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ComposerHeader = () => {
   const {
@@ -16,6 +17,7 @@ export const ComposerHeader = () => {
     expanded,
     sending: loading,
   } = useDirectMailComposerContext();
+  const { t } = useTranslation('frontline');
   const onMinimize = () => setMinimized((value) => !value);
   const onExpand = () => {
     setMinimized(false);
@@ -39,10 +41,10 @@ export const ComposerHeader = () => {
           className="h-8 p-0 text-sm font-medium hover:bg-transparent"
           onClick={onMinimize}
         >
-          New Message
+          {t('new-message')}
         </Button>
       ) : (
-        <span className="text-sm font-medium">New Message</span>
+        <span className="text-sm font-medium">{t('new-message')}</span>
       )}
       <div className="flex items-center gap-1">
         <Button
@@ -51,7 +53,9 @@ export const ComposerHeader = () => {
           size="icon"
           className="size-6"
           aria-label={
-            minimized ? 'Restore email composer' : 'Minimize email composer'
+            minimized
+              ? t('restore-email-composer')
+              : t('minimize-email-composer')
           }
           onClick={onMinimize}
         >
@@ -62,7 +66,7 @@ export const ComposerHeader = () => {
           variant="ghost"
           size="icon"
           className="size-6"
-          aria-label={expanded ? 'Exit full screen' : 'Full screen'}
+          aria-label={expanded ? t('exit-full-screen') : t('full-screen')}
           onClick={onExpand}
         >
           {expanded ? (
@@ -76,7 +80,7 @@ export const ComposerHeader = () => {
           variant="ghost"
           size="icon"
           className="size-6"
-          aria-label="Close email composer"
+          aria-label={t('close-email-composer')}
           onClick={onClose}
           disabled={loading}
         >

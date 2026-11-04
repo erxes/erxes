@@ -1,44 +1,32 @@
-import { IconDownload, IconPaperclip } from '@tabler/icons-react';
 import { Button, Spinner, readImage } from 'erxes-ui';
 import { useState } from 'react';
 
 import type { IAgentsFileMeta } from '../agentsFiles';
+import { AgentAttachmentCard } from './AgentAttachmentCard';
 
-const Attachment = ({ file }: { file: IAgentsFileMeta }) => {
+const openFile = (file: IAgentsFileMeta): void => {
+  window.open(readImage(file.url), '_blank', 'noopener,noreferrer');
+};
+
+const ImageAttachment = ({
+  file,
+  compact,
+}: {
+  file: IAgentsFileMeta;
+  /** Several images share the row as square tiles. */
+  compact: boolean;
+}) => {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
-  const openFile = (): void => {
-    window.open(readImage(file.url), '_blank', 'noopener,noreferrer');
-  };
 
-  if (file.type.startsWith('image/') && !failed) {
+  if (failed) {
     return (
-      <Button
-        type="button"
-        variant="ghost"
-        aria-label={`Open ${file.name}`}
-        title={file.name}
-        className="relative h-auto w-64 max-w-full overflow-hidden rounded-lg p-0"
-        onClick={openFile}
-      >
-        {!loaded && (
-          <span
-            role="status"
-            aria-label="Loading image"
-            className="absolute inset-0 flex items-center justify-center"
-          >
-            <Spinner />
-          </span>
-        )}
-        <img
-          src={readImage(file.url)}
-          alt={file.name}
-          loading="lazy"
-          className={`block max-h-72 w-full object-contain ${loaded ? '' : 'min-h-32 opacity-0'}`}
-          onLoad={() => setLoaded(true)}
-          onError={() => setFailed(true)}
-        />
-      </Button>
+      <AgentAttachmentCard
+        name={file.name}
+        mimeType={file.type}
+        size={file.size}
+        onOpen={() => openFile(file)}
+      />
     );
   }
 
@@ -46,13 +34,32 @@ const Attachment = ({ file }: { file: IAgentsFileMeta }) => {
     <Button
       type="button"
       variant="ghost"
-      title={failed ? 'Image preview unavailable. Open the original file.' : undefined}
-      className="h-auto inline-flex max-w-full items-center gap-1.5 rounded-full border bg-muted/40 px-2.5 py-1 text-[12px] hover:bg-muted"
-      onClick={openFile}
+      aria-label={`Open ${file.name}`}
+      title={file.name}
+      className={`relative h-auto max-w-full overflow-hidden rounded-xl border bg-background/60 p-0 hover:bg-background/60 hover:opacity-90 ${
+        compact ? 'size-28' : 'w-64'
+      }`}
+      onClick={() => openFile(file)}
     >
-      <IconPaperclip className="size-3.5 shrink-0" />
-      <span className="truncate">{file.name}</span>
-      <IconDownload className="size-3.5 shrink-0" />
+      {!loaded && (
+        <span
+          role="status"
+          aria-label="Loading image"
+          className="absolute inset-0 flex items-center justify-center"
+        >
+          <Spinner />
+        </span>
+      )}
+      <img
+        src={readImage(file.url)}
+        alt={file.name}
+        loading="lazy"
+        className={`block w-full ${
+          compact ? 'h-full object-cover' : 'max-h-72 object-contain'
+        } ${loaded ? '' : `${compact ? '' : 'min-h-32'} opacity-0`}`}
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+      />
     </Button>
   );
 };
@@ -63,17 +70,38 @@ export const AttachedFiles = ({
 }: {
   files: IAgentsFileMeta[];
   notice: string;
-}) => (
-  <div className="mt-1.5 space-y-1">
-    <ul className="flex flex-col gap-1">
-      {files.map((file) => (
-        <li key={file.url}>
-          <Attachment file={file} />
-        </li>
-      ))}
-    </ul>
-    {notice ? (
-      <p className="text-[11px] text-muted-foreground">{notice}</p>
-    ) : null}
-  </div>
-);
+}) => {
+  const images = files.filter((file) => file.type.startsWith('image/'));
+  const documents = files.filter((file) => !file.type.startsWith('image/'));
+
+  return (
+    <div className="mt-1.5 space-y-1.5">
+      {images.length > 0 && (
+        <ul aria-label="Attached images" className="flex flex-wrap gap-1.5">
+          {images.map((file) => (
+            <li key={file.url} className="max-w-full">
+              <ImageAttachment file={file} compact={images.length > 1} />
+            </li>
+          ))}
+        </ul>
+      )}
+      {documents.length > 0 && (
+        <ul aria-label="Attached files" className="flex flex-wrap gap-1.5">
+          {documents.map((file) => (
+            <li key={file.url} className="min-w-0 max-w-full">
+              <AgentAttachmentCard
+                name={file.name}
+                mimeType={file.type}
+                size={file.size}
+                onOpen={() => openFile(file)}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {notice ? (
+        <p className="text-[11px] text-muted-foreground">{notice}</p>
+      ) : null}
+    </div>
+  );
+};

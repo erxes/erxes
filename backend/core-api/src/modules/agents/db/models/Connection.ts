@@ -5,6 +5,7 @@ import { IModels } from '~/connectionResolvers';
 import { agentsConnectionSchema } from '@/agents/db/definitions/connection';
 import {
   IAgentsConnectionEntry,
+  IAgentsConnections,
   IAgentsConnectionsDocument,
 } from '@/agents/@types/connection';
 
@@ -30,7 +31,35 @@ export interface IAgentsConnectionModel
    * and deletes the document when the array becomes empty.
    */
   removeConnection(userId: string, provider: string): Promise<void>;
+  /**
+   * Marks one of the acting user's saved providers as the server default, or
+   * clears the explicit default when `provider` is empty. Returns null when
+   * the provider is not one of the user's saved connections.
+   */
+  setDefaultProvider(
+    userId: string,
+    provider: string,
+  ): Promise<IAgentsConnectionsDocument | null>;
 }
+
+/**
+ * The connection an unselected chat turn runs on: the explicit
+ * `defaultProvider` while that provider is still saved, otherwise the first
+ * saved entry (the behaviour every document had before defaults existed).
+ */
+export const findDefaultConnection = (
+  doc: Pick<IAgentsConnections, 'connections' | 'defaultProvider'> | null,
+): IAgentsConnectionEntry | undefined => {
+  const connections = doc?.connections ?? [];
+
+  return (
+    connections.find(
+      (connection) =>
+        Boolean(doc?.defaultProvider) &&
+        connection.provider === doc?.defaultProvider,
+    ) ?? connections[0]
+  );
+};
 
 /**
  * Documents written by the previous single-connection shape carry a legacy
@@ -84,6 +113,11 @@ export const loadAgentsConnectionClass = (models: IModels) => {
       const doc = await models.AgentsConnection.findOne({
         userId,
       }).lean<IAgentsConnectionsDocument>();
+      // A single-`connection` document is rewritten into the array shape so
+      // its old field (and any plaintext key in it) leaves the database.
+      const legacyShape = Boolean(
+        doc && (doc as unknown as { connection?: unknown }).connection,
+      );
 
       const normalized = normalizeConnections(doc);
 
@@ -91,7 +125,7 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         // Lazy migration: any legacy plaintext key is sealed and written
         // back here so every read path sees envelopes only. Best-effort —
         // a write-back failure never fails the read.
-        let migrated = false;
+        let migrated = legacyShape;
 
         for (const entry of normalized.connections ?? []) {
           const apiKey = entry?.config?.apiKey;
@@ -114,7 +148,10 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         if (migrated) {
           await models.AgentsConnection.updateOne(
             { userId },
-            { $set: { connections: normalized.connections } },
+            {
+              $set: { connections: normalized.connections },
+              $unset: { connection: '' },
+            },
           ).catch(() => undefined);
         }
       }
@@ -192,9 +229,80 @@ export const loadAgentsConnectionClass = (models: IModels) => {
         return;
       }
 
+      // Removing the default provider falls back to the first remaining
+      // entry instead of leaving a dangling default.
       await models.AgentsConnection.findOneAndUpdate(
         { userId },
-        { $set: { connections: remaining }, $unset: { connection: '' } },
+        {
+          $set: { connections: remaining },
+          $unset: {
+            connection: '',
+            ...(normalized.defaultProvider === provider
+              ? { defaultProvider: '' }
+              : {}),
+          },
+        },
+      );
+    }
+
+    /**
+     * Sets or clears the explicit default. The provider filter makes the
+     * write conditional on that provider still being saved, so a concurrent
+     * removal can never leave the default pointing at a missing entry.
+     */
+    public static async setDefaultProvider(
+      userId: string,
+      provider: string,
+    ): Promise<IAgentsConnectionsDocument | null> {
+      if (!provider) {
+        return normalizeConnections(
+          await models.AgentsConnection.findOneAndUpdate(
+            { userId },
+            { $unset: { defaultProvider: '' } },
+            { new: true },
+          ),
+        );
+      }
+
+      const doc = await models.AgentsConnection.findOneAndUpdate(
+        { userId, 'connections.provider': provider },
+        { $set: { defaultProvider: provider } },
+        { new: true },
+      );
+
+      if (doc) {
+        return normalizeConnections(doc);
+      }
+
+      // A document still in the single-`connection` shape has no array for
+      // that filter to match. Write the normalized (sealed) array with the
+      // default, as the other writes do; the shape check in the filter keeps
+      // a concurrent write from being overwritten.
+      const stored = await models.AgentsConnection.findOne({
+        userId,
+      }).lean<IAgentsConnectionsDocument>();
+
+      if (!stored || Array.isArray(stored.connections)) {
+        return null;
+      }
+
+      const entries = normalizeConnections(stored)?.connections ?? [];
+
+      if (!entries.some((entry) => entry.provider === provider)) {
+        return null;
+      }
+
+      entries.forEach(sealEntryConfig);
+
+      return normalizeConnections(
+        await models.AgentsConnection.findOneAndUpdate(
+          { userId, connections: { $exists: false } },
+          {
+            $set: { connections: entries, defaultProvider: provider },
+            $unset: { connection: '' },
+          },
+          { new: true },
+        ),
       );
     }
   }

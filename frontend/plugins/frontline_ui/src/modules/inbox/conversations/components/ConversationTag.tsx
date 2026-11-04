@@ -7,7 +7,7 @@ export const ConversationTag = ({
 }: {
   conversationIds: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <SelectTags.Detail
       tagType="frontline:conversation"

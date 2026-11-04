@@ -23,13 +23,21 @@ export const orderToReturnTrs = async ({
   userId: string;
   order: any;
   config: {
-    dateRule: 'alwaysNow' | 'syncedDateOrNow';
     defaultPayment: { accountId: string };
     returnType: 'delete' | 'fullTr' | 'onlySale';
     trStatus?: string;
   };
 }) => {
-  let date = new Date();
+  if (!order.returnInfo?.returnAt) {
+    throw new Error(
+      'POS order returnInfo.returnAt is required for accounting return sync.',
+    );
+  }
+
+  const date = new Date(order.returnInfo.returnAt);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('POS order returnInfo.returnAt is invalid.');
+  }
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -50,10 +58,6 @@ export const orderToReturnTrs = async ({
       originId: { $in: [null, ''] },
       contentId: { $in: [null, ''] },
     }).lean();
-    if (config.dateRule === 'syncedDateOrNow') {
-      date = oldTrs[0].date;
-    }
-
     const oldReturnTr = oldTrs[0];
     mainId = oldReturnTr?._id || mainId;
     ptrId = oldReturnTr?.ptrId || ptrId;
@@ -67,10 +71,9 @@ export const orderToReturnTrs = async ({
   }).lean();
 
   if (!firstSaleTr) {
-    console.log(
-      'No sales receipt was found, so no return receipt is required.',
+    throw new Error(
+      'POS order sale transaction was not found for accounting return sync.',
     );
-    return;
   }
 
   if (config.returnType === 'delete') {

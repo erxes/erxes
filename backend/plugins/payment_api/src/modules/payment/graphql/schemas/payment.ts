@@ -4,28 +4,12 @@ export const types = `
     inactive
   }
 
-  type PaymentDealConfig {
-    enabled: Boolean
-    boardId: String
-    pipelineId: String
-    stageId: String
-  }
-
-  input PaymentDealConfigInput {
-    enabled: Boolean
-    boardId: String
-    pipelineId: String
-    stageId: String
-  }
-
   type Payment {
     _id: String!
     name: String!
     kind: String!
     status: PaymentMethodStatus
     config: JSON
-    sendEmailOnPayment: Boolean
-    dealConfig: PaymentDealConfig
     createdAt: Date
   }
 
@@ -48,8 +32,6 @@ export const inputs = `
     kind: String!
     status: PaymentMethodStatus
     config: JSON
-    sendEmailOnPayment: Boolean
-    dealConfig: PaymentDealConfigInput
   }
 `;
 

@@ -1,3 +1,4 @@
+import type { ApolloError } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -27,7 +28,7 @@ interface SelectStatusContextType {
   value: string;
   onValueChange: (status: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: ApolloError;
   statuses?: ITaskStatus[];
 }
 
@@ -93,7 +94,8 @@ const SelectStatusValue = ({
 
   if (!selectedStatus) {
     return (
-      <span className="text-accent-foreground/80">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        <StatusInlineIcon statusType={STATUS_TYPES.UNSTARTED} />
         {placeholder || t('select-status')}
       </span>
     );

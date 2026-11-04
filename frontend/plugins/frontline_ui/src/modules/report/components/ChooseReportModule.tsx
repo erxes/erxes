@@ -6,9 +6,11 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { REPORT_MODULES } from '../constants/modules';
 
 export const ChooseReportModule = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const location = useLocation();
   const isCallReport = location.pathname.startsWith('/frontline/reports/call');
   const isTicketReport = location.pathname.startsWith(
@@ -20,13 +22,13 @@ export const ChooseReportModule = () => {
     <>
       <ReportRouteItem
         to="/frontline/reports"
-        name="Frontline Overview"
+        name={t('frontline-overview')}
         icon="IconChartHistogram"
         isActive={isOverviewReport}
       />
       <ReportRouteItem
         to="/frontline/reports/call"
-        name="Call Center"
+        name={t('call-center-label')}
         icon="IconPhoneCall"
         isActive={isCallReport}
       />

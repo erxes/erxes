@@ -4,6 +4,7 @@ import type { IAttachment } from 'erxes-ui';
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 import { useCopyAttachment } from '@/inbox/conversation-messages/hooks/useCopyAttachment';
 import { canCopyAttachment } from '@/inbox/conversation-messages/utils/copyAttachment';
+import { useTranslation } from 'react-i18next';
 
 export const CopyAttachmentAction = ({
   attachment,
@@ -12,11 +13,12 @@ export const CopyAttachmentAction = ({
   attachment: IAttachment;
   inline: boolean;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { copied, copying, copy } = useCopyAttachment(attachment);
   if (!canCopyAttachment(attachment)) return null;
   const isImage =
     attachment.type?.startsWith('image') || attachment.type === 'sticker';
-  const label = isImage ? 'Copy image' : 'Copy attachment';
+  const label = isImage ? t('copy-image') : t('copy-attachment');
   const icon = copied ? (
     <IconCheck className="size-4 text-success" />
   ) : (

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-10-22`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -83,6 +83,25 @@
 - Main feature internals belong under `src/modules/cms` or
   `src/modules/web-builder`.
 - CMS shared layout/components belong under `src/modules/cms/shared`.
+- A site's default language comes from `getCmsDefaultLanguage` in
+  `src/modules/cms/shared/utils.ts`: the stored `language`, then the first entry
+  of `languages`, then `en`. It is empty until the CMS list has loaded, so editors
+  wait for it. `content_api` resolves it the same way; never add a local
+  `|| 'en'` fallback.
+- Every CMS editor opens in `getInitialCmsLanguage`, so a language left over from
+  another site is ignored. Records go through `useRecordInDefaultLanguage`: when
+  the site has no stored `language`, a saved row in the implied default fills the
+  form, matching what `content_api` reads and writes. A row that arrives late
+  keeps dirty fields.
+- Saving follows `savedRowLoad` from `getSavedRowLoad` in
+  `shared/hooks/useCmsTranslation.ts`. While the CMS settings or a no-default
+  site's rows are loading, or after that load fails, `isBlocked` is on: the save
+  handler refuses and the save button is disabled, without a "Saving" label. A
+  failed load also shows `CmsSavedRowLoadError` with a retry. While blocked, never
+  keep a copy of the default language's text, because it may be stale stored text.
+- Post and page edit payloads always send the gallery (`images`/`pageImages`),
+  `documents`, and `attachments` lists, even when empty: the backend applies
+  edits with `$set`, so an omitted list keeps its removed files.
 - CMS posts store interoperable HTML with the non-lossy BlockNote document in
   `data-erxes-editor-document`; reopening a post must prefer that document and
   use the HTML only as a legacy fallback.

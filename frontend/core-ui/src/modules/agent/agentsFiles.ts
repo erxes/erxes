@@ -34,12 +34,33 @@ const MIME_BY_EXTENSION: Record<string, string> = {
   pdf: 'application/pdf',
   docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  odt: 'application/vnd.oasis.opendocument.text',
+  ods: 'application/vnd.oasis.opendocument.spreadsheet',
+  odp: 'application/vnd.oasis.opendocument.presentation',
+  rtf: 'application/rtf',
 };
+
+/** Images larger than this are not sent to the model as media by the backend. */
+export const AGENTS_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
+
+/** `accept` value for the attachment picker; drop and paste use the same set. */
+export const AGENTS_FILE_ACCEPT = Object.keys(MIME_BY_EXTENSION)
+  .map((ext) => `.${ext}`)
+  .join(',');
 
 export const mimeFromFile = (file: Pick<File, 'name' | 'type'>): string => {
   const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
   return MIME_BY_EXTENSION[ext] ?? file.type.trim().toLowerCase();
 };
+
+export const extensionForMimeType = (mimeType: string): string | undefined =>
+  Object.keys(MIME_BY_EXTENSION).find(
+    (ext) => MIME_BY_EXTENSION[ext] === mimeType,
+  );
+
+export const isAgentsAcceptedMimeType = (mimeType: string): boolean =>
+  Object.values(MIME_BY_EXTENSION).includes(mimeType);
 
 export const isAgentsTextMimeType = (mimeType: string): boolean =>
   (AGENTS_TEXT_MIME_TYPES as readonly string[]).includes(mimeType);
@@ -55,7 +76,7 @@ export const isAgentsFileMeta = (file: unknown): file is IAgentsFileMeta =>
   typeof file.name === 'string' &&
   file.name.length > 0 &&
   typeof file.type === 'string' &&
-  Object.values(MIME_BY_EXTENSION).includes(file.type) &&
+  isAgentsAcceptedMimeType(file.type) &&
   typeof file.size === 'number' &&
   Number.isSafeInteger(file.size) &&
   file.size > 0 &&
@@ -87,6 +108,20 @@ export const agentsFilesPart = (
   type: AGENTS_FILES_DATA_TYPE,
   data: { files },
 });
+
+/**
+ * A files-only turn carries the placeholder prompt for the model; the user's
+ * bubble shows just the attachments.
+ */
+export const withoutFileOnlyText = (
+  parts: UIMessage['parts'],
+): UIMessage['parts'] =>
+  parts.some((part) => readAgentsFilesPart(part).length > 0)
+    ? parts.filter(
+        (part) =>
+          !(part.type === 'text' && part.text.trim() === AGENTS_FILE_ONLY_TEXT),
+      )
+    : parts;
 
 export const agentsFilesNotice = (part: UIMessage['parts'][number]): string => {
   if (part.type !== AGENTS_FILES_DATA_TYPE || !isRecord(part.data)) {

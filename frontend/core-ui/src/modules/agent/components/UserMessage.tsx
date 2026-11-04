@@ -5,11 +5,20 @@ import {
   IconPencil,
 } from '@tabler/icons-react';
 import type { UIMessage } from 'ai';
-import { Button, Textarea } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
+import { readAgentMentions } from '../agentMentions';
+import { readAgentsFilesPart, withoutFileOnlyText } from '../agentsFiles';
+import { useAgentMentions } from '../hooks/useAgentMentions';
+import { AgentMentionScope } from '../references/AgentMentionScope';
 import { extractPageContext } from '../utils/pageContext';
 import { getMessageText } from '../utils/messages';
+import {
+  agentMentionPlainText,
+  parseAgentMentionText,
+} from '../utils/mentionText';
+import { AgentMentionInput } from './AgentMentionInput';
 
 export interface IUserMessageProps {
   message: UIMessage;
@@ -30,12 +39,20 @@ export const UserMessage = ({
   children,
 }: IUserMessageProps) => {
   const { parts } = extractPageContext(message.parts);
-  const text = getMessageText({ ...message, parts });
-  const [draft, setDraft] = useState(text);
+  // Files-only turns hide the placeholder prompt; mention tokens stay wire text.
+  const text = getMessageText({
+    ...message,
+    parts: withoutFileOnlyText(parts),
+  });
+  const hasFiles = parts.some((part) => readAgentsFilesPart(part).length > 0);
+  const [initialDraft] = useState(() => parseAgentMentionText(text));
+  const [draft, setDraft] = useState(initialDraft.value);
+  const draftMentions = useAgentMentions(draft, initialDraft);
   const [copied, setCopied] = useState(false);
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const wasEditingRef = useRef(editing);
-  const trimmed = draft.trim();
+  // Wire text: mentions stay `[[type:id:label]]` tokens for the resend.
+  const trimmed = draftMentions.serialize(draft).trim();
 
   useEffect(() => {
     if (wasEditingRef.current && !editing) {
@@ -67,10 +84,11 @@ export const UserMessage = ({
           }}
         >
           <div className="px-4 pt-4">
-            <Textarea
+            <AgentMentionInput
               autoFocus
+              mentions={draftMentions}
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              onChange={setDraft}
               onKeyDown={(event) => {
                 if (event.nativeEvent.isComposing) return;
                 if (event.key === 'Escape') {
@@ -83,9 +101,10 @@ export const UserMessage = ({
                 }
               }}
               disabled={disabled}
-              aria-label="Edit message"
-              rows={4}
-              className="max-h-72 min-h-24 resize-y rounded-lg p-0 text-sm leading-6 shadow-none focus-visible:shadow-none"
+              ariaLabel="Edit message"
+              minHeight={96}
+              maxHeight={288}
+              className="leading-6"
             />
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2 px-3 pb-3 pt-2">
@@ -109,7 +128,9 @@ export const UserMessage = ({
         </form>
       ) : (
         <div className="max-w-[min(90%,44rem)] rounded-[20px] rounded-br-md bg-primary/[0.07] px-4 py-3 ring-1 ring-primary/10 dark:bg-muted/70 dark:ring-white/5 text-foreground [overflow-wrap:anywhere]">
-          {children}
+          <AgentMentionScope mentions={readAgentMentions(message.parts)}>
+            {children}
+          </AgentMentionScope>
         </div>
       )}
       <div className="flex items-center gap-0.5 opacity-100 transition-opacity sm:opacity-0 sm:group-hover/user:opacity-100 sm:group-focus-within/user:opacity-100">
@@ -123,7 +144,7 @@ export const UserMessage = ({
             title="Copy message"
             onClick={() => {
               void navigator.clipboard
-                ?.writeText(text)
+                ?.writeText(agentMentionPlainText(text))
                 .then(() => {
                   setCopied(true);
                   setTimeout(() => setCopied(false), 1500);
@@ -138,7 +159,7 @@ export const UserMessage = ({
             )}
           </Button>
         )}
-        {text && !editing && (
+        {(text || hasFiles) && !editing && (
           <Button
             ref={editButtonRef}
             type="button"
@@ -153,7 +174,7 @@ export const UserMessage = ({
             }
             disabled={disabled}
             onClick={() => {
-              setDraft(text);
+              setDraft(draftMentions.load(text));
               onEditingChange(message.id);
             }}
           >

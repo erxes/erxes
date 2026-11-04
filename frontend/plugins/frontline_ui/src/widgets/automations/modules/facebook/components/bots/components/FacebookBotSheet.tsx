@@ -33,7 +33,7 @@ export const FacebookBotSheet = ({
   // The trigger, rendered through `Sheet.Trigger asChild`.
   children: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [openBotId, setOpenBotId] = useQueryState<string>('botId');
   // A bot that does not exist yet is addressed by its page instead, so both
   // cases survive a reload or the browser's back button.

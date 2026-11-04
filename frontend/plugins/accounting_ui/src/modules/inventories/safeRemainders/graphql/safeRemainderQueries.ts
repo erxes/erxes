@@ -1,9 +1,10 @@
 import { gql } from '~/gql';
 
 export const SAFE_REMAINDERS_QUERY = gql(`
-query accountingSafeRemainders($searchValue: String, $departmentId: String, $branchId: String, $beginDate: Date, $endDate: Date, $productId: String, $createdUserId: String, $modifiedUserId: String, $createdStartDate: Date, $createdEndDate: Date, $updatedStartDate: Date, $updatedEndDate: Date, $page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
+query accountingSafeRemainders($searchValue: String, $statuses: [String], $departmentId: String, $branchId: String, $beginDate: Date, $endDate: Date, $productId: String, $createdUserId: String, $modifiedUserId: String, $createdStartDate: Date, $createdEndDate: Date, $updatedStartDate: Date, $updatedEndDate: Date, $page: Int, $perPage: Int, $sortField: String, $sortDirection: Int) {
   safeRemainders(
     searchValue: $searchValue
+    statuses: $statuses
     departmentId: $departmentId
     branchId: $branchId
     beginDate: $beginDate

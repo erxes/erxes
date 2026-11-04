@@ -15,6 +15,7 @@ import { createProxyMiddleware } from 'http-proxy-middleware';
 
 import { retryGetProxyTargets } from '~/proxy/targets';
 import { startRouter, stopRouter } from '~/apollo-router';
+import { csrfMiddleware } from '~/middlewares/csrfMiddleware';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
@@ -154,6 +155,7 @@ app.use(async (req, res, next) => {
   return cors(corsOptions)(req, res, next);
 });
 
+app.use(csrfMiddleware(corsOptions.origin.filter(Boolean)));
 app.use(userMiddleware);
 
 app.use('/bullmq-board', serverAdapter.getRouter());

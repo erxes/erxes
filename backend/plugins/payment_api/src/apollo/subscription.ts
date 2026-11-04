@@ -3,7 +3,6 @@ export default {
   name: 'payment',
   typeDefs: `
         invoiceUpdated(_id: String!): JSON
-        invoiceScanned: JSON
         transactionUpdated(invoiceId: String!): JSON
 	`,
   generateResolvers: (graphqlPubsub) => {
@@ -11,11 +10,6 @@ export default {
       invoiceUpdated: {
         subscribe: (_, { _id }) =>
           graphqlPubsub.asyncIterator(`invoiceUpdated:${_id}`),
-      },
-
-      invoiceScanned: {
-        subscribe: () =>
-          graphqlPubsub.asyncIterator('invoiceScanned'),
       },
 
       transactionUpdated: {

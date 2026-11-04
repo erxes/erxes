@@ -23,6 +23,7 @@ export const AGENT_REFERENCE_TYPES = [
   'brand',
   'deal',
   'conversation',
+  'automation',
 ] as const;
 
 export type IAgentReferenceType = (typeof AGENT_REFERENCE_TYPES)[number];
@@ -107,6 +108,7 @@ const LABEL_PICKERS: Record<
 
     return content ? content.slice(0, CONVERSATION_SNIPPET_LENGTH) : undefined;
   },
+  automation: (doc) => stringField(doc, 'name'),
 };
 
 /**
@@ -234,8 +236,9 @@ export const issueAgentReferences = (
 } => {
   const items: IAgentsIssuedReference[] = [];
   for (const token of tokens.slice(0, MAX_REFERENCES)) {
-    const match =
-      /^\[\[([a-z]+):([A-Za-z0-9_-]{1,64}):([^[\]\r\n]+)\]\]$/.exec(token);
+    const match = /^\[\[([a-z]+):([A-Za-z0-9_-]{1,64}):([^[\]\r\n]+)\]\]$/.exec(
+      token,
+    );
     if (!match || (!isAgentReferenceType(match[1]) && match[1] !== 'page'))
       continue;
     const type = match[1] as IAgentsIssuedReference['type'];

@@ -131,7 +131,7 @@ export const fieldsCombinedByContentType = async (
       selectOptions: generateSelectOptions(customField.options),
       validations: customField.validations,
       type: customField.type,
-      group: group._id,
+      group: group?._id,
       code: customField.code,
       fieldId: customField._id,
       groupDetail: group

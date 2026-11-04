@@ -12,6 +12,23 @@ import {
 } from './zodTypes';
 import { IAutomationExecution } from './definitions';
 import type { TKnowledgeDocument } from '../../utils/knowledge';
+import type {
+  TAutomationConfigSchema,
+  TAutomationConfigValidator,
+  TAutomationJsonSchema,
+} from './configSchema';
+
+export type TAutomationNodeConfigContract = {
+  /**
+   * What the engine reads from this node's config. It stays in the declaring
+   * service, which validates against it; only configJsonSchema is published.
+   */
+  configSchema?: TAutomationConfigSchema;
+  /** Tenant-data rules for the same config; never leaves the declaring service. */
+  validateConfig?: TAutomationConfigValidator;
+  /** Published form of configSchema, filled by transport; never set by hand. */
+  configJsonSchema?: TAutomationJsonSchema;
+};
 
 export type IAutomationContext = {
   subdomain: string;
@@ -108,7 +125,7 @@ export type TAutomationTriggerActionInputs = Record<
   Record<string, string>
 >;
 
-export type IAutomationsTriggerConfig = {
+export type IAutomationsTriggerConfig = TAutomationNodeConfigContract & {
   type?: string;
   moduleName?: string;
   collectionName?: string;
@@ -200,7 +217,10 @@ export type TAutomationActionPlacement = {
   accepts?: TAutomationActionContribution[];
 };
 
-export type IAutomationsActionConfig = TAutomationActionPlacement & {
+type TAutomationActionNode = TAutomationActionPlacement &
+  TAutomationNodeConfigContract;
+
+export type IAutomationsActionConfig = TAutomationActionNode & {
   type?: string;
   moduleName?: string;
   collectionName?: string;
@@ -633,6 +653,7 @@ export enum TAutomationProducers {
   GENERATE_AI_CONTEXT = 'generateAiContext',
   LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
   LOOKUP_AI_TOOL = 'lookupAiTool',
+  VALIDATE_CONFIGS = 'validateConfigs',
 }
 
 export enum TAutomationActionFolks {

@@ -9,7 +9,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useUpdateTicket = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const [_updateTicket, { loading, error }] = useMutation(
     UPDATE_TICKET_MUTATION,

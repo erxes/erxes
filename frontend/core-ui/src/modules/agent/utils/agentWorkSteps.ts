@@ -8,10 +8,13 @@ type TUIPart = UIMessage['parts'][number];
 // Local predicates instead of the `ai` package's is*UIPart helpers: `ai`
 // is ESM-only and the module would pull it into every consumer (including
 // jest, which runs CJS) for three one-line checks.
-const isReasoningPart = (part: TUIPart): part is TUIPart & { text: string } =>
-  part.type === 'reasoning';
+export const isReasoningPart = (
+  part: TUIPart,
+): part is TUIPart & { text: string } => part.type === 'reasoning';
 
-const isToolPart = (part: TUIPart): part is DynamicToolUIPart | ToolUIPart =>
+export const isToolPart = (
+  part: TUIPart,
+): part is DynamicToolUIPart | ToolUIPart =>
   part.type === 'dynamic-tool' || part.type.startsWith('tool-');
 
 /** Normalized view of one tool part (live stream or mapped history). */
@@ -36,10 +39,6 @@ export interface IAgentToolStepEntry {
 }
 
 export type TAgentWorkStep = IAgentReasoningStep | IAgentToolStepEntry;
-
-export type TAgentTranscriptItem =
-  | { kind: 'work'; steps: TAgentWorkStep[] }
-  | { kind: 'part'; part: UIMessage['parts'][number]; index: number };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -84,6 +83,36 @@ const summarizeGraphqlCall = (
     return null;
   }
 };
+
+/**
+ * Translates one fixed label (`agent.<key>`), falling back to its English
+ * text. Pure callers without i18n get the English default.
+ */
+export type TAgentLabelTranslate = (key: string, defaultValue: string) => string;
+
+const inEnglish: TAgentLabelTranslate = (_key, defaultValue) => defaultValue;
+
+/**
+ * A `callGraphql` query that only reads the API schema (`__type`,
+ * `__schema`): the agent checking which fields exist, not workspace data.
+ */
+const isSchemaLookupCall = (toolName: string, input: unknown): boolean => {
+  if (toolName !== 'callGraphql' || !isRecord(input)) {
+    return false;
+  }
+
+  const summary = summarizeGraphqlCall(input);
+
+  return Boolean(
+    summary?.operation === 'query' &&
+      summary.fields.length > 0 &&
+      summary.fields.every((field) => field.startsWith('__')),
+  );
+};
+
+/** Schema look-up steps share one plain label and collapse into one step. */
+export const isSchemaLookupStep = (step: TAgentWorkStep): boolean =>
+  step.kind === 'tool' && isSchemaLookupCall(step.tool.toolName, step.tool.input);
 
 const graphqlCallLabel = (input: Record<string, unknown>): string => {
   const summary = summarizeGraphqlCall(input);
@@ -134,11 +163,11 @@ const toolNameOf = (part: TUIPart): string =>
     : part.type.slice('tool-'.length);
 
 /**
- * Parts rendered as their own cards — pending approvals and ask_user
- * suspensions/results — are never folded into a work-steps group, so a
- * group stops right before them and they surface on their own.
+ * Parts rendered as their own cards — pending approvals, ask_user
+ * suspensions/results and file cards — are never folded into the turn's
+ * work timeline; they surface on their own in the response body.
  */
-const isStandalonePart = (part: TUIPart): boolean => {
+export const isStandalonePart = (part: TUIPart): boolean => {
   if (isToolPart(part)) {
     const name = toolNameOf(part);
 
@@ -154,60 +183,27 @@ const isStandalonePart = (part: TUIPart): boolean => {
   return false;
 };
 
-/**
- * Groups an assistant message's parts for the compact transcript:
- * every contiguous run of reasoning + tool parts becomes one collapsible
- * "work" item; text, data, file and standalone tool parts keep their own
- * slots so rendering order is preserved.
- */
-export const groupAgentWorkSteps = (
-  parts: UIMessage['parts'],
-): TAgentTranscriptItem[] => {
-  const items: TAgentTranscriptItem[] = [];
-  let steps: TAgentWorkStep[] = [];
+/** Timeline entry for one work part, or null for any other part. */
+export const toAgentWorkStep = (part: TUIPart): TAgentWorkStep | null => {
+  if (isReasoningPart(part)) {
+    return { kind: 'reasoning', text: part.text };
+  }
 
-  const flush = () => {
-    if (steps.length) {
-      items.push({ kind: 'work', steps });
-      steps = [];
-    }
-  };
+  if (isToolPart(part) && !isStandalonePart(part)) {
+    return {
+      kind: 'tool',
+      tool: {
+        toolCallId: part.toolCallId,
+        toolName: toolNameOf(part),
+        state: part.state,
+        input: part.input,
+        output: 'output' in part ? part.output : undefined,
+        errorText: 'errorText' in part ? part.errorText : undefined,
+      },
+    };
+  }
 
-  parts.forEach((part, index) => {
-    // Step boundaries mark where one model step ends and the next begins —
-    // they carry no renderable content, so they neither flush the group
-    // nor appear as their own item.
-    if (part.type === 'step-start') {
-      return;
-    }
-
-    if (isReasoningPart(part)) {
-      steps.push({ kind: 'reasoning', text: part.text });
-      return;
-    }
-
-    if (isToolPart(part) && !isStandalonePart(part)) {
-      steps.push({
-        kind: 'tool',
-        tool: {
-          toolCallId: part.toolCallId,
-          toolName: toolNameOf(part),
-          state: part.state,
-          input: part.input,
-          output: 'output' in part ? part.output : undefined,
-          errorText: 'errorText' in part ? part.errorText : undefined,
-        },
-      });
-      return;
-    }
-
-    flush();
-    items.push({ kind: 'part', part, index });
-  });
-
-  flush();
-
-  return items;
+  return null;
 };
 
 const singularize = (noun: string): string =>
@@ -269,10 +265,17 @@ const readFileName = (url: string): string => {
   }
 };
 
-/** Display label for one work-steps row. */
-export const agentStepLabel = (step: TAgentWorkStep): string => {
+/** Display label for one timeline step. */
+export const agentStepLabel = (
+  step: TAgentWorkStep,
+  t: TAgentLabelTranslate = inEnglish,
+): string => {
   if (step.kind === 'reasoning') {
     return 'Thought';
+  }
+
+  if (isSchemaLookupStep(step)) {
+    return t('schema-checked', 'Checked the API schema');
   }
 
   const { tool } = step;
@@ -331,45 +334,43 @@ export const agentStepLabel = (step: TAgentWorkStep): string => {
   return `Ran ${tool.toolName}`;
 };
 
-/** The newest meaningful part owns the turn's single live activity label. */
-export const agentMessageActivity = (parts: UIMessage['parts']): string => {
-  for (let index = parts.length - 1; index >= 0; index -= 1) {
-    const part = parts[index];
-    if (part.type === 'text' && 'text' in part && part.text.trim())
-      return 'Writing…';
-    if (isReasoningPart(part)) return 'Thinking…';
-    if (!isToolPart(part)) continue;
-    if (part.state !== 'input-streaming' && part.state !== 'input-available')
-      return 'Working…';
-    const name = toolNameOf(part);
-    const input = isRecord(part.input) ? part.input : {};
-    switch (name) {
-      case 'createArtifact':
-        return 'Creating file…';
-      case 'searchTools':
-      case 'searchGraphql':
-        return 'Searching workspace…';
-      case 'findPages':
-        return 'Finding a page…';
-      case 'readFile':
-        return typeof input.url === 'string'
-          ? `Reading ${readFileName(input.url)}`
-          : 'Reading file…';
-      case 'execute_typescript':
-        return 'Running code…';
-      case 'callGraphql': {
-        const summary = summarizeGraphqlCall(input);
-        return summary?.fields.length
-          ? `${
-              summary.operation === 'mutation' ? 'Running' : 'Querying'
-            } ${summary.fields.join(', ')}`
-          : 'Looking up workspace data…';
-      }
-      case 'askUser':
-        return 'Preparing a question…';
-      default:
-        return 'Working…';
-    }
+/** Live activity label for a tool call that is still running. */
+export const agentToolActivity = (
+  part: DynamicToolUIPart | ToolUIPart,
+  t: TAgentLabelTranslate = inEnglish,
+): string => {
+  const input = isRecord(part.input) ? part.input : {};
+  const toolName = toolNameOf(part);
+
+  if (isSchemaLookupCall(toolName, input)) {
+    return t('schema-checking', 'Checking the API schema…');
   }
-  return 'Working…';
+
+  switch (toolName) {
+    case 'createArtifact':
+      return 'Creating file…';
+    case 'searchTools':
+    case 'searchGraphql':
+      return 'Searching workspace…';
+    case 'findPages':
+      return 'Finding a page…';
+    case 'readFile':
+      return typeof input.url === 'string'
+        ? `Reading ${readFileName(input.url)}`
+        : 'Reading file…';
+    case 'execute_typescript':
+      return 'Running code…';
+    case 'callGraphql': {
+      const summary = summarizeGraphqlCall(input);
+      return summary?.fields.length
+        ? `${
+            summary.operation === 'mutation' ? 'Running' : 'Querying'
+          } ${summary.fields.join(', ')}`
+        : 'Looking up workspace data…';
+    }
+    case 'askUser':
+      return 'Preparing a question…';
+    default:
+      return 'Working…';
+  }
 };

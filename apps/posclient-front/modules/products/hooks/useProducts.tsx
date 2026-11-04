@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import {
   activeCategoryAtom,
+  isSimilarityModeAtom,
   modeAtom,
   productCountAtom,
   searchAtom,
@@ -51,11 +52,7 @@ export const useProducts = (props?: {
   const mode = useAtomValue(modeAtom)
 
   const isKiosk = mode === "kiosk"
-  // Main-family layouts and coffee-shop always collapse bulk-similarity groups
-  // to their starred product, including while searching.
-  const isMainList = ["main", "restaurant", "mobile", "coffee-shop"].includes(
-    mode
-  )
+  const isSimilarityTheme = useAtomValue(isSimilarityModeAtom)
 
   const { data, loading, fetchMore } = useQuery(queries.products, {
     variables: {
@@ -71,7 +68,7 @@ export const useProducts = (props?: {
       sortDirection,
       searchValue: searchValue,
       page: 1,
-      isSimilarity: isMainList ? true : undefined,
+      isSimilarity: isSimilarityTheme ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     skip,
@@ -90,7 +87,7 @@ export const useProducts = (props?: {
       maxDiscountPercent,
       discountConditions,
       searchValue,
-      isSimilarity: isMainList ? true : undefined,
+      isSimilarity: isSimilarityTheme ? true : undefined,
       isKiosk: isKiosk ? true : undefined,
     },
     onCompleted(data) {

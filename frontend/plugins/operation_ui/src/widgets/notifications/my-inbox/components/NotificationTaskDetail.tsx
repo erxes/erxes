@@ -3,19 +3,20 @@ import { isRecord } from '@/operation/utils/isRecord';
 import { TaskDetails } from '@/task/components/detail/TaskDetails';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
-import { FocusSheet } from 'erxes-ui';
+import { FocusSheet, ScrollArea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { TaskSideWidgets } from '~/widgets/relation/TaskSideWidgets';
 import { NotificationOpenButton } from '~/widgets/notifications/my-inbox/components/NotificationOpenButton';
 import { useScrollViewportHeight } from '~/widgets/notifications/my-inbox/hooks/useScrollViewportHeight';
 
+/** Renders task or triage details with scrollable content and fixed side widgets. */
 export const NotificationTaskDetail = ({
   contentTypeId,
 }: NotificationTaskDetailProps) => {
   const { t } = useTranslation('operation');
   const { task, loading: loadingTask } = useGetTask(contentTypeId);
   const { triage } = useGetTriage(contentTypeId, {
-    skip: loadingTask || !!task,
+    skip: loadingTask || Boolean(task),
   });
   const { ref, height } = useScrollViewportHeight();
   const sideContentId = task?._id ?? triage?._id;
@@ -27,12 +28,20 @@ export const NotificationTaskDetail = ({
   }
 
   return (
-    <div ref={ref} className="flex w-full lg:min-h-full">
-      <div className="min-w-0 flex-1">
+    <div
+      ref={ref}
+      className="flex h-full min-h-0 w-full overflow-hidden"
+      style={{ height }}
+    >
+      <ScrollArea
+        key={contentTypeId}
+        className="min-w-0 flex-1"
+        viewportClassName="[&>div]:block!"
+      >
         <div className="mx-auto w-full p-6 xl:max-w-3xl">
           <TaskDetails
             taskId={contentTypeId}
-            checkTriage={true}
+            checkTriage
             titleAction={
               openTo && (
                 <NotificationOpenButton to={openTo}>
@@ -44,17 +53,14 @@ export const NotificationTaskDetail = ({
             }
           />
         </div>
-      </div>
-      {sideContentId && !!height && (
-        <div
-          className="sticky top-0 flex shrink-0 self-start"
-          style={{ height }}
-        >
+      </ScrollArea>
+      {sideContentId && Boolean(height) && (
+        <div className="flex h-full shrink-0">
           <FocusSheet>
             <TaskSideWidgets
               contentId={sideContentId}
-              customerId={task?.customerId}
-              companyId={task?.companyId}
+              customerId={task?.customerId ?? triage?.customerId}
+              companyId={task?.companyId ?? triage?.companyId}
               propertiesData={
                 task?.propertiesData && isRecord(task.propertiesData)
                   ? task.propertiesData

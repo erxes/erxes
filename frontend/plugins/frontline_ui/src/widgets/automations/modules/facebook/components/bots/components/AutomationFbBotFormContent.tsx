@@ -33,7 +33,7 @@ export const AutomationFbBotFormContent = ({
   // The page came from the caller, so the selector and its gate are dropped.
   isPageFixed?: boolean;
 } = {}) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { form, facebookMessengerBot } = useFbBotFormContext();
   const [activeTab, setActiveTab] = useAtom(facebookBotFormTabState);
   const { onSave, onSaveloading } = useFacebookBotSave(
@@ -139,7 +139,7 @@ const FbBotFormSecondarySheet = ({
   accountId: string;
   pageId: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [isOpenAccountSheet, setOpenAccountSheet] = useAtom(
     isOpenFacebookBotSecondarySheet,
   );

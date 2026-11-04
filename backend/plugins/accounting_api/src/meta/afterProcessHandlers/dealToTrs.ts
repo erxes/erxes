@@ -58,7 +58,9 @@ export const dealToTrs = async ({
     (pd) => pd.tickUsed && pd.quantity,
   );
   if (!activeProductsData?.length) {
-    return;
+    throw new Error(
+      'Deal has no selected products with quantity to sync to accounting.',
+    );
   }
 
   let mainId = nanoid();

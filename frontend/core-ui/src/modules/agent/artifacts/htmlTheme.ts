@@ -6,6 +6,9 @@ export const HTML_THEME_DEFAULTS = {
   'muted-foreground': '#71717a',
   border: '#e4e4e7',
   primary: '#635bdf',
+  'primary-foreground': '#ffffff',
+  success: '#16a34a',
+  destructive: '#dc2626',
 } as const;
 
 const protectedTokens = new Set(
@@ -84,11 +87,50 @@ const normalizeRules = (rules: CSSRuleList) => {
   }
 };
 
+const NUMERIC_CELL =
+  /^[-+−(]?\s*(?:[A-Z]{3}\s?|[₮$€£¥])?\s*[-+−]?\d[\d.,\s\u00a0\u202f]*(?:[kKMB]|bn)?\s*(?:%|pp|pts?|[A-Z]{3}|[₮$€£¥])?\)?$/u;
+const EMPTY_CELL = /^(?:[-–—]|n\/a)?$/i;
+
+/** Right-align columns of figures (after the label column) so values line up. */
+const alignNumericColumns = (document: Document) => {
+  for (const table of Array.from(document.querySelectorAll('table'))) {
+    if (
+      table.querySelector(
+        '[colspan]:not([colspan="1"]), [rowspan]:not([rowspan="1"])',
+      )
+    )
+      continue;
+    const rows = Array.from(table.rows);
+    const body = rows.filter(
+      (row) =>
+        row.parentElement?.tagName !== 'THEAD' &&
+        Array.from(row.cells).some((cell) => cell.tagName === 'TD'),
+    );
+    const width = Math.max(0, ...rows.map((row) => row.cells.length));
+    for (let column = 1; column < width; column++) {
+      const values = body
+        .map((row) => row.cells[column]?.textContent?.trim() ?? '')
+        .filter((text) => !EMPTY_CELL.test(text));
+      if (!values.length || !values.every((text) => NUMERIC_CELL.test(text)))
+        continue;
+      for (const row of rows) row.cells[column]?.classList.add('agent-num');
+    }
+  }
+};
+
 /** Run once per content update, before the browser paints the refreshed frame. */
 export const applyHtmlThemePolicy = (document: Document) => {
+  // Renderer styles are trusted; sanitized model markup cannot carry the marker.
+  const rendererSheets = new Set(
+    Array.from(
+      document.querySelectorAll<HTMLStyleElement>('style[data-agent-renderer]'),
+      (style) => style.sheet,
+    ),
+  );
   for (const sheet of Array.from(document.styleSheets)) {
-    normalizeRules(sheet.cssRules);
+    if (!rendererSheets.has(sheet)) normalizeRules(sheet.cssRules);
   }
+  alignNumericColumns(document);
   for (const element of Array.from(
     document.querySelectorAll<HTMLElement | SVGElement>('[style]'),
   )) {

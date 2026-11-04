@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import { Cell } from '@tanstack/table-core';
 import { IAdjustClosing } from '../types/AdjustClosing';
-import { useSearchParams } from 'react-router';
 import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { IconEdit } from '@tabler/icons-react';
+import { ADJUST_CLOSING_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 export const AdjustClosingMoreColumnCell = ({
   cell,
@@ -11,14 +12,8 @@ export const AdjustClosingMoreColumnCell = ({
   cell: Cell<IAdjustClosing, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { openDetail } = useSettingsPanel(ADJUST_CLOSING_CONTENT_TYPE);
   const { _id } = cell.row.original;
-
-  const setOpen = (adjustClosingId: string) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('adjustClosingId', adjustClosingId);
-    setSearchParams(newSearchParams);
-  };
 
   return (
     <Popover>
@@ -28,7 +23,7 @@ export const AdjustClosingMoreColumnCell = ({
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item value="edit" onSelect={() => setOpen(_id)}>
+            <Command.Item value="edit" onSelect={() => openDetail(_id)}>
               <IconEdit /> {t('edit')}
             </Command.Item>
           </Command.List>

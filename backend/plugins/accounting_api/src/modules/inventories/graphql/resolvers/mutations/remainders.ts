@@ -1,32 +1,37 @@
+import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
+import { IUpdateRemaindersParams } from '~/modules/inventories/@types/safeRemainders';
 import { updateLiveRemainders } from './utils';
 
-interface IUpdateRemaindersParams {
-  departmentId?: string;
-  branchId?: string;
-  productCategoryId?: string;
-  productIds?: string[];
-}
+const getLocationIds = async (
+  subdomain: string,
+  module: 'branches' | 'departments',
+  id?: string,
+): Promise<string[]> => {
+  if (id) return [id];
+  const locations: { _id: string }[] = await sendTRPCMessage({
+    subdomain,
+    pluginName: 'core',
+    module,
+    action: 'find',
+    input: { query: {}, fields: { _id: 1 } },
+    defaultValue: [],
+  });
+  return ['_', ...locations.map((location) => location._id)];
+};
 
-const remainderMutations = {
+export const remainderMutations = {
   reCalcRemainders: async (
-    _root: any,
+    _root: unknown,
     params: IUpdateRemaindersParams,
-    { subdomain, models }: IContext,
-  ) => {
-    const { departmentId, branchId, productCategoryId, productIds } = params;
-    if (
-      !departmentId &&
-      !branchId &&
-      !productCategoryId &&
-      !productIds?.length
-    ) {
-      throw new Error('Please set at least one filter.');
-    }
-
-    const branchIds: string[] = [branchId || '_'];
-    const departmentIds: string[] = [departmentId || '_'];
-
+    { subdomain, models, user }: IContext,
+  ): Promise<string> => {
+    if (!user?._id) throw new Error('Login required');
+    const { branchId, departmentId, productCategoryId, productIds } = params;
+    const [branchIds, departmentIds] = await Promise.all([
+      getLocationIds(subdomain, 'branches', branchId),
+      getLocationIds(subdomain, 'departments', departmentId),
+    ]);
     const BATCH_SIZE = 10;
     const tasks: Promise<void>[] = [];
 
@@ -42,22 +47,13 @@ const remainderMutations = {
             productIds,
           }),
         );
-
-        // Process in batches to avoid overwhelming the database
         if (tasks.length >= BATCH_SIZE) {
           await Promise.all(tasks);
           tasks.length = 0;
         }
       }
     }
-
-    // Process remaining tasks
-    if (tasks.length > 0) {
-      await Promise.all(tasks);
-    }
-
+    if (tasks.length) await Promise.all(tasks);
     return 'success';
   },
 };
-
-export default remainderMutations;

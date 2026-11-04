@@ -220,7 +220,6 @@ const mutationParams = `
   isComplete: Boolean,
   priority: String,
   status: String,
-  sourceConversationIds: [String],
   propertiesData: JSON,
   tagIds: [String],
   branchIds: [String],

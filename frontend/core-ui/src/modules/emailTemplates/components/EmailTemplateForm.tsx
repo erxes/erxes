@@ -5,6 +5,7 @@ import { EmailTemplatesBreadcrumb } from '@/emailTemplates/components/EmailTempl
 import { useEmailTemplateDetail } from '@/emailTemplates/hooks/useEmailTemplateDetail';
 import { useEmailTemplateMutations } from '@/emailTemplates/hooks/useEmailTemplateMutations';
 import { emailTemplateFormat } from '@/emailTemplates/types';
+import { uploadEmailImage } from '@/emailTemplates/utils/uploadEmailImage';
 import { EmailTemplatePath } from '@/types/paths/EmailTemplatePath';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconDeviceFloppy, IconEye, IconEyeOff } from '@tabler/icons-react';
@@ -19,8 +20,6 @@ import {
   JSONContent,
   PageSubHeader,
   Popover,
-  readImage,
-  REACT_APP_API_URL,
   renderEmailHtml,
   Spinner,
   Textarea,
@@ -40,29 +39,6 @@ const emailTemplateFormSchema = z.object({
 });
 
 type TEmailTemplateForm = z.infer<typeof emailTemplateFormSchema>;
-
-const uploadEmailTemplateImage = async (file: File) => {
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Only image files can be uploaded');
-  }
-
-  const formData = new FormData();
-  formData.append('file', file);
-
-  const response = await fetch(`${REACT_APP_API_URL}/upload-file?kind=main`, {
-    method: 'post',
-    body: formData,
-    credentials: 'include',
-  });
-
-  const fileKey = await response.text();
-
-  if (!response.ok || !fileKey) {
-    throw new Error(fileKey || 'Failed to upload image');
-  }
-
-  return readImage(fileKey);
-};
 
 /**
  * A template is written in whichever editor made it: new ones in the email
@@ -104,7 +80,7 @@ export const EmailTemplateForm = ({ templateId }: { templateId?: string }) => {
 
   const format = isEditing ? emailTemplateFormat(emailTemplate) : 'maily';
 
-  const editor = useBlockEditor({ uploadFile: uploadEmailTemplateImage });
+  const editor = useBlockEditor({ uploadFile: uploadEmailImage });
   const { additionalSlashMenuItems, documentPlaceholderPicker } =
     useEmailDocumentPlaceholder({ editor });
 

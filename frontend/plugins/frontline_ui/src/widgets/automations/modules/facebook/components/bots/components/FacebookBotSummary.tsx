@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useFacebookBotHealthCell } from '~/widgets/automations/modules/facebook/components/bots/hooks/useFacebookBotHealthCell';
 
 export const FacebookBotSummary = ({ bot }: { bot?: IFacebookBot }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { statusLabel, statusVariant } = useFacebookBotHealthCell(bot?.health);
 
   if (!bot) {

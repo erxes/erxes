@@ -71,12 +71,19 @@ export const FormSubmissions = () => {
       skip: !formId,
     });
 
-  const { formDetail } = useFormDetail({ formId: formId || '' });
+  const {
+    formDetail,
+    loading: fieldsLoading,
+    error: fieldsError,
+    refetch: refetchFields,
+  } = useFormDetail({
+    formId: formId || '',
+  });
 
-  if (loading) {
+  if (loading || fieldsLoading) {
     return <Spinner className="py-32" />;
   }
-  if (error) {
+  if (error || fieldsError || !formDetail) {
     return (
       <Empty className="bg-sidebar rounded-lg m-3">
         <Empty.Header>
@@ -92,7 +99,7 @@ export const FormSubmissions = () => {
           <Button
             variant="outline"
             onClick={() => {
-              refetch();
+              void Promise.allSettled([refetch(), refetchFields()]);
             }}
           >
             {t('try-again', 'Try Again')}
@@ -130,6 +137,7 @@ export const FormSubmissions = () => {
   }
   return (
     <SubmissionsTable
+      fields={formDetail?.fields ?? []}
       submissions={submissions}
       loading={loading}
       hasPreviousPage={pageInfo?.hasPreviousPage}

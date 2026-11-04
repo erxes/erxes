@@ -9,6 +9,7 @@ import { createContext, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ResponsesChartType, ResponsesChartTypeOption } from '../../types';
 import { RESPONSES_CHART_TYPE_OPTIONS } from '../../constants/modules';
+import { useFrontlineCardTitle } from '../frontline-card/FrontlineCard';
 
 interface ChartSelectContextType {
   value: ResponsesChartType;
@@ -127,8 +128,9 @@ const SelectChartRoot = ({
   onValueChange: (value: ResponsesChartType) => void;
   hideCircularCharts?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [open, setOpen] = useState(false);
+  const title = useFrontlineCardTitle();
   return (
     <SelectChartProvider
       value={value}
@@ -137,7 +139,13 @@ const SelectChartRoot = ({
       hideCircularCharts={hideCircularCharts}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <Popover.Trigger className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out">
+        <Popover.Trigger
+          aria-label={t('chart-type-for', {
+            title,
+            defaultValue: 'Chart type for {{title}}',
+          })}
+          className="bg-background rounded px-2 shadow-xs hover:bg-accent cursor-pointer transition-all duration-200 hover:text-primary/80 ease-in-out"
+        >
           <SelectChartValue placeholder={t('select-chart', 'Select chart')} />
         </Popover.Trigger>
         <Combobox.Content sideOffset={8} onClick={(e) => e.stopPropagation()}>

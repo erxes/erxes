@@ -20,7 +20,9 @@ const BOT_STATUS_VARIANTS = {
 export const useFacebookBotHealthCell = (
   health?: IFacebookBotHealth | null,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.facebook',
+  });
   const status = health?.status || 'unknown';
   const statusLabel = t(
     BOT_STATUS_LABELS[status as keyof typeof BOT_STATUS_LABELS] ||

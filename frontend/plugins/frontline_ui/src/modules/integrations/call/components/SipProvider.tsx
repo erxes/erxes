@@ -7,6 +7,7 @@ import React, {
   useMemo,
 } from 'react';
 import * as JsSIP from 'jssip';
+import type { IceCandidateEvent } from 'jssip/lib/RTCSession';
 import {
   SipErrorTypeEnum,
   SipStatusEnum,
@@ -32,6 +33,8 @@ import {
 import { callNumberState } from '@/integrations/call/states/callWidgetStates';
 import { historyIdAtom } from '@/integrations/call/states/callStates';
 
+const ICE_GATHERING_SETTLE_MS = 1000;
+
 // Context for SIP functionality
 const SipContext = createContext<SipContextValue | null>(null);
 
@@ -49,7 +52,9 @@ const SipProvider = ({
   debug = false,
   children,
 }: SipProviderProps & { children: React.ReactNode }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callInfo] = useAtom(callInfoAtom);
   const setCallNumber = useSetAtom(callNumberState);
   // State
@@ -459,6 +464,23 @@ const SipProvider = ({
         }
 
         setRtcSessionState(rtcSession);
+
+        let iceGatheringTimer: ReturnType<typeof setTimeout> | null = null;
+
+        rtcSession.on(
+          'icecandidate',
+          ({ candidate, ready }: IceCandidateEvent) => {
+            if (iceGatheringTimer) {
+              clearTimeout(iceGatheringTimer);
+              iceGatheringTimer = null;
+            }
+            if (candidate.type === 'relay') {
+              ready();
+              return;
+            }
+            iceGatheringTimer = setTimeout(ready, ICE_GATHERING_SETTLE_MS);
+          },
+        );
 
         let direction = CallDirectionEnum.OUTGOING;
         let customerPhone = '';

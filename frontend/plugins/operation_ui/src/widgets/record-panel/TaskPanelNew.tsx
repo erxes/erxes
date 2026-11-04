@@ -249,7 +249,7 @@ export const TaskPanelNew = () => {
               }
             />
           </PanelFormRow>
-          <PanelFormRow label={t('customers', 'Customers')}>
+          <PanelFormRow label={t('customer', 'Customer')}>
             <ContactsRelationField
               kind="customer"
               scope={`${SCOPE}.customer`}
@@ -257,7 +257,7 @@ export const TaskPanelNew = () => {
               onValueChange={(id) => set('customerId', id)}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('companies', 'Companies')}>
+          <PanelFormRow label={t('company', 'Company')}>
             <ContactsRelationField
               kind="company"
               scope={`${SCOPE}.company`}

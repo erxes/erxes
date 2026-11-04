@@ -42,14 +42,20 @@ export const ActivityTeam = ({
   const newTeam = teams?.find((team) => team._id === newValue);
 
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('changed-team-to')}
-      <Badge variant="secondary" className="flex-none">
+      <Badge
+        variant="secondary"
+        className="min-w-0 max-w-full [&_span]:truncate"
+      >
         <IconComponent name={newTeam?.icon ?? undefined} className="size-4" />
         {renderTeamValue(newValue ? [newValue] : [])}
       </Badge>
       {t('from')}
-      <Badge variant="secondary" className="flex-none">
+      <Badge
+        variant="secondary"
+        className="min-w-0 max-w-full [&_span]:truncate"
+      >
         <IconComponent
           name={previousTeam?.icon ?? undefined}
           className="size-4"

@@ -4,8 +4,10 @@ import { FieldPath } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useSegment } from '../../context/SegmentProvider';
 import { useSegmentNodeValue } from '../../hooks/useSegmentNodeValue';
+import { useSegmentPropertyTypes } from '../../hooks/useSegmentPropertyTypes';
 import { TNodePath, TSegmentForm } from '../../types';
 import { emptyCondition, TSegmentNode } from '../../types/segmentNode';
+import { SegmentConditionHeader } from './SegmentConditionHeader';
 import { SegmentGroup } from './SegmentGroup';
 
 export const SegmentRelationFilters = ({
@@ -19,6 +21,8 @@ export const SegmentRelationFilters = ({
 }) => {
   const { form } = useSegment();
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
+
+  const { propertyTypes } = useSegmentPropertyTypes(relatedType);
 
   const childPath = `${path}.child`;
   const child = useSegmentNodeValue<TSegmentNode>(childPath);
@@ -50,7 +54,7 @@ export const SegmentRelationFilters = ({
           type="button"
           onClick={open}
           title={t('filter-related', { label })}
-          className="relative shrink-0"
+          className="relative shrink-0 h-8 w-8"
         >
           <IconFilter />
           {count > 0 && (
@@ -64,7 +68,7 @@ export const SegmentRelationFilters = ({
           and the heading saying what is counted must not scroll away. */}
       <Popover.Content
         align="start"
-        className="w-[560px] p-3 flex flex-col max-h-[min(32rem,var(--radix-popover-content-available-height))]"
+        className="w-[min(720px,var(--radix-popover-content-available-width))] p-3 flex flex-col max-h-[min(32rem,var(--radix-popover-content-available-height))]"
       >
         <p className="text-sm text-muted-foreground pb-2 shrink-0">
           {t('only-count-where', { label: label.toLowerCase() })}
@@ -75,6 +79,9 @@ export const SegmentRelationFilters = ({
               path={`${path}.child`}
               contentType={relatedType}
               nested
+              header={
+                <SegmentConditionHeader withType={propertyTypes.length > 1} />
+              }
             />
           </div>
         )}

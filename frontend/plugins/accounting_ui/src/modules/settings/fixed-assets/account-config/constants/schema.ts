@@ -11,6 +11,13 @@ export const fixedAssetAccountConfigSchema = z.object({
   }),
 });
 
+export const FIXED_ASSET_RELATED_ACCOUNT_FIELDS = [
+  ['depreciationAccountId', 'accumulated-depreciation-offset-account'],
+  ['taxAssetAccountId', 'deferred-tax-asset-account'],
+  ['taxLiabilityAccountId', 'deferred-tax-liability-account'],
+  ['TaxExpenseAccountId', 'income-tax-expense-account'],
+] as const;
+
 export const FIXED_ASSET_ACCOUNT_CONFIG_DEFAULT_VALUES = {
   accountId: '',
   value: { accountId: '' },

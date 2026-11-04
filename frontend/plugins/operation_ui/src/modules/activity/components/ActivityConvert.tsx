@@ -15,9 +15,9 @@ export const ActivityConvertToProject = ({
   if (action !== ACTIVITY_ACTIONS.CONVERTED) return null;
 
   return (
-    <div className="inline-flex items-center gap-1">
+    <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
       {t('converted-task-to-project')}
-      <span className="font-bold">
+      <span className="min-w-0 max-w-full font-medium">
         <ProjectInline projectId={metadata?.newValue} />
       </span>
     </div>

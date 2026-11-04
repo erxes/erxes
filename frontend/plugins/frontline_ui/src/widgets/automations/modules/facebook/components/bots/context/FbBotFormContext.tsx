@@ -44,23 +44,15 @@ export const FbBotFormProvider = ({
   page?: TFacebookBotPage;
 }) => {
   const defaultValues = useMemo<DefaultValues<TFacebookBotForm>>(() => {
-    const persistentMenus = facebookMessengerBot?.persistentMenus?.length
-      ? facebookMessengerBot.persistentMenus
-          .filter(isDefined)
-          .map(({ _id, text, type, link }) => ({
-            _id: _id || generateAutomationElementId(),
-            text: type === 'back_button' ? text || 'Back' : text || '',
-            type: toMenuType(type),
-            link: link || '',
-          }))
-      : [
-          {
-            _id: generateAutomationElementId(),
-            text: 'Persistent Menu 1',
-            type: 'button' as const,
-            link: '',
-          },
-        ];
+    // An empty menu is a choice: nothing is filled in on the user's behalf.
+    const persistentMenus = (facebookMessengerBot?.persistentMenus || [])
+      .filter(isDefined)
+      .map(({ _id, text, type, link }) => ({
+        _id: _id || generateAutomationElementId(),
+        text: type === 'back_button' ? text || 'Back' : text || '',
+        type: toMenuType(type),
+        link: link || '',
+      }));
 
     if (
       facebookMessengerBot?.isEnabledBackBtn &&

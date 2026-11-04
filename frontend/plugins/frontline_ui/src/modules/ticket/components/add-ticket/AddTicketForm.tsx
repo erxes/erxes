@@ -47,7 +47,7 @@ export const AddTicketForm = ({
   // Customers / companies the ticket is created for; linked on the server.
   contacts?: { customerId?: string; companyId?: string };
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [channelId] = useQueryState<string>('channelId');
   const { toast } = useToast();
@@ -213,7 +213,7 @@ export const AddTicketForm = ({
                     {t('channels', 'Channels')}
                   </Form.Label>
                   <SelectChannel.FormItem
-                    label={t('channel', 'Channel')}
+                    label={t('channel')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -238,7 +238,7 @@ export const AddTicketForm = ({
                     {t('pipeline-label', 'Pipeline')}
                   </Form.Label>
                   <SelectPipeline.FormItem
-                    label={t('pipeline', 'Pipeline')}
+                    label={t('pipeline')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -263,7 +263,7 @@ export const AddTicketForm = ({
                     {t('status-label', 'Status')}
                   </Form.Label>
                   <SelectStatusTicket.FormItem
-                    label={t('status', 'Status')}
+                    label={t('status')}
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
                     form={form}

@@ -9,7 +9,7 @@ export const FacebookInputMessage = ({
   index,
   message,
 }: FacebookMessageProps<{ type: 'input' }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control, setValue } = useReplyMessageAction();
 
   const { value, type } = message?.input || {};

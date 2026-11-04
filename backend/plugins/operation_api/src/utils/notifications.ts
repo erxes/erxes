@@ -1,5 +1,6 @@
 import { sendNotification } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { TOperationNotificationEvent } from '~/meta/notifications';
 
 const getTitle = (contentType: string) => {
   if (contentType === 'task') {
@@ -81,6 +82,7 @@ export const createNotifications = async ({
   userIds,
   action,
   models,
+  event,
 }: {
   contentType: string;
   contentTypeId: string;
@@ -90,6 +92,7 @@ export const createNotifications = async ({
   userIds: string[];
   action: string;
   models: IModels;
+  event: TOperationNotificationEvent;
 }) => {
   sendNotification(subdomain, {
     title: getTitle(contentType),
@@ -102,6 +105,7 @@ export const createNotifications = async ({
     contentType: `operation:${contentType}`,
     contentTypeId,
     notificationType,
+    event,
     action,
     metadata: {
       contentTypeId,

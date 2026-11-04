@@ -133,7 +133,7 @@ const SelectStatusValue = ({
   placeholder?: string;
   className?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, statuses } = useSelectStatusContext();
   const selectedStatus = statuses?.find((status) => status.value === value);
 
@@ -163,7 +163,7 @@ const SelectStatusCommandItem = ({
 }: {
   status: ITicketStatusChoice;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { onValueChange, value, selectedValues, restrictToMovable } =
     useSelectStatusContext();
   const currentUser = useAtomValue(currentUserState);
@@ -211,7 +211,7 @@ const SelectStatusCreateForm = ({
   pipelineId: string;
   onBack: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { onValueChange, refetch } = useSelectStatusContext();
   const { addStatus, loading } = useAddTicketStatus();
   const form = useForm<TInlineStatusForm>({
@@ -239,7 +239,7 @@ const SelectStatusCreateForm = ({
   return (
     <Form {...form}>
       <SelectCreateContainer
-        title={t('create-status', 'Create status')}
+        title={t('create-status')}
         onBack={onBack}
         onSubmit={form.handleSubmit(onSubmit)}
         loading={loading}
@@ -250,7 +250,7 @@ const SelectStatusCreateForm = ({
           name="type"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label>{t('type', 'Type')}</Form.Label>
+              <Form.Label>{t('type')}</Form.Label>
               <Select
                 value={String(field.value)}
                 onValueChange={(value) => {
@@ -290,7 +290,7 @@ const SelectStatusContent = ({
   allowCreate?: boolean;
   onClear?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { statuses, pipelineId, loading, error, selectedValues } =
     useSelectStatusContext();
   const { hasActionPermission } = usePermissionCheck();
@@ -320,7 +320,7 @@ const SelectStatusContent = ({
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder={t('search-status', 'Search status')}
+        placeholder={t('search-status')}
       />
       {!loading && !error && !showCreate && (
         <Command.Empty>
@@ -347,7 +347,7 @@ const SelectStatusContent = ({
         {showCreate && (
           <SelectCreateCommandItem
             search={search}
-            label={t('create-new-status', 'Create new status')}
+            label={t('create-new-status')}
             onSelect={setNewName}
           />
         )}
@@ -444,7 +444,7 @@ export const SelectStatusTicketFilterBar = ({
   pipelineId?: string;
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [status, setStatus] = useQueryState<string>('statusId');
   const [open, setOpen] = useState(false);
 

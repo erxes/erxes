@@ -10,7 +10,7 @@ interface QueueCardProps {
 }
 
 export function QueueCard({ stat, label, hint }: QueueCardProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const answerRate = stat.answeredRate ?? 0;
 
   return (
@@ -50,8 +50,8 @@ export function QueueCard({ stat, label, hint }: QueueCardProps) {
           value={fmtNum(stat.abandonedCalls)}
           valueClass="text-[var(--neg)]"
         />
-        <Metric label="Avg wait" value={fmtDur(stat.averageWaitTime)} />
-        <Metric label="Avg talk" value={fmtDur(stat.averageTalkTime)} />
+        <Metric label={t('queue-avg-wait')} value={fmtDur(stat.averageWaitTime)} />
+        <Metric label={t('queue-avg-talk')} value={fmtDur(stat.averageTalkTime)} />
       </div>
 
       <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">

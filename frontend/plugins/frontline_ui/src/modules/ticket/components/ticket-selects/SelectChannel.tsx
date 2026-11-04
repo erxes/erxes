@@ -96,12 +96,13 @@ const SelectChannelProvider = ({
 };
 
 const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, channels } = useSelectChannelContext();
 
   if (!channels || channels?.length === 0 || !value?.length) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select channels'}
+        {placeholder || t('select-channels')}
       </span>
     );
   }
@@ -166,7 +167,7 @@ const SelectChannelCreateForm = ({
   name: string;
   onBack: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const { onValueChange, refetch } = useSelectChannelContext();
   const { addChannel, loading } = useChannelAdd();
@@ -184,14 +185,14 @@ const SelectChannelCreateForm = ({
     addChannel({
       variables: data,
       onCompleted: async ({ channelAdd }) => {
-        toast({ title: t('success', 'Success!'), variant: 'success' });
+        toast({ title: t('success'), variant: 'success' });
         await refetch();
         onBack();
         if (channelAdd) onValueChange(channelAdd._id);
       },
       onError: (error) =>
         toast({
-          title: t('error', 'Error'),
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -201,7 +202,7 @@ const SelectChannelCreateForm = ({
   return (
     <Form {...form}>
       <SelectCreateContainer
-        title={t('create-channel', 'Create channel')}
+        title={t('create-channel')}
         onBack={onBack}
         onSubmit={form.handleSubmit(onSubmit)}
         loading={loading}
@@ -213,7 +214,7 @@ const SelectChannelCreateForm = ({
 };
 
 const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { loading, error, channels } = useSelectChannelContext();
   const { search, setSearch, newName, setNewName, showCreate } =
     useSelectCreate({
@@ -232,7 +233,7 @@ const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
       <Command.Input
         value={search}
         onValueChange={setSearch}
-        placeholder={t('search-channels', 'Search channels...')}
+        placeholder={t('search-channels')}
       />
       <Command.List>
         {!showCreate && <Combobox.Empty loading={loading} error={error} />}
@@ -242,7 +243,7 @@ const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
         {showCreate && (
           <SelectCreateCommandItem
             search={search}
-            label={t('create-new-channel', 'Create new channel')}
+            label={t('create-new-channel')}
             onSelect={setNewName}
           />
         )}

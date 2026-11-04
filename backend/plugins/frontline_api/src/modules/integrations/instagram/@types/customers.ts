@@ -4,9 +4,9 @@ export interface IInstagramCustomer {
   userId: string;
   // id on erxes-api
   erxesApiId?: string;
-  firstName: string;
-  lastName: string;
-  profilePic: string;
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
   integrationId: string;
 }
 

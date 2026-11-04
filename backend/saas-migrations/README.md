@@ -70,23 +70,25 @@ tsx backend/saas-migrations/run.ts --org=belty,hipay core
 tsx backend/saas-migrations/run-commands.ts --org=belty propertiesData
 ```
 
-## Single customer / company and source conversations
+## Single customer / company
 
-Two commands in `core/commands/` move existing data to the model where records
-keep their own contacts. Unlike the source → target migrations, they change one
-database in place and also serve self-hosted servers. Run them before the new
-code serves traffic; both are safe to run again, and `DRY_RUN=true` only counts.
+`core/commands/migrateRelationsToContactFields.ts` moves existing data to the
+model where records keep their own contacts. Unlike the source → target
+migrations, it changes one database in place and also serves self-hosted
+servers. Run it before the new code serves traffic; it is safe to run again,
+and `DRY_RUN=true` only counts.
 
-- `migrateRelationsToContactFields.ts`: gives deals, tickets, tasks, projects,
-  triages and cars one `customerId` / `companyId` (old arrays or relations →
-  the first), and rewrites saved automations to those fields. Old
-  `customerIds` / `companyIds` arrays are kept (only their indexes are
-  dropped), so every contact stays on the record and old code can be rolled
-  back.
-- `migrateConversationRelationsToSourceFields.ts`: gives tickets and deals the
-  conversations they were made from (`sourceConversationIds`).
+It gives deals, tickets, tasks, projects, triages and cars one `customerId` /
+`companyId` (old arrays or relations → the first), and rewrites saved
+automations to those fields. Deals and tickets still without a customer get
+the customer of the inbox conversation they were made from (conversation
+relations, the old `sourceConversationIds` field, or a migrated ticket's
+`customerFieldData.sourceConversationIds`): records keep no conversation link,
+so this keeps them in the customer's ticket and deal widgets. Old
+`customerIds` / `companyIds` arrays are kept (only their indexes are dropped),
+so every contact stays on the record and old code can be rolled back.
 
-Which databases they touch (`core/commands/_organizationDbs.ts`):
+Which databases it touches (`core/commands/_organizationDbs.ts`):
 
 ```bash
 # SaaS, every organization (MONGO_URL = core database)

@@ -31,7 +31,7 @@ import {
 } from 'ui-modules';
 
 const TicketsFilterPopover = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;
@@ -246,7 +246,7 @@ const TicketsFilterPopover = () => {
 };
 
 export const TicketsFilter = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [queries] = useMultiQueryState<{
     searchValue: string;
     assignee: string;

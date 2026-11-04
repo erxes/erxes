@@ -67,7 +67,9 @@ export const SelectHelpCenterClientPortal = ({
   variant: 'table' | 'form';
   scope?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const [open, setOpen] = useState(false);
 
   const { data, error, loading, refetch } = useQuery(

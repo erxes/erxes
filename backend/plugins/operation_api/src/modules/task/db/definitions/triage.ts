@@ -18,6 +18,8 @@ export const triageSchema = new Schema(
     // becomes.
     customerId: { type: String, label: 'Customer', default: null, index: true },
     companyId: { type: String, label: 'Company', default: null, index: true },
+    // Task tags (tag type `operation:task`); carried to the task it becomes.
+    tagIds: { type: [String], label: 'Tag IDs' },
   },
   {
     timestamps: true,

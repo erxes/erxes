@@ -13,6 +13,38 @@ import {
   IDocumentDocument,
   IDocumentFilterQueryParams,
 } from '../types';
+import { documentContentTypes } from '../contentTypes';
+
+const generateDateFilter = (
+  dateFilters: string,
+): FilterQuery<IDocumentDocument> => {
+  const filter: FilterQuery<IDocumentDocument> = {};
+  try {
+    const dateFilter = JSON.parse(dateFilters || '{}');
+
+    for (const [key, value] of Object.entries(dateFilter)) {
+      if (key !== 'createdAt') {
+        throw new Error('Only createdAt can be used in dateFilters');
+      }
+      const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
+
+      if (gte || lte) {
+        filter[key] = {};
+
+        if (gte) {
+          filter[key]['$gte'] = gte;
+        }
+
+        if (lte) {
+          filter[key]['$lte'] = lte;
+        }
+      }
+    }
+  } catch (error) {
+    throw new Error(`Invalid dateFilters: ${error.message}`);
+  }
+  return filter;
+};
 
 const generateFilter = (params: IDocumentFilterQueryParams) => {
   const { searchValue, contentType, subType, userIds, dateFilters, tagIds } =
@@ -25,7 +57,7 @@ const generateFilter = (params: IDocumentFilterQueryParams) => {
   }
 
   if (contentType) {
-    filter.contentType = contentType;
+    filter.contentType = { $in: documentContentTypes(contentType) };
   }
 
   if (subType) {
@@ -45,30 +77,7 @@ const generateFilter = (params: IDocumentFilterQueryParams) => {
   }
 
   if (dateFilters) {
-    try {
-      const dateFilter = JSON.parse(dateFilters || '{}');
-
-      for (const [key, value] of Object.entries(dateFilter)) {
-        if (key !== 'createdAt') {
-          throw new Error('Only createdAt can be used in dateFilters');
-        }
-        const { gte, lte } = (value || {}) as { gte?: string; lte?: string };
-
-        if (gte || lte) {
-          filter[key] = {};
-
-          if (gte) {
-            filter[key]['$gte'] = gte;
-          }
-
-          if (lte) {
-            filter[key]['$lte'] = lte;
-          }
-        }
-      }
-    } catch (error) {
-      throw new Error(`Invalid dateFilters: ${error.message}`);
-    }
+    Object.assign(filter, generateDateFilter(dateFilters));
   }
 
   return filter;
@@ -82,7 +91,6 @@ export const documentQueries = {
   ) => {
     await checkPermission('documentsRead');
     const filter = generateFilter(params);
-    // Cursor values are returned to the client, so never sort by template data.
     const sortFields = new Set([
       '_id',
       'name',
@@ -108,7 +116,7 @@ export const documentQueries = {
     const states = await models.ApprovalLocks.getStates({
       user,
       contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-      contentIds: list.map((document) => document._id),
+      contentIds: list.map((document) => String(document._id)),
       ownerIdsByContentId: Object.fromEntries(
         list.map((document) => [document._id, document.createdUserId]),
       ),
@@ -120,19 +128,21 @@ export const documentQueries = {
       list: await Promise.all(
         list.map(async (document) => {
           const approvalLockState =
-            statesById.get(document._id) ||
+            statesById.get(String(document._id)) ||
             (await models.ApprovalLocks.getState({
               user,
               contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-              contentId: document._id,
+              contentId: String(document._id),
               ownerId: document.createdUserId,
               action: 'view',
             }));
           return {
             ...document,
-            // Keep locked records discoverable without exposing their templates.
             content: approvalLockState?.hasAccess ? document.content : null,
             replacer: approvalLockState?.hasAccess ? document.replacer : null,
+            commentState: approvalLockState?.hasAccess
+              ? document.commentState
+              : null,
             approvalLockState,
           };
         }),
@@ -184,6 +194,7 @@ export const documentQueries = {
     { contentType }: { contentType: string },
     { models, subdomain }: IContext,
   ) => {
+    contentType = documentContentTypes(contentType)[0];
     const [pluginName, moduleName] = contentType.split(':');
 
     if (pluginName === 'core') {

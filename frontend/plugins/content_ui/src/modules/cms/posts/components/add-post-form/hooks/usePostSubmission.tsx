@@ -3,6 +3,7 @@ import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { usePostMutations } from '../../../../hooks/usePostMutations';
 import {
+  AttachmentInput,
   makeAttachmentArrayFromUrls,
   normalizeAttachment,
 } from '../../../formHelpers';
@@ -93,6 +94,7 @@ interface UsePostSubmissionProps {
   defaultLanguage?: string;
   defaultLangData?: DefaultLangData | null;
   translations?: Record<string, TranslationEntry>;
+  isSaveBlocked?: boolean;
   onClose?: () => void;
   /**
    * Called after a successful save, before any navigation, with the form
@@ -279,7 +281,9 @@ const buildPostInput = (
   const pdfPayload = normalizeAttachment(data.pdf ?? undefined);
   const isEditing = Boolean(editingPostId);
   const generatedSlug = isEditing ? '' : createSlug(main.title);
-  const shouldSetImages = isEditing || imagesPayload.length > 0;
+  // On edit, send empty lists so removing every file clears the field via $set
+  const listOrUndefined = (list: AttachmentInput[]) =>
+    isEditing || list.length > 0 ? list : undefined;
   const slug = data.slug?.trim() || generatedSlug;
 
   return {
@@ -303,12 +307,12 @@ const buildPostInput = (
     seoTitle: data.seoTitle?.trim() ?? '',
     seoDescription: data.seoDescription?.trim() ?? '',
     thumbnail: normalizeAttachment(data.thumbnail ?? undefined),
-    images: shouldSetImages ? imagesPayload : undefined,
+    images: listOrUndefined(imagesPayload),
     video: videoPayload,
     videoUrl: data.videoUrl,
     audio: audioPayload,
-    documents: documentsPayload.length ? documentsPayload : undefined,
-    attachments: attachmentsPayload.length ? attachmentsPayload : undefined,
+    documents: listOrUndefined(documentsPayload),
+    attachments: listOrUndefined(attachmentsPayload),
     pdfAttachment: pdfPayload ? { pdf: pdfPayload } : undefined,
     customFieldsData: main.customFields,
   };
@@ -365,6 +369,7 @@ export const usePostSubmission = ({
   defaultLanguage,
   defaultLangData,
   translations,
+  isSaveBlocked,
   onClose,
   onSaved,
 }: UsePostSubmissionProps) => {
@@ -466,7 +471,7 @@ export const usePostSubmission = ({
   );
 
   onSubmitRef.current = async (data: PostFormData, options?: SubmitOptions) => {
-    if (pendingPublishRef.current) return;
+    if (pendingPublishRef.current || isSaveBlocked) return;
     if (!data.type) {
       if (options?.silent) {
         return;

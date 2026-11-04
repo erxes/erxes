@@ -88,9 +88,17 @@ export const SettingsRowsTable = <TData,>({
   );
 };
 
+export type SettingsRowTextFieldName = 'number' | 'name';
+
+export interface SettingsRowTextFieldProps<T> {
+  row: T;
+  field: SettingsRowTextFieldName;
+}
+
 export const getSharedRowColumns = <T,>(
   moreColumn: ColumnDef<T>,
   t: TFunction<'accounting'>,
+  RowTextField: React.ComponentType<SettingsRowTextFieldProps<T>>,
 ): ColumnDef<T>[] => [
   moreColumn,
   RecordTable.checkboxColumn as ColumnDef<T>,
@@ -98,18 +106,14 @@ export const getSharedRowColumns = <T,>(
     id: 'number',
     accessorKey: 'number',
     header: () => <RecordTable.InlineHead label={t('number')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <RowTextField row={cell.row.original} field="number" />,
     size: 250,
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label={t('name')} />,
-    cell: ({ cell }) => (
-      <RecordTableInlineCell>{cell.getValue() as string}</RecordTableInlineCell>
-    ),
+    cell: ({ cell }) => <RowTextField row={cell.row.original} field="name" />,
     size: 250,
   },
   {

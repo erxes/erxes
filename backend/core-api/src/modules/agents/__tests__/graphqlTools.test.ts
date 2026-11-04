@@ -7,6 +7,11 @@ import { decodeAgentToolsAuthHeader } from 'erxes-api-shared/utils/agent-tools/a
 // Only service discovery is mocked; the auth header codec and the response
 // size guard keep their real implementations so the signed header round-trip
 // and the response cap are exercised for real.
+// The shared core-modules barrel loads Mongoose models built from the mocked
+// utils; the agents module only needs the agent contract from it.
+jest.mock('erxes-api-shared/core-modules', () =>
+  jest.requireActual('erxes-api-shared/core-modules/agent'),
+);
 jest.mock('erxes-api-shared/utils', () => {
   const auth = jest.requireActual<
     typeof import('erxes-api-shared/utils/agent-tools/auth')
@@ -32,6 +37,7 @@ jest.mock('@mastra/core/tools', () => ({
 }));
 
 import { getPluginAddress, getPlugins } from 'erxes-api-shared/utils';
+import { RequestContext } from '@mastra/core/request-context';
 
 const mockedGetPlugins = getPlugins as jest.MockedFunction<typeof getPlugins>;
 const mockedGetPluginAddress = getPluginAddress as jest.MockedFunction<
@@ -47,8 +53,19 @@ type TSearchInput = Parameters<
 >[0];
 type TCallInput = Parameters<NonNullable<TBridge['callGraphql']['execute']>>[0];
 
-const buildContext = (values: Record<string, unknown>) => ({
-  requestContext: { get: (key: string) => values[key] },
+type TToolContext = Parameters<
+  NonNullable<TBridge['searchGraphql']['execute']>
+>[1];
+
+/** Mastra's no-op observability (no tracing in these tests). */
+const observe: TToolContext['observe'] = {
+  span: async (_name, fn) => fn(),
+  log: () => undefined,
+};
+
+const buildContext = (values: Record<string, unknown>): TToolContext => ({
+  requestContext: new RequestContext(Object.entries(values)),
+  observe,
 });
 
 const runSearch = async (
@@ -59,10 +76,10 @@ const runSearch = async (
     throw new Error('searchGraphql.execute missing');
   }
 
-  return (await searchGraphql.execute(
-    input,
-    buildContext(contextValues) as never,
-  )) as { matched: number; fields: Record<string, unknown>[] };
+  return (await searchGraphql.execute(input, buildContext(contextValues))) as {
+    matched: number;
+    fields: Record<string, unknown>[];
+  };
 };
 
 const runCall = async (
@@ -75,7 +92,7 @@ const runCall = async (
 
   return (await callGraphql.execute(
     input,
-    buildContext(contextValues) as never,
+    buildContext(contextValues),
   )) as Record<string, unknown>;
 };
 
@@ -470,24 +487,64 @@ describe('callGraphql', () => {
   });
 
   it('keeps credentials inside JSON config values out of tool output and memory', async () => {
-    fetchSpy.mockResolvedValue(graphqlResponse({data: {configs: [{code: 'PROVIDER', value: {nested: [{apiKey: 'dummy-secret'}]}}]}}));
-    const result = await runCall({query: 'query AgentsConfigs { configs { code value } }'}, context);
-    expect(result).toMatchObject({status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED'});
+    fetchSpy.mockResolvedValue(
+      graphqlResponse({
+        data: {
+          configs: [
+            {
+              code: 'PROVIDER',
+              value: { nested: [{ apiKey: 'dummy-secret' }] },
+            },
+          ],
+        },
+      }),
+    );
+    const result = await runCall(
+      { query: 'query AgentsConfigs { configs { code value } }' },
+      context,
+    );
+    expect(result).toMatchObject({
+      status: 'error',
+      code: 'GRAPHQL_OPERATION_NOT_ALLOWED',
+    });
     expect(result).not.toHaveProperty('data');
     expect(JSON.stringify(result)).not.toContain('dummy-secret');
     expect(result).not.toHaveProperty('referenceManifest');
   });
 
   it('follows response aliases and fragments when checking JSON values', async () => {
-    fetchSpy.mockResolvedValue(graphqlResponse({data: {items: [{settings: {password: 'dummy-secret'}}]}}));
-    const result = await runCall({query: 'query AgentsConfigs { items: configs { ...AgentsValue } } fragment AgentsValue on Config { settings: value }'}, context);
-    expect(result).toMatchObject({status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED'});
+    fetchSpy.mockResolvedValue(
+      graphqlResponse({
+        data: { items: [{ settings: { password: 'dummy-secret' } }] },
+      }),
+    );
+    const result = await runCall(
+      {
+        query:
+          'query AgentsConfigs { items: configs { ...AgentsValue } } fragment AgentsValue on Config { settings: value }',
+      },
+      context,
+    );
+    expect(result).toMatchObject({
+      status: 'error',
+      code: 'GRAPHQL_OPERATION_NOT_ALLOWED',
+    });
     expect(JSON.stringify(result)).not.toContain('dummy-secret');
   });
 
   it('does not mistake aliases of safe selected fields for credential fields', async () => {
-    fetchSpy.mockResolvedValue(graphqlResponse({data: {token: [{password: 'customer-1', secret: {name: 'Jane'}}]}}));
-    const result = await runCall({query: 'query AgentsCustomers { token: customers { password: _id secret: details { name } } }'}, context);
+    fetchSpy.mockResolvedValue(
+      graphqlResponse({
+        data: { token: [{ password: 'customer-1', secret: { name: 'Jane' } }] },
+      }),
+    );
+    const result = await runCall(
+      {
+        query:
+          'query AgentsCustomers { token: customers { password: _id secret: details { name } } }',
+      },
+      context,
+    );
     expect(result.status).toBe('ok');
   });
 
@@ -571,20 +628,35 @@ describe('GraphQL approval admission', () => {
   });
 
   it.each([
-    { query: 'query AgentsPortal { getClientPortals { list { safe: token } } }' },
     {
-      query: 'mutation AgentsPortal($config: ClientPortalConfigInput) { clientPortalUpdate(clientPortal: $config) { _id } }',
+      query: 'query AgentsPortal { getClientPortals { list { safe: token } } }',
+    },
+    {
+      query:
+        'mutation AgentsPortal($config: ClientPortalConfigInput) { clientPortalUpdate(clientPortal: $config) { _id } }',
       variables: { config: { firebaseConfig: { serviceAccountKey: 'dummy' } } },
     },
-  ])('rejects nested credentials before approval or gateway execution', async (input) => {
-    const predicate = callGraphql.requireApproval;
-    if (typeof predicate !== 'function') throw new Error('Missing approval predicate');
-    expect(await predicate(input, { requestContext: { approvalMode: 'writes' } })).toBe(false);
-    const result = await runCall(input, { subdomain: 'tenant', userId: 'user' });
-    expect(result).toMatchObject({ status: 'error', code: 'GRAPHQL_OPERATION_NOT_ALLOWED' });
-    expect(fetchSpy).not.toHaveBeenCalled();
-    expect(JSON.stringify(result)).not.toContain('dummy');
-  });
+  ])(
+    'rejects nested credentials before approval or gateway execution',
+    async (input) => {
+      const predicate = callGraphql.requireApproval;
+      if (typeof predicate !== 'function')
+        throw new Error('Missing approval predicate');
+      expect(
+        await predicate(input, { requestContext: { approvalMode: 'writes' } }),
+      ).toBe(false);
+      const result = await runCall(input, {
+        subdomain: 'tenant',
+        userId: 'user',
+      });
+      expect(result).toMatchObject({
+        status: 'error',
+        code: 'GRAPHQL_OPERATION_NOT_ALLOWED',
+      });
+      expect(fetchSpy).not.toHaveBeenCalled();
+      expect(JSON.stringify(result)).not.toContain('dummy');
+    },
+  );
 });
 
 it('forwards aliased introspection to the gateway as the acting user without producing record references', async () => {

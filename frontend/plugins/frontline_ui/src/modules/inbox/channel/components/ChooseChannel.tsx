@@ -22,7 +22,7 @@ export const ChooseChannel = ({
   scope?: ChannelScope;
   emptyMessage?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { channels, loading } = useFormsChannelList();
   const { byChannel } = useFormsFilterCounts();
 

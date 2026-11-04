@@ -5,6 +5,9 @@ import {
   TAutomationSetPropertyTarget,
 } from 'erxes-api-shared/core-modules';
 import { ITicket } from '~/modules/ticket/@types/ticket';
+import { ticketCreateActionConfigSchema } from '~/meta/automationConfigSchemas';
+import { validateTicketCreateConfig } from '~/meta/automationConfigValidators';
+import { TICKET_STATUS_CHANGED_RELATION } from '~/modules/ticket/meta/automations/trigger/checkStatusChangedTrigger';
 
 export const FRONTLINE_TICKET_TARGET_SOURCE_TYPE = 'frontline:tickets.tickets';
 
@@ -152,12 +155,28 @@ export const ticketsAutomationContants = {
       output: TICKET_OUTPUT,
       setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
     },
+    {
+      moduleName: 'tickets',
+      collectionName: 'tickets',
+      relationType: TICKET_STATUS_CHANGED_RELATION,
+      icon: 'IconProgressCheck',
+      label: 'Ticket status changed',
+      description:
+        'Start this workflow when a ticket moves to another status in the selected pipeline.',
+      isCustom: true,
+      // Every move is its own event, so each one runs.
+      reEnrollment: true,
+      output: TICKET_OUTPUT,
+      setPropertyTargets: FRONTLINE_TICKET_SET_PROPERTY_TARGETS,
+    },
   ],
   actions: [
     {
       moduleName: 'tickets',
       collectionName: 'tickets',
       method: 'create',
+      configSchema: ticketCreateActionConfigSchema,
+      validateConfig: validateTicketCreateConfig,
       icon: 'IconTicket',
       label: 'Create ticket',
       description: 'Create ticket',

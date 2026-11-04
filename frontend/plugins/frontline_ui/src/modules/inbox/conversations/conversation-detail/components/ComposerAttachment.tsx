@@ -118,7 +118,7 @@ export const AttachmentPreview = ({
   source: string;
   label: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   if (kind === 'image') {
     return (
@@ -213,7 +213,7 @@ export const ComposerAttachment = ({
   attachment,
   onRemove,
 }: ComposerAttachmentProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [previewOpen, setPreviewOpen] = useState(false);
   const kind = getAttachmentKind(attachment);
   let fallbackLabel = t('attachment', 'Attachment');

@@ -10,7 +10,7 @@ export const ResolveAll = ({
 }: {
   conversationIds: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { resolveAllConversations, loading } = useConversationResolveAll();
   const setSelectedConversations = useSetAtom(selectConversationsState);
   const handleResolveAll = () => {

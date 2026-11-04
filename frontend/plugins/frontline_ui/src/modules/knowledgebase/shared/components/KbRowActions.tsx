@@ -26,7 +26,9 @@ export const KbRowActions = ({
   actions?: TKbRowAction[];
   onDelete: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [, setEditId] = useQueryState<string>('editId');
   const [open, setOpen] = useState(false);
 

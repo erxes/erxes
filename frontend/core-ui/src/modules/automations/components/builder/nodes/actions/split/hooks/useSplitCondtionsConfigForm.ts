@@ -15,6 +15,7 @@ import {
   TSplitConditionsConfigForm,
 } from '../states/splitConditionsConfigForm';
 import { TTransformConfigForm } from '@/automations/components/builder/nodes/actions/transform/states/transformForm';
+import { getAiAgentOutputVariables } from '../utils/aiAgentOutputVariables';
 
 const getDefaultOption = (): TSplitConditionsConfigForm['options'][number] => ({
   id: generateAutomationElementId(),
@@ -44,7 +45,9 @@ export const useSplitCondtionsConfigForm = (
   );
   const contentType = selectedActionType || trigger?.type || '';
   const isOutputVariableCondition = Boolean(
-    selectedTargetAction?.type === 'transform' || trigger?.isCustom,
+    selectedTargetAction?.type === 'transform' ||
+      selectedTargetAction?.type === 'aiAgent' ||
+      trigger?.isCustom,
   );
   const triggerOutputVariables =
     trigger?.type && triggerConstMap.get(trigger.type)?.output?.variables;
@@ -64,9 +67,20 @@ export const useSplitCondtionsConfigForm = (
         : [],
     [selectedTargetAction],
   );
+  const aiAgentOutputVariables = useMemo(
+    () =>
+      selectedTargetAction?.type === 'aiAgent'
+        ? getAiAgentOutputVariables(selectedTargetAction.config)
+        : [],
+    [selectedTargetAction],
+  );
+  const actionOutputVariables = [
+    ...transformOutputVariables,
+    ...aiAgentOutputVariables,
+  ];
   const outputVariables =
-    transformOutputVariables.length > 0
-      ? transformOutputVariables
+    actionOutputVariables.length > 0
+      ? actionOutputVariables
       : (trigger?.config as any)?.outVariables ||
         (trigger?.config as any)?.outputVariables ||
         (trigger?.config as any)?.schema ||
@@ -112,9 +126,18 @@ export const useSplitCondtionsConfigForm = (
     });
   };
 
+  // Conditions read a step's output; on the record they are never shown.
+  const hasConditionsWithoutSource =
+    !isOutputVariableCondition &&
+    (currentAction.config?.options || []).some(
+      ({ segmentId, config }) =>
+        !segmentId && (config?.conditions?.length || 0) > 0,
+    );
+
   return {
     form,
     addOption,
+    hasConditionsWithoutSource,
     handleConditionDirtyChange,
     hasDirtyConditionOptions,
     fields,

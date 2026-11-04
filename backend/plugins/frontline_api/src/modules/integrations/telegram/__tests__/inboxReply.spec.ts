@@ -31,7 +31,6 @@ jest.mock('@/inbox/graphql/resolvers/mutations/widget', () => ({
 jest.mock('@/inbox/services/conversationUnreadCounts', () => ({
   publishConversationUnreadCounts: jest.fn(),
 }));
-jest.mock('@/inbox/services/conversationConvert', () => ({}));
 jest.mock('~/connectionResolvers', () => ({}));
 jest.mock('~/modules/inbox/utils', () => ({ debugError: jest.fn() }));
 jest.mock('~/utils/notifications', () => ({ createNotifications: jest.fn() }));

@@ -31,7 +31,7 @@ export const CreateResponseForm = ({
   onSubmit,
   loading,
 }: CreateResponseFormProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const schema =
     type === 'create'
       ? CREATE_RESPONSE_FORM_SCHEMA

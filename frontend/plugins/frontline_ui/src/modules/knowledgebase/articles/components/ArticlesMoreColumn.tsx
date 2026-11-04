@@ -18,7 +18,9 @@ const ArticlesMoreColumnCell = ({
 }: {
   cell: Cell<IArticle, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const article = cell.row.original;
   const { _id, title } = article;
   const { removeArticles } = useRemoveArticles();

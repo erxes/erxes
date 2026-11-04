@@ -14,6 +14,7 @@ export const types = `
     name: String!
     content: String
     replacer: String
+    commentState: String
 
     approvalLockState: ApprovalLockState
     cursor: String
@@ -69,9 +70,11 @@ const mutationParams = `
   content: String, 
   replacer: String, 
   code: String
+  commentState: String
 `;
 
 export const mutations = `
   documentsSave(${mutationParams}): Document
+  documentsDuplicate(_id: String!, contentType: String!): Document
   documentsRemove(_id: String!): JSON
 `;

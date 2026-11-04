@@ -10,9 +10,11 @@ import {
   Popover,
   Spinner,
 } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const VerifiedEmailFieldContent = () => {
   const { error: fieldError } = Form.useField();
+  const { t } = useTranslation('frontline');
   const {
     fieldName,
     focused,
@@ -86,7 +88,7 @@ export const VerifiedEmailFieldContent = () => {
                   variant="ghost"
                   size="icon"
                   className="size-5 shrink-0"
-                  aria-label={`Remove ${email}`}
+                  aria-label={t('remove-recipient', { email })}
                   onClick={() => removeEmail(email)}
                 >
                   <IconX className="size-3" />
@@ -110,7 +112,7 @@ export const VerifiedEmailFieldContent = () => {
                 ? `${listId}-${activeOptionIndex}`
                 : undefined
             }
-            placeholder={selected.length ? '' : 'Recipients'}
+            placeholder={selected.length ? '' : t('recipients')}
             value={draft}
             className="h-7 min-w-24 flex-1 border-0 bg-transparent px-0 shadow-none hover:bg-transparent focus:bg-transparent focus-visible:shadow-none"
             onChange={handleChange}
@@ -142,7 +144,7 @@ export const VerifiedEmailFieldContent = () => {
             {loading && options.length === 0 && (
               <div className="flex items-center gap-2 p-3 text-sm text-muted-foreground">
                 <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
-                <output>Loading contacts…</output>
+                <output>{t('loading-contacts')}</output>
               </div>
             )}
             {error && (
@@ -152,7 +154,7 @@ export const VerifiedEmailFieldContent = () => {
                 className="w-full justify-start"
                 onClick={() => refetch().catch(() => undefined)}
               >
-                Could not load contacts. Retry
+                {t('could-not-load-contacts')}
               </Button>
             )}
             {options.map(({ email, customerId, name }, index) => (
@@ -183,7 +185,7 @@ export const VerifiedEmailFieldContent = () => {
                 className="w-full justify-start"
                 onClick={retryLoadMore}
               >
-                Could not load more contacts. Retry
+                {t('could-not-load-more-contacts')}
               </Button>
             )}
             {hasNextPage && !loadMoreError && (
@@ -194,7 +196,7 @@ export const VerifiedEmailFieldContent = () => {
                 {loadingMore && (
                   <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
                 )}
-                {loadingMore ? 'Loading…' : ''}
+                {loadingMore ? t('loading-more-contacts') : ''}
               </div>
             )}
           </Command.List>

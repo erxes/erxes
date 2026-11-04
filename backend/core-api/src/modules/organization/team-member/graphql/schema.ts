@@ -79,6 +79,10 @@ export const types = `
     links: JSON
     status: String
     chatStatus: UserChatStatus
+    # Sign-in presence (active | idle | none), unlike chatStatus which members set by hand
+    sessionState: String
+    # Rolling 5-minute activity over the last N days; null without permission or when tracking is off
+    activity(days: Int): UserActivity
     emailSignatures: JSON
     getNotificationByEmail: Boolean
 
@@ -112,6 +116,8 @@ export const types = `
     employeeId: String
     isOnboarded: Boolean
     hasPassword: Boolean
+    """'ldap' when the user signs in with a directory password; null for a local password"""
+    passwordManagedBy: String
     cursor: String
   }
 
@@ -126,6 +132,51 @@ export const types = `
     contentTypeId:String
     contentTypeDetail:JSON
     status:String
+  }
+
+  type UserSession {
+    _id: String!
+    method: String!
+    createdAt: Date
+    lastSeenAt: Date
+    expiresAt: Date
+    userAgent: String
+    current: Boolean!
+  }
+
+  type UserActivity {
+    activeMinutes: Int!
+    lastActiveAt: Date
+  }
+
+  type UserActivityRankItem {
+    user: User!
+    activeMinutes: Int!
+    # May fall before the window; null when never recorded
+    lastActiveAt: Date
+  }
+
+  type UserActivityDay {
+    # Local date in the requested timezone (YYYY-MM-DD)
+    date: String!
+    activeMembers: Int!
+    minutes: Int!
+  }
+
+  type UserActivityRanking {
+    # False while the organization has tracking off; items are then empty
+    enabled: Boolean!
+    items: [UserActivityRankItem!]!
+    # Only days with activity; may include one day before the window
+    series: [UserActivityDay!]!
+  }
+
+  type UserActivitySlots {
+    # False while the organization has tracking off; slots are then empty
+    enabled: Boolean!
+    slotMinutes: Int!
+    # 5-minute buckets since epoch; group them in the viewer's timezone
+    slots: [Int!]!
   }
 
   type UsersListResponse {
@@ -175,6 +226,9 @@ export const queries = `
   userDetail(_id: String): User
   usersTotalCount(${commonSelector}): Int
   userMovements(userId: String!,contentType: String):[UserMovement]
+  userSessions(_id: String!): [UserSession!]!
+  userActivitySlots(_id: String!, days: Int): UserActivitySlots!
+  userActivityRanking(days: Int, timeZone: String): UserActivityRanking!
 `;
 
 export const mutations = `
@@ -200,4 +254,5 @@ export const mutations = `
   editOrganizationDomain(type: String, domain: String): Organization
   usersCreateOwner(email: String!, password: String!, firstName: String!, lastName: String, purpose: String, subscribeEmail: Boolean): String
   usersSetActiveStatusBatch(_ids: [String!]!): Boolean
+  usersRevokeSessions(_id: String!, sessionId: String): Boolean
 `;

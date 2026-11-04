@@ -848,6 +848,7 @@
   "city-tax-row": "НХАТ-ын тайлангийн мөр",
   "edit-city-tax-row": "НХАТ-ын мөр засах",
   "city-tax-row-deleted-successfully": "НХАТ-ын мөрийг устгалаа",
+  "are-you-sure-delete-this-city-tax-row": "Энэ НХАТ-ын мөрийг устгахдаа итгэлтэй байна уу?",
   "city-tax-label": "НХАТ:",
   "accounting-form-bm-2": "НХМаягт БМ-2",
   "accounting-form-bm-3": "НХМаягт БМ-3",
@@ -873,6 +874,7 @@
   "loading-additional-transactions": "Нэмэлт гүйлгээ ачаалж байна...",
   "additional-information-fields-by-journal": "Нэмэлт мэдээллийн талбарууд (журнал бүрээр)",
   "unnamed-account": "Нэргүй данс",
+  "untitled-rule": "Нэргүй дүрэм",
   "invoice-date": "Нэхэмжилсэн огноо:",
   "issuer": "Нэхэмжлэгч:",
   "invoice-no": "Нэхэмжлэх №",
@@ -1358,5 +1360,7 @@
   "empty-list-description": "Шүүлтүүрээ өөрчлөх эсвэл шинээр нэмнэ үү.",
   "empty-filter-description": "Шүүлтүүрээ өөрчлөөд дахин оролдоно уу.",
   "empty-generated-description": "Энэ бүртгэл гүйлгээнээс автоматаар үүснэ. Гүйлгээ бүртгэх эсвэл шүүлтүүрээ өөрчилнө үү.",
-  "select-a-report-description": "Зүүн талын жагсаалтаас тайлангаа сонгох эсвэл доорх түгээмэл тайлангаас эхлээрэй."
+  "select-a-report-description": "Зүүн талын жагсаалтаас тайлангаа сонгох эсвэл доорх түгээмэл тайлангаас эхлээрэй.",
+  "end-date-after-start": "Дуусах огноо эхлэх огнооноос өмнө байж болохгүй",
+  "no-transactions-in-period": "Сонгосон хугацаанд гүйлгээ байхгүй."
 }

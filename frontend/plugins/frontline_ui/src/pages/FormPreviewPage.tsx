@@ -8,8 +8,21 @@ import {
 import { hexToOklch, useQueryState } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useLayoutEffect } from 'react';
+import { FormDraftScope } from '@/forms/components/FormDraftScope';
+import { useFormDraftPreviewSubscriber } from '@/forms/hooks/useFormDraftPreview';
 
 export const FormPreviewPage = () => {
+  const [draftId] = useQueryState<string>('draft');
+  const [formId] = useQueryState<string>('formId');
+  return (
+    <FormDraftScope scope={`preview:${draftId || formId || 'empty'}`}>
+      <FormPreviewContent draftId={draftId} />
+    </FormDraftScope>
+  );
+};
+
+const FormPreviewContent = ({ draftId }: { draftId: string | null }) => {
+  useFormDraftPreviewSubscriber(draftId);
   const formGeneral = useAtomValue(formSetupGeneralAtom);
   const setSetup = useSetAtom(formSetSetupAtom);
 

@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-10-19`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -126,6 +126,11 @@
 
 ## Local Invariants
 
+- Quantity pricing bonuses of type `every` award exactly
+  `floor(quantity / rule.value)` units of `discountBonusProduct`, without an
+  initial extra unit; `exact` and `minimum` award one unit when eligible.
+
+- Every automation action declares a `configSchema` (`src/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: issue voucher and award spin (campaign; owner defaults to the run's record), adjust score (`attribution`; wallet for fixed, campaign otherwise, a campaign never subtracts) and set tier (`attribution`, wallet, bands for amount mode). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live.
 - Users see an account type as a "wallet" (en) / "хэтэвч" (mn) inside the owner's loyalty account; user-facing errors say wallet. Code, models, GraphQL (`LoyaltyAccountType`, `accountTypeId`) keep the `accountType` name.
 - Preserve tenant isolation by using the request `subdomain` for every model and service access.
 - Base pricing synchronization must skip plans without any branch, department, or pipeline scope; queries match the supplied location fields without requiring omitted fields, then use the greatest matching base discount so overlapping plans return the cheapest final price.
@@ -159,9 +164,21 @@
   bonus voucher usage; POS and deal callers may sell weighted products with
   decimal counts. Confirmation must also accept null or omitted voucher IDs
   and counts for sale lines without a selected bonus voucher.
+- A coupon campaign's `codeRule` is stored with the campaign form's names
+  (`numberOfCodes`, `prefixUppercase`, `postfixUppercase`, `characterSet`
+  string); `couponAdd` reads it through `normalizeCodeRule`
+  (`modules/coupon/utils/codeRule.ts`) into the generator's `size`, `prefix`,
+  `postfix`, `charSet`. Read a stored `codeRule` only through it; without it
+  every generation made one code.
 
 ## Validation
 
+- `pnpm nx test loyalty_api --testPathPattern quantityBonus --runInBand`
+- Pricing bonus smoke: for every three A, award one free B; two A gives none,
+  three A gives one B, five A gives one B, and six A gives two B.
+
+- `pnpm nx test loyalty_api` (`src/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
+- `pnpm nx test loyalty_api` (`src/meta/automations/__tests__/configSchemas.test.ts`)
 - `pnpm nx run loyalty_api:schema:print` - prints this subgraph's SDL to `generated/schema.graphql` (gitignored) offline, for `gateway:schema:compose`.
 - `pnpm nx build loyalty_api`
 - `pnpm nx test loyalty_api`
@@ -169,6 +186,7 @@
 - `pnpm nx test loyalty_api --testPathPattern scoreTarget`
 - `pnpm nx test loyalty_api --testPathPattern publicDiscounts`
 - `pnpm nx test loyalty_api --testPathPattern afterProcess`
+- Release: from `backend/plugins/loyalty_api`, `pnpm exec release-it --dry-run`, then `pnpm exec release-it`. `.release-it.json` versions this plugin on its own (`package.json`, local `CHANGELOG.md` from commits under this folder, tag `loyalty_api@x.y.z`, GitHub release not marked Latest); the tag runs `.github/workflows/release-plugin.yml`, which builds `erxes/erxes-next-loyalty_api:x.y.z` from the tagged commit. Needs a clean working tree and `GITHUB_TOKEN`.
 - Smoke scenario: trigger a sales deal and POS order score campaign with mixed product rows; only rows matching product/category/tag restrictions should contribute to `totalAmount`, deal rows must also have `tickUsed === true`, and discounted deal rows should be skipped only when `additionalConfig.discountCheck` is enabled.
 
 ## Recent Changes

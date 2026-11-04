@@ -74,12 +74,13 @@ const SelectPriorityBadgeValue = ({
 }: {
   placeholder?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value } = useSelectPriorityContext();
 
   if (!value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select priority'}
+        {placeholder || t('select-priority')}
       </span>
     );
   }
@@ -122,7 +123,7 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
 };
 
 const SelectPriorityContent = ({ onClear }: { onClear?: () => void }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { selectedValues } = useSelectPriorityContext();
   return (
     <Command>

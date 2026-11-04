@@ -7,7 +7,9 @@ export const KbTotalCount = ({
 }: {
   countAtom: Atom<number | null | undefined>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const totalCount = useAtomValue(countAtom);
 
   return (

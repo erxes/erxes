@@ -35,7 +35,9 @@ export const CallSipActions = () => {
 };
 
 export const ClearCallCacheButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { confirm } = useConfirm();
   const setCallConfig = useSetAtom(callConfigAtom);
   const setEnabledIntegrationIds = useSetAtom(callEnabledIntegrationIdsAtom);
@@ -93,7 +95,9 @@ export const ClearCallCacheButton = () => {
 };
 
 export const TurnOffButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sipState = useAtomValue(sipStateAtom);
   const setCallInfo = useSetAtom(callInfoAtom);
   const { unregisterSip, registerSip, reconnectSip } = useSip();
@@ -142,7 +146,9 @@ export const TurnOffButton = () => {
 };
 
 export const SipPauseButton = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { pauseAgent, loading, agentStatus } = usePauseAgent();
   const isPaused = agentStatus === 'pause';
   return (
@@ -160,7 +166,9 @@ export const SipPauseButton = () => {
 };
 
 export const SipStatusBadge = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sipState = useAtomValue(sipStateAtom);
   const callInfo = useAtomValue(callInfoAtom);
   const { sipStatus, sipErrorMessage } = sipState || {};

@@ -4,6 +4,10 @@ import { z } from 'zod';
 import type { Tool } from '@mastra/core/tools' with {
   'resolution-mode': 'import',
 };
+import type { InlineSkill } from '@mastra/core/skills' with {
+  'resolution-mode': 'import',
+};
+import { setTimeout as delay } from 'node:timers/promises';
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import {
   getNamedType,
@@ -39,6 +43,12 @@ import {
   readIdentity,
   toToolFailure,
 } from './tools';
+import {
+  buildAgentPluginContributions,
+  EMPTY_AGENT_PLUGIN_CONTRIBUTIONS,
+  readAgentPluginMeta,
+  type IAgentPluginContributions,
+} from './pluginContributions';
 
 /**
  * GraphQL access for the agents module.
@@ -51,7 +61,9 @@ import {
  *
  * The search catalog is built by introspecting each registered service's
  * federation `_service.sdl` (the same document the gateway's proxy health
- * check uses) and merging them into one resolvers-less schema.
+ * check uses) and merging them into one resolvers-less schema. The same
+ * refresh reads each reachable service's `meta.agent` registration: its skills
+ * and the root operations it hides from discovery (`pluginContributions.ts`).
  */
 
 type MastraTool = Tool;
@@ -72,12 +84,21 @@ const SUBGRAPH_SDL_OPERATION_NAME = 'SubgraphIntrospectQuery';
 
 const ROOT_OPERATION_TYPES = new Set(['Query', 'Mutation', 'Subscription']);
 
-/** The merged workspace schema, or null when no service answered. */
-let schemaCache: {
+/**
+ * Bounds how long a run waits for the first catalog load before it starts
+ * without plugin skills; the load keeps going and serves later runs.
+ */
+const PLUGIN_SKILLS_FIRST_LOAD_WAIT_MS = 3_000;
+
+interface IAgentGraphqlCatalog extends IAgentPluginContributions {
+  /** The merged workspace schema, or null when no service answered. */
   schema: GraphQLSchema | null;
   fetchedAt: number;
   owners: Map<string, string>;
-} | null = null;
+}
+
+let schemaCache: IAgentGraphqlCatalog | null = null;
+let catalogRefresh: Promise<IAgentGraphqlCatalog> | null = null;
 
 const fetchSubgraphSdl = async (plugin: string): Promise<string | null> => {
   try {
@@ -148,16 +169,21 @@ const stubRootTypeDefs = (sdls: string[]): string[] => {
     .map((name) => `type ${name} { ${STUB_ROOT_FIELD}: Boolean }`);
 };
 
-export const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
+const isCatalogFresh = (catalog: IAgentGraphqlCatalog) =>
+  Date.now() - catalog.fetchedAt < SCHEMA_CACHE_TTL_MS;
+
+const refreshCatalog = async (): Promise<IAgentGraphqlCatalog> => {
   const now = Date.now();
-
-  if (schemaCache && now - schemaCache.fetchedAt < SCHEMA_CACHE_TTL_MS) {
-    return schemaCache.schema;
-  }
-
   const plugins = await getPlugins();
   const sources = await Promise.all(
-    plugins.map(async (plugin) => ({ plugin, sdl: await fetchSubgraphSdl(plugin) })),
+    plugins.map(async (plugin) => {
+      const [sdl, agent] = await Promise.all([
+        fetchSubgraphSdl(plugin),
+        readAgentPluginMeta(plugin),
+      ]);
+
+      return { plugin, sdl, agent };
+    }),
   );
   const sdls: string[] = [];
   const owners = new Map<string, string>();
@@ -201,9 +227,61 @@ export const loadMergedSchema = async (): Promise<GraphQLSchema | null> => {
     }
   }
 
-  schemaCache = { schema, fetchedAt: now, owners };
+  // Only services that answered contribute: a stopped or disabled plugin's
+  // skills and hidden operations disappear with its schema.
+  const contributions = await buildAgentPluginContributions(
+    sources
+      .filter(({ sdl }) => sdl)
+      .map(({ plugin, agent }) => ({ plugin, agent })),
+    owners,
+  ).catch(() => EMPTY_AGENT_PLUGIN_CONTRIBUTIONS);
 
-  return schema;
+  schemaCache = { schema, fetchedAt: now, owners, ...contributions };
+
+  return schemaCache;
+};
+
+/** The current catalog; concurrent callers share one refresh. */
+const loadAgentGraphqlCatalog = async (): Promise<IAgentGraphqlCatalog> => {
+  if (schemaCache && isCatalogFresh(schemaCache)) {
+    return schemaCache;
+  }
+
+  if (!catalogRefresh) {
+    catalogRefresh = refreshCatalog().finally(() => {
+      catalogRefresh = null;
+    });
+  }
+
+  return catalogRefresh;
+};
+
+export const loadMergedSchema = async (): Promise<GraphQLSchema | null> =>
+  (await loadAgentGraphqlCatalog()).schema;
+
+/**
+ * Skills from currently reachable plugins, for the agent's dynamic `skills`.
+ * A stale catalog is served while it refreshes in the background, so a run
+ * never waits on service discovery after the first load. Never throws:
+ * plugin failures only remove that plugin's skills.
+ */
+export const listAgentPluginSkills = async (): Promise<InlineSkill[]> => {
+  const cached = schemaCache;
+
+  if (cached) {
+    if (!isCatalogFresh(cached)) {
+      loadAgentGraphqlCatalog().catch(() => undefined);
+    }
+
+    return cached.skills;
+  }
+
+  const firstLoad = loadAgentGraphqlCatalog()
+    .then(({ skills }) => skills)
+    .catch((): InlineSkill[] => []);
+  const timeout = delay(PLUGIN_SKILLS_FIRST_LOAD_WAIT_MS, [], { ref: false });
+
+  return Promise.race([firstLoad, timeout]);
 };
 
 interface IRootFieldEntry {
@@ -212,7 +290,12 @@ interface IRootFieldEntry {
   field: GraphQLField<unknown, unknown>;
 }
 
-const collectRootFields = (schema: GraphQLSchema): IRootFieldEntry[] => {
+const collectRootFields = ({
+  schema,
+  hiddenOperations,
+}: Pick<IAgentGraphqlCatalog, 'hiddenOperations'> & {
+  schema: GraphQLSchema;
+}): IRootFieldEntry[] => {
   const entries: IRootFieldEntry[] = [];
 
   for (const [operation, rootType] of [
@@ -224,7 +307,13 @@ const collectRootFields = (schema: GraphQLSchema): IRootFieldEntry[] => {
     }
 
     for (const [name, field] of Object.entries(rootType.getFields())) {
-      if (name === STUB_ROOT_FIELD || AGENT_GRAPHQL_DENIED_FIELD.test(name)) {
+      // Denied fields are a security rule; plugin-hidden ones only stay out
+      // of discovery and remain callable.
+      if (
+        name === STUB_ROOT_FIELD ||
+        AGENT_GRAPHQL_DENIED_FIELD.test(name) ||
+        hiddenOperations.has(`${operation}.${name}`)
+      ) {
         continue;
       }
 
@@ -382,10 +471,10 @@ const sanitizeGraphqlErrors = (errors: unknown): IGraphqlErrorEntry[] => {
 // @mastra/core/tools is ESM-only under nodenext; load it dynamically (like the
 // other Mastra entries) and build the two tools once per process.
 export const listGraphqlCapabilities = async () => {
-  const schema = await loadMergedSchema();
-  return schema ? collectRootFields(schema).map((entry) => ({
+  const { schema, owners, hiddenOperations } = await loadAgentGraphqlCatalog();
+  return schema ? collectRootFields({ schema, hiddenOperations }).map((entry) => ({
     id: `graphql.${entry.operation}.${entry.name}`,
-    plugin: schemaCache?.owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
+    plugin: owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
     module: entry.operation,
     path: entry.name,
     method: entry.operation,
@@ -426,13 +515,13 @@ export const buildGraphqlTools = async (): Promise<{
         execute: async ({ intent, maxResults }, context) => {
           readIdentity(context);
           const approvalMode = readApprovalMode(context);
-          const schema = await loadMergedSchema();
+          const { schema, hiddenOperations } = await loadAgentGraphqlCatalog();
 
           if (!schema) {
             return { matched: 0, fields: [] };
           }
 
-          const entries = collectRootFields(schema);
+          const entries = collectRootFields({ schema, hiddenOperations });
           const matches = rankFieldsByIntent(entries, intent);
           const ranked = matches.slice(0, maxResults ?? 8);
 

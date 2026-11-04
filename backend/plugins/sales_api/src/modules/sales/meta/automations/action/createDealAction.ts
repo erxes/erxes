@@ -47,17 +47,6 @@ export const createDealAction = async ({
   // Not who pressed create — what produced it.
   newData.createdVia = createdVia;
 
-  if (execution?.triggerType === 'inbox:conversation') {
-    newData.sourceConversationIds = [execution.targetId];
-  }
-
-  if (
-    ['core:customer', 'core:lead'].includes(execution?.triggerType) &&
-    execution?.target?.isFormSubmission
-  ) {
-    newData.sourceConversationIds = [execution.target.conversationId];
-  }
-
   if (
     ['customers', 'leads', 'companies'].includes(collectionName) &&
     pluginName === 'core'
@@ -142,7 +131,6 @@ const normalizeDealActionData = (data: Record<string, any>) => {
     'tagIds',
     'branchIds',
     'departmentIds',
-    'sourceConversationIds',
   ].forEach((key) => {
     if (hasOwn(newData, key)) {
       newData[key] = toIds(newData[key]);

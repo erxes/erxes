@@ -23,13 +23,13 @@ export const FromRow = () => {
             className="text-xs leading-5 text-muted-foreground"
             htmlFor="direct-mail-sender"
           >
-            From
+            {t('mail-from')}
           </Label>
           <div className="flex min-h-9 min-w-0 items-center text-sm">
             {sendersLoading && (
               <span className="flex items-center gap-2 text-muted-foreground">
                 <Spinner size="sm" containerClassName="h-4 w-4 flex-none" />
-                {'Loading sender…'}
+                {t('loading-sender')}
               </span>
             )}
             {!sendersLoading && senders.length > 0 && (

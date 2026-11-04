@@ -7,7 +7,7 @@ import { ReportTable } from '../ReportTable';
 import { fmt, fmtNum, fmtPct } from '../../utils';
 
 export function CallbacksSection() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { stats, loading } = useCallbackStats();
 
   const totals = stats.reduce(

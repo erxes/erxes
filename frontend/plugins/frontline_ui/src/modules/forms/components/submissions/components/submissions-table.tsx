@@ -17,6 +17,7 @@ import { format } from 'date-fns';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IFormSubmission } from '../types';
+import type { IFormField } from '@/forms/types/formTypes';
 import {
   IconCheckbox,
   IconCircleDashedCheck,
@@ -26,12 +27,10 @@ import {
 
 type FlatRow = { _id: string } & Record<string, unknown>;
 
-type FieldMeta = { text: string; type: string };
-
 const MoreColumnCell = ({ cell }: { cell: Cell<FlatRow, unknown> }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { _id } = cell.row.original;
-  const [__blank, setSubmissionId] = useQueryState<string>('submissionId');
+  const [, setSubmissionId] = useQueryState<string>('submissionId');
 
   return (
     <DropdownMenu>
@@ -64,24 +63,13 @@ export const CheckboxCell = ({ value }: { value: string[] }) => {
   );
 };
 
-function buildColumnsAndRows(submissions: IFormSubmission[]): {
+function buildColumnsAndRows(
+  submissions: IFormSubmission[],
+  fields: IFormField[],
+): {
   columns: ColumnDef<FlatRow>[];
   rows: FlatRow[];
 } {
-  const fieldMetaMap = new Map<string, FieldMeta>();
-  for (const submission of submissions) {
-    for (const item of (submission.submissions ?? []).filter(isDefined)) {
-      if (item.formFieldText && !fieldMetaMap.has(item.formFieldText)) {
-        fieldMetaMap.set(item.formFieldText, {
-          text: item.formFieldText,
-          type: item.formFieldType || '',
-        });
-      }
-    }
-  }
-
-  const fields = Array.from(fieldMetaMap.values());
-
   const submittedAtColumn: ColumnDef<FlatRow> = {
     id: '__submittedAt',
     accessorKey: '__submittedAt',
@@ -92,10 +80,10 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
         <RecordTable.InlineHead label={t('submitted-at', 'Submitted At')} />
       );
     },
-    cell: (cell) => {
+    cell: function SubmittedAtCell(cell) {
       const value = cell.getValue() as string | undefined;
       const { _id } = cell.row.original;
-      const [_, setSubmissionId] = useQueryState<string>('submissionId');
+      const [, setSubmissionId] = useQueryState<string>('submissionId');
       return (
         <RecordTableInlineCell
           className="truncate cursor-pointer"
@@ -111,16 +99,22 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
     },
   };
 
-  const fieldColumns: ColumnDef<FlatRow>[] = fields.map(({ text, type }) => ({
-    id: text.replace(/\s+/g, '_'),
-    accessorKey: text,
-    header: () => <RecordTable.InlineHead label={text} />,
+  const fieldColumns: ColumnDef<FlatRow>[] = fields.map((field) => ({
+    id: field._id,
+    accessorFn: (row) => row[field._id],
+    header: () => <RecordTable.InlineHead label={field.text || field._id} />,
     cell: ({ getValue }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+      const { t } = useTranslation('frontline', {
+        keyPrefix: 'modules.forms',
+      });
       const value = getValue();
 
-      if (type === 'core:customer:avatar') {
+      if (value === null || value === undefined || value === '') {
+        return <RecordTableInlineCell />;
+      }
+
+      if (field.type === 'core:customer:avatar') {
         return (
           <RecordTableInlineCell>
             <Avatar size={'lg'}>
@@ -134,17 +128,18 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
         );
       }
 
-      if (type === 'file') {
+      if (field.type === 'file') {
         return (
           <Attachments.Inline attachments={parseFilesAsAttachments(value)} />
         );
       }
 
-      if (type === 'core:customer:birthDate' || type === 'date') {
+      if (field.type === 'core:customer:birthDate' || field.type === 'date') {
+        const date = typeof value === 'string' ? new Date(value) : undefined;
         const formatted =
-          value && typeof value === 'string'
-            ? format(new Date(value), 'MMM d, yyyy')
-            : '';
+          date && !Number.isNaN(date.getTime())
+            ? format(date, 'MMM d, yyyy')
+            : String(value);
         return (
           <RecordTableInlineCell className="truncate">
             {formatted}
@@ -152,7 +147,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
         );
       }
 
-      if (type === 'check') {
+      if (field.type === 'check') {
         let checks: string[] = [];
         if (value && typeof value === 'string' && value.trim() !== '') {
           try {
@@ -165,7 +160,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
         return <CheckboxCell value={checks} />;
       }
 
-      if (type === 'select') {
+      if (field.type === 'select') {
         let options: string[] = [];
         if (value && typeof value === 'string' && value.trim()) {
           try {
@@ -200,7 +195,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
         );
       }
 
-      if (type === 'boolean') {
+      if (field.type === 'boolean') {
         return (
           <RecordTableInlineCell className="truncate">
             {String(value) === 'true' ? (
@@ -215,7 +210,7 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
           </RecordTableInlineCell>
         );
       }
-      if (type === 'radio') {
+      if (field.type === 'radio') {
         return (
           <RecordTableInlineCell>
             <Badge variant={'info'} className="rounded-lg">
@@ -253,9 +248,9 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
       __submittedAt: submission.createdAt,
     };
     for (const item of (submission.submissions ?? []).filter(isDefined)) {
-      if (item.formFieldText) {
-        row[item.formFieldText] =
-          typeof item.value === 'object'
+      if (item.formFieldId) {
+        row[item.formFieldId] =
+          item.value !== null && typeof item.value === 'object'
             ? JSON.stringify(item.value)
             : item.value;
       }
@@ -267,12 +262,14 @@ function buildColumnsAndRows(submissions: IFormSubmission[]): {
 }
 
 export const SubmissionsTable = ({
+  fields,
   submissions,
   loading,
   hasPreviousPage,
   hasNextPage,
   handleFetchMore,
 }: {
+  fields: (IFormField | null)[];
   submissions: IFormSubmission[];
   loading?: boolean;
   hasPreviousPage?: boolean;
@@ -280,8 +277,8 @@ export const SubmissionsTable = ({
   handleFetchMore: (params: { direction: EnumCursorDirection }) => void;
 }) => {
   const { columns, rows } = useMemo(
-    () => buildColumnsAndRows(submissions),
-    [submissions],
+    () => buildColumnsAndRows(submissions, fields.filter(isDefined)),
+    [submissions, fields],
   );
 
   if (!columns.length) return null;

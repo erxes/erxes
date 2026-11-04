@@ -25,6 +25,7 @@ import { ReactionMenu } from '@/inbox/conversation-messages/components/MessageRe
 import { ActionButton } from '@/inbox/conversation-messages/components/MessageActionButton';
 import { FacebookReplyWindowContext } from '@/integrations/facebook/contexts/FacebookReplyWindowContext';
 import { MessageCopyActions } from '@/inbox/conversation-messages/components/MessageCopyActions';
+import { useTranslation } from 'react-i18next';
 
 export const MessageActions = ({
   additionalActions,
@@ -33,6 +34,7 @@ export const MessageActions = ({
   additionalActions?: React.ReactNode;
   onReply?: () => void;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const message = useConversationMessageContext();
   const { _id: conversationId, integration } = useConversationContext();
   const kind = integration?.kind || '';
@@ -101,12 +103,14 @@ export const MessageActions = ({
           remove: isPinned,
         },
       });
-      toast({ title: isPinned ? 'Message unpinned' : 'Message pinned' });
+      toast({
+        title: isPinned ? t('message-unpinned') : t('message-pinned'),
+      });
     } catch (error) {
       toast({
-        title: `Failed to ${isPinned ? 'unpin' : 'pin'} message: ${
-          (error as Error).message
-        }`,
+        title: isPinned
+          ? t('unpin-message-failed', { message: (error as Error).message })
+          : t('pin-message-failed', { message: (error as Error).message }),
         variant: 'destructive',
       });
     }
@@ -120,8 +124,8 @@ export const MessageActions = ({
           <ActionButton
             label={
               facebookReplyWindowExpired
-                ? 'Facebook reply window expired'
-                : 'Reply'
+                ? t('facebook-reply-window-expired')
+                : t('reply')
             }
             disabled={!canReply}
             onClick={handleReply}
@@ -134,7 +138,7 @@ export const MessageActions = ({
           <>
             {canForward && (
               <ActionButton
-                label="Forward"
+                label={t('forward')}
                 onClick={() => setForwardOpen(true)}
               >
                 <IconShare3 className="size-4" />
@@ -150,7 +154,7 @@ export const MessageActions = ({
                   type="button"
                   variant="ghost"
                   size="icon"
-                  aria-label="More message actions"
+                  aria-label={t('more-message-actions')}
                   className="size-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground data-[state=open]:bg-muted data-[state=open]:text-foreground"
                 >
                   <IconDots className="size-4" />
@@ -167,7 +171,7 @@ export const MessageActions = ({
                     onClick={() => setForwardOpen(true)}
                   >
                     <IconShare3 className="size-4" />
-                    Forward
+                    {t('forward')}
                   </DropdownMenu.Item>
                 )}
                 <MessageCopyActions inline={false} />
@@ -182,7 +186,7 @@ export const MessageActions = ({
                     ) : (
                       <IconPin className="size-4" />
                     )}
-                    {isPinned ? 'Unpin message' : 'Pin message'}
+                    {isPinned ? t('unpin-message') : t('pin-message')}
                   </DropdownMenu.Item>
                 )}
               </DropdownMenu.Content>

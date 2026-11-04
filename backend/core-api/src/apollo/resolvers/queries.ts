@@ -1,9 +1,13 @@
 import { markResolvers } from 'erxes-api-shared/utils';
 import { appQueries } from '@/apps/graphql/queries';
 import { authQueries } from '@/auth/graphql/resolvers/queries';
+import { ldapQueries } from '@/auth/graphql/resolvers/ldap';
+import { twoFactorQueries } from '@/auth/graphql/resolvers/twoFactor';
+import { supportAccessQueries } from '@/auth/graphql/resolvers/supportAccess';
 import { oauthClientAppQueries } from '@/auth/graphql/resolvers/oauthClientApps';
 import { automationQueries } from '@/automations/graphql/resolvers/queries';
 import { emailTemplateQueries } from '@/emailTemplates/graphql/resolvers';
+import { notificationTemplateQueries } from '@/notificationTemplates/graphql/resolvers';
 import { beforeResolverQueries } from '@/beforeResolvers/graphql/queries';
 import { clientPortalQueries } from '@/clientportal/graphql/resolvers/queries/clientPortal';
 import { cpUserQueries } from '@/clientportal/graphql/resolvers/queries/cpUser';
@@ -62,6 +66,9 @@ export const queries = {
   ...referenceQueries,
   ...contactQueries,
   ...authQueries,
+  ...ldapQueries,
+  ...twoFactorQueries,
+  ...supportAccessQueries,
   ...oauthClientAppQueries,
   ...userQueries,
   ...tagQueries,
@@ -80,6 +87,7 @@ export const queries = {
   ...documentQueries,
   ...automationQueries,
   ...emailTemplateQueries,
+  ...notificationTemplateQueries,
   ...beforeResolverQueries,
   ...logQueries,
   ...notificationQueries,
