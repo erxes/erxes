@@ -3,10 +3,10 @@ import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTabl
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
-import { useLocation, useNavigate, useParams } from 'react-router';
 import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
-import { buildCurrentPostsReturnPath } from '~/modules/cms/posts/utils/postsNavigation';
+import { CMS_POST_CONTENT_TYPE } from '~/modules/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '~/modules/cms/shared/side-panel/useContentPanel';
 
 interface PostsPageContentProps {
   clientPortalId: string;
@@ -40,20 +40,10 @@ export const PostsIndexPage = ({
 }: {
   clientPortalId: string;
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { websiteId } = useParams();
+  const { openDetail } = useContentPanel(CMS_POST_CONTENT_TYPE);
 
   const handleEditPost = (post: Posts) => {
-    navigate(`/content/cms/${websiteId}/posts/detail/${post._id}`, {
-      state: {
-        returnTo: buildCurrentPostsReturnPath(
-          location.pathname,
-          location.search,
-          post._id,
-        ),
-      },
-    });
+    openDetail(post._id);
   };
 
   return (

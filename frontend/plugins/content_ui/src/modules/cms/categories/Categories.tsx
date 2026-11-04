@@ -4,19 +4,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CmsSidebar } from '../shared/CmsSidebar';
-import { CmsCategoryDrawer } from './CmsCategoryDrawer';
 import { CategoriesHeader } from './components/CategoriesHeader';
 import { CategoriesRecordTable } from './components/CategoriesRecordTable';
 import { useRemoveCategories } from './hooks/useRemoveCategories';
 import { ICategory } from './types';
+import { CMS_CATEGORY_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 export function Categories() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<
-    ICategory | undefined
-  >(undefined);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const refetch = () => {
@@ -28,14 +25,14 @@ export function Categories() {
     refetch,
   );
 
+  const { openDraft, openDetail } = useContentPanel(CMS_CATEGORY_CONTENT_TYPE);
+
   const handleAddCategory = () => {
-    setSelectedCategory(undefined);
-    setDrawerOpen(true);
+    openDraft({ clientPortalId: websiteId });
   };
 
   const handleEditCategory = (category: ICategory) => {
-    setSelectedCategory(category);
-    setDrawerOpen(true);
+    openDetail(category._id);
   };
 
   const handleBulkDelete = async (ids: string[]) => {
@@ -67,17 +64,6 @@ export function Categories() {
           />
         </div>
       </div>
-
-      <CmsCategoryDrawer
-        category={selectedCategory}
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedCategory(undefined);
-        }}
-        clientPortalId={websiteId || ''}
-        onRefetch={refetch}
-      />
     </PageContainer>
   );
 }

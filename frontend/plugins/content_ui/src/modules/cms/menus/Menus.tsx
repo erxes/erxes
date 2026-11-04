@@ -6,10 +6,11 @@ import { useTranslation } from 'react-i18next';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { EmptyState } from '../shared/EmptyState';
-import { MenuDrawer } from './MenuDrawer';
 import { MenusHeader } from './components/MenusHeader';
 import { MenusRecordTable } from './components/MenusRecordTable';
 import { useMenus } from './hooks/useMenus';
+import { CMS_MENU_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 export function Menus() {
   const { t } = useTranslation('content');
@@ -19,23 +20,21 @@ export function Menus() {
     { label: t('footer'), value: 'footer' },
   ];
   const { websiteId } = useParams();
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingMenu, setEditingMenu] = useState<any>(null);
   const [kindFilter, setKindFilter] = useState<string | undefined>(undefined);
 
-  const { menus, totalCount, loading, refetch } = useMenus({
+  const { menus, totalCount, loading } = useMenus({
     clientPortalId: websiteId || '',
     kind: kindFilter,
   });
 
+  const { openDraft, openDetail } = useContentPanel(CMS_MENU_CONTENT_TYPE);
+
   const handleAddMenu = () => {
-    setEditingMenu(null);
-    setIsDrawerOpen(true);
+    openDraft({ clientPortalId: websiteId });
   };
 
-  const handleEditMenu = (menu: any) => {
-    setEditingMenu(menu);
-    setIsDrawerOpen(true);
+  const handleEditMenu = (menu: { _id: string }) => {
+    openDetail(menu._id);
   };
 
   const headerActions = (
@@ -102,17 +101,6 @@ export function Menus() {
           )}
         </div>
       </div>
-
-      <MenuDrawer
-        isOpen={isDrawerOpen}
-        onClose={() => {
-          setIsDrawerOpen(false);
-          setEditingMenu(null);
-        }}
-        onSuccess={refetch}
-        clientPortalId={websiteId || ''}
-        menu={editingMenu}
-      />
     </PageContainer>
   );
 }

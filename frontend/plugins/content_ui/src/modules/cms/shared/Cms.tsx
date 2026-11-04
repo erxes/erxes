@@ -15,7 +15,8 @@ import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useAtomValue } from 'jotai';
 import { currentUserState } from 'ui-modules';
-import { WebsiteDrawer } from '../components/websites/WebsiteDrawer';
+import { CMS_WEBSITE_CONTENT_TYPE } from './side-panel/contentPanelTypes';
+import { useContentPanel } from './side-panel/useContentPanel';
 import { CONTENT_CMS_LIST } from '../graphql/queries';
 import { IWebsite } from '../types';
 import { CmsLayout } from './CmsLayout';
@@ -40,9 +41,8 @@ export function Cms() {
   const { t } = useTranslation('content');
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'list' | 'thumbnail'>('thumbnail');
-  const [isWebsiteDrawerOpen, setIsWebsiteDrawerOpen] = useState(false);
-  const [editingWebsite, setEditingWebsite] = useState<IWebsite>();
-  const { data, loading, refetch } = useQuery<{
+  const { openDraft, openDetail } = useContentPanel(CMS_WEBSITE_CONTENT_TYPE);
+  const { data, loading } = useQuery<{
     contentCMSList: IWebsite[];
   }>(CONTENT_CMS_LIST);
   const currentUser = useAtomValue(currentUserState);
@@ -55,17 +55,6 @@ export function Cms() {
     website.accessPolicy !== 'assigned' ||
     (website.assignedMemberIds || []).includes(currentUser?._id || '');
 
-  const handleWebsiteCreatedOrUpdated = () => {
-    refetch();
-    setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(undefined);
-  };
-
-  const handleCloseWebsiteDrawer = () => {
-    setIsWebsiteDrawerOpen(false);
-    setEditingWebsite(undefined);
-  };
-
   const handleEditWebsite = (website: IWebsite) => {
     if (!canAccessWebsite(website)) {
       toast({
@@ -75,8 +64,7 @@ export function Cms() {
       });
       return;
     }
-    setEditingWebsite(website);
-    setIsWebsiteDrawerOpen(true);
+    openDetail(website._id);
   };
 
   const handleWebsiteClick = (website: IWebsite) => {
@@ -107,7 +95,7 @@ export function Cms() {
 
   const headerActions = (
     <div>
-      <Button onClick={() => setIsWebsiteDrawerOpen(true)}>
+      <Button onClick={() => openDraft()}>
         <IconPlus className="mr-2 h-4 w-4" />
         {t('add-cms')}
       </Button>
@@ -159,7 +147,7 @@ export function Cms() {
                 title={t('no-cms-yet')}
                 description={t('no-cms-yet-desc')}
                 actionLabel={t('add-cms')}
-                onAction={() => setIsWebsiteDrawerOpen(true)}
+                onAction={() => openDraft()}
               />
             </div>
           ) : viewMode === 'thumbnail' ? (
@@ -358,12 +346,6 @@ export function Cms() {
             </div>
           )}
 
-          <WebsiteDrawer
-            isOpen={isWebsiteDrawerOpen}
-            onClose={handleCloseWebsiteDrawer}
-            onSuccess={handleWebsiteCreatedOrUpdated}
-            website={editingWebsite}
-          />
         </>
       )}
     </CmsLayout>

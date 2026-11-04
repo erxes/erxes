@@ -1,5 +1,6 @@
 import { IconBooks, IconLibraryPhoto, IconSandbox } from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui/types';
+import { CONTENT_PANEL_CONTENT_TYPES } from '@/cms/shared/side-panel/contentPanelTypes';
 
 export const CONFIG: IUIConfig = {
   name: 'content',
@@ -21,4 +22,11 @@ export const CONFIG: IUIConfig = {
       path: 'content/web-builder',
     },
   ],
+  widgets: {
+    recordPanels: CONTENT_PANEL_CONTENT_TYPES.map((contentType) => ({
+      contentType,
+      properties: false,
+      draftTitle: true,
+    })),
+  },
 };

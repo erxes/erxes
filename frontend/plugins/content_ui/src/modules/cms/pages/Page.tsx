@@ -7,11 +7,14 @@ import { IPage } from './types/pageTypes';
 import { PagesHeader } from './components/PagesHeader';
 import { CmsSidebar } from '../shared/CmsSidebar';
 import { PagesFilter } from './components/PagesFilter';
+import { CMS_PAGE_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 export function Page() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const navigate = useNavigate();
+  const { openDetail } = useContentPanel(CMS_PAGE_CONTENT_TYPE);
 
   const headerActions = (
     <div>
@@ -26,7 +29,7 @@ export function Page() {
   );
 
   const handleEditPage = (page: IPage) => {
-    navigate(`/content/cms/${page.clientPortalId}/pages/detail/${page._id}`);
+    openDetail(page._id);
   };
 
   return (

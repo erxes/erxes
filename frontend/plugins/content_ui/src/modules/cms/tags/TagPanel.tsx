@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { Button, Form, Input, Sheet, toast } from 'erxes-ui';
+import { Form, Input, toast } from 'erxes-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -19,16 +19,33 @@ import {
   getInitialCmsLanguage,
 } from '@/cms/shared/utils';
 import { CmsSavedRowLoadError } from '@/cms/shared/components/CmsSavedRowLoadError';
+import {
+  ContentPanelBody,
+  ContentPanelFooter,
+  ContentPanelRecordState,
+} from '@/cms/shared/side-panel/ContentPanelLayout';
+import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
+import {
+  CMS_TAG_CONTENT_TYPE,
+  IContentPanelViewProps,
+  IContentPanelViews,
+} from '@/cms/shared/side-panel/contentPanelTypes';
+import {
+  useContentPanel,
+  useContentPanelDraft,
+} from '@/cms/shared/side-panel/useContentPanel';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
+import { useRemoveTag } from '@/cms/tags/hooks/useRemoveTag';
 import { createSlug } from '@/cms/utils/createSlug';
 import { CmsTag, TagFormData } from '@/cms/tags/types/tagTypes';
 
-interface TagDrawerProps {
+interface TagPanelFormProps {
   tag?: CmsTag;
-  isOpen: boolean;
-  onClose: () => void;
   clientPortalId: string;
+  onCancel: () => void;
+  onCreated?: (tagId: string) => void;
+  onUpdated?: () => void;
 }
 
 interface CmsConfig {
@@ -104,12 +121,13 @@ const buildTagTranslations = (
   return entries;
 };
 
-export function TagDrawer({
+const TagPanelForm = ({
   tag,
-  isOpen,
-  onClose,
   clientPortalId,
-}: TagDrawerProps) {
+  onCancel,
+  onCreated,
+  onUpdated,
+}: TagPanelFormProps) => {
   const { t } = useTranslation('content');
   const isEditing = !!tag?._id;
   const [hasPermissionError, setHasPermissionError] = useState(false);
@@ -143,21 +161,11 @@ export function TagDrawer({
     defaultLanguage,
     cmsConfig,
     cmsQuery,
-    resetKey: `${clientPortalId}-${isOpen}`,
+    resetKey: `${clientPortalId}-${tag?._id || 'new'}`,
   });
 
-  const { data: tagDetailData } = useQuery(CMS_TAG_DETAIL, {
-    variables: {
-      _id: tag?._id,
-      clientPortalId,
-    },
-    fetchPolicy: 'network-only',
-    skip: !isOpen || !tag?._id,
-  });
-
-  const storedTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
   const baseTag = useRecordInDefaultLanguage(
-    storedTag,
+    tag,
     cmsConfig,
     translations,
     CMS_TRANSLATION_FIELDS.tag,
@@ -168,13 +176,11 @@ export function TagDrawer({
   });
 
   useEffect(() => {
-    if (!isOpen) return;
-
     form.reset(tagToFormValues(baseTag, clientPortalId), {
-      keepDirtyValues: baseTag !== storedTag,
+      keepDirtyValues: baseTag !== tag,
     });
     setHasPermissionError(false);
-  }, [baseTag, storedTag, form, isOpen, clientPortalId]);
+  }, [baseTag, tag, form, clientPortalId]);
 
   const getCurrentTranslationData = useCallback(
     (): TranslationData => ({
@@ -223,7 +229,6 @@ export function TagDrawer({
 
   useEffect(() => {
     if (
-      !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
       initialLanguage === defaultLanguage ||
@@ -237,7 +242,6 @@ export function TagDrawer({
     }
     setSelectedLanguage(initialLanguage);
   }, [
-    isOpen,
     selectedLanguage,
     defaultLanguage,
     initialLanguage,
@@ -248,7 +252,6 @@ export function TagDrawer({
 
   useEffect(() => {
     if (
-      !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
       selectedLanguage === defaultLanguage
@@ -260,7 +263,6 @@ export function TagDrawer({
       applyTranslationToForm(selectedLanguage);
     }
   }, [
-    isOpen,
     selectedLanguage,
     defaultLanguage,
     translations,
@@ -291,18 +293,18 @@ export function TagDrawer({
 
   const [addTag, { loading: saving }] = useMutation(CMS_TAGS_ADD, {
     refetchQueries: ['CmsTags'],
-    onCompleted: () => {
-      onClose();
-      form.reset();
+    onCompleted: (data) => {
       toast({
         title: t('success'),
         description: t('tag-created-successfully'),
         variant: 'default',
       });
+
+      if (data?.cmsTagsAdd?._id) {
+        onCreated?.(data.cmsTagsAdd._id);
+      }
     },
     onError: (error) => {
-      console.error('Tag creation error:', error);
-
       const permissionError = error.graphQLErrors?.some(
         (e) =>
           e.message === 'Permission required' ||
@@ -332,8 +334,7 @@ export function TagDrawer({
   const [editTag, { loading: editing }] = useMutation(CMS_TAGS_EDIT, {
     refetchQueries: ['CmsTags'],
     onCompleted: () => {
-      onClose();
-      form.reset();
+      onUpdated?.();
       toast({
         title: t('success'),
         description: t('tag-updated-successfully'),
@@ -341,8 +342,6 @@ export function TagDrawer({
       });
     },
     onError: (error) => {
-      console.error('Tag update error:', error);
-
       const permissionError = error.graphQLErrors?.some(
         (e) =>
           e.message === 'Permission required' ||
@@ -441,129 +440,180 @@ export function TagDrawer({
   };
 
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <Sheet.View className="sm:max-w-lg p-0 bg-background">
-        <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>{isEditing ? t('edit-tag') : t('new-tag')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-1 min-h-0 flex-col"
+      >
+        <ContentPanelBody>
+          {savedRowLoad.hasFailed && (
+            <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+          )}
+          {availableLanguages.length > 0 && (
+            <LanguageSelector
+              selectedLanguage={selectedLanguage}
+              languageOptions={languageOptions}
+              onLanguageChange={onLanguageChange}
+            />
+          )}
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="p-4 space-y-4"
-          >
-            {savedRowLoad.hasFailed && (
-              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
-            )}
-            {availableLanguages.length > 0 && (
-              <LanguageSelector
-                selectedLanguage={selectedLanguage}
-                languageOptions={languageOptions}
-                onLanguageChange={onLanguageChange}
-              />
-            )}
-
-            {hasPermissionError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-4">
-                <div className="flex items-start gap-2">
-                  <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
-                  <div className="text-sm">
-                    <p className="font-medium text-red-800">
-                      {t('permission-required')}
-                    </p>
-                    <p className="text-red-700 mt-1">
-                      {t('tag-permission-inline-desc')}
-                    </p>
-                  </div>
+          {hasPermissionError && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+              <div className="flex items-start gap-2">
+                <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                <div className="text-sm">
+                  <p className="font-medium text-red-800">
+                    {t('permission-required')}
+                  </p>
+                  <p className="text-red-700 mt-1">
+                    {t('tag-permission-inline-desc')}
+                  </p>
                 </div>
               </div>
-            )}
-
-            <Form.Field
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('tag-name')}
-                    {isTranslationMode && (
-                      <span className="ml-2 text-xs text-blue-600">
-                        ({selectedLanguage})
-                      </span>
-                    )}
-                  </Form.Label>
-                  <Form.Control>
-                    <Input
-                      {...field}
-                      placeholder={t('enter-tag-name')}
-                      required
-                      onChange={(e) => {
-                        field.onChange(e);
-                        if (!isTranslationMode) {
-                          handleNameChange(e.target.value);
-                        }
-                      }}
-                    />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <Form.Field
-              control={form.control}
-              name="slug"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('slug')}
-                    {isTranslationMode && (
-                      <span className="ml-2 text-xs text-gray-500">
-                        ({t('shared-across-languages')})
-                      </span>
-                    )}
-                  </Form.Label>
-                  <Form.Control>
-                    <Input {...field} placeholder="tag-slug" required />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-
-            <div className="flex justify-end space-x-2">
-              <Button type="button" onClick={onClose} variant="outline">
-                {t('cancel')}
-              </Button>
-              <Button
-                type="submit"
-                disabled={
-                  saving ||
-                  editing ||
-                  hasPermissionError ||
-                  savedRowLoad.isBlocked
-                }
-              >
-                {saving || editing
-                  ? isEditing
-                    ? t('saving')
-                    : t('creating')
-                  : hasPermissionError
-                    ? t('permission-required')
-                    : isEditing
-                      ? t('save-changes')
-                      : t('create-tag')}
-              </Button>
             </div>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+          )}
+
+          <Form.Field
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  {t('tag-name')}
+                  {isTranslationMode && (
+                    <span className="ml-2 text-xs text-blue-600">
+                      ({selectedLanguage})
+                    </span>
+                  )}
+                </Form.Label>
+                <Form.Control>
+                  <Input
+                    {...field}
+                    autoFocus={!isEditing}
+                    placeholder={t('enter-tag-name')}
+                    required
+                    onChange={(e) => {
+                      field.onChange(e);
+                      if (!isTranslationMode) {
+                        handleNameChange(e.target.value);
+                      }
+                    }}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="slug"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>
+                  {t('slug')}
+                  {isTranslationMode && (
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      ({t('shared-across-languages')})
+                    </span>
+                  )}
+                </Form.Label>
+                <Form.Control>
+                  <Input {...field} placeholder="tag-slug" required />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        </ContentPanelBody>
+        <ContentPanelFooter
+          onCancel={onCancel}
+          saving={saving || editing}
+          disabled={hasPermissionError || savedRowLoad.isBlocked}
+          submitLabel={
+            hasPermissionError
+              ? t('permission-required')
+              : isEditing
+                ? t('save-changes')
+                : t('create-tag')
+          }
+        />
+      </form>
+    </Form>
   );
-}
+};
+
+const TagPanelNew = () => {
+  const { clientPortalId } = useContentPanelDraft(CMS_TAG_CONTENT_TYPE);
+  const { openDetail, cancelDraft } = useContentPanel(CMS_TAG_CONTENT_TYPE);
+
+  return (
+    <TagPanelForm
+      key={clientPortalId}
+      clientPortalId={clientPortalId}
+      onCancel={cancelDraft}
+      onCreated={(tagId) => openDetail(tagId, { replace: true })}
+    />
+  );
+};
+
+const TagPanelDetail = ({ contentId }: IContentPanelViewProps) => {
+  const { closePanel } = useContentPanel(CMS_TAG_CONTENT_TYPE);
+  const { data, loading } = useQuery(CMS_TAG_DETAIL, {
+    variables: { _id: contentId },
+    fetchPolicy: 'network-only',
+  });
+  const tag: CmsTag | undefined = data?.cmsTag;
+
+  return (
+    <ContentPanelRecordState loading={loading} hasRecord={!!tag}>
+      {tag && (
+        <TagPanelForm
+          key={tag._id}
+          tag={tag}
+          clientPortalId={tag.clientPortalId}
+          onCancel={closePanel}
+          onUpdated={closePanel}
+        />
+      )}
+    </ContentPanelRecordState>
+  );
+};
+
+const TagPanelActions = ({ contentId }: IContentPanelViewProps) => {
+  const { t } = useTranslation('content');
+  const { removeTag, loading } = useRemoveTag();
+
+  return (
+    <ContentPanelRemoveAction
+      message={t('confirm-delete-this-tag')}
+      loading={loading}
+      onRemove={(onCompleted) =>
+        removeTag([contentId])
+          .then(() => {
+            toast({
+              title: t('success'),
+              variant: 'success',
+              description: t('tag-deleted-successfully'),
+            });
+            onCompleted();
+          })
+          .catch((error: Error) => {
+            toast({
+              title: t('error'),
+              description: error.message,
+              variant: 'destructive',
+            });
+          })
+      }
+    />
+  );
+};
+
+export const TAG_PANEL: IContentPanelViews = {
+  addLabel: 'new-tag',
+  editLabel: 'edit-tag',
+  New: TagPanelNew,
+  Detail: TagPanelDetail,
+  Actions: TagPanelActions,
+};

@@ -44,6 +44,11 @@ export const usePagesColumns = (
             <div
               onClick={(e) => {
                 e.stopPropagation();
+                if (onEditPage) {
+                  onEditPage(page);
+                  return;
+                }
+
                 navigate(
                   `/content/cms/${page.clientPortalId}/pages/detail/${page._id}`,
                 );

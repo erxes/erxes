@@ -17,6 +17,7 @@ const config: ModuleFederationConfig = {
   exposes: {
     './config': './src/config.tsx',
     './content': './src/modules/cms/Main.tsx',
+    './recordPanel': './src/widgets/record-panel/RecordPanel.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -31,6 +31,12 @@
   platform's chunked-upload contract.
 - Development Rspack serving preserves CMS image asset handling and ignores
   generated dependency/cache/output folders to keep local file watchers bounded.
+- CMS tags, categories, menus, custom post types, custom field groups and
+  fields, CMS websites and Web Builder projects create and edit in the app
+  side panel (`?panel=/detail/content:<type>/<id|new>`) instead of Sheets.
+- CMS posts and pages open a read-only overview in the app side panel from the
+  list (title click and more-menu Edit) with an Edit button that opens the
+  full-page editor; creating them still opens the full-page editor.
 
 ## Architecture
 
@@ -43,18 +49,28 @@
 | Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                                    |
 | Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                                             |
 | Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                                         |
+| Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity. |
+| Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel` | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only post/page overview. |
 
 ## Contracts
 
 ### Provides
 
-- Module Federation exposes `./config` and `./content`.
+- Module Federation exposes `./config`, `./content`, and `./recordPanel`
+  (named `RecordPanel` export).
+- `widgets.recordPanels` entries for every `CONTENT_PANEL_CONTENT_TYPES` value
+  (`content:cmsTag`, `content:cmsCategory`, `content:cmsMenu`,
+  `content:cmsCustomType`, `content:cmsFieldGroup`, `content:cmsCustomField`,
+  `content:cmsWebsite`, `content:web`, `content:cmsPost`, `content:cmsPage`)
+  with `properties: false` and `draftTitle: true`.
 - Routes mounted under `/content`, including `/content/cms` and
   `/content/web-builder`.
 
 ### Consumes
 
-- Public `erxes-ui` and `ui-modules` APIs.
+- Public `erxes-ui` and `ui-modules` APIs, including the side panel API
+  (`useSidePanel`, `useSidePanelDraft`, `IRecordPanelProps`, `NEW_RECORD_ID`,
+  `PanelField`, `ActivityLogs`).
 - Content plugin GraphQL APIs through Apollo Client.
 
 ## Data and State
@@ -72,7 +88,7 @@
 - Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. Every `CmsSidebar` page and `CmsLayout` render the panel beside their page header.
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
-- Public exposes are `./config` and `./content` in
+- Public exposes are `./config`, `./content`, and `./recordPanel` in
   `module-federation.config.ts`.
 - `./content` points to `src/modules/cms/Main.tsx`; routes are mounted under
   `/content`.
@@ -128,6 +144,31 @@
 - `src/widgets` is for plugin widget exports, not general shared CMS UI.
 - Keep hooks, GraphQL documents, states, constants, and types near the feature
   they support.
+- Record create/edit forms live in the app side panel, never in a Sheet or a
+  page-local open state. Each type exposes one `IContentPanelViews` object
+  (`addLabel`, `editLabel`, optional `New`, `Detail`, optional `Actions`) that
+  `RecordPanel` maps by content type; add a type by adding a content type
+  constant and a views object, not by branching in `RecordPanel`. Pages open
+  panels only through `useContentPanel(contentType)`: Add calls
+  `openDraft({ clientPortalId })`, row Edit calls `openDetail(id)`.
+- Panel drafts read `clientPortalId` from the draft defaults, falling back to
+  the `/content/cms/:websiteId` route. A successful create replaces the draft
+  with the record's detail (`openDetail(id, { replace: true })`); a successful
+  edit closes the panel, matching the former Sheets. Mutations refetch the
+  list queries by operation name so lists update without a reload.
+- Panel details load the record by id (tag, category, custom post type, custom
+  field group, post, page) and take `clientPortalId` from the record. Menu
+  detail needs `clientPortalId`, so it uses the route website id. CMS
+  websites and Web Builder projects resolve the record from their cached list
+  queries.
+- A custom field is stored inside its group, so its panel id is
+  `<groupId>~<fieldId>` (`getCustomFieldPanelId`) and every field save, add,
+  or delete is a group edit. A new field's draft carries `groupId`.
+- Panel forms pass `control` explicitly to `Form.Field`; never rely on
+  `useFormContext` inside this remote.
+- Post and page panels are read-only overviews; editing content stays in the
+  full-page editors so autosave, translations, media, and the BlockNote
+  document rules above keep applying.
 - Custom-field choices use `getValidCustomFieldOptions` when saved and rendered.
   Ignore blank and non-string choices from JSON field definitions; preserve valid
   stored values and their order so existing selections continue to match.
@@ -141,7 +182,8 @@
 - Use `erxes-ui` and `ui-modules` components before creating new primitives.
 - Use `@tabler/icons-react` for icons.
 - Use `RecordTable` for cursor-paginated list pages.
-- Use existing drawer/dialog patterns for create and edit flows.
+- Use the app side panel for record create and edit flows; reserve dialogs
+  for confirmations and pickers.
 - Keep table columns, command bars, filters, empty states, and count atoms
   separate like nearby CMS modules.
 - Match existing filter structure, loading states, empty states, bulk actions,
@@ -189,8 +231,9 @@
 - Record table with cursor loading:
   `src/modules/cms/posts/components/PostsRecordTable.tsx`
 
-- Drawer-based CRUD page:
-  `src/modules/cms/categories/Categories.tsx`
+- Side panel CRUD page:
+  `src/modules/cms/categories/Categories.tsx` with
+  `src/modules/cms/categories/CategoryPanel.tsx`
 
 - Custom fields management:
   `src/modules/cms/custom-fields/CustomFields.tsx`
@@ -231,6 +274,14 @@
   save it, reopen it, and verify the structure remains visible.
 - Directly select a CMS file custom field and verify a file no larger than
   650 MiB is accepted while a larger file is rejected.
+- On CMS tags, categories, menus, custom types and custom fields, click Add:
+  the side panel opens a draft, Save creates the record, the panel switches to
+  its detail and the list updates; edit from the row menu, save, and confirm
+  the panel closes and the row changes; delete from the panel header menu.
+- Click a CMS post or page title: the side panel shows its overview, and Edit
+  opens the full-page editor.
+- Add and edit a CMS website and a Web Builder project from their pages and
+  confirm the cards update.
 
 ### Common Mistakes
 
