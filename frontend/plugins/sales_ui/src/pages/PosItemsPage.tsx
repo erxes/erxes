@@ -5,15 +5,12 @@ import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
 import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
-import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
+import { usePosItemsVariables } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
-  const { variables } = usePosItemsList();
-  const getFilters = () => {
-    const { ...filters } = variables || {};
-    return filters;
-  };
+  const variables = usePosItemsVariables({ posId });
+  const getFilters = () => ({ ...variables });
 
   return (
     <>

@@ -196,8 +196,8 @@ export const posOrderRecordsQuery = async (
 
   const orders = await models.PosOrders.aggregate([
     { $match: query },
-    { $unwind: '$items' },
-    { $sort: { createdAt: -1 } },
+    { $unwind: { path: '$items', includeArrayIndex: 'itemIndex' } },
+    { $sort: { createdAt: -1, _id: -1, itemIndex: 1 } },
     { $skip: perPage * (page - 1) },
     { $limit: perPage },
   ]);

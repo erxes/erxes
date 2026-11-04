@@ -8,6 +8,19 @@ import { getPosItemsExportData } from './getPosItemsExportData';
 
 type ExportHeadersArgs = Parameters<TExportHandlers['getExportHeaders']>[0];
 
+type TModuleArgs = {
+  collectionName?: string;
+  data?: { collectionName?: string };
+};
+
+/**
+ * The module producer passes a module handler the request's `data` itself,
+ * while `TExportHandlers` describes `{ subdomain, data }`, so read the
+ * collection from either shape.
+ */
+const readCollectionName = (args: TModuleArgs) =>
+  args.collectionName ?? args.data?.collectionName;
+
 const posExportMap = {
   posItems: {
     getExportHeaders: getPosItemsExportHeaders,
@@ -16,8 +29,11 @@ const posExportMap = {
 };
 
 export const posExportHandlers: TExportHandlers = {
-  getExportHeaders: (args: ExportHeadersArgs, ctx: IImportExportContext) => {
-    const collectionName = args?.data?.collectionName;
+  getExportHeaders: (
+    args: ExportHeadersArgs | ExportHeadersArgs['data'],
+    ctx: IImportExportContext,
+  ) => {
+    const collectionName = readCollectionName(args);
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]
         ?.getExportHeaders;
@@ -27,9 +43,11 @@ export const posExportHandlers: TExportHandlers = {
       );
     return handler(args, ctx);
   },
-  getExportData: (args: GetExportDataArgs, ctx: IImportExportContext) => {
-    const collectionName = (args?.data as { collectionName?: string })
-      ?.collectionName;
+  getExportData: (
+    args: GetExportDataArgs | GetExportDataArgs['data'],
+    ctx: IImportExportContext,
+  ) => {
+    const collectionName = readCollectionName(args);
     const handler =
       posExportMap[collectionName as keyof typeof posExportMap]?.getExportData;
     if (!handler)

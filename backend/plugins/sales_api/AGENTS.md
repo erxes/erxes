@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -87,12 +87,13 @@
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
   batch of them through the `evaluateFields` segment producer. The `tagIds`
   lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
+- POS items export (`sales:pos.posItems`): the module dispatcher reads `collectionName` from the unwrapped `data` the module producer passes, or from `{ data }`. `getPosItemsExportData` returns one page of up to 5000 order items per call; each row's `_id` is its position in the export, so the pipeline's `cursor` is the offset of the next page. It refuses `ids` (selected rows) with an error: `posOrderRecordsQuery` has no row-id filter and the pipeline ends an `ids` export after as many rows as ids, so it would write unselected items. The POS items page exports by filters only.
 
 ## Architecture
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
+| Schema export              | `scripts/print-subgraph-schema.ts`                        | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -290,6 +291,7 @@
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
   callers submit `false` or omit the field. This applies to GraphQL and tRPC
   creation; transport-side `onServer`/offline routing checks remain in place.
+- `posOrderRecordsQuery` sorts unwound order items by `createdAt` desc, `_id` desc, then `itemIndex` asc. The list and the POS items export page by `$skip`, and without the tie-breakers items of one order (same `createdAt`) could repeat or vanish between pages.
 - Every automation action declares a `configSchema` (`src/modules/sales/meta/automations/configSchemas.ts` and `src/modules/pos/meta/automations/configSchemas.ts`) with exactly what its handler reads or refuses: create deal (`stageId`, `name`), create checklist (`name`) and create POS order (`posId` or `posToken`; amounts may be `{{ }}` placeholders). Write each field in the shape the builder form writes (text, not numbers or lists, where the form writes text). Change the schema with the handler; core publishes it to authors as `configJsonSchema` and enforces it when a flow goes live. Create deal also declares `validateConfig` (`src/modules/sales/meta/automations/configValidators.ts`): its `stageId` exists. POS `posToken` is builder-only.
 - Deal notifications are sent from `modules/sales/utils/notifications.ts`, not
   `modules/sales/utils.ts` (the barrel rule below). Each passes `event`:
@@ -600,6 +602,7 @@
   must keep the Sales cover available for retry.
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test sales_api` (`src/modules/sales/meta/automations/__tests__/configSchemas.test.ts`)
+- `pnpm nx test sales_api` (`src/modules/pos/meta/export/__tests__/getPosItemsExportData.test.ts`: refuses `ids`, pages filtered items by the cursor offset)
 - `pnpm exec tsc --noEmit -p backend/plugins/sales_api/tsconfig.json`
 - `pnpm nx run sales_api:schema:print --skip-nx-cache` prints this subgraph offline for `gateway:schema:compose`.
 - `pnpm nx lint sales_api`
