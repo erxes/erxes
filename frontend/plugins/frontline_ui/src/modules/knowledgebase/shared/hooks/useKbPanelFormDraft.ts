@@ -104,9 +104,8 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
   const sameSession = () =>
     Boolean(
       userId &&
-        store.get(currentUserState)?._id === userId &&
-        (store.get(kbPanelDraftRevisionsState)[recordKey] ?? 0) ===
-          scopeRevision,
+      store.get(currentUserState)?._id === userId &&
+      (store.get(kbPanelDraftRevisionsState)[recordKey] ?? 0) === scopeRevision,
     );
   useEffect(() => {
     if (scopeRevision === revision || scope.current.handled) return;
