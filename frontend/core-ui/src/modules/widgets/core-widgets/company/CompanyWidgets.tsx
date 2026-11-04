@@ -1,4 +1,4 @@
-import { ContactRelationWidget } from '../ContactRelationWidget';
+import { ContactRelationWidget } from '@/widgets/core-widgets/ContactRelationWidget';
 import {
   CompanyWidget,
   IRelationWidgetProps,

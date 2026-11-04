@@ -30,14 +30,18 @@ import {
   PanelFieldTrigger,
   PrintDocument,
 } from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
+import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 
 const SCOPE = 'side-panel-company';
 
 type TPanelCompany = TCompany & { isSubscribed?: string };
 
 type TTextCode =
-  'primaryName' | 'code' | 'website' | 'location' | 'businessType';
+  | 'primaryName'
+  | 'code'
+  | 'website'
+  | 'location'
+  | 'businessType';
 
 /** Edits one company text field using the existing inline mutation flow. */
 const CompanyTextField = ({

@@ -37,24 +37,27 @@ import {
   Tooltip,
 } from 'erxes-ui';
 import { forwardRef, useState } from 'react';
-import { useFieldGroups } from '../hooks/useFieldGroups';
-import { useFields } from '../hooks/useFields';
+import { useFieldGroups } from 'ui-modules/modules/properties/hooks/useFieldGroups';
+import { useFields } from 'ui-modules/modules/properties/hooks/useFields';
 import {
   IField,
   IFieldGroup,
   IPropertyRow,
   IFieldMutation,
-} from '../types/fieldsTypes';
+} from 'ui-modules/modules/properties/types/fieldsTypes';
 import {
   formatFieldValue,
   getPropertyRowsUpdate,
   hasFieldValue,
   isFieldVisibleByLogic,
   toPropertyGroupKey,
-} from '../propertyUtils';
+} from 'ui-modules/modules/properties/propertyUtils';
 import { nanoid } from 'nanoid';
-import { Field, FieldMultiple } from './Field';
-import { GroupFieldRows } from './GroupFieldRows';
+import {
+  Field,
+  FieldMultiple,
+} from 'ui-modules/modules/properties/components/Field';
+import { GroupFieldRows } from 'ui-modules/modules/properties/components/GroupFieldRows';
 import { useNavigate } from 'react-router-dom';
 
 export const PropertyGroupShell = ({

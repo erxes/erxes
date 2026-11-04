@@ -41,7 +41,7 @@ import {
   PanelFieldTrigger,
   PrintDocument,
 } from 'ui-modules';
-import { PanelAvatarField } from './PanelAvatarField';
+import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 
 const SCOPE = 'side-panel-customer';
 

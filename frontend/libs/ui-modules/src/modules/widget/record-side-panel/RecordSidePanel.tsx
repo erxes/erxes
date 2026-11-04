@@ -1,5 +1,11 @@
+import type {
+  PanelExpansionContextValue,
+  RecordSidePanelResizeHandleProps,
+  RecordSidePanelRootProps,
+  RecordSidePanelHeaderProps,
+  RecordSidePanelTabsProps,
+} from 'ui-modules/modules/widget/record-side-panel/RecordSidePanelTypes';
 import {
-  Icon,
   IconChevronDown,
   IconChevronLeft,
   IconMaximize,
@@ -20,12 +26,7 @@ import {
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
-export interface IRecordSidePanelTab {
-  value: string;
-  label: string;
-  icon: Icon;
-  content: React.ReactNode;
-}
+export type { IRecordSidePanelTab } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanelTypes';
 
 // A record shown beside its list, the list staying usable: a header and tabs.
 export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
@@ -34,10 +35,7 @@ export const SIDE_PANEL_WIDTH = { min: 320, max: 600, default: 400 };
 const clampWidth = (width: number, maxWidth: number) =>
   Math.min(maxWidth, Math.max(SIDE_PANEL_WIDTH.min, width));
 
-const PanelExpansionContext = createContext<{
-  expanded: boolean;
-  toggle: () => void;
-} | null>(null);
+const PanelExpansionContext = createContext<PanelExpansionContextValue>(null);
 
 /** Reads the expansion state of the nearest record panel. */
 export const usePanelExpanded = () =>
@@ -48,11 +46,7 @@ const RecordSidePanelResizeHandle = ({
   width,
   maxWidth,
   onWidthChange,
-}: {
-  width: number;
-  maxWidth: number;
-  onWidthChange: (width: number) => void;
-}) => {
+}: RecordSidePanelResizeHandleProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [dragging, setDragging] = useState(false);
   const stopResize = useRef<((commit?: boolean) => void) | null>(null);
@@ -211,18 +205,7 @@ const RecordSidePanelRoot = ({
   expandedMode = 'viewport',
   onExpandedChange,
   children,
-}: {
-  className?: string;
-  width?: number;
-  // Larger surfaces can opt in without widening record panels.
-  maxWidth?: number;
-  // Makes the panel resizable from its left edge.
-  onWidthChange?: (width: number) => void;
-  expanded?: boolean;
-  expandedMode?: 'viewport' | 'page';
-  onExpandedChange?: (expanded: boolean) => void;
-  children: React.ReactNode;
-}) => {
+}: RecordSidePanelRootProps) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const expanded = controlledExpanded ?? internalExpanded;
   const [entering, setEntering] = useState(true);
@@ -308,17 +291,7 @@ const RecordSidePanelHeader = ({
   onBack,
   onExpand,
   onClose,
-}: {
-  className?: string;
-  // Shown when the panel came here from another record.
-  onBack?: () => void;
-  avatar?: React.ReactNode;
-  title: React.ReactNode;
-  // The record's own actions (e.g. a "more" menu), before expand and close.
-  actions?: React.ReactNode;
-  onExpand?: () => void;
-  onClose: () => void;
-}) => {
+}: RecordSidePanelHeaderProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expansion = useContext(PanelExpansionContext);
   const expandButtonRef = useRef<HTMLButtonElement>(null);
@@ -448,14 +421,7 @@ const RecordSidePanelTabs = ({
   visibleCount = 3,
   overviewTab,
   expandedDefaultTab,
-}: {
-  tabs: IRecordSidePanelTab[];
-  value: string;
-  onValueChange: (value: string) => void;
-  visibleCount?: number;
-  overviewTab?: string;
-  expandedDefaultTab?: string;
-}) => {
+}: RecordSidePanelTabsProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expanded = useContext(PanelExpansionContext)?.expanded ?? false;
   const splitOverview = expanded && Boolean(overviewTab);

@@ -3,7 +3,7 @@ import {
   IFieldLogicRule,
   IFieldMutation,
   IPropertyRow,
-} from './types/fieldsTypes';
+} from 'ui-modules/modules/properties/types/fieldsTypes';
 
 /** Builds a group-only patch or a complete property replacement for the mutation contract. */
 export const getPropertyRowsUpdate = (

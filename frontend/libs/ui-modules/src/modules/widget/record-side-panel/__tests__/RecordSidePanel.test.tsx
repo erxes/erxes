@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useState } from 'react';
-import { RecordSidePanel } from '../RecordSidePanel';
+import { RecordSidePanel } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanel';
 
 jest.mock('erxes-ui', () => {
   const ReactModule = jest.requireActual<typeof import('react')>('react');

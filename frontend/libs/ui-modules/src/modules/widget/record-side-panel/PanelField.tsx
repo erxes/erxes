@@ -1,7 +1,7 @@
 import { IconForms, type Icon } from '@tabler/icons-react';
 import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
 import { forwardRef } from 'react';
-import { PanelLabel } from './PanelLabel';
+import { PanelLabel } from 'ui-modules/modules/widget/record-side-panel/PanelLabel';
 
 // One field in the side panel: its label, then the value as a record table
 // cell. Click to edit; Enter saves and Escape cancels, as in the list.

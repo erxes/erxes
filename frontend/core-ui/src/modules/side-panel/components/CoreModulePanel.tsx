@@ -1,8 +1,13 @@
+import type {
+  TModulePanelProps,
+  TModulePanelViewProps,
+  ModulePanelContextValue,
+} from '@/side-panel/types/CoreModulePanelTypes';
 import { Button, cn, Empty, FocusSheet, Sheet, Spinner } from 'erxes-ui';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  ComponentProps,
+  type ComponentProps,
   createContext,
   forwardRef,
   useCallback,
@@ -29,21 +34,7 @@ import {
   modulePanelTargetsState,
 } from '@/side-panel/states/modulePanelState';
 
-type TModulePanelProps = ComponentProps<typeof Sheet> & {
-  name: string;
-  maxWidth?: number;
-  defaultWidth?: number;
-  requiredPermission?: string;
-};
-
-const ModulePanelContext = createContext<{
-  path: string;
-  name: string;
-  open: boolean;
-  allowed: boolean;
-  onClose: () => void;
-  onOpen: () => void;
-} | null>(null);
+const ModulePanelContext = createContext<ModulePanelContextValue>(null);
 
 // Page-owned editors use the same app-wide column as records. The existing
 // Sheet/FocusSheet roots only supply trigger, close and form-widget contexts;
@@ -189,14 +180,6 @@ const ModulePanelRoot = ({
       </Root>
     </ModulePanelContext.Provider>
   );
-};
-
-type TModulePanelViewProps = ComponentProps<typeof Sheet.View> & {
-  loading?: boolean;
-  error?: boolean;
-  notFound?: boolean;
-  errorState?: React.ReactNode;
-  notFoundState?: React.ReactNode;
 };
 
 /** Shows an editor status message in the panel column. */

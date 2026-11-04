@@ -1,7 +1,7 @@
 import { useAtom } from 'jotai';
 import { useState } from 'react';
 import type { IRelationWidgetTab } from 'ui-modules';
-import { useContactWidgetModules } from './useContactWidgetModules';
+import { useContactWidgetModules } from '@/side-panel/hooks/useContactWidgetModules';
 import {
   buildContactOverviewEntries,
   type TContactOverviewEntry,

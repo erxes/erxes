@@ -1,3 +1,7 @@
+import {
+  getSidePanelRecordPath,
+  parseSidePanelRecord,
+} from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 import { useMultiQueryState } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -11,10 +15,16 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { matchPath, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { TRelationEntity } from 'ui-modules/modules/widget/utils';
 import { SIDE_PANEL_WIDTH } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanel';
 import { SidePanelNavigatorContext } from 'ui-modules/modules/widget/record-side-panel/recordView';
+
+export {
+  SIDE_PANEL_DETAIL_PATH,
+  getSidePanelRecordPath,
+  parseSidePanelRecord,
+} from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 
 // The side panel keeps its own route in the URL, beside the page's:
 // `/contacts/customers?panel=/detail/customer/<id>`, so it can be linked,
@@ -80,45 +90,8 @@ export const useSidePanelDraft = <T extends Record<string, unknown>>(
 export const SidePanelRecordPathContext = createContext<string | null>(null);
 
 export const SIDE_PANEL_ROOT_PATH = '/';
-export const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId/:draftId?';
 // The assistant chat.
 export const SIDE_PANEL_CHAT_PATH = '/chat';
-
-// Short type names for core records; any other record uses its content
-// type as the name, e.g. `/detail/sales:deal/<id>`.
-const TYPE_NAME_CONTENT_TYPES: Record<string, string> = {
-  customer: 'core:customer',
-  company: 'core:company',
-};
-
-const CONTENT_TYPE_TYPE_NAMES = Object.fromEntries(
-  Object.entries(TYPE_NAME_CONTENT_TYPES).map(([name, type]) => [type, name]),
-);
-
-/** Maps a relation entity to its URL-backed panel route. */
-export const getSidePanelRecordPath = ({
-  contentType,
-  contentId,
-}: TRelationEntity) =>
-  `/detail/${CONTENT_TYPE_TYPE_NAMES[contentType] || contentType}/${contentId}`;
-
-/** Parses record routes and expands short core contact type names. */
-export const parseSidePanelRecord = (
-  path: string | null,
-): TRelationEntity | null => {
-  const match = path ? matchPath(SIDE_PANEL_DETAIL_PATH, path) : null;
-
-  if (!match?.params.typeName || !match.params.recordId) {
-    return null;
-  }
-
-  const { typeName, recordId } = match.params;
-
-  return {
-    contentType: TYPE_NAME_CONTENT_TYPES[typeName] || typeName,
-    contentId: recordId,
-  };
-};
 
 /**
  * Opens, closes and navigates the side panel from anywhere, plugins

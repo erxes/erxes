@@ -1,4 +1,4 @@
-import { AppLayoutPageSlot } from './AppLayoutPageSlot';
+import { AppLayoutPageSlot } from 'erxes-ui/modules/layout/components/AppLayoutPageSlot';
 import {
   type ElementType,
   type PointerEvent as ReactPointerEvent,

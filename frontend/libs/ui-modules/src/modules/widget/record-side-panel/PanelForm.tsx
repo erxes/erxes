@@ -1,6 +1,6 @@
 import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PanelLabel } from './PanelLabel';
+import { PanelLabel } from 'ui-modules/modules/widget/record-side-panel/PanelLabel';
 import { IconForms, type Icon } from '@tabler/icons-react';
 
 // Inputs inside a panel form row: the height and text of the panel's cells.

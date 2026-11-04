@@ -1,4 +1,4 @@
-import { memberOptions } from '../utils/memberOptions';
+import { memberOptions } from 'ui-modules/modules/team-members/utils/memberOptions';
 import { useSubscription } from '@apollo/client';
 import { IconPlus, IconUser } from '@tabler/icons-react';
 import {
@@ -23,10 +23,10 @@ import { useDebounce } from 'use-debounce';
 import {
   SelectMemberContext,
   useSelectMemberContext,
-} from '../contexts/SelectMemberContext';
-import { USER_STATUS_CHANGED } from '../graphql/subscriptions/userStatusChanged';
-import { IUser } from '../types/TeamMembers';
-import { MembersInline } from './MembersInline';
+} from 'ui-modules/modules/team-members/contexts/SelectMemberContext';
+import { USER_STATUS_CHANGED } from 'ui-modules/modules/team-members/graphql/subscriptions/userStatusChanged';
+import { IUser } from 'ui-modules/modules/team-members/types/TeamMembers';
+import { MembersInline } from 'ui-modules/modules/team-members/components/MembersInline';
 
 /** Owns selected member objects and dispatches single or multiple selection changes. */
 const SelectMemberProvider = ({

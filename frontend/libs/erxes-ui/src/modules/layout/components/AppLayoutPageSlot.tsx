@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, type PropsWithChildren } from 'react';
 import {
   appLayoutPageOverlayState,
   appLayoutPageTargetState,
-} from '../states/appLayoutPageState';
+} from 'erxes-ui/modules/layout/states/appLayoutPageState';
 
 // A page can be replaced by a record while the app's navigation stays mounted.
 export const AppLayoutPageSlot = ({ children }: PropsWithChildren) => {
