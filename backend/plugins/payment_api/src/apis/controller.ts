@@ -115,10 +115,11 @@ export const callbackHandler = async (req, res) => {
         return res.status(400).send('Invoice not found');
       }
 
-      const result = await models.Invoices.checkInvoice(
-        transaction.invoiceId,
-        subdomain,
-      );
+      const { status: result, claimed } =
+        await models.Invoices.checkInvoiceAndClaim(
+          transaction.invoiceId,
+          subdomain,
+        );
 
       delete transaction.response;
 
@@ -168,7 +169,8 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      if (result === 'paid') {
+      // notify only if this callback moved the invoice to paid
+      if (result === 'paid' && claimed) {
         if (invoice.contentType) {
           const [pluginName, moduleName, collectionType] = splitType(
             invoice.contentType,
@@ -197,7 +199,7 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      if (invoice.callback) {
+      if (invoice.callback && claimed) {
         try {
           await fetch(invoice.callback, {
             method: 'POST',

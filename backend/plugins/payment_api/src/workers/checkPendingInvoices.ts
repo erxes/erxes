@@ -7,13 +7,14 @@ import {
   redis,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
+import { splitType } from 'erxes-api-shared/core-modules';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS } from '~/constants';
-import { splitType } from 'erxes-api-shared/core-modules';
 
 const SERVICE = 'payment';
 const SCHEDULER_QUEUE = 'pending-invoices-schedule';
 const ORG_QUEUE = 'pending-invoices-check';
+const INVOICE_CALLBACK_QUEUE = 'paid-invoice-callback';
 
 // Every 5 minutes.
 const SCHEDULE_PATTERN = '*/5 * * * *';
@@ -24,6 +25,8 @@ const SCHEDULE_PATTERN = '*/5 * * * *';
 const MIN_AGE_MS = 2 * 60 * 1000;
 const MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
+// Max invoices checked per org per run. Runs continue from where the previous
+// run stopped (see cursor below), so every eligible invoice gets its turn.
 const BATCH_LIMIT = 200;
 
 const LOG_PREFIX = 'pendingInvoicesCron';
@@ -32,11 +35,57 @@ const log = (msg: string) => process.stdout.write(`[${LOG_PREFIX}] ${msg}\n`);
 const logError = (msg: string) =>
   process.stderr.write(`[${LOG_PREFIX}] ${msg}\n`);
 
-const notifyPaidInvoice = async (
-  models: any,
-  subdomain: string,
-  _id: string,
-) => {
+const cursorKey = (subdomain: string) =>
+  `payment:pendingInvoicesCursor:${subdomain}`;
+
+/**
+ * Sends invoice.callback through a queue so a failed delivery (network error
+ * or non-2xx response) is retried by BullMQ instead of being lost. The invoice
+ * is already paid at this point, so the scheduled check would never retry it.
+ */
+const enqueueInvoiceCallback = async (invoice: any) => {
+  await sendWorkerQueue(SERVICE, INVOICE_CALLBACK_QUEUE).add(
+    INVOICE_CALLBACK_QUEUE,
+    {
+      url: invoice.callback,
+      body: {
+        _id: invoice._id,
+        amount: invoice.amount,
+        status: PAYMENT_STATUS.PAID,
+      },
+    },
+    {
+      jobId: `${INVOICE_CALLBACK_QUEUE}-${invoice._id}`,
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5000 },
+      removeOnComplete: true,
+      removeOnFail: { age: 7 * 24 * 3600 },
+    },
+  );
+};
+
+const sendInvoiceCallback = async (job: Job) => {
+  const { url, body } = job.data || {};
+
+  if (!url) {
+    return;
+  }
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    // throwing makes BullMQ retry with backoff
+    throw new Error(
+      `Callback for invoice ${body?._id} failed: HTTP ${res.status} ${res.statusText}`,
+    );
+  }
+};
+
+const notifyPaidInvoice = async (models: any, subdomain: string, _id: string) => {
   const invoice = await models.Invoices.getInvoice({ _id }, true);
 
   graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
@@ -49,40 +98,24 @@ const notifyPaidInvoice = async (
       invoice.contentType,
     );
 
-    sendWorkerQueue(pluginName, 'payments')
-      .add(
-        'callback',
-        {
-          subdomain,
-          data: {
-            ...invoice,
-            status: PAYMENT_STATUS.PAID,
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
+    await sendWorkerQueue(pluginName, 'payments').add(
+      'callback',
+      {
+        subdomain,
+        data: {
+          ...invoice,
+          status: PAYMENT_STATUS.PAID,
+          moduleName,
+          collectionType,
+          apiResponse: 'success',
         },
-        { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-      )
-      .catch((err) =>
-        logError(
-          `Failed to enqueue callback for invoice ${_id}: ${err.message}`,
-        ),
-      );
+      },
+      { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
+    );
   }
 
   if (invoice.callback) {
-    fetch(invoice.callback, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        _id: invoice._id,
-        amount: invoice.amount,
-        status: PAYMENT_STATUS.PAID,
-      }),
-    }).catch((err) =>
-      logError(`Callback failed for invoice ${_id}: ${err.message}`),
-    );
+    await enqueueInvoiceCallback(invoice);
   }
 };
 
@@ -91,29 +124,60 @@ export const checkPendingInvoicesForSubdomain = async (subdomain: string) => {
 
   const now = Date.now();
 
-  const invoices = await models.Invoices.find(
-    {
-      status: PAYMENT_STATUS.PENDING,
-      createdAt: {
-        $gte: new Date(now - MAX_AGE_MS),
-        $lte: new Date(now - MIN_AGE_MS),
-      },
+  const filter: any = {
+    status: PAYMENT_STATUS.PENDING,
+    createdAt: {
+      $gte: new Date(now - MAX_AGE_MS),
+      $lte: new Date(now - MIN_AGE_MS),
     },
-    { _id: 1 },
-  )
-    .sort({ createdAt: 1 })
+  };
+
+  // Continue after the last invoice checked in the previous run, so the same
+  // oldest invoices cannot starve newer ones.
+  const savedCursor = await redis.get(cursorKey(subdomain));
+
+  if (savedCursor) {
+    const { createdAt, _id } = JSON.parse(savedCursor);
+    const cursorDate = new Date(createdAt);
+
+    filter.$or = [
+      { createdAt: { $gt: cursorDate } },
+      { createdAt: cursorDate, _id: { $gt: _id } },
+    ];
+  }
+
+  const invoices = await models.Invoices.find(filter, { _id: 1, createdAt: 1 })
+    .sort({ createdAt: 1, _id: 1 })
     .limit(BATCH_LIMIT)
     .lean();
+
+  if (invoices.length < BATCH_LIMIT) {
+    // reached the end, next run starts from the oldest again
+    await redis.del(cursorKey(subdomain));
+  } else {
+    const last = invoices[invoices.length - 1];
+
+    await redis.set(
+      cursorKey(subdomain),
+      JSON.stringify({ createdAt: last.createdAt, _id: last._id }),
+      'EX',
+      Math.ceil(MAX_AGE_MS / 1000),
+    );
+  }
 
   let paidCount = 0;
 
   for (const { _id } of invoices) {
     try {
-      // checkInvoice checks every pending transaction of the invoice with its
-      // provider, not only the latest one.
-      const status = await models.Invoices.checkInvoice(_id, subdomain);
+      // checks every pending transaction of the invoice with its provider
+      const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+        _id,
+        subdomain,
+      );
 
-      if (status === PAYMENT_STATUS.PAID) {
+      // Notify only if this check moved the invoice to paid. If another check
+      // (widget, provider callback) got there first, it already notified.
+      if (status === PAYMENT_STATUS.PAID && claimed) {
         paidCount++;
         log(`${subdomain}: invoice ${_id} found paid, notifying`);
         await notifyPaidInvoice(models, subdomain, _id);
@@ -126,27 +190,39 @@ export const checkPendingInvoicesForSubdomain = async (subdomain: string) => {
   return { checked: invoices.length, paid: paidCount };
 };
 
-const scheduleOrgChecks = async () => {
-  if (getEnv({ name: 'VERSION' }) === 'saas') {
-    const orgs = await getSaasOrganizationsByFilter({});
+const addOrgCheck = (subdomain: string) =>
+  sendWorkerQueue(SERVICE, ORG_QUEUE).add(
+    ORG_QUEUE,
+    { subdomain },
+    {
+      // Fixed id: at most one waiting/active check per org. Completed and failed
+      // jobs are removed right away so the id is free for the next run.
+      jobId: `${ORG_QUEUE}-${subdomain}`,
+      removeOnComplete: true,
+      removeOnFail: true,
+    },
+  );
 
-    for (const org of orgs) {
-      sendWorkerQueue(SERVICE, ORG_QUEUE).add(
-        ORG_QUEUE,
-        { subdomain: org.subdomain },
-        // one pending job per org at a time
-        { jobId: `${ORG_QUEUE}-${org.subdomain}` },
-      );
-    }
-  } else {
-    sendWorkerQueue(SERVICE, ORG_QUEUE).add(
-      ORG_QUEUE,
-      { subdomain: 'os' },
-      { jobId: `${ORG_QUEUE}-os` },
+const scheduleOrgChecks = async () => {
+  const subdomains =
+    getEnv({ name: 'VERSION' }) === 'saas'
+      ? (await getSaasOrganizationsByFilter({})).map((org) => org.subdomain)
+      : ['os'];
+
+  const results = await Promise.allSettled(subdomains.map(addOrgCheck));
+
+  const failed = results.filter((r) => r.status === 'rejected');
+
+  if (failed.length) {
+    // fail the scheduler job so it shows up in logs instead of silently passing
+    throw new Error(
+      `Failed to queue ${failed.length}/${subdomains.length} org checks: ${
+        (failed[0] as PromiseRejectedResult).reason?.message
+      }`,
     );
   }
 
-  return 'scheduled';
+  return `scheduled ${subdomains.length}`;
 };
 
 const checkOrg = async (job: Job) => {
@@ -186,5 +262,13 @@ export const initPendingInvoicesWorker = async () => {
     redis,
     () => log('org check worker ready'),
     { concurrency: 5 },
+  );
+
+  createMQWorkerWithListeners(
+    SERVICE,
+    INVOICE_CALLBACK_QUEUE,
+    sendInvoiceCallback,
+    redis,
+    () => log('invoice callback worker ready'),
   );
 };

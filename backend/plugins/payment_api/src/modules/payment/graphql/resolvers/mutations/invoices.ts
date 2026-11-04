@@ -89,9 +89,13 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
+    // notify only if this call moved the invoice to paid
+    if (status === 'paid' && claimed) {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
       if (invoice.contentType) {
@@ -157,9 +161,13 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
+    // notify only if this call moved the invoice to paid
+    if (status === 'paid' && claimed) {
       const invoice = await models.Invoices.getInvoice({ _id }, true);
 
       if (invoice.contentType) {

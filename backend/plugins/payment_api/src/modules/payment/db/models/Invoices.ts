@@ -12,6 +12,10 @@ export interface IInvoiceModel extends Model<IInvoiceDocument> {
   updateInvoice(_id: string, doc: any): Promise<IInvoiceDocument>;
   cancelInvoice(_id: string): Promise<string>;
   checkInvoice(_id: string, subdomain: string): Promise<string>;
+  checkInvoiceAndClaim(
+    _id: string,
+    subdomain: string,
+  ): Promise<{ status: string; claimed: boolean }>;
   removeInvoices(_ids: string[]): Promise<any>;
   markAsPaid(_id: string): Promise<string>;
 }
@@ -93,6 +97,20 @@ export const loadInvoiceClass = (models: IModels) => {
     }
 
     public static async checkInvoice(_id: string, subdomain: string) {
+      const { status } = await models.Invoices.checkInvoiceAndClaim(
+        _id,
+        subdomain,
+      );
+
+      return status;
+    }
+
+    /**
+     * Same as checkInvoice, but also reports whether THIS call moved the
+     * invoice from unpaid to paid. Only the caller with claimed: true should
+     * send paid notifications, so concurrent checks never notify twice.
+     */
+    public static async checkInvoiceAndClaim(_id: string, subdomain: string) {
       const unpaidTransactions = await models.Transactions.find({
         invoiceId: _id,
         status: 'pending',
@@ -182,22 +200,23 @@ export const loadInvoiceClass = (models: IModels) => {
             },
           );
 
-          return PAYMENT_STATUS.FAILED;
+          return { status: PAYMENT_STATUS.FAILED, claimed: false };
         }
 
-        return PAYMENT_STATUS.PENDING;
+        return { status: PAYMENT_STATUS.PENDING, claimed: false };
       }
 
       if (totalAmount[0].total < invoice.amount) {
-        return PAYMENT_STATUS.PENDING;
+        return { status: PAYMENT_STATUS.PENDING, claimed: false };
       }
 
-      await models.Invoices.updateOne(
-        { _id },
+      // Atomic pending -> paid transition: only one concurrent caller matches.
+      const result = await models.Invoices.updateOne(
+        { _id, status: { $ne: PAYMENT_STATUS.PAID } },
         { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
       );
 
-      return PAYMENT_STATUS.PAID;
+      return { status: PAYMENT_STATUS.PAID, claimed: result.modifiedCount > 0 };
     }
 
     public static async removeInvoices(_ids: string[]) {
