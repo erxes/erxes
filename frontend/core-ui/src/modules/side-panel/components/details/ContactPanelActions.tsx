@@ -38,20 +38,22 @@ export const ContactPanelActions = ({
   const containerRef = useRef<HTMLElement>(null);
   const [compact, setCompact] = useState(true);
   const canMessage =
-    !!onMessage && hasActionPermission('conversationMessageAdd');
+    Boolean(onMessage) && hasActionPermission('conversationMessageAdd');
   const canNote = hasActionPermission('internalNotesManage');
   const canPrint = hasActionPermission('documentsRead');
 
   useEffect(() => {
     const container = containerRef.current;
-    if (!container) return;
+    if (!container) return undefined;
 
     const measure = () =>
       setCompact(container.getBoundingClientRect().width < 640);
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   const actions = [

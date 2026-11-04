@@ -375,7 +375,7 @@ const TagsSelectContent = () => {
 
 TagsSelectContent.displayName = 'TagsSelectContent';
 
-const TagsSelectedList = ({
+function TagsSelectedList({
   maxVisible,
   placeholder,
   renderAsPlainText,
@@ -384,7 +384,7 @@ const TagsSelectedList = ({
   maxVisible?: number;
   placeholder?: string;
   renderAsPlainText?: boolean;
-}) => {
+}) {
   const {
     selectedTags,
     setSelectedTags,
@@ -420,7 +420,7 @@ const TagsSelectedList = ({
   const removeId = (id: string) => {
     if (mode === 'single') {
       setSelectedTags([]);
-      (onValueChange as (value: string | undefined) => void)?.(undefined);
+      (onValueChange as (value?: string) => void)?.();
       if (targetIds) {
         giveTags({
           variables: { type, targetIds, tagIds: [] },
@@ -481,9 +481,7 @@ const TagsSelectedList = ({
           onClose={() => {
             if (mode === 'single') {
               setSelectedTags([]);
-              (onValueChange as (value: string | undefined) => void)?.(
-                undefined,
-              );
+              (onValueChange as (value?: string) => void)?.();
               if (targetIds) {
                 giveTags({
                   variables: {
@@ -542,7 +540,7 @@ const TagsSelectedList = ({
       )}
     </>
   );
-};
+}
 TagsSelectedList.displayName = 'TagsSelectedList';
 
 const TagsSelectRoot = forwardRef<

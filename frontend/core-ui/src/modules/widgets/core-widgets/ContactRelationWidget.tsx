@@ -31,12 +31,12 @@ export const ContactRelationWidget = ({
 
   if (loading) {
     return (
-      <div
-        role="status"
+      <output
+        className="block"
         aria-label={t('loading-linked-records', 'Loading linked records')}
       >
         <Spinner containerClassName="py-6" />
-      </div>
+      </output>
     );
   }
   if (error) {
@@ -48,7 +48,9 @@ export const ContactRelationWidget = ({
         <Button
           variant="outline"
           size="sm"
-          onClick={() => void refetch().catch(() => undefined)}
+          onClick={() => {
+            refetch().catch(() => undefined);
+          }}
         >
           {t('retry', 'Try again')}
         </Button>

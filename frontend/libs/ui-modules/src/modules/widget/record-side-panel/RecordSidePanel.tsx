@@ -216,14 +216,14 @@ const RecordSidePanelRoot = ({
   useLayoutEffect(() => {
     const changed = previousExpanded.current !== expanded;
     previousExpanded.current = expanded;
-    if (!changed) return;
+    if (!changed) return undefined;
     setEntering(false);
     const panel = panelRef.current;
     if (
       !panel?.animate ||
       window.matchMedia('(prefers-reduced-motion: reduce)').matches
     ) {
-      return;
+      return undefined;
     }
     // Animate the committed layout without fading or restarting entry motion.
     const animation = panel.animate(
@@ -236,7 +236,9 @@ const RecordSidePanelRoot = ({
       ],
       { duration: 220, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
     );
-    return () => animation?.cancel();
+    return () => {
+      animation?.cancel();
+    };
   }, [expanded]);
 
   const toggle = useCallback(() => {

@@ -54,7 +54,7 @@ export const ContactPanelRelationField = ({
 
   const handleChange = (value: string[] | string) => {
     setOpen(false);
-    void manageRelations({
+    manageRelations({
       ...variables,
       relatedContentIds: Array.isArray(value) ? value : value ? [value] : [],
     }).catch(() => undefined);
@@ -92,7 +92,9 @@ export const ContactPanelRelationField = ({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => void refetch().catch(() => undefined)}
+            onClick={() => {
+              refetch().catch(() => undefined);
+            }}
           >
             {t('retry', 'Try again')}
           </Button>

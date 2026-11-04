@@ -1,10 +1,10 @@
 import type { Icon } from '@tabler/icons-react';
-import type * as React from 'react';
+import type { ReactNode } from 'react';
 export interface IRecordSidePanelTab {
   value: string;
   label: string;
   icon: Icon;
-  content: React.ReactNode;
+  content: ReactNode;
 }
 export type PanelExpansionContextValue = {
   expanded: boolean;
@@ -27,17 +27,17 @@ export type RecordSidePanelRootProps = {
   expanded?: boolean;
   expandedMode?: 'viewport' | 'page';
   onExpandedChange?: (expanded: boolean) => void;
-  children: React.ReactNode;
+  children: ReactNode;
 };
 
 export type RecordSidePanelHeaderProps = {
   className?: string;
   // Shown when the panel came here from another record.
   onBack?: () => void;
-  avatar?: React.ReactNode;
-  title: React.ReactNode;
+  avatar?: ReactNode;
+  title: ReactNode;
   // The record's own actions (e.g. a "more" menu), before expand and close.
-  actions?: React.ReactNode;
+  actions?: ReactNode;
   onExpand?: () => void;
   onClose: () => void;
 };

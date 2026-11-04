@@ -1,6 +1,6 @@
 import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import { PopoverScoped } from 'erxes-ui/modules/hotkey';
+import { PopoverScoped, usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import React, { useEffect, useState } from 'react';
 
@@ -40,6 +40,12 @@ export const TextField = React.forwardRef<
   ) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const [editingValue, setEditingValue] = useState(value);
+    const { goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
+
+    const closeEditor = () => {
+      setIsOpen(false);
+      if (scope) goBackToPreviousHotkeyScope();
+    };
 
     useEffect(() => {
       if (!isOpen) {
@@ -50,36 +56,29 @@ export const TextField = React.forwardRef<
     /** Saves a changed text value and closes the inline editor. */
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
-      if (editingValue === value) {
-        setIsOpen(false);
-        return;
-      }
-      onSave?.(editingValue);
-      setIsOpen(false);
+      if (editingValue !== value) onSave?.(editingValue);
+      closeEditor();
     };
 
-    /** Submits on Enter and discards the local edit on Escape. */
+    /** Submits on Enter; Escape is handled by the popover before dismissal. */
     const handleKeyDown = (e: React.KeyboardEvent) => {
       if (e.key === 'Enter') {
         e.preventDefault();
         handleAction();
       }
-      if (e.key === 'Escape') {
-        setEditingValue(value);
-        setIsOpen(false);
-      }
     };
 
     return (
       <PopoverScoped
+        modal={false}
         scope={scope}
         open={isOpen}
         onOpenChange={(open: boolean) => {
           setIsOpen(open);
           if (open) {
             setEditingValue(value);
-          } else if (!open && editingValue !== value) {
-            handleAction();
+          } else if (editingValue !== value) {
+            onSave?.(editingValue);
           }
         }}
       >
@@ -91,7 +90,14 @@ export const TextField = React.forwardRef<
           {children}
           <TextOverflowTooltip value={editingValue || placeholder} />
         </RecordTableInlineCell.Trigger>
-        <RecordTableInlineCell.Content asChild>
+        <RecordTableInlineCell.Content
+          asChild
+          onEscapeKeyDown={(event) => {
+            event.preventDefault();
+            setEditingValue(value);
+            closeEditor();
+          }}
+        >
           <form onSubmit={handleAction}>
             <Input
               placeholder={placeholder}
