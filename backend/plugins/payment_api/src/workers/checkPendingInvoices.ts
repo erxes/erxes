@@ -85,7 +85,11 @@ const sendInvoiceCallback = async (job: Job) => {
   }
 };
 
-const notifyPaidInvoice = async (models: any, subdomain: string, _id: string) => {
+const notifyPaidInvoice = async (
+  models: any,
+  subdomain: string,
+  _id: string,
+) => {
   const invoice = await models.Invoices.getInvoice({ _id }, true);
 
   graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
