@@ -52,7 +52,7 @@ export const useAdjustInventoryAdd = (
         const newId = data?.adjustInventoryAdd?._id;
 
         const pathname = newId
-          ? `/accounting/adjustment/inventory/edit?id=${newId}`
+          ? `/accounting/adjustment/inventory/detail?id=${newId}`
           : '/accounting/adjustment/inventory';
 
         navigate(pathname);
