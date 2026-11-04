@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -201,6 +201,11 @@
 
 ## Local Invariants
 
+- POS pricing sends an order's `createdAt` as loyalty `pricing.checkPricing.date`.
+  Order edits use the stored creation date, never a client replacement;
+  saved-order loyalty previews load that date in the current POS/sub-token scope.
+  New orders and unsaved previews omit the date and use loyalty's current time.
+
 - Pricing bonuses append separate zero-price order lines with unique IDs and
   `isPackage: true`, so the existing generated-item lifecycle removes and rebuilds
   them on each save. Never average a bonus into a paid line or reduce paid quantity.
@@ -275,6 +280,10 @@
 - Order payment mutations must append paid amounts and increment cash atomically; do not rebuild payment fields from a stale order snapshot.
 
 ## Validation
+
+- Order-date smoke: reopen an older unpaid order and preview/edit its items;
+  pricing uses its stored `createdAt`. A new cart uses now. A preview of an
+  order outside the current POS/sub-token scope returns Order not found.
 
 - `node --test backend/plugins/posclient_api/src/modules/posclient/utils/__tests__/pricing.test.cjs`
 - Pricing smoke: buy two A with an A bonus; retain two paid A at the original
