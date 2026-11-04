@@ -13,6 +13,7 @@ import { DeleteResult, Document } from 'mongodb';
 import mongoose, { FilterQuery, FlattenMaps, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
+import { TDiscordCardEvent } from '@/discordIntegration/@types/discordNotification';
 import {
   notifyDiscord,
   notifyDiscordRemoval,
@@ -52,6 +53,29 @@ export interface ITaskModel extends Model<ITaskDocument> {
     newCycleId: string,
   ): Promise<mongoose.Types.ObjectId[]>;
 }
+
+const CLOSED_STATUS_TYPES = [STATUS_TYPES.COMPLETED, STATUS_TYPES.CANCELLED];
+
+const getDiscordStatusEvent = (
+  previous?: number,
+  next?: number,
+): TDiscordCardEvent | undefined => {
+  if (next === undefined || next === previous) {
+    return undefined;
+  }
+
+  if (next === STATUS_TYPES.COMPLETED) {
+    return 'taskCompleted';
+  }
+
+  if (next === STATUS_TYPES.CANCELLED) {
+    return 'taskCancelled';
+  }
+
+  return previous !== undefined && CLOSED_STATUS_TYPES.includes(previous)
+    ? 'taskReopened'
+    : undefined;
+};
 
 const notifyDiscordTaskAssigned = async ({
   models,
@@ -380,6 +404,7 @@ export const loadTaskClass = (
             subdomain,
             updatedTask,
             String(task.teamId),
+            { actorId: userId, notify: !skipDiscord },
           );
         }
 
@@ -398,15 +423,13 @@ export const loadTaskClass = (
           await notifyDiscord(models, { ...discordJob, event: 'taskAssigned' });
         }
 
-        if (
-          !skipDiscord &&
-          rest.statusType === STATUS_TYPES.COMPLETED &&
-          task.statusType !== STATUS_TYPES.COMPLETED
-        ) {
-          await notifyDiscord(models, {
-            ...discordJob,
-            event: 'taskCompleted',
-          });
+        const statusEvent = getDiscordStatusEvent(
+          task.statusType,
+          rest.statusType,
+        );
+
+        if (!skipDiscord && statusEvent) {
+          await notifyDiscord(models, { ...discordJob, event: statusEvent });
         }
       }
       return updatedTask;

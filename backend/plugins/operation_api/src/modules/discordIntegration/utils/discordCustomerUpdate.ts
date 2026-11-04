@@ -32,6 +32,12 @@ const describeCustomerUpdate = ({
       )}**.`;
     case 'taskCompleted':
       return `🎉 **${taskLabel} · ${title}** is done.`;
+    case 'taskMoved':
+      return `↪️ **${taskLabel} · ${title}** moved to another team.`;
+    case 'taskReopened':
+      return `🔄 **${taskLabel} · ${title}** was reopened and is being worked on again.`;
+    case 'taskCancelled':
+      return `🚫 **${taskLabel} · ${title}** was cancelled.`;
     case 'triageCreated':
       return `📥 Your report **${title}** was received.`;
   }
