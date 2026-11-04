@@ -12,7 +12,8 @@
       "~": ["frontend/plugins/tourism_ui/src"],
       "@/*": ["frontend/plugins/tourism_ui/src/modules/*"],
       "@": ["frontend/plugins/tourism_ui/src/modules"],
-      "ui-modules": ["frontend/libs/ui-modules/src"]
+      "ui-modules": ["frontend/libs/ui-modules/src"],
+      "ui-modules/*": ["frontend/libs/ui-modules/src/*"]
     }
   },
   "files": [],
