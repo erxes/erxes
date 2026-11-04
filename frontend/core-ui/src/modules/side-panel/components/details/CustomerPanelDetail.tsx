@@ -1,3 +1,4 @@
+import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
   IconBell,
   IconCalendar,
@@ -12,6 +13,7 @@ import {
 import { useChangeCustomerState } from '@/contacts/customers/hooks/useChangeCustomerState';
 import { format } from 'date-fns';
 import {
+  cn,
   DatePicker,
   Popover,
   PopoverScoped,
@@ -19,6 +21,7 @@ import {
   ScrollArea,
   Select,
   SexCode,
+  SexCodes,
   SexDisplay,
   SexField,
   Spinner,
@@ -29,7 +32,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CustomerEmails,
-  CustomerOwner,
+  SelectMember,
   CustomerPhones,
   ICustomerDetail,
   TagsSelect,
@@ -68,7 +71,10 @@ const CustomerTextField = ({
       scope={`${SCOPE}.${code}`}
       value={value}
       placeholder={placeholder}
-      className={PANEL_TEXT_FIELD_CLASS_NAME}
+      className={cn(
+        PANEL_TEXT_FIELD_CLASS_NAME,
+        !value && 'text-muted-foreground',
+      )}
       onSave={(next) =>
         customerEdit({ variables: { _id: customer._id, [code]: next } })
       }
@@ -282,6 +288,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           placeholder={!customer.tagIds?.length ? t('tags', 'Tags') : undefined}
         >
           <TagsSelect.InlineCell
+            maxVisible={1}
             type="core:customer"
             mode="multiple"
             scope={`${SCOPE}.tags`}
@@ -302,8 +309,21 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             })}
           />
         </PanelField>
-        <PanelField icon={IconMail} label={t('emails', 'Emails')}>
+        <ContactPanelRelationField
+          contentType="core:customer"
+          contentId={customer._id}
+        />
+        <PanelField
+          icon={IconMail}
+          label={t('emails', 'Emails')}
+          placeholder={
+            !customer.primaryEmail && !customer.emails?.some(Boolean)
+              ? t('emails', 'Emails')
+              : undefined
+          }
+        >
           <CustomerEmails
+            maxVisible={1}
             _id={customer._id}
             primaryEmail={customer.primaryEmail || ''}
             emails={customer.emails || []}
@@ -312,8 +332,17 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
             Trigger={PanelFieldTrigger}
           />
         </PanelField>
-        <PanelField icon={IconPhone} label={t('phones', 'Phones')}>
+        <PanelField
+          icon={IconPhone}
+          label={t('phones', 'Phones')}
+          placeholder={
+            !customer.primaryPhone && !customer.phones?.some(Boolean)
+              ? t('phones', 'Phones')
+              : undefined
+          }
+        >
           <CustomerPhones
+            maxVisible={1}
             _id={customer._id}
             primaryPhone={customer.primaryPhone || ''}
             phones={customer.phones || []}
@@ -329,11 +358,20 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           label={t('owner', 'Owner')}
           placeholder={!customer.ownerId ? t('owner', 'Owner') : undefined}
         >
-          <CustomerOwner
-            _id={customer._id}
-            ownerId={customer.ownerId || ''}
+          <SelectMember.InlineCell
+            value={customer.ownerId || ''}
             scope={`${SCOPE}.owner`}
-            inTable
+            placeholder={customer.ownerId ? t('owner', 'Owner') : ''}
+            showInactive
+            className="rounded-sm"
+            onValueChange={(ownerId) =>
+              customerEdit({
+                variables: {
+                  _id: customer._id,
+                  ownerId: typeof ownerId === 'string' ? ownerId : '',
+                },
+              })
+            }
           />
         </PanelField>
         <PanelField icon={IconHash} label={addT('code', 'Code')}>
@@ -346,7 +384,11 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
         <PanelField
           icon={IconGenderBigender}
           label={t('sex', 'Sex')}
-          placeholder={!customer.sex ? t('sex', 'Sex') : undefined}
+          placeholder={
+            !customer.sex || !SexCodes[customer.sex as SexCode]
+              ? t('sex', 'Sex')
+              : undefined
+          }
         >
           <CustomerSexField customer={customer} />
         </PanelField>

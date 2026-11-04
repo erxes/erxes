@@ -1,11 +1,6 @@
 import { TRelationEntity, useRelationWidgetTabs } from 'ui-modules';
 
-const CONTACT_HIDDEN_MODULES: Record<string, string[]> = {
-  'core:customer': ['customer'],
-  'core:company': ['company'],
-};
-
-/** Keeps reciprocal contacts visible while preserving other record relation rules. */
+/** Keeps contact links in core details and other modules in Relations. */
 export const useRecordRelationTabs = ({
   record,
   access,
@@ -20,8 +15,6 @@ export const useRecordRelationTabs = ({
   useRelationWidgetTabs({
     ...record,
     access,
-    hiddenModules: hasCoreViews
-      ? CONTACT_HIDDEN_MODULES[record.contentType] || ['customer', 'company']
-      : [],
+    hiddenModules: hasCoreViews ? ['customer', 'company'] : [],
     skip: isPluginRecord,
   });

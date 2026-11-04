@@ -37,9 +37,17 @@ export const FieldSelectMultiple = (props: SpecificFieldProps) => {
       <RecordTableInlineCell.Trigger
         className={cn(!inCell && 'shadow-xs rounded')}
       >
+        {!inCell && currentValue.length === 0 && (
+          <span className="truncate text-muted-foreground">{field.name}</span>
+        )}
         {currentValue.map((item) => {
           const option = field.options?.find((o) => o.value === item);
-          if (!option) return null;
+          if (!option)
+            return !inCell ? (
+              <Badge key={item} variant="secondary">
+                {item}
+              </Badge>
+            ) : null;
 
           return (
             <Badge key={item} variant="secondary">

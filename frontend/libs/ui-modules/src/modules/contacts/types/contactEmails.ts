@@ -1,6 +1,7 @@
 import type { TEmailsOnValueChange, ValidationStatus } from 'erxes-ui';
 import type { Dispatch, SetStateAction } from 'react';
 export type CompanyEmailsProps = {
+  maxVisible?: number;
   primaryEmail: string;
   _id: string;
   emails: string[];
@@ -11,6 +12,7 @@ export type CompanyEmailsProps = {
 };
 
 export interface CustomerEmailsProps {
+  maxVisible?: number;
   primaryEmail: string;
   _id: string;
   emailValidationStatus?: `${ValidationStatus}`;

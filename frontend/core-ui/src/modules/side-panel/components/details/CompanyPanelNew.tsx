@@ -186,6 +186,7 @@ export const CompanyPanelNew = () => {
               name="ownerId"
               render={({ field }) => (
                 <SelectMember.FormItem
+                  placeholder={t('owner', 'Owner')}
                   value={field.value}
                   onValueChange={field.onChange}
                 />
@@ -212,6 +213,8 @@ export const CompanyPanelNew = () => {
               name="industry"
               render={({ field }) => (
                 <MultipleSelector
+                  placeholder={t('industries', 'Industries')}
+                  hidePlaceholderWhenSelected
                   defaultOptions={INDUSTRY_OPTIONS}
                   value={field.value}
                   onChange={field.onChange}
@@ -230,7 +233,7 @@ export const CompanyPanelNew = () => {
                   onValueChange={field.onChange}
                 >
                   <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                    <Select.Value />
+                    <Select.Value placeholder={t('location', 'Location')} />
                   </Select.Trigger>
                   <Select.Content>
                     {CountryPhoneCodes.map((country) => (
@@ -258,7 +261,9 @@ export const CompanyPanelNew = () => {
                   onValueChange={field.onChange}
                 >
                   <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                    <Select.Value />
+                    <Select.Value
+                      placeholder={t('business-type', 'Business type')}
+                    />
                   </Select.Trigger>
                   <Select.Content>
                     {COMPANY_BUSINESS_TYPES.filter(Boolean).map((type) => (
@@ -275,6 +280,7 @@ export const CompanyPanelNew = () => {
             <Input
               {...form.register('size')}
               type="number"
+              placeholder={t('size', 'Size')}
               min={0}
               className={PANEL_INPUT_CLASS_NAME}
             />

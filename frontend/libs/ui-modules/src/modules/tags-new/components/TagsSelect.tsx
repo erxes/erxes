@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -217,7 +218,6 @@ const TagsSelectContent = () => {
     return Object.values(TAG_DEFAULT_COLORS)[
       Math.floor(Math.random() * Object.values(TAG_DEFAULT_COLORS).length)
     ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
   const trimmedSearch = search.trim();
   const hasExactMatch = useMemo(
@@ -376,10 +376,12 @@ const TagsSelectContent = () => {
 TagsSelectContent.displayName = 'TagsSelectContent';
 
 const TagsSelectedList = ({
+  maxVisible,
   placeholder,
   renderAsPlainText,
   ...props
 }: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
+  maxVisible?: number;
   placeholder?: string;
   renderAsPlainText?: boolean;
 }) => {
@@ -438,13 +440,29 @@ const TagsSelectedList = ({
     }
   };
 
+  if (loading && selectedIds.length > 0 && selectedTags.length === 0) {
+    return <Skeleton className="h-5 w-20" />;
+  }
   if ((!selectedTags || selectedTags.length === 0) && missingIds.length === 0) {
-    return null;
+    return placeholder ? (
+      <span className="text-muted-foreground">{placeholder}</span>
+    ) : null;
   }
 
+  const visibleTags =
+    maxVisible === undefined ? selectedTags : selectedTags.slice(0, maxVisible);
+  const visibleMissingIds =
+    maxVisible === undefined
+      ? missingIds
+      : missingIds.slice(0, Math.max(0, maxVisible - visibleTags.length));
+  const remaining =
+    selectedTags.length +
+    missingIds.length -
+    visibleTags.length -
+    visibleMissingIds.length;
   return (
     <>
-      {selectedTags.map((tag) => (
+      {visibleTags.map((tag) => (
         <TagBadge
           key={tag._id}
           tagId={tag._id}
@@ -495,9 +513,10 @@ const TagsSelectedList = ({
             }
           }}
           {...props}
+          {...(maxVisible === undefined ? {} : { onClose: undefined })}
         />
       ))}
-      {missingIds.map((id) => (
+      {visibleMissingIds.map((id) => (
         <TagBadge
           key={id}
           tagId={id}
@@ -513,8 +532,14 @@ const TagsSelectedList = ({
           }}
           onClose={() => removeId(id)}
           {...props}
+          {...(maxVisible === undefined ? {} : { onClose: undefined })}
         />
       ))}
+      {remaining > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-muted-foreground">
+          +{remaining}
+        </Badge>
+      )}
     </>
   );
 };
@@ -570,15 +595,23 @@ const TagsSelectInlineCell = forwardRef<
       React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
       'children' | 'type'
     > & {
+      maxVisible?: number;
       scope?: string;
       targetIds?: string[];
     }
->(({ scope, targetIds, ...props }, ref) => {
+>(({ scope, targetIds, maxVisible, className, ...props }, ref) => {
   return (
     <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
-      <RecordTableInlineCell.Trigger ref={ref}>
-        <div className="flex gap-x-2 gap-y-1 items-center">
-          <TagsSelectedList />
+      <RecordTableInlineCell.Trigger ref={ref} className={className}>
+        <div className="flex min-w-0 max-w-full gap-1 items-center">
+          <TagsSelectedList
+            maxVisible={maxVisible}
+            className={
+              maxVisible === undefined
+                ? undefined
+                : 'min-w-0 max-w-full overflow-hidden'
+            }
+          />
         </div>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>

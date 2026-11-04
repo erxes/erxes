@@ -150,6 +150,7 @@ export const CustomerPanelNew = () => {
                 name="ownerId"
                 render={({ field }) => (
                   <SelectMember.FormItem
+                    placeholder={t('owner', 'Owner')}
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -169,7 +170,7 @@ export const CustomerPanelNew = () => {
                     onValueChange={(value) => field.onChange(Number(value))}
                   >
                     <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                      <Select.Value />
+                      <Select.Value placeholder={addT('pronoun', 'Pronoun')} />
                     </Select.Trigger>
                     <Select.Content align="start">
                       {CUSTOMER_SEX_OPTIONS.map((option) => (
@@ -198,6 +199,7 @@ export const CustomerPanelNew = () => {
                 name="birthDate"
                 render={({ field }) => (
                   <DatePicker
+                    placeholder="YYYY/MM/DD"
                     value={field.value ?? undefined}
                     defaultMonth={field.value ?? undefined}
                     onChange={(date) =>

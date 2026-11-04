@@ -1,3 +1,4 @@
+import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
   IconBell,
   IconBuilding,
@@ -15,7 +16,14 @@ import {
 import { useCompanyDetailWithQuery } from '@/contacts/companies/hooks/useCompanyDetailWithQuery';
 import { ContactDetailIdProvider } from '@/contacts/contexts/ContactDetailIdContext';
 import { TCompany } from '@/contacts/types/companyType';
-import { NumberField, ScrollArea, Spinner, Switch, TextField } from 'erxes-ui';
+import {
+  cn,
+  NumberField,
+  ScrollArea,
+  Spinner,
+  Switch,
+  TextField,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useId } from 'react';
 import {
@@ -55,7 +63,10 @@ const CompanyTextField = ({
       scope={`${SCOPE}.${code}`}
       value={company[code] || ''}
       placeholder={placeholder}
-      className={PANEL_TEXT_FIELD_CLASS_NAME}
+      className={cn(
+        PANEL_TEXT_FIELD_CLASS_NAME,
+        !company[code] && 'text-muted-foreground',
+      )}
       onSave={(next) =>
         companiesEdit({ variables: { _id: company._id, [code]: next } })
       }
@@ -108,6 +119,7 @@ const CompanyFields = () => {
         placeholder={!company.tagIds?.length ? t('tags', 'Tags') : undefined}
       >
         <TagsSelect.InlineCell
+          maxVisible={1}
           type="core:company"
           mode="multiple"
           scope={`${SCOPE}.tags`}
@@ -125,8 +137,21 @@ const CompanyFields = () => {
           })}
         />
       </PanelField>
-      <PanelField icon={IconMail} label={t('emails', 'Emails')}>
+      <ContactPanelRelationField
+        contentType="core:company"
+        contentId={company._id}
+      />
+      <PanelField
+        icon={IconMail}
+        label={t('emails', 'Emails')}
+        placeholder={
+          !company.primaryEmail && !company.emails?.some(Boolean)
+            ? t('emails', 'Emails')
+            : undefined
+        }
+      >
         <CompanyEmails
+          maxVisible={1}
           _id={company._id}
           primaryEmail={company.primaryEmail || ''}
           emails={company.emails || []}
@@ -135,8 +160,17 @@ const CompanyFields = () => {
           Trigger={PanelFieldTrigger}
         />
       </PanelField>
-      <PanelField icon={IconPhone} label={t('phones', 'Phones')}>
+      <PanelField
+        icon={IconPhone}
+        label={t('phones', 'Phones')}
+        placeholder={
+          !company.primaryPhone && !company.phones?.some(Boolean)
+            ? t('phones', 'Phones')
+            : undefined
+        }
+      >
         <CompanyPhones
+          maxVisible={1}
           _id={company._id}
           primaryPhone={company.primaryPhone || ''}
           phones={company.phones || []}
@@ -155,10 +189,15 @@ const CompanyFields = () => {
           id={ownerControlId}
           scope={`${SCOPE}.owner`}
           value={company.ownerId}
+          placeholder={company.ownerId ? t('owner', 'Owner') : ''}
+          showInactive
           className="rounded-sm"
           onValueChange={(ownerId) =>
             companiesEdit({
-              variables: { _id: company._id, ownerId: ownerId as string },
+              variables: {
+                _id: company._id,
+                ownerId: typeof ownerId === 'string' ? ownerId : '',
+              },
             })
           }
         />
@@ -197,8 +236,14 @@ const CompanyFields = () => {
       <PanelField icon={IconUsers} label={t('size', 'Size')}>
         <NumberField
           scope={`${SCOPE}.size`}
-          value={company.size || 0}
-          className={PANEL_TEXT_FIELD_CLASS_NAME}
+          value={company.size ?? 0}
+          formatValue={(value) =>
+            company.size == null ? t('size', 'Size') : value.toLocaleString()
+          }
+          className={cn(
+            PANEL_TEXT_FIELD_CLASS_NAME,
+            company.size == null && 'text-muted-foreground',
+          )}
           onSave={(size) =>
             companiesEdit({ variables: { _id: company._id, size } })
           }

@@ -94,6 +94,7 @@ export const TextField = React.forwardRef<
         <RecordTableInlineCell.Content asChild>
           <form onSubmit={handleAction}>
             <Input
+              placeholder={placeholder}
               value={editingValue}
               onChange={(e) => {
                 setEditingValue(e.target.value);

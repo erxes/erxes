@@ -7,7 +7,7 @@ import {
   IconPrinter,
 } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
-import { useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PrintDocument, useComposeEmail, usePermissionCheck } from 'ui-modules';
 
@@ -35,7 +35,74 @@ export const ContactPanelActions = ({
   const { canComposeEmail, composeEmail } = useComposeEmail();
   const { hasActionPermission } = usePermissionCheck();
   const [printOpen, setPrintOpen] = useState(false);
+  const containerRef = useRef<HTMLElement>(null);
+  const [compact, setCompact] = useState(true);
+  const canMessage =
+    !!onMessage && hasActionPermission('conversationMessageAdd');
+  const canNote = hasActionPermission('internalNotesManage');
   const canPrint = hasActionPermission('documentsRead');
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const measure = () =>
+      setCompact(container.getBoundingClientRect().width < 640);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  const actions = [
+    {
+      key: 'message',
+      iconClassName: 'text-blue-500',
+      label: t('message', 'Message'),
+      icon: IconMessage,
+      visible: canMessage,
+      onClick: () => onMessage?.(),
+      className:
+        'bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 dark:text-blue-400',
+    },
+    {
+      key: 'email',
+      iconClassName: 'text-emerald-500',
+      label: t('email', 'Email'),
+      icon: IconMail,
+      visible: canComposeEmail,
+      onClick: () =>
+        composeEmail({
+          ...(contentType === 'core:customer'
+            ? { customerId: contentId }
+            : { companyId: contentId }),
+          ...(email ? { email } : {}),
+        }),
+      className:
+        'bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20 dark:text-emerald-400',
+    },
+    {
+      key: 'note',
+      iconClassName: 'text-amber-500',
+      label: t('add-note', 'Add note'),
+      icon: IconNote,
+      visible: canNote,
+      onClick: onNote,
+      className:
+        'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-400',
+    },
+    {
+      key: 'print',
+      iconClassName: 'text-blue-500',
+      label: t('print', 'Print'),
+      icon: IconPrinter,
+      visible: canPrint,
+      onClick: () => setPrintOpen(true),
+      className:
+        'bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 dark:text-blue-400',
+    },
+  ].filter((action) => action.visible);
+
   let websiteUrl: URL | undefined;
   if (website) {
     try {
@@ -51,12 +118,13 @@ export const ContactPanelActions = ({
 
   return (
     <section
+      ref={containerRef}
       className="shrink-0 border-b px-4 py-4"
       aria-label={t('contact-actions', 'Contact actions')}
     >
       <div className="flex min-w-0 items-center gap-3">
         {avatar && <div className="shrink-0 [&>*]:size-11">{avatar}</div>}
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <h2 className="truncate text-lg font-semibold leading-6">{title}</h2>
           {websiteUrl && (
             <a
@@ -73,63 +141,52 @@ export const ContactPanelActions = ({
             </a>
           )}
         </div>
-        {canPrint && (
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="ml-auto shrink-0"
-                aria-label={t('actions', 'Actions')}
-              >
-                <IconDots className="size-4" aria-hidden="true" />
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content
-              align="end"
-              onCloseAutoFocus={(event) => {
-                if (printOpen) event.preventDefault();
-              }}
-            >
-              <DropdownMenu.Item onSelect={() => setPrintOpen(true)}>
-                <IconPrinter className="size-4" aria-hidden="true" />
-                {t('print', 'Print')}
-              </DropdownMenu.Item>
-            </DropdownMenu.Content>
-          </DropdownMenu>
-        )}
-      </div>
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        {onMessage && hasActionPermission('conversationMessageAdd') && (
-          <Button type="button" variant="outline" size="sm" onClick={onMessage}>
-            <IconMessage className="size-4" aria-hidden="true" />
-            {t('message', 'Message')}
-          </Button>
-        )}
-        {canComposeEmail && (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              composeEmail({
-                ...(contentType === 'core:customer'
-                  ? { customerId: contentId }
-                  : { companyId: contentId }),
-                ...(email ? { email } : {}),
-              })
-            }
-          >
-            <IconMail className="size-4" aria-hidden="true" />
-            {t('email', 'Email')}
-          </Button>
-        )}
-        {hasActionPermission('internalNotesManage') && (
-          <Button type="button" variant="outline" size="sm" onClick={onNote}>
-            <IconNote className="size-4" aria-hidden="true" />
-            {t('add-note', 'Add note')}
-          </Button>
+        {actions.length > 0 && (
+          <div className="ml-auto flex shrink-0 items-center gap-2">
+            {compact ? (
+              <DropdownMenu>
+                <DropdownMenu.Trigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t('actions', 'Actions')}
+                  >
+                    <IconDots className="size-4" aria-hidden="true" />
+                  </Button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Content
+                  align="end"
+                  onCloseAutoFocus={(event) => {
+                    if (printOpen) event.preventDefault();
+                  }}
+                >
+                  {actions.map(
+                    ({ key, label, icon: Icon, onClick, iconClassName }) => (
+                      <DropdownMenu.Item key={key} onSelect={onClick}>
+                        <Icon className={iconClassName} aria-hidden="true" />
+                        {label}
+                      </DropdownMenu.Item>
+                    ),
+                  )}
+                </DropdownMenu.Content>
+              </DropdownMenu>
+            ) : (
+              actions.map(({ key, label, icon: Icon, onClick, className }) => (
+                <Button
+                  key={key}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={onClick}
+                  className={className}
+                >
+                  <Icon className="size-4" aria-hidden="true" />
+                  {label}
+                </Button>
+              ))
+            )}
+          </div>
         )}
       </div>
       {canPrint && (
