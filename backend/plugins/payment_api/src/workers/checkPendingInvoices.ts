@@ -32,7 +32,11 @@ const log = (msg: string) => process.stdout.write(`[${LOG_PREFIX}] ${msg}\n`);
 const logError = (msg: string) =>
   process.stderr.write(`[${LOG_PREFIX}] ${msg}\n`);
 
-const notifyPaidInvoice = async (models: any, subdomain: string, _id: string) => {
+const notifyPaidInvoice = async (
+  models: any,
+  subdomain: string,
+  _id: string,
+) => {
   const invoice = await models.Invoices.getInvoice({ _id }, true);
 
   graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
@@ -61,7 +65,9 @@ const notifyPaidInvoice = async (models: any, subdomain: string, _id: string) =>
         { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
       )
       .catch((err) =>
-        logError(`Failed to enqueue callback for invoice ${_id}: ${err.message}`),
+        logError(
+          `Failed to enqueue callback for invoice ${_id}: ${err.message}`,
+        ),
       );
   }
 
