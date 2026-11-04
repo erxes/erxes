@@ -75,7 +75,12 @@ export const notificationHandler = async (
   const status = await api.checkInvoice(transaction);
 
   if (status !== PAYMENT_STATUS.PAID) {
-    return res.status(200).json({ status: 'ok', message: 'not paid yet' });
+    // Push says success but the inquiry API doesn't confirm it yet.
+    // Don't acknowledge, so Golomt can retry if it supports it.
+    // The pending-invoice cron (#10341) re-checks it either way.
+    return res
+      .status(503)
+      .json({ status: 'retry', message: 'payment not confirmed yet' });
   }
 
   await models.Transactions.updateOne(
