@@ -1,5 +1,21 @@
 
 
+## [3.4.13](https://github.com/erxes/erxes/compare/3.4.12...3.4.13) (2026-11-04)
+
+
+### Bug Fixes
+
+* **accounting:** explain journal reports whose rows are all zero ([#10343](https://github.com/erxes/erxes/issues/10343)) ([ee36560](https://github.com/erxes/erxes/commit/ee3656066a317d7c3e53475a8ea89f0a886da294))
+* **accounting:** show a not-found page for unknown accounting addresses ([#10340](https://github.com/erxes/erxes/issues/10340)) ([d23de85](https://github.com/erxes/erxes/commit/d23de8520adf24bc44ee006581884b29eaf4ce05))
+* **frontline:** prevent field loss when editing forms ([a11722e](https://github.com/erxes/erxes/commit/a11722e79ebd875c0588cc81381d0c26e2155300))
+* **pricing:** posorder check pricing createdAt ([9501dc6](https://github.com/erxes/erxes/commit/9501dc6d073d54fa28a63b7ebc64ba0617701d2f))
+* sales products data manage check by permission ([4c491cb](https://github.com/erxes/erxes/commit/4c491cb9a1d028a26f835465e8b6d5b9d53c2737))
+
+
+### Features
+
+* integrate Assistant Lens and Companion ([#10141](https://github.com/erxes/erxes/issues/10141)) ([df659bf](https://github.com/erxes/erxes/commit/df659bf62532f63140e41aa843b245624aae9fd5))
+
 ## [3.4.12](https://github.com/erxes/erxes/compare/3.4.11...3.4.12) (2026-11-04)
 
 
