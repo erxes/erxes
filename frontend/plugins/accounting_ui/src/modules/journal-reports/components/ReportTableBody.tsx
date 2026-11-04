@@ -1,6 +1,6 @@
-import { ReportTable, Skeleton, cn } from 'erxes-ui';
+import { Button, ReportTable, Skeleton, cn } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
@@ -14,6 +14,7 @@ import {
   getRenderMoreHandler,
 } from './includes';
 import {
+  countVisibleRows,
   groupRecords,
   moreDataByKey,
   shouldKeepZeroRows,
@@ -64,6 +65,25 @@ const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => {
   );
 };
 
+const ReportTableEmptyRow = ({
+  colSpan,
+  children,
+}: {
+  colSpan: number;
+  children: React.ReactNode;
+}) => (
+  <tbody data-slot="table-body">
+    <ReportTable.Row>
+      <ReportTable.Cell
+        colSpan={colSpan}
+        className="py-6 text-center text-muted-foreground"
+      >
+        {children}
+      </ReportTable.Cell>
+    </ReportTable.Row>
+  </tbody>
+);
+
 export const ReportTableBody = () => {
   const { t } = useTranslation('accounting');
   const {
@@ -71,6 +91,7 @@ export const ReportTableBody = () => {
     groupKey: groupKeyParam,
     ...params
   } = useQueryObject();
+  const [, setSearchParams] = useSearchParams();
   const report = getStringParam(reportParam) || '';
   const groupKey = getStringParam(groupKeyParam);
   const reportConf = ReportRules[report];
@@ -95,6 +116,8 @@ export const ReportTableBody = () => {
   const setMoreData = useSetAtom(moreDataState);
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
+  const [hasVisibleRows, setHasVisibleRows] = useState(true);
+  const keepZeroRows = shouldKeepZeroRows(isMore, unhideZero);
 
   const grouped = React.useMemo(() => {
     if (error || !groupRule) return {};
@@ -109,12 +132,9 @@ export const ReportTableBody = () => {
     if (error) return;
     if (!groupRule) return;
 
-    totalsCalc(
-      tableRef.current,
-      groupRule,
-      shouldKeepZeroRows(isMore, unhideZero),
-    );
-  }, [grouped, groupRule, loading, error, isMore, unhideZero]); // дата солигдох бүрт дахин бодно
+    totalsCalc(tableRef.current, groupRule, keepZeroRows);
+    setHasVisibleRows(countVisibleRows(tableRef.current) > 0);
+  }, [grouped, groupRule, loading, error, keepZeroRows]);
 
   useEffect(() => {
     if (!tableRef?.current) return;
@@ -150,34 +170,50 @@ export const ReportTableBody = () => {
 
   if (!records.length) {
     return (
-      <tbody data-slot="table-body">
-        <ReportTable.Row>
-          <ReportTable.Cell
-            colSpan={colCount + 2}
-            className="py-6 text-center text-muted-foreground"
-          >
-            {t('no-transactions-in-period')}
-          </ReportTable.Cell>
-        </ReportTable.Row>
-      </tbody>
+      <ReportTableEmptyRow colSpan={colCount + 2}>
+        {t('no-transactions-in-period')}
+      </ReportTableEmptyRow>
     );
   }
 
+  const showZeroRows = () =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('unhideZero', 'true');
+      return next;
+    });
+
   return (
-    <tbody
-      data-slot="table-body"
-      ref={tableRef}
-      className={cn('[&_tr:last-child]:border-0')}
-    >
-      <ReportRecursiveRenderer
-        groupedDic={grouped}
-        groupRule={groupRule}
-        colCount={colCount}
-        calcReport={calcReport}
-        report={report}
-        isMore={isMore}
-      />
-    </tbody>
+    <>
+      <tbody
+        data-slot="table-body"
+        ref={tableRef}
+        className={cn('[&_tr:last-child]:border-0')}
+      >
+        <ReportRecursiveRenderer
+          groupedDic={grouped}
+          groupRule={groupRule}
+          colCount={colCount}
+          calcReport={calcReport}
+          report={report}
+          isMore={isMore}
+        />
+      </tbody>
+      {!hasVisibleRows && (
+        <ReportTableEmptyRow colSpan={colCount + 2}>
+          {keepZeroRows ? (
+            t('no-transactions-in-period')
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              {t('report-zero-rows-hidden')}
+              <Button variant="outline" size="sm" onClick={showZeroRows}>
+                {t('show-empty-rows')}
+              </Button>
+            </div>
+          )}
+        </ReportTableEmptyRow>
+      )}
+    </>
   );
 };
 

@@ -1366,5 +1366,6 @@
   "empty-generated-description": "These records are created from transactions. Record a transaction or try different filters.",
   "select-a-report-description": "Choose a report from the list on the left, or start with a common one below.",
   "end-date-after-start": "End date must be on or after the start date",
-  "no-transactions-in-period": "No transactions in the selected period."
+  "no-transactions-in-period": "No transactions in the selected period.",
+  "report-zero-rows-hidden": "Every row in the selected period is zero, so all rows are hidden."
 }
