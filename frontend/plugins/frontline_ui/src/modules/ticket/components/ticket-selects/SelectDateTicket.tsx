@@ -51,6 +51,7 @@ const useDateSelectContext = () => {
 const toSingleDate = (date: unknown) =>
   date instanceof Date ? date : undefined;
 
+/** Formats ticket dates, showing the year for dates outside the current year. */
 export const formatDateLabel = (date: Date) =>
   format(
     date,
@@ -127,7 +128,9 @@ export const DateSelectTrigger = ({
   const { variant, disabled } = useDateSelectContext();
   if (variant === DateSelectVariant.TABLE) {
     return (
-      <RecordTableInlineCell.Trigger>{children}</RecordTableInlineCell.Trigger>
+      <RecordTableInlineCell.Trigger disabled={disabled}>
+        {children}
+      </RecordTableInlineCell.Trigger>
     );
   }
   if (variant === DateSelectVariant.CARD) {
@@ -238,9 +241,7 @@ export const DateSelectTicketRoot = ({
           <Combobox.ChipTrigger
             label={label}
             disabled={disabled}
-            onClear={
-              dateValue && !disabled ? () => commitValue() : undefined
-            }
+            onClear={dateValue && !disabled ? () => commitValue() : undefined}
             clearLabel={t('clear')}
           >
             {dateValue ? (

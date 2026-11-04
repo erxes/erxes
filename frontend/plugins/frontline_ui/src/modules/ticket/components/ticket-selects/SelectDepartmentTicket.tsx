@@ -9,14 +9,17 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectDepartments } from 'ui-modules';
 
+/** Binds a ticket department selector to its form value. */
 const SelectDepartmentTicketFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useState(false);
@@ -31,13 +34,13 @@ const SelectDepartmentTicketFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectDepartments.List
             placeholder={label ? t('none') : t('department-label')}
             renderAsPlainText
           />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectDepartments.Content />
         </SelectTicketContent>
       </PopoverScoped>
@@ -45,6 +48,7 @@ const SelectDepartmentTicketFormItem = ({
   );
 };
 
+/** Composes the ticket department picker and its change handler. */
 const SelectDepartmentTicketRoot = ({
   variant = 'detail',
   disabled,
@@ -66,6 +70,7 @@ const SelectDepartmentTicketRoot = ({
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
 
+  /** Applies the selected department and notifies the caller. */
   const handleValueChange = (departmentId: string) => {
     if (id) {
       updateTicket({ variables: { _id: id, departmentId } });
@@ -91,9 +96,7 @@ const SelectDepartmentTicketRoot = ({
           label={label}
         >
           <SelectDepartments.List
-            placeholder={
-              label ? t('none') : t('department-label')
-            }
+            placeholder={label ? t('none') : t('department-label')}
             renderAsPlainText
           />
         </SelectTriggerTicket>

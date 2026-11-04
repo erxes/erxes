@@ -32,6 +32,7 @@ interface SelectPriorityContextType {
 const SelectPriorityContext =
   React.createContext<SelectPriorityContextType | null>(null);
 
+/** Reads the priority selector context and requires its provider. */
 const useSelectPriorityContext = () => {
   const context = React.useContext(SelectPriorityContext);
   if (!context) {
@@ -42,6 +43,7 @@ const useSelectPriorityContext = () => {
   return context;
 };
 
+/** Provides the priority selector state and selection handler. */
 const SelectPriorityProvider = ({
   children,
   value = 0,
@@ -69,6 +71,7 @@ const SelectPriorityProvider = ({
   );
 };
 
+/** Displays the selected ticket priority value. */
 const SelectPriorityBadgeValue = ({
   placeholder,
 }: {
@@ -88,6 +91,7 @@ const SelectPriorityBadgeValue = ({
   return <PriorityBadge priority={value} />;
 };
 
+/** Displays the selected ticket priority value. */
 const SelectPriorityValue = () => {
   const { value } = useSelectPriorityContext();
 
@@ -99,6 +103,7 @@ const SelectPriorityValue = () => {
   );
 };
 
+/** Renders an accessible priority choice in the selector. */
 const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
   const { onValueChange, value, selectedValues } = useSelectPriorityContext();
   const priorityLabel = PROJECT_PRIORITIES_OPTIONS[priority];
@@ -122,6 +127,7 @@ const SelectPriorityCommandItem = ({ priority }: { priority: number }) => {
   );
 };
 
+/** Lists ticket priorities and the optional clear action. */
 const SelectPriorityContent = ({ onClear }: { onClear?: () => void }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { selectedValues } = useSelectPriorityContext();
@@ -146,6 +152,7 @@ const SelectPriorityContent = ({ onClear }: { onClear?: () => void }) => {
   );
 };
 
+/** Composes the ticket priority picker and its change handler. */
 const SelectPriorityRoot = ({
   value,
   onValueChange,
@@ -166,6 +173,7 @@ const SelectPriorityRoot = ({
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
 
+  /** Applies the selected priority and notifies the caller. */
   const handleValueChange = (value: number) => {
     if (id) {
       updateTicket({
@@ -204,6 +212,7 @@ const SelectPriorityRoot = ({
   );
 };
 
+/** Renders the ticket priority filter picker. */
 const SelectPriorityFilterView = () => {
   const [priority, setPriority] = useQueryState<string>('priority');
   const { resetFilterState } = useFilterContext();
@@ -222,6 +231,7 @@ const SelectPriorityFilterView = () => {
   );
 };
 
+/** Displays and clears the active ticket priority filter. */
 const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
   const [priority, setPriority] = useQueryState<string>('priority');
   const [open, setOpen] = useState(false);
@@ -245,14 +255,17 @@ const SelectPriorityFilterBar = ({ scope }: { scope?: string }) => {
   );
 };
 
+/** Binds a ticket priority selector to its form value. */
 export const SelectPriorityFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: number;
   onValueChange: (value: number) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -264,10 +277,10 @@ export const SelectPriorityFormItem = ({
       }}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectPriorityValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectPriorityContent />
         </SelectTicketContent>
       </PopoverScoped>

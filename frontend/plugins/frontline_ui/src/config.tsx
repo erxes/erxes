@@ -39,6 +39,7 @@ export const CONFIG: IUIConfig = {
     icon: IconStackFront,
   },
   widgets: {
+    recordPanels: [{ contentType: 'frontline:ticket' }],
     // A customer's / company's tickets and conversations on their overview
     // (`./contactWidget`).
     contactWidgets: [

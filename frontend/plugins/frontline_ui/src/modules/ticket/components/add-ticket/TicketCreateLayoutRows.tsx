@@ -5,8 +5,7 @@ import { cn } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { PropertyFormField } from 'ui-modules';
 
-// The laid-out rows of the create form; system fields stay chips, properties
-// take the room their row leaves.
+/** Renders the configured ticket creation rows and custom-property inputs. */
 export const TicketCreateLayoutRows = ({
   rows,
   form,
@@ -24,7 +23,7 @@ export const TicketCreateLayoutRows = ({
     {rows.map((row) => (
       <div
         key={row.map((cell) => cell.id).join('|')}
-        className="flex w-full flex-wrap items-end gap-2"
+        className="flex w-full min-w-0 flex-col gap-1"
       >
         {row.map((cell) =>
           cell.kind === 'system' ? (
@@ -38,7 +37,7 @@ export const TicketCreateLayoutRows = ({
             <div
               key={cell.id}
               className={cn(
-                'min-w-44 flex-1 rounded-md',
+                'w-full min-w-0 rounded-md',
                 missingIds.includes(cell.id) && 'ring-1 ring-destructive',
               )}
             >

@@ -50,6 +50,7 @@ interface SelectChannelContextType {
 const SelectChannelContext =
   React.createContext<SelectChannelContextType | null>(null);
 
+/** Reads the channel selector context and requires its provider. */
 const useSelectChannelContext = () => {
   const context = React.useContext(SelectChannelContext);
   if (!context) {
@@ -60,6 +61,7 @@ const useSelectChannelContext = () => {
   return context;
 };
 
+/** Provides the channel selector state and selection handler. */
 const SelectChannelProvider = ({
   children,
   value,
@@ -73,6 +75,7 @@ const SelectChannelProvider = ({
 }) => {
   const { channels, loading, error, refetch } = useGetChannels();
 
+  /** Applies the selected channel and notifies the caller. */
   const handleValueChange = (channelId: string) => {
     if (!channelId) return;
     onValueChange?.(channelId);
@@ -95,6 +98,7 @@ const SelectChannelProvider = ({
   );
 };
 
+/** Displays the selected ticket channel value. */
 const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, channels } = useSelectChannelContext();
@@ -140,6 +144,7 @@ const SelectChannelValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
+/** Renders an accessible channel choice in the selector. */
 const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   const { onValueChange, value } = useSelectChannelContext();
 
@@ -160,6 +165,7 @@ const SelectChannelCommandItem = ({ channel }: { channel: IChannel }) => {
   );
 };
 
+/** Creates a channel inline and selects the new record. */
 const SelectChannelCreateForm = ({
   name,
   onBack,
@@ -181,6 +187,7 @@ const SelectChannelCreateForm = ({
     },
   });
 
+  /** Validates and submits the current form values. */
   const onSubmit = (data: TChannelForm) => {
     addChannel({
       variables: data,
@@ -213,12 +220,13 @@ const SelectChannelCreateForm = ({
   );
 };
 
+/** Lists available channel choices and inline creation when allowed. */
 const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { loading, error, channels } = useSelectChannelContext();
   const { search, setSearch, newName, setNewName, showCreate } =
     useSelectCreate({
-      enabled: !!allowCreate && !loading && !error,
+      enabled: Boolean(allowCreate) && !loading && !error,
       names: (channels || []).map((channel) => channel.name),
     });
 
@@ -252,6 +260,7 @@ const SelectChannelContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   );
 };
 
+/** Composes the ticket channel picker and its change handler. */
 const SelectChannelRoot = ({
   variant = 'detail',
   disabled,
@@ -291,6 +300,7 @@ const SelectChannelRoot = ({
   );
 };
 
+/** Displays and clears the active ticket channel filter. */
 const SelectChannelFilterBar = ({ scope }: { scope?: string }) => {
   const [channel, setChannel] = useQueryState<string>('channel');
   const [open, setOpen] = useState(false);
@@ -313,6 +323,7 @@ const SelectChannelFilterBar = ({ scope }: { scope?: string }) => {
   );
 };
 
+/** Renders the ticket channel filter picker. */
 const SelectChannelFilterView = () => {
   const [channel, setChannel] = useFilterQueryState<string>('channel');
   const { resetFilterState } = useFilterContext();
@@ -331,14 +342,17 @@ const SelectChannelFilterView = () => {
   );
 };
 
+/** Binds a ticket channel selector to its form value. */
 const SelectChannelFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -348,10 +362,10 @@ const SelectChannelFormItem = ({
       setOpen={setOpen}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectChannelValue />
         </SelectTriggerTicket>
-        <SelectTicketContent variant="form">
+        <SelectTicketContent variant={variant}>
           <SelectChannelContent allowCreate />
         </SelectTicketContent>
       </PopoverScoped>

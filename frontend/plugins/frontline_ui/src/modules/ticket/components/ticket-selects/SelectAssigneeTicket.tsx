@@ -28,6 +28,7 @@ import { useTranslation } from 'react-i18next';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
+/** Displays the selected ticket assignee value. */
 const SelectAssigneeValue = ({
   placeholder,
   variant,
@@ -52,9 +53,12 @@ const SelectAssigneeValue = ({
       </MembersInline.Provider>
     );
   }
-  return <SelectMember.Value placeholder={placeholder || t('select-assignee')} />;
+  return (
+    <SelectMember.Value placeholder={placeholder || t('select-assignee')} />
+  );
 };
 
+/** Lists assignable team members and the optional unassigned choice. */
 const SelectTeamMemberContent = ({
   showUnassigned = true,
 }: {
@@ -114,6 +118,7 @@ const SelectTeamMemberContent = ({
   );
 };
 
+/** Renders the ticket assignee filter picker. */
 const SelectAssigneeFilterView = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const { resetFilterState } = useFilterContext();
@@ -134,6 +139,7 @@ const SelectAssigneeFilterView = () => {
   );
 };
 
+/** Displays and clears the active ticket assignee filter. */
 export const SelectAssigneeFilterBar = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const [open, setOpen] = useState(false);
@@ -160,6 +166,7 @@ export const SelectAssigneeFilterBar = () => {
   );
 };
 
+/** Composes the ticket assignee picker and its change handler. */
 const SelectAssigneeTicketRoot = ({
   scope,
   value,
@@ -178,12 +185,13 @@ const SelectAssigneeTicketRoot = ({
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
 
+  /** Applies the selected assignee and notifies the caller. */
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
       updateTicket({
         variables: {
           _id: id,
-          assigneeId: Array.isArray(value) ? value[0] ?? null : value,
+          assigneeId: Array.isArray(value) ? (value[0] ?? null) : value,
         },
       });
     }
@@ -213,16 +221,19 @@ const SelectAssigneeTicketRoot = ({
   );
 };
 
+/** Binds a ticket assignee selector to its form value. */
 export const SelectAssigneeTicketFormItem = ({
   value,
   onValueChange,
   scope,
   label,
+  variant = 'form',
 }: {
   value: string;
   onValueChange: (value: string) => void;
   scope?: string;
   label?: string;
+  variant?: 'form' | 'table';
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -236,12 +247,12 @@ export const SelectAssigneeTicketFormItem = ({
       allowUnassigned
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerTicket variant="form" label={label}>
+        <SelectTriggerTicket variant={variant} label={label}>
           <SelectAssigneeValue />
         </SelectTriggerTicket>
-        <Combobox.Content>
+        <SelectTicketContent variant={variant}>
           <SelectTeamMemberContent />
-        </Combobox.Content>
+        </SelectTicketContent>
       </PopoverScoped>
     </SelectAssigneeProvider>
   );

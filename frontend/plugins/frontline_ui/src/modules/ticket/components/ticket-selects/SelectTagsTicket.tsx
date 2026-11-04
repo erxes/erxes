@@ -25,6 +25,7 @@ const SelectTagsTicketRoot = ({
 }) => {
   const { updateTicket } = useUpdateTicket();
 
+  /** Applies the selected tags and notifies the caller. */
   const handleValueChange = (tagIds: string[]) => {
     if (id) {
       updateTicket({
@@ -55,18 +56,21 @@ const SelectTagsTicketRoot = ({
   );
 };
 
+/** Binds a ticket tags selector to its form value. */
 const SelectTagsTicketFormItem = ({
   value,
   onValueChange,
   label,
+  variant = 'form',
 }: {
   value?: string[];
   onValueChange: (value: string[]) => void;
   label?: string;
+  variant?: 'form' | 'table';
 }) => (
   <SelectTagsTicketRoot
     value={value}
-    variant="form"
+    variant={variant}
     label={label}
     onValueChange={onValueChange}
   />
