@@ -65,6 +65,91 @@ function BoardsLoadingSkeleton() {
   );
 }
 
+const BoardRowActions = ({ board }: { board: IBoard }) => {
+  const [, setBoardId] = useQueryState<string>('boardId');
+  const { t } = useTranslation('sales');
+
+  const { removeBoard, loading: removeLoading } = useBoardRemove();
+
+  const { confirm } = useConfirm();
+
+  const onRemove = (boardId: string) => {
+    confirm({
+      message: t('delete-board-confirm', { name: board.name }),
+    }).then(() => {
+      removeBoard({ variables: { _id: boardId } });
+    });
+  };
+
+  const actionClassName =
+    'size-6 shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground';
+
+  return (
+    <div className="absolute right-0.5 top-0.5 hidden items-center group-hover/board-row:flex group-focus-within/board-row:flex has-[[data-state=open]]:flex">
+      <DropdownMenu>
+        <DropdownMenu.Trigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={actionClassName}
+            aria-label={`${board.name}: ${t('action')}`}
+            disabled={removeLoading}
+          >
+            <IconDots className="size-4" />
+          </Button>
+        </DropdownMenu.Trigger>
+        <DropdownMenu.Content align="end" sideOffset={8} className="min-w-72">
+          <DropdownMenu.Item onSelect={() => setBoardId(board._id)}>
+            <IconPencil />
+            {t('edit')}
+          </DropdownMenu.Item>
+          <BoardArchiveMenuItem board={board} disabled={removeLoading} />
+          <DropdownMenu.Separator />
+          <DropdownMenu.Item
+            onSelect={() => onRemove(board._id)}
+            disabled={removeLoading}
+            className="text-destructive focus:text-destructive"
+          >
+            <IconTrash />
+            {t('delete')}
+          </DropdownMenu.Item>
+        </DropdownMenu.Content>
+      </DropdownMenu>
+    </div>
+  );
+};
+
+const BoardMenuItem = ({ board }: { board: IBoard }) => {
+  const [activeBoardId] = useQueryState('activeBoardId');
+  const { t } = useTranslation('sales');
+
+  const isActive = board._id === activeBoardId;
+  const isArchived = board?.status === 'archived';
+  const boardPath = `${DEALS_SETTINGS_PATH}?activeBoardId=${board._id}`;
+
+  return (
+    <Sidebar.SubItem className="group/board-row relative">
+      <Sidebar.SubButton asChild className="pr-8" isActive={isActive}>
+        <Link to={boardPath}>
+          <TextOverflowTooltip
+            className="min-w-0 flex-1 text-left"
+            value={board.name}
+          />
+          {isArchived && (
+            <Badge
+              variant="warning"
+              className="h-5 shrink-0 border-yellow-200 bg-yellow-100 text-yellow-800"
+            >
+              {t('archived', 'Archived')}
+            </Badge>
+          )}
+        </Link>
+      </Sidebar.SubButton>
+      <BoardRowActions board={board} />
+    </Sidebar.SubItem>
+  );
+};
+
 export const BoardsSettingsNavigation = () => {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
@@ -86,9 +171,7 @@ export const BoardsSettingsNavigation = () => {
     }
     if (!boards?.length) {
       return (
-        <p className="p-2 text-sm text-muted-foreground">
-          {t('no-boards', 'No boards')}
-        </p>
+        <p className="p-2 text-sm text-muted-foreground">{t('no-boards')}</p>
       );
     }
     return (
@@ -102,7 +185,7 @@ export const BoardsSettingsNavigation = () => {
 
   return (
     <NavigationMenuGroup
-      name={t('boards')}
+      name={`${t('boards')} (${boards?.length || 0})`}
       actions={
         <Button
           variant="ghost"
@@ -122,82 +205,5 @@ export const BoardsSettingsNavigation = () => {
     >
       {renderBoards()}
     </NavigationMenuGroup>
-  );
-};
-
-const BoardMenuItem = ({ board }: { board: IBoard }) => {
-  const [activeBoardId] = useQueryState('activeBoardId');
-  const [, setBoardId] = useQueryState<string>('boardId');
-  const { t } = useTranslation('sales');
-
-  const isActive = board._id === activeBoardId;
-  const isArchived = board?.status === 'archived';
-  const boardPath = `${DEALS_SETTINGS_PATH}?activeBoardId=${board._id}`;
-
-  const { removeBoard, loading: removeLoading } = useBoardRemove();
-
-  const { confirm } = useConfirm();
-
-  const onRemove = (boardId: string) => {
-    confirm({
-      message: t('delete-board-confirm', { name: board.name }),
-    }).then(() => {
-      removeBoard({ variables: { _id: boardId } });
-    });
-  };
-
-  const actionClassName =
-    'size-6 shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground';
-
-  return (
-    <Sidebar.SubItem className="group/board-row relative">
-      <Sidebar.SubButton asChild className="pr-8" isActive={isActive}>
-        <Link to={boardPath}>
-          <TextOverflowTooltip
-            className="min-w-0 flex-1 text-left"
-            value={board.name}
-          />
-          {isArchived && (
-            <Badge
-              variant="warning"
-              className="h-5 shrink-0 border-yellow-200 bg-yellow-100 text-yellow-800"
-            >
-              {t('archived', 'Archived')}
-            </Badge>
-          )}
-        </Link>
-      </Sidebar.SubButton>
-      <div className="absolute right-0.5 top-0.5 hidden items-center group-hover/board-row:flex group-focus-within/board-row:flex has-[[data-state=open]]:flex">
-        <DropdownMenu>
-          <DropdownMenu.Trigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className={actionClassName}
-              aria-label={`${board.name}: ${t('action')}`}
-              disabled={removeLoading}
-            >
-              <IconDots className="size-4" />
-            </Button>
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content align="end" sideOffset={8} className="min-w-72">
-            <DropdownMenu.Item onSelect={() => setBoardId(board._id)}>
-              <IconPencil />
-              {t('edit')}
-            </DropdownMenu.Item>
-            <BoardArchiveMenuItem board={board} disabled={removeLoading} />
-            <DropdownMenu.Separator />
-            <DropdownMenu.Item
-              onSelect={() => onRemove(board._id)}
-              disabled={removeLoading}
-              className="text-destructive focus:text-destructive"
-            >
-              <IconTrash />
-              {t('delete')}
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu>
-      </div>
-    </Sidebar.SubItem>
   );
 };

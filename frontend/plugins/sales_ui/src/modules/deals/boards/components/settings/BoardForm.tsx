@@ -5,7 +5,6 @@ import {
   useBoardEdit,
 } from '@/deals/boards/hooks/useBoards';
 import { TBoardForm } from '@/deals/types/boards';
-import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Dialog,
@@ -17,7 +16,61 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import React from 'react';
-import { SubmitHandler } from 'react-hook-form';
+import { SubmitHandler, UseFormReturn } from 'react-hook-form';
+
+const BoardFormBody = ({
+  methods,
+  onSubmit,
+  onCancel,
+  saving,
+  detailLoading,
+  boardName,
+}: Readonly<{
+  methods: UseFormReturn<TBoardForm>;
+  onSubmit: () => void;
+  onCancel: () => void;
+  saving: boolean;
+  detailLoading: boolean;
+  boardName?: string;
+}>) => (
+  <Form {...methods}>
+    <form onSubmit={onSubmit} className="flex flex-col gap-4 w-full">
+      <div className="flex flex-col gap-3">
+        {detailLoading ? (
+          <Skeleton className="w-full h-10 my-1" />
+        ) : (
+          <Form.Field
+            control={methods.control}
+            name="name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>Board Name</Form.Label>
+                <Form.Control>
+                  <Input
+                    {...field}
+                    type="text"
+                    placeholder="Enter board name"
+                    className="input"
+                    value={field.value || boardName || ''}
+                  />
+                </Form.Control>
+                <Form.Message />
+              </Form.Item>
+            )}
+          />
+        )}
+      </div>
+      <Dialog.Footer className="pt-2">
+        <Button type="button" variant="ghost" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={saving}>
+          {saving ? <Spinner /> : 'Save'}
+        </Button>
+      </Dialog.Footer>
+    </form>
+  </Form>
+);
 
 export const BoardForm = () => {
   const [boardId, setBoardId] = useQueryState<string>('boardId');
@@ -64,20 +117,7 @@ export const BoardForm = () => {
   );
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(isOpen) =>
-        boardId || isCreating ? !isOpen && handleClose() : setOpen(isOpen)
-      }
-    >
-      <Dialog.Trigger asChild>
-        <Button
-          variant="ghost"
-          className="text-xs font-semibold text-accent-foreground"
-        >
-          <IconPlus />
-        </Button>
-      </Dialog.Trigger>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <Dialog.ContentCombined
         title={boardId ? 'Edit Board' : 'Add Board'}
         description={
@@ -87,46 +127,14 @@ export const BoardForm = () => {
           e.preventDefault();
         }}
       >
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className="flex flex-col gap-4 w-full"
-          >
-            <div className="flex flex-col gap-3">
-              {boardDetailLoading ? (
-                <Skeleton className="w-full h-10 my-1" />
-              ) : (
-                <Form.Field
-                  control={methods.control}
-                  name="name"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>Board Name</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...field}
-                          type="text"
-                          placeholder="Enter board name"
-                          className="input"
-                          value={field.value || boardDetail?.name || ''}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
-                />
-              )}
-            </div>
-            <Dialog.Footer className="pt-2">
-              <Button type="button" variant="ghost" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button type="submit" disabled={addLoading || editLoading}>
-                {addLoading || editLoading ? <Spinner /> : 'Save'}
-              </Button>
-            </Dialog.Footer>
-          </form>
-        </Form>
+        <BoardFormBody
+          methods={methods}
+          onSubmit={handleSubmit(submitHandler)}
+          onCancel={handleClose}
+          saving={addLoading || editLoading}
+          detailLoading={boardDetailLoading}
+          boardName={boardDetail?.name}
+        />
       </Dialog.ContentCombined>
     </Dialog>
   );

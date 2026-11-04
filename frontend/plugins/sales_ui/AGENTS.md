@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -327,8 +327,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
 - Below the shared Tags/Properties items, `SalesSettingsLayout` renders two
   route-scoped `NavigationMenuGroup`s, and neither page has a side panel:
-  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`) lists
-  every board (archived ones badged); a row links to `?activeBoardId=<id>`,
+  `BoardsSettingsNavigation` (BOARDS, only on `/sales/settings/deals`, titled
+  `Boards (N)` with the board count as before) lists every board (archived
+  ones badged); a row links to `?activeBoardId=<id>`,
   its `⋯` menu edits (`boardId`), archives or deletes the board, and the group
   `+` sets `createBoard=1`. `PosSettingsTabs` (only on
   `/sales/settings/pos/<id>`, titled with the POS name) lists the POS steps
@@ -337,8 +338,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `activeBoardId` on an existing board (the first one by default, clearing
   `pipelineId` and `tab` when it moves) and runs the board archive
   subscription. It renders the single `BoardForm` in its `SettingsHeader`;
-  the dialog opens from `boardId` (edit) or `createBoard` (add), and closing
-  clears both. Keep one instance: a second copy stacks two dialogs.
+  `BoardForm` has no trigger of its own: the dialog opens only from `boardId`
+  (edit) or `createBoard` (add, the BOARDS group `+`), and closing clears
+  both. Keep one instance: a second copy stacks two dialogs.
 - Money and product text on board cards and column totals is `text-xs` (12 px)
   or larger with `tabular-nums`. Column headings are `text-base`, the same size
   as card titles.

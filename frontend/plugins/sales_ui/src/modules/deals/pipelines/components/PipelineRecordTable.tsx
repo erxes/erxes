@@ -316,6 +316,29 @@ export const pipelinesColumns: (
   },
 ];
 
+const PipelineTable = ({
+  loading,
+  hasMore,
+  onFetchMore,
+}: Readonly<{
+  loading: boolean;
+  hasMore: boolean;
+  onFetchMore: () => void;
+}>) => (
+  <RecordTable.Scroll>
+    <RecordTable>
+      <RecordTable.Header />
+      <RecordTable.Body>
+        <RecordTable.RowList Row={RecordTableTree.Row} />
+        {loading && <RecordTable.RowSkeleton rows={30} />}
+        {hasMore && (
+          <RecordTable.RowSkeleton rows={1} handleInView={onFetchMore} />
+        )}
+      </RecordTable.Body>
+    </RecordTable>
+  </RecordTable.Scroll>
+);
+
 export const PipelineRecordTable = () => {
   const { t } = useTranslation('sales');
   const [queries] = useMultiQueryState<{
@@ -363,7 +386,7 @@ export const PipelineRecordTable = () => {
       (!createdBy || pipeline.userId === createdBy),
   );
 
-  const requestedCursor = useRef<string | null | undefined>(undefined);
+  const requestedCursor = useRef<string | null | undefined>();
   const [failedCursor, setFailedCursor] = useState<string | null>();
   const loadingRemainingPages =
     isFiltered &&
@@ -415,25 +438,15 @@ export const PipelineRecordTable = () => {
       >
         <PipelineCommandBar />
         <RecordTableTree id="pipelines-list" ordered>
-          <RecordTable.Scroll>
-            <RecordTable>
-              <RecordTable.Header />
-              <RecordTable.Body>
-                <RecordTable.RowList Row={RecordTableTree.Row} />
-                {(boardsLoading || loading) && (
-                  <RecordTable.RowSkeleton rows={30} />
-                )}
-                {!loading &&
-                  pageInfo?.hasNextPage &&
-                  !loadingRemainingPages && (
-                    <RecordTable.RowSkeleton
-                      rows={1}
-                      handleInView={handleFetchMore}
-                    />
-                  )}
-              </RecordTable.Body>
-            </RecordTable>
-          </RecordTable.Scroll>
+          <PipelineTable
+            loading={boardsLoading || loading}
+            hasMore={
+              !loading &&
+              Boolean(pageInfo?.hasNextPage) &&
+              !loadingRemainingPages
+            }
+            onFetchMore={handleFetchMore}
+          />
         </RecordTableTree>
       </RecordTable.Provider>
     </>
