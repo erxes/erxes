@@ -3,9 +3,6 @@ import { sendTRPCMessage } from 'erxes-api-shared/utils';
 import { ARCHIVED_DEAL_STATUS } from '@/pms/constants';
 import { IContext } from '~/connectionResolvers';
 
-const escapeRegExp = (value: string) =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
 const getFilteredProducts = async ({
   subdomain,
   categoryIds,
@@ -406,22 +403,6 @@ const configQueries: Record<string, Resolver> = {
       ids.filter((x) => !productIds.includes(x)).map((x) => ({ _id: x })) || []
     );
   },
-
-  async pmsRoomCleaningList(
-    _root,
-    {
-      ids,
-      endDate,
-      startDate,
-      pipelineId,
-    }: {
-      startDate: Date;
-      endDate: Date;
-      pipelineId: string;
-      ids: string[];
-    },
-    { models, subdomain }: IContext,
-  ) {},
 };
 
 export default configQueries;

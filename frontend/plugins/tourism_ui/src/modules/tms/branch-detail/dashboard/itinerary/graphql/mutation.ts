@@ -87,7 +87,7 @@ export const EDIT_ITINERARY = gql`
 `;
 
 export const REMOVE_ITINERARY = gql`
-  mutation BmsItineraryRemove($ids: [String]) {
+  mutation BmsItineraryRemove($ids: [String!]!) {
     bmsItineraryRemove(ids: $ids)
   }
 `;

@@ -6,9 +6,7 @@ import {
   applyItineraryTranslation,
 } from '@/bms/utils/translations';
 import { Resolver } from 'erxes-api-shared/core-types';
-
-const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+import { escapeRegExp } from 'erxes-api-shared/utils';
 
 const itineraryQueries : Record<string, Resolver> = {
   async bmsItineraries(

@@ -45,7 +45,7 @@ export const EDIT_AMENITY = gql`
 `;
 
 export const REMOVE_AMENITY = gql`
-  mutation BmsAmenityRemove($ids: [String]) {
+  mutation BmsAmenityRemove($ids: [String!]!) {
     bmsElementRemove(ids: $ids)
   }
 `;

@@ -1,13 +1,13 @@
 import { Resolver } from 'erxes-api-shared/core-types';
-import { cursorPaginate } from 'erxes-api-shared/utils';
+import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 
 const buildSearchQuery = (searchValue?: string) =>
   searchValue
     ? [
-        { code: { $regex: searchValue, $options: 'i' } },
-        { name: { $regex: searchValue, $options: 'i' } },
-        { label: { $regex: searchValue, $options: 'i' } },
+        { code: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+        { name: { $regex: escapeRegExp(searchValue), $options: 'i' } },
+        { label: { $regex: escapeRegExp(searchValue), $options: 'i' } },
       ]
     : [];
 

@@ -1,3 +1,4 @@
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery, Model } from 'mongoose';
 
 import { IModels } from '~/connectionResolvers';
@@ -301,12 +302,9 @@ export const loadTourCategoryClass = (models: IModels) => {
       await models.BmsTourCategories.updateOne({ _id }, { $set: doc });
 
       if (oldOrder && oldOrder !== doc.order) {
-        const escapeRegExp = (value: string) =>
-          value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
         const childCategories = await models.BmsTourCategories.find({
           $and: [
-            { order: { $regex: new RegExp(`^${escapeRegExp(oldOrder)}`) } },
+            { order: { $regex: `^${escapeRegExp(oldOrder)}` } },
             { _id: { $ne: _id } },
           ],
         });

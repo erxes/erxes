@@ -111,7 +111,7 @@ const elementParams = `
 
 export const mutations = `
   bmsElementAdd(${elementParams}): Element
-  bmsElementRemove(ids: [String]): JSON
+  bmsElementRemove(ids: [String!]!): JSON
   bmsElementEdit(_id: String!, ${elementParams}): Element
 
   bmsElementCategoryAdd(name: String, parentId: String): ElementCategory

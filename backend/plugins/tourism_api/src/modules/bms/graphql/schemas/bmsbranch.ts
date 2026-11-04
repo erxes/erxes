@@ -52,6 +52,6 @@ export const queries = `
 
 export const mutations = `
   bmsBranchAdd(${commonFields}): BmsBranch
-  bmsBranchEdit(_id: String, ${commonFields}): BmsBranch
+  bmsBranchEdit(_id: String!, ${commonFields}): BmsBranch
   bmsBranchRemove(_id: String!): JSON
 `;

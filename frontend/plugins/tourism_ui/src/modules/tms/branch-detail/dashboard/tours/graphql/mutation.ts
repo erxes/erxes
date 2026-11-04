@@ -159,7 +159,7 @@ export const EDIT_TOUR = gql`
 `;
 
 export const REMOVE_TOUR = gql`
-  mutation BmsTourRemove($ids: [String]) {
+  mutation BmsTourRemove($ids: [String!]!) {
     bmsTourRemove(ids: $ids)
   }
 `;

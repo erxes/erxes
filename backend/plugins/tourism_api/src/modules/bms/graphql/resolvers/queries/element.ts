@@ -1,3 +1,4 @@
+import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
 import { IElement, IElementCategory } from '@/bms/@types/element';
 import { CATEGORIES } from '@/bms/constants';
@@ -63,8 +64,8 @@ const elementQueries = {
 
     if (name) {
       selector.$or = [
-        { name: { $regex: name, $options: 'i' } },
-        { 'location.name': { $regex: name, $options: 'i' } },
+        { name: { $regex: escapeRegExp(name), $options: 'i' } },
+        { 'location.name': { $regex: escapeRegExp(name), $options: 'i' } },
       ];
     }
 

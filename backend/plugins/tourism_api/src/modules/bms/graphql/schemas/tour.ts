@@ -329,7 +329,7 @@ const params = `
 
 export const mutations = `
   bmsTourAdd(${params}): Tour
-  bmsTourRemove(ids: [String]): JSON
+  bmsTourRemove(ids: [String!]!): JSON
   bmsTourViewCount(_id: String): JSON
   bmsTourEdit(_id: String!, ${params}): Tour
   bmsTourDateStatusSync(timezone: String): TourDateStatusSyncResult
