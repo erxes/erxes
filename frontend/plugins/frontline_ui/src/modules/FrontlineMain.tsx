@@ -75,7 +75,7 @@ const FormPreviewPage = lazy(() =>
 
 const HelpCenter = lazy(() =>
   import('~/pages/HelpCenterIndexPage').then((module) => ({
-    default: module.default,
+    default: module.HelpCenterIndexPage,
   })),
 );
 

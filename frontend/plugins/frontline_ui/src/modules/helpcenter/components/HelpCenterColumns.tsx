@@ -1,3 +1,5 @@
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
+import { useSidePanel } from 'ui-modules';
 import {
   IconBook,
   IconInbox,
@@ -13,7 +15,6 @@ import {
   PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
-  useQueryState,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
 import { ReactNode, useMemo, useState } from 'react';
@@ -32,6 +33,7 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
+/** Builds the hotkey scope for a Help Center table field. */
 const cellScope = (helpCenter: IHelpCenter, field: string) =>
   clsx(HelpCenterHotKeyScope.HelpCentersPage, helpCenter._id, field);
 
@@ -43,6 +45,7 @@ type THelpCenterTextField = {
     : never;
 }[keyof THelpCenterPatch];
 
+/** Saves a Help Center text field inline. */
 const InlineTextCell = ({
   cell,
   field,
@@ -69,6 +72,7 @@ const InlineTextCell = ({
   );
 };
 
+/** Edits the Help Center website association. */
 const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
@@ -90,6 +94,7 @@ const WebsiteCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
+/** Edits the published knowledge base topic. */
 const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
@@ -106,6 +111,7 @@ const KbTopicCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
+/** Edits the Help Center ticket channel. */
 const TicketChannelCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
@@ -122,6 +128,7 @@ const TicketChannelCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
+/** Edits the Help Center ticket pipeline. */
 const TicketPipelineCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
@@ -141,6 +148,7 @@ const TicketPipelineCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
+/** Edits the default ticket status. */
 const TicketStatusCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   const helpCenter = cell.row.original;
   const { editHelpCenter } = useEditHelpCenter();
@@ -172,6 +180,7 @@ const TicketStatusCell = ({ cell }: { cell: Cell<IHelpCenter, unknown> }) => {
   );
 };
 
+/** Opens Help Center settings from the title cell. */
 const TitleCell = ({
   cell,
   t,
@@ -179,18 +188,23 @@ const TitleCell = ({
   cell: Cell<IHelpCenter, unknown>;
   t: TFunction;
 }) => {
-  const [, setEditId] = useQueryState<string>('editId');
+  const { openRecord } = useSidePanel();
   const { _id, title } = cell.row.original;
 
   return (
     <InlineTextCell cell={cell} field="title" placeholder={t('unnamed-topic')}>
-      <RecordTableInlineCell.Anchor onClick={() => setEditId(_id)}>
+      <RecordTableInlineCell.Anchor
+        onClick={() =>
+          openRecord({ contentType: HELP_CENTER_CONTENT_TYPE, contentId: _id })
+        }
+      >
         {title || t('unnamed-topic')}
       </RecordTableInlineCell.Anchor>
     </InlineTextCell>
   );
 };
 
+/** Builds the Help Center table columns. */
 const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
   helpCenterMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<IHelpCenter>,
@@ -265,6 +279,7 @@ const createHelpCenterColumns = (t: TFunction): ColumnDef<IHelpCenter>[] => [
   },
 ];
 
+/** Memoizes the Help Center table columns. */
 export const useHelpCenterColumns = (): ColumnDef<IHelpCenter>[] => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.helpcenter',

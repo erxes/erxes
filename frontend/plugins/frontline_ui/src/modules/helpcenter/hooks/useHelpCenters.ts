@@ -3,7 +3,10 @@ import { isDefined, isUndefinedOrNull } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { HELP_CENTERS_PER_PAGE } from '@/helpcenter/constants';
-import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
+import {
+  GET_HELP_CENTER,
+  GET_HELP_CENTERS,
+} from '@/helpcenter/graphql/queries/getHelpCenters';
 import { helpCenterTotalCountAtom } from '@/helpcenter/states/helpCentersTotalCountState';
 import {
   TSearchBrandFilters,
@@ -19,6 +22,7 @@ type THelpCentersQueryOptions = QueryHookOptions<
   FrontlineHelpCenterListQueryVariables
 >;
 
+/** Loads a filtered Help Center page and its total count. */
 const useHelpCentersQuery = (
   filters: TSearchBrandFilters,
   options?: THelpCentersQueryOptions,
@@ -43,6 +47,7 @@ const useHelpCentersQuery = (
   };
 };
 
+/** Keeps filtered Help Centers and total count in sync. */
 export const useHelpCenters = (options?: THelpCentersQueryOptions) => {
   const setHelpCenterTotalCount = useSetAtom(helpCenterTotalCountAtom);
   const filters = useSearchBrandFilters();
@@ -57,5 +62,11 @@ export const useHelpCenters = (options?: THelpCentersQueryOptions) => {
   return { helpCenters, loading, error, refetch, totalCount: serverTotalCount };
 };
 
-export const useAllHelpCenters = (options?: THelpCentersQueryOptions) =>
-  useHelpCentersQuery({}, options);
+/** Loads a Help Center independently of list filters. */
+export const useHelpCenterDetail = (helpCenterId: string) => {
+  const { data, loading, error } = useQuery(GET_HELP_CENTER, {
+    variables: { _id: helpCenterId },
+    fetchPolicy: 'cache-and-network',
+  });
+  return { helpCenter: data?.helpCenterConfig ?? undefined, loading, error };
+};

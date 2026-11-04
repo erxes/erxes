@@ -1,5 +1,5 @@
 import { Form, Select, Textarea } from 'erxes-ui';
-import { Control, FieldPath } from 'react-hook-form';
+import { Control } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
 import { HELP_CENTER_FONTS, defaultStyleColor } from '@/helpcenter/constants';
@@ -51,16 +51,29 @@ export function StyleColorField({
   );
 }
 
+export type THelpCenterImageField =
+  | 'styles.mainLogo'
+  | 'styles.favicon'
+  | 'footer.logo'
+  | 'backgroundImage';
+export type TCaptureHelpCenterImage = (
+  name: THelpCenterImageField,
+) => (url: string) => void;
+
 export function StyleImageField({
   control,
   name,
   label,
   description,
+  captureImageUpdate,
+  invalidateImageUpdate,
 }: Readonly<{
   control: Control<IHelpCenterConfigInput>;
-  name: FieldPath<IHelpCenterConfigInput>;
+  name: THelpCenterImageField;
   label: string;
   description: string;
+  captureImageUpdate?: TCaptureHelpCenterImage;
+  invalidateImageUpdate?: (name: THelpCenterImageField) => void;
 }>) {
   return (
     <Form.Field
@@ -75,6 +88,14 @@ export function StyleImageField({
               value={field.value as string}
               onChange={field.onChange}
               buttonLabel={label}
+              invalidateChange={
+                invalidateImageUpdate
+                  ? () => invalidateImageUpdate(name)
+                  : undefined
+              }
+              captureChange={
+                captureImageUpdate ? () => captureImageUpdate(name) : undefined
+              }
             />
           </Form.Control>
           <Form.Message />

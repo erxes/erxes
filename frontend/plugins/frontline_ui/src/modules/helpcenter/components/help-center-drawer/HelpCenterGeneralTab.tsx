@@ -1,3 +1,4 @@
+import { preventImplicitSubmit } from '@/helpcenter/utils/preventImplicitSubmit';
 import {
   Combobox,
   Form,
@@ -8,7 +9,8 @@ import {
   Textarea,
 } from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+import { PanelFormRow } from 'ui-modules';
 import { Control, UseFormReturn, useWatch } from 'react-hook-form';
 import { SelectHelpCenterForms } from '@/helpcenter/components/SelectHelpCenterForms';
 import { SelectHelpCenterTopic } from '@/helpcenter/components/SelectHelpCenterTopic';
@@ -20,6 +22,43 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
+/** Composes a labelled Help Center form row. */
+const HelpCenterFormItem = ({
+  label,
+  required,
+  wide,
+  children,
+  className,
+}: {
+  label: ReactNode;
+  required?: boolean;
+  wide?: boolean;
+  children: ReactNode;
+  className?: string;
+}) => {
+  const fieldLabel = (
+    <Form.Label className="font-sans text-xs font-medium normal-case text-accent-foreground">
+      {label}
+    </Form.Label>
+  );
+
+  return (
+    <Form.Item className={className}>
+      {wide ? (
+        <>
+          {fieldLabel}
+          {children}
+        </>
+      ) : (
+        <PanelFormRow label={fieldLabel} required={required}>
+          {children}
+        </PanelFormRow>
+      )}
+    </Form.Item>
+  );
+};
+
+/** Renders a feature and its enabled settings. */
 function FeatureSection({
   control,
   toggleName,
@@ -52,17 +91,14 @@ function FeatureSection({
           </Form.Item>
         )}
       />
-      <div
-        className={
-          enabled ? 'grid gap-4 pt-3 border-t lg:grid-cols-2' : 'hidden'
-        }
-      >
+      <div className={enabled ? 'grid gap-3 pt-3 border-t' : 'hidden'}>
         {children}
       </div>
     </div>
   );
 }
 
+/** Limits status options to the selected ticket pipeline. */
 function TicketStatusField({
   value,
   pipelineId,
@@ -95,6 +131,7 @@ function TicketStatusField({
   );
 }
 
+/** Renders the general Help Center settings. */
 export function HelpCenterGeneralTab({
   form,
   t,
@@ -115,32 +152,32 @@ export function HelpCenterGeneralTab({
     <div className="flex flex-col gap-4">
       <InfoCard title={t('general-settings', 'General')}>
         <InfoCard.Content className="gap-4">
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-3">
             <Form.Field
               control={control}
               name="title"
               rules={{ required: 'Title is required' }}
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('name', 'Name')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <HelpCenterFormItem required label={t('name', 'Name')}>
                   <Form.Control>
-                    <Input {...field} placeholder={t('kb-enter-topic-title')} />
+                    <Input
+                      onKeyDown={preventImplicitSubmit}
+                      {...field}
+                      placeholder={t('kb-enter-topic-title')}
+                    />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="clientPortalId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('sidebar.client-portal', 'Client portal')}
-                  </Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('sidebar.client-portal', 'Client portal')}
+                >
                   <Form.Control>
                     <SelectHelpCenterClientPortal
                       variant="form"
@@ -154,7 +191,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
           </div>
@@ -162,8 +199,7 @@ export function HelpCenterGeneralTab({
             control={control}
             name="description"
             render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
+              <HelpCenterFormItem wide label={t('description')}>
                 <Form.Control>
                   <Textarea
                     {...field}
@@ -171,7 +207,7 @@ export function HelpCenterGeneralTab({
                   />
                 </Form.Control>
                 <Form.Message />
-              </Form.Item>
+              </HelpCenterFormItem>
             )}
           />
         </InfoCard.Content>
@@ -193,12 +229,12 @@ export function HelpCenterGeneralTab({
               control={control}
               name="kbLabel"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {t('knowledgebase-name', 'Knowledge base name')}
-                  </Form.Label>
+                <HelpCenterFormItem
+                  label={t('knowledgebase-name', 'Knowledge base name')}
+                >
                   <Form.Control>
                     <Input
+                      onKeyDown={preventImplicitSubmit}
                       {...field}
                       placeholder={t(
                         'kb-enter-menu-label',
@@ -207,7 +243,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
@@ -215,14 +251,14 @@ export function HelpCenterGeneralTab({
               name="kbTopicId"
               rules={{
                 validate: (value) =>
-                  !showKnowledgeBase || !!value || 'Topic is required',
+                  !showKnowledgeBase || Boolean(value) || 'Topic is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('knowledgebase-topic', 'Knowledge base topic')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('knowledgebase-topic', 'Knowledge base topic')}
+                >
                   <Form.Control>
                     <SelectHelpCenterTopic
                       variant="form"
@@ -231,7 +267,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
           </FeatureSection>
@@ -254,10 +290,10 @@ export function HelpCenterGeneralTab({
               control={control}
               name="ticketLabel"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('ticket-name', 'Ticket name')}</Form.Label>
+                <HelpCenterFormItem label={t('ticket-name', 'Ticket name')}>
                   <Form.Control>
                     <Input
+                      onKeyDown={preventImplicitSubmit}
                       {...field}
                       placeholder={t(
                         'kb-enter-menu-label',
@@ -266,7 +302,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
@@ -274,14 +310,14 @@ export function HelpCenterGeneralTab({
               name="ticketChannelId"
               rules={{
                 validate: (value) =>
-                  !showTickets || !!value || 'Channel is required',
+                  !showTickets || Boolean(value) || 'Channel is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('channel-label')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('channel-label')}
+                >
                   <Form.Control>
                     <SelectChannel.FormItem
                       value={field.value}
@@ -293,7 +329,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
@@ -301,14 +337,14 @@ export function HelpCenterGeneralTab({
               name="ticketPipelineId"
               rules={{
                 validate: (value) =>
-                  !showTickets || !!value || 'Pipeline is required',
+                  !showTickets || Boolean(value) || 'Pipeline is required',
               }}
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>
-                    {t('pipeline-label')}{' '}
-                    <span className="text-destructive">*</span>
-                  </Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  required
+                  label={t('pipeline-label')}
+                >
                   <Form.Control>
                     <SelectPipeline
                       variant="form"
@@ -322,15 +358,17 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="ticketStatusId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('status-label')}</Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('status-label')}
+                >
                   <Form.Control>
                     <TicketStatusField
                       value={field.value}
@@ -339,7 +377,7 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
           </FeatureSection>
@@ -351,13 +389,15 @@ export function HelpCenterGeneralTab({
         className={showTickets ? undefined : 'hidden'}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 lg:grid-cols-2">
+          <div className="grid gap-3">
             <Form.Field
               control={control}
               name="formChannelId"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('channel-label')}</Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('channel-label')}
+                >
                   <Form.Control>
                     <SelectChannel.FormItem
                       value={field.value}
@@ -368,22 +408,24 @@ export function HelpCenterGeneralTab({
                     />
                   </Form.Control>
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
             <Form.Field
               control={control}
               name="formIds"
               render={({ field }) => (
-                <Form.Item className={FULL_WIDTH_SELECT}>
-                  <Form.Label>{t('forms', 'Forms')}</Form.Label>
+                <HelpCenterFormItem
+                  className={FULL_WIDTH_SELECT}
+                  label={t('forms', 'Forms')}
+                >
                   <SelectHelpCenterForms
                     value={field.value}
                     channelId={formChannelId}
                     onValueChange={field.onChange}
                   />
                   <Form.Message />
-                </Form.Item>
+                </HelpCenterFormItem>
               )}
             />
           </div>
