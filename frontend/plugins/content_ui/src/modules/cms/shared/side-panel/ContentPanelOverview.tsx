@@ -51,9 +51,7 @@ export const ContentPanelOverview = ({
         />
       )}
       <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 break-words text-base font-semibold">
-          {title}
-        </h3>
+        <h3 className="min-w-0 break-words text-base font-semibold">{title}</h3>
         <Button size="sm" variant="secondary" onClick={onEdit}>
           <IconPencil />
           {editLabel}

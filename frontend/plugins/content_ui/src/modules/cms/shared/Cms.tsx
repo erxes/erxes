@@ -134,7 +134,10 @@ export function Cms() {
               <ToggleGroup.Item value="list" aria-label={t('list-view')}>
                 <IconList className="h-4 w-4" />
               </ToggleGroup.Item>
-              <ToggleGroup.Item value="thumbnail" aria-label={t('thumbnail-view')}>
+              <ToggleGroup.Item
+                value="thumbnail"
+                aria-label={t('thumbnail-view')}
+              >
                 <IconLayoutGrid className="h-4 w-4" />
               </ToggleGroup.Item>
             </ToggleGroup>
@@ -345,7 +348,6 @@ export function Cms() {
               ))}
             </div>
           )}
-
         </>
       )}
     </CmsLayout>

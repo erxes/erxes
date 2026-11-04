@@ -32,7 +32,9 @@ export const usePagesColumns = (
     RecordTable.checkboxColumn as ColumnDef<IPage>,
     {
       id: 'name',
-      header: () => <RecordTable.InlineHead icon={IconUser} label={t('name')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconUser} label={t('name')} />
+      ),
       accessorKey: 'name',
       cell: ({ row }) => {
         const page = row.original as IPage & {
@@ -92,7 +94,9 @@ export const usePagesColumns = (
     },
     {
       id: 'slug',
-      header: () => <RecordTable.InlineHead icon={IconArticle} label={t('slug')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconArticle} label={t('slug')} />
+      ),
       accessorKey: 'slug',
       cell: ({ cell }) => (
         <RecordTableInlineCell className="text-gray-500">

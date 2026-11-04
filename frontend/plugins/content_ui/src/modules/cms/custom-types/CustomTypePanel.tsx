@@ -234,9 +234,7 @@ const CustomTypePanelNew = () => {
       key={clientPortalId}
       clientPortalId={clientPortalId}
       onCancel={cancelDraft}
-      onCreated={(customTypeId) =>
-        openDetail(customTypeId, { replace: true })
-      }
+      onCreated={(customTypeId) => openDetail(customTypeId, { replace: true })}
     />
   );
 };

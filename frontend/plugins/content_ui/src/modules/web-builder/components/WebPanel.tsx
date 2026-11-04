@@ -1,11 +1,4 @@
-import {
-  Combobox,
-  Command,
-  Form,
-  Input,
-  Popover,
-  Textarea,
-} from 'erxes-ui';
+import { Combobox, Command, Form, Input, Popover, Textarea } from 'erxes-ui';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -177,11 +170,7 @@ const WebPanelForm = ({
               <Form.Item>
                 <Form.Label>{t('name')}</Form.Label>
                 <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t('my-website')}
-                    required
-                  />
+                  <Input {...field} placeholder={t('my-website')} required />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -272,8 +261,7 @@ const WebPanelForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  {t('template')}{' '}
-                  <span className="text-destructive">*</span>
+                  {t('template')} <span className="text-destructive">*</span>
                 </Form.Label>
                 <TemplateSelect
                   type={selectedType || ''}

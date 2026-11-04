@@ -67,7 +67,9 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
               <div className="flex items-start gap-2">
                 <IconAlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
                 <div className="text-sm">
-                  <p className="font-medium text-red-800">{t('permission-required')}</p>
+                  <p className="font-medium text-red-800">
+                    {t('permission-required')}
+                  </p>
                   <p className="text-red-700 mt-1">
                     {t('menus-permission-required-desc')}
                   </p>
@@ -92,7 +94,9 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
                 <Form.Label>
                   {t('label')}
                   {isTranslationMode && (
-                    <span className="ml-2 text-xs text-blue-600">({selectedLanguage})</span>
+                    <span className="ml-2 text-xs text-blue-600">
+                      ({selectedLanguage})
+                    </span>
                   )}
                 </Form.Label>
                 <Form.Control>
@@ -129,7 +133,10 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
                       onCheckedChange={field.onChange}
                     />
                   </Form.Control>
-                  <Form.Label htmlFor="target-blank" className="cursor-pointer font-normal">
+                  <Form.Label
+                    htmlFor="target-blank"
+                    className="cursor-pointer font-normal"
+                  >
                     {t('open-in-new-tab')}
                   </Form.Label>
                 </div>
@@ -145,7 +152,9 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
                 <Form.Label>
                   {t('kind')}
                   {isTranslationMode && (
-                    <span className="ml-2 text-xs text-gray-500">({t('shared-across-languages')})</span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      ({t('shared-across-languages')})
+                    </span>
                   )}
                 </Form.Label>
                 <Form.Control>
@@ -172,16 +181,23 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
                 <Form.Label>
                   {t('parent-menu')}
                   {isTranslationMode && (
-                    <span className="ml-2 text-xs text-gray-500">({t('shared-across-languages')})</span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      ({t('shared-across-languages')})
+                    </span>
                   )}
                 </Form.Label>
                 <Form.Control>
-                  <Select value={field.value || 'none'} onValueChange={field.onChange}>
+                  <Select
+                    value={field.value || 'none'}
+                    onValueChange={field.onChange}
+                  >
                     <Select.Trigger>
                       <Select.Value placeholder={t('none-top-level')} />
                     </Select.Trigger>
                     <Select.Content>
-                      <Select.Item value="none">{t('none-top-level')}</Select.Item>
+                      <Select.Item value="none">
+                        {t('none-top-level')}
+                      </Select.Item>
                       {parentOptions.map((opt) => (
                         <Select.Item key={opt._id} value={opt._id}>
                           {opt.label}
@@ -194,7 +210,6 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
               </Form.Item>
             )}
           />
-
         </ContentPanelBody>
         <ContentPanelFooter
           onCancel={props.onCancel}

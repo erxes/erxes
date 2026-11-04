@@ -40,17 +40,17 @@
 
 ## Architecture
 
-| Area          | Path                                                  | Responsibility                                                                                          |
-| ------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`         | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout` |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`          | Registers content navigation and modules.                                                               |
-| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`        | Configures image assets, Module Federation development serving, and watch ignore rules.                 |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`         | Owns CMS routes and feature UI.                                                                         |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder` | Owns Web Builder UI.                                                                                    |
-| Pages         | `frontend/plugins/content_ui/src/pages`               | Provides route-level pages.                                                                             |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`             | Provides plugin widget exports.                                                                         |
-| Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity. |
-| Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel` | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only post/page overview. |
+| Area          | Path                                                                   | Responsibility                                                                                                                                                           |
+| ------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`                          | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout`                                                                  |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`                           | Registers content navigation and modules.                                                                                                                                |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`                         | Configures image assets, Module Federation development serving, and watch ignore rules.                                                                                  |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`                          | Owns CMS routes and feature UI.                                                                                                                                          |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder`                  | Owns Web Builder UI.                                                                                                                                                     |
+| Pages         | `frontend/plugins/content_ui/src/pages`                                | Provides route-level pages.                                                                                                                                              |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`                              | Provides plugin widget exports.                                                                                                                                          |
+| Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity.                                      |
+| Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel`        | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only post/page overview. |
 
 ## Contracts
 

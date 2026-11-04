@@ -738,10 +738,7 @@ const CategoryPanelForm = ({
                   )}
                 </Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select')} />
                     </Select.Trigger>
@@ -773,16 +770,15 @@ const CategoryPanelForm = ({
                   )}
                 </Form.Label>
                 <Form.Control>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <Select.Trigger>
                       <Select.Value placeholder={t('select-status')} />
                     </Select.Trigger>
                     <Select.Content>
                       <Select.Item value="active">{t('active')}</Select.Item>
-                      <Select.Item value="inactive">{t('inactive')}</Select.Item>
+                      <Select.Item value="inactive">
+                        {t('inactive')}
+                      </Select.Item>
                     </Select.Content>
                   </Select>
                 </Form.Control>
@@ -800,7 +796,6 @@ const CategoryPanelForm = ({
               form={form}
             />
           )}
-
         </ContentPanelBody>
         <ContentPanelFooter
           onCancel={onCancel}

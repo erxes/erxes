@@ -181,8 +181,7 @@ const WebsitePanelForm = ({
       onError: (error) => {
         toast({
           title: t('error'),
-          description:
-            error.message || t('failed-to-update-cms'),
+          description: error.message || t('failed-to-update-cms'),
           variant: 'destructive',
           duration: 5000,
         });
@@ -398,17 +397,14 @@ const WebsitePanelForm = ({
                             o.label
                               .toLowerCase()
                               .includes(term.toLowerCase()) ||
-                            o.value
-                              .toLowerCase()
-                              .includes(term.toLowerCase()),
+                            o.value.toLowerCase().includes(term.toLowerCase()),
                         )
                       }
                       triggerSearchOnFocus
                       value={(field.value || []).map((lng) => ({
                         value: lng,
                         label:
-                          LANGUAGES.find((l) => l.value === lng)?.label ||
-                          lng,
+                          LANGUAGES.find((l) => l.value === lng)?.label || lng,
                       }))}
                       onChange={(val) =>
                         field.onChange(val.map((v) => v.value))
@@ -441,7 +437,9 @@ const WebsitePanelForm = ({
                       disabled={available.length === 0}
                     >
                       <Select.Trigger ref={defaultLanguageTriggerRef}>
-                        <Select.Value placeholder={t('select-default-language')} />
+                        <Select.Value
+                          placeholder={t('select-default-language')}
+                        />
                       </Select.Trigger>
                       <Select.Content>
                         {available.map((opt) => (
@@ -457,7 +455,6 @@ const WebsitePanelForm = ({
               );
             }}
           />
-
         </ContentPanelBody>
         <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
           <Button

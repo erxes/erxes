@@ -179,9 +179,7 @@ export function CustomFields() {
       <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CustomFieldsHeader>
-          <Button
-            onClick={handleAddGroup}
-          >
+          <Button onClick={handleAddGroup}>
             <IconPlus className="w-4 h-4 mr-2" />
             {t('add-group')}
           </Button>
@@ -211,10 +209,7 @@ export function CustomFields() {
                     <p className="text-muted-foreground mb-4">
                       {t('no-field-groups-yet')}
                     </p>
-                    <Button
-                      variant="secondary"
-                      onClick={handleAddGroup}
-                    >
+                    <Button variant="secondary" onClick={handleAddGroup}>
                       <IconPlus className="w-4 h-4 mr-2" />
                       {t('create-first-group')}
                     </Button>

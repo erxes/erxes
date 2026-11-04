@@ -1,6 +1,10 @@
 import { useCallback } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
-import { IOpenRecordOptions, useSidePanel, useSidePanelDraft } from 'ui-modules';
+import {
+  IOpenRecordOptions,
+  useSidePanel,
+  useSidePanelDraft,
+} from 'ui-modules';
 import { IContentPanelDraftDefaults } from '@/cms/shared/side-panel/contentPanelTypes';
 
 export const useContentPanel = (contentType: string) => {
