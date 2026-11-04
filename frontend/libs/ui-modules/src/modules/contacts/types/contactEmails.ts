@@ -54,11 +54,10 @@ export interface ContactEmailsState extends EmailDoubleClickState {
   handleValueChange: TEmailsOnValueChange;
   handleValidationStatusChange: (status: ValidationStatus) => void;
 }
-export interface CustomerEmailsState
-  extends Omit<
-    ContactEmailsState,
-    'handleEmailClick' | 'handleEmailDoubleClick'
-  > {
+export interface CustomerEmailsState extends Omit<
+  ContactEmailsState,
+  'handleEmailClick' | 'handleEmailDoubleClick'
+> {
   handleVerifiedEmailClick: (email: string) => void;
   handleVerifiedEmailDoubleClick: (email: string) => void;
 }
