@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose';
-import { DISCORD_NOTIFICATION_EVENTS } from '@/discordIntegration/constants';
+import { DISCORD_CARD_EVENTS } from '@/discordIntegration/constants';
 
 export const discordMessageSchema = new Schema(
   {
@@ -9,7 +9,7 @@ export const discordMessageSchema = new Schema(
     configId: { type: String, label: 'Config ID', required: true },
     lastEvent: {
       type: String,
-      enum: [...DISCORD_NOTIFICATION_EVENTS],
+      enum: [...DISCORD_CARD_EVENTS],
       label: 'Last Event',
     },
     audience: {

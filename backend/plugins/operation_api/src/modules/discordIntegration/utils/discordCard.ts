@@ -11,13 +11,19 @@ import {
   TDiscordMessagePayload,
 } from '@/discordIntegration/@types/discordApi';
 import {
-  TDiscordNotificationEvent,
+  TDiscordCardEvent,
   TDiscordNotificationJob,
+  TDiscordTaskMove,
 } from '@/discordIntegration/@types/discordNotification';
 import {
   DISCORD_CARD_COLORS,
   DISCORD_LIMITS,
 } from '@/discordIntegration/constants';
+import { TDiscordChannelMention } from '@/discordIntegration/@types/discordConfig';
+import {
+  buildAllowedMentions,
+  disarmDiscordMentions,
+} from '@/discordIntegration/utils/discordMention';
 import { STATUS_TYPES } from '@/status/constants/types';
 import { IModels } from '~/connectionResolvers';
 import { blockNoteToPlainText } from '~/meta/import-export/blockNoteToPlainText';
@@ -56,6 +62,7 @@ type TDiscordCardTriage = TDiscordCardRecord & {
 export type TDiscordCardMention = {
   discordUserId?: string;
   linkAccountUrl?: string;
+  channel?: TDiscordChannelMention;
 };
 
 export type TDiscordCardEntity =
@@ -67,6 +74,11 @@ type TDiscordCardUser = Pick<IUser, 'email' | 'username' | 'details'> & {
 };
 
 type TDiscordCardState = keyof typeof DISCORD_CARD_COLORS;
+
+type TDiscordMoveTeamNames = { from: string; to: string };
+
+export const isMovedOutJob = (job: TDiscordNotificationJob) =>
+  job.event === 'taskMoved' && job.move?.fromTeamId === job.teamId;
 
 export const truncateDiscordText = (value: string, max: number) =>
   value.length > max ? `${value.slice(0, max - 1)}…` : value;
@@ -171,12 +183,15 @@ const getCardLink = (subdomain: string, entity: TDiscordCardEntity) => {
     : `${domain}/operation/team/${String(entity.record.teamId)}/triage/${id}`;
 };
 
-const EVENT_EMOJIS: Record<TDiscordNotificationEvent, string> = {
+const EVENT_EMOJIS: Record<TDiscordCardEvent, string> = {
   triageCreated: '📥',
   triageAccepted: '✅',
   triageDeclined: '⛔',
   taskAssigned: '👤',
   taskCompleted: '🎉',
+  taskMoved: '↪️',
+  taskReopened: '🔄',
+  taskCancelled: '🚫',
 };
 
 export const escapeDiscordMarkdown = (value: string) =>
@@ -240,12 +255,14 @@ const describeActivity = ({
   actorName,
   assigneeName,
   assigneeMention,
+  teamNames,
   markdown,
 }: {
   job: TDiscordNotificationJob;
   actorName: string;
   assigneeName?: string;
   assigneeMention?: string;
+  teamNames?: TDiscordMoveTeamNames;
   markdown: boolean;
 }) => {
   const strong = (value: string) =>
@@ -267,10 +284,18 @@ const describeActivity = ({
       }`;
     case 'taskCompleted':
       return `${actor} completed the task`;
+    case 'taskMoved':
+      return `${actor} moved the task from ${strong(
+        teamNames?.from || 'another team',
+      )} to ${strong(teamNames?.to || 'another team')}`;
+    case 'taskReopened':
+      return `${actor} reopened the task`;
+    case 'taskCancelled':
+      return `${actor} cancelled the task`;
   }
 };
 
-const buildField = (
+export const buildField = (
   name: string,
   value: string,
   inline = true,
@@ -280,7 +305,7 @@ const buildField = (
   inline,
 });
 
-const buildLinkRow = (
+export const buildLinkRow = (
   links: { label: string; url?: string }[],
 ): TDiscordActionRow[] => {
   const buttons = links
@@ -307,46 +332,61 @@ const buildCardReply = ({
   job,
   actorName,
   assigneeName,
+  teamNames,
   mention,
   reason,
 }: {
   job: TDiscordNotificationJob;
   actorName: string;
   assigneeName?: string;
+  teamNames?: TDiscordMoveTeamNames;
   mention: TDiscordCardMention;
   reason?: string;
-}): TDiscordMessagePayload => ({
-  content: truncateDiscordText(
-    [
-      `${EVENT_EMOJIS[job.event]} ${describeActivity({
-        job,
-        actorName,
-        assigneeName,
-        assigneeMention: mention.discordUserId,
-        markdown: true,
-      })}`,
-      reason ? `> ${escapeDiscordMarkdown(reason)}` : '',
-      mention.linkAccountUrl
-        ? `-# ${escapeDiscordMarkdown(
-            assigneeName || 'The assignee',
-          )} hasn't linked a Discord account yet, so they weren't mentioned.`
-        : '',
-    ]
-      .filter(Boolean)
-      .join('\n'),
-    DISCORD_LIMITS.content,
-  ),
-  allowed_mentions: mention.discordUserId
-    ? { users: [mention.discordUserId] }
-    : { parse: [] },
-  ...(mention.linkAccountUrl
-    ? {
-        components: buildLinkRow([
-          { label: 'Link Discord account', url: mention.linkAccountUrl },
-        ]),
-      }
-    : {}),
-});
+}): TDiscordMessagePayload => {
+  const disarm = (value: string) =>
+    mention.channel ? disarmDiscordMentions(value) : value;
+  const safeAssigneeName = assigneeName ? disarm(assigneeName) : undefined;
+  const safeTeamNames = teamNames
+    ? { from: disarm(teamNames.from), to: disarm(teamNames.to) }
+    : undefined;
+
+  return {
+    content: truncateDiscordText(
+      [
+        `${mention.channel ? `@${mention.channel} ` : ''}${
+          EVENT_EMOJIS[job.event]
+        } ${describeActivity({
+          job,
+          actorName: disarm(actorName),
+          assigneeName: safeAssigneeName,
+          assigneeMention: mention.discordUserId,
+          teamNames: safeTeamNames,
+          markdown: true,
+        })}`,
+        reason ? `> ${escapeDiscordMarkdown(disarm(reason))}` : '',
+        mention.linkAccountUrl
+          ? `-# ${escapeDiscordMarkdown(
+              safeAssigneeName || 'The assignee',
+            )} hasn't linked a Discord account yet, so they weren't mentioned.`
+          : '',
+      ]
+        .filter(Boolean)
+        .join('\n'),
+      DISCORD_LIMITS.content,
+    ),
+    allowed_mentions: buildAllowedMentions({
+      channel: mention.channel,
+      userId: mention.discordUserId,
+    }),
+    ...(mention.linkAccountUrl
+      ? {
+          components: buildLinkRow([
+            { label: 'Link Discord account', url: mention.linkAccountUrl },
+          ]),
+        }
+      : {}),
+  };
+};
 
 const buildCardFields = ({
   entity,
@@ -355,6 +395,7 @@ const buildCardFields = ({
   assigneeName,
   contacts,
   reason,
+  movedTo,
 }: {
   entity: TDiscordCardEntity;
   state: TDiscordCardState;
@@ -362,6 +403,7 @@ const buildCardFields = ({
   assigneeName?: string;
   contacts: Awaited<ReturnType<typeof getContactNames>>;
   reason?: string;
+  movedTo?: string;
 }) => {
   const priority = entity.record.priority ?? 0;
   const isTask = entity.kind === 'task';
@@ -371,6 +413,10 @@ const buildCardFields = ({
       : '';
 
   const optional: [boolean, () => TDiscordEmbedField][] = [
+    [
+      Boolean(movedTo),
+      () => buildField('Moved to', escapeDiscordMarkdown(movedTo ?? '')),
+    ],
     [
       isTask && Boolean(assigneeName || state === 'open'),
       () =>
@@ -410,6 +456,28 @@ const buildCardFields = ({
   ];
 };
 
+const getMoveTeamNames = async (
+  models: IModels,
+  move?: TDiscordTaskMove,
+): Promise<TDiscordMoveTeamNames | undefined> => {
+  if (!move) {
+    return undefined;
+  }
+
+  const teams = await models.Team.find({
+    _id: { $in: [move.fromTeamId, move.toTeamId] },
+  })
+    .select('name')
+    .lean();
+
+  const names = new Map(teams.map((team) => [String(team._id), team.name]));
+
+  return {
+    from: names.get(move.fromTeamId) || 'Unknown team',
+    to: names.get(move.toTeamId) || 'Unknown team',
+  };
+};
+
 export const buildDiscordCard = async ({
   models,
   entity,
@@ -429,13 +497,19 @@ export const buildDiscordCard = async ({
     entity.kind === 'task' ? entity.record.assigneeId : undefined;
   const actorId = job.actorId || record.createdBy || '';
   const statusType = getStatusType(entity);
-  const state = getCardState(statusType);
+  const movedOut = isMovedOutJob(job);
+  const state = movedOut ? 'moved' : getCardState(statusType);
 
-  const [team, statusName, userNames, contacts] = await Promise.all([
-    models.Team.findOne({ _id: record.teamId }).select('name').lean(),
+  const [team, statusName, userNames, contacts, teamNames] = await Promise.all([
+    models.Team.findOne({ _id: movedOut ? job.teamId : record.teamId })
+      .select('name')
+      .lean(),
     getStatusName(models, entity, statusType),
     getUserNames(job.subdomain, [actorId, assigneeId || '']),
     getContactNames(job.subdomain, record),
+    job.event === 'taskMoved'
+      ? getMoveTeamNames(models, job.move)
+      : Promise.resolve(undefined),
   ]);
 
   const actorName = userNames.get(actorId) || getFallbackActorName(record);
@@ -447,6 +521,7 @@ export const buildDiscordCard = async ({
     job,
     actorName,
     assigneeName,
+    teamNames,
     mention,
     reason,
   });
@@ -463,6 +538,7 @@ export const buildDiscordCard = async ({
     assigneeName,
     contacts,
     reason,
+    movedTo: movedOut ? teamNames?.to : undefined,
   });
 
   const kindLabel = entity.kind === 'task' ? 'Task' : 'Triage';
@@ -492,6 +568,7 @@ export const buildDiscordCard = async ({
                 job,
                 actorName,
                 assigneeName,
+                teamNames,
                 markdown: false,
               }),
               DISCORD_LIMITS.footer,

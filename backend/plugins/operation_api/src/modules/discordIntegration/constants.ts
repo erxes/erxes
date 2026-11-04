@@ -21,13 +21,28 @@ export const DISCORD_LINK_RESULT_PARAM = 'discordLink';
 
 export const DISCORD_LINK_ERROR_PARAM = 'discordLinkError';
 
-export const DISCORD_NOTIFICATION_EVENTS = [
+export const DISCORD_MEMBER_LINKING_ON = {
+  hasClientSecret: true,
+  memberLinkingPaused: { $ne: true },
+};
+
+export const DISCORD_CARD_EVENTS = [
   'triageCreated',
   'triageAccepted',
   'triageDeclined',
   'taskAssigned',
   'taskCompleted',
+  'taskMoved',
+  'taskReopened',
+  'taskCancelled',
 ] as const;
+
+export const DISCORD_NOTIFICATION_EVENTS = [
+  ...DISCORD_CARD_EVENTS,
+  'pullRequestMerged',
+] as const;
+
+export const DISCORD_MENTION_TARGETS = ['none', 'here', 'everyone'] as const;
 
 export const DISCORD_NOTIFY_QUEUE = 'discord-notify';
 
@@ -36,6 +51,8 @@ export const DISCORD_CUSTOMER_EVENTS = [
   'triageDeclined',
   'taskAssigned',
   'taskCompleted',
+  'taskReopened',
+  'taskCancelled',
 ];
 
 export const DISCORD_NOTIFY_JOB_OPTIONS: JobsOptions = {
@@ -77,7 +94,10 @@ export const DISCORD_CARD_COLORS = {
   open: 0x3b82f6,
   completed: 0x10b981,
   cancelled: 0xef4444,
+  moved: 0x6b7280,
 };
+
+export const DISCORD_PULL_REQUEST_COLOR = 0x8957e5;
 
 export const DISCORD_LIMITS = {
   title: 256,

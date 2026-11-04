@@ -1,6 +1,6 @@
 import { Document } from 'mongoose';
 import {
-  TDiscordNotificationEvent,
+  TDiscordCardEvent,
   TDiscordNotificationTarget,
 } from '@/discordIntegration/@types/discordNotification';
 
@@ -13,7 +13,7 @@ export type TDiscordCardKey = {
 export type IDiscordMessage = TDiscordCardKey & {
   messageId: string;
   configId: string;
-  lastEvent: TDiscordNotificationEvent;
+  lastEvent: TDiscordCardEvent;
   audience?: TDiscordNotificationTarget;
   discordUserId?: string;
 };

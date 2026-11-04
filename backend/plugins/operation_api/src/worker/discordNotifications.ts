@@ -3,11 +3,17 @@ import { TDiscordMessagePayload } from '@/discordIntegration/@types/discordApi';
 import { IDiscordConfigDocument } from '@/discordIntegration/@types/discordConfig';
 import {
   TDiscordCleanupJob,
+  TDiscordJob,
+  TDiscordNotificationEvent,
   TDiscordNotificationJob,
+  TDiscordPullRequestJob,
   TDiscordRemovedRecord,
 } from '@/discordIntegration/@types/discordNotification';
 import { IDiscordMessage } from '@/discordIntegration/@types/discordMessage';
-import { DISCORD_ERROR_CODES } from '@/discordIntegration/constants';
+import {
+  DISCORD_ERROR_CODES,
+  DISCORD_MEMBER_LINKING_ON,
+} from '@/discordIntegration/constants';
 import { getDiscordAccountPageUrl } from '@/discordIntegration/utils/discordAccountLink';
 import { recordDiscordFailure } from '@/discordIntegration/utils/discordBot';
 import {
@@ -16,10 +22,13 @@ import {
 } from '@/discordIntegration/utils/discordCustomerUpdate';
 import {
   buildDiscordCard,
+  isMovedOutJob,
   loadDiscordCardEntity,
   TDiscordCardEntity,
   TDiscordCardMention,
 } from '@/discordIntegration/utils/discordCard';
+import { getChannelMention } from '@/discordIntegration/utils/discordMention';
+import { buildDiscordPullRequestMessage } from '@/discordIntegration/utils/discordPullRequest';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { runSequentially } from '~/utils/runSequentially';
 import {
@@ -84,7 +93,7 @@ const resolveAssigneeMention = async ({
   if (!link) {
     const linkingEnabled = await models.DiscordConnection.exists({
       subdomain,
-      hasClientSecret: true,
+      ...DISCORD_MEMBER_LINKING_ON,
     });
 
     return linkingEnabled
@@ -136,6 +145,11 @@ const postNewCard = async (delivery: TCardDelivery) => {
   }
 };
 
+const isMissingCardError = (error: unknown) =>
+  error instanceof DiscordApiError &&
+  (error.code === DISCORD_ERROR_CODES.UNKNOWN_MESSAGE ||
+    error.code === DISCORD_ERROR_CODES.CANNOT_EDIT_OTHER_USER_MESSAGE);
+
 const updateCard = async (
   delivery: TCardDelivery & {
     cardId: string;
@@ -147,11 +161,7 @@ const updateCard = async (
   try {
     await editDiscordMessage(token, config.channelId, messageId, card);
   } catch (error) {
-    if (
-      error instanceof DiscordApiError &&
-      (error.code === DISCORD_ERROR_CODES.UNKNOWN_MESSAGE ||
-        error.code === DISCORD_ERROR_CODES.CANNOT_EDIT_OTHER_USER_MESSAGE)
-    ) {
+    if (isMissingCardError(error)) {
       await models.DiscordMessage.deleteOne({ _id: cardId });
 
       return postNewCard(delivery);
@@ -246,9 +256,186 @@ const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
   return 'sent';
 };
 
-const isCleanupJob = (
-  data: TDiscordNotificationJob | TDiscordCleanupJob,
-): data is TDiscordCleanupJob => 'type' in data && data.type === 'cleanup';
+const isCleanupJob = (data: TDiscordJob): data is TDiscordCleanupJob =>
+  'type' in data && data.type === 'cleanup';
+
+const isPullRequestJob = (data: TDiscordJob): data is TDiscordPullRequestJob =>
+  'type' in data && data.type === 'pullRequestMerged';
+
+const findSubscribedConfig = (
+  models: IModels,
+  {
+    configId,
+    teamId,
+    subdomain,
+  }: { configId?: string; teamId: string; subdomain: string },
+  event: TDiscordNotificationEvent,
+) =>
+  models.DiscordConfig.findOne({
+    ...(configId ? { _id: configId } : {}),
+    teamId,
+    subdomain,
+    isActive: true,
+    events: event,
+  }).lean();
+
+const deliverDiscordPullRequest = async ({
+  configId,
+  subdomain,
+  teamId,
+  pullRequest,
+}: TDiscordPullRequestJob) => {
+  const models = await generateModels(subdomain);
+
+  const config = await findSubscribedConfig(
+    models,
+    { configId, teamId, subdomain },
+    'pullRequestMerged',
+  );
+
+  if (!config) {
+    return 'skipped';
+  }
+
+  const connection = await models.DiscordConnection.findWithToken({
+    _id: config.connectionId,
+    subdomain,
+  });
+
+  if (!connection || connection.health?.status === 'broken') {
+    return 'skipped';
+  }
+
+  const team = await models.Team.findOne({ _id: teamId }).select('name').lean();
+
+  try {
+    await createDiscordMessage(
+      connection.token,
+      config.channelId,
+      buildDiscordPullRequestMessage({
+        pullRequest,
+        teamName: team?.name,
+        mention: getChannelMention(config, 'pullRequestMerged'),
+      }),
+    );
+  } catch (error) {
+    await recordDiscordFailure({
+      models,
+      error,
+      connectionId: String(connection._id),
+      configId: String(config._id),
+    });
+
+    if (isRetryableDiscordError(error)) {
+      throw error;
+    }
+
+    return 'failed';
+  }
+
+  await models.DiscordConfig.updateOne(
+    { _id: config._id },
+    { $set: { lastSentAt: new Date(), lastError: null } },
+  );
+
+  return 'sent';
+};
+
+const deliverDiscordMovedOut = async (data: TDiscordNotificationJob) => {
+  const { configId, subdomain, entityId, teamId } = data;
+  const models = await generateModels(subdomain);
+
+  const config = await findSubscribedConfig(
+    models,
+    { configId, teamId, subdomain },
+    'taskMoved',
+  );
+
+  if (!config) {
+    return 'skipped';
+  }
+
+  const thread = await models.DiscordMessage.findCard({
+    entityId,
+    channelId: config.channelId,
+    subdomain,
+  });
+
+  if (!thread?.messageId) {
+    return 'skipped';
+  }
+
+  const connection = await models.DiscordConnection.findWithToken({
+    _id: config.connectionId,
+    subdomain,
+  });
+
+  if (!connection || connection.health?.status === 'broken') {
+    return 'skipped';
+  }
+
+  const entity = await loadDiscordCardEntity(models, entityId);
+
+  if (!entity || String(entity.record.teamId) === teamId) {
+    return 'skipped';
+  }
+
+  const { card, reply } = await buildDiscordCard({
+    models,
+    entity,
+    job: data,
+    mention: { channel: getChannelMention(config, 'taskMoved') },
+  });
+
+  try {
+    await editDiscordMessage(
+      connection.token,
+      config.channelId,
+      thread.messageId,
+      card,
+    );
+    await sendReply(
+      {
+        models,
+        token: connection.token,
+        config,
+        job: data,
+        card,
+        reply,
+        replyToNewCard: false,
+      },
+      thread.messageId,
+    );
+  } catch (error) {
+    if (isMissingCardError(error)) {
+      await models.DiscordMessage.deleteOne({ _id: thread._id });
+
+      return 'skipped';
+    }
+
+    await recordDiscordFailure({
+      models,
+      error,
+      connectionId: String(connection._id),
+      configId: String(config._id),
+    });
+
+    if (isRetryableDiscordError(error)) {
+      throw error;
+    }
+
+    return 'failed';
+  }
+
+  await models.DiscordMessage.deleteOne({ _id: thread._id });
+
+  await models.DiscordConfig.updateOne(
+    { _id: config._id },
+    { $set: { lastSentAt: new Date(), lastError: null } },
+  );
+
+  return 'sent';
+};
 
 const findThreadConnection = async (
   models: IModels,
@@ -388,26 +575,31 @@ const getRateLimitDelayMs = (error: unknown) =>
     ? error.retryAfterMs
     : undefined;
 
-const processDiscordJob = async (
-  data: TDiscordNotificationJob | TDiscordCleanupJob,
-) => {
+const processDiscordJob = async (data: TDiscordJob) => {
   if (isCleanupJob(data)) {
     return cleanupDiscordCards(data);
+  }
+
+  if (isPullRequestJob(data)) {
+    return deliverDiscordPullRequest(data);
   }
 
   if (data.target === 'customer') {
     return deliverDiscordCustomerUpdate(data);
   }
 
-  const { subdomain, event, entityId, teamId } = data;
+  if (isMovedOutJob(data)) {
+    return deliverDiscordMovedOut(data);
+  }
+
+  const { configId, subdomain, event, entityId, teamId } = data;
   const models = await generateModels(subdomain);
 
-  const config = await models.DiscordConfig.findOne({
-    teamId,
-    subdomain,
-    isActive: true,
-    events: event,
-  }).lean();
+  const config = await findSubscribedConfig(
+    models,
+    { configId, teamId, subdomain },
+    event,
+  );
 
   if (!config) {
     return 'skipped';
@@ -424,11 +616,14 @@ const processDiscordJob = async (
 
   const entity = await loadDiscordCardEntity(models, entityId);
 
-  if (!entity) {
+  if (
+    !entity ||
+    (event === 'taskMoved' && String(entity.record.teamId) !== teamId)
+  ) {
     return 'skipped';
   }
 
-  const mention = await resolveAssigneeMention({
+  const assigneeMention = await resolveAssigneeMention({
     models,
     subdomain,
     token: connection.token,
@@ -436,6 +631,11 @@ const processDiscordJob = async (
     entity,
     job: data,
   });
+
+  const mention: TDiscordCardMention = {
+    ...assigneeMention,
+    channel: getChannelMention(config, event),
+  };
 
   const { card, reply } = await buildDiscordCard({
     models,
@@ -451,7 +651,9 @@ const processDiscordJob = async (
     job: data,
     card,
     reply,
-    replyToNewCard: Boolean(mention.discordUserId || mention.linkAccountUrl),
+    replyToNewCard: Boolean(
+      mention.discordUserId || mention.linkAccountUrl || mention.channel,
+    ),
   };
 
   try {
@@ -496,7 +698,7 @@ const processDiscordJob = async (
 };
 
 export const deliverDiscordNotification = async (
-  job: Job<TDiscordNotificationJob | TDiscordCleanupJob>,
+  job: Job<TDiscordJob>,
   token?: string,
 ) => {
   try {

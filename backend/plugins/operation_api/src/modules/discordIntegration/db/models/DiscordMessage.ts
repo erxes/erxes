@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { TDiscordNotificationEvent } from '@/discordIntegration/@types/discordNotification';
+import { TDiscordCardEvent } from '@/discordIntegration/@types/discordNotification';
 import {
   IDiscordMessageDocument,
   TDiscordCardKey,
@@ -13,12 +13,12 @@ export interface IDiscordMessageModel extends Model<IDiscordMessageDocument> {
   findCard(key: TDiscordCardKey): Promise<IDiscordMessageDocument | null>;
   claimCard(
     key: TDiscordCardKey,
-    doc: { configId: string; lastEvent: TDiscordNotificationEvent },
+    doc: { configId: string; lastEvent: TDiscordCardEvent },
   ): Promise<IDiscordMessageDocument | null>;
   saveCardMessage(
     _id: string,
     messageId: string,
-    lastEvent: TDiscordNotificationEvent,
+    lastEvent: TDiscordCardEvent,
   ): Promise<void>;
   releaseCard(_id: string): Promise<void>;
 }
@@ -31,7 +31,7 @@ export const loadDiscordMessageClass = (models: IModels) => {
 
     public static async claimCard(
       key: TDiscordCardKey,
-      doc: { configId: string; lastEvent: TDiscordNotificationEvent },
+      doc: { configId: string; lastEvent: TDiscordCardEvent },
     ) {
       try {
         return await models.DiscordMessage.findOneAndUpdate(
@@ -56,7 +56,7 @@ export const loadDiscordMessageClass = (models: IModels) => {
     public static async saveCardMessage(
       _id: string,
       messageId: string,
-      lastEvent: TDiscordNotificationEvent,
+      lastEvent: TDiscordCardEvent,
     ) {
       await models.DiscordMessage.updateOne(
         { _id },

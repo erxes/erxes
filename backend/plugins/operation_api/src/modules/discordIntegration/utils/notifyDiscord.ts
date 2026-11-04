@@ -1,7 +1,10 @@
 import { sendWorkerQueue } from 'erxes-api-shared/utils';
+import { IDiscordConfig } from '@/discordIntegration/@types/discordConfig';
 import {
   TDiscordCleanupJob,
+  TDiscordNotificationEvent,
   TDiscordNotificationJob,
+  TDiscordPullRequestJob,
 } from '@/discordIntegration/@types/discordNotification';
 import {
   DISCORD_CUSTOMER_EVENTS,
@@ -10,6 +13,37 @@ import {
 } from '@/discordIntegration/constants';
 import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
+
+const findSubscribedConfigIds = async (
+  models: IModels,
+  { teamId, subdomain }: { teamId: string; subdomain: string },
+  event: TDiscordNotificationEvent,
+) => {
+  const configs = await models.DiscordConfig.find({
+    teamId,
+    subdomain,
+    isActive: true,
+    events: event,
+  })
+    .select('_id')
+    .lean();
+
+  return configs.map((config) => String(config._id));
+};
+
+const queueTeamJobs = (configIds: string[], job: TDiscordNotificationJob) => {
+  const queue = sendWorkerQueue('operations', DISCORD_NOTIFY_QUEUE);
+
+  return Promise.all(
+    configIds.map((configId) =>
+      queue.add(
+        job.event,
+        { ...job, target: 'team', configId },
+        DISCORD_NOTIFY_JOB_OPTIONS,
+      ),
+    ),
+  );
+};
 
 type TDiscordSourceRecord = {
   companyId?: string | null;
@@ -129,27 +163,82 @@ export const notifyDiscordRemoval = async (
   }
 };
 
+const keepsMovedCard = (
+  config: Pick<IDiscordConfig, 'isActive' | 'events'>,
+  notify: boolean,
+) => notify && config.isActive && config.events.includes('taskMoved');
+
 export const notifyDiscordTeamChange = async (
   models: IModels,
   subdomain: string,
   record: TDiscordRemovableRecord & { teamId: unknown },
   previousTeamId: string,
+  { actorId, notify = true }: { actorId?: string; notify?: boolean } = {},
 ) => {
   try {
-    const [previousConfig, nextConfig] = await Promise.all([
-      models.DiscordConfig.findOne({ teamId: previousTeamId, subdomain })
-        .select('_id channelId')
+    const teamId = String(record.teamId);
+    const entityId = String(record._id);
+
+    const [previousConfigs, nextConfigs] = await Promise.all([
+      models.DiscordConfig.find({ teamId: previousTeamId, subdomain })
+        .select('_id channelId isActive events')
         .lean(),
-      models.DiscordConfig.findOne({ teamId: record.teamId, subdomain })
+      models.DiscordConfig.find({ teamId, subdomain })
         .select('channelId')
         .lean(),
     ]);
 
-    if (previousConfig && previousConfig.channelId !== nextConfig?.channelId) {
+    const nextChannelIds = new Set(
+      nextConfigs.map((config) => config.channelId),
+    );
+
+    const leftConfigs = previousConfigs.filter(
+      (config) => !nextChannelIds.has(config.channelId),
+    );
+    const keptConfigs = leftConfigs.filter((config) =>
+      keepsMovedCard(config, notify),
+    );
+    const removedConfigIds = leftConfigs
+      .filter((config) => !keepsMovedCard(config, notify))
+      .map((config) => String(config._id));
+
+    if (removedConfigIds.length) {
       await notifyDiscordRemoval(models, subdomain, [record], {
-        configIds: [String(previousConfig._id)],
+        configIds: removedConfigIds,
       });
     }
+
+    if (!notify) {
+      return;
+    }
+
+    const postedChannelIds: string[] = keptConfigs.length
+      ? await models.DiscordMessage.distinct('channelId', {
+          entityId,
+          subdomain,
+          channelId: { $in: keptConfigs.map((config) => config.channelId) },
+          messageId: { $ne: '' },
+        })
+      : [];
+
+    const job: TDiscordNotificationJob = {
+      subdomain,
+      event: 'taskMoved',
+      entityId,
+      teamId,
+      actorId,
+      move: { fromTeamId: previousTeamId, toTeamId: teamId },
+    };
+
+    await Promise.all([
+      queueTeamJobs(
+        keptConfigs
+          .filter((config) => postedChannelIds.includes(config.channelId))
+          .map((config) => String(config._id)),
+        { ...job, teamId: previousTeamId },
+      ),
+      notifyDiscord(models, job),
+    ]);
   } catch (error) {
     console.error(
       `Failed to queue the Discord team change: ${
@@ -164,30 +253,17 @@ export const notifyDiscord = async (
   job: TDiscordNotificationJob,
 ) => {
   try {
-    const [teamSubscribed, customerThread] = await Promise.all([
-      models.DiscordConfig.exists({
-        teamId: job.teamId,
-        subdomain: job.subdomain,
-        isActive: true,
-        events: job.event,
-      }),
+    const [teamConfigIds, customerThread] = await Promise.all([
+      findSubscribedConfigIds(models, job, job.event),
       DISCORD_CUSTOMER_EVENTS.includes(job.event)
         ? hasCustomerThread(models, job)
         : false,
     ]);
 
-    const queue = sendWorkerQueue('operations', DISCORD_NOTIFY_QUEUE);
-
-    if (teamSubscribed) {
-      await queue.add(
-        job.event,
-        { ...job, target: 'team' },
-        DISCORD_NOTIFY_JOB_OPTIONS,
-      );
-    }
+    await queueTeamJobs(teamConfigIds, job);
 
     if (customerThread) {
-      await queue.add(
+      await sendWorkerQueue('operations', DISCORD_NOTIFY_QUEUE).add(
         job.event,
         { ...job, target: 'customer' },
         DISCORD_NOTIFY_JOB_OPTIONS,
@@ -196,6 +272,39 @@ export const notifyDiscord = async (
   } catch (error) {
     console.error(
       `Failed to queue the Discord ${job.event} notification: ${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    );
+  }
+};
+
+export const notifyDiscordPullRequestMerged = async (
+  models: IModels,
+  job: Omit<TDiscordPullRequestJob, 'type'>,
+) => {
+  try {
+    const configIds = await findSubscribedConfigIds(
+      models,
+      job,
+      'pullRequestMerged',
+    );
+
+    const queue = sendWorkerQueue('operations', DISCORD_NOTIFY_QUEUE);
+
+    await Promise.all(
+      configIds.map((configId) => {
+        const data: TDiscordPullRequestJob = {
+          ...job,
+          type: 'pullRequestMerged',
+          configId,
+        };
+
+        return queue.add(data.type, data, DISCORD_NOTIFY_JOB_OPTIONS);
+      }),
+    );
+  } catch (error) {
+    console.error(
+      `Failed to queue the Discord pullRequestMerged notification: ${
         error instanceof Error ? error.message : String(error)
       }`,
     );
