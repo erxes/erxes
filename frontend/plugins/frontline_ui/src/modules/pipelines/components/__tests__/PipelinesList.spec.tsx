@@ -68,7 +68,12 @@ jest.mock('erxes-ui', () => {
         onSelect?: () => undefined | Promise<void>;
         disabled?: boolean;
       }>) => (
-        <button disabled={disabled} onClick={() => void onSelect?.()}>
+        <button
+          disabled={disabled}
+          onClick={() => {
+            onSelect?.();
+          }}
+        >
           {children}
         </button>
       ),
