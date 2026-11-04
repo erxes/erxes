@@ -13,6 +13,7 @@ import { Button, DropdownMenu, useConfirm, useToast } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
+/** Renders ticket archive, subscription and confirmed deletion actions. */
 export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { confirm } = useConfirm();
@@ -25,6 +26,7 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
 
   const [pending, setPending] = useState(false);
 
+  /** Locks mutation actions until their request has settled. */
   const runAction = async (action: () => Promise<unknown>) => {
     if (pending) return;
     setPending(true);
@@ -35,9 +37,11 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
     }
   };
 
+  /** Toggles archive state for the selected ticket. */
   const handleArchiveToggle = () =>
     runAction(() => toggleArchive([ticket._id], isArchived));
 
+  /** Updates this ticket's subscription and reports the acknowledged change. */
   const handleSubscribeToggle = () =>
     runAction(() =>
       updateTicket({
@@ -54,13 +58,14 @@ export const TicketDetailActions = ({ ticket }: { ticket: ITicketDetail }) => {
       }),
     );
 
+  /** Confirms deletion before locking actions for the removal request. */
   const handleDeleteTicket = async () => {
     try {
       await confirm({ message: t('confirm-delete-ticket') });
     } catch {
       return;
     }
-    return runAction(async () => {
+    await runAction(async () => {
       try {
         await removeTicket([ticket._id]);
         toast({

@@ -1095,8 +1095,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - `usePanelFormDraft` retains form values and pending-save ownership by draft
   collection and record scope. Save acknowledgements retain only input changed
   after submission while accepting newer untouched server fields.
-- Async form uploads capture scoped completion tokens. Scalar image replacement
-  and removal invalidate older uploads for that field; attachment additions merge
+  Save acknowledgement and remounted-form reconciliation share the same strict
+  changed-field merge; neither replaces input with an older submitted snapshot.
+- Async form uploads capture unique completion tokens in their retained record
+  scope. Scalar image replacement and removal invalidate older uploads for that
+  field; attachment additions merge
   with the latest retained values. Discard, deletion and session cleanup invalidate
   old callbacks. Upload lifetime bookkeeping never locks Save after a failed upload.
 

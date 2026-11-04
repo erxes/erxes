@@ -22,6 +22,27 @@ export type TPanelFormDrafts<T extends FieldValues> = Record<
 const pendingPanelSavesState = atom<Record<string, number>>({});
 let nextPanelSaveId = 0;
 
+/** Applies only values changed since submission to the accepted server values. */
+const mergeChangedValues = <T extends FieldValues>(
+  values: T,
+  submittedValues: T,
+  newerValues?: T,
+): T => {
+  const nextValues = { ...values };
+  if (newerValues) {
+    for (const field in newerValues) {
+      if (
+        !isDeeplyEqual(newerValues[field], submittedValues[field], {
+          strict: true,
+        })
+      ) {
+        nextValues[field] = newerValues[field];
+      }
+    }
+  }
+  return nextValues;
+};
+
 /**
  * Retains panel form edits across navigation and reconciles saves without
  * replacing changes made after submission.
@@ -108,23 +129,13 @@ export const usePanelFormDraft = <T extends FieldValues>({
       const formChanged =
         currentValues &&
         !isDeeplyEqual(currentValues, submittedValues, { strict: true });
-      const nextValues = { ...savedValues };
-      const newerValues = formChanged
-        ? currentValues
-        : cachedChanged
-          ? cached?.values
-          : undefined;
-      if (newerValues) {
-        for (const field in newerValues) {
-          if (
-            !isDeeplyEqual(newerValues[field], submittedValues[field], {
-              strict: true,
-            })
-          ) {
-            nextValues[field] = newerValues[field];
-          }
-        }
-      }
+      const cachedValues = cachedChanged ? cached?.values : undefined;
+      const newerValues = formChanged ? currentValues : cachedValues;
+      const nextValues = mergeChangedValues(
+        savedValues,
+        submittedValues,
+        newerValues,
+      );
 
       store.set(draftsState, (previous) => ({
         ...previous,
@@ -272,20 +283,13 @@ export const usePanelFormDraft = <T extends FieldValues>({
         )
           return;
         const currentValues = form.getValues();
-        const nextValues = { ...saved.values };
-        if (saved.submittedValues) {
-          for (const field in currentValues) {
-            if (
-              !isDeeplyEqual(
-                currentValues[field],
-                saved.submittedValues[field],
-                { strict: true },
-              )
-            ) {
-              nextValues[field] = currentValues[field];
-            }
-          }
-        }
+        const nextValues = saved.submittedValues
+          ? mergeChangedValues(
+              saved.values,
+              saved.submittedValues,
+              currentValues,
+            )
+          : { ...saved.values };
         request.current += 1;
         current.defaultValues = saved.defaultValues;
         current.hasPendingSource = false;
@@ -364,7 +368,7 @@ export const usePanelFormDraft = <T extends FieldValues>({
         return () => undefined;
       const cached = store.get(draftsState)[recordKey];
       const updateToken = cached?.updateToken ?? Symbol(recordKey);
-      const operation = Symbol();
+      const operation = Symbol('panel-upload');
       store.set(draftsState, (previous) => ({
         ...previous,
         [recordKey]: {

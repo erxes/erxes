@@ -42,7 +42,7 @@ jest.mock('@/ticket/hooks/useToggleTicketArchive', () => ({
   useToggleTicketArchive: () => ({ toggleArchive: jest.fn() }),
 }));
 
-it('keeps actions usable when a delete confirmation is dismissed without settling', async () => {
+it('keeps actions usable when a delete confirmation is dismissed without settling', () => {
   mockConfirm.mockImplementation(() => new Promise<void>(() => undefined));
   const ticket: ITicketDetail = {
     _id: 'ticket-1',
@@ -74,7 +74,7 @@ it('keeps actions usable when a delete confirmation is dismissed without settlin
     isSubscribed: null,
   };
   render(<TicketDetailActions ticket={ticket} />);
-  await act(async () => {
+  act(() => {
     fireEvent.click(screen.getByText('delete'));
   });
   expect(mockConfirm).toHaveBeenCalledTimes(1);
@@ -82,7 +82,7 @@ it('keeps actions usable when a delete confirmation is dismissed without settlin
     screen.getByRole<HTMLButtonElement>('button', { name: 'actions' }).disabled,
   ).toBe(false);
   expect(mockRemove).not.toHaveBeenCalled();
-  await act(async () => {
+  act(() => {
     fireEvent.click(screen.getByText('delete'));
   });
   expect(mockConfirm).toHaveBeenCalledTimes(2);
