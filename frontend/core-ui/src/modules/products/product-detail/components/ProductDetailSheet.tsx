@@ -9,9 +9,9 @@ import {
   useMultiQueryState,
   useToast,
 } from 'erxes-ui';
-import { ReactNode } from 'react';
+import { ComponentProps, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   ActivityLogs,
@@ -32,6 +32,7 @@ import { ProductDetailFooter } from '@/products/product-detail/components/Produc
 import { FormWidgetSideTabs } from '@/widgets/components/FormWidgets';
 import { ProductDetailFields } from '@/products/product-detail/components/ProductDetailFields';
 import { ProductDetailSimilarity } from '@/products/product-detail/components/ProductDetailSimilarity';
+import { ProductDetail } from '@/products/product-detail/types/detailTypes';
 import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import {
   EMPTY_PRODUCT_FORM_VALUES,
@@ -189,90 +190,18 @@ export const ProductDetailSheet = () => {
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
-          <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
-            {productDetail?._id && (
-              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
-                <PrintDocument
-                  items={[{ _id: productDetail._id }]}
-                  contentType="core:product"
-                />
-              </div>
-            )}
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleSave, handleInvalid)}
-                className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0"
-              >
-                {selectedTab === 'similarity' ? (
-                  <ProductDetailSimilarity
-                    key={`similarity-${productDetail?._id || productId || 'empty'}`}
-                    product={productDetail}
-                    callBack={refetch}
-                  />
-                ) : (
-                  <ScrollArea
-                    className="flex-1 min-h-0"
-                    viewportClassName="h-full min-h-[200px]"
-                  >
-                    <Tabs
-                      value={selectedTab ?? 'overview'}
-                      onValueChange={setSelectedTab}
-                      className="h-full"
-                    >
-                      <Tabs.Content
-                        value="overview"
-                        className="data-[state=active]:min-h-0"
-                      >
-                        <ProductDetailFields
-                          key={`${productDetail?._id || productId || 'empty'}-${formVersion}`}
-                          productDetail={productDetail}
-                        />
-                      </Tabs.Content>
-                      <Tabs.Content
-                        value="properties"
-                        className="p-4 data-[state=active]:min-h-0"
-                      >
-                        <FieldsInDetail
-                          bare
-                          key={productDetail?._id || productId || 'empty'}
-                          fieldContentType="core:product"
-                          propertiesData={productDetail?.propertiesData || {}}
-                          mutateHook={useProductCustomFieldEdit}
-                          id={productDetail?._id || ''}
-                        />
-                      </Tabs.Content>
-                      <Tabs.Content
-                        value="activity"
-                        className="data-[state=active]:min-h-0"
-                      >
-                        <div className="flex flex-col mb-12">
-                          {!!productDetail?._id && (
-                            <AddInternalNote
-                              key={`note-${productDetail._id}`}
-                              contentTypeId={productDetail._id}
-                              contentType="core:product"
-                            />
-                          )}
-                          <ActivityLogs
-                            key={`activity-${productDetail?._id || productId || 'empty'}`}
-                            targetId={productDetail?._id || ''}
-                            customActivities={productCustomActivities}
-                          />
-                        </div>
-                      </Tabs.Content>
-                    </Tabs>
-                  </ScrollArea>
-                )}
-                <ProductDetailFooter
-                  form={form}
-                  activeTab={selectedTab ?? 'overview'}
-                  onCancel={handleCancel}
-                  onSave={() => form.handleSubmit(handleSave, handleInvalid)()}
-                  editLoading={editLoading}
-                />
-              </form>
-            </Form>
-          </div>
+          <ProductDetailMain
+            productDetail={productDetail}
+            productId={productId}
+            form={form}
+            formVersion={formVersion}
+            selectedTab={selectedTab ?? 'overview'}
+            onTabChange={setSelectedTab}
+            onSubmit={form.handleSubmit(handleSave, handleInvalid)}
+            onCancel={handleCancel}
+            onRefetch={refetch}
+            editLoading={editLoading}
+          />
           <FormWidgetSideTabs
             contentType="core:product"
             contentId={productDetail?._id}
@@ -283,6 +212,143 @@ export const ProductDetailSheet = () => {
     </FocusSheet>
   );
 };
+
+type ProductDetailMainProps = {
+  productDetail?: ProductDetail | null;
+  productId?: string | null;
+  form: UseFormReturn<ProductFormValues>;
+  formVersion: number;
+  selectedTab: string;
+  onTabChange: (tab: string | null) => void;
+  onSubmit: () => void;
+  onCancel: () => void;
+  onRefetch: ComponentProps<typeof ProductDetailSimilarity>['callBack'];
+  editLoading: boolean;
+};
+
+const ProductDetailMain = ({
+  productDetail,
+  productId,
+  form,
+  formVersion,
+  selectedTab,
+  onTabChange,
+  onSubmit,
+  onCancel,
+  onRefetch,
+  editLoading,
+}: ProductDetailMainProps) => (
+  <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
+    {productDetail?._id && (
+      <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
+        <PrintDocument
+          items={[{ _id: productDetail._id }]}
+          contentType="core:product"
+        />
+      </div>
+    )}
+    <Form {...form}>
+      <form
+        onSubmit={onSubmit}
+        className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0"
+      >
+        {selectedTab === 'similarity' ? (
+          <ProductDetailSimilarity
+            key={`similarity-${productDetail?._id || productId || 'empty'}`}
+            product={productDetail}
+            callBack={onRefetch}
+          />
+        ) : (
+          <ProductDetailTabs
+            productDetail={productDetail}
+            productId={productId}
+            formVersion={formVersion}
+            selectedTab={selectedTab}
+            onTabChange={onTabChange}
+          />
+        )}
+        <ProductDetailFooter
+          form={form}
+          activeTab={selectedTab}
+          onCancel={onCancel}
+          onSave={onSubmit}
+          editLoading={editLoading}
+        />
+      </form>
+    </Form>
+  </div>
+);
+
+const ProductDetailTabs = ({
+  productDetail,
+  productId,
+  formVersion,
+  selectedTab,
+  onTabChange,
+}: Pick<
+  ProductDetailMainProps,
+  'productDetail' | 'productId' | 'formVersion' | 'selectedTab' | 'onTabChange'
+>) => {
+  const recordKey = productDetail?._id || productId || 'empty';
+
+  return (
+    <ScrollArea
+      className="flex-1 min-h-0"
+      viewportClassName="h-full min-h-[200px]"
+    >
+      <Tabs value={selectedTab} onValueChange={onTabChange} className="h-full">
+        <Tabs.Content value="overview" className="data-[state=active]:min-h-0">
+          <ProductDetailFields
+            key={`${recordKey}-${formVersion}`}
+            productDetail={productDetail ?? null}
+          />
+        </Tabs.Content>
+        <Tabs.Content
+          value="properties"
+          className="p-4 data-[state=active]:min-h-0"
+        >
+          <FieldsInDetail
+            bare
+            key={recordKey}
+            fieldContentType="core:product"
+            propertiesData={productDetail?.propertiesData || {}}
+            mutateHook={useProductCustomFieldEdit}
+            id={productDetail?._id || ''}
+          />
+        </Tabs.Content>
+        <Tabs.Content value="activity" className="data-[state=active]:min-h-0">
+          <ProductDetailActivity
+            productId={productDetail?._id}
+            recordKey={recordKey}
+          />
+        </Tabs.Content>
+      </Tabs>
+    </ScrollArea>
+  );
+};
+
+const ProductDetailActivity = ({
+  productId,
+  recordKey,
+}: {
+  productId?: string;
+  recordKey: string;
+}) => (
+  <div className="flex flex-col mb-12">
+    {!!productId && (
+      <AddInternalNote
+        key={`note-${productId}`}
+        contentTypeId={productId}
+        contentType="core:product"
+      />
+    )}
+    <ActivityLogs
+      key={`activity-${recordKey}`}
+      targetId={productId || ''}
+      customActivities={productCustomActivities}
+    />
+  </div>
+);
 
 const ProductDetailSheetView = ({
   children,
