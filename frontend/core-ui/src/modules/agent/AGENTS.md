@@ -3,35 +3,34 @@
 The `agent` module is the core-ui surface for the core-api `agents` backend
 (ported from the former private `erxes-agent` plugin UI). It provides:
 
-- Assistant chat lives in the shared `?panel=/chat` route as a floating Lens
-  by default or a docked Companion. `agentPanelModeState` persists that choice
-  on the device; the pin control switches modes without remounting the chat.
-  There is no standalone chat or capabilities page. `LegacyAgentRedirect`
-  replaces `/assistant/*` links with `/?panel=/chat`; a thread id is forwarded
-  through `agentSidePanelThreadRequestState`. `/agent/*` is left to the Company
-  Brain plugin (`agent_ui`). Settings stay at `/settings/agent/*`;
+- Assistant chat lives only in the shared side panel. There is no standalone
+  chat or capabilities page. `LegacyAgentRedirect` replaces `/assistant/*`
+  links with `/?panel=/chat`; a thread id is forwarded through
+  `agentSidePanelThreadRequestState`. `/agent/*` is left to the Company Brain
+  plugin (`agent_ui`). Settings stay at `/settings/agent/*`;
 - the top-bar `AssistantButton` (`CoreTab`) opens the shared `?panel=/chat`
   route and owns the permission-gated `mod+j` shortcut and unread indicator.
-  The button and shortcut are unavailable without `agentsChat`;
+  There is no floating agent tray. The button and shortcut are unavailable
+  without `agentsChat`;
 - `side-panel/components/chat/AssistantPanel.tsx` lazy-loads our
   `AgentSidePanel` chat content through `SidePanelChat` inside the public
-  `RecordSidePanel` shell. Lens is a 440px floating panel below the top bar,
-  becoming a bottom sheet on phones. Companion is a full-height layout column
-  beside the workspace, becoming full-screen on phones. Only Companion exposes
-  the persisted width and resize handle: 320px up to 1,200px, leaving 320px for
-  the workspace when space permits; record panels retain their 600px maximum.
-  The left-edge grip also supports arrow keys (Shift for larger steps) and
-  Home/End for width limits. Pointer capture and a temporary viewport shield
-  keep resize events out of HTML frames. Drag paints are batched per animation
-  frame; persisted width changes only on release/cancel. Entrance animation
-  never transitions drag width. Lost capture, missing primary button, blur,
-  Escape and unmount all clean up the drag.
-  The shared route displays either a record or Assistant. After first open,
+  `RecordSidePanel` shell. It is a full-height flex column beside the main
+  workspace, outside page animation: opening it shrinks the page, and it
+  shares the record panel's persisted width and resize handle. Assistant can
+  resize from 320px up to 1,200px, leaving 320px for the workspace when space
+  permits; record panels retain their 600px maximum. The left-edge grip also
+  supports arrow keys (Shift for larger steps) and Home/End for width limits.
+  Pointer capture and a temporary viewport shield keep resize events out of HTML
+  frames. Drag paints are batched per animation frame; persisted width changes
+  only on release/cancel. Entrance animation never transitions drag width.
+  Lost capture, missing primary button, blur, Escape and unmount all clean up
+  the drag.
+  The shared panel displays either a record or Assistant. After first open,
   the chat stays mounted but hidden while closed or showing a record, keeping
-  drafts, streams and activity alive across route and mode changes. The header
-  uses browser-style session tabs, thread actions, pin/unpin, Settings (keeps
-  the panel open) and Close. `ChatInput` retains one visible line and
-  remeasures when the hidden panel is shown or resized;
+  drafts, streams and activity alive. The header uses browser-style session tabs,
+  thread actions, Settings (keeps the panel open) and Close. `ChatInput`
+  retains one visible line and remeasures when the
+  hidden panel is shown or resized;
 - `ThreadTabs`: stable session order, truncated titles, horizontal scrolling with
   edge buttons, active-tab reveal on selection/resize, native Tabs keyboard
   navigation and Delete to close. Plus opens a blank conversation; an empty tab
@@ -78,7 +77,7 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   have a review/edit step before explicit submission; answers keep the existing
   positional string/string-array contract. `AskUserAnswered` is the persisted
   summary in the transcript. Both share one surface (`rounded-xl border
-bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
+  bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
   renders the review step and the summary the same way: picked options as
   erxes-ui `Badge` chips (wrapping at 320px) and the user's own words as a
   separate muted text line (pencil icon + sr-only "Your own answer" when the
@@ -116,7 +115,7 @@ bg-card`, `bg-muted/20` header bar, px-4 rows). The internal `AnswerValue`
   a key without Models: Read, or one the server cannot decrypt), an
   `Unavailable` marker when not in use, its saved model and its recent picks.
   A well-formed unlisted id typed in search offers `Use "<id>"` (`Custom
-model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
+  model`); it is selected only after `onVerifyModel` (`useAgentsModelVerify` →
   `AgentsModelVerify`) resolves null, otherwise the reason shows inline. Listed
   models get the same check when first picked, because listings ignore some
   access rules (OpenAI lists the organisation's models regardless of a
@@ -397,11 +396,7 @@ Restored turns keep that stored line (Edit reads it and sends it as
 every normal send (`withoutResentPageContext`), so Regenerate/Retry after a
 reload never gives the model two. The server is the only producer of the
 line.
-`references/getPageRecordFromLocation.ts` supplies verified record identity for
-the next send. `AgentSidePanel` also shows a dismissible current-page chip on
-non-record routes using the navigation catalog's label. Dismissing either chip
-clears the next request's entire `pageContext`; navigating to a different page
-or record restores sharing.
+`references/getPageRecordFromLocation.ts` supplies the next send's page context.
 
 ## Turn activity timeline
 
@@ -453,11 +448,9 @@ last assistant turn.
 ## State
 
 - `states/agentPanelStates.ts` — `agentSidePanelThreadRequestState`
-  (one-shot, plain `atom`) for old thread bookmarks, plus the device-local
-  `agentPanelModeState` (`lens` default or `companion`). Panel open state is
-  the shared `panel` URL query, and Companion width uses
-  `sidePanelWidthState` from `ui-modules`; old independent agent panel/tray
-  state is no longer consumed.
+  (one-shot, plain `atom`) for old thread bookmarks. Panel open state
+  is the shared `panel` URL query, and width uses `sidePanelWidthState` from
+  `ui-modules`; old independent agent panel/tray state is no longer consumed.
 - `states/agentActivityState.ts` — unread/working/awaiting activity from
   `useAgentActivity`, displayed by the top-bar Assistant button.
 - sessionStorage: `agents-selected-thread:<scope>`,
