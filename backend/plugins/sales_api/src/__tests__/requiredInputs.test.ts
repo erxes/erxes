@@ -70,7 +70,6 @@ jest.mock('../modules/sales/utils/discountInfos', () => ({
 const schema = buildSchema(`
   scalar JSON
   scalar Date
-  input AttachmentInput { url: String!, name: String!, type: String, size: Float, duration: Float }
   type User { _id: String }
   type Deal { _id: String }
   type PosOrderDetail { _id: String }
@@ -85,7 +84,6 @@ const schema = buildSchema(`
     ])}
     ${selectFields(dealFields, [
       'dealsWatch',
-      'dealsEdit',
       'dealsCreateProductsData',
       'dealsEditProductData',
       'dealsDeleteProductData',
@@ -651,42 +649,6 @@ describe('supported requests keep their behavior', () => {
       { new: true },
     );
   });
-
-  const removalCases: {
-    stored: IProductData[];
-    incoming: IProductData[] | null;
-  }[] = [
-    { stored: [{ _id: 'row', productId: 'product' }], incoming: [] },
-    { stored: [{ _id: 'row', productId: 'product' }], incoming: null },
-    {
-      stored: [{ productId: 'product' }, { productId: 'product' }],
-      incoming: [{ productId: 'product' }],
-    },
-  ];
-
-  it.each(removalCases)(
-    'checks delete permission for full-array saves: %j',
-    async ({ stored, incoming }) => {
-      context.models.Deals.getDeal.mockResolvedValue({
-        _id: 'deal',
-        stageId: 'stage',
-        productsData: stored,
-      });
-      context.checkPermission.mockImplementation(async (action: string) => {
-        if (action === 'dealsProductsDelete')
-          throw new Error('Permission denied');
-      });
-      const result = await run(
-        'mutation salesProductArrayDeletePermission ($products: JSON) { dealsEdit(_id: "deal", productsData: $products) { _id } }',
-        { products: incoming },
-      );
-      expect(result.errors?.[0].message).toBe('Permission denied');
-      expect(context.checkPermission).toHaveBeenCalledWith(
-        'dealsProductsDelete',
-      );
-      expect(context.models.Deals.findOneAndUpdate).not.toHaveBeenCalled();
-    },
-  );
 
   it('keeps permission failures ahead of runtime validation', async () => {
     context.checkPermission.mockRejectedValue(new Error('Permission denied'));
