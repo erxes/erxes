@@ -116,8 +116,8 @@ export const useCoversList = (
   }, [transformedCoversList.length, fetchMore, data?.posCovers, variables]);
 
   useEffect(() => {
-    setPosCoverTotalCount(data?.posCovers ? totalCount : null);
-  }, [data?.posCovers, totalCount, setPosCoverTotalCount]);
+    setPosCoverTotalCount(data?.posCovers && !error ? totalCount : null);
+  }, [data?.posCovers, error, totalCount, setPosCoverTotalCount]);
 
   useEffect(() => {
     setPosCoverTotalCountLoading(loading);

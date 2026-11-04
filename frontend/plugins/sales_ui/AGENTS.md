@@ -390,7 +390,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `posCoversCount`, like Items; it writes that count on every result, including
   0, and resets it to `null` while a new result loads; the header shows the
   skeleton only while the query loads (`posCoverTotalCountLoadingAtom`) and no
-  count after a failure; a failed `posCovers` request shows the error alert
+  count after a failure, including a failed refetch while Apollo keeps the
+  previous data; a failed `posCovers` request shows the error alert
   like Orders, never the empty state. Fetched pages skip rows whose `_id` is
   already loaded.
 - POS report list documents (Orders, Items, ByItems, Summary, Covers) declare
