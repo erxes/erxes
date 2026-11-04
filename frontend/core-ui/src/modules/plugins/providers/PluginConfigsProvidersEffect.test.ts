@@ -17,8 +17,13 @@ jest.mock('jotai', () => ({
 }));
 
 jest.mock('ui-modules', () => ({
+  extensionsConfigState: {},
   loadingPluginsConfigState: {},
   pluginsConfigState: {},
+}));
+
+jest.mock('~/plugins/utils/extensionConfigSchema', () => ({
+  validateExtensionConfig: jest.fn(),
 }));
 
 describe('loadPluginI18nNamespace', () => {

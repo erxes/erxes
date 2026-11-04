@@ -34,7 +34,9 @@ import {
   ActivityLogs,
   AddInternalNote,
   IRecordSidePanelTab,
+  isRecordContentType,
   NEW_RECORD_ID,
+  RecordActionsMenu,
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
   SIDE_PANEL_ROOT_PATH,
@@ -42,6 +44,7 @@ import {
   TRelationEntity,
   useCompanyDetail,
   useCustomerDetail,
+  useRecordSideTabs,
   useRelationWidgetTabs,
   useSidePanel,
 } from 'ui-modules';
@@ -237,6 +240,7 @@ const SidePanelSavedRecord = ({
     // and everything else links through them: it has no Relations tab.
     skip: !!panelPluginName,
   });
+  const extensionTabs = useRecordSideTabs(record);
   // A contact's relations open as an overview: plugins' sections, then the
   // modules without one under "More".
   const contactType =
@@ -321,6 +325,7 @@ const SidePanelSavedRecord = ({
         ]
       : []),
     ...pinnedTabs,
+    ...extensionTabs,
     ...((contactType ? allEntries.length : moreTabs.length)
       ? [
           {
@@ -409,15 +414,23 @@ const SidePanelSavedRecord = ({
         avatar={avatar}
         title={title}
         actions={
-          panelPluginName && (
-            <PluginRecordPanel
-              pluginName={panelPluginName}
-              contentType={record.contentType}
-              contentId={record.contentId}
-              view="actions"
-              quiet
-            />
-          )
+          <>
+            {panelPluginName && (
+              <PluginRecordPanel
+                pluginName={panelPluginName}
+                contentType={record.contentType}
+                contentId={record.contentId}
+                view="actions"
+                quiet
+              />
+            )}
+            {isRecordContentType(record.contentType) && (
+              <RecordActionsMenu
+                contentType={record.contentType}
+                contentId={record.contentId}
+              />
+            )}
+          </>
         }
         onBack={onBack}
         onClose={onClose}

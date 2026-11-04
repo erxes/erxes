@@ -3,6 +3,7 @@ import { Popover as PopoverPrimitive } from 'radix-ui';
 import { cn } from '../lib/utils';
 import { Button } from './button';
 import { IconX } from '@tabler/icons-react';
+import { RecordTableBulkActions } from '../modules/record-table/contexts/RecordTablePlacementsContext';
 
 type CommandBarProps = React.PropsWithChildren<{
   open?: boolean;
@@ -88,7 +89,7 @@ Value.displayName = 'CommandBar.Value';
 const Bar = React.forwardRef<
   HTMLDivElement,
   React.ComponentPropsWithoutRef<'div'>
->(({ className, ...props }, ref) => {
+>(({ className, children, ...props }, ref) => {
   return (
     <div
       ref={ref}
@@ -97,7 +98,11 @@ const Bar = React.forwardRef<
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {/* Extensions' actions for the rows selected in the table around it. */}
+      <RecordTableBulkActions />
+    </div>
   );
 });
 Bar.displayName = 'CommandBar.Bar';

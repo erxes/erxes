@@ -1,5 +1,4 @@
 import {
-  createContext,
   forwardRef,
   HTMLAttributes,
   type ReactNode,
@@ -26,11 +25,10 @@ import {
 
 import RecordTableContainer from 'erxes-ui/modules/record-table/components/RecordTableContainer';
 import { RecordTableDnDProvider } from 'erxes-ui/modules/record-table/components/RecordTableDnDProvider';
-import { IRecordTableContext } from 'erxes-ui/modules/record-table/types/recordTableTypes';
 import { isStructuralColumn } from 'erxes-ui/modules/record-table/utils/columnUtils';
 import { useTablePreferences } from '../hooks/useTablePreferences';
-
-const RecordTableContext = createContext<IRecordTableContext | null>(null);
+import { RecordTableContext } from '../contexts/RecordTableContext';
+import { RecordTablePlacementsContext } from '../contexts/RecordTablePlacementsContext';
 
 export function useRecordTable() {
   const context = useContext(RecordTableContext);
@@ -42,7 +40,8 @@ export function useRecordTable() {
   return context;
 }
 
-export interface RecordTableProviderProps extends HTMLAttributes<HTMLDivElement> {
+export interface RecordTableProviderProps
+  extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   columns: ColumnDef<any>[];
   data: any[];
@@ -58,7 +57,7 @@ export const RecordTableProvider = forwardRef<
   (
     {
       children,
-      columns,
+      columns: ownColumns,
       data,
       tableOptions,
       className,
@@ -68,6 +67,12 @@ export const RecordTableProvider = forwardRef<
     },
     ref,
   ) => {
+    const placements = useContext(RecordTablePlacementsContext);
+    const columns = useMemo(
+      (): RecordTableProviderProps['columns'] =>
+        tableId ? [...ownColumns, ...placements.columns(tableId)] : ownColumns,
+      [ownColumns, placements, tableId],
+    );
     const [columnSelectorOpen, setColumnSelectorOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -181,6 +186,7 @@ export const RecordTableProvider = forwardRef<
           table,
           columnSelectorOpen,
           setColumnSelectorOpen,
+          tableId,
         }}
       >
         <RecordTableDnDProvider setColumnOrder={setColumnOrder}>
