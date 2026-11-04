@@ -23,8 +23,7 @@ let mockConfig:
   | { id: string; name: string; channelId: string; pipelineId: string }
   | undefined;
 let mockStatus:
-  | { _id: string; name: string; pipelineId: string; type: number }
-  | undefined;
+  { _id: string; name: string; pipelineId: string; type: number } | undefined;
 const mockPipelineQuery = jest.fn<void, [string | undefined]>();
 const mockStatusTypeQuery = jest.fn<void, [number]>();
 
