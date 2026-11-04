@@ -112,7 +112,6 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     direction: 'forward',
     name: searchValue,
     assigneeId: assignee,
-    createdBy: createdBy,
     teamId: teamId || team,
     priority: priority,
     status: teamId && typeof status === 'string' ? status : undefined,
@@ -136,6 +135,7 @@ export const useTasksVariables = (variables?: ITaskFilter): ITaskFilter => {
     customerId,
     companyId,
     ...variables,
+    createdBy: createdBy ?? variables?.createdBy,
     ...(!variables?.teamId &&
       !variables?.userId &&
       !variables?.createdBy &&

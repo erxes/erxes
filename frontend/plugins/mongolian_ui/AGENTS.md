@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-10-27`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -81,8 +81,7 @@
   configured `headerText`, `footerText`, and optional receipt logo images.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
   Form, Zod, and `react-i18next` following plugin-local patterns.
-- Put response rows tolerate missing or invalid bill `date` values by falling
-  back to `createdAt` or rendering an empty marker.
+- Put response list dates interpret timezone-less receipt timestamps (`yyyy-MM-dd HH:mm:ss`) as UTC and format them in the organization’s `TIMEZONE` (UTC when unset) as `yyyy-MM-dd HH:mm:ss`. Explicit timezone offsets are preserved when parsing. The table reads `TIMEZONE` through core `configsGetValue`. Missing or invalid receipt dates fall back to `createdAt`, formatted normally in browser local time, then `-`. This conversion is display-only; stored receipt values remain unchanged, and dates are not shown relatively.
 
 ## Architecture
 
@@ -238,7 +237,7 @@
   config sheet.
 - Put response smoke scenario: open `/mongolian/put-response/put-response` with
   rows where `date` is `null`; the table renders without `Invalid time value`
-  and displays `createdAt` relatively when available.
+  and displays `createdAt` as `yyyy-MM-dd HH:mm:ss` in browser local time when available; receipt `date` of `2026-11-03 10:32:06` displays as `2026-11-03 18:32:06` when organization `TIMEZONE` is `Asia/Ulaanbaatar`, regardless of browser timezone, with no ago suffix or stored-data changes.
 - Put response pagination smoke scenario: open the list from its first page,
   scroll forward through multiple pages, and verify no backward request appears
   after appending a page; backward loads prepend rows and preserve the end cursor.

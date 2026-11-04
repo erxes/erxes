@@ -15,7 +15,22 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     if (!input.paymentIds || input.paymentIds.length === 0) {
       throw new Error('paymentIds is required');
     }
+    if (input.contentType && input.contentTypeId) {
+      const pendingInvoice = await models.Invoices.findOne({
+        contentType: input.contentType,
+        contentTypeId: input.contentTypeId,
+        amount: input.amount,
+        paymentIds: input.paymentIds,
+        status: PAYMENT_STATUS.PENDING,
+        createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+      })
+        .sort({ createdAt: -1 })
+        .lean();
 
+      if (pendingInvoice) {
+        return buildInvoiceUrl(subdomain, pendingInvoice._id);
+      }
+    }
     const invoice = await models.Invoices.createInvoice(
       { ...input },
       subdomain,

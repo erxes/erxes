@@ -62,3 +62,30 @@ describe('sale quantity tRPC inputs', () => {
     expect(input.checkInfo.bread).toEqual({});
   });
 });
+
+describe('pricing date tRPC input', () => {
+  const input = { prioritizeRule: 'exclude', totalAmount: 100, products: [] };
+
+  it('accepts an omitted date', () => {
+    expect(checkPricingInput.parse(input).date).toBeUndefined();
+  });
+
+  it.each([
+    new Date('2020-01-06T10:30:00Z'),
+    '2020-01-06T10:30:00Z',
+    '2020-01-06T18:30:00+08:00',
+  ])('normalizes a date or ISO timestamp to Date: %s', (date) => {
+    expect(checkPricingInput.parse({ ...input, date }).date).toEqual(
+      new Date('2020-01-06T10:30:00Z'),
+    );
+  });
+
+  it.each(['invalid', '', null, new Date('invalid')])(
+    'rejects an invalid date: %s',
+    (date) => {
+      expect(checkPricingInput.safeParse({ ...input, date }).success).toBe(
+        false,
+      );
+    },
+  );
+});
