@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -1339,6 +1339,14 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `sessionStorage`, with `FormDraftScope` gating children until the scope changes.
   New-form drafts survive reloads in that tab; opening an existing form still
   seeds its saved definition. Tabs cannot overwrite each other's drafts.
+  Seeding an existing form places every saved field in an editor step
+  (`groupFieldsIntoSteps`): saving sends any stored field missing from the
+  editor as `removedFieldIds`, which deletes it and orphans its submissions.
+  Forms without `leadData.steps` get one step per used page, and a field whose
+  `pageNumber` is missing or matches no step goes to the first step.
+  Match fields to saved step orders before numbering editor steps from 1
+  without gaps or duplicates; preserve step keys, names and field IDs. This
+  keeps public-form navigation usable after saving malformed step orders.
   Previews use the editor's unique BroadcastChannel and validated snapshots;
   both embedded and new-tab previews use `/frontline/forms/preview?draft=…`.
   Preview state is in memory and cannot write back into the editor's draft.
@@ -2731,6 +2739,11 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
+- Smoke: open a form whose `leadData.steps` is missing (or whose fields lack
+  `pageNumber`) in `/frontline/forms/:formId`; the Content step lists every
+  saved field. Add a field and save; its submissions still show every column.
+  Save forms with zero, duplicate or gapped step orders; their public forms
+  must navigate through every step once and retain existing submission values.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
