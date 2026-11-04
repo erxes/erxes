@@ -10,6 +10,7 @@ import {
 } from '@tabler/icons-react';
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ComposerActions } from 'ui-modules';
 import {
   INTERNAL_NOTE_BUTTON,
   INTERNAL_NOTE_ICON,
@@ -67,6 +68,14 @@ export const ComposerToolbar = ({
           </Button>
         </ResponseTemplateSelector>
       )}
+
+      <ComposerActions
+        insertText={onTemplateSelect}
+        contentType="frontline:conversation"
+        contentId={conversationId}
+        isInternalNote={isInternalNote}
+        disabled={isBusy}
+      />
 
       <Button
         type="button"
