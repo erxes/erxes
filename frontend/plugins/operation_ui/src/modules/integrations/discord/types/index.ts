@@ -1,9 +1,10 @@
 import {
   OperationDiscordChannelsQuery,
   OperationDiscordCheckTokenQuery,
-  OperationDiscordConfigByTeamQuery,
+  OperationDiscordConfigsByTeamQuery,
   OperationDiscordConnectionsQuery,
   OperationDiscordCustomerChannelsQuery,
+  OperationDiscordMention,
   OperationDiscordMyAccountQuery,
   OperationDiscordNotificationEvent,
   OperationDiscordTeamMembersQuery,
@@ -15,9 +16,8 @@ export type IDiscordConnection =
 export type IDiscordConfigSummary =
   OperationDiscordConnectionsQuery['operationDiscordConfigs'][number];
 
-export type IDiscordConfig = NonNullable<
-  OperationDiscordConfigByTeamQuery['operationDiscordConfigByTeam']
->;
+export type IDiscordConfig =
+  OperationDiscordConfigsByTeamQuery['operationDiscordConfigsByTeam'][number];
 
 export type IDiscordChannel =
   OperationDiscordChannelsQuery['operationDiscordChannels'][number];
@@ -26,6 +26,8 @@ export type IDiscordTokenCheck =
   OperationDiscordCheckTokenQuery['operationDiscordCheckToken'];
 
 export type TDiscordNotificationEvent = OperationDiscordNotificationEvent;
+
+export type TDiscordMention = OperationDiscordMention;
 
 export type IDiscordAccount =
   OperationDiscordMyAccountQuery['operationDiscordMyAccount'];
@@ -44,16 +46,28 @@ export type TDiscordLinkMessage = {
   message: string;
 };
 
-export interface ConnectDiscordDialogProps {
+export interface ConnectDiscordSheetProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
+  connection?: IDiscordConnection;
   onConnected?: () => void;
 }
 
-export interface TeamDiscordDialogProps {
+export interface TeamDiscordSheetProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
   teamId: string;
   connections: IDiscordConnection[];
   currentConfig?: IDiscordConfig | null;
+  takenChannelIds?: readonly string[];
+  githubRepoName?: string;
 }
+
+export type TDiscordServerRow = IDiscordConnection & {
+  teamCount: number;
+  customerChannelCount: number;
+};
+
+export type TDiscordCustomerChannelRow = IDiscordCustomerChannel & {
+  connection?: IDiscordConnection;
+};

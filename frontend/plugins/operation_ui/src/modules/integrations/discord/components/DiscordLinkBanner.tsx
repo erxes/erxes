@@ -5,7 +5,7 @@ import { Button } from 'erxes-ui';
 import { currentUserState } from 'ui-modules';
 import { DISCORD_ACCOUNT_PATH } from '../constants';
 import { useDiscordMyAccount } from '../hooks/useDiscordAccount';
-import { useDiscordConfigByTeam } from '../hooks/useDiscordIntegration';
+import { useDiscordConfigsByTeam } from '../hooks/useDiscordIntegration';
 import { discordLinkBannerDismissedState } from '../states/discordLinkBannerState';
 
 export function DiscordLinkBanner({ teamId }: Readonly<{ teamId: string }>) {
@@ -16,13 +16,13 @@ export function DiscordLinkBanner({ teamId }: Readonly<{ teamId: string }>) {
   const dismissKey = `${currentUser?._id ?? ''}:${teamId}`;
   const dismissed = dismissedKeys.includes(dismissKey);
   const { account } = useDiscordMyAccount();
-  const { config } = useDiscordConfigByTeam(dismissed ? '' : teamId);
+  const { configs } = useDiscordConfigsByTeam(dismissed ? '' : teamId);
 
   if (
     dismissed ||
     !account?.linkingEnabled ||
     account.link ||
-    !config?.isActive
+    !configs.some((config) => config.isActive)
   ) {
     return null;
   }

@@ -4,32 +4,31 @@ import { useForm } from 'react-hook-form';
 import {
   Alert,
   Button,
-  Checkbox,
-  Dialog,
   Form,
   Select,
+  Sheet,
   Spinner,
   Switch,
   useToast,
 } from 'erxes-ui';
-import {
-  DISCORD_EVENT_OPTIONS,
-  DISCORD_NOTIFICATION_EVENTS,
-} from '../constants';
+import { DISCORD_DEFAULT_EVENTS } from '../constants';
 import {
   useDiscordChannels,
   useSaveDiscordTeamConfig,
 } from '../hooks/useDiscordIntegration';
 import { DISCORD_TEAM_CONFIG_SCHEMA, TDiscordTeamConfigForm } from '../schemas';
-import { TeamDiscordDialogProps } from '../types';
+import { TeamDiscordSheetProps } from '../types';
+import { TeamDiscordEvents } from './TeamDiscordEvents';
 
-export function TeamDiscordDialog({
+export function TeamDiscordSheet({
   open,
-  onClose,
+  onOpenChange,
   teamId,
   connections,
   currentConfig,
-}: Readonly<TeamDiscordDialogProps>) {
+  takenChannelIds = [],
+  githubRepoName,
+}: Readonly<TeamDiscordSheetProps>) {
   const { toast } = useToast();
   const defaultValues = useMemo<TDiscordTeamConfigForm>(() => {
     const hasCurrentConnection = connections.some(
@@ -38,12 +37,16 @@ export function TeamDiscordDialog({
 
     return {
       connectionId: hasCurrentConnection
-        ? (currentConfig?.connectionId ?? '')
-        : (connections[0]?._id ?? ''),
-      channelId: hasCurrentConnection ? (currentConfig?.channelId ?? '') : '',
+        ? currentConfig?.connectionId ?? ''
+        : connections[0]?._id ?? '',
+      channelId: hasCurrentConnection ? currentConfig?.channelId ?? '' : '',
       events: currentConfig?.events.length
         ? [...currentConfig.events]
-        : [...DISCORD_NOTIFICATION_EVENTS],
+        : [...DISCORD_DEFAULT_EVENTS],
+      mention: currentConfig?.mention ?? 'none',
+      mentionEvents: currentConfig?.mentionEvents
+        ? [...currentConfig.mentionEvents]
+        : [],
       isActive: currentConfig?.isActive ?? true,
     };
   }, [connections, currentConfig]);
@@ -53,6 +56,7 @@ export function TeamDiscordDialog({
     defaultValues,
   });
   const connectionId = form.watch('connectionId');
+  const channelId = form.watch('channelId');
   const {
     channels,
     loading: channelsLoading,
@@ -60,8 +64,12 @@ export function TeamDiscordDialog({
   } = useDiscordChannels(connectionId, !open);
   const { saveTeamConfig, saving } = useSaveDiscordTeamConfig(teamId, {
     onCompleted: () => {
-      toast({ title: 'Discord channel saved' });
-      onClose();
+      toast({
+        title: currentConfig
+          ? 'Discord channel saved'
+          : 'Discord channel added',
+      });
+      onOpenChange(false);
     },
     onError: (error) => form.setError('root', { message: error.message }),
   });
@@ -78,22 +86,40 @@ export function TeamDiscordDialog({
   }
 
   function handleSubmit(values: TDiscordTeamConfigForm) {
-    saveTeamConfig({ variables: { teamId, ...values } });
+    saveTeamConfig({
+      variables: {
+        _id: currentConfig?._id,
+        teamId,
+        ...values,
+        mentionEvents: values.mentionEvents.filter((event) =>
+          values.events.includes(event),
+        ),
+      },
+    });
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <Dialog.Content className="max-w-md">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <Sheet.View aria-describedby={undefined}>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)}>
-            <Dialog.Header>
-              <Dialog.Title>Choose a Discord channel</Dialog.Title>
-              <Dialog.Description>
-                Pick where this team’s updates are posted and which ones.
-              </Dialog.Description>
-            </Dialog.Header>
+          <form
+            className="flex flex-1 flex-col overflow-hidden"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
+            <Sheet.Header>
+              <Sheet.Title>
+                {currentConfig
+                  ? 'Edit Discord channel'
+                  : 'Add a Discord channel'}
+              </Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
 
-            <div className="space-y-4 py-4">
+            <Sheet.Content className="flex flex-col gap-4 overflow-auto p-4">
+              <p className="text-sm text-muted-foreground">
+                Pick where this team’s updates are posted and which ones.
+              </p>
+
               {form.formState.errors.root?.message ? (
                 <Alert variant="destructive">
                   <Alert.Description>
@@ -113,8 +139,8 @@ export function TeamDiscordDialog({
                       onValueChange={handleConnectionChange}
                     >
                       <Form.Control>
-                        <Select.Trigger className="border">
-                          <Select.Value placeholder="Choose a server…" />
+                        <Select.Trigger>
+                          <Select.Value placeholder="Select a server" />
                         </Select.Trigger>
                       </Form.Control>
                       <Select.Content>
@@ -163,16 +189,25 @@ export function TeamDiscordDialog({
                         disabled={!connectionId || !channels.length}
                       >
                         <Form.Control>
-                          <Select.Trigger className="border">
-                            <Select.Value placeholder="Choose a channel…" />
+                          <Select.Trigger>
+                            <Select.Value placeholder="Select a channel" />
                           </Select.Trigger>
                         </Form.Control>
                         <Select.Content>
-                          {channels.map((channel) => (
-                            <Select.Item key={channel.id} value={channel.id}>
-                              #{channel.name}
-                            </Select.Item>
-                          ))}
+                          {channels.map((channel) => {
+                            const taken = takenChannelIds.includes(channel.id);
+
+                            return (
+                              <Select.Item
+                                key={channel.id}
+                                value={channel.id}
+                                disabled={taken}
+                              >
+                                #{channel.name}
+                                {taken ? ' · already added' : ''}
+                              </Select.Item>
+                            );
+                          })}
                         </Select.Content>
                       </Select>
                     )}
@@ -189,45 +224,12 @@ export function TeamDiscordDialog({
                 )}
               />
 
-              <Form.Field
-                control={form.control}
-                name="events"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>Events</Form.Label>
-                    <div className="space-y-3 pt-1">
-                      {DISCORD_EVENT_OPTIONS.map((option) => (
-                        <label
-                          key={option.value}
-                          className="flex cursor-pointer items-start gap-3"
-                        >
-                          <Checkbox
-                            className="mt-0.5"
-                            checked={field.value.includes(option.value)}
-                            onCheckedChange={(checked) =>
-                              field.onChange(
-                                checked === true
-                                  ? [...field.value, option.value]
-                                  : field.value.filter(
-                                      (event) => event !== option.value,
-                                    ),
-                              )
-                            }
-                          />
-                          <span>
-                            <span className="block text-sm font-medium">
-                              {option.label}
-                            </span>
-                            <span className="block text-xs text-muted-foreground">
-                              {option.description}
-                            </span>
-                          </span>
-                        </label>
-                      ))}
-                    </div>
-                    <Form.Message />
-                  </Form.Item>
-                )}
+              <TeamDiscordEvents
+                form={form}
+                githubRepoName={githubRepoName}
+                channelName={
+                  channels.find((channel) => channel.id === channelId)?.name
+                }
               />
 
               <Form.Field
@@ -250,22 +252,28 @@ export function TeamDiscordDialog({
                   </Form.Item>
                 )}
               />
-            </div>
+            </Sheet.Content>
 
-            <Dialog.Footer>
-              <Button type="button" variant="ghost" onClick={onClose}>
-                Cancel
-              </Button>
+            <Sheet.Footer>
+              <Sheet.Close asChild>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="mr-auto text-muted-foreground"
+                >
+                  Cancel
+                </Button>
+              </Sheet.Close>
               <Button
                 type="submit"
                 disabled={saving || channelsLoading || Boolean(channelsError)}
               >
                 {saving ? <Spinner size="sm" /> : 'Save'}
               </Button>
-            </Dialog.Footer>
+            </Sheet.Footer>
           </form>
         </Form>
-      </Dialog.Content>
-    </Dialog>
+      </Sheet.View>
+    </Sheet>
   );
 }

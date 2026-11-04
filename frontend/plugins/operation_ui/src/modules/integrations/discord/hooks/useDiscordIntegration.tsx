@@ -3,13 +3,13 @@ import { OperationDiscordConnectMutation } from '~/gql/graphql';
 import {
   CHECK_DISCORD_TOKEN,
   GET_DISCORD_CHANNELS,
-  GET_DISCORD_CONFIG_BY_TEAM,
+  GET_DISCORD_CONFIGS_BY_TEAM,
   GET_DISCORD_CONNECTIONS,
 } from '../graphql/queries/discordQueries';
 import {
   CONNECT_DISCORD,
   DISCONNECT_DISCORD,
-  DISCONNECT_DISCORD_TEAM,
+  REMOVE_DISCORD_TEAM_CONFIG,
   SAVE_DISCORD_TEAM_CONFIG,
   SEND_DISCORD_TEST_MESSAGE,
 } from '../graphql/mutations/discordMutations';
@@ -61,9 +61,9 @@ export function useDiscordChannels(connectionId: string, skip?: boolean) {
   };
 }
 
-export function useDiscordConfigByTeam(teamId: string) {
+export function useDiscordConfigsByTeam(teamId: string) {
   const { data, loading, error, refetch } = useQuery(
-    GET_DISCORD_CONFIG_BY_TEAM,
+    GET_DISCORD_CONFIGS_BY_TEAM,
     {
       variables: { teamId },
       fetchPolicy: 'network-only',
@@ -72,7 +72,7 @@ export function useDiscordConfigByTeam(teamId: string) {
   );
 
   return {
-    config: data?.operationDiscordConfigByTeam,
+    configs: data?.operationDiscordConfigsByTeam ?? [],
     loading,
     error,
     refetch,
@@ -126,7 +126,7 @@ export function useSaveDiscordTeamConfig(
       onCompleted,
       onError,
       refetchQueries: [
-        { query: GET_DISCORD_CONFIG_BY_TEAM, variables: { teamId } },
+        { query: GET_DISCORD_CONFIGS_BY_TEAM, variables: { teamId } },
         { query: GET_DISCORD_CONNECTIONS },
       ],
       awaitRefetchQueries: true,
@@ -136,24 +136,24 @@ export function useSaveDiscordTeamConfig(
   return { saveTeamConfig, saving };
 }
 
-export function useDisconnectDiscordTeam(
+export function useRemoveDiscordTeamConfig(
   teamId: string,
   { onCompleted, onError }: TMutationCallbacks,
 ) {
-  const [disconnectTeam, { loading: disconnecting }] = useMutation(
-    DISCONNECT_DISCORD_TEAM,
+  const [removeTeamConfig, { loading: removing }] = useMutation(
+    REMOVE_DISCORD_TEAM_CONFIG,
     {
       onCompleted,
       onError,
       refetchQueries: [
-        { query: GET_DISCORD_CONFIG_BY_TEAM, variables: { teamId } },
+        { query: GET_DISCORD_CONFIGS_BY_TEAM, variables: { teamId } },
         { query: GET_DISCORD_CONNECTIONS },
       ],
       awaitRefetchQueries: true,
     },
   );
 
-  return { disconnectTeam, disconnecting };
+  return { removeTeamConfig, removing };
 }
 
 export function useSendDiscordTestMessage({

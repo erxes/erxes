@@ -32,17 +32,23 @@ export const DISCONNECT_DISCORD = gql(`
 
 export const SAVE_DISCORD_TEAM_CONFIG = gql(`
   mutation operationDiscordSaveTeamConfig(
+    $_id: String
     $teamId: String!
     $connectionId: String!
     $channelId: String!
     $events: [OperationDiscordNotificationEvent!]!
+    $mention: OperationDiscordMention
+    $mentionEvents: [OperationDiscordNotificationEvent!]
     $isActive: Boolean
   ) {
     operationDiscordSaveTeamConfig(
+      _id: $_id
       teamId: $teamId
       connectionId: $connectionId
       channelId: $channelId
       events: $events
+      mention: $mention
+      mentionEvents: $mentionEvents
       isActive: $isActive
     ) {
       _id
@@ -51,6 +57,8 @@ export const SAVE_DISCORD_TEAM_CONFIG = gql(`
       channelId
       channelName
       events
+      mention
+      mentionEvents
       isActive
       lastError
       lastSentAt
@@ -58,17 +66,17 @@ export const SAVE_DISCORD_TEAM_CONFIG = gql(`
   }
 `);
 
-export const DISCONNECT_DISCORD_TEAM = gql(`
-  mutation operationDiscordDisconnectTeam($teamId: String!) {
-    operationDiscordDisconnectTeam(teamId: $teamId) {
+export const REMOVE_DISCORD_TEAM_CONFIG = gql(`
+  mutation operationDiscordRemoveTeamConfig($_id: String!) {
+    operationDiscordRemoveTeamConfig(_id: $_id) {
       success
     }
   }
 `);
 
 export const SEND_DISCORD_TEST_MESSAGE = gql(`
-  mutation operationDiscordSendTestMessage($teamId: String!) {
-    operationDiscordSendTestMessage(teamId: $teamId) {
+  mutation operationDiscordSendTestMessage($_id: String!) {
+    operationDiscordSendTestMessage(_id: $_id) {
       _id
       lastError
       lastSentAt
@@ -81,15 +89,17 @@ export const SET_DISCORD_CLIENT_SECRET = gql(`
     operationDiscordSetClientSecret(_id: $_id, clientSecret: $clientSecret) {
       _id
       hasClientSecret
+      memberLinkingPaused
     }
   }
 `);
 
-export const CLEAR_DISCORD_CLIENT_SECRET = gql(`
-  mutation operationDiscordClearClientSecret($_id: String!) {
-    operationDiscordClearClientSecret(_id: $_id) {
+export const SET_DISCORD_MEMBER_LINKING = gql(`
+  mutation operationDiscordSetMemberLinking($_id: String!, $enabled: Boolean!) {
+    operationDiscordSetMemberLinking(_id: $_id, enabled: $enabled) {
       _id
       hasClientSecret
+      memberLinkingPaused
     }
   }
 `);

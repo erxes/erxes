@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { DISCORD_NOTIFICATION_EVENTS } from './constants';
+import { DISCORD_MENTIONS, DISCORD_NOTIFICATION_EVENTS } from './constants';
 
 export const DISCORD_CONNECT_SCHEMA = z.object({
   token: z.string().trim().min(1, 'Paste the bot token'),
@@ -14,6 +14,8 @@ export const DISCORD_TEAM_CONFIG_SCHEMA = z.object({
   events: z
     .array(z.enum(DISCORD_NOTIFICATION_EVENTS))
     .min(1, 'Choose at least one event'),
+  mention: z.enum(DISCORD_MENTIONS),
+  mentionEvents: z.array(z.enum(DISCORD_NOTIFICATION_EVENTS)),
   isActive: z.boolean(),
 });
 

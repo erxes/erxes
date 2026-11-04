@@ -10,6 +10,7 @@ export const GET_DISCORD_CONNECTIONS = gql(`
       applicationId
       botUsername
       hasClientSecret
+      memberLinkingPaused
       commandsRegisteredAt
       commandsError
       health {
@@ -55,15 +56,17 @@ export const GET_DISCORD_CHANNELS = gql(`
   }
 `);
 
-export const GET_DISCORD_CONFIG_BY_TEAM = gql(`
-  query operationDiscordConfigByTeam($teamId: String!) {
-    operationDiscordConfigByTeam(teamId: $teamId) {
+export const GET_DISCORD_CONFIGS_BY_TEAM = gql(`
+  query operationDiscordConfigsByTeam($teamId: String!) {
+    operationDiscordConfigsByTeam(teamId: $teamId) {
       _id
       teamId
       connectionId
       channelId
       channelName
       events
+      mention
+      mentionEvents
       isActive
       lastError
       lastSentAt

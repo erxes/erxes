@@ -1,17 +1,26 @@
-import { TDiscordNotificationEvent } from './types';
+import { TDiscordMention, TDiscordNotificationEvent } from './types';
 
-export const DISCORD_NOTIFICATION_EVENTS = [
+export const DISCORD_DEFAULT_EVENTS = [
   'triageCreated',
   'triageAccepted',
   'triageDeclined',
   'taskAssigned',
   'taskCompleted',
+  'taskReopened',
+  'taskCancelled',
+  'taskMoved',
+] as const satisfies readonly TDiscordNotificationEvent[];
+
+export const DISCORD_NOTIFICATION_EVENTS = [
+  ...DISCORD_DEFAULT_EVENTS,
+  'pullRequestMerged',
 ] as const satisfies readonly TDiscordNotificationEvent[];
 
 export const DISCORD_EVENT_OPTIONS: {
   value: TDiscordNotificationEvent;
   label: string;
   description: string;
+  requiresGithubRepo?: boolean;
 }[] = [
   {
     value: 'triageCreated',
@@ -37,6 +46,56 @@ export const DISCORD_EVENT_OPTIONS: {
     value: 'taskCompleted',
     label: 'Task completed',
     description: 'A task moves to a completed status.',
+  },
+  {
+    value: 'taskReopened',
+    label: 'Task reopened',
+    description: 'A completed or cancelled task is opened again.',
+  },
+  {
+    value: 'taskCancelled',
+    label: 'Task cancelled',
+    description: 'A task moves to a cancelled status.',
+  },
+  {
+    value: 'taskMoved',
+    label: 'Task moved',
+    description:
+      'A task moves into or out of this team. A card it leaves is kept and marked as moved instead of being deleted.',
+  },
+  {
+    value: 'pullRequestMerged',
+    label: 'PR merged',
+    description: 'A pull request is merged in this team’s GitHub repository.',
+    requiresGithubRepo: true,
+  },
+];
+
+export const DISCORD_MENTIONS = [
+  'none',
+  'here',
+  'everyone',
+] as const satisfies readonly TDiscordMention[];
+
+export const DISCORD_MENTION_OPTIONS: {
+  value: TDiscordMention;
+  label: string;
+  description: string;
+}[] = [
+  {
+    value: 'none',
+    label: 'Nobody',
+    description: 'Messages are posted without a mention.',
+  },
+  {
+    value: 'here',
+    label: '@here',
+    description: 'Notifies the members who are online.',
+  },
+  {
+    value: 'everyone',
+    label: '@everyone',
+    description: 'Notifies every member of the server.',
   },
 ];
 
