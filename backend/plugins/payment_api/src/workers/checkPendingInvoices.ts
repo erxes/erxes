@@ -3,18 +3,16 @@ import {
   createMQWorkerWithListeners,
   getEnv,
   getSaasOrganizationsByFilter,
-  graphqlPubsub,
   redis,
   sendWorkerQueue,
 } from 'erxes-api-shared/utils';
-import { splitType } from 'erxes-api-shared/core-modules';
 import { generateModels, IModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS } from '~/constants';
 import {
-  enqueueInvoiceCallback,
   INVOICE_CALLBACK_QUEUE,
   sendInvoiceCallback,
 } from '~/modules/payment/services/invoiceCallbackQueue';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 
 const SERVICE = 'payment';
 const SCHEDULER_QUEUE = 'pending-invoices-schedule';
@@ -42,60 +40,47 @@ const logError = (msg: string) =>
 const cursorKey = (subdomain: string) =>
   `payment:pendingInvoicesCursor:${subdomain}`;
 
-const notifyPaidInvoice = async (
+/**
+ * Re-sends notifications for invoices that were marked paid but whose
+ * notifications could not be queued (notifyPending still set). The age guard
+ * leaves invoices alone while their claimer may still be notifying.
+ */
+const retryPendingNotifications = async (
   models: IModels,
   subdomain: string,
-  _id: string,
 ) => {
-  const invoice = await models.Invoices.getInvoice({ _id }, true);
+  const invoices = await models.Invoices.find(
+    {
+      status: PAYMENT_STATUS.PAID,
+      notifyPending: true,
+      resolvedAt: { $lte: new Date(Date.now() - MIN_AGE_MS) },
+    },
+    { _id: 1 },
+  )
+    .limit(BATCH_LIMIT)
+    .lean();
 
-  graphqlPubsub.publish(`invoiceUpdated:${_id}`, {
-    invoiceUpdated: { _id, status: PAYMENT_STATUS.PAID },
-  });
+  let retried = 0;
 
-  // The plugin callback and the external callback are attempted
-  // independently, so one failing to enqueue does not cancel the other.
-  let firstError: unknown;
-
-  // Same notification as the invoicesCheck mutation (the widget's check button)
-  if (invoice.contentType) {
-    const [pluginName, moduleName, collectionType] = splitType(
-      invoice.contentType,
-    );
-
+  for (const { _id } of invoices) {
     try {
-      await sendWorkerQueue(pluginName, 'payments').add(
-        'callback',
-        {
-          subdomain,
-          data: {
-            ...invoice,
-            status: PAYMENT_STATUS.PAID,
-            moduleName,
-            collectionType,
-            apiResponse: 'success',
-          },
-        },
-        { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-      );
+      await notifyPaidInvoice(models, subdomain, _id);
+      retried++;
+      log(`${subdomain}: invoice ${_id} paid notification re-queued (duplicates ignored)`);
     } catch (e) {
-      firstError = firstError || e;
+      logError(
+        `${subdomain}: retry of paid notification for invoice ${_id} failed: ${e.message}`,
+      );
     }
   }
 
-  try {
-    await enqueueInvoiceCallback(invoice);
-  } catch (e) {
-    firstError = firstError || e;
-  }
-
-  if (firstError) {
-    throw firstError;
-  }
+  return retried;
 };
 
 export const checkPendingInvoicesForSubdomain = async (subdomain: string) => {
   const models = await generateModels(subdomain);
+
+  const renotified = await retryPendingNotifications(models, subdomain);
 
   const now = Date.now();
 
@@ -162,7 +147,7 @@ export const checkPendingInvoicesForSubdomain = async (subdomain: string) => {
     }
   }
 
-  return { checked: invoices.length, paid: paidCount };
+  return { checked: invoices.length, paid: paidCount, renotified };
 };
 
 const addOrgCheck = (subdomain: string) =>

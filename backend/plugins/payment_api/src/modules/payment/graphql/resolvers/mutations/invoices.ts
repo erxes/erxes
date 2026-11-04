@@ -1,10 +1,9 @@
-import { splitType } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getEnv, graphqlPubsub, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
-import { enqueueInvoiceCallback } from '~/modules/payment/services/invoiceCallbackQueue';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
@@ -95,47 +94,16 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       subdomain,
     );
 
-    // notify only if this call moved the invoice to paid
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
     if (status === 'paid' && claimed) {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
         );
-
-        sendWorkerQueue(pluginName, 'payments')
-          .add(
-            'callback',
-            {
-              subdomain,
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-                apiResponse: 'success',
-              },
-            },
-            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-          )
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-            );
-          });
-      }
-
-      if (invoice.callback) {
-        // queued delivery: retried on network errors and non-2xx responses
-        try {
-          await enqueueInvoiceCallback(invoice);
-        } catch (err) {
-          console.error(
-            `[invoicesCheck] Failed to queue callback for invoice ${_id}:`,
-            err,
-          );
-        }
       }
     }
 
@@ -153,47 +121,16 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
       subdomain,
     );
 
-    // notify only if this call moved the invoice to paid
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
     if (status === 'paid' && claimed) {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
         );
-
-        sendWorkerQueue(pluginName, 'payments')
-          .add(
-            'callback',
-            {
-              subdomain,
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-                apiResponse: 'success',
-              },
-            },
-            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-          )
-          .catch((err) => {
-            process.stderr.write(
-              `[cpInvoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-            );
-          });
-      }
-
-      if (invoice.callback) {
-        // queued delivery: retried on network errors and non-2xx responses
-        try {
-          await enqueueInvoiceCallback(invoice);
-        } catch (err) {
-          console.error(
-            `[invoicesCheck] Failed to queue callback for invoice ${_id}:`,
-            err,
-          );
-        }
       }
     }
 

@@ -4,7 +4,6 @@ import {
   graphqlPubsub,
   isEnabled,
   sendWorkerMessage,
-  sendWorkerQueue,
 } from 'erxes-api-shared/utils';
 
 import { golomtCallbackHandler } from '~/apis/golomt/api';
@@ -20,7 +19,7 @@ import { tdbCallbackHandler } from '~/apis/tdb/api';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENT_STATUS, PAYMENTS } from '~/constants';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
-import { enqueueInvoiceCallback } from '~/modules/payment/services/invoiceCallbackQueue';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { tokiCallbackHandler } from '~/apis/toki/api';
 import redis from '~/utils/redis';
 
@@ -170,43 +169,14 @@ export const callbackHandler = async (req, res) => {
         }
       }
 
-      // notify only if this callback moved the invoice to paid
-      if (result === 'paid' && claimed) {
-        if (invoice.contentType) {
-          const [pluginName, moduleName, collectionType] = splitType(
-            invoice.contentType,
-          );
-
-          sendWorkerQueue(pluginName, 'payments')
-            .add(
-              'callback',
-              {
-                subdomain,
-                data: {
-                  ...invoice,
-                  status: 'paid',
-                  moduleName,
-                  collectionType,
-                  apiResponse: 'success',
-                },
-              },
-              { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-            )
-            .catch((err) => {
-              process.stderr.write(
-                `[paymentCallback] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-              );
-            });
-        }
-      }
-
-      if (invoice.callback && claimed) {
-        // queued delivery: retried on network errors and non-2xx responses
+      // notify only if this callback moved the invoice to paid; if this
+      // fails, notifyPending stays set and the pending-invoice cron retries
+      if (claimed) {
         try {
-          await enqueueInvoiceCallback(invoice);
+          await notifyPaidInvoice(models, subdomain, invoice._id);
         } catch (e) {
           console.error(
-            `[CALLBACK] Failed to queue callback for invoice ${invoice._id}`,
+            `[CALLBACK] Failed to queue paid notifications for invoice ${invoice._id}`,
             e,
           );
         }

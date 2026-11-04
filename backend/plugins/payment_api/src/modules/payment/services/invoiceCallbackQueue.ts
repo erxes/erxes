@@ -18,7 +18,8 @@ interface IInvoiceCallbackJobData {
 /**
  * Queues the external invoice.callback delivery. The worker below retries
  * network errors and non-2xx responses, so a paid notification is not lost
- * when the receiver is briefly down. One job per invoice (fixed jobId).
+ * when the receiver is briefly down. One job per invoice (fixed jobId), so
+ * re-sending the same notification within a day is a no-op.
  */
 export const enqueueInvoiceCallback = async (
   invoice: InvoiceCallbackTarget,
@@ -43,7 +44,8 @@ export const enqueueInvoiceCallback = async (
       jobId: `${INVOICE_CALLBACK_QUEUE}-${invoice._id}`,
       attempts: 5,
       backoff: { type: 'exponential', delay: 5000 },
-      removeOnComplete: true,
+      // kept for a day so a re-sent notification is deduplicated by jobId
+      removeOnComplete: { age: 24 * 3600 },
       removeOnFail: { age: 7 * 24 * 3600 },
     },
   );

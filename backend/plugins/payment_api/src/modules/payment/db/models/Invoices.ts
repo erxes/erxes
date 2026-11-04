@@ -213,7 +213,14 @@ export const loadInvoiceClass = (models: IModels) => {
       // Atomic pending -> paid transition: only one concurrent caller matches.
       const result = await models.Invoices.updateOne(
         { _id, status: { $ne: PAYMENT_STATUS.PAID } },
-        { $set: { status: PAYMENT_STATUS.PAID, resolvedAt: new Date() } },
+        {
+          $set: {
+            status: PAYMENT_STATUS.PAID,
+            resolvedAt: new Date(),
+            // notification intent, saved atomically with the paid claim
+            notifyPending: true,
+          },
+        },
       );
 
       return { status: PAYMENT_STATUS.PAID, claimed: result.modifiedCount > 0 };
