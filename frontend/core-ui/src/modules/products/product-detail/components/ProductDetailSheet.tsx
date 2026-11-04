@@ -175,12 +175,12 @@ export const ProductDetailSheet = () => {
 
   return (
     <FocusSheet
-      open={!!open}
+      open={Boolean(open)}
       onOpenChange={() => setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })}
     >
       <ProductDetailSheetView
         loading={loading}
-        error={!!error}
+        error={Boolean(error)}
         notFound={!productDetail}
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
@@ -335,13 +335,13 @@ const ProductDetailActivity = ({
   recordKey: string;
 }) => (
   <div className="flex flex-col mb-12">
-    {!!productId && (
+    {productId ? (
       <AddInternalNote
         key={`note-${productId}`}
         contentTypeId={productId}
         contentType="core:product"
       />
-    )}
+    ) : null}
     <ActivityLogs
       key={`activity-${recordKey}`}
       targetId={productId || ''}
