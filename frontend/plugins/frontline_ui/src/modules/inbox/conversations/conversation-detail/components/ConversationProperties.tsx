@@ -12,6 +12,7 @@ export const ConversationProperties = ({
 }) => {
   return (
     <FieldsInDetail
+      bare
       fieldContentType={CONTENT_TYPE}
       propertiesData={propertiesData || {}}
       mutateHook={useConversationCustomFieldEdit}

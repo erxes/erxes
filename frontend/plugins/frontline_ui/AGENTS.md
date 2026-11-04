@@ -950,8 +950,9 @@ awaitingResponse?)` — a JSON map. `only: "byChannels"` keys by channel id,
   `deals`) — the relation widgets rendered with the conversation's
   `customerId`, so they list and create that customer's tickets and deals —
   shown only when the conversation has a customer and the plugin is enabled;
-  and the conversation Properties tab. No other relation widgets are rendered
-  beside a conversation.
+  and the conversation Properties tab, which renders `FieldsInDetail` with
+  `bare` (property groups only, no outer card). No other relation widgets are
+  rendered beside a conversation.
 - `ui-modules`: `SelectBrand`, `MembersInline`, `CustomersInline`, contacts and
   structure selects,
   `AutomationRemoteEntryWrapper`, `AutomationRemoteEntryTypes`,
