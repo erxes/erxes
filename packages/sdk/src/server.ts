@@ -226,8 +226,7 @@ export type RootResolvers = {
 };
 
 type RootFields<R extends RootResolvers> =
-  | keyof NonNullable<R['Query']>
-  | keyof NonNullable<R['Mutation']>;
+  keyof NonNullable<R['Query']> | keyof NonNullable<R['Mutation']>;
 
 // An extension's whole server: its GraphQL schema as SDL strings (like a
 // plugin's `types`, `queries` and `mutations`), the resolvers of its root

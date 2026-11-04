@@ -16,8 +16,7 @@ type Host = {
 
 // What the extension's worker returns for one root field.
 export type InvokeResult =
-  | { ok: true; data: unknown }
-  | { ok: false; error: ErrorBody };
+  { ok: true; data: unknown } | { ok: false; error: ErrorBody };
 
 // The Collection methods ctx.db forwards to the host as they were called.
 // The host checks every argument; see the runtime's hostDb.ts.
