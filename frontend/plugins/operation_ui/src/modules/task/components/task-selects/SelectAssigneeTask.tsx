@@ -263,7 +263,9 @@ const SelectAssigneeValue = ({
         updateMembers={setMembers}
       >
         <MembersInline.Avatar
-          className={variant === SelectTriggerVariant.TABLE ? 'size-5' : undefined}
+          className={
+            variant === SelectTriggerVariant.TABLE ? 'size-5' : undefined
+          }
         />
         {variant === SelectTriggerVariant.TABLE && <MembersInline.Title />}
       </MembersInline.Provider>
