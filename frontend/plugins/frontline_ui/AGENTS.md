@@ -202,11 +202,19 @@
   right of its `PageHeader` (and in the empty state) that opens the same four
   step wizard on `frontline/forms/create`. There is no channel in the URL there,
   so the wizard's General step decides it: `channelId` is required by
-  `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
-  `useFormMutate` reads the picked channel out of the setup state. Cancelling or
-  finishing returns to `frontline/forms`; the settings flow
+  `FORM_GENERAL_CREATE_SCHEMA` when neither a `formId` nor a channel `id` param
+  is present, and `useFormMutate` reads the picked channel out of the setup
+  state. Cancelling or finishing returns to `frontline/forms`; the settings flow
   (`frontline/settings/channels/:id/forms/create`) still returns to the
   channel's forms page.
+- Inside a channel's settings (`:id` param present) the General step hides the
+  Channel field and the form is always created in that channel:
+  `useFormMutate` prefers the route's channel over the persisted setup state,
+  so a stale draft can never redirect it to another channel.
+- The wizard's submit button (`FormMutateLayout`) reads `Create form` /
+  `Creating form...` or `Update form` / `Updating form...` from the `formId`
+  param alone, never the channel `id`, so both entry points label create and
+  edit the same way.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
   `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
@@ -829,6 +837,7 @@ owns the setup form and connection actions.
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+
 - A filtered Forms list with no rows shows `FormsNoMatch` with Clear filters;
   first-use creation onboarding shows only when no filter is active.
 
@@ -1003,7 +1012,7 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
   note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
-  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
   when a reply cannot be mailed (no customer email, or the workspace cannot
   send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
@@ -2443,7 +2452,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
+  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
