@@ -26,11 +26,14 @@ import { probeProviderModel } from '@/agents/modelProbe';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';
 import { agentsModelsQueries } from '@/agents/graphql/resolvers/queries/models';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
+import { AGENTS_ORGANIZATION_OWNER_ID } from '@/agents/@types/connection';
+import { toEffectiveConnections } from '@/agents/db/models/Connection';
 import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import type { IContext } from '~/connectionResolvers';
 
 interface IFakeConnectionModel {
   getConnections: jest.Mock;
+  getEffectiveConnections: jest.Mock;
   upsertConnection: jest.Mock;
   removeConnection: jest.Mock;
   setDefaultProvider: jest.Mock;
@@ -79,7 +82,12 @@ const buildContext = ({
   });
 
   const connectionModel: IFakeConnectionModel = {
-    getConnections: jest.fn(async () => storedDoc),
+    getConnections: jest.fn(async (owner: string) =>
+      owner === AGENTS_ORGANIZATION_OWNER_ID ? null : storedDoc,
+    ),
+    getEffectiveConnections: jest.fn(async (_userId: string) =>
+      toEffectiveConnections(storedDoc, null),
+    ),
     upsertConnection: jest.fn(
       async (actor: string, provider: string, connection: unknown) => {
         const base = storedDoc ?? {
@@ -142,6 +150,7 @@ describe('agentsConnections query', () => {
       {
         provider: 'openai',
         model: 'gpt-5.6-luna',
+        scope: 'private',
         hasKey: true,
         isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
@@ -149,6 +158,7 @@ describe('agentsConnections query', () => {
       {
         provider: 'grok',
         model: 'grok-4.5',
+        scope: 'private',
         hasKey: true,
         isDefault: false,
         updatedAt: STORED_DOC.updatedAt,
@@ -863,6 +873,7 @@ describe('sealed keys at rest', () => {
       {
         provider: 'openai',
         model: 'gpt-5.6-luna',
+        scope: 'private',
         hasKey: false,
         isDefault: true,
         updatedAt: STORED_DOC.updatedAt,
@@ -912,9 +923,11 @@ describe('agentsModelVerify mutation', () => {
     );
 
     expect(checkPermission).toHaveBeenCalledWith('agentsChat');
-    expect(connectionModel.getConnections).toHaveBeenCalledWith('user-1');
+    expect(connectionModel.getEffectiveConnections).toHaveBeenCalledWith(
+      'user-1',
+    );
     expect(probeProviderModel).toHaveBeenCalledWith({
-      connection: STORED_DOC.connections[0],
+      connection: { ...STORED_DOC.connections[0], scope: 'private' },
       model: 'gpt-6-luna',
     });
     expect(result).toEqual({

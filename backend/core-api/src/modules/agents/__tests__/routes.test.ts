@@ -16,6 +16,7 @@ import { resolveAgentsReference } from '@/agents/referenceResolution';
  */
 
 import { router } from '@/agents/routes';
+import { toEffectiveConnections } from '@/agents/db/models/Connection';
 import { probeAgentsRun } from '@/agents/runLiveness';
 import { checkPermissionGroup } from 'erxes-api-shared/core-modules';
 import { ExpectedError } from 'erxes-api-shared/utils';
@@ -242,6 +243,9 @@ const CONNECTION_DOC = {
 
 const connectionModel = {
   getConnections: jest.fn(),
+  getEffectiveConnections: jest.fn(async (userId: string) =>
+    toEffectiveConnections(await connectionModel.getConnections(userId), null),
+  ),
   upsertConnection: jest.fn(),
   removeConnection: jest.fn(),
 };

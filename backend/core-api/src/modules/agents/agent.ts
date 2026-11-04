@@ -38,6 +38,11 @@ import {
   thinkingOutputTokens,
   type IAgentsThinkingLevel,
 } from '@/agents/modelThinking';
+import {
+  AGENTS_BUILTIN_INSTRUCTIONS,
+  assertBuiltinAvailable,
+  buildBuiltinUsageProcessor,
+} from '@/agents/builtin';
 import { generateModels } from '~/connectionResolvers';
 
 /**
@@ -94,8 +99,10 @@ Reference aggressively: whenever a reply mentions a person who exists in the wor
 export const buildAgentsInstructions = (
   now: Date,
   codeModeInstructions?: string,
+  builtin = false,
 ): string => [
   DEFAULT_INSTRUCTIONS,
+  builtin ? AGENTS_BUILTIN_INSTRUCTIONS : undefined,
   REPORT_CREATION_SKILL.instructions,
   AUTOMATION_AUTHORING_SKILL.instructions,
   `Current date (UTC): ${now.toISOString().slice(0, 10)}. Use this for relative dates unless the user supplies a different timezone or reporting calendar.`,
@@ -170,6 +177,7 @@ const resolveRunConnection = async (
   const model = requestContext.get('model');
   const thinkingLevel = requestContext.get('thinkingLevel');
   const codeModeEnabled = requestContext.get('codeModeEnabled');
+  const builtin = requestContext.get('builtin') === true;
 
   if (typeof subdomain !== 'string' || typeof userId !== 'string') {
     throw new Error('Agents request context is missing identity.');
@@ -180,9 +188,30 @@ const resolveRunConnection = async (
   }
 
   const models = await generateModels(subdomain);
-  const doc = await models.AgentsConnection.getConnections(userId);
+  const requestedThinking =
+    typeof thinkingLevel === 'string' && isAgentsThinkingLevel(thinkingLevel)
+      ? thinkingLevel
+      : 'off';
 
-  if (!doc || doc.connections.length === 0) {
+  if (builtin) {
+    const connection = await assertBuiltinAvailable(models);
+
+    return {
+      connection,
+      provider: connection.provider,
+      model: connection.model,
+      thinkingLevel: normalizeThinkingLevel(
+        connection.provider,
+        connection.model,
+        requestedThinking,
+      ),
+      codeModeEnabled: codeModeEnabled === true,
+    };
+  }
+
+  const doc = await models.AgentsConnection.getEffectiveConnections(userId);
+
+  if (doc.connections.length === 0) {
     throw new Error('Add your API key to start using Agents.');
   }
 
@@ -209,13 +238,7 @@ const resolveRunConnection = async (
     model,
     // Clamped to the model's supported levels (stamped by the chat route,
     // re-checked here for resumes of older runs).
-    thinkingLevel: normalizeThinkingLevel(
-      provider,
-      model,
-      typeof thinkingLevel === 'string' && isAgentsThinkingLevel(thinkingLevel)
-        ? thinkingLevel
-        : 'off',
-    ),
+    thinkingLevel: normalizeThinkingLevel(provider, model, requestedThinking),
     codeModeEnabled: codeModeEnabled === true,
   };
 };
@@ -323,6 +346,7 @@ export const buildBaseAgentsAgent = async ({
   // Code mode addition is also static — the tool itself doesn't change,
   // only whether it's included in the active tools for a given run.
   const codeModeAddition = await buildCodeModeAddition();
+  const builtinUsage = buildBuiltinUsageProcessor();
 
   // MongoDB 4.4.25 compatible
   makeToolInputSchemaMongoCompatible(searchGraphql);
@@ -343,6 +367,7 @@ export const buildBaseAgentsAgent = async ({
       return buildAgentsInstructions(
         new Date(),
         codeModeEnabled ? codeModeAddition.instructions : undefined,
+        requestContext?.get('builtin') === true,
       );
     },
     // Dynamic model: re-fetches current BYOK credentials from the
@@ -380,6 +405,8 @@ export const buildBaseAgentsAgent = async ({
     // model sees their names and descriptions and loads instructions on
     // demand through Mastra's skill tools; a failing plugin contributes none.
     skills: async () => listAgentPluginSkills(),
+    inputProcessors: [builtinUsage],
+    outputProcessors: [builtinUsage],
     memory,
   });
 };

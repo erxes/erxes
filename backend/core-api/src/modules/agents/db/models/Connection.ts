@@ -4,9 +4,11 @@ import type { IAiAgentConnection } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
 import { agentsConnectionSchema } from '@/agents/db/definitions/connection';
 import {
+  AGENTS_ORGANIZATION_OWNER_ID,
   IAgentsConnectionEntry,
   IAgentsConnections,
   IAgentsConnectionsDocument,
+  IAgentsEffectiveConnections,
 } from '@/agents/@types/connection';
 
 export interface IAgentsConnectionModel
@@ -17,6 +19,7 @@ export interface IAgentsConnectionModel
    * have not saved any provider yet.
    */
   getConnections(userId: string): Promise<IAgentsConnectionsDocument | null>;
+  getEffectiveConnections(userId: string): Promise<IAgentsEffectiveConnections>;
   /**
    * Inserts or replaces the entry for one provider in the acting user's
    * connections array, creating the document on the first save.
@@ -47,9 +50,11 @@ export interface IAgentsConnectionModel
  * `defaultProvider` while that provider is still saved, otherwise the first
  * saved entry (the behaviour every document had before defaults existed).
  */
-export const findDefaultConnection = (
-  doc: Pick<IAgentsConnections, 'connections' | 'defaultProvider'> | null,
-): IAgentsConnectionEntry | undefined => {
+export const findDefaultConnection = <
+  T extends IAgentsConnectionEntry = IAgentsConnectionEntry,
+>(
+  doc: { connections?: T[]; defaultProvider?: string } | null,
+): T | undefined => {
   const connections = doc?.connections ?? [];
 
   return (
@@ -59,6 +64,34 @@ export const findDefaultConnection = (
         connection.provider === doc?.defaultProvider,
     ) ?? connections[0]
   );
+};
+
+export const toEffectiveConnections = (
+  own: Pick<IAgentsConnections, 'connections' | 'defaultProvider'> | null,
+  organization: Pick<
+    IAgentsConnections,
+    'connections' | 'defaultProvider'
+  > | null,
+): IAgentsEffectiveConnections => {
+  const privateEntries = own?.connections ?? [];
+  const privateProviders = new Set(
+    privateEntries.map((entry) => entry.provider),
+  );
+
+  return {
+    connections: [
+      ...privateEntries.map((entry) => ({
+        ...entry,
+        scope: 'private' as const,
+      })),
+      ...(organization?.connections ?? [])
+        .filter((entry) => !privateProviders.has(entry.provider))
+        .map((entry) => ({ ...entry, scope: 'organization' as const })),
+    ],
+    defaultProvider: privateEntries.length
+      ? findDefaultConnection(own)?.provider
+      : findDefaultConnection(organization)?.provider,
+  };
 };
 
 /**
@@ -157,6 +190,21 @@ export const loadAgentsConnectionClass = (models: IModels) => {
       }
 
       return normalized;
+    }
+
+    public static async getEffectiveConnections(
+      userId: string,
+    ): Promise<IAgentsEffectiveConnections> {
+      const [own, organization] = await Promise.all([
+        models.AgentsConnection.getConnections(userId),
+        userId === AGENTS_ORGANIZATION_OWNER_ID
+          ? null
+          : models.AgentsConnection.getConnections(
+              AGENTS_ORGANIZATION_OWNER_ID,
+            ),
+      ]);
+
+      return toEffectiveConnections(own, organization);
     }
 
     /**

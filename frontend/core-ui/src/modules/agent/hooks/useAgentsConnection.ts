@@ -26,6 +26,24 @@ export const findDefaultAgentsConnection = <
 ): T | undefined =>
   connections.find((connection) => connection.isDefault) ?? connections[0];
 
+export const effectiveAgentsConnections = <
+  T extends { provider: string; scope?: string | null },
+>(
+  connections: readonly T[],
+): T[] => {
+  const privateProviders = new Set(
+    connections
+      .filter((connection) => connection.scope !== 'organization')
+      .map((connection) => connection.provider),
+  );
+
+  return connections.filter(
+    (connection) =>
+      connection.scope !== 'organization' ||
+      !privateProviders.has(connection.provider),
+  );
+};
+
 /**
  * Loads the acting user's configured BYOK connections (one entry per
  * provider). The backend never returns the stored API keys; `hasKey` only
