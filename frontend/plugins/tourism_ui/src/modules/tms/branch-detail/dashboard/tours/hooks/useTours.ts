@@ -1,51 +1,31 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useMultiQueryState,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { GET_TOURS } from '../graphql/queries';
 import { TOURS_CURSOR_SESSION_KEY } from '../constants/tourCursorSessionKey';
-import { ITour } from '../types/tour';
 import { tourTotalCountAtom } from '../states/tourCounts';
+import type {
+  BmsToursQuery,
+  BmsToursQueryVariables,
+  Date_Status,
+} from '~/gql/graphql';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '~/utils/cursorList';
 
 const TOURS_PER_PAGE = 30;
 
-type ToursQueryVariables = {
-  branchId?: string;
-  name?: string;
-  status?: string;
-  date_status?:
-    | 'running'
-    | 'completed'
-    | 'scheduled'
-    | 'cancelled'
-    | 'unscheduled';
-  categoryIds?: string[];
-  language?: string;
-  limit?: number;
-  cursor?: string;
-  direction?: EnumCursorDirection;
-  orderBy?: Record<string, number>;
-};
-
 export const useTours = (
-  options?: QueryHookOptions<
-    {
-      bmsTours: {
-        list: ITour[];
-        totalCount: number;
-        pageInfo: IRecordTableCursorPageInfo;
-      };
-    },
-    ToursQueryVariables
-  >,
+  options?: QueryHookOptions<BmsToursQuery, BmsToursQueryVariables>,
 ) => {
   const setTourTotalCount = useSetAtom(tourTotalCountAtom);
 
@@ -53,12 +33,7 @@ export const useTours = (
     useMultiQueryState<{
       tourSearchValue: string;
       status: string;
-      date_status:
-        | 'running'
-        | 'completed'
-        | 'scheduled'
-        | 'cancelled'
-        | 'unscheduled';
+      date_status: Date_Status;
       categoryIds: string;
     }>(['tourSearchValue', 'status', 'date_status', 'categoryIds']);
 
@@ -70,7 +45,7 @@ export const useTours = (
     ? String(tourSearchValue)
     : undefined;
 
-  const variables: ToursQueryVariables = {
+  const variables: BmsToursQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
     name: normalizedTourSearchValue,
@@ -90,7 +65,10 @@ export const useTours = (
     fetchPolicy: 'cache-and-network',
   });
 
-  const { list: tours, totalCount, pageInfo } = data?.bmsTours || {};
+  const list = data?.bmsTours?.list;
+  const tours = useMemo(() => (list ? compactList(list) : undefined), [list]);
+  const totalCount = data?.bmsTours?.totalCount;
+  const pageInfo = toCursorPageInfo(data?.bmsTours?.pageInfo);
 
   useEffect(() => {
     setTourTotalCount(totalCount ?? null);
@@ -113,15 +91,16 @@ export const useTours = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.bmsTours || !prev.bmsTours) return prev;
 
-        return Object.assign({}, prev, {
-          bmsTours: mergeCursorData({
+        return {
+          ...prev,
+          bmsTours: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.bmsTours,
-            prevResult: prev.bmsTours,
-          }),
-        });
+            prev.bmsTours,
+            fetchMoreResult.bmsTours,
+          ),
+        };
       },
     });
   };

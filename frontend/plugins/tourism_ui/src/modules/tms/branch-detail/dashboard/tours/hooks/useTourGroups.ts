@@ -1,44 +1,24 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useMultiQueryState } from 'erxes-ui';
+import { useMemo } from 'react';
 import { GET_TOUR_GROUPS } from '../graphql/queries';
-import { ITourGroup } from '../types/tour';
-
-type TourGroupsQueryVariables = {
-  branchId?: string;
-  status?: string;
-  date_status?:
-    | 'running'
-    | 'completed'
-    | 'scheduled'
-    | 'cancelled'
-    | 'unscheduled';
-  categoryIds?: string[];
-  language?: string;
-};
+import type {
+  BmToursGroupQuery,
+  BmToursGroupQueryVariables,
+  Date_Status,
+} from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export const useTourGroups = (
-  options?: QueryHookOptions<
-    {
-      bmToursGroup: {
-        list: ITourGroup[];
-        total: number;
-      };
-    },
-    TourGroupsQueryVariables
-  >,
+  options?: QueryHookOptions<BmToursGroupQuery, BmToursGroupQueryVariables>,
 ) => {
   const [{ status, date_status, categoryIds }] = useMultiQueryState<{
     status: string;
-    date_status:
-      | 'running'
-      | 'completed'
-      | 'scheduled'
-      | 'cancelled'
-      | 'unscheduled';
+    date_status: Date_Status;
     categoryIds: string;
   }>(['status', 'date_status', 'categoryIds']);
 
-  const variables: TourGroupsQueryVariables = {
+  const variables: BmToursGroupQueryVariables = {
     ...(options?.variables || {}),
     status: status || undefined,
     date_status: date_status || undefined,
@@ -53,11 +33,14 @@ export const useTourGroups = (
     fetchPolicy: 'cache-and-network',
   });
 
+  const list = data?.bmToursGroup?.list;
+  const groups = useMemo(() => compactList(list), [list]);
+
   return {
     loading,
     error,
     refetch,
-    groups: data?.bmToursGroup?.list || [],
+    groups,
     total: data?.bmToursGroup?.total || 0,
   };
 };

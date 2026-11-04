@@ -1,32 +1,16 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { GET_PARENT_CATEGORIES } from '../graphql/queries';
-
-interface IAttachment {
-  url?: string;
-  name?: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
-
-type ParentCategory = {
-  _id: string;
-  name?: string;
-  parentId?: string;
-  attachment?: IAttachment;
-};
-
-type ParentCategoriesQueryVariables = {
-  branchId?: string;
-  language?: string;
-};
+import type {
+  BmsTourParentCategoriesQuery,
+  BmsTourParentCategoriesQueryVariables,
+} from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export const useParentCategories = (
   options?: QueryHookOptions<
-    {
-      bmsTourCategories: ParentCategory[];
-    },
-    ParentCategoriesQueryVariables
+    BmsTourParentCategoriesQuery,
+    BmsTourParentCategoriesQueryVariables
   >,
 ) => {
   const { data, loading } = useQuery(GET_PARENT_CATEGORIES, {
@@ -34,7 +18,10 @@ export const useParentCategories = (
     fetchPolicy: 'no-cache',
   });
 
-  const categories = data?.bmsTourCategories || [];
+  const categories = useMemo(
+    () => compactList(data?.bmsTourCategories),
+    [data?.bmsTourCategories],
+  );
 
   return {
     loading,

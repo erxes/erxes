@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_TOUR = gql`
+export const CREATE_TOUR = gql(`
   mutation BmsTourAdd(
     $branchId: String
     $language: String
@@ -78,9 +78,9 @@ export const CREATE_TOUR = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_TOUR = gql`
+export const EDIT_TOUR = gql(`
   mutation BmsTourEdit(
     $id: String!
     $language: String
@@ -156,15 +156,15 @@ export const EDIT_TOUR = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_TOUR = gql`
+export const REMOVE_TOUR = gql(`
   mutation BmsTourRemove($ids: [String!]!) {
     bmsTourRemove(ids: $ids)
   }
-`;
+`);
 
-export const EDIT_TOUR_ORDER = gql`
+export const EDIT_TOUR_ORDER = gql(`
   mutation BmsOrderEdit($id: String!, $order: BmsOrderInput) {
     bmsOrderEdit(_id: $id, order: $order) {
       _id
@@ -183,4 +183,4 @@ export const EDIT_TOUR_ORDER = gql`
       createdAt
     }
   }
-`;
+`);

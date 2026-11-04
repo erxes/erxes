@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const TOUR_CUSTOM_TYPES = gql`
+export const TOUR_CUSTOM_TYPES = gql(`
   query TourismTourCustomTypes($branchId: String) {
     bmsCustomTourTypes(branchId: $branchId) {
       _id
@@ -13,9 +13,9 @@ export const TOUR_CUSTOM_TYPES = gql`
       isActive
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_FIELD_GROUPS = gql`
+export const TOUR_CUSTOM_FIELD_GROUPS = gql(`
   query TourismTourCustomFieldGroups($branchId: String!) {
     bmsCustomTourGroupList(branchId: $branchId) {
       list {
@@ -31,9 +31,9 @@ export const TOUR_CUSTOM_FIELD_GROUPS = gql`
       }
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_TYPE_ADD = gql`
+export const TOUR_CUSTOM_TYPE_ADD = gql(`
   mutation BmsCustomTourTypesAdd($input: CustomTourTypeInput!) {
     bmsCustomTourTypesAdd(input: $input) {
       _id
@@ -46,9 +46,9 @@ export const TOUR_CUSTOM_TYPE_ADD = gql`
       isActive
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_TYPE_EDIT = gql`
+export const TOUR_CUSTOM_TYPE_EDIT = gql(`
   mutation BmsCustomTourTypesEdit(
     $_id: String!
     $input: CustomTourTypeInput!
@@ -64,23 +64,23 @@ export const TOUR_CUSTOM_TYPE_EDIT = gql`
       isActive
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_TYPE_REMOVE = gql`
+export const TOUR_CUSTOM_TYPE_REMOVE = gql(`
   mutation BmsCustomTourTypesRemove($_id: String!) {
     bmsCustomTourTypesRemove(_id: $_id)
   }
-`;
+`);
 
-export const TOUR_CUSTOM_FIELD_GROUP_ADD = gql`
+export const TOUR_CUSTOM_FIELD_GROUP_ADD = gql(`
   mutation BmsCustomTourGroupsAdd($input: CustomTourFieldGroupInput!) {
     bmsCustomTourGroupsAdd(input: $input) {
       _id
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_FIELD_GROUP_EDIT = gql`
+export const TOUR_CUSTOM_FIELD_GROUP_EDIT = gql(`
   mutation BmsCustomTourGroupsEdit(
     $_id: String!
     $input: CustomTourFieldGroupInput!
@@ -89,10 +89,10 @@ export const TOUR_CUSTOM_FIELD_GROUP_EDIT = gql`
       _id
     }
   }
-`;
+`);
 
-export const TOUR_CUSTOM_FIELD_GROUP_REMOVE = gql`
+export const TOUR_CUSTOM_FIELD_GROUP_REMOVE = gql(`
   mutation BmsCustomTourGroupsRemove($_id: String!) {
     bmsCustomTourGroupsRemove(_id: $_id)
   }
-`;
+`);

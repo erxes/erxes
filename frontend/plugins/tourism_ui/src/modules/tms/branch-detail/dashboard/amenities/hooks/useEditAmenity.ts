@@ -1,34 +1,19 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_AMENITY } from '../graphql/mutation';
-import { IAmenityTranslationInput } from './useCreateAmenity';
-
-interface EditAmenityResponse {
-  bmsElementEdit: {
-    _id: string;
-  };
-}
-
-export interface IEditAmenityVariables {
-  id: string;
-  name?: string;
-  icon?: string;
-  quick?: boolean;
-  language?: string;
-  translations?: IAmenityTranslationInput[];
-}
+import type {
+  BmsAmenityEditMutation,
+  BmsAmenityEditMutationVariables,
+} from '~/gql/graphql';
 
 export const useEditAmenity = () => {
-  const [editAmenityMutation, { loading, error }] = useMutation<
-    EditAmenityResponse,
-    IEditAmenityVariables
-  >(EDIT_AMENITY, {
+  const [editAmenityMutation, { loading, error }] = useMutation(EDIT_AMENITY, {
     refetchQueries: ['BmsAmenities'],
     awaitRefetchQueries: true,
   });
 
   const editAmenity = (options: {
-    variables: IEditAmenityVariables;
-    onCompleted?: (data: EditAmenityResponse) => void;
+    variables: BmsAmenityEditMutationVariables;
+    onCompleted?: (data: BmsAmenityEditMutation) => void;
     onError?: (error: unknown) => void;
   }) => {
     return editAmenityMutation(options);

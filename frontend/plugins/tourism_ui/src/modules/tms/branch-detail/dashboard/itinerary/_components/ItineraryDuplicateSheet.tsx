@@ -5,6 +5,7 @@ import { useFieldArray, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateItinerary } from '../hooks/useCreateItinerary';
 import { IItinerary } from '../types/itinerary';
+import { compactList } from '~/utils/cursorList';
 import { useItineraryDetail } from '../hooks/useItineraryDetail';
 import {
   ItineraryCreateFormSchema,
@@ -23,7 +24,7 @@ const duplicateSuffix = ' (copy)';
 const getPrimaryItineraryTranslation = (
   itinerary: IItinerary,
   primaryLanguage?: string,
-) => itinerary.translations?.find((t) => t.language === primaryLanguage);
+) => itinerary.translations?.find((t) => t?.language === primaryLanguage);
 
 const getPrimaryGroupDays = (
   itinerary: IItinerary,
@@ -34,21 +35,26 @@ const getPrimaryGroupDays = (
     primaryLanguage,
   );
   const primaryGroupDayMap = new Map(
-    (primaryTranslation?.groupDays || []).map((groupDay) => [
+    compactList(primaryTranslation?.groupDays).map((groupDay) => [
       groupDay.day,
       groupDay,
     ]),
   );
 
-  return itinerary.groupDays?.map((day) => {
+  return compactList(itinerary.groupDays).map((day) => {
     const translatedDay = day.day ? primaryGroupDayMap.get(day.day) : undefined;
 
     return {
       day: day.day,
       title: translatedDay?.title ?? day.title,
       content: translatedDay?.content ?? day.content,
-      elements: day.elements?.map(({ __typename: _e, ...el }) => el),
-      elementsQuick: day.elementsQuick?.map(({ __typename: _eq, ...el }) => el),
+      elements: compactList(day.elements).map(({ elementId, orderOfDay }) => ({
+        elementId,
+        orderOfDay,
+      })),
+      elementsQuick: compactList(day.elementsQuick).map(
+        ({ elementId, orderOfDay }) => ({ elementId, orderOfDay }),
+      ),
       images: day.images,
     };
   });

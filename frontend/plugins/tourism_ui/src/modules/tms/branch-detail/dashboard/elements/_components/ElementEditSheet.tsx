@@ -21,6 +21,7 @@ import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_componen
 import { useEditElement } from '../hooks/useEditElement';
 import { useElementLanguage } from '../hooks/useElementLanguage';
 import { IElement } from '../types/element';
+import { compactList } from '~/utils/cursorList';
 import {
   buildTranslationsFromElement,
   sanitizeTranslations,
@@ -66,7 +67,7 @@ export const ElementEditSheet = ({
       startTime: element.startTime || '',
       duration: element.duration || 0,
       cost: element.cost || 0,
-      categories: element.categories || [],
+      categories: compactList(element.categories),
       translations: [],
     },
   });
@@ -95,7 +96,7 @@ export const ElementEditSheet = ({
       startTime: element.startTime || '',
       duration: element.duration || 0,
       cost: element.cost || 0,
-      categories: element.categories || [],
+      categories: compactList(element.categories),
       translations: buildTranslationsFromElement(element, translationLanguages),
     });
     // Preserve active lang if valid for this branch; fall back to primary

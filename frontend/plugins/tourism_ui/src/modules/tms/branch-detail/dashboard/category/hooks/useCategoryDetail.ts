@@ -7,6 +7,6 @@ export const useCategoryDetail = (categoryId?: string): ICategory | null => {
 
   return useMemo(() => {
     if (!categoryId) return null;
-    return categories.find((cat: ICategory) => cat._id === categoryId) || null;
+    return categories.find((cat) => cat._id === categoryId) || null;
   }, [categories, categoryId]);
 };

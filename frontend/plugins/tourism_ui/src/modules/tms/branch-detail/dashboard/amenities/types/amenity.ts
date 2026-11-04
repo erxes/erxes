@@ -1,17 +1,5 @@
-export interface IAmenityTranslation {
-  _id?: string;
-  language: string;
-  name?: string;
-}
+import type { BmsAmenitiesQuery } from '~/gql/graphql';
 
-export interface IAmenity {
-  _id: string;
-  branchId?: string;
-  name?: string;
-  icon?: string;
-  quick?: boolean;
-  language?: string;
-  translations?: IAmenityTranslation[];
-  createdAt?: string;
-  modifiedAt?: string;
-}
+export type IAmenity = NonNullable<
+  NonNullable<NonNullable<BmsAmenitiesQuery['bmsElements']>['list']>[number]
+>;

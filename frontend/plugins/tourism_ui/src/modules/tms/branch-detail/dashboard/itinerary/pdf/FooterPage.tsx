@@ -11,8 +11,8 @@ import { parseHtmlToPdfElements } from './htmlParser';
 
 interface FooterPageProps {
   branch?: IBranchPDFData;
-  content?: string;
-  color?: string;
+  content?: string | null;
+  color?: string | null;
   config: ItineraryPdfRenderConfig;
   template?: ItineraryPdfTemplate;
   itineraryName?: string;

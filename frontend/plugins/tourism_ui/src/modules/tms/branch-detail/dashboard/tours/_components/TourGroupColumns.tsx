@@ -16,7 +16,8 @@ import {
 import { ITour } from '../types/tour';
 import { tourGroupMoreColumn } from './TourGroupMoreCell';
 
-export type TourGroupRow = ITour & {
+export type TourGroupRow = Partial<ITour> & {
+  _id: string;
   order: string;
   hasChildren: boolean;
   isGroup: boolean;
@@ -34,7 +35,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   day: '2-digit',
 });
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string | null) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';

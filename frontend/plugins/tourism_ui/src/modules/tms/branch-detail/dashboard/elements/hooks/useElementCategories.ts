@@ -1,15 +1,13 @@
 import { useQuery } from '@apollo/client';
 import { useMemo } from 'react';
 import { GET_ELEMENT_CATEGORIES } from '../graphql/categoryQueries';
-import { IElementCategory } from '../types/elementCategory';
+import { compactList } from '~/utils/cursorList';
 
 export const useElementCategories = () => {
-  const { data, loading } = useQuery<{
-    bmsElementCategories: IElementCategory[];
-  }>(GET_ELEMENT_CATEGORIES);
+  const { data, loading } = useQuery(GET_ELEMENT_CATEGORIES);
 
   const categories = useMemo(
-    () => data?.bmsElementCategories || [],
+    () => compactList(data?.bmsElementCategories),
     [data?.bmsElementCategories],
   );
 

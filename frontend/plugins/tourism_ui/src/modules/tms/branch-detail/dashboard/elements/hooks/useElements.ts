@@ -1,50 +1,34 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
 import { ELEMENTS_CURSOR_SESSION_KEY } from '@/tms/branch-detail/dashboard/elements/constants/elementCursorSessionKey';
-import { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { elementsTotalCountAtom } from '../states/elementsCounts';
 import { useSetAtom } from 'jotai';
+import type {
+  BmsElementsQuery,
+  BmsElementsQueryVariables,
+} from '~/gql/graphql';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '~/utils/cursorList';
 
 const ELEMENTS_PER_PAGE = 30;
-interface ElementsQueryVariables {
-  branchId?: string;
-  categories?: string[];
-  name?: string;
-  quick?: boolean;
-  limit?: number;
-  cursor?: string;
-  direction?: EnumCursorDirection;
-  orderBy?: Record<string, number>;
-  cursorMode?: string;
-  sortMode?: string;
-  language?: string;
-}
 
 export const useElements = (
-  options?: QueryHookOptions<
-    {
-      bmsElements: {
-        list: IElement[];
-        totalCount: number;
-        pageInfo: IRecordTableCursorPageInfo;
-      };
-    },
-    ElementsQueryVariables
-  >,
+  options?: QueryHookOptions<BmsElementsQuery, BmsElementsQueryVariables>,
 ) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: ELEMENTS_CURSOR_SESSION_KEY,
   });
 
-  const variables: ElementsQueryVariables = {
+  const variables: BmsElementsQueryVariables = {
     orderBy: { createdAt: -1 },
     quick: false,
     ...(options?.variables || {}),
@@ -59,11 +43,10 @@ export const useElements = (
     fetchPolicy: 'cache-and-network',
   });
 
-  const {
-    list: elements = [],
-    totalCount = 0,
-    pageInfo = {},
-  } = data?.bmsElements || {};
+  const list = data?.bmsElements?.list;
+  const elements = useMemo(() => compactList(list), [list]);
+  const totalCount = data?.bmsElements?.totalCount ?? 0;
+  const pageInfo = toCursorPageInfo(data?.bmsElements?.pageInfo);
 
   const setElementsTotalCount = useSetAtom(elementsTotalCountAtom);
 
@@ -88,15 +71,16 @@ export const useElements = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.bmsElements || !prev.bmsElements) return prev;
 
-        return Object.assign({}, prev, {
-          bmsElements: mergeCursorData({
+        return {
+          ...prev,
+          bmsElements: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.bmsElements,
-            prevResult: prev.bmsElements,
-          }),
-        });
+            prev.bmsElements,
+            fetchMoreResult.bmsElements,
+          ),
+        };
       },
     });
   };

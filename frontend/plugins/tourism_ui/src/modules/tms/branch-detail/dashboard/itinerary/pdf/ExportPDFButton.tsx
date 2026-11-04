@@ -32,9 +32,8 @@ import {
   type ItineraryPdfTemplate,
 } from './types';
 import { GET_ELEMENTS } from '@/tms/branch-detail/dashboard/elements/graphql/queries';
-import type { IElement } from '@/tms/branch-detail/dashboard/elements/types/element';
 import { GET_AMENITIES } from '@/tms/branch-detail/dashboard/amenities/graphql/queries';
-import type { IAmenity } from '@/tms/branch-detail/dashboard/amenities/types/amenity';
+import { compactList } from '~/utils/cursorList';
 import './fonts';
 
 const DEFAULT_PDF_CONFIG: ItineraryPdfRenderConfig = {
@@ -112,24 +111,22 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
   const shouldWaitForBranch = Boolean(
     branchId && branchLoading && !branchDetail,
   );
-  const { data: elementsData, loading: elementsLoading } = useQuery<{
-    bmsElements: {
-      list: IElement[];
-      totalCount: number;
-    };
-  }>(GET_ELEMENTS, {
-    variables: {
-      branchId,
-      language,
-      quick: false,
-      limit: 100,
-      orderBy: { createdAt: -1 },
+  const { data: elementsData, loading: elementsLoading } = useQuery(
+    GET_ELEMENTS,
+    {
+      variables: {
+        branchId,
+        language,
+        quick: false,
+        limit: 100,
+        orderBy: { createdAt: -1 },
+      },
+      skip: !branchId || !previewOpen || !pdfConfig.showElements,
+      fetchPolicy: 'cache-and-network',
     },
-    skip: !branchId || !previewOpen || !pdfConfig.showElements,
-    fetchPolicy: 'cache-and-network',
-  });
+  );
   const elements = useMemo(
-    () => elementsData?.bmsElements?.list ?? [],
+    () => compactList(elementsData?.bmsElements?.list),
     [elementsData?.bmsElements?.list],
   );
   const pdfElements = useMemo(
@@ -145,24 +142,22 @@ export const ExportPDFButton: React.FC<ExportPDFButtonProps> = ({
       })),
     [elements],
   );
-  const { data: amenitiesData, loading: amenitiesLoading } = useQuery<{
-    bmsElements: {
-      list: IAmenity[];
-      totalCount: number;
-    };
-  }>(GET_AMENITIES, {
-    variables: {
-      branchId,
-      language,
-      quick: true,
-      limit: 100,
-      orderBy: { createdAt: -1 },
+  const { data: amenitiesData, loading: amenitiesLoading } = useQuery(
+    GET_AMENITIES,
+    {
+      variables: {
+        branchId,
+        language,
+        quick: true,
+        limit: 100,
+        orderBy: { createdAt: -1 },
+      },
+      skip: !branchId || !previewOpen || !pdfConfig.showAmenities,
+      fetchPolicy: 'cache-and-network',
     },
-    skip: !branchId || !previewOpen || !pdfConfig.showAmenities,
-    fetchPolicy: 'cache-and-network',
-  });
+  );
   const amenities = useMemo(
-    () => amenitiesData?.bmsElements?.list ?? [],
+    () => compactList(amenitiesData?.bmsElements?.list),
     [amenitiesData?.bmsElements?.list],
   );
   const pdfAmenities = useMemo(

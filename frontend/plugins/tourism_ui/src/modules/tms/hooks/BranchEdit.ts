@@ -1,39 +1,10 @@
 import { useState } from 'react';
 import { useMutation } from '@apollo/client';
 import { EDIT_BRANCH } from '@/tms/graphql/mutation';
-import { IBranch } from '../types/branch';
-
-export interface IUpdateBranchVariables {
-  id: string;
-  name?: string;
-  description?: string;
-  generalManagerIds?: string[];
-  managerIds?: string[];
-  paymentIds?: string[];
-  paymentTypes?: any[];
-  prepaid?: boolean;
-  prepaidPercent?: number | null;
-  departmentId?: string;
-  token?: string;
-  erxesAppToken?: string;
-  permissionConfig?: {
-    _id?: string;
-    type: string;
-    title: string;
-    config?: string;
-  }[];
-  uiOptions?: {
-    logo?: string;
-    favIcon?: string;
-    colors?: {
-      primary?: string;
-    };
-  };
-}
-
-interface UpdateBranchResponse {
-  bmsBranchEdit: IBranch;
-}
+import type {
+  BmsBranchEditMutation,
+  BmsBranchEditMutationVariables,
+} from '~/gql/graphql';
 
 interface UseBranchEditOptions {
   onSuccess?: () => void;
@@ -43,14 +14,11 @@ interface UseBranchEditOptions {
 export const useBranchEdit = (options?: UseBranchEditOptions) => {
   const [editingBranch, setEditingBranch] = useState<string | null>(null);
 
-  const [updateBranchMutation, { loading }] = useMutation<
-    UpdateBranchResponse,
-    IUpdateBranchVariables
-  >(EDIT_BRANCH);
+  const [updateBranchMutation, { loading }] = useMutation(EDIT_BRANCH);
 
   const editBranch = (mutationOptions: {
-    variables: IUpdateBranchVariables;
-    onCompleted?: (data: UpdateBranchResponse) => void;
+    variables: BmsBranchEditMutationVariables;
+    onCompleted?: (data: BmsBranchEditMutation) => void;
     onError?: (error: unknown) => void;
   }) => {
     return updateBranchMutation({
@@ -63,8 +31,8 @@ export const useBranchEdit = (options?: UseBranchEditOptions) => {
   };
 
   const handleUpdateBranch = async (
-    branchData: IUpdateBranchVariables,
-    refetch?: () => Promise<any>,
+    branchData: BmsBranchEditMutationVariables,
+    refetch?: () => Promise<unknown>,
   ) => {
     try {
       const result = await updateBranchMutation({

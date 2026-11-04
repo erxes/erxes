@@ -1,51 +1,35 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_ITINERARIES } from '../graphql/queries';
 import { ITINERARIES_CURSOR_SESSION_KEY } from '../constants/itineraryCursorSessionKey';
-import { IItinerary } from '../types/itinerary';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import { itineraryTotalCountAtom } from '../states/itineraryCounts';
+import type {
+  BmsItinerariesQuery,
+  BmsItinerariesQueryVariables,
+} from '~/gql/graphql';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '~/utils/cursorList';
 
 const ITINERARIES_PER_PAGE = 30;
 
-type ItinerariesQueryVariables = {
-  branchId?: string;
-  name?: string;
-  language?: string;
-  limit?: number;
-  cursor?: string;
-  direction?: EnumCursorDirection;
-  orderBy?: Record<string, number>;
-  cursorMode?: string;
-  sortMode?: string;
-  aggregationPipeline?: any[];
-};
-
 export const useItineraries = (
-  options?: QueryHookOptions<
-    {
-      bmsItineraries: {
-        list: IItinerary[];
-        totalCount: number;
-        pageInfo: IRecordTableCursorPageInfo;
-      };
-    },
-    ItinerariesQueryVariables
-  >,
+  options?: QueryHookOptions<BmsItinerariesQuery, BmsItinerariesQueryVariables>,
 ) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: ITINERARIES_CURSOR_SESSION_KEY,
   });
 
-  const variables: ItinerariesQueryVariables = {
+  const variables: BmsItinerariesQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
     cursor,
@@ -59,16 +43,18 @@ export const useItineraries = (
     fetchPolicy: 'cache-and-network',
   });
 
-  const {
-    list: itineraries,
-    totalCount,
-    pageInfo,
-  } = data?.bmsItineraries || {};
+  const list = data?.bmsItineraries?.list;
+  const itineraries = useMemo(
+    () => (list ? compactList(list) : undefined),
+    [list],
+  );
+  const totalCount = data?.bmsItineraries?.totalCount;
+  const pageInfo = toCursorPageInfo(data?.bmsItineraries?.pageInfo);
 
   const setItineraryTotalCount = useSetAtom(itineraryTotalCountAtom);
 
   useEffect(() => {
-    setItineraryTotalCount(totalCount);
+    setItineraryTotalCount(totalCount ?? null);
   }, [totalCount, setItineraryTotalCount]);
 
   const handleFetchMore = ({
@@ -88,15 +74,18 @@ export const useItineraries = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.bmsItineraries || !prev.bmsItineraries) {
+          return prev;
+        }
 
-        return Object.assign({}, prev, {
-          bmsItineraries: mergeCursorData({
+        return {
+          ...prev,
+          bmsItineraries: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.bmsItineraries,
-            prevResult: prev.bmsItineraries,
-          }),
-        });
+            prev.bmsItineraries,
+            fetchMoreResult.bmsItineraries,
+          ),
+        };
       },
     });
   };

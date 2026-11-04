@@ -2,8 +2,9 @@ import { useLazyQuery } from '@apollo/client';
 import { useConfirm, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useCreateElement } from '../hooks/useCreateElement';
-import { IElement } from '../types/element';
+import { IElement, IElementDetail } from '../types/element';
 import { GET_ELEMENT_DETAIL } from '../graphql/queries';
+import { compactList } from '~/utils/cursorList';
 
 interface ElementDuplicateProps {
   element: IElement;
@@ -23,24 +24,26 @@ export const ElementDuplicate = ({
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { createElement, loading } = useCreateElement();
-  const [fetchElementDetail, { loading: detailLoading }] = useLazyQuery<{
-    bmsElementDetail: IElement;
-  }>(GET_ELEMENT_DETAIL, {
-    fetchPolicy: 'network-only',
-  });
+  const [fetchElementDetail, { loading: detailLoading }] = useLazyQuery(
+    GET_ELEMENT_DETAIL,
+    {
+      fetchPolicy: 'network-only',
+    },
+  );
   const duplicateSuffix = ' (copy)';
 
   const handleDuplicate = () => {
-    const buildDuplicatePayload = (source: IElement) => {
+    const buildDuplicatePayload = (source: IElementDetail) => {
       const primaryLanguage = source.language;
-      const primaryTranslation = source.translations?.find(
+      const sourceTranslations = compactList(source.translations);
+      const primaryTranslation = sourceTranslations.find(
         (translation) => translation.language === primaryLanguage,
       );
       const primaryName = primaryTranslation?.name || source.name || '';
       const primaryNote = primaryTranslation?.note ?? source.note;
       const primaryCost = primaryTranslation?.cost ?? source.cost;
-      const translations = source.translations
-        ?.filter((translation) => translation.language !== primaryLanguage)
+      const translations = sourceTranslations
+        .filter((translation) => translation.language !== primaryLanguage)
         .map((translation) => ({
           language: translation.language,
           name: translation.name
@@ -66,7 +69,7 @@ export const ElementDuplicate = ({
         categories: source.categories,
         quick: source.quick,
         language: primaryLanguage,
-        translations: translations?.length ? translations : undefined,
+        translations: translations.length ? translations : undefined,
       };
     };
 

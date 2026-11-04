@@ -26,6 +26,12 @@ import { nanoid } from 'nanoid';
 import { useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import {
+  toPmsPaymentTypes,
+  toPmsPipelineConfig,
+  toPmsUiOptions,
+} from '@/pms/utils/branchOptions';
+import { compactList } from '~/utils/cursorList';
 
 const CreatePmsForm = ({
   onOpenChange,
@@ -249,6 +255,9 @@ const CreatePmsForm = ({
     (branchData: typeof branch): void => {
       if (!branchData) return;
 
+      const uiOptions = toPmsUiOptions(branchData.uiOptions);
+      const pipelineConfig = toPmsPipelineConfig(branchData.pipelineConfig);
+
       form.reset({
         name: branchData.name || '',
         description: branchData.description || '',
@@ -256,43 +265,47 @@ const CreatePmsForm = ({
         checkOutTime: branchData.checkouttime || '',
         checkInAmount: branchData.checkinamount || 0,
         checkOutAmount: branchData.checkoutamount || 0,
-        discount: mapPaymentTypeItems(branchData.discount),
+        discount: mapPaymentTypeItems(toPmsPaymentTypes(branchData.discount)),
         websiteReservationLock: branchData.websiteReservationLock ?? false,
         time: branchData.time || '',
-        paymentIds: branchData.paymentIds || [],
+        paymentIds: compactList(branchData.paymentIds),
         paymentTypes: branchData.paymentTypes || [],
-        otherPayments: mapPaymentTypeItems(branchData.paymentTypes),
+        otherPayments: mapPaymentTypeItems(
+          toPmsPaymentTypes(branchData.paymentTypes),
+        ),
         erxesAppToken: branchData.erxesAppToken || '',
-        user1Ids: branchData.user1Ids || [],
-        user2Ids: branchData.user2Ids || [],
-        user3Ids: branchData.user3Ids || [],
-        user4Ids: branchData.user4Ids || [],
-        user5Ids: branchData.user5Ids || [],
+        user1Ids: compactList(branchData.user1Ids),
+        user2Ids: compactList(branchData.user2Ids),
+        user3Ids: compactList(branchData.user3Ids),
+        user4Ids: compactList(branchData.user4Ids),
+        user5Ids: compactList(branchData.user5Ids),
         permissionConfig: branchData.permissionConfig || {},
         uiOptions: branchData.uiOptions || {},
         pipelineConfig: branchData.pipelineConfig || {},
-        extraProductCategories: branchData.extraProductCategories || [],
-        roomCategories: branchData.roomCategories || [],
-        logo: branchData.uiOptions?.logo || '',
-        primaryColor: branchData.uiOptions?.colors?.primary || '#FFFFFF',
-        secondaryColor: branchData.uiOptions?.colors?.secondary || '#6569DF',
-        thirdColor: branchData.uiOptions?.colors?.third || '#3CCC38',
-        website: branchData.uiOptions?.website || '',
-        boardId: branchData.pipelineConfig?.boardId || '',
-        pipelineId: branchData.pipelineConfig?.pipelineId || '',
-        stageId: branchData.pipelineConfig?.stageId || '',
-        roomsCategoryIds: branchData.roomCategories || [],
-        extrasCategoryIds: branchData.extraProductCategories || [],
-        excludeExtraProductCategoryIds:
-          branchData.excludeExtraProductCategoryIds || [],
-        excludeExtraProductIds: branchData.excludeExtraProductIds || [],
-        excludeRoomCategoryIds: branchData.excludeRoomCategoryIds || [],
-        excludeRoomIds: branchData.excludeRoomIds || [],
+        extraProductCategories: compactList(branchData.extraProductCategories),
+        roomCategories: compactList(branchData.roomCategories),
+        logo: uiOptions.logo || '',
+        primaryColor: uiOptions.colors?.primary || '#FFFFFF',
+        secondaryColor: uiOptions.colors?.secondary || '#6569DF',
+        thirdColor: uiOptions.colors?.third || '#3CCC38',
+        website: uiOptions.website || '',
+        boardId: pipelineConfig.boardId || '',
+        pipelineId: pipelineConfig.pipelineId || '',
+        stageId: pipelineConfig.stageId || '',
+        roomsCategoryIds: compactList(branchData.roomCategories),
+        extrasCategoryIds: compactList(branchData.extraProductCategories),
+        excludeExtraProductCategoryIds: compactList(
+          branchData.excludeExtraProductCategoryIds,
+        ),
+        excludeExtraProductIds: compactList(branchData.excludeExtraProductIds),
+        excludeRoomCategoryIds: compactList(branchData.excludeRoomCategoryIds),
+        excludeRoomIds: compactList(branchData.excludeRoomIds),
         hasAppointment: branchData.hasAppointment ?? false,
-        appointmentCategoryIds: branchData.appointmentCategories || [],
-        excludeAppointmentCategoryIds:
-          branchData.excludeAppointmentCategoryIds || [],
-        excludeAppointmentIds: branchData.excludeAppointmentIds || [],
+        appointmentCategoryIds: compactList(branchData.appointmentCategories),
+        excludeAppointmentCategoryIds: compactList(
+          branchData.excludeAppointmentCategoryIds,
+        ),
+        excludeAppointmentIds: compactList(branchData.excludeAppointmentIds),
       });
     },
     [form],

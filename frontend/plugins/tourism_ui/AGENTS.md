@@ -39,6 +39,8 @@
 | Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                                                                  |
 | Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                                                                 |
 | Codegen           | `frontend/plugins/tourism_ui/codegen.ts`                  | Validates documents against the composed gateway schema; generates the gitignored `src/gql` types.      |
+| Cursor lists      | `frontend/plugins/tourism_ui/src/utils/cursorList.ts`     | Adapts nullable list items and `PageInfo` booleans for `erxes-ui` cursor helpers.                       |
+| Attachments       | `frontend/plugins/tourism_ui/src/utils/attachment.ts`     | Builds `AttachmentInput` and form values from stored attachments.                                       |
 
 ## Contracts
 
@@ -63,7 +65,9 @@
 
 ## Data and State
 
-- Apollo Client owns server state where tourism feature hooks use GraphQL.
+- Apollo Client owns server state. Every hook infers its data and variables
+  from a `gql()` document, and each module's response types are derived from
+  the generated query types (`types/*.ts`, or the hook that owns the query).
 - React Hook Form, local React state, hooks, and utilities remain scoped to tourism feature modules.
 - Static assets are owned under `src/assets`.
 
@@ -85,8 +89,26 @@
   the document, or in the backend that owns the field.
 - Codegen drops `${...}` interpolation text, so interpolated field strings are
   invisible to it. Share fields through a local `gql` fragment spread by name.
-- Operation names must be unique; codegen rejects a name used by two documents
-  with different bodies.
+- Every document is `gql()` from `~/gql` and Apollo hooks take no type
+  arguments; `eslint.config.js` enforces both with operation's rules.
+- Operation names are unique repo-wide and prefixed with the plugin or module
+  (`PmsPayments`, `BmsTours`); codegen rejects a name used by two documents
+  with different bodies inside the plugin.
+- Generated lists hold nullable items. Compact them with `compactList` inside
+  `useMemo`: a new array on every render re-runs effects keyed on it, so branch
+  language props come from `useBranchLanguages`, not an inline conversion.
+- Cursor lists merge and expose `pageInfo` through `src/utils/cursorList.ts`,
+  copied from operation while core's `PageInfo` keeps nullable booleans.
+- Mutation inputs never spread query objects: Apollo adds `__typename`, which
+  input types reject. Pick fields explicitly (pricing options, itinerary day
+  elements) and build attachments with `toAttachmentInput`, which sends
+  `name: ''` when the stored attachment has none.
+- JSON scalars are read through helpers. `customFieldsData`, custom field
+  group `fields` and PMS `paymentTypes`/`discount` are written back whole, so
+  their readers keep every entry behind a documented cast. TMS and PMS
+  `uiOptions`, PMS `pipelineConfig` and itinerary `personCost` go through
+  typed guards (`tms/utils/branchUiOptions`, `pms/utils/branchOptions`,
+  `itinerary/utils/personCost`).
 - Variable types match the SDL argument types. Codegen rejects a nullable
   variable passed to a non-null argument, such as `$ids: [String!]!` on the
   element, amenity, itinerary and tour removes and `$id: String!` on
@@ -105,6 +127,8 @@
 - `pnpm nx run tourism_ui:codegen --skip-nx-cache`
 - `pnpm nx build tourism_ui`
 - `npx tsc -p frontend/plugins/tourism_ui/tsconfig.app.json --noEmit | rg tourism_ui`
+  prints nothing.
+- The skill's untyped-document `rg` over `frontend/plugins/tourism_ui/src`
   prints nothing.
 - Smoke scenario: open `tourism/tms`, a TMS branch at
   `tourism/tms/branches/:branchId`, and `tourism/pms` through the remote.

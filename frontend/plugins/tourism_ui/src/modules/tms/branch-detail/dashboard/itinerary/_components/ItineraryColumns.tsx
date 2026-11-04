@@ -17,7 +17,7 @@ import { IItinerary } from '../types/itinerary';
 import { itineraryMoreColumn } from './ItineraryMoreCell';
 
 interface ItineraryColumnsProps {
-  onEditClick?: (itineraryId: string, branchId?: string) => void;
+  onEditClick?: (itineraryId: string, branchId?: string | null) => void;
   branchId?: string;
   branchLanguages?: string[];
   mainLanguage?: string;

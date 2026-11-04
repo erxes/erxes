@@ -9,6 +9,7 @@ import type {
   TourPdfRenderConfig,
 } from './types';
 import { COLORS, sharedStyles, styles } from './styles';
+import { compactList } from '~/utils/cursorList';
 
 interface TourDetailsPageProps {
   tour: ITourPDFData;
@@ -45,7 +46,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   day: '2-digit',
 });
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string | null) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
@@ -66,7 +67,7 @@ const formatCurrency = (symbol: string, value?: number) => {
 
 const formatPaxRange = (
   minPersons?: number,
-  maxPersons?: number,
+  maxPersons?: number | null,
   labels?: TourPdfRenderConfig['labels'],
 ) => {
   if (!minPersons && !maxPersons) return '';
@@ -85,7 +86,7 @@ const InfoSection = ({
   themeColor,
 }: {
   title: string;
-  value?: string;
+  value?: string | null;
   themeColor: string;
 }) => {
   const parsedContent = useMemo(
@@ -173,7 +174,7 @@ export const TourDetailsPage: React.FC<TourDetailsPageProps> = React.memo(
       },
     ];
 
-    const pricingOptions = tour.pricingOptions || [];
+    const pricingOptions = compactList(tour.pricingOptions);
 
     return (
       <Page size="A4" style={styles.page} wrap>

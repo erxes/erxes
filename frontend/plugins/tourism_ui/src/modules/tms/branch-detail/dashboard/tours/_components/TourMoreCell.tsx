@@ -10,11 +10,12 @@ import {
   useToast,
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
+import type { Date_Type } from '~/gql/graphql';
 import { useRemoveTours } from '../hooks/useRemoveTours';
 
 interface TourMoreCellProps extends CellContext<ITour, unknown> {
   onEdit?: (tourId: string) => void;
-  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void;
+  onDuplicate?: (tourId: string, dateType?: Date_Type | null) => void;
 }
 
 export const TourMoreColumn = ({
@@ -90,7 +91,7 @@ export const TourMoreColumn = ({
 
 export const tourMoreColumn = (
   onEdit?: (tourId: string) => void,
-  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
+  onDuplicate?: (tourId: string, dateType?: Date_Type | null) => void,
 ): ColumnDef<ITour> => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,

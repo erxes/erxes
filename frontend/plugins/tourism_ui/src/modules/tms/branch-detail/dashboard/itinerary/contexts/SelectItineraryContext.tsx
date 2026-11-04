@@ -1,10 +1,10 @@
-import { IItinerary } from '../types/itinerary';
+import { IItineraryOption } from '../types/itinerary';
 import { createContext } from 'react';
 
 export interface ISelectItineraryContext {
   itineraryId: string | undefined;
-  onSelect: (itinerary: IItinerary) => void;
-  selectedItinerary: IItinerary | null;
+  onSelect: (itinerary: IItineraryOption) => void;
+  selectedItinerary: IItineraryOption | null;
   branchId?: string;
   language?: string;
 }

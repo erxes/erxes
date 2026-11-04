@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const pmsBranchAdd = gql`
+export const pmsBranchAdd = gql(`
   mutation pmsBranchAdd(
     $name: String
     $description: String
@@ -106,9 +106,9 @@ export const pmsBranchAdd = gql`
       checkoutamount
     }
   }
-`;
+`);
 
-export const PmsBranchEdit = gql`
+export const PmsBranchEdit = gql(`
   mutation pmsBranchEdit(
     $_id: String!
     $name: String
@@ -218,12 +218,12 @@ export const PmsBranchEdit = gql`
       checkoutamount
     }
   }
-`;
+`);
 
-export const PmsBranchRemove = gql`
+export const PmsBranchRemove = gql(`
   mutation PmsBranchRemove($id: String!) {
     pmsBranchRemove(_id: $id)
   }
-`;
+`);
 
 export const pmsMutations = { PmsBranchRemove, pmsBranchAdd, PmsBranchEdit };

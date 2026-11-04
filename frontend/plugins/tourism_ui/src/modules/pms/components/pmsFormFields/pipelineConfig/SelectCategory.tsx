@@ -333,7 +333,7 @@ const SelectCategoryBadge = ({
         <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
           {code}
         </span>
-        <TextOverflowTooltip value={name} className="flex-auto" />
+        <TextOverflowTooltip value={name ?? ''} className="flex-auto" />
       </div>
       <Combobox.Check checked={selected} />
     </>

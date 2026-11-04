@@ -1,51 +1,35 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
-  IRecordTableCursorPageInfo,
   isUndefinedOrNull,
-  mergeCursorData,
   useRecordTableCursor,
   validateFetchMore,
 } from 'erxes-ui';
 import { GET_AMENITIES } from '../graphql/queries';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
-import { IAmenity } from '../types/amenity';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSetAtom } from 'jotai';
 import { amenityTotalCountAtom } from '../states/amenityCounts';
+import type {
+  BmsAmenitiesQuery,
+  BmsAmenitiesQueryVariables,
+} from '~/gql/graphql';
+import {
+  compactList,
+  mergeCursorList,
+  toCursorPageInfo,
+} from '~/utils/cursorList';
 
 const AMENITIES_PER_PAGE = 30;
 
-type AmenitiesQueryVariables = {
-  branchId?: string;
-  name?: string;
-  quick?: boolean;
-  limit?: number;
-  cursor?: string;
-  direction?: EnumCursorDirection;
-  orderBy?: Record<string, number>;
-  cursorMode?: string;
-  sortMode?: string;
-  language?: string;
-};
-
 export const useAmenities = (
-  options?: QueryHookOptions<
-    {
-      bmsElements: {
-        list: IAmenity[];
-        totalCount: number;
-        pageInfo: IRecordTableCursorPageInfo;
-      };
-    },
-    AmenitiesQueryVariables
-  >,
+  options?: QueryHookOptions<BmsAmenitiesQuery, BmsAmenitiesQueryVariables>,
 ) => {
   const { cursor } = useRecordTableCursor({
     sessionKey: AMENITIES_CURSOR_SESSION_KEY,
   });
 
-  const variables: AmenitiesQueryVariables = {
+  const variables: BmsAmenitiesQueryVariables = {
     orderBy: { createdAt: -1 },
     ...(options?.variables || {}),
     cursor,
@@ -59,12 +43,18 @@ export const useAmenities = (
     fetchPolicy: 'cache-and-network',
   });
 
-  const { list: amenities, totalCount, pageInfo } = data?.bmsElements || {};
+  const list = data?.bmsElements?.list;
+  const amenities = useMemo(
+    () => (list ? compactList(list) : undefined),
+    [list],
+  );
+  const pageInfo = toCursorPageInfo(data?.bmsElements?.pageInfo);
+  const totalCount = data?.bmsElements?.totalCount;
 
   const setAmenityTotalCount = useSetAtom(amenityTotalCountAtom);
 
   useEffect(() => {
-    setAmenityTotalCount(totalCount);
+    setAmenityTotalCount(totalCount ?? null);
   }, [totalCount, setAmenityTotalCount]);
 
   const handleFetchMore = ({
@@ -84,15 +74,16 @@ export const useAmenities = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (!fetchMoreResult.bmsElements || !prev.bmsElements) return prev;
 
-        return Object.assign({}, prev, {
-          bmsElements: mergeCursorData({
+        return {
+          ...prev,
+          bmsElements: mergeCursorList(
             direction,
-            fetchMoreResult: fetchMoreResult.bmsElements,
-            prevResult: prev.bmsElements,
-          }),
-        });
+            prev.bmsElements,
+            fetchMoreResult.bmsElements,
+          ),
+        };
       },
     });
   };

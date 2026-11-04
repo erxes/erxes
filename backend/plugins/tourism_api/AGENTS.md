@@ -95,6 +95,8 @@
   `_id: String!` on `bmsBranchEdit` and `pmsBranchEdit`. `cp*` fields and
   fields `tourism_ui` does not call keep nullable arguments, so outside
   clients' variables still validate.
+- `PmsBranch._id` is `String!`. `cpPmsBranch._id` stays nullable because it
+  is the client portal contract.
 - Request text that reaches `$regex` or `new RegExp()` goes through
   `escapeRegExp` from `erxes-api-shared/utils`. `eslint.config.js` enforces
   it, copied from `operation_api`.

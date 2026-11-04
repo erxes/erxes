@@ -1,23 +1,9 @@
-export interface ITour {
-  _id: string;
-  name?: string;
-  refNumber?: string;
-  groupCode?: string;
-  dateType?: 'fixed' | 'flexible';
-  customTourTypeId?: string;
-  startDate?: string;
-  endDate?: string;
-  availableFrom?: string;
-  availableTo?: string;
-  status?: string;
-  date_status?: string;
-  cost?: number;
-  createdAt?: string;
-  categoryIds?: string[];
-}
+import type { BmToursGroupQuery, BmsToursQuery } from '~/gql/graphql';
 
-export interface ITourGroup {
-  _id: string;
-  name?: string;
-  items: ITour[];
-}
+export type ITour = NonNullable<
+  NonNullable<NonNullable<BmsToursQuery['bmsTours']>['list']>[number]
+>;
+
+export type ITourGroup = NonNullable<
+  NonNullable<NonNullable<BmToursGroupQuery['bmToursGroup']>['list']>[number]
+>;

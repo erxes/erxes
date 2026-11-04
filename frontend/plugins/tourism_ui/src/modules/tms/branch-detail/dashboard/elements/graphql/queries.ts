@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_ELEMENTS = gql`
+export const GET_ELEMENTS = gql(`
   query BmsElements(
     $branchId: String
     $categories: [String]
@@ -57,9 +57,9 @@ export const GET_ELEMENTS = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const GET_ELEMENT_DETAIL = gql`
+export const GET_ELEMENT_DETAIL = gql(`
   query BmsElementDetail($id: String!, $language: String) {
     bmsElementDetail(_id: $id, language: $language) {
       _id
@@ -82,4 +82,4 @@ export const GET_ELEMENT_DETAIL = gql`
       }
     }
   }
-`;
+`);

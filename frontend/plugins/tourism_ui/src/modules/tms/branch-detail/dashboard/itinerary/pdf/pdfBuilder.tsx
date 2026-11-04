@@ -3,6 +3,8 @@ import { pdf } from '@react-pdf/renderer';
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 import { ItineraryPDF } from './ItineraryPDF';
 import { convertImagesToBase64 } from './utils';
+import { compactList } from '~/utils/cursorList';
+import { toBranchUiOptions } from '@/tms/utils/branchUiOptions';
 import type {
   ItineraryPdfAmenityData,
   ItineraryPdfElementData,
@@ -12,10 +14,8 @@ import type {
 
 interface BranchDetailLike {
   _id?: string;
-  name?: string;
-  uiOptions?: {
-    logo?: string;
-  };
+  name?: string | null;
+  uiOptions?: unknown;
 }
 
 export interface BuildItineraryPdfResult {
@@ -49,10 +49,10 @@ const createImageLoadStats = (): ImageLoadStats => ({
 });
 
 const resolveBranchLogoKey = (branchDetail?: BranchDetailLike | null): string =>
-  branchDetail?.uiOptions?.logo || '';
+  toBranchUiOptions(branchDetail?.uiOptions).logo || '';
 
 const convertTrackedSingleImage = async (
-  imagePath?: string,
+  imagePath?: string | null,
   stats?: ImageLoadStats,
 ): Promise<string> => {
   if (!imagePath) return '';
@@ -137,8 +137,8 @@ export const buildItineraryPdfBlob = async ({
   );
 
   const groupDaysWithImages = await Promise.all(
-    (itinerary.groupDays || []).map(async (day) => {
-      const images = day.images || [];
+    compactList(itinerary.groupDays).map(async (day) => {
+      const images = compactList(day.images);
       const firstImagePath = images[0];
       const base64Image = await convertTrackedSingleImage(
         firstImagePath,
@@ -148,15 +148,13 @@ export const buildItineraryPdfBlob = async ({
       return {
         ...day,
         base64Images: base64Image ? [base64Image] : [],
-        resolvedElements: (day.elements || [])
-          .slice()
+        resolvedElements: compactList(day.elements)
           .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
           .map((item) => item.elementId && elementMap.get(item.elementId))
           .filter((element): element is ItineraryPdfElementData =>
             Boolean(element),
           ),
-        resolvedAmenities: (day.elementsQuick || [])
-          .slice()
+        resolvedAmenities: compactList(day.elementsQuick)
           .sort((a, b) => (a.orderOfDay || 0) - (b.orderOfDay || 0))
           .map((item) => item.elementId && amenityMap.get(item.elementId))
           .filter((amenity): amenity is ItineraryPdfAmenityData =>

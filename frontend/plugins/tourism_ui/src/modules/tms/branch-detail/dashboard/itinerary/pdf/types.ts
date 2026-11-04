@@ -1,22 +1,22 @@
 import type { IItineraryDetail } from '../hooks/useItineraryDetail';
 
-type GroupDay = NonNullable<IItineraryDetail['groupDays']>[number];
+type GroupDay = NonNullable<NonNullable<IItineraryDetail['groupDays']>[number]>;
 export type ItineraryPdfTemplate = 'classic' | 'editorial';
 
 export interface ItineraryPdfElementData {
   _id: string;
-  name?: string;
-  note?: string;
-  content?: string;
-  startTime?: string;
-  duration?: number;
-  cost?: number;
+  name?: string | null;
+  note?: string | null;
+  content?: string | null;
+  startTime?: string | null;
+  duration?: number | null;
+  cost?: number | null;
 }
 
 export interface ItineraryPdfAmenityData {
   _id: string;
-  name?: string;
-  icon?: string;
+  name?: string | null;
+  icon?: string | null;
 }
 
 export interface ItineraryPdfLabels {
@@ -71,7 +71,7 @@ export interface IItineraryPDFData extends Omit<IItineraryDetail, 'groupDays'> {
 }
 
 export interface IBranchPDFData {
-  name?: string;
+  name?: string | null;
   mainLogoBase64?: string;
 }
 

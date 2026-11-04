@@ -243,9 +243,7 @@ export const ItineraryCreateSheet = ({
 
     const totalCost = values.groupDays.reduce((sum, day) => {
       const dayCost = (day.elements || []).reduce((daySum, elementId) => {
-        const element = elementsData.find(
-          (el: { _id: string; cost?: number }) => el._id === elementId,
-        );
+        const element = elementsData.find((el) => el._id === elementId);
         return daySum + (element?.cost || 0);
       }, 0);
 

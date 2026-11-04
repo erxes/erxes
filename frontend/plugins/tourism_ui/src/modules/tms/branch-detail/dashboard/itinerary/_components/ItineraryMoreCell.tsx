@@ -15,7 +15,7 @@ import { useRemoveItineraries } from '../hooks/useRemoveItineraries';
 import { ItineraryDuplicateSheet } from './ItineraryDuplicateSheet';
 
 interface ItineraryMoreCellProps extends CellContext<IItinerary, unknown> {
-  onEditClick?: (itineraryId: string, branchId?: string) => void;
+  onEditClick?: (itineraryId: string, branchId?: string | null) => void;
   branchId?: string;
   branchLanguages?: string[];
   mainLanguage?: string;
@@ -104,7 +104,7 @@ export const ItineraryMoreColumn = ({
 };
 
 export const itineraryMoreColumn = (
-  onEditClick?: (itineraryId: string, branchId?: string) => void,
+  onEditClick?: (itineraryId: string, branchId?: string | null) => void,
   branchId?: string,
   branchLanguages?: string[],
   mainLanguage?: string,

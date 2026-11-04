@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_PARENT_CATEGORIES = gql`
+export const GET_PARENT_CATEGORIES = gql(`
   query BmsTourParentCategories($branchId: String, $language: String) {
     bmsTourCategories(branchId: $branchId, language: $language) {
       _id
@@ -15,9 +15,9 @@ export const GET_PARENT_CATEGORIES = gql`
       }
     }
   }
-`;
+`);
 
-export const GET_CATEGORIES = gql`
+export const GET_CATEGORIES = gql(`
   query BmsTourCategories(
     $parentId: String
     $name: String
@@ -54,4 +54,4 @@ export const GET_CATEGORIES = gql`
       }
     }
   }
-`;
+`);

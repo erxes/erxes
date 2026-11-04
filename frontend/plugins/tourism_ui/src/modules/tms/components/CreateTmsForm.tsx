@@ -12,6 +12,8 @@ import { useTranslation } from 'react-i18next';
 import { useAtom, useSetAtom } from 'jotai';
 import { tmsFormAtom } from '@/tms/atoms/formAtoms';
 import { currentStepAtom } from '@/tms/states/tmsInformationFieldsAtoms';
+import { toBranchUiOptions } from '@/tms/utils/branchUiOptions';
+import { compactList } from '~/utils/cursorList';
 
 interface PermissionConfig {
   type: string;
@@ -108,9 +110,9 @@ const CreateTmsForm = ({
 
       const updatedFormData = {
         name: branchName || '',
-        color: uiOptions?.colors?.primary || '#4F46E5',
-        logo: uiOptions?.logo || '',
-        favIcon: uiOptions?.favIcon || '',
+        color: toBranchUiOptions(uiOptions).colors?.primary || '#4F46E5',
+        logo: toBranchUiOptions(uiOptions).logo || '',
+        favIcon: toBranchUiOptions(uiOptions).favIcon || '',
         language: Array.isArray(languages)
           ? languages.filter((code): code is string => typeof code === 'string')
           : [],
@@ -118,8 +120,8 @@ const CreateTmsForm = ({
           typeof mainLanguageFromDetail === 'string'
             ? mainLanguageFromDetail
             : '',
-        generalManager: generalManagerIds || [],
-        managers: managerIds || [],
+        generalManager: compactList(generalManagerIds),
+        managers: compactList(managerIds),
         payment: Array.isArray(paymentIds)
           ? paymentIds.filter((id): id is string => typeof id === 'string')
           : [],

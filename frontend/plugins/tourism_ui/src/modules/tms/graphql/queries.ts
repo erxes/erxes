@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_BRANCH_LIST = gql`
+export const GET_BRANCH_LIST = gql(`
   query BmsBranchList(
     $limit: Int
     $cursor: String
@@ -45,9 +45,9 @@ export const GET_BRANCH_LIST = gql`
       }
     }
   }
-`;
+`);
 
-export const BRANCH_LIST_DETAIL = gql`
+export const BRANCH_LIST_DETAIL = gql(`
   query BmsBranchDetail($id: String!) {
     bmsBranchDetail(_id: $id) {
       _id
@@ -67,4 +67,4 @@ export const BRANCH_LIST_DETAIL = gql`
       languages
     }
   }
-`;
+`);

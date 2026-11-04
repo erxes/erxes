@@ -15,6 +15,7 @@ import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary';
 import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
 import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
 import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
+import { useBranchLanguages } from '@/tms/hooks/useBranchLanguages';
 
 type ActiveTab =
   | 'tour'
@@ -63,9 +64,11 @@ export const BranchDetailIndexPage = () => {
     [availableLanguages],
   );
 
+  const branchLanguageProps = useBranchLanguages(selectedBranch);
+
   const { activeLang, setActiveLang } = useActiveLang({
     branchId,
-    mainLanguage: selectedBranch?.language,
+    mainLanguage: branchLanguageProps.mainLanguage,
     availableLanguages: availableLangCodes,
   });
   const favoriteBreadcrumb = createFavoriteBreadcrumb(
@@ -81,48 +84,26 @@ export const BranchDetailIndexPage = () => {
     if (!branchId) return null;
 
     if (activeTab === 'tour') {
-      return (
-        <TourCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
-      );
+      return <TourCreateSheet branchId={branchId} {...branchLanguageProps} />;
     }
     if (activeTab === 'itinerary') {
       return (
-        <ItineraryCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
+        <ItineraryCreateSheet branchId={branchId} {...branchLanguageProps} />
       );
     }
     if (activeTab === 'elements') {
       return (
-        <ElementCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
+        <ElementCreateSheet branchId={branchId} {...branchLanguageProps} />
       );
     }
     if (activeTab === 'amenities') {
       return (
-        <AmenityCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
+        <AmenityCreateSheet branchId={branchId} {...branchLanguageProps} />
       );
     }
     if (activeTab === 'category') {
       return (
-        <CategoryCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
+        <CategoryCreateSheet branchId={branchId} {...branchLanguageProps} />
       );
     }
 

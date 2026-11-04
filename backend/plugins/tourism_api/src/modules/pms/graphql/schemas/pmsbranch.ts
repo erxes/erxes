@@ -36,7 +36,7 @@ const commonFields = `
 
 export const types = `
   type PmsBranch {
-    _id: String
+    _id: String!
     createdAt: Date
     userId: String
     user: User

@@ -11,21 +11,8 @@ import {
 } from 'erxes-ui';
 
 import { useParentCategories } from '../hooks/useParentCategories';
-
-interface IAttachment {
-  url?: string;
-  name?: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
-
-type ParentCategory = {
-  _id: string;
-  name?: string;
-  parentId?: string;
-  attachment?: IAttachment;
-};
+import { IParentCategory } from '../types/category';
+import { compactList } from '~/utils/cursorList';
 
 export const SelectParentCategory = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
@@ -35,30 +22,24 @@ export const SelectParentCategory = React.forwardRef<
     open?: boolean;
     setOpen?: (open: boolean) => void;
     id?: string;
-    branchId?: string;
+    branchId?: string | null;
     language?: string;
   }
 >(({ onSelect, selected, id, branchId, language, ...props }, ref) => {
-  const [selectedCategory, setSelectedCategory] = useState<ParentCategory>();
+  const [selectedCategory, setSelectedCategory] = useState<IParentCategory>();
   const { categories, loading } = useParentCategories({
     variables: { branchId, language },
-    onCompleted: ({
-      bmsTourCategories,
-    }: {
-      bmsTourCategories: ParentCategory[];
-    }) => {
+    onCompleted: ({ bmsTourCategories }) => {
       setSelectedCategory(
-        bmsTourCategories?.find(
-          (category: ParentCategory) => category._id === selected,
+        compactList(bmsTourCategories).find(
+          (category) => category._id === selected,
         ),
       );
     },
   });
 
   const handleSelect = (categoryId: string) => {
-    const category = categories?.find(
-      (category: ParentCategory) => category._id === categoryId,
-    );
+    const category = categories.find((category) => category._id === categoryId);
     setSelectedCategory(category);
     onSelect(categoryId);
   };
@@ -76,16 +57,15 @@ export const SelectParentCategory = React.forwardRef<
           <Command.Input />
           <Command.List>
             <Combobox.Empty loading={loading} />
-            {categories?.map((category: ParentCategory) => (
+            {categories.map((category) => (
               <SelectParentCategoryItem
                 key={category._id}
                 category={category}
                 selected={selectedCategory?._id === category._id}
                 onSelect={handleSelect}
                 hasChildren={
-                  categories.find(
-                    (c: ParentCategory) => c.parentId === category._id,
-                  ) !== undefined
+                  categories.find((c) => c.parentId === category._id) !==
+                  undefined
                 }
               />
             ))}
@@ -102,7 +82,7 @@ export const SelectParentCategoryItem = ({
   onSelect,
   hasChildren,
 }: {
-  category: ParentCategory;
+  category: IParentCategory;
   selected: boolean;
   onSelect: (categoryId: string) => void;
   hasChildren: boolean;
@@ -128,7 +108,7 @@ export const SelectParentCategoryBadge = ({
   category,
   selected,
 }: {
-  category?: ParentCategory;
+  category?: IParentCategory;
   selected?: boolean;
 }) => {
   if (!category) return null;
@@ -151,7 +131,7 @@ export const SelectParentCategoryBadge = ({
 export const SelectParentCategoryTrigger = React.forwardRef<
   React.ElementRef<typeof Combobox.Trigger>,
   React.ComponentPropsWithoutRef<typeof Combobox.Trigger> & {
-    selectedCategory: ParentCategory | undefined;
+    selectedCategory: IParentCategory | undefined;
     loading: boolean;
   }
 >(({ selectedCategory, loading, className, ...props }, ref) => {

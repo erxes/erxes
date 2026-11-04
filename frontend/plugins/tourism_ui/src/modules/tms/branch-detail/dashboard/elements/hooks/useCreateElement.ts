@@ -1,44 +1,25 @@
 import { useMutation } from '@apollo/client';
 import { CREATE_ELEMENT } from '../graphql/mutation';
+import type {
+  BmsElementAddMutation,
+  BmsElementAddMutationVariables,
+  BmsElementTranslationInput,
+} from '~/gql/graphql';
 
-interface CreateElementResponse {
-  bmsElementAdd: {
-    _id: string;
-  };
-}
-
-export interface IElementTranslationInput {
-  language: string;
-  name?: string;
-  note?: string;
-  cost?: number;
-}
-
-export interface ICreateElementVariables {
-  branchId?: string;
-  name?: string;
-  note?: string;
-  startTime?: string;
-  duration?: number;
-  cost?: number;
-  categories?: string[];
-  quick?: boolean;
-  language?: string;
-  translations?: IElementTranslationInput[];
-}
+export type IElementTranslationInput = BmsElementTranslationInput;
 
 export const useCreateElement = () => {
-  const [createElementMutation, { loading, error }] = useMutation<
-    CreateElementResponse,
-    ICreateElementVariables
-  >(CREATE_ELEMENT, {
-    refetchQueries: ['BmsElements'],
-    awaitRefetchQueries: true,
-  });
+  const [createElementMutation, { loading, error }] = useMutation(
+    CREATE_ELEMENT,
+    {
+      refetchQueries: ['BmsElements'],
+      awaitRefetchQueries: true,
+    },
+  );
 
   const createElement = (options: {
-    variables: ICreateElementVariables;
-    onCompleted?: (data: CreateElementResponse) => void;
+    variables: BmsElementAddMutationVariables;
+    onCompleted?: (data: BmsElementAddMutation) => void;
     onError?: (error: unknown) => void;
   }) => {
     return createElementMutation(options);

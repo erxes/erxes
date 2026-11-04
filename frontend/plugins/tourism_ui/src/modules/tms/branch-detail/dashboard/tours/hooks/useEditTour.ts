@@ -5,70 +5,14 @@ import {
   GET_TOUR_GROUPS,
   GET_TOUR_DETAIL,
 } from '../graphql/queries';
-import { ITourTranslationInput } from '../utils/translationHelpers';
-import type { PricingOptionInput } from '../utils/pricingOptions';
-import type { TourCustomFieldData } from '../utils/customFields';
-
-export interface IEditTourVariables {
-  id: string;
-  language?: string;
-  dateStatus:
-    | 'scheduled'
-    | 'unscheduled'
-    | 'running'
-    | 'completed'
-    | 'cancelled';
-  name?: string;
-  content?: string;
-  itineraryId?: string;
-  dateType?: 'fixed' | 'flexible';
-  startDate?: Date;
-  endDate?: Date;
-  availableFrom?: Date;
-  availableTo?: Date;
-  groupSize?: number;
-  duration?: number;
-  advancePercent?: number;
-  joinPercent?: number;
-  advanceCheck?: boolean;
-  status?: string;
-  customTourTypeId?: string;
-  cost?: number;
-  guides?: Array<{
-    guideId: string;
-    type: string;
-  }>;
-  refNumber?: string;
-  info1?: string;
-  info2?: string;
-  info3?: string;
-  info4?: string;
-  info5?: string;
-  personCost?: Record<string, any>;
-  images?: string[];
-  imageThumbnail?: string;
-  attachment?: { url: string; name: string; type: string; size: number } | null;
-  categoryIds?: string[];
-  pricingOptions?: PricingOptionInput[];
-  translations?: ITourTranslationInput[];
-  customFieldsData?: TourCustomFieldData[];
-}
-
-interface IEditTourResponse {
-  bmsTourEdit: {
-    _id: string;
-  };
-}
+import type { BmsTourEditMutationVariables } from '~/gql/graphql';
 
 export const useEditTour = () => {
-  const [editTourMutation, { loading, error }] = useMutation<
-    IEditTourResponse,
-    IEditTourVariables
-  >(EDIT_TOUR, {
+  const [editTourMutation, { loading, error }] = useMutation(EDIT_TOUR, {
     refetchQueries: [{ query: GET_TOURS }, { query: GET_TOUR_GROUPS }],
   });
 
-  const editTour = async (variables: IEditTourVariables) => {
+  const editTour = async (variables: BmsTourEditMutationVariables) => {
     const result = await editTourMutation({
       variables,
       refetchQueries: [

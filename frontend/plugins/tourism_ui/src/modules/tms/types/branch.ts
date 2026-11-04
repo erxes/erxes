@@ -1,42 +1,14 @@
-export interface IBranchUser {
-  _id: string;
-  email: string;
-  username: string;
-  details: {
-    avatar: string;
-    fullName: string;
-    shortName: string;
+import type { BmsBranchListQuery } from '~/gql/graphql';
+
+export type IBranch = NonNullable<
+  NonNullable<NonNullable<BmsBranchListQuery['bmsBranchList']>['list']>[number]
+>;
+
+export interface IBranchUiOptions {
+  logo?: string;
+  favIcon?: string;
+  mainLogo?: string;
+  colors?: {
+    primary?: string;
   };
-}
-
-export interface IBranch {
-  _id: string;
-  createdAt: string;
-  userId: string;
-  user: IBranchUser;
-  name: string;
-  description: string;
-  generalManagerIds: string[];
-  managerIds: string[];
-  paymentIds: string[];
-  paymentTypes: string[];
-  prepaid?: boolean;
-  prepaidPercent?: number | null;
-  departmentId: string;
-  token: string;
-  erxesAppToken: string;
-  permissionConfig: any;
-  uiOptions: any;
-  language?: string;
-  languages?: string[];
-  managers: IBranchUser[];
-  generalManagers: IBranchUser[];
-}
-
-export interface IBranchRemoveVariables {
-  id: string;
-}
-
-export interface IBranchRemoveResponse {
-  bmsBranchRemove: boolean;
 }

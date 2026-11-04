@@ -20,7 +20,12 @@ import {
   resolveMainLanguageName,
 } from '../utils/translationHelpers';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
-import { filterCustomFieldsData } from '../utils/customFields';
+import { compactList } from '~/utils/cursorList';
+import { toAttachmentFormValue } from '~/utils/attachment';
+import {
+  filterCustomFieldsData,
+  toTourCustomFieldsData,
+} from '../utils/customFields';
 import {
   useTourCustomFieldGroups,
   useTourCustomTypes,
@@ -65,11 +70,6 @@ interface Props {
   onSuccess?: () => void;
   sideTab?: TourSideTab | null;
   onSideTabChange?: (tab: TourSideTab | null) => void;
-}
-
-interface Itinerary {
-  _id: string;
-  duration?: number;
 }
 
 const hideFields = false;
@@ -254,9 +254,10 @@ export const TourEditForm = ({
     skip: !branchId,
   });
 
-  const itineraries: Itinerary[] = useMemo(() => {
-    return data?.bmsItineraries?.list ?? [];
-  }, [data]);
+  const itineraries = useMemo(
+    () => compactList(data?.bmsItineraries?.list),
+    [data],
+  );
 
   const selectedItinerary = useMemo(() => {
     return itineraries.find((it) => it._id === itineraryId);
@@ -277,7 +278,7 @@ export const TourEditForm = ({
         customTourTypeId: resolvedCustomTourTypeId,
         content: tour.content ?? '',
         itineraryId: tour.itineraryId ?? '',
-        categoryIds: tour.categoryIds ?? [],
+        categoryIds: compactList(tour.categoryIds),
         duration: tour.duration ?? 0,
         groupSize: tour.groupSize ?? 0,
         advanceCheck: tour.advanceCheck ?? false,
@@ -288,30 +289,30 @@ export const TourEditForm = ({
         info3: tour.info3 ?? '',
         info4: tour.info4 ?? '',
         info5: tour.info5 ?? '',
-        images: tour.images ?? [],
+        images: compactList(tour.images),
         imageThumbnail: tour.imageThumbnail ?? '',
-        attachment: tour.attachment ?? null,
-        guides: (tour.guides ?? [])
-          .filter((g): g is { guideId: string; type: string } =>
-            Boolean(g?.guideId),
-          )
-          .map((g) => ({
-            guideId: g.guideId,
-            type: g.type ?? 'guide',
-          })),
-        pricingOptions: (tour.pricingOptions ?? []).map((option) => {
-          const { prices, pricePerPerson, ...rest } = option;
-
-          return {
-            ...rest,
-            adultPrice:
-              prices.find((price) => price.type === 'adult')?.price ??
-              pricePerPerson ??
-              0,
-            childPrice: prices.find((price) => price.type === 'child')?.price,
-            infantPrice: prices.find((price) => price.type === 'infant')?.price,
-          };
-        }),
+        attachment: toAttachmentFormValue(tour.attachment),
+        guides: compactList(tour.guides).flatMap((g) =>
+          g.guideId ? [{ guideId: g.guideId, type: g.type ?? 'guide' }] : [],
+        ),
+        pricingOptions: compactList(tour.pricingOptions).map((option) => ({
+          _id: option._id,
+          title: option.title,
+          minPersons: option.minPersons,
+          maxPersons: option.maxPersons ?? undefined,
+          accommodationType: option.accommodationType ?? undefined,
+          domesticFlightPerPerson: option.domesticFlightPerPerson ?? undefined,
+          singleSupplement: option.singleSupplement ?? undefined,
+          note: option.note ?? undefined,
+          adultPrice:
+            option.prices.find((price) => price.type === 'adult')?.price ??
+            option.pricePerPerson ??
+            0,
+          childPrice: option.prices.find((price) => price.type === 'child')
+            ?.price,
+          infantPrice: option.prices.find((price) => price.type === 'infant')
+            ?.price,
+        })),
         isFlexibleDate: tour.dateType === 'flexible',
         isGroupTour: false,
         startDate: tour.startDate ? new Date(tour.startDate) : undefined,
@@ -321,7 +322,7 @@ export const TourEditForm = ({
           : undefined,
         availableTo: tour.availableTo ? new Date(tour.availableTo) : undefined,
         translations: buildTranslationsFromTour(tour, translationLanguages),
-        customFieldsData: tour.customFieldsData ?? [],
+        customFieldsData: toTourCustomFieldsData(tour.customFieldsData),
       },
       { keepDirty: false, keepTouched: false },
     );

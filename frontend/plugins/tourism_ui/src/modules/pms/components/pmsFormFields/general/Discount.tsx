@@ -36,7 +36,7 @@ const Discount = ({ form }: { form: UseFormReturn<PmsBranchFormType> }) => {
     });
 
     if (!getValues(`discount.${index}.title`)?.trim()) {
-      setValue(`discount.${index}.title`, pricingPlan.name, {
+      setValue(`discount.${index}.title`, pricingPlan.name ?? '', {
         shouldDirty: true,
       });
     }

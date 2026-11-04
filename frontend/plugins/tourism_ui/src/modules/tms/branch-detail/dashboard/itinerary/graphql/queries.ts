@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_ITINERARIES = gql`
+export const GET_ITINERARIES = gql(`
   query BmsItineraries(
     $limit: Int
     $cursor: String
@@ -83,9 +83,9 @@ export const GET_ITINERARIES = gql`
       totalCount
     }
   }
-`;
+`);
 
-export const GET_ITINERARY_DETAIL = gql`
+export const GET_ITINERARY_DETAIL = gql(`
   query BmsItineraryDetail($id: String!, $language: String) {
     bmsItineraryDetail(_id: $id, language: $language) {
       _id
@@ -137,4 +137,4 @@ export const GET_ITINERARY_DETAIL = gql`
       }
     }
   }
-`;
+`);

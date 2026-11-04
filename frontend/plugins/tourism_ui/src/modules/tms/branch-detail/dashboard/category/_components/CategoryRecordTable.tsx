@@ -43,16 +43,14 @@ export const CategoryRecordTable = ({
     variables: { branchId, language },
   });
 
-  const categoriesWithChildren = categories?.map((category: ICategory) => ({
+  const categoriesWithChildren = categories.map((category) => ({
     ...category,
-    hasChildren: categories?.some(
-      (c: ICategory) => c.parentId === category._id,
-    ),
+    hasChildren: categories.some((c) => c.parentId === category._id),
   }));
 
   const categoryObject = useMemo(() => {
-    return categoriesWithChildren?.reduce(
-      (acc: Record<string, ICategory>, category: ICategory) => {
+    return categoriesWithChildren.reduce(
+      (acc: Record<string, ICategory>, category) => {
         acc[category._id] = category;
         return acc;
       },

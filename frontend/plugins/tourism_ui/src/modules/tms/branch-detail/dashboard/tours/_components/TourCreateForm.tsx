@@ -16,6 +16,7 @@ import {
   syncTranslationPricingOptions,
 } from '../utils/translationHelpers';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
+import { compactList } from '~/utils/cursorList';
 import { filterCustomFieldsData } from '../utils/customFields';
 import {
   useTourCustomFieldGroups,
@@ -58,11 +59,6 @@ interface Props {
   branchLanguages?: string[];
   mainLanguage?: string;
   onSuccess?: () => void;
-}
-
-interface Itinerary {
-  _id: string;
-  duration?: number;
 }
 
 const hideFields = false;
@@ -251,9 +247,10 @@ export const TourCreateForm = ({
     skip: !branchId,
   });
 
-  const itineraries: Itinerary[] = useMemo(() => {
-    return data?.bmsItineraries?.list ?? [];
-  }, [data]);
+  const itineraries = useMemo(
+    () => compactList(data?.bmsItineraries?.list),
+    [data],
+  );
 
   const selectedItinerary = useMemo(() => {
     return itineraries.find((it) => it._id === itineraryId);

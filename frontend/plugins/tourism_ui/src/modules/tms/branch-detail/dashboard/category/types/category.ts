@@ -1,28 +1,16 @@
-export interface IAttachment {
-  url?: string;
-  name?: string;
-  type?: string;
-  size?: number;
-  duration?: number;
-}
+import type {
+  BmsTourCategoriesQuery,
+  BmsTourParentCategoriesQuery,
+} from '~/gql/graphql';
 
-export interface ICategoryTranslation {
-  _id?: string;
-  language: string;
-  name?: string;
-}
+export type ICategory = NonNullable<
+  NonNullable<BmsTourCategoriesQuery['bmsTourCategories']>[number]
+>;
 
-export interface ICategory {
-  _id: string;
-  name?: string;
-  code?: string;
-  tourCount?: number;
-  parentId?: string;
-  branchId?: string;
-  order?: string;
-  attachment?: IAttachment;
-  language?: string;
-  translations?: ICategoryTranslation[];
-  createdAt?: string;
-  modifiedAt?: string;
-}
+export type ICategoryTranslation = NonNullable<
+  NonNullable<ICategory['translations']>[number]
+>;
+
+export type IParentCategory = NonNullable<
+  NonNullable<BmsTourParentCategoriesQuery['bmsTourCategories']>[number]
+>;

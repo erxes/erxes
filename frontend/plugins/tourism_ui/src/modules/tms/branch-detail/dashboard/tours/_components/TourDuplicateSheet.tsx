@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import { useCreateTour } from '../hooks/useCreateTour';
 import { useTourDetail, ITourDetail } from '../hooks/useTourDetail';
+import type { Date_Type } from '~/gql/graphql';
 import { RHFDatePicker } from './RHFDatePicker';
 import { TourFieldLanguageSwitch } from '../../_components/TourFieldLanguageSwitch';
 import { useTourLanguage } from '../hooks/useTourLanguage';
@@ -19,20 +20,15 @@ import {
   sanitizeTourTranslations,
 } from '../utils/translationHelpers';
 import { normalizeTourDetailPricingOptionsForApi } from '../utils/pricingOptions';
-
-const stripTypename = <T extends Record<string, any>>(
-  obj: T,
-): Omit<T, '__typename'> => {
-  const { __typename, ...rest } = obj as any;
-  return rest;
-};
+import { compactList } from '~/utils/cursorList';
+import { toAttachmentInput } from '~/utils/attachment';
 
 const cloneTourGuides = (
   guides: ITourDetail['guides'],
 ): Array<{ guideId: string; type: string }> =>
-  (guides ?? [])
-    .filter((g): g is { guideId: string; type: string } => Boolean(g?.guideId))
-    .map((g) => ({ guideId: g.guideId, type: g.type ?? 'guide' }));
+  compactList(guides).flatMap((g) =>
+    g.guideId ? [{ guideId: g.guideId, type: g.type ?? 'guide' }] : [],
+  );
 
 const duplicateNameSuffix = ' (copy)';
 const duplicateRefNumberSuffix = '-copy';
@@ -41,7 +37,7 @@ const getPrimaryTourTranslation = (
   tour: ITourDetail,
   primaryLanguage: string,
 ) =>
-  tour.translations?.find(
+  compactList(tour.translations).find(
     (translation) => translation.language === primaryLanguage,
   );
 
@@ -59,7 +55,7 @@ const getDateStatus = (
   return isSameDay(startDate, new Date()) ? 'running' : 'scheduled';
 };
 
-const calculateEndDate = (startDate: Date, duration?: number) => {
+const calculateEndDate = (startDate: Date, duration?: number | null) => {
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + Number(duration || 0));
   return endDate;
@@ -99,7 +95,7 @@ type FlexibleFormType = Omit<
 
 interface TourDuplicateSheetProps {
   tourId: string;
-  dateType?: 'fixed' | 'flexible';
+  dateType?: Date_Type | null;
   branchId?: string;
   branchLanguages?: string[];
   mainLanguage?: string;
@@ -173,7 +169,7 @@ interface InnerSheetProps {
 }
 
 const buildDuplicateTranslations = (
-  tour: ITourDetail,
+  tour: Parameters<typeof buildTranslationsFromTour>[0],
   translationLanguages: string[],
 ): TourTranslationFormValue[] =>
   buildTranslationsFromTour(tour, translationLanguages).map((translation) => ({
@@ -300,9 +296,7 @@ const FixedDuplicateSheet = ({
         itineraryId: tour.itineraryId,
         imageThumbnail: tour.imageThumbnail,
         images: tour.images,
-        attachment: tour.attachment
-          ? stripTypename(tour.attachment)
-          : tour.attachment,
+        attachment: toAttachmentInput(tour.attachment) ?? null,
         duration: tour.duration,
         groupSize: tour.groupSize,
         advancePercent: tour.advancePercent,
@@ -550,9 +544,7 @@ const FlexibleDuplicateSheet = ({
         itineraryId: tour.itineraryId,
         imageThumbnail: tour.imageThumbnail,
         images: tour.images,
-        attachment: tour.attachment
-          ? stripTypename(tour.attachment)
-          : tour.attachment,
+        attachment: toAttachmentInput(tour.attachment) ?? null,
         duration: tour.duration,
         groupSize: tour.groupSize,
         advancePercent: tour.advancePercent,

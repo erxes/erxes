@@ -18,13 +18,13 @@ export const buildTranslationsFromElement = (
 ): ElementCreateFormType['translations'] =>
   translationLanguages.map((lang) => {
     const existing = (element.translations || []).find(
-      (t) => t.language === lang,
+      (t) => t?.language === lang,
     );
     return {
       language: lang,
       name: existing?.name || '',
       note: existing?.note || '',
-      cost: existing?.cost,
+      cost: existing?.cost ?? undefined,
     };
   });
 
@@ -60,7 +60,7 @@ export const resolveMainLanguageName = (
   if (!effectiveLang) return element.name || '';
 
   const mainTranslation = element.translations?.find(
-    (t) => t.language === effectiveLang,
+    (t) => t?.language === effectiveLang,
   );
 
   return mainTranslation?.name || element.name || '';

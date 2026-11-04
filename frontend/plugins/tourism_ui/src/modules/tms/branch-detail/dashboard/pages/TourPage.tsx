@@ -2,8 +2,10 @@ import { IBranch } from '@/tms/types/branch';
 import { TourFilter, ToursView, ToursViewControl } from '../tours';
 import { PageSubHeader, ToggleGroup, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { useBranchLanguages } from '@/tms/hooks/useBranchLanguages';
 
 export const TourPage = ({ branch }: { branch: IBranch }) => {
+  const branchLanguageProps = useBranchLanguages(branch);
   const { t } = useTranslation('tourism');
   const [view] = useQueryState<string | undefined>('view');
   const [isGroup, setIsGroup] = useQueryState<boolean>('isGroup');
@@ -32,11 +34,7 @@ export const TourPage = ({ branch }: { branch: IBranch }) => {
       </PageSubHeader>
       <div className="overflow-hidden flex-auto p-3 min-h-0">
         <div className="flex flex-col h-full min-h-0">
-          <ToursView
-            branchId={branch._id}
-            branchLanguages={branch.languages}
-            mainLanguage={branch.language}
-          />
+          <ToursView branchId={branch._id} {...branchLanguageProps} />
         </div>
       </div>
     </div>

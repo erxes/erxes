@@ -1,22 +1,10 @@
 import { useQuery } from '@apollo/client';
 import { BRANCH_LIST_DETAIL } from '../graphql/queries';
-import { IBranch } from '../types/branch';
 
-interface BranchDetailResponse {
-  bmsBranchDetail: IBranch;
-}
-
-interface BranchDetailVariables {
-  id?: string;
-}
-
-export const useBranchDetail = (variables: BranchDetailVariables) => {
-  const { data, loading, error } = useQuery<
-    BranchDetailResponse,
-    BranchDetailVariables
-  >(BRANCH_LIST_DETAIL, {
-    variables,
-    skip: !variables.id,
+export const useBranchDetail = ({ id }: { id?: string | null }) => {
+  const { data, loading, error } = useQuery(BRANCH_LIST_DETAIL, {
+    variables: id ? { id } : undefined,
+    skip: !id,
     fetchPolicy: 'cache-and-network',
   });
 

@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-const PmsBranchList = gql`
+const PmsBranchList = gql(`
   query PmsBranchList(
     $page: Int
     $perPage: Int
@@ -21,9 +21,9 @@ const PmsBranchList = gql`
       uiOptions
     }
   }
-`;
+`);
 
-const PmsBranchDetail = gql`
+const PmsBranchDetail = gql(`
   query PmsBranchDetail($id: String!) {
     pmsBranchDetail(_id: $id) {
       _id
@@ -63,10 +63,10 @@ const PmsBranchDetail = gql`
       checkoutamount
     }
   }
-`;
+`);
 
-const Payments = gql`
-  query Payments($status: String, $kind: String) {
+const Payments = gql(`
+  query PmsPayments($status: String, $kind: String) {
     payments(status: $status, kind: $kind) {
       _id
       name
@@ -76,10 +76,10 @@ const Payments = gql`
       createdAt
     }
   }
-`;
+`);
 
-const ProductCategories = gql`
-  query ProductCategories {
+const ProductCategories = gql(`
+  query PmsProductCategories {
     productCategories {
       _id
       parentId
@@ -89,9 +89,9 @@ const ProductCategories = gql`
       productCount
     }
   }
-`;
+`);
 
-const PmsPricingPlans = gql`
+const PmsPricingPlans = gql(`
   query PmsPricingPlans($status: String) {
     pricingPlans(status: $status) {
       _id
@@ -101,7 +101,7 @@ const PmsPricingPlans = gql`
       value
     }
   }
-`;
+`);
 
 export const pmsQueries = {
   PmsBranchList,

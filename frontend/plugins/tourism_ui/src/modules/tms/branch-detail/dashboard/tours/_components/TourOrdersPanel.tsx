@@ -27,7 +27,7 @@ const ORDER_FILTER_OPTIONS = [
 
 type OrderFilterValue = (typeof ORDER_FILTER_OPTIONS)[number]['value'];
 
-function formatDate(dateStr?: string): string {
+function formatDate(dateStr?: string | null): string {
   if (!dateStr) return '—';
   return new Date(dateStr).toLocaleDateString('mn-MN', {
     year: 'numeric',
@@ -36,7 +36,7 @@ function formatDate(dateStr?: string): string {
   });
 }
 
-function StatusBadge({ status }: Readonly<{ status?: string }>) {
+function StatusBadge({ status }: Readonly<{ status?: string | null }>) {
   const toneMap: Record<string, string> = {
     paid: 'border-emerald-500/15 bg-emerald-500/6 text-emerald-200',
     pending: 'border-amber-500/15 bg-amber-500/6 text-amber-200',

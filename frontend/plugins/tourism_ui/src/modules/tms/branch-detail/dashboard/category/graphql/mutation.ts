@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const CREATE_CATEGORY = gql`
+export const CREATE_CATEGORY = gql(`
   mutation BmsTourCategoryAdd(
     $name: String
     $code: String
@@ -22,9 +22,9 @@ export const CREATE_CATEGORY = gql`
       _id
     }
   }
-`;
+`);
 
-export const EDIT_CATEGORY = gql`
+export const EDIT_CATEGORY = gql(`
   mutation BmsTourCategoryEdit(
     $id: String!
     $name: String
@@ -48,10 +48,10 @@ export const EDIT_CATEGORY = gql`
       _id
     }
   }
-`;
+`);
 
-export const REMOVE_CATEGORY = gql`
+export const REMOVE_CATEGORY = gql(`
   mutation BmsTourCategoryRemove($id: String!) {
     bmsTourCategoryRemove(_id: $id)
   }
-`;
+`);

@@ -17,6 +17,7 @@ import {
   TextOverflowTooltip,
 } from 'erxes-ui';
 import { ITour } from '../types/tour';
+import type { Date_Type } from '~/gql/graphql';
 import { ICategory } from '../../category';
 import { tourMoreColumn } from './TourMoreCell';
 
@@ -26,7 +27,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   day: '2-digit',
 });
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string | null) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
@@ -36,7 +37,7 @@ const formatDate = (value?: string) => {
 export const TourColumns = (
   categories: ICategory[],
   onEdit?: (tourId: string) => void,
-  onDuplicate?: (tourId: string, dateType?: 'fixed' | 'flexible') => void,
+  onDuplicate?: (tourId: string, dateType?: Date_Type | null) => void,
   t: (key: string) => string = (k) => k,
 ): ColumnDef<ITour>[] => {
   return [

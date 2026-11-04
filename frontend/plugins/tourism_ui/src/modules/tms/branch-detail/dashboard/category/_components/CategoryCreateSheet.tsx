@@ -23,6 +23,7 @@ import {
   buildEmptyCategoryTranslations,
   sanitizeCategoryTranslations,
 } from '../utils/translationHelpers';
+import { toAttachmentInput } from '~/utils/attachment';
 
 interface CategoryCreateSheetProps {
   branchId?: string;
@@ -116,7 +117,7 @@ export const CategoryCreateSheet = ({
           ...(values.parentId &&
             values.parentId.trim() !== '' && { parentId: values.parentId }),
           ...(branchId && { branchId }),
-          ...(values.attachment && { attachment: values.attachment }),
+          attachment: toAttachmentInput(values.attachment),
           language: mainLanguage,
           translations: sanitizeCategoryTranslations(values.translations),
         },

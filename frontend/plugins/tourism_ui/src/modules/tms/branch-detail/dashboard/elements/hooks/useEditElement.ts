@@ -1,38 +1,19 @@
 import { useMutation } from '@apollo/client';
 import { EDIT_ELEMENT } from '../graphql/mutation';
-import { IElementTranslationInput } from './useCreateElement';
-
-interface EditElementResponse {
-  bmsElementEdit: {
-    _id: string;
-  };
-}
-
-export interface IEditElementVariables {
-  id: string;
-  name?: string;
-  note?: string;
-  startTime?: string;
-  duration?: number;
-  cost?: number;
-  categories?: string[];
-  quick?: boolean;
-  language?: string;
-  translations?: IElementTranslationInput[];
-}
+import type {
+  BmsElementEditMutation,
+  BmsElementEditMutationVariables,
+} from '~/gql/graphql';
 
 export const useEditElement = () => {
-  const [editElementMutation, { loading, error }] = useMutation<
-    EditElementResponse,
-    IEditElementVariables
-  >(EDIT_ELEMENT, {
+  const [editElementMutation, { loading, error }] = useMutation(EDIT_ELEMENT, {
     refetchQueries: ['BmsElements'],
     awaitRefetchQueries: true,
   });
 
   const editElement = (options: {
-    variables: IEditElementVariables;
-    onCompleted?: (data: EditElementResponse) => void;
+    variables: BmsElementEditMutationVariables;
+    onCompleted?: (data: BmsElementEditMutation) => void;
     onError?: (error: unknown) => void;
   }) => {
     return editElementMutation(options);

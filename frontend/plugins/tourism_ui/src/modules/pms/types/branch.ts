@@ -1,3 +1,5 @@
+import type { PmsBranchDetailQuery, PmsBranchListQuery } from '~/gql/graphql';
+
 export interface IPmsPaymentType {
   _id: string;
   type: string;
@@ -6,10 +8,6 @@ export interface IPmsPaymentType {
   config?: string;
 }
 
-export interface IPmsUser {
-  _id: string;
-  details: { avatar: string; fullName: string };
-}
 export interface IPmsUiOptions {
   logo?: string;
   website?: string;
@@ -21,41 +19,10 @@ export interface IPmsPipelineConfig {
   stageId: string;
 }
 
-export interface IPmsBranch {
-  _id: string;
-  name: string;
-  description?: string;
-  createdAt: Date;
-  token: string;
-  erxesAppToken?: string;
-  userId: string;
-  departmentId?: string;
-  user1Ids?: string[];
-  user2Ids?: string[];
-  user3Ids?: string[];
-  user4Ids?: string[];
-  user5Ids?: string[];
-  paymentIds?: string[];
-  paymentTypes?: IPmsPaymentType[];
-  user?: IPmsUser;
-  uiOptions?: IPmsUiOptions;
-  permissionConfig?: any;
-  pipelineConfig?: IPmsPipelineConfig;
-  extraProductCategories?: string[];
-  excludeExtraProductCategoryIds?: string[];
-  excludeExtraProductIds?: string[];
-  roomCategories?: string[];
-  excludeRoomCategoryIds?: string[];
-  excludeRoomIds?: string[];
-  hasAppointment?: boolean;
-  appointmentCategories?: string[];
-  excludeAppointmentCategoryIds?: string[];
-  excludeAppointmentIds?: string[];
-  websiteReservationLock?: boolean;
-  discount?: IPmsPaymentType[];
-  time?: string;
-  checkintime: string;
-  checkouttime: string;
-  checkinamount?: number;
-  checkoutamount?: number;
-}
+export type IPmsBranch = NonNullable<
+  NonNullable<PmsBranchListQuery['pmsBranchList']>[number]
+>;
+
+export type IPmsBranchDetail = NonNullable<
+  PmsBranchDetailQuery['pmsBranchDetail']
+>;

@@ -72,7 +72,7 @@ function createMonthDays(base: Date): CalendarDay[] {
   });
 }
 
-function isDateInRange(date: Date, start?: string, end?: string) {
+function isDateInRange(date: Date, start?: string | null, end?: string | null) {
   if (!start) return false;
 
   const startDate = new Date(start);
@@ -133,7 +133,7 @@ export const TourCalendar = ({
   const visibleRows = useMemo(() => {
     if (!tours) return [];
 
-    return tours.filter((tour: ITour) =>
+    return tours.filter((tour) =>
       days.some((day) => isDateInRange(day.date, tour.startDate, tour.endDate)),
     );
   }, [tours, days]);
@@ -191,7 +191,7 @@ export const TourCalendar = ({
     setSideTab(null);
   };
 
-  const handleDelete = (tourId: string, tourName?: string) => {
+  const handleDelete = (tourId: string, tourName?: string | null) => {
     confirm({
       message: tourName
         ? t('confirm-delete-named-tour', { name: tourName })

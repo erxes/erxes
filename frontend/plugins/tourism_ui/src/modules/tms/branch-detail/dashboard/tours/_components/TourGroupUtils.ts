@@ -1,5 +1,6 @@
 import { ITour, ITourGroup } from '../types/tour';
 import { TourGroupRow } from './TourGroupColumns';
+import { compactList } from '~/utils/cursorList';
 
 const dateFormatter = new Intl.DateTimeFormat('en-US', {
   year: 'numeric',
@@ -7,7 +8,7 @@ const dateFormatter = new Intl.DateTimeFormat('en-US', {
   day: '2-digit',
 });
 
-const formatDate = (value?: string) => {
+const formatDate = (value?: string | null) => {
   if (!value) return '-';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
@@ -58,13 +59,13 @@ const getGroupDateRangeLabel = (items: ITour[]) => {
 const sortGroups = (groups: ITourGroup[]) => {
   return [...groups].sort((a, b) => {
     const aTime = Math.max(
-      ...a.items.map((item) =>
+      ...compactList(a.items).map((item) =>
         item.createdAt ? new Date(item.createdAt).getTime() : 0,
       ),
       0,
     );
     const bTime = Math.max(
-      ...b.items.map((item) =>
+      ...compactList(b.items).map((item) =>
         item.createdAt ? new Date(item.createdAt).getTime() : 0,
       ),
       0,
@@ -77,11 +78,12 @@ const sortGroups = (groups: ITourGroup[]) => {
 export const flattenGroups = (groups: ITourGroup[]): TourGroupRow[] => {
   return sortGroups(groups).flatMap((group) => {
     const groupId = group._id || 'Ungrouped';
+    const items = compactList(group.items);
     const groupName =
       group.name?.trim() ||
-      group.items.find((item) => item.name?.trim())?.name?.trim() ||
+      items.find((item) => item.name?.trim())?.name?.trim() ||
       groupId;
-    const sortedItems = sortTours(group.items);
+    const sortedItems = sortTours(items);
 
     const parentRow: TourGroupRow = {
       _id: `${groupId}`,
@@ -89,11 +91,11 @@ export const flattenGroups = (groups: ITourGroup[]): TourGroupRow[] => {
       groupCode: groupId,
       templateTourId: sortedItems[0]?._id,
       order: groupId,
-      hasChildren: group.items.length > 0,
+      hasChildren: items.length > 0,
       isGroup: true,
-      childCount: group.items.length,
+      childCount: items.length,
       dateRangeLabel: getGroupDateRangeLabel(sortedItems),
-      statusLabel: `${group.items.length} departures`,
+      statusLabel: `${items.length} departures`,
     };
 
     const childRows: TourGroupRow[] = sortedItems.map((tour, index) => {

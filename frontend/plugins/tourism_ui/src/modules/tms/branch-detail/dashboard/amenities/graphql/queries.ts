@@ -1,6 +1,6 @@
-import { gql } from '@apollo/client';
+import { gql } from '~/gql';
 
-export const GET_AMENITIES = gql`
+export const GET_AMENITIES = gql(`
   query BmsAmenities(
     $branchId: String
     $name: String
@@ -48,4 +48,4 @@ export const GET_AMENITIES = gql`
       totalCount
     }
   }
-`;
+`);

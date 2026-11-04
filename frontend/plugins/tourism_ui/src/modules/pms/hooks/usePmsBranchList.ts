@@ -1,39 +1,28 @@
 import { useQuery } from '@apollo/client';
+import { useMemo } from 'react';
 import { pmsQueries } from '@/pms/graphql/queries';
-import { IPmsBranch } from '@/pms/types/branch';
-
-interface PmsBranchListResponse {
-  pmsBranchList: IPmsBranch[];
-}
-
-interface UsePmsBranchListParams {
-  page?: number;
-  perPage?: number;
-  sortField?: string;
-  sortDirection?: number;
-}
+import type { PmsBranchListQueryVariables } from '~/gql/graphql';
+import { compactList } from '~/utils/cursorList';
 
 export function usePmsBranchList({
   page = 1,
   perPage = 20,
   sortField,
   sortDirection,
-}: UsePmsBranchListParams = {}) {
-  const { data, loading, error, refetch } = useQuery<PmsBranchListResponse>(
-    pmsQueries.PmsBranchList,
-    {
-      variables: {
-        page,
-        perPage,
-        sortField,
-        sortDirection,
-      },
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
+}: PmsBranchListQueryVariables = {}) {
+  const { data, loading, error, refetch } = useQuery(pmsQueries.PmsBranchList, {
+    variables: {
+      page,
+      perPage,
+      sortField,
+      sortDirection,
     },
-  );
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true,
+  });
 
-  const list = data?.pmsBranchList ?? [];
+  const rawList = data?.pmsBranchList;
+  const list = useMemo(() => compactList(rawList), [rawList]);
 
   return { list, loading, error, refetch };
 }

@@ -77,7 +77,7 @@ export const CategoryParentIdField = ({
   language,
 }: {
   control: Control<CategoryCreateFormType>;
-  branchId?: string;
+  branchId?: string | null;
   language?: string;
 }) => {
   const { t } = useTranslation('tourism');
