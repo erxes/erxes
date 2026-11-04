@@ -22,6 +22,7 @@ import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
 import { useFormConversionTranslation } from '../conversionTranslations';
 import { isRecord } from '@/shared/utils/isRecord';
+import { groupFieldsIntoSteps } from '../utils/groupFieldsIntoSteps';
 
 type FormField = {
   tempFieldId?: string;
@@ -81,6 +82,11 @@ export const useFormMutate = () => {
           existingFields.map((field) => [field._id, field.pageNumber]),
         );
         const savedSteps = LEAD_DATA_SCHEMA.parse(formDetail?.leadData).steps;
+        const initialSteps =
+          savedSteps ??
+          (existingFields.length
+            ? groupFieldsIntoSteps(undefined, existingFields)
+            : undefined);
         const fieldVariables = buildEditFieldsVariables(
           id,
           formFields,
@@ -94,9 +100,9 @@ export const useFormMutate = () => {
             ) &&
             savedSteps === undefined) ||
           Object.keys(formValues.leadData.steps).some(
-            (key) => savedSteps !== undefined && !savedSteps[key],
+            (key) => initialSteps !== undefined && !initialSteps[key],
           ) ||
-          Object.entries(savedSteps ?? {}).some(
+          Object.entries(initialSteps ?? {}).some(
             ([key, step]) =>
               formValues.leadData.steps[key]?.order !== step.order,
           ) ||

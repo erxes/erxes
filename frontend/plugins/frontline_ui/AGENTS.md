@@ -1314,8 +1314,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   including legacy `input` fields, and clears `expectedType`. Changes to an
   existing field's type or page, changes to existing step orders, and new step
   keys added to stored steps select the atomic save path. A present but malformed
-  `steps` value also requires an atomic save; a missing property alone retains
-  the ordinary save path.
+  `steps` value also requires an atomic save. When steps are absent, compare
+  against the inferred field-page layout; unchanged layouts and forms without
+  fields retain the ordinary save path.
   Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
@@ -2757,7 +2758,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   first step. Reject a page-layout save and verify both the saved steps and
   field pages stay unchanged, then retry successfully. Include adding a new
   step without moving any existing fields and repairing a malformed `steps`
-  value. Missing or invalid step orders must keep distinct field pages apart.
+  value, plus removing an inferred step when stored steps are absent.
+  Missing or invalid step orders must keep distinct field pages apart.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
