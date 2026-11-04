@@ -94,7 +94,7 @@ const CompanyWidgetContent = ({
   }
 
   return (
-    <div className="p-4 space-y-2">
+    <div className="p-4 space-y-2 overflow-y-auto">
       {companyIds.map((companyId: string) => {
         return (
           <CompanyWidgetItem
