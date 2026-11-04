@@ -13,7 +13,10 @@ import {
   validatePluginConfig,
 } from '~/plugins/utils/pluginConfigSchema';
 import { validateExtensionConfig } from '~/plugins/utils/extensionConfigSchema';
-import { isExtensionRemote } from '~/plugins/utils/extensionRemotes';
+import {
+  extensionHosts,
+  isExtensionRemote,
+} from '~/plugins/utils/extensionRemotes';
 
 type RemoteConfig = {
   CONFIG: unknown;
@@ -49,13 +52,7 @@ export const PluginConfigsProvidersEffect = () => {
 
   useEffect(() => {
     if (remotes && remotes.length > 0) {
-      // An extension lives in a plugin, or in core.
-      const hosts = [
-        'core',
-        ...remotes
-          .filter((remote) => !isExtensionRemote(remote.name))
-          .map((remote) => remote.name.replace(/_ui$/, '')),
-      ];
+      const hosts = extensionHosts(remotes);
 
       const loadConfig = async () => {
         for (const remote of remotes) {
