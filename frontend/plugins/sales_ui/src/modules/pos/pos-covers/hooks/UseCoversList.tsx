@@ -4,7 +4,7 @@ import { readPosCount } from '@/pos/utils/posOrderJson';
 import { useQuery } from '@apollo/client';
 import { parseDateRangeFromString, useMultiQueryState } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import type { PosCoversQueryVariables } from '~/gql/graphql';
 import { posCovers } from '@/pos/pos-covers/graphql/queries/queries';
 import {
@@ -13,6 +13,14 @@ import {
 } from '@/pos/pos-covers/states/usePosCoversCounts';
 
 const COVERS_PER_PAGE = 30;
+
+const isSameFilter = (
+  current: Record<string, unknown>,
+  requested: Record<string, unknown> | undefined,
+) =>
+  Object.keys(current).every(
+    (key) => JSON.stringify(current[key]) === JSON.stringify(requested?.[key]),
+  );
 
 type UseCoversListOptions = PosCoversQueryVariables & { posId?: string };
 
@@ -61,9 +69,11 @@ export const useCoversList = (
   const setPosCoverTotalCountLoading = useSetAtom(
     posCoverTotalCountLoadingAtom,
   );
-  const { data, loading, error, fetchMore } = useQuery(posCovers, {
+  const { data, loading, error, fetchMore, refetch } = useQuery(posCovers, {
     variables,
   });
+  const variablesRef = useRef(variables);
+  variablesRef.current = variables;
 
   const transformedCoversList = useMemo(
     () =>
@@ -89,31 +99,47 @@ export const useCoversList = (
   const handleFetchMore = useCallback(() => {
     if (!data?.posCovers) return;
 
+    let staleList = false;
     fetchMore({
       variables: {
         page: Math.ceil(transformedCoversList.length / COVERS_PER_PAGE) + 1,
         ...variables,
       },
-      updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult?.posCovers) {
+      updateQuery: (prev, { fetchMoreResult, variables: requested }) => {
+        if (
+          !prev?.posCovers ||
+          !fetchMoreResult?.posCovers ||
+          !isSameFilter(variablesRef.current, requested)
+        ) {
           return prev;
         }
-        const existingIds = new Set(
-          (prev.posCovers || []).map((cover) => cover?._id),
+        const existingIds = new Set(prev.posCovers.map((cover) => cover?._id));
+        const overlaps = fetchMoreResult.posCovers.some((cover) =>
+          existingIds.has(cover?._id),
         );
+        if (
+          overlaps ||
+          readPosCount(fetchMoreResult.posCoversCount) !==
+            readPosCount(prev.posCoversCount)
+        ) {
+          staleList = true;
+          return prev;
+        }
         return {
           ...prev,
-          posCovers: [
-            ...(prev.posCovers || []),
-            ...fetchMoreResult.posCovers.filter(
-              (cover) => !existingIds.has(cover?._id),
-            ),
-          ],
-          posCoversCount: fetchMoreResult.posCoversCount ?? prev.posCoversCount,
+          posCovers: [...prev.posCovers, ...fetchMoreResult.posCovers],
         };
       },
-    });
-  }, [transformedCoversList.length, fetchMore, data?.posCovers, variables]);
+    })
+      .then(() => (staleList ? refetch() : undefined))
+      .catch(() => undefined);
+  }, [
+    transformedCoversList.length,
+    fetchMore,
+    refetch,
+    data?.posCovers,
+    variables,
+  ]);
 
   useEffect(() => {
     setPosCoverTotalCount(data?.posCovers && !error ? totalCount : null);

@@ -386,14 +386,16 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   rows keep the selected `user` for the assignee column.
 - The Covers list reads its total from `posCoversCount` (same filter
   arguments, same document as `posCovers`) so `hasNextPage` loads pages past
-  the first 30; each fetched page replaces it with that page's
-  `posCoversCount`, like Items; it writes that count on every result, including
+  the first 30; it writes that count on every result, including
   0, and resets it to `null` while a new result loads; the header shows the
   skeleton only while the query loads (`posCoverTotalCountLoadingAtom`) and no
   count after a failure, including a failed refetch while Apollo keeps the
   previous data; a failed `posCovers` request shows the error alert
-  like Orders, never the empty state. Fetched pages skip rows whose `_id` is
-  already loaded.
+  like Orders, never the empty state. A fetched page is appended only when it
+  matches the current filter (otherwise dropped) and keeps the loaded count
+  with no row overlap; a page whose `posCoversCount` differs or that repeats a
+  loaded `_id` (covers added or deleted meanwhile) is dropped and the list
+  refetches from page 1, so the length-based next page never loops.
 - POS report list documents (Orders, Items, ByItems, Summary, Covers) declare
   `$posId` and pass it to the field so the `:posId` route scopes each list;
   `posOrderCustomers` and `posOrderBySubscriptions` have no backend `posId`
