@@ -1,104 +1,20 @@
-import type {
-  ButtonHTMLAttributes,
-  InputHTMLAttributes,
-  PropsWithChildren,
-} from 'react';
+import '../../__tests__/fixtures/telegramMocks';
+import { TelegramPanel } from '../../__tests__/fixtures/telegramPanel';
 import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
 import { ADD_INTEGRATION } from '@/integrations/graphql/mutations/AddIntegration';
-import { TelegramIntegrationDetail } from '../TelegramIntegrationDetail';
+import {
+  TelegramIntegrationDetail,
+  TelegramSetup,
+} from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_ADD_BOT,
   TELEGRAM_BOTS,
   TELEGRAM_SET_WEBHOOK,
   TELEGRAM_WEBHOOK_INFO,
 } from '../graphql';
-
-jest.mock('erxes-ui', () => {
-  const { forwardRef } = jest.requireActual<typeof import('react')>('react');
-  const { Controller, FormProvider } =
-    jest.requireActual<typeof import('react-hook-form')>('react-hook-form');
-  const Wrap = ({ children }: PropsWithChildren) => <div>{children}</div>;
-  return {
-    Button: ({
-      children,
-      onClick,
-      disabled,
-      type,
-    }: ButtonHTMLAttributes<HTMLButtonElement>) => (
-      <button type={type} onClick={onClick} disabled={disabled}>
-        {children}
-      </button>
-    ),
-    Input: forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
-      (props, ref) => <input {...props} ref={ref} aria-label={props.name} />,
-    ),
-    Form: Object.assign(FormProvider, {
-      Field: Controller,
-      Item: Wrap,
-      Label: Wrap,
-      Control: Wrap,
-      Description: Wrap,
-      Message: () => null,
-    }),
-    Select: Object.assign(Wrap, {
-      Trigger: Wrap,
-      Value: () => null,
-      Content: Wrap,
-      Item: Wrap,
-    }),
-    Collapsible: Object.assign(Wrap, {
-      Trigger: Wrap,
-      TriggerIcon: () => null,
-      Content: Wrap,
-    }),
-    Sheet: Object.assign(
-      ({
-        children,
-        onOpenChange,
-      }: PropsWithChildren<{ onOpenChange: (open: boolean) => void }>) => (
-        <div>
-          <button onClick={() => onOpenChange(true)}>Open setup</button>
-          {children}
-        </div>
-      ),
-      {
-        Trigger: Wrap,
-        View: Wrap,
-        Header: Wrap,
-        Title: Wrap,
-        Close: Wrap,
-        Content: Wrap,
-        Footer: Wrap,
-      },
-    ),
-    Spinner: () => <span>Loading</span>,
-    toast: jest.fn(),
-    useConfirm: () => ({ confirm: () => Promise.resolve() }),
-    REACT_APP_API_URL: 'https://api.example.com',
-  };
-});
-jest.mock('ui-modules', () => ({
-  SelectBrand: ({
-    value,
-    onValueChange,
-  }: {
-    value: string;
-    onValueChange: (value: string) => void;
-  }) => (
-    <input
-      aria-label="brandId"
-      value={value}
-      onChange={(event) => onValueChange(event.target.value)}
-    />
-  ),
-}));
-jest.mock('react-router', () => ({ useParams: () => ({}) }));
-jest.mock('../translations', () => ({
-  useTelegramTranslation: () => ({ t: (key: string) => key }),
-}));
 
 const bot = {
   __typename: 'TelegramBot',
@@ -117,25 +33,21 @@ test.each([false, true])(
   'resumes webhook registration after a lost create response, even when the first refresh is stale (%s)',
   async (staleRefresh) => {
     let reads = 0;
-    const botsResult = jest.fn(() => ({
-      data: {
-        telegramBots:
-          ++reads === 1
-            ? []
-            : [
-                {
-                  ...bot,
-                  erxesApiId:
-                    reads > (staleRefresh ? 3 : 2) ? 'integration' : null,
-                },
-              ],
-      },
-    }));
+    const botsResult = jest.fn(() => {
+      reads += 1;
+      const linkedAfter = staleRefresh ? 3 : 2;
+      const savedBot = {
+        ...bot,
+        erxesApiId: reads > linkedAfter ? 'integration' : null,
+      };
+      return { data: { telegramBots: reads === 1 ? [] : [savedBot] } };
+    });
     const createMatches = jest.fn(() => true);
     const registerResult = jest.fn(() => ({
       data: { telegramSetWebhook: true },
     }));
-    render(
+    const store = createStore();
+    const mounted = render(
       <MockedProvider
         addTypename={false}
         mocks={[
@@ -187,12 +99,14 @@ test.each([false, true])(
           },
         ]}
       >
-        <Provider store={createStore()}>
-          <TelegramIntegrationDetail />
+        <Provider store={store}>
+          <TelegramPanel>
+            <TelegramIntegrationDetail />
+          </TelegramPanel>
         </Provider>
       </MockedProvider>,
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Open setup' }));
+    fireEvent.click(screen.getByRole('button', { name: 'connect' }));
     fireEvent.change(await screen.findByRole('textbox', { name: 'brandId' }), {
       target: { value: 'brand' },
     });
@@ -219,5 +133,23 @@ test.each([false, true])(
     );
     expect(createMatches).toHaveBeenCalledTimes(1);
     expect(registerResult).toHaveBeenCalledTimes(1);
+    mounted.unmount();
+    render(
+      <MockedProvider
+        addTypename={false}
+        mocks={[
+          {
+            request: { query: TELEGRAM_BOTS },
+            result: { data: { telegramBots: [] } },
+          },
+        ]}
+      >
+        <Provider store={store}>
+          <TelegramSetup integrationId={null} />
+        </Provider>
+      </MockedProvider>,
+    );
+    const brand = await screen.findByRole('textbox', { name: 'brandId' });
+    expect((brand as HTMLInputElement).value).toBe('');
   },
 );

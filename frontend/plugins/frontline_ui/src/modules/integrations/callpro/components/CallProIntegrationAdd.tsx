@@ -1,41 +1,38 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { useSidePanel } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router';
+import {
+  IntegrationCreateButton,
+  useIntegrationChannelId,
+} from '@/integrations/components/IntegrationPanelForm';
 import { z } from 'zod';
 import { IntegrationType } from '@/types/Integration';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
 import { CallProIntegrationForm } from '@/integrations/callpro/components/CallProIntegrationForm';
-import { callProAddSheetAtom } from '@/integrations/callpro/states/callProAddSheetAtom';
+
+const useFormDraft =
+  createIntegrationFormDraft<
+    z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>
+  >();
 
 export const CallProIntegrationAddSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [callProAddSheet, setCallProAddSheet] = useAtom(callProAddSheetAtom);
-
   return (
-    <Sheet open={callProAddSheet} onOpenChange={setCallProAddSheet}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('callpro-add')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-3xl">
-        <CallProIntegrationAdd />
-      </Sheet.View>
-    </Sheet>
+    <IntegrationCreateButton kind={IntegrationType.CALLPRO}>
+      {t('callpro-add')}
+    </IntegrationCreateButton>
   );
 };
 
+/** Creates a Call Pro integration through the record panel form. */
 export const CallProIntegrationAdd = () => {
-  const { id } = useParams();
-  const setCallProAddSheet = useSetAtom(callProAddSheetAtom);
+  const id = useIntegrationChannelId();
+  const { close } = useSidePanel();
 
   const form = useForm<z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>>({
     resolver: zodResolver(CALL_PRO_INTEGRATION_FORM_SCHEMA),
@@ -46,9 +43,11 @@ export const CallProIntegrationAdd = () => {
       brandId: '',
     },
   });
+  const { clearDraft, isActive } = useFormDraft(form);
 
   const { addIntegration, loading } = useIntegrationAdd();
 
+  /** Creates a Call Pro line and clears the form before closing on success. */
   const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
     addIntegration({
       variables: {
@@ -61,9 +60,11 @@ export const CallProIntegrationAdd = () => {
           recordUrl: data.recordUrl || '',
         },
       },
-      onCompleted() {
+      onCompleted(result) {
+        if (!result.integrationsCreateExternalIntegration?._id) return;
+        clearDraft();
         form.reset();
-        setCallProAddSheet(false);
+        if (isActive()) close();
       },
     });
   };

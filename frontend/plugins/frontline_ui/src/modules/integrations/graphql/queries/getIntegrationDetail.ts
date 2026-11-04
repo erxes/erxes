@@ -41,6 +41,10 @@ export const GET_INTEGRATION_DETAIL = gql(`
         isReceiveWebCall
       }
       isActive
+      healthStatus {
+        status
+        error
+      }
     }
   }
 `);

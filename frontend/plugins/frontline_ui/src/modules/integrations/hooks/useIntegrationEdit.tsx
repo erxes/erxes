@@ -1,3 +1,5 @@
+import { toast } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { EDIT_INTEGRATION } from '@/integrations/graphql/mutations/EditIntegration';
 import { useMutation, MutationFunctionOptions } from '@apollo/client';
 import type {
@@ -10,12 +12,30 @@ type IntegrationEditOptions = MutationFunctionOptions<
   IntegrationsEditCommonFieldsMutationVariables
 >;
 
+/** Saves common fields and completes provider forms only after a confirmed payload. */
 export const useIntegrationEdit = () => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
+  /** Keeps empty successful HTTP responses from clearing an unsaved form. */
   const mutate = (options: IntegrationEditOptions) => {
     editIntegration({
       ...options,
+      onCompleted: (data) => {
+        if (!data.integrationsEditCommonFields?._id) {
+          toast({
+            title: t(
+              'integration-save-failed',
+              'Integration could not be saved. Please try again.',
+            ),
+            variant: 'destructive',
+          });
+          return;
+        }
+        options.onCompleted?.(data);
+      },
       update: (cache, { data }) => {
         const integration = data?.integrationsEditCommonFields;
         if (!integration) return;
@@ -30,11 +50,22 @@ export const useIntegrationEdit = () => {
           ),
         });
       },
-      refetchQueries: [
-        'Integrations',
-        'IntegrationDetail',
-        'ChannelIntegrationsPeek',
-      ],
+      refetchQueries: (result) => {
+        const requestedQueries =
+          typeof options.refetchQueries === 'function'
+            ? options.refetchQueries(result)
+            : options.refetchQueries;
+        if (typeof requestedQueries === 'string') return requestedQueries;
+        return Array.from(
+          new Set([
+            'Integrations',
+            'IntegrationDetail',
+            'ChannelIntegrationsPeek',
+            ...(requestedQueries ?? []),
+          ]),
+        );
+      },
+      awaitRefetchQueries: true,
     });
   };
 
@@ -44,11 +75,13 @@ export const useIntegrationEdit = () => {
   };
 };
 
+/** Saves a table field with the existing integration identity and common values. */
 export const useIntegrationEditField = (
   cellData: IntegrationsEditCommonFieldsMutationVariables,
 ) => {
   const { editIntegration, loading } = useIntegrationEdit();
 
+  /** Applies provided field changes unless the caller has skipped this update. */
   const editIntegrationField = (
     options: Omit<IntegrationEditOptions, 'variables'> & {
       variables?: Partial<IntegrationsEditCommonFieldsMutationVariables>;

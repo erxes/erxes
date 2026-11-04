@@ -1,6 +1,6 @@
-import { Sheet, Spinner, toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
-import { useEffect } from 'react';
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { Spinner, toast } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
@@ -10,36 +10,29 @@ import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
 import { CallProIntegrationForm } from '@/integrations/callpro/components/CallProIntegrationForm';
 import { useCallProIntegrationDetail } from '@/integrations/callpro/hooks/useCallProIntegrationDetail';
-import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
+import { CALL_PRO_INTEGRATION_DETAIL } from '@/integrations/callpro/graphql/queries/callProQueries';
 
-export const CallProIntegrationSheetEdit = () => {
-  const [callProEditSheet, setCallProEditSheet] = useAtom(
-    callProEditSheetAtom,
-  );
+const useFormDraft =
+  createIntegrationFormDraft<
+    z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>
+  >();
 
-  return (
-    <Sheet
-      open={!!callProEditSheet}
-      onOpenChange={() => setCallProEditSheet(null)}
-    >
-      <Sheet.View className="sm:max-w-3xl">
-        <CallProIntegrationEdit />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const CallProIntegrationEdit = () => {
+/** Loads and edits the selected Call Pro line's name, brand, and connection. */
+export const CallProIntegrationEdit = ({
+  id: integrationId,
+}: {
+  id: string;
+}) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
 
-  const [integrationId, setEditSheet] = useAtom(callProEditSheetAtom);
+  const { close } = useSidePanel();
   const { integrationDetail, loading } = useIntegrationDetail({
     integrationId,
   });
   const { callProIntegrationDetail, loading: callProLoading } =
-    useCallProIntegrationDetail();
+    useCallProIntegrationDetail(integrationId);
 
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
 
@@ -47,28 +40,39 @@ export const CallProIntegrationEdit = () => {
     resolver: zodResolver(CALL_PRO_INTEGRATION_FORM_SCHEMA),
   });
 
+  const { markSaved, isActive, getSaveValues } = useFormDraft(form, {
+    name: integrationDetail?.name || '',
+    brandId: integrationDetail?.brandId || '',
+    phoneNumber: callProIntegrationDetail?.phoneNumber || '',
+    recordUrl: callProIntegrationDetail?.recordUrl || '',
+  });
+
   const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
-    // The channel comes from the record, so editing works from any page.
     if (!integrationId || !integrationDetail) return;
+    const submittedValues = data;
+    const savedValues = getSaveValues(data);
     editIntegration({
       variables: {
         _id: integrationId,
-        name: data.name,
+        name: savedValues.name,
         channelId: integrationDetail.channelId ?? '',
-        brandId: data.brandId,
+        brandId: savedValues.brandId,
         details: {
-          phoneNumber: data.phoneNumber,
-          recordUrl: data.recordUrl || '',
+          phoneNumber: savedValues.phoneNumber,
+          recordUrl: savedValues.recordUrl || '',
         },
       },
       refetchQueries: [
         'Integrations',
         'IntegrationDetail',
-        'callProIntegrationDetail',
+        {
+          query: CALL_PRO_INTEGRATION_DETAIL,
+          variables: { integrationId },
+        },
         'ChannelIntegrationsPeek',
       ],
       onCompleted() {
-        setEditSheet(null);
+        if (markSaved(savedValues, submittedValues) && isActive()) close();
         toast({
           title: t('integration-updated'),
           description: t('integration-updated-successfully'),
@@ -80,22 +84,9 @@ export const CallProIntegrationEdit = () => {
           description: e.message,
           variant: 'destructive',
         });
-        setEditSheet(null);
       },
     });
   };
-
-  useEffect(() => {
-    if (integrationDetail && !loading && !callProLoading) {
-      form.reset({
-        name: integrationDetail.name || '',
-        brandId: integrationDetail.brandId || '',
-        phoneNumber: callProIntegrationDetail?.phoneNumber || '',
-        recordUrl: callProIntegrationDetail?.recordUrl || '',
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationDetail, callProIntegrationDetail, callProLoading, loading]);
 
   if (loading || callProLoading) {
     return <Spinner className="h-full" />;
@@ -109,3 +100,5 @@ export const CallProIntegrationEdit = () => {
     />
   );
 };
+
+export { CallProIntegrationEdit as CallProIntegrationSheetEdit };

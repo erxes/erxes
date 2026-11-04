@@ -1,14 +1,24 @@
-import { z } from 'zod';
-import { useAtomValue, useSetAtom, WritableAtom } from 'jotai';
-import { useCallback, useEffect, useState } from 'react';
-import { UseFormReturn, useWatch } from 'react-hook-form';
+import { useAtomValue, useSetAtom, type WritableAtom } from 'jotai';
+import { useEffect, useState, type SetStateAction } from 'react';
+import {
+  type FieldValues,
+  type UseFormReturn,
+  useWatch,
+} from 'react-hook-form';
 
-export const EMFormValueEffectComponent = ({
+type MessengerFormAtom<T extends FieldValues> = WritableAtom<
+  T | null,
+  [SetStateAction<T | null>],
+  unknown
+>;
+
+/** Restores each Messenger step before syncing later local edits to its atom. */
+export const EMFormValueEffectComponent = <T extends FieldValues>({
   form,
   atom,
 }: {
-  atom: WritableAtom<any, [value: any], void>;
-  form: UseFormReturn<z.infer<any>>;
+  atom: MessengerFormAtom<T>;
+  form: UseFormReturn<T>;
 }) => {
   // `persistValueTaken` becomes true once it is safe for the setter effect to
   // start writing form values back into the atom.
@@ -41,28 +51,20 @@ export const EMFormValueEffectComponent = ({
   );
 };
 
-export const EMFormResetEffectComponent = ({
+/** Hydrates a mounted step before unlocking writes to its cached draft. */
+export const EMFormResetEffectComponent = <T extends FieldValues>({
   form,
   atom,
   persistValueTaken,
   setPersistValueTaken,
 }: {
-  form: UseFormReturn<z.infer<any>>;
-  atom: WritableAtom<any, [value: any], void>;
+  form: UseFormReturn<T>;
+  atom: MessengerFormAtom<T>;
   persistValueTaken: boolean;
   setPersistValueTaken: (value: boolean) => void;
 }) => {
   const { reset } = form;
   const atomValue = useAtomValue(atom);
-
-  const resetForm = useCallback(
-    (value: any) => {
-      setTimeout(() => {
-        reset(value);
-      });
-    },
-    [reset],
-  );
 
   // Watch atomValue until it's non-null, then reset the form once and lock
   // the gate. This handles two cases correctly:
@@ -77,22 +79,26 @@ export const EMFormResetEffectComponent = ({
   // writes form changes back into the atom. This effect is now fully blocked,
   // so user keystrokes never trigger a re-reset.
   useEffect(() => {
-    if (persistValueTaken) return; // already initialised — do nothing
-    if (!atomValue) return; // still waiting for data
-    setPersistValueTaken(true);
-    resetForm(atomValue);
-  }, [atomValue, persistValueTaken, resetForm, setPersistValueTaken]);
+    if (persistValueTaken) return undefined; // already initialised — do nothing
+    if (!atomValue) return undefined; // still waiting for data
+    const timeout = setTimeout(() => {
+      reset(atomValue);
+      setPersistValueTaken(true);
+    });
+    return () => clearTimeout(timeout);
+  }, [atomValue, persistValueTaken, reset, setPersistValueTaken]);
 
   return null;
 };
 
-export const EMFormValueSetterEffectComponent = ({
+/** Stores the latest typed form values only after the draft has been restored. */
+export const EMFormValueSetterEffectComponent = <T extends FieldValues>({
   form,
   atom,
   persistValueTaken,
 }: {
-  form: UseFormReturn<z.infer<any>>;
-  atom: WritableAtom<any, [value: any], void>;
+  form: UseFormReturn<T>;
+  atom: MessengerFormAtom<T>;
   persistValueTaken: boolean;
 }) => {
   const formValues = useWatch({
@@ -102,9 +108,9 @@ export const EMFormValueSetterEffectComponent = ({
 
   useEffect(() => {
     if (persistValueTaken) {
-      setAtomValue(formValues);
+      setAtomValue(form.getValues());
     }
-  }, [formValues, persistValueTaken, setAtomValue]);
+  }, [form, formValues, persistValueTaken, setAtomValue]);
 
   return null;
 };

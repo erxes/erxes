@@ -22,18 +22,25 @@ import {
   DISCORD_VALIDATE_TOKEN,
 } from '../graphql/queries';
 
+/** Validates a Discord token without reusing a cached provider response. */
 export const useDiscordValidateToken = () => {
   const [validate, { data, loading }] = useLazyQuery(DISCORD_VALIDATE_TOKEN, {
     fetchPolicy: 'network-only',
   });
 
+  /** Keeps token validation stable across restored setup renders. */
+  const validateToken = useCallback(
+    (token: string) => validate({ variables: { token } }),
+    [validate],
+  );
   return {
-    validate: (token: string) => validate({ variables: { token } }),
+    validate: validateToken,
     validation: data?.discordValidateToken,
     loading,
   };
 };
 
+/** Loads the servers visible to a validated bot token when the wizard needs them. */
 export const useDiscordGuilds = (token: string, skip: boolean) => {
   const { data, loading } = useQuery(DISCORD_GUILDS, {
     variables: { token },
@@ -44,6 +51,7 @@ export const useDiscordGuilds = (token: string, skip: boolean) => {
   return { guilds: compactList(data?.discordGuilds), loading };
 };
 
+/** Loads the selected server channels while preserving the wizard query guard. */
 export const useDiscordGuildChannels = (
   token: string,
   guildId: string,
@@ -58,12 +66,14 @@ export const useDiscordGuildChannels = (
   return { channels: compactList(data?.discordGuildChannels), loading };
 };
 
+/** Lists saved Discord bots available to the current workspace. */
 export const useDiscordBots = () => {
   const { data, loading } = useQuery(DISCORD_BOTS);
 
   return { bots: compactList(data?.discordBots), loading };
 };
 
+/** Lists connected servers scoped to the selected inbox channel. */
 export const useDiscordConnectedServers = (channelId?: string) => {
   const { data, loading } = useQuery(DISCORD_CONNECTED_SERVERS, {
     variables: channelId ? { channelId } : undefined,
@@ -76,6 +86,7 @@ export const useDiscordConnectedServers = (channelId?: string) => {
   };
 };
 
+/** Lists Discord channel IDs already connected to the selected inbox. */
 export const useDiscordTakenChannels = (channelId?: string) => {
   const { data, loading } = useQuery(DISCORD_TAKEN_CHANNELS, {
     variables: channelId ? { channelId } : undefined,
@@ -85,6 +96,7 @@ export const useDiscordTakenChannels = (channelId?: string) => {
   return { takenChannelIds: compactList(data?.discordTakenChannels), loading };
 };
 
+/** Loads reusable integration names and exposes a refresh after channel creation. */
 export const useDiscordNamePresets = (channelId?: string) => {
   const { data, loading, refetch } = useQuery(DISCORD_NAME_PRESETS, {
     variables: channelId ? { channelId } : undefined,
@@ -99,6 +111,7 @@ export const useDiscordNamePresets = (channelId?: string) => {
   };
 };
 
+/** Loads channels for an existing bot only while channel selection is active. */
 export const useDiscordBotChannels = (botId: string, skip: boolean) => {
   const { data, loading } = useQuery(DISCORD_BOT_CHANNELS, {
     variables: { botId },
@@ -109,6 +122,7 @@ export const useDiscordBotChannels = (botId: string, skip: boolean) => {
   return { channels: compactList(data?.discordBotChannels), loading };
 };
 
+/** Loads connected Discord servers with cached results during refresh. */
 export const useDiscordServers = () => {
   const { data, loading } = useQuery(DISCORD_SERVERS, {
     fetchPolicy: 'cache-and-network',
@@ -123,6 +137,7 @@ export type DiscordConversationChannel = NonNullable<
   >[number]
 >;
 
+/** Resolves the Discord channel associated with a conversation. */
 export const useDiscordConversationChannel = (
   conversationId: string,
   skip: boolean,
@@ -138,6 +153,7 @@ export const useDiscordConversationChannel = (
   };
 };
 
+/** Indexes the latest available Discord channel metadata by conversation ID. */
 export const useDiscordConversationChannels = (conversationIds: string[]) => {
   const { data, previousData, loading } = useQuery(
     DISCORD_CONVERSATION_CHANNELS,
@@ -162,6 +178,7 @@ export const useDiscordConversationChannels = (conversationIds: string[]) => {
   return { channelMap, loading };
 };
 
+/** Lists Discord participants for an enabled conversation lookup. */
 export const useDiscordConversationParticipants = (
   conversationId: string,
   skip: boolean,
@@ -179,6 +196,7 @@ type DiscordChannelMembersResult = NonNullable<
 >;
 type DiscordChannelMember = DiscordChannelMembersResult['members'][number];
 
+/** Reuses the longest complete cached member-search prefix. */
 const findCachedPrefix = (
   cache: Map<string, DiscordChannelMembersResult>,
   query: string,
@@ -194,6 +212,7 @@ const findCachedPrefix = (
   return null;
 };
 
+/** Searches channel members with cached prefixes and provider status updates. */
 export const useDiscordChannelMemberSearch = (
   conversationId: string,
   skip: boolean,

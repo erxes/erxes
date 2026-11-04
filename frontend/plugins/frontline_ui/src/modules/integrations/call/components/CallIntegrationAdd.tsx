@@ -1,7 +1,5 @@
-import { useAtom, useSetAtom } from 'jotai';
-import { callAddSheetAtom } from '../states/callAddSheetAtom';
-import { Button, Sheet } from 'erxes-ui';
-import { IconPlus } from '@tabler/icons-react';
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { useSidePanel } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -10,31 +8,28 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { CallIntegrationForm } from '@/integrations/call/components/CallIntegrationForm';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { IntegrationType } from '@/types/Integration';
-import { useParams } from 'react-router';
+import {
+  IntegrationCreateButton,
+  useIntegrationChannelId,
+} from '@/integrations/components/IntegrationPanelForm';
+
+const useFormDraft =
+  createIntegrationFormDraft<z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>>();
 
 export const CallIntegrationAddSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [callAddSheet, setCallAddSheet] = useAtom(callAddSheetAtom);
-
   return (
-    <Sheet open={callAddSheet} onOpenChange={setCallAddSheet}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('add-call')}
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-3xl">
-        <CallIntegrationAdd />
-      </Sheet.View>
-    </Sheet>
+    <IntegrationCreateButton kind={IntegrationType.CALL}>
+      {t('add-call')}
+    </IntegrationCreateButton>
   );
 };
 
+/** Creates a call integration through the record panel form. */
 export const CallIntegrationAdd = () => {
-  const { id } = useParams();
+  const id = useIntegrationChannelId();
 
   const form = useForm<z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>>({
     resolver: zodResolver(CALL_INTEGRATION_FORM_SCHEMA),
@@ -46,10 +41,12 @@ export const CallIntegrationAdd = () => {
       queues: '',
     },
   });
-  const setCallAddSheet = useSetAtom(callAddSheetAtom);
+  const { clearDraft, isActive } = useFormDraft(form);
+  const { close } = useSidePanel();
 
   const { addIntegration, loading } = useIntegrationAdd();
 
+  /** Creates the configured call integration and closes the panel on success. */
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
     addIntegration({
       variables: {
@@ -66,8 +63,10 @@ export const CallIntegrationAdd = () => {
           operators: data.operators,
         },
       },
-      onCompleted() {
-        setCallAddSheet(false);
+      onCompleted(result) {
+        if (!result.integrationsCreateExternalIntegration?._id) return;
+        clearDraft();
+        if (isActive()) close();
       },
     });
   };

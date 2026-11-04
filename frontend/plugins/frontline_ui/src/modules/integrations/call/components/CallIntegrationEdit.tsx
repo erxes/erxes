@@ -1,40 +1,32 @@
-import { callEditSheetAtom } from '@/integrations/call/states/callEditSheetAtom';
-import { useAtom } from 'jotai';
-import { isDefined, Sheet, Spinner, toast } from 'erxes-ui';
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { useSidePanel } from 'ui-modules';
+import { isDefined, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { CALL_INTEGRATION_FORM_SCHEMA } from '@/integrations/call/constants/callIntegrationAddSchema';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { CallIntegrationForm } from '@/integrations/call/components/CallIntegrationForm';
-import { useEffect } from 'react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useCallIntegrationDetail } from '@/integrations/call/hooks/useCallIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
+import { CALL_INTEGRATION_DETAIL } from '@/integrations/call/graphql/queries/callConfigQueries';
 
-export const CallIntegrationSheetEdit = () => {
-  const [callEditSheet, setCallEditSheet] = useAtom(callEditSheetAtom);
+const useFormDraft =
+  createIntegrationFormDraft<z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>>();
 
-  return (
-    <Sheet open={!!callEditSheet} onOpenChange={() => setCallEditSheet(null)}>
-      <Sheet.View className="sm:max-w-3xl">
-        <CallIntegrationEdit />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-export const CallIntegrationEdit = () => {
+/** Loads and edits a call integration's connection and operator settings. */
+export const CallIntegrationEdit = ({ id: integrationId }: { id: string }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
 
-  const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
+  const { close } = useSidePanel();
   const { integrationDetail, loading } = useIntegrationDetail({
     integrationId,
   });
   const { callsIntegrationDetail, loading: callLoading } =
-    useCallIntegrationDetail();
+    useCallIntegrationDetail(integrationId);
 
   const { editIntegration, loading: editLoading } = useIntegrationEdit();
 
@@ -42,37 +34,60 @@ export const CallIntegrationEdit = () => {
     resolver: zodResolver(CALL_INTEGRATION_FORM_SCHEMA),
   });
 
+  const { markSaved, isActive, getSaveValues } = useFormDraft(form, {
+    name: integrationDetail?.name || '',
+    brandId: integrationDetail?.brandId || '',
+    phone: callsIntegrationDetail?.phone || '',
+    websocketServer: callsIntegrationDetail?.wsServer || '',
+    srcTrunk: callsIntegrationDetail?.srcTrunk || '',
+    dstTrunk: callsIntegrationDetail?.dstTrunk || '',
+    queues: Array.isArray(callsIntegrationDetail?.queues)
+      ? callsIntegrationDetail?.queues.join(',')
+      : callsIntegrationDetail?.queues || '',
+    operators: (callsIntegrationDetail?.operators ?? [])
+      .filter(isDefined)
+      .map((operator) => ({
+        userId: operator.userId ?? undefined,
+        gsUsername: operator.gsUsername ?? '',
+        gsPassword: operator.gsPassword ?? '',
+      })),
+  });
+
   const onSubmit = (data: z.infer<typeof CALL_INTEGRATION_FORM_SCHEMA>) => {
-    // The channel comes from the record, so editing works from any page.
     if (!integrationId || !integrationDetail) return;
+    const submittedValues = data;
+    const savedValues = getSaveValues(data);
     editIntegration({
       variables: {
         _id: integrationId,
-        name: data.name,
+        name: savedValues.name,
         channelId: integrationDetail.channelId ?? '',
-        brandId: data.brandId,
+        brandId: savedValues.brandId,
         details: {
-          phone: data.phone,
-          wsServer: data.websocketServer,
-          srcTrunk: data?.srcTrunk || '',
-          dstTrunk: data?.dstTrunk || '',
-          queues: data.queues
-            ? data.queues
+          phone: savedValues.phone,
+          wsServer: savedValues.websocketServer,
+          srcTrunk: savedValues.srcTrunk || '',
+          dstTrunk: savedValues.dstTrunk || '',
+          queues: savedValues.queues
+            ? savedValues.queues
                 .split(',')
                 .map((q) => q.trim())
                 .filter((q) => q.length > 0)
             : [],
-          operators: data.operators,
+          operators: savedValues.operators,
         },
       },
       refetchQueries: [
         'Integrations',
-        'callsIntegrationDetail',
+        {
+          query: CALL_INTEGRATION_DETAIL,
+          variables: { integrationId },
+        },
         'IntegrationDetail',
         'ChannelIntegrationsPeek',
       ],
       onCompleted() {
-        setEditSheet(null);
+        if (markSaved(savedValues, submittedValues) && isActive()) close();
         toast({
           title: t('integration-updated'),
           description: t('integration-updated-successfully'),
@@ -84,39 +99,9 @@ export const CallIntegrationEdit = () => {
           description: e.message,
           variant: 'destructive',
         });
-        setEditSheet(null);
       },
     });
   };
-
-  useEffect(() => {
-    if (
-      integrationDetail &&
-      !loading &&
-      !callLoading &&
-      callsIntegrationDetail
-    ) {
-      form.reset({
-        name: integrationDetail.name || '',
-        brandId: integrationDetail.brandId || '',
-        phone: callsIntegrationDetail?.phone || '',
-        websocketServer: callsIntegrationDetail?.wsServer || '',
-        srcTrunk: callsIntegrationDetail?.srcTrunk || '',
-        dstTrunk: callsIntegrationDetail?.dstTrunk || '',
-        queues: Array.isArray(callsIntegrationDetail?.queues)
-          ? callsIntegrationDetail?.queues.join(',')
-          : callsIntegrationDetail?.queues || '',
-        operators: (callsIntegrationDetail?.operators ?? [])
-          .filter(isDefined)
-          .map((operator) => ({
-            userId: operator.userId ?? undefined,
-            gsUsername: operator.gsUsername ?? '',
-            gsPassword: operator.gsPassword ?? '',
-          })),
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [integrationDetail, callsIntegrationDetail, callLoading, loading]);
 
   if (loading || callLoading) {
     return <Spinner className="h-full" />;
@@ -130,3 +115,5 @@ export const CallIntegrationEdit = () => {
     />
   );
 };
+
+export { CallIntegrationEdit as CallIntegrationSheetEdit };

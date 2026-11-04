@@ -1,37 +1,25 @@
-import { IconPlus } from '@tabler/icons-react';
-import { Button, Sheet } from 'erxes-ui';
-import {
-  erxesMessengerSetupSheetOpenAtom,
-  settedIntegrationDetailAtom,
-} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
-import { EMSetup } from '@/integrations/erxes-messenger/components/EMSetup';
-import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
+import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { IntegrationCreateButton } from '@/integrations/components/IntegrationPanelForm';
+import { erxesMessengerSetupEditSheetOpenAtom } from '../states/erxesMessengerSetupStates';
+import { EMSetup } from './EMSetup';
+import { useMessengerDraft } from '../hooks/useMessengerDraft';
 
+/** Opens Messenger creation with the edit identity cleared even during a pending read. */
 export const AddErxesMessengerSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [open, setOpen] = useAtom(erxesMessengerSetupSheetOpenAtom);
-  const settedIntegrationDetail = useAtomValue(settedIntegrationDetailAtom);
-  const resetErxesMessengerSetup = useSetAtom(resetErxesMessengerSetupAtom);
-
+  const setEditId = useSetAtom(erxesMessengerSetupEditSheetOpenAtom);
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <div>
-        <Sheet.Trigger asChild>
-          <Button
-            onClick={() =>
-              settedIntegrationDetail && resetErxesMessengerSetup()
-            }
-          >
-            <IconPlus />
-            {t('add-messenger')}
-          </Button>
-        </Sheet.Trigger>
-      </div>
-      <EMSetup title={t('add-erxes-messenger')} />
-    </Sheet>
+    <IntegrationCreateButton kind="messenger" onClick={() => setEditId(false)}>
+      {t('add-messenger')}
+    </IntegrationCreateButton>
   );
+};
+
+/** Restores the create draft before mounting Messenger setup. */
+export const AddErxesMessengerPanelForm = () => {
+  const ready = useMessengerDraft(false);
+  return ready ? <EMSetup /> : null;
 };

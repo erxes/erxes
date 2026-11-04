@@ -1,13 +1,20 @@
 import {
+  createIntegrationDraftState,
+  createIntegrationFormDraft,
+} from '@/integrations/hooks/useIntegrationDraft';
+import {
+  IntegrationCreateButton,
+  useIntegrationChannelId,
+} from '@/integrations/components/IntegrationPanelForm';
+import { useSidePanel, SelectBrand } from 'ui-modules';
+import {
   IconAlertTriangle,
   IconCheck,
   IconCircleCheck,
   IconCopy,
   IconInfoCircle,
-  IconPlus,
 } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Spinner, toast } from 'erxes-ui';
-import { useAtom } from 'jotai';
 import {
   useForm,
   type Control,
@@ -17,14 +24,12 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useState } from 'react';
-import { mailFormSheetAtom } from '@/integrations/mail/states/mailStates';
 import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { IntegrationSteps } from '@/integrations/components/IntegrationSteps';
 import { IntegrationType } from '@/types/Integration';
-import { useParams } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { SelectBrand } from 'ui-modules';
+
 import { MailSendingRequired } from './MailSendingRequired';
 import { useMailSendingReadiness } from '@/integrations/mail/hooks/useMailSendingReadiness';
 
@@ -68,6 +73,12 @@ export const MAIL_FORM_FIELDS: FormFieldConfig[] = [
     description: 'sender-name-description',
   },
 ];
+
+const useWizardStep = createIntegrationDraftState(1);
+const useCreatedId = createIntegrationDraftState<string | null>(null);
+const useSubmitting = createIntegrationDraftState(false);
+
+const useFormDraft = createIntegrationFormDraft<MailFormValues>();
 
 export const MailFormField = <TValues extends FieldValues>({
   name,
@@ -272,27 +283,59 @@ const MailIntegrationCreated = ({
   );
 };
 
-// skipcq: JS-R1005
-export const MailIntegrationFormSheet = () => {
+/** Keeps sending-readiness failures visible with a retry that retains wizard fields. */
+const MailReadinessError = ({
+  message,
+  onRetry,
+}: {
+  message: string;
+  onRetry: () => Promise<unknown>;
+}) => {
   const { t } = useTranslation('frontline');
-  const [isOpen, setIsOpen] = useAtom(mailFormSheetAtom);
-  const [step, setStep] = useState(1);
-  const [createdId, setCreatedId] = useState<string | null>(null);
-  const { id } = useParams();
+  return (
+    <Alert variant="destructive">
+      <Alert.Title>
+        {t('mail-sending-unavailable', 'Sending readiness unavailable')}
+      </Alert.Title>
+      <Alert.Description>{message}</Alert.Description>
+      <Button type="button" onClick={onRetry}>
+        {t('retry', 'Retry')}
+      </Button>
+    </Alert>
+  );
+};
+
+// skipcq: JS-R1005
+export const MailIntegrationPanelForm = () => {
+  const { t } = useTranslation('frontline');
+  const { close: closePanel } = useSidePanel();
+  const [step, setStep] = useWizardStep();
+  const [createdId, setCreatedId] = useCreatedId();
+  const [submitting, setSubmitting] = useSubmitting();
+  const id = useIntegrationChannelId();
 
   const form = useForm<MailFormValues>({
     resolver: zodResolver(mailFormSchema),
     defaultValues: { name: '', forwardFrom: '', senderName: '', brandId: '' },
   });
+  const { clearDraft } = useFormDraft(form);
 
   const { addIntegration, loading } = useIntegrationAdd();
-  const { readiness, loading: readinessLoading } = useMailSendingReadiness();
+  const {
+    readiness,
+    loading: readinessLoading,
+    error: readinessError,
+    refetch: retryReadiness,
+  } = useMailSendingReadiness();
 
   const close = () => {
-    setIsOpen(false);
-    setStep(1);
-    setCreatedId(null);
-    form.reset();
+    if (step === 4) {
+      clearDraft();
+      setStep(1);
+      setCreatedId(null);
+      form.reset();
+    }
+    closePanel();
   };
 
   const values = form.watch();
@@ -302,203 +345,206 @@ export const MailIntegrationFormSheet = () => {
   const sendingDomain =
     readiness?.cloudflare?.domain || readiness?.platform?.domain || null;
 
-  const sendingReady = Boolean(readiness?.ready);
+  const sendingReady = Boolean(readiness?.ready && !readinessError);
 
-  const onSubmit = (data: MailFormValues) =>
-    addIntegration({
-      variables: {
-        name: data.name,
-        kind: IntegrationType.MAIL,
-        channelId: id ?? '',
-        brandId: data.brandId,
-        data: {
-          forwardFrom: data.forwardFrom,
-          senderName: data.senderName,
+  /** Creates only from the confirmed sending step and retains failures for retry. */
+  const onSubmit = async (data: MailFormValues) => {
+    if (
+      step !== 3 ||
+      !sendingReady ||
+      readinessLoading ||
+      loading ||
+      submitting ||
+      createdId
+    )
+      return;
+    setSubmitting(true);
+    try {
+      const result = await addIntegration({
+        variables: {
+          name: data.name,
+          kind: IntegrationType.MAIL,
+          channelId: id ?? '',
+          brandId: data.brandId,
+          data: {
+            forwardFrom: data.forwardFrom,
+            senderName: data.senderName,
+          },
         },
-      },
-      onCompleted(created) {
-        const newId = created?.integrationsCreateExternalIntegration?._id;
-
-        if (newId) {
-          setCreatedId(newId);
-          setStep(4);
-        }
-      },
-    });
+      });
+      const newId = result.data?.integrationsCreateExternalIntegration?._id;
+      if (!newId) throw new Error(t('failed-to-add-integration'));
+      setCreatedId(newId);
+      setStep(4);
+    } catch (error: unknown) {
+      toast({
+        title: t('failed-to-add-integration'),
+        description: error instanceof Error ? error.message : undefined,
+        variant: 'destructive',
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div>
-      <Sheet
-        open={isOpen}
-        onOpenChange={(next) => (next ? setIsOpen(true) : close())}
+    <Form {...form}>
+      <form
+        className="flex flex-1 flex-col overflow-hidden"
+        onSubmit={form.handleSubmit(onSubmit)}
       >
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-email-integration')}
-          </Button>
-        </Sheet.Trigger>
+        <Sheet.Content className="flex flex-col overflow-hidden">
+          <IntegrationSteps
+            step={step}
+            title={t(STEP_TITLES[step - 1])}
+            stepsLength={STEP_TITLES.length}
+          />
 
-        <Sheet.View>
-          <Form {...form}>
-            <form
-              className="flex flex-1 flex-col overflow-hidden"
-              onSubmit={form.handleSubmit(onSubmit)}
-            >
-              <Sheet.Header>
-                <Sheet.Title>{t('add-email-integration')}</Sheet.Title>
-                <Sheet.Description className="sr-only">
-                  {t('mail-setup-description')}
-                </Sheet.Description>
-                <Sheet.Close />
-              </Sheet.Header>
-
-              <Sheet.Content className="flex flex-col overflow-hidden">
-                <IntegrationSteps
-                  step={step}
-                  title={t(STEP_TITLES[step - 1])}
-                  stepsLength={STEP_TITLES.length}
+          <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 pt-0">
+            {step === 1 && (
+              <>
+                <MailFormField
+                  {...MAIL_FORM_FIELDS[0]}
+                  control={form.control}
                 />
-
-                <div className="flex flex-1 flex-col gap-4 overflow-auto p-4 pt-0">
-                  {step === 1 && (
-                    <>
-                      <MailFormField
-                        {...MAIL_FORM_FIELDS[0]}
-                        control={form.control}
-                      />
-                      <MailFormField
-                        {...MAIL_FORM_FIELDS[2]}
-                        control={form.control}
-                      />
-                      {!!sendingDomain &&
-                        !!(
-                          values.senderName?.trim() || values.name?.trim()
-                        ) && (
-                          <MailSenderPreview
-                            senderName={
-                              values.senderName?.trim() ||
-                              values.name?.trim() ||
-                              ''
-                            }
-                            address={`…@${sendingDomain}`}
-                          />
-                        )}
-                      <Form.Field
-                        name="brandId"
-                        control={form.control}
-                        render={({ field }) => (
-                          <Form.Item className="space-y-1">
-                            <Form.Label className="text-sm font-normal text-muted-foreground">
-                              {t('brand')}
-                              <span className="ml-0.5 text-destructive">*</span>
-                            </Form.Label>
-                            <Form.Control>
-                              <SelectBrand
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                placeholder={t('select-a-brand')}
-                                className="h-10 w-full rounded-lg border bg-background"
-                              />
-                            </Form.Control>
-                            <Form.Description>
-                              {t('choose-brand-description')}
-                            </Form.Description>
-                            <Form.Message />
-                          </Form.Item>
-                        )}
-                      />
-                    </>
-                  )}
-
-                  {step === 2 && (
-                    <MailFormField
-                      {...MAIL_FORM_FIELDS[1]}
-                      control={form.control}
-                    />
-                  )}
-
-                  {step === 3 &&
-                    (readiness && !readiness.ready ? (
-                      <MailSendingRequired
-                        reason={readiness.cloudflare?.reason}
-                      />
-                    ) : (
-                      <MailSendingSummary
-                        domain={sendingDomain}
-                        senderName={
-                          values.senderName?.trim() || values.name?.trim() || ''
-                        }
-                      />
-                    ))}
-
-                  {step === 4 && createdId && (
-                    <MailIntegrationCreated
-                      integrationId={createdId}
-                      sendingDomain={sendingDomain}
+                <MailFormField
+                  {...MAIL_FORM_FIELDS[2]}
+                  control={form.control}
+                />
+                {Boolean(sendingDomain) &&
+                  Boolean(values.senderName?.trim() || values.name?.trim()) && (
+                    <MailSenderPreview
                       senderName={
                         values.senderName?.trim() || values.name?.trim() || ''
                       }
+                      address={`…@${sendingDomain}`}
                     />
                   )}
-                </div>
-              </Sheet.Content>
+                <Form.Field
+                  name="brandId"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Form.Item className="space-y-1">
+                      <Form.Label className="text-sm font-normal text-muted-foreground">
+                        {t('brand')}
+                        <span className="ml-0.5 text-destructive">*</span>
+                      </Form.Label>
+                      <Form.Control>
+                        <SelectBrand
+                          value={field.value}
+                          onValueChange={field.onChange}
+                          placeholder={t('select-a-brand')}
+                          className="h-10 w-full rounded-lg border bg-background"
+                        />
+                      </Form.Control>
+                      <Form.Description>
+                        {t('choose-brand-description')}
+                      </Form.Description>
+                      <Form.Message />
+                    </Form.Item>
+                  )}
+                />
+              </>
+            )}
 
-              <Sheet.Footer>
-                {step === 4 ? (
-                  <Button type="button" className="ml-auto" onClick={close}>
-                    {t('done')}
-                  </Button>
-                ) : (
-                  <>
-                    <Button
-                      className="mr-auto text-muted-foreground"
-                      variant="ghost"
-                      type="button"
-                      onClick={close}
-                      disabled={loading}
-                    >
-                      {t('cancel')}
-                    </Button>
+            {step === 2 && (
+              <MailFormField {...MAIL_FORM_FIELDS[1]} control={form.control} />
+            )}
 
-                    <Button
-                      variant="secondary"
-                      className="bg-border"
-                      type="button"
-                      disabled={step === 1 || loading}
-                      onClick={() => setStep((current) => current - 1)}
-                    >
-                      {t('previous-step')}
-                    </Button>
+            {step === 3 && readinessError && (
+              <MailReadinessError
+                message={readinessError.message}
+                onRetry={() => retryReadiness().catch(() => undefined)}
+              />
+            )}
+            {step === 3 &&
+              !readinessError &&
+              (readiness && !readiness.ready ? (
+                <MailSendingRequired reason={readiness.cloudflare?.reason} />
+              ) : (
+                <MailSendingSummary
+                  domain={sendingDomain}
+                  senderName={
+                    values.senderName?.trim() || values.name?.trim() || ''
+                  }
+                />
+              ))}
 
-                    {step < 3 ? (
-                      <Button
-                        type="button"
-                        disabled={step === 1 && !basicsReady}
-                        onClick={() => setStep((current) => current + 1)}
-                      >
-                        {t('next-step')}
-                      </Button>
-                    ) : (
-                      <Button
-                        type="submit"
-                        disabled={
-                          loading ||
-                          readinessLoading ||
-                          !basicsReady ||
-                          !sendingReady
-                        }
-                      >
-                        {loading ? t('saving') : t('create')}
-                      </Button>
-                    )}
-                  </>
-                )}
-              </Sheet.Footer>
-            </form>
-          </Form>
-        </Sheet.View>
-      </Sheet>
-    </div>
+            {step === 4 && createdId && (
+              <MailIntegrationCreated
+                integrationId={createdId}
+                sendingDomain={sendingDomain}
+                senderName={
+                  values.senderName?.trim() || values.name?.trim() || ''
+                }
+              />
+            )}
+          </div>
+        </Sheet.Content>
+
+        <Sheet.Footer>
+          {step === 4 ? (
+            <Button type="button" className="ml-auto" onClick={close}>
+              {t('done')}
+            </Button>
+          ) : (
+            <>
+              <Button
+                className="mr-auto text-muted-foreground"
+                variant="ghost"
+                type="button"
+                onClick={close}
+                disabled={loading || submitting}
+              >
+                {t('cancel')}
+              </Button>
+
+              <Button
+                variant="secondary"
+                className="bg-border"
+                type="button"
+                disabled={step === 1 || loading || submitting}
+                onClick={() => setStep(step - 1)}
+              >
+                {t('previous-step')}
+              </Button>
+
+              {step < 3 ? (
+                <Button
+                  type="button"
+                  disabled={step === 1 && !basicsReady}
+                  onClick={() => setStep(step + 1)}
+                >
+                  {t('next-step')}
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={
+                    loading ||
+                    submitting ||
+                    readinessLoading ||
+                    !basicsReady ||
+                    !sendingReady
+                  }
+                >
+                  {loading ? t('saving') : t('create')}
+                </Button>
+              )}
+            </>
+          )}
+        </Sheet.Footer>
+      </form>
+    </Form>
+  );
+};
+
+/** Opens the mail integration setup record panel. */
+export const MailIntegrationFormSheet = () => {
+  const { t } = useTranslation('frontline');
+  return (
+    <IntegrationCreateButton kind={IntegrationType.MAIL}>
+      {t('add-email-integration')}
+    </IntegrationCreateButton>
   );
 };

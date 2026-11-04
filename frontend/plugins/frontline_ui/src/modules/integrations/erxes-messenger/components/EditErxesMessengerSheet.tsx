@@ -1,59 +1,35 @@
-import { Sheet } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
-import { erxesMessengerSetupEditSheetOpenAtom } from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
+import { useAtomValue, useSetAtom, useStore } from 'jotai';
+import {
+  erxesMessengerSetupEditSheetOpenAtom,
+  settedIntegrationDetailAtom,
+} from '@/integrations/erxes-messenger/states/erxesMessengerSetupStates';
 import { EMSetup } from '@/integrations/erxes-messenger/components/EMSetup';
 import { useEMIntegrationDetail } from '@/integrations/erxes-messenger/hooks/useEMIntegrationDetail';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect } from 'react';
 import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
-import { resetErxesMessengerSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupResetState';
-import { useTranslation } from 'react-i18next';
+import { useMessengerDraft } from '../hooks/useMessengerDraft';
 
-export const EditErxesMessengerSheet = () => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [idToEdit, setOpen] = useAtom(erxesMessengerSetupEditSheetOpenAtom);
+/** Restores the selected draft and accepts detail only for the active edit identity. */
+export const EditErxesMessengerSheet = ({ id: idToEdit }: { id: string }) => {
+  const ready = useMessengerDraft(idToEdit);
+  const store = useStore();
+  const populated = useAtomValue(settedIntegrationDetailAtom);
   const { integrationDetail, loading } = useEMIntegrationDetail({
     id: idToEdit,
   });
   const setEMSetupValues = useSetAtom(erxesMessengerSetSetupAtom);
-  const resetSetup = useSetAtom(resetErxesMessengerSetupAtom);
 
-  // Track the previous id so we can detect when the target integration changes.
-  const prevIdRef = useRef<string | false>(false);
-
-  // True only after setEMSetupValues has been called for the current idToEdit.
-  // Used to keep the spinner visible until atoms are populated, so EMAppearance
-  // (and other step forms) never mount while atomValue is null — which would
-  // cause persistValueTaken to initialise as true and block form reset.
-  const [isPopulated, setIsPopulated] = useState(false);
-
-  // When a different integration is opened for editing, clear the cached atom
-  // state and mark atoms as not-yet-populated so the form stays hidden until
-  // the API response arrives and the atoms are refilled.
   useEffect(() => {
-    if (idToEdit && idToEdit !== prevIdRef.current) {
-      prevIdRef.current = idToEdit;
-      resetSetup(true);
-      setIsPopulated(false);
-    }
-    if (!idToEdit) {
-      prevIdRef.current = false;
-    }
-  }, [idToEdit, resetSetup]);
-
-  // Once the API responds, populate all atoms with the fresh integration data,
-  // then mark atoms as ready so the form is allowed to render.
-  useEffect(() => {
-    if (integrationDetail) {
+    if (
+      !populated &&
+      integrationDetail?._id === idToEdit &&
+      store.get(erxesMessengerSetupEditSheetOpenAtom) === idToEdit
+    ) {
       setEMSetupValues(integrationDetail);
-      setIsPopulated(true);
     }
-  }, [integrationDetail, setEMSetupValues]);
+  }, [idToEdit, integrationDetail, populated, setEMSetupValues, store]);
 
-  return (
-    <Sheet open={!!idToEdit} onOpenChange={() => setOpen(false)}>
-      <EMSetup title={t('edit-erxes-messenger')} loading={loading || !isPopulated} />
-    </Sheet>
-  );
+  return ready ? (
+    <EMSetup loading={!populated && (loading || !integrationDetail)} />
+  ) : null;
 };

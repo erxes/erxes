@@ -1,58 +1,16 @@
-import type { ButtonHTMLAttributes, PropsWithChildren } from 'react';
+import '../../__tests__/fixtures/telegramMocks';
+import { TelegramPanel } from '../../__tests__/fixtures/telegramPanel';
 import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
 import type { IIntegration } from '@/integrations/types/Integration';
-import {
-  TelegramIntegrationActions,
-  TelegramIntegrationDetail,
-} from '../TelegramIntegrationDetail';
+import { TelegramIntegrationActions } from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_BOTS,
   TELEGRAM_DISCONNECT,
   TELEGRAM_WEBHOOK_INFO,
 } from '../graphql';
-
-jest.mock('erxes-ui', () => {
-  const Wrap = ({ children }: PropsWithChildren) => <div>{children}</div>;
-  return {
-    Button: ({
-      children,
-      onClick,
-      disabled,
-      type,
-    }: ButtonHTMLAttributes<HTMLButtonElement>) => (
-      <button type={type} onClick={onClick} disabled={disabled}>
-        {children}
-      </button>
-    ),
-    Form: Object.assign(Wrap, { Field: () => null }),
-    Collapsible: Object.assign(Wrap, {
-      Trigger: Wrap,
-      TriggerIcon: () => null,
-      Content: Wrap,
-    }),
-    Sheet: Object.assign(Wrap, {
-      Trigger: Wrap,
-      View: Wrap,
-      Header: Wrap,
-      Title: Wrap,
-      Close: Wrap,
-      Content: Wrap,
-      Footer: Wrap,
-    }),
-    Spinner: () => <span>Loading</span>,
-    toast: jest.fn(),
-    useConfirm: () => ({ confirm: () => Promise.resolve() }),
-    REACT_APP_API_URL: 'https://api.example.com',
-  };
-});
-jest.mock('ui-modules', () => ({ SelectBrand: () => null }));
-jest.mock('react-router', () => ({ useParams: () => ({}) }));
-jest.mock('../translations', () => ({
-  useTelegramTranslation: () => ({ t: (key: string) => key }),
-}));
 
 const bot = {
   __typename: 'TelegramBot',
@@ -69,6 +27,11 @@ const integration: IIntegration = {
   _id: 'integration',
   name: 'Telegram',
   kind: 'telegram',
+  isActive: true,
+  brandId: null,
+  channelId: null,
+  healthStatus: null,
+  facebookPage: null,
 };
 beforeEach(() => jest.clearAllMocks());
 
@@ -106,8 +69,9 @@ test.each([true, false])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramIntegrationActions integration={integration} />
-          <TelegramIntegrationDetail />
+          <TelegramPanel>
+            <TelegramIntegrationActions integration={integration} />
+          </TelegramPanel>
         </Provider>
       </MockedProvider>,
     );

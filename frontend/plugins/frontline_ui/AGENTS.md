@@ -96,6 +96,14 @@
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.
 
+- Integration creation and editing open `frontline:integration` records through
+  the shared side panel. The panel supplies title, actions, Detail and Activity
+  views while reusing the provider forms and mutation hooks. Provider fields and
+  wizard progress survive Activity, other records, and reopening through typed
+  memory drafts scoped by user, record, provider, and channel. Cancel retains
+  the draft; confirmed saves and deletion clear the affected drafts. Discord
+  tokens stay in memory. Messenger keeps its existing preview storage contract
+  while preserving each record and create context in separate memory snapshots.
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
   new-ticket form (`TicketCreateFormHeader`/`Footer`, chips via
@@ -180,7 +188,7 @@
   refetches active setup/integration queries; status errors remain inline.
 - Integrations config includes a Telegram section with setup instructions and
   links to personal and team inbox settings. Each bot is configured through
-  the existing inbox integration sheet; no workspace-wide bot credentials are
+  the shared integration record panel; no workspace-wide bot credentials are
   duplicated on the config page.
 
 - The Erxes Messenger Message trigger form has an optional messenger picker
@@ -807,8 +815,8 @@ owns the setup form and connection actions.
 | Channel settings          | `src/modules/channels`                                                                                                                            | Channel CRUD, members, GraphQL documents, form schemas                                                                                          |
 | Personal channel          | `src/modules/channels/components/settings/personal-channel`, `src/pages/PersonalChannelPage.tsx`                                                  | Profile page for the user's private inbox                                                                                                       |
 | Inbox                     | `src/modules/inbox/`                                                                                                                              | Conversations, messages, filters, channels, brands, integrations                                                                                |
-| Integrations              | `src/modules/integrations/`                                                                                                                       | Per-provider connect forms and detail views                                                                                                     |
-| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Add/edit sheets over one shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                 |
+| Integrations              | `src/modules/integrations/`                                                                                                                       | Provider catalog, add/edit record panels, setup, recovery and connection actions                                                                |
+| Call Pro                  | `src/modules/integrations/callpro/`                                                                                                               | Record panels over shared `CallProIntegrationForm`, webhook URL hint, recording player, and the caller-to-customer picker                       |
 | Ticket                    | `src/modules/ticket/`, `src/modules/pipelines/`, `src/modules/status/`                                                                            | Ticket boards, pipelines, statuses                                                                                                              |
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
@@ -847,9 +855,9 @@ owns the setup form and connection actions.
 | Mail conversation         | `src/modules/integrations/mail/components/MailConversationDetail.tsx`                                                                             | Thread reader, compose box, delivery badges and resend, quoted-content toggle                                                                   |
 | Mail AI drafts            | `src/modules/integrations/mail/components/MailDraft{s,Card,EditForm}.tsx`, `src/modules/integrations/mail/hooks/useMailDrafts.tsx`                | Pending draft list under the thread, per-draft send/edit/delete, `mailDraftChanged` refetch                                                     |
 | Mail body                 | `src/modules/integrations/mail/components/EmailBody.tsx`                                                                                          | Sanitised, CSP-locked `srcDoc` iframe with the remote-image gate                                                                                |
-| Mail data                 | `src/modules/integrations/mail/{graphql,hooks,states}/`                                                                                           | `mailConversationDetail` window, send and retry mutations, form sheet atom                                                                      |
+| Mail data                 | `src/modules/integrations/mail/{graphql,hooks}/`                                                                                                  | `mailConversationDetail` window, send and retry mutations; provider forms use scoped in-memory integration drafts                               |
 | Mail provider setup       | `src/modules/integrations/mail/components/MailConfigUpdate.tsx`, `src/modules/integrations/mail/hooks/useMailCloudflare*.tsx`                     | Cloudflare connect form, provisioning step list, outbound state and quota, repair and disconnect                                                |
-| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step `Sheet` wizard over the shared `IntegrationSteps` chrome                                                                              |
+| Mail add wizard           | `src/modules/integrations/mail/components/MailIntegrationForm.tsx`                                                                                | Four-step record panel wizard over IntegrationSteps with scoped in-memory form and progress drafts                                              |
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
@@ -869,7 +877,7 @@ owns the setup form and connection actions.
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
-  supports ticket and knowledge base records; ticket properties remain available.
+  supports ticket, knowledge base, Help Center and integration records; ticket properties remain available.
   `TicketPanelDetail.tsx` renders ticket fields and attachments, and
   `TicketPanelName` edits the ticket's name in the panel's top bar (plain text
   without edit permission); the name is not repeated in Detail. Knowledge base
@@ -901,6 +909,12 @@ owns the setup form and connection actions.
 - `FrontlineMain` lazy-loads the named `HelpCenterIndexPage` export from
   `src/pages/HelpCenterIndexPage.tsx` for `/frontline/helpcenter`.
 
+- `CONFIG.widgets.recordPanels` also registers `frontline:integration`, with
+  `properties: false`. `./recordPanel` exposes the named `RecordPanel` at
+  `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
+  `IntegrationRecordPanel` for that type and ignores unsupported types. The views
+  are title, actions, new, Detail and Activity. `IntegrationRecordForm` reuses
+  the existing provider forms and mutation hooks.
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -1159,6 +1173,18 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   record's draft and opens that record in the still-active panel. Another Create
   never uses the previous site's ID.
 
+- Integration forms retain their existing React Hook Form validation and
+  mutation hooks. `shared/hooks/usePanelFormDraft` and typed collections in
+  `integrations/hooks/useIntegrationDraft` preserve fields and provider wizard
+  progress in memory, scoped by user, record/create id, provider and channel.
+  Mail/Discord pending and completed steps use that same context lifetime.
+  Cancel and navigation retain drafts; saves acknowledge submitted values and
+  revision, and deletion clears only the selected user's record. New credential
+  drafts never enter browser storage. Messenger keeps its existing preview
+  storage contract alongside scoped memory snapshots.
+- Call and Call Pro detail hooks take the selected integration ID directly;
+  their panel forms close through the public `useSidePanel` API.
+
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
   receipt. The existing conversation-change cleanup and user/conversation
@@ -1327,8 +1353,49 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Confirmed Help Center deletion IDs are reconciled by the mounted title view
   against its current record; an earlier deletion must not close a newer panel.
 
+- Named integration callbacks retain JSDoc required by DeepSource `JS-D1001`.
+- Integration panel registration, the federation expose and the named panel
+  export must stay aligned. Provider create/edit entry points use the shared
+  side panel and its `IntegrationRecordForm` provider dispatcher.
+- Facebook, Discord, and Mail create flows require a returned integration id
+  before completing. Facebook and Instagram consume their OAuth-return account
+  after draft restoration, preserving the existing page-selection resume flow.
+  Discord creates selected channels sequentially and retries only unconfirmed
+  channels after partial setup; blocked Facebook popups release the login action for retry. Mail submit
+  itself requires the sending confirmation step and successful readiness, and
+  readiness query errors expose retry without clearing the fields.
+- Telegram setup separates field and webhook-status markup from its mutation
+  handlers; presentation changes must retain recovery and callback precedence.
+- Messenger save entry points capture the submitted atom revision and acknowledge
+  it only if no newer revision exists, including after Activity/reopen. A newer
+  same-context edit prevents snapshot deletion, reset, and close. Equivalent
+  atom restoration does not advance the revision.
+- Facebook and Instagram share context-scoped request ownership and confirmed
+  create results. Handlers reject pending or completed repeats; a live remount
+  observes success and closes/resets the completed setup. Pending ownership
+  survives unmount; confirmed-session unmount clears its snapshots; a failure
+  releases only its own request and preserves the fields for retry.
+- Messenger configuration keeps one controlled form state across bot, ticket,
+  and knowledge-base tabs; its persistent-menu and automation selectors use
+  the existing controlled form fields.
+- Call Pro and Facebook edit text inputs register directly with React Hook Form and show
+  validation through `PanelFormRow.error`; controlled brand selectors retain
+  `Form.Field` and their existing provider change handlers.
+- Integration panel name and brand rows reuse `IntegrationNameField` and
+  `IntegrationBrandField` in `integrations/components/IntegrationFormFields.tsx`;
+  provider forms retain their registered/controlled inputs, selector variants,
+  row placement, descriptions and validation feedback.
+- Use the shared `PanelFormLayout`, `PanelFormRow` and
+  `PANEL_INPUT_CLASS_NAME` for integration panel form layout; keep validation
+  and saving in the existing provider forms and hooks. Reuse
+  `shared/hooks/usePanelFormDraft` for forms and the typed collections in
+  `integrations/hooks/useIntegrationDraft` for provider wizard state. Never
+  persist new credential drafts to browser storage or duplicate provider rows
+  and footers. Navigation and Cancel preserve drafts; explicit replacement
+  or discard must require a user choice.
+
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
-- Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
+- Integration create and remove stay visible until the list has caught up: the Facebook setup panel closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
 - The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
 - Persistent menu and ice breakers are optional: the bot form never fills a
   default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
@@ -1389,11 +1456,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   outside the pipeline pages must pass them.
 - Integration row actions live in `IntegrationActionsMenu({ integration })`
   and read the kind from `integration.kind`, never from the route; action and
-  repair components take `integration`, not a table `cell`. Erxes messenger,
-  call, callpro and telegram edit through atom-driven sheets; a page listing
-  integrations of every kind mounts `IntegrationEditSheets` once (the channel
-  list does). Their edits take the channel from the loaded record, never from
-  the route.
+  repair components take `integration`, not a table `cell`. Every supported
+  provider edits through the shared integration record panel. Its edits take
+  the channel from the loaded record, never from the route. Messenger Add
+  clears the edit identity even while detail is loading, and edit hydration
+  must match both the requested id and the active editor.
 - Integration create/update/delete/repair/move mutations refetch
   `ChannelIntegrationsPeek` alongside `Integrations`.
 - `ChannelIntegrationsPeek` never selects `instagramPage`: that resolver calls
@@ -1450,6 +1517,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Keep Telegram linkification, authenticated preview lookup and Stream-origin
   validation inside its module. Quotes render literal provider text. Never
   put Telegram bot tokens or token-bearing download URLs in browser data.
+- Telegram setup keeps loading, failed-read, missing-record and editable states
+  mutually exclusive. Callback messaging prioritizes a saved webhook, then a
+  failed status read, then a detected public address, then local configuration.
 - Reconcile a saved Telegram bot with the server before retrying inbox linking;
   a lost mutation response may hide an already-committed integration.
 - Telegram chat-label loads explicitly settle both success and rejection;
@@ -2089,10 +2159,11 @@ allow-popups-to-escape-sandbox` only — and every link is rewritten to
   That query selects the core `Customer` inline fields, and
   `useCallProCustomersByPhone` drops rows without an `_id` and maps null
   fields to `undefined` so the rows are `ICustomer`s.
-- Call Pro follows the `call` module's integration-form shape: `callProAddSheetAtom`
-  (boolean) and `callProEditSheetAtom` (integration id) drive two `Sheet`s over a
-  single `CallProIntegrationForm`, and `CallProIntegrationDetail` is the one place
-  both sheets are mounted. Do not fork a second form for edit.
+- Call and Call Pro reuse their existing add/edit form bodies inside
+  `IntegrationRecordForm`. Their form layout is `PanelFormLayout` from
+  `ui-modules`, with fields composed through `PanelFormRow`, matching the
+  Operation panel forms. Provider setup wizards retain their existing steps
+  and controls; panel navigation only replaces their sheet entry points.
 - The Call Pro recording player sets `src` on `<audio>` directly with no MIME
   `type`. The PBX serves ogg/mp3/wav depending on the account, and a wrong
   `<source type>` makes the browser skip the file silently.
@@ -3097,6 +3168,31 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and the portalled colour picker must retain their normal behavior. Explicit
   Save persists settings. Activity uses the public platform list and its
   loading/empty behavior, including its existing query-error limitation.
+
+- `pnpm nx test frontline_ui` covers provider failure/retry, scoped drafts,
+  stale-field save reconciliation and deletion navigation across panel changes.
+- Integration panel smoke: create and edit each supported provider from its
+  channel and catalog, visit Activity or another record and reopen; confirm
+  fields and wizard steps remain scoped by user, record, provider and channel.
+  Rename an integration inline while another field is dirty; Save must retain
+  the newer name and any input typed during that save. Delete A, open B before
+  removal finishes, and confirm B remains open; staying on A returns to its
+  stacked parent or closes a standalone panel after confirmed removal.
+  Call and Call Pro saves refetch the originating provider detail document with
+  its integration ID before acknowledging success, including after its editor
+  unmounts. Reopening must retain that save before a later field is submitted.
+  Verify successful saves/deletion clear only the affected draft and a newer
+  edit survives an earlier save acknowledgement. Confirm slow social creates
+  cannot repeat through remounts; failed creates retain input and allow retry.
+  Test blocked Facebook login and OAuth account resume, Discord partial-channel
+  failure/retry, and Messenger configuration edits across its tabs and remounts.
+  Mail must submit only from its final confirmation step after sending readiness
+  succeeds; readiness errors expose retry without losing fields. Telegram setup
+  and disconnect regressions retain lost-response reconciliation, callback
+  precedence and independent local/provider cleanup outcomes.
+- The existing Telegram setup and disconnect specs use the UI, network and
+  panel fixtures in `src/modules/integrations/__tests__/fixtures`; keep
+  those fixtures aligned with the Telegram panel.
 
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its

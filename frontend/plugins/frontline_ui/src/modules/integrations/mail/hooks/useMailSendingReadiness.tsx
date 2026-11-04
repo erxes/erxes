@@ -6,10 +6,19 @@ export type IMailSendingReadiness = NonNullable<
   MailSendingReadinessQuery['mailSendingReadiness']
 >;
 
+/** Exposes sending readiness together with query errors and retry. */
 export const useMailSendingReadiness = () => {
-  const { data, loading } = useQuery(MAIL_SENDING_READINESS_QUERY, {
-    fetchPolicy: 'cache-and-network',
-  });
+  const { data, loading, error, refetch } = useQuery(
+    MAIL_SENDING_READINESS_QUERY,
+    {
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
-  return { readiness: data?.mailSendingReadiness ?? null, loading };
+  return {
+    readiness: data?.mailSendingReadiness ?? null,
+    loading,
+    error,
+    refetch,
+  };
 };
