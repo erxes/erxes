@@ -61,8 +61,7 @@ export const PluginConfigsProvidersEffect = () => {
         for (const remote of remotes) {
           try {
             const remoteConfig = (await loadRemote(`${remote.name}/config`)) as
-              | RemoteConfig
-              | undefined;
+              RemoteConfig | undefined;
 
             if (isExtensionRemote(remote.name)) {
               const extension = validateExtensionConfig(

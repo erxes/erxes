@@ -22,25 +22,23 @@ export const useRecordSideTabs = ({
           .filter((tab) =>
             tab.contentTypes.some((type) => type === contentType),
           )
-          .map(
-            (tab): IRecordSidePanelTab => ({
-              value: `extension:${pluginName}.${tab.name}`,
-              label: tab.label,
-              icon: tab.icon,
-              content: (
-                <RecordContextProvider value={{ contentType, contentId }}>
-                  <div className="flex flex-col flex-1 min-h-0">
-                    <Boundary pluginName={pluginName}>
-                      <tab.component
-                        contentType={contentType}
-                        contentId={contentId}
-                      />
-                    </Boundary>
-                  </div>
-                </RecordContextProvider>
-              ),
-            }),
-          ),
+          .map((tab): IRecordSidePanelTab => ({
+            value: `extension:${pluginName}.${tab.name}`,
+            label: tab.label,
+            icon: tab.icon,
+            content: (
+              <RecordContextProvider value={{ contentType, contentId }}>
+                <div className="flex flex-col flex-1 min-h-0">
+                  <Boundary pluginName={pluginName}>
+                    <tab.component
+                      contentType={contentType}
+                      contentId={contentId}
+                    />
+                  </Boundary>
+                </div>
+              </RecordContextProvider>
+            ),
+          })),
       ),
     [extensions, Boundary, contentType, contentId],
   );
