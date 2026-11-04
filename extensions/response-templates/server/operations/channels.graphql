@@ -1,0 +1,25 @@
+# Channels the caller can see, for the channel pickers.
+query extResponseTemplatesChannels {
+  getChannels {
+    _id
+    name
+  }
+}
+
+# The channel a conversation came in through, to scope the composer's list.
+query extResponseTemplatesConversationChannel($_id: String!) {
+  conversationDetail(_id: $_id) {
+    _id
+    integration {
+      _id
+      channelId
+    }
+  }
+}
+
+query extResponseTemplatesTicketChannel($_id: String!) {
+  getTicket(_id: $_id) {
+    _id
+    channelId
+  }
+}

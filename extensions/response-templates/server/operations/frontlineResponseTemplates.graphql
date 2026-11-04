@@ -1,0 +1,16 @@
+# One page of frontline's own response templates, for the import.
+query extResponseTemplatesFrontlineList($filter: ResponseTemplatesFilter) {
+  responseTemplates(filter: $filter) {
+    list {
+      _id
+      name
+      content
+      channelId
+      files
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
