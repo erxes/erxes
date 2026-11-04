@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -152,7 +152,7 @@
   is no "choose existing" picker.
 - `TaskSideWidgets` renders the shared `RelationWidgetSideTabs` — Customers and Companies icons that open the side panel's view of the task's contacts in place, then Properties as an `extraTabs` entry; do not re-implement the side tabs.
 - Keep custom properties as a local panel in the existing task/project right-side `SideMenu`, separate from cross-record relation widget registration; do not duplicate the form in the main detail body.
-- The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/settings/properties/<contentType>` and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
+- The property side panel uses `SideMenu.Header` with a standard-size secondary Manage action to `/operation/settings/properties/<contentType>` (the operation settings scope, same as the empty state's Create property) and a `p-4` scroll-content inset like neighboring right-rail widgets, while suppressing the shared form's redundant InfoCard shell; its scroll viewport wrapper must remain block-sized to the rail width so fields do not erase the right inset, and it fills the remaining rail height to center the empty state.
 - Task and triage detail editors use generated `ITaskDetail` and `ITriageDetail` types; `useDescriptionEditor` accepts nullable API descriptions and loads Markdown before exposing the editor. Description change state uses the public `IBlockEditor['document']` type.
 - Opening a Markdown description must not save or rewrite it until the user edits the description.
 - Dev watch ignores must not include plugin source directories required for hot reload.

@@ -27,7 +27,7 @@ export const PropertiesSidePanel = ({
       >
         <Button variant="secondary" asChild>
           <Link
-            to={`/settings/properties/${contentType}`}
+            to={`/operation/settings/properties/${contentType}`}
             aria-label={t('manage-properties', {
               defaultValue: 'Manage properties',
             })}
