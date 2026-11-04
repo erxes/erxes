@@ -73,7 +73,7 @@ export const useFormMutate = () => {
       channelId: selectedChannelId,
     } = formSetupValues(confirmation);
     const channelId =
-      formDetail?.channelId || selectedChannelId || _channelId || '';
+      formDetail?.channelId || _channelId || selectedChannelId || '';
 
     try {
       if (id) {
