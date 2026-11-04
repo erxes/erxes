@@ -77,11 +77,7 @@ const companySchema = z
 
 type TCompanyForm = z.infer<typeof companySchema>;
 type TCompanyTextField =
-  | 'primaryName'
-  | 'code'
-  | 'primaryEmail'
-  | 'primaryPhone'
-  | 'website';
+  'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website';
 
 const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
   primaryName: IconBuilding,
