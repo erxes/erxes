@@ -5,7 +5,7 @@ import {
   GET_TICKET_STATUS_BY_TYPE,
   GET_TICKET_STATUS_BY_ID,
 } from '@/status/graphql/query/getTicketStatusByType';
-import { useParams } from 'react-router';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
 import {
   GET_TICKET_STATUS_BY_PIPELINE,
   GET_ACCESSIBLE_TICKET_STATUSES,
@@ -19,6 +19,7 @@ import type {
   GetTicketStatusesChoicesPipelineQueryVariables,
 } from '~/gql/graphql';
 
+/** Lists statuses of a given type for the current settings pipeline. */
 export const useGetTicketStatus = (
   type: number,
   options?: Omit<
@@ -29,7 +30,7 @@ export const useGetTicketStatus = (
     'variables'
   >,
 ) => {
-  const { pipelineId } = useParams();
+  const { pipelineId } = useSettingsParams();
   const { data, loading, error } = useQuery(GET_TICKET_STATUS_BY_TYPE, {
     ...options,
     variables: pipelineId ? { pipelineId, type } : undefined,
@@ -47,6 +48,7 @@ export const useGetTicketStatus = (
   return { statuses, loading, error };
 };
 
+/** Loads status choices for an explicit or current settings pipeline. */
 export const useGetTicketStatusesByPipeline = (
   options?: Omit<
     QueryHookOptions<
@@ -56,7 +58,7 @@ export const useGetTicketStatusesByPipeline = (
     'variables'
   > & { variables?: { pipelineId?: string | null } },
 ) => {
-  const { pipelineId: routePipelineId } = useParams();
+  const { pipelineId: routePipelineId } = useSettingsParams();
   const pipelineId = options?.variables?.pipelineId ?? routePipelineId;
   const { data, loading, error } = useQuery(GET_TICKET_STATUS_BY_PIPELINE, {
     ...options,
@@ -69,6 +71,7 @@ export const useGetTicketStatusesByPipeline = (
   return { statuses: statuses || [], loading, error };
 };
 
+/** Loads one ticket status, skipping the query when its ID is absent. */
 export const useGetTicketStatusById = (_id?: string) => {
   const { data, loading, error } = useQuery(GET_TICKET_STATUS_BY_ID, {
     variables: _id ? { _id } : undefined,
@@ -78,6 +81,7 @@ export const useGetTicketStatusById = (_id?: string) => {
   return { status: data?.getTicketStatus ?? undefined, loading, error };
 };
 
+/** Loads accessible statuses for an explicit or current settings pipeline. */
 export const useGetAccessibleTicketStatuses = (
   options?: Omit<
     QueryHookOptions<
@@ -87,7 +91,7 @@ export const useGetAccessibleTicketStatuses = (
     'variables'
   > & { variables?: { pipelineId?: string | null } },
 ) => {
-  const { pipelineId: routePipelineId } = useParams();
+  const { pipelineId: routePipelineId } = useSettingsParams();
   const pipelineId = options?.variables?.pipelineId ?? routePipelineId;
   const { data, loading, error, refetch } = useQuery(
     GET_ACCESSIBLE_TICKET_STATUSES,

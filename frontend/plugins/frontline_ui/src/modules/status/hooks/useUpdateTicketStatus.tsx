@@ -36,6 +36,7 @@ export const useUpdateTicketStatus = () => {
           }),
           variant: 'destructive',
         });
+        options.onError?.(error);
       },
       refetchQueries: [
         GET_TICKET_STATUS_BY_TYPE,

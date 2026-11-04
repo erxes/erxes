@@ -1,5 +1,16 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
-import { createContext, useContext, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from 'react';
+import { useConfirm } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
 import { FormFieldType } from '../constants/formFieldTypes';
@@ -36,6 +47,9 @@ export const FormDndContext = createContext<{
   ) => IFieldData | undefined;
   handleAddField: (stepId: UniqueIdentifier, type: FormFieldType) => void;
   newFieldId: UniqueIdentifier | null;
+  editingFieldId: UniqueIdentifier | null;
+  setEditingFieldId: Dispatch<SetStateAction<UniqueIdentifier | null>>;
+  setEditingFieldDirty: (fieldId: UniqueIdentifier, dirty: boolean) => void;
   clearNewFieldId: () => void;
   removeStep: (stepId: UniqueIdentifier) => void;
   handleChangeField: (
@@ -59,6 +73,7 @@ export const FormDndContext = createContext<{
   ) => void;
 } | null>(null);
 
+/** Reads the owning form builder's field and step controls. */
 export const useFormDnd = () => {
   const context = useContext(FormDndContext);
   if (!context) {
@@ -67,6 +82,7 @@ export const useFormDnd = () => {
   return context;
 };
 
+/** Owns ordered form steps, field edits, and guarded editor selection. */
 export function FormDndProvider({
   children,
   value,
@@ -85,11 +101,60 @@ export function FormDndProvider({
   onValueChange: (values: z.infer<typeof FORM_CONTENT_SCHEMA>['steps']) => void;
 }) {
   const [newFieldId, setNewFieldId] = useState<UniqueIdentifier | null>(null);
+  const [editingFieldId, setEditingFieldId] = useState<UniqueIdentifier | null>(
+    null,
+  );
+  const dirtyFieldId = useRef<UniqueIdentifier | null>(null);
+  const { confirm } = useConfirm();
+  const { t } = useTranslation('common', { keyPrefix: 'notification' });
+
+  const setEditingFieldDirty = useCallback(
+    (fieldId: UniqueIdentifier, dirty: boolean) => {
+      if (dirty) dirtyFieldId.current = fieldId;
+      else if (dirtyFieldId.current === fieldId) dirtyFieldId.current = null;
+    },
+    [],
+  );
+
+  const requestEditingFieldId = useCallback<
+    Dispatch<SetStateAction<UniqueIdentifier | null>>
+  >(
+    (value) => {
+      const nextId =
+        typeof value === 'function' ? value(editingFieldId) : value;
+      if (nextId === editingFieldId) return;
+
+      /** Applies the switch only while the originating field is still selected. */
+      const changeField = () =>
+        setEditingFieldId((current) =>
+          current === editingFieldId ? nextId : current,
+        );
+
+      if (
+        nextId !== null &&
+        editingFieldId !== null &&
+        dirtyFieldId.current === editingFieldId
+      ) {
+        confirm({
+          message: t('leave-unsaved-title'),
+          options: {
+            okLabel: t('leave-without-saving'),
+            cancelLabel: t('keep-editing'),
+          },
+        }).then(changeField);
+        return;
+      }
+
+      changeField();
+    },
+    [confirm, editingFieldId, t],
+  );
 
   const steps = Object.entries(value)
     .sort((a, b) => a[1].order - b[1].order)
     .map(([key]) => key);
 
+  /** Orders a step's fields by their saved display order. */
   const sortFields = (fields?: IFieldData[]) => {
     return fields?.sort((a, b) => a.order - b.order) ?? [];
   };
@@ -106,6 +171,7 @@ export function FormDndProvider({
     );
   }, [value]);
 
+  /** Finds a field inside its owning step. */
   const getFieldValue = (
     stepId: UniqueIdentifier,
     fieldId: UniqueIdentifier,
@@ -113,9 +179,10 @@ export function FormDndProvider({
     return value[stepId].fields.find((field) => field.id === fieldId);
   };
 
+  /** Reads step metadata without including its fields. */
   const getStepValue = (stepId: UniqueIdentifier) => {
-    const { fields, ...step } = value[stepId];
-    return step;
+    const { name, description, order } = value[stepId];
+    return { name, description, order };
   };
 
   const fields = useMemo(() => {
@@ -127,6 +194,7 @@ export function FormDndProvider({
     );
   }, [value]);
 
+  /** Applies step ordering while preserving each step's fields. */
   const setSteps = (steps: UniqueIdentifier[]) => {
     const stepsWithOrder: [UniqueIdentifier, { order: number }][] = steps.map(
       (step, index) => [
@@ -152,6 +220,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(stepsObject));
   };
 
+  /** Removes a step and renumbers the remaining steps. */
   const removeStep = (stepId: UniqueIdentifier) => {
     const newSteps = steps.filter((step) => step !== stepId);
     const newStepsObject = newSteps.map((step, index) => [
@@ -165,6 +234,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(newStepsObject));
   };
 
+  /** Applies field ordering and updates each field's owning step. */
   const setFields = (fields: Record<string, UniqueIdentifier[]>) => {
     const fieldsObject = Object.entries(fields).map(([key, stepFields]) => {
       return [
@@ -183,6 +253,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  /** Creates a field with its type defaults and requests its editor. */
   const handleAddField = (stepId: UniqueIdentifier, type: FormFieldType) => {
     const fieldId = nanoid() as string;
     setNewFieldId(fieldId);
@@ -206,6 +277,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  /** Replaces one field's draft values inside its owning step. */
   const handleChangeField = (
     stepId: UniqueIdentifier,
     fieldId: UniqueIdentifier,
@@ -228,6 +300,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  /** Removes the selected field from its owning step. */
   const handleDeleteField = (
     stepId: UniqueIdentifier,
     fieldId: UniqueIdentifier,
@@ -247,6 +320,7 @@ export function FormDndProvider({
     onValueChange(Object.fromEntries(fieldsObject));
   };
 
+  /** Updates one step metadata property while preserving its fields. */
   const handleChangeStepValue = (
     stepId: UniqueIdentifier,
     fieldKey: string,
@@ -277,6 +351,9 @@ export function FormDndProvider({
         getFieldValue,
         handleAddField,
         newFieldId,
+        editingFieldId,
+        setEditingFieldId: requestEditingFieldId,
+        setEditingFieldDirty,
         clearNewFieldId: () => setNewFieldId(null),
         removeStep,
         handleChangeField,

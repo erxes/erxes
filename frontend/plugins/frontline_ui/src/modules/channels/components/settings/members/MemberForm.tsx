@@ -4,7 +4,6 @@ import { Combobox, Command, Form, Popover } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import React, { useState } from 'react';
 import { UseFormReturn } from 'react-hook-form';
-import { useParams } from 'react-router-dom';
 import {
   currentUserState,
   IUser,
@@ -15,13 +14,15 @@ import {
 import { useDebounce } from 'use-debounce';
 import { useTranslation } from 'react-i18next';
 
+/** Renders channel-member selection in the owning form layout. */
 export const MemberForm = ({
   form,
+  channelId,
 }: {
   form: UseFormReturn<TChannelMemberForm>;
+  channelId: string;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
-  const { id: channelId } = useParams();
   return (
     <div className="flex flex-col gap-3">
       <Form.Field
@@ -38,7 +39,7 @@ export const MemberForm = ({
               mode="multiple"
               value={field.value}
               onValueChange={field.onChange}
-              inForm={true}
+              inForm
             />
             <Form.Message />
           </Form.Item>
@@ -48,6 +49,7 @@ export const MemberForm = ({
   );
 };
 
+/** Composes the member picker with its form control when requested. */
 export const SelectChannelMember = ({
   channelId,
   mode,

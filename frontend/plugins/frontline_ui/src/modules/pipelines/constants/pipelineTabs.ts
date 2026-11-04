@@ -1,3 +1,6 @@
+import { getSidePanelRecordPath } from 'ui-modules';
+import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+
 export const PIPELINE_TAB_SEGMENTS = {
   general: '',
   statuses: 'statuses',
@@ -31,12 +34,45 @@ export const PIPELINE_TABS: {
   },
 ];
 
+/** Encodes a saved pipeline and optional settings section as a panel ID. */
+export const getPipelineRecordId = (
+  pipelineId: string,
+  segment: TPipelineTabSegment = '',
+): string => (segment ? `${pipelineId}~${segment}` : pipelineId);
+
+/** Encodes the owning channel in a new pipeline's panel ID. */
+export const getPipelineDraftId = (channelId: string): string =>
+  `new~${channelId}`;
+
+/** Decodes a pipeline panel ID into record, draft scope, and section values. */
+export const parsePipelineRecordId = (
+  contentId: string,
+): {
+  pipelineId: string | undefined;
+  channelId: string | undefined;
+  segment: TPipelineTabSegment;
+  isNew: boolean;
+} => {
+  const [recordId, section] = contentId.split('~');
+  const isNew = recordId === 'new';
+  return {
+    pipelineId: isNew ? undefined : recordId || undefined,
+    channelId: isNew ? section : undefined,
+    segment:
+      PIPELINE_TABS.find((tab) => tab.segment === section)?.segment ?? '',
+    isNew,
+  };
+};
+
+/** Builds the channel settings URL that opens a pipeline panel section. */
 export const getPipelinePath = (
   channelId: string,
   pipelineId: string,
   segment: TPipelineTabSegment,
 ) => {
-  const base = `/frontline/settings/channels/${channelId}/pipelines/${pipelineId}`;
-
-  return segment ? `${base}/${segment}` : base;
+  const panel = getSidePanelRecordPath({
+    contentType: PIPELINE_CONTENT_TYPE,
+    contentId: getPipelineRecordId(pipelineId, segment),
+  });
+  return `/frontline/settings/channels/${channelId}/pipelines?${new URLSearchParams({ panel })}`;
 };

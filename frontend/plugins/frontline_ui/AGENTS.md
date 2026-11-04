@@ -95,6 +95,10 @@
 - Help Center creation/editing uses the shared record panel, retaining General,
   Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
   create continuation and full-config conflict confirmation.
+- Channel/member editors, pipeline settings sections, ticket status and
+  messenger ticket configuration editors, response templates and form
+  submissions open in the shared record panel. Form fields use a local panel
+  that retains the form-builder provider.
 
 - Integration creation and editing open `frontline:integration` records through
   the shared side panel. The panel supplies title, actions, Detail and Activity
@@ -879,7 +883,7 @@ owns the setup form and connection actions.
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
-  supports ticket, knowledge base, Help Center and integration records; ticket properties remain available.
+  supports ticket, knowledge base, Help Center, integration and settings records; ticket properties remain available.
   `TicketPanelDetail.tsx` renders ticket fields and attachments, and
   `TicketPanelName` edits the ticket's name in the panel's top bar (plain text
   without edit permission); the name is not repeated in Detail. Knowledge base
@@ -917,6 +921,21 @@ owns the setup form and connection actions.
   `IntegrationRecordPanel` for that type and ignores unsupported types. The views
   are title, actions, new, Detail and Activity. `IntegrationRecordForm` reuses
   the existing provider forms and mutation hooks.
+- Settings panels register `frontline:channel`, `frontline:channel-members`,
+  `frontline:pipeline`, `frontline:ticket-status`, `frontline:ticket-config`,
+  `frontline:response-template` and `frontline:form-submission` through
+  `widgets.recordPanels` and the named `RecordPanel` export at `./recordPanel`.
+  `src/widgets/record-panel/RecordPanel.tsx` lazy-loads the settings dispatcher
+  in `src/modules/settings/components/record-panels/SettingsRecordPanel.tsx`.
+- Settings draft IDs encode scope with `~`: pipeline `new~channelId`, response
+  `new~channelId`, ticket config `new~channelId~pipelineId`, and status
+  `new~pipelineId~statusType` (an integer category from 1 through 6). Saved pipeline
+  IDs optionally append their section (`pipelineId~properties`, for example).
+  Loaded data takes precedence over encoded scope, draft defaults and route
+  params. `SettingsPanelContext` never borrows a missing scope value from the
+  host route. Pipeline and response legacy-link adapters replace the history
+  entry and preserve unrelated query values, including repeated filters.
+
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -935,7 +954,8 @@ owns the setup form and connection actions.
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
-  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`, `./recordPanel`.
+  `./relationWidget`, `./contactWidget`, `./floatingWidget`, `./recordPanel`,
+  `./selectErxesMessenger`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
   path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
   `ticketStatus` property input, and the `formSubmission` activity row.
@@ -1174,6 +1194,14 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   and its created ID before closing. Newer input, if present, moves to the saved
   record's draft and opens that record in the still-active panel. Another Create
   never uses the previous site's ID.
+- Channel create/edit, response template, ticket configuration, pipeline
+  create/General, ticket status and channel member editors persist unsaved
+  values and their original defaults in plugin draft atoms through
+  `src/modules/shared/hooks/usePanelFormDraft.ts`. Draft keys identify saved
+  records or scope new records to their channel and, for ticket configurations,
+  pipeline. Status drafts identify their saved status or pipeline/type, and
+  member drafts identify their channel. Cancel clears the stored draft;
+  acknowledged saves retain input entered after submission.
 
 - Integration forms retain their existing React Hook Form validation and
   mutation hooks. `shared/hooks/usePanelFormDraft` and typed collections in
@@ -1354,6 +1382,40 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   The completed image must be in the form before its configuration is saved.
 - Confirmed Help Center deletion IDs are reconciled by the mounted title view
   against its current record; an earlier deletion must not close a newer panel.
+- Settings scope hooks run before title, actions, loading and empty-state
+  returns, and record panels memoize their channel/pipeline context values.
+- Encoded settings draft IDs retain the host's Activity tab because the host
+  recognizes only literal `new` as its tab-free draft view. Draft Activity
+  renders a return action rather than an existing-record activity query.
+- Pipeline Properties keeps the existing wide `Sheet.View` layout editor and
+  public `PropertyAddSheet`. `SettingsLocalPanel` uses `RecordSidePanel` for
+  nested field editors; its Escape handler defers to open dialogs, menus and
+  listboxes. `FormDndProvider` confirms a switch away from a dirty field.
+  New fields retain their open request until their editor is active, including
+  after a cancelled switch. Description edits mark the field dirty before HTML
+  serialization finishes; only the latest serialization updates the draft.
+- Response, pipeline, status, channel-create and member saves use
+  `usePanelFormDraft` request tokens scoped to their draft atom and record key. Pending state survives Activity remounts,
+  failure releases it for retry, and an older completion cannot release a newer
+  request. Completion navigation belongs only to the mounted originating
+  session with no input newer than its submitted snapshot.
+  Ticket status mutation wrappers forward caller error callbacks as well as
+  success callbacks, so failed status edits release their retained save token.
+- Settings removal callbacks close only the exact active record while their
+  owning hook remains mounted. Pipeline deletion requires a successful
+  mutation payload; cancellation or failure leaves the panel open. Its mutation
+  and current-panel reference belong to the row cell, outside popover content,
+  so confirmation can dismiss the menu without losing completion handling.
+  Panel references used by removal callbacks synchronize after committed renders.
+- Existing channel records never show a create title when loading fails.
+  Ticket configuration panels display query failures in their unavailable state.
+- Channel create completion closes and navigates only while its originating
+  create panel is mounted and active.
+- Saved channel drafts are keyed by channel ID and survive Activity, record
+  switches and refetches. Update completion may close only its mounted editing
+  session with no input newer than the submitted values. Cancel clears that
+  channel's draft; a failed update retains it for retry. Channel submission awaits
+  the mutation and keeps submit controls disabled until it settles.
 
 - Integration panel registration, the federation expose and the named panel
   export must stay aligned. Provider create/edit entry points use the shared
@@ -1521,8 +1583,6 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   or accordion trigger) omits `label` and ends that row with
   `Sidebar.PanelTrigger`. Keep `<Sidebar collapsible="none">` for sidebars
   inside sheets and dialogs.
-- `PipelineSidebar` stays `<Sidebar collapsible="none">`: below `md` it turns
-  into a horizontal tab strip that must never collapse.
 - Telegram consumes existing message/attachment/poll contracts and adds only
   optional `extraData.telegram` display metadata. Use native message actions
   and reply previews. Telegram poll labels name Telegram; other providers keep
@@ -1580,6 +1640,14 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   `HelpCenterGeneralTab`'s `FeatureSection`): the uppercase `Form.Label` and its
   description on the left and the `Switch` on the right, so it reads like the
   step's other labelled fields.
+- Form-field option and logic rows keep editor-only identities while their
+  values change or preceding rows are removed. These identities are not saved.
+  Add/remove handlers in `src/modules/forms/components/FormFieldDetail.tsx`
+  update row identities together with the corresponding draft values.
+- Submission tables render date, checkbox, and select answers in separate cells.
+  Checkbox arrays retain empty entries in their count; select arrays omit empty
+  labels. Malformed dates and unparseable select strings remain visible.
+  Keep these parsing rules distinct when changing cell layouts.
 - Form field conversion keeps the existing field ID and answers. The field
   sheet offers text/textarea ↔ customer name, description, email or phone,
   number ↔ customer phone, and date ↔ customer birth date. Saved conversions
@@ -1612,10 +1680,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.
   Invalid stored dates render as their original value instead of breaking the
-  submissions table. Conversion and page-layout saves send metadata as
-  `formChanges` in the field mutation so failure rolls back both; these saves
-  require transaction-capable MongoDB. Other edits retain their existing path.
-  A busy/stale atomic save keeps the draft and asks the author to retry.
+  submissions table or detail panel, including its creation-date title.
+  Conversion and page-layout saves send metadata as `formChanges` in the field
+  mutation so failure rolls back both; these saves require transaction-capable
+  MongoDB. Other edits retain their existing path. A busy/stale atomic save
+  keeps the draft and asks the author to retry.
   Builder drafts are keyed by form (or create/channel scope) in tab-owned
   `sessionStorage`, with `FormDraftScope` gating children until the scope changes.
   New-form drafts survive reloads in that tab; opening an existing form still
@@ -2950,8 +3019,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and `channelId` are nullable because the Mongoose schema requires none of
   them. Template pickers (inbox suggestions, `ResponseTemplateSelector`, note
   suggestions) read rows through `toResponseTemplateText`, which defaults
-  `name` and `content` to `''`. Creating a template opens its detail page from
-  `responseTemplatesAdd._id`.
+  `name` and `content` to `''`. Creating a template replaces its draft panel
+  with the saved record from `responseTemplatesAdd._id`.
 - Facebook and Instagram message queries select `__typename`, because their
   subscriptions write inbox messages into those lists under the provider
   typename.
@@ -3181,6 +3250,17 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and the portalled colour picker must retain their normal behavior. Explicit
   Save persists settings. Activity uses the public platform list and its
   loading/empty behavior, including its existing query-error limitation.
+- Settings smoke: open channels, pipeline sections, statuses, response
+  templates, ticket configs and submissions from lists and legacy links.
+  Verify selected-record scope, loading/error states, save/cancel and deletion
+  after switching records. Check channel/response/config/pipeline/status/member
+  draft restoration after an Activity switch, dirty field replacement confirmation
+  and nested Escape. Start response creation on a slow connection, switch to
+  Activity and back, and confirm Create remains blocked until that request settles.
+  Save channel A, open channel B before A finishes and confirm B stays open;
+  input typed after submission must also survive the completion of that save.
+  Repeat late-save navigation for pipeline creation, status edits and member
+  additions; the newer record and its stack must stay open.
 
 - Integration panel smoke: create and edit each supported provider from its
   channel and catalog, visit Activity or another record and reopen; confirm
