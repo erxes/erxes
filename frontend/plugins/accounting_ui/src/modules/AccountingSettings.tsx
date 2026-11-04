@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { AccountSettingsBreadcrumb } from '@/settings/components/AccountSettingsBreadcrumb';
 import { AccountingTopbar } from '@/settings/components/AccountingTopbar';
+import { AccountingNotFound } from '@/layout/components/AccountingNotFound';
 
 const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
@@ -197,6 +198,12 @@ const AccountingSubSettings = () => {
                 <Route
                   path="/inventories/job-outputs"
                   element={<Jobs unwindOutputs />}
+                />
+                <Route
+                  path="*"
+                  element={
+                    <AccountingNotFound returnLink="/accounting/settings/config" />
+                  }
                 />
               </Routes>
             </Suspense>
