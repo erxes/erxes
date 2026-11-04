@@ -55,6 +55,8 @@ export interface INoteAttachment {
 }
 
 export interface NoteInputToolbarProps {
+  /** The ticket the note is written on. */
+  contentId: string;
   isInternalNote: boolean;
   onTemplateSelect: (templateContent: string) => void;
   onFilesSelected: (files: FileList) => void;

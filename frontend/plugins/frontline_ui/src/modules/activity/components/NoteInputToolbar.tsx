@@ -11,12 +11,14 @@ import {
 import { Button, Input, Kbd, Spinner, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
+import { ComposerActions } from 'ui-modules';
 import {
   INTERNAL_NOTE_BUTTON,
   INTERNAL_NOTE_ICON,
 } from '@/inbox/constants/internalNoteStyles';
 
 export const NoteInputToolbar = ({
+  contentId,
   isInternalNote,
   onTemplateSelect,
   onFilesSelected,
@@ -60,6 +62,14 @@ export const NoteInputToolbar = ({
           </Button>
         </ResponseTemplateSelector>
       )}
+
+      <ComposerActions
+        insertText={onTemplateSelect}
+        contentType="frontline:ticket"
+        contentId={contentId}
+        isInternalNote={isInternalNote}
+        disabled={isSending}
+      />
 
       <Button
         type="button"

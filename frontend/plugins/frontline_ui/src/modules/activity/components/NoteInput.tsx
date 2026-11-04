@@ -199,6 +199,7 @@ export const NoteInput = ({ contentId }: NoteInputProps) => {
       />
 
       <NoteInputToolbar
+        contentId={contentId}
         isInternalNote={isInternalNote}
         onTemplateSelect={selectTemplate}
         onFilesSelected={uploadFiles}

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -202,19 +202,11 @@
   right of its `PageHeader` (and in the empty state) that opens the same four
   step wizard on `frontline/forms/create`. There is no channel in the URL there,
   so the wizard's General step decides it: `channelId` is required by
-  `FORM_GENERAL_CREATE_SCHEMA` when neither a `formId` nor a channel `id` param
-  is present, and `useFormMutate` reads the picked channel out of the setup
-  state. Cancelling or finishing returns to `frontline/forms`; the settings flow
+  `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
+  `useFormMutate` reads the picked channel out of the setup state. Cancelling or
+  finishing returns to `frontline/forms`; the settings flow
   (`frontline/settings/channels/:id/forms/create`) still returns to the
   channel's forms page.
-- Inside a channel's settings (`:id` param present) the General step hides the
-  Channel field and the form is always created in that channel:
-  `useFormMutate` prefers the route's channel over the persisted setup state,
-  so a stale draft can never redirect it to another channel.
-- The wizard's submit button (`FormMutateLayout`) reads `Create form` /
-  `Creating form...` or `Update form` / `Updating form...` from the `formId`
-  param alone, never the channel `id`, so both entry points label create and
-  edit the same way.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
   `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
@@ -643,17 +635,6 @@
   filters them and the trigger is clickable) and refuse selection in
   `onSelect`. The Instagram page step names
   the channel and integration of a page in use.
-- Account lists inside a sheet (`InstagramGetAccounts`,
-  `InstagramBotPageAccountsStep`) must not keep the `erxes-ui` `Command.List`
-  default `max-h-72` with its hidden scrollbar: the sheet content is a
-  `flex flex-col overflow-hidden` column and the list gets
-  `max-h-none overflow-y-auto` inside a `flex-1` radio group, so every account
-  stays reachable however many are connected.
-- `InstagramPageInfo` and `FacebookPageInfo` call their `use*BotPages` hook
-  before any early return; the hook passes `skip: !accountId` to `useQuery`
-  instead of the component skipping the hook. A hook after the "select a page"
-  return changes the hook count when the page is picked and crashes the bot
-  sheet with React error #310.
 - The channel list's integrations cell opens a popover
   (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
   integration of that channel with kind, Facebook page names and health —
@@ -923,6 +904,13 @@ owns the setup form and connection actions.
 
 ### Consumes
 
+- `ui-modules` `ComposerActions`: installed extensions' `composerActions`
+  buttons, mounted right after the response-template button in the inbox
+  `ComposerToolbar` (`contentType: 'frontline:conversation'`, the
+  conversation id) and the ticket `NoteInputToolbar`
+  (`contentType: 'frontline:ticket'`, the ticket id). Their `insertText` is
+  the toolbar's `onTemplateSelect`, so an action inserts text exactly like a
+  picked template. They show in reply and internal-note mode.
 - `ui-modules` `AutomationConditionalField` for conditional action values; it
   is a drop-in for `Form.Field` taking the action form, the field names, a label
   and the same `render`. It needs the automations host's
@@ -2463,7 +2451,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
+  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
