@@ -4,12 +4,6 @@ export interface IFormStepMeta {
   order: number;
 }
 
-/**
- * Places every saved field into an editor step. A field the editor does not
- * show is sent as removed on save, which deletes it and orphans its
- * submissions, so no field may be left out. Legacy forms have no steps and
- * fields may lack a page number; both fall back to a usable step.
- */
 export const groupFieldsIntoSteps = <
   TField extends { pageNumber?: number | null },
 >(
@@ -42,7 +36,6 @@ export const groupFieldsIntoSteps = <
   }
   const [firstStepKey] = savedSteps[0];
 
-  // Match fields by the saved orders, but number editor steps consecutively.
   const grouped = Object.fromEntries(
     savedSteps.map(([key, step], index) => [
       key,
