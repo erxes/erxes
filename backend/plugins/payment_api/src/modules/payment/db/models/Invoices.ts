@@ -100,27 +100,41 @@ export const loadInvoiceClass = (models: IModels) => {
 
       if (unpaidTransactions.length > 0) {
         try {
-          // Process transactions in parallel for better performance
-          const statusChecks = await Promise.all(
+          // Check every pending transaction in parallel. allSettled so that
+          // one provider failing (e.g. a transaction with an empty response)
+          // does not prevent the others from being updated.
+          const statusChecks = await Promise.allSettled(
             unpaidTransactions.map((transaction) =>
               models.Transactions.checkTransaction(transaction._id, subdomain),
             ),
           );
 
-          // Update transactions atomically using bulkWrite
-          const bulkOps = unpaidTransactions.map((transaction, index) => ({
-            updateOne: {
-              filter: {
-                _id: transaction._id,
-                status: 'pending', // Ensure status hasn't changed
-              },
-              update: {
-                $set: {
-                  status: statusChecks[index],
+          const bulkOps = unpaidTransactions.flatMap((transaction, index) => {
+            const result = statusChecks[index];
+
+            if (result.status === 'rejected') {
+              console.error(
+                `Error checking transaction ${transaction._id}: ${result.reason?.message}`,
+              );
+              return [];
+            }
+
+            return [
+              {
+                updateOne: {
+                  filter: {
+                    _id: transaction._id,
+                    status: 'pending', // Ensure status hasn't changed
+                  },
+                  update: {
+                    $set: {
+                      status: result.value,
+                    },
+                  },
                 },
               },
-            },
-          }));
+            ];
+          });
 
           if (bulkOps.length > 0) {
             await models.Transactions.bulkWrite(bulkOps);

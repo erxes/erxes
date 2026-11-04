@@ -9,6 +9,7 @@ import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
 import { callbackHandler } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
+import { initPendingInvoicesWorker } from './workers/checkPendingInvoices';
 import { afterProcess } from './meta/afterProcess';
 import { permissions } from './meta/permissions';
 
@@ -101,6 +102,7 @@ startPlugin({
     app.get('/widget/*', (req, res) => sendWidgetIndex(req, res));
 
     initPaymentsWorker();
+    await initPendingInvoicesWorker();
   },
   meta: {
     afterProcess,
