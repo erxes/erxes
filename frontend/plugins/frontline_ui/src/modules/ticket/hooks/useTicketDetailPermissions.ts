@@ -28,11 +28,11 @@ export const useTicketDetailPermissions = (
   });
   const ready = Boolean(
     pipelineQuery.pipeline &&
-      !pipelineQuery.loading &&
-      !pipelineQuery.error &&
-      !statusQuery.loading &&
-      !statusQuery.error &&
-      (!ticket.statusId || status),
+    !pipelineQuery.loading &&
+    !pipelineQuery.error &&
+    !statusQuery.loading &&
+    !statusQuery.error &&
+    (!ticket.statusId || status),
   );
 
   return {

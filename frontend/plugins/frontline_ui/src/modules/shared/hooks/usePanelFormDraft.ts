@@ -140,11 +140,11 @@ export const usePanelFormDraft = <T extends FieldValues>({
       const acknowledged = store.get(draftsState)[recordKey];
       const hasNewerChanges = Boolean(
         cachedChanged ||
-          formChanged ||
-          (acknowledged &&
-            !isDeeplyEqual(acknowledged.values, savedValues, {
-              strict: true,
-            })),
+        formChanged ||
+        (acknowledged &&
+          !isDeeplyEqual(acknowledged.values, savedValues, {
+            strict: true,
+          })),
       );
       if (!hasNewerChanges && !acknowledged?.pendingUpdates?.length) {
         clearDraft();
