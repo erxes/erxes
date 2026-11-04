@@ -185,6 +185,36 @@ const article: IArticleDetail = {
   pdfAttachment: null,
 };
 
+/** Mounts an article whose Activity tab unmounts the editable form. */
+const renderArticleActivity = (loaded: IArticleDetail) => {
+  mockQuery.mockResolvedValue({ data: { knowledgeBaseArticleDetail: loaded } });
+  mockEdit.mockResolvedValue({});
+  const Panel = () => {
+    const [activity, setActivity] = useState(false);
+    return (
+      <>
+        <button onClick={() => setActivity(!activity)}>
+          {activity ? 'Details' : 'Activity'}
+        </button>
+        {!activity && (
+          <ArticleDrawer
+            articleId="article-1"
+            article={loaded}
+            topicId="topic-1"
+            categoryId="category-1"
+            onClose={jest.fn()}
+          />
+        )}
+      </>
+    );
+  };
+  return render(
+    <Provider>
+      <Panel />
+    </Provider>,
+  );
+};
+
 beforeEach(() => {
   jest.clearAllMocks();
   mockUploads.length = 0;
@@ -406,32 +436,7 @@ it('merges overlapping uploads without resurrecting a removed attachment after A
       },
     ],
   };
-  mockQuery.mockResolvedValue({ data: { knowledgeBaseArticleDetail: loaded } });
-  mockEdit.mockResolvedValue({});
-  const Panel = () => {
-    const [activity, setActivity] = useState(false);
-    return (
-      <>
-        <button onClick={() => setActivity(!activity)}>
-          {activity ? 'Details' : 'Activity'}
-        </button>
-        {!activity && (
-          <ArticleDrawer
-            articleId="article-1"
-            article={loaded}
-            topicId="topic-1"
-            categoryId="category-1"
-            onClose={jest.fn()}
-          />
-        )}
-      </>
-    );
-  };
-  render(
-    <Provider>
-      <Panel />
-    </Provider>,
-  );
+  renderArticleActivity(loaded);
   fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[1]);
   fireEvent.click(screen.getByRole('button', { name: 'Activity' }));
   fireEvent.click(screen.getByRole('button', { name: 'Details' }));
@@ -513,32 +518,7 @@ it('does not resurrect an image removed after its uploader remounts', async () =
       duration: null,
     },
   };
-  mockQuery.mockResolvedValue({ data: { knowledgeBaseArticleDetail: loaded } });
-  mockEdit.mockResolvedValue({});
-  const Panel = () => {
-    const [activity, setActivity] = useState(false);
-    return (
-      <>
-        <button onClick={() => setActivity(!activity)}>
-          {activity ? 'Details' : 'Activity'}
-        </button>
-        {!activity && (
-          <ArticleDrawer
-            articleId="article-1"
-            article={loaded}
-            topicId="topic-1"
-            categoryId="category-1"
-            onClose={jest.fn()}
-          />
-        )}
-      </>
-    );
-  };
-  render(
-    <Provider>
-      <Panel />
-    </Provider>,
-  );
+  renderArticleActivity(loaded);
   fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[0]);
   fireEvent.click(screen.getByRole('button', { name: 'Activity' }));
   fireEvent.click(screen.getByRole('button', { name: 'Details' }));
