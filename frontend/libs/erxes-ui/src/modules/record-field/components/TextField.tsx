@@ -1,6 +1,6 @@
 import { ButtonProps, Input, TextOverflowTooltip } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
-import { PopoverScoped, usePreviousHotkeyScope } from 'erxes-ui/modules/hotkey';
+import { PopoverScoped } from 'erxes-ui/modules/hotkey';
 import { RecordTableInlineCell } from 'erxes-ui/modules/record-table';
 import React, { useEffect, useState } from 'react';
 
@@ -40,12 +40,6 @@ export const TextField = React.forwardRef<
   ) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     const [editingValue, setEditingValue] = useState(value);
-    const { goBackToPreviousHotkeyScope } = usePreviousHotkeyScope();
-
-    const closeEditor = () => {
-      setIsOpen(false);
-      if (scope) goBackToPreviousHotkeyScope();
-    };
 
     useEffect(() => {
       if (!isOpen) {
@@ -57,7 +51,7 @@ export const TextField = React.forwardRef<
     const handleAction = (e?: React.FormEvent) => {
       e?.preventDefault();
       if (editingValue !== value) onSave?.(editingValue);
-      closeEditor();
+      setIsOpen(false);
     };
 
     /** Submits on Enter; Escape is handled by the popover before dismissal. */
@@ -95,7 +89,7 @@ export const TextField = React.forwardRef<
           onEscapeKeyDown={(event) => {
             event.preventDefault();
             setEditingValue(value);
-            closeEditor();
+            setIsOpen(false);
           }}
         >
           <form onSubmit={handleAction}>

@@ -5,9 +5,10 @@ import {
   useScopedHotkeys,
 } from 'erxes-ui/modules/hotkey/hooks/useScopedHotkeys';
 import { Key } from 'erxes-ui/types';
-import { useState } from 'react';
+import { useLayoutEffect, useState } from 'react';
 import { currentHotkeyScopeState } from 'erxes-ui/modules/hotkey/states/internal/currentHotkeyScopeState';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useStore } from 'jotai';
+import { useSetHotkeyScope } from '../hooks/useSetHotkeyScope';
 
 export const PopoverScoped = ({
   scope,
@@ -27,12 +28,30 @@ export const PopoverScoped = ({
   options?: UseHotkeysOptionsWithoutBuggyOptions;
 }) => {
   const [_open, _setOpen] = useState(false);
-  const {
-    setHotkeyScopeAndMemorizePreviousScope,
-    goBackToPreviousHotkeyScope,
-  } = usePreviousHotkeyScope();
+  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
+  const setHotkeyScope = useSetHotkeyScope();
+  const store = useStore();
   const currentHotkeyScope = useAtomValue(currentHotkeyScopeState);
   const isOpen = open ?? _open;
+
+  useLayoutEffect(() => {
+    if (!isOpen || !scope) return undefined;
+    const previousScope = store.get(currentHotkeyScopeState);
+    const popoverScope = `${scope}.Popover`;
+    setHotkeyScopeAndMemorizePreviousScope(popoverScope);
+    return () => {
+      // A different control may have taken focus before this popover closes.
+      if (store.get(currentHotkeyScopeState).scope === popoverScope) {
+        setHotkeyScope(previousScope.scope, previousScope.customScopes);
+      }
+    };
+  }, [
+    isOpen,
+    scope,
+    store,
+    setHotkeyScope,
+    setHotkeyScopeAndMemorizePreviousScope,
+  ]);
 
   useScopedHotkeys(
     Key.Enter,
@@ -44,9 +63,6 @@ export const PopoverScoped = ({
       if (closeOnEnter) {
         _setOpen(false);
         onOpenChange?.(false, 'enter');
-      }
-      if (scope) {
-        goBackToPreviousHotkeyScope();
       }
     },
     scope ? scope + '.Popover' : currentHotkeyScope.scope,
@@ -66,11 +82,6 @@ export const PopoverScoped = ({
       onOpenChange={(op) => {
         _setOpen(op);
         onOpenChange?.(op, 'close');
-        if (scope) {
-          op
-            ? setHotkeyScopeAndMemorizePreviousScope(scope + '.Popover')
-            : goBackToPreviousHotkeyScope();
-        }
       }}
     />
   );

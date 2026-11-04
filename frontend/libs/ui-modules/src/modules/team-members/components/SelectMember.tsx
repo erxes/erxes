@@ -402,6 +402,7 @@ export const SelectMemberInlineCell = React.forwardRef<
       onValueChange,
       members,
       allowUnassigned,
+      disabled = false,
       showInactive,
       size = 'lg',
       scope,
@@ -419,11 +420,13 @@ export const SelectMemberInlineCell = React.forwardRef<
         onValueChange={onValueChange}
         members={members}
         allowUnassigned={allowUnassigned}
+        disabled={disabled}
         setOpen={setOpen}
       >
         <PopoverScoped scope={scope} open={open} onOpenChange={setOpen}>
           <RecordTableInlineCell.Trigger
             ref={ref}
+            disabled={disabled}
             {...props}
             className={cn(className, 'text-xs')}
           >
@@ -534,6 +537,7 @@ export const SelectMemberRoot = ({
   placeholder,
   scope,
   showInactive,
+  disabled = false,
   ...props
 }: Omit<React.ComponentProps<typeof SelectMemberProvider>, 'children'> & {
   className?: string;
@@ -550,9 +554,11 @@ export const SelectMemberRoot = ({
         if (props.mode !== 'multiple') setOpen(false);
       }}
       {...props}
+      disabled={disabled}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <Combobox.Trigger
+          disabled={disabled}
           className={cn('w-full inline-flex', className)}
           variant="outline"
         >

@@ -1,4 +1,5 @@
-import { IconAlignLeft } from '@tabler/icons-react';
+import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
+import { IconAlignLeft, IconBuilding } from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -11,10 +12,10 @@ import {
   Switch,
   toast,
 } from 'erxes-ui';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
+import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedContactPanelRecord';
 import {
   buildCustomerSchema,
   CUSTOMER_FORM_DEFAULTS,
@@ -50,7 +51,11 @@ export const CustomerPanelNew = () => {
     'core:customer',
   );
   const { back, canGoBack, close } = useSidePanel();
-  const onCreated = useCreatedPanelRecord('core:customer');
+  const [companyIds, setCompanyIds] = useState<string[]>([]);
+  const { onCreated, linking } = useCreatedContactPanelRecord(
+    'core:customer',
+    companyIds,
+  );
   const client = useApolloClient();
   const { customersAdd, loading } = useAddCustomer();
   const { rules, loading: rulesLoading } = useSystemFieldRules(
@@ -131,7 +136,7 @@ export const CustomerPanelNew = () => {
       >
         <PanelFormLayout
           onCancel={cancel}
-          saving={loading}
+          saving={loading || linking}
           saveLabel={
             state === 'lead'
               ? addT('create-lead', 'Create lead')
@@ -141,6 +146,15 @@ export const CustomerPanelNew = () => {
           {textRow('firstName', addT('first-name', 'First name'))}
           {textRow('middleName', addT('middle-name', 'Middle name'))}
           {textRow('lastName', addT('last-name', 'Last name'))}
+          <PanelFormRow icon={IconBuilding} label={t('company', 'Company')}>
+            <ContactRelationInput
+              kind="company"
+              value={companyIds}
+              onValueChange={setCompanyIds}
+              scope="side-panel-customer-new.companies"
+              disabled={loading || linking}
+            />
+          </PanelFormRow>
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
           {rules.isShown('ownerId') && (

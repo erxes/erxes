@@ -15,6 +15,7 @@ type RelationSelectProps = {
   onValueChange: (value?: string | string[] | null) => void;
   inCell?: boolean;
   allowUnassigned?: boolean;
+  disabled?: boolean;
 };
 
 const COMMON_PROPS = { mode: 'single' } as const;
@@ -69,6 +70,7 @@ export const FieldRelation = ({
   field,
   value,
   handleChange,
+  loading,
   inCell,
   id,
 }: SpecificFieldProps) => {
@@ -90,8 +92,10 @@ export const FieldRelation = ({
       inCell={inCell}
       {...(SelectRelation === MemberRelation && {
         allowUnassigned: !field.validations?.required,
+        disabled: loading,
       })}
       onValueChange={(val = null) => {
+        if (loading) return;
         setCurrentValue(val);
         if (val !== value) handleChange(val);
       }}

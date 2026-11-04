@@ -82,7 +82,14 @@ const TagsSelectProvider = ({
       }
       (onValueChange as ((value: string) => void) | undefined)?.(tag._id);
     } else {
-      const isSelected = selectedTags.some((t) => t._id === tag._id);
+      const currentIds =
+        value === undefined
+          ? selectedTags.map((item) => item._id)
+          : selectedIds;
+      const isSelected = currentIds.includes(tag._id);
+      const newIds = isSelected
+        ? currentIds.filter((id) => id !== tag._id)
+        : [...currentIds, tag._id];
       let newTags: ITag[];
       if (isSelected) {
         newTags = selectedTags.filter((t) => t._id !== tag._id);
@@ -95,15 +102,13 @@ const TagsSelectProvider = ({
           variables: {
             type,
             targetIds,
-            tagIds: newTags.map((t) => t._id),
+            tagIds: newIds,
           },
-          ...options?.(newTags.map((t) => t._id)),
+          ...options?.(newIds),
         });
       }
 
-      (onValueChange as ((value: string[]) => void) | undefined)?.(
-        newTags.map((t) => t._id),
-      );
+      (onValueChange as ((value: string[]) => void) | undefined)?.(newIds);
     }
   };
 
@@ -400,11 +405,10 @@ function TagsSelectedList({
   const { giveTags } = useGiveTags();
 
   const selectedIds = useMemo(() => {
-    if (Array.isArray(value)) {
-      return value;
-    }
+    if (value === undefined) return selectedTags.map((tag) => tag._id);
+    if (Array.isArray(value)) return value;
     return value ? [value] : [];
-  }, [value]);
+  }, [value, selectedTags]);
 
   const missingIds = useMemo(() => {
     if (loading) return [];
@@ -478,38 +482,7 @@ function TagsSelectedList({
               setSelectedTags([...selectedTags, tag]);
             }
           }}
-          onClose={() => {
-            if (mode === 'single') {
-              setSelectedTags([]);
-              (onValueChange as (value?: string) => void)?.();
-              if (targetIds) {
-                giveTags({
-                  variables: {
-                    type,
-                    targetIds,
-                    tagIds: [],
-                  },
-                  ...options?.([]),
-                });
-              }
-            } else {
-              const newTags = selectedTags.filter((t) => t._id !== tag._id);
-              setSelectedTags(newTags);
-              (onValueChange as (value: string[]) => void)?.(
-                newTags.map((t) => t._id),
-              );
-              if (targetIds) {
-                giveTags({
-                  variables: {
-                    type,
-                    targetIds,
-                    tagIds: newTags.map((t) => t._id),
-                  },
-                  ...options?.(newTags.map((t) => t._id)),
-                });
-              }
-            }
-          }}
+          onClose={() => removeId(tag._id)}
           {...props}
           {...(maxVisible === undefined ? {} : { onClose: undefined })}
         />

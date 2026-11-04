@@ -1,4 +1,5 @@
-import { IconAlignLeft } from '@tabler/icons-react';
+import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
+import { IconAlignLeft, IconUser } from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -10,10 +11,10 @@ import {
   Select,
   toast,
 } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
+import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedContactPanelRecord';
 import { useDebounce } from 'use-debounce';
 import {
   COMPANY_BUSINESS_TYPES,
@@ -94,7 +95,11 @@ const CompanyDescriptionInput = () => {
 export const CompanyPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { back, canGoBack, close } = useSidePanel();
-  const onCreated = useCreatedPanelRecord('core:company');
+  const [customerIds, setCustomerIds] = useState<string[]>([]);
+  const { onCreated, linking } = useCreatedContactPanelRecord(
+    'core:company',
+    customerIds,
+  );
   const client = useApolloClient();
   const { companiesAdd, loading } = useAddCompany();
   const form = useForm<TCompanyForm>({
@@ -173,11 +178,20 @@ export const CompanyPanelNew = () => {
       >
         <PanelFormLayout
           onCancel={cancel}
-          saving={loading}
+          saving={loading || linking}
           saveLabel={t('add._', 'Add company')}
         >
           {textRow('primaryName', t('field.primaryName', 'Name'))}
           {textRow('code', t('code', 'Code'))}
+          <PanelFormRow icon={IconUser} label={t('customer', 'Customer')}>
+            <ContactRelationInput
+              kind="customer"
+              value={customerIds}
+              onValueChange={setCustomerIds}
+              scope="side-panel-company-new.customers"
+              disabled={loading || linking}
+            />
+          </PanelFormRow>
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
           <PanelFormRow label={t('owner', 'Owner')}>
