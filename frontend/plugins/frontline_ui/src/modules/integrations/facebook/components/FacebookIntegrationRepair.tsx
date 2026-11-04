@@ -25,7 +25,11 @@ export const FacebookIntegrationRepair = ({ integration }: Props) => {
   const runRepair = () => {
     repairIntegrations({
       variables: { _id, kind },
-      refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
+      refetchQueries: [
+        'Integrations',
+        'ChannelIntegrationsPeek',
+        'FacebookGetIntegrations',
+      ],
       onCompleted: (data) => {
         const result = parseRepairResult(data?.integrationsRepair);
 

@@ -45,17 +45,6 @@ export const actionCreate = async ({
     newData.userId = execution.target.userId;
   }
 
-  if (execution.triggerType === 'inbox:conversation') {
-    newData.sourceConversationIds = [execution.targetId];
-  }
-
-  if (
-    ['core:customer', 'core:lead'].includes(execution.triggerType) &&
-    execution.target.isFormSubmission
-  ) {
-    newData.sourceConversationIds = [execution.target.conversationId];
-  }
-
   if (Object.prototype.hasOwnProperty.call(newData, 'assignedTo')) {
     newData.assignedUserIds = newData.assignedTo.trim().split(', ');
   }

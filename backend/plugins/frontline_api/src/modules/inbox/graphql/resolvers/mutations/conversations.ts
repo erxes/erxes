@@ -4,8 +4,6 @@ import {
   AUTO_BOT_MESSAGES,
   CONVERSATION_STATUSES,
 } from '@/inbox/db/definitions/constants';
-import { convertConversation } from '@/inbox/services/conversationConvert';
-import { IConversationConvert } from '@/inbox/@types/conversationConvert';
 import {
   graphqlPubsub,
   markResolvers,
@@ -18,21 +16,21 @@ import {
   getAutomatedReplyReason,
   getAutomatedReplyStatus,
   publishUnreadCountsSafely,
-} from './conversationAutomation';
+} from '@/inbox/graphql/resolvers/mutations/conversationAutomation';
 import { sendFacebookAutomatedReplyControlMessage } from '@/integrations/facebook/services/automatedReplyControl';
 import {
   publishConversationsChanged,
   sendNotifications,
-} from './conversationNotifications';
-import { conversationMessageMutations } from './conversationMessageMutations';
+} from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
+import { conversationMessageMutations } from '@/inbox/graphql/resolvers/mutations/conversationMessageMutations';
 
-export { dispatchConversationToService } from './conversationAutomation';
+export { dispatchConversationToService } from '@/inbox/graphql/resolvers/mutations/conversationAutomation';
 export {
   conversationNotifReceivers,
   publishConversationsChanged,
   publishMessage,
   sendNotifications,
-} from './conversationNotifications';
+} from '@/inbox/graphql/resolvers/mutations/conversationNotifications';
 
 const getConversationById = async (models: IModels, selector) => {
   const oldConversations = await models.Conversations.find(selector).lean();
@@ -316,19 +314,6 @@ export const conversationMutations = {
     });
 
     return models.Conversations.getConversation(_id);
-  },
-
-  async conversationConvertToCard(
-    _root,
-    params: IConversationConvert,
-    { user, models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('conversationConvertToCard');
-
-    return convertConversation(
-      { models, subdomain, user, checkPermission },
-      params,
-    );
   },
 
   async conversationEditCustomFields(

@@ -13,14 +13,17 @@ import { IconCalendarEventFilled } from '@tabler/icons-react';
 import { format } from 'date-fns';
 import { Button, Separator } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
+import { memo } from 'react';
 
-export const TaskBoardCard = ({
+// Memoized: board drag state and the shared card atom change often, and each
+// card carries several selects; unchanged tasks keep their Apollo object.
+export const TaskBoardCard = memo(function TaskBoardCard({
   task,
   column,
 }: {
   task: ITask;
   column: string;
-}) => {
+}) {
   const { t } = useTranslation('operation');
   const {
     startDate,
@@ -57,7 +60,7 @@ export const TaskBoardCard = ({
       <Separator />
       <div className="p-3 flex flex-col gap-3">
         <div className="flex flex-col gap-1">
-          <h5 className="font-semibold">{name}</h5>
+          <h5 className="font-semibold wrap-anywhere">{name}</h5>
           <div className="text-accent-foreground uppercase">
             {t('task-number', { number })}
           </div>
@@ -107,4 +110,4 @@ export const TaskBoardCard = ({
       </div>
     </div>
   );
-};
+});

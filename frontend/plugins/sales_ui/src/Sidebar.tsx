@@ -3,7 +3,8 @@ import { SalesSettingsNavigation } from '@/SalesSettingsNavigation';
 import { BoardsSettingsNavigation } from '@/deals/boards/components/settings/BoardsSettingsNavigation';
 import { PosSettingsTabs } from '@/pos/components/PosSettingsTabs';
 import type { ReactNode } from 'react';
-import { IconSettings, IconArrowLeft } from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
+import { IconSettings, IconChevronLeft } from '@tabler/icons-react';
 import { AppLayoutFooterLink, Sidebar, AppLayout } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { MainNavigation } from '@/MainNavigation';
@@ -41,6 +42,7 @@ export const SalesSidebarFooter = () => {
 /** The plugin's settings pages (`/sales/settings/*`) with their own sidebar. */
 export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const { t: tSidebar } = useTranslation('common', { keyPrefix: 'sidebar' });
 
   return (
     <AppLayout
@@ -48,6 +50,18 @@ export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
       title={t('plugin-settings-title', { name: 'Sales' })}
       sidebar={
         <>
+          <Sidebar.Header className="sticky top-0 z-10 bg-sidebar px-2 pt-0 pb-1 after:pointer-events-none after:absolute after:inset-x-0 after:top-full after:h-4 after:bg-gradient-to-b after:from-sidebar after:to-transparent">
+            <Sidebar.Menu>
+              <Sidebar.MenuItem>
+                <Sidebar.MenuButton asChild>
+                  <Link to="/sales/deals">
+                    <IconChevronLeft />
+                    <span>{tSidebar('exit-settings')}</span>
+                  </Link>
+                </Sidebar.MenuButton>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Header>
           <SalesSettingsNavigation />
           <PluginSharedSettingsNavigation
             pluginName="sales"
@@ -56,13 +70,6 @@ export const SalesSettingsLayout = ({ children }: { children: ReactNode }) => {
           <BoardsSettingsNavigation />
           <PosSettingsTabs />
         </>
-      }
-      footer={
-        <AppLayoutFooterLink
-          path="sales/deals"
-          name={t('back-to-app', { name: 'Sales' })}
-          icon={IconArrowLeft}
-        />
       }
     >
       {children}

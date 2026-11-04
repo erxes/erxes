@@ -190,12 +190,6 @@ type ConversationListResponse {
     totalCount: Int,
   }
 
-  type ConversationConvertedItem {
-    type: String
-    _id: String
-    url: String
-  }
-
   input ConversationMessageParams {
     content: String,
     mentionedUserIds: [String],

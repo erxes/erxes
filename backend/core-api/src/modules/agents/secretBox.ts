@@ -51,6 +51,9 @@ const deriveKey = (): Buffer | null => {
   return cachedKey;
 };
 
+/** Whether sealed keys can be opened at all (`JWT_TOKEN_SECRET` is set). */
+export const canOpenSealedSecrets = (): boolean => deriveKey() !== null;
+
 /** True when the stored value is a sealed envelope, not legacy plaintext. */
 export const isSealedSecret = (value: unknown): value is string =>
   typeof value === 'string' && value.startsWith(PREFIX);

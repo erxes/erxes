@@ -5,10 +5,8 @@ export const SyncSettingSection = ({
   title: string;
   children: React.ReactNode;
 }) => (
-  <section className="space-y-4">
-    <h3 className="text-sm font-medium text-foreground">{title}</h3>
-    <div className="grid grid-cols-1 gap-x-4 gap-y-5 xl:grid-cols-3">
-      {children}
-    </div>
+  <section className="flex flex-col gap-1 pt-3 first:pt-0">
+    <h3 className="pb-1 text-xs font-medium text-muted-foreground">{title}</h3>
+    {children}
   </section>
 );

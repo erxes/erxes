@@ -1,103 +1,66 @@
-import { useRouter, useSearchParams } from "next/navigation"
-import useUser from "@/modules/auth/hooks/useUser"
-import {
-  beginDateAtom,
-  calcAmountsAtom,
-  calcCashAtom,
-  capitronResponseAtom,
-  cashAtom,
-  currentAmountsAtom,
-  currentCashTotalAtom,
-  descriptionAtom,
-  endDateAtom,
-  golomtResponseAtom,
-  resetCoverDetailAtom,
-  tdbResponseAtom,
-} from "@/store/cover.store"
+import { useRouter } from "next/navigation"
 import { useAtomValue, useSetAtom } from "jotai"
 import { AlarmCheckIcon } from "lucide-react"
-
-import { Detail } from "@/types/cover.types"
+import {
+  isCoverAmountsFetchedAtom,
+  endDateAtom,
+  resetCoverDetailAtom,
+  terminalFetchBusyAtom,
+  coverStatusAtom,
+  terminalResultsAtom,
+  coverValidationAttemptedAtom,
+} from "@/store/cover.store"
+import { paymentTypesAtom } from "@/store/config.store"
+import { BANK_CARD_TYPES } from "@/lib/constants"
 import { Button } from "@/components/ui/button"
+import { onError, toast } from "@/components/ui/use-toast"
+import { useCoverSave } from "../hooks/useCoverSave"
 
-import useCoverCU from "../hooks/useCoverCU"
-
-const CoverCU = () => {
-  const beginDate = useAtomValue(beginDateAtom)
+export const CoverCU = () => {
   const endDate = useAtomValue(endDateAtom)
-  const description = useAtomValue(descriptionAtom)
-  const calcAmounts = useAtomValue(calcAmountsAtom)
-  const currentAmounts = useAtomValue(currentAmountsAtom)
-  const cash = useAtomValue(cashAtom)
-  const calcCash = useAtomValue(calcCashAtom)
-  const cashTotal = useAtomValue(currentCashTotalAtom)
-  // TODO: fix those
-  const golomtResponse = useAtomValue(golomtResponseAtom)
-  const tdbResponse = useAtomValue(tdbResponseAtom)
-  const capitronResponse = useAtomValue(capitronResponseAtom)
+  const fetched = useAtomValue(isCoverAmountsFetchedAtom)
+  const busy = useAtomValue(terminalFetchBusyAtom)
+  const status = useAtomValue(coverStatusAtom)
+  const paymentTypes = useAtomValue(paymentTypesAtom) || []
+  const terminalResults = useAtomValue(terminalResultsAtom)
+  const setValidationAttempted = useSetAtom(coverValidationAttemptedAtom)
   const resetCover = useSetAtom(resetCoverDetailAtom)
-
   const router = useRouter()
-
-  const { userId } = useUser()
-  const id = useSearchParams().get("id")
-  const { loading, coverCU } = useCoverCU()
-
-  const handleClick = () => {
-    let details = [] as Detail[]
-
-    if (calcCash || cashTotal) {
-      details.push({
-        ...cash,
-        paidSummary: cash.paidSummary.filter((item) => (item.value || 0) > 0),
-        paidDetail: calcCash,
-      })
+  const { loading, saveCover } = useCoverSave()
+  const handleClick = async () => {
+    setValidationAttempted(true)
+    const missingBank = Object.values(BANK_CARD_TYPES).find(
+      (bank) =>
+        paymentTypes.some((payment) => payment.type === bank) &&
+        !terminalResults.some(
+          (result) => result.bank === bank && !!result.response?.trim()
+        )
+    )
+    if (missingBank) {
+      document
+        .getElementById(`cover-terminal-description-${missingBank}`)
+        ?.focus()
+      return
     }
-
-    Object.keys(currentAmounts).forEach((item) => {
-      if (currentAmounts[item]) {
-        details.push({
-          _id: Math.random(),
-          paidType: item,
-          paidSummary: [
-            {
-              _id: Math.random() + "",
-              kindOfVal: 1,
-              kind: "1",
-              amount: currentAmounts[item],
-              value: currentAmounts[item],
-            },
-          ],
-          paidDetail: (calcAmounts || {})[item],
-        })
-      }
-    })
-
-    coverCU({
-      variables: {
-        id: id === "create" ? null : id,
-        userId,
-        description: !!description ? description : null,
-        beginDate,
-        endDate,
-        details,
-      },
-      onCompleted: () => {
-        resetCover()
-        router.push("/cover")
-      },
-    })
+    try {
+      await saveCover()
+      toast({ description: "Хаалт хадгалагдлаа" })
+      resetCover()
+      router.push("/cover")
+    } catch (error) {
+      onError(error instanceof Error ? error.message : String(error))
+    }
   }
-
-  if (!endDate) {
-    return null
-  }
+  if (!endDate || !fetched) return null
   return (
-    <Button className="mt-4" loading={loading} onClick={handleClick}>
+    <Button
+      className="mt-4"
+      loading={loading}
+      disabled={busy || status === "confirm" || status === "confirming"}
+      onClick={handleClick}
+    >
       <AlarmCheckIcon className="mr-1 h-4 w-4 -translate-x-1" />
       Хадгалах
     </Button>
   )
 }
-
-export default CoverCU

@@ -15,6 +15,7 @@ import * as jwt from 'jsonwebtoken';
 import { createHash } from 'crypto';
 import fetch from 'node-fetch';
 import { generateModels, IModels } from '../connectionResolver';
+import { readSessionCookie, verifySession } from '../util/session';
 
 dotenv.config();
 
@@ -88,6 +89,7 @@ export default async function userMiddleware(
   debugAuth(req, 'start', {
     hasAuthorizationHeader: Boolean(req.headers.authorization),
     hasAuthCookie: Boolean(req.cookies?.['auth-token']),
+    hasSessionCookie: Boolean(readSessionCookie(req.cookies)),
     hasClientAuthToken: Boolean(
       req.headers['client-auth-token'] || req.cookies?.['client-auth-token'],
     ),
@@ -354,6 +356,44 @@ export default async function userMiddleware(
     }
   }
 
+  const sid = bearerToken ? '' : readSessionCookie(req.cookies);
+
+  if (sid) {
+    try {
+      const session = await verifySession(subdomain, sid);
+
+      const userDoc = session
+        ? await models.Users.findOne(
+            { _id: session.userId, isActive: { $ne: false } },
+            USER_HEADER_PROJECTION,
+          ).lean()
+        : null;
+
+      if (userDoc) {
+        req.user = { ...userDoc };
+        req.user.sessionCode = req.headers.sessioncode || '';
+
+        setUserHeader(req.headers, req.user);
+        debugAuth(req, 'session-user-header-set', {
+          subdomain,
+          userId: req.user._id,
+          durationMs: Date.now() - startedAt,
+        });
+
+        return next();
+      }
+
+      debugAuth(req, 'session-invalid', {
+        subdomain,
+        tokenHash: hashToken(sid),
+        durationMs: Date.now() - startedAt,
+      });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // Legacy JWT: OAuth bearer tokens, and auth-token cookies issued before sessions
   const token = bearerToken || req.cookies['auth-token'];
 
   if (!token) {
@@ -383,7 +423,7 @@ export default async function userMiddleware(
     }
 
     const userDoc = await models.Users.findOne(
-      { _id: user._id },
+      { _id: user._id, isActive: { $ne: false } },
       USER_HEADER_PROJECTION,
     ).lean();
 

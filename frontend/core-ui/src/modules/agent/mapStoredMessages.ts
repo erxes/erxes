@@ -1,4 +1,6 @@
 import { pageSelectionsDisplayText } from './pageSelections';
+import { agentMentionsDisplayText } from './agentMentions';
+import { AGENT_PAGE_CONTEXT_PREFIX } from './utils/pageContext';
 import type { DynamicToolUIPart, UIMessage } from 'ai';
 import { agentsFilesDisplayText } from './agentsFiles';
 
@@ -140,14 +142,24 @@ export const mapStoredMessagesToUIMessages = (
 
     const displayText =
       message.role === 'user'
-        ? agentsFilesDisplayText(parts) ?? pageSelectionsDisplayText(parts)
+        ? agentMentionsDisplayText(parts) ??
+          agentsFilesDisplayText(parts) ??
+          pageSelectionsDisplayText(parts)
         : undefined;
+    // The display text replaces the model-facing text; a leading page
+    // context line stays so editing the turn keeps its original context.
+    const [first] = parts;
+    const pageContext =
+      first?.type === 'text' && first.text.startsWith(AGENT_PAGE_CONTEXT_PREFIX)
+        ? [first]
+        : [];
     uiMessages.push({
       id: message.id,
       role: message.role,
       parts:
         displayText !== undefined
           ? [
+              ...pageContext,
               { type: 'text', text: displayText },
               ...parts.filter((part) => part.type !== 'text'),
             ]

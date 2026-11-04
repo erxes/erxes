@@ -1,4 +1,11 @@
-import { escapeRegExp } from 'erxes-api-shared/utils';
+import { ICustomerDocument } from 'erxes-api-shared/core-types';
+import {
+  buildSearchTokenFilter,
+  escapeRegExp,
+  splitSearchWords,
+} from 'erxes-api-shared/utils';
+import { FilterQuery } from 'mongoose';
+import { customerSearchTokenConfig } from '@/contacts/db/definitions/customers';
 import { IContext } from '~/connectionResolvers';
 
 type TGlobalSearchItem = {
@@ -49,6 +56,64 @@ export const buildIdentifierSearchRegex = (
   return characters.length
     ? new RegExp(characters.join(IDENTIFIER_SEPARATOR), 'i')
     : undefined;
+};
+
+const IDENTIFIER_SEARCH_PATTERN = /^[\d\s\-+()./]+$/;
+const CONTACT_SEARCH_PATTERN = /[@.]/;
+const MIN_TOKEN_WORD_LENGTH = 3;
+
+const isTokenWord = (word: string): boolean =>
+  word.length >= MIN_TOKEN_WORD_LENGTH;
+
+const getContactTokenValue = (words: string[]): string | undefined => {
+  const [longestWord] = [...words]
+    .reverse()
+    .sort((a, b) => b.length - a.length);
+
+  return longestWord && isTokenWord(longestWord) ? longestWord : undefined;
+};
+
+const getNameTokenValue = (words: string[]): string | undefined => {
+  const tokenWords = words.at(-1)?.length === 1 ? words.slice(0, -1) : words;
+
+  return tokenWords.length && tokenWords.every(isTokenWord)
+    ? tokenWords.join(' ')
+    : undefined;
+};
+
+const buildCustomerSearchFilter = (
+  rawSearch: string,
+  fieldsFilter: FilterQuery<ICustomerDocument>,
+): FilterQuery<ICustomerDocument> => {
+  if (IDENTIFIER_SEARCH_PATTERN.test(rawSearch)) {
+    return fieldsFilter;
+  }
+
+  const isContactSearch = CONTACT_SEARCH_PATTERN.test(rawSearch);
+  const words = splitSearchWords(rawSearch);
+  const tokenValue = isContactSearch
+    ? getContactTokenValue(words)
+    : getNameTokenValue(words);
+
+  if (!tokenValue) {
+    return fieldsFilter;
+  }
+
+  const tokenFilter = buildSearchTokenFilter<ICustomerDocument>(
+    tokenValue,
+    customerSearchTokenConfig,
+  );
+
+  return {
+    $or: [
+      isContactSearch ? { $and: [tokenFilter, fieldsFilter] } : tokenFilter,
+      {
+        ...fieldsFilter,
+        searchTokens: { $in: [null, []] },
+        state: { $ne: 'visitor' },
+      },
+    ],
+  };
 };
 
 type TDataSource = {
@@ -183,12 +248,14 @@ export const globalSearchQueries = {
     const customerQuery = searchRegex
       ? {
           status: { $ne: 'deleted' },
-          $or: [
-            { firstName: searchRegex },
-            { lastName: searchRegex },
-            { primaryEmail: searchRegex },
-            { primaryPhone: identifierRegex ?? searchRegex },
-          ],
+          ...buildCustomerSearchFilter(rawSearch, {
+            $or: [
+              { firstName: searchRegex },
+              { lastName: searchRegex },
+              { primaryEmail: searchRegex },
+              { primaryPhone: identifierRegex ?? searchRegex },
+            ],
+          }),
         }
       : { status: { $ne: 'deleted' } };
 
@@ -332,19 +399,20 @@ export const globalSearchQueries = {
       ? new RegExp(escapedSearch, 'i')
       : undefined;
 
-    const userQuery = searchRegex
-      ? {
-          isActive: { $ne: false },
-          role: { $ne: 'system' },
-          $or: [
-            { username: searchRegex },
-            { email: searchRegex },
-            { employeeId: searchRegex },
-            { 'details.fullName': searchRegex },
-            { 'details.position': searchRegex },
-          ],
-        }
-      : { isActive: { $ne: false }, role: { $ne: 'system' } };
+    const userQuery = await models.Users.staffQuery(
+      searchRegex
+        ? {
+            isActive: { $ne: false },
+            $or: [
+              { username: searchRegex },
+              { email: searchRegex },
+              { employeeId: searchRegex },
+              { 'details.fullName': searchRegex },
+              { 'details.position': searchRegex },
+            ],
+          }
+        : { isActive: { $ne: false } },
+    );
 
     const branchQuery = searchRegex
       ? {

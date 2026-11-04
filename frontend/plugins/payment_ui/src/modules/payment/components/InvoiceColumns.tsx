@@ -1,9 +1,4 @@
-import {
-  IconAlignLeft,
-  IconCalendarPlus,
-  IconHash,
-  IconQrcode,
-} from '@tabler/icons-react';
+import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -83,36 +78,6 @@ export const invoicesColumns = (
       <RecordTable.InlineHead label={t('status')} icon={IconHash} />
     ),
     cell: ({ cell }) => <InvoiceStatusCell invoice={cell.row.original} />,
-  },
-  {
-    id: 'scannedAt',
-    accessorKey: 'scannedAt',
-    header: () => (
-      <RecordTable.InlineHead label={t('scanned')} icon={IconQrcode} />
-    ),
-    cell: ({ row }) => {
-      const { scannedAt, ticketCount = 1 } = row.original as IInvoice;
-      const scannedCount = Math.max(
-        (row.original as IInvoice).scannedCount || 0,
-        scannedAt ? 1 : 0,
-      );
-
-      if (scannedCount === 0) {
-        return (
-          <RecordTableInlineCell>
-            <Badge variant="secondary">{t('not-scanned')}</Badge>
-          </RecordTableInlineCell>
-        );
-      }
-
-      return (
-        <RecordTableInlineCell>
-          <Badge variant={scannedCount >= ticketCount ? 'success' : 'warning'}>
-            {scannedCount} / {ticketCount}
-          </Badge>
-        </RecordTableInlineCell>
-      );
-    },
   },
   {
     id: 'createdAt',

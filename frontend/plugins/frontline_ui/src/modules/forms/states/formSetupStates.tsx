@@ -3,7 +3,7 @@ import {
   FORM_STATES_DEFAULT_VALUES,
   FORM_STORAGE_KEYS,
 } from '@/forms/constants/formStatesDefaultValues';
-import { atomWithStorage } from 'jotai/utils';
+import { formDraftAtom } from './formDraftScope';
 import {
   FORM_GENERAL_SCHEMA,
   FORM_CALLOUT_SCHEMA,
@@ -17,41 +17,53 @@ import { atom } from 'jotai';
 import { isDefined } from 'erxes-ui';
 import { IFormDetail } from '../types/formTypes';
 
-export const formSetupStepAtom = atomWithStorage<number>(
+export const formSetupStepAtom = formDraftAtom<number>(
   FORM_STORAGE_KEYS.STEP,
   1,
 );
 
-export const formSetupGeneralAtom = atomWithStorage<
+export const formSetupGeneralAtom = formDraftAtom<
   z.infer<typeof FORM_GENERAL_SCHEMA>
->(FORM_STORAGE_KEYS.GENERAL, FORM_STATES_DEFAULT_VALUES.GENERAL, undefined, {
-  getOnInit: true,
-});
+>(FORM_STORAGE_KEYS.GENERAL, FORM_STATES_DEFAULT_VALUES.GENERAL);
 
-export const formSetupCalloutAtom = atomWithStorage<
+export const formSetupCalloutAtom = formDraftAtom<
   z.infer<typeof FORM_CALLOUT_SCHEMA>
->(FORM_STORAGE_KEYS.CALLOUT, FORM_STATES_DEFAULT_VALUES.CALLOUT, undefined, {
-  getOnInit: true,
-});
+>(FORM_STORAGE_KEYS.CALLOUT, FORM_STATES_DEFAULT_VALUES.CALLOUT);
 
-export const formSetupContentAtom = atomWithStorage<
+export const formSetupContentAtom = formDraftAtom<
   z.infer<typeof FORM_CONTENT_SCHEMA>
->(FORM_STORAGE_KEYS.CONTENT, FORM_STATES_DEFAULT_VALUES.CONTENT, undefined, {
-  getOnInit: true,
+>(FORM_STORAGE_KEYS.CONTENT, FORM_STATES_DEFAULT_VALUES.CONTENT);
+
+export const formSetupConfirmationAtom = formDraftAtom<
+  z.infer<typeof FORM_CONFIRMATION_SCHEMA>
+>(FORM_STORAGE_KEYS.CONFIRMATION, FORM_STATES_DEFAULT_VALUES.CONFIRMATION);
+
+export const settedFormDetailAtom = formDraftAtom('settedFormDetail', false);
+
+export const formDraftSchema = z.object({
+  step: z.number(),
+  general: FORM_GENERAL_SCHEMA,
+  callout: FORM_CALLOUT_SCHEMA,
+  content: FORM_CONTENT_SCHEMA,
+  confirmation: FORM_CONFIRMATION_SCHEMA,
 });
 
-export const formSetupConfirmationAtom = atomWithStorage<
-  z.infer<typeof FORM_CONFIRMATION_SCHEMA>
->(
-  FORM_STORAGE_KEYS.CONFIRMATION,
-  FORM_STATES_DEFAULT_VALUES.CONFIRMATION,
-  undefined,
-  {
-    getOnInit: true,
+export const formDraftSnapshotAtom = atom(
+  (get) => ({
+    step: get(formSetupStepAtom),
+    general: get(formSetupGeneralAtom),
+    callout: get(formSetupCalloutAtom),
+    content: get(formSetupContentAtom),
+    confirmation: get(formSetupConfirmationAtom),
+  }),
+  (_get, set, draft: z.infer<typeof formDraftSchema>) => {
+    set(formSetupStepAtom, draft.step);
+    set(formSetupGeneralAtom, draft.general);
+    set(formSetupCalloutAtom, draft.callout);
+    set(formSetupContentAtom, draft.content);
+    set(formSetupConfirmationAtom, draft.confirmation);
   },
 );
-
-export const settedFormDetailAtom = atomWithStorage('settedFormDetail', false);
 
 export const formSetupValuesAtom = atom((get) => {
   const general = get(formSetupGeneralAtom);
@@ -109,6 +121,7 @@ export const formSetupValuesAtom = atom((get) => {
             pageNumber: step.order,
             text: field.label,
             type: field.type,
+            expectedType: field.expectedType,
             validation: field.validation,
             logics: field.logics?.map(
               ({ fieldId, logicOperator, logicValue }) => ({

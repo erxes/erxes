@@ -26,6 +26,7 @@ export const currentUser = gql`
       configs
       isOnboarded
       hasPassword
+      passwordManagedBy
       isShowNotification
     }
   }

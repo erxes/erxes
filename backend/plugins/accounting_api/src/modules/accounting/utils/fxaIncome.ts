@@ -108,18 +108,16 @@ const buildFixedAssetDoc = ({
   const count = Math.max(0, Math.trunc(detail.count || 0));
   const totalCount = Math.max(
     0,
-    Math.trunc(Number(detail.followInfos?.fixedAssetTotalCount || count)),
-  );
-  const totalAmount = Number(
-    detail.followInfos?.fixedAssetTotalAmount || detail.amount || 0,
+    Math.trunc(Number(detail.followInfos?.fixedAssetTotalCount ?? count)),
   );
   const assetCount = totalCount || count;
   const unitPrice =
-    detail.unitPrice || (assetCount ? totalAmount / assetCount : 0);
+    detail.unitPrice ?? (count ? (detail.amount || 0) / count : 0);
 
   return {
     code: detail.fixedAssetCode || '',
     name: detail.fixedAssetName || '',
+    description: transaction.description || '',
     categoryId: detail.fixedAssetCategoryId || '',
     status: 'active',
     accountId: detail.accountId,
@@ -605,6 +603,7 @@ export const syncFxaIncomeDetails = async (
               ? doc
               : {
                   code: doc.code || existing.code,
+                  description: doc.description || '',
                   name: doc.name || existing.name,
                   categoryId: doc.categoryId || existing.categoryId,
                   accountId: doc.accountId || existing.accountId,

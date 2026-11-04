@@ -9,7 +9,6 @@ import {
   ScrollArea,
   Select,
   Sheet,
-  Switch,
   toast,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -26,19 +25,10 @@ import QuickQrForm from '~/modules/settings/payment/components/QuickQrForm';
 import KhanbankForm from '~/modules/settings/payment/components/KhanbankForm';
 import TdbCGWForm from '~/modules/settings/payment/components/TdbCGWForm';
 import CorporateGolomtBankForm from '~/modules/settings/payment/components/CorporateGolomtBankForm';
-import { DealConfigForm } from '~/modules/settings/payment/components/DealConfigForm';
 
 type Props = {
   payment: any;
   onCancel: () => void;
-};
-
-const settingsFields = {
-  sendEmailOnPayment: z.boolean().optional(),
-  dealEnabled: z.boolean().optional(),
-  dealBoardId: z.string().optional(),
-  dealPipelineId: z.string().optional(),
-  dealStageId: z.string().optional(),
 };
 
 // Base validation schema
@@ -107,12 +97,12 @@ const corporateGolomtSchema = z.object({
 // Dynamic schema generator based on payment kind
 const createPaymentSchema = (selectedKind: string) => {
   if (!selectedKind) {
-    return baseSchema.extend(settingsFields);
+    return baseSchema;
   }
 
   const payment = paymentKind(selectedKind);
   if (!payment?.fields) {
-    return baseSchema.extend(settingsFields);
+    return baseSchema;
   }
 
   // Create dynamic fields schema
@@ -167,22 +157,22 @@ const createPaymentSchema = (selectedKind: string) => {
   });
 
   if (selectedKind === PaymentKind.QUICKQR) {
-  return quickQrSchema.extend(settingsFields);
-}
+    return quickQrSchema;
+  }
 
-if (selectedKind === PaymentKind.KHANBANK) {
-  return khanbankSchema.extend(settingsFields);
-}
+  if (selectedKind === PaymentKind.KHANBANK) {
+    return khanbankSchema;
+  }
 
-if (selectedKind === PaymentKind.TDB_CGW) {
-  return tdbCgwSchema.extend(settingsFields);
-}
+  if (selectedKind === PaymentKind.TDB_CGW) {
+    return tdbCgwSchema;
+  }
 
-if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
-  return corporateGolomtSchema.extend(settingsFields);
-}
+  if (selectedKind === PaymentKind.CORPORATE_GOLOMTBANK) {
+    return corporateGolomtSchema;
+  }
 
-return baseSchema.extend(dynamicFields).extend(settingsFields);
+  return baseSchema.extend(dynamicFields);
 };
 
 const PaymentForm = ({ payment, onCancel }: Props) => {
@@ -210,11 +200,6 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
         kind: '',
         name: '',
         status: 'active',
-        sendEmailOnPayment: true,
-        dealEnabled: false,
-        dealBoardId: '',
-        dealPipelineId: '',
-        dealStageId: '',
       };
     }
 
@@ -222,11 +207,6 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       kind: payment.kind || '',
       name: payment.name || '',
       status: payment.status || 'active',
-      sendEmailOnPayment: payment.sendEmailOnPayment !== false,
-      dealEnabled: payment.dealConfig?.enabled || false,
-      dealBoardId: payment.dealConfig?.boardId || '',
-      dealPipelineId: payment.dealConfig?.pipelineId || '',
-      dealStageId: payment.dealConfig?.stageId || '',
     };
 
     // Add payment config values
@@ -291,27 +271,11 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
       name: data.name,
       kind: data.kind,
       status: data.status,
-      sendEmailOnPayment: data.sendEmailOnPayment !== false,
-      dealConfig: {
-        enabled: !!data.dealEnabled,
-        boardId: data.dealEnabled ? data.dealBoardId || '' : '',
-        pipelineId: data.dealEnabled ? data.dealPipelineId || '' : '',
-        stageId: data.dealEnabled ? data.dealStageId || '' : '',
-      },
       config: {},
     };
 
     const config: any = {};
-    const topLevelKeys = new Set([
-      'kind',
-      'name',
-      'status',
-      'sendEmailOnPayment',
-      'dealEnabled',
-      'dealBoardId',
-      'dealPipelineId',
-      'dealStageId',
-    ]);
+    const topLevelKeys = new Set(['kind', 'name', 'status']);
     Object.entries(data).forEach(([key, value]) => {
       if (!topLevelKeys.has(key)) {
         config[key] = key === 'pocketTerminalId' ? Number(value) : value;
@@ -542,31 +506,6 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
                 )}
               />
 
-              <Form.Field
-                name="sendEmailOnPayment"
-                control={form.control}
-                render={({ field }) => (
-                  <Form.Item>
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="space-y-0.5">
-                        <Form.Label>{t('send-email-after-payment')}</Form.Label>
-                        <p className="text-xs text-muted-foreground">
-                          {t('send-email-description')}
-                        </p>
-                      </div>
-                      <Form.Control>
-                        <Switch
-                          checked={field.value !== false}
-                          onCheckedChange={field.onChange}
-                        />
-                      </Form.Control>
-                    </div>
-                  </Form.Item>
-                )}
-              />
-
-              <DealConfigForm form={form} />
-
               {/* Dynamic Payment-Specific Fields */}
               {currentPaymentKind?.fields.map((fieldConfig) => (
                 <Form.Field
@@ -618,8 +557,8 @@ const PaymentForm = ({ payment, onCancel }: Props) => {
             {isSubmitting
               ? t('saving')
               : payment
-                ? t('update-payment-method')
-                : t('save-payment-method')}
+              ? t('update-payment-method')
+              : t('save-payment-method')}
           </Button>
         </Sheet.Footer>
       </form>

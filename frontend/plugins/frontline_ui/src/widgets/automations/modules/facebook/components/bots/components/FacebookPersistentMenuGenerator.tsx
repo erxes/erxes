@@ -84,6 +84,13 @@ export const FacebookPersistentMenuGenerator = ({
 
   return (
     <div className="space-y-2">
+      {!menus.length && (
+        <p className="text-sm text-muted-foreground">
+          {t('persistent-menu-empty', {
+            defaultValue: 'No menu. Messenger shows no ☰ menu for this page.',
+          })}
+        </p>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

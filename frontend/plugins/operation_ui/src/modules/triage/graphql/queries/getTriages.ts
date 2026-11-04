@@ -13,6 +13,7 @@ export const GET_TRIAGES = gql(`
         createdAt
         updatedAt
         priority
+        status
       }
       totalCount
       pageInfo {

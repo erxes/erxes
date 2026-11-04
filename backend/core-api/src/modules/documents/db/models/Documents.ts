@@ -13,6 +13,8 @@ import {
 } from '~/modules/documents/types';
 import { prepareContent } from '~/modules/documents/utils';
 import { documentSchema } from '../definitions/documents';
+import { normalizeDocumentCommentState } from '../../validateDocumentCommentState';
+import { documentContentTypes } from '../../contentTypes';
 export interface IDocumentModel extends Model<IDocumentDocument> {
   getAccessFilter(
     user?: DocumentAccessUser,
@@ -26,7 +28,6 @@ const ANONYMOUS_DOCUMENT_USER: DocumentAccessUser = { _id: '' };
 
 export const loadDocumentClass = (models: IModels, subdomain: string) => {
   class Document {
-    /** Exclude documents the acting user cannot access under active approval locks. */
     public static async getAccessFilter(
       user: DocumentAccessUser = ANONYMOUS_DOCUMENT_USER,
     ): Promise<FilterQuery<IDocumentDocument>> {
@@ -47,7 +48,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       const states = await models.ApprovalLocks.getStates({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentIds: documents.map((document) => document._id),
+        contentIds: documents.map((document) => String(document._id)),
         ownerIdsByContentId: Object.fromEntries(
           documents.map((document) => [document._id, document.createdUserId]),
         ),
@@ -63,7 +64,6 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       };
     }
 
-    /** Load a document and enforce approval access for the requested action. */
     public static async getDocument({
       _id,
       user = ANONYMOUS_DOCUMENT_USER,
@@ -78,7 +78,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       await models.ApprovalLocks.assertAccess({
         user,
         contentType: DOCUMENT_APPROVAL_CONTENT_TYPE,
-        contentId: document._id,
+        contentId: String(document._id),
         ownerId: document.createdUserId,
         action,
       });
@@ -86,7 +86,6 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       return document;
     }
 
-    /** Create or edit a document while preserving its owner and enforcing edit access. */
     public static async saveDocument({ _id, doc, user }: DocumentSaveInput) {
       if (_id) {
         const document = await models.Documents.getDocument({
@@ -95,6 +94,14 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
           action: 'edit',
         });
 
+        if (doc.commentState !== undefined) {
+          doc.commentState = normalizeDocumentCommentState(
+            doc.commentState,
+            document.commentState,
+            user?._id || doc.createdUserId,
+          );
+        }
+
         return await models.Documents.findOneAndUpdate(
           { _id: document._id },
           { $set: { ...doc, createdUserId: document.createdUserId } },
@@ -102,10 +109,16 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
         );
       }
 
+      if (doc.commentState !== undefined) {
+        doc.commentState = normalizeDocumentCommentState(
+          doc.commentState,
+          undefined,
+          user?._id || doc.createdUserId,
+        );
+      }
       return await models.Documents.create(doc);
     }
 
-    /** Render a document only after verifying the acting user can view it. */
     public static async processDocument({
       user,
       ...doc
@@ -113,7 +126,12 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
       const { _id, config } = doc;
 
       const document = await models.Documents.getDocument({ _id, user });
-      const { content, contentType } = document;
+      const { content } = document;
+      const contentType = documentContentTypes(document.contentType)[0];
+
+      if (!doc.replacerIds?.length) {
+        return prepareContent({ contents: [content], config: config || {} });
+      }
 
       const [pluginName, moduleName] = contentType.split(':');
 
@@ -127,7 +145,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
             replacerIds: doc.replacerIds || [],
             config: config || {},
             content,
-            contentType: document.contentType,
+            contentType,
           },
         });
 
@@ -147,7 +165,7 @@ export const loadDocumentClass = (models: IModels, subdomain: string) => {
         input: {
           ...(doc || {}),
           content,
-          contentType: document.contentType,
+          contentType,
         },
         defaultValue: [],
       });

@@ -1,8 +1,7 @@
-import { Spinner, toast, useConfirm } from 'erxes-ui';
+import { Spinner } from 'erxes-ui';
 import { IconTrash } from '@tabler/icons-react';
-import { REMOVE_INTEGRATION } from '@/integrations/graphql/mutations/RemoveIntegration';
-import { useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { useIntegrationRemove } from '@/integrations/hooks/useIntegrationRemove';
 
 export const RemoveIntegration = ({
   _id,
@@ -14,38 +13,7 @@ export const RemoveIntegration = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const [removeIntegration, { loading }] = useMutation(REMOVE_INTEGRATION, {
-    refetchQueries: [
-      'Integrations',
-      'IntegrationsGetUsedTypes',
-      'IntegrationsGetUsedTypesByChannel',
-      'ChannelIntegrationsPeek',
-      'frontlineChannelList',
-    ],
-    onCompleted() {
-      toast({
-        title: t('integration-removed'),
-        variant: 'default',
-      });
-    },
-    onError(e) {
-      toast({
-        title: t('failed-to-remove-integration'),
-        description: e?.message,
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const { confirm } = useConfirm();
-
-  const handleRemove = () => {
-    confirm({
-      message: t('confirm-remove-integration', { name }),
-    }).then(() => {
-      removeIntegration({ variables: { id: _id } });
-    });
-  };
+  const { handleRemove, loading } = useIntegrationRemove({ _id, name });
 
   return (
     <div

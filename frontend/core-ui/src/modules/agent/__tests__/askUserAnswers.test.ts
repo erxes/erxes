@@ -3,10 +3,10 @@ import {
   formatAskUserAnswers,
   readAskUserAnswers,
   readAskUserQuestionsFromInput,
+  splitAskUserAnswer,
 } from '../askUserAnswers';
 
-const questions = (texts: string[]) =>
-  texts.map((question) => ({ question }));
+const questions = (texts: string[]) => texts.map((question) => ({ question }));
 
 describe('readAskUserQuestionsFromInput', () => {
   it('reads the batched questions array', () => {
@@ -25,14 +25,17 @@ describe('readAskUserQuestionsFromInput', () => {
 
   it('normalizes the legacy single-question payload', () => {
     expect(
-      readAskUserQuestionsFromInput({ question: 'Legacy?', options: [{ label: 'A' }] }),
+      readAskUserQuestionsFromInput({
+        question: 'Legacy?',
+        options: [{ label: 'A' }],
+      }),
     ).toEqual([{ question: 'Legacy?', options: [{ label: 'A' }] }]);
   });
 
   it('drops malformed entries and non-object input', () => {
-    expect(readAskUserQuestionsFromInput({ questions: [{}, { question: 'ok' }] })).toEqual([
-      { question: 'ok' },
-    ]);
+    expect(
+      readAskUserQuestionsFromInput({ questions: [{}, { question: 'ok' }] }),
+    ).toEqual([{ question: 'ok' }]);
     expect(readAskUserQuestionsFromInput('nope')).toEqual([]);
     expect(readAskUserQuestionsFromInput(null)).toEqual([]);
   });
@@ -55,13 +58,15 @@ describe('readAskUserAnswers — structured answers', () => {
     expect(readAskUserAnswers(questions(['Q?']), { answers: 'one' })).toEqual([
       { question: 'Q?', answer: 'one' },
     ]);
-    expect(readAskUserAnswers(questions(['Q?']), { answers: ['a', 'b'] })).toEqual([
-      { question: 'Q?', answer: 'a, b' },
-    ]);
+    expect(
+      readAskUserAnswers(questions(['Q?']), { answers: ['a', 'b'] }),
+    ).toEqual([{ question: 'Q?', answer: 'a, b' }]);
   });
 
   it('rejects incomplete or non-string answers', () => {
-    expect(readAskUserAnswers(questions(['Q1?', 'Q2?']), { answers: ['a1'] })).toBeNull();
+    expect(
+      readAskUserAnswers(questions(['Q1?', 'Q2?']), { answers: ['a1'] }),
+    ).toBeNull();
     expect(
       readAskUserAnswers(questions(['Q?']), { answers: [{ nope: true }] }),
     ).toBeNull();
@@ -87,7 +92,8 @@ describe('readAskUserAnswers — stored content', () => {
 
   it('keeps answers that contain colons, commas or newlines', () => {
     const entries = readAskUserAnswers(questions(['Q1?', 'Q2?']), {
-      content: 'User answered:\nQ1?: Time: noon, daily\nQ2?: line one\nline two',
+      content:
+        'User answered:\nQ1?: Time: noon, daily\nQ2?: line one\nline two',
     });
 
     expect(entries).toEqual([
@@ -121,7 +127,9 @@ describe('readAskUserAnswers — stored content', () => {
         content: 'User answered:\nQ1?: a1',
       }),
     ).toBeNull();
-    expect(readAskUserAnswers(questions(['Q?']), { content: 'garbage' })).toBeNull();
+    expect(
+      readAskUserAnswers(questions(['Q?']), { content: 'garbage' }),
+    ).toBeNull();
     expect(readAskUserAnswers(questions(['Q?']), undefined)).toBeNull();
     expect(readAskUserAnswers([], { content: 'User answered: x' })).toBeNull();
   });
@@ -129,7 +137,10 @@ describe('readAskUserAnswers — stored content', () => {
 
 describe('buildAskUserResult', () => {
   it('mirrors the backend tool result for a batched suspension', () => {
-    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), ['a1', ['b1', 'b2']]);
+    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), [
+      'a1',
+      ['b1', 'b2'],
+    ]);
 
     expect(result).toEqual({
       content: 'User answered:\nQ1?: a1\nQ2?: b1, b2',
@@ -149,7 +160,10 @@ describe('buildAskUserResult', () => {
   });
 
   it('round-trips through the content parser', () => {
-    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), ['a 1', 'b 2']);
+    const result = buildAskUserResult(questions(['Q1?', 'Q2?']), [
+      'a 1',
+      'b 2',
+    ]);
 
     expect(readAskUserAnswers(questions(['Q1?', 'Q2?']), result)).toEqual([
       { question: 'Q1?', answer: 'a 1' },
@@ -178,5 +192,63 @@ describe('formatAskUserAnswers', () => {
     expect(formatAskUserAnswers([{ question: 'Q?', answer: 'Yes' }])).toBe(
       'Yes',
     );
+  });
+});
+
+describe('splitAskUserAnswer', () => {
+  const single = {
+    question: 'Which period?',
+    options: [{ label: 'This month' }, { label: 'Last month' }],
+  };
+  const multi = {
+    question: 'Which teams?',
+    selectionMode: 'multi_select' as const,
+    options: [
+      { label: 'Sales, EMEA' },
+      { label: 'Sales' },
+      { label: 'Support' },
+    ],
+  };
+
+  it('reads a single pick and the custom text below it', () => {
+    expect(splitAskUserAnswer('Last month', single)).toEqual({
+      choices: ['Last month'],
+      custom: '',
+    });
+    expect(splitAskUserAnswer('Last month\nOnly closed deals', single)).toEqual(
+      { choices: ['Last month'], custom: 'Only closed deals' },
+    );
+    expect(splitAskUserAnswer('Last quarter', single)).toEqual({
+      choices: [],
+      custom: 'Last quarter',
+    });
+  });
+
+  it('reads stored multi-select picks, including labels with commas, then custom text', () => {
+    expect(
+      splitAskUserAnswer('Sales, EMEA, Support, and partners', multi),
+    ).toEqual({ choices: ['Sales, EMEA', 'Support'], custom: 'and partners' });
+    expect(splitAskUserAnswer('Support', multi)).toEqual({
+      choices: ['Support'],
+      custom: '',
+    });
+  });
+
+  it('reads structured live answers', () => {
+    expect(splitAskUserAnswer(['Sales', 'Partners'], multi)).toEqual({
+      choices: ['Sales'],
+      custom: 'Partners',
+    });
+  });
+
+  it('treats answers to open questions, or unknown questions, as text', () => {
+    expect(splitAskUserAnswer('Sales', { question: 'Focus?' })).toEqual({
+      choices: [],
+      custom: 'Sales',
+    });
+    expect(splitAskUserAnswer('Sales, Support')).toEqual({
+      choices: [],
+      custom: 'Sales, Support',
+    });
   });
 });

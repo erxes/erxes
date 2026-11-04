@@ -1,5 +1,6 @@
 import { SelectPriority } from '@/operation/components/SelectPriority';
 import { SelectTeam } from '@/team/components/SelectTeam';
+import { TASK_CONTENT_TYPE } from '@/task/constants';
 import { TRIAGE_CONTENT_TYPE } from '@/triage/constants';
 import {
   TTriageDraft,
@@ -14,6 +15,7 @@ import {
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
   PanelFormRow,
+  TagsSelect,
   useSidePanel,
   useSidePanelDraft,
 } from 'ui-modules';
@@ -28,6 +30,7 @@ const triageDraftSchema = z.object({
   description: z.string().optional(),
   customerId: z.string().nullable().optional(),
   companyId: z.string().nullable().optional(),
+  tagIds: z.array(z.string()).optional(),
 });
 
 type TTriageDraftForm = z.infer<typeof triageDraftSchema>;
@@ -50,6 +53,7 @@ export const TriagePanelNew = () => {
       priority: draft.priority ?? 0,
       customerId: draft.customerId ?? null,
       companyId: draft.companyId ?? null,
+      tagIds: draft.tagIds ?? [],
     },
   });
   const { errors } = form.formState;
@@ -107,7 +111,18 @@ export const TriagePanelNew = () => {
               }
             />
           </PanelFormRow>
-          <PanelFormRow label={t('customers', 'Customers')}>
+          <PanelFormRow label={t('tags')}>
+            <TagsSelect.InlineCell
+              type={TASK_CONTENT_TYPE}
+              mode="multiple"
+              scope={`${SCOPE}.tags`}
+              value={values.tagIds || []}
+              onValueChange={(tagIds) =>
+                set('tagIds', Array.isArray(tagIds) ? tagIds : [tagIds])
+              }
+            />
+          </PanelFormRow>
+          <PanelFormRow label={t('customer', 'Customer')}>
             <ContactsRelationField
               kind="customer"
               scope={`${SCOPE}.customer`}
@@ -115,7 +130,7 @@ export const TriagePanelNew = () => {
               onValueChange={(id) => set('customerId', id)}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('companies', 'Companies')}>
+          <PanelFormRow label={t('company', 'Company')}>
             <ContactsRelationField
               kind="company"
               scope={`${SCOPE}.company`}

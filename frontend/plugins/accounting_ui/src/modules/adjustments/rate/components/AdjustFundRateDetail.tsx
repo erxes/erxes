@@ -23,13 +23,15 @@ import {
 import { useAdjustFundRateRemove } from '../hooks/useAdjustFundRateRemove';
 import { useAdjustFundRateDetail } from '../hooks/useAdjustFundRateDetail';
 import dayjs from 'dayjs';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { formatDate as format } from '@/utils/graphqlDate';
-import { EditAdjustFundRate } from './AdjustFundRateForm';
+import { ADJUST_FUND_RATE_CONTENT_TYPE } from '@/adjustments/constants/adjustmentPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 import { useAdjustFundRateRun } from '../hooks/useAdjustFundRateRun';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import type { ITransaction } from '@/transactions/types/Transaction';
+import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 import type {
   IAdjustFundRate,
   IAdjustFundRateDetail,
@@ -70,9 +72,7 @@ type TLinkedTransactionRow = {
 const FundRateAccountCell = ({ detail }: { detail: IAdjustFundRateDetail }) => (
   <RecordTableInlineCell>
     <div className="min-w-0">
-      <div className="truncate font-medium">
-        {detail.accountCode || detail.accountId}
-      </div>
+      <div className="truncate font-medium">{detail.accountCode || '-'}</div>
       <div className="truncate text-xs text-muted-foreground">
         {detail.accountName || '-'}
       </div>
@@ -114,9 +114,7 @@ const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => {
         <div className="truncate font-medium">
           {[row.detail.account?.code, row.detail.account?.name]
             .filter(Boolean)
-            .join(' - ') ||
-            row.detail.accountId ||
-            '-'}
+            .join(' - ') || '-'}
         </div>
         <div className="truncate text-xs text-muted-foreground">
           {row.transaction.journal ? t(row.transaction.journal) : '-'}
@@ -128,6 +126,7 @@ const TransactionAccountCell = ({ row }: { row: TLinkedTransactionRow }) => {
 
 const fundRateDetailColumns = (
   t: TFunction<'accounting'>,
+  transactionNumbers: Map<string, string>,
 ): ColumnDef<IAdjustFundRateDetail>[] => [
   {
     id: 'account',
@@ -160,7 +159,9 @@ const fundRateDetailColumns = (
     id: 'transactionId',
     header: () => <RecordTable.InlineHead label={t('transaction')} />,
     accessorKey: 'transactionId',
-    cell: ({ getValue }) => <TextCell value={getValue<string>()} />,
+    cell: ({ getValue }) => (
+      <TextCell value={transactionNumbers.get(getValue<string>())} />
+    ),
     size: 220,
   },
 ];
@@ -255,7 +256,7 @@ const linkedTransactionColumns = (
 export const AdjustFundRateDetail = () => {
   const { t } = useTranslation('accounting');
   const [id] = useQueryState<string>('id');
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useSettingsPanel(ADJUST_FUND_RATE_CONTENT_TYPE);
 
   const { adjustFundRate, loading } = useAdjustFundRateDetail({
     variables: { _id: id ?? '' },
@@ -266,6 +267,11 @@ export const AdjustFundRateDetail = () => {
       variables: { _id: adjustFundRate?.transactionId ?? '' },
       skip: !adjustFundRate?.transactionId,
     });
+
+  const transactionNumbers = useMemo(
+    () => getTransactionNumbers(transactions),
+    [transactions],
+  );
 
   const accountIds = useMemo(
     () =>
@@ -416,7 +422,10 @@ export const AdjustFundRateDetail = () => {
             {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
             {t('run')}
           </Button>
-          <Button variant="outline" onClick={() => setEditOpen(true)}>
+          <Button
+            variant="outline"
+            onClick={() => openDetail(adjustFundRate._id)}
+          >
             <IconEdit size={16} />
             {t('edit')}
           </Button>
@@ -452,7 +461,10 @@ export const AdjustFundRateDetail = () => {
           <Tabs.Trigger value="transactions">{t('transactions')}</Tabs.Trigger>
         </Tabs.List>
         <Tabs.Content value="calculation">
-          <CalculationGroups groupedDetails={groupedDetails} />
+          <CalculationGroups
+            groupedDetails={groupedDetails}
+            transactionNumbers={transactionNumbers}
+          />
         </Tabs.Content>
         <Tabs.Content value="transactions">
           <LinkedTransactionsTable
@@ -461,26 +473,20 @@ export const AdjustFundRateDetail = () => {
           />
         </Tabs.Content>
       </Tabs>
-
-      {editOpen && (
-        <EditAdjustFundRate
-          open={editOpen}
-          setOpen={setEditOpen}
-          adjustFundRate={adjustFundRate}
-        />
-      )}
     </div>
   );
 };
 
 const CalculationGroups = ({
   groupedDetails,
+  transactionNumbers,
 }: {
   groupedDetails: Array<{
     branchId?: string;
     departmentId?: string;
     details: IAdjustFundRateDetail[];
   }>;
+  transactionNumbers: Map<string, string>;
 }) => {
   const { t } = useTranslation('accounting');
   if (!groupedDetails.length) {
@@ -525,7 +531,7 @@ const CalculationGroups = ({
             </div>
           </div>
           <RecordTable.Provider
-            columns={fundRateDetailColumns(t)}
+            columns={fundRateDetailColumns(t, transactionNumbers)}
             data={group.details}
             tableId={`accounting_adjust_fund_rate_detail_group_${index}`}
           >

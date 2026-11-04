@@ -7,7 +7,13 @@ import {
   CMS_POST,
   CMS_TRANSLATIONS,
   CMS_EDIT_TRANSLATION,
+  CONTENT_CMS_LIST,
 } from '../../../../graphql/queries';
+import {
+  CMS_TRANSLATION_FIELDS,
+  getSavedRowLoad,
+  useRecordInDefaultLanguage,
+} from '../../../../shared/hooks/useCmsTranslation';
 import { createSlug } from '../../../../utils/createSlug';
 
 // A single custom-field value as stored on the form and in translation snapshots.
@@ -112,7 +118,10 @@ const buildPostFormValues = (fullPost: TLoadedPost): PostFormData => ({
   ...buildScheduleFormValues(fullPost),
 });
 
-export const usePostForm = (editingPost?: { _id: string }) => {
+export const usePostForm = (
+  websiteId: string,
+  editingPost?: { _id: string },
+) => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('');
   const [translations, setTranslations] = useState<
     Record<
@@ -172,16 +181,34 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     notifyOnNetworkStatusChange: false,
   });
 
-  const fullPost = (fullPostData?.cmsPost || editingPost) as
+  const loadedPost = (fullPostData?.cmsPost || editingPost) as
     | TLoadedPost
     | undefined;
 
-  const { data: translationsData } = useQuery(CMS_TRANSLATIONS, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
+    fetchPolicy: 'cache-first',
+    skip: !websiteId,
+  });
+
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
+    (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
+  );
+
+  const fullPost = useRecordInDefaultLanguage(
+    loadedPost,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.post,
+  );
+
+  const translationsQuery = useQuery(CMS_TRANSLATIONS, {
     variables: { objectId: editingPost?._id, type: 'post' },
     skip: !editingPost?._id,
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: false,
   });
+  const translationsData = translationsQuery.data;
+  const savedRowLoad = getSavedRowLoad(cmsConfig, cmsQuery, translationsQuery);
 
   const [saveTranslation] = useMutation(CMS_EDIT_TRANSLATION);
 
@@ -222,15 +249,17 @@ export const usePostForm = (editingPost?: { _id: string }) => {
       // full cmsPost) changes. Refetches triggered by saves return a new object
       // with the same data — resetting on those would clobber in-flight typing.
       const resetKey = `${fullPost._id}:${
-        fullPost === fullPostData?.cmsPost ? 'full' : 'partial'
-      }`;
+        loadedPost === fullPostData?.cmsPost ? 'full' : 'partial'
+      }:${fullPost === loadedPost ? 'stored' : 'translated'}`;
 
       if (lastResetKeyRef.current === resetKey) {
         return;
       }
       lastResetKeyRef.current = resetKey;
 
-      form.reset(buildPostFormValues(fullPost));
+      form.reset(buildPostFormValues(fullPost), {
+        keepDirtyValues: fullPost !== loadedPost,
+      });
     } else {
       const title = form.getValues('title');
       if (title && !form.getValues('slug')) {
@@ -278,6 +307,7 @@ export const usePostForm = (editingPost?: { _id: string }) => {
     previousTypeRef,
     handleEditorChange,
     fullPost,
+    savedRowLoad,
     saveTranslation,
     updateCustomFieldValue,
     getCustomFieldValue,

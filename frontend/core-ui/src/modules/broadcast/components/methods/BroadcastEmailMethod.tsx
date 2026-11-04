@@ -19,11 +19,9 @@ export const BroadcastEmailMethod = () => {
   return (
     <EmailSenderScopeProvider scope="broadcast">
       <form className="flex flex-col gap-4">
-        {/* Picking the confirmed address comes first: it is what fills the
-            sender name beside it. */}
-        <div className="grid grid-cols-2 gap-3">
-          <BroadcastReplyToField />
+        <div className="flex flex-col gap-3">
           <BroadcastFromField />
+          <BroadcastReplyToField />
         </div>
 
         <div className="grid grid-cols-2 gap-3">

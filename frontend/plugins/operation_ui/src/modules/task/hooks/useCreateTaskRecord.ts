@@ -96,10 +96,16 @@ export const useCreateTaskRecord = () => {
       return;
     }
 
-    // The task keeps its contacts itself; task lists (contacts' included)
-    // refetch with every created task.
+    // The task keeps its contacts itself. Mounted task lists refetch with
+    // every created task; contacts' lists may be unmounted (the draft
+    // replaced their record in the side panel), so they are evicted.
     createTask({
       variables: { ...draft, name, teamId: draftTeamId },
+      update: (cache) => {
+        if (draft.customerId || draft.companyId) {
+          cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTasks' });
+        }
+      },
       onCompleted: ({ createTask: created }) => {
         if (created?._id) {
           setActiveTask(created._id, options);

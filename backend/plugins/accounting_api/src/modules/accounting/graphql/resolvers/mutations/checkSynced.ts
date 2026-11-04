@@ -16,6 +16,8 @@ import {
 
 type SalesDeal = {
   _id: string;
+  customerId?: string | null;
+  companyId?: string | null;
   stageId?: string;
   number?: string;
   name?: string;
@@ -234,7 +236,6 @@ const checkSyncedMutations = {
 
     const config = rule.value;
     const returnConfig: OrderReturnSyncConfig = {
-      dateRule: config.dateRule,
       defaultPayment: config.defaultPayment,
       posId: config.posId,
       returnType: config.returnType || 'fullTr',

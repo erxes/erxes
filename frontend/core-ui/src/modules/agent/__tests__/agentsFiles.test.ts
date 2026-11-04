@@ -6,6 +6,7 @@ import {
   agentsFilesNotice,
   mimeFromFile,
   readAgentsFilesPart,
+  withoutFileOnlyText,
 } from '../agentsFiles';
 import { mapStoredMessagesToUIMessages } from '../mapStoredMessages';
 
@@ -107,4 +108,20 @@ it('identifies a selected screenshot and its context as model-visible contents',
       data: { files: [image, text], textFileUrls: [text.url] },
     }),
   ).toBe('Image and text contents supplied to the AI.');
+});
+
+describe('withoutFileOnlyText', () => {
+  const files = agentsFilesPart([
+    { name: 'a.pdf', url: 'a.pdf', type: 'application/pdf', size: 3 },
+  ]);
+
+  it('hides the placeholder prompt only on turns that carry files', () => {
+    expect(
+      withoutFileOnlyText([{ type: 'text', text: 'Uploaded files' }, files]),
+    ).toEqual([files]);
+    const typed = [{ type: 'text' as const, text: 'Summarize this' }, files];
+    expect(withoutFileOnlyText(typed)).toEqual(typed);
+    const plain = [{ type: 'text' as const, text: 'Uploaded files' }];
+    expect(withoutFileOnlyText(plain)).toEqual(plain);
+  });
 });

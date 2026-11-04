@@ -50,6 +50,14 @@ export const FacebookIceBreakerGenerator = ({
 
   return (
     <div className="space-y-2">
+      {!iceBreakers.length && (
+        <p className="text-sm text-muted-foreground">
+          {t('ice-breakers-empty', {
+            defaultValue:
+              'No ice breakers. Messenger shows no suggested questions.',
+          })}
+        </p>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

@@ -132,15 +132,7 @@ const mutations = {
 
   async paymentEdit(_root: any, args: any, { models }: IContext) {
     const { _id, input } = args;
-    const {
-      name,
-      status,
-      kind,
-      config,
-      currency,
-      sendEmailOnPayment,
-      dealConfig,
-    } = input;
+    const { name, status, kind, config, currency } = input;
 
     const paymentConfig = validatePaymentKind(kind);
 
@@ -197,8 +189,6 @@ const mutations = {
       acceptedCurrencies: currency
         ? [currency]
         : paymentConfig.acceptedCurrencies,
-      ...(sendEmailOnPayment !== undefined && { sendEmailOnPayment }),
-      ...(dealConfig !== undefined && { dealConfig }),
     };
 
     return await models.PaymentMethods.updatePayment(_id, doc);

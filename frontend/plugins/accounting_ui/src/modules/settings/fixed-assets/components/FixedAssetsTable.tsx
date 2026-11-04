@@ -12,13 +12,13 @@ import {
   RecordTableInlineCell,
   Separator,
   useConfirm,
-  useQueryState,
 } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   SettingsRowsTable,
   moreColumn,
 } from '~/modules/settings/components/SettingsRowsTable';
+import { FIXED_ASSET_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
 import { useFixedAssetCategories } from '@/settings/fixed-assets/hooks/useFixedAssetCategories';
 import { useFixedAssetRemove } from '@/settings/fixed-assets/hooks/useFixedAssetMutations';
 import { useFixedAssets } from '@/settings/fixed-assets/hooks/useFixedAssets';
@@ -26,12 +26,19 @@ import {
   IFixedAsset,
   IFixedAssetCategory,
 } from '@/settings/fixed-assets/types/FixedAsset';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
 
 const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('fixedAssetId');
+  const { openDetail } = useSettingsPanel(FIXED_ASSET_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeFixedAsset } = useFixedAssetRemove();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleEdit = () => {
+    setMenuOpen(false);
+    openDetail(cell.row.original._id);
+  };
 
   const handleDelete = () =>
     confirm({
@@ -47,17 +54,14 @@ const FixedAssetMoreCell = ({ cell }: { cell: Cell<IFixedAsset, unknown> }) => {
     });
 
   return (
-    <Popover>
+    <Popover open={menuOpen} onOpenChange={setMenuOpen}>
       <Popover.Trigger asChild>
         <RecordTable.MoreButton className="w-full h-full" />
       </Popover.Trigger>
       <Combobox.Content>
         <Command shouldFilter={false}>
           <Command.List>
-            <Command.Item
-              value="edit"
-              onSelect={() => setOpen(cell.row.original._id)}
-            >
+            <Command.Item value="edit" onSelect={handleEdit}>
               <IconEdit /> {t('edit')}
             </Command.Item>
             <Command.Item value="delete" onSelect={handleDelete}>

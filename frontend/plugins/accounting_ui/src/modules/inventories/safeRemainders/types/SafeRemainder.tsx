@@ -47,6 +47,12 @@ export const SAFE_REMAINDER_STATUSES = {
   ALL: ['draft', 'done', 'published'],
 };
 
+export const SAFE_REMAINDER_STATUS_LABELS: Record<string, string> = {
+  draft: 'draft',
+  done: 'done',
+  published: 'published',
+};
+
 export const SAFE_REMAINDER_ITEM_STATUSES = {
   NEW: 'new',
   CHECKED: 'checked',

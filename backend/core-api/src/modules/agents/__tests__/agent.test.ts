@@ -11,16 +11,57 @@
  */
 
 import {
+  buildAgentsInstructions,
+  buildBaseAgentsAgent,
   buildFallbackAgentsModelEntry,
   buildAgentsModelSettings,
   DEFAULT_INSTRUCTIONS,
   resolveAgentsModelEntry,
 } from '@/agents/agent';
+import { buildCodeModeAddition } from '@/agents/codeMode';
+import { listAgentPluginSkills } from '@/agents/graphqlTools';
+import { buildAgentPluginContributions } from '@/agents/pluginContributions';
+import { REPORT_CREATION_SKILL } from '@/agents/skills/reportCreation';
 import { getProviderDefaultModel } from '@/agents/providers';
 
 jest.mock('~/connectionResolvers', () => ({
   generateModels: jest.fn(),
 }));
+
+/** The per-run callbacks the production agent is constructed with. */
+interface IRunConfig {
+  tools(run: {
+    requestContext: { get(key: string): unknown };
+  }): Promise<Record<string, unknown>>;
+  instructions(run: {
+    requestContext: { get(key: string): unknown };
+  }): Promise<string>;
+  skills(run: {
+    requestContext: { get(key: string): unknown };
+  }): Promise<unknown[]>;
+}
+
+let mockAgentConfig: IRunConfig | undefined;
+// Mastra's Agent pulls in ESM-only packages jest cannot load. Only the
+// container is replaced: it records the configuration buildBaseAgentsAgent
+// passes, whose tools/instructions callbacks are the production code.
+jest.mock('@mastra/core/agent', () => ({
+  Agent: class {
+    constructor(config: IRunConfig) {
+      mockAgentConfig = config;
+    }
+  },
+}));
+const capturedAgentConfig = (): IRunConfig | undefined => mockAgentConfig;
+// The plugin catalog comes from service discovery (covered by
+// pluginSkills.test.ts and the real-agent fixture); here it is fixed so the
+// test sees what the agent mounts from it. Every other GraphQL tool is real.
+jest.mock('@/agents/graphqlTools', () => ({
+  ...jest.requireActual('@/agents/graphqlTools'),
+  listAgentPluginSkills: jest.fn(async () => []),
+}));
+// Memory is only handed through to the (replaced) Agent container.
+const mockMemory = Object.create(null);
 jest.mock('@ai-sdk/anthropic', () => ({
   createAnthropic: jest.fn(() =>
     jest.fn(() => ({
@@ -192,60 +233,98 @@ describe('artifact output allowance', () => {
       )
         throw new Error('Missing thinking budget');
       expect(
-        buildAgentsModelSettings('kimi-code', thinkingLevel).maxOutputTokens -
-          thinking.budgetTokens,
+        buildAgentsModelSettings('kimi-code', thinkingLevel, 'kimi-for-coding')
+          .maxOutputTokens - thinking.budgetTokens,
       ).toBe(16384);
     },
   );
 });
 
-describe('base instructions', () => {
-  it('uses HTML for every reply and preserves the record-token contract inside HTML', () => {
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'every user-facing reply is rendered HTML',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Write assistant text directly as semantic HTML',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Put tokens in HTML text nodes only',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'scripts and external resources are not',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Text formatting never creates a file or a download button',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'use createArtifact only to deliver an actual report',
-    );
-    expect(DEFAULT_INSTRUCTIONS).not.toContain('html artifact <title>');
-    expect(DEFAULT_INSTRUCTIONS).not.toContain(
-      'tokens work only in plain prose',
-    );
+describe('what every run mounts', () => {
+  const BASE_TOOLS = [
+    'askUser',
+    'callGraphql',
+    'createArtifact',
+    'findPages',
+    'readFile',
+    'searchGraphql',
+  ];
+  /** Builds the production agent and returns its per-run callbacks. */
+  const buildRunConfig = async () => {
+    mockAgentConfig = undefined;
+    await buildBaseAgentsAgent({ memory: mockMemory });
+    const config = capturedAgentConfig();
+    if (!config) throw new Error('The agent was not constructed');
+    return config;
+  };
+  const runWith = (codeModeEnabled: boolean) => ({
+    requestContext: contextWith({ codeModeEnabled }),
   });
-  it('contains the lookup discipline and reference-link rules', () => {
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'Never call a find or list tool with an empty or null filter',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'use a relation lookup tool when one is available',
-    );
-    expect(DEFAULT_INSTRUCTIONS).toContain('check for duplicates');
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'never write or alter a record id, label, URL',
+
+  it('composes the base prompt, the report skill and today’s date, adding code mode only when given', () => {
+    const now = new Date('2026-10-26T09:30:00.000Z');
+    const plain = buildAgentsInstructions(now);
+
+    expect(plain.startsWith(DEFAULT_INSTRUCTIONS)).toBe(true);
+    expect(plain).toContain(REPORT_CREATION_SKILL.instructions);
+    expect(plain).toContain('2026-10-26');
+    expect(plain).not.toContain('CODE MODE ADDITION');
+    expect(buildAgentsInstructions(now, 'CODE MODE ADDITION')).toContain(
+      'CODE MODE ADDITION',
     );
   });
 
-  it('instructs findPages page-token navigation over prose directions', () => {
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      "call findPages and answer with that page's reference token",
+  it('mounts the base tools on every run and the code-mode tool only when the tenant enables it', async () => {
+    const config = await buildRunConfig();
+    const { tool } = await buildCodeModeAddition();
+
+    expect(Object.keys(await config.tools(runWith(false))).sort()).toEqual(
+      BASE_TOOLS,
     );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'never list tools, tool ids, API names or permission names',
+    expect(Object.keys(await config.tools(runWith(true))).sort()).toEqual(
+      [...BASE_TOOLS, tool.id].sort(),
     );
-    expect(DEFAULT_INSTRUCTIONS).toContain(
-      'The application owns the displayed name and destination;',
+  });
+
+  it('mounts the report skill in every run and code-mode instructions only when enabled', async () => {
+    const config = await buildRunConfig();
+    const { instructions } = await buildCodeModeAddition();
+    const plain = await config.instructions(runWith(false));
+    const withCode = await config.instructions(runWith(true));
+
+    expect(plain).toContain(REPORT_CREATION_SKILL.instructions);
+    expect(withCode).toContain(REPORT_CREATION_SKILL.instructions);
+    expect(plain).not.toContain(instructions);
+    expect(withCode).toContain(instructions);
+  });
+
+  it('mounts the reachable plugins’ skills on every run, outside the instructions', async () => {
+    const pluginText = 'Count deals per stage and report each currency.';
+    const { skills } = await buildAgentPluginContributions(
+      [
+        {
+          plugin: 'sales',
+          agent: {
+            skills: [
+              {
+                name: 'pipeline-analysis',
+                description: 'Analyse deals by pipeline and stage.',
+                instructions: pluginText,
+              },
+            ],
+          },
+        },
+      ],
+      new Map(),
     );
+    jest.mocked(listAgentPluginSkills).mockResolvedValue(skills);
+    const config = await buildRunConfig();
+
+    for (const codeModeEnabled of [false, true]) {
+      const run = runWith(codeModeEnabled);
+
+      expect(await config.skills(run)).toEqual(skills);
+      expect(await config.instructions(run)).not.toContain(pluginText);
+    }
   });
 });

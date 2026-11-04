@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Button, cn } from 'erxes-ui';
+import { Button, Tooltip, cn } from 'erxes-ui';
 import { IconGripVertical, IconStarFilled } from '@tabler/icons-react';
 
 import { Link } from 'react-router-dom';
@@ -27,7 +27,7 @@ import { sortNavigationActivitiesByOrder } from '@/navigation/utils/navigationAc
 import { useAtom } from 'jotai';
 import { useFavorites } from '@/navigation/hooks/useFavorites';
 import { useNavigationFavorite } from '@/navigation/hooks/useNavigationFavorite';
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CoreTabFavoriteItem = ({
@@ -57,6 +57,15 @@ const CoreTabFavoriteItem = ({
     transition,
   } = useSortable({ id: path });
   const label = breadcrumb.length > 1 ? breadcrumb.slice(1).join(' / ') : name;
+  const moduleName = breadcrumb.length > 1 ? breadcrumb[0] : undefined;
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const moduleRef = useRef<HTMLSpanElement>(null);
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+
+  const isTruncated = () =>
+    [labelRef.current, moduleRef.current].some(
+      (element) => !!element && element.scrollWidth > element.clientWidth,
+    );
 
   return (
     <div
@@ -64,31 +73,49 @@ const CoreTabFavoriteItem = ({
       {...listeners}
       ref={setNodeRef}
       className={cn(
-        'group/favorite flex h-8 items-center rounded hover:bg-accent',
+        'group/favorite flex h-8 w-full min-w-0 items-center rounded hover:bg-accent',
         isDragging && 'relative z-10 bg-accent opacity-80 shadow-sm',
       )}
       style={{ transform: CSS.Transform.toString(transform), transition }}
     >
-      <Link
-        className="flex h-8 min-w-0 flex-1 items-center gap-2 px-2 text-sm font-medium"
-        to={`/${path.replace('_ui', '').replace(/^\/+/, '')}`}
-        onClick={(event) => {
-          if (wasDragged()) {
-            event.preventDefault();
-            return;
-          }
-          onNavigate();
-        }}
+      <Tooltip
+        open={tooltipOpen}
+        onOpenChange={(open) => setTooltipOpen(open && isTruncated())}
       >
-        {Icon && <Icon className="size-4 shrink-0" />}
-        <span className="truncate">{label}</span>
-        {breadcrumb.length > 1 && (
-          <span className="ml-auto shrink-0 truncate text-xs text-muted-foreground">
-            {breadcrumb[0]}
-          </span>
-        )}
-      </Link>
-      {/* Hover hint that the favorite can be dragged to reorder. */}
+        <Tooltip.Trigger asChild>
+          <Link
+            className="flex h-8 min-w-0 flex-1 items-center gap-2 px-2 text-sm font-medium"
+            to={`/${path.replace('_ui', '').replace(/^\/+/, '')}`}
+            onClick={(event) => {
+              if (wasDragged()) {
+                event.preventDefault();
+                return;
+              }
+              onNavigate();
+            }}
+          >
+            {Icon && <Icon className="size-4 shrink-0" />}
+            <span ref={labelRef} className="min-w-0 flex-1 truncate">
+              {label}
+            </span>
+            {moduleName && (
+              <span
+                ref={moduleRef}
+                className="min-w-0 max-w-[40%] truncate text-xs text-muted-foreground"
+              >
+                {moduleName}
+              </span>
+            )}
+          </Link>
+        </Tooltip.Trigger>
+        <Tooltip.Content
+          side="top"
+          align="start"
+          className="w-max max-w-xs whitespace-normal wrap-anywhere"
+        >
+          {moduleName ? `${label} · ${moduleName}` : label}
+        </Tooltip.Content>
+      </Tooltip>
       <IconGripVertical
         aria-hidden
         className={cn(
@@ -110,10 +137,6 @@ const CoreTabFavoriteItem = ({
   );
 };
 
-/**
- * The user's favorites, as the first section of the app chooser. They are
- * dragged to set their order, which is kept like the apps' order.
- */
 export const CoreTabFavoritesSection = ({
   onNavigate,
 }: Readonly<{ onNavigate: () => void }>) => {

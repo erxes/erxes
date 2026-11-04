@@ -44,8 +44,12 @@ export const SelectTriggerOperation = ({
   if (variant === SelectTriggerVariant.CARD) {
     return (
       <Popover.Trigger asChild>
+        {/* Board columns scroll in a Radix ScrollArea, whose content grows to
+            its widest unwrappable child; a fixed cap keeps a long project or
+            team name from widening and clipping every card in the column. */}
         <Badge
           variant="secondary"
+          className="max-w-60 overflow-hidden [&>*]:min-w-0 [&>*]:overflow-hidden [&_span]:truncate"
           onClick={(e) => {
             e.stopPropagation();
           }}

@@ -1,9 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import {
+  IconAlertTriangle,
   IconArrowMerge,
   IconLayoutSidebarLeftCollapse,
 } from '@tabler/icons-react';
-import { Button, Sheet, cn } from 'erxes-ui';
+import { Alert, Button, Sheet, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { MergeTooltip } from '@/contacts/customers/components/customers-command-bar/merge/MergeTooltip';
 
@@ -14,6 +15,8 @@ interface MergeSheetProps extends React.ComponentProps<typeof Sheet> {
   children?: ReactNode;
   disabled?: boolean;
   className?: string;
+  notice?: string;
+  saveLabel?: string;
   onDiscard?: () => void;
   onSave?: () => void;
 }
@@ -22,6 +25,8 @@ export const MergeSheet = ({
   children,
   disabled = false,
   className,
+  notice,
+  saveLabel,
   onDiscard = noop,
   onSave = noop,
   ...props
@@ -39,11 +44,21 @@ export const MergeSheet = ({
       </MergeTooltip>
       <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
         <MergeSheetHeader />
+        {notice && (
+          <Alert variant="warning" className="mx-6 mt-4 w-auto">
+            <IconAlertTriangle />
+            <Alert.Description>{notice}</Alert.Description>
+          </Alert>
+        )}
         <Sheet.Content className="min-h-0 overflow-y-auto">
           <div className={cn('w-full', className)}>{children}</div>
         </Sheet.Content>
         {!disabled && (
-          <MergeSheetFooter onDiscard={onDiscard} onSave={onSave} />
+          <MergeSheetFooter
+            saveLabel={saveLabel}
+            onDiscard={onDiscard}
+            onSave={onSave}
+          />
         )}
       </Sheet.View>
     </Sheet>
@@ -61,11 +76,16 @@ const MergeSheetHeader = () => (
 );
 
 interface MergeSheetFooterProps {
+  saveLabel?: string;
   onDiscard: () => void;
   onSave: () => void;
 }
 
-const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
+const MergeSheetFooter = ({
+  saveLabel,
+  onDiscard,
+  onSave,
+}: MergeSheetFooterProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
     <Sheet.Footer className="flex justify-end p-5">
@@ -82,7 +102,7 @@ const MergeSheetFooter = ({ onDiscard, onSave }: MergeSheetFooterProps) => {
           onSave();
         }}
       >
-        {t('action-save')}
+        {saveLabel ?? t('action-save')}
       </Button>
     </Sheet.Footer>
   );

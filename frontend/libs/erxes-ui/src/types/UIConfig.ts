@@ -182,6 +182,7 @@ export type IUIConfig = {
       contentType: string;
       // `false` when the type has no custom properties: no Properties tab.
       properties?: boolean;
+      draftTitle?: boolean;
     }[];
     // Sections a plugin adds to a customer's or company's overview (its
     // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):

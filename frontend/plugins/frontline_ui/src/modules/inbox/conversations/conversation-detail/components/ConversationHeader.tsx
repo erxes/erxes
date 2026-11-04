@@ -43,7 +43,6 @@ import { useAtomValue } from 'jotai';
 import { CustomersInline, SelectMember, TagsSelect } from 'ui-modules';
 import { ConversationActions } from '@/inbox/conversations/conversation-detail/components/ConversationActions';
 import { ConversationSharedEmail } from '@/inbox/conversations/conversation-detail/components/ConversationSharedEmail';
-import { ConversationConvert } from '@/inbox/conversations/conversation-detail/components/convert/ConversationConvert';
 import { useTranslation } from 'react-i18next';
 import { type SyntheticEvent, useRef, useState } from 'react';
 import {
@@ -438,6 +437,7 @@ const ConversationActionsDropdown = ({
 };
 
 export const ConversationHeader = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { loading, _id } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useInboxLayout();
@@ -457,6 +457,7 @@ export const ConversationHeader = () => {
         <Button
           variant="secondary"
           size="icon"
+          aria-label={t('back-to-conversations', 'Back to conversations')}
           className="[&>svg]:size-4 text-foreground flex-none"
           onClick={() => setConversationId(null)}
         >
@@ -479,7 +480,6 @@ export const ConversationHeader = () => {
       <div className="ml-auto flex min-w-0 items-center gap-3">
         {!isCompact && <ConversationTags />}
         <IntegrationActions />
-        <ConversationConvert />
         {isCompact ? (
           <ConversationActionsDropdown showAssignee={hideAssignee} />
         ) : (

@@ -1,55 +1,42 @@
-import { useApolloClient } from '@apollo/client';
-import { FormType } from '@/documents/hooks/useDocumentForm';
-import { Button, toast, useQueryState } from 'erxes-ui';
-import { useCallback } from 'react';
-import { SubmitHandler, useFormContext } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { Button } from 'erxes-ui';
 import { ApprovalLockButton } from 'ui-modules';
 import { DOCUMENT_APPROVAL_CONTENT_TYPE } from '../constants';
-import { GET_DOCUMENTS, GET_DOCUMENT_DETAIL } from '../graphql/queries';
-import { useDocument } from '../hooks/useDocument';
-import { useTranslation } from 'react-i18next';
+import { useDocumentSheet } from '../hooks/useDocumentSheet';
+import { DocumentTypeDialog } from './DocumentTypeDialog';
 
 export const DocumentSheet = () => {
   const { t } = useTranslation('documents', { keyPrefix: 'document' });
-  const [documentId, setDocumentId] = useQueryState<string>('documentId');
-  const [contentType] = useQueryState<string>('contentType');
-
   const {
-    reset: resetForm,
-    setValue,
-    handleSubmit,
-    formState,
-  } = useFormContext<FormType>();
-
-  const client = useApolloClient();
-  const { document, documentSave, hasError, loading } = useDocument();
-  const cleanDocumentId = documentId?.trim();
-
-  const submitHandler: SubmitHandler<FormType> = useCallback(async () => {
-    documentSave();
-  }, [documentSave]);
-
-  const hasChanges = formState.isDirty;
-
-  if (!contentType) {
-    return null;
-  }
-
+    documentId,
+    cleanDocumentId,
+    document,
+    hasError,
+    saving,
+    typeOpen,
+    setTypeOpen,
+    createDocument,
+    handleAdd,
+    handleSave,
+    refreshAccess,
+    canSave,
+  } = useDocumentSheet();
   if (!documentId) {
     return (
-      <Button
-        onClick={() => {
-          setDocumentId(' ');
-          resetForm();
-
-          setValue('contentType', contentType);
-        }}
-      >
-        {t('add-document')}
-      </Button>
+      <>
+        <Button type="button" onClick={handleAdd}>
+          {t('add-document')}
+        </Button>
+        {typeOpen && (
+          <DocumentTypeDialog
+            open={typeOpen}
+            onOpenChange={setTypeOpen}
+            onSelect={createDocument}
+          />
+        )}
+      </>
     );
   }
-
   return (
     <div className="flex items-center gap-2">
       {cleanDocumentId && document && !hasError && (
@@ -58,30 +45,11 @@ export const DocumentSheet = () => {
           contentId={cleanDocumentId}
           ownerId={document.createdUser?._id}
           action="edit"
-          onChanged={() => {
-            client
-              .refetchQueries({
-                include: [
-                  GET_DOCUMENTS,
-                  GET_DOCUMENT_DETAIL,
-                  'ApprovalLockState',
-                ],
-              })
-              .catch(() => {
-                toast({
-                  title: t('refresh-access-failed'),
-                  description: t('refresh-access-failed-description'),
-                  variant: 'destructive',
-                });
-              });
-          }}
+          onChanged={refreshAccess}
         />
       )}
-      <Button
-        onClick={handleSubmit(submitHandler)}
-        disabled={!hasChanges || loading || hasError}
-      >
-        {t('save-document')}
+      <Button onClick={handleSave} type="button" disabled={!canSave}>
+        {saving ? t('saving') : t('save-document')}
       </Button>
     </div>
   );

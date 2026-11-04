@@ -32,7 +32,7 @@ export const PROCESS_DOCUMENT = gql`
 `;
 
 export const DOCUMENT_DETAIL = gql`
-  query Document($_id: String!) {
+  query documentsTemplateDetail($_id: String!) {
     documentsDetail(_id: $_id) {
       _id
       name
@@ -41,7 +41,7 @@ export const DOCUMENT_DETAIL = gql`
 `;
 
 export const DOCUMENTS_QUERY = gql`
-  query Documents($searchValue: String, $contentType: String, ${GQL_CURSOR_PARAM_DEFS}) {
+  query documentsTemplateList($searchValue: String, $contentType: String, ${GQL_CURSOR_PARAM_DEFS}) {
     documents(searchValue: $searchValue, contentType: $contentType, ${GQL_CURSOR_PARAMS}) {
       list {
         _id

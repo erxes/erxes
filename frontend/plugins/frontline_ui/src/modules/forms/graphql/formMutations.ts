@@ -35,6 +35,7 @@ export const FORM_BULK_ACTION = gql(`
     $newFields: [FrontlineFieldItem]
     $updatedFields: [FrontlineFieldItem]
     $removedFieldIds: [String]
+    $formChanges: FrontlineFormUpdateInput
   ) {
     frontlineFieldsBulkAction(
       contentType: $contentType
@@ -42,6 +43,7 @@ export const FORM_BULK_ACTION = gql(`
       newFields: $newFields
       updatedFields: $updatedFields
       removedFieldIds: $removedFieldIds
+      formChanges: $formChanges
     ) {
       _id
     }

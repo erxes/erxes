@@ -51,7 +51,7 @@ const useDateSelectContext = () => {
 const toSingleDate = (date: unknown) =>
   date instanceof Date ? date : undefined;
 
-const formatDateLabel = (date: Date) =>
+export const formatDateLabel = (date: Date) =>
   format(
     date,
     date.getFullYear() === new Date().getFullYear() ? 'MMM d' : 'MMM d, yyyy',

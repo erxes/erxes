@@ -52,6 +52,7 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
       try {
         const pos = await models.Pos.create({
           ...doc,
+          onServer: true,
           userId: user._id,
           createdAt: new Date(),
           token: this.generateToken()
@@ -77,7 +78,7 @@ export const loadPosClass = (models: IModels, _subdomain: string, { sendDbEventL
 
       await models.Pos.updateOne(
         { _id },
-        { $set: { ...doc } },
+        { $set: { ...doc, onServer: true } },
         { runValidators: true }
       );
 

@@ -120,6 +120,7 @@ export const fieldsTypes = `
   input FrontlineFieldItem {
     _id: String
     tempFieldId: String
+    expectedType: String
     logics: [FrontlineLogicInput]
     locationOptions: [FrontlineLocationOptionInput]
     objectListConfigs: [FrontlineObjectListConfigInput]
@@ -134,12 +135,40 @@ export const fieldsTypes = `
     pageInfo: PageInfo
     totalCount: Int,
   }
+
+  type FrontlineFormConversionExample {
+    id: String!
+    submissionId: String
+    submittedAt: Date
+    value: String!
+    reason: String!
+  }
+
+  type FrontlineFormConversionCheck {
+    checkedCount: Int!
+    invalidCount: Int!
+    matchingCount: Int!
+    examples: [FrontlineFormConversionExample!]!
+    hasMore: Boolean!
+  }
+
+  input FrontlineFormUpdateInput {
+    name: String!
+    type: String!
+    title: String
+    description: String
+    buttonText: String
+    numberOfPages: Int
+    leadData: JSON
+    integrationId: String
+  }
 `;
 
 export const fieldsQueries = `
   frontlineFields(contentType: String!, contentTypeId: String, isVisible: Boolean, searchable: Boolean, isVisibleToCreate: Boolean,isDefinedByErxes:Boolean,isDisabled:Boolean): FrontlineFieldListResponse
+  frontlineFormFieldConversionCheck(formId: String!, fieldId: String!, expectedType: String!, targetType: String!, validator: FieldValidatorInput, draftFields: [FrontlineFieldItem!]!, page: Int, search: String): FrontlineFormConversionCheck!
 `;
 
 export const fieldsMutations = `
-  frontlineFieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FrontlineFieldItem], updatedFields:[FrontlineFieldItem], removedFieldIds:[String]): [FrontlineField]
+  frontlineFieldsBulkAction(contentType: String!, contentTypeId: String, newFields:[FrontlineFieldItem], updatedFields:[FrontlineFieldItem], removedFieldIds:[String], formChanges: FrontlineFormUpdateInput): [FrontlineField]
 `;

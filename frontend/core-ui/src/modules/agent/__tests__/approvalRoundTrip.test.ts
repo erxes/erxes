@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 it('resumes a native Mastra run with parallel calls through the real SDK and transport, including a chained decline', () => {
@@ -6,7 +7,9 @@ it('resumes a native Mastra run with parallel calls through the real SDK and tra
     process.execPath,
     [join(__dirname, 'fixtures/approvalRoundTrip.cjs')],
     {
-      cwd: process.cwd(),
+      // Nx runs jest from frontend/core-ui and the root run from the
+      // repository: the fixture must not depend on either.
+      cwd: tmpdir(),
       encoding: 'utf8',
       timeout: 20_000,
     },

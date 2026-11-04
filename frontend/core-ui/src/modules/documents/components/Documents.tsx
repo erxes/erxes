@@ -1,5 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { useMultiQueryState } from 'erxes-ui';
+import {
+  Button,
+  EnumCursorDirection,
+  Spinner,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { useDocuments } from '../hooks/useDocuments';
 import { documentsViewAtom } from '../states/documentsViewState';
 import { DocumentFilterState, IDocument } from '../types';
@@ -31,11 +37,35 @@ function DocumentsContent({
   onClearFilters,
   viewType,
 }: DocumentsContentProps) {
-  const { documents, error, hasError, loading, refetch } = useDocuments();
+  const {
+    documents,
+    error,
+    hasError,
+    loading,
+    refetch,
+    pageInfo,
+    handleFetchMore,
+  } = useDocuments();
   const Component = DOCUMENTS_VIEW_TYPES[viewType] ?? DocumentsList;
+  const { t } = useTranslation('documents');
 
   if (hasError) {
-    return <DocumentsErrorState error={error} onRetry={refetch} />;
+    return (
+      <DocumentsErrorState
+        error={error}
+        onRetry={() => {
+          void refetch().catch(() => undefined);
+        }}
+      />
+    );
+  }
+
+  if (loading && !documents.length) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   if (viewType === 'grid' && !loading && documents.length === 0) {
@@ -50,6 +80,20 @@ function DocumentsContent({
   return (
     <div className="h-full overflow-y-auto">
       <Component documents={documents} />
+      {pageInfo?.hasNextPage && (
+        <div className="flex justify-center p-4">
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={loading}
+            onClick={() => {
+              void handleFetchMore({ direction: EnumCursorDirection.FORWARD });
+            }}
+          >
+            {loading ? t('loading') : t('load-more-documents')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

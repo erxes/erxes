@@ -6,7 +6,12 @@ import type {
 import type { IContext } from '~/connectionResolvers';
 import { getProviderDefaultModel } from '@/agents/providers';
 import { isByokProvider } from '@/agents/providerModels';
-import { toPublicConnection } from '@/agents/graphql/resolvers/queries/connection';
+import { findDefaultConnection } from '@/agents/db/models/Connection';
+import { probeProviderModel } from '@/agents/modelProbe';
+import {
+  toPublicConnection,
+  toPublicConnections,
+} from '@/agents/graphql/resolvers/queries/connection';
 
 export interface IAgentsConnectionUpsertArgs {
   provider: string;
@@ -17,6 +22,22 @@ export interface IAgentsConnectionUpsertArgs {
 export interface IAgentsConnectionRemoveArgs {
   provider: string;
 }
+
+export interface IAgentsModelVerifyArgs {
+  provider: string;
+  model: string;
+}
+
+export interface IAgentsConnectionSetDefaultArgs {
+  /** Empty or omitted clears the explicit default (first saved applies). */
+  provider?: string | null;
+}
+
+const noStoredConnection = (provider: string) =>
+  new ExpectedError(
+    `No connection stored for provider "${provider}". Add it under Settings → API key.`,
+    'VALIDATION_ERROR',
+  );
 
 export const agentsConnectionMutations = {
   /**
@@ -98,7 +119,11 @@ export const agentsConnectionMutations = {
         (connection) => connection.provider === provider,
       ) ?? connection;
 
-    return toPublicConnection(saved, updated.updatedAt);
+    return toPublicConnection(
+      saved,
+      updated.updatedAt,
+      findDefaultConnection(updated)?.provider === provider,
+    );
   },
 
   /** Removes ONE provider's entry from the acting user's connections. */
@@ -115,5 +140,62 @@ export const agentsConnectionMutations = {
     );
 
     return true;
+  },
+
+  /**
+   * Chooses which of the acting user's saved providers an unselected chat
+   * turn runs on; an empty provider clears the choice so the first saved
+   * entry applies again. Only the user's own document is touched, and the
+   * provider must already be saved there.
+   */
+  agentsConnectionSetDefault: async (
+    _p: undefined,
+    args: IAgentsConnectionSetDefaultArgs,
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const provider = (args.provider || '').trim();
+    const doc = await ctx.models.AgentsConnection.setDefaultProvider(
+      ctx.user._id,
+      provider,
+    );
+
+    if (!doc && provider) {
+      throw noStoredConnection(provider);
+    }
+
+    return toPublicConnections(doc);
+  },
+
+  /**
+   * Checks that a typed model id works for one of the acting user's saved
+   * connections with a minimal request through the chat's own provider
+   * client, so a key that cannot list models can still use every model it
+   * is allowed to call. Nothing is persisted; the error is key-free.
+   */
+  agentsModelVerify: async (
+    _p: undefined,
+    args: IAgentsModelVerifyArgs,
+    ctx: IContext,
+  ) => {
+    await ctx.checkPermission('agentsChat');
+
+    const provider = (args.provider || '').trim();
+    const model = (args.model || '').trim();
+    const doc = await ctx.models.AgentsConnection.getConnections(ctx.user._id);
+    const connection = doc?.connections.find(
+      (entry) => entry.provider === provider,
+    );
+
+    if (!connection) {
+      throw noStoredConnection(provider);
+    }
+
+    return {
+      provider,
+      model,
+      ...(await probeProviderModel({ connection, model })),
+    };
   },
 };

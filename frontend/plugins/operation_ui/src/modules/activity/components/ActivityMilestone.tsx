@@ -14,9 +14,9 @@ export const ActivityMilestone = ({
 
   if (action === ACTIVITY_ACTIONS.CREATED) {
     return (
-      <div className="inline-flex items-center gap-1">
+      <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
         {t('added-milestone')}
-        <span className="font-bold">
+        <span className="min-w-0 max-w-full font-medium">
           <MilestoneInline milestoneId={metadata?.newValue} />
         </span>
       </div>
@@ -25,14 +25,14 @@ export const ActivityMilestone = ({
 
   if (action === ACTIVITY_ACTIONS.REMOVED) {
     return (
-      <div className="inline-flex items-center gap-1">
+      <div className="inline-flex min-w-0 max-w-full flex-wrap items-center gap-x-1 gap-y-1">
         {t('removed-milestone')}
-        <span className="font-bold">
+        <span className="min-w-0 max-w-full font-medium">
           <MilestoneInline milestoneId={metadata?.previousValue} />
         </span>
       </div>
     );
   }
 
-  return <></>;
+  return null;
 };

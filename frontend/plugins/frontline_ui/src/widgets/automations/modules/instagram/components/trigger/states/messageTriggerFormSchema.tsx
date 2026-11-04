@@ -28,28 +28,18 @@ export const triggerFormSchema = z.object({
             .optional(),
         })
         .superRefine((data, ctx) => {
-          const { type, isSelected, persistentMenuIds, conditions } = data;
+          const { type, isSelected, persistentMenuIds } = data;
 
-          if (isSelected) {
-            if (
-              type === 'persistentMenu' &&
-              (!persistentMenuIds || persistentMenuIds.length === 0)
-            ) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message: 'You should select some persistent menu',
-                path: ['persistentMenuIds'],
-              });
-            }
-
-            if (type === 'direct' && (!conditions || conditions.length === 0)) {
-              ctx.addIssue({
-                code: z.ZodIssueCode.custom,
-                message:
-                  'You should provide at least one keyword on direct message',
-                path: ['conditions'],
-              });
-            }
+          if (
+            isSelected &&
+            type === 'persistentMenu' &&
+            (!persistentMenuIds || persistentMenuIds.length === 0)
+          ) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'You should select some persistent menu',
+              path: ['persistentMenuIds'],
+            });
           }
         }),
     )

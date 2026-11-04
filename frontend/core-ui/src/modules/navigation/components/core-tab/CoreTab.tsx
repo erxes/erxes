@@ -1,6 +1,10 @@
 import { Button, Tooltip, activePluginState, cn } from 'erxes-ui';
 import { IconInbox, IconSearch } from '@tabler/icons-react';
-import { INBOX_TAB_ID, useAppTabs } from '@/navigation/hooks/useAppTabs';
+import {
+  INBOX_TAB_ID,
+  SETTINGS_TAB_ID,
+  useAppTabs,
+} from '@/navigation/hooks/useAppTabs';
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 
 import { AppPath } from '@/types/paths/AppPath';
@@ -50,17 +54,20 @@ export const CoreTab = () => {
   const inboxActivity = activities.find(
     (activity) => activity.id === INBOX_TAB_ID,
   );
+  // Inbox and organization settings have their own entry points.
   const appActivities = activities.filter(
-    (activity) => activity.id !== INBOX_TAB_ID,
+    (activity) =>
+      activity.id !== INBOX_TAB_ID && activity.id !== SETTINGS_TAB_ID,
   );
   const companyName =
     organization?.orgShortName || organization?.name || 'erxes';
 
-  // Search scopes to the open plugin; the inbox tab is not a plugin.
+  // Search scopes to the open plugin; inbox and settings tabs are not plugins.
   useEffect(() => {
     if (
       routeActivityId &&
       routeActivityId !== INBOX_TAB_ID &&
+      routeActivityId !== SETTINGS_TAB_ID &&
       routeActivityId !== activeActivityId
     ) {
       setActiveActivityId(routeActivityId);

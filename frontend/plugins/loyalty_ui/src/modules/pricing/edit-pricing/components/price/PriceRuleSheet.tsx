@@ -1,3 +1,5 @@
+import { validatePriceAdjustFactor } from '@/pricing/schemas/priceAdjustFactorSchema';
+import { PriceAdjustFactorLabel } from '@/pricing/components/PriceAdjustFactorLabel';
 import { useEffect, useState } from 'react';
 import { Button, Form, Input, Select, Sheet } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -269,12 +271,23 @@ export const PriceRuleSheet: React.FC<PriceRuleSheetProps> = ({
               <Form.Field
                 control={form.control}
                 name="priceAdjustFactor"
+                rules={{
+                  validate: (value) => validatePriceAdjustFactor(value, t),
+                }}
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>{t('price-adjust-factor')}</Form.Label>
+                    <PriceAdjustFactorLabel />
                     <Form.Control>
-                      <Input placeholder="0" type="number" {...field} />
+                      <Input
+                        placeholder="0"
+                        type="number"
+                        min={-10}
+                        max={10}
+                        step={1}
+                        {...field}
+                      />
                     </Form.Control>
+                    <Form.Message />
                   </Form.Item>
                 )}
               />

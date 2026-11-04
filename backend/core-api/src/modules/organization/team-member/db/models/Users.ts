@@ -1,4 +1,6 @@
-import { saveValidatedToken } from '@/auth/utils';
+import { AuthIdentityProvider } from '@/auth/db/definitions/ldap';
+import { LoginError } from '@/auth/loginError';
+import { revokeUserSession, revokeUserSessions } from '@/auth/session';
 import * as bcrypt from 'bcryptjs';
 import * as crypto from 'crypto';
 import {
@@ -21,9 +23,8 @@ import {
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
-import { redis } from 'erxes-api-shared/utils';
-import * as jwt from 'jsonwebtoken';
-import { Model } from 'mongoose';
+import { escapeRegExp, redis } from 'erxes-api-shared/utils';
+import { FilterQuery, Model } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -59,6 +60,15 @@ interface IInviteParams {
   permissionGroupIds?: string[];
 }
 
+interface IProvisionedUserParams {
+  email: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  permissionGroupIds: string[];
+  isActive?: boolean;
+}
+
 interface ILoginParams {
   email: string;
   password?: string;
@@ -74,6 +84,15 @@ interface IPasswordParams {
 export interface IUserModel extends Model<IUserDocument> {
   getUser(_id: string): Promise<IUserDocument>;
   checkPassword(password: string): void;
+  isDirectoryUser(userId: string): Promise<boolean>;
+  getIdentityProvider(
+    userId: string,
+  ): Promise<AuthIdentityProvider | undefined>;
+  isSupportUser(userId: string): Promise<boolean>;
+  staffQuery(
+    query: FilterQuery<IUserDocument>,
+  ): Promise<FilterQuery<IUserDocument>>;
+  assertLocalPassword(userId: string): Promise<void>;
   checkDuplication(params: {
     email?: string;
     idsToExclude?: string | string[];
@@ -103,6 +122,7 @@ export interface IUserModel extends Model<IUserDocument> {
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
+  createProvisionedUser(params: IProvisionedUserParams): Promise<IUserDocument>;
   resendInvitation({ email }: { email: string }): Promise<string>;
   comparePassword(password: string, userPassword: string): Promise<boolean>;
   resetPassword(params: {
@@ -111,19 +131,12 @@ export interface IUserModel extends Model<IUserDocument> {
   }): Promise<IUserDocument>;
   resetMemberPassword(params: IPasswordParams): Promise<IUserDocument>;
   changePassword(
-    params: IPasswordParams & { currentPassword: string },
+    params: IPasswordParams & { currentPassword: string; keepSid?: string },
   ): Promise<IUserDocument>;
   forgotPassword(email: string): Promise<string>;
-  createTokens(_user: IUserDocument, secret: string): Promise<string[]>;
-  refreshTokens(refreshToken: string): Promise<
-    | {
-        token: string;
-        refreshToken: string;
-        user: IUserDocument;
-      }
-    | Record<string, never>
-  >;
-  login(params: ILoginParams): Promise<{ token: string; refreshToken: string }>;
+  login(
+    params: ILoginParams,
+  ): Promise<{ user: IUserDocument; method: 'password' | 'ldap' }>;
   checkLoginAuth({
     email,
     password,
@@ -132,7 +145,8 @@ export interface IUserModel extends Model<IUserDocument> {
     password?: string;
   }): Promise<IUserDocument>;
   getTokenFields(_user: IUserDocument): Promise<IUserDocument>;
-  logout(_user: IUserDocument, token: string): Promise<string>;
+  logout(_user: IUserDocument, legacyToken?: string): Promise<string>;
+  revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
 }
@@ -194,6 +208,62 @@ export const loadUserClass = (
       }
 
       return user;
+    }
+
+    public static async isDirectoryUser(userId: string) {
+      return Boolean(
+        await models.AuthIdentities.exists({ provider: 'ldap', userId }),
+      );
+    }
+
+    public static async getIdentityProvider(userId: string) {
+      const identity = await models.AuthIdentities.findOne(
+        { userId },
+        { provider: 1 },
+      ).lean();
+
+      return identity?.provider;
+    }
+
+    public static async isSupportUser(userId: string) {
+      return (await this.getIdentityProvider(userId)) === 'erxes_support';
+    }
+
+    // Support accounts act in the tenant but aren't staff: no lists, pickers or counts
+    public static async staffQuery(query: FilterQuery<IUserDocument>) {
+      const supportUserIds = await models.AuthIdentities.find({
+        provider: 'erxes_support',
+      }).distinct('userId');
+
+      return {
+        $and: [
+          query,
+          {
+            role: { $ne: USER_ROLES.SYSTEM },
+            ...(supportUserIds.length ? { _id: { $nin: supportUserIds } } : {}),
+          },
+        ],
+      };
+    }
+
+    // Linked users sign in at their provider, so a local password would be a second way in
+    public static async assertLocalPassword(userId: string) {
+      const provider = await this.getIdentityProvider(userId);
+
+      if (provider === 'ldap') {
+        throw new Error('Password is managed by the directory');
+      }
+
+      if (provider === 'erxes_support') {
+        throw new Error('Support accounts have no password');
+      }
+    }
+
+    // Name and groups come from the grant, so nobody edits a support account by hand
+    public static async assertEditable(userId: string) {
+      if (await this.isSupportUser(userId)) {
+        throw new Error('Support accounts are managed by support access');
+      }
     }
 
     public static checkPassword(password: string) {
@@ -318,6 +388,8 @@ export const loadUserClass = (
         throw new Error('User not found');
       }
 
+      await this.assertEditable(_id);
+
       doc.password = (doc.password ?? '').trim();
       doc.email = (doc.email ?? '').toLowerCase().trim();
 
@@ -330,6 +402,7 @@ export const loadUserClass = (
 
       // change password
       if (doc.password) {
+        await this.assertLocalPassword(_id);
         this.checkPassword(doc.password);
 
         doc.password = await this.generatePassword(doc.password);
@@ -448,6 +521,47 @@ export const loadUserClass = (
     }
 
     /**
+     * Create a password-less user whose identity lives in an external directory
+     */
+    public static async createProvisionedUser({
+      email,
+      username,
+      firstName,
+      lastName,
+      permissionGroupIds,
+      isActive = true,
+    }: IProvisionedUserParams) {
+      email = email.toLowerCase().trim();
+
+      await models.Users.checkDuplication({ email });
+
+      const usernameTaken = username
+        ? await models.Users.exists({ username })
+        : null;
+
+      const user = await models.Users.create({
+        email,
+        ...(username && !usernameTaken ? { username } : {}),
+        details: {
+          firstName,
+          lastName,
+          fullName: [firstName, lastName].filter(Boolean).join(' '),
+        },
+        isActive,
+        code: await this.generateUserCode(),
+        ...(permissionGroupIds.length ? { permissionGroupIds } : {}),
+      });
+
+      sendDbEventLog({
+        action: 'create',
+        docId: user._id,
+        currentDocument: user.toObject(),
+      });
+
+      return user;
+    }
+
+    /**
      * Resend invitation
      */
     public static async resendInvitation({ email }: { email: string }) {
@@ -491,6 +605,8 @@ export const loadUserClass = (
       }: IEditProfile,
     ) {
       const user = await models.Users.getUser(_id);
+
+      await this.assertEditable(_id);
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -589,6 +705,7 @@ export const loadUserClass = (
         return updatedUser;
       } else {
         await models.Users.updateOne({ _id }, { $set: { isActive: false } });
+        await revokeUserSessions(subdomain, _id);
 
         const updatedUser = await models.Users.findOne({ _id });
         if (updatedUser) {
@@ -658,6 +775,8 @@ export const loadUserClass = (
         throw new Error('Password reset token is invalid or has expired.');
       }
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -674,6 +793,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -689,6 +810,8 @@ export const loadUserClass = (
     }) {
       const user = await models.Users.getUser(_id);
 
+      await this.assertLocalPassword(user._id);
+
       if (!newPassword) {
         throw new Error('Password is required.');
       }
@@ -700,6 +823,8 @@ export const loadUserClass = (
         { $set: { password: await this.generatePassword(newPassword) } },
       );
 
+      await revokeUserSessions(subdomain, user._id);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -710,10 +835,13 @@ export const loadUserClass = (
       _id,
       currentPassword,
       newPassword,
+      keepSid,
     }: {
       _id: string;
       currentPassword: string;
       newPassword: string;
+      // The caller's own session survives; every other one is signed out
+      keepSid?: string;
     }) {
       // Password can not be empty string
       if (newPassword === '') {
@@ -723,6 +851,8 @@ export const loadUserClass = (
       this.checkPassword(newPassword);
 
       const user = await models.Users.getUser(_id);
+
+      await this.assertLocalPassword(user._id);
 
       // check current password ============
       const valid = await this.comparePassword(currentPassword, user.password);
@@ -739,6 +869,8 @@ export const loadUserClass = (
         },
       );
 
+      await revokeUserSessions(subdomain, user._id, keepSid);
+
       return models.Users.findOne({ _id: user._id });
     }
 
@@ -754,6 +886,8 @@ export const loadUserClass = (
       if (!user) {
         throw new Error('Invalid email');
       }
+
+      await this.assertLocalPassword(user._id);
 
       // create the random token
       const buffer = await crypto.randomBytes(20);
@@ -788,64 +922,7 @@ export const loadUserClass = (
     }
 
     /*
-     * Creates regular and refresh tokens using given user information
-     */
-    public static async createTokens(_user: IUserDocument, secret: string) {
-      const user = {
-        _id: _user._id,
-        isOwner: _user.isOwner,
-      };
-
-      const createToken = await jwt.sign({ user }, secret, { expiresIn: '1d' });
-
-      const createRefreshToken = await jwt.sign({ user }, secret, {
-        expiresIn: '7d',
-      });
-
-      return [createToken, createRefreshToken];
-    }
-
-    /*
-     * Renews tokens
-     */
-    public static async refreshTokens(refreshToken: string) {
-      let _id = '';
-
-      try {
-        // validate refresh token
-        const { user }: any = jwt.verify(refreshToken, this.getSecret());
-
-        _id = user._id;
-        // if refresh token is expired then force to login
-      } catch (e: any) {
-        return {};
-      }
-
-      const dbUser = await models.Users.findOne({ _id, isActive: true });
-
-      if (!dbUser) {
-        return {};
-      }
-
-      // recreate tokens
-      const [newToken, newRefreshToken] = await this.createTokens(
-        dbUser,
-        this.getSecret(),
-      );
-
-      if (newToken) {
-        await saveValidatedToken(newToken, dbUser);
-      }
-
-      return {
-        token: newToken,
-        refreshToken: newRefreshToken,
-        user: dbUser,
-      };
-    }
-
-    /*
-     * Validates user credentials and generates tokens
+     * Validates user credentials; the caller starts the session
      */
     public static async login({
       email,
@@ -858,32 +935,37 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const user = await models.Users.findOne({
+      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+
+      const localUser = await models.Users.findOne({
         $or: [
-          { email: { $regex: new RegExp(`^${email}$`, 'i') } },
-          { username: { $regex: new RegExp(`^${email}$`, 'i') } },
+          { email: { $regex: loginPattern } },
+          { username: { $regex: loginPattern } },
         ],
         isActive: true,
       });
 
-      if (!user?.password) {
-        // user with provided email not found
-        throw new Error('Invalid login');
-      }
-      const valid = await this.comparePassword(password, user.password);
+      const isDirectoryUser = localUser
+        ? await this.isDirectoryUser(localUser._id)
+        : false;
 
-      if (!valid) {
-        // bad password
-        throw new Error('Invalid login');
-      }
-      // create tokens
-      const [token, refreshToken] = await this.createTokens(
-        user,
-        this.getSecret(),
-      );
+      let user: IUserDocument;
+      let method: 'password' | 'ldap' = 'password';
 
-      if (token) {
-        await saveValidatedToken(token, user);
+      // Directory-linked users never fall back to a local password
+      if (localUser && !isDirectoryUser) {
+        const valid = localUser.password
+          ? await this.comparePassword(password, localUser.password)
+          : false;
+
+        if (!valid) {
+          throw new LoginError('invalid_credentials');
+        }
+
+        user = localUser;
+      } else {
+        user = await models.AuthIdentities.authenticateLdap(email, password);
+        method = 'ldap';
       }
 
       // storing tokens in user collection.
@@ -901,40 +983,47 @@ export const loadUserClass = (
       await user.updateOne({ $set: { registrationToken: null } });
 
       const loginActivityLog = generateLoginActivityLog(user, {
-        method: 'email/password',
+        method,
         deviceToken,
       });
       createActivityLog(loginActivityLog, user._id);
 
-      return {
-        token,
-        refreshToken,
-      };
+      return { user, method };
+    }
+
+    /**
+     * Signs a member out of one session, or of every device when no id is given.
+     * The account stays active, so they can sign in again.
+     */
+    public static async revokeSessions(_id: string, sessionId?: string) {
+      const user = await models.Users.getUser(_id);
+
+      if (sessionId) {
+        return revokeUserSession(subdomain, user._id, sessionId);
+      }
+
+      await revokeUserSessions(subdomain, user._id);
+
+      return true;
     }
 
     /**
      * Logging out user from database
      */
-    public static async logout(user: IUserDocument, currentToken: string) {
-      const validatedToken = await redis.get(
-        `user_token_${user._id}_${currentToken}`,
-      );
-
-      if (validatedToken) {
-        await redis.del(`user_token_${user._id}_${currentToken}`);
-
-        await models.Users.updateOne(
-          { _id: user._id },
-          { $set: { lastSeenAt: new Date() } },
-        );
-
-        const logoutActivityLog = generateLogoutActivityLog(user);
-        createActivityLog(logoutActivityLog);
-
-        return 'loggedout';
+    public static async logout(user: IUserDocument, legacyToken?: string) {
+      if (legacyToken) {
+        await redis.del(`user_token_${user._id}_${legacyToken}`);
       }
 
-      return 'token not found';
+      await models.Users.updateOne(
+        { _id: user._id },
+        { $set: { lastSeenAt: new Date() } },
+      );
+
+      const logoutActivityLog = generateLogoutActivityLog(user);
+      createActivityLog(logoutActivityLog);
+
+      return 'loggedout';
     }
 
     public static async generateUserCodeField() {
