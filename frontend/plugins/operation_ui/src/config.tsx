@@ -55,6 +55,11 @@ export const CONFIG: IUIConfig = {
       icon: IconListCheck,
       path: 'operation/settings/github',
     },
+    {
+      name: 'integrations',
+      icon: IconListCheck,
+      path: 'operation/settings/integrations',
+    },
   ],
   widgets: {
     relationWidgets: [

@@ -9,6 +9,10 @@ import { triageMutations } from '@/task/graphql/resolvers/mutations/triage';
 import { mutations as templateMutations } from '@/template/graphql/resolvers';
 import { githubConfigMutations } from '@/githubIntegration/graphql/resolvers/mutations/githubConfig';
 import { githubConnectionMutations } from '@/githubIntegration/graphql/resolvers/mutations/githubConnection';
+import { discordConnectionMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordConnection';
+import { discordConfigMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordConfig';
+import { discordAccountMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordAccount';
+import { discordCustomerChannelMutations } from '@/discordIntegration/graphql/resolvers/mutations/discordCustomerChannel';
 
 export const mutations = {
   ...taskMutations,
@@ -22,4 +26,8 @@ export const mutations = {
   ...templateMutations,
   ...githubConfigMutations,
   ...githubConnectionMutations,
+  ...discordConnectionMutations,
+  ...discordConfigMutations,
+  ...discordAccountMutations,
+  ...discordCustomerChannelMutations,
 };

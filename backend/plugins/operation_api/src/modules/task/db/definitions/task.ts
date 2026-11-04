@@ -1,4 +1,5 @@
 import { Schema } from 'mongoose';
+import { discordSourceSchema } from '@/task/db/definitions/discordSource';
 
 export const taskSchema = new Schema(
   {
@@ -30,6 +31,7 @@ export const taskSchema = new Schema(
     githubIssueNumber: { type: Number, label: 'GitHub Issue Number' },
     githubIssueUrl: { type: String, label: 'GitHub Issue URL' },
     githubRepoName: { type: String, label: 'GitHub Repo Name' },
+    discordSource: { type: discordSourceSchema, label: 'Discord Source' },
     propertiesData: {
       type: Schema.Types.Mixed,
       optional: true,
@@ -54,4 +56,3 @@ taskSchema.index({ assigneeId: 1 }, { sparse: true });
 taskSchema.index({ createdBy: 1 }, { sparse: true });
 taskSchema.index({ customerId: 1 });
 taskSchema.index({ companyId: 1 });
-
