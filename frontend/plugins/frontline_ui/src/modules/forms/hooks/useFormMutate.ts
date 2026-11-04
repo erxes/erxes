@@ -86,6 +86,9 @@ export const useFormMutate = () => {
           existingFields,
         );
         const requiresAtomicSave =
+          Object.keys(formValues.leadData.steps).some(
+            (key) => savedSteps !== undefined && !savedSteps[key],
+          ) ||
           Object.entries(savedSteps ?? {}).some(
             ([key, step]) =>
               formValues.leadData.steps[key]?.order !== step.order,

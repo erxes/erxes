@@ -1312,8 +1312,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   edits are rejected by `frontline_api`. Changing type resets the validator;
   returning to the original type restores its stored validation and validator,
   including legacy `input` fields, and clears `expectedType`. Changes to an
-  existing field's type or page, or to existing step orders, select the atomic
-  save path.
+  existing field's type or page, changes to existing step orders, and new step
+  keys added to stored steps select the atomic save path. Reconstructing absent
+  step metadata alone retains the ordinary save path.
   Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
@@ -2750,7 +2751,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   must navigate through every step once and retain existing submission values.
   Mix missing page numbers with zero-based pages; missing pages belong to the
   first step. Reject a page-layout save and verify both the saved steps and
-  field pages stay unchanged, then retry successfully.
+  field pages stay unchanged, then retry successfully. Include adding a new
+  step without moving any existing fields.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
