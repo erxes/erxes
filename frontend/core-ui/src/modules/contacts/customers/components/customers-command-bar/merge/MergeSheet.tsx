@@ -8,8 +8,10 @@ import { MergeTooltip } from '@/contacts/customers/components/customers-command-
 const noop = () => {
   //
 };
-interface MergeSheetProps
-  extends Omit<React.ComponentProps<typeof CoreModulePanel>, 'name'> {
+interface MergeSheetProps extends Omit<
+  React.ComponentProps<typeof CoreModulePanel>,
+  'name'
+> {
   children?: ReactNode;
   disabled?: boolean;
   className?: string;
