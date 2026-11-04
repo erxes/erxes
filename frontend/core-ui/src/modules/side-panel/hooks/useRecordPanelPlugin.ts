@@ -1,3 +1,4 @@
+import { Icon } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
@@ -13,6 +14,12 @@ export const useRecordPanelPlugin = (
   pluginName: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
+  tabs: {
+    value: string;
+    label: string;
+    icon?: Icon;
+    after?: string;
+  }[];
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
@@ -32,13 +39,19 @@ export const useRecordPanelPlugin = (
       !plugin ||
       (isLoaded && !isWildcard && !hasPluginPermission(plugin.name))
     ) {
-      return { pluginName: null, hasProperties: false, hasDraftTitle: false };
+      return {
+        pluginName: null,
+        hasProperties: false,
+        hasDraftTitle: false,
+        tabs: [],
+      };
     }
 
     return {
       pluginName: plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
+      tabs: panel?.tabs ?? [],
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
 };
