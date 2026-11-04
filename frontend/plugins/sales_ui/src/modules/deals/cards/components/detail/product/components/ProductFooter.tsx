@@ -5,7 +5,7 @@ import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 import { Button, Input, Label, NumberInput } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectProductsBulk } from 'ui-modules';
+import { SelectProductsBulk, usePermissionCheck } from 'ui-modules';
 import {
   applyFooterDiscountAmount,
   applyFooterDiscountPercent,
@@ -101,6 +101,8 @@ export const ProductFooter = ({
   onAddProducts,
   onSave,
 }: ProductFooterProps) => {
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEditProducts = isLoaded && hasActionPermission('dealsProductsEdit');
   const [discountPercentDraft, setDiscountPercentDraft] = useState<
     Record<string, string>
   >({});
@@ -252,6 +254,7 @@ export const ProductFooter = ({
                   </span>
                   <Input
                     id={`discount-percent-${currency}`}
+                    readOnly={!canEditProducts}
                     className="h-8 w-20 tabular-nums"
                     inputMode="numeric"
                     placeholder={t('set-percent', 'Set percent')}
@@ -266,6 +269,7 @@ export const ProductFooter = ({
                   <span className="text-xs text-muted-foreground">%</span>
                   <Input
                     id={`discount-amount-${currency}`}
+                    readOnly={!canEditProducts}
                     className="h-8 w-32 tabular-nums"
                     inputMode="numeric"
                     placeholder={t('set-amount', 'Set amount')}

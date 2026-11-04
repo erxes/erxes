@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -284,6 +284,11 @@
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- Deal product removal requires `dealsProductsDelete` in addition to `dealsEdit`;
+  full-array `dealsEdit` saves also check deletion permission when removing stored row
+  ids. Product creation and editing continue to require `dealsProductsEdit`. The Sales
+  Admin default group includes both product actions.
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
@@ -592,6 +597,9 @@
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 
 ## Validation
+
+- Permission regression: `requiredInputs.test.ts` covers denied deletion before model
+  access, delete-only access, full-array removal, and legacy rows without ids.
 
 - `node --test backend/plugins/sales_api/src/modules/pos/db/definitions/__tests__/coverDetails.test.cjs`
 - `node --test backend/plugins/sales_api/src/modules/pos/db/models/__tests__/posOnServer.test.cjs`
