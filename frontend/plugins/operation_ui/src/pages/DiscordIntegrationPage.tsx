@@ -1,160 +1,123 @@
-import { useState } from 'react';
-import { IconBrandDiscord } from '@tabler/icons-react';
-import {
-  Alert,
-  Button,
-  Card,
-  PageContainer,
-  ScrollArea,
-  Spinner,
-} from 'erxes-ui';
-import { ConnectDiscordDialog } from '@/integrations/discord/components/ConnectDiscordDialog';
-import { DiscordConnectionCard } from '@/integrations/discord/components/DiscordConnectionCard';
-import { DISCORD_BOT_PERMISSIONS } from '@/integrations/discord/constants';
-import { useDiscordConnections } from '@/integrations/discord/hooks/useDiscordIntegration';
-import { useDiscordCustomerChannels } from '@/integrations/discord/hooks/useDiscordCommands';
-import { MyDiscordAccountCard } from '@/integrations/discord/components/MyDiscordAccountCard';
-import { DiscordCustomerChannels } from '@/integrations/discord/components/DiscordCustomerChannels';
+import { useMemo, useState } from 'react';
+import { IconPlus } from '@tabler/icons-react';
+import { Badge, Button, Tabs } from 'erxes-ui';
+import { DiscordLogo } from '@/integrations/components/IntegrationIcons';
+import { IntegrationIntro } from '@/integrations/components/IntegrationIntro';
 import { IntegrationsBackLink } from '@/integrations/components/IntegrationsBackLink';
+import { ConnectDiscordSheet } from '@/integrations/discord/components/ConnectDiscordSheet';
+import { DiscordCustomerChannelsTable } from '@/integrations/discord/components/DiscordCustomerChannelsTable';
+import { DiscordMemberLinkingBar } from '@/integrations/discord/components/DiscordMemberLinkingBar';
+import { DiscordServersTable } from '@/integrations/discord/components/DiscordServersTable';
+import { MyDiscordAccountCard } from '@/integrations/discord/components/MyDiscordAccountCard';
+import { useDiscordCustomerChannels } from '@/integrations/discord/hooks/useDiscordCommands';
+import { useDiscordConnections } from '@/integrations/discord/hooks/useDiscordIntegration';
+import { TDiscordServerRow } from '@/integrations/discord/types';
+
+const TabCount = ({ count }: Readonly<{ count: number }>) =>
+  count ? (
+    <Badge variant="secondary" className="ml-1.5 text-xs">
+      {count}
+    </Badge>
+  ) : null;
 
 export const DiscordIntegrationPage = () => {
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [tab, setTab] = useState('servers');
+  const [connectOpen, setConnectOpen] = useState(false);
   const { connections, configs, loading, error } = useDiscordConnections();
-  const { customerChannels } = useDiscordCustomerChannels();
-  const isConnected = connections.length > 0;
+  const {
+    customerChannels,
+    loading: channelsLoading,
+    error: channelsError,
+  } = useDiscordCustomerChannels();
 
-  const renderServers = () => {
-    if (loading && !isConnected) {
-      return (
-        <div className="flex justify-center py-12">
-          <Spinner />
-        </div>
-      );
-    }
+  const servers = useMemo<TDiscordServerRow[]>(
+    () =>
+      connections.map((connection) => ({
+        ...connection,
+        teamCount: new Set(
+          configs
+            .filter((config) => config.connectionId === connection._id)
+            .map((config) => config.teamId),
+        ).size,
+        customerChannelCount: customerChannels.filter(
+          (channel) => channel.connectionId === connection._id,
+        ).length,
+      })),
+    [configs, connections, customerChannels],
+  );
 
-    if (error) {
-      return (
-        <Alert variant="destructive">
-          <Alert.Description>
-            Failed to load Discord servers. Please refresh.
-          </Alert.Description>
-        </Alert>
-      );
-    }
-
-    if (!isConnected) {
-      return (
-        <div className="flex flex-col items-center justify-center gap-4 py-10 text-center">
-          <IconBrandDiscord className="size-16" />
-          <div>
-            <h3 className="font-semibold">No servers connected</h3>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Connect a Discord server to post new triages, assignments and
-              completed tasks to its channels.
-            </p>
-          </div>
-          <Button onClick={() => setDialogOpen(true)}>
-            Connect Discord server
-          </Button>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-2">
-        {connections.map((connection) => (
-          <DiscordConnectionCard
-            key={connection._id}
-            connection={connection}
-            linkedTeamCount={
-              configs.filter((config) => config.connectionId === connection._id)
-                .length
-            }
-            customerChannelCount={
-              customerChannels.filter(
-                (channel) => channel.connectionId === connection._id,
-              ).length
-            }
-            onUpdateToken={() => setDialogOpen(true)}
-          />
-        ))}
-      </div>
-    );
-  };
+  const addBotButton = (
+    <Button onClick={() => setConnectOpen(true)}>
+      <IconPlus />
+      Add Discord bot
+    </Button>
+  );
 
   return (
-    <PageContainer>
-      <ScrollArea>
-        <div className="mx-auto max-w-2xl space-y-6 p-6">
-          <div>
-            <IntegrationsBackLink />
-            <h1 className="text-xl font-semibold">Discord Integration</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Post triage and task updates from erxes to Discord channels.
-            </p>
-          </div>
+    <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col gap-6 overflow-hidden p-5">
+      <div>
+        <IntegrationsBackLink />
+      </div>
 
-          <Card>
-            <Card.Header className="flex flex-row items-center justify-between gap-4">
-              <div>
-                <Card.Title>Connected servers</Card.Title>
-                <Card.Description>
-                  Discord servers your bot can post to. Each team picks its
-                  channel in Team settings → Discord.
-                </Card.Description>
-              </div>
-              {isConnected && (
-                <Button
-                  size="sm"
-                  className="shrink-0"
-                  onClick={() => setDialogOpen(true)}
-                >
-                  + Connect server
-                </Button>
-              )}
-            </Card.Header>
-
-            <Card.Content>{renderServers()}</Card.Content>
-          </Card>
-
-          {isConnected ? (
-            <DiscordCustomerChannels
-              connections={connections}
-              configs={configs}
-            />
-          ) : null}
-
-          <MyDiscordAccountCard />
-
-          <Card>
-            <Card.Header>
-              <Card.Title>Bot permissions</Card.Title>
-              <Card.Description>
-                What the bot needs in the channels it posts to.
-              </Card.Description>
-            </Card.Header>
-            <Card.Content>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                {DISCORD_BOT_PERMISSIONS.map((permission) => (
-                  <li key={permission} className="flex items-center gap-2">
-                    <span className="text-success">✓</span>
-                    {permission}
-                  </li>
-                ))}
-                <li className="flex items-center gap-2">
-                  <span>✗</span>
-                  <span>No access to message content</span>
-                </li>
-              </ul>
-            </Card.Content>
-          </Card>
-        </div>
-      </ScrollArea>
-
-      <ConnectDiscordDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+      <IntegrationIntro
+        icon={DiscordLogo}
+        name="Discord"
+        description="Post triage and task updates to Discord and let companies report issues from their own channels."
       />
-    </PageContainer>
+
+      <div>{addBotButton}</div>
+
+      <Tabs
+        value={tab}
+        onValueChange={setTab}
+        className="flex min-h-0 flex-1 flex-col gap-4"
+      >
+        <Tabs.List className="w-full justify-start">
+          <Tabs.Trigger value="servers">
+            Servers
+            <TabCount count={connections.length} />
+          </Tabs.Trigger>
+          <Tabs.Trigger value="customer-channels">
+            Customer channels
+            <TabCount count={customerChannels.length} />
+          </Tabs.Trigger>
+          <Tabs.Trigger value="account">My account</Tabs.Trigger>
+        </Tabs.List>
+
+        <Tabs.Content
+          value="servers"
+          className="flex min-h-0 flex-1 flex-col gap-3"
+        >
+          {connections.length ? (
+            <DiscordMemberLinkingBar connections={connections} />
+          ) : null}
+          <DiscordServersTable
+            servers={servers}
+            loading={loading}
+            failed={Boolean(error)}
+            addAction={addBotButton}
+          />
+        </Tabs.Content>
+
+        <Tabs.Content
+          value="customer-channels"
+          className="flex min-h-0 flex-1 flex-col"
+        >
+          <DiscordCustomerChannelsTable
+            connections={connections}
+            configs={configs}
+            customerChannels={customerChannels}
+            loading={channelsLoading || loading}
+            failed={Boolean(channelsError)}
+          />
+        </Tabs.Content>
+
+        <Tabs.Content value="account">
+          <MyDiscordAccountCard />
+        </Tabs.Content>
+      </Tabs>
+
+      <ConnectDiscordSheet open={connectOpen} onOpenChange={setConnectOpen} />
+    </div>
   );
 };

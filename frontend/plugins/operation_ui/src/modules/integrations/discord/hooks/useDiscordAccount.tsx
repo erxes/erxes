@@ -8,10 +8,10 @@ import {
   GET_DISCORD_TEAM_MEMBERS,
 } from '../graphql/queries/discordQueries';
 import {
-  CLEAR_DISCORD_CLIENT_SECRET,
   CONFIRM_DISCORD_ACCOUNT_LINK,
   REMIND_DISCORD_MEMBER,
   SET_DISCORD_CLIENT_SECRET,
+  SET_DISCORD_MEMBER_LINKING,
   START_DISCORD_ACCOUNT_LINK,
   UNLINK_DISCORD_MEMBER,
   UNLINK_MY_DISCORD_ACCOUNT,
@@ -24,6 +24,7 @@ import {
   DISCORD_LINK_RESULT_PARAM,
 } from '../constants';
 import { TDiscordLinkMessage } from '../types';
+import { OperationDiscordSetMemberLinkingMutation } from '~/gql/graphql';
 
 type TMutationCallbacks = {
   onCompleted: () => void;
@@ -119,12 +120,15 @@ export function useSetDiscordClientSecret({
   return { setClientSecret, saving };
 }
 
-export function useClearDiscordClientSecret({
+export function useSetDiscordMemberLinking({
   onCompleted,
   onError,
-}: TMutationCallbacks) {
-  const [clearClientSecret, { loading: clearing }] = useMutation(
-    CLEAR_DISCORD_CLIENT_SECRET,
+}: {
+  onCompleted: (data: OperationDiscordSetMemberLinkingMutation) => void;
+  onError: (error: Error) => void;
+}) {
+  const [setMemberLinking, { loading: switching }] = useMutation(
+    SET_DISCORD_MEMBER_LINKING,
     {
       onCompleted,
       onError,
@@ -136,7 +140,7 @@ export function useClearDiscordClientSecret({
     },
   );
 
-  return { clearClientSecret, clearing };
+  return { setMemberLinking, switching };
 }
 
 export function useUnlinkMyDiscordAccount({

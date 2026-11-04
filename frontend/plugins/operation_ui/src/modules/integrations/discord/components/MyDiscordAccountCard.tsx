@@ -98,7 +98,7 @@ export function MyDiscordAccountCard() {
     if (account?.linkingEnabled) {
       return 'Link it so the bot mentions you when a task is assigned to you.';
     }
-    return 'Linking is off. An admin can turn it on under Member linking on a connected server.';
+    return 'Linking is off. An admin can turn it on under Member linking in Discord Integration → Servers.';
   }
 
   return (
