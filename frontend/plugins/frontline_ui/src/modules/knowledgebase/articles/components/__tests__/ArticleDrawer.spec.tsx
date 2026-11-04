@@ -325,9 +325,11 @@ it('saves an image whose upload completes while Activity has unmounted Details',
   fireEvent.click(screen.getByRole('button', { name: 'Activity' }));
   act(() => mockUploads[0]('late-image.png'));
   fireEvent.click(screen.getByRole('button', { name: 'Details' }));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledWith({
     variables: {
       _id: 'article-1',
@@ -373,9 +375,11 @@ it.each(['Cancel', 'logout'] as const)(
     mockEdit.mockResolvedValue({});
     mount();
     act(() => mockUploads[0]('obsolete.png'));
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    });
+    await act(() =>
+      Promise.resolve(
+        fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+      ),
+    );
     expect(mockEdit).toHaveBeenCalledWith({
       variables: {
         _id: 'article-1',
@@ -436,9 +440,11 @@ it('merges overlapping uploads without resurrecting a removed attachment after A
   act(() => mockUploads[1]('second.pdf'));
   act(() => mockUploads[0]('first.pdf'));
   act(() => mockUploads[0]('first.pdf'));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledWith({
     variables: {
       _id: 'article-1',
@@ -475,9 +481,11 @@ it('keeps separate completion writers for uploads started in the same mounted fi
   fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[1]);
   act(() => mockUploads[1]('second.pdf'));
   act(() => mockUploads[0]('first.pdf'));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledWith({
     variables: {
       _id: 'article-1',
@@ -536,9 +544,11 @@ it('does not resurrect an image removed after its uploader remounts', async () =
   fireEvent.click(screen.getByRole('button', { name: 'Details' }));
   fireEvent.click(screen.getAllByRole('button', { name: 'Remove media' })[0]);
   act(() => mockUploads[0]('obsolete.png'));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledWith({
     variables: {
       _id: 'article-1',
@@ -572,9 +582,11 @@ it('keeps the latest selected image when the earlier upload completes last', asy
   fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[0]);
   act(() => mockUploads[1]('latest.png'));
   act(() => mockUploads[0]('obsolete.png'));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledWith({
     variables: {
       _id: 'article-1',
@@ -618,18 +630,22 @@ it('keeps a confirmed article create and its pending upload when New is reopened
     target: { value: 'Created article' },
   });
   fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[0]);
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   first.unmount();
   mount();
   expect(
     screen.getByPlaceholderText<HTMLInputElement>('Enter article title').value,
   ).toBe('Created article');
   act(() => mockUploads[0]('late-created-image.png'));
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
   expect(mockEdit).toHaveBeenCalledTimes(2);
   expect(mockEdit).toHaveBeenLastCalledWith({
     variables: {
@@ -666,9 +682,11 @@ it.each(['Cancel', 'logout'] as const)(
       target: { value: 'Created article' },
     });
     fireEvent.click(screen.getAllByRole('button', { name: 'Start upload' })[0]);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    });
+    await act(() =>
+      Promise.resolve(
+        fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+      ),
+    );
     first.unmount();
     if (action === 'Cancel') {
       const retained = mount();
@@ -688,9 +706,11 @@ it.each(['Cancel', 'logout'] as const)(
     fireEvent.change(screen.getByPlaceholderText('Enter article title'), {
       target: { value: 'Second article' },
     });
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    });
+    await act(() =>
+      Promise.resolve(
+        fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+      ),
+    );
     expect(mockEdit).toHaveBeenLastCalledWith({
       variables: {
         doc: expect.objectContaining({

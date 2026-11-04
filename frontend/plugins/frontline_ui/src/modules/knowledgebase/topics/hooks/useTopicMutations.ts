@@ -59,6 +59,7 @@ export const useSaveTopic = () => {
             });
             const current = data?.knowledgeBaseTopicDetail;
             if (!current) throw new Error(t('not-found', 'Record not found'));
+            /** Includes only submitted dirty fields, preserving explicit clears. */
             const changed = <K extends keyof ITopicDoc>(key: K) =>
               dirtyFields[key] ? { [key]: topicDoc[key] } : {};
             doc = {

@@ -52,37 +52,35 @@ export const useSaveCategory = () => {
       async () => {
         let doc: KnowledgeBaseCategoryDoc = withoutEmptyCode(categoryDoc);
 
-        if (categoryId) {
-          if (dirtyFields) {
-            const { data } = await client.query({
-              query: CATEGORY_DETAIL,
-              variables: { _id: categoryId },
-              fetchPolicy: 'network-only',
-            });
-            const current = data?.knowledgeBaseCategoryDetail;
-            if (!current) throw new Error(t('not-found', 'Record not found'));
-            const changed = <K extends keyof ICategoryDoc>(key: K) =>
-              dirtyFields[key] ? { [key]: categoryDoc[key] } : {};
-            doc = {
-              title: dirtyFields.title
-                ? categoryDoc.title
-                : current.title || '',
-              icon: dirtyFields.icon
-                ? categoryDoc.icon
-                : current.icon || 'book',
-              ...changed('description'),
-              ...changed('topicId'),
-              ...changed('parentCategoryId'),
-              ...(dirtyFields.code && categoryDoc.code?.trim()
-                ? { code: categoryDoc.code.trim() }
-                : {}),
-            };
-          }
-          await editCategory({ variables: { _id: categoryId, doc } });
-        } else {
+        if (!categoryId) {
           const { data } = await addCategory({ variables: { doc } });
           savedId = data?.knowledgeBaseCategoriesAdd?._id ?? null;
+          return;
         }
+
+        if (dirtyFields) {
+          const { data } = await client.query({
+            query: CATEGORY_DETAIL,
+            variables: { _id: categoryId },
+            fetchPolicy: 'network-only',
+          });
+          const current = data?.knowledgeBaseCategoryDetail;
+          if (!current) throw new Error(t('not-found', 'Record not found'));
+          /** Includes only submitted dirty fields, preserving explicit clears. */
+          const changed = <K extends keyof ICategoryDoc>(key: K) =>
+            dirtyFields[key] ? { [key]: categoryDoc[key] } : {};
+          doc = {
+            title: dirtyFields.title ? categoryDoc.title : current.title || '',
+            icon: dirtyFields.icon ? categoryDoc.icon : current.icon || 'book',
+            ...changed('description'),
+            ...changed('topicId'),
+            ...changed('parentCategoryId'),
+            ...(dirtyFields.code && categoryDoc.code?.trim()
+              ? { code: categoryDoc.code.trim() }
+              : {}),
+          };
+        }
+        await editCategory({ variables: { _id: categoryId, doc } });
       },
       categoryId
         ? t('kb-category-saved', 'Category saved')

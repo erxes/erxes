@@ -205,6 +205,9 @@ const MediaRow = ({
 type TArticleFieldsProps = {
   form: UseFormReturn<TArticleForm>;
   t: TFunction;
+};
+
+type TArticleMediaFieldsProps = TArticleFieldsProps & {
   captureUpdate: (
     field?: string,
   ) => (update: (latest: TArticleForm) => TArticleForm) => void;
@@ -402,7 +405,7 @@ const ArticleMediaFields = ({
   t,
   captureUpdate,
   invalidateUpdates,
-}: TArticleFieldsProps) => (
+}: TArticleMediaFieldsProps) => (
   <KbFormSection title={t('kb-media', 'Media')}>
     <KbFormSection.Content className="gap-0 divide-y">
       <Form.Field
@@ -507,21 +510,11 @@ const ArticleFormFields = ({
   t,
   captureUpdate,
   invalidateUpdates,
-}: TArticleFieldsProps) => (
+}: TArticleMediaFieldsProps) => (
   <div className="flex flex-col gap-3">
-    <ArticleContentFields
-      form={form}
-      t={t}
-      captureUpdate={captureUpdate}
-      invalidateUpdates={invalidateUpdates}
-    />
+    <ArticleContentFields form={form} t={t} />
     <div className="grid gap-4">
-      <ArticlePublishingFields
-        form={form}
-        t={t}
-        captureUpdate={captureUpdate}
-        invalidateUpdates={invalidateUpdates}
-      />
+      <ArticlePublishingFields form={form} t={t} />
       <ArticleMediaFields
         form={form}
         t={t}

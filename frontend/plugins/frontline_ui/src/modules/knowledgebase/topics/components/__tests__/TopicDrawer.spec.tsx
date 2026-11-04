@@ -177,9 +177,11 @@ beforeEach(() => {
   mockWrite.mockResolvedValue({});
 });
 const save = async () => {
-  await act(async () => {
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-  });
+  await act(() =>
+    Promise.resolve(
+      fireEvent.click(screen.getByRole('button', { name: 'Save' })),
+    ),
+  );
 };
 
 it('saves a topic background upload completed while Activity unmounts Details', async () => {

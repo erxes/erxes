@@ -2601,9 +2601,15 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   description, parent and appearance clears remain part of the edited payload.
   The settings route's existing full-document contract stays separate.
 - Knowledge base panel, table and mutation helpers retain the documentation
-  comments required by JavaScript CI. Category form sections are composed through
-  `CategoryFormFields` to keep the drawer JSX shallow; attachment list keys use
-  their upload URL, matching existing frontline attachment surfaces.
+  comments required by JavaScript CI. Changed-field selectors document that dirty
+  optional fields preserve explicit clears; save-event tests await React `act`
+  with a promise-returning callback so asynchronous form updates settle. Article
+  content and publishing sections accept only form/translation props; upload
+  capture and invalidation callbacks belong to the media section and its
+  composer. Category form sections
+  are composed through `CategoryFormFields` to keep the drawer JSX shallow;
+  attachment list keys use their upload URL, matching existing frontline
+  attachment surfaces.
 - The backend paginates topics, categories and articles with `page`/`perPage`;
   there is no cursor query for them. Knowledge base tables therefore use
   `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
