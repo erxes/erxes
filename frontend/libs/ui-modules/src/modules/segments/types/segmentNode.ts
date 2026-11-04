@@ -1,4 +1,4 @@
-export type TSegmentValue = string | number | boolean | string[];
+export type TSegmentValue = string | number | boolean | string[] | Date;
 
 export type TSegmentGroupNode = {
   kind: 'group';
@@ -37,11 +37,7 @@ export type TSegmentOperator = {
 };
 
 export type TSegmentFieldInput =
-  | 'text'
-  | 'number'
-  | 'date'
-  | 'boolean'
-  | 'select';
+  'text' | 'number' | 'date' | 'boolean' | 'select';
 
 export type TSegmentField = {
   key: string;
