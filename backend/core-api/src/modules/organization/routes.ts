@@ -2,6 +2,7 @@ import {
   getEnv,
   getGlobalProfileV2Plugins,
   getPlugin,
+  getPluginAddress,
   getSaasOrganizationDetail,
   getSubdomain,
   isGlobalProfileV2,
@@ -67,7 +68,52 @@ router.get('/initial-setup', async (req: Request, res: Response) => {
   return res.json(organizationInfo);
 });
 
-router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
+type ExtensionRemote = { name: string; entry: string; kind: 'extension' };
+
+const isRemote = (value: unknown): value is { name: string; entry: string } =>
+  typeof value === 'object' &&
+  value !== null &&
+  'name' in value &&
+  typeof value.name === 'string' &&
+  'entry' in value &&
+  typeof value.entry === 'string';
+
+// UIs of the extensions this tenant installed, from the extensions runtime.
+// Marked `kind: 'extension'`: core-ui loads their configs as extensions,
+// inside a host plugin, and never lists them as plugins.
+const getExtensionRemotes = async (
+  req: Request,
+): Promise<ExtensionRemote[]> => {
+  const address = await getPluginAddress('extensions');
+
+  if (!address) {
+    return [];
+  }
+
+  // The hostname getSubdomain trusts here (nginx-hostname, then hostname,
+  // then the Host), so the runtime picks the same tenant core did.
+  const hostname =
+    req.headers['nginx-hostname'] || req.headers.hostname || req.hostname;
+
+  // An unreachable runtime drops the extensions' UIs, never the whole app.
+  return fetch(`${address}/remotes`, {
+    headers: { hostname: String(hostname) },
+    signal: AbortSignal.timeout(2000),
+  })
+    .then((res) => (res.ok ? res.json() : []))
+    .then((remotes: unknown) =>
+      (Array.isArray(remotes) ? remotes : [])
+        .filter(isRemote)
+        .map(({ name, entry }) => ({
+          name,
+          entry,
+          kind: 'extension' as const,
+        })),
+    )
+    .catch(() => []);
+};
+
+router.get('/get-frontend-plugins', async (req: Request, res: Response) => {
   const ENABLED_PLUGINS = getEnv({ name: 'ENABLED_PLUGINS' });
   const VERSION = getEnv({ name: 'VERSION', defaultValue: 'os' });
 
@@ -94,7 +140,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
 
   if (VERSION === 'saas') {
     const remotes: { name: string; entry: string }[] = [];
-    const subdomain = getSubdomain(_req);
+    const subdomain = getSubdomain(req);
 
     const organizationInfo = await getSaasOrganizationDetail({
       subdomain,
@@ -151,7 +197,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       });
     }
 
-    return res.json(remotes);
+    return res.json([...remotes, ...(await getExtensionRemotes(req))]);
   } else {
     const remotes: { name: string; entry: string }[] = [];
 
@@ -164,7 +210,7 @@ router.get('/get-frontend-plugins', async (_req: Request, res: Response) => {
       }
     }
 
-    return res.json(remotes);
+    return res.json([...remotes, ...(await getExtensionRemotes(req))]);
   }
 });
 
