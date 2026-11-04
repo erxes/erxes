@@ -215,7 +215,8 @@ export class BaseQueryResolver {
     const list = (await defaultPaginate(
       model
         .find(query)
-        .sort({ [sortField]: sortOrder })
+        // _id breaks ties so equal sort values keep one order across pages.
+        .sort({ [sortField]: sortOrder, _id: sortOrder })
         .lean(),
       { page, perPage },
     )) as T[];

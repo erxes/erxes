@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -79,6 +79,7 @@
 - Enqueue/retry accepts tenant context only from the server; conflicting saved tenants are rejected. Delivery history excludes records explicitly bound to another tenant while retaining legacy records for recovery visibility.
 - Never remove JWT or delivery ledgers to stop/retry CMS work. Coordinate both API versions on rollout/rollback.
 - `Web.updateWeb` validates `texts` through `utils/webTexts.ts` and replaces the whole map. Omitted leaves it untouched; `null` clears it. Keys cannot be empty, start with `$` or contain `.`. Values are strings or nested objects at most 5 levels deep, and the map is capped at 512KB. Changes appear in the web activity log.
+- Paginated CMS list queries must end their sort with `_id` so ties keep one order across pages. `cursorPaginate` adds it itself; `getListWithDefaultPagination` (behind `cpPostListWithPagination`) adds it to the offset sort. Without it, posts sharing a `publishedDate` were skipped and repeated across pages.
 - Docker's installer stage uses `NODE_OPTIONS=--jitless`, matching agent_api's QEMU workaround. The runtime stage must not inherit it; dependency-install failures must not be swallowed by optional file pruning.
 
 ## Validation
@@ -88,5 +89,6 @@
 - `node --test backend/plugins/content_api/test/dockerfile.test.cjs`
 - `pnpm exec tsc --noEmit -p backend/plugins/content_api/tsconfig.json`
 - `pnpm exec jest --config backend/plugins/content_api/jest.postiz.cjs --runInBand`
+- `pnpm exec jest --config backend/plugins/content_api/jest.cms.cjs --runInBand` - CMS list helpers.
 - `pnpm nx lint content_api`
 - No Nx `test` target is defined.
