@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -66,9 +66,12 @@
 - GraphQL subscriptions for live task and project updates.
 - `pnpm nx run operation_api:schema:print` writes the full subgraph schema, including the subscription fields from `src/apollo/subscription.ts`, to `generated/schema.graphql` without Redis, Mongo or a running service. The shared `scripts/print-subgraph-schema.ts` does the printing; the target comes from the `schema:print` default in `nx.json`.
 - Settings-configured custom property values on tasks and projects, validated through Core fields and exposed as GraphQL `propertiesData`.
-- GitHub issue synchronisation for tasks.
+- GitHub issue synchronisation for tasks, and merged pull requests of a
+  team's linked repository posted to the team's Discord channels.
 - Discord notifications: a team posts new, accepted and declined triages,
-  task assignments and completed tasks to one Discord channel through a
+  task assignments, completed, reopened and cancelled tasks, tasks moved
+  between teams and merged pull requests to one or more
+  Discord channels, each with its own events and mention, through a
   bring-your-own bot token (REST only, no Gateway, no message-content intent).
   The first event for a record posts an embed card (team in the author line;
   status; priority; assignee while open or once set; due date
@@ -76,7 +79,24 @@
   "Open in erxes" and, for GitHub-opened records, "GitHub #n" link buttons.
   Later events edit that card and reply to it with one emoji-prefixed
   activity line. User-supplied text in fields and replies is
-  markdown-escaped.
+  markdown-escaped. `taskMoved` ("X moved the task from A to B") works on
+  both sides of a move: a channel of the new team that subscribes gets the
+  card (posted, or edited with a reply when that channel already had it),
+  and a channel the task leaves keeps its card when that channel's config
+  is active and subscribes: the card is edited once into a grey "moved"
+  snapshot (the old team in the author line, a "Moved to" field) with a
+  reply, and its mapping is then deleted, so later events never touch it.
+  A leaving channel that does not subscribe has its card deleted, as
+  before. A team can also subscribe to `pullRequestMerged`: a pull
+  request merged in the team's linked GitHub repository posts its own
+  purple embed (team in the author line; "PR #n · title" linking to the PR;
+  the description; repository, `head` → `base` branch and author fields;
+  who merged it in the footer) with a "GitHub PR #n" button. It is a
+  one-off message, never a card that later events edit. A team config can
+  also mention the channel: `mention` (`none`, `here` or `everyone`) applies
+  to the events listed in `mentionEvents`, and the new message for such an
+  event (the card's reply line, or the PR merged message) starts with
+  `@here` / `@everyone`.
 - Discord slash commands for customers: an admin links a company's Discord
   channel to the company and the team that receives its triages. Slash
   commands turn on by themselves when a server is connected
@@ -129,16 +149,27 @@
   ten per page; its Open/All/Previous/Next buttons switch the filter and
   page. Triages reported with
   `/triage new` keep a customer thread: their `triageAccepted`,
-  `triageDeclined`, `taskAssigned` and `taskCompleted` events are also posted
+  `triageDeclined`, `taskAssigned`, `taskCompleted`, `taskReopened` and
+  `taskCancelled` events are also posted
   as a reply to the confirmation message in the channel they came from,
   mentioning the reporter. Customer messages name the report by its title,
   never by triage number (triage numbers restart once triages become
   tasks): "Your report X was accepted as Task #n", "Your report X was
-  declined" with the reason, then "Task #n · X" for assignment and
-  completion. The team's own channel still gets its internal card.
+  declined" with the reason, then "Task #n · X" for assignment,
+  completion, reopening ("was reopened and is being worked on again") and
+  cancellation ("was cancelled", with no reason: a task status change has
+  none). The team's own channel still gets its internal card.
 - Discord account linking: an admin turns on member linking per connection
   with the application's client secret (checked with a client-credentials
-  grant) after adding the OAuth redirect URI in the Developer Portal. A member
+  grant) after adding the OAuth redirect URI in the Developer Portal. Member
+  linking is on while some connection has a saved secret and is not paused
+  (`DISCORD_MEMBER_LINKING_ON`: `hasClientSecret: true` and
+  `memberLinkingPaused` not true); every linking check (start, OAuth callback,
+  My account, Remind, the assignee mention fallback) uses that filter.
+  `operationDiscordSetMemberLinking(_id, enabled)` pauses or resumes linking
+  without deleting the secret; resuming re-checks the saved secret with
+  Discord and refuses with "The saved client secret no longer works…" when
+  Discord rejects it. Saving a secret clears the pause. A member
   signs in with Discord (`identify` scope) from a popup. The callback reads
   the Discord user id, username, display name and avatar, revokes the token,
   stores them in Redis under a one-time result token
@@ -166,11 +197,11 @@
 | Task segment contract | `src/modules/task/meta/segments/`                         | Fields, collections, members, membership, evaluation, relations       |
 | Plugin segment meta   | `src/meta/segments.ts`                                    | Routes segment producers to the module that owns the content type     |
 | Import/export         | `src/meta/import-export/`                                 | Task import and export handlers                                       |
-| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/`            | Issue sync, repository configuration                                  |
+| GitHub integration    | `src/modules/githubIntegration/`, `src/utils/`            | Issue sync, repository configuration, merged-PR webhook               |
 | Discord integration   | `src/modules/discordIntegration/`                         | Connections, team configs, card mapping and builder, `notifyDiscord`  |
 | Discord REST client   | `src/utils/discordClient.ts`                              | Discord API v10 calls, 429 retry, error descriptions                  |
 | Sequential runner     | `src/utils/runSequentially.ts`                            | Runs async steps one at a time (Discord calls that must not burst)    |
-| Discord worker        | `src/worker/discordNotifications.ts`                      | `operations-discord-notify` processor: posts or edits the card        |
+| Discord worker        | `src/worker/discordNotifications.ts`                      | `operations-discord-notify`: cards, cleanups, merged-PR posts         |
 | Discord account link  | `src/modules/discordIntegration/utils/`                   | OAuth start, Redis state, callback route, assignee mention            |
 | Discord interactions  | `src/modules/discordIntegration/utils/`                   | Signature check, `/triage new` modal, `/tasks` list and paging        |
 | Discord commands      | `src/modules/discordIntegration/utils/discordCommands.ts` | Slash commands on/off (endpoint URL + guild commands) and re-sync     |
@@ -198,20 +229,40 @@
 - Discord GraphQL (`teamRead` for reads, `teamUpdate` for the token check and
   every mutation): queries `operationDiscordConnections`,
   `operationDiscordCheckToken(token)`, `operationDiscordChannels(connectionId)`,
-  `operationDiscordConfigByTeam(teamId)`, `operationDiscordConfigs(connectionId)`;
+  `operationDiscordConfigsByTeam(teamId)` (the team's channel configs,
+  oldest first), `operationDiscordConfigs(connectionId)`;
   mutations `operationDiscordConnect(token, guildId)`,
   `operationDiscordDisconnect(_id)` (refused while a team or a customer
-  channel uses the server),
-  `operationDiscordSaveTeamConfig`, `operationDiscordDisconnectTeam(teamId)`,
-  `operationDiscordSendTestMessage(teamId)`. Events are the
+  channel uses the server; the message counts distinct teams),
+  `operationDiscordSaveTeamConfig` (adds a channel, or updates the config
+  `_id` when given; a channel the team already uses is refused),
+  `operationDiscordRemoveTeamConfig(_id)` and
+  `operationDiscordSendTestMessage(_id)`, both per channel config. Events are the
   `OperationDiscordNotificationEvent` enum built from
-  `DISCORD_NOTIFICATION_EVENTS`.
+  `DISCORD_NOTIFICATION_EVENTS` (the eight card events in
+  `DISCORD_CARD_EVENTS`, `taskMoved`, `taskReopened` and `taskCancelled`
+  among them, plus `pullRequestMerged`).
+  `operationDiscordSaveTeamConfig` also takes `mention`
+  (`OperationDiscordMention`: `none`, `here`, `everyone`; omitted means
+  `none`) and `mentionEvents` (stored only for events the config sends).
+  `OperationDiscordConfig.mention` / `mentionEvents` are non-null; the
+  `OperationDiscordConfig` custom resolver returns `none` / `[]` for
+  configs saved before these fields existed.
+- Express route `POST /integrations/github/webhook`
+  (`<gateway>/pl:operation/integrations/github/webhook`, the GitHub App's
+  webhook URL; HMAC-checked with `GITHUB_WEBHOOK_SECRET`) handles
+  `installation`, `issues` and `pull_request` events, and
+  `GET /integrations/github/setup` (the App's Setup URL) closes the install
+  popup. A `pull_request` event answers `ok` when a merged PR matched a
+  linked repository, else `ignored`. The App needs Issues read and write and
+  Pull requests read, and subscribes to the Issues and Pull request events.
 - Discord account GraphQL: `operationDiscordMyAccount`,
   `operationDiscordStartAccountLink` (returns the Discord authorize URL) and
   `operationDiscordUnlinkMyAccount` need only a signed-in user;
   `operationDiscordTeamMembers(teamId)` needs `teamRead`;
   `operationDiscordOAuthRedirectUri`, `operationDiscordSetClientSecret`,
-  `operationDiscordClearClientSecret`, `operationDiscordUnlinkMember(userId)`
+  `operationDiscordClearClientSecret`, `operationDiscordSetMemberLinking(_id, enabled)`,
+  `operationDiscordUnlinkMember(userId)`
   and `operationDiscordRemindMember(teamId, userId)` need `teamUpdate`.
 - Express route `GET /integrations/discord/oauth/callback`
   (`DISCORD_OAUTH_CALLBACK_PATH`). Its public URL (the OAuth redirect URI) is
@@ -323,12 +374,24 @@ propertiesData? } })`
   message; reconnecting the server with Update token stores a readable token
   and clears it. A 401 also marks the connection broken, and the worker
   skips it until it is reconnected.
-- `operation_discord_configs` holds one config per team (unique `teamId` +
-  `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
-  test message. Several teams may share a channel.
+- `operation_discord_configs` holds one config per team channel (unique
+  `teamId` + `channelId` + `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
+  test message, and `mention` (default `none`) / `mentionEvents` (default
+  `[]`) for the channel mention. Several teams may share a channel, and a
+  team may post to several channels. Before the first new config in a
+  subdomain, `ensureDiscordConfigIndexes` drops the legacy unique
+  `teamId_1_subdomain_1` index (one channel per team) and builds the schema
+  indexes; updates do not need it. Moving a task to another team touches
+  only the old team's channels the new team does not post to: their cards
+  are deleted, or kept as a "moved" snapshot when the config is active and
+  subscribes to `taskMoved`. `operationDiscordTeamMembers` checks a member in every server the
+  team posts to: not in server when missing from any, in server when
+  present in all, otherwise unknown.
 - `operation_discord_connections.clientSecret` is `select: false` like the
-  token; `hasClientSecret` says whether member linking is on. Reconnecting a
-  server with a different bot application clears the secret,
+  token; `hasClientSecret` says whether a secret is saved and
+  `memberLinkingPaused` whether an admin turned linking off while keeping it.
+  Reconnecting a server with a different bot application clears the secret,
+  the pause,
   `commandsRegisteredAt` and `commandsVersion` and deletes that server's team card mappings, since
   the new bot cannot edit the old bot's cards.
 - `operation_discord_customer_channels` maps one Discord channel (unique
@@ -362,8 +425,14 @@ propertiesData? } })`
   deleted from Discord, customer threads get a "was removed by the team"
   reply, and the task's `operation_discord_messages` rows are deleted.
   Moving a task to another team queues the same job limited to the old
-  team's config (`configIds`), so only that team's card is removed (skipped
-  when both teams post to the same channel) and the customer thread stays.
+  team's configs that do not keep the card (`configIds`), so only those
+  cards are removed (skipped when both teams post to the same channel) and
+  the customer thread stays. `notifyDiscordTeamChange` queues the keeping
+  configs as `taskMoved` jobs for the old team (`teamId` = `move.fromTeamId`,
+  only when that channel has a posted card) and calls `notifyDiscord` for the
+  new team. The worker tells the two apart with `isMovedOutJob`; a moved-out
+  job is skipped when the task is back in that team, and an arriving one
+  when the task has already left the new team.
 - `operation_discord_user_links` holds one Discord account per member and one
   member per Discord account (unique `userId` + `subdomain` and
   `discordUserId` + `subdomain`). No OAuth token is stored. The team members
@@ -393,17 +462,61 @@ propertiesData? } })`
   notify as UI writes do; `triageAccepted` / `triageDeclined` fire from
   `operationConvertTriageToTask` (after the triage is deleted) and
   `operationCancelTriage`. `taskAssigned` fires only when the assignee
-  actually changes, and `taskCompleted` only on entering a completed status.
-  `notifyDiscord` never throws. It queues a `team` job only when an active
-  config for the team subscribes to the event, and a `customer` job only when
+  actually changes. Status events come from the status type change in
+  `Task.updateTask` (`getDiscordStatusEvent`), at most one per update and
+  none when the type stays the same: `taskCompleted` on entering a
+  completed status, `taskCancelled` on entering a cancelled one, and
+  `taskReopened` on leaving a completed or cancelled status for an open
+  one.
+  `taskMoved` fires from `Task.updateTask` when `teamId` changes; it carries
+  `move: { fromTeamId, toTeamId }` and is never a customer event. Triage
+  team changes (`Triage.updateTriage`) send nothing.
+  `notifyDiscord` never throws. It queues one `team` job per active config
+  of the team that subscribes to the event (`configId` on the job; the
+  worker loads that config and, for a job without `configId`, the team's
+  first subscribed config), and a `customer` job only when
   the record has a customer thread (see below); either can be queued without
   the other. `notifyDiscordRemoval` and `notifyDiscordTeamChange` take the
   caller's `subdomain` and filter every lookup by it (`Task.removeTask` takes
   `subdomain` for this). Task import passes `skipDiscord` to
   `createTask` / `updateTask`, so imported rows queue no Discord
-  notifications (team-change cleanup still runs).
-- Every Discord message is sent with `allowed_mentions: { parse: [] }`, so a
-  record name can never ping `@everyone` or a role.
+  notifications (team-change cleanup still runs and deletes every leaving
+  card, since no `taskMoved` job is queued to keep one).
+- Every Discord message is sent with `allowed_mentions` that parse nothing
+  (`buildAllowedMentions`), so a record name can never ping `@everyone` or
+  a role. The one exception is a team's own channel mention: when the
+  config's `mention` is `here` or `everyone` and the event is in
+  `mentionEvents` (`getChannelMention`), the new message starts with
+  `@here` / `@everyone` and allows `parse: ['everyone']` (plus the linked
+  assignee). It goes only on new messages (the card's reply line, which is
+  then always sent, or the PR merged message); edits never notify.
+  User-supplied text in that message (actor and assignee names, the
+  decline reason, the repository name) gets a zero-width space after every
+  `@` (`disarmDiscordMentions`), and PR titles and bodies stay in the
+  embed, which never pings. Customer channels never get a channel
+  mention. The bot needs Discord's "Mention @everyone, @here, and All
+  Roles" permission, which `DISCORD_BOT_PERMISSIONS` does not request;
+  without it Discord shows the mention as plain text.
+- `DISCORD_CARD_EVENTS` (job `event`, `DiscordMessage.lastEvent`, card
+  builders) are the record-card events; `DISCORD_NOTIFICATION_EVENTS` (team
+  config `events`, GraphQL enum) add `pullRequestMerged`, which never goes
+  through the card pipeline. A merged PR is read from the webhook payload
+  without casts (`src/utils/githubPullRequest.ts`): only `action: closed`
+  with `merged: true`, matched to a team through `GithubConfig`
+  (`installationId`, `repoName`, `subdomain`; a repository belongs to at
+  most one team per tenant). `notifyDiscordPullRequestMerged` queues one
+  `pullRequestMerged` job only when that team's active config subscribes,
+  and the worker checks the subscription again before posting. The PR body
+  has HTML comments removed (without a regex; an unclosed one hides the
+  rest, as on GitHub), `<img>` tags and markdown images turned into links,
+  runs of blank lines collapsed, and is cut to `DISCORD_LIMITS.description`.
+- The GitHub webhook takes the tenant only from the host-derived subdomain
+  (no stored-record fallback, unlike the Discord routes). Through a local
+  tunnel the gateway must see the UI host: cloudflared
+  `--http-host-header localhost` rewrites Host but moves the public host to
+  `X-Forwarded-Host`, which the gateway trusts from loopback by default, so
+  local `.env` also needs `TRUST_PROXY=false`. Otherwise installations and
+  events land under the tunnel's subdomain.
 - The worker posts a card only after `DiscordMessage.claimCard` succeeds, so
   two workers never post two cards for one record; a stale claim (older than
   `DISCORD_CARD_CLAIM_TIMEOUT_MS`) is taken over. Discord 429, 5xx and network
@@ -439,7 +552,7 @@ propertiesData? } })`
   thread under one) of the connected server; `/tasks` never shows
   descriptions, notes or assignees.
 - `/triage new` allows ten triages per Discord user per hour.
-- `notifyDiscord` queues a `team` job when the team config subscribes to
+- `notifyDiscord` queues a `team` job per team config that subscribes to
   the event and a `customer` job when the record has a customer thread and
   the event is in `DISCORD_CUSTOMER_EVENTS`; a customer update goes only to
   the thread's own channel, never to another company's channel. The
@@ -596,7 +709,8 @@ propertiesData? } })`
   or declining that triage replies in the company channel and mentions the
   reporter, while the team channel keeps its card.
 - Smoke (Discord account): turn on member linking with the client secret,
-  link an account from My Discord account, assign that member a task in a
+  turn it off and on again without re-entering the secret, link an account
+  from My Discord account, assign that member a task in a
   team with Discord, and confirm the reply pings them; unlink and confirm the
   reply names them with a "Link Discord account" button.
 - Smoke (Discord): connect a server with a bot token, pick a channel and all
@@ -604,3 +718,15 @@ propertiesData? } })`
   and assign the task. One card appears in the channel and is edited in
   place, with a reply line per later event; a GitHub-opened triage shows its
   issue link.
+- Smoke (Discord task reopened/cancelled): report a triage with
+  `/triage new`, accept it, complete the task, then move it back to an
+  open status and finally to a cancelled one. The company channel gets
+  "is done", "was reopened and is being worked on again" and "was
+  cancelled" replies mentioning the reporter; a team channel that ticks
+  Task reopened and Task cancelled gets the card turned blue, then red,
+  with a reply each time.
+- Smoke (Discord task moved): give teams A and B different channels, tick
+  Task moved for both, and move a task with a card in A's channel to B. A's
+  card turns grey with "Moved to B" and a reply, and B's channel gets the
+  card with "moved the task from A to B" in the footer. Untick Task moved in
+  A and move another task: A's card is deleted instead.
