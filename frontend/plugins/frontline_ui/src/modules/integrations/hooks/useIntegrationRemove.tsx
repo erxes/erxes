@@ -44,6 +44,11 @@ export const useIntegrationRemove = ({
     },
   });
 
+  /** Clears only this integration's pending marker when its removal settles. */
+  const finishRemoval = () => {
+    setRemovingIds((ids) => ids.filter((id) => id !== _id));
+  };
+
   /** Confirms deletion and tracks the integration until removal settles. */
   const handleRemove = () => {
     confirm({
@@ -59,7 +64,7 @@ export const useIntegrationRemove = ({
           store.set(removedIntegrationIdsAtom, (ids) => new Set([...ids, _id]));
           toast({ title: t('integration-removed'), variant: 'default' });
         },
-      }).finally(() => setRemovingIds((ids) => ids.filter((id) => id !== _id)));
+      }).finally(finishRemoval);
     });
   };
 

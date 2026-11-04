@@ -1395,7 +1395,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   or discard must require a user choice.
 
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
-- Integration create and remove stay visible until the list has caught up: the Facebook setup panel closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
+- Integration create and remove stay visible until the list has caught up: the Facebook setup panel closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails. Removal settlement clears only that integration's pending marker.
 - The integration list's Bot cell resolves its page from `FacebookGetIntegrations`, not `Integrations`; every Facebook integration create or repair refetches both, or a new row shows "No single page" until reload.
 - Persistent menu and ice breakers are optional: the bot form never fills a
   default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
