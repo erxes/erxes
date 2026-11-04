@@ -206,9 +206,10 @@ export const runExtensionGraphql = async ({
     // for nobody.
     const permission = ext.fieldPermissions[field];
 
-    if (
-      !(permission === 'public' || (!!permission && (await can(permission))))
-    ) {
+    if (!(
+      permission === 'public' ||
+      (!!permission && (await can(permission)))
+    )) {
       throw graphqlError('FORBIDDEN', 'Permission required');
     }
 

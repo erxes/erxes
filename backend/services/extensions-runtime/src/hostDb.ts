@@ -271,8 +271,8 @@ const STAGES: Record<
     typeof value === 'string'
       ? own(value, at)
       : isObject(value) && 'coll' in value
-      ? { ...value, coll: own(value.coll, [...at, 'coll']) }
-      : value,
+        ? { ...value, coll: own(value.coll, [...at, 'coll']) }
+        : value,
   $out: (value, own, at) => {
     if (typeof value === 'string') {
       return own(value, at);

@@ -131,8 +131,8 @@ const built = await build({
           const alias = path.startsWith('@/')
             ? modulesDir
             : path.startsWith('~/')
-            ? srcDir
-            : null;
+              ? srcDir
+              : null;
           if (alias) {
             return builder.resolve(`./${path.slice(2)}`, {
               kind,

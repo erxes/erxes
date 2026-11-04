@@ -75,8 +75,8 @@ export const summarizeOperation = (
       parsed.operation === 'query'
         ? 'read'
         : parsed.rootFields.some((f) => DESTRUCTIVE.test(f))
-        ? 'destructive'
-        : 'write',
+          ? 'destructive'
+          : 'write',
     fields: parsed.rootFields,
   };
 };
