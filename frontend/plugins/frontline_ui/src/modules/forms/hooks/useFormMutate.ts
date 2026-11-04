@@ -21,6 +21,7 @@ import { isDefined, toast } from 'erxes-ui';
 import { useFormDetail } from './useFormDetail';
 import { useTranslation } from 'react-i18next';
 import { useFormConversionTranslation } from '../conversionTranslations';
+import { isRecord } from '@/shared/utils/isRecord';
 
 type FormField = {
   tempFieldId?: string;
@@ -86,6 +87,12 @@ export const useFormMutate = () => {
           existingFields,
         );
         const requiresAtomicSave =
+          (isRecord(formDetail?.leadData) &&
+            Object.prototype.hasOwnProperty.call(
+              formDetail.leadData,
+              'steps',
+            ) &&
+            savedSteps === undefined) ||
           Object.keys(formValues.leadData.steps).some(
             (key) => savedSteps !== undefined && !savedSteps[key],
           ) ||

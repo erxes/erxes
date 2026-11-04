@@ -1313,8 +1313,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   returning to the original type restores its stored validation and validator,
   including legacy `input` fields, and clears `expectedType`. Changes to an
   existing field's type or page, changes to existing step orders, and new step
-  keys added to stored steps select the atomic save path. Reconstructing absent
-  step metadata alone retains the ordinary save path.
+  keys added to stored steps select the atomic save path. A present but malformed
+  `steps` value also requires an atomic save; a missing property alone retains
+  the ordinary save path.
   Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
@@ -1350,8 +1351,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   when all fields lack a page. A missing `pageNumber` always goes to the first
   step, including when saved pages start at zero; unmatched pages do likewise.
   Match fields to saved step orders before numbering editor steps from 1
-  without gaps or duplicates; preserve step keys, names and field IDs. This
-  keeps public-form navigation usable after saving malformed step orders.
+  without gaps or duplicates; preserve step keys, names and field IDs.
+  Assign missing or invalid orders to unclaimed field pages in
+  ascending order, using stored step-key order; explicit numeric orders keep
+  their mappings. Empty steps use the next unused positive order.
+  This keeps public-form navigation usable after saving malformed step orders.
   Previews use the editor's unique BroadcastChannel and validated snapshots;
   both embedded and new-tab previews use `/frontline/forms/preview?draft=…`.
   Preview state is in memory and cannot write back into the editor's draft.
@@ -2752,7 +2756,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Mix missing page numbers with zero-based pages; missing pages belong to the
   first step. Reject a page-layout save and verify both the saved steps and
   field pages stay unchanged, then retry successfully. Include adding a new
-  step without moving any existing fields.
+  step without moving any existing fields and repairing a malformed `steps`
+  value. Missing or invalid step orders must keep distinct field pages apart.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
