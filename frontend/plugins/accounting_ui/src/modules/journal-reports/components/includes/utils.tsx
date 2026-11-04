@@ -178,6 +178,11 @@ const hideZeroRows = (
   });
 };
 
+export const countVisibleRows = (root: HTMLElement) =>
+  Array.from(root.querySelectorAll('tr')).filter(
+    (row) => (row as HTMLTableRowElement).style.display !== 'none',
+  ).length;
+
 export const totalsCalc = (
   root: HTMLElement,
   groupRule?: IGroupRule,
