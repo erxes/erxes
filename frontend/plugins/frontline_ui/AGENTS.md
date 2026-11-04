@@ -649,6 +649,11 @@
   `flex flex-col overflow-hidden` column and the list gets
   `max-h-none overflow-y-auto` inside a `flex-1` radio group, so every account
   stays reachable however many are connected.
+- `InstagramPageInfo` and `FacebookPageInfo` call their `use*BotPages` hook
+  before any early return; the hook passes `skip: !accountId` to `useQuery`
+  instead of the component skipping the hook. A hook after the "select a page"
+  return changes the hook count when the page is picked and crashes the bot
+  sheet with React error #310.
 - The channel list's integrations cell opens a popover
   (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
   integration of that channel with kind, Facebook page names and health —
