@@ -1743,6 +1743,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   fields (a patch), `ticketCreateNote` `content` (a note may carry only
   attachments), and the `instagramGetPosts` filters (a missing one means no
   filter).
+- The inbox `startDate` / `endDate` filter (the UI's **Created at**) matches
+  `createdAt` only; `Builder.dateFilter` returns a plain `createdAt` range.
+  `Builder.mainQuery()` merges its clauses by object spread, so no clause may
+  return a top-level `$and`: `queries.extended` already owns `$and` (user
+  relevance, `integrationType`, `searchValue`) and a second one would replace
+  it, which is how a created-date filter used to drop the integration-type
+  and search filters.
 
 ## Validation
 
