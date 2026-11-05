@@ -1,4 +1,6 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
+import { useAtomValue } from 'jotai';
+import { formEditingFieldDirtyAtom } from '../states/formSetupStates';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
@@ -127,6 +129,7 @@ export const FormDndField = ({
   field: UniqueIdentifier;
   step: UniqueIdentifier;
 }) => {
+  const dirtyField = useAtomValue(formEditingFieldDirtyAtom);
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const {
     attributes,
@@ -138,6 +141,7 @@ export const FormDndField = ({
     transition,
   } = useSortable({
     id: field,
+    disabled: dirtyField,
   });
   const {
     getFieldValue,

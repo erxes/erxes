@@ -266,6 +266,7 @@ export const FormFieldDetail = ({
 
   /** Removes the field and closes its local editor. */
   const handleDelete = () => {
+    setEditingFieldDirty(fieldId, false);
     handleDeleteField(stepId, fieldId);
     handleClose();
   };
@@ -282,6 +283,7 @@ export const FormFieldDetail = ({
   const handleConfirm = async () => {
     if (!draft || !conversionCheck.canConfirm) return;
     const description = await serializeDescription();
+    setEditingFieldDirty(fieldId, false);
     handleChangeField(stepId, fieldId, { ...draft, description });
     handleClose();
   };

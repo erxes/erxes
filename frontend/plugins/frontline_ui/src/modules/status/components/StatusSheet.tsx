@@ -52,14 +52,22 @@ export const StatusPanelForm = ({
     resolver: zodResolver(TICKET_STATUS_FORM_SCHEMA),
     defaultValues: values,
   });
-  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
-    usePanelFormDraft({
-      form,
-      recordKey: editingStatus?._id ?? `new~${pipelineId ?? ''}~${statusType}`,
-      values,
-      draftsState: statusPanelDraftsState,
-      isNew: !editingStatus,
-    });
+  const { dirtyFields } = form.formState;
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: editingStatus?._id ?? `new~${pipelineId ?? ''}~${statusType}`,
+    values,
+    draftsState: statusPanelDraftsState,
+    isNew: !editingStatus,
+  });
   const cancel = () => {
     clearDraft();
     onClose();
@@ -83,13 +91,21 @@ export const StatusPanelForm = ({
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
     const submittedValues = structuredClone(form.getValues());
+    const completeDraft = !editingStatus ? captureUpdate() : undefined;
     const { name, description, color } = data;
     const onCompleted = () => {
       endSave(saveId);
       toast({ title: t('success', 'Success!') });
-      if (markSaved(data, submittedValues) && isActive()) onClose();
+      if (editingStatus) {
+        if (markSaved(data, submittedValues) && isActive()) onClose();
+      } else {
+        completeDraft?.(() => values);
+        markSaved(values);
+        if (isActive()) onClose();
+      }
     };
     const handleError = (error: Error) => {
+      completeDraft?.((latest) => latest);
       endSave(saveId);
       onError(error);
     };
@@ -97,9 +113,11 @@ export const StatusPanelForm = ({
       return updateStatus({
         variables: {
           id: editingStatus._id,
-          name,
-          description,
-          color: color?.length && color.length > 2 ? color : '',
+          ...(dirtyFields.name && { name }),
+          ...(dirtyFields.description && { description }),
+          ...(dirtyFields.color && {
+            color: color?.length && color.length > 2 ? color : '',
+          }),
         },
         onCompleted,
         onError: handleError,

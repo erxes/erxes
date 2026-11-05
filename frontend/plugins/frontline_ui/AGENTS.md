@@ -1200,8 +1200,10 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   `src/modules/shared/hooks/usePanelFormDraft.ts`. Draft keys identify saved
   records or scope new records to their channel and, for ticket configurations,
   pipeline. Status drafts identify their saved status or pipeline/type, and
-  member drafts identify their channel. Cancel clears the stored draft;
-  acknowledged saves retain input entered after submission.
+  member drafts identify their channel. Cancel clears the stored draft.
+  Edit acknowledgements retain newer input; completed creates reset their
+  retained draft across remounts, including input typed during the request.
+  Member additions remove successful member IDs from the latest selection.
 
 - Integration forms retain their existing React Hook Form validation and
   mutation hooks. `shared/hooks/usePanelFormDraft` and typed collections in
@@ -1390,17 +1392,30 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Pipeline Properties keeps the existing wide `Sheet.View` layout editor and
   public `PropertyAddSheet`. `SettingsLocalPanel` uses `RecordSidePanel` for
   nested field editors; its Escape handler defers to open dialogs, menus and
-  listboxes. `FormDndProvider` confirms a switch away from a dirty field.
+  listboxes. `FormDndProvider` confirms switching or closing a dirty field.
+  Wizard submission, Cancel and step navigation, and field dragging, are
+  disabled while a field editor is dirty; confirming the field clears that guard.
   New fields retain their open request until their editor is active, including
   after a cancelled switch. Description edits mark the field dirty before HTML
   serialization finishes; only the latest serialization updates the draft.
-- Response, pipeline, status, channel-create and member saves use
+- Channel, response, pipeline, status, ticket-config and member saves use
   `usePanelFormDraft` request tokens scoped to their draft atom and record key. Pending state survives Activity remounts,
   failure releases it for retry, and an older completion cannot release a newer
   request. Completion navigation belongs only to the mounted originating
-  session with no input newer than its submitted snapshot.
+  session. Edits with newer input stay open; completed creates clear the draft.
   Ticket status mutation wrappers forward caller error callbacks as well as
-  success callbacks, so failed status edits release their retained save token.
+  success callbacks and show their own error toast only without a caller handler.
+- Channel, pipeline General and status edits submit only dirty fields. Response
+  edits reread the current record for the API-required name and omit untouched
+  content. Ticket config saves reread the pipeline's current config and require
+  confirmation before replacing a config changed since the draft began.
+  A new-config panel checks the pipeline over the network before showing a
+  blank editor, and replaces its panel URL with the existing config when found.
+  The submit path repeats this check, so a stale new-config draft cannot replace
+  a config created in the meantime. Config form defaults strip Apollo metadata
+  and initialize built-in field controls, so viewing one does not create a draft.
+- Member selection is disabled during a save, including across remounts.
+  Successful additions remove submitted member IDs from the retained selection.
 - Settings removal callbacks close only the exact active record while their
   owning hook remains mounted. Pipeline deletion requires a successful
   mutation payload; cancellation or failure leaves the panel open. Its mutation
@@ -3260,9 +3275,15 @@ null }`, fall back to the route pipeline and skip without one; never pass
   and nested Escape. Start response creation on a slow connection, switch to
   Activity and back, and confirm Create remains blocked until that request settles.
   Save channel A, open channel B before A finishes and confirm B stays open;
-  input typed after submission must also survive the completion of that save.
+  input typed after an edit submission must survive its completion. Completed
+  creates must clear submitted values even after reopening or typing during save.
   Repeat late-save navigation for pipeline creation, status edits and member
-  additions; the newer record and its stack must stay open.
+  additions; the newer record and its stack must stay open. Check two-user edits
+  for untouched-field preservation and ticket-config conflict confirmation.
+  Reopen a pending config save, use Back after creation, and open a new-config
+  direct link for a pipeline with an existing config. Add members twice without
+  resending successful IDs. Dirty field editors must block Next, Previous and
+  dragging, and closing must offer discard confirmation.
 
 - Integration panel smoke: create and edit each supported provider from its
   channel and catalog, visit Activity or another record and reopen; confirm

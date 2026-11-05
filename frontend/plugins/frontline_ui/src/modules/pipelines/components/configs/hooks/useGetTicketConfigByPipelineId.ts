@@ -11,13 +11,17 @@ export const useGetTicketConfigByPipelineId = (
   options?: QueryHookOptions<TicketConfigQuery, TicketConfigQueryVariables>,
 ) => {
   const { pipelineId } = useSettingsParams();
-  const { data, loading } = useQuery(GET_TICKET_CONFIG_BY_PIPELINE_ID, {
-    variables: pipelineId ? { pipelineId } : undefined,
+  const effectivePipelineId = options?.variables?.pipelineId ?? pipelineId;
+  const { data, loading, error } = useQuery(GET_TICKET_CONFIG_BY_PIPELINE_ID, {
     ...options,
-    skip: !pipelineId,
+    variables: effectivePipelineId
+      ? { pipelineId: effectivePipelineId }
+      : undefined,
+    skip: options?.skip || !effectivePipelineId,
   });
   return {
     ticketConfig: data?.ticketConfig ?? undefined,
     loading,
+    error,
   };
 };

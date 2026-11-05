@@ -3,6 +3,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -10,6 +11,8 @@ import {
   type SetStateAction,
 } from 'react';
 import { useConfirm } from 'erxes-ui';
+import { useSetAtom } from 'jotai';
+import { formEditingFieldDirtyAtom } from '../states/formSetupStates';
 import { useTranslation } from 'react-i18next';
 import { FORM_CONTENT_SCHEMA } from '../constants/formSchema';
 import { z } from 'zod';
@@ -104,6 +107,8 @@ export function FormDndProvider({
   const [editingFieldId, setEditingFieldId] = useState<UniqueIdentifier | null>(
     null,
   );
+  const setFieldDirty = useSetAtom(formEditingFieldDirtyAtom);
+  useEffect(() => () => setFieldDirty(false), [setFieldDirty]);
   const dirtyFieldId = useRef<UniqueIdentifier | null>(null);
   const { confirm } = useConfirm();
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
@@ -112,8 +117,9 @@ export function FormDndProvider({
     (fieldId: UniqueIdentifier, dirty: boolean) => {
       if (dirty) dirtyFieldId.current = fieldId;
       else if (dirtyFieldId.current === fieldId) dirtyFieldId.current = null;
+      setFieldDirty(dirtyFieldId.current !== null);
     },
-    [],
+    [setFieldDirty],
   );
 
   const requestEditingFieldId = useCallback<
@@ -130,11 +136,7 @@ export function FormDndProvider({
           current === editingFieldId ? nextId : current,
         );
 
-      if (
-        nextId !== null &&
-        editingFieldId !== null &&
-        dirtyFieldId.current === editingFieldId
-      ) {
+      if (editingFieldId !== null && dirtyFieldId.current === editingFieldId) {
         confirm({
           message: t('leave-unsaved-title'),
           options: {

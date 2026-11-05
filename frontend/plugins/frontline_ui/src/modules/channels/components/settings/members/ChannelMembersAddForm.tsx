@@ -16,13 +16,20 @@ export const ChannelMembersAddForm = ({ channelId }: { channelId: string }) => {
   const { close } = useSidePanel();
   const values: TChannelMemberForm = { memberIds: [] };
   const form = useChannelMembersForm({ defaultValues: values });
-  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
-    usePanelFormDraft({
-      form,
-      recordKey: channelId,
-      values,
-      draftsState: channelMembersPanelDraftsState,
-    });
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: channelId,
+    values,
+    draftsState: channelMembersPanelDraftsState,
+  });
   const cancel = () => {
     clearDraft();
     close();
@@ -32,15 +39,21 @@ export const ChannelMembersAddForm = ({ channelId }: { channelId: string }) => {
   const onSubmit = (values: TChannelMemberForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
-    const submittedValues = structuredClone(form.getValues());
+    const completeDraft = captureUpdate();
     return channelAddMembers({
       variables: { id: channelId, memberIds: values.memberIds ?? [] },
       onCompleted: () => {
         toast({ title: t('success', 'Success!') });
         endSave(saveId);
-        if (markSaved(values, submittedValues) && isActive()) close();
+        completeDraft((latest) => ({
+          memberIds:
+            latest.memberIds?.filter((id) => !values.memberIds?.includes(id)) ??
+            [],
+        }));
+        if (markSaved({ memberIds: [] }) && isActive()) close();
       },
       onError: (error) => {
+        completeDraft((latest) => latest);
         endSave(saveId);
         toast({
           title: t('error', 'Error'),
@@ -57,7 +70,11 @@ export const ChannelMembersAddForm = ({ channelId }: { channelId: string }) => {
         onSubmit={form.handleSubmit(onSubmit)}
       >
         <div className="flex-1 min-h-0 overflow-y-auto p-3">
-          <MemberForm form={form} channelId={channelId} />
+          <MemberForm
+            form={form}
+            channelId={channelId}
+            disabled={loading || saving}
+          />
         </div>
         <SettingsPanelFooter
           onCancel={cancel}

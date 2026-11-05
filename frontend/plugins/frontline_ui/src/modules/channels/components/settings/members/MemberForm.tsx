@@ -18,7 +18,9 @@ import { useTranslation } from 'react-i18next';
 export const MemberForm = ({
   form,
   channelId,
+  disabled,
 }: {
+  disabled?: boolean;
   form: UseFormReturn<TChannelMemberForm>;
   channelId: string;
 }) => {
@@ -39,6 +41,7 @@ export const MemberForm = ({
               mode="multiple"
               value={field.value}
               onValueChange={field.onChange}
+              disabled={disabled}
               inForm
             />
             <Form.Message />
@@ -57,7 +60,9 @@ export const SelectChannelMember = ({
   onValueChange,
   exclude,
   inForm,
+  disabled,
 }: {
+  disabled?: boolean;
   channelId: string;
   mode: 'multiple' | 'single';
   value?: string[];
@@ -69,12 +74,14 @@ export const SelectChannelMember = ({
   return (
     <SelectMember.Provider
       value={value}
-      onValueChange={(value) => onValueChange?.(value as string[] | string)}
+      onValueChange={(value) => {
+        if (!disabled) onValueChange?.(value as string[] | string);
+      }}
       mode={mode}
     >
       <Popover>
         <Control>
-          <Combobox.Trigger>
+          <Combobox.Trigger disabled={disabled}>
             <SelectMember.Value />
           </Combobox.Trigger>
         </Control>

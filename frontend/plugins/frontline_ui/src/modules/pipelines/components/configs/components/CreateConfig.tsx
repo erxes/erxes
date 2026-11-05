@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
-import { Form, Sheet, toast } from 'erxes-ui';
+import { Form, Sheet, isDeeplyEqual, toast, useConfirm } from 'erxes-ui';
+import { useApolloClient } from '@apollo/client';
+import { GET_TICKET_CONFIG_BY_PIPELINE_ID } from '../graphql/queries/getTicketConfigBetPipelineId';
 import { usePipelineConfigForm } from '../hooks/usePipelineConfigForm';
 import { useSaveTicketsConfig } from '../hooks/useSaveTicketsConfig';
 import { type SubmitHandler } from 'react-hook-form';
@@ -24,6 +26,9 @@ export const TicketConfigEditor = ({
   onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
+  const client = useApolloClient();
+  const { confirm } = useConfirm();
+  const { openRecord } = useSidePanel();
   const { methods } = usePipelineConfigForm();
   const { id: channelId, pipelineId } = useSettingsParams();
   const values: TPipelineConfig = config
@@ -35,7 +40,15 @@ export const TicketConfigEditor = ({
         selectedStatusId: '',
         propertyFields: [],
       };
-  const { clearDraft, markSaved, isActive } = usePanelFormDraft({
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
     form: methods,
     recordKey: config?.id ?? `new~${channelId ?? ''}~${pipelineId ?? ''}`,
     values,
@@ -49,29 +62,97 @@ export const TicketConfigEditor = ({
   };
   const { saveTicketsConfig, loading } = useSaveTicketsConfig();
   /** Saves the configuration and closes the active draft if no newer edits exist. */
-  const onSubmit: SubmitHandler<TPipelineConfig> = (data) => {
+  const onSubmit: SubmitHandler<TPipelineConfig> = async (data) => {
+    const saveId = beginSave();
+    if (saveId === undefined) return;
     const submittedValues = structuredClone(methods.getValues());
-    saveTicketsConfig({
-      variables: { input: data },
-      onCompleted: () => {
-        toast({
-          title: t('success', 'Success!'),
-          description: t(
-            'tickets-config-saved-successfully',
-            'Tickets config saved successfully',
-          ),
-          variant: 'success',
+    const defaults = structuredClone(methods.formState.defaultValues);
+    const completeDraft = !config ? captureUpdate() : undefined;
+    const onError = (error: unknown) =>
+      toast({
+        title: t('error', 'Error'),
+        description: error instanceof Error ? error.message : String(error),
+        variant: 'destructive',
+      });
+    const persist = async () => {
+      const requestId = beginSave();
+      if (requestId === undefined) return;
+      try {
+        await saveTicketsConfig({
+          variables: { input: data },
+          onCompleted: () => {
+            toast({
+              title: t('success', 'Success!'),
+              description: t(
+                'tickets-config-saved-successfully',
+                'Tickets config saved successfully',
+              ),
+              variant: 'success',
+            });
+            if (config) {
+              if (markSaved(data, submittedValues) && isActive()) onClose();
+            } else {
+              completeDraft?.(() => values);
+              markSaved(values);
+              if (isActive()) onClose();
+            }
+          },
+          onError: (error) => {
+            completeDraft?.((latest) => latest);
+            onError(error);
+          },
         });
-        if (!markSaved(data, submittedValues) || !isActive()) return;
-        onClose();
-      },
-      onError: (error) =>
-        toast({
-          title: t('error', 'Error'),
-          description: error.message,
-          variant: 'destructive',
-        }),
-    });
+      } catch (error) {
+        completeDraft?.((latest) => latest);
+        onError(error);
+      } finally {
+        endSave(requestId);
+      }
+    };
+    try {
+      const { data: latest } = await client.query({
+        query: GET_TICKET_CONFIG_BY_PIPELINE_ID,
+        variables: { pipelineId: data.pipelineId },
+        fetchPolicy: 'no-cache',
+      });
+      const current = latest?.ticketConfig;
+      if (!config && current) {
+        completeDraft?.((latest) => latest);
+        clearDraft();
+        if (isActive())
+          openRecord(
+            { contentType: TICKET_CONFIG_CONTENT_TYPE, contentId: current.id },
+            { replace: true },
+          );
+        return;
+      }
+      if (config && (!current || current.id !== config.id)) {
+        throw new Error(t('not-found', { keyPrefix: '' }));
+      }
+      endSave(saveId);
+      if (
+        current &&
+        !isDeeplyEqual(toPipelineConfigFormValues(current), defaults, {
+          strict: true,
+        })
+      ) {
+        confirm({
+          message: t(
+            'configuration-changed-confirm',
+            'This configuration has changed since you started editing. Replace the latest configuration with your draft?',
+          ),
+        }).then(() => {
+          if (isActive()) persist();
+        });
+        return;
+      }
+      await persist();
+    } catch (error) {
+      completeDraft?.((latest) => latest);
+      onError(error);
+    } finally {
+      endSave(saveId);
+    }
   };
   useEffect(() => {
     methods.setFocus('name');
@@ -89,7 +170,7 @@ export const TicketConfigEditor = ({
           onCancel={onCancel}
           cancelLabel={t('cancel', 'Cancel')}
           submitLabel={config ? t('save', 'Save') : t('add', 'Add')}
-          loading={loading}
+          loading={loading || saving}
         />
       </form>
     </Form>

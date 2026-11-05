@@ -33,33 +33,42 @@ export const ChannelCreateForm = () => {
     scope: 'team',
   };
   const form = useChannelsForm({ defaultValues: values });
-  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
-    usePanelFormDraft({
-      form,
-      recordKey: 'new',
-      values,
-      draftsState: channelPanelDraftsState,
-      isNew: true,
-    });
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: 'new',
+    values,
+    draftsState: channelPanelDraftsState,
+    isNew: true,
+  });
   const cancel = () => {
     clearDraft();
     close();
   };
   const { addChannel, loading } = useChannelAdd();
   /** Saves the channel and navigates only while this create panel is active. */
-  const onSubmit = (values: TChannelForm) => {
+  const onSubmit = (data: TChannelForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
-    const submittedValues = structuredClone(form.getValues());
+    const completeDraft = captureUpdate();
     return addChannel({
       // No scope is sent: this form only creates shared channels and the API
       // defaults to `team`. A personal channel is provisioned on demand when
       // its settings page is opened or a personal mailbox is connected.
-      variables: { ...values },
+      variables: { ...data },
       onCompleted: ({ channelAdd }) => {
         toast({ title: t('success', 'Success!') });
         endSave(saveId);
-        if (!markSaved(values, submittedValues) || !isActive()) return;
+        completeDraft(() => values);
+        markSaved(values);
+        if (!isActive()) return;
         const currentPanel = panelRef.current;
         if (
           currentPanel?.record?.contentType !== CHANNEL_CONTENT_TYPE ||
@@ -71,6 +80,7 @@ export const ChannelCreateForm = () => {
           navigate(`/frontline/settings/channels/${channelAdd._id}`);
       },
       onError: (error) => {
+        completeDraft((latest) => latest);
         endSave(saveId);
         toast({
           title: t('error', 'Error'),

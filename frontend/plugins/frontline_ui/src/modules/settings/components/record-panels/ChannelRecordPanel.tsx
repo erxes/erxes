@@ -46,12 +46,13 @@ const ChannelPanelTitle = ({
 };
 
 /** Shows the empty state for an unavailable channel record. */
-const ChannelPanelUnavailable = () => {
+const ChannelPanelUnavailable = ({ error }: { error?: Error }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   return (
     <Empty>
       <Empty.Header>
         <Empty.Title>{t('not-found', 'Not found')}</Empty.Title>
+        {error && <Empty.Description>{error.message}</Empty.Description>}
       </Empty.Header>
     </Empty>
   );
@@ -60,7 +61,7 @@ const ChannelPanelUnavailable = () => {
 /** Loads a channel and renders its requested settings panel view. */
 export const ChannelRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
   const isNew = contentId === 'new';
-  const { channel, loading } = useGetChannel({
+  const { channel, loading, error } = useGetChannel({
     variables: { id: contentId },
     skip: isNew,
   });
@@ -75,7 +76,7 @@ export const ChannelRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
     return loading ? (
       <Spinner containerClassName="py-12" />
     ) : (
-      <ChannelPanelUnavailable />
+      <ChannelPanelUnavailable error={error} />
     );
   if (view === 'activity')
     return <ActivityLogs targetId={contentId} showInternalNotes={false} />;

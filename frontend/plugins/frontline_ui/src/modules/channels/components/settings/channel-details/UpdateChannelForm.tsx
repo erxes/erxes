@@ -29,27 +29,34 @@ export const UpdateChannelForm = ({
   const form = useChannelsForm({
     defaultValues: values,
   });
-  const { clearDraft, markSaved, isActive } = usePanelFormDraft({
-    form,
-    recordKey: channel._id,
-    values,
-    draftsState: channelPanelDraftsState,
-  });
+  const { dirtyFields } = form.formState;
+  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
+    usePanelFormDraft({
+      form,
+      recordKey: channel._id,
+      values,
+      draftsState: channelPanelDraftsState,
+    });
 
   const submitHandler: SubmitHandler<TChannelForm> = React.useCallback(
     async (data) => {
-      if (loading) return;
+      const saveId = beginSave();
+      if (saveId === undefined) return;
       const submittedValues = structuredClone(form.getValues());
       await updateChannel({
         variables: {
           id: channel._id,
-          ...data,
+          ...(dirtyFields.name && { name: data.name }),
+          ...(dirtyFields.description && { description: data.description }),
+          ...(dirtyFields.icon && { icon: data.icon }),
         },
         onCompleted: () => {
+          endSave(saveId);
           toast({ title: t('success', 'Success!') });
           if (markSaved(data, submittedValues) && isActive()) onCompleted?.();
         },
         onError: (error) => {
+          endSave(saveId);
           toast({
             title: t('error', 'Error'),
             description: error.message,
@@ -60,7 +67,9 @@ export const UpdateChannelForm = ({
     },
     [
       updateChannel,
-      loading,
+      beginSave,
+      endSave,
+      dirtyFields,
       channel._id,
       onCompleted,
       form,
@@ -134,13 +143,13 @@ export const UpdateChannelForm = ({
             }}
             cancelLabel={t('cancel', 'Cancel')}
             submitLabel={t('update', 'Update')}
-            loading={loading || form.formState.isSubmitting}
+            loading={loading || saving || form.formState.isSubmitting}
           />
         ) : (
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={loading || form.formState.isSubmitting}
+              disabled={loading || saving || form.formState.isSubmitting}
             >
               {t('update', 'Update')}
             </Button>

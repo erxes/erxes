@@ -23,7 +23,7 @@ export const useRemoveResponse = () => {
         ),
       });
     },
-    refetchQueries: [{ query: GET_RESPONSES }],
+    refetchQueries: [GET_RESPONSES],
   });
   return { removeResponse, loading, error };
 };

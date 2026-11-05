@@ -51,14 +51,21 @@ export const CreatePipelinePanelForm = ({
     defaultValues: values,
   });
 
-  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
-    usePanelFormDraft({
-      form,
-      recordKey: getPipelineDraftId(channelId),
-      values,
-      draftsState: pipelineCreatePanelDraftsState,
-      isNew: true,
-    });
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: getPipelineDraftId(channelId),
+    values,
+    draftsState: pipelineCreatePanelDraftsState,
+    isNew: true,
+  });
   const cancel = () => {
     clearDraft();
     close();
@@ -68,13 +75,15 @@ export const CreatePipelinePanelForm = ({
   const submit = (data: TCreatePipelineForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
-    const submittedValues = structuredClone(form.getValues());
+    const completeDraft = captureUpdate();
     return addPipeline({
       variables: { ...data, channelId },
       onCompleted: ({ createPipeline }) => {
         endSave(saveId);
         toast({ title: t('success', 'Success!') });
-        if (!markSaved(data, submittedValues) || !isActive()) return;
+        completeDraft(() => values);
+        markSaved(values);
+        if (!isActive()) return;
         if (!createPipeline) {
           close();
           return;
@@ -85,6 +94,7 @@ export const CreatePipelinePanelForm = ({
         );
       },
       onError: (error) => {
+        completeDraft((latest) => latest);
         endSave(saveId);
         toast({
           title: t('error', 'Error'),

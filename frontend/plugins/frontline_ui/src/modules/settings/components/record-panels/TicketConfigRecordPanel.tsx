@@ -9,7 +9,8 @@ import {
 import { SettingsPanelForm } from '@/settings/components/SettingsPanelForm';
 import { Button, Empty, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useGetTicketConfigByPipelineId } from '@/pipelines/components/configs/hooks/useGetTicketConfigByPipelineId';
 import {
   ActivityLogs,
   type IRecordPanelProps,
@@ -94,7 +95,7 @@ export const TicketConfigRecordPanel = ({
     TICKET_CONFIG_CONTENT_TYPE,
   );
   const { id, pipelineId: routePipelineId } = useSettingsParams();
-  const { back, canGoBack, close } = useSidePanel();
+  const { back, canGoBack, close, openRecord } = useSidePanel();
   /** Returns to the previous stacked record or closes the panel. */
   const onClose = () => (canGoBack ? back() : close());
   const { channelId, pipelineId } = getTicketConfigPanelScope(
@@ -103,6 +104,23 @@ export const TicketConfigRecordPanel = ({
     draft,
     { channelId: id, pipelineId: routePipelineId },
   );
+  const {
+    ticketConfig: existingConfig,
+    loading: checkingConfig,
+    error: configError,
+  } = useGetTicketConfigByPipelineId({
+    variables: { pipelineId: pipelineId ?? '' },
+    skip: !isNew,
+    fetchPolicy: 'network-only',
+  });
+  useEffect(() => {
+    if (!isNew || !existingConfig || view === 'title' || view === 'actions')
+      return;
+    openRecord(
+      { contentType: TICKET_CONFIG_CONTENT_TYPE, contentId: existingConfig.id },
+      { replace: true },
+    );
+  }, [existingConfig, isNew, openRecord, view]);
   const panelScope = useMemo(
     () => ({ channelId, pipelineId }),
     [channelId, pipelineId],
@@ -112,6 +130,10 @@ export const TicketConfigRecordPanel = ({
       config?.name || t('messenger-configuration', 'Messenger Configuration')
     );
   if (view === 'actions') return null;
+  if (isNew && (checkingConfig || existingConfig))
+    return <Spinner containerClassName="py-12" />;
+  if (isNew && configError)
+    return <TicketConfigUnavailable error={configError} />;
   if (!isNew && loading && !config)
     return <Spinner containerClassName="py-12" />;
   if ((!isNew && !config) || !channelId || !pipelineId)

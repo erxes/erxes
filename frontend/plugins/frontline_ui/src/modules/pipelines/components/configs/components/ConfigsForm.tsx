@@ -1,6 +1,7 @@
 import { Combobox, Form, Input, PopoverScoped, Separator } from 'erxes-ui';
 
 import { TPipelineConfig } from '@/pipelines/types';
+import { TICKET_FORM_FIELDS } from '../constant';
 import { compactList } from '@/shared/utils/cursorList';
 import type { ITicketConfigDetail } from '../hooks/useGetTicketConfigDetail';
 import { UseFormReturn } from 'react-hook-form';
@@ -24,10 +25,33 @@ export const toPipelineConfigFormValues = (
   pipelineId: config.pipelineId,
   selectedStatusId: config.selectedStatusId,
   parentId: config.parentId ?? undefined,
-  formFields: config.formFields,
+  formFields: Object.fromEntries(
+    TICKET_FORM_FIELDS.map(({ key }) => {
+      const field = config.formFields?.[key];
+      return [
+        key,
+        {
+          isShow: field?.isShow ?? false,
+          label: field?.label ?? undefined,
+          order: field?.order ?? undefined,
+          placeholder: field?.placeholder ?? undefined,
+        },
+      ];
+    }),
+  ),
   propertyFields: compactList(config.propertyFields).map((field) => ({
-    ...field,
-    options: compactList(field.options),
+    fieldId: field.fieldId,
+    groupId: field.groupId,
+    label: field.label,
+    placeholder: field.placeholder,
+    groupOrder: field.groupOrder,
+    order: field.order,
+    isRequired: field.isRequired,
+    type: field.type,
+    options: compactList(field.options).map(({ label, value }) => ({
+      label,
+      value,
+    })),
   })),
 });
 

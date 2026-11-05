@@ -29,6 +29,10 @@ export const useUpdateTicketStatus = () => {
         options?.onCompleted?.(data);
       },
       onError: (error) => {
+        if (options.onError) {
+          options.onError(error);
+          return;
+        }
         toast({
           title: t('error', 'Error'),
           description: t('update-failed', 'Update failed: {{message}}', {
@@ -36,7 +40,6 @@ export const useUpdateTicketStatus = () => {
           }),
           variant: 'destructive',
         });
-        options.onError?.(error);
       },
       refetchQueries: [
         GET_TICKET_STATUS_BY_TYPE,

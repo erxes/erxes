@@ -1,4 +1,6 @@
 import { useEffect } from 'react';
+import { useApolloClient } from '@apollo/client';
+import { GET_RESPONSE } from '@/responseTemplate/graphql/queries/getResponse';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { CreateResponseForm } from './CreateResponseForm';
 import {
@@ -45,6 +47,7 @@ export const ResponseTemplateEditor = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.response-template',
   });
+  const client = useApolloClient();
   const { openRecord } = useSidePanel();
   const isEditing = Boolean(response);
   const {
@@ -76,14 +79,22 @@ export const ResponseTemplateEditor = ({
     ),
     defaultValues: values,
   });
-  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
-    usePanelFormDraft({
-      form,
-      recordKey: response?._id ?? `new~${channelId}`,
-      values,
-      draftsState: responsePanelDraftsState,
-      isNew: !response,
-    });
+  const { dirtyFields } = form.formState;
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: response?._id ?? `new~${channelId}`,
+    values,
+    draftsState: responsePanelDraftsState,
+    isNew: !response,
+  });
   /** Discards this draft and closes its editor. */
   const onCancel = () => {
     clearDraft();
@@ -102,13 +113,15 @@ export const ResponseTemplateEditor = ({
   const create = (data: TCreateResponseForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
-    const submittedValues = structuredClone(form.getValues());
+    const completeDraft = captureUpdate();
     return addResponse({
       variables: data,
       onCompleted: (result) => {
         endSave(saveId);
         toast({ title: t('success', 'Success!') });
-        if (!markSaved(data, submittedValues) || !isActive()) return;
+        completeDraft(() => values);
+        markSaved(values);
+        if (!isActive()) return;
         const createdId = result.responseTemplatesAdd?._id;
         if (createdId)
           openRecord(
@@ -121,13 +134,14 @@ export const ResponseTemplateEditor = ({
         else onClose();
       },
       onError: (error) => {
+        completeDraft((latest) => latest);
         endSave(saveId);
         onError(error);
       },
     });
   };
   /** Saves changes to the current response template. */
-  const update = (data: TUpdateResponseForm) => {
+  const update = async (data: TUpdateResponseForm) => {
     const saveId = beginSave();
     if (saveId === undefined) return undefined;
     if (!response) {
@@ -135,18 +149,36 @@ export const ResponseTemplateEditor = ({
       return undefined;
     }
     const submittedValues = structuredClone(form.getValues());
-    return updateResponse({
-      variables: { ...data, id: response._id },
-      onCompleted: () => {
-        endSave(saveId);
-        toast({ title: t('success', 'Success!') });
-        markSaved(data, submittedValues);
-      },
-      onError: (error) => {
-        endSave(saveId);
-        onError(error);
-      },
-    });
+    try {
+      const { data: latest } = await client.query({
+        query: GET_RESPONSE,
+        variables: { id: response._id },
+        fetchPolicy: 'no-cache',
+      });
+      if (!latest?.responseTemplate)
+        throw new Error(t('not-found', { keyPrefix: '' }));
+      return await updateResponse({
+        variables: {
+          id: response._id,
+          name: dirtyFields.name
+            ? data.name
+            : latest.responseTemplate.name ?? '',
+          ...(dirtyFields.content && { content: data.content }),
+        },
+        onCompleted: () => {
+          endSave(saveId);
+          toast({ title: t('success', 'Success!') });
+          markSaved(data, submittedValues);
+        },
+        onError: (error) => {
+          endSave(saveId);
+          onError(error);
+        },
+      });
+    } catch (error) {
+      endSave(saveId);
+      onError(error instanceof Error ? error : new Error(String(error)));
+    }
   };
   /** Dispatches validated values to the create or update mutation. */
   const onSubmit = (data: TResponseForm) => {

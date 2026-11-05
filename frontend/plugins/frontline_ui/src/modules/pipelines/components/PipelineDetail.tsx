@@ -30,6 +30,7 @@ export const PipelineDetail = () => {
     resolver: zodResolver(UPDATE_PIPELINE_FORM_SCHEMA),
     defaultValues: values,
   });
+  const { dirtyFields } = form.formState;
   const { markSaved, beginSave, endSave, saving } = usePanelFormDraft({
     form,
     recordKey: pipelineId || '',
@@ -45,7 +46,14 @@ export const PipelineDetail = () => {
           if (saveId === undefined) return undefined;
           const submittedValues = structuredClone(form.getValues());
           return updatePipeline({
-            variables: data,
+            variables: {
+              _id: data._id,
+              ...Object.fromEntries(
+                Object.entries(data).filter(([key]) =>
+                  Object.keys(dirtyFields).includes(key),
+                ),
+              ),
+            },
             onCompleted: () => {
               endSave(saveId);
               markSaved(data, submittedValues);
