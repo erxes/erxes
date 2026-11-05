@@ -106,11 +106,17 @@ export type ProfilePatch = Partial<FormType>;
 
 export const normalizeProfileLinks = (
   links: FormType['links'] | null | undefined,
-): FormType['links'] => ({
-  ...links,
-  github:
-    links?.github ?? (typeof links?.gitHub === 'string' ? links.gitHub : ''),
-});
+): FormType['links'] => {
+  const normalized: FormType['links'] = {
+    ...links,
+    github:
+      links?.github ?? (typeof links?.gitHub === 'string' ? links.gitHub : ''),
+  };
+  for (const key of Object.keys(normalized)) {
+    normalized[key] ??= '';
+  }
+  return normalized;
+};
 
 const pickDirtyFields = <T extends object>(
   values: T,

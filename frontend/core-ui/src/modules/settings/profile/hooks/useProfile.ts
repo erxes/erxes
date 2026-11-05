@@ -46,11 +46,12 @@ const useProfile = (
   const profileUpdate = ({
     variables,
     onStart,
+    onSettled,
     ...options
   }: MutationFunctionOptions<
     { usersEditProfilePatch: Profile },
     ProfilePatch
-  > & { onStart?: () => void }) => {
+  > & { onStart?: () => void; onSettled?: () => void }) => {
     if (savingRef.current) return Promise.resolve();
     const confirmOptions = { confirmationValue: 'update' };
 
@@ -90,8 +91,16 @@ const useProfile = (
               });
             },
           });
+        } catch (error) {
+          toast({
+            title: t('error-updating-profile'),
+            description:
+              error instanceof Error ? error.message : t('unexpected-error'),
+            variant: 'destructive',
+          });
         } finally {
           savingRef.current = false;
+          onSettled?.();
         }
       })
       .catch(() => undefined);

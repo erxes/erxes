@@ -60,9 +60,8 @@ export const ProfileForm = () => {
             ),
             { keepDefaultValues: true },
           );
-          saveInProgressRef.current = false;
         },
-        onError: () => {
+        onSettled: () => {
           saveInProgressRef.current = false;
         },
       });
