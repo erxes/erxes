@@ -31,9 +31,9 @@ import { useSetAtom } from 'jotai';
 import { authorizedFacebookAccountAtom } from '@/integrations/facebook/states/facebookStates';
 
 const FacebookIntegrationBotSection = lazy(() =>
-  import(
-    '~/widgets/automations/modules/facebook/components/bots/components/FacebookIntegrationBotSection'
-  ).then((module) => ({ default: module.FacebookIntegrationBotSection })),
+  import('~/widgets/automations/modules/facebook/components/bots/components/FacebookIntegrationBotSection').then(
+    (module) => ({ default: module.FacebookIntegrationBotSection }),
+  ),
 );
 
 const useFormDraft =
