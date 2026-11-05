@@ -19,6 +19,7 @@ export interface IInvoice {
   paymentIds: string[];
   callback?: string;
   warningText?: string;
+  notifyPending?: boolean;
   data?: any;
   transactions?: ITransaction[];
 }
