@@ -104,6 +104,14 @@ export const profileValidationSchema = z
 export type FormType = z.infer<typeof profileValidationSchema>;
 export type ProfilePatch = Partial<FormType>;
 
+export const normalizeProfileLinks = (
+  links: FormType['links'] | null | undefined,
+): FormType['links'] => ({
+  ...links,
+  github:
+    links?.github ?? (typeof links?.gitHub === 'string' ? links.gitHub : ''),
+});
+
 const pickDirtyFields = <T extends object>(
   values: T,
   dirtyFields: unknown,
@@ -128,7 +136,7 @@ const pickDirtyFields = <T extends object>(
 };
 
 const hasDirtyPositions = (dirty: unknown): boolean =>
-  Array.isArray(dirty) ? dirty.some((value) => value === true) : dirty === true;
+  Array.isArray(dirty) ? dirty.includes(true) : dirty === true;
 
 export const getProfilePatch = (
   values: FormType,

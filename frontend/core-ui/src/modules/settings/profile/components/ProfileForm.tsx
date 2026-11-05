@@ -13,6 +13,7 @@ import {
   FormType,
   getProfilePatch,
   getProfileValuesAfterSave,
+  normalizeProfileLinks,
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
 import { Button, Form, Spinner, Upload, toast } from 'erxes-ui';
@@ -49,7 +50,7 @@ export const ProfileForm = () => {
             positionIds: saved.positionIds ?? [],
             email: saved.email,
             details: saved.details,
-            links: saved.links ?? {},
+            links: normalizeProfileLinks(saved.links),
           });
           form.reset(
             getProfileValuesAfterSave(
@@ -82,7 +83,7 @@ export const ProfileForm = () => {
           positionIds: profile.positionIds ?? [],
           email: profile.email,
           details: profile.details,
-          links: profile.links ?? {},
+          links: normalizeProfileLinks(profile.links),
         },
         { keepDirtyValues: true },
       );

@@ -58,43 +58,41 @@ const useProfile = (
       message: t('confirm-update-profile'),
       options: confirmOptions,
     })
-      .then(() => {
+      .then(async () => {
         if (savingRef.current) return;
         savingRef.current = true;
-        return Promise.resolve()
-          .then(() => {
-            onStart?.();
-            return updateProfile({
-              ...options,
-              variables,
-              onCompleted: ({ usersEditProfilePatch }) => {
-                setCurrentUser(
-                  (prev) =>
-                    prev && {
-                      ...prev,
-                      ...usersEditProfilePatch,
-                    },
-                );
-                options.onCompleted?.({ usersEditProfilePatch });
+        try {
+          onStart?.();
+          await updateProfile({
+            ...options,
+            variables,
+            onCompleted: ({ usersEditProfilePatch }) => {
+              setCurrentUser(
+                (prev) =>
+                  prev && {
+                    ...prev,
+                    ...usersEditProfilePatch,
+                  },
+              );
+              options.onCompleted?.({ usersEditProfilePatch });
 
-                toast({
-                  title: t('profile-updated-successfully'),
-                  variant: 'success',
-                });
-              },
-              onError: (error) => {
-                options.onError?.(error);
-                toast({
-                  title: t('error-updating-profile'),
-                  description: error.message || t('unexpected-error'),
-                  variant: 'destructive',
-                });
-              },
-            });
-          })
-          .finally(() => {
-            savingRef.current = false;
+              toast({
+                title: t('profile-updated-successfully'),
+                variant: 'success',
+              });
+            },
+            onError: (error) => {
+              options.onError?.(error);
+              toast({
+                title: t('error-updating-profile'),
+                description: error.message || t('unexpected-error'),
+                variant: 'destructive',
+              });
+            },
           });
+        } finally {
+          savingRef.current = false;
+        }
       })
       .catch(() => undefined);
   };
