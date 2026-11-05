@@ -24,7 +24,8 @@ export interface IAdjustInvDetailParamsId extends IAdjustInvDetailParams {
   adjustId: string;
 }
 
-export interface IAdjustInvDetail extends IAdjustInvDetailParamsId, ICommonAdjInvDetail {
+export interface IAdjustInvDetail
+  extends IAdjustInvDetailParamsId, ICommonAdjInvDetail {
   error?: string;
   warning?: string;
   infoPerDate?: ICommonAdjInvDetailInfo[];
@@ -51,6 +52,12 @@ export interface IAdjustInventory extends ICommonAdjusting {
   updatedAt?: Date;
   modifiedBy?: string;
 }
+
+export type TAdjustInventoryModifier = Partial<
+  Omit<IAdjustInventory, 'successDate'>
+> & {
+  successDate?: Date | null;
+};
 
 export interface IAdjustInventoryDocument extends IAdjustInventory, Document {
   _id: string;
