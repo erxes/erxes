@@ -156,17 +156,29 @@ const PanelDescriptionField = <T extends FieldValues>({
   );
 };
 
+const buildCodeFiller =
+  (
+    isNew: boolean,
+    getCode: () => string | undefined,
+    setCode: (code: string) => void,
+  ) =>
+  (label: string) => {
+    if (isNew && !getCode()) {
+      setCode(generateCode(label));
+    }
+  };
+
 export const TourTypeForm = ({
   defaultValues,
   ...props
 }: ICustomFieldFormProps<ITourTypeFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<ITourTypeFormValues>({ defaultValues });
-  const setGeneratedCode = (label: string) => {
-    if (props.isNew && !form.getValues('code')) {
-      form.setValue('code', generateCode(label));
-    }
-  };
+  const setGeneratedCode = buildCodeFiller(
+    props.isNew,
+    () => form.getValues('code'),
+    (code) => form.setValue('code', code),
+  );
 
   return (
     <CustomFieldFormShell form={form} {...props}>
@@ -214,11 +226,11 @@ export const FieldGroupForm = ({
 }) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldGroupFormValues>({ defaultValues });
-  const setGeneratedCode = (label: string) => {
-    if (props.isNew && !form.getValues('code')) {
-      form.setValue('code', generateCode(label));
-    }
-  };
+  const setGeneratedCode = buildCodeFiller(
+    props.isNew,
+    () => form.getValues('code'),
+    (code) => form.setValue('code', code),
+  );
   const typeSelectOptions = useMemo(
     () =>
       typeOptions.map((type) => ({
@@ -273,11 +285,11 @@ export const FieldForm = ({
 }: ICustomFieldFormProps<IFieldFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldFormValues>({ defaultValues });
-  const setGeneratedCode = (label: string) => {
-    if (props.isNew && !form.getValues('code')) {
-      form.setValue('code', generateCode(label));
-    }
-  };
+  const setGeneratedCode = buildCodeFiller(
+    props.isNew,
+    () => form.getValues('code'),
+    (code) => form.setValue('code', code),
+  );
   const type = form.watch('type');
   const needsOptions = ['select', 'multiSelect', 'radio'].includes(type);
 

@@ -124,7 +124,7 @@ export const TourGroupList = ({
   );
 };
 
-function EmptyState({ branchId }: { branchId: string }) {
+function EmptyState({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center w-full h-full gap-2 p-6 text-center">

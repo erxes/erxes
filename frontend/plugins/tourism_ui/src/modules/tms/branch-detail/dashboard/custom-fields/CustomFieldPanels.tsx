@@ -247,7 +247,9 @@ const CustomFieldPanelNew = () => {
           onCancel={cancelDraft}
           onSubmit={(values) => {
             const currentFields = group.fields || [];
-            const previousKeys = currentFields.map(getTourCustomFieldKey);
+            const previousKeys = new Set(
+              currentFields.map(getTourCustomFieldKey),
+            );
 
             saveGroupFields(
               group,
@@ -260,8 +262,7 @@ const CustomFieldPanelNew = () => {
                     (item) => item._id === group._id,
                   );
                 const createdField = (latestGroup?.fields || []).find(
-                  (field) =>
-                    !previousKeys.includes(getTourCustomFieldKey(field)),
+                  (field) => !previousKeys.has(getTourCustomFieldKey(field)),
                 );
 
                 if (createdField) {

@@ -133,6 +133,10 @@ const TourPanelNew = () => {
       ? startDates
       : startDates.slice(0, 1);
     const isMulti = values.isGroupTour && selectedDates.length > 1;
+    const getRefNumber = (index: number) =>
+      isMulti
+        ? `${rest.refNumber}-${String(index + 1).padStart(2, '0')}`
+        : rest.refNumber;
 
     const variablesList = values.isFlexibleDate
       ? [
@@ -147,9 +151,7 @@ const TourPanelNew = () => {
       : (selectedDates.length ? selectedDates : [undefined]).map(
           (date, index) => ({
             ...base,
-            refNumber: isMulti
-              ? `${rest.refNumber}-${String(index + 1).padStart(2, '0')}`
-              : rest.refNumber,
+            refNumber: getRefNumber(index),
             dateType: 'fixed' as const,
             startDate: date,
             endDate: date

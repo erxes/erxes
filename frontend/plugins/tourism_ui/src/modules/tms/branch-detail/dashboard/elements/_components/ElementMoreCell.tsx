@@ -38,22 +38,21 @@ export const ElementMoreColumn = ({
     confirm({
       message: t('confirm-delete-element'),
       options: { confirmationValue: 'delete' },
-    }).then(() => {
-      removeElements([element._id])
-        .then(() => {
-          toast({
-            title: t('success'),
-            variant: 'success',
-            description: t('element-deleted-successfully'),
-          });
-        })
-        .catch((e: unknown) => {
-          toast({
-            title: t('error'),
-            description: e instanceof Error ? e.message : '',
-            variant: 'destructive',
-          });
+    }).then(async () => {
+      try {
+        await removeElements([element._id]);
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: t('element-deleted-successfully'),
         });
+      } catch (e) {
+        toast({
+          title: t('error'),
+          description: e instanceof Error ? e.message : '',
+          variant: 'destructive',
+        });
+      }
     });
   };
 

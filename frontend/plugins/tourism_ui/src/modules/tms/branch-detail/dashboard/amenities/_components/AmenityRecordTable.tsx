@@ -75,7 +75,7 @@ export const AmenityRecordTable = ({
   );
 };
 
-function EmptyStateRow({ branchId }: { branchId: string }) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">

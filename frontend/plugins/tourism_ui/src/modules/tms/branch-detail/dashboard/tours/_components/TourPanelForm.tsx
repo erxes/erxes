@@ -224,9 +224,9 @@ export const useTourPanelForm = ({
     if (!isNew || !translationLanguagesKey) return;
     const languages = translationLanguagesKey.split(',');
     const current = form.getValues('translations') || [];
-    const currentLanguages = current.map((item) => item.language);
+    const currentLanguages = new Set(current.map((item) => item.language));
 
-    if (languages.every((lang) => currentLanguages.includes(lang))) {
+    if (languages.every((lang) => currentLanguages.has(lang))) {
       return;
     }
 
