@@ -137,6 +137,9 @@ const TourPanelNew = () => {
       isMulti
         ? `${rest.refNumber}-${String(index + 1).padStart(2, '0')}`
         : rest.refNumber;
+    const fixedDates: (Date | undefined)[] = selectedDates.length
+      ? selectedDates
+      : [undefined];
 
     const variablesList = values.isFlexibleDate
       ? [
@@ -148,18 +151,14 @@ const TourPanelNew = () => {
             date_status: 'unscheduled' as const,
           },
         ]
-      : (selectedDates.length ? selectedDates : [undefined]).map(
-          (date, index) => ({
-            ...base,
-            refNumber: getRefNumber(index),
-            dateType: 'fixed' as const,
-            startDate: date,
-            endDate: date
-              ? calculateTourEndDate(date, values.duration)
-              : undefined,
-            date_status: getTourDateStatus(date),
-          }),
-        );
+      : fixedDates.map((date, index) => ({
+          ...base,
+          refNumber: getRefNumber(index),
+          dateType: 'fixed' as const,
+          startDate: date,
+          endDate: date && calculateTourEndDate(date, values.duration),
+          date_status: getTourDateStatus(date),
+        }));
 
     try {
       const results = await Promise.all(
