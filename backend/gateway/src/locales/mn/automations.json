@@ -97,6 +97,8 @@
   "untitled-document": "Нэргүй баримт бичиг",
   "insert-link": "Линк",
   "insert-as-link": "Линк болгож оруулах",
+  "copy-variable": "Хувьсагч хуулах",
+  "copy-variable-failed": "Хувьсагчийг хуулж чадсангүй",
   "insert-link-title": "Линк оруулах",
   "insert-link-description": "Хаяг нь хувьсагч ашиглаж болох линк оруулах",
   "insert-link-variable": "Хувьсагч оруулах",
