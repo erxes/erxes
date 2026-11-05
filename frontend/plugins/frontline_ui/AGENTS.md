@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -90,7 +90,7 @@
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
-  new-ticket sheet (`TicketCreateFormHeader`/`Footer`, chips via
+  new-ticket form (`TicketCreateFormHeader`/`Footer`, chips via
   `TicketLayoutChip`) with a **Fields** side panel
   (`TicketLayoutFieldsPanel`). In the panel the checkbox puts a field on this
   pipeline's form; "Turn on" and the Required switch edit the Settings →
@@ -121,7 +121,7 @@
   change as soon as a status moves. A ticket that never moved shows its creation
   moment, because the API defaults `statusChangedDate` to it; a missing value
   shows "Not specified".
-- The new-ticket sheet renders name, channel/pipeline/status and description
+- The new-ticket record panel renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
   (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
   properties via `PropertyFormField`. Property logic hides cells; required
@@ -383,13 +383,10 @@
 
 - Ticket detail actions — Archive/Unarchive, Subscribe/Unsubscribe and Delete —
   live in one `Actions` menu (`ticket-detail/TicketDetailActions.tsx`) in the
-  ticket sheet header; the fields row carries no actions. The notification
-  ticket view has none of its own — its `Open ticket` button opens that sheet.
-  The header's close button sits in a `w-16` strip aligned with the relation
-  side tabs, and drops the strip when `hideRelationWidgetSideTabs` is set.
-  Those side tabs (ui-modules `RelationWidgetSideTabs`) hold only Customers and
-  Companies icons, each opening the side panel's view of the ticket's contacts
-  inside the sheet; no relation widgets are listed beside a ticket.
+  ticket record panel's actions view; the fields row carries no actions. The
+  notification ticket view's `Open ticket` button opens the same record panel.
+  `TicketPanelDetail` shows linked customers and companies through
+  `ContactRecordChip`, opening each contact with stacked navigation.
   While one action is in flight the menu and its items stay disabled.
 - Ticket detail chips render as labelled field groups, as Sales' deal detail
   chips do: a muted label segment, then the value and a chevron, e.g.
@@ -856,7 +853,23 @@ owns the setup form and connection actions.
 
 ### Provides
 
-- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): Tickets (the contact's tickets from `getTickets` filtered by `customerId` / `companyId`, rows opening `TicketDetailSheet`, `+` opening `AddTicketSheet` with `hideTrigger` and `contacts`, saved on the ticket by `createTicket`; `AddTicketForm` evicts cached `getTickets` lists) and Conversations (a customer's own, from `useConversations({ customerId })`; none for companies) sections of a contact's side panel overview. Tickets keep one customer and one company themselves (`customerId` / `companyId` in `FrontlineTicketFields`); the ticket sheet's rail is given them. The create-ticket automation action configures one `companyId`.
+- `./frontline` retains its federation path and loads the named `Frontline`
+  export from `src/modules/FrontlineMain.tsx`.
+
+- `widgets.recordPanels: [{ contentType: 'frontline:ticket' }]` and the `./recordPanel` federation
+  expose (`src/widgets/record-panel/RecordPanel.tsx`) provide `frontline:ticket`
+  title, actions, new, detail, properties and activity views through
+  `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
+  supports only `frontline:ticket`; its properties view remains available.
+  `TicketPanelDetail.tsx` renders ticket fields and attachments.
+- `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with
+  `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`) provide contact
+  overview sections. Ticket rows call `useTicketDetailSheet` with `stack: true`;
+  `+` calls `useCreateTicketRecord` with customer/company defaults and stacked
+  navigation. `createTicket` saves those associations; `AddTicketForm` evicts
+  cached `getTickets` lists. Conversations use `useConversations({ customerId })`
+  for customers and are absent for companies.
+
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
   `frontline/forms/submissions/:formId` and `frontline/forms/preview`, all
@@ -875,7 +888,7 @@ owns the setup form and connection actions.
 - Module Federation exposes declared in `module-federation.config.ts` /
   `src/config.tsx`: `./config`, `./frontline`,
   `./knowledgebase`, `./automationsWidget`, `./notificationWidget`,
-  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`.
+  `./relationWidget`, `./floatingWidget`, `./selectErxesMessenger`, `./recordPanel`.
 - `CONFIG` with `name: 'frontline'`, `path: 'frontline'`, default navigation
   path `frontline/inbox`, relation widgets (`conversation`, `ticket`), the
   `ticketStatus` property input, and the `formSubmission` activity row.
@@ -922,6 +935,11 @@ owns the setup form and connection actions.
   A new ticket card uses this rather than reading the filter atoms itself.
 
 ### Consumes
+
+- Record panels compose the existing public `ui-modules` / `erxes-ui` controls
+  and `IRecordPanelProps`. Plugin-owned `modules/shared/hooks/usePanelFormDraft.ts`
+  supplies form draft restoration, dirty-state ownership and save acknowledgement;
+  this is plugin-local state, not a new platform contract.
 
 - `ui-modules` `AutomationConditionalField` for conditional action values; it
   is a drop-in for `Form.Field` taking the action form, the field names, a label
@@ -1074,6 +1092,22 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 
 ## Data and State
 
+- `usePanelFormDraft` retains form values and pending-save ownership by draft
+  collection and record scope. Save acknowledgements retain only input changed
+  after submission while accepting newer untouched server fields.
+  Save acknowledgement and remounted-form reconciliation share the same strict
+  changed-field merge; neither replaces input with an older submitted snapshot.
+- Async form uploads capture unique completion tokens in their retained record
+  scope. Scalar image replacement and removal invalidate older uploads for that
+  field; attachment additions merge
+  with the latest retained values. Discard, deletion and session cleanup invalidate
+  old callbacks. Upload lifetime bookkeeping never locks Save after a failed upload.
+
+- Ticket create drafts and attachment operation locks live in plugin-owned Jotai
+  state, scoped by signed-in user. They survive component remounts in this
+  session; ticket drafts clear on confirmed discard or successful creation
+  unless newer edits remain.
+
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
   receipt. The existing conversation-change cleanup and user/conversation
@@ -1153,6 +1187,83 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- Successful ticket removals publish confirmed IDs through `ticketRemovedIdsState`.
+  Only the mounted title view reconciles the current panel and returns to its
+  stacked parent; an older action completion must never navigate a newer record.
+- Ticket delete confirmation starts before the mutation action's pending lock,
+  because cancelling the public confirmation leaves its promise unsettled.
+
+- Ticket entry points use the shared record panel; `TicketDetailLink` converts
+  legacy `?ticketId=` links. Board overflow clicks open Detail without a legacy
+  `tab` query parameter; selecting Properties is shared panel navigation.
+- Closing or deleting a stacked ticket returns to its parent with `back()`;
+  only an unstacked ticket closes the panel.
+- A successful ticket deletion evicts every cached `getTickets` list, the deleted
+  `getTicket(_id)` detail and its normalized `Ticket` entity before returning to
+  the parent record. Detail subscriptions clear their result on deletion.
+  Customer and company ticket queries can be
+  inactive while a stacked ticket is open, so refetching active queries alone
+  leaves stale tickets in those contact sections.
+- `useCreateTicketRecord` uses URL channel/pipeline defaults only on `/frontline`
+  and `/frontline/*` routes. Explicit ticket/contact defaults work on every route.
+- Ticket create drafts use the plugin-owned `shared/hooks/usePanelFormDraft`
+  and `ticketFormDraftsState`, keyed by signed-in user and the new-ticket slot.
+  `useTicketCreateSession` keeps the slot generation, accepted defaults and
+  pending request in `ticketCreateSessionsState`. Its generation survives
+  remounts and changes on confirmed discard/replacement or an untouched
+  successful create. Draft removal rebuilds the string-keyed state immutably
+  without dynamic property deletion. Save admission and busy state use that shared request
+  identity. Stale completions cannot acknowledge a newer session; newer edits
+  retain their original create defaults. Only the currently mounted owner
+  receives successful-create navigation.
+  Form values include description JSON, custom properties and contact defaults,
+  so Activity, row navigation and reopening restore unsaved edits. Explicit
+  Cancel or replacing unsaved values requires affirmative `useConfirm` approval.
+  Until approval the accepted draft, including its
+  contact associations, stays active. Dismissal does not reset any values.
+- A ticket create response updates the cache and reports success, but opens the
+  created record and calls the draft's `onComplete` only while that create
+  request still belongs to the active draft. Closing, unmounting or accepting a
+  replacement draft invalidates its pending completion; dismissing a replacement
+  prompt does not.
+- The ticket record panel preserves the locked status-changed date chip from
+  legacy detail, sharing `formatDateLabel` with the ticket date selects.
+- Ticket drafts display linked customer/company names through the public inline
+  contact components. The create form has no scoped Escape close handler, so
+  Escape dismisses only the upper editor, select or confirmation layer;
+  `TicketPageEffect` restores the page's `C` scope when a draft closes or saves,
+  including after a nested filter/table popover has changed the previous scope.
+- Ticket draft and detail contact labels reuse the existing root
+  `customer-label` / `company-label` translations with `keyPrefix: ''`; draft
+  replacement confirmation similarly reuses `discard-draft`. Keep these calls
+  on keys present in both gateway catalogues instead of adding English defaults.
+- The ticket panel title owns its `TICKET_CHANGED` subscription; other panel
+  views call `useGetTicket({ subscribe: false })` and receive Apollo cache updates.
+- `TicketPanelDetail` memoizes attachment normalization by `ticket.attachments`
+  so unrelated ticket updates do not reset an in-progress upload.
+- Ticket attachments use the public `useErxesUpload().uploadFile` API and settle
+  every file in a batch, including rejected and oversized files. Clear uploading
+  state in `finally`, report failures, and save successful files once alongside
+  the latest ticket attachments through `toAttachmentInput`. Disable removal
+  during uploads and saves. `ticketAttachmentOperationsState` owns the busy lock
+  and current attachment list per signed-in user and ticket across uploader
+  unmounts, permission reloads and Activity navigation. Every save merges against
+  that current list so a later removal keeps new uploads and a later upload
+  cannot restore a removed file.
+  Persist removals through `Attachments.Root.onRemove` before changing the local
+  list; failed saves must keep the attachment visible and available for retry.
+- The ticket attachment picker composes `Dropzone`, `DropzoneEmptyState` and
+  `DropzoneContent`, accepts up to ten files per batch, and applies the configured
+  file-size limit. Valid selections upload automatically; failed files stay in
+  the picker for an explicit retry, and preview object URLs are released.
+- Readonly ticket Stream players reuse Frontline's parsed URL validation from
+  `getTelegramStreamPlayer`, require a trusted HTTPS customer Stream origin,
+  and render through the existing `TelegramMessageAttachments` player with its
+  sandbox and open-player link. The hosted player retains its origin for playback;
+  unverified-media reveal and
+  fullscreen stay unchanged. Other URLs fall back to native attachment rendering;
+  repeated stored URLs render once with URL-based keys.
 
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
 - Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
@@ -2040,6 +2151,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `canMoveMemberIds` means "everyone". `useTicketPermissions({ pipeline })`
   without a `status` returns permissive defaults, so its `canMoveTicket` must
   never stand in for a real per-status check.
+- Ticket record panels and the legacy detail use `useTicketDetailPermissions`
+  with the ticket's assignee, pipeline and status. Editing and moving stay
+  disabled while that permission context loads or fails. `TicketAttachments`
+  mounts the uploader only when editing is allowed; otherwise it reuses the
+  inbox's readonly attachment renderer, the ticket's unverified-media cover,
+  and Frontline's validated Cloudflare Stream player helper. Readonly attachments remain
+  downloadable and playable after an explicit media reveal, without upload or
+  removal controls.
 - `useUpdateTicketStatus` hands Apollo its own `onError`, so its promise
   **resolves** on a refused write instead of rejecting — a `try`/`catch` around
   it never fires. Every caller decides success from `result?.data`
@@ -2514,8 +2633,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - Ticket types derive from the generated documents: `ITicket` is
   `FrontlineTicketFieldsFragment` (list rows, created tickets and board
   cards) and `ITicketDetail` is `getTicket`, which adds `isSubscribed` and
-  `attachments`; the detail sheet's `TicketFields` and `TicketDetailActions`
-  take `ITicketDetail`. Only `_id` is non-null; pass nullable ids on as `?? ''`
+  `attachments`; `TicketPanelDetail`, `TicketDetailActions` and the retained
+  legacy `TicketFields` take `ITicketDetail`. Only `_id` is non-null; pass nullable
+  ids on as `?? ''`
   or `?? undefined` and read id lists with `compactList`. `useTickets` takes
   filter-shaped `variables: ITicketFilter`, like operation's `useTasks`.
   Ticket attachments go through `toTicketAttachments` / `toAttachmentInput`
@@ -2758,6 +2878,33 @@ null }`, fall back to the route pipeline and skip without one; never pass
 
 ## Validation
 
+- Ticket deletion smoke: confirm Delete on A, open B while the request is pending,
+  then finish it; B stays open. Keep A selected and confirm a stacked parent returns.
+  Cancel a confirmation, reopen Actions and retry Delete.
+
+- `frontline_ui:build` explicitly depends on `erxes-ui:build` and
+  `frontline_ui:codegen`. Keep those project dependencies explicit: shared
+  plugin-local aliases can otherwise infer optional-plugin build cycles.
+
+- Ticket smoke: create from a board column and a contact; confirm defaults and
+  contact associations. Enter only a name, only a description, and only a custom
+  property in separate drafts, request another draft and dismiss/approve the
+  discard prompt. Visit Activity or another row and reopen the draft; confirm
+  all edits and contact defaults return. With a slow create pending, reopen the
+  same draft and confirm Save stays disabled; a late success must not rebase newer
+  edits or change a same-context draft that was affirmatively discarded/replaced.
+  Escape in the editor or discard dialog
+  must leave that draft intact. Upload B while A exists, remount through Activity
+  or a permission reload, then remove A; only B must remain. Repeat with the
+  removal pending first. Delete
+  a ticket opened from a customer or company and confirm the parent remains open
+  and its ticket list drops the deleted ticket without refreshing the page.
+- Ticket permission smoke: open a ticket whose status excludes the current user
+  from editing, in both the record panel and legacy detail. Attachments still
+  open or play, external media stays covered until revealed, and no upload or
+  removal control appears. Repeat while permission queries load or fail, then
+  confirm an assigned user can edit a private pipeline when its status allows.
+
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
   `...` menu, click the category and create an article in it — the tree, its count
@@ -2905,7 +3052,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-  <<<<<<< HEAD
 
 ## Recent Changes
 
@@ -2946,4 +3092,3 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
 - **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
 - # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.
-  > > > > > > > b5737b8f9a6f3d229cf63081569bfebc7196a29c
