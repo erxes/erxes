@@ -103,11 +103,11 @@ npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
 
 `core/commands/epochDealDates.ts` unsets deal `startDate` / `closeDate` values
 equal to exactly `1970-01-01T00:00:00.000Z` (carried over from 2.x), so those
-deals read as having no date and match the "no close date" filter. Every other
-date is left untouched, and a date stored as a string is not matched; it is
-safe to run again. `DRY_RUN=1` only counts (the
-image default); `DRY_RUN=0` or no `DRY_RUN` writes, so count first. It picks
-databases like the command above:
+fields read as unset; a deal whose `closeDate` was unset this way then matches
+the "no close date" filter. Every other date is left untouched, and a date
+stored as a string is not matched; it is safe to run again. `DRY_RUN=1` only
+counts (the image default); `DRY_RUN=0` or no `DRY_RUN` writes, so count
+first. It picks databases like the command above:
 
 ```bash
 # SaaS, one organization (CORE_MONGO_URL || MONGO_URL = core database)

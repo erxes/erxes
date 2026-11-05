@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { Db, MongoClient } from 'mongodb';
+import { Collection, Db, MongoClient } from 'mongodb';
 import { getTargetDbs } from './_organizationDbs';
 
 dotenv.config();
@@ -17,23 +17,29 @@ const DATE_FIELDS = ['startDate', 'closeDate'] as const;
 
 const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
+const migrateField = async (
+  deals: Collection,
+  field: (typeof DATE_FIELDS)[number],
+) => {
+  const filter = { [field]: EPOCH };
+
+  if (isDryRun) {
+    const count = await deals.countDocuments(filter);
+    return `[DRY RUN] ${field}: ${count} deals hold 1970-01-01`;
+  }
+
+  const result = await deals.updateMany(filter, { $unset: { [field]: '' } });
+  return `[DONE] ${field}: matched=${result.matchedCount} modified=${result.modifiedCount}`;
+};
+
 const migrateDb = async (db: Db) => {
   const deals = db.collection('deals');
 
-  for (const field of DATE_FIELDS) {
-    const filter = { [field]: EPOCH };
+  const lines = await Promise.all(
+    DATE_FIELDS.map((field) => migrateField(deals, field)),
+  );
 
-    if (isDryRun) {
-      const count = await deals.countDocuments(filter);
-      console.log(`[DRY RUN] ${field}: ${count} deals hold 1970-01-01`);
-      continue;
-    }
-
-    const result = await deals.updateMany(filter, { $unset: { [field]: '' } });
-    console.log(
-      `[DONE] ${field}: matched=${result.matchedCount} modified=${result.modifiedCount}`,
-    );
-  }
+  lines.forEach((line) => console.log(line));
 };
 
 const command = async () => {
