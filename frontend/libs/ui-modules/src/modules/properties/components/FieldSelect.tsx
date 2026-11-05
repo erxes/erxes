@@ -29,7 +29,15 @@ export const FieldSelect = (props: SpecificFieldProps) => {
       <RecordTableInlineCell.Trigger
         className={cn(!inCell && 'shadow-xs rounded')}
       >
-        {selectedOption && <OptionLabel option={selectedOption} />}
+        {selectedOption ? (
+          <OptionLabel option={selectedOption} />
+        ) : (
+          !inCell && (
+            <span className="truncate text-muted-foreground">
+              {currentValue || field.name}
+            </span>
+          )
+        )}
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
         <FieldSelectContent

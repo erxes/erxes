@@ -41,6 +41,7 @@ export const FieldNumberDetail = (props: SpecificFieldProps) => {
   return (
     <NumberInput
       id={id}
+      placeholder={props.field.name}
       value={currentValue}
       onChange={(v) => {
         setCurrentValue(v);

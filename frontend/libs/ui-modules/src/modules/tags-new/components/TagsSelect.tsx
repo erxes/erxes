@@ -1,4 +1,5 @@
 import {
+  Badge,
   Button,
   Combobox,
   Command,
@@ -14,7 +15,7 @@ import { useGetTags } from 'ui-modules/modules/tags-new/hooks/useTags';
 import { useTagsTypes } from 'ui-modules/modules/tags/hooks/useTagsTypes';
 import { getTagTypeDescription } from 'ui-modules/modules/tags-new/utils/getTagTypeDescription';
 import type { VariantProps } from 'class-variance-authority';
-import React, { useState, useEffect, useMemo, forwardRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, forwardRef } from 'react';
 import { TagInline } from './TagInline';
 import { ITag } from 'ui-modules/modules/tags-new/types/Tag';
 import { IconCheck, IconPlus, IconTag, IconTags } from '@tabler/icons-react';
@@ -30,16 +31,22 @@ import {
 
 type ButtonProps = VariantProps<typeof buttonVariants>;
 
-const TagsSelectProvider = ({
-  type,
-  mode = 'single',
-  value,
-  onValueChange,
-  children,
-  scope,
-  targetIds,
-  options,
-}: TagsSelectProps) => {
+/** Normalizes controlled and optimistic tag values without dropping unresolved IDs. */
+const toTagIds = (value: string | string[] | undefined): string[] => {
+  if (Array.isArray(value)) return value;
+  return value ? [value] : [];
+};
+
+const TagsSelectProvider = (props: TagsSelectProps) => {
+  const {
+    type,
+    mode = 'single',
+    value,
+    children,
+    scope,
+    targetIds,
+    options,
+  } = props;
   const [open, setOpen] = useState(false);
   const { rootTags, tagsByParentId, tags, tagGroups, loading } = useGetTags({
     variables: {
@@ -47,10 +54,27 @@ const TagsSelectProvider = ({
     },
   });
 
-  const selectedIds = useMemo(
-    () => (Array.isArray(value) ? value : value ? [value] : []),
-    [value],
-  );
+  const valueKey = JSON.stringify(value ?? null);
+  const previousValueKey = useRef(valueKey);
+  const [selectedIds, setSelectedIds] = useState(() => toTagIds(value));
+  // Reconcile actual prop changes, not new array references with the same IDs.
+  // Until then, consecutive toggles use the complete local optimistic selection.
+  useEffect(() => {
+    if (previousValueKey.current === valueKey) return;
+    previousValueKey.current = valueKey;
+    setSelectedIds(toTagIds(value));
+  }, [value, valueKey]);
+
+  /** Updates local IDs before notifying a parent that may save asynchronously. */
+  const handleValueChange = (next: string | string[] | undefined) => {
+    const ids = toTagIds(next);
+    setSelectedIds(ids);
+    if (props.mode === 'multiple') {
+      props.onValueChange?.(ids);
+    } else {
+      props.onValueChange?.(ids[0]);
+    }
+  };
 
   const initialTags = useMemo(
     () => tags?.filter((tag) => selectedIds.includes(tag._id)) || [],
@@ -79,9 +103,12 @@ const TagsSelectProvider = ({
           ...options?.([tag._id]),
         });
       }
-      (onValueChange as ((value: string) => void) | undefined)?.(tag._id);
+      handleValueChange(tag._id);
     } else {
-      const isSelected = selectedTags.some((t) => t._id === tag._id);
+      const isSelected = selectedIds.includes(tag._id);
+      const newIds = isSelected
+        ? selectedIds.filter((id) => id !== tag._id)
+        : [...selectedIds, tag._id];
       let newTags: ITag[];
       if (isSelected) {
         newTags = selectedTags.filter((t) => t._id !== tag._id);
@@ -94,15 +121,13 @@ const TagsSelectProvider = ({
           variables: {
             type,
             targetIds,
-            tagIds: newTags.map((t) => t._id),
+            tagIds: newIds,
           },
-          ...options?.(newTags.map((t) => t._id)),
+          ...options?.(newIds),
         });
       }
 
-      (onValueChange as ((value: string[]) => void) | undefined)?.(
-        newTags.map((t) => t._id),
-      );
+      handleValueChange(newIds);
     }
   };
 
@@ -110,10 +135,8 @@ const TagsSelectProvider = ({
     <TagsSelectContext.Provider
       value={{
         loading,
-        value,
-        onValueChange: onValueChange as (
-          value: string | string[] | undefined,
-        ) => void,
+        value: mode === 'single' ? selectedIds[0] : selectedIds,
+        onValueChange: handleValueChange,
         open,
         setOpen,
         selectedTags,
@@ -217,7 +240,6 @@ const TagsSelectContent = () => {
     return Object.values(TAG_DEFAULT_COLORS)[
       Math.floor(Math.random() * Object.values(TAG_DEFAULT_COLORS).length)
     ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search]);
   const trimmedSearch = search.trim();
   const hasExactMatch = useMemo(
@@ -375,14 +397,16 @@ const TagsSelectContent = () => {
 
 TagsSelectContent.displayName = 'TagsSelectContent';
 
-const TagsSelectedList = ({
+function TagsSelectedList({
+  maxVisible,
   placeholder,
   renderAsPlainText,
   ...props
 }: Omit<React.ComponentProps<typeof TagBadge>, 'onClose'> & {
+  maxVisible?: number;
   placeholder?: string;
   renderAsPlainText?: boolean;
-}) => {
+}) {
   const {
     selectedTags,
     setSelectedTags,
@@ -398,11 +422,10 @@ const TagsSelectedList = ({
   const { giveTags } = useGiveTags();
 
   const selectedIds = useMemo(() => {
-    if (Array.isArray(value)) {
-      return value;
-    }
+    if (value === undefined) return selectedTags.map((tag) => tag._id);
+    if (Array.isArray(value)) return value;
     return value ? [value] : [];
-  }, [value]);
+  }, [value, selectedTags]);
 
   const missingIds = useMemo(() => {
     if (loading) return [];
@@ -418,7 +441,7 @@ const TagsSelectedList = ({
   const removeId = (id: string) => {
     if (mode === 'single') {
       setSelectedTags([]);
-      (onValueChange as (value: string | undefined) => void)?.(undefined);
+      (onValueChange as (value?: string) => void)?.();
       if (targetIds) {
         giveTags({
           variables: { type, targetIds, tagIds: [] },
@@ -438,13 +461,29 @@ const TagsSelectedList = ({
     }
   };
 
+  if (loading && selectedIds.length > 0 && selectedTags.length === 0) {
+    return <Skeleton className="h-5 w-20" />;
+  }
   if ((!selectedTags || selectedTags.length === 0) && missingIds.length === 0) {
-    return null;
+    return placeholder ? (
+      <span className="text-muted-foreground">{placeholder}</span>
+    ) : null;
   }
 
+  const visibleTags =
+    maxVisible === undefined ? selectedTags : selectedTags.slice(0, maxVisible);
+  const visibleMissingIds =
+    maxVisible === undefined
+      ? missingIds
+      : missingIds.slice(0, Math.max(0, maxVisible - visibleTags.length));
+  const remaining =
+    selectedTags.length +
+    missingIds.length -
+    visibleTags.length -
+    visibleMissingIds.length;
   return (
     <>
-      {selectedTags.map((tag) => (
+      {visibleTags.map((tag) => (
         <TagBadge
           key={tag._id}
           tagId={tag._id}
@@ -460,44 +499,12 @@ const TagsSelectedList = ({
               setSelectedTags([...selectedTags, tag]);
             }
           }}
-          onClose={() => {
-            if (mode === 'single') {
-              setSelectedTags([]);
-              (onValueChange as (value: string | undefined) => void)?.(
-                undefined,
-              );
-              if (targetIds) {
-                giveTags({
-                  variables: {
-                    type,
-                    targetIds,
-                    tagIds: [],
-                  },
-                  ...options?.([]),
-                });
-              }
-            } else {
-              const newTags = selectedTags.filter((t) => t._id !== tag._id);
-              setSelectedTags(newTags);
-              (onValueChange as (value: string[]) => void)?.(
-                newTags.map((t) => t._id),
-              );
-              if (targetIds) {
-                giveTags({
-                  variables: {
-                    type,
-                    targetIds,
-                    tagIds: newTags.map((t) => t._id),
-                  },
-                  ...options?.(newTags.map((t) => t._id)),
-                });
-              }
-            }
-          }}
+          onClose={() => removeId(tag._id)}
           {...props}
+          {...(maxVisible === undefined ? {} : { onClose: undefined })}
         />
       ))}
-      {missingIds.map((id) => (
+      {visibleMissingIds.map((id) => (
         <TagBadge
           key={id}
           tagId={id}
@@ -513,11 +520,17 @@ const TagsSelectedList = ({
           }}
           onClose={() => removeId(id)}
           {...props}
+          {...(maxVisible === undefined ? {} : { onClose: undefined })}
         />
       ))}
+      {remaining > 0 && (
+        <Badge variant="secondary" className="shrink-0 text-muted-foreground">
+          +{remaining}
+        </Badge>
+      )}
     </>
   );
-};
+}
 TagsSelectedList.displayName = 'TagsSelectedList';
 
 const TagsSelectRoot = forwardRef<
@@ -570,15 +583,23 @@ const TagsSelectInlineCell = forwardRef<
       React.ComponentPropsWithoutRef<typeof Combobox.Trigger>,
       'children' | 'type'
     > & {
+      maxVisible?: number;
       scope?: string;
       targetIds?: string[];
     }
->(({ scope, targetIds, ...props }, ref) => {
+>(({ scope, targetIds, maxVisible, className, ...props }, ref) => {
   return (
     <TagsSelectProvider {...props} scope={scope} targetIds={targetIds}>
-      <RecordTableInlineCell.Trigger ref={ref}>
-        <div className="flex gap-x-2 gap-y-1 items-center">
-          <TagsSelectedList />
+      <RecordTableInlineCell.Trigger ref={ref} className={className}>
+        <div className="flex min-w-0 max-w-full gap-1 items-center">
+          <TagsSelectedList
+            maxVisible={maxVisible}
+            className={
+              maxVisible === undefined
+                ? undefined
+                : 'min-w-0 max-w-full overflow-hidden'
+            }
+          />
         </div>
       </RecordTableInlineCell.Trigger>
       <RecordTableInlineCell.Content>
