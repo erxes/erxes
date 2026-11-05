@@ -1,5 +1,5 @@
-import { IconSearch, IconBuilding } from '@tabler/icons-react';
-import { Combobox, Command, Filter, Select } from 'erxes-ui';
+import { IconBuilding } from '@tabler/icons-react';
+import { Filter, Select } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useVendors } from '~/modules/insurance/hooks';
 

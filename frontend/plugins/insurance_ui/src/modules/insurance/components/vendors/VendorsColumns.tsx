@@ -7,6 +7,7 @@ import {
   Badge,
 } from 'erxes-ui';
 import { InsuranceVendor } from '~/modules/insurance/types';
+import { hasProduct } from '~/modules/insurance/utils/vendorProducts';
 import { createCreatedAtColumn } from '../shared';
 import { VendorsMoreColumn } from './VendorsMoreColumn';
 
@@ -50,7 +51,9 @@ export function createVendorsColumns(labels: {
         <RecordTable.InlineHead icon={IconPackage} label={labels.products} />
       ),
       cell: ({ cell }) => {
-        const products = cell.row.original.offeredProducts || [];
+        const products = (cell.row.original.offeredProducts || []).filter(
+          hasProduct,
+        );
         return (
           <RecordTableInlineCell>
             <Badge variant="secondary">
@@ -70,7 +73,9 @@ export function createVendorsColumns(labels: {
         />
       ),
       cell: ({ cell }) => {
-        const products = cell.row.original.offeredProducts || [];
+        const products = (cell.row.original.offeredProducts || []).filter(
+          hasProduct,
+        );
         const productNames = products
           .slice(0, 3)
           .map((vp) => vp.product.name)

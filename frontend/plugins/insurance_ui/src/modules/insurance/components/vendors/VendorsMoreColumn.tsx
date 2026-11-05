@@ -2,13 +2,15 @@ import { IconEye, IconEdit, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Cell } from '@tanstack/table-core';
+import type { InsuranceVendor } from '~/modules/insurance/types';
 
 export const VendorsMoreColumn = ({
   cell,
   onEdit,
 }: {
-  cell: any;
-  onEdit?: (vendor: any) => void;
+  cell: Cell<InsuranceVendor, unknown>;
+  onEdit?: (vendor: InsuranceVendor) => void;
 }) => {
   const { t } = useTranslation('insurance');
   const vendor = cell.row.original;

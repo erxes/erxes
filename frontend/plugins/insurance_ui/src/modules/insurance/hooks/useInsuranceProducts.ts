@@ -1,6 +1,5 @@
 import { useQuery, useMutation } from '@apollo/client';
 import { queries, mutations } from '../graphql';
-import { InsuranceProduct, CoveredRiskInput } from '../types';
 
 export function useInsuranceProducts() {
   const { data, loading, error, refetch } = useQuery(
@@ -8,7 +7,7 @@ export function useInsuranceProducts() {
   );
 
   return {
-    insuranceProducts: (data?.insuranceProducts || []) as InsuranceProduct[],
+    insuranceProducts: data?.insuranceProducts || [],
     loading,
     error,
     refetch,
@@ -22,7 +21,7 @@ export function useInsuranceProduct(id: string) {
   });
 
   return {
-    insuranceProduct: data?.insuranceProduct as InsuranceProduct | undefined,
+    insuranceProduct: data?.insuranceProduct,
     loading,
     error,
   };
@@ -35,7 +34,7 @@ export function useProductsByType(typeId: string) {
   });
 
   return {
-    products: (data?.productsByType || []) as InsuranceProduct[],
+    products: data?.productsByType || [],
     loading,
     error,
   };

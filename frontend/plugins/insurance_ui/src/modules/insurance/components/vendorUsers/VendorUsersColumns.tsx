@@ -21,7 +21,7 @@ import { createTextColumn, createCreatedAtColumn } from '../shared';
 const vendorColumn: ColumnDef<VendorUser> = {
   id: 'vendor',
   accessorKey: 'vendor',
-  header: () => {
+  header: function VendorUserVendorHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconBuilding} label={t('vendor')} />;
   },
@@ -36,7 +36,7 @@ const vendorColumn: ColumnDef<VendorUser> = {
 const roleColumn: ColumnDef<VendorUser> = {
   id: 'role',
   accessorKey: 'role',
-  header: () => {
+  header: function VendorUserRoleHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconShield} label={t('role')} />;
   },

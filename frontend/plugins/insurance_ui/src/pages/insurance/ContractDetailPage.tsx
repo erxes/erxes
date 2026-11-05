@@ -13,6 +13,7 @@ import {
 import { Breadcrumb, Button, Separator, Card, Badge, Skeleton } from 'erxes-ui';
 import { PageHeader, createFavoriteBreadcrumb } from 'ui-modules';
 import { useContract } from '~/modules/insurance/hooks';
+import { isRecord } from '~/modules/insurance/utils/isRecord';
 import {
   generateContractPDF,
   downloadContractHTML,
@@ -92,7 +93,7 @@ export const ContractDetailPage = () => {
     contract.contractNumber,
   );
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string | null) => {
     switch (status) {
       case 'active':
         return (
@@ -245,7 +246,9 @@ export const ContractDetailPage = () => {
                     {t('start-date')}
                   </p>
                   <p className="font-medium">
-                    {new Date(contract.startDate).toLocaleDateString('mn-MN')}
+                    {new Date(contract.startDate ?? 0).toLocaleDateString(
+                      'mn-MN',
+                    )}
                   </p>
                 </div>
                 <div>
@@ -253,7 +256,9 @@ export const ContractDetailPage = () => {
                     {t('end-date')}
                   </p>
                   <p className="font-medium">
-                    {new Date(contract.endDate).toLocaleDateString('mn-MN')}
+                    {new Date(contract.endDate ?? 0).toLocaleDateString(
+                      'mn-MN',
+                    )}
                   </p>
                 </div>
               </div>
@@ -290,7 +295,7 @@ export const ContractDetailPage = () => {
             </Card>
 
             {/* Insured Object */}
-            {contract.insuredObject && (
+            {isRecord(contract.insuredObject) && (
               <Card className="p-6">
                 <h3 className="font-semibold mb-4">{t('insured-object')}</h3>
                 <div className="grid grid-cols-2 gap-4">

@@ -45,7 +45,7 @@ export const createNameColumn = <T,>(
 ): ColumnDef<T> => ({
   id: 'name',
   accessorKey: 'name',
-  header: () => {
+  header: function EntityNameHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={icon} label={t(label)} />;
   },
@@ -62,7 +62,7 @@ export const createDescriptionColumn = <T,>(
 ): ColumnDef<T> => ({
   id: 'description',
   accessorKey: 'description',
-  header: () => {
+  header: function EntityDescriptionHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={icon} label={t('description')} />;
   },
@@ -89,7 +89,7 @@ export const createCreatedAtColumn = <T,>(label?: string): ColumnDef<T> => ({
 export const createUpdatedAtColumn = <T,>(): ColumnDef<T> => ({
   id: 'updatedAt',
   accessorKey: 'updatedAt',
-  header: () => {
+  header: function EntityUpdatedAtHeader() {
     const { t } = useTranslation('insurance');
     return (
       <RecordTable.InlineHead icon={IconCalendar} label={t('updated-at')} />
@@ -112,7 +112,7 @@ export const createTextColumn = <T,>(
 ): ColumnDef<T> => ({
   id,
   accessorKey,
-  header: () => {
+  header: function EntityTextHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={icon} label={t(label)} />;
   },
@@ -133,7 +133,7 @@ export const createDateColumn = <T,>(
 ): ColumnDef<T> => ({
   id,
   accessorKey,
-  header: () => {
+  header: function EntityDateHeader() {
     const { t } = useTranslation('insurance');
     return <RecordTable.InlineHead icon={IconCalendar} label={t(label)} />;
   },

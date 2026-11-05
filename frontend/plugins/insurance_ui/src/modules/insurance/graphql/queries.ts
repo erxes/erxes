@@ -1,259 +1,460 @@
-import { gql } from '@apollo/client';
-
-// Common fields
-export const riskTypeFields = `
-  id
-  name
-  description
-  createdAt
-  updatedAt
-`;
-
-export const insuranceTypeFields = `
-  id
-  name
-  isCitizen
-  attributes {
-    name
-    dataType
-    required
-    description
-    options
-    min
-    max
-  }
-  createdAt
-  updatedAt
-`;
-
-export const insuranceRegionFields = `
-  id
-  name
-  countries
-  createdAt
-  updatedAt
-`;
-
-export const insuranceProductFields = `
-  id
-  name
-  insuranceType {
-    ${insuranceTypeFields}
-  }
-  regions {
-    ${insuranceRegionFields}
-  }
-  coveredRisks {
-    risk {
-      ${riskTypeFields}
-    }
-    coveragePercentage
-  }
-  pricingConfig
-  pdfContent
-  additionalCoverages {
-    name
-    limits
-    appliesTo
-  }
-  compensationCalculations {
-    name
-    methodologies
-  }
-  deductibleConfig {
-    levels
-  }
-  createdAt
-  updatedAt
-`;
-
-export const insuranceVendorFields = `
-  id
-  name
-  offeredProducts {
-    product {
-      ${insuranceProductFields}
-    }
-    pricingOverride
-    discountTiers {
-      minTravelers
-      discountPercent
-    }
-  }
-  createdAt
-  updatedAt
-`;
-
-export const vendorUserFields = `
-  id
-  name
-  email
-  phone
-  vendor {
-    id
-    name
-  }
-  role
-  createdAt
-  updatedAt
-`;
-
-export const insuranceCustomerFields = `
-  id
-  firstName
-  lastName
-  type
-  registrationNumber
-  email
-  phone
-  companyName
-  createdAt
-  updatedAt
-`;
-
-export const insuranceContractFields = `
-  id
-  contractNumber
-  vendor {
-    id
-    name
-  }
-  customer {
-    ${insuranceCustomerFields}
-  }
-  insuranceType {
-    id
-    name
-  }
-  insuranceProduct {
-    id
-    name
-    pdfContent
-  }
-  coveredRisks {
-    risk {
-      ${riskTypeFields}
-    }
-    coveragePercentage
-  }
-  chargedAmount
-  startDate
-  endDate
-  insuredObject
-  paymentKind
-  paymentStatus
-  pdfContent
-  createdAt
-  updatedAt
-`;
+import { gql } from '~/gql';
 
 // Queries
-export const RISK_TYPES = gql`
-  query RiskTypes {
+export const RISK_TYPES = gql(`
+  query InsuranceRiskTypes {
     riskTypes {
-      ${riskTypeFields}
+      id
+      name
+      description
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const RISK_TYPE = gql`
-  query RiskType($id: ID!) {
+export const RISK_TYPE = gql(`
+  query InsuranceRiskType($id: ID!) {
     riskType(id: $id) {
-      ${riskTypeFields}
+      id
+      name
+      description
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_TYPES = gql`
+export const INSURANCE_TYPES = gql(`
   query InsuranceTypes {
     insuranceTypes {
-      ${insuranceTypeFields}
+      id
+      name
+      isCitizen
+      attributes {
+        name
+        dataType
+        required
+        description
+        options
+        min
+        max
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_TYPE = gql`
+export const INSURANCE_TYPE = gql(`
   query InsuranceType($id: ID!) {
     insuranceType(id: $id) {
-      ${insuranceTypeFields}
+      id
+      name
+      isCitizen
+      attributes {
+        name
+        dataType
+        required
+        description
+        options
+        min
+        max
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_PRODUCTS = gql`
+export const INSURANCE_PRODUCTS = gql(`
   query InsuranceProducts {
     insuranceProducts {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_PRODUCT = gql`
+export const INSURANCE_PRODUCT = gql(`
   query InsuranceProduct($id: ID!) {
     insuranceProduct(id: $id) {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const PRODUCTS_BY_TYPE = gql`
-  query ProductsByType($typeId: ID!) {
+export const PRODUCTS_BY_TYPE = gql(`
+  query InsuranceProductsByType($typeId: ID!) {
     productsByType(typeId: $typeId) {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDORS = gql`
-  query Vendors {
+export const VENDORS = gql(`
+  query InsuranceVendors {
     vendors {
-      ${insuranceVendorFields}
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR = gql`
-  query Vendor($id: ID!) {
+export const VENDOR = gql(`
+  query InsuranceVendor($id: ID!) {
     vendor(id: $id) {
-      ${insuranceVendorFields}
+      id
+      name
+      offeredProducts {
+        product {
+          id
+          name
+          insuranceType {
+            id
+            name
+            isCitizen
+            attributes {
+              name
+              dataType
+              required
+              description
+              options
+              min
+              max
+            }
+            createdAt
+            updatedAt
+          }
+          regions {
+            id
+            name
+            countries
+            createdAt
+            updatedAt
+          }
+          coveredRisks {
+            risk {
+              id
+              name
+              description
+              createdAt
+              updatedAt
+            }
+            coveragePercentage
+          }
+          pricingConfig
+          pdfContent
+          additionalCoverages {
+            name
+            limits
+            appliesTo
+          }
+          compensationCalculations {
+            name
+            methodologies
+          }
+          deductibleConfig {
+            levels
+          }
+          createdAt
+          updatedAt
+        }
+        pricingOverride
+        discountTiers {
+          minTravelers
+          discountPercent
+        }
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_USERS = gql`
-  query VendorUsers($vendorId: ID) {
+export const VENDOR_USERS = gql(`
+  query InsuranceVendorUsers($vendorId: ID) {
     vendorUsers(vendorId: $vendorId) {
-      ${vendorUserFields}
+      id
+      name
+      email
+      phone
+      vendor {
+        id
+        name
+      }
+      role
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_USER = gql`
-  query VendorUser($id: ID!) {
+export const VENDOR_USER = gql(`
+  query InsuranceVendorUser($id: ID!) {
     vendorUser(id: $id) {
-      ${vendorUserFields}
+      id
+      name
+      email
+      phone
+      vendor {
+        id
+        name
+      }
+      role
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_CUSTOMERS = gql`
+export const INSURANCE_CUSTOMERS = gql(`
   query InsuranceCustomers {
     insuranceCustomers {
-      ${insuranceCustomerFields}
+      id
+      firstName
+      lastName
+      type
+      registrationNumber
+      email
+      phone
+      companyName
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_CUSTOMER = gql`
+export const INSURANCE_CUSTOMER = gql(`
   query InsuranceCustomer($id: ID!) {
     insuranceCustomer(id: $id) {
-      ${insuranceCustomerFields}
+      id
+      firstName
+      lastName
+      type
+      registrationNumber
+      email
+      phone
+      companyName
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const CONTRACTS = gql`
-  query Contracts(
+export const CONTRACTS = gql(`
+  query InsuranceContracts(
     $vendorId: ID
     $customerId: ID
     $searchValue: String
@@ -277,61 +478,299 @@ export const CONTRACTS = gql`
       startDate: $startDate
       endDate: $endDate
     ) {
-      ${insuranceContractFields}
+      id
+      contractNumber
+      vendor {
+        id
+        name
+      }
+      customer {
+        id
+        firstName
+        lastName
+        type
+        registrationNumber
+        email
+        phone
+        companyName
+        createdAt
+        updatedAt
+      }
+      insuranceType {
+        id
+        name
+      }
+      insuranceProduct {
+        id
+        name
+        pdfContent
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      chargedAmount
+      startDate
+      endDate
+      insuredObject
+      paymentKind
+      paymentStatus
+      pdfContent
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const CONTRACT = gql`
-  query Contract($id: ID!) {
+export const CONTRACT = gql(`
+  query InsuranceContract($id: ID!) {
     contract(id: $id) {
-      ${insuranceContractFields}
+      id
+      contractNumber
+      vendor {
+        id
+        name
+      }
+      customer {
+        id
+        firstName
+        lastName
+        type
+        registrationNumber
+        email
+        phone
+        companyName
+        createdAt
+        updatedAt
+      }
+      insuranceType {
+        id
+        name
+      }
+      insuranceProduct {
+        id
+        name
+        pdfContent
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      chargedAmount
+      startDate
+      endDate
+      insuredObject
+      paymentKind
+      paymentStatus
+      pdfContent
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_CONTRACTS = gql`
-  query VendorContracts {
+export const VENDOR_CONTRACTS = gql(`
+  query InsuranceVendorContracts {
     vendorContracts {
-      ${insuranceContractFields}
+      id
+      contractNumber
+      vendor {
+        id
+        name
+      }
+      customer {
+        id
+        firstName
+        lastName
+        type
+        registrationNumber
+        email
+        phone
+        companyName
+        createdAt
+        updatedAt
+      }
+      insuranceType {
+        id
+        name
+      }
+      insuranceProduct {
+        id
+        name
+        pdfContent
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      chargedAmount
+      startDate
+      endDate
+      insuredObject
+      paymentKind
+      paymentStatus
+      pdfContent
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const VENDOR_CONTRACT = gql`
-  query VendorContract($id: ID!) {
+export const VENDOR_CONTRACT = gql(`
+  query InsuranceVendorContract($id: ID!) {
     vendorContract(id: $id) {
-      ${insuranceContractFields}
+      id
+      contractNumber
+      vendor {
+        id
+        name
+      }
+      customer {
+        id
+        firstName
+        lastName
+        type
+        registrationNumber
+        email
+        phone
+        companyName
+        createdAt
+        updatedAt
+      }
+      insuranceType {
+        id
+        name
+      }
+      insuranceProduct {
+        id
+        name
+        pdfContent
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      chargedAmount
+      startDate
+      endDate
+      insuredObject
+      paymentKind
+      paymentStatus
+      pdfContent
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_REGIONS = gql`
+export const INSURANCE_REGIONS = gql(`
   query InsuranceRegions {
     insuranceRegions {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const INSURANCE_REGION = gql`
+export const INSURANCE_REGION = gql(`
   query InsuranceRegion($id: ID!) {
     insuranceRegion(id: $id) {
-      ${insuranceRegionFields}
+      id
+      name
+      countries
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const PRODUCTS_BY_COUNTRY = gql`
-  query ProductsByCountry($country: String!) {
+export const PRODUCTS_BY_COUNTRY = gql(`
+  query InsuranceProductsByCountry($country: String!) {
     productsByCountry(country: $country) {
-      ${insuranceProductFields}
+      id
+      name
+      insuranceType {
+        id
+        name
+        isCitizen
+        attributes {
+          name
+          dataType
+          required
+          description
+          options
+          min
+          max
+        }
+        createdAt
+        updatedAt
+      }
+      regions {
+        id
+        name
+        countries
+        createdAt
+        updatedAt
+      }
+      coveredRisks {
+        risk {
+          id
+          name
+          description
+          createdAt
+          updatedAt
+        }
+        coveragePercentage
+      }
+      pricingConfig
+      pdfContent
+      additionalCoverages {
+        name
+        limits
+        appliesTo
+      }
+      compensationCalculations {
+        name
+        methodologies
+      }
+      deductibleConfig {
+        levels
+      }
+      createdAt
+      updatedAt
     }
   }
-`;
+`);
 
-export const CALCULATE_TRAVEL_PRICE = gql`
-  query CalculateTravelPrice(
+export const CALCULATE_TRAVEL_PRICE = gql(`
+  query InsuranceCalculateTravelPrice(
     $productId: ID!
     $vendorId: ID!
     $startDate: Date!
@@ -353,9 +792,9 @@ export const CALCULATE_TRAVEL_PRICE = gql`
       dailyRate
     }
   }
-`;
+`);
 
-export default {
+export const queries = {
   RISK_TYPES,
   RISK_TYPE,
   INSURANCE_TYPES,

@@ -29,7 +29,7 @@ export const RiskTypeForm = ({
   useEffect(() => {
     if (riskType) {
       setFormData({
-        name: riskType.name,
+        name: riskType.name ?? '',
         description: riskType.description || '',
       });
     } else {

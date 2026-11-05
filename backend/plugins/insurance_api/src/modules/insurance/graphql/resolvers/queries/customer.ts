@@ -66,7 +66,7 @@ export const customerQueries = {
     { wrapperConfig: { skipPermission: true } },
   ),
 
-  customer: Object.assign(
+  insuranceCustomer: Object.assign(
     async (
       _parent: undefined,
       { id }: { id: string },

@@ -2,7 +2,8 @@ import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Dialog, Button, Label, Input, Select } from 'erxes-ui';
 import { useCreateCustomer, useUpdateCustomer } from '../hooks';
-import { InsuranceCustomer, CustomerType } from '../types';
+import type { CustomerType } from '~/gql/graphql';
+import type { InsuranceCustomer } from '../types';
 
 interface CustomerFormProps {
   open: boolean;
@@ -34,10 +35,10 @@ export const CustomerForm = ({
   useEffect(() => {
     if (customer) {
       setFormData({
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        type: customer.type,
-        registrationNumber: customer.registrationNumber,
+        firstName: customer.firstName ?? '',
+        lastName: customer.lastName ?? '',
+        type: customer.type ?? ('individual' as CustomerType),
+        registrationNumber: customer.registrationNumber ?? '',
         email: customer.email || '',
         phone: customer.phone || '',
         companyName: customer.companyName || '',

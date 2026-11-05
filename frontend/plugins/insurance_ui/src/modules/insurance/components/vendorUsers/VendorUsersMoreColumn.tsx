@@ -2,14 +2,16 @@ import { IconEdit, IconTrash, IconDotsVertical } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useDeleteVendorUser } from '~/modules/insurance/hooks';
+import { Cell } from '@tanstack/table-core';
+import type { VendorUser } from '~/modules/insurance/types';
 
 export const VendorUsersMoreColumn = ({
   cell,
   onEdit,
   onRefetch,
 }: {
-  cell: any;
-  onEdit: (user: any) => void;
+  cell: Cell<VendorUser, unknown>;
+  onEdit: (user: VendorUser) => void;
   onRefetch: () => void;
 }) => {
   const { t } = useTranslation('insurance');
@@ -17,7 +19,7 @@ export const VendorUsersMoreColumn = ({
   const { deleteVendorUser } = useDeleteVendorUser();
 
   const handleDelete = async () => {
-    if (confirm(t('confirm-delete-user'))) {
+    if (window.confirm(t('confirm-delete-user'))) {
       await deleteVendorUser(user.id);
       onRefetch();
     }

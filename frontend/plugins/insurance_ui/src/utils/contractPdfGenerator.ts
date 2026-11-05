@@ -1,28 +1,5 @@
-interface Contract {
-  contractNumber: string;
-  paymentStatus: string;
-  vendor?: { name: string };
-  customer?: {
-    firstName: string;
-    lastName: string;
-    registrationNumber?: string;
-    email?: string;
-    phone?: string;
-    companyName?: string;
-  };
-  insuranceType?: { name: string };
-  insuranceProduct?: { name: string; pdfContent?: string };
-  startDate: Date;
-  endDate: Date;
-  paymentKind: string;
-  chargedAmount: number;
-  coveredRisks?: Array<{
-    risk?: { name: string };
-    coveragePercentage: number;
-  }>;
-  insuredObject?: Record<string, any>;
-  createdAt: Date;
-}
+import type { InsuranceContract as Contract } from '~/modules/insurance/types';
+import { isRecord } from '~/modules/insurance/utils/isRecord';
 
 const TEMPLATE_STORAGE_KEY = 'insurance_contract_template';
 
@@ -55,23 +32,25 @@ const SHARED_STYLES = `
     .status-pending { background-color: #fef3c7; color: #854d0e; }
 `;
 
-const formatDate = (date: Date) => {
-  return new Date(date).toLocaleDateString('mn-MN', {
+const formatDate = (date: string | null) => {
+  return new Date(date ?? 0).toLocaleDateString('mn-MN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
 };
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('mn-MN').format(amount) + '₮';
+const formatCurrency = (amount: number | null) => {
+  return new Intl.NumberFormat('mn-MN').format(amount ?? 0) + '₮';
 };
 
 function applyTemplatePlaceholders(
   template: string,
   contract: Contract,
 ): string {
-  const insuredObject = contract.insuredObject || {};
+  const insuredObject = isRecord(contract.insuredObject)
+    ? contract.insuredObject
+    : {};
   const carValuation =
     insuredObject.carValuation ||
     insuredObject.valuation ||
@@ -97,53 +76,65 @@ function applyTemplatePlaceholders(
     .replace(/\{\{chargedAmount\}\}/g, formatCurrency(contract.chargedAmount))
     .replace(
       /\{\{carBrand\}\}/g,
-      insuredObject.carBrand ||
-        insuredObject.brand ||
-        insuredObject.mark ||
-        'N/A',
+      String(
+        insuredObject.carBrand ||
+          insuredObject.brand ||
+          insuredObject.mark ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{carModel\}\}/g,
-      insuredObject.carModel ||
-        insuredObject.model ||
-        insuredObject.zagvar ||
-        'N/A',
+      String(
+        insuredObject.carModel ||
+          insuredObject.model ||
+          insuredObject.zagvar ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{carYear\}\}/g,
-      insuredObject.carYear ||
-        insuredObject.year ||
-        insuredObject.manufacturingYear ||
-        'N/A',
+      String(
+        insuredObject.carYear ||
+          insuredObject.year ||
+          insuredObject.manufacturingYear ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{plateNumber\}\}/g,
-      insuredObject.plateNumber ||
-        insuredObject.ulsNumber ||
-        insuredObject.licensePlate ||
-        'N/A',
+      String(
+        insuredObject.plateNumber ||
+          insuredObject.ulsNumber ||
+          insuredObject.licensePlate ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{vinNumber\}\}/g,
-      insuredObject.vinNumber ||
-        insuredObject.vin ||
-        insuredObject.chassisNumber ||
-        'N/A',
+      String(
+        insuredObject.vinNumber ||
+          insuredObject.vin ||
+          insuredObject.chassisNumber ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{engineNumber\}\}/g,
-      insuredObject.engineNumber || insuredObject.motorNumber || 'N/A',
+      String(insuredObject.engineNumber || insuredObject.motorNumber || 'N/A'),
     )
     .replace(
       /\{\{carColor\}\}/g,
-      insuredObject.carColor ||
-        insuredObject.color ||
-        insuredObject.ongo ||
-        'N/A',
+      String(
+        insuredObject.carColor ||
+          insuredObject.color ||
+          insuredObject.ongo ||
+          'N/A',
+      ),
     )
     .replace(
       /\{\{carValuation\}\}/g,
-      carValuation ? formatCurrency(carValuation) : 'N/A',
+      carValuation ? formatCurrency(Number(carValuation)) : 'N/A',
     );
 }
 
@@ -179,7 +170,7 @@ function generateDynamicSections(contract: Contract): string {
   }
 
   if (
-    contract.insuredObject &&
+    isRecord(contract.insuredObject) &&
     Object.keys(contract.insuredObject).length > 0
   ) {
     sections += `

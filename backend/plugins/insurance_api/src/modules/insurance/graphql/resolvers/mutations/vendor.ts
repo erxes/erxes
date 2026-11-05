@@ -1,4 +1,5 @@
-import { IContext } from '~/connectionResolvers';
+import type { IDiscountTier } from '@/insurance/@types/vendor';
+import type { IContext } from '~/connectionResolvers';
 
 export const vendorMutations = {
   createVendor: Object.assign(
@@ -24,7 +25,11 @@ export const vendorMutations = {
         { new: true },
       ).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
     },
     { wrapperConfig: { skipPermission: true } },
@@ -41,8 +46,8 @@ export const vendorMutations = {
       }: {
         vendorId: string;
         productId: string;
-        pricingOverride?: any;
-        discountTiers?: any[];
+        pricingOverride?: unknown;
+        discountTiers?: IDiscountTier[] | null;
       },
       { models }: IContext,
     ) => {
@@ -60,7 +65,11 @@ export const vendorMutations = {
         { new: true },
       ).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
@@ -68,7 +77,7 @@ export const vendorMutations = {
       return {
         ...vendor.toObject(),
         offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product != null,
+          (vp) => vp.product != null,
         ),
       };
     },
@@ -89,7 +98,11 @@ export const vendorMutations = {
         { new: true },
       ).populate({
         path: 'offeredProducts.product',
-        populate: [{ path: 'insuranceType' }, { path: 'coveredRisks.risk' }],
+        populate: [
+          { path: 'insuranceType' },
+          { path: 'coveredRisks.risk' },
+          { path: 'regions' },
+        ],
       });
 
       if (!vendor) return null;
@@ -97,7 +110,7 @@ export const vendorMutations = {
       return {
         ...vendor.toObject(),
         offeredProducts: vendor.offeredProducts.filter(
-          (vp: any) => vp.product != null,
+          (vp) => vp.product != null,
         ),
       };
     },

@@ -6,6 +6,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GenericRecordTable } from '../shared';
 import { InsuranceTypesMoreColumn } from './InsuranceTypesMoreColumn';
+import { Cell } from '@tanstack/table-core';
 
 interface InsuranceTypesRecordTableProps {
   onEdit?: (insuranceType: InsuranceType) => void;
@@ -24,7 +25,7 @@ export const InsuranceTypesRecordTable = ({
       if (col.id === 'more') {
         return {
           ...col,
-          cell: ({ cell }: { cell: any }) => (
+          cell: ({ cell }: { cell: Cell<InsuranceType, unknown> }) => (
             <InsuranceTypesMoreColumn
               cell={cell}
               onEdit={onEdit}

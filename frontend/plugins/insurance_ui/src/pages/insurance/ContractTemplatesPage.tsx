@@ -22,14 +22,15 @@ import {
   useCreateContractTemplate,
   useDeleteContractTemplate,
 } from '~/modules/insurance/hooks';
-import { useMutation, gql } from '@apollo/client';
+import { useMutation } from '@apollo/client';
+import { gql } from '~/gql';
 import { useTranslation } from 'react-i18next';
 
-const MIGRATE_TEMPLATE_COLLECTION = gql`
-  mutation MigrateTemplateCollection {
+const MIGRATE_TEMPLATE_COLLECTION = gql(`
+  mutation InsuranceMigrateTemplateCollection {
     _migrateTemplateCollection
   }
-`;
+`);
 
 export default function ContractTemplatesPage() {
   const { t } = useTranslation('insurance');
@@ -68,7 +69,7 @@ export default function ContractTemplatesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm(t('delete-template-confirm'))) {
+    if (window.confirm(t('delete-template-confirm'))) {
       try {
         await deleteContractTemplate({ variables: { id } });
       } catch (error) {
@@ -186,7 +187,7 @@ export default function ContractTemplatesPage() {
               <Input
                 id="name"
                 value={templateName}
-                onChange={(e: any) => setTemplateName(e.target.value)}
+                onChange={(e) => setTemplateName(e.target.value)}
                 placeholder={t('template-name-placeholder')}
               />
             </div>
@@ -196,7 +197,7 @@ export default function ContractTemplatesPage() {
               <Input
                 id="description"
                 value={templateDescription}
-                onChange={(e: any) => setTemplateDescription(e.target.value)}
+                onChange={(e) => setTemplateDescription(e.target.value)}
                 placeholder={t('template-description-placeholder')}
               />
             </div>
