@@ -1,20 +1,14 @@
-import { formatDate as format } from '@/utils/graphqlDate';
 import { useTranslation } from 'react-i18next';
 import { Separator, Skeleton, useQueryState } from 'erxes-ui';
 import type { RefObject } from 'react';
 import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
+import { formatReportPeriodQuery } from '@/journal-reports/utils/reportNavigation';
 import { ReportRules } from '../types/reportsMap';
 import { ReportExcelExportButton } from './ReportExcelExportButton';
 
 interface IReportHeaderProps {
   reportContainerRef: RefObject<HTMLDivElement>;
 }
-
-const parseQueryDate = (value?: string): string => {
-  if (!value) return '';
-
-  return format(new Date(value), 'yyyy-MM-dd HH:mm');
-};
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const { t } = useTranslation('accounting');
@@ -25,8 +19,8 @@ export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {
   const [toDate] = useQueryState<string>('toDate');
 
   const title = t(ReportRules[(report as string) || '']?.title || '');
-  const from = parseQueryDate(fromDate as string);
-  const to = parseQueryDate(toDate as string);
+  const from = formatReportPeriodQuery(fromDate);
+  const to = formatReportPeriodQuery(toDate);
 
   return (
     <>

@@ -87,15 +87,51 @@ describe('journal report drill-down navigation', () => {
     expect(new Date(2026, 9, 15, 18, 1) <= toDate).toBe(false);
   });
 
-  it('keeps the picked time when the day is changed', () => {
-    const picked = setReportPeriodTime(new Date(2026, 9, 31, 0, 0), {
-      hour: 14,
-      minute: 30,
-    });
-
-    expect(getReportPeriodParam('toDate', picked)).toBe(
-      '2026-10-31 14:30:59.999',
+  it('keeps the shift hours when drilling into a day of a shift report', () => {
+    const path = buildDetailedReportPath(
+      {
+        pathname: '/report',
+        search:
+          '?report=invSaleDaily&fromDate=2026-10-15+09%3A00%3A00&toDate=2026-10-15+18%3A00%3A59.999',
+      },
+      'invSaleDaily',
+      'date+2026-10-15T00:00:00.000Z',
     );
+    const params = new URLSearchParams(path.split('?')[1]);
+
+    expect(params.get('fromDate')).toBe('2026-10-15 09:00:00');
+    expect(params.get('toDate')).toBe('2026-10-15 18:00:59.999');
+  });
+
+  it('opens the whole day when drilling into a middle day of a timed period', () => {
+    const path = buildDetailedReportPath(
+      {
+        pathname: '/report',
+        search:
+          '?report=invSaleDaily&fromDate=2026-10-14+09%3A00%3A00&toDate=2026-10-16+18%3A00%3A59.999',
+      },
+      'invSaleDaily',
+      'date+2026-10-15T00:00:00.000Z',
+    );
+    const params = new URLSearchParams(path.split('?')[1]);
+
+    expect(params.get('fromDate')).toBe('2026-10-15 00:00:00');
+    expect(params.get('toDate')).toBe('2026-10-15 23:59:59.999');
+  });
+
+  it('falls back to the whole day when the period in the address is broken', () => {
+    const path = buildDetailedReportPath(
+      {
+        pathname: '/report',
+        search: '?report=invSaleDaily&fromDate=yesterday&toDate=',
+      },
+      'invSaleDaily',
+      'date+2026-10-15T00:00:00.000Z',
+    );
+    const params = new URLSearchParams(path.split('?')[1]);
+
+    expect(params.get('fromDate')).toBe('2026-10-15 00:00:00');
+    expect(params.get('toDate')).toBe('2026-10-15 23:59:59.999');
   });
 
   it('excludes transactions from the day after the selected period', () => {
