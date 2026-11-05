@@ -87,10 +87,18 @@ export const BoardForm = () => {
     if (!boardId) reset();
   }, [boardId, isCreating, reset]);
 
+  const loadedBoardIdRef = React.useRef<string | null>(null);
+
   React.useEffect(() => {
-    if (boardId && boardDetail?._id === boardId) {
-      reset({ name: boardDetail.name || '' }, { keepDefaultValues: true });
+    if (!boardId) {
+      loadedBoardIdRef.current = null;
+      return;
     }
+    if (loadedBoardIdRef.current === boardId || boardDetail?._id !== boardId) {
+      return;
+    }
+    loadedBoardIdRef.current = boardId;
+    reset({ name: boardDetail.name || '' }, { keepDefaultValues: true });
   }, [boardId, boardDetail, reset]);
 
   const handleClose = React.useCallback(() => {

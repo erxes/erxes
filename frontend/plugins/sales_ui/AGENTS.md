@@ -354,9 +354,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `BoardForm` has no trigger of its own: the dialog opens only from `boardId`
   (edit) or `createBoard` (add, the BOARDS group `+`), and closing clears
   both. Keep one instance: a second copy stacks two dialogs.
-  Edit fills the form from the loaded board with
-  `reset(values, { keepDefaultValues: true })`, so an unchanged name saves
-  and add still opens empty; Save is disabled while the board loads.
+  Edit fills the form once per opened board (`loadedBoardIdRef`) with
+  `reset(values, { keepDefaultValues: true })`, so an unchanged name saves,
+  add still opens empty, and an archive-triggered detail refetch keeps typed
+  edits; Save is disabled while the board loads.
 - Money and product text on board cards and column totals is `text-xs` (12 px)
   or larger with `tabular-nums`. Column headings are `text-base`, the same size
   as card titles.
