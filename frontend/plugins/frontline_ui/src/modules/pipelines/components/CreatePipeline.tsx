@@ -59,7 +59,6 @@ export const CreatePipelinePanelForm = ({
       draftsState: pipelineCreatePanelDraftsState,
       isNew: true,
     });
-  /** Discards the retained pipeline draft and closes its creation panel. */
   const cancel = () => {
     clearDraft();
     close();

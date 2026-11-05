@@ -41,7 +41,6 @@ export const ChannelCreateForm = () => {
       draftsState: channelPanelDraftsState,
       isNew: true,
     });
-  /** Discards the retained channel draft and closes its creation panel. */
   const cancel = () => {
     clearDraft();
     close();
