@@ -128,7 +128,9 @@ export const TemplateSelect = ({
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{t('colors')}</span>
+                <span className="text-xs text-muted-foreground">
+                  {t('colors')}
+                </span>
                 <span
                   className="w-5 h-5 rounded-full border border-border"
                   style={{ background: preview?.primaryColor }}
