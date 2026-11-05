@@ -1,22 +1,25 @@
 import { useMutation } from '@apollo/client';
 import { IconDotsVertical, IconKey, IconTrash } from '@tabler/icons-react';
 import { Button, Command, Popover, toast, useConfirm } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Can, useSidePanel } from 'ui-modules';
+import { Can, getSidePanelRecordPath, useSidePanel } from 'ui-modules';
 import { CP_USERS_REMOVE } from '@/contacts/client-portal-users/graphql/cpUsersRemove';
-import { GET_CLIENT_PORTAL_USERS } from '@/contacts/client-portal-users/graphql/getClientPortalUsers';
 import type { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
 import { CPUserSetPasswordDialog } from './CPUserSetPasswordDialog';
 
+/** Preserves the active record and filtered list when a CP-user deletion completes. */
 export const CPUserPanelActions = ({ user }: { user: ICPUser }) => {
   const { t } = useTranslation('contact');
   const { confirm } = useConfirm();
-  const { back, canGoBack, close } = useSidePanel();
+  const panel = useSidePanel();
+  const currentPanel = useRef(panel);
+  currentPanel.current = panel;
   const [open, setOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [remove, { loading }] = useMutation(CP_USERS_REMOVE, {
-    refetchQueries: [{ query: GET_CLIENT_PORTAL_USERS }],
+    refetchQueries: ['getClientPortalUsers'],
+    awaitRefetchQueries: true,
     onError: (error) =>
       toast({
         title: t('error', 'Error'),
@@ -24,8 +27,12 @@ export const CPUserPanelActions = ({ user }: { user: ICPUser }) => {
         variant: 'destructive',
       }),
     onCompleted: () => {
-      if (canGoBack) back();
-      else close();
+      currentPanel.current.dismissPath(
+        getSidePanelRecordPath({
+          contentType: 'core:cpUser',
+          contentId: user._id,
+        }),
+      );
       toast({
         title: t('success', 'Success'),
         description: t('clientPortalUser.delete.success', 'User deleted'),

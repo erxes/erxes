@@ -16,11 +16,12 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, Command, Popover, toast, useConfirm } from 'erxes-ui';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   ExportFieldSelection,
+  getSidePanelRecordPath,
   PrintDocument,
   useExport,
   usePermissionCheck,
@@ -39,7 +40,9 @@ export const ContactPanelRecordActions = ({
   const { t: exportT } = useTranslation('importExport');
   const { t: broadcastT } = useTranslation('broadcasts');
   const { hasActionPermission } = usePermissionCheck();
-  const { close } = useSidePanel();
+  const panel = useSidePanel();
+  const currentPanel = useRef(panel);
+  currentPanel.current = panel;
   const { confirm } = useConfirm();
   const { setContacts } = useBroadcastContacts();
   const [params] = useSearchParams();
@@ -77,7 +80,9 @@ export const ContactPanelRecordActions = ({
         cache.gc();
       },
       onCompleted: () => {
-        close();
+        currentPanel.current.dismissPath(
+          getSidePanelRecordPath({ contentType, contentId }),
+        );
         toast({
           title: t('deleted-success', 'Contact deleted'),
           variant: 'success',

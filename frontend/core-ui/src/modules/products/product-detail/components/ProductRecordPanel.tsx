@@ -78,6 +78,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
   const expanded = usePanelExpanded();
   const parentView = useContext(PanelRecordContext);
   const [selectedTab, setSelectedTab] = useState(parentView?.tab || 'overview');
+  const [resetVersion, setResetVersion] = useState(0);
   const { productDetail, productId, loading, error, refetch } =
     useProductDetailWithQuery();
   const { productsEdit, loading: editLoading } = useProductsEdit();
@@ -200,9 +201,13 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
     });
   };
 
+  /** Restores form values and remounts media controls that keep local selections. */
   const handleCancel = () => {
     const defaults = getProductFormDefaultValues(productDetail);
-    if (defaults) form.reset(defaults);
+    if (defaults) {
+      form.reset(defaults);
+      setResetVersion((version) => version + 1);
+    }
   };
 
   const scroll = (children: React.ReactNode) => (
@@ -280,7 +285,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
                         className="min-w-0"
                       >
                         <ProductDetailFields
-                          key={`${productId}-${formVersion}`}
+                          key={`${productId}-${formVersion}-${resetVersion}`}
                           productDetail={productDetail}
                           compact
                         />
