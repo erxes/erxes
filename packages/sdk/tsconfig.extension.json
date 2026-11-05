@@ -1,0 +1,29 @@
+{
+  // What every extension's tsconfig.json extends: one program over server/
+  // and ui/src/, resolving erxes-sdk, erxes-ui and ui-modules from the
+  // monorepo. Paths here are relative to this file.
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "paths": {
+      "erxes-sdk": ["./src/index.ts"],
+      "erxes-sdk/*": ["./src/*"],
+      "erxes-ui": ["../../frontend/libs/erxes-ui/src/index.ts"],
+      "erxes-ui/*": ["../../frontend/libs/erxes-ui/src/*"],
+      "ui-modules": ["../../frontend/libs/ui-modules/src/index.ts"],
+      // One copy of these for the extension and erxes-ui, or their types
+      // don't match.
+      "react": ["../../node_modules/@types/react"],
+      "react/*": ["../../node_modules/@types/react/*"],
+      "react-hook-form": ["../../node_modules/react-hook-form"]
+    }
+  },
+  "include": ["${configDir}/server", "${configDir}/ui/src"]
+}
