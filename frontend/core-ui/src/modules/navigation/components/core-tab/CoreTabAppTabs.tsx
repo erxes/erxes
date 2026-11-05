@@ -201,6 +201,7 @@ export const CoreTabAppTabs = ({
   onSelect: (tabId: string) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const tabListRef = useRef<HTMLDivElement | null>(null);
   const tabStopId = tabs.some((tab) => tab.id === activeTabId)
     ? activeTabId
     : tabs[0]?.id;
@@ -222,13 +223,27 @@ export const CoreTabAppTabs = ({
     }
   };
 
+  const handleClose = (index: number) => {
+    const tabElements =
+      tabListRef.current?.querySelectorAll<HTMLElement>('[role="tab"]');
+    const survivor = index < tabs.length - 1 ? index + 1 : index - 1;
+    const focusTarget =
+      tabElements?.[survivor] ??
+      tabListRef.current
+        ?.closest('header')
+        ?.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
+
+    onClose(tabs[index].id);
+    // Context menus release their focus scope when the closing tab unmounts.
+    requestAnimationFrame(() => focusTarget?.focus());
+  };
+
   const handleTabKeyDown = (
     event: KeyboardEvent<HTMLDivElement>,
     index: number,
   ) => {
-    const tabElements = event.currentTarget
-      .closest('[role="tablist"]')
-      ?.querySelectorAll<HTMLElement>('[role="tab"]');
+    const tabElements =
+      tabListRef.current?.querySelectorAll<HTMLElement>('[role="tab"]');
     const lastIndex = tabs.length - 1;
     let nextIndex: number;
 
@@ -248,16 +263,7 @@ export const CoreTabAppTabs = ({
       case 'Delete':
       case 'Backspace': {
         event.preventDefault();
-        const survivor = index < lastIndex ? index + 1 : index - 1;
-        const focusTarget =
-          tabElements?.[survivor] ??
-          event.currentTarget
-            .closest('header')
-            ?.querySelector<HTMLButtonElement>(
-              'button[aria-haspopup="dialog"]',
-            );
-        focusTarget?.focus();
-        onClose(tabs[index].id);
+        handleClose(index);
         return;
       }
       default:
@@ -278,6 +284,7 @@ export const CoreTabAppTabs = ({
       onDragEnd={handleDragEnd}
     >
       <div
+        ref={tabListRef}
         role="tablist"
         aria-label={t('plugins')}
         className="hide-scroll flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
@@ -294,7 +301,7 @@ export const CoreTabAppTabs = ({
               tabbable={tab.id === tabStopId}
               canCloseOthers={tabs.length > 1}
               canCloseToRight={index < tabs.length - 1}
-              onClose={() => onClose(tab.id)}
+              onClose={() => handleClose(index)}
               onCloseOthers={() => onCloseOthers(tab.id)}
               onCloseToRight={() => onCloseToRight(tab.id)}
               onSelect={() => onSelect(tab.id)}

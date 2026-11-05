@@ -1,4 +1,4 @@
-import { startTransition, useCallback, useEffect, useMemo } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
@@ -76,12 +76,23 @@ export const useAppTabs = () => {
     : findAppActivityByPath(activities, pathname);
   const routeActivityId = routeActivity?.id;
   const location = `${pathname}${search}`;
+  // Another tab action can arrive before the route transition commits.
+  const pendingNavigationRef = useRef<{ activityId?: string } | null>(null);
   const tabIds = resolveAppTabIds(storedTabIds, activities);
   const tabs = tabIds.flatMap((id) => {
     const activity = activities.find((item) => item.id === id);
 
     return activity ? [activity] : [];
   });
+
+  useEffect(() => {
+    pendingNavigationRef.current = null;
+  }, [location]);
+
+  const getTargetActivityId = () =>
+    pendingNavigationRef.current
+      ? pendingNavigationRef.current.activityId
+      : routeActivityId;
 
   // Remember where each app was left, like a browser tab.
   useEffect(() => {
@@ -112,16 +123,18 @@ export const useAppTabs = () => {
   }, [activities, routeActivityId, setStoredTabIds]);
 
   const go = useCallback(
-    (path: string) =>
+    (path: string, activityId?: string) => {
+      pendingNavigationRef.current = { activityId };
       startTransition(() => {
         navigate(path);
-      }),
+      });
+    },
     [navigate],
   );
 
   const resume = useCallback(
     (activity: INavigationActivity) =>
-      go(lastLocations[activity.id] || toHomePath(activity)),
+      go(lastLocations[activity.id] || toHomePath(activity), activity.id),
     [go, lastLocations],
   );
 
@@ -139,8 +152,8 @@ export const useAppTabs = () => {
 
   /** Open (or switch to) an app; re-selecting the open app goes home. */
   const selectActivity = (activity: INavigationActivity) => {
-    if (activity.id === routeActivityId) {
-      go(toHomePath(activity));
+    if (activity.id === getTargetActivityId()) {
+      go(toHomePath(activity), activity.id);
       return;
     }
 
@@ -150,7 +163,7 @@ export const useAppTabs = () => {
   const selectTab = (tabId: string) => {
     const activity = tabs.find((tab) => tab.id === tabId);
 
-    if (activity && activity.id !== routeActivityId) {
+    if (activity && activity.id !== getTargetActivityId()) {
       resume(activity);
     }
   };
@@ -164,7 +177,9 @@ export const useAppTabs = () => {
     setStoredTabIds(remainingIds);
     forget(closedIds);
 
-    if (!routeActivityId || !closedIds.includes(routeActivityId)) {
+    const targetActivityId = getTargetActivityId();
+
+    if (!targetActivityId || !closedIds.includes(targetActivityId)) {
       return;
     }
 
