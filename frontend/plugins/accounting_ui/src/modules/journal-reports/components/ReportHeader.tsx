@@ -13,7 +13,7 @@ interface IReportHeaderProps {
 const parseQueryDate = (value?: string): string => {
   if (!value) return '';
 
-  return format(new Date(value), 'yyyy-MM-dd');
+  return format(new Date(value), 'yyyy-MM-dd HH:mm');
 };
 
 export const ReportHeader = ({ reportContainerRef }: IReportHeaderProps) => {

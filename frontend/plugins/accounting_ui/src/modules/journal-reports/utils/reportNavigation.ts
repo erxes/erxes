@@ -37,12 +37,26 @@ const getDatePart = (value: string) => {
   return `${year}-${month}-${day}`;
 };
 
-export const getReportPeriodParam = (
-  key: 'fromDate' | 'toDate',
-  date: Date,
-) => {
-  const datePart = formatDate(date, 'yyyy-MM-dd');
-  return key === 'toDate' ? `${datePart} 23:59:59.999` : `${datePart} 00:00:00`;
+type ReportPeriodKey = 'fromDate' | 'toDate';
+
+type ReportPeriodTime = { hour: number; minute: number };
+
+export const REPORT_PERIOD_DEFAULT_TIME: Record<
+  ReportPeriodKey,
+  ReportPeriodTime
+> = {
+  fromDate: { hour: 0, minute: 0 },
+  toDate: { hour: 23, minute: 59 },
+};
+
+export const setReportPeriodTime = (
+  day: Date,
+  { hour, minute }: ReportPeriodTime,
+) => new Date(day.getFullYear(), day.getMonth(), day.getDate(), hour, minute);
+
+export const getReportPeriodParam = (key: ReportPeriodKey, date: Date) => {
+  const minutePart = formatDate(date, 'yyyy-MM-dd HH:mm');
+  return key === 'toDate' ? `${minutePart}:59.999` : `${minutePart}:00`;
 };
 
 export const getReportGroupsFromAttr = (attr: string) =>
