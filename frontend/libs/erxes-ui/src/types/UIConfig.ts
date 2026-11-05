@@ -187,6 +187,7 @@ export type IUIConfig = {
       tabs?: {
         value: string;
         label: string;
+        labelKey?: string;
         icon?: Icon;
         after?: 'detail' | 'properties' | 'activity';
       }[];

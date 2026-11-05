@@ -16,6 +16,7 @@ export const useRecordPanelPlugin = (
   contentType: string,
 ): {
   pluginName: string | null;
+  i18nNamespace: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
   tabs: TRecordPanelPluginTab[];
@@ -40,6 +41,7 @@ export const useRecordPanelPlugin = (
     ) {
       return {
         pluginName: null,
+        i18nNamespace: null,
         hasProperties: false,
         hasDraftTitle: false,
         tabs: [],
@@ -48,6 +50,7 @@ export const useRecordPanelPlugin = (
 
     return {
       pluginName: plugin.name,
+      i18nNamespace: plugin.i18nNamespace ?? plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
       tabs: panel?.tabs ?? [],
