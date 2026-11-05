@@ -1,5 +1,53 @@
 
 
+## [3.4.13](https://github.com/erxes/erxes/compare/3.4.12...3.4.13) (2026-11-04)
+
+
+### Bug Fixes
+
+* **accounting:** explain journal reports whose rows are all zero ([#10343](https://github.com/erxes/erxes/issues/10343)) ([ee36560](https://github.com/erxes/erxes/commit/ee3656066a317d7c3e53475a8ea89f0a886da294))
+* **accounting:** show a not-found page for unknown accounting addresses ([#10340](https://github.com/erxes/erxes/issues/10340)) ([d23de85](https://github.com/erxes/erxes/commit/d23de8520adf24bc44ee006581884b29eaf4ce05))
+* **frontline:** prevent field loss when editing forms ([a11722e](https://github.com/erxes/erxes/commit/a11722e79ebd875c0588cc81381d0c26e2155300))
+* **pricing:** posorder check pricing createdAt ([9501dc6](https://github.com/erxes/erxes/commit/9501dc6d073d54fa28a63b7ebc64ba0617701d2f))
+* sales products data manage check by permission ([4c491cb](https://github.com/erxes/erxes/commit/4c491cb9a1d028a26f835465e8b6d5b9d53c2737))
+
+
+### Features
+
+* integrate Assistant Lens and Companion ([#10141](https://github.com/erxes/erxes/issues/10141)) ([df659bf](https://github.com/erxes/erxes/commit/df659bf62532f63140e41aa843b245624aae9fd5))
+
+## [3.4.12](https://github.com/erxes/erxes/compare/3.4.11...3.4.12) (2026-11-04)
+
+
+### Bug Fixes
+
+* **accounting:** show the real scope when deleting journal entries ([#10323](https://github.com/erxes/erxes/issues/10323)) ([fec3d65](https://github.com/erxes/erxes/commit/fec3d652373c74ba1c1b0c2b3f8e1b72d59a3e83))
+* **frontline:** call the Instagram page hook before early returns ([1dfb0c4](https://github.com/erxes/erxes/commit/1dfb0c449c2700768a492e648c3c73d03b41323f))
+
+## [3.4.11](https://github.com/erxes/erxes/compare/3.4.10...3.4.11) (2026-11-04)
+
+
+### Bug Fixes
+
+* **accounting:** print the company name on journal reports instead of OrgName ([#10327](https://github.com/erxes/erxes/issues/10327)) ([6bdc3c4](https://github.com/erxes/erxes/commit/6bdc3c4318c90f0955fd55e800db01cde51bdc78))
+* **accounting:** refresh journal entries after transaction changes and mark missing side ([#10325](https://github.com/erxes/erxes/issues/10325)) ([6dc94b8](https://github.com/erxes/erxes/commit/6dc94b86c38c7b051add605f722844eb8ec675d1))
+* **accounting:** require report period and explain empty journal reports ([#10326](https://github.com/erxes/erxes/issues/10326)) ([c909036](https://github.com/erxes/erxes/commit/c909036064d840fe82e4d332a8a0dd55bffe63aa))
+* ebarimt putresponse date string with timezone ([8aa55bb](https://github.com/erxes/erxes/commit/8aa55bb1a5d3888aa2025edd90786e83d98c319b))
+* **frontline:** channel form creation flox fixes ([#9957](https://github.com/erxes/erxes/issues/9957)) ([935418f](https://github.com/erxes/erxes/commit/935418fb581a0e2f63e167a0352ba943f9437be2))
+* **frontline:** filter inbox conversations by creation date only ([28b6b4d](https://github.com/erxes/erxes/commit/28b6b4d91b0fdbac8fd30741733dd3143e308bad))
+* **frontline:** show every Instagram account in the bot connect sheet ([c636e28](https://github.com/erxes/erxes/commit/c636e28e9a05370a8eb9ca78e2cde1629b391bc2))
+* **frontline:** start form transactions on the driver client ([5734785](https://github.com/erxes/erxes/commit/573478598562ea005d38ba83c1b820e5987bb024))
+* **mongolian:** get deals company some feature ([44484a4](https://github.com/erxes/erxes/commit/44484a49d0e6d5cdd30bdf442c803c04aa160afd))
+* **sales:** scope POS covers list to its POS and fix count and paging ([#10186](https://github.com/erxes/erxes/issues/10186)) ([d4a83ca](https://github.com/erxes/erxes/commit/d4a83ca0445c8eba0c27a0d504ecdffa76811b19))
+
+
+### Features
+
+* **frontline:** apply core team member restriction to ticket lists ([259b889](https://github.com/erxes/erxes/commit/259b889363f4eb230da8c6b6416f7cac1a592122))
+* **payment:** reuse pending invoice in generateInvoiceUrl ([#9956](https://github.com/erxes/erxes/issues/9956)) ([3fa9db2](https://github.com/erxes/erxes/commit/3fa9db20805374713688e2fb034e15c78f4f9e24))
+* **products:** implement category creation for missing categories during import ([a50dfa4](https://github.com/erxes/erxes/commit/a50dfa4cab4882e48dc65160ae2fe08cb2f768cf))
+* **segment:** add date support to segment conditions and forms ([#9582](https://github.com/erxes/erxes/issues/9582)) ([9328656](https://github.com/erxes/erxes/commit/93286561db34128efc0b9a6f2ced9a7e8c1e4c99))
+
 ## [3.4.10](https://github.com/erxes/erxes/compare/3.4.9...3.4.10) (2026-11-03)
 
 
