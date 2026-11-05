@@ -23,7 +23,7 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, ContextMenu, cn } from 'erxes-ui';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
@@ -32,21 +32,25 @@ import { useTranslation } from 'react-i18next';
 const CoreTabAppTab = ({
   activity,
   active,
+  tabbable,
   canCloseOthers,
   canCloseToRight,
   onClose,
   onCloseOthers,
   onCloseToRight,
   onSelect,
+  onKeyDown,
 }: Readonly<{
   activity: INavigationActivity;
   active: boolean;
+  tabbable: boolean;
   canCloseOthers: boolean;
   canCloseToRight: boolean;
   onClose: () => void;
   onCloseOthers: () => void;
   onCloseToRight: () => void;
   onSelect: () => void;
+  onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const tabRef = useRef<HTMLDivElement | null>(null);
@@ -84,7 +88,7 @@ const CoreTabAppTab = ({
           ref={setTabRef}
           role="tab"
           aria-selected={active}
-          tabIndex={active ? 0 : -1}
+          tabIndex={tabbable ? 0 : -1}
           title={
             activity.platformMismatch
               ? `${activity.label} — ${activity.platformMismatch}`
@@ -106,10 +110,13 @@ const CoreTabAppTab = ({
             }
           }}
           onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();
               onSelect();
+              return;
             }
+            onKeyDown(event);
           }}
         >
           {/* On hover the icon turns into a grip: tabs can be dragged. */}
@@ -145,6 +152,7 @@ const CoreTabAppTab = ({
             size="icon"
             title={closeLabel}
             type="button"
+            tabIndex={-1}
             variant="ghost"
             onClick={(event) => {
               event.stopPropagation();
@@ -193,6 +201,9 @@ export const CoreTabAppTabs = ({
   onSelect: (tabId: string) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const tabStopId = tabs.some((tab) => tab.id === activeTabId)
+    ? activeTabId
+    : tabs[0]?.id;
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, {
@@ -209,6 +220,53 @@ export const CoreTabAppTabs = ({
     ) {
       onMove(active.id, over.id);
     }
+  };
+
+  const handleTabKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+    index: number,
+  ) => {
+    const tabElements = event.currentTarget
+      .closest('[role="tablist"]')
+      ?.querySelectorAll<HTMLElement>('[role="tab"]');
+    const lastIndex = tabs.length - 1;
+    let nextIndex: number;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        nextIndex = (index + 1) % tabs.length;
+        break;
+      case 'ArrowLeft':
+        nextIndex = (index + lastIndex) % tabs.length;
+        break;
+      case 'Home':
+        nextIndex = 0;
+        break;
+      case 'End':
+        nextIndex = lastIndex;
+        break;
+      case 'Delete':
+      case 'Backspace': {
+        event.preventDefault();
+        const survivor = index < lastIndex ? index + 1 : index - 1;
+        const focusTarget =
+          tabElements?.[survivor] ??
+          event.currentTarget
+            .closest('header')
+            ?.querySelector<HTMLButtonElement>(
+              'button[aria-haspopup="dialog"]',
+            );
+        focusTarget?.focus();
+        onClose(tabs[index].id);
+        return;
+      }
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    tabElements?.[nextIndex]?.focus();
+    onSelect(tabs[nextIndex].id);
   };
 
   return (
@@ -233,12 +291,14 @@ export const CoreTabAppTabs = ({
               key={tab.id}
               activity={tab}
               active={tab.id === activeTabId}
+              tabbable={tab.id === tabStopId}
               canCloseOthers={tabs.length > 1}
               canCloseToRight={index < tabs.length - 1}
               onClose={() => onClose(tab.id)}
               onCloseOthers={() => onCloseOthers(tab.id)}
               onCloseToRight={() => onCloseToRight(tab.id)}
               onSelect={() => onSelect(tab.id)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
             />
           ))}
         </SortableContext>
