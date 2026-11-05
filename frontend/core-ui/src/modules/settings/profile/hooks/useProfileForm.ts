@@ -14,6 +14,9 @@ export const profileValidationSchema = z
     details: z
       .object({
         avatar: z.string().optional().nullable(),
+        coverPhoto: z.string().optional().nullable(),
+        description: z.string().optional().nullable(),
+        position: z.string().optional().nullable(),
         firstName: z.string().optional().nullable(),
         lastName: z.string().optional().nullable(),
         middleName: z.string().optional().nullable(),
@@ -85,6 +88,7 @@ export const profileValidationSchema = z
           .optional()
           .or(z.literal('')),
       })
+      .passthrough()
       .nullish()
       .transform((links) => links ?? {}),
     username: z.string().min(3, 'Username must be at least 3 characters'),

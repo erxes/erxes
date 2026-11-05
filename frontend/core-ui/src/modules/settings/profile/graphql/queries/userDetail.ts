@@ -11,6 +11,9 @@ export const GET_USER_DETAIL = gql`
       status
       details {
         avatar
+        coverPhoto
+        position
+        location
         fullName
         shortName
         description

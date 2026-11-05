@@ -23,6 +23,9 @@ export const UPDATE_PROFILE = gql`
       isOnboarded
       details {
         avatar
+        coverPhoto
+        position
+        location
         fullName
         shortName
         description
