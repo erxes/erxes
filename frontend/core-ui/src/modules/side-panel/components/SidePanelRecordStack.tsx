@@ -16,6 +16,7 @@ import {
 import { CoreModulePanelSlot } from '@/side-panel/components/CoreModulePanelSlot';
 import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 
+/** Retains one editor with its captured draft defaults and record context. */
 const RecordEntry = ({
   active,
   View,
@@ -88,16 +89,20 @@ export const SidePanelRecordStack = ({
     setStack({ path, session, paths: [...history, path] });
   }
   const paths = stack.paths;
+  const occurrences = new Map<string, number>();
 
   return (
     <>
       {paths.map((entry, index) => {
+        const occurrence = occurrences.get(entry) ?? 0;
+        occurrences.set(entry, occurrence + 1);
+        const entryKey = JSON.stringify([session, entry, occurrence]);
         const record = parseSidePanelRecord(entry);
         if (!record && !isModulePanelPath(entry)) return null;
         if (!record) {
           return (
             <div
-              key={`${session}:${index}:${entry}`}
+              key={entryKey}
               hidden={index !== paths.length - 1}
               aria-hidden={index !== paths.length - 1}
               {...(index !== paths.length - 1 ? { inert: '' } : {})}
@@ -114,7 +119,7 @@ export const SidePanelRecordStack = ({
 
         return (
           <RecordEntry
-            key={`${session}:${index}:${entry}`}
+            key={entryKey}
             active={index === paths.length - 1}
             View={View}
             record={record}

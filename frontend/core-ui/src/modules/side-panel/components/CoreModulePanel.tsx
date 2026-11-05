@@ -1,13 +1,21 @@
+import type {
+  TModulePanelProps,
+  TModulePanelViewProps,
+  ModulePanelContextValue,
+  TCoreModulePanel,
+  TCoreFocusPanel,
+} from '@/side-panel/types/CoreModulePanelTypes';
 import { Button, cn, Empty, FocusSheet, Sheet, Spinner } from 'erxes-ui';
 import { IconChevronLeft } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
-  ComponentProps,
+  type ComponentProps,
   createContext,
   forwardRef,
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -28,21 +36,7 @@ import {
   modulePanelTargetsState,
 } from '@/side-panel/states/modulePanelState';
 
-type TModulePanelProps = ComponentProps<typeof Sheet> & {
-  name: string;
-  maxWidth?: number;
-  defaultWidth?: number;
-  requiredPermission?: string;
-};
-
-const ModulePanelContext = createContext<{
-  path: string;
-  name: string;
-  open: boolean;
-  allowed: boolean;
-  onClose: () => void;
-  onOpen: () => void;
-} | null>(null);
+const ModulePanelContext = createContext<ModulePanelContextValue>(null);
 
 // Page-owned editors use the same app-wide column as records. The existing
 // Sheet/FocusSheet roots only supply trigger, close and form-widget contexts;
@@ -59,7 +53,8 @@ const ModulePanelRoot = ({
   children,
 }: TModulePanelProps & { focus?: boolean }) => {
   const panel = useSidePanel();
-  const { hasActionPermission } = usePermissionCheck();
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const permissionsLoaded = !requiredPermission || isLoaded;
   const allowed =
     !requiredPermission || hasActionPermission(requiredPermission);
   const history = useAtomValue(sidePanelHistoryState);
@@ -81,32 +76,37 @@ const ModulePanelRoot = ({
   const previous = useRef<{ open: boolean; path: string } | null>(null);
   const previousRoute = useRef(panel.path);
 
+  /** Keeps controlled and internal open state synchronized. */
   const changeLocalOpen = (next: boolean) => {
     setInternalOpen(next);
     onOpenChange?.(next);
   };
+  /** Dismisses this module entry while retaining the surrounding record history. */
   const leave = () => {
     panel.dismissPath(path);
   };
+  /** Connects module open state with shared panel navigation. */
   const changeOpen = (next: boolean) => {
     if (!next) leave();
     changeLocalOpen(next);
-    if (next) panel.openPath(path, { stack: !!parent || inRecord });
+    if (next) panel.openPath(path, { stack: Boolean(parent) || inRecord });
   };
   const actions = useRef({
     panel,
     changeLocalOpen,
     changeOpen,
     leave,
-    stack: !!parent || inRecord,
+    stack: Boolean(parent) || inRecord,
   });
-  actions.current = {
-    panel,
-    changeLocalOpen,
-    changeOpen,
-    leave,
-    stack: !!parent || inRecord,
-  };
+  useLayoutEffect(() => {
+    actions.current = {
+      panel,
+      changeLocalOpen,
+      changeOpen,
+      leave,
+      stack: Boolean(parent) || inRecord,
+    };
+  });
 
   useEffect(() => {
     const before = previous.current;
@@ -146,7 +146,7 @@ const ModulePanelRoot = ({
 
   const retained = open || panel.path === path || history.includes(path);
   useEffect(() => {
-    if (!retained) return;
+    if (!retained) return undefined;
     const entry = {
       onClose: () => actions.current.changeOpen(false),
       maxWidth,
@@ -156,9 +156,9 @@ const ModulePanelRoot = ({
     return () =>
       setEntries((entries) => {
         if (entries[path] !== entry) return entries;
-        const next = { ...entries };
-        delete next[path];
-        return next;
+        return Object.fromEntries(
+          Object.entries(entries).filter(([key]) => key !== path),
+        );
       });
   }, [retained, path, setEntries, maxWidth, defaultWidth]);
 
@@ -170,10 +170,19 @@ const ModulePanelRoot = ({
       name: qualifiedName,
       open: retained,
       allowed,
+      permissionsLoaded,
       onClose,
       onOpen,
     }),
-    [path, qualifiedName, retained, allowed, onClose, onOpen],
+    [
+      path,
+      qualifiedName,
+      retained,
+      allowed,
+      permissionsLoaded,
+      onClose,
+      onOpen,
+    ],
   );
   const Root = focus ? FocusSheet : Sheet;
   return (
@@ -185,14 +194,7 @@ const ModulePanelRoot = ({
   );
 };
 
-type TModulePanelViewProps = ComponentProps<typeof Sheet.View> & {
-  loading?: boolean;
-  error?: boolean;
-  notFound?: boolean;
-  errorState?: React.ReactNode;
-  notFoundState?: React.ReactNode;
-};
-
+/** Shows an editor status message in the panel column. */
 const ModulePanelMessage = ({ title }: { title: string }) => (
   <Empty>
     <Empty.Header>
@@ -201,6 +203,7 @@ const ModulePanelMessage = ({ title }: { title: string }) => (
   </Empty>
 );
 
+/** Selects permission, loading, error, and missing states before editor content mounts. */
 const ModulePanelStatus = ({
   allowed,
   loading,
@@ -274,10 +277,14 @@ const ModulePanelView = forwardRef<HTMLDivElement, TModulePanelViewProps>(
               'relative! inset-auto! h-full! w-full! min-w-0! max-w-none! rounded-none! shadow-none!',
             )}
           >
-            {!context.allowed || loading || error || notFound ? (
+            {!context.permissionsLoaded ||
+            !context.allowed ||
+            loading ||
+            error ||
+            notFound ? (
               <ModulePanelStatus
-                allowed={context.allowed}
-                loading={loading}
+                allowed={!context.permissionsLoaded || context.allowed}
+                loading={!context.permissionsLoaded || loading}
                 error={error}
                 errorState={errorState}
                 notFoundState={notFoundState}
@@ -295,6 +302,7 @@ const ModulePanelView = forwardRef<HTMLDivElement, TModulePanelViewProps>(
 );
 ModulePanelView.displayName = 'ModulePanelView';
 
+/** Returns from a nested editor through shared record history. */
 const ModulePanelBack = () => {
   const { back, canGoBack } = useSidePanel();
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -312,6 +320,7 @@ const ModulePanelBack = () => {
   ) : null;
 };
 
+/** Aligns editor headings and their Back control with record panels. */
 const ModulePanelHeader = ({
   className,
   children,
@@ -345,6 +354,7 @@ const ModulePanelTrigger = forwardRef<
   );
 });
 ModulePanelTrigger.displayName = 'ModulePanelTrigger';
+/** Keeps module content scrollable within the available panel height. */
 const ModulePanelContent = ({
   className,
   ...props
@@ -354,6 +364,7 @@ const ModulePanelContent = ({
     {...props}
   />
 );
+/** Keeps editor actions outside the scrolling module body. */
 const ModulePanelFooter = ({
   className,
   ...props
@@ -364,20 +375,25 @@ const ModulePanelFooter = ({
   />
 );
 
-export const CoreModulePanel = Object.assign(ModulePanelRoot, {
-  Trigger: ModulePanelTrigger,
-  View: ModulePanelView,
-  Header: ModulePanelHeader,
-  Content: ModulePanelContent,
-  Footer: ModulePanelFooter,
-  Title: Sheet.Title,
-  Description: Sheet.Description,
-  Close: Sheet.Close,
-});
+export const CoreModulePanel: TCoreModulePanel = Object.assign(
+  ModulePanelRoot,
+  {
+    Trigger: ModulePanelTrigger,
+    View: ModulePanelView,
+    Header: ModulePanelHeader,
+    Content: ModulePanelContent,
+    Footer: ModulePanelFooter,
+    Title: Sheet.Title,
+    Description: Sheet.Description,
+    Close: Sheet.Close,
+  },
+);
 
+/** Provides focus-sheet contexts through the shared module panel host. */
 const FocusPanelRoot = (props: TModulePanelProps) => (
   <ModulePanelRoot {...props} focus />
 );
+/** Preserves focus-sheet headings inside the shared record panel. */
 const FocusPanelHeader = ({
   className,
   title,
@@ -396,6 +412,7 @@ const FocusPanelHeader = ({
     <Sheet.Close />
   </ModulePanelHeader>
 );
+/** Constrains focus-sheet content to the module panel body. */
 const FocusPanelContent = ({
   className,
   ...props
@@ -405,6 +422,7 @@ const FocusPanelContent = ({
     {...props}
   />
 );
+/** Displays focus-sheet sections as a horizontal strip in the panel. */
 const FocusPanelSidebar = ({
   children,
 }: ComponentProps<typeof FocusSheet.SideBar>) => (
@@ -412,7 +430,7 @@ const FocusPanelSidebar = ({
     {children}
   </div>
 );
-export const CoreFocusPanel = Object.assign(FocusPanelRoot, {
+export const CoreFocusPanel: TCoreFocusPanel = Object.assign(FocusPanelRoot, {
   ...FocusSheet,
   Trigger: ModulePanelTrigger,
   View: ModulePanelView,

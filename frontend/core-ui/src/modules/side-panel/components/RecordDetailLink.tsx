@@ -6,6 +6,7 @@ import {
   SIDE_PANEL_HISTORY_QUERY_KEY,
 } from 'ui-modules';
 
+/** Redirects a legacy record URL into shared panel history. */
 export const RecordDetailLink = ({
   queryKey,
   contentType,

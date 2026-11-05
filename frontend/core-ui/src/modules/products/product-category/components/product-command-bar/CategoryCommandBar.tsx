@@ -1,4 +1,4 @@
-import { IconPlus } from '@tabler/icons-react';
+import { IconBrandDatabricks, IconPlus } from '@tabler/icons-react';
 import { Button, CommandBar, RecordTable, Separator } from 'erxes-ui';
 import { CategoriesDelete } from '@/products/product-category/components/product-command-bar/delete/CategoryDelete';
 import { useState } from 'react';
@@ -15,6 +15,7 @@ export const CategoryCommandBar = () => {
   const { table } = RecordTable.useRecordTable();
   const { openPath } = useSidePanel();
   const [refreshKey, setRefreshKey] = useState(0);
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const selectedRows = table.getFilteredSelectedRowModel().rows;
   const selectedCategories = selectedRows.map((row) => row.original);
 
@@ -24,35 +25,48 @@ export const CategoryCommandBar = () => {
   };
 
   return (
-    <CommandBar key={refreshKey} open={selectedRows.length > 0}>
-      <CommandBar.Bar>
-        <CommandBar.Value>
-          {t('selected', { count: selectedRows.length })}
-        </CommandBar.Value>
-        <Separator.Inline />
-        <CategoriesDelete
-          categories={selectedCategories}
-          onDeleteSuccess={resetSelection}
-        />
-        <Separator.Inline />
-        <Can action="productCategoriesManage">
+    <>
+      <CommandBar key={refreshKey} open={selectedRows.length > 0}>
+        <CommandBar.Bar>
+          <CommandBar.Value>
+            {t('selected', { count: selectedRows.length })}
+          </CommandBar.Value>
+          <Separator.Inline />
+          <CategoriesDelete
+            categories={selectedCategories}
+            onDeleteSuccess={resetSelection}
+          />
+          <Separator.Inline />
+          <Can action="productCategoriesManage">
+            <Button
+              variant="secondary"
+              onClick={() =>
+                openPath(getModulePanelPath(PRODUCT_CATEGORY_CREATE_PANEL))
+              }
+            >
+              <IconPlus />
+              {t('create')}
+            </Button>
+          </Can>
+
+          <Separator.Inline />
           <Button
             variant="secondary"
-            onClick={() =>
-              openPath(getModulePanelPath(PRODUCT_CATEGORY_CREATE_PANEL))
-            }
+            onClick={() => setTemplateId(selectedCategories[0]?._id || null)}
           >
-            <IconPlus />
-            {t('create')}
+            <IconBrandDatabricks />
+            {t('create-template', 'Create template')}
           </Button>
-        </Can>
-
-        <Separator.Inline />
-        <CoreTemplatePanel
-          contentType="core:product:productCategory"
-          contentId={selectedCategories[0]?._id}
-        />
-      </CommandBar.Bar>
-    </CommandBar>
+        </CommandBar.Bar>
+      </CommandBar>
+      <CoreTemplatePanel
+        contentType="core:product:productCategory"
+        contentId={templateId || ''}
+        open={!!templateId}
+        onOpenChange={(open) => {
+          if (!open) setTemplateId(null);
+        }}
+      />
+    </>
   );
 };

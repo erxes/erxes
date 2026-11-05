@@ -6,13 +6,14 @@ import {
   requireClientPortalId,
 } from '@/cms/graphql/utils/clientPortal';
 import { assertCmsAccessByClientPortal } from '@/cms/utils/cms-access';
+import { getCmsDefaultLanguage, getCmsSaveLanguages } from '@/cms/utils/common';
 
 const getDefaultLanguage = async (
   models: IContext['models'],
   clientPortalId: string,
 ): Promise<string> => {
   const cms = await models.CMS.findOne({ clientPortalId }).lean();
-  return cms?.language || 'en';
+  return getCmsDefaultLanguage(cms) || 'en';
 };
 
 const savePageTranslations = async (
@@ -155,47 +156,57 @@ const mutations: Record<string, Resolver> = {
       throw new Error('Page not found');
     }
 
-    await assertCmsAccessByClientPortal(
-      context,
-      pageInput.clientPortalId || existingPage.clientPortalId,
+    const clientPortalId =
+      pageInput.clientPortalId || existingPage.clientPortalId;
+
+    await assertCmsAccessByClientPortal(context, clientPortalId);
+
+    const { translationLanguage, skippedLanguage } = await getCmsSaveLanguages(
+      models,
+      clientPortalId,
+      _id,
+      'page',
+      language,
     );
 
-    if (language && pageInput.clientPortalId) {
-      const defaultLanguage = await getDefaultLanguage(
+    if (translationLanguage) {
+      const translationDoc: any = {
+        objectId: _id,
+        language: translationLanguage,
+        type: 'page',
+      };
+
+      // PAGE translatable fields: name → title, description → content
+      if (pageInput.name !== undefined) translationDoc.title = pageInput.name;
+      if (pageInput.description !== undefined)
+        translationDoc.content = pageInput.description;
+      if (pageInput.customFieldsData !== undefined)
+        translationDoc.customFieldsData = pageInput.customFieldsData;
+
+      await models.Translations.upsertTranslation(translationDoc);
+
+      // Strip translatable fields — only update shared fields on the page
+      const { name, description, customFieldsData, ...safePageInput } =
+        pageInput;
+
+      if (safePageInput.pdfAttachment !== undefined) {
+        safePageInput.pdfAttachment = await preparePdfAttachmentPages({
+          subdomain,
+          pdfAttachment: safePageInput.pdfAttachment,
+          previousPdfAttachment: existingPage.pdfAttachment,
+        });
+      }
+
+      const page = await models.Pages.updatePage(_id, safePageInput);
+
+      await savePageTranslations(
         models,
-        pageInput.clientPortalId,
+        _id,
+        translations || [],
+        skippedLanguage,
       );
 
-      if (language !== defaultLanguage) {
-        const translationDoc: any = { objectId: _id, language, type: 'page' };
-
-        // PAGE translatable fields: name → title, description → content
-        if (pageInput.name !== undefined) translationDoc.title = pageInput.name;
-        if (pageInput.description !== undefined)
-          translationDoc.content = pageInput.description;
-        if (pageInput.customFieldsData !== undefined)
-          translationDoc.customFieldsData = pageInput.customFieldsData;
-
-        await models.Translations.upsertTranslation(translationDoc);
-
-        // Strip translatable fields — only update shared fields on the page
-        const { name, description, customFieldsData, ...safePageInput } =
-          pageInput;
-
-        if (safePageInput.pdfAttachment !== undefined) {
-          safePageInput.pdfAttachment = await preparePdfAttachmentPages({
-            subdomain,
-            pdfAttachment: safePageInput.pdfAttachment,
-            previousPdfAttachment: existingPage.pdfAttachment,
-          });
-        }
-
-        const page = await models.Pages.updatePage(_id, safePageInput);
-
-        await savePageTranslations(models, _id, translations || [], language);
-
-        return page;
-      }
+      return page;
     }
 
     if (pageInput.pdfAttachment !== undefined) {
@@ -209,7 +220,12 @@ const mutations: Record<string, Resolver> = {
     // Default language edit — update everything on the page document
     const page = await models.Pages.updatePage(_id, pageInput);
 
-    await savePageTranslations(models, _id, translations || []);
+    await savePageTranslations(
+      models,
+      _id,
+      translations || [],
+      skippedLanguage,
+    );
 
     return page;
   },

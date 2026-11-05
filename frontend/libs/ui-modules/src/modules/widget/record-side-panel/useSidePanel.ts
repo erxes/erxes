@@ -1,3 +1,7 @@
+import {
+  getSidePanelRecordPath,
+  parseSidePanelRecord,
+} from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 import { useMultiQueryState } from 'erxes-ui';
 import { atom, useAtomValue, useSetAtom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
@@ -11,10 +15,16 @@ import {
   useMemo,
   useRef,
 } from 'react';
-import { matchPath, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { TRelationEntity } from 'ui-modules/modules/widget/utils';
 import { SIDE_PANEL_WIDTH } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanel';
 import { SidePanelNavigatorContext } from 'ui-modules/modules/widget/record-side-panel/recordView';
+
+export {
+  SIDE_PANEL_DETAIL_PATH,
+  getSidePanelRecordPath,
+  parseSidePanelRecord,
+} from 'ui-modules/modules/widget/record-side-panel/useSidePanelUtils';
 
 // The side panel keeps its own route in the URL, beside the page's:
 // `/contacts/customers?panel=/detail/customer/<id>`, so it can be linked,
@@ -64,7 +74,7 @@ export interface ISidePanelDraft {
 export const sidePanelDraftState = atom<ISidePanelDraft | null>(null);
 export const SidePanelDraftContext = createContext<
   ISidePanelDraft | null | undefined
->(undefined);
+>(undefined); // skipcq: JS-W1042 -- React 18 requires this default argument.
 
 // The defaults of the draft of `contentType` open in the panel, if any.
 export const useSidePanelDraft = <T extends Record<string, unknown>>(
@@ -80,43 +90,8 @@ export const useSidePanelDraft = <T extends Record<string, unknown>>(
 export const SidePanelRecordPathContext = createContext<string | null>(null);
 
 export const SIDE_PANEL_ROOT_PATH = '/';
-export const SIDE_PANEL_DETAIL_PATH = '/detail/:typeName/:recordId/:draftId?';
 // The assistant chat.
 export const SIDE_PANEL_CHAT_PATH = '/chat';
-
-// Short type names for core records; any other record uses its content
-// type as the name, e.g. `/detail/sales:deal/<id>`.
-const TYPE_NAME_CONTENT_TYPES: Record<string, string> = {
-  customer: 'core:customer',
-  company: 'core:company',
-};
-
-const CONTENT_TYPE_TYPE_NAMES = Object.fromEntries(
-  Object.entries(TYPE_NAME_CONTENT_TYPES).map(([name, type]) => [type, name]),
-);
-
-export const getSidePanelRecordPath = ({
-  contentType,
-  contentId,
-}: TRelationEntity) =>
-  `/detail/${CONTENT_TYPE_TYPE_NAMES[contentType] || contentType}/${contentId}`;
-
-export const parseSidePanelRecord = (
-  path: string | null,
-): TRelationEntity | null => {
-  const match = path ? matchPath(SIDE_PANEL_DETAIL_PATH, path) : null;
-
-  if (!match?.params.typeName || !match.params.recordId) {
-    return null;
-  }
-
-  const { typeName, recordId } = match.params;
-
-  return {
-    contentType: TYPE_NAME_CONTENT_TYPES[typeName] || typeName,
-    contentId: recordId,
-  };
-};
 
 /**
  * Opens, closes and navigates the side panel from anywhere, plugins
@@ -130,7 +105,8 @@ export const useSidePanel = () => {
   const [queries, setRoute] = useMultiQueryState<{
     panel: string;
     panelHistory: string[];
-  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY]);
+    panelExpanded: boolean;
+  }>([SIDE_PANEL_QUERY_KEY, SIDE_PANEL_HISTORY_QUERY_KEY, 'panelExpanded']);
   const path = typeof queries.panel === 'string' ? queries.panel : null;
   const location = useLocation();
   const routerState = location.state as {
@@ -138,6 +114,7 @@ export const useSidePanel = () => {
   } | null;
   const saved = routerState?.sidePanel;
   const navigationState = saved?.path === path ? saved : undefined;
+  /** Restores the active or retained record tab from panel navigation state. */
   const getTab = (targetPath: string | null): string =>
     targetPath === path
       ? navigationState?.tab || ''
@@ -162,17 +139,20 @@ export const useSidePanel = () => {
       JSON.stringify(previous) === JSON.stringify(history) ? previous : history,
     );
   }, [history, setHistory]);
+  /** Updates panel history, active route, and per-record tabs in one navigation. */
   const navigate = (
     nextPath: string | null,
     nextHistory: string[],
     replace = false,
     nextTab = getTab(nextPath),
+    tabPath = nextPath,
   ) => {
     setHistory(nextHistory);
     setRoute(
       {
         panel: nextPath,
         panelHistory: nextHistory.length ? nextHistory : null,
+        ...(nextPath === null ? { panelExpanded: null } : {}),
       },
       {
         replace,
@@ -180,21 +160,31 @@ export const useSidePanel = () => {
           ...routerState,
           sidePanel: {
             path: nextPath,
-            tab: nextTab,
+            tab: nextPath === tabPath ? nextTab : getTab(nextPath),
             history: nextHistory.map((entry) => ({
               path: entry,
-              tab: getTab(entry),
+              tab: entry === tabPath ? nextTab : getTab(entry),
             })),
           },
         },
       },
     );
   };
-  const setTab = (nextTab: string) => navigate(path, history, true, nextTab);
   const latest = useRef({ path, history, navigate, navigator, sourcePath });
   useLayoutEffect(() => {
     latest.current = { path, history, navigate, navigator, sourcePath };
   });
+  /** Updates the owning record's tab without changing the active stack entry. */
+  const setTab = useCallback((nextTab: string) => {
+    const current = latest.current;
+    const tabPath = current.sourcePath ?? current.path;
+    if (
+      !tabPath ||
+      (tabPath !== current.path && !current.history.includes(tabPath))
+    )
+      return;
+    current.navigate(current.path, current.history, true, nextTab, tabPath);
+  }, []);
   const replaceRecord = useCallback(
     (previous: TRelationEntity, next: TRelationEntity) => {
       const current = latest.current;
@@ -230,10 +220,28 @@ export const useSidePanel = () => {
 
   const setSession = useSetAtom(sidePanelSessionState);
 
-  const open = !!path;
+  const open = Boolean(path);
   const record = useMemo(() => parseSidePanelRecord(path), [path]);
 
+  /** Opens, stacks, or replaces a panel path while preserving hidden source entries. */
   const openPath = (nextPath: string, options?: IOpenRecordOptions) => {
+    const current = latest.current;
+    if (
+      options?.replace &&
+      current.sourcePath &&
+      current.sourcePath !== current.path
+    ) {
+      if (current.history.includes(current.sourcePath)) {
+        current.navigate(
+          current.path,
+          current.history.map((entry) =>
+            entry === current.sourcePath ? nextPath : entry,
+          ),
+          true,
+        );
+      }
+      return;
+    }
     if (nextPath === path) return;
     let nextHistory: string[] = [];
     if (options?.replace) {
@@ -243,9 +251,10 @@ export const useSidePanel = () => {
     }
     if (!options?.stack && !options?.replace)
       setSession((session) => session + 1);
-    navigate(nextPath, nextHistory, !!options?.replace, '');
+    navigate(nextPath, nextHistory, Boolean(options?.replace), '');
   };
 
+  /** Opens an entity route and starts a fresh session for a repeated top-level draft. */
   const openRecord = (
     entity: TRelationEntity,
     options?: IOpenRecordOptions,
@@ -263,6 +272,7 @@ export const useSidePanel = () => {
 
   const setDraft = useSetAtom(sidePanelDraftState);
 
+  /** Returns to the last retained panel route without changing the page route. */
   const back = () => {
     const previous = history[history.length - 1];
     if (previous) navigate(previous, history.slice(0, -1));
@@ -282,11 +292,13 @@ export const useSidePanel = () => {
     }
   };
 
+  /** Discards draft defaults and clears the panel route and history. */
   const close = () => {
     setDraft(null);
     navigate(null, []);
   };
 
+  /** Closes an open panel or opens the panel root. */
   const toggle = () => (path ? close() : openPath(SIDE_PANEL_ROOT_PATH));
 
   const panel = {

@@ -2,6 +2,7 @@ import { Checkbox, CommandBar, Separator } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useConversationListContext } from '@/inbox/conversations/hooks/useConversationListContext';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { ReplaceAssignee } from '@/inbox/conversations/components/ReplaceAssignee';
 import { selectConversationsState } from '@/inbox/conversations/states/selectConversationsState';
@@ -26,6 +27,7 @@ export const ConversationActions = () => {
 };
 
 export const ConversationSelectAll = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversations } = useConversationListContext();
   const [selectedConversations, setSelectedConversations] = useAtom(
     selectConversationsState,
@@ -55,6 +57,7 @@ export const ConversationSelectAll = () => {
 
   return (
     <Checkbox
+      aria-label={t('select-all-conversations', 'Select all conversations')}
       checked={isAllSelected ? true : isSomeSelected ? 'indeterminate' : false}
       onCheckedChange={handleCheckboxChange}
       className="mx-2"

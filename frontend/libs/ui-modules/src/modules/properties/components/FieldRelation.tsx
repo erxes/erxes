@@ -10,14 +10,17 @@ import { SelectMember } from 'ui-modules/modules/team-members';
 
 type RelationSelectProps = {
   scope: string;
+  placeholder?: string;
   value?: string | string[];
   onValueChange: (value?: string | string[] | null) => void;
   inCell?: boolean;
   allowUnassigned?: boolean;
+  disabled?: boolean;
 };
 
-const COMMON_PROPS = { mode: 'single', placeholder: '' } as const;
+const COMMON_PROPS = { mode: 'single' } as const;
 
+/** Uses the shared member selector for core user relations, including inactive saved values. */
 const MemberRelation = ({ inCell, ...props }: RelationSelectProps) =>
   inCell ? (
     <SelectMember.InlineCell {...props} {...COMMON_PROPS} showInactive />
@@ -67,6 +70,7 @@ export const FieldRelation = ({
   field,
   value,
   handleChange,
+  loading,
   inCell,
   id,
 }: SpecificFieldProps) => {
@@ -83,12 +87,15 @@ export const FieldRelation = ({
   return (
     <SelectRelation
       scope={id}
+      placeholder={inCell ? '' : field.name}
       value={currentValue ?? undefined}
       inCell={inCell}
       {...(SelectRelation === MemberRelation && {
         allowUnassigned: !field.validations?.required,
+        disabled: loading,
       })}
       onValueChange={(val = null) => {
+        if (loading) return;
         setCurrentValue(val);
         if (val !== value) handleChange(val);
       }}

@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -103,18 +103,34 @@
   changes that rule. Reset clears the layout back to
   `DEFAULT_TICKET_CREATE_LAYOUT`. It is the only card on the page; there is no
   detail selection.
+- The tickets Sort control names the active order on its trigger ("Sort:
+  Created"), marks the selected field and direction, and offers newest or oldest
+  first. Field and direction live in `localStorage` (`ticketSort`,
+  `ticketSortDirection`), not in the URL. A ticket arriving by subscription is
+  inserted in the active order; one that sorts past the loaded rows waits for its
+  page.
 - Tickets sidebar channel and pipeline rows show a hover ⚙ link to their
   settings (channel detail / pipeline General tab), and the new-ticket footer
   shows "Edit form" to the selected pipeline's Properties tab. Both appear
   only when `useCanManageChannels` allows the channel: owner, or the
   channel's `admin` member — the rule `channelUpdate`, `updatePipeline` and
   `removePipeline` enforce.
+- The tickets table has a read-only **Status changed date** column, shown as a
+  relative time with the exact time on hover, and the ticket detail has the same
+  date as a locked chip. The update mutation returns `statusChangedDate`, so both
+  change as soon as a status moves. A ticket that never moved shows its creation
+  moment, because the API defaults `statusChangedDate` to it; a missing value
+  shows "Not specified".
 - The new-ticket sheet renders name, channel/pipeline/status and description
   fixed, and the selected pipeline's `createLayout` rows between them
   (`useTicketCreateLayout`): system chips via `TicketCreateSystemField`,
   properties via `PropertyFormField`. Property logic hides cells; required
   system fields, properties and description block Save with a toast and a red
   ring. Only shown properties are sent as `propertiesData`.
+- Inbox icon-only controls carry their own names: select-all and row checkboxes,
+  filter, layout, refresh, the conversation back arrow and the right rail tabs.
+  `SideMenu.Trigger` only uses `label` for its tooltip, so the rail passes
+  `aria-label` as well.
 - The conversation header shows a warning badge "+N same email" when other
   customers hold exactly the conversation customer's email (primary or listed).
   Its popover lists them (links to `/contacts/customers?contactId=`) and
@@ -127,6 +143,17 @@
   articles filed there later; with no rule, articles stay plain source ids.
 - Ticket automation forms: **Create ticket** has an attachments (conversation
   media ids) field.
+- Ticket automation forms: **Ticket status changed** trigger picks channel,
+  pipeline and optional `toStatusIds` (`TicketStatusChecklist`); its node shows
+  the pipeline and status count. Routed by relation type `statusChanged` in
+  `TicketRemoteEntry`.
+- Pipeline → Ticket statuses has **Create automation**: a dialog of the
+  pipeline's statuses (all picked by default) creates a draft through
+  `FrontlineStatusAutomationAdd` (`automationsAdd`) — the status-changed
+  trigger plus one `split` whose options match `statusId` per picked status,
+  branches left empty — and opens `/automations/edit/:id`. All statuses picked
+  saves `toStatusIds: []` (any move). Seed shape lives in
+  `status/utils/statusAutomationSeed.ts`; no segment is created.
 - Ticket and note attachments group by type prefix, so bare conversation types
   (`image`, `audio`, `file`) render like MIME types; audio plays inline. Media
   at an external URL (not `read-file`) — what a customer sent — stays covered
@@ -175,11 +202,19 @@
   right of its `PageHeader` (and in the empty state) that opens the same four
   step wizard on `frontline/forms/create`. There is no channel in the URL there,
   so the wizard's General step decides it: `channelId` is required by
-  `FORM_GENERAL_CREATE_SCHEMA` when no `formId` param is present, and
-  `useFormMutate` reads the picked channel out of the setup state. Cancelling or
-  finishing returns to `frontline/forms`; the settings flow
+  `FORM_GENERAL_CREATE_SCHEMA` when neither a `formId` nor a channel `id` param
+  is present, and `useFormMutate` reads the picked channel out of the setup
+  state. Cancelling or finishing returns to `frontline/forms`; the settings flow
   (`frontline/settings/channels/:id/forms/create`) still returns to the
   channel's forms page.
+- Inside a channel's settings (`:id` param present) the General step hides the
+  Channel field and the form is always created in that channel:
+  `useFormMutate` prefers the route's channel over the persisted setup state,
+  so a stale draft can never redirect it to another channel.
+- The wizard's submit button (`FormMutateLayout`) reads `Create form` /
+  `Creating form...` or `Update form` / `Updating form...` from the `formId`
+  param alone, never the channel `id`, so both entry points label create and
+  edit the same way.
 - The `frontline/forms` sidebar Channels group (`ChooseChannel`), the
   sub-header's channel filter (`FormChannelFilterView`, in place of the shared
   `SelectChannel.FilterView`) and the sidebar Tags group (`ChooseFormTag`,
@@ -554,6 +589,18 @@
   `{{ actions.<agentNodeId>.text }}` (`utils/buildAiReplySeedLink.ts`). The
   messenger trigger is a direct condition with no keyword rules (any text);
   the comment trigger is `postType: 'any'`.
+- The Instagram bot sheet (`instagram/components/bots/components/AutomationBotForm.tsx`)
+  carries the same menu: `InstagramBotCreateAutomationButton` seeds a message
+  or comment trigger with the bot, and "AI messenger reply" / "AI comment
+  reply" open `InstagramBotAiReplyDialog` (`aiReply` query; the sheet itself
+  reopens from `instagramBotId`). It reuses the Facebook `automationsAiAgents`
+  hook and `useFacebookBotAutomations` with the Instagram trigger types;
+  `useInstagramBotAiReplyClaims` blocks on an active automation that already
+  answers any text or any post. `utils/buildAiReplySeedLink.ts` seeds trigger
+  → `aiAgent` → `frontline:instagram.messages.create` (text
+  `{{ actions.<agentNodeId>.text }}`) or `frontline:instagram.comments.create`
+  (`text`, the single field its form writes). The Instagram message trigger
+  schema accepts a direct condition without keyword rules for this reason.
 - Attaches a Facebook Messenger bot to an integration from the integration list
   itself: a `Bot` column on the facebook-messenger table and a bot section in the
   integration edit dialog, both showing the bot's name and health, and both
@@ -596,6 +643,17 @@
   filters them and the trigger is clickable) and refuse selection in
   `onSelect`. The Instagram page step names
   the channel and integration of a page in use.
+- Account lists inside a sheet (`InstagramGetAccounts`,
+  `InstagramBotPageAccountsStep`) must not keep the `erxes-ui` `Command.List`
+  default `max-h-72` with its hidden scrollbar: the sheet content is a
+  `flex flex-col overflow-hidden` column and the list gets
+  `max-h-none overflow-y-auto` inside a `flex-1` radio group, so every account
+  stays reachable however many are connected.
+- `InstagramPageInfo` and `FacebookPageInfo` call their `use*BotPages` hook
+  before any early return; the hook passes `skip: !accountId` to `useQuery`
+  instead of the component skipping the hook. A hook after the "select a page"
+  return changes the hook count when the page is picked and crashes the bot
+  sheet with React error #310.
 - The channel list's integrations cell opens a popover
   (`ChannelIntegrationsPeek`, query `ChannelIntegrationsPeek`) listing every
   integration of that channel with kind, Facebook page names and health —
@@ -641,6 +699,11 @@
   pipeline metadata is loading. A terminally missing selection falls back to
   the tickets-only breadcrumb, while query failures render an explicit error
   state.
+- Every report card names its icon-only controls after the card: the drag
+  handle, the chart-type trigger, and the Previous and Next page buttons, for
+  example "Next page of Conversation Open". `SelectChartType` and
+  `ChartPagination` read the title from the enclosing `FrontlineCard` through
+  `useFrontlineCardTitle`, so callers pass nothing.
 - The ticket reports board renders the default charts from
   `TICKET_DEFAULT_CARD_CONFIGS` plus every saved chart returned by
   `reportCharts`. **Every** ticket card — status summary, date, source, tags,
@@ -785,6 +848,9 @@ owns the setup form and connection actions.
 | Mail sending readiness    | `src/modules/integrations/mail/components/MailSendingRequired.tsx`, `src/modules/integrations/mail/hooks/useMailSendingReadiness.tsx`             | Names the Cloudflare domain replies leave from, or blocks the wizard's sending step with the reason and a link to Integrations config           |
 | Mail delivery check       | `src/modules/integrations/mail/components/MailConnectionCheck.tsx`, `src/modules/integrations/mail/hooks/useMailConnectionCheck.tsx`              | Runs `mailCheckConnection` from the integration dialog and renders its verdict                                                                  |
 | Notifications             | `src/widgets/notifications/`                                                                                                                      | Notification remote entries                                                                                                                     |
+
+- A filtered Forms list with no rows shows `FormsNoMatch` with Clear filters;
+  first-use creation onboarding shows only when no filter is active.
 
 ## Contracts
 
@@ -957,7 +1023,7 @@ brandId)` and `helpCenterConfigsTotalCount(searchValue, brandId)`, read
 to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   `mailTicketNoteRetry(noteId!)` resends a failed or stuck one and returns the
   note. `ticketGetNote` also selects `unsavedAttachments { name, url, type,
-  size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
+size, error, expiresAt }` for inbound files that never reached storage. `ticketCreateNote` errors
   when a reply cannot be mailed (no customer email, or the workspace cannot
   send); `NoteInput` shows that message in a toast and keeps the draft.
 - `frontline_api` GraphQL `mailConversationDrafts(conversationId!)`,
@@ -1095,10 +1161,11 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   default item, and an empty list is saved as empty. `buildMessengerProfilePreview`
   mirrors the server rule — Get Started joins `items` only when there is a user
   menu item — and keeps `getStartedTitle` apart for the welcome-screen button.
-- An AI reply seed always ends in a Facebook reply action: the `aiAgent` node
-  only writes text. `FacebookBotAiReplyDialog` blocks when another **active**
-  automation on the bot already answers any text (`directCatchAll`) or any post
-  (`anyPost`); a draft one is shown, never blocking.
+- An AI reply seed always ends in a Facebook or Instagram reply action: the
+  `aiAgent` node only writes text. `FacebookBotAiReplyDialog` and
+  `InstagramBotAiReplyDialog` block when another **active** automation on the
+  bot already answers any text (`directCatchAll`) or any post (`anyPost`); a
+  draft one is shown, never blocking.
 - Instagram history includes internal notes in the same paginated timeline.
   Match live events and fetched rows by `_id` or Meta `mid`/`providerData.messageId`;
   merge all message fields so deletion, receipt and reaction updates remain
@@ -1263,8 +1330,12 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   carry `expectedType`; incompatible answers, linked custom fields and stale
   edits are rejected by `frontline_api`. Changing type resets the validator;
   returning to the original type restores its stored validation and validator,
-  including legacy `input` fields, and clears `expectedType`. Only a changed
-  type on an existing field selects the atomic conversion save path.
+  including legacy `input` fields, and clears `expectedType`. Changes to an
+  existing field's type or page, changes to existing step orders, and new step
+  keys added to stored steps select the atomic save path. A present but malformed
+  `steps` value also requires an atomic save. When steps are absent, compare
+  against the inferred field-page layout; unchanged layouts and forms without
+  fields retain the ordinary save path.
   Any newly selected validator is also checked against saved answers. Other
   field shapes are not offered for conversion.
   Type/rule selection checks saved answers before Confirm; stale, failed or
@@ -1285,13 +1356,26 @@ to, bouncedRecipients, retryable, canRetry }` for its delivery state;
   form and submission queries. Submission columns use current form fields and
   field IDs, including unanswered fields and distinct fields with equal labels.
   Invalid stored dates render as their original value instead of breaking the
-  submissions table. Conversion saves send metadata as `formChanges` in the
-  field mutation so failure rolls back both; ordinary saves retain their existing
-  path. A busy/stale conversion keeps the draft and asks the author to retry.
+  submissions table. Conversion and page-layout saves send metadata as
+  `formChanges` in the field mutation so failure rolls back both; these saves
+  require transaction-capable MongoDB. Other edits retain their existing path.
+  A busy/stale atomic save keeps the draft and asks the author to retry.
   Builder drafts are keyed by form (or create/channel scope) in tab-owned
   `sessionStorage`, with `FormDraftScope` gating children until the scope changes.
   New-form drafts survive reloads in that tab; opening an existing form still
   seeds its saved definition. Tabs cannot overwrite each other's drafts.
+  Seeding an existing form places every saved field in an editor step
+  (`groupFieldsIntoSteps`): saving sends any stored field missing from the
+  editor as `removedFieldIds`, which deletes it and orphans its submissions.
+  Forms without `leadData.steps` get one step per explicit page, or one step
+  when all fields lack a page. A missing `pageNumber` always goes to the first
+  step, including when saved pages start at zero; unmatched pages do likewise.
+  Match fields to saved step orders before numbering editor steps from 1
+  without gaps or duplicates; preserve step keys, names and field IDs.
+  Assign missing or invalid orders to unclaimed field pages in
+  ascending order, using stored step-key order; explicit numeric orders keep
+  their mappings. Empty steps use the next unused positive order.
+  This keeps public-form navigation usable after saving malformed step orders.
   Previews use the editor's unique BroadcastChannel and validated snapshots;
   both embedded and new-tab previews use `/frontline/forms/preview?draft=…`.
   Preview state is in memory and cannot write back into the editor's draft.
@@ -2396,7 +2480,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
+  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
@@ -2684,6 +2768,17 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Rename an article inline, change its status and category, filter by status,
   bulk-delete from the command bar, edit and delete a category from the
   sidebar, then delete the topic from its `kbsettings` danger zone.
+- Smoke: open a form whose `leadData.steps` is missing (or whose fields lack
+  `pageNumber`) in `/frontline/forms/:formId`; the Content step lists every
+  saved field. Add a field and save; its submissions still show every column.
+  Save forms with zero, duplicate or gapped step orders; their public forms
+  must navigate through every step once and retain existing submission values.
+  Mix missing page numbers with zero-based pages; missing pages belong to the
+  first step. Reject a page-layout save and verify both the saved steps and
+  field pages stay unchanged, then retry successfully. Include adding a new
+  step without moving any existing fields and repairing a malformed `steps`
+  value, plus removing an inferred step when stored steps are absent.
+  Missing or invalid step orders must keep distinct field pages apart.
 - `pnpm nx run frontline_ui:codegen --skip-nx-cache` - validates every
   document against the composed gateway schema;
   `build` and `serve` run it first.
@@ -2697,6 +2792,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `frontend/libs` are pre-existing and owned by those libraries.
 - `project.json` defines `build`, `serve`, `serve-static`, `test`, `codegen`
   and `codegen:watch`.
+- Smoke: Pipeline → Ticket statuses → Create automation with two statuses
+  opens the builder on a "Ticket status changed" trigger and a split with two
+  empty branches named after them.
 - `pnpm nx test frontline_ui` — the project defines a Jest test target for
   Telegram setup/rendering and inbox composer regression coverage.
   Composer send regression tests import `hooks/composer/useComposerSend`;

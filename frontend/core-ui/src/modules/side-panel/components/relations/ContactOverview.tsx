@@ -119,6 +119,7 @@ export const ContactOverview = ({
 }) => {
   const [foldedMap, setFoldedMap] = useAtom(contactOverviewFoldedState);
 
+  /** Reads a saved section preference, falling back to the section default. */
   const isFolded = (key: string, byDefault: boolean) =>
     foldedMap[`${contactType}:${key}`] ?? byDefault;
 

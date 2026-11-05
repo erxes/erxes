@@ -7,6 +7,7 @@ import {
   modulePanelTargetsState,
 } from '@/side-panel/states/modulePanelState';
 
+/** Registers a live portal target for a retained module editor. */
 export const CoreModulePanelSlot = ({
   path,
   onClose,
@@ -22,10 +23,10 @@ export const CoreModulePanelSlot = ({
       setTargets((previous) => {
         if (previous[path] === target || (!target && !previous[path]))
           return previous;
-        const next = { ...previous };
-        if (target) next[path] = target;
-        else delete next[path];
-        return next;
+        if (target) return { ...previous, [path]: target };
+        return Object.fromEntries(
+          Object.entries(previous).filter(([key]) => key !== path),
+        );
       });
     },
     [path, setTargets],

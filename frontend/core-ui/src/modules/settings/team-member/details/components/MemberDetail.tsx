@@ -1,3 +1,4 @@
+import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { memberCustomActivities } from '@/settings/team-member/details/components/MemberActivityRows';
 import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
@@ -8,7 +9,9 @@ import { MembersPermissions } from '@/settings/team-member/details/components/Me
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { MemberSessions } from '@/settings/team-member/sessions/components/MemberSessions';
+import { MemberActivityTime } from '@/settings/team-member/activity/components/MemberActivityTime';
 import {
+  IconActivity,
   IconDeviceDesktop,
   IconHierarchy2,
   IconHistory,
@@ -16,21 +19,18 @@ import {
   IconLink,
   IconShieldLock,
 } from '@tabler/icons-react';
-import {
-  Avatar,
-  readImage,
-  ScrollArea,
-  Skeleton,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Avatar, readImage, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
   RecordSidePanel,
   usePermissionCheck,
+  useSidePanel,
+  usePanelExpanded,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'overview';
@@ -50,23 +50,20 @@ export const MemberDetail = ({
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { tab: selectedTab, setTab: setSelectedTab } = useSidePanel();
+  const expanded = usePanelExpanded();
   const { error, userDetail, loading } = useUserDetail();
   const { hasActionPermission } = usePermissionCheck();
+  const currentUser = useAtomValue(currentUserState);
 
   const handleClose = () => {
-    setSelectedTab(null);
     onClose();
   };
 
   const renderHeading = () => {
     if (!userDetail) {
       return {
-        title: loading ? (
-          <Skeleton className="h-4 w-32" />
-        ) : (
-          t('member-detail')
-        ),
+        title: loading ? <Skeleton className="h-4 w-32" /> : t('member-detail'),
         avatar: loading ? (
           <Skeleton className="size-7 flex-none rounded-full" />
         ) : undefined,
@@ -109,7 +106,25 @@ export const MemberDetail = ({
         value: DETAIL_TAB,
         label: panelT('detail', 'Detail'),
         icon: IconId,
-        content: <MemberPanelDetail />,
+        content: (
+          <>
+            <section className="shrink-0 border-b p-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="shrink-0 [&>*]:size-11">{avatar}</div>
+                <div className="min-w-0">
+                  <h2 className="truncate text-lg font-semibold">{title}</h2>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {userDetail.email}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <MemberPanelActions user={userDetail} />
+              </div>
+            </section>
+            <MemberPanelDetail />
+          </>
+        ),
       },
       {
         value: 'permissions',
@@ -161,6 +176,21 @@ export const MemberDetail = ({
             },
           ]
         : []),
+      ...(currentUser?._id === userDetail._id ||
+      hasActionPermission('teamMembersViewActivity')
+        ? [
+            {
+              value: 'active-time',
+              label: t('active-time', 'Active time'),
+              icon: IconActivity,
+              content: (
+                <MemberPanelScroll>
+                  <MemberActivityTime userId={userDetail._id} />
+                </MemberPanelScroll>
+              ),
+            },
+          ]
+        : []),
       {
         value: 'activity',
         label: panelT('activity', 'Activity'),
@@ -180,7 +210,7 @@ export const MemberDetail = ({
     ];
 
     const activeTab = tabs.some((tab) => tab.value === selectedTab)
-      ? (selectedTab as string)
+      ? selectedTab
       : DETAIL_TAB;
 
     return (
@@ -189,6 +219,8 @@ export const MemberDetail = ({
         value={activeTab}
         onValueChange={setSelectedTab}
         visibleCount={tabs.length}
+        overviewTab={DETAIL_TAB}
+        expandedDefaultTab="activity"
       />
     );
   };
@@ -198,9 +230,8 @@ export const MemberDetail = ({
   return (
     <>
       <RecordSidePanel.Header
-        avatar={avatar}
-        title={title}
-        actions={userDetail && <MemberPanelActions user={userDetail} />}
+        className={expanded ? 'h-10 bg-background px-3' : undefined}
+        title={expanded ? <MemberPanelBreadcrumb title={title} /> : title}
         onBack={onBack}
         onClose={handleClose}
       />

@@ -11,7 +11,6 @@ import {
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
-  IconClipboardList,
   IconCode,
   IconEdit,
   IconToggleLeft,
@@ -25,8 +24,8 @@ import {
   IReturnEbarimtConfigRow,
 } from '@/ebarimt/settings/stage-in-return-ebarimt-config/states/returnEbarimtConfigStates';
 import { useRemoveEbarimtReturnConfig } from '@/ebarimt/settings/stage-in-return-ebarimt-config/hooks/useRemoveEbarimtReturnConfig';
-import { AddReturnEBarimtConfig } from './AddReturnEBarimtConfig';
 import { ReturnEBarimtConfigCommandbar } from './ReturnEBarimtConfigCommandbar';
+import { SettingsEmptyState } from '@/shared/components/SettingsEmptyState';
 
 const useReturnEbarimtConfigRows = () => {
   const { data, loading } = useQuery(GET_MN_CONFIGS, {
@@ -211,18 +210,10 @@ export const ReturnEBarimtConfigTable = () => {
           </RecordTable.Body>
         </RecordTable>
         {!loading && rows?.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="flex flex-col items-center text-center">
-              <IconClipboardList size={48} className="text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900">
-                {t('no-return-ebarimt-config-yet')}
-              </h3>
-              <p className="mt-1 text-sm text-gray-500 mb-4">
-                {t('create-first-return-ebarimt-config')}
-              </p>
-              <AddReturnEBarimtConfig />
-            </div>
-          </div>
+          <SettingsEmptyState
+            title={t('no-return-ebarimt-config-yet')}
+            description={t('create-first-return-ebarimt-config')}
+          />
         )}
       </RecordTable.Scroll>
       <ReturnEBarimtConfigCommandbar />

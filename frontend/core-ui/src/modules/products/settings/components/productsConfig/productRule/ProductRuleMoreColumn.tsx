@@ -78,6 +78,7 @@ export const ProductRuleMoreColumn = (
       </Popover>
 
       <CoreModulePanel
+        requiredPermission="productRulesManage"
         name={`products/settings/productsConfig/productRule/ProductRuleMoreColumn/${productRule._id}`}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}

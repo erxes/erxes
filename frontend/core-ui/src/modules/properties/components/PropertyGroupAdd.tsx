@@ -1,4 +1,5 @@
-import { Button, Sheet } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Button } from 'erxes-ui';
 import { useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -51,13 +52,18 @@ export const AddPropertyGroup = () => {
   }
 
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
+    <CoreModulePanel
+      requiredPermission="fieldGroupsManage"
+      name={'properties/PropertyGroupAdd'}
+      onOpenChange={setOpen}
+      open={open}
+    >
       <Can action="fieldGroupsManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button variant="outline">{t('add-group', 'Add Group')}</Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -70,7 +76,7 @@ export const AddPropertyGroup = () => {
           onCancel={() => setOpen(false)}
           contentType={type || ''}
         />
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

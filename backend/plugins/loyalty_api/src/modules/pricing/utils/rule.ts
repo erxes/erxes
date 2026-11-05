@@ -1,6 +1,7 @@
 import { shortStrToDate } from 'erxes-api-shared/utils';
 import dayjs from 'dayjs';
-import { CalculatedRule } from '../types';
+import { CalculatedRule, OrderItem } from '../types';
+import { IPricingPlan } from '../@types/pricingPlan';
 
 /**
  * Calculation of discount amount by type
@@ -115,7 +116,10 @@ const checkEveryYearRule = (rule: any, now: dayjs.Dayjs): boolean => {
  * @param plan
  * @returns
  */
-export const checkRepeatRule = (plan: any): boolean => {
+export const checkRepeatRule = (
+  plan: Pick<IPricingPlan, 'isRepeatEnabled' | 'repeatRules'>,
+  date: Date = new Date(),
+): boolean => {
   // If repeat rule is disabled, rule passes
   if (!plan.isRepeatEnabled) {
     return true;
@@ -126,7 +130,7 @@ export const checkRepeatRule = (plan: any): boolean => {
     return false;
   }
 
-  const now = dayjs(new Date());
+  const now = dayjs(date);
   let rulePassCount = 0;
 
   for (const rule of plan.repeatRules) {
@@ -300,7 +304,7 @@ const processQuantityRule = (
 
   if (rule.discountType === 'bonus' && rule.discountBonusProduct) {
     type = rule.discountType;
-    let newBonusProducts = [...updatedBonusProducts, rule.discountBonusProduct];
+    let newBonusProducts = [...updatedBonusProducts];
     
     if (rule.type === 'every') {
       newBonusProducts = addBonusProductsForEveryRule(
@@ -309,6 +313,8 @@ const processQuantityRule = (
         rule.value,
         newBonusProducts
       );
+    } else {
+      newBonusProducts.push(rule.discountBonusProduct);
     }
     
     return { type, value, bonusProducts: newBonusProducts, passed };
@@ -443,9 +449,9 @@ const processExpiryRule = (
 };
 
 export const calculateExpiryRule = (
-  plan: any,
-  item: any,
-  defaultValue: number
+  plan: Pick<IPricingPlan, 'isExpiryEnabled' | 'expiryRules'>,
+  item: OrderItem,
+  defaultValue: number,
 ): CalculatedRule => {
   const now = dayjs(new Date());
   const result: CalculatedRule = {

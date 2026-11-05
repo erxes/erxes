@@ -6,22 +6,36 @@ import {
   IconUser,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
+import { format } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import {
   TextOverflowTooltip,
   RecordTableInlineCell,
-  RelativeDateDisplay,
 } from 'erxes-ui';
 import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseType';
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
 import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
-const getDisplayDate = (putResponse: IPutResponse) => {
-  const value = putResponse.date || putResponse.createdAt;
+const getDisplayDate = (putResponse: IPutResponse, timeZone: string): string => {
+  if (putResponse.date) {
+    // The receipt service returns UTC timestamps without a timezone suffix.
+    const timestamp = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(putResponse.date)
+      ? `${putResponse.date.replace(' ', 'T')}Z`
+      : putResponse.date;
+    const date = new Date(timestamp);
 
-  return value && !Number.isNaN(Date.parse(value)) ? value : null;
+    if (!Number.isNaN(date.getTime())) {
+      return formatInTimeZone(date, timeZone, 'yyyy-MM-dd HH:mm:ss');
+    }
+  }
+
+  const { createdAt } = putResponse;
+  return createdAt && !Number.isNaN(Date.parse(createdAt))
+    ? format(new Date(createdAt), 'yyyy-MM-dd HH:mm:ss')
+    : '-';
 };
 
-export const putResponseColumns: ColumnDef<IPutResponse>[] = [
+export const putResponseColumns = (timeZone: string): ColumnDef<IPutResponse>[] => [
   putResponseMoreColumn,
   {
     id: 'id',
@@ -67,22 +81,12 @@ export const putResponseColumns: ColumnDef<IPutResponse>[] = [
     accessorKey: 'date',
     header: () => <HeaderCell icon={IconUser} label="date" />,
     cell: ({ row }) => {
-      const displayDate = getDisplayDate(row.original);
-
-      if (!displayDate) {
-        return (
-          <RecordTableInlineCell>
-            <TextOverflowTooltip value="-" />
-          </RecordTableInlineCell>
-        );
-      }
+      const displayDate = getDisplayDate(row.original, timeZone);
 
       return (
-        <RelativeDateDisplay value={displayDate} asChild>
-          <RecordTableInlineCell className="text-xs font-medium text-muted-foreground">
-            <RelativeDateDisplay.Value value={displayDate} />
-          </RecordTableInlineCell>
-        </RelativeDateDisplay>
+        <RecordTableInlineCell>
+          <TextOverflowTooltip value={displayDate} />
+        </RecordTableInlineCell>
       );
     },
   },

@@ -68,6 +68,13 @@ export const SegmentFormFooter = ({
   });
   const { t } = useTranslation('segment', { keyPrefix: 'detail' });
 
+  const runIfValid = async (action: () => void | Promise<void>) => {
+    const isValid = await form.trigger(undefined, { shouldFocus: true });
+    if (!isValid) return;
+
+    await action();
+  };
+
   const {
     duplicate,
     dismissDuplicate,
@@ -79,7 +86,7 @@ export const SegmentFormFooter = ({
     checking,
     requestSave,
   } = useSegmentSaveGuard({
-    onConfirm: () => form.handleSubmit(handleSave)(),
+    onConfirm: () => runIfValid(() => handleSave(form.getValues())),
     onOpenExisting,
   });
 
@@ -147,12 +154,10 @@ export const SegmentFormFooter = ({
             </Can>
           )}
           <Can action="segmentsManage">
-            {/* Validated before the guard, so an invalid form never gets as far
-              as asking about a rebuild. */}
             <Button
               type="button"
               disabled={saving || checking}
-              onClick={form.handleSubmit(() => requestSave())}
+              onClick={() => runIfValid(requestSave)}
             >
               {saving || checking ? t('saving') : t('save-segment')}
             </Button>

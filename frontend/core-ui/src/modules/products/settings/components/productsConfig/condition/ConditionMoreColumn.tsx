@@ -44,6 +44,7 @@ const ConditionMoreColumn = ({
         </Combobox.Content>
       </Popover>
       <CoreModulePanel
+        requiredPermission="productsConfigsManage"
         name={`products/settings/productsConfig/condition/ConditionMoreColumn/${row.original._id}`}
         open={editOpen}
         onOpenChange={setEditOpen}

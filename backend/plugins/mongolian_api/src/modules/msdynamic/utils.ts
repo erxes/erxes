@@ -271,25 +271,13 @@ export const dealToDynamic = async (
       )}`,
     };
 
-    const conformities = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'conformities',
-      action: 'findConformities',
-      input: {
-        mainType: 'deal',
-        mainTypeId: { $in: deal._id },
-      },
-      defaultValue: [],
-    });
-
-    const customerType =
-      conformities.length > 0 ? conformities[0].relType : 'customer';
-    if (conformities.length > 0) {
+    const customerType = deal.companyId ? 'company' : 'customer';
+    const contactId = deal.companyId || deal.customerId;
+    if (contactId) {
       const msdCustomerInfo = await getMsdCustomerInfo(
         subdomain,
         models,
-        conformities[0].relTypeId,
+        contactId,
         customerType,
         brandId,
         config,

@@ -56,13 +56,13 @@ export const BranchCard = ({
   duplicateLoading,
 }: BranchCardProps) => {
   const { t } = useTranslation('tourism');
+  const branchName = branch.name || t('unnamed-branch');
+
   return (
     <div className="flex flex-col w-full rounded-sm shadow-sm bg-background">
       <div className="flex items-center justify-between px-3 py-2">
         <div className="min-w-0">
-          <div className="text-sm font-semibold truncate">
-            {branch.name || t('unnamed-branch')}
-          </div>
+          <div className="text-sm font-semibold truncate">{branchName}</div>
         </div>
 
         <ActionMenu
@@ -75,6 +75,7 @@ export const BranchCard = ({
 
       <Link
         to={`branches/${branch._id}`}
+        aria-label={branchName}
         className="w-full h-[140px] bg-accent/30 overflow-hidden flex items-center justify-center"
       >
         <BranchImage logo={branch.uiOptions?.logo} name={branch.name} />

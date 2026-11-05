@@ -10,11 +10,13 @@ import { IconDotsVertical } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useLocation } from 'react-router';
-import { Can, PrintDocument } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+import { Can, PrintDocument, useSidePanel } from 'ui-modules';
 
 export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { pathname } = useLocation();
-  const [, setSelectedTab] = useQueryState<string>('tab');
+  const { setTab: setSelectedTab } = useSidePanel();
   const [resetId] = useQueryState<string>('reset_password_id');
   const [menuOpen, setMenuOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
@@ -28,8 +30,9 @@ export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
       <Can actions={TEAM_MEMBER_ACTION_PERMISSIONS}>
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <Popover.Trigger asChild>
-            <Button variant="ghost" size="icon" className="size-7">
+            <Button variant="outline">
               <IconDotsVertical className="size-4" />
+              {t('actions', 'Actions')}
             </Button>
           </Popover.Trigger>
           <Combobox.Content align="end">

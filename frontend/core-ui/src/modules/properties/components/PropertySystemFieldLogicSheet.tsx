@@ -1,9 +1,10 @@
-import { Button, Sheet, Spinner, toast } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { Button, Spinner, toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Can, IPropertyForm, PropertyFormLogicFields } from 'ui-modules';
-import { useEditPropertySystemField } from '../hooks/useEditPropertySystemField';
-import { IPropertySystemField } from '../types/Properties';
+import { useEditPropertySystemField } from '@/properties/hooks/useEditPropertySystemField';
+import { IPropertySystemField } from '@/properties/types/Properties';
 
 const SystemFieldLogicForm = ({
   field,
@@ -36,22 +37,22 @@ const SystemFieldLogicForm = ({
 
   return (
     <form className="flex h-full w-full flex-col" onSubmit={handleSubmit}>
-      <Sheet.Header>
-        <Sheet.Title className="text-lg text-foreground">
+      <CoreModulePanel.Header>
+        <CoreModulePanel.Title className="text-lg text-foreground">
           {field.name}
-        </Sheet.Title>
-        <Sheet.Description className="sr-only">
+        </CoreModulePanel.Title>
+        <CoreModulePanel.Description className="sr-only">
           {t(
             'logic-description',
             'Create rules to show or hide this element depending on the values of other properties.',
           )}
-        </Sheet.Description>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content className="overflow-y-auto px-5 py-4">
+        </CoreModulePanel.Description>
+        <CoreModulePanel.Close />
+      </CoreModulePanel.Header>
+      <CoreModulePanel.Content className="overflow-y-auto px-5 py-4">
         <PropertyFormLogicFields form={form} contentType={contentType} />
-      </Sheet.Content>
-      <Sheet.Footer>
+      </CoreModulePanel.Content>
+      <CoreModulePanel.Footer>
         <Button type="button" variant="ghost" onClick={onClose}>
           {t('cancel', 'Cancel')}
         </Button>
@@ -61,7 +62,7 @@ const SystemFieldLogicForm = ({
             {t('update-property', 'Update Property')}
           </Button>
         </Can>
-      </Sheet.Footer>
+      </CoreModulePanel.Footer>
     </form>
   );
 };
@@ -75,8 +76,12 @@ export const PropertySystemFieldLogicSheet = ({
   contentType: string;
   onClose: () => void;
 }) => (
-  <Sheet open={!!field} onOpenChange={(open) => !open && onClose()}>
-    <Sheet.View className="p-0">
+  <CoreModulePanel
+    name={'properties/PropertySystemFieldLogicSheet'}
+    open={!!field}
+    onOpenChange={(open) => !open && onClose()}
+  >
+    <CoreModulePanel.View className="p-0">
       {field && (
         <SystemFieldLogicForm
           key={field.code}
@@ -85,6 +90,6 @@ export const PropertySystemFieldLogicSheet = ({
           onClose={onClose}
         />
       )}
-    </Sheet.View>
-  </Sheet>
+    </CoreModulePanel.View>
+  </CoreModulePanel>
 );

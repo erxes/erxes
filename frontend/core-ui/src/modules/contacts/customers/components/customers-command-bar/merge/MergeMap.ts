@@ -5,14 +5,10 @@ export type FieldType =
   | 'avatar'
   | 'links'
   | 'link'
-  | 'sex';
+  | 'sex'
+  | 'company';
 type LinkType =
-  | 'website'
-  | 'facebook'
-  | 'instagram'
-  | 'twitter'
-  | 'linkedIn'
-  | 'github';
+  'website' | 'facebook' | 'instagram' | 'twitter' | 'linkedIn' | 'github';
 
 interface Field {
   displayName: string | null;

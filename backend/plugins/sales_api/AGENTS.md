@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -31,6 +31,11 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- Pipelines persist `productIds`, `tagIds`, and `excludeTagIds` for deal product selection. Core reads them through the existing tenant-scoped `pipeline.findOne` contract.
+
+- POS product groups store `productIds` (include), `tagIds`, and `excludeTagIds` alongside category/product exclusions. Category, tag and explicit-product includes form a union; category, tag and product exclusions apply to that whole union, including explicitly included products. Include and exclude tags expand through Core `tags.findWithChild` in the request tenant. Empty groups retain their empty-catalog behavior.
+- POS sync retains the included category tree minus excluded category descendants, plus the direct categories of products matched by tags or explicit ids. Each group resolves its trees once, then reuses those ids for the product query and category payload. Product changes add their direct category before the product or remove products that no longer match. Tag assignment/tree and category changes resync affected POS catalogs through the existing token-scoped import contract.
 
 - POS cover `details[]` stores immutable terminal fetch results
   per `paidType`, including zero-amount terminal rows received from POS client.
@@ -284,6 +289,10 @@
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- The product-row deletion mutation requires `dealsProductsDelete` in addition to
+  `dealsEdit`. Full-array `dealsEdit` saves require `dealsEdit` and
+  `dealsProductsEdit`. The Sales Admin default group includes both product actions.
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
@@ -592,6 +601,12 @@
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 
 ## Validation
+
+- POS filter smoke: save category/tag/product includes and each exclusion, reopen, sync, and verify the include union minus all exclusions appears. Tag-only/product-only groups must include each product's direct category; moving or removing tags/products must remove obsolete POS membership.
+- `pnpm nx test sales_api --runInBand --testPathPattern="(productGroupFilter|catalogSync|posProductSync|getProductPricing)"`
+
+- Permission regression: `requiredInputs.test.ts` covers denied deletion before model
+  access and product-row deletion without product-edit permission.
 
 - `node --test backend/plugins/sales_api/src/modules/pos/db/definitions/__tests__/coverDetails.test.cjs`
 - `node --test backend/plugins/sales_api/src/modules/pos/db/models/__tests__/posOnServer.test.cjs`

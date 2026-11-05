@@ -1,7 +1,8 @@
 import { IContext } from '~/connectionResolvers';
 import { TEmailScope } from '~/utils/email/scope';
 import {
-  listAuthenticatedDomains,
+  checkFromDomain,
+  listMarkedDomains,
   listSingleSenders,
   resolveAlignedFrom,
 } from '~/utils/email/senders';
@@ -33,9 +34,19 @@ export default {
       return true;
     }
 
-    const domains = await listAuthenticatedDomains(models, root._scope);
+    return (await listMarkedDomains(models, root._scope)).length > 0;
+  },
 
-    return domains.some((domain) => domain.status === 'verified');
+  async verifiedDomains(
+    root: IEmailSenderOptionsRoot,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    if (!root.supportsSenderVerification) {
+      return [];
+    }
+
+    return await listMarkedDomains(models, root._scope);
   },
 
   async alignedFrom(
@@ -44,5 +55,13 @@ export default {
     { models }: IContext,
   ) {
     return await resolveAlignedFrom(models, root._scope);
+  },
+
+  async fromDomain(
+    root: IEmailSenderOptionsRoot,
+    _args: undefined,
+    { models }: IContext,
+  ) {
+    return await checkFromDomain(models, root._scope);
   },
 };

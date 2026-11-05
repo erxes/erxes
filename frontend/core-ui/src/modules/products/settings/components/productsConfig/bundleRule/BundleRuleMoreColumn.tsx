@@ -78,6 +78,7 @@ export const BundleRuleMoreColumn = (
       </Popover>
 
       <CoreModulePanel
+        requiredPermission="bundleRulesManage"
         name={`products/settings/productsConfig/bundleRule/BundleRuleMoreColumn/${bundleRule._id}`}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}

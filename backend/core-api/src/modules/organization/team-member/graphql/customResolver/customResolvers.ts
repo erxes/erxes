@@ -1,6 +1,6 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { redis, userActivityTrackingKey } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { USER_ROLES } from 'erxes-api-shared/core-modules';
 import { getSessionState } from '@/auth/session';
 
 export default {
@@ -31,7 +31,7 @@ export default {
     _args: undefined,
     { models }: IContext,
   ) {
-    return (await models.Users.isDirectoryUser(user._id)) ? 'ldap' : null;
+    return (await models.Users.getIdentityProvider(user._id)) || null;
   },
 
   async sessionState(
@@ -40,6 +40,27 @@ export default {
     { subdomain }: IContext,
   ) {
     return getSessionState(subdomain, user._id);
+  },
+
+  async activity(
+    user: IUserDocument,
+    { days = 7 }: { days?: number },
+    { models, subdomain, user: currentUser, checkPermission }: IContext,
+  ) {
+    if (!(await redis.exists(userActivityTrackingKey(subdomain)))) {
+      return null;
+    }
+
+    // Own activity is always visible; others' only with the permission
+    if (currentUser?._id !== user._id) {
+      try {
+        await checkPermission('teamMembersViewActivity');
+      } catch {
+        return null;
+      }
+    }
+
+    return models.UserActivities.getActivitySummary(user._id, days);
   },
 
   async status(user: IUserDocument) {
@@ -177,10 +198,9 @@ export default {
 
   async leaderBoardPosition(user: IUserDocument, _args, { models }: IContext) {
     return (
-      (await models.Users.find({
-        score: { $gt: user.score || 0 },
-        role: { $ne: USER_ROLES.SYSTEM },
-      }).countDocuments()) + 1
+      (await models.Users.countDocuments(
+        await models.Users.staffQuery({ score: { $gt: user.score || 0 } }),
+      )) + 1
     );
   },
 };

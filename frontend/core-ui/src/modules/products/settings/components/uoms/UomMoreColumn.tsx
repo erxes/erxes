@@ -61,6 +61,7 @@ export const UomMoreColumn = (props: CellContext<IUom, unknown>) => {
       </Popover>
 
       <CoreModulePanel
+        requiredPermission="uomsManage"
         name={`products/settings/uoms/UomMoreColumn/${uom._id}`}
         open={isEditOpen}
         onOpenChange={setIsEditOpen}

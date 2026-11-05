@@ -14,7 +14,8 @@ export type SessionMethod =
   | 'sso'
   | 'magic_link'
   | 'invitation'
-  | 'saas_handoff';
+  | 'saas_handoff'
+  | 'support';
 
 export interface ISessionPolicy {
   idleSecs: number;
@@ -335,6 +336,7 @@ export const startSession = async ({
   subdomain,
   userId,
   method,
+  policy: policyOverride,
   req,
   res,
 }: {
@@ -342,10 +344,12 @@ export const startSession = async ({
   subdomain: string;
   userId: string;
   method: SessionMethod;
+  // Support visits bring their own: capped by the grant, not the tenant policy
+  policy?: ISessionPolicy;
   req: Request;
   res: Response;
 }) => {
-  const policy = await getSessionPolicy(models);
+  const policy = policyOverride || (await getSessionPolicy(models));
   const userAgent = req.headers['user-agent'];
 
   const sid = await createSession({

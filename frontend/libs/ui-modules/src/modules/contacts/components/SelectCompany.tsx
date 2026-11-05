@@ -62,10 +62,20 @@ const SelectCompanyProvider = ({
   });
 
   useEffect(() => {
-    if (fetchedCompanies?.length) {
-      setCompanies(fetchedCompanies);
-    }
-  }, [fetchedCompanies]);
+    setCompanies((previous) => {
+      const fetched = fetchedCompanies || [];
+      const next = [
+        ...previous.filter(
+          (company) => !fetched.some((item) => item._id === company._id),
+        ),
+        ...fetched,
+      ].filter((company) => valueIds.includes(company._id));
+      return next.length === previous.length &&
+        next.every((company, index) => company === previous[index])
+        ? previous
+        : next;
+    });
+  }, [fetchedCompanies, valueIds]);
 
   const onSelect = (company: ICompany) => {
     if (!company) return;

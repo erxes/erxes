@@ -1,10 +1,11 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { useNavigate, useParams } from 'react-router';
-import { Sheet, toast } from 'erxes-ui';
-import { useFieldDetail } from '../hooks/useFieldDetail';
-import { useEditProperty } from '../hooks/useEditProperty';
+import { toast } from 'erxes-ui';
+import { useFieldDetail } from '@/properties/hooks/useFieldDetail';
+import { useEditProperty } from '@/properties/hooks/useEditProperty';
 import { useSetAtom } from 'jotai';
-import { needsToRefreshState } from '../states/needsToRefresh';
+import { needsToRefreshState } from '@/properties/states/needsToRefresh';
 import { useTranslation } from 'react-i18next';
 import { IPropertyForm, PropertyForm } from 'ui-modules';
 
@@ -17,7 +18,7 @@ export const PropertyEdit = () => {
     type: string;
   }>();
 
-  const { fieldDetail, loading } = useFieldDetail({ id: id || '' });
+  const { fieldDetail, loading, error } = useFieldDetail({ id: id || '' });
   const { editProperty, loading: editPropertyLoading } = useEditProperty();
   const setNeedsToRefresh = useSetAtom(needsToRefreshState);
 
@@ -53,8 +54,15 @@ export const PropertyEdit = () => {
   };
 
   return (
-    <Sheet open onOpenChange={handleClose}>
-      <Sheet.View
+    <CoreModulePanel
+      name={'properties/PropertyEdit'}
+      open
+      onOpenChange={handleClose}
+    >
+      <CoreModulePanel.View
+        loading={loading}
+        error={!!error}
+        notFound={!loading && !fieldDetail}
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -78,7 +86,7 @@ export const PropertyEdit = () => {
             fieldId={id}
           />
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

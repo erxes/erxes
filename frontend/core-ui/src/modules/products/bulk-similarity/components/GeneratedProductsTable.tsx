@@ -238,7 +238,10 @@ const useColumnWidths = (defaults: Record<string, number>) => {
       const startWidth = widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
 
       const onMove = (e: MouseEvent) => {
-        const next = Math.max(MIN_COLUMN_WIDTH, startWidth + e.clientX - startX);
+        const next = Math.max(
+          MIN_COLUMN_WIDTH,
+          startWidth + e.clientX - startX,
+        );
         setWidths((prev) => ({ ...prev, [id]: next }));
       };
 
@@ -496,7 +499,9 @@ export const GeneratedProductsTable = ({
                               className="mr-1 text-destructive shrink-0"
                             />
                           </Tooltip.Trigger>
-                          <Tooltip.Content>{t('duplicate-code', 'Duplicate code')}</Tooltip.Content>
+                          <Tooltip.Content>
+                            {t('duplicate-code', 'Duplicate code')}
+                          </Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
                     )}

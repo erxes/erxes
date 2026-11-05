@@ -1,4 +1,4 @@
-import { formatDate as format } from '@/utils/graphqlDate';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { IconReport } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -36,6 +36,8 @@ import {
   REPORT_FILTER_GROUP_ORDER,
   ReportFilterDefinition,
 } from '@/journal-reports/types/reportFilters';
+import { getReportPeriodSchema } from '@/journal-reports/types/reportFormSchema';
+import { getReportPeriodParam } from '@/journal-reports/utils/reportNavigation';
 import { IReportConfig, ReportRules } from '@/journal-reports/types/reportsMap';
 
 interface ReportFormValues {
@@ -72,7 +74,7 @@ const getQueryParam = (
   value: Exclude<ReportQueryValue, undefined>,
 ) => {
   if (key === 'fromDate' || key === 'toDate') {
-    return format(value as Date, 'yyyy-MM-dd HH:mm:ss');
+    return getReportPeriodParam(key, value as Date);
   }
 
   if (typeof value === 'boolean') {
@@ -82,7 +84,9 @@ const getQueryParam = (
   return Array.isArray(value) ? value.join(',') : String(value);
 };
 
-const hasQueryValue = (value: ReportQueryValue) =>
+const hasQueryValue = (
+  value: ReportQueryValue,
+): value is Exclude<ReportQueryValue, undefined> =>
   value instanceof Date ||
   value === true ||
   (typeof value === 'string' && value.length > 0) ||
@@ -390,6 +394,7 @@ const ReportFormField = ({
               format="YYYY-MM-DD"
               className={datePickerClassName}
             />
+            <Form.Message />
           </Form.Item>
         )}
       />
@@ -413,6 +418,71 @@ const ReportFormField = ({
   );
 };
 
+const ReportFormFieldGroup = ({
+  definitions,
+  form,
+  reportConfig,
+}: {
+  definitions: ReportFilterDefinition[];
+  form: UseFormReturn<ReportFormValues>;
+  reportConfig: IReportConfig;
+}) => {
+  if (!definitions.length) {
+    return null;
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-4 border-b py-4 last:border-0 lg:grid-cols-2 xl:grid-cols-4">
+      {definitions.map((definition) => (
+        <ReportFormField
+          key={definition.field}
+          definition={definition}
+          form={form}
+          reportConfig={reportConfig}
+        />
+      ))}
+    </div>
+  );
+};
+
+const ReportFilterForm = ({
+  definitions,
+  form,
+  reportConfig,
+  canSubmit,
+  onSubmit,
+}: {
+  definitions: ReportFilterDefinition[];
+  form: UseFormReturn<ReportFormValues>;
+  reportConfig: IReportConfig;
+  canSubmit: boolean;
+  onSubmit: (data: ReportFormValues) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
+        {REPORT_FILTER_GROUP_ORDER.map((group) => (
+          <ReportFormFieldGroup
+            key={group}
+            definitions={definitions.filter(
+              (definition) => definition.group === group,
+            )}
+            form={form}
+            reportConfig={reportConfig}
+          />
+        ))}
+        <Dialog.Footer className="mt-4">
+          <Button type="submit" size="lg" disabled={!canSubmit}>
+            {t('view-report')}
+          </Button>
+        </Dialog.Footer>
+      </form>
+    </Form>
+  );
+};
+
 const COMMON_REPORT_KEYS = ['ac', 'tb', 'mb'];
 
 export const ReportForm = () => {
@@ -430,7 +500,11 @@ export const ReportForm = () => {
     () => new Set(definitions.map(({ field }) => field)),
     [definitions],
   );
-  const form = useForm<ReportFormValues>({ defaultValues: {} });
+  const periodSchema = useMemo(() => getReportPeriodSchema(t), [t]);
+  const form = useForm<ReportFormValues>({
+    defaultValues: {},
+    resolver: zodResolver(periodSchema),
+  });
 
   useEffect(() => {
     form.reset({
@@ -444,7 +518,7 @@ export const ReportForm = () => {
     definitions.forEach(({ field, queryParam }) => {
       const value = data[field] as ReportQueryValue;
       if (hasQueryValue(value)) {
-        params.set(queryParam, getQueryParam(queryParam, value!));
+        params.set(queryParam, getQueryParam(queryParam, value));
       }
     });
 
@@ -497,39 +571,13 @@ export const ReportForm = () => {
           {t(reportConfig.title || '')}
         </h2>
         <Separator className="mt-3" />
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="py-4">
-            {REPORT_FILTER_GROUP_ORDER.map((group) => {
-              const groupDefinitions = definitions.filter(
-                (definition) => definition.group === group,
-              );
-
-              if (!groupDefinitions.length) {
-                return null;
-              }
-
-              return (
-                <div key={group} className="border-b py-4 last:border-0">
-                  <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
-                    {groupDefinitions.map((definition) => (
-                      <ReportFormField
-                        key={definition.field}
-                        definition={definition}
-                        form={form}
-                        reportConfig={reportConfig}
-                      />
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-            <Dialog.Footer className="mt-4">
-              <Button type="submit" size="lg" disabled={!allowedFields.size}>
-                {t('view-report')}
-              </Button>
-            </Dialog.Footer>
-          </form>
-        </Form>
+        <ReportFilterForm
+          definitions={definitions}
+          form={form}
+          reportConfig={reportConfig}
+          canSubmit={allowedFields.size > 0}
+          onSubmit={onSubmit}
+        />
       </div>
     </div>
   );
