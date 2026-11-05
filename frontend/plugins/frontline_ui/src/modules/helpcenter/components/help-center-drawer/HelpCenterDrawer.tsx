@@ -4,7 +4,8 @@ import { useAtomValue, useStore } from 'jotai';
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { currentUserState, PanelFormLayout } from 'ui-modules';
+import { currentUserState, PanelFormLayout, useSidePanel } from 'ui-modules';
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 import { HelpCenterAppearanceTab } from '@/helpcenter/components/help-center-drawer/HelpCenterAppearanceTab';
 import { HelpCenterDomainTab } from '@/helpcenter/components/help-center-drawer/HelpCenterDomainTab';
 import { HelpCenterGeneralTab } from '@/helpcenter/components/help-center-drawer/HelpCenterGeneralTab';
@@ -44,6 +45,7 @@ export function HelpCenterDrawer({
   const { t } = useTranslation('frontline');
   const { confirm } = useConfirm();
   const client = useApolloClient();
+  const { openRecord } = useSidePanel();
   const [checking, setChecking] = useState(false);
   const currentUserId = useAtomValue(currentUserState)?._id;
   const store = useStore();
@@ -56,6 +58,8 @@ export function HelpCenterDrawer({
   const recordKey = `${userKey}:${recordId}`;
   const created = useAtomValue(helpCenterPanelCreatedState)[recordKey];
   const pending = useAtomValue(helpCenterPanelPendingState).has(recordKey);
+  const drafts = useAtomValue(helpCenterPanelDraftsState);
+  const uploading = Boolean(drafts[recordKey]?.pendingUpdates?.length);
   const isEditing = !!helpCenter;
   const [selectedTab, setSelectedTab] = useState<THelpCenterTab>('general');
   const tabs = isEditing ? HELP_CENTER_TABS : HELP_CENTER_CREATE_TABS;
@@ -93,6 +97,7 @@ export function HelpCenterDrawer({
     return (url) => {
       if (store.get(helpCenterPanelSessionState) !== session) return;
       update((latest) => {
+        if (url === undefined) return latest;
         if (name === 'backgroundImage')
           return { ...latest, backgroundImage: url };
         if (name === 'footer.logo')
@@ -113,7 +118,7 @@ export function HelpCenterDrawer({
     );
     store.set(helpCenterNewDraftGenerationState, (previous) => ({
       ...previous,
-      [userKey]: generation + 1,
+      [userKey]: Math.max(previous[userKey] ?? 0, generation + 1),
     }));
   };
 
@@ -148,7 +153,7 @@ export function HelpCenterDrawer({
           ),
         );
       const currentValues = toHelpCenterConfigInput(current.helpCenterConfig);
-      delete currentValues._id;
+      if (!isEditing) delete currentValues._id;
       return currentValues;
     } catch (error) {
       toast({
@@ -177,6 +182,12 @@ export function HelpCenterDrawer({
       store.get(helpCenterRemovedIdsState).has(saved._id)
     )
       return;
+    if (
+      !isEditing &&
+      (store.get(helpCenterNewDraftGenerationState)[userKey] ?? 0) !==
+        generation
+    )
+      return;
     const savedValues = toHelpCenterConfigInput(saved);
     if (!isEditing) {
       delete savedValues._id;
@@ -186,16 +197,37 @@ export function HelpCenterDrawer({
       }));
     }
     const completed = markSaved(savedValues, submitted);
-    if (completed && isActive()) onClose();
-    if (completed && !isEditing && !hasPendingUpdates()) finishNewDraft();
+    const active = isActive();
+    if (!isEditing) {
+      const remaining = store.get(helpCenterPanelDraftsState)[recordKey];
+      const savedKey = `${userKey}:${saved._id}`;
+      if (!completed && remaining)
+        store.set(helpCenterPanelDraftsState, (previous) => ({
+          ...previous,
+          [savedKey]: previous[savedKey] ?? {
+            ...remaining,
+            values: { ...remaining.values, _id: saved._id },
+            defaultValues: { ...savedValues, _id: saved._id },
+          },
+        }));
+      clearDraft();
+      finishNewDraft();
+      if (!completed && active)
+        openRecord(
+          { contentType: HELP_CENTER_CONTENT_TYPE, contentId: saved._id },
+          { replace: true },
+        );
+    }
+    if (completed && active) onClose();
   };
 
   const onSubmit = async (data: IHelpCenterConfigInput) => {
-    if (loading) return;
-    const submitted = data;
+    if (loading || hasPendingUpdates()) return;
+    const submitted = structuredClone(data);
     let currentValues = values;
-    if (created) {
-      const current = await loadCreatedValues(created.id);
+    const id = helpCenter?._id ?? created?.id;
+    if (id) {
+      const current = await loadCreatedValues(id);
       if (!current || !isActive()) return;
       currentValues = current;
     }
@@ -213,20 +245,25 @@ export function HelpCenterDrawer({
       });
       if (!isActive()) return;
     }
-    if (store.get(helpCenterPanelPendingState).has(recordKey)) return;
+    if (
+      hasPendingUpdates() ||
+      store.get(helpCenterPanelPendingState).has(recordKey) ||
+      store.get(helpCenterPanelSessionState) !== session
+    )
+      return;
     store.set(
       helpCenterPanelPendingState,
       (previous) => new Set([...previous, recordKey]),
     );
     try {
       const result = await saveHelpCenter({
-        ...data,
+        ...submitted,
         _id:
           helpCenter?._id ??
           store.get(helpCenterPanelCreatedState)[recordKey]?.id,
-        title: data.title.trim(),
-        description: data.description.trim(),
-        url: data.url.trim(),
+        title: submitted.title.trim(),
+        description: submitted.description.trim(),
+        url: submitted.url.trim(),
       });
       const saved = result.data?.helpCenterConfigUpdate;
       if (saved) acknowledgeSave(saved, submitted);
@@ -264,9 +301,10 @@ export function HelpCenterDrawer({
 
   const kbTopicId = form.watch('kbTopicId');
 
-  const idleLabel = isEditing
-    ? t('kb-save-changes')
-    : t('helpcenter-create', 'Create Help Center');
+  const idleLabel =
+    isEditing || created
+      ? t('kb-save-changes')
+      : t('helpcenter-create', 'Create Help Center');
   const busyLabel = isEditing ? t('saving') : t('kb-creating');
   const submitLabel = loading ? busyLabel : idleLabel;
   const tabLabels: Record<THelpCenterTab, string> = {
@@ -326,7 +364,7 @@ export function HelpCenterDrawer({
   const body = (
     <PanelFormLayout
       onCancel={onCancel}
-      saving={loading}
+      saving={loading || uploading}
       saveLabel={submitLabel}
     >
       {general}

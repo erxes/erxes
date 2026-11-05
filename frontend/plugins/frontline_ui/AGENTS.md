@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -813,7 +813,7 @@ owns the setup form and connection actions.
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
-| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and create/edit record panels with legacy `editId` redirects |
 | Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
 | Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
 | Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
@@ -1129,7 +1129,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   scope. Scalar image replacement and removal invalidate older uploads for that
   field; attachment additions merge
   with the latest retained values. Discard, deletion and session cleanup invalidate
-  old callbacks. Knowledge base uploads use the public
+  old callbacks. Knowledge base and Help Center uploads use the public
   `useErxesUpload().uploadFile` promise and settle both successful and failed
   requests before releasing Save; oversized files are rejected before capture.
 
@@ -1148,14 +1148,13 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   in memory and clear on confirmed discard, completed save or record removal.
   Pending saves are shared by record; new-draft generations prevent a remount
   from creating twice or reusing a completed creation as another new record.
-  A confirmed create ID and saved defaults stay with their scoped session when
-  a late upload leaves newer edits; subsequent saves update that record across
-  remounts. Each retained-session update first reads the current full config
-  through `GET_HELP_CENTER` with `network-only`, compares it with the confirmed
-  snapshot and requires affirmative overwrite confirmation when it changed.
-  A failed or missing-record read reports an error and preserves the draft for
-  retry. Completion, confirmed discard and record removal clear the retained
-  identity.
+  Every existing-record save reads the full config through `GET_HELP_CENTER`
+  with `network-only`, compares it with the accepted baseline and requires
+  affirmative overwrite confirmation when it changed. Failed and missing-record
+  reads preserve input for retry. Completed creation retires the New generation
+  and its created ID before closing. Newer input, if present, moves to the saved
+  record's draft and opens that record in the still-active panel. Another Create
+  never uses the previous site's ID.
 
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
@@ -1311,14 +1310,17 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   unverified-media reveal and
   fullscreen stay unchanged. Other URLs fall back to native attachment rendering;
   repeated stored URLs render once with URL-based keys.
-- Help Center image selections capture the current form draft writer at upload
-  start. Completion merges into that user/record draft across Activity remounts;
+- Help Center image selections use `KbImageUpload`, composed from the public
+  `Dropzone` and `useErxesUpload().uploadFile` API. Valid files capture the current
+  draft writer before storage starts. Completion merges into that user/record
+  draft across Activity remounts;
   explicit discard, deletion and user-session changes invalidate that writer.
   Replacement or removal invalidates older uploads for that image field across
   remounts, while other image fields retain their independent completions.
-- A confirmed new Help Center keeps its created ID while an image completion is
-  outstanding, including after a successful save. Continuing that draft updates
-  the same record. Missing upload completion never locks Save or Cancel.
+- The Save button and submit admission reject pending image uploads. Network or
+  server failures settle the captured operation without replacing the old image;
+  oversized files show an error before capture. Retry and Cancel remain usable.
+  The completed image must be in the form before its configuration is saved.
 - Confirmed Help Center deletion IDs are reconciled by the mounted title view
   against its current record; an earlier deletion must not close a newer panel.
 
@@ -1746,10 +1748,11 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   All settings and Cancel are disabled during a save. Successful responses
   retain any newer asynchronous edits and their confirmed record identity;
   otherwise they clear the saved draft and close only its still-active form.
-  Failures retain input. Because the API replaces the full config, saving after
-  a background change asks before overwriting newer settings. Retained creation
-  sessions perform a fresh detail read through `loadCreatedValues` before the
-  same conflict check; read failures preserve the image draft. Pending mutation
+  Failures retain input. Because the API replaces the full config, both edit
+  and retained-created saves call `loadCreatedValues` before comparing fresh
+  settings with the baseline. Only an affirmative conflict confirmation permits
+  overwriting newer settings. The submitted values are snapshotted before that
+  read, and read failures preserve the draft. Pending mutation
   state begins only after affirmative confirmation, so dismissing the prompt
   leaves editing available.
   Activity renders the public `ActivityLogs` view for the record with loading,
@@ -1758,10 +1761,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Category editing lives on the knowledge base categories route
   (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
   delete. The help center surface does not duplicate it.
-- The upload slots use the repo's usual `Upload.Root` handler
-  (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
-  reports a removal in that same shape, so no special case is needed here. The
-  gateway stamps the `userid` header `/delete-file` needs from the session.
+- Help Center upload slots reuse `KbImageUpload` and the configured file-size
+  limit. Storage failure reports an error and releases Save; explicit Remove
+  invalidates that field's earlier completion before clearing its value.
 - Never hide a pane or a field group with the `hidden` **attribute** here: this
   app runs Tailwind v4, whose `display` utilities are declared after preflight's
   `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
@@ -3033,11 +3035,14 @@ null }`, fall back to the route pipeline and skip without one; never pass
   then finish it; B stays open. Keep A selected and confirm a stacked parent returns.
   Cancel a confirmation, reopen Actions and retry Delete.
 - Help Center lifecycle smoke: upload an image, switch Activity before completion,
-  return and confirm the image and any newer input survive. Repeat with creation
-  finishing first, and with explicit discard, deletion and logout before upload
+  return and confirm the image and any newer input survive. Repeat with Save
+  attempted during the upload, and explicit discard, deletion and logout before upload
   completion. Remove a preview before its upload finishes and confirm it stays
   removed; select replacement images in succession and keep the newest selection.
-  Verify failed/oversize uploads leave Save and Cancel usable.
+  Verify failed/oversize uploads release Save and leave Cancel usable. Save
+  during a valid pending upload stays blocked; after completion, save and reopen
+  the record to confirm the image persisted. Create twice after a failed upload
+  and confirm the second request has no previous ID.
   Delete A, open B while pending and confirm B stays open; keep A selected and
   confirm its stacked parent returns.
 
@@ -3081,8 +3086,8 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - Help Center panel smoke: edit General and Appearance, switch tabs, visit
   Activity or another record and reopen; confirm unsaved values remain separate
   for each user/new/record scope. Dismiss then affirm dirty Cancel. While create
-  is pending, remount without creating again; let an upload finish after create
-  and confirm the next save updates its confirmed ID. Change the full config
+  is pending, remount without creating again. Finish the request, then create
+  another Help Center and confirm a new ID. Change the full config
   elsewhere, then dismiss/affirm overwrite and repeat after a retained-create
   fresh read; read errors or missing records must preserve input for retry.
   Enter in a single-line settings input must not save; textarea, IME, selectors

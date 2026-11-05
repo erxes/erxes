@@ -52,10 +52,13 @@ export function StyleColorField({
 }
 
 export type THelpCenterImageField =
-  'styles.mainLogo' | 'styles.favicon' | 'footer.logo' | 'backgroundImage';
+  | 'styles.mainLogo'
+  | 'styles.favicon'
+  | 'footer.logo'
+  | 'backgroundImage';
 export type TCaptureHelpCenterImage = (
   name: THelpCenterImageField,
-) => (url: string) => void;
+) => (url?: string) => void;
 
 export function StyleImageField({
   control,
