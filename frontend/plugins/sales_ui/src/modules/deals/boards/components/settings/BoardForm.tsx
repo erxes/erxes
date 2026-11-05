@@ -24,14 +24,12 @@ const BoardFormBody = ({
   onCancel,
   saving,
   detailLoading,
-  boardName,
 }: Readonly<{
   methods: UseFormReturn<TBoardForm>;
   onSubmit: () => void;
   onCancel: () => void;
   saving: boolean;
   detailLoading: boolean;
-  boardName?: string;
 }>) => (
   <Form {...methods}>
     <form onSubmit={onSubmit} className="flex flex-col gap-4 w-full">
@@ -51,7 +49,7 @@ const BoardFormBody = ({
                     type="text"
                     placeholder="Enter board name"
                     className="input"
-                    value={field.value || boardName || ''}
+                    value={field.value || ''}
                   />
                 </Form.Control>
                 <Form.Message />
@@ -64,7 +62,7 @@ const BoardFormBody = ({
         <Button type="button" variant="ghost" onClick={onCancel}>
           Cancel
         </Button>
-        <Button type="submit" disabled={saving}>
+        <Button type="submit" disabled={saving || detailLoading}>
           {saving ? <Spinner /> : 'Save'}
         </Button>
       </Dialog.Footer>
@@ -88,6 +86,12 @@ export const BoardForm = () => {
     setOpen(Boolean(boardId) || isCreating);
     if (!boardId) reset();
   }, [boardId, isCreating, reset]);
+
+  React.useEffect(() => {
+    if (boardId && boardDetail?._id === boardId) {
+      reset({ name: boardDetail.name || '' }, { keepDefaultValues: true });
+    }
+  }, [boardId, boardDetail, reset]);
 
   const handleClose = React.useCallback(() => {
     setOpen(false);
@@ -133,7 +137,6 @@ export const BoardForm = () => {
           onCancel={handleClose}
           saving={addLoading || editLoading}
           detailLoading={boardDetailLoading}
-          boardName={boardDetail?.name}
         />
       </Dialog.ContentCombined>
     </Dialog>
