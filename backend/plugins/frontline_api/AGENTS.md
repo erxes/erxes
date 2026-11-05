@@ -382,8 +382,9 @@
 - `POST /instagram` verifies `x-hub-signature-256` / `x-hub-signature` with
   `INSTAGRAM_APP_SECRET` (`src/modules/integrations/instagram/webhookSignature.ts`).
   Meta signs the bytes it sent (compact JSON, non-ASCII as `\uXXXX`, `/` as
-  `\/`); a relay that parses and re-serializes the body changes those bytes, so
-  the check also tries that Meta encoding rebuilt from the parsed body. Every
+  `\/`, `object` before `entry`); a relay that parses and re-serializes the
+  body changes those bytes, so the check also tries that Meta encoding rebuilt
+  from the parsed body, in both the received and the Meta key order. Every
   candidate is still an HMAC under the app secret; a wrong secret, a tampered
   body, or a missing header answers `401`.
 - Instagram DMs select only `instagram-messenger` integrations; comments select

@@ -15,6 +15,23 @@ const escapeNonAscii = (json: string): string =>
 
 const escapeSlashes = (json: string): string => json.replace(/\//g, '\\/');
 
+const metaKeyOrder = (body: Record<string, unknown>): Record<string, unknown> => {
+  if (!('object' in body) || !('entry' in body)) return body;
+  const { object, entry, ...rest } = body;
+  return { object, entry, ...rest };
+};
+
+const encodings = (body: Record<string, unknown>): string[] => {
+  const compact = JSON.stringify(body);
+  const unicodeEscaped = escapeNonAscii(compact);
+  return [
+    compact,
+    unicodeEscaped,
+    escapeSlashes(compact),
+    escapeSlashes(unicodeEscaped),
+  ];
+};
+
 export const signedBodyCandidates = (
   rawBody: Buffer | string | undefined,
   body: unknown,
@@ -23,15 +40,9 @@ export const signedBodyCandidates = (
   if (rawBody && rawBody.length) {
     candidates.push(rawBody);
   }
-  if (body && typeof body === 'object') {
-    const compact = JSON.stringify(body);
-    const unicodeEscaped = escapeNonAscii(compact);
-    candidates.push(
-      compact,
-      unicodeEscaped,
-      escapeSlashes(compact),
-      escapeSlashes(unicodeEscaped),
-    );
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    const received = body as Record<string, unknown>;
+    candidates.push(...encodings(received), ...encodings(metaKeyOrder(received)));
   }
   return [...new Set(candidates.map((c) => c.toString()))];
 };
