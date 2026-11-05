@@ -1,4 +1,5 @@
 import { Button, useConfirm } from 'erxes-ui';
+import { Can } from 'ui-modules';
 
 import { IconTrash } from '@tabler/icons-react';
 import { useRemoveProducts } from '../hooks/mutations/useRemoveProduct';
@@ -16,30 +17,32 @@ export const ProductsDelete = ({
   const { t } = useTranslation('sales');
 
   return (
-    <Button
-      variant="secondary"
-      className="text-destructive"
-      onClick={() =>
-        confirm({
-          message: t('delete-products-confirm', { count: productIds.length }),
-        }).then(() => {
-          const processId = crypto.randomUUID();
-          localStorage.setItem('processId', processId);
+    <Can action="dealsProductsDelete">
+      <Button
+        variant="secondary"
+        className="text-destructive"
+        onClick={() =>
+          confirm({
+            message: t('delete-products-confirm', { count: productIds.length }),
+          }).then(() => {
+            const processId = crypto.randomUUID();
+            localStorage.setItem('processId', processId);
 
-          removeProducts({
-            variables: {
-              dataIds: productIds,
-              processId,
-            },
-            onCompleted: () => {
-              refetch();
-            },
-          });
-        })
-      }
-    >
-      <IconTrash />
-      {t('delete')}
-    </Button>
+            removeProducts({
+              variables: {
+                dataIds: productIds,
+                processId,
+              },
+              onCompleted: () => {
+                refetch();
+              },
+            });
+          })
+        }
+      >
+        <IconTrash />
+        {t('delete')}
+      </Button>
+    </Can>
   );
 };

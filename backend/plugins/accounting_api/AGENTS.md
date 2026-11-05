@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -57,7 +57,7 @@
 - Calculates fund rate adjustments for cash/bank foreign-currency balances by day, validates that daily foreign-currency balances do not go negative, groups final balances by account/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates debt rate adjustments for receivable/payable balances by day, validates active accounts on debit-side balances and passive accounts on credit-side balances, groups final balances by account/customer/branch/department, stores calculated details, and runs linked `exchangeDiff` transactions after calculation.
 - Calculates temporary account closings from the previous completed/published closing or first temporary-account transaction through the selected date, groups final balances by account/branch/department, validates active accounts on debit balances and passive accounts on credit balances, stores editable row tax percentages, and runs linked closing transactions after calculation.
-- Publishes fund and debt adjustment subscription updates after calculation so detail screens can refresh without manual reloads.
+- Publishes inventory, fixed asset, fund rate, and debt rate adjustment subscription updates after every status/progress write so detail screens refresh without manual reloads; inventory runs publish each daily step and the final complete/process state.
 - Currency transactions compare custom rates with the active exchange rate, create exchange-difference follow transactions only when rates differ, and fail clearly when the active rate is missing.
 - Exposes inventory cost and last completed inventory income price helpers used by accounting transaction forms; current cost starts from the latest published inventory adjustment and applies business-active inventory movements strictly after that adjustment date.
 - Inventory transaction saves and removals dispatch tenant-scoped Core `products.increaseInventories` mutations without waiting for the remote update. Quantity, cost, and pending movements are grouped by each detail's branch/department, falling back to the header; edits net old and new effects by product and location.
@@ -71,27 +71,27 @@
 
 ## Architecture
 
-| Area                | Path                                                         | Responsibility                                                                                                          |
-| ------------------- | ------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------- |
-| Schema export | `scripts/print-subgraph-schema.ts` | Shared Nx target default exports federated SDL to ignored `generated/schema.graphql` for gateway composition. |
-| Runtime             | `src/main.ts`                                                | Starts the accounting API plugin service.                                                                               |
-| Import/export       | `src/meta/import-export`                                     | Registers accounting import and transaction export types, headers, and row producers.                                   |
-| Apollo integration  | `src/apollo`                                                 | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                           |
-| Models              | `src/connectionResolvers.ts`                                 | Generates tenant-scoped Mongoose models for accounting-owned collections.                                               |
-| Accounting domain   | `src/modules/accounting`                                     | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                      |
-| Inventory splitting | `src/modules/accounting/utils/invSplit.ts`                   | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                         |
-| Cost adjustment     | `src/modules/accounting/utils/invJustify.ts`                 | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                  |
-| Safe remainders     | `src/modules/inventories`                                    | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.       |
-| After-process production | `src/meta/afterProcessHandlers/realJobProduction.ts`, `saveSaleTransactions.ts` | Plans shortages and persists ordinary production roots beside synced sales. |
-| Jobs    | `src/modules/inventories`                                    | Owns production-stage job master data for inventory input/output recipes.                                   |
-| Execution model | `src/modules/inventories/db/models/JobExecutions.ts` | Owns execution validation, lifecycle locks, grouped posting/undo, deletion and database event logs. |
-| Census calculation  | `src/modules/inventories/utils/safeRemainderTransactions.ts` | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.      |
-| Journal reports     | `src/modules/accounting/utils/journalReports`                | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                   |
-| Report bases        | `src/modules/accounting/utils/journalReports/strategies`     | Groups report base definitions by main, fund, debt, inventory, and fixed asset report families.                         |
-| Report details      | `src/modules/accounting/utils/journalReports/details`        | Owns report-specific detail row lookups such as account statement more rows.                                            |
-| Rate adjustments    | `src/modules/accounting/utils/adjust*Rates.ts`               | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                                      |
-| Closing adjustment  | `src/modules/accounting/utils/adjustClosings.ts`             | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                          |
-| Fixed assets        | `src/modules/fixedAssets`                                    | Owns fixed asset categories, acquisition-backed fixed assets, and optional owner-record ledger rows; adjustment models live in `src/modules/accounting/db/models/AdjustFixedAssets.ts`. |
+| Area                     | Path                                                                            | Responsibility                                                                                                                                                                          |
+| ------------------------ | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Schema export            | `scripts/print-subgraph-schema.ts`                                              | Shared Nx target default exports federated SDL to ignored `generated/schema.graphql` for gateway composition.                                                                           |
+| Runtime                  | `src/main.ts`                                                                   | Starts the accounting API plugin service.                                                                                                                                               |
+| Import/export            | `src/meta/import-export`                                                        | Registers accounting import and transaction export types, headers, and row producers.                                                                                                   |
+| Apollo integration       | `src/apollo`                                                                    | Registers accounting schema, resolvers, subscriptions, and federation wiring.                                                                                                           |
+| Models                   | `src/connectionResolvers.ts`                                                    | Generates tenant-scoped Mongoose models for accounting-owned collections.                                                                                                               |
+| Accounting domain        | `src/modules/accounting`                                                        | Owns accounting schemas, models, GraphQL resolvers, journal utilities, and routes.                                                                                                      |
+| Inventory splitting      | `src/modules/accounting/utils/invSplit.ts`                                      | Normalizes split inputs and synchronizes cost-neutral `invOut`/`invIncome` follow transactions.                                                                                         |
+| Cost adjustment          | `src/modules/accounting/utils/invJustify.ts`                                    | Owns inventory cost-adjustment save, side validation, inventory synchronization, and removal behavior.                                                                                  |
+| Safe remainders          | `src/modules/inventories`                                                       | Owns inventory count snapshots, typed item transaction metadata, bulk import updates, and generated transactions.                                                                       |
+| After-process production | `src/meta/afterProcessHandlers/realJobProduction.ts`, `saveSaleTransactions.ts` | Plans shortages and persists ordinary production roots beside synced sales.                                                                                                             |
+| Jobs                     | `src/modules/inventories`                                                       | Owns production-stage job master data for inventory input/output recipes.                                                                                                               |
+| Execution model          | `src/modules/inventories/db/models/JobExecutions.ts`                            | Owns execution validation, lifecycle locks, grouped posting/undo, deletion and database event logs.                                                                                     |
+| Census calculation       | `src/modules/inventories/utils/safeRemainderTransactions.ts`                    | Purely calculates income, out, sale, and remaining cost-adjustment details from counted quantity and target value.                                                                      |
+| Journal reports          | `src/modules/accounting/utils/journalReports`                                   | Builds shared filters, aggregation groups, period splits, and display enrichment for journal reports.                                                                                   |
+| Report bases             | `src/modules/accounting/utils/journalReports/strategies`                        | Groups report base definitions by main, fund, debt, inventory, and fixed asset report families.                                                                                         |
+| Report details           | `src/modules/accounting/utils/journalReports/details`                           | Owns report-specific detail row lookups such as account statement more rows.                                                                                                            |
+| Rate adjustments         | `src/modules/accounting/utils/adjust*Rates.ts`                                  | Owns fund/debt daily validation, grouping, calculation, and transaction execution.                                                                                                      |
+| Closing adjustment       | `src/modules/accounting/utils/adjustClosings.ts`                                | Owns temporary account closing calculation, tax impact calculation, and transaction execution.                                                                                          |
+| Fixed assets             | `src/modules/fixedAssets`                                                       | Owns fixed asset categories, acquisition-backed fixed assets, and optional owner-record ledger rows; adjustment models live in `src/modules/accounting/db/models/AdjustFixedAssets.ts`. |
 
 ## Contracts
 
@@ -159,6 +159,12 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- Adjustment subscription channels are tenant-scoped as `accountingAdjust{Inventory|FixedAsset|FundRate|DebtRate}Changed:${subdomain}:${adjustId}`; `src/apollo/subscription.ts` reads `subdomain` from the subscription context and every publisher must use the same shape. Inventory `modifierWrapper(subdomain, models, adjust, modifier)` publishes the document saved by `updateAdjustInventory`, never the stale object a run started with.
+- Mongoose `loadClass` model classes made only of statics carry a `// skipcq: JS-0327` directive, as other plugins do; inventory costing aggregation filters are typed `FilterQuery<ITransactionDocument>` with `PipelineStage[]` stages instead of `any`.
+- Transaction account filters apply to every user. `dominantReadAccountUsers` skip account narrowing only when no account filter is sent, and a dominant user's chosen filters still narrow `details.accountId`. `accountExcludeIds` is a modifier of `accountIds`, so on its own it never counts as a filter. Transaction filters read the account-prefixed arguments; the top-level `isOutBalance` argument is not applied. A null `accountIsTemp` or `accountIsOutBalance` means not chosen; `false` still filters.
+- `getAccountCategoryIds` is the single category subtree lookup. Account filters and transaction export both use it so a parent category includes its active child categories in the list and the export; archived child categories stay out.
+- `safeRemainders(statuses)` applies only to a non-empty list, combines with the other filters, and shares one query between rows and `totalCount`.
 
 - POS order sale sync uses valid `order.paidDate` for sale and payment transaction dates on initial sync and resync, without `dateRule`.
 - POS order return sync uses valid `order.returnInfo.returnAt` for return and refund transaction dates on initial sync and resync, without `dateRule`.

@@ -1,4 +1,5 @@
 import { PluginSharedSettingsNavigation } from '@/settings/components/PluginSharedSettingsNavigation';
+import { SettingsNavigationItem } from '@/settings/components/SettingsSidebar';
 import { PermissionRouteGuard } from '@/auth/components/PermissionRouteGuard';
 import { PropertiesScopeContext } from '@/properties/context/PropertiesScopeContext';
 import { Spinner } from 'erxes-ui';
@@ -70,6 +71,7 @@ export const PluginSettingsSlotsEffect = () => {
       properties: PluginPropertiesSettings,
       notifications: PluginNotificationSettingsSlot,
       navigation: PluginSharedSettingsNavigation,
+      navigationItem: SettingsNavigationItem,
     });
   }, [setSlots]);
 

@@ -23,7 +23,10 @@ const mockRedis = {
     }
     return 'OK';
   },
+  exists: async (key: string) => (mockStore.has(key) ? 1 : 0),
 };
+
+const mockQueueAdd = jest.fn(async () => undefined);
 
 interface IMockUser {
   _id: string;
@@ -35,6 +38,8 @@ const mockUsers: Record<string, IMockUser[]> = {};
 jest.mock('erxes-api-shared/utils', () => ({
   ...jest.requireActual('erxes-api-shared/utils/headers'),
   ...jest.requireActual('erxes-api-shared/utils/agent-tools/auth'),
+  ...jest.requireActual('erxes-api-shared/utils/userActivity'),
+  sendWorkerQueue: () => ({ add: mockQueueAdd }),
   getSubdomain: (req: { hostname: string }) => req.hostname.split('.')[0],
   setClientPortalHeader: jest.fn(),
   setCPUserHeader: jest.fn(),
@@ -122,6 +127,7 @@ beforeAll(() => {
 beforeEach(() => {
   mockStore.clear();
   mockTtls.clear();
+  mockQueueAdd.mockClear();
   mockUsers.acme = [{ _id: 'u1' }, { _id: 'u2', isActive: false }];
   mockUsers.other = [{ _id: 'u1' }];
 });
@@ -220,6 +226,60 @@ describe('staff session', () => {
     await run({ cookies: { 'erxes-sid': sid } });
 
     expect(mockTtls.size).toBe(0);
+  });
+});
+
+describe('activity tracking', () => {
+  // Recording is fire-and-forget, so let it settle before asserting
+  const settle = () => new Promise((resolve) => setImmediate(resolve));
+
+  const runStale = async () => {
+    const sid = newSid();
+    putSession('acme', sid, { lastSeenAt: Date.now() - 10 * 60 * 1000 });
+    await run({ cookies: { 'erxes-sid': sid } });
+    await settle();
+  };
+
+  it('records nothing while the organization has tracking off', async () => {
+    await runStale();
+
+    expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
+  it('records one touch when the session slides', async () => {
+    mockStore.set('user_activity_tracking:acme', '1');
+
+    await runStale();
+
+    expect(mockQueueAdd).toHaveBeenCalledTimes(1);
+    expect(mockQueueAdd).toHaveBeenCalledWith(
+      'touch',
+      expect.objectContaining({ subdomain: 'acme', userId: 'u1' }),
+    );
+  });
+
+  it('records nothing between slides', async () => {
+    mockStore.set('user_activity_tracking:acme', '1');
+    const sid = newSid();
+    putSession('acme', sid);
+
+    await run({ cookies: { 'erxes-sid': sid } });
+    await settle();
+
+    expect(mockQueueAdd).not.toHaveBeenCalled();
+  });
+
+  it('never fails the request when the queue is down', async () => {
+    mockStore.set('user_activity_tracking:acme', '1');
+    mockQueueAdd.mockRejectedValueOnce(new Error('redis down'));
+    const sid = newSid();
+    putSession('acme', sid, { lastSeenAt: Date.now() - 10 * 60 * 1000 });
+
+    const { req, next } = await run({ cookies: { 'erxes-sid': sid } });
+    await settle();
+
+    expect(next).toHaveBeenCalled();
+    expect(req.user?._id).toBe('u1');
   });
 });
 

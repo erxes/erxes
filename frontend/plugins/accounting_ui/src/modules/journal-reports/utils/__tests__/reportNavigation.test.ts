@@ -1,7 +1,8 @@
 import {
   buildDetailedReportPath,
   getReportGroupsFromAttr,
-} from '../reportNavigation';
+  getReportPeriodParam,
+} from '@/journal-reports/utils/reportNavigation';
 
 describe('journal report drill-down navigation', () => {
   it('keeps the report and adds every grouped-row filter', () => {
@@ -42,5 +43,24 @@ describe('journal report drill-down navigation', () => {
     expect(getReportGroupsFromAttr('contentId+sales:deal+legacy-id')).toEqual([
       { group: 'contentId', id: 'sales:deal+legacy-id' },
     ]);
+  });
+
+  it('keeps transactions posted later on the last selected day', () => {
+    const pickedDay = new Date(2026, 9, 15);
+
+    const fromDate = new Date(getReportPeriodParam('fromDate', pickedDay));
+    const toDate = new Date(getReportPeriodParam('toDate', pickedDay));
+    const eveningTransaction = new Date(2026, 9, 15, 18, 30);
+
+    expect(eveningTransaction >= fromDate).toBe(true);
+    expect(eveningTransaction <= toDate).toBe(true);
+  });
+
+  it('excludes transactions from the day after the selected period', () => {
+    const toDate = new Date(
+      getReportPeriodParam('toDate', new Date(2026, 9, 31)),
+    );
+
+    expect(new Date(2026, 10, 1, 0, 0) <= toDate).toBe(false);
   });
 });

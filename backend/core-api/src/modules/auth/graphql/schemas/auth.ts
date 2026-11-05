@@ -148,6 +148,51 @@ export const types = `
     recheckEveryMinutes: Int!
     groupChangePolicy: AuthLdapGroupChangePolicy!
   }
+
+  enum AuthSupportAccessMode {
+    off
+    approval
+    allow
+  }
+
+  enum AuthSupportGrantStatus {
+    pending
+    approved
+    denied
+    revoked
+    expired
+  }
+
+  type AuthSupportAccessPolicy {
+    available: Boolean!
+    mode: AuthSupportAccessMode!
+    configuredMode: AuthSupportAccessMode!
+    allowUntil: Date
+    permissionGroupIds: [String!]!
+  }
+
+  type AuthSupportGrantVisit {
+    enteredAt: Date!
+    reason: String!
+  }
+
+  type AuthSupportGrant {
+    _id: String!
+    staffName: String!
+    staffEmail: String
+    userId: String!
+    reason: String!
+    status: AuthSupportGrantStatus!
+    autoApproved: Boolean!
+    permissionGroupIds: [String!]!
+    decidedBy: String
+    decidedAt: Date
+    endsAt: Date
+    revokedBy: String
+    revokedAt: Date
+    visits: [AuthSupportGrantVisit!]!
+    createdAt: Date!
+  }
 `;
 
 export const queries = `
@@ -159,6 +204,9 @@ export const queries = `
   authLdapLinkedUserIds: [String!]!
   authTwoFactorStatus: AuthTwoFactorStatus
   authTwoFactorPolicy: AuthTwoFactorPolicy
+  authSupportAccessPolicy: AuthSupportAccessPolicy!
+  authSupportAccessGrants(status: AuthSupportGrantStatus): [AuthSupportGrant!]!
+  authSupportAccessActive: [AuthSupportGrant!]!
 `;
 
 export const mutations = `
@@ -200,5 +248,9 @@ export const mutations = `
   authTwoFactorRecoveryCodes(code: String!): [String!]
   authTwoFactorReset(userId: String!): Boolean
   authTwoFactorPolicySave(mode: AuthTwoFactorMode!, permissionGroupIds: [String!]!): AuthTwoFactorPolicy
+  authSupportAccessPolicySave(mode: AuthSupportAccessMode!, allowUntil: Date, permissionGroupIds: [String!]!): AuthSupportAccessPolicy!
+  authSupportAccessApprove(_id: String!, hours: Int!, permissionGroupIds: [String!]!): AuthSupportGrant!
+  authSupportAccessDeny(_id: String!): AuthSupportGrant!
+  authSupportAccessRevoke(_id: String!): AuthSupportGrant!
 
  `;

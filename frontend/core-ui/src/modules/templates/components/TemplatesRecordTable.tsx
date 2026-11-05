@@ -1,3 +1,4 @@
+import { TemplateDetailSheet } from '@/templates/components/TemplateDetailSheet';
 import { templateColumns } from '@/templates/components/TemplatesColumns';
 import { TemplatesCommandBar } from '@/templates/components/TemplatesCommandBar';
 import { useTemplates } from '@/templates/hooks/useTemplates';
@@ -45,6 +46,7 @@ export const TemplatesRecordTable = () => {
         </RecordTable>
       </RecordTable.CursorProvider>
       <TemplatesCommandBar />
+      <TemplateDetailSheet />
     </RecordTable.Provider>
   );
 };

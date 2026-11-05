@@ -12,6 +12,7 @@ const GET_USER = gql`
       username
       email
       isOwner
+      isActive
       positionIds
       permissionGroupIds
       score
@@ -26,6 +27,9 @@ const GET_USER = gql`
         middleName
         lastName
         operatorPhone
+        coverPhoto
+        position
+        employeeId
       }
       links
       employeeId
@@ -72,6 +76,10 @@ const GET_USERS_QUERY = gql`
         email
         status
         sessionState
+        activity(days: 7) {
+          activeMinutes
+          lastActiveAt
+        }
         isActive
         groupIds
         brandIds

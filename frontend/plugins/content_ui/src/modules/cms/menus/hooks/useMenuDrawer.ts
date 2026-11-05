@@ -5,7 +5,15 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { cmsLanguageAtom } from '../../shared/states/cmsLanguageState';
-import { useCmsTranslation } from '../../shared/hooks/useCmsTranslation';
+import {
+  getCmsDefaultLanguage,
+  getInitialCmsLanguage,
+} from '../../shared/utils';
+import {
+  CMS_TRANSLATION_FIELDS,
+  useCmsTranslation,
+  useRecordInDefaultLanguage,
+} from '../../shared/hooks/useCmsTranslation';
 import {
   CMS_MENU_ADD,
   CMS_MENU_EDIT,
@@ -87,23 +95,23 @@ function buildMenuTranslations(
   return entries;
 }
 
-export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu }: MenuDrawerProps) {
+export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu: storedMenu }: MenuDrawerProps) {
   const { t } = useTranslation('content');
   const [hasPermissionError, setHasPermissionError] = useState(false);
-  const isEditing = Boolean(menu?._id);
+  const isEditing = Boolean(storedMenu?._id);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,
@@ -112,13 +120,23 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     handleLanguageChange,
     defaultLangData,
     translations,
+    savedRowLoad,
   } = useCmsTranslation({
-    objectId: menu?._id,
+    objectId: storedMenu?._id,
     type: 'menu',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: isOpen,
   });
+
+  const menu = useRecordInDefaultLanguage(
+    storedMenu,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.menu,
+  );
 
   const form = useForm<MenuFormData>({
     defaultValues: {
@@ -134,18 +152,24 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
 
   useEffect(() => {
     if (isOpen) {
-      form.reset({
-        label: menu?.label || '',
-        url: menu?.url || '',
-        kind: menu?.kind || '',
-        clientPortalId,
-        parentId: menu?.parentId || '',
-        linkType: detectLinkType(menu?.url || ''),
-        target: menu?.target === '_blank',
-      });
+      form.reset(
+        {
+          label:
+            (isTranslationMode
+              ? translations[selectedLanguage]?.title
+              : menu?.label) || '',
+          url: menu?.url || '',
+          kind: menu?.kind || '',
+          clientPortalId,
+          parentId: menu?.parentId || '',
+          linkType: detectLinkType(menu?.url || ''),
+          target: menu?.target === '_blank',
+        },
+        { keepDirtyValues: menu !== storedMenu },
+      );
       setHasPermissionError(false);
     }
-  }, [isOpen, clientPortalId, menu]);
+  }, [isOpen, clientPortalId, menu, storedMenu]);
 
   const { data: menusData } = useQuery(CMS_MENU_LIST, {
     variables: { clientPortalId, limit: 100 },
@@ -281,6 +305,8 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
   const saving = adding || editing;
 
   const onSubmit = (data: MenuFormData) => {
+    if (savedRowLoad.isBlocked) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -330,6 +356,12 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
     setCmsLanguage(lang);
   };
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   const appliedInitialLangRef = useRef(false);
   useEffect(() => {
     if (!isOpen) {
@@ -337,19 +369,20 @@ export function useMenuDrawer({ isOpen, onClose, onSuccess, clientPortalId, menu
       return;
     }
     if (appliedInitialLangRef.current) return;
-    if (!defaultLanguage || !cmsLanguage || cmsLanguage === defaultLanguage) return;
+    if (!defaultLanguage || initialLanguage === defaultLanguage) return;
     if (selectedLanguage !== defaultLanguage) return;
 
     appliedInitialLangRef.current = true;
-    onLanguageChange(cmsLanguage);
+    onLanguageChange(initialLanguage);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, defaultLanguage, cmsLanguage, selectedLanguage]);
+  }, [isOpen, defaultLanguage, initialLanguage, selectedLanguage]);
 
   return {
     form,
     isEditing,
     hasPermissionError,
     saving,
+    savedRowLoad,
     selectedLanguage,
     isTranslationMode,
     languageOptions,

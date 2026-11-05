@@ -60,6 +60,11 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
       <Button
         variant="ghost"
         size="icon"
+        aria-label={
+          isSidebarOpen
+            ? t('collapse-sidebar', 'Collapse sidebar')
+            : t('expand-sidebar', 'Expand sidebar')
+        }
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? (
@@ -109,7 +114,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
         <DealsActions deals={[deal]} variant="menu" />
       </div>
       <div className="w-16 self-stretch shrink-0 border-l bg-sidebar flex items-center justify-center">
-        <Sheet.Close className="ml-0" />
+        <Sheet.Close className="ml-0" aria-label={t('close')} />
       </div>
     </Sheet.Header>
   );

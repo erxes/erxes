@@ -1,3 +1,5 @@
+import { formatDate } from '@/utils/graphqlDate';
+
 type ReportLocation = {
   pathname: string;
   search: string;
@@ -33,6 +35,14 @@ const getDatePart = (value: string) => {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+};
+
+export const getReportPeriodParam = (
+  key: 'fromDate' | 'toDate',
+  date: Date,
+) => {
+  const datePart = formatDate(date, 'yyyy-MM-dd');
+  return key === 'toDate' ? `${datePart} 23:59:59.999` : `${datePart} 00:00:00`;
 };
 
 export const getReportGroupsFromAttr = (attr: string) =>

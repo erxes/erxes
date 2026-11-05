@@ -29,6 +29,8 @@ const SidebarPanelHeader = ({
   description: string;
   onClose: () => void;
 }) => {
+  const { t } = useTranslation('automations');
+
   return (
     <>
       <div className="shrink-0 px-5 py-4">
@@ -39,7 +41,12 @@ const SidebarPanelHeader = ({
               {description}
             </p>
           </div>
-          <Button size="icon" variant="secondary" onClick={onClose}>
+          <Button
+            size="icon"
+            variant="secondary"
+            aria-label={t('sidebar-close')}
+            onClick={onClose}
+          >
             <IconX className="size-4" />
           </Button>
         </div>

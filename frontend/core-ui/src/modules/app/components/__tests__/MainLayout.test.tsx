@@ -7,6 +7,7 @@ jest.mock(
   () => ({
     cn: (...classes: (string | boolean)[]) => classes.filter(Boolean).join(' '),
     useQueryState: () => [false],
+    Button: ({ children }: PropsWithChildren) => <>{children}</>,
     Sidebar: {
       Provider: ({
         children,
@@ -60,6 +61,11 @@ jest.mock(
 jest.mock(
   '@/app/effect-components/WelcomeNotificationEffect',
   () => ({ WelcomeNotificationEffect: () => null }),
+  { virtual: true },
+);
+jest.mock(
+  '@/settings/support-access/components/SupportAccessBanner',
+  () => ({ SupportAccessBanner: () => null }),
   { virtual: true },
 );
 jest.mock(

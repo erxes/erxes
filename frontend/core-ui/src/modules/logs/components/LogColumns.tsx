@@ -3,6 +3,7 @@ import { ILogDoc } from '@/logs/types';
 import {
   IconCalendarTime,
   IconCode,
+  IconFile,
   IconInfoCircle,
   IconProgressCheck,
   IconProgressX,
@@ -113,6 +114,29 @@ export const logColumns = (t: TFunction): ColumnDef<ILogDoc>[] => [
           {name ? (
             <span className="font-mono text-sm" title={name}>
               {name}
+            </span>
+          ) : (
+            <span className="text-muted-foreground">-</span>
+          )}
+        </RecordTableInlineCell>
+      );
+    },
+  },
+  {
+    id: 'record',
+    accessorFn: ({ recordName, docId }) => recordName || docId,
+    header: () => (
+      <RecordTable.InlineHead icon={IconFile} label={t('record')} />
+    ),
+    cell: ({ cell }) => {
+      const record = cell.getValue() as string | undefined;
+      const [, setLogId] = useQueryState<string>('logId');
+
+      return (
+        <RecordTableInlineCell onClick={() => setLogId(cell.row.original._id)}>
+          {record ? (
+            <span className="truncate" title={cell.row.original.docId}>
+              {record}
             </span>
           ) : (
             <span className="text-muted-foreground">-</span>

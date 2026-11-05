@@ -1,0 +1,106 @@
+name: Bug report
+description: Something in erxes does not work as expected.
+title: '[Bug]: '
+labels: ['🐛 Bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please file one bug per issue and search [existing issues](https://github.com/erxes/erxes/issues) first.
+        Security problems go to [SECURITY.md](https://github.com/erxes/erxes/blob/main/SECURITY.md), not here.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Where does the bug happen?
+      options:
+        - Core (settings, team, contacts, products, agent)
+        - Accounting
+        - Content
+        - Frontline (inbox, tickets, widgets)
+        - Insurance
+        - Loyalty
+        - Mongolian
+        - Operation
+        - Payment
+        - POS / POS client
+        - Sales
+        - Tourism
+        - Automations
+        - Client portal / help center
+        - Gateway / deployment
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - SaaS (erxes.io)
+        - Self-hosted
+        - Local development
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release tag, image tag or commit SHA. For SaaS, leave blank.
+      placeholder: e.g. 3.0.0 or 7adb74b
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps from a fresh page load, so someone else can see the same bug.
+      placeholder: |
+        1. Go to Sales > Deals
+        2. Drag a deal to another stage
+        3. Reload the page
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Screenshots or recording
+      description: Drag images or a short video here. Show the screen where it goes wrong.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs and errors
+      description: Browser console, network response or server log. Remove tokens, passwords and personal data.
+      render: shell
+
+  - type: textarea
+    id: code
+    attributes:
+      label: Suspected code (optional)
+      description: If you traced the cause, link the file and line, e.g. `frontend/plugins/sales_ui/src/modules/deals/...:42`.
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I reproduced this myself, and any AI-written part of this report has been checked against what I saw.
+          required: true

@@ -2,7 +2,7 @@ import { Icon, IconChevronRight, IconPlus } from '@tabler/icons-react';
 import { Button, cn, Skeleton } from 'erxes-ui';
 import { Fragment, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useContactOverviewSection } from './ContactOverviewContext';
+import { useContactOverviewSection } from 'ui-modules/modules/widget/contact-widget/ContactOverviewContext';
 
 // Rows shown before "Show all".
 const PREVIEW_COUNT = 5;
@@ -66,7 +66,7 @@ export const ContactWidgetSection = ({
             {loading ? '…' : ids.length}
           </span>
         </Button>
-        {onCreate && (
+        {onCreate && overview?.access !== 'read' && (
           <Button
             type="button"
             variant="ghost"
