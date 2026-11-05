@@ -23,7 +23,6 @@ import type { KnowledgeBaseCategoryDoc } from '~/gql/graphql';
 
 const CATEGORY_QUERIES = [CATEGORIES, TOPIC_DETAIL, TOPICS];
 
-/** Saves category documents and returns their persistent identifier. */
 export const useSaveCategory = () => {
   const client = useApolloClient();
   const { t } = useTranslation('frontline', {
@@ -41,7 +40,6 @@ export const useSaveCategory = () => {
     awaitRefetchQueries: true,
   });
 
-  /** Writes a category without an empty sparse-index code value. */
   const saveCategory = async (
     categoryDoc: ICategoryDoc,
     categoryId?: string,
@@ -66,7 +64,6 @@ export const useSaveCategory = () => {
           });
           const current = data?.knowledgeBaseCategoryDetail;
           if (!current) throw new Error(t('not-found', 'Record not found'));
-          /** Includes only submitted dirty fields, preserving explicit clears. */
           const changed = <K extends keyof ICategoryDoc>(key: K) =>
             dirtyFields[key] ? { [key]: categoryDoc[key] } : {};
           doc = {
@@ -92,7 +89,6 @@ export const useSaveCategory = () => {
   return { saveCategory, loading: adding || editing };
 };
 
-/** Provides inline category updates with mutation error feedback. */
 export const useEditCategoryField = (topicId: string) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -100,7 +96,6 @@ export const useEditCategoryField = (topicId: string) => {
   const { toast } = useToast();
   const [editCategory, { loading }] = useMutation(EDIT_CATEGORY);
 
-  /** Combines a category row with its edited fields for the topic-scoped write. */
   const editCategoryField = (
     category: ICategory,
     patch: Partial<ICategoryDoc>,
@@ -129,7 +124,6 @@ export const useEditCategoryField = (topicId: string) => {
   return { editCategoryField, loading };
 };
 
-/** Removes categories, clears associated drafts and refreshes affected lists. */
 export const useRemoveCategories = () => {
   const client = useApolloClient();
   const closeRemovedRecord = useKbCloseRemovedRecord(
@@ -137,7 +131,6 @@ export const useRemoveCategories = () => {
   );
   const [removeCategory, { loading }] = useMutation(REMOVE_CATEGORY);
 
-  /** Deletes selected categories and evicts their normalized cache entries. */
   const removeCategories = async (ids: string[]) => {
     await Promise.all(
       ids.map((_id) =>

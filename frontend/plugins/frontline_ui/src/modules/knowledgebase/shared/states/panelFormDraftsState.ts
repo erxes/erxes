@@ -4,7 +4,6 @@ import type { TCategoryForm } from '@/knowledgebase/categories/components/Catego
 import type { TTopicForm } from '@/knowledgebase/topics/components/TopicFormFields';
 import type { TPanelFormDrafts } from '@/shared/hooks/usePanelFormDraft';
 
-/** Scopes a panel draft by user, record kind and record or create placement. */
 export const kbPanelDraftKey = (
   userId: string | undefined,
   kind: string,

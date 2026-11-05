@@ -79,7 +79,6 @@ const articleSchema = z
 
 export type TArticleForm = z.infer<typeof articleSchema>;
 
-/** Seeds a new article with its topic and category placement. */
 const emptyArticle = (topicId: string, categoryId: string): TArticleForm => ({
   title: '',
   summary: '',
@@ -99,7 +98,6 @@ type TMediaFile = { url: string; name: string };
 
 type TAttachment = z.infer<typeof attachmentSchema>;
 
-/** Renders article attachment links and explicit removal actions. */
 const AttachmentList = ({
   files,
   onRemove,
@@ -142,7 +140,6 @@ const AttachmentList = ({
   );
 };
 
-/** Connects an article media field to the shared upload controls. */
 const MediaRow = ({
   label,
   description,
@@ -214,7 +211,6 @@ type TArticleMediaFieldsProps = TArticleFieldsProps & {
   invalidateUpdates: (field: string) => void;
 };
 
-/** Renders the article title, placement, summary and content editor. */
 const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
   const selectedTopicId = form.watch('topicId');
 
@@ -303,7 +299,6 @@ const ArticleContentFields = ({ form, t }: TArticleFieldsProps) => {
   );
 };
 
-/** Renders publication status, scheduling, privacy and reaction controls. */
 const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
   const status = form.watch('status');
 
@@ -399,7 +394,6 @@ const ArticlePublishingFields = ({ form, t }: TArticleFieldsProps) => {
   );
 };
 
-/** Renders image, attachment and PDF upload fields. */
 const ArticleMediaFields = ({
   form,
   t,
@@ -504,7 +498,6 @@ const ArticleMediaFields = ({
   </KbFormSection>
 );
 
-/** Composes the article content, publishing and media sections. */
 const ArticleFormFields = ({
   form,
   t,
@@ -525,7 +518,6 @@ const ArticleFormFields = ({
   </div>
 );
 
-/** Edits or creates an article while preserving its scoped panel draft. */
 export const ArticleDrawer = ({
   articleId,
   article: loadedArticle,
@@ -598,7 +590,6 @@ export const ArticleDrawer = ({
     ),
   });
 
-  /** Clears the current draft before closing the panel form. */
   const cancel = () => {
     clearDraft();
     onClose();

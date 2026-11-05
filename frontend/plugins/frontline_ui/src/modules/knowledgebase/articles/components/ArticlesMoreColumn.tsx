@@ -15,7 +15,6 @@ import {
 import { useKbConfirmRemove } from '@/knowledgebase/shared/hooks/useKbConfirmRemove';
 import { IArticle } from '@/knowledgebase/types';
 
-/** Connects article row edit, duplicate and confirmed delete actions. */
 const ArticlesMoreColumnCell = ({
   cell,
 }: {

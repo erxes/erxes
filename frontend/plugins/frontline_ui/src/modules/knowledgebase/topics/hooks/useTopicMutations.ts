@@ -18,7 +18,6 @@ import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
 import type { FieldNamesMarkedBoolean } from 'react-hook-form';
 import type { KnowledgeBaseTopicDoc } from '~/gql/graphql';
 
-/** Saves topic documents and returns their persistent identifier. */
 export const useSaveTopic = () => {
   const client = useApolloClient();
   const { t } = useTranslation('frontline', {
@@ -59,7 +58,6 @@ export const useSaveTopic = () => {
             });
             const current = data?.knowledgeBaseTopicDetail;
             if (!current) throw new Error(t('not-found', 'Record not found'));
-            /** Includes only submitted dirty fields, preserving explicit clears. */
             const changed = <K extends keyof ITopicDoc>(key: K) =>
               dirtyFields[key] ? { [key]: topicDoc[key] } : {};
             doc = {
@@ -92,7 +90,6 @@ export const useSaveTopic = () => {
   return { saveTopic, loading: adding || editing };
 };
 
-/** Removes topics, clears associated drafts and refreshes topic queries. */
 export const useRemoveTopics = () => {
   const client = useApolloClient();
   const closeRemovedRecord = useKbCloseRemovedRecord(
@@ -100,7 +97,6 @@ export const useRemoveTopics = () => {
   );
   const [removeTopic, { loading }] = useMutation(REMOVE_TOPIC);
 
-  /** Deletes selected topics and evicts their normalized cache entries. */
   const removeTopics = async (ids: string[]) => {
     await Promise.all(
       ids.map((_id) =>

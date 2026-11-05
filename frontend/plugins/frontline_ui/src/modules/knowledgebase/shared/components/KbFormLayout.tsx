@@ -4,7 +4,6 @@ import { PanelFormRow } from 'ui-modules';
 
 export const KbFormPanelContext = createContext(false);
 
-/** Composes a shared form field with the panel or standalone label layout. */
 export const KbFormItem = ({
   label,
   required,
@@ -65,7 +64,6 @@ export const KbFormItem = ({
   );
 };
 
-/** Renders a form section through the panel layout or standalone info card. */
 const KbFormSectionRoot = ({
   title,
   children,
@@ -82,7 +80,6 @@ const KbFormSectionRoot = ({
   );
 };
 
-/** Applies the appropriate panel or standalone field spacing. */
 const KbFormSectionContent = ({
   children,
   className,

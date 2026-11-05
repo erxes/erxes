@@ -23,20 +23,17 @@ import type { KnowledgeBaseArticleDoc } from '~/gql/graphql';
 
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
 
-/** Detects true leaves in nested React Hook Form dirty metadata. */
 const hasDirtyFields = (value: unknown): boolean =>
   value === true ||
   (value !== null &&
     typeof value === 'object' &&
     Object.values(value).some(hasDirtyFields));
 
-/** Combines dirty fields with fresh required values without reverting concurrent edits. */
 const articleEditDoc = (
   doc: IArticleDoc,
   current: IArticleDetail,
   dirtyFields: Partial<FieldNamesMarkedBoolean<IArticleDoc>>,
 ): KnowledgeBaseArticleDoc => {
-  /** Represents edited optional fields, including explicit clears. */
   const changed = <K extends keyof IArticleDoc>(key: K) =>
     hasDirtyFields(dirtyFields[key]) ? { [key]: doc[key] ?? null } : {};
   const status = dirtyFields.status ? doc.status : current.status || 'draft';
@@ -67,7 +64,6 @@ const articleEditDoc = (
   };
 };
 
-/** Saves full article creates or dirty edit fields with fresh required values. */
 export const useSaveArticle = () => {
   const client = useApolloClient();
   const { t } = useTranslation('frontline', {
@@ -85,7 +81,6 @@ export const useSaveArticle = () => {
     awaitRefetchQueries: true,
   });
 
-  /** Writes the article document and returns its saved identifier or null. */
   const saveArticle = async (
     doc: IArticleDoc,
     articleId?: string,
@@ -122,7 +117,6 @@ export const useSaveArticle = () => {
   return { saveArticle, loading: adding || editing };
 };
 
-/** Provides a fresh article detail read for complete mutation inputs. */
 const useFetchArticleDetail = () => {
   const client = useApolloClient();
 
@@ -137,12 +131,10 @@ const useFetchArticleDetail = () => {
   };
 };
 
-/** Applies inline article patches using a fresh required document. */
 const useUpdateArticle = () => {
   const fetchDetail = useFetchArticleDetail();
   const [editArticle, { loading }] = useMutation(EDIT_ARTICLE);
 
-  /** Combines the latest article fields with the requested inline patch. */
   const updateArticle = async (
     article: IArticle,
     patch: Partial<IArticleDoc>,
@@ -170,17 +162,14 @@ const useUpdateArticle = () => {
   return { updateArticle, loading };
 };
 
-/** Identifies article changes that affect status or category list membership. */
 const movesBetweenLists = (patch: Partial<IArticleDoc>) =>
   'status' in patch || 'categoryId' in patch;
 
-/** Updates an article field and refreshes affected lists with error feedback. */
 export const useEditArticleField = () => {
   const client = useApolloClient();
   const { failure } = useKbToast();
   const { updateArticle, loading } = useUpdateArticle();
 
-  /** Persists an inline article patch and refetches moved list entries. */
   const editArticleField = async (
     article: IArticle,
     patch: Partial<IArticleDoc>,
@@ -199,7 +188,6 @@ export const useEditArticleField = () => {
   return { editArticleField, loading };
 };
 
-/** Provides bulk article editing with shared feedback and list refresh. */
 export const useBulkEditArticles = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -209,7 +197,6 @@ export const useBulkEditArticles = () => {
   const { updateArticle } = useUpdateArticle();
   const [loading, setLoading] = useState(false);
 
-  /** Updates selected articles and refreshes their affected tables. */
   const bulkEditArticles = async (
     articles: IArticle[],
     patch: Partial<IArticleDoc>,
@@ -237,7 +224,6 @@ export const useBulkEditArticles = () => {
   return { bulkEditArticles, loading };
 };
 
-/** Creates a draft copy from the full saved article detail. */
 export const useDuplicateArticle = (topicId: string) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -249,7 +235,6 @@ export const useDuplicateArticle = (topicId: string) => {
     awaitRefetchQueries: true,
   });
 
-  /** Copies article content, media and placement into a new draft article. */
   const duplicateArticle = (article: Pick<IArticle, '_id'>) =>
     run(async () => {
       const detail = await fetchDetail(article._id);
@@ -286,7 +271,6 @@ export const useDuplicateArticle = (topicId: string) => {
   return { duplicateArticle, loading };
 };
 
-/** Removes articles, clears their drafts and refreshes affected lists. */
 export const useRemoveArticles = () => {
   const client = useApolloClient();
   const closeRemovedRecord = useKbCloseRemovedRecord(
@@ -294,7 +278,6 @@ export const useRemoveArticles = () => {
   );
   const [removeArticle, { loading }] = useMutation(REMOVE_ARTICLE);
 
-  /** Deletes selected articles and evicts their normalized cache entries. */
   const removeArticles = async (ids: string[]) => {
     await Promise.all(
       ids.map((_id) =>

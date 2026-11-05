@@ -11,7 +11,6 @@ export type TKbRowAction = {
   onSelect: () => void;
 };
 
-/** Renders working edit, delete and optional knowledge base row actions. */
 export const KbRowActions = ({
   onEdit,
   actions = [],
@@ -69,7 +68,6 @@ export const KbRowActions = ({
   );
 };
 
-/** Builds the reusable trailing action column for knowledge base tables. */
 export const kbMoreColumn = <T,>(
   cell: (props: { cell: Cell<T, unknown> }) => ReactNode,
 ): ColumnDef<T> => ({

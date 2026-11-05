@@ -2,7 +2,6 @@ import { ReactNode } from 'react';
 import { PanelFormLayout } from 'ui-modules';
 import { KbFormPanelContext } from './KbFormLayout';
 
-/** Wraps panel fields with explicit-save submission and safe keyboard behavior. */
 export const KbFormSheet = ({
   onClose,
   submitLabel,

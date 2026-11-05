@@ -14,7 +14,6 @@ import { useTopicDetail } from '@/knowledgebase/shared/hooks/useTopicDetail';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 import { useSidePanel } from 'ui-modules';
 
-/** Renders the topic category table and scoped create action. */
 export const Categories = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
@@ -22,7 +21,6 @@ export const Categories = () => {
   const { topicId = '' } = useParams();
   const { topic } = useTopicDetail(topicId);
   const { record, openNewRecord } = useSidePanel();
-  /** Opens a category create panel with the current topic as its default. */
   const openCreate = () =>
     openNewRecord(KB_DRAFT_CONTENT_TYPES.category, { topicId });
 

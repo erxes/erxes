@@ -19,7 +19,6 @@ const acceptedPlacementState = atom<{
 const ignoredDraftState = atom<ISidePanelDraft | null>(null);
 const observedStores = new WeakSet<ReturnType<typeof useStore>>();
 
-/** Clears retained placements and rejects stale public defaults on user changes. */
 const observeSession = (store: ReturnType<typeof useStore>): void => {
   if (observedStores.has(store)) return;
   observedStores.add(store);
@@ -34,7 +33,6 @@ const observeSession = (store: ReturnType<typeof useStore>): void => {
   });
 };
 
-/** Reads only supported placement strings from the active public draft. */
 const readPlacement = (source: ISidePanelDraft | null): TPlacement => ({
   topicId:
     typeof source?.defaults.topicId === 'string' ? source.defaults.topicId : '',
@@ -44,7 +42,6 @@ const readPlacement = (source: ISidePanelDraft | null): TPlacement => ({
       : '',
 });
 
-/** Restores each browser entry's accepted create placement independently of shared defaults. */
 export const useKbPanelCreatePlacement = (contentType: string): TPlacement => {
   const store = useStore();
   const userId = useAtomValue(currentUserState)?._id;
@@ -70,7 +67,6 @@ export const useKbPanelCreatePlacement = (contentType: string): TPlacement => {
   useEffect(() => {
     observeSession(store);
     if (!userId) return undefined;
-    /** Selects the accepted placement and observes its public defaults source. */
     const select = (next: TPlacement) =>
       store.set(acceptedPlacementState, {
         scopeKey,
@@ -78,7 +74,6 @@ export const useKbPanelCreatePlacement = (contentType: string): TPlacement => {
         source,
         placement: next,
       });
-    /** Retains placement for this history entry before selecting it. */
     const remember = (next: TPlacement) => {
       store.set(placementsState, (entries) => ({
         ...entries,

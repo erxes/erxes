@@ -14,7 +14,6 @@ import {
   kbMoreColumn,
 } from '@/knowledgebase/shared/components/KbRowActions';
 
-/** Connects category row editing and confirmed removal actions. */
 const CategoriesMoreColumnCell = ({
   cell,
 }: {

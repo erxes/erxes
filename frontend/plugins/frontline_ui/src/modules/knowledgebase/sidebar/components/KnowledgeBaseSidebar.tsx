@@ -19,7 +19,6 @@ import {
   KB_DRAFT_CONTENT_TYPES,
 } from '@/knowledgebase/constants';
 
-/** Renders topic tree entries with loading, error and empty states. */
 const TopicTree = ({
   topics,
   loading,
@@ -75,7 +74,6 @@ const TopicTree = ({
   );
 };
 
-/** Renders the resizable topic sidebar and scoped record-panel entry points. */
 export const KnowledgeBaseSidebar = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',

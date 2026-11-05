@@ -4,7 +4,6 @@ import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { KbFormItem, KbFormPanelContext } from './KbFormLayout';
 
-/** Renders a typed text input or textarea through the shared form field layout. */
 export function KbTextField<T extends FieldValues>({
   control,
   name,

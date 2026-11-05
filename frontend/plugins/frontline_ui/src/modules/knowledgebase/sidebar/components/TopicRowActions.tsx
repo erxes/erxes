@@ -14,7 +14,6 @@ import { useSidePanel } from 'ui-modules';
 import { KbSidebarRowActions } from '@/knowledgebase/sidebar/components/KbSidebarRowActions';
 import { ITopic } from '@/knowledgebase/types';
 
-/** Connects topic editing, category creation and settings navigation actions. */
 export const TopicRowActions = ({
   topic,
   onAddCategory,

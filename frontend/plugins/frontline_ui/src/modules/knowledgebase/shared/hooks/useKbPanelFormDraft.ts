@@ -15,7 +15,6 @@ import { useEffect, useRef } from 'react';
 
 const observedStores = new WeakSet<ReturnType<typeof useStore>>();
 
-/** Installs one store-lifetime user observer to clear private knowledge base drafts. */
 const observeSession = (store: ReturnType<typeof useStore>): void => {
   if (observedStores.has(store)) return;
   observedStores.add(store);
@@ -32,7 +31,6 @@ const observeSession = (store: ReturnType<typeof useStore>): void => {
   });
 };
 
-/** Adds user scope, create deduplication and deletion invalidation to panel drafts. */
 export const useKbPanelFormDraft = <T extends FieldValues>({
   form,
   kind,
@@ -100,7 +98,6 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
     isNew: !recordId && !createdId && scopeRevision === revision,
     discardMessage,
   });
-  /** Checks that the captured user and draft revision still own this form session. */
   const sameSession = () =>
     Boolean(
       userId &&
@@ -125,7 +122,6 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
     store,
     userId,
   ]);
-  /** Clears this form draft and any completed create association. */
   const clearDraft = () => {
     clearFormDraft();
     store.set(kbPanelSavesState, (previous) => {
@@ -135,7 +131,6 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
       );
     });
   };
-  /** Serializes saves for this scope and retains the created record identifier. */
   const save = async (
     action: (id?: string) => Promise<string | null>,
   ): Promise<string | null> => {

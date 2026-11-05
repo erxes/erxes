@@ -11,7 +11,6 @@ import {
 } from '../states/panelFormDraftsState';
 import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
 
-/** Clears removed-record drafts and closes only the relevant active panel. */
 export const useKbCloseRemovedRecord = (
   contentType: string,
 ): ((contentId: string) => void) => {

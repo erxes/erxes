@@ -29,14 +29,12 @@ import {
 } from '@/knowledgebase/shared/components/kbColumns';
 import { KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
-/** Provides the category inline edit hook scoped to the routed topic. */
 const useEditCategory = () => {
   const { topicId = '' } = useParams();
 
   return useEditCategoryField(topicId).editCategoryField;
 };
 
-/** Edits a knowledge base text field inline through its mutation hook. */
 const TextCell = ({
   cell,
   field,
@@ -63,7 +61,6 @@ const TextCell = ({
   );
 };
 
-/** Opens the record panel from the inline-editable title cell. */
 const TitleCell = ({
   cell,
   t,
@@ -96,7 +93,6 @@ const TitleCell = ({
   );
 };
 
-/** Edits a category icon through the shared table cell controls. */
 const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
   const category = cell.row.original;
   const editCategoryField = useEditCategory();
@@ -115,7 +111,6 @@ const IconCell = ({ cell }: { cell: Cell<TCategoryRow, unknown> }) => {
   );
 };
 
-/** Displays the category article count including nested category records. */
 const ArticleCountCell = ({
   cell,
   t,
@@ -140,7 +135,6 @@ const ArticleCountCell = ({
   );
 };
 
-/** Defines category table columns and their inline editing controls. */
 const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
   categoriesMoreColumn,
   RecordTable.checkboxColumn as ColumnDef<TCategoryRow>,
@@ -194,7 +188,6 @@ const createCategoriesColumns = (t: TFunction): ColumnDef<TCategoryRow>[] => [
   }),
 ];
 
-/** Memoizes translated category columns for the current route. */
 export const useCategoriesColumns = (): ColumnDef<TCategoryRow>[] => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',

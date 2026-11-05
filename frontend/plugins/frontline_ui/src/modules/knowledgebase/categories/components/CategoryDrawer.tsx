@@ -29,7 +29,6 @@ const categorySchema = z.object({
 
 export type TCategoryForm = z.infer<typeof categorySchema>;
 
-/** Seeds a new category with its owning topic and default icon. */
 const emptyCategory = (topicId: string): TCategoryForm => ({
   title: '',
   code: '',
@@ -39,7 +38,6 @@ const emptyCategory = (topicId: string): TCategoryForm => ({
   parentCategoryId: '',
 });
 
-/** Renders category metadata and placement fields with their existing form validation. */
 const CategoryFormFields = ({
   form,
   topicId,
@@ -161,7 +159,6 @@ const CategoryFormFields = ({
   );
 };
 
-/** Edits or creates a category while retaining its scoped panel draft. */
 export const CategoryDrawer = ({
   category,
   topicId,
@@ -210,7 +207,6 @@ export const CategoryDrawer = ({
     },
   );
 
-  /** Clears the current draft before closing the panel form. */
   const cancel = () => {
     clearDraft();
     onClose();

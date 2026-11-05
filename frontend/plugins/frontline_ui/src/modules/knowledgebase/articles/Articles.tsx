@@ -17,7 +17,6 @@ import {
   KB_DRAFT_CONTENT_TYPES,
 } from '@/knowledgebase/constants';
 
-/** Renders the topic article table, filters and scoped create action. */
 export const Articles = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',

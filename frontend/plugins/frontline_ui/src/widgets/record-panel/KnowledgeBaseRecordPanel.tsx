@@ -41,7 +41,6 @@ import type { IArticleDetail } from '@/knowledgebase/types';
 
 type TKbKind = keyof typeof KB_RECORD_CONTENT_TYPES;
 
-/** Renders record-specific panel actions and affirmed article removal state. */
 const KnowledgeBasePanelActions = ({
   kind,
   id,
@@ -71,7 +70,6 @@ const KnowledgeBasePanelActions = ({
   const disabled =
     pending || duplicating || removingArticle || removingCategory;
 
-  /** Requests confirmation before removing the current article or category. */
   const handleDelete = async () => {
     if (disabled) return;
     try {
@@ -167,7 +165,6 @@ const KnowledgeBasePanelActions = ({
   );
 };
 
-/** Routes panel headers, actions, supported Activity and loaded detail content. */
 const KnowledgeBasePanelView = ({
   kind,
   record,
@@ -250,7 +247,6 @@ const KnowledgeBasePanelView = ({
   return children;
 };
 
-/** Loads an article and resolves its topic placement for the record panel. */
 const ArticlePanel = (props: IRecordPanelProps) => {
   const { article, loading, error } = useArticleDetail(props.contentId);
   const { close } = useSidePanel();
@@ -291,7 +287,6 @@ const ArticlePanel = (props: IRecordPanelProps) => {
   );
 };
 
-/** Loads the topic record for panel headers and editing. */
 const TopicPanel = (props: IRecordPanelProps) => {
   const { topic, loading, error } = useTopicDetail(props.contentId);
   const { close } = useSidePanel();
@@ -310,7 +305,6 @@ const TopicPanel = (props: IRecordPanelProps) => {
   );
 };
 
-/** Loads a category and its owning topic for the record panel. */
 const CategoryPanel = (props: IRecordPanelProps) => {
   const { data, loading, error } = useQuery(CATEGORY_DETAIL, {
     variables: { _id: props.contentId },
@@ -341,11 +335,9 @@ const CategoryPanel = (props: IRecordPanelProps) => {
   );
 };
 
-/** Selects a create form from the host panel draft context. */
 const KnowledgeBasePanelNew = ({ contentType }: IRecordPanelProps) => {
   const draft = useKbPanelCreatePlacement(contentType);
   const { back, canGoBack, close } = useSidePanel();
-  /** Returns to panel history when available or closes the create panel. */
   const onClose = () => (canGoBack ? back() : close());
 
   if (
@@ -367,7 +359,6 @@ const KnowledgeBasePanelNew = ({ contentType }: IRecordPanelProps) => {
   return <TopicDrawer onClose={onClose} />;
 };
 
-/** Dispatches knowledge base record kinds and create views to their panels. */
 export const KnowledgeBaseRecordPanel = (props: IRecordPanelProps) => {
   if (props.view === 'new') return <KnowledgeBasePanelNew {...props} />;
   if (props.contentType === KB_RECORD_CONTENT_TYPES.article)

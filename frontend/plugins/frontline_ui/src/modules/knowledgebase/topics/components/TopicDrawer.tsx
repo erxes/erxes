@@ -15,7 +15,6 @@ import {
 import { useSaveTopic } from '@/knowledgebase/topics/hooks/useTopicMutations';
 import { ITopic } from '@/knowledgebase/types';
 
-/** Edits or creates a topic while retaining its scoped panel draft. */
 export const TopicDrawer = ({
   topic,
   onClose,
@@ -59,7 +58,6 @@ export const TopicDrawer = ({
     ),
   });
 
-  /** Clears the current draft before closing the panel form. */
   const cancel = () => {
     clearDraft();
     onClose();

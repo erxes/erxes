@@ -36,7 +36,6 @@ import { KbOverflowText } from '@/knowledgebase/shared/components/KbOverflowText
 import { SelectKbCategory } from '@/knowledgebase/shared/components/SelectKbCategory';
 import { IArticle, KnowledgeBaseHotKeyScope } from '@/knowledgebase/types';
 
-/** Maps article publication status to its table badge variant. */
 const statusVariant = (
   status: string,
 ): 'success' | 'destructive' | 'secondary' => {
@@ -45,7 +44,6 @@ const statusVariant = (
   return 'secondary';
 };
 
-/** Edits a knowledge base text field inline through its mutation hook. */
 const TextCell = ({
   cell,
   field,
@@ -72,7 +70,6 @@ const TextCell = ({
   );
 };
 
-/** Opens the record panel from the inline-editable title cell. */
 const TitleCell = ({
   cell,
   t,
@@ -103,7 +100,6 @@ const TitleCell = ({
   );
 };
 
-/** Edits publication status and supports scheduled publishing dates. */
 const StatusCell = ({
   cell,
   t,
@@ -152,7 +148,6 @@ const StatusCell = ({
   );
 };
 
-/** Edits article placement through the current topic category options. */
 const CategoryCell = ({
   cell,
   topicId,
@@ -178,7 +173,6 @@ const CategoryCell = ({
   );
 };
 
-/** Defines article table columns and their inline editing controls. */
 const createArticlesColumns = (
   t: TFunction,
   topicId: string,
@@ -254,7 +248,6 @@ const createArticlesColumns = (
   }),
 ];
 
-/** Memoizes translated article columns for the current topic. */
 export const useArticlesColumns = (topicId: string): ColumnDef<IArticle>[] => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
