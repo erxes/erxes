@@ -13,7 +13,7 @@ import {
   FormType,
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
-import { Button, Form, Spinner, Upload } from 'erxes-ui';
+import { Button, Form, Spinner, Upload, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const ProfileForm = () => {
@@ -51,18 +51,35 @@ export const ProfileForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(submitHandler)} className="grid gap-5">
+      <form
+        onSubmit={form.handleSubmit(submitHandler, () => {
+          toast({
+            title: t('error-updating-profile'),
+            description: t(
+              'check-profile-fields',
+              'Please check the profile fields for invalid values.',
+            ),
+            variant: 'destructive',
+          });
+        })}
+        className="grid gap-5"
+      >
         <div className="flex flex-col gap-4">
           <Form.Label>{t('profile-picture')}</Form.Label>
           <Form.Field
             control={form.control}
             name="details.avatar"
-            render={({ field }: { field: any }) => (
+            render={({ field }) => (
               <Form.Item>
                 <Form.Control>
                   <Upload.Root
                     {...field}
-                    onChange={(fileInfo: any) => field.onChange(fileInfo?.url)}
+                    value={field.value ?? ''}
+                    onChange={(fileInfo) =>
+                      field.onChange(
+                        fileInfo && 'url' in fileInfo ? fileInfo.url : '',
+                      )
+                    }
                   >
                     <Upload.Preview />
                     <div className="flex flex-col gap-2">

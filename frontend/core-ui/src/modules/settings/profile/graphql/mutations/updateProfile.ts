@@ -18,6 +18,24 @@ export const UPDATE_PROFILE = gql`
       positionIds: $positionIds
     ) {
       _id
+      username
+      email
+      isOnboarded
+      details {
+        avatar
+        fullName
+        shortName
+        description
+        firstName
+        middleName
+        lastName
+        employeeId
+        operatorPhone
+        birthDate
+        workStartedDate
+      }
+      positionIds
+      links
     }
   }
 `;

@@ -7,6 +7,7 @@ export const GET_USER_DETAIL = gql`
       username
       email
       isActive
+      isOnboarded
       status
       details {
         avatar

@@ -68,7 +68,7 @@ export const profileValidationSchema = z
             },
           )
           .optional(),
-        gitHub: z
+        github: z
           .string()
           .url()
           .regex(/^https:\/\/(www\.)?github\.com\/[A-Za-z0-9._-]+\/?$/, {
@@ -85,10 +85,14 @@ export const profileValidationSchema = z
           .optional()
           .or(z.literal('')),
       })
-      .optional(),
+      .nullish()
+      .transform((links) => links ?? {}),
     username: z.string().min(3, 'Username must be at least 3 characters'),
     email: z.string().trim().email('Email must be a valid email'),
-    positionIds: z.array(z.string()).optional(),
+    positionIds: z
+      .array(z.string())
+      .nullish()
+      .transform((ids) => ids ?? []),
   })
   .required();
 
@@ -102,7 +106,7 @@ const useProfileForm = () => {
         twitter: '',
         website: '',
         discord: '',
-        gitHub: '',
+        github: '',
         instagram: '',
       },
       username: '',

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import {
-  MutationHookOptions,
-  OperationVariables,
+  MutationFunctionOptions,
+  QueryHookOptions,
   useMutation,
   useQuery,
 } from '@apollo/client';
@@ -9,66 +9,79 @@ import { toast, useConfirm } from 'erxes-ui';
 
 import { GET_USER_DETAIL } from '@/settings/profile/graphql/queries/userDetail';
 import { UPDATE_PROFILE } from '@/settings/profile/graphql/mutations/updateProfile';
-import { currentUserState } from 'ui-modules';
+import { currentUserState, IUser } from 'ui-modules';
 import { useAtom } from 'jotai';
+import type { FormType } from './useProfileForm';
 
-const useProfile = (options?: OperationVariables) => {
+type Profile = IUser & {
+  details?: IUser['details'] & FormType['details'];
+  links?: FormType['links'];
+  positionIds?: string[];
+};
+
+const useProfile = (
+  options?: QueryHookOptions<{ userDetail: Profile }, { _id?: string }>,
+) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserState);
 
   const { confirm } = useConfirm();
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
 
-  const { loading, data } = useQuery(GET_USER_DETAIL, {
-    variables: { _id: currentUser?._id },
-    ...options,
-    skip: !currentUser?._id,
-  });
+  const { loading, data } = useQuery<{ userDetail: Profile }, { _id?: string }>(
+    GET_USER_DETAIL,
+    {
+      variables: { _id: currentUser?._id },
+      ...options,
+      skip: !currentUser?._id,
+    },
+  );
 
-  const [updateProfile, { loading: updating }] = useMutation(UPDATE_PROFILE);
+  const [updateProfile, { loading: updating }] = useMutation<
+    { usersEditProfile: Profile },
+    FormType
+  >(UPDATE_PROFILE);
 
-  const profileUpdate = ({ variables, ...options }: MutationHookOptions) => {
+  const profileUpdate = ({
+    variables,
+    ...options
+  }: MutationFunctionOptions<{ usersEditProfile: Profile }, FormType>) => {
     const confirmOptions = { confirmationValue: 'update' };
 
-    confirm({
+    return confirm({
       message: t('confirm-update-profile'),
       options: confirmOptions,
-    }).then(() => {
-      updateProfile({
-        ...options,
-        variables,
-        update: (cache, { data: { usersEditProfile } }) => {
-          cache.modify({
-            id: cache.identify(usersEditProfile),
-            fields: Object.keys(profile || {}).reduce((fields: any, field) => {
-              fields[field] = () => (profile || {})[field];
-              return fields;
-            }, {}),
-            optimistic: true,
-          });
-        },
-        onCompleted: ({ usersEditProfile }) => {
-          setCurrentUser((prev) => ({
-            ...prev,
-            ...usersEditProfile,
-          }));
+    })
+      .then(() => {
+        return updateProfile({
+          ...options,
+          variables,
+          onCompleted: ({ usersEditProfile }) => {
+            setCurrentUser(
+              (prev) =>
+                prev && {
+                  ...prev,
+                  ...usersEditProfile,
+                },
+            );
 
-          toast({
-            title: t('profile-updated-successfully'),
-            variant: 'success',
-          });
-        },
-        onError: (error) => {
-          toast({
-            title: t('error-updating-profile'),
-            description: error.message || t('unexpected-error'),
-            variant: 'destructive',
-          });
-        },
-      });
-    });
+            toast({
+              title: t('profile-updated-successfully'),
+              variant: 'success',
+            });
+          },
+          onError: (error) => {
+            toast({
+              title: t('error-updating-profile'),
+              description: error.message || t('unexpected-error'),
+              variant: 'destructive',
+            });
+          },
+        });
+      })
+      .catch(() => undefined);
   };
 
-  const profile = data?.userDetail || {};
+  const profile = data?.userDetail;
 
   return {
     profile,
