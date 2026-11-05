@@ -6,12 +6,14 @@ import {
   kbPanelSavesState,
   kbPanelDraftKey,
   kbPanelDraftRevisionsState,
+  kbPanelFormOwnersState,
 } from '../states/panelFormDraftsState';
 import type { FieldValues, UseFormReturn } from 'react-hook-form';
 import { type PrimitiveAtom, useAtomValue, useStore } from 'jotai';
 import type { TPanelFormDrafts } from '@/shared/hooks/usePanelFormDraft';
 import { currentUserState } from 'ui-modules';
-import { useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
+import { isDeeplyEqual } from 'erxes-ui';
 
 const observedStores = new WeakSet<ReturnType<typeof useStore>>();
 
@@ -28,6 +30,7 @@ const observeSession = (store: ReturnType<typeof useStore>): void => {
     store.set(topicPanelDraftsState, {});
     store.set(kbPanelSavesState, {});
     store.set(kbPanelDraftRevisionsState, {});
+    store.set(kbPanelFormOwnersState, {});
   });
 };
 
@@ -54,6 +57,8 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
   markSaved: (savedValues: T, submittedValues?: T) => boolean;
   isActive: () => boolean;
   saving: boolean;
+  uploading: boolean;
+  createdId?: string;
   captureUpdate: (field?: string) => (update: (latest: T) => T) => void;
   invalidateUpdates: (field: string) => void;
   save: (
@@ -64,17 +69,79 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
   const userId = useAtomValue(currentUserState)?._id;
   const recordKey = kbPanelDraftKey(userId, kind, recordId, context);
   const saves = useAtomValue(kbPanelSavesState);
+  const drafts = useAtomValue(draftsState);
   const createdId = !recordId ? saves[recordKey]?.createdId : undefined;
   const confirmedValues = createdId
-    ? store.get(draftsState)[recordKey]?.defaultValues
+    ? drafts[recordKey]?.defaultValues ?? form.getValues()
     : undefined;
   const revision = useAtomValue(kbPanelDraftRevisionsState)[recordKey] ?? 0;
   const scope = useRef({ recordKey, revision, handled: false });
   if (scope.current.recordKey !== recordKey)
     scope.current = { recordKey, revision, handled: false };
   const scopeRevision = scope.current.revision;
+  const releaseCreatedDraft = useCallback(() => {
+    const saved = store.get(kbPanelSavesState)[recordKey];
+    if (
+      !saved?.createdId ||
+      saved.pending ||
+      store.get(kbPanelFormOwnersState)[recordKey]
+    )
+      return;
+    const savedKey = kbPanelDraftKey(userId, kind, saved.createdId);
+    store.set(draftsState, (previous) => {
+      const draft = previous[recordKey];
+      const next = Object.fromEntries(
+        Object.entries(previous).filter(([key]) => key !== recordKey),
+      );
+      if (
+        draft &&
+        (draft.pendingUpdates?.length ||
+          !isDeeplyEqual(draft.values, draft.defaultValues, { strict: true }))
+      ) {
+        const existing = previous[savedKey];
+        const defaultValues = existing?.defaultValues ?? draft.defaultValues;
+        const values = { ...defaultValues };
+        for (const source of [draft, existing]) {
+          if (!source) continue;
+          for (const field in source.values) {
+            if (
+              !isDeeplyEqual(
+                source.values[field],
+                source.defaultValues[field],
+                { strict: true },
+              )
+            )
+              values[field] = source.values[field];
+          }
+        }
+        next[savedKey] = {
+          ...draft,
+          defaultValues,
+          values,
+          submittedValues: existing?.values,
+          pendingUpdates: [
+            ...(draft.pendingUpdates ?? []),
+            ...(existing?.pendingUpdates ?? []),
+          ],
+          updateToken: existing?.updateToken ?? draft.updateToken,
+        };
+      }
+      return next;
+    });
+    store.set(kbPanelSavesState, (previous) =>
+      Object.fromEntries(
+        Object.entries(previous).filter(([key]) => key !== recordKey),
+      ),
+    );
+  }, [store, draftsState, recordKey, userId, kind]);
   useEffect(() => {
     observeSession(store);
+    if (!recordId) releaseCreatedDraft();
+    const owner = Symbol(recordKey);
+    store.set(kbPanelFormOwnersState, (previous) => ({
+      ...previous,
+      [recordKey]: owner,
+    }));
     const saved = store.get(kbPanelSavesState)[recordKey];
     if (saved && !saved.pending && !store.get(draftsState)[recordKey]) {
       store.set(kbPanelSavesState, (previous) => {
@@ -83,13 +150,24 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
         );
       });
     }
-  }, [store, draftsState, recordKey]);
+    return () => {
+      store.set(kbPanelFormOwnersState, (previous) =>
+        previous[recordKey] === owner
+          ? Object.fromEntries(
+              Object.entries(previous).filter(([key]) => key !== recordKey),
+            )
+          : previous,
+      );
+      if (!recordId) releaseCreatedDraft();
+    };
+  }, [store, draftsState, recordKey, recordId, releaseCreatedDraft]);
   const {
     clearDraft: clearFormDraft,
     isActive: isFormActive,
     markSaved: markFormSaved,
     captureUpdate: captureFormUpdate,
     invalidateUpdates,
+    hasPendingUpdates,
   } = usePanelFormDraft({
     form,
     recordKey,
@@ -101,8 +179,9 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
   const sameSession = () =>
     Boolean(
       userId &&
-      store.get(currentUserState)?._id === userId &&
-      (store.get(kbPanelDraftRevisionsState)[recordKey] ?? 0) === scopeRevision,
+        store.get(currentUserState)?._id === userId &&
+        (store.get(kbPanelDraftRevisionsState)[recordKey] ?? 0) ===
+          scopeRevision,
     );
   useEffect(() => {
     if (scopeRevision === revision || scope.current.handled) return;
@@ -135,7 +214,7 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
     action: (id?: string) => Promise<string | null>,
   ): Promise<string | null> => {
     const previous = store.get(kbPanelSavesState)[recordKey];
-    if (!sameSession() || previous?.pending) return null;
+    if (!sameSession() || previous?.pending || hasPendingUpdates()) return null;
     const pendingSave = { ...previous, pending: true };
     store.set(kbPanelSavesState, (state) => ({
       ...state,
@@ -168,15 +247,54 @@ export const useKbPanelFormDraft = <T extends FieldValues>({
     clearDraft,
     invalidateUpdates,
     captureUpdate: (field) => {
+      const savedId = store.get(kbPanelSavesState)[recordKey]?.createdId;
       const updateDraft = captureFormUpdate(field);
+      const captured = store.get(draftsState)[recordKey];
+      const operation = captured?.pendingUpdates?.at(-1)?.token;
       return (update) => {
-        if (sameSession()) updateDraft(update);
+        if (!sameSession()) return;
+        const current = store.get(draftsState)[recordKey];
+        if (
+          !savedId ||
+          !operation ||
+          current?.pendingUpdates?.some((item) => item.token === operation)
+        ) {
+          updateDraft(update);
+          return;
+        }
+        const savedKey = kbPanelDraftKey(userId, kind, savedId);
+        store.set(draftsState, (previous) => {
+          const latest = previous[savedKey];
+          if (!latest?.pendingUpdates?.some((item) => item.token === operation))
+            return previous;
+          const pendingUpdates = latest.pendingUpdates.filter(
+            (item) => item.token !== operation,
+          );
+          return {
+            ...previous,
+            [savedKey]: {
+              ...latest,
+              values: update(latest.values),
+              submittedValues: latest.values,
+              pendingUpdates,
+              updateToken: pendingUpdates.length
+                ? latest.updateToken
+                : undefined,
+            },
+          };
+        });
       };
     },
-    markSaved: (savedValues, submittedValues) =>
-      sameSession() && markFormSaved(savedValues, submittedValues),
+    markSaved: (savedValues, submittedValues) => {
+      if (!sameSession()) return false;
+      const acknowledged = markFormSaved(savedValues, submittedValues);
+      if (!recordId) releaseCreatedDraft();
+      return acknowledged && !hasPendingUpdates();
+    },
     isActive: () => sameSession() && isFormActive(),
     saving: Boolean(saves[recordKey]?.pending),
+    uploading: Boolean(drafts[recordKey]?.pendingUpdates?.length),
+    createdId,
     save,
   };
 };

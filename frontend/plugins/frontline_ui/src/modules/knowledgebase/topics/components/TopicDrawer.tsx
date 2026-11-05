@@ -27,7 +27,6 @@ export const TopicDrawer = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = Boolean(topic);
   const { saveTopic, loading } = useSaveTopic();
 
   const form = useForm<TTopicForm>({
@@ -42,6 +41,8 @@ export const TopicDrawer = ({
     isActive,
     save,
     saving,
+    uploading,
+    createdId,
     captureUpdate,
     invalidateUpdates,
   } = useKbPanelFormDraft({
@@ -57,6 +58,8 @@ export const TopicDrawer = ({
       'Discard your unsaved changes?',
     ),
   });
+
+  const isEditing = Boolean(topic || createdId);
 
   const cancel = () => {
     clearDraft();
@@ -86,6 +89,7 @@ export const TopicDrawer = ({
           : t('kb-create-topic', 'Create Topic')
       }
       loading={loading || saving}
+      uploading={uploading}
       onSubmit={submit}
     >
       <Form {...form}>
@@ -93,13 +97,16 @@ export const TopicDrawer = ({
           <TopicFormFields
             form={form}
             t={t}
+            uploadingDisabled={loading || saving}
             invalidateBackgroundChange={() =>
               invalidateUpdates('backgroundImage')
             }
             captureBackgroundChange={() => {
               const update = captureUpdate('backgroundImage');
               return (backgroundImage) =>
-                update((latest) => ({ ...latest, backgroundImage }));
+                update((latest) =>
+                  backgroundImage ? { ...latest, backgroundImage } : latest,
+                );
             }}
           />
         </div>

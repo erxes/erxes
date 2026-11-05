@@ -18,6 +18,7 @@ export const categoryPanelDraftsState = atom<TPanelFormDrafts<TCategoryForm>>(
 );
 export const topicPanelDraftsState = atom<TPanelFormDrafts<TTopicForm>>({});
 export const kbPanelDraftRevisionsState = atom<Record<string, number>>({});
+export const kbPanelFormOwnersState = atom<Record<string, symbol>>({});
 
 export const kbPanelSavesState = atom<
   Record<

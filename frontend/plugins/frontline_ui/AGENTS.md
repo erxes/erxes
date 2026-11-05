@@ -90,7 +90,8 @@
 
 - Knowledge base article, category and topic creation/editing use shared record
   panels with explicit Save, scoped in-memory drafts, independent placement
-  history and a supported Activity empty state.
+  history and a supported Activity empty state. Save waits for media uploads;
+  failed uploads release the pending operation and keep existing media intact.
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -860,8 +861,9 @@ owns the setup form and connection actions.
 - `./frontline` retains its federation path and loads the named `Frontline`
   export from `src/modules/FrontlineMain.tsx`.
 
-- `CONFIG.widgets.recordPanels` registers `frontline:ticket`; the `./recordPanel` federation
-  expose (`src/widgets/record-panel/RecordPanel.tsx`) provide `frontline:ticket`
+- `CONFIG.widgets.recordPanels` registers `frontline:ticket`; the
+  `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
+  provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
   supports ticket and knowledge base records; ticket properties remain available.
@@ -1116,14 +1118,17 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   scope. Scalar image replacement and removal invalidate older uploads for that
   field; attachment additions merge
   with the latest retained values. Discard, deletion and session cleanup invalidate
-  old callbacks. Upload lifetime bookkeeping never locks Save after a failed upload.
+  old callbacks. Knowledge base uploads use the public
+  `useErxesUpload().uploadFile` promise and settle both successful and failed
+  requests before releasing Save; oversized files are rejected before capture.
 
 - Ticket create drafts and attachment operation locks live in plugin-owned Jotai
   state, scoped by signed-in user. They survive component remounts in this
   session; ticket drafts clear on confirmed discard or successful creation
   unless newer edits remain.
-- Knowledge base panel field drafts and pending saves stay in plugin-owned
-  Jotai memory scoped by signed-in user, kind and record or create placement.
+- Knowledge base panel field drafts, mounted form ownership and pending saves
+  stay in plugin-owned Jotai memory scoped by signed-in user, kind and record
+  or create placement.
   `useKbPanelCreatePlacement` additionally retains each history entry's accepted
   topic/category and observed public defaults source through filter navigation
   and remounts. Authentication changes clear retained drafts, saves and placements.
@@ -2498,8 +2503,9 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   all knowledge base drafts and save state even while editors are unmounted.
   Activity/record switches preserve them, background
   refetches cannot reset dirty input, and explicit Cancel clears them.
-  Successful Save acknowledges the submitted baseline; a captured unfinished
-  upload retains its scoped continuation without keeping Save busy.
+  Successful Save acknowledges the submitted baseline. Save admission and its
+  button remain blocked while captured uploads are pending; Cancel can discard
+  an upload draft without accepting later callbacks.
   A background update deferred while dirty is applied when all edits are undone;
   a successful save clears that pending update before advancing the baseline.
   Restore and watch callbacks check the current record key before reading or
@@ -2518,10 +2524,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   replacing dirty defaults within one scope; dismissal keeps current values.
   A save finishing after navigation cannot close another form.
   Pending saves are shared across reopening in the same scope. A create returns
-  its identifier; edits made while it saves subsequently update that record
-  instead of creating another. When a confirmed create retains an unfinished
-  upload, reopening New uses that draft's accepted defaults and edit identity;
-  empty create seeds must not replace its baseline or invalidate the upload.
+  its identifier; while that form remains open, newer edits update the confirmed
+  record and the button changes to Save Changes. Undo retains its confirmed
+  values. Closing a completed create moves remaining edits and upload operations
+  to that saved record's draft and removes the create identity. New always starts
+  a separate record; late completions cannot write into its draft.
   Logout and deletion invalidate pending save
   acknowledgements. Delete actions become busy only after affirmative confirmation;
   `useConfirm` deliberately leaves its promise unresolved on dismissal.
@@ -2534,18 +2541,20 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   invalidate mounted editors, clear/suspend their form draft and close the active
   form through its normal callback; later writes cannot recreate the deleted draft.
   Article panels reuse the article they loaded instead of querying it twice.
-  Article media and the topic background image capture the draft writer at
-  `Upload.Preview.onUploadStart`.
+  Article media and the topic background image use `KbImageUpload`, composed
+  from the public `Dropzone` and `useErxesUpload().uploadFile` API. A valid file
+  captures its draft writer before storage starts. Network and server failures
+  settle that writer without changing the field. Upload controls are disabled
+  during a mutation, and Save waits for every captured upload.
   Completion merges into the latest draft, including after Details unmounts for
   Activity or another record, and consumes its operation once. Explicit Cancel,
   deletion and authentication changes invalidate old completions. Image/PDF
   replacements, including the topic `backgroundImage`, are scoped by field:
   a newer selection or Remove invalidates an
   older pending completion even after remount; separate attachment uploads merge.
-  A failed or
-  oversized upload that emits no completion never creates a Save/close lock;
-  retry and Cancel remain available. A successful Save can retain a clean upload
-  continuation so a late file remains attached to the already-created record.
+  Rejected and oversized files display an error and leave retry and Cancel
+  available. Closing a completed create forwards its remaining upload callbacks
+  only to the saved record's retained operation; a fresh New draft stays isolated.
 - `TopicColorField`'s label comes from `kb-color-required`, which already ends
   in `*`; never add a second asterisk around it (the help center appearance tab
   renders the same component).
@@ -2600,11 +2609,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   title, while untouched optional fields and placement are omitted. Explicit
   description, parent and appearance clears remain part of the edited payload.
   The settings route's existing full-document contract stays separate.
-- Knowledge base panel, table and mutation helpers retain the documentation
-  comments required by JavaScript CI. Changed-field selectors document that dirty
-  optional fields preserve explicit clears; save-event tests await React `act`
-  with a promise-returning callback so asynchronous form updates settle. Article
-  content and publishing sections accept only form/translation props; upload
+- Article content and publishing sections accept only form/translation props;
+  upload
   capture and invalidation callbacks belong to the media section and its
   composer. Category form sections
   are composed through `CategoryFormFields` to keep the drawer JSX shallow;
@@ -3006,9 +3012,12 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Switch create placement, use Back/Forward, change a background filter and
   repeat with panel remounts; the original topic/category and field draft must
   return. While a create is pending, reopening must keep Save guarded; after
-  confirmation, newer edits must update the confirmed ID. Discard only the
-  selected placement. Change users and verify old defaults and drafts do not
-  return. Enter in a single-line field must neither remove a reaction chip nor
+  confirmation, newer edits must update the confirmed ID. Undo those edits and
+  confirm the saved values stay visible. Close a completed create and use New;
+  it must create a separate record. Try oversized files, network upload failure
+  and retry, and Save during a slow upload, including after Activity/remount.
+  Discard only the selected placement. Change users and verify old defaults and
+  drafts do not return. Enter in a single-line field must neither remove a reaction chip nor
   save; textarea, IME and selector Enter must keep their normal behavior.
   Edit title while another view changes status/summary and confirm saving does
   not revert those changes; clearing media or leaving scheduled status must
@@ -3043,9 +3052,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `groupCategoriesByParent` and `withoutEmptyCode` specs.
 - `pnpm nx lint frontline_ui` from the repository root; distinguish existing
   baseline lint failures from regressions in touched files.
-- `npx tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` - no
-  errors under `frontend/plugins/frontline_ui`; errors reported inside
-  `frontend/libs` are pre-existing and owned by those libraries.
+- `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json`
+  and the corresponding `tsconfig.spec.json` check; compare diagnostics against
+  the base with the same dependency resolution before attributing failures.
 - `project.json` defines `build`, `serve`, `serve-static`, `test`, `codegen`
   and `codegen:watch`.
 - Smoke: Pipeline → Ticket statuses → Create automation with two statuses
@@ -3161,43 +3170,3 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-16` — Knowledge scope tree and ticket media
-
-- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
-- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
-- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
-
-### `2026-10-06` — Telegram metadata promise handling
-
-- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
-- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
-- **Contracts changed:** None.
-
-### `2026-10-06` — Telegram setup recovery and attachment guards
-
-- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
-- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
-- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
-- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
-- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
-
-### `2026-10-06` — Telegram config entry and automatic setup defaults
-
-- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
-- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
-- **Contracts changed:** None; existing routes and per-bot setup are reused.
-
-### `2026-10-06` — Telegram on the native composer and message components
-
-- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
-- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.

@@ -54,10 +54,12 @@ export const TopicFormFields = ({
   t,
   captureBackgroundChange,
   invalidateBackgroundChange,
+  uploadingDisabled,
 }: {
   form: UseFormReturn<TTopicForm>;
   t: TFunction;
-  captureBackgroundChange?: () => (url: string) => void;
+  captureBackgroundChange?: () => (url?: string) => void;
+  uploadingDisabled?: boolean;
   invalidateBackgroundChange?: () => void;
 }) => {
   const panel = useContext(KbFormPanelContext);
@@ -164,6 +166,7 @@ export const TopicFormFields = ({
             t={t}
             captureChange={captureBackgroundChange}
             invalidateChange={invalidateBackgroundChange}
+            disabled={uploadingDisabled}
           />
         </KbFormSection.Content>
       </KbFormSection>

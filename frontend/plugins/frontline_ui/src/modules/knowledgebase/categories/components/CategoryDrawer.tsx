@@ -173,7 +173,6 @@ export const CategoryDrawer = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = Boolean(category);
   const { saveCategory, loading } = useSaveCategory();
 
   const form = useForm<TCategoryForm>({
@@ -182,8 +181,8 @@ export const CategoryDrawer = ({
   });
 
   const { dirtyFields } = form.formState;
-  const { clearDraft, markSaved, isActive, save, saving } = useKbPanelFormDraft(
-    {
+  const { clearDraft, markSaved, isActive, save, saving, createdId } =
+    useKbPanelFormDraft({
       form,
       kind: 'category',
       recordId: category?._id,
@@ -204,8 +203,9 @@ export const CategoryDrawer = ({
         'discard-unsaved-changes',
         'Discard your unsaved changes?',
       ),
-    },
-  );
+    });
+
+  const isEditing = Boolean(category || createdId);
 
   const cancel = () => {
     clearDraft();
@@ -248,7 +248,7 @@ export const CategoryDrawer = ({
         <CategoryFormFields
           form={form}
           topicId={topicId}
-          categoryId={category?._id}
+          categoryId={category?._id || createdId}
           isEditing={isEditing}
           t={t}
         />

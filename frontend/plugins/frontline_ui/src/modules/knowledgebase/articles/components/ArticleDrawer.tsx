@@ -1,4 +1,3 @@
-import { useReducer } from 'react';
 import type { IArticleDetail } from '@/knowledgebase/types';
 import { useKbPanelFormDraft } from '@/knowledgebase/shared/hooks/useKbPanelFormDraft';
 import { articlePanelDraftsState } from '@/knowledgebase/shared/states/panelFormDraftsState';
@@ -7,7 +6,7 @@ import {
   KbFormSection,
 } from '@/knowledgebase/shared/components/KbFormLayout';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconPaperclip, IconUpload, IconX } from '@tabler/icons-react';
+import { IconPaperclip, IconX } from '@tabler/icons-react';
 import {
   Button,
   Editor,
@@ -17,7 +16,6 @@ import {
   readImage,
   Select,
   Switch,
-  Upload,
 } from 'erxes-ui';
 import { useForm, type UseFormReturn } from 'react-hook-form';
 import { TFunction } from 'i18next';
@@ -26,6 +24,7 @@ import { z } from 'zod';
 import { useArticleDetail } from '@/knowledgebase/articles/hooks/useArticles';
 import { useSaveArticle } from '@/knowledgebase/articles/hooks/useArticleMutations';
 import { ARTICLE_STATUSES, REACTIONS } from '@/knowledgebase/constants';
+import { KbImageUpload } from '@/knowledgebase/shared/components/TopicAppearanceFields';
 import { KbFormSheet } from '@/knowledgebase/shared/components/KbFormSheet';
 import { KbTextField } from '@/knowledgebase/shared/components/KbTextField';
 import { ScheduleDateField } from '@/knowledgebase/articles/components/ScheduleDateField';
@@ -148,6 +147,7 @@ const MediaRow = ({
   onSelect,
   captureSelect,
   removable,
+  disabled,
 }: {
   label: string;
   description: string;
@@ -156,48 +156,29 @@ const MediaRow = ({
   onSelect: (file?: TMediaFile) => void;
   captureSelect?: () => (file?: TMediaFile) => void;
   removable?: boolean;
-}) => {
-  const [, renderUpload] = useReducer((count: number) => count + 1, 0);
-  const selection = { apply: onSelect };
-  return (
-    <div className="py-3 first:pt-0 last:pb-0">
-      <Upload.Root
-        className="flex-col gap-2 items-stretch"
-        value={value}
-        onChange={(fileInfo) => {
-          if (!('url' in fileInfo)) return;
-
-          selection.apply(
-            fileInfo.url
-              ? { url: fileInfo.url, name: fileInfo.fileInfo?.name || '' }
-              : undefined,
-          );
-        }}
-      >
-        <Upload.Preview
-          className="shrink-0"
-          onUploadStart={() => {
-            selection.apply = captureSelect?.() ?? onSelect;
-            renderUpload();
-          }}
-        />
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-foreground">{label}</p>
-          <p className="text-xs text-muted-foreground">{description}</p>
-        </div>
-        <div className="flex gap-1 items-center shrink-0">
-          <Upload.Button size="sm" variant="outline" type="button">
-            <IconUpload className="size-4" />
-            {actionLabel}
-          </Upload.Button>
-          {removable && (
-            <Upload.RemoveButton size="sm" variant="ghost" type="button" />
-          )}
-        </div>
-      </Upload.Root>
+  disabled: boolean;
+}) => (
+  <div className="py-3 first:pt-0 last:pb-0">
+    <div className="mb-2 min-w-0">
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{description}</p>
     </div>
-  );
-};
+    <KbImageUpload
+      value={value}
+      buttonLabel={actionLabel}
+      disabled={disabled}
+      removable={removable}
+      onChange={(url, file) =>
+        onSelect(url ? { url, name: file?.name || '' } : undefined)
+      }
+      captureChange={() => {
+        const complete = captureSelect?.() ?? onSelect;
+        return (url, file) =>
+          complete(url ? { url, name: file?.name || '' } : undefined);
+      }}
+    />
+  </div>
+);
 
 type TArticleFieldsProps = {
   form: UseFormReturn<TArticleForm>;
@@ -205,6 +186,7 @@ type TArticleFieldsProps = {
 };
 
 type TArticleMediaFieldsProps = TArticleFieldsProps & {
+  disabled: boolean;
   captureUpdate: (
     field?: string,
   ) => (update: (latest: TArticleForm) => TArticleForm) => void;
@@ -399,6 +381,7 @@ const ArticleMediaFields = ({
   t,
   captureUpdate,
   invalidateUpdates,
+  disabled,
 }: TArticleMediaFieldsProps) => (
   <KbFormSection title={t('kb-media', 'Media')}>
     <KbFormSection.Content className="gap-0 divide-y">
@@ -407,6 +390,7 @@ const ArticleMediaFields = ({
         name="image"
         render={({ field }) => (
           <MediaRow
+            disabled={disabled}
             label={t('image-label', 'Image')}
             description={t(
               'kb-image-help',
@@ -420,7 +404,8 @@ const ArticleMediaFields = ({
             }}
             captureSelect={() => {
               const apply = captureUpdate('image');
-              return (image) => apply((latest) => ({ ...latest, image }));
+              return (image) =>
+                apply((latest) => (image ? { ...latest, image } : latest));
             }}
             removable
           />
@@ -433,6 +418,7 @@ const ArticleMediaFields = ({
         render={({ field }) => (
           <div className="py-3 first:pt-0 last:pb-0">
             <MediaRow
+              disabled={disabled}
               label={t('kb-attachments', 'Attachments')}
               description={t('kb-attachments-count', {
                 count: (field.value ?? []).length,
@@ -443,11 +429,14 @@ const ArticleMediaFields = ({
               captureSelect={() => {
                 const apply = captureUpdate();
                 return (file) =>
-                  file &&
-                  apply((latest) => ({
-                    ...latest,
-                    attachments: [...latest.attachments, file],
-                  }));
+                  apply((latest) =>
+                    file
+                      ? {
+                          ...latest,
+                          attachments: [...latest.attachments, file],
+                        }
+                      : latest,
+                  );
               }}
               onSelect={(file) =>
                 file && field.onChange([...(field.value ?? []), file])
@@ -471,6 +460,7 @@ const ArticleMediaFields = ({
         name="pdfAttachment"
         render={({ field }) => (
           <MediaRow
+            disabled={disabled}
             label={t('kb-pdf-attachment', 'PDF Attachment')}
             description={t(
               'kb-pdf-help',
@@ -485,10 +475,14 @@ const ArticleMediaFields = ({
             captureSelect={() => {
               const apply = captureUpdate('pdfAttachment');
               return (file) =>
-                apply((latest) => ({
-                  ...latest,
-                  pdfAttachment: file ? { pdf: file } : undefined,
-                }));
+                apply((latest) =>
+                  file
+                    ? {
+                        ...latest,
+                        pdfAttachment: { pdf: file },
+                      }
+                    : latest,
+                );
             }}
             removable
           />
@@ -503,6 +497,7 @@ const ArticleFormFields = ({
   t,
   captureUpdate,
   invalidateUpdates,
+  disabled,
 }: TArticleMediaFieldsProps) => (
   <div className="flex flex-col gap-3">
     <ArticleContentFields form={form} t={t} />
@@ -513,6 +508,7 @@ const ArticleFormFields = ({
         t={t}
         captureUpdate={captureUpdate}
         invalidateUpdates={invalidateUpdates}
+        disabled={disabled}
       />
     </div>
   </div>
@@ -536,7 +532,6 @@ export const ArticleDrawer = ({
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
-  const isEditing = Boolean(articleId);
   const { article: fetchedArticle } = useArticleDetail(
     loadedArticle ? undefined : articleId,
   );
@@ -555,6 +550,8 @@ export const ArticleDrawer = ({
     isActive,
     save,
     saving,
+    uploading,
+    createdId,
     captureUpdate,
     invalidateUpdates,
   } = useKbPanelFormDraft({
@@ -589,6 +586,8 @@ export const ArticleDrawer = ({
       'Discard your unsaved changes?',
     ),
   });
+
+  const isEditing = Boolean(articleId || createdId);
 
   const cancel = () => {
     clearDraft();
@@ -626,6 +625,7 @@ export const ArticleDrawer = ({
           : t('kb-create-article', 'Create Article')
       }
       loading={loading || saving}
+      uploading={uploading}
       onSubmit={submit}
     >
       <Form {...form}>
@@ -634,6 +634,7 @@ export const ArticleDrawer = ({
           t={t}
           captureUpdate={captureUpdate}
           invalidateUpdates={invalidateUpdates}
+          disabled={loading || saving}
         />
       </Form>
     </KbFormSheet>

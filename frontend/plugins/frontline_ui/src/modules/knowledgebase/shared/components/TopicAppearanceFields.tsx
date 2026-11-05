@@ -1,7 +1,17 @@
-import { IconUpload } from '@tabler/icons-react';
-import { ColorPicker, Form, Upload } from 'erxes-ui';
+import { IconTrash, IconUpload } from '@tabler/icons-react';
+import {
+  Button,
+  ColorPicker,
+  Dropzone,
+  Form,
+  readImage,
+  Spinner,
+  useErxesUpload,
+  useToast,
+} from 'erxes-ui';
 import { TFunction } from 'i18next';
-import { ReactNode, useReducer } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { Control, FieldValues, Path } from 'react-hook-form';
 import { ColorDefaultAction } from '@/knowledgebase/shared/components/ColorDefaultAction';
 import { KbFormItem } from './KbFormLayout';
@@ -25,41 +35,138 @@ export function KbImageUpload({
   buttonLabel,
   captureChange,
   invalidateChange,
+  disabled = false,
+  removable = true,
 }: Readonly<{
   value: string;
-  onChange: (url: string) => void;
+  onChange: (url: string, file?: File) => void;
   buttonLabel: string;
-  captureChange?: () => (url: string) => void;
+  captureChange?: () => (url?: string, file?: File) => void;
   invalidateChange?: () => void;
+  disabled?: boolean;
+  removable?: boolean;
 }>) {
-  const [, refresh] = useReducer((version: number) => version + 1, 0);
-  const selected = { complete: onChange };
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
+  const { toast } = useToast();
+  const maximumBytes =
+    Number.parseInt(
+      localStorage.getItem('erxes_env_REACT_APP_FILE_UPLOAD_MAX_SIZE') || '',
+      10,
+    ) || 20 * 1024 * 1024;
+  const upload = useErxesUpload({ maxFiles: 1, maxFileSize: maximumBytes });
+  const { files, setFiles, uploadFile, open } = upload;
+  const attempted = useRef(new WeakSet<File>());
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (disabled) return;
+    for (const file of files) {
+      if (attempted.current.has(file)) continue;
+      attempted.current.add(file);
+      const remove = () =>
+        setFiles((current) => current.filter((item) => item !== file));
+      if (file.errors.length || file.size > maximumBytes) {
+        toast({
+          title: t('upload-failed'),
+          description:
+            file.errors[0]?.message ||
+            t('attachment-too-large', {
+              name: file.name,
+              size: maximumBytes / 1024 / 1024,
+            }),
+          variant: 'destructive',
+        });
+        remove();
+        continue;
+      }
+      const complete = captureChange?.();
+      setUploading(true);
+      void uploadFile(file)
+        .then((result) => {
+          if (!result.url || result.message !== undefined)
+            throw new Error(result.message || t('upload-failed'));
+          if (complete) complete(result.url, file);
+          else onChange(result.url, file);
+        })
+        .catch((error: unknown) => {
+          complete?.();
+          toast({
+            title: t('upload-failed'),
+            description: error instanceof Error ? error.message : undefined,
+            variant: 'destructive',
+          });
+        })
+        .finally(() => {
+          setUploading(false);
+          remove();
+        });
+    }
+  }, [
+    files,
+    setFiles,
+    uploadFile,
+    captureChange,
+    onChange,
+    disabled,
+    maximumBytes,
+    toast,
+    t,
+  ]);
+  useEffect(
+    () => () => {
+      files.forEach((file) => {
+        if (file.preview) URL.revokeObjectURL(file.preview);
+      });
+    },
+    [files],
+  );
+
   return (
-    <Upload.Root
-      value={value}
-      onChange={(fileInfo) => {
-        if ('url' in fileInfo) {
-          if (fileInfo.url === '') {
-            invalidateChange?.();
-            onChange('');
-          } else selected.complete(fileInfo.url);
-        }
-      }}
+    <Dropzone
+      {...upload}
+      className={`flex items-center gap-2 p-0 shadow-none bg-transparent text-left ${
+        disabled || uploading ? 'pointer-events-none opacity-50' : ''
+      }`}
     >
-      <Upload.Preview
-        onUploadStart={() => {
-          selected.complete = captureChange?.() ?? onChange;
-          refresh();
-        }}
-      />
+      {value && (
+        <img
+          src={readImage(value)}
+          alt={buttonLabel}
+          className="size-16 shrink-0 rounded object-cover"
+        />
+      )}
       <div className="flex flex-col gap-2">
-        <Upload.Button size="sm" variant="outline" type="button">
-          <IconUpload className="mr-2 w-4 h-4" />
+        <Button
+          size="sm"
+          variant="outline"
+          type="button"
+          disabled={disabled || uploading}
+          onClick={open}
+        >
+          {uploading ? (
+            <Spinner size="sm" />
+          ) : (
+            <IconUpload className="mr-2 w-4 h-4" />
+          )}
           {buttonLabel}
-        </Upload.Button>
-        <Upload.RemoveButton size="sm" variant="outline" type="button" />
+        </Button>
+        {removable && value && (
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            disabled={disabled || uploading}
+            aria-label={t('remove', { keyPrefix: '' })}
+            onClick={() => {
+              invalidateChange?.();
+              onChange('');
+            }}
+          >
+            <IconTrash />
+          </Button>
+        )}
       </div>
-    </Upload.Root>
+    </Dropzone>
   );
 }
 
@@ -148,9 +255,11 @@ export const TopicBackgroundImageField = <T extends FieldValues>({
   t,
   captureChange,
   invalidateChange,
+  disabled,
 }: TTopicFieldProps<T> & {
-  captureChange?: () => (url: string) => void;
+  captureChange?: () => (url?: string) => void;
   invalidateChange?: () => void;
+  disabled?: boolean;
 }) => (
   <KbControlField
     control={control}
@@ -163,6 +272,7 @@ export const TopicBackgroundImageField = <T extends FieldValues>({
         buttonLabel={t('kb-upload-image')}
         captureChange={captureChange}
         invalidateChange={invalidateChange}
+        disabled={disabled}
       />
     )}
   />
