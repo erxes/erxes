@@ -1,0 +1,35 @@
+{
+  "name": "response-templates",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Saved replies for the frontline inbox, as an erxes extension",
+  "nx": {
+    "projectType": "application",
+    "targets": {
+      "build": {
+        "dependsOn": [
+          {
+            "projects": [
+              "gateway"
+            ],
+            "target": "schema:compose"
+          }
+        ]
+      }
+    }
+  },
+  "scripts": {
+    "codegen": "erxes-ext codegen",
+    "check": "erxes-ext check",
+    "build": "erxes-ext build",
+    "install-extension": "erxes-ext install",
+    "dev": "erxes-ext dev"
+  },
+  "dependencies": {
+    "@hookform/resolvers": "^5",
+    "@tabler/icons-react": "^3.34.0",
+    "erxes-sdk": "workspace:^",
+    "use-debounce": "^10.0.4",
+    "zod": "4.6.7"
+  }
+}
