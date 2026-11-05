@@ -86,8 +86,8 @@ const queries: Record<string, Resolver> = {
       counts.byKind[kind] = !args.kind
         ? countQueryResult
         : args.kind === kind
-        ? countQueryResult
-        : 0;
+          ? countQueryResult
+          : 0;
     }
 
     counts.byStatus.active = await count({ status: 'active', ...qry });
@@ -114,7 +114,7 @@ const queries: Record<string, Resolver> = {
     // return api.get(args._id);
   },
 
-    async qpayGetDistricts(_root, args) {
+  async qpayGetDistricts(_root, args) {
     const api = new QPayQuickQrAPI({
       username: process.env.QUICK_QR_USERNAME || '',
       password: process.env.QUICK_QR_PASSWORD || '',

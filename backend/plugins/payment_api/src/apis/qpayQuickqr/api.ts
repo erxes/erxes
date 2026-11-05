@@ -79,7 +79,6 @@ export const quickQrCallbackHandler = async (models: IModels, data: any) => {
     throw new Error('Invoice id is required');
   }
 
-
   const transaction = await models.Transactions.getTransaction({
     _id,
   });
