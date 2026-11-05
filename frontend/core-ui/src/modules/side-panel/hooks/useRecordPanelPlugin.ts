@@ -1,7 +1,11 @@
-import { Icon } from '@tabler/icons-react';
+import type { IUIConfig } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
+
+export type TRecordPanelPluginTab = NonNullable<
+  NonNullable<NonNullable<IUIConfig['widgets']>['recordPanels']>[number]['tabs']
+>[number];
 
 /**
  * The plugin that draws `contentType` records in the side panel (its config
@@ -14,12 +18,7 @@ export const useRecordPanelPlugin = (
   pluginName: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
-  tabs: {
-    value: string;
-    label: string;
-    icon?: Icon;
-    after?: string;
-  }[];
+  tabs: TRecordPanelPluginTab[];
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
