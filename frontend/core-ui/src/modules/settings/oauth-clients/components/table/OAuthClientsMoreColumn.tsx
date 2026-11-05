@@ -7,6 +7,7 @@ import {
   RecordTable,
   useConfirm,
   useToast,
+  useQueryState,
 } from 'erxes-ui';
 import { IconEdit, IconLock, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
@@ -28,6 +29,7 @@ export const OAuthClientsMoreColumnCell = ({
   const { oauthClientAppsRemove } = useOAuthClientsRemove();
   const { oauthClientAppsRevoke } = useOAuthClientsRevoke();
   const setEditingOAuthClient = useSetAtom(editingOAuthClientAtom);
+  const [, setClientId] = useQueryState<string>('oauthClientId');
 
   const handleDelete = () => {
     confirm({
@@ -35,10 +37,10 @@ export const OAuthClientsMoreColumnCell = ({
     }).then(async () => {
       try {
         await oauthClientAppsRemove({ variables: { _id } });
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast({
           title: t('error'),
-          description: e.message,
+          description: e instanceof Error ? e.message : t('error'),
           variant: 'destructive',
         });
       }
@@ -55,10 +57,10 @@ export const OAuthClientsMoreColumnCell = ({
           variant: 'success',
           title: t('client-revoked'),
         });
-      } catch (e: any) {
+      } catch (e: unknown) {
         toast({
           title: t('error'),
-          description: e.message,
+          description: e instanceof Error ? e.message : t('error'),
           variant: 'destructive',
         });
       }
@@ -77,7 +79,10 @@ export const OAuthClientsMoreColumnCell = ({
           <Command.List>
             <Command.Item
               value="edit"
-              onSelect={() => setEditingOAuthClient(cell.row.original)}
+              onSelect={() => {
+                setEditingOAuthClient(cell.row.original);
+                setClientId(_id);
+              }}
             >
               <IconEdit /> {t('edit')}
             </Command.Item>

@@ -1,10 +1,10 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconPlus, IconUsersGroup } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
   Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -13,10 +13,10 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { useUnitForm } from '../../hooks/useUnitForm';
-import { useUnitAdd } from '../../hooks/useUnitActions';
-import { TUnitForm, UnitHotKeyScope } from '../../types/unit';
-import { UnitForm } from './UnitForm';
+import { useUnitForm } from '@/settings/structure/hooks/useUnitForm';
+import { useUnitAdd } from '@/settings/structure/hooks/useUnitActions';
+import { TUnitForm, UnitHotKeyScope } from '@/settings/structure/types/unit';
+import { UnitForm } from '@/settings/structure/components/units/UnitForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreateUnit = () => {
@@ -77,16 +77,21 @@ export const CreateUnit = () => {
     [handleAdd],
   );
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
+    <CoreModulePanel
+      requiredPermission="unitsManage"
+      name={'settings/structure/units/CreateUnit'}
+      onOpenChange={(open) => (open ? onOpen() : onClose())}
+      open={open}
+    >
       <Can action="unitsManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus /> {t('create-unit')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -97,27 +102,27 @@ export const CreateUnit = () => {
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconUsersGroup size={16} />
                 {t('create-unit-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <UnitForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? <Spinner /> : t('create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

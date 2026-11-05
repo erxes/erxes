@@ -1,5 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
+import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SubmitHandler } from 'react-hook-form';
@@ -8,7 +9,7 @@ import { usePositionDetailsById } from '@/settings/structure/hooks/usePositionDe
 import { usePositionEdit } from '@/settings/structure/hooks/usePositionActions';
 import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
 import { TPositionForm } from '@/settings/structure/types/position';
-import { PositionForm } from '../PositionForm';
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
 import { Can } from 'ui-modules';
 
 export const PositionEdit = () => {
@@ -74,7 +75,8 @@ export const PositionEdit = () => {
   }, [positionDetail, reset]);
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'settings/structure/positions/PositionEdit'}
       open={!!id}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -82,23 +84,23 @@ export const PositionEdit = () => {
         }
       }}
     >
-      <Sheet.View className="p-0">
+      <CoreModulePanel.View className="p-0">
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconBriefcase size={16} />
                 {positionDetail?.title || ''}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <PositionForm loading={loading} />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 {t('cancel')}
               </Button>
@@ -107,10 +109,10 @@ export const PositionEdit = () => {
                   {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

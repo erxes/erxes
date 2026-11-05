@@ -1,11 +1,12 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IBroadcastMethodEnum } from '@/broadcast/types';
-import { Sheet, useMultiQueryState } from 'erxes-ui';
-import { useBroadcastContacts } from '../hooks/useBroadcastContacts';
-import { useBroadcastScheduleRange } from '../hooks/useBroadcastScheduleRange';
-import { useBroadcastSegmentSeed } from '../hooks/useBroadcastSegmentSeed';
-import { BroadcastMethod } from './list/BroadcastMethod';
-import { BroadcastSteps } from './steps/BroadcastSteps';
-import { BroadcastStepsSheetView } from './steps/BroadcastStepsSheetView';
+import { useMultiQueryState } from 'erxes-ui';
+import { useBroadcastContacts } from '@/broadcast/hooks/useBroadcastContacts';
+import { useBroadcastScheduleRange } from '@/broadcast/hooks/useBroadcastScheduleRange';
+import { useBroadcastSegmentSeed } from '@/broadcast/hooks/useBroadcastSegmentSeed';
+import { BroadcastMethod } from '@/broadcast/components/list/BroadcastMethod';
+import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
+import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
 
 /**
  * Creating a campaign, opened by choosing a method.
@@ -41,7 +42,10 @@ export const BroadcastSheet = ({
   };
 
   return (
-    <Sheet
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={'broadcast/BroadcastSheet'}
       open={!!method && !editMessageId}
       onOpenChange={(open) => !open && handleClose()}
     >
@@ -50,6 +54,6 @@ export const BroadcastSheet = ({
       <BroadcastStepsSheetView method={method}>
         <BroadcastSteps onClose={handleClose} />
       </BroadcastStepsSheetView>
-    </Sheet>
+    </CoreModulePanel>
   );
 };

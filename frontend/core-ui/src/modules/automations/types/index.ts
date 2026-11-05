@@ -204,7 +204,7 @@ export enum AutomationSecondaryPanel {
 }
 
 export enum AutomationHistoryViewMode {
-  Sheet = 'sheet',
+  Panel = 'panel',
   Split = 'split',
 }
 

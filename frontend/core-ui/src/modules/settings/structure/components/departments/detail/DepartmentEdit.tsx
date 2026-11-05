@@ -1,6 +1,7 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconFolder } from '@tabler/icons-react';
-import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
+import { Button, Form, Spinner, useToast } from 'erxes-ui';
 import React, { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { SubmitHandler } from 'react-hook-form';
@@ -8,7 +9,7 @@ import { useDepartmentDetailsById } from '@/settings/structure/hooks/useDepartme
 import { useDepartmentEdit } from '@/settings/structure/hooks/useDepartmentActions';
 import { useDepartmentForm } from '@/settings/structure/hooks/useDepartmentForm';
 import { TDepartmentForm } from '@/settings/structure/types/department';
-import { DepartmentForm } from '../DepartmentForm';
+import { DepartmentForm } from '@/settings/structure/components/departments/DepartmentForm';
 import { Can } from 'ui-modules';
 
 export const DepartmentEdit = () => {
@@ -73,7 +74,8 @@ export const DepartmentEdit = () => {
   }, [departmentDetail, reset]);
 
   return (
-    <Sheet
+    <CoreModulePanel
+      name={'settings/structure/departments/DepartmentEdit'}
       open={!!id}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -81,23 +83,23 @@ export const DepartmentEdit = () => {
         }
       }}
     >
-      <Sheet.View className="p-0">
+      <CoreModulePanel.View className="p-0">
         <Form {...methods}>
           <form
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconFolder size={16} />
                 {departmentDetail?.title || ''}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <DepartmentForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(null)}>
                 {t('cancel')}
               </Button>
@@ -106,10 +108,10 @@ export const DepartmentEdit = () => {
                   {isLoading ? <Spinner /> : t('save')}
                 </Button>
               </Can>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

@@ -1,5 +1,6 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, Separator, Sheet, useQueryState } from 'erxes-ui';
+import { Button, Form, Separator, useQueryState } from 'erxes-ui';
 import { useSearchParams } from 'react-router-dom';
 import { workingHours } from '@/settings/structure/constants/work-days';
 import { IWorkhoursForm, WorkDay } from '@/settings/structure/types/workhours';
@@ -83,7 +84,8 @@ export const DepartmentWorkingHoursSheet = () => {
 
   return (
     <Form {...form}>
-      <Sheet
+      <CoreModulePanel
+        name={'settings/structure/departments/DepartmentWorkingHoursSheet'}
         open={!!workingHoursId}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
@@ -91,13 +93,15 @@ export const DepartmentWorkingHoursSheet = () => {
           }
         }}
       >
-        <Sheet.View className="p-0 md:max-w-4xl">
+        <CoreModulePanel.View className="p-0 md:max-w-4xl">
           <div className="flex flex-col gap-0 size-full">
-            <Sheet.Header>
-              <Sheet.Title>{t('setup-department-working-hours')}</Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title>
+                {t('setup-department-working-hours')}
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
               {Object.entries(workingHours).map(([day], index) => {
                 return (
                   <Fragment key={day}>
@@ -106,8 +110,8 @@ export const DepartmentWorkingHoursSheet = () => {
                   </Fragment>
                 );
               })}
-            </Sheet.Content>
-            <Sheet.Footer className="flex justify-end items-center gap-3">
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer className="flex justify-end items-center gap-3">
               <Button variant={'secondary'} onClick={() => setOpen(null)}>
                 {t('cancel')}
               </Button>
@@ -120,10 +124,10 @@ export const DepartmentWorkingHoursSheet = () => {
                   {t('save')}
                 </Button>
               </Can>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </div>
-        </Sheet.View>
-      </Sheet>
+        </CoreModulePanel.View>
+      </CoreModulePanel>
     </Form>
   );
 };

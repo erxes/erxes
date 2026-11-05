@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { AutomationVariableBrowser } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowser';
 import { TAutomationVariableSourceNode } from '@/automations/components/builder/sidebar/components/output-variables/AutomationVariableBrowserTypes';
@@ -11,7 +12,7 @@ import {
   renderEmailBlocks,
 } from '@/automations/components/builder/nodes/actions/sendEmail/utils/renderEmailBlocks';
 import { insertEmailLink } from '@/automations/components/builder/nodes/actions/sendEmail/utils/emailLinkUtils';
-import { BlockEditor, Button, cn, IBlockEditor, Sheet } from 'erxes-ui';
+import { BlockEditor, Button, cn, IBlockEditor } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
@@ -100,18 +101,28 @@ export const SendEmailEmailContentEditorSheet = ({
   };
 
   return (
-    <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-      <Sheet.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-        <Sheet.Header className="h-auto py-2">
+    <CoreModulePanel
+      maxWidth={1200}
+      defaultWidth={900}
+      name={
+        'automations/builder/nodes/actions/sendEmail/SendEmailEmailContentEditorSheet'
+      }
+      open={isSheetOpen}
+      onOpenChange={setIsSheetOpen}
+    >
+      <CoreModulePanel.View className="md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
+        <CoreModulePanel.Header className="h-auto py-2">
           <div className="space-y-1">
-            <Sheet.Title>{t('send-email-edit-content-title')}</Sheet.Title>
-            <Sheet.Description>
+            <CoreModulePanel.Title>
+              {t('send-email-edit-content-title')}
+            </CoreModulePanel.Title>
+            <CoreModulePanel.Description>
               {t('send-email-edit-content-description')}
-            </Sheet.Description>
+            </CoreModulePanel.Description>
           </div>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
+          <CoreModulePanel.Close />
+        </CoreModulePanel.Header>
+        <CoreModulePanel.Content className="grid min-h-0 flex-1 grid-cols-[320px_minmax(0,1fr)] overflow-hidden p-0">
           <aside className="min-h-0 overflow-hidden border-r bg-muted/20">
             <div className="h-full min-h-0 overflow-y-auto">
               <AutomationVariableBrowser
@@ -153,14 +164,14 @@ export const SendEmailEmailContentEditorSheet = ({
               {linkDialog}
             </div>
           </div>
-        </Sheet.Content>
-        <Sheet.Footer>
+        </CoreModulePanel.Content>
+        <CoreModulePanel.Footer>
           <Button variant="outline" onClick={() => setIsSheetOpen(false)}>
             {t('cancel')}
           </Button>
           <Button onClick={onSave}>{t('save')}</Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+        </CoreModulePanel.Footer>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

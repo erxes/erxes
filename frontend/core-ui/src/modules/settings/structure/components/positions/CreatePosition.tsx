@@ -1,10 +1,10 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { IconBriefcase, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
   Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -13,10 +13,13 @@ import {
 } from 'erxes-ui';
 import React, { useState } from 'react';
 import { SubmitHandler } from 'react-hook-form';
-import { usePositionForm } from '../../hooks/usePositionForm';
-import { usePositionAdd } from '../../hooks/usePositionActions';
-import { PositionHotKeyScope, TPositionForm } from '../../types/position';
-import { PositionForm } from './PositionForm';
+import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
+import { usePositionAdd } from '@/settings/structure/hooks/usePositionActions';
+import {
+  PositionHotKeyScope,
+  TPositionForm,
+} from '@/settings/structure/types/position';
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
 import { Can, usePermissionCheck } from 'ui-modules';
 
 export const CreatePosition = () => {
@@ -83,16 +86,21 @@ export const CreatePosition = () => {
     [handleAdd],
   );
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
+    <CoreModulePanel
+      requiredPermission="positionsManage"
+      name={'settings/structure/positions/CreatePosition'}
+      onOpenChange={(open) => (open ? onOpen() : onClose())}
+      open={open}
+    >
       <Can action="positionsManage">
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button>
             <IconPlus /> {t('create-position')}
             <Kbd>C</Kbd>
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </Can>
-      <Sheet.View
+      <CoreModulePanel.View
         className="p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -103,27 +111,27 @@ export const CreatePosition = () => {
             onSubmit={handleSubmit(submitHandler)}
             className=" flex flex-col gap-0 w-full h-full"
           >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+            <CoreModulePanel.Header>
+              <CoreModulePanel.Title className="text-lg text-foreground flex items-center gap-1">
                 <IconBriefcase size={16} />
                 {t('create-position-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+              </CoreModulePanel.Title>
+              <CoreModulePanel.Close />
+            </CoreModulePanel.Header>
+            <CoreModulePanel.Content className="grow size-full h-auto flex flex-col px-5 py-4">
               <PositionForm />
-            </Sheet.Content>
-            <Sheet.Footer>
+            </CoreModulePanel.Content>
+            <CoreModulePanel.Footer>
               <Button variant={'ghost'} onClick={() => setOpen(false)}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>
                 {loading ? <Spinner /> : t('create')}
               </Button>
-            </Sheet.Footer>
+            </CoreModulePanel.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };

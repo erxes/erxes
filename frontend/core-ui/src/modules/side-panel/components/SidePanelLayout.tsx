@@ -6,7 +6,7 @@ import { RecordPagePortal } from '@/side-panel/components/RecordPageSlot';
 import { IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { ReactNode, useState, useRef, useEffect } from 'react';
+import { lazy, ReactNode, Suspense, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
@@ -42,6 +42,11 @@ import {
 
 const DETAIL_TAB = 'detail';
 const ACTIVITY_TAB = 'activity';
+const ApprovalRequestRecordPanel = lazy(() =>
+  import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
+    (module) => ({ default: module.ApprovalRequestRecordPanel }),
+  ),
+);
 
 // The record's own views, for the types core knows how to show.
 const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
@@ -339,8 +344,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-        ? DETAIL_TAB
-        : ACTIVITY_TAB;
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>
@@ -490,6 +495,13 @@ export const SidePanelRecord = (
       </ContactPanelPermission>
     );
   }
+  if (props.record.contentType === 'core:approvalRequest') {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <ApprovalRequestRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.record.contentType === USER_CONTENT_TYPE) {
     return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
   }
@@ -518,8 +530,8 @@ export const SidePanelLayout = () => {
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const pageExpanded = Boolean(
     expanded &&
-    record &&
-    ['core:customer', 'core:company'].includes(record.contentType),
+      record &&
+      ['core:customer', 'core:company'].includes(record.contentType),
   );
 
   /** Selects a retained record stack or a recoverable empty state. */
@@ -572,8 +584,8 @@ export const SidePanelLayout = () => {
             onExpandedChange={setExpanded}
             width={
               moduleEntry && path
-                ? (moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0))
+                ? moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0)
                 : width
             }
             maxWidth={moduleEntry?.maxWidth}

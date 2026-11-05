@@ -1,9 +1,13 @@
+import {
+  CoreFocusPanel,
+  CoreModulePanel,
+} from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import { useAddPermissionGroup } from '@/settings/permissions/hooks/useAddPermissionGroup';
 import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
+import { Button, toast } from 'erxes-ui';
 import React, { useCallback, useState } from 'react';
-import { PermissionGroupForm } from './PermissionGroupForm';
+import { PermissionGroupForm } from '@/settings/permissions/components/form/PermissionGroupForm';
 
 export const PermissionGroupAdd = ({
   text,
@@ -49,19 +53,23 @@ export const PermissionGroupAdd = ({
   }, []);
 
   return (
-    <FocusSheet open={open} onOpenChange={setOpen}>
+    <CoreFocusPanel
+      name={'settings/permissions/form/PermissionGroupAdd'}
+      open={open}
+      onOpenChange={setOpen}
+    >
       {trigger ? (
-        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
+        <CoreModulePanel.Trigger asChild>{trigger}</CoreModulePanel.Trigger>
       ) : (
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button variant="secondary">{text || t('add-custom-group')}</Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       )}
-      <FocusSheet.View>
-        <FocusSheet.Header
+      <CoreFocusPanel.View>
+        <CoreFocusPanel.Header
           title={defaultValues?.name ? t('edit-group') : t('add-custom-group')}
         />
-        <FocusSheet.Content>
+        <CoreFocusPanel.Content>
           <PermissionGroupForm
             key={defaultValues?.name ?? 'new'}
             defaultValues={defaultValues}
@@ -70,8 +78,8 @@ export const PermissionGroupAdd = ({
             onCancel={onCancel}
             mode="add"
           />
-        </FocusSheet.Content>
-      </FocusSheet.View>
-    </FocusSheet>
+        </CoreFocusPanel.Content>
+      </CoreFocusPanel.View>
+    </CoreFocusPanel>
   );
 };

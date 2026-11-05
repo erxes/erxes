@@ -1,6 +1,7 @@
-import { cn, Sheet } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { cn } from 'erxes-ui';
 import { ReactNode } from 'react';
-import { IBroadcastMethodEnum } from '../../types';
+import { IBroadcastMethodEnum } from '@/broadcast/types';
 
 /** The sheet a campaign is written in, whether it is new or being edited. */
 export const BroadcastStepsSheetView = ({
@@ -10,7 +11,7 @@ export const BroadcastStepsSheetView = ({
   method?: IBroadcastMethodEnum | null;
   children: ReactNode;
 }) => (
-  <Sheet.View
+  <CoreModulePanel.View
     className={cn(
       'sm:max-w-7xl',
       // The workflow canvas is the campaign's content, so it gets the room a
@@ -23,5 +24,5 @@ export const BroadcastStepsSheetView = ({
     onEscapeKeyDown={(event) => event.preventDefault()}
   >
     {children}
-  </Sheet.View>
+  </CoreModulePanel.View>
 );

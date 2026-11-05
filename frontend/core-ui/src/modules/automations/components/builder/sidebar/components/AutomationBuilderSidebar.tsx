@@ -1,3 +1,4 @@
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
 import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
 import { AutomationBuilderSidebarDock } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarDock';
@@ -9,7 +10,6 @@ import {
   AutomationsHotKeyScope,
 } from '@/automations/types';
 import {
-  Sheet,
   useIsMobile,
   usePreviousHotkeyScope,
   useScopedHotkeys,
@@ -29,6 +29,7 @@ export const AutomationBuilderSidebar = () => {
 
   const {
     isOpenSideBar,
+    setIsOpenSideBar,
     activeNode,
     handleBack,
     handleClose,
@@ -69,31 +70,34 @@ export const AutomationBuilderSidebar = () => {
     ? 'w-screen max-w-full sm:w-fit sm:min-w-md sm:max-w-[min(56rem,calc(100vw-1rem))]'
     : 'w-screen max-w-full sm:w-fit sm:min-w-[28rem] sm:max-w-[min(42rem,calc(100vw-1rem))]';
 
-  if (!isOpenSideBar) {
+  if (!isOpenSideBar && !isMobile) {
     return null;
   }
 
   if (isMobile) {
     return (
       <AutomationVariableInsertionProvider>
-        <Sheet
+        <CoreModulePanel
+          name={'automations/builder/sidebar/AutomationBuilderSidebar'}
           open={isOpenSideBar}
           onOpenChange={(open) => {
             if (!open) {
               handleClose();
+            } else {
+              setIsOpenSideBar(true);
             }
           }}
         >
-          <Sheet.View
+          <CoreModulePanel.View
             side="right"
             className="max-w-none bg-sidebar p-0 sm:max-w-2xl"
           >
-            <Sheet.Title className="sr-only">
+            <CoreModulePanel.Title className="sr-only">
               {t('sidebar-automation-configuration')}
-            </Sheet.Title>
-            <Sheet.Description className="sr-only">
+            </CoreModulePanel.Title>
+            <CoreModulePanel.Description className="sr-only">
               {t('sidebar-configure-selected-node')}
-            </Sheet.Description>
+            </CoreModulePanel.Description>
 
             <div className="relative min-h-0 flex-1 overflow-hidden">
               <div className="absolute inset-0">
@@ -116,8 +120,8 @@ export const AutomationBuilderSidebar = () => {
                 </div>
               ) : null}
             </div>
-          </Sheet.View>
-        </Sheet>
+          </CoreModulePanel.View>
+        </CoreModulePanel>
       </AutomationVariableInsertionProvider>
     );
   }
