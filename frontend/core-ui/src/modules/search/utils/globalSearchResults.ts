@@ -281,6 +281,7 @@ export const getGlobalSearchRequestState = ({
   queryLoading,
   hasError,
   hasData,
+  hasUnscopedError = false,
   hasInvalidFields,
   canQuarantineFields,
 }: {
@@ -288,6 +289,7 @@ export const getGlobalSearchRequestState = ({
   queryLoading: boolean;
   hasError: boolean;
   hasData: boolean;
+  hasUnscopedError?: boolean;
   hasInvalidFields: boolean;
   canQuarantineFields: boolean;
 }) => {
@@ -296,6 +298,10 @@ export const getGlobalSearchRequestState = ({
   return {
     loading: queryLoading || recoveringSchema,
     hasFailure:
-      !skipped && !queryLoading && !recoveringSchema && hasError && !hasData,
+      !skipped &&
+      !queryLoading &&
+      !recoveringSchema &&
+      hasError &&
+      (!hasData || hasUnscopedError),
   };
 };
