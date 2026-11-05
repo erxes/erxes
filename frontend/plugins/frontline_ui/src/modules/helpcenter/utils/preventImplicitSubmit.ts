@@ -1,6 +1,5 @@
 import type { KeyboardEvent } from 'react';
 
-/** Stops single-line Enter from activating the form's default button. */
 export const preventImplicitSubmit = (
   event: KeyboardEvent<HTMLInputElement>,
 ): void => {

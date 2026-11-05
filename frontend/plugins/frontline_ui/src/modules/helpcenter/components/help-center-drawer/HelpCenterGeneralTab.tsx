@@ -22,7 +22,6 @@ import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipelin
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
 
-/** Composes a labelled Help Center form row. */
 const HelpCenterFormItem = ({
   label,
   required,
@@ -58,7 +57,6 @@ const HelpCenterFormItem = ({
   );
 };
 
-/** Renders a feature and its enabled settings. */
 function FeatureSection({
   control,
   toggleName,
@@ -98,7 +96,6 @@ function FeatureSection({
   );
 }
 
-/** Limits status options to the selected ticket pipeline. */
 function TicketStatusField({
   value,
   pipelineId,
@@ -131,7 +128,6 @@ function TicketStatusField({
   );
 }
 
-/** Renders the general Help Center settings. */
 export function HelpCenterGeneralTab({
   form,
   t,

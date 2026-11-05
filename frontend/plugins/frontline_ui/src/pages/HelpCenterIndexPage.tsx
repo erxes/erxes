@@ -21,7 +21,6 @@ import { HelpCenterFilter } from '@/helpcenter/components/HelpCenterFilter';
 import { HelpCenterRecordTable } from '@/helpcenter/components/HelpCenterRecordTable';
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 
-/** Renders the list and converts legacy Help Center edit links. */
 export const HelpCenterIndexPage = () => {
   const { t } = useTranslation('frontline');
   const { openNewRecord } = useSidePanel();
@@ -29,7 +28,6 @@ export const HelpCenterIndexPage = () => {
     editId: string;
     panel: string;
   }>(['editId', 'panel']);
-  /** Opens the shared Help Center create panel. */
   const openCreate = () => openNewRecord(HELP_CENTER_CONTENT_TYPE);
 
   useEffect(() => {

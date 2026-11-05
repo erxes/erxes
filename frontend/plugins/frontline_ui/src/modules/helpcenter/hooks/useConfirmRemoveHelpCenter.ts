@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useRemoveHelpCenters } from './useRemoveHelpCenters';
 import type { IHelpCenter } from '@/helpcenter/types';
 
-/** Confirms removal and reports the mutation result. */
 export const useConfirmRemoveHelpCenter = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.helpcenter',
@@ -12,7 +11,6 @@ export const useConfirmRemoveHelpCenter = () => {
   const { toast } = useToast();
   const { removeHelpCenters, loading } = useRemoveHelpCenters();
 
-  /** Removes a Help Center after confirmation. */
   const confirmRemoveHelpCenter = async (
     helpCenter: Pick<IHelpCenter, '_id' | 'title'>,
   ): Promise<void> => {

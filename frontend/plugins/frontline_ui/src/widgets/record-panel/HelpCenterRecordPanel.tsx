@@ -22,7 +22,6 @@ import {
   useSidePanel,
 } from 'ui-modules';
 
-/** Loads saved settings, record actions and the activity log view. */
 const HelpCenterSavedRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { t } = useTranslation('frontline');
   const { helpCenter, loading, error } = useHelpCenterDetail(contentId);
@@ -103,7 +102,6 @@ const HelpCenterSavedRecordPanel = ({ contentId, view }: IRecordPanelProps) => {
   );
 };
 
-/** Renders Help Center record views through the shared side panel. */
 export const HelpCenterRecordPanel = (props: IRecordPanelProps) => {
   const { t } = useTranslation('frontline');
   const { back, canGoBack, close } = useSidePanel();

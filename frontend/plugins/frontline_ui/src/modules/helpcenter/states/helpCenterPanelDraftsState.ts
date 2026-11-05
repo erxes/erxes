@@ -24,7 +24,6 @@ export const helpCenterRemovedIdsState = atom<ReadonlySet<string>>(
 export const helpCenterPanelSessionState = atom(0);
 const observedStores = new WeakSet<ReturnType<typeof useStore>>();
 
-/** Invalidates retained Help Center work whenever the signed-in user changes. */
 export const observeHelpCenterSession = (
   store: ReturnType<typeof useStore>,
 ): void => {

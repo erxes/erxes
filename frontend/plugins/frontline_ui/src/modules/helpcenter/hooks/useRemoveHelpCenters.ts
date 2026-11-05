@@ -11,14 +11,12 @@ import {
   observeHelpCenterSession,
 } from '@/helpcenter/states/helpCenterPanelDraftsState';
 
-/** Removes Help Centers and invalidates their cached records and drafts. */
 export const useRemoveHelpCenters = () => {
   const client = useApolloClient();
   const store = useStore();
   useEffect(() => observeHelpCenterSession(store), [store]);
   const [removeConfig, { loading }] = useMutation(HELP_CENTER_CONFIG_REMOVE);
 
-  /** Removes one Help Center and clears its cache and drafts. */
   const removeHelpCenter = (_id: string, session: number) =>
     removeConfig({
       variables: { _id },
@@ -51,7 +49,6 @@ export const useRemoveHelpCenters = () => {
       },
     });
 
-  /** Removes selected Help Centers and invalidates cached data. */
   const removeHelpCenters = async (ids: string[]) => {
     const session = store.get(helpCenterPanelSessionState);
     await Promise.all(ids.map((id) => removeHelpCenter(id, session)));

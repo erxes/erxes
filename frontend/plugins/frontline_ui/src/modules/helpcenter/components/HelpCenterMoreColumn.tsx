@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { useConfirmRemoveHelpCenter } from '@/helpcenter/hooks/useConfirmRemoveHelpCenter';
 import { IHelpCenter } from '@/helpcenter/types';
 
-/** Renders Help Center row edit and delete actions. */
 export const HelpCenterMoreColumnCell = ({
   cell,
 }: {
@@ -22,7 +21,6 @@ export const HelpCenterMoreColumnCell = ({
   const { confirmRemoveHelpCenter, loading } = useConfirmRemoveHelpCenter();
   const [open, setOpen] = useState(false);
 
-  /** Closes the row menu before confirming deletion. */
   const handleDelete = () => {
     setOpen(false);
 

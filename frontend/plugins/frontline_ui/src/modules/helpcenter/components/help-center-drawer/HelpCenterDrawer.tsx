@@ -37,7 +37,6 @@ interface HelpCenterDrawerProps {
   readonly onClose: () => void;
 }
 
-/** Edits Help Center settings while retaining unsaved panel drafts. */
 export function HelpCenterDrawer({
   helpCenter,
   onClose,
@@ -61,7 +60,6 @@ export function HelpCenterDrawer({
   const [selectedTab, setSelectedTab] = useState<THelpCenterTab>('general');
   const tabs = isEditing ? HELP_CENTER_TABS : HELP_CENTER_CREATE_TABS;
   const activeTab = tabs.find((tab) => tab === selectedTab) || 'general';
-  /** Selects an available Help Center settings tab. */
   const selectTab = (value: string) => {
     const nextTab = tabs.find((tab) => tab === value);
     if (nextTab) setSelectedTab(nextTab);
@@ -90,7 +88,6 @@ export function HelpCenterDrawer({
     draftsState: helpCenterPanelDraftsState,
     isNew: !isEditing && !created,
   });
-  /** Captures image completion for this record and signed-in session. */
   const captureImageUpdate: TCaptureHelpCenterImage = (name) => {
     const update = captureUpdate(name);
     return (url) => {
@@ -108,7 +105,6 @@ export function HelpCenterDrawer({
   const { saveHelpCenter, loading: saving } = useSaveHelpCenter();
   const loading = saving || pending || checking;
 
-  /** Releases the completed or discarded creation session. */
   const finishNewDraft = () => {
     store.set(helpCenterPanelCreatedState, (previous) =>
       Object.fromEntries(
@@ -121,7 +117,6 @@ export function HelpCenterDrawer({
     }));
   };
 
-  /** Discards dirty settings only after confirmation. */
   const onCancel = async () => {
     if (loading) return;
     if (!isDeeplyEqual(form.getValues(), defaultValues, { strict: true })) {
@@ -135,7 +130,6 @@ export function HelpCenterDrawer({
     onClose();
   };
 
-  /** Reads the confirmed create record before checking for conflicting settings. */
   const loadCreatedValues = async (
     id: string,
   ): Promise<IHelpCenterConfigInput | null> => {
@@ -174,7 +168,6 @@ export function HelpCenterDrawer({
     }
   };
 
-  /** Acknowledges only a surviving save from the originating user session. */
   const acknowledgeSave = (
     saved: IHelpCenter,
     submitted: IHelpCenterConfigInput,
@@ -197,7 +190,6 @@ export function HelpCenterDrawer({
     if (completed && !isEditing && !hasPendingUpdates()) finishNewDraft();
   };
 
-  /** Saves confirmed settings without dismissing another record's form. */
   const onSubmit = async (data: IHelpCenterConfigInput) => {
     if (loading) return;
     const submitted = data;
@@ -257,7 +249,6 @@ export function HelpCenterDrawer({
   };
 
   const submit = form.handleSubmit(onSubmit, onInvalid);
-  /** Accepts only an explicit submit button action. */
   const onFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     const submitter = (event.nativeEvent as SubmitEvent).submitter;
     if (

@@ -5,7 +5,6 @@ import { HELP_CENTER_CONFIG_UPDATE } from '@/helpcenter/graphql/mutations/helpCe
 import { GET_HELP_CENTERS } from '@/helpcenter/graphql/queries/getHelpCenters';
 import { IHelpCenterConfigInput } from '@/helpcenter/types';
 
-/** Saves the full Help Center configuration with mutation feedback. */
 export const useSaveHelpCenter = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.helpcenter',
@@ -16,7 +15,6 @@ export const useSaveHelpCenter = () => {
     awaitRefetchQueries: true,
   });
 
-  /** Submits the full configuration with success and error feedback. */
   const saveHelpCenter = (config: IHelpCenterConfigInput) => {
     const isEditing = Boolean(config._id);
 
