@@ -73,21 +73,21 @@
 
 ## Architecture
 
-| Area                  | Path                                                                                                                     | Responsibility                                                                                                              |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| Runtime               | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts`                                                     | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                                                    |
-| Score models          | `src/modules/score/db`                                                                                                   | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields.                                |
-| Loyalty account types | `src/modules/score/db/models/AccountType.ts`, `src/modules/score/services/accountBalance.ts`                             | Define account types, bind their core featured balance field, archive, and adopt legacy fields.                             |
-| Loyalty accounts      | `src/modules/score/db/models/Account.ts`, `src/modules/score/services/accountBalances.ts`                                | Open one account per owner, mirror per-type balances and tiers, and resolve balances for display.                           |
-| Owner summary         | `src/utils/ownerSummary.ts`                                                                                              | Balances, tiers and sale vouchers for a selling screen (`loyalty.ownerSummary`).                                            |
-| Tiers and resets      | `src/modules/score/services/accountTier.ts`, `src/modules/score/services/purchaseTier.ts`, `src/modules/score/services/accountReset.ts`, `src/worker/index.ts` | Set tiers with featured field convergence, tier by purchase amount; reset due account types per period. |
-| Earning table         | `src/modules/score/services/earnTable.ts`, `src/modules/score/services/earnContext.ts`                                   | Normalize and evaluate campaign earning tables (pure), build their context (tier, amounts, product scopes, first purchase). |
-| Lots                  | `src/modules/score/db/models/Lot.ts`, `src/modules/score/services/lotPolicy.ts`, `src/modules/score/services/lotJobs.ts` | FIFO lot consumption, pending release, rolling expiry, lot reconciliation.                                                  |
-| Score orchestration   | `src/meta/automations/score`, `src/modules/score/@types/purchase.ts`, `src/modules/score/utils.ts`                       | Earn from the action's purchase inputs, set tiers, and support score reporting helpers.                                     |
-| Pricing               | `src/modules/pricing`                                                                                                    | Store pricing plans and calculate eligible discount rules.                                                                  |
-| Product event sync    | `src/meta/afterProcess.ts`                                                                                               | Recalculate one core product's public and base discounts after product create or update.                                    |
-| GraphQL               | `src/apollo`, `src/modules/*/graphql`                                                                                    | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                                                     |
-| Commands              | `src/commands`                                                                                                           | Run bounded maintenance and recovery scripts for loyalty-owned data.                                                        |
+| Area                  | Path                                                                                                                                                           | Responsibility                                                                                                              |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Runtime               | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc/init-trpc.ts`                                                                                           | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                                                    |
+| Score models          | `src/modules/score/db`                                                                                                                                         | Store score campaigns and score logs, apply ledger changes, and maintain owner score fields.                                |
+| Loyalty account types | `src/modules/score/db/models/AccountType.ts`, `src/modules/score/services/accountBalance.ts`                                                                   | Define account types, bind their core featured balance field, archive, and adopt legacy fields.                             |
+| Loyalty accounts      | `src/modules/score/db/models/Account.ts`, `src/modules/score/services/accountBalances.ts`                                                                      | Open one account per owner, mirror per-type balances and tiers, and resolve balances for display.                           |
+| Owner summary         | `src/utils/ownerSummary.ts`                                                                                                                                    | Balances, tiers and sale vouchers for a selling screen (`loyalty.ownerSummary`).                                            |
+| Tiers and resets      | `src/modules/score/services/accountTier.ts`, `src/modules/score/services/purchaseTier.ts`, `src/modules/score/services/accountReset.ts`, `src/worker/index.ts` | Set tiers with featured field convergence, tier by purchase amount; reset due account types per period.                     |
+| Earning table         | `src/modules/score/services/earnTable.ts`, `src/modules/score/services/earnContext.ts`                                                                         | Normalize and evaluate campaign earning tables (pure), build their context (tier, amounts, product scopes, first purchase). |
+| Lots                  | `src/modules/score/db/models/Lot.ts`, `src/modules/score/services/lotPolicy.ts`, `src/modules/score/services/lotJobs.ts`                                       | FIFO lot consumption, pending release, rolling expiry, lot reconciliation.                                                  |
+| Score orchestration   | `src/meta/automations/score`, `src/modules/score/@types/purchase.ts`, `src/modules/score/utils.ts`                                                             | Earn from the action's purchase inputs, set tiers, and support score reporting helpers.                                     |
+| Pricing               | `src/modules/pricing`                                                                                                                                          | Store pricing plans and calculate eligible discount rules.                                                                  |
+| Product event sync    | `src/meta/afterProcess.ts`                                                                                                                                     | Recalculate one core product's public and base discounts after product create or update.                                    |
+| GraphQL               | `src/apollo`, `src/modules/*/graphql`                                                                                                                          | Provide plugin-owned schemas, queries, mutations, and custom resolvers.                                                     |
+| Commands              | `src/commands`                                                                                                                                                 | Run bounded maintenance and recovery scripts for loyalty-owned data.                                                        |
 
 ## Contracts
 
@@ -126,6 +126,13 @@
   callers omit `perPage`.
 
 ## Local Invariants
+
+- Pricing checks accept optional `date` through tRPC `pricing.checkPricing`
+  (Date or ISO timestamp) and GraphQL `pricingCheckDiscount` (Date). One
+  evaluation timestamp, defaulted to now only inside `checkPricing` (adapters
+  pass optional `date` through), drives plan start/end filters
+  and repeat rules. Product expiry always compares with the current time;
+  missing manufacturing dates in the tRPC adapter also default to now.
 
 - Quantity pricing bonuses of type `every` award exactly
   `floor(quantity / rule.value)` units of `discountBonusProduct`, without an
@@ -174,6 +181,11 @@
   every generation made one code.
 
 ## Validation
+
+- `pnpm nx test loyalty_api --testPathPattern 'pricingDate|saleQuantityInput' --runInBand`
+- Pricing date smoke: a past timestamp selects that date's plan window and repeat
+  schedule; product expiry still compares with now. Omitting the timestamp
+  evaluates plan dates and repeat rules at now as well.
 
 - `pnpm nx test loyalty_api --testPathPattern quantityBonus --runInBand`
 - Pricing bonus smoke: for every three A, award one free B; two A gives none,

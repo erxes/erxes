@@ -20,17 +20,20 @@ export const useAdjustFixedAssetDetail = (
     loading,
     error,
     subscribeToMore,
-  } = useQuery(ADJUST_FIXED_ASSET_DETAIL_QUERY, options);
+  } = useQuery(ADJUST_FIXED_ASSET_DETAIL_QUERY, {
+    ...options,
+    fetchPolicy: 'cache-and-network',
+  });
   const data = toGraphqlView(queryData);
 
   useEffect(() => {
     const adjustId = options?.variables?._id;
 
     if (!adjustId) {
-      return;
+      return undefined;
     }
 
-    const unsubscribe = subscribeToMore({
+    return subscribeToMore({
       document: ACCOUNTING_ADJUST_FIXED_ASSET_CHANGED,
       variables: { adjustId },
       updateQuery: (prev, { subscriptionData }) => {
@@ -44,10 +47,6 @@ export const useAdjustFixedAssetDetail = (
         };
       },
     });
-
-    return () => {
-      unsubscribe();
-    };
   }, [options?.variables?._id, subscribeToMore]);
 
   return {

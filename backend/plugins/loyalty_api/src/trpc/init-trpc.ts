@@ -126,6 +126,10 @@ const participantKindSchema = z.preprocess(
 );
 
 export const checkPricingInput = z.object({
+  date: z
+    .union([z.date(), z.string().datetime({ offset: true })])
+    .pipe(z.coerce.date())
+    .optional(),
   prioritizeRule: z.string(),
   totalAmount: z.number().nonnegative(),
   departmentId: z.string().optional().default(''),
@@ -363,6 +367,7 @@ export const appRouter = t.router({
         const { subdomain } = ctx;
         const models = await ctx.models;
         const {
+          date,
           prioritizeRule,
           totalAmount,
           departmentId,
@@ -386,6 +391,7 @@ export const appRouter = t.router({
         }));
 
         return await checkPricing({
+          date,
           models,
           subdomain,
           prioritizeRule,

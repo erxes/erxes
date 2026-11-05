@@ -32,6 +32,11 @@
 
 ## Current Capabilities
 
+- Pipelines persist `productIds`, `tagIds`, and `excludeTagIds` for deal product selection. Core reads them through the existing tenant-scoped `pipeline.findOne` contract.
+
+- POS product groups store `productIds` (include), `tagIds`, and `excludeTagIds` alongside category/product exclusions. Category, tag and explicit-product includes form a union; category, tag and product exclusions apply to that whole union, including explicitly included products. Include and exclude tags expand through Core `tags.findWithChild` in the request tenant. Empty groups retain their empty-catalog behavior.
+- POS sync retains the included category tree minus excluded category descendants, plus the direct categories of products matched by tags or explicit ids. Each group resolves its trees once, then reuses those ids for the product query and category payload. Product changes add their direct category before the product or remove products that no longer match. Tag assignment/tree and category changes resync affected POS catalogs through the existing token-scoped import contract.
+
 - POS cover `details[]` stores immutable terminal fetch results
   per `paidType`, including zero-amount terminal rows received from POS client.
   `PosCoverDetail` exposes `terminalResults` without duplicate description fields; the cover-level
@@ -92,7 +97,7 @@
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
+| Schema export              | `scripts/print-subgraph-schema.ts`                        | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -148,10 +153,10 @@
   through `Deals.addScoreLogs` (a recalculation's reversal and replacement
   both), also when a later call
   in the same sync fails. `salesDealScoreLogs(page, perPage, …deal list
-  filters)` (`utils/dealScoreLogs.ts`, `showDeals`) runs the deal list's
+filters)` (`utils/dealScoreLogs.ts`, `showDeals`) runs the deal list's
   `generateFilter`, unwinds the ids and returns one page of
   `{dealId, dealName, stageId, stageName, pipelineId, pipelineName, boardId,
-  boardName, scoreLogId}` (each deal's entries together, latest linked
+boardName, scoreLogId}` (each deal's entries together, latest linked
   first, at most 50). Without `pipelineId` it spans every pipeline the user
   may open (`utils/pipelineVisibility.ts` `visiblePipelinesQuery`, the same
   rule `salesPipelines` uses) with each pipeline's `isCheckUser` /
@@ -167,7 +172,7 @@
   loyalty's `recalculates` counts apart as `recalculatedEarned` /
   `recalculatedSpent` (pipelines and periods: `recalculated`), never as a
   refund; `topDeals` and the rankings read what is earned or spent now; the kinds add up to `net`). `salesDealScoreLogTimeline(interval:
-  day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
+day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   asks loyalty `score.timelineByIds` in batches of 1000 and returns the last
   30 days, 26 ISO weeks or 12 months in that zone (default UTC), empty
   periods as zeros, each with the kinds, `recalculated`, `net` and
@@ -353,6 +358,10 @@
 - `Deals.addScoreLogs` only `$addToSet`s ids and sends no db event log, so
   deal-updated automations and segments do not run on point movements. Never
   store a score, total or balance next to the ids: loyalty is the only ledger.
+- The product-row deletion mutation requires `dealsProductsDelete` in addition to
+  `dealsEdit`. Full-array `dealsEdit` saves require `dealsEdit` and
+  `dealsProductsEdit`. The Sales Admin default group includes both product actions.
+
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
@@ -660,6 +669,12 @@
 - Do not introduce new `schemaWrapper` usage in backend schemas.
 
 ## Validation
+
+- POS filter smoke: save category/tag/product includes and each exclusion, reopen, sync, and verify the include union minus all exclusions appears. Tag-only/product-only groups must include each product's direct category; moving or removing tags/products must remove obsolete POS membership.
+- `pnpm nx test sales_api --runInBand --testPathPattern="(productGroupFilter|catalogSync|posProductSync|getProductPricing)"`
+
+- Permission regression: `requiredInputs.test.ts` covers denied deletion before model
+  access and product-row deletion without product-edit permission.
 
 - `node --test backend/plugins/sales_api/src/modules/pos/db/definitions/__tests__/coverDetails.test.cjs`
 - `node --test backend/plugins/sales_api/src/modules/pos/db/models/__tests__/posOnServer.test.cjs`
