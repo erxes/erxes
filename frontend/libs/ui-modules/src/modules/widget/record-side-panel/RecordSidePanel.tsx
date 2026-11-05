@@ -4,6 +4,7 @@ import type {
   RecordSidePanelRootProps,
   RecordSidePanelHeaderProps,
   RecordSidePanelTabsProps,
+  RecordSidePanelLayoutProps,
 } from 'ui-modules/modules/widget/record-side-panel/RecordSidePanelTypes';
 import {
   IconChevronDown,
@@ -672,7 +673,36 @@ const RecordSidePanelTabs = ({
   );
 };
 
+/** Shares the customer record layout across core and plugin-owned records. */
+const RecordSidePanelLayout = ({
+  header,
+  profile,
+  overviewTab,
+  expandedDefaultTab,
+  ...props
+}: RecordSidePanelLayoutProps) => {
+  const detailTab =
+    overviewTab ??
+    props.tabs.find((tab) => tab.value === 'detail' || tab.value === 'overview')
+      ?.value;
+  const activityTab =
+    expandedDefaultTab ??
+    props.tabs.find((tab) => tab.value === 'activity')?.value;
+  return (
+    <>
+      {header}
+      {profile}
+      <RecordSidePanelTabs
+        {...props}
+        overviewTab={detailTab}
+        expandedDefaultTab={activityTab}
+      />
+    </>
+  );
+};
+
 export const RecordSidePanel = Object.assign(RecordSidePanelRoot, {
   Header: RecordSidePanelHeader,
+  Layout: RecordSidePanelLayout,
   Tabs: RecordSidePanelTabs,
 });

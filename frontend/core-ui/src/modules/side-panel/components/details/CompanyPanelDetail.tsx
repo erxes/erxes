@@ -3,7 +3,6 @@ import {
   IconBell,
   IconBuilding,
   IconBuildingFactory,
-  IconForms,
   IconHash,
   IconMail,
   IconMapPin,
@@ -44,7 +43,11 @@ const SCOPE = 'side-panel-company';
 type TPanelCompany = TCompany & { isSubscribed?: string };
 
 type TTextCode =
-  'primaryName' | 'code' | 'website' | 'location' | 'businessType';
+  | 'primaryName'
+  | 'code'
+  | 'website'
+  | 'location'
+  | 'businessType';
 
 /** Edits one company text field using the existing inline mutation flow. */
 const CompanyTextField = ({
@@ -57,6 +60,13 @@ const CompanyTextField = ({
   placeholder: string;
 }) => {
   const { companiesEdit } = useCompaniesEdit();
+  const Icon = {
+    primaryName: IconBuilding,
+    code: IconHash,
+    website: IconWorld,
+    location: IconMapPin,
+    businessType: IconBuildingFactory,
+  }[code];
 
   return (
     <TextField
@@ -72,7 +82,7 @@ const CompanyTextField = ({
       }
     >
       {!company[code] && (
-        <IconForms
+        <Icon
           className="size-3.5 shrink-0 text-muted-foreground"
           aria-hidden="true"
         />

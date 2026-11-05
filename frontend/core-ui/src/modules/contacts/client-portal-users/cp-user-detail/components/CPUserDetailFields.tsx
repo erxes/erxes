@@ -1,5 +1,16 @@
 import { Badge, RelativeDateDisplay } from 'erxes-ui';
 import {
+  IconAt,
+  IconBuilding,
+  IconCalendarPlus,
+  IconClock,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconUser,
+  IconUserCircle,
+} from '@tabler/icons-react';
+import {
   ContactRecordChip,
   ContactsRelationField,
   PanelField,
@@ -24,28 +35,39 @@ export const CPUserDetailFields = () => {
     cpUser;
   const readOnly = !hasActionPermission('clientPortalManage');
   const textFields = [
-    ['firstName', 'First name'],
-    ['lastName', 'Last name'],
-    ['email', 'Email'],
-    ['phone', 'Phone'],
-    ['username', 'Username'],
-    ['companyRegistrationNumber', 'Company registration number'],
+    ['firstName', 'First name', IconUser],
+    ['lastName', 'Last name', IconUser],
+    ['email', 'Email', IconMail],
+    ['phone', 'Phone', IconPhone],
+    ['username', 'Username', IconAt],
+    ['companyRegistrationNumber', 'Company registration number', IconHash],
   ] as const;
   return (
     <div className="flex flex-col gap-1 p-3">
-      {textFields.map(([field, label]) => (
-        <PanelField key={field} label={t(field, { defaultValue: label })}>
+      {textFields.map(([field, label, icon]) => (
+        <PanelField
+          key={field}
+          icon={icon}
+          label={t(field, { defaultValue: label })}
+        >
           <TextFieldCPUser
             field={field}
             _id={_id}
             value={cpUser[field] || ''}
+            placeholder={t(field, { defaultValue: label })}
           />
         </PanelField>
       ))}
-      <PanelField label={t('type', { defaultValue: 'Type' })}>
+      <PanelField
+        icon={IconUserCircle}
+        label={t('type', { defaultValue: 'Type' })}
+      >
         <Badge variant="secondary">{type || '-'}</Badge>
       </PanelField>
-      <PanelField label={t('company', { defaultValue: 'Company' })}>
+      <PanelField
+        icon={IconBuilding}
+        label={t('company', { defaultValue: 'Company' })}
+      >
         <ContactsRelationField
           kind="company"
           value={erxesCompanyId}
@@ -55,7 +77,10 @@ export const CPUserDetailFields = () => {
           }
         />
       </PanelField>
-      <PanelField label={t('customer', { defaultValue: 'Customer' })}>
+      <PanelField
+        icon={IconUser}
+        label={t('customer', { defaultValue: 'Customer' })}
+      >
         {type === 'customer' ? (
           <ContactsRelationField
             kind="customer"
@@ -81,13 +106,19 @@ export const CPUserDetailFields = () => {
         )}
       </PanelField>
       {lastLoginAt && (
-        <PanelField label={t('lastLogin', { defaultValue: 'Last login' })}>
+        <PanelField
+          icon={IconClock}
+          label={t('lastLogin', { defaultValue: 'Last login' })}
+        >
           <RelativeDateDisplay value={lastLoginAt} asChild>
             <RelativeDateDisplay.Value value={lastLoginAt} />
           </RelativeDateDisplay>
         </PanelField>
       )}
-      <PanelField label={t('created', { defaultValue: 'Created' })}>
+      <PanelField
+        icon={IconCalendarPlus}
+        label={t('created', { defaultValue: 'Created' })}
+      >
         {createdAt ? (
           <RelativeDateDisplay value={createdAt} asChild>
             <RelativeDateDisplay.Value value={createdAt} />

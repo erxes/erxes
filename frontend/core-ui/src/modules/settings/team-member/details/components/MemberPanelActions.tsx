@@ -30,13 +30,24 @@ export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
       <Can actions={TEAM_MEMBER_ACTION_PERMISSIONS}>
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <Popover.Trigger asChild>
-            <Button variant="outline">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label={t('actions', 'Actions')}
+              title={t('actions', 'Actions')}
+            >
               <IconDotsVertical className="size-4" />
-              {t('actions', 'Actions')}
             </Button>
           </Popover.Trigger>
-          <Combobox.Content align="end">
-            <Command shouldFilter={false}>
+          <Combobox.Content
+            align="end"
+            className="min-w-[280px] p-0"
+            onCloseAutoFocus={(event) => {
+              if (printOpen || activityLogOpen) event.preventDefault();
+            }}
+          >
+            <Command>
               <TeamMemberActionItems
                 user={user}
                 onPrint={() => setPrintOpen(true)}

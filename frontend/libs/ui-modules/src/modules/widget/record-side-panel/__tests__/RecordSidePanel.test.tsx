@@ -365,3 +365,58 @@ it.each([false, true])(
     }
   },
 );
+
+it.each(['detail', 'overview'])(
+  'uses the customer split layout for a record with a %s tab',
+  (detailTab) => {
+    const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+      '@tabler/icons-react',
+    );
+    render(
+      <RecordSidePanel expanded expandedMode="page">
+        <RecordSidePanel.Layout
+          header={<RecordSidePanel.Header title="Record" onClose={jest.fn()} />}
+          profile={<h2>Record profile</h2>}
+          value={detailTab}
+          onValueChange={jest.fn()}
+          tabs={[
+            {
+              value: detailTab,
+              label: 'Details',
+              icon: IconId,
+              content: (
+                <input aria-label="Record field" defaultValue="Unsaved" />
+              ),
+            },
+            {
+              value: 'activity',
+              label: 'Activity',
+              icon: IconId,
+              content: 'Record history',
+            },
+          ]}
+        />
+      </RecordSidePanel>,
+    );
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+      'horizontal',
+    );
+    expect(screen.queryByRole('tab', { name: 'Details' })).toBeNull();
+    expect(
+      screen
+        .getByRole('tab', { name: 'Activity' })
+        .getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(
+      screen
+        .getByRole('textbox', { name: 'Record field' })
+        .closest('[role="tabpanel"]')?.className,
+    ).toContain('md:row-span-2');
+    expect(
+      screen
+        .getByText('Record profile')
+        .compareDocumentPosition(screen.getByRole('tablist')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+  },
+);

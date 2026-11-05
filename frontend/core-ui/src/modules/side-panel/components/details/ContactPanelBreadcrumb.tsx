@@ -30,7 +30,7 @@ export const ContactPanelBreadcrumb = ({
   contentType,
   title,
 }: {
-  contentType: 'core:customer' | 'core:company';
+  contentType: 'core:customer' | 'core:company' | 'core:cpUser';
   title: ReactNode;
 }) => {
   const { t } = useTranslation('contact');
@@ -40,6 +40,9 @@ export const ContactPanelBreadcrumb = ({
   if (contentType === 'core:company') {
     listPath = ContactsPath.Companies;
     listLabel = t('companies', 'Companies');
+  } else if (contentType === 'core:cpUser') {
+    listPath = ContactsPath.ClientPortalUsers;
+    listLabel = t('clientPortalUser.title', 'Client Portal Users');
   } else if (
     pathname.startsWith(`${ContactsPath.Index}${ContactsPath.Leads}`)
   ) {

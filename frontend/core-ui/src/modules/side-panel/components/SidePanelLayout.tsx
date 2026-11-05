@@ -1,3 +1,4 @@
+import { ContactPanelRecordActions } from '@/side-panel/components/details/ContactPanelRecordActions';
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
 import { ContactPanelBreadcrumb } from '@/side-panel/components/details/ContactPanelBreadcrumb';
 import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
@@ -289,7 +290,7 @@ const SidePanelSavedRecord = ({
     record,
     panelPluginName,
   );
-  const recordViews =
+  const views =
     coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRecordRelationTabs({
     record,
@@ -311,41 +312,6 @@ const SidePanelSavedRecord = ({
     );
     return () => cancelAnimationFrame(frame);
   }, [noteFocusRequest]);
-  const views = recordViews && {
-    ...recordViews,
-    detail: (
-      <>
-        {contactType && (
-          <ContactPanelActions
-            contentType={contactType}
-            contentId={record.contentId}
-            email={email}
-            website={website}
-            title={title}
-            avatar={avatar}
-            onMessage={
-              overview.allEntries.some(
-                (entry) => entry.key === 'frontline.conversation',
-              )
-                ? () => {
-                    setTab(
-                      overview.layout.tabs.includes('frontline.conversation')
-                        ? 'messages'
-                        : 'relations',
-                    );
-                  }
-                : undefined
-            }
-            onNote={() => {
-              setTab(ACTIVITY_TAB);
-              setNoteFocusRequest((value) => value + 1);
-            }}
-          />
-        )}
-        {recordViews.detail}
-      </>
-    ),
-  };
   const tabs = buildRecordPanelTabs({
     record,
     views,
@@ -388,42 +354,76 @@ const SidePanelSavedRecord = ({
       : ACTIVITY_TAB;
 
   return (
-    <>
-      <RecordSidePanel.Header
-        className={
-          contactType && expanded ? 'h-10 bg-background px-3' : undefined
-        }
-        avatar={contactType ? undefined : avatar}
-        title={
-          contactType && expanded ? (
-            <ContactPanelBreadcrumb contentType={contactType} title={title} />
-          ) : (
-            title
-          )
-        }
-        actions={
-          panelPluginName && (
-            <PluginRecordPanel
-              pluginName={panelPluginName}
-              contentType={record.contentType}
-              contentId={record.contentId}
-              view="actions"
-              quiet
-            />
-          )
-        }
-        onBack={onBack}
-        onClose={onClose}
-      />
-      <RecordSidePanel.Tabs
-        tabs={tabs}
-        value={tab}
-        onValueChange={setTab}
-        visibleCount={8}
-        overviewTab={contactType ? DETAIL_TAB : undefined}
-        expandedDefaultTab={ACTIVITY_TAB}
-      />
-    </>
+    <RecordSidePanel.Layout
+      header={
+        <RecordSidePanel.Header
+          className={expanded ? 'h-10 bg-background px-3' : undefined}
+          avatar={contactType ? undefined : avatar}
+          title={
+            contactType && expanded ? (
+              <ContactPanelBreadcrumb contentType={contactType} title={title} />
+            ) : (
+              title
+            )
+          }
+          actions={
+            contactType ? (
+              <ContactPanelRecordActions
+                contentType={contactType}
+                contentId={record.contentId}
+              />
+            ) : (
+              panelPluginName && (
+                <PluginRecordPanel
+                  pluginName={panelPluginName}
+                  contentType={record.contentType}
+                  contentId={record.contentId}
+                  view="actions"
+                  quiet
+                />
+              )
+            )
+          }
+          onBack={onBack}
+          onClose={onClose}
+        />
+      }
+      profile={
+        contactType && (
+          <ContactPanelActions
+            contentType={contactType}
+            contentId={record.contentId}
+            email={email}
+            website={website}
+            title={title}
+            avatar={avatar}
+            onMessage={
+              overview.allEntries.some(
+                (entry) => entry.key === 'frontline.conversation',
+              )
+                ? () => {
+                    setTab(
+                      overview.layout.tabs.includes('frontline.conversation')
+                        ? 'messages'
+                        : 'relations',
+                    );
+                  }
+                : undefined
+            }
+            onNote={() => {
+              setTab(ACTIVITY_TAB);
+              setNoteFocusRequest((value) => value + 1);
+            }}
+          />
+        )
+      }
+      tabs={tabs}
+      value={tab}
+      onValueChange={setTab}
+      visibleCount={8}
+      overviewTab={contactType ? DETAIL_TAB : undefined}
+      expandedDefaultTab={ACTIVITY_TAB}
+    />
   );
 };
 
@@ -555,13 +555,7 @@ export const SidePanelLayout = () => {
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
-  const pageExpanded = Boolean(
-    expanded &&
-      record &&
-      ['core:customer', 'core:company', USER_CONTENT_TYPE].includes(
-        record.contentType,
-      ),
-  );
+  const pageExpanded = Boolean(expanded && record);
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {

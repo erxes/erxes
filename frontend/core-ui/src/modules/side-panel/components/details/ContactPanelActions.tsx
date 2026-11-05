@@ -3,13 +3,11 @@ import {
   IconMail,
   IconMessage,
   IconNote,
-  IconPrinter,
 } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
-import { ContactPanelRecordActions } from './ContactPanelRecordActions';
-import { useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PrintDocument, useComposeEmail, usePermissionCheck } from 'ui-modules';
+import { useComposeEmail, usePermissionCheck } from 'ui-modules';
 
 /** Opens existing mail, conversation, and note workflows for this contact. */
 export const ContactPanelActions = ({
@@ -34,16 +32,13 @@ export const ContactPanelActions = ({
   const { t } = useTranslation('contact');
   const { canComposeEmail, composeEmail } = useComposeEmail();
   const { hasActionPermission } = usePermissionCheck();
-  const [printOpen, setPrintOpen] = useState(false);
   const canMessage =
     Boolean(onMessage) && hasActionPermission('conversationMessageAdd');
   const canNote = hasActionPermission('internalNotesManage');
-  const canPrint = hasActionPermission('documentsRead');
 
   const actions = [
     {
       key: 'message',
-      iconClassName: 'text-blue-500',
       label: t('message', 'Message'),
       icon: IconMessage,
       visible: canMessage,
@@ -53,7 +48,6 @@ export const ContactPanelActions = ({
     },
     {
       key: 'email',
-      iconClassName: 'text-emerald-500',
       label: t('email', 'Email'),
       icon: IconMail,
       visible: canComposeEmail,
@@ -69,23 +63,12 @@ export const ContactPanelActions = ({
     },
     {
       key: 'note',
-      iconClassName: 'text-amber-500',
       label: t('add-note', 'Add note'),
       icon: IconNote,
       visible: canNote,
       onClick: onNote,
       className:
         'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-400',
-    },
-    {
-      key: 'print',
-      iconClassName: 'text-blue-500',
-      label: t('print', 'Print'),
-      icon: IconPrinter,
-      visible: canPrint,
-      onClick: () => setPrintOpen(true),
-      className:
-        'bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 dark:text-blue-400',
     },
   ].filter((action) => action.visible);
 
@@ -127,36 +110,22 @@ export const ContactPanelActions = ({
           )}
         </div>
       </div>
-      <div className="mt-4 flex flex-wrap items-center gap-2 [&>button]:justify-start">
-        {actions.map(({ key, label, icon: Icon, onClick, className }) => (
-          <Button
-            key={key}
-            type="button"
-            variant="outline"
-            onClick={onClick}
-            className={className}
-          >
-            <Icon className="size-4" aria-hidden="true" />
-            {label}
-          </Button>
-        ))}
-        <ContactPanelRecordActions
-          contentType={contentType}
-          contentId={contentId}
-        />
-      </div>
-      {canPrint && (
-        <PrintDocument
-          items={[{ _id: contentId }]}
-          contentType={
-            contentType === 'core:customer'
-              ? 'core:contact.customer'
-              : 'core:contact.company'
-          }
-          open={printOpen}
-          onOpenChange={setPrintOpen}
-          trigger={null}
-        />
+      {actions.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {actions.map(({ key, label, icon: Icon, onClick, className }) => (
+            <Button
+              key={key}
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onClick}
+              className={className}
+            >
+              <Icon className="size-4" aria-hidden="true" />
+              {label}
+            </Button>
+          ))}
+        </div>
       )}
     </section>
   );

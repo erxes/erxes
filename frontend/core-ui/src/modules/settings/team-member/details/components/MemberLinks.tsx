@@ -35,15 +35,7 @@ export const MemberLinks = () => {
           const value = links[field.name as keyof UserLinks] || '';
 
           return (
-            <PanelField
-              key={field.name}
-              label={
-                <span className="flex items-center gap-1.5">
-                  <field.Icon className="size-3.5 flex-none" />
-                  {field.label}
-                </span>
-              }
-            >
+            <PanelField key={field.name} icon={field.Icon} label={field.label}>
               <div className="flex items-center gap-1">
                 <MemberPanelTextField
                   scope={`links.${field.name}`}

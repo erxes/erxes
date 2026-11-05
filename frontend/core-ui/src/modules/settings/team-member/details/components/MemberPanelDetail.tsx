@@ -1,4 +1,15 @@
 import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
+import {
+  IconAlignLeft,
+  IconAt,
+  IconCalendar,
+  IconCalendarPlus,
+  IconMail,
+  IconPhone,
+  IconPhoto,
+  IconStar,
+  IconUser,
+} from '@tabler/icons-react';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import {
   useUserEdit,
@@ -7,6 +18,7 @@ import {
 import { format } from 'date-fns';
 import {
   Avatar,
+  cn,
   DatePicker,
   formatPhoneNumber,
   PhoneInput,
@@ -49,14 +61,13 @@ export const MemberPanelTextField = ({
     scope={`${SCOPE}.${scope}`}
     value={value}
     placeholder={placeholder}
-    className={PANEL_TEXT_FIELD_CLASS_NAME}
+    className={cn(
+      PANEL_TEXT_FIELD_CLASS_NAME,
+      !value && 'text-muted-foreground',
+    )}
     disabled={disabled}
     onSave={onSave}
-  >
-    {!value && (
-      <span className="shrink-0 text-muted-foreground">{placeholder}</span>
-    )}
-  </TextField>
+  />
 );
 
 const MemberDateField = ({
@@ -177,7 +188,8 @@ const MemberDescriptionField = ({
 
   return (
     <div className="flex flex-col gap-1.5 pt-2">
-      <span className="text-xs font-medium text-accent-foreground">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+        <IconAlignLeft className="size-3.5 shrink-0" aria-hidden="true" />
         {t('description')}
       </span>
       <Textarea
@@ -226,7 +238,7 @@ export const MemberPanelDetail = () => {
   const canEditProfile = !!currentUser?.isOwner;
 
   const renderDetailField = (code: TDetailCode, label: string) => (
-    <PanelField label={label}>
+    <PanelField icon={IconUser} label={label}>
       <MemberPanelTextField
         scope={code}
         value={details?.[code] || ''}
@@ -246,7 +258,11 @@ export const MemberPanelDetail = () => {
             onSave={(avatar) => editDetails({ avatar })}
           />
         ) : (
-          <PanelField label={nameT('avatar', 'Avatar')} cell={false}>
+          <PanelField
+            icon={IconPhoto}
+            label={nameT('avatar', 'Avatar')}
+            cell={false}
+          >
             <div className="px-2 py-1">
               <Avatar size="lg" className="size-10">
                 <Avatar.Image src={readImage(details?.avatar || '')} />
@@ -261,7 +277,7 @@ export const MemberPanelDetail = () => {
         {renderDetailField('middleName', nameT('middle-name', 'Middle name'))}
         {renderDetailField('lastName', nameT('last-name', 'Last name'))}
         {renderDetailField('shortName', t('short-name'))}
-        <PanelField label={t('email')}>
+        <PanelField icon={IconMail} label={t('email')}>
           <MemberPanelTextField
             scope="email"
             value={email || ''}
@@ -269,13 +285,13 @@ export const MemberPanelDetail = () => {
             onSave={(next) => usersEdit({ variables: { _id, email: next } })}
           />
         </PanelField>
-        <PanelField label={t('phone')}>
+        <PanelField icon={IconPhone} label={t('phone')}>
           <MemberPhoneField
             value={details?.operatorPhone || ''}
             onSave={(operatorPhone) => editDetails({ operatorPhone })}
           />
         </PanelField>
-        <PanelField label={t('username')}>
+        <PanelField icon={IconAt} label={t('username')}>
           <MemberPanelTextField
             scope="username"
             value={username || ''}
@@ -283,19 +299,19 @@ export const MemberPanelDetail = () => {
             onSave={(next) => usersEdit({ variables: { _id, username: next } })}
           />
         </PanelField>
-        <PanelField label={t('birthday')}>
+        <PanelField icon={IconCalendar} label={t('birthday')}>
           <MemberDateField
             value={details?.birthDate}
             onSave={(birthDate) => editDetails({ birthDate })}
           />
         </PanelField>
-        <PanelField label={t('joined-date')}>
+        <PanelField icon={IconCalendarPlus} label={t('joined-date')}>
           <MemberDateField
             value={details?.workStartedDate}
             onSave={(workStartedDate) => editDetails({ workStartedDate })}
           />
         </PanelField>
-        <PanelField label={t('score')}>
+        <PanelField icon={IconStar} label={t('score')}>
           <MemberPanelTextField
             scope="score"
             value={score === undefined || score === null ? '' : String(score)}

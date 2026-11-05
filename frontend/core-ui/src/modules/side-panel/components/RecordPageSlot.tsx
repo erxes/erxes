@@ -20,15 +20,7 @@ export const RecordPageSlot = ({ children }: React.PropsWithChildren) => {
     (element: HTMLDivElement | null) => setTarget(element),
     [setTarget],
   );
-  const active = Boolean(
-    !appPageTarget &&
-      expanded &&
-      open &&
-      record &&
-      ['core:customer', 'core:company', 'core:user'].includes(
-        record.contentType,
-      ),
-  );
+  const active = Boolean(!appPageTarget && expanded && open && record);
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

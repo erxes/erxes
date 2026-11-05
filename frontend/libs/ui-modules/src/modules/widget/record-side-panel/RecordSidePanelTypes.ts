@@ -50,3 +50,8 @@ export type RecordSidePanelTabsProps = {
   overviewTab?: string;
   expandedDefaultTab?: string;
 };
+
+export type RecordSidePanelLayoutProps = RecordSidePanelTabsProps & {
+  header?: ReactNode;
+  profile?: ReactNode;
+};

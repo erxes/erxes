@@ -1,6 +1,6 @@
-import { TextField } from 'erxes-ui';
+import { cn, TextField } from 'erxes-ui';
 import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
-import { usePermissionCheck } from 'ui-modules';
+import { PANEL_TEXT_FIELD_CLASS_NAME, usePermissionCheck } from 'ui-modules';
 
 type EditableField =
   | 'email'
@@ -34,7 +34,16 @@ export function TextFieldCPUser({
   };
 
   return hasActionPermission('clientPortalManage') ? (
-    <TextField value={value} placeholder={placeholder} onSave={onSave} />
+    <TextField
+      scope={`cp-user-panel.${_id}.${field}`}
+      value={value}
+      placeholder={placeholder}
+      className={cn(
+        PANEL_TEXT_FIELD_CLASS_NAME,
+        !value && 'text-muted-foreground',
+      )}
+      onSave={onSave}
+    />
   ) : (
     <span>{value || '-'}</span>
   );

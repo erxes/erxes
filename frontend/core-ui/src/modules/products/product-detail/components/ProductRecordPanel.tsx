@@ -19,6 +19,7 @@ import {
   PrintDocument,
   RecordSidePanel,
   usePermissionCheck,
+  usePanelExpanded,
   useProductFileLinks,
 } from 'ui-modules';
 import { useFormWidgetTabs } from '@/widgets/hooks/useFormWidgetTabs';
@@ -74,6 +75,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const { hasActionPermission } = usePermissionCheck();
   const canEdit = hasActionPermission('productsUpdate');
+  const expanded = usePanelExpanded();
   const parentView = useContext(PanelRecordContext);
   const [selectedTab, setSelectedTab] = useState(parentView?.tab || 'overview');
   const { productDetail, productId, loading, error, refetch } =
@@ -210,6 +212,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
   );
   const header = (
     <RecordSidePanel.Header
+      className={expanded ? 'h-10 bg-background px-3' : undefined}
       title={productDetail?.name || t('product-detail', 'Product')}
       onBack={onBack}
       onClose={onClose}
@@ -256,7 +259,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
             className="flex min-h-0 flex-1 flex-col"
             onSubmit={form.handleSubmit(handleSave, handleInvalid)}
           >
-            <RecordSidePanel.Tabs
+            <RecordSidePanel.Layout
               value={selectedTab}
               onValueChange={setSelectedTab}
               tabs={[
@@ -335,7 +338,8 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
               ]}
             />
             {canEdit &&
-              (selectedTab === 'overview' ||
+              (expanded ||
+                selectedTab === 'overview' ||
                 selectedTab.startsWith('form:')) && (
                 <div className="flex shrink-0 justify-end gap-2 border-t p-2">
                   <Button
