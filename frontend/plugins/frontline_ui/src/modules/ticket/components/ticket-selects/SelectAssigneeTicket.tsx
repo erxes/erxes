@@ -28,7 +28,6 @@ import { useTranslation } from 'react-i18next';
 
 const SelectAssigneeProvider = SelectMember.Provider;
 
-/** Displays the selected ticket assignee value. */
 const SelectAssigneeValue = ({
   placeholder,
   variant,
@@ -58,7 +57,6 @@ const SelectAssigneeValue = ({
   );
 };
 
-/** Lists assignable team members and the optional unassigned choice. */
 const SelectTeamMemberContent = ({
   showUnassigned = true,
 }: {
@@ -118,7 +116,6 @@ const SelectTeamMemberContent = ({
   );
 };
 
-/** Renders the ticket assignee filter picker. */
 const SelectAssigneeFilterView = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const { resetFilterState } = useFilterContext();
@@ -139,7 +136,6 @@ const SelectAssigneeFilterView = () => {
   );
 };
 
-/** Displays and clears the active ticket assignee filter. */
 export const SelectAssigneeFilterBar = () => {
   const [assignee, setAssignee] = useQueryState<string>('assignee');
   const [open, setOpen] = useState(false);
@@ -166,7 +162,6 @@ export const SelectAssigneeFilterBar = () => {
   );
 };
 
-/** Composes the ticket assignee picker and its change handler. */
 const SelectAssigneeTicketRoot = ({
   scope,
   value,
@@ -185,7 +180,6 @@ const SelectAssigneeTicketRoot = ({
   const { updateTicket } = useUpdateTicket();
   const [open, setOpen] = useState(false);
 
-  /** Applies the selected assignee and notifies the caller. */
   const handleValueChange = (value: string | string[] | null) => {
     if (id) {
       updateTicket({
@@ -221,7 +215,6 @@ const SelectAssigneeTicketRoot = ({
   );
 };
 
-/** Binds a ticket assignee selector to its form value. */
 export const SelectAssigneeTicketFormItem = ({
   value,
   onValueChange,

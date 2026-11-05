@@ -4,7 +4,6 @@ import { TTicketLayoutCell } from '@/ticket/hooks/useTicketCreateLayout';
 import { TAddTicket } from '@/ticket/types';
 import type { UseFormReturn } from 'react-hook-form';
 
-/** Returns whether a create-form field has no value. */
 const isEmpty = (value: unknown) =>
   value === undefined ||
   value === null ||
@@ -46,7 +45,6 @@ export const useTicketCreateFields = ({
     [rows, propertiesData],
   );
 
-  /** Stores a property value and clears its required-field error. */
   const setPropertyValue = useCallback(
     (fieldId: string, value: unknown) => {
       form.setValue(
@@ -103,7 +101,6 @@ export const useTicketCreateFields = ({
     return entries.length ? Object.fromEntries(entries) : undefined;
   };
 
-  /** Clears property values and required-field errors. */
   const reset = () => {
     form.setValue('propertiesData', {});
     setMissingIds([]);

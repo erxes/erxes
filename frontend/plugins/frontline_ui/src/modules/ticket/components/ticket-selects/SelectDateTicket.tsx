@@ -51,7 +51,6 @@ const useDateSelectContext = () => {
 const toSingleDate = (date: unknown) =>
   date instanceof Date ? date : undefined;
 
-/** Formats ticket dates, showing the year for dates outside the current year. */
 export const formatDateLabel = (date: Date) =>
   format(
     date,

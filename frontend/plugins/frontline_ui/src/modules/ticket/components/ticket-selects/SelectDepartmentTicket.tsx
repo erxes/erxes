@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectDepartments } from 'ui-modules';
 
-/** Binds a ticket department selector to its form value. */
 const SelectDepartmentTicketFormItem = ({
   value,
   onValueChange,
@@ -48,7 +47,6 @@ const SelectDepartmentTicketFormItem = ({
   );
 };
 
-/** Composes the ticket department picker and its change handler. */
 const SelectDepartmentTicketRoot = ({
   variant = 'detail',
   disabled,
@@ -70,7 +68,6 @@ const SelectDepartmentTicketRoot = ({
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
 
-  /** Applies the selected department and notifies the caller. */
   const handleValueChange = (departmentId: string) => {
     if (id) {
       updateTicket({ variables: { _id: id, departmentId } });

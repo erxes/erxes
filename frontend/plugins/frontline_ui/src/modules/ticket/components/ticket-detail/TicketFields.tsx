@@ -33,7 +33,6 @@ import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '@/ticket/components/attachments/AttachmentContext';
 import { TicketAttachments } from '@/ticket/components/attachments/TicketAttachments';
 
-/** Explains why a ticket field cannot be edited. */
 const LockedField = ({
   message,
   children,
@@ -50,7 +49,6 @@ const LockedField = ({
   </Tooltip>
 );
 
-/** Renders the legacy ticket detail using the ticket permission context. */
 export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const {
@@ -75,7 +73,6 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     () => toTicketAttachments(attachments),
     [attachments],
   );
-  /** Reads stored BlockNote descriptions and falls back to plain-text paragraphs. */
   const parseDescription = (desc: string | undefined): Block[] | undefined => {
     if (!desc) return undefined;
     try {
@@ -141,7 +138,6 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
   const { updateTicket } = useUpdateTicket();
   const [name, setName] = useState(_name ?? '');
 
-  /** Copies the current editor content into the ticket description draft. */
   const handleDescriptionChange = async () => {
     const content = await editor?.document;
     if (content) {

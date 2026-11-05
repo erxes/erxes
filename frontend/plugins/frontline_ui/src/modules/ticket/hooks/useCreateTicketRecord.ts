@@ -10,7 +10,6 @@ export type TTicketDraft = Partial<TAddTicket> & {
   onComplete?: (ticketId: string) => void;
 };
 
-/** Opens ticket drafts using explicit defaults or Frontline placement filters. */
 export const useCreateTicketRecord = () => {
   const [channelId] = useQueryState<string>('channelId');
   const [pipelineId] = useQueryState<string>('pipelineId');
@@ -19,7 +18,6 @@ export const useCreateTicketRecord = () => {
     pathname === '/frontline' || pathname.startsWith('/frontline/');
   const { openNewRecord } = useSidePanel();
 
-  /** Opens a new ticket record with the accepted placement and contact defaults. */
   const openTicketDraft = (defaults: TTicketDraft = {}, stack = false) =>
     openNewRecord(
       TICKET_PROPERTY_CONTENT_TYPE,

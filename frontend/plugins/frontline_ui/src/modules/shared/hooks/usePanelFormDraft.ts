@@ -22,7 +22,6 @@ export type TPanelFormDrafts<T extends FieldValues> = Record<
 const pendingPanelSavesState = atom<Record<string, number>>({});
 let nextPanelSaveId = 0;
 
-/** Applies only values changed since submission to the accepted server values. */
 const mergeChangedValues = <T extends FieldValues>(
   values: T,
   submittedValues: T,
@@ -43,10 +42,6 @@ const mergeChangedValues = <T extends FieldValues>(
   return nextValues;
 };
 
-/**
- * Retains panel form edits across navigation and reconciles saves without
- * replacing changes made after submission.
- */
 export const usePanelFormDraft = <T extends FieldValues>({
   form,
   recordKey,
@@ -88,7 +83,6 @@ export const usePanelFormDraft = <T extends FieldValues>({
     hasPendingSource: boolean;
   }>();
 
-  /** Restores draft values while preserving their accepted dirty-value baseline. */
   const restore = useCallback(
     (defaultValues: T, nextValues: T) => {
       hydrating.current = true;
@@ -102,7 +96,6 @@ export const usePanelFormDraft = <T extends FieldValues>({
     [form],
   );
 
-  /** Removes the active draft and suspends further writes from its old form session. */
   const clearDraft = useCallback(() => {
     if (session.current?.recordKey === recordKey) {
       suspended.current = true;
@@ -116,7 +109,6 @@ export const usePanelFormDraft = <T extends FieldValues>({
     });
   }, [store, draftsState, recordKey]);
 
-  /** Acknowledges saved values while preserving edits made after submission. */
   const markSaved = useCallback(
     (savedValues: T, submittedValues: T = savedValues) => {
       const cached = store.get(draftsState)[recordKey];
@@ -214,7 +206,6 @@ export const usePanelFormDraft = <T extends FieldValues>({
     if (sourceChanged) current.hasPendingSource = true;
     if (suspended.current) return;
 
-    /** Applies replacement defaults and resets the active draft baseline. */
     const replace = () => {
       const pending = store.get(draftsState)[recordKey];
       if (!isNew && pending?.updateToken) {
@@ -352,7 +343,6 @@ export const usePanelFormDraft = <T extends FieldValues>({
     return () => subscription.unsubscribe();
   }, [form, recordKey, store, draftsState]);
 
-  /** Checks whether this mounted form still owns its record key. */
   const isActive = useCallback(
     () => active.current && session.current?.recordKey === recordKey,
     [recordKey],

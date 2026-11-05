@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -2886,8 +2886,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `frontline_ui:codegen`. Keep those project dependencies explicit: shared
   plugin-local aliases can otherwise infer optional-plugin build cycles.
 
-- `pnpm nx test frontline_ui` runs the retained regression suite. Specs and
-  their fixtures are development-only and are not application entry points.
 - Ticket smoke: create from a board column and a contact; confirm defaults and
   contact associations. Enter only a name, only a description, and only a custom
   property in separate drafts, request another draft and dismiss/approve the

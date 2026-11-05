@@ -9,7 +9,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SelectBranches } from 'ui-modules';
 
-/** Binds a ticket branch selector to its form value. */
 const SelectBranchTicketFormItem = ({
   value,
   onValueChange,
@@ -48,7 +47,6 @@ const SelectBranchTicketFormItem = ({
   );
 };
 
-/** Composes the ticket branch picker and its change handler. */
 const SelectBranchTicketRoot = ({
   variant = 'detail',
   disabled,
@@ -70,7 +68,6 @@ const SelectBranchTicketRoot = ({
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
 
-  /** Applies the selected branch and notifies the caller. */
   const handleValueChange = (branchId: string) => {
     if (id) {
       updateTicket({ variables: { _id: id, branchId } });

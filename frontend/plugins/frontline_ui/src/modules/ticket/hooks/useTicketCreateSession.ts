@@ -5,7 +5,6 @@ import { ticketCreateSessionsState } from '@/ticket/states/ticketCreateSessionsS
 import { ticketFormDraftsState } from '@/ticket/states/ticketFormDraftsState';
 import type { TAddTicket } from '@/ticket/types';
 
-/** Owns one user's resumable ticket creation and admits only its current request. */
 export const useTicketCreateSession = ({
   slotKey,
   defaults,
@@ -38,7 +37,6 @@ export const useTicketCreateSession = ({
   const previousSource = useRef<TAddTicket>();
   const recordKey = `${slotKey}:${session.generation}`;
 
-  /** Starts a new creation generation and removes the preceding draft. */
   const replace = useCallback(
     (nextDefaults: TAddTicket) => {
       const current = store.get(state);
@@ -60,7 +58,6 @@ export const useTicketCreateSession = ({
 
   useEffect(() => {
     previousSource.current = undefined;
-    /** Routes a successful creation through the currently mounted form owner. */
     const notify = (ticketId: string) => onCreatedRef.current(ticketId);
     store.set(state, (current) => ({ ...current, onCreated: notify }));
     return () => {
@@ -81,7 +78,6 @@ export const useTicketCreateSession = ({
     previousSource.current = defaults;
     const current = store.get(state);
     if (isDeeplyEqual(current.defaults, defaults, { strict: true })) return;
-    /** Applies replacement defaults only while their requesting form and session remain current. */
     const accept = () => {
       const latest = store.get(state);
       if (
@@ -101,14 +97,12 @@ export const useTicketCreateSession = ({
     }
   }, [defaults, discardMessage, confirm, replace, slotKey, state, store]);
 
-  /** Discards only the current creation session after approval. */
   const discard = () => {
     const current = store.get(state);
     if (current.generation !== session.generation) return false;
     replace(current.defaults);
     return true;
   };
-  /** Admits one create request for the current shared session. */
   const beginSubmission = (): symbol | undefined => {
     const current = store.get(state);
     if (current.generation !== session.generation || current.pending)
@@ -117,7 +111,6 @@ export const useTicketCreateSession = ({
     store.set(state, { ...current, pending: request });
     return request;
   };
-  /** Releases pending state only for the request that still owns it. */
   const failSubmission = (request: symbol) => {
     store.set(state, (current) =>
       current.pending === request
@@ -125,7 +118,6 @@ export const useTicketCreateSession = ({
         : current,
     );
   };
-  /** Acknowledges the owning create without rebasing newer unsaved edits. */
   const completeSubmission = (
     request: symbol,
     ticketId: string,

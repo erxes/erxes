@@ -8,7 +8,6 @@ import { UnverifiedAttachmentCover } from '@/ticket/components/attachments/Unver
 import { useUnverifiedAttachments } from '@/ticket/hooks/useUnverifiedAttachments';
 import type { IAttachment } from '@/ticket/types/attachments';
 
-/** Reveals customer media before rendering a validated player or native attachment. */
 const ReadOnlyTicketAttachment = ({
   attachment,
 }: {
@@ -38,7 +37,6 @@ const ReadOnlyTicketAttachment = ({
   return <MessageAttachments attachments={[attachment]} />;
 };
 
-/** Selects editable attachment controls or a deduplicated read-only list. */
 export const TicketAttachments = ({
   id,
   attachments,

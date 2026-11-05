@@ -50,13 +50,11 @@ import {
   useSidePanelDraft,
 } from 'ui-modules';
 
-/** Creates a ticket from a resumable, user-scoped panel draft. */
 export const AddTicketForm = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const draft = useSidePanelDraft<TTicketDraft>(TICKET_PROPERTY_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { back, canGoBack, close, openRecord } = useSidePanel();
-  /** Returns to the parent record or closes the unstacked ticket panel. */
   const onClose = () => {
     return canGoBack ? back() : close();
   };
@@ -129,9 +127,7 @@ export const AddTicketForm = () => {
       restoringEditor.current = false;
     }
   }, [editor, description]);
-  /** Requests approval before discarding the active ticket draft. */
   const onCancel = () => {
-    /** Discards only the current creation session after approval. */
     const discard = () => {
       if (!isActive() || !createSession.discard()) return;
       clearDraft();
@@ -164,7 +160,6 @@ export const AddTicketForm = () => {
     shownPropertiesData,
   } = useTicketCreateFields({ rows, rules, form });
 
-  /** Resolves the display label used by required-field validation. */
   const labelOf = (cell: TTicketLayoutCell) =>
     cell.kind === 'system'
       ? t(
@@ -186,7 +181,6 @@ export const AddTicketForm = () => {
     return goBackToPreviousHotkeyScope;
   }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
 
-  /** Copies the current editor content into the ticket description draft. */
   const handleDescriptionChange = () => {
     if (restoringEditor.current) return;
     const nextDescription = JSON.stringify(editor.document.slice(0, -1));
@@ -194,7 +188,6 @@ export const AddTicketForm = () => {
     form.setValue('description', nextDescription, { shouldDirty: true });
   };
 
-  /** Validates and submits the current form values. */
   const onSubmit = (data: TAddTicket) => {
     if (createSession.pending) return;
     const missing = findMissing({

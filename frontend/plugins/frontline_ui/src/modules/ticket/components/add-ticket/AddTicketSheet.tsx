@@ -18,7 +18,6 @@ export const AddTicketSheet = ({
 } & ButtonProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { openTicketDraft } = useCreateTicketRecord();
-  /** Opens a ticket draft with the supplied placement and contact defaults. */
   const onOpen = () =>
     openTicketDraft({ ...defaults, ...contacts, onComplete }, isRelation);
 

@@ -6,7 +6,6 @@ import {
 } from '@/ticket/hooks/useTicketPermissions';
 import type { ITicketDetail } from '@/ticket/types';
 
-/** Keeps ticket editing disabled until its pipeline and status permissions are ready. */
 export const useTicketDetailPermissions = (
   ticket: Pick<ITicketDetail, 'pipelineId' | 'statusId' | 'assigneeId'>,
 ): Pick<ITicketPermissions, 'canEditTicket' | 'canMoveTicket'> => {

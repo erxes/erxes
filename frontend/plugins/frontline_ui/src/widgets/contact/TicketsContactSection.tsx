@@ -13,7 +13,6 @@ import {
 // The most tickets listed for one contact.
 const CONTACT_RECORDS_LIMIT = 50;
 
-/** Opens a related ticket from its contact section. */
 const TicketContactRow = ({
   ticket,
 }: {

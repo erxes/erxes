@@ -24,7 +24,6 @@ type Props = {
   attachments: IAttachment[];
 };
 
-/** Uploads and removes ticket attachments using the shared operation lock. */
 export const AttachmentUploader = ({ id, attachments }: Props) => {
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -59,7 +58,6 @@ export const AttachmentUploader = ({ id, attachments }: Props) => {
     });
   }, [attachments, setOperation]);
 
-  /** Acquires the user and ticket attachment lock across component remounts. */
   const beginOperation = useCallback(() => {
     const current = store.get(operationState);
     if (current?.busy) return false;
@@ -71,7 +69,6 @@ export const AttachmentUploader = ({ id, attachments }: Props) => {
     });
     return true;
   }, [attachments, operationState, store]);
-  /** Releases the shared attachment lock after an operation settles. */
   const finishOperation = useCallback(() => {
     store.set(
       operationState,
@@ -97,7 +94,6 @@ export const AttachmentUploader = ({ id, attachments }: Props) => {
     [],
   );
 
-  /** Persists the current attachment list and acknowledges a successful save. */
   const handleSave = useCallback(
     async (
       nextAttachments: IAttachment[],
@@ -121,7 +117,6 @@ export const AttachmentUploader = ({ id, attachments }: Props) => {
     [id, t, toast, updateTicket, operationState, store],
   );
 
-  /** Settles the selected uploads and saves successful files without overlapping writes. */
   const handleUpload = useCallback(
     async (selectedFiles: FileWithPreview[]): Promise<void> => {
       if (!selectedFiles.length || loading || !beginOperation()) return;
@@ -216,7 +211,6 @@ export const AttachmentUploader = ({ id, attachments }: Props) => {
     }
   }, [files, handleUpload, isUploading, loading]);
 
-  /** Requests approval before removing a ticket attachment. */
   const handleConfirmRemove = (attachment: IAttachment): Promise<boolean> =>
     new Promise((resolve) => {
       confirm({

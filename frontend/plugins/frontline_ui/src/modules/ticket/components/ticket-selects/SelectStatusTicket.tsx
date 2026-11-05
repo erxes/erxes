@@ -54,7 +54,6 @@ const INLINE_STATUS_SCHEMA = TICKET_STATUS_FORM_SCHEMA.extend({
 
 type TInlineStatusForm = z.infer<typeof INLINE_STATUS_SCHEMA>;
 
-/** Returns the configured color for a ticket status type. */
 const getDefaultStatusColor = (type: number) =>
   TICKET_DEFAULT_STATUSES.find((status) => status.type === type)?.color ||
   '#000000';
@@ -75,7 +74,6 @@ const SelectStatusContext = React.createContext<SelectStatusContextType | null>(
   null,
 );
 
-/** Reads the status selector context and requires its provider. */
 const useSelectStatusContext = () => {
   const context = React.useContext(SelectStatusContext);
   if (!context) {
@@ -86,7 +84,6 @@ const useSelectStatusContext = () => {
   return context;
 };
 
-/** Provides the status selector state and selection handler. */
 export const SelectStatusProvider = ({
   value,
   selectedValues,
@@ -102,7 +99,6 @@ export const SelectStatusProvider = ({
   pipelineId?: string;
   restrictToMovable?: boolean;
 }) => {
-  /** Applies the selected status and notifies the caller. */
   const handleValueChange = (status: string) => {
     if (!status) return;
     onValueChange?.(status);
@@ -130,7 +126,6 @@ export const SelectStatusProvider = ({
   );
 };
 
-/** Displays the selected ticket status value. */
 const SelectStatusValue = ({
   placeholder,
   className,
@@ -163,7 +158,6 @@ const SelectStatusValue = ({
   );
 };
 
-/** Renders an accessible status choice in the selector. */
 const SelectStatusCommandItem = ({
   status,
 }: {
@@ -209,7 +203,6 @@ const SelectStatusCommandItem = ({
   );
 };
 
-/** Creates a status inline and selects the new record. */
 const SelectStatusCreateForm = ({
   name,
   pipelineId,
@@ -233,7 +226,6 @@ const SelectStatusCreateForm = ({
   });
   const statusType = form.watch('type');
 
-  /** Validates and submits the current form values. */
   const onSubmit = ({ name, color, type }: TInlineStatusForm) => {
     addStatus({
       variables: { name, color, type, pipelineId },
@@ -292,7 +284,6 @@ const SelectStatusCreateForm = ({
   );
 };
 
-/** Lists available status choices and inline creation when allowed. */
 const SelectStatusContent = ({
   allowCreate,
   onClear,
@@ -366,7 +357,6 @@ const SelectStatusContent = ({
   );
 };
 
-/** Composes the ticket status picker and its change handler. */
 const SelectStatusTicketRoot = ({
   value,
   id,
@@ -388,7 +378,6 @@ const SelectStatusTicketRoot = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { updateTicket } = useUpdateTicket();
-  /** Applies the selected status and notifies the caller. */
   const handleValueChange = (value: string) => {
     if (id) {
       updateTicket({
@@ -425,7 +414,6 @@ const SelectStatusTicketRoot = ({
   );
 };
 
-/** Renders the ticket status filter picker. */
 export const SelectStatusTicketFilterView = ({
   pipelineId,
 }: {
@@ -450,7 +438,6 @@ export const SelectStatusTicketFilterView = ({
   );
 };
 
-/** Displays and clears the active ticket status filter. */
 export const SelectStatusTicketFilterBar = ({
   pipelineId,
   scope,
@@ -483,7 +470,6 @@ export const SelectStatusTicketFilterBar = ({
   );
 };
 
-/** Binds a ticket status selector to its form value. */
 export const SelectStatusTicketFormItem = <TFieldValues extends FieldValues>({
   value,
   onValueChange,

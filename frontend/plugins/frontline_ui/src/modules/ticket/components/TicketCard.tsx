@@ -24,7 +24,6 @@ export const ticketBoardItemAtom = atom(
   (get) => (id: string) => get(allTicketsMapState)[id],
 );
 
-/** Renders a ticket board card with inline fields and record-panel navigation. */
 export const TicketCard = ({ id, column }: BoardCardProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const ticket = useAtomValue(ticketBoardItemAtom)(id);

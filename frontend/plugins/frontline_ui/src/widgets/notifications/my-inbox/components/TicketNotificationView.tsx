@@ -3,7 +3,6 @@ import { TicketDetailLink } from '@/ticket/components/ticket-detail/TicketDetail
 import { TicketDetails } from '@/ticket/components/ticket-detail/TicketDetails';
 import { TicketOpenButton } from '~/widgets/notifications/my-inbox/components/TicketOpenButton';
 
-/** Displays ticket detail and its shared-panel entry from a notification. */
 export const TicketNotificationView = ({
   contentTypeId,
 }: TicketNotificationViewProps) => (

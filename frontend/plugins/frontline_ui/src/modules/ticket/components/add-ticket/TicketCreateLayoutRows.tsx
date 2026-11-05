@@ -5,7 +5,6 @@ import { cn } from 'erxes-ui';
 import { UseFormReturn } from 'react-hook-form';
 import { PropertyFormField } from 'ui-modules';
 
-/** Renders the configured ticket creation rows and custom-property inputs. */
 export const TicketCreateLayoutRows = ({
   rows,
   form,

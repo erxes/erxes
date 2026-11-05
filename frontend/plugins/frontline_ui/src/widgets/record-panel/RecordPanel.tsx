@@ -19,7 +19,6 @@ import { useEffect } from 'react';
 import { ticketRemovedIdsState } from '@/ticket/states/removedTicketsState';
 import { TicketPanelDetail } from './TicketPanelDetail';
 
-/** Shows an unavailable-ticket or detail-load error state. */
 const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
@@ -41,7 +40,6 @@ const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   );
 };
 
-/** Renders the requested ticket title, actions or record-panel tab. */
 const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const removed = useAtomValue(ticketRemovedIdsState);
@@ -117,7 +115,6 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   return <TicketPanelDetail key={contentId} ticket={ticket} />;
 };
 
-/** Routes Ticket create and record views through the public panel contract. */
 export const RecordPanel = (props: IRecordPanelProps) => {
   if (props.contentType !== TICKET_PROPERTY_CONTENT_TYPE) return null;
   return props.view === 'new' ? <AddTicketForm /> : <TicketPanel {...props} />;

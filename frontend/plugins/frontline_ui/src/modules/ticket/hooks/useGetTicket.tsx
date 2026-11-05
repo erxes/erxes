@@ -4,7 +4,6 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import type { GetTicketQuery, GetTicketQueryVariables } from '~/gql/graphql';
 
-/** Loads ticket detail and optionally subscribes to its live changes. */
 export const useGetTicket = (
   options: QueryHookOptions<GetTicketQuery, GetTicketQueryVariables> & {
     subscribe?: boolean;

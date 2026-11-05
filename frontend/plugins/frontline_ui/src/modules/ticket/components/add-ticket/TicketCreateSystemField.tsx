@@ -14,7 +14,6 @@ import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { PanelFormRow } from 'ui-modules';
 
-/** Binds a configured ticket system field to its form input. */
 export const TicketCreateSystemField = ({
   code,
   form,

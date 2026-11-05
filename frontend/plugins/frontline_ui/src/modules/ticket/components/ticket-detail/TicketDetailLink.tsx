@@ -4,7 +4,6 @@ import { useMultiQueryState } from 'erxes-ui';
 import { useEffect } from 'react';
 import { getSidePanelRecordPath } from 'ui-modules';
 
-/** Converts legacy ticket query links into the shared record-panel route. */
 export const TicketDetailLink = () => {
   const [queries, setQueries] = useMultiQueryState<Record<string, string>>([
     TICKETS_DETAIL_QUERY_KEY,

@@ -46,7 +46,6 @@ import {
 
 const SCOPE = 'side-panel-ticket';
 
-/** Renders ticket detail fields, linked contacts and permission-gated attachments. */
 export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { updateTicket } = useUpdateTicket();

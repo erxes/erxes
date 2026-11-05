@@ -58,7 +58,6 @@ interface SelectPipelineContextType {
 const SelectPipelineContext =
   React.createContext<SelectPipelineContextType | null>(null);
 
-/** Reads the pipeline selector context and requires its provider. */
 const useSelectPipelineContext = () => {
   const context = React.useContext(SelectPipelineContext);
   if (!context) {
@@ -69,7 +68,6 @@ const useSelectPipelineContext = () => {
   return context;
 };
 
-/** Provides the pipeline selector state and selection handler. */
 const SelectPipelineProvider = ({
   children,
   value,
@@ -93,7 +91,6 @@ const SelectPipelineProvider = ({
     skip: !channelId,
   });
 
-  /** Applies the selected pipeline and notifies the caller. */
   const handleValueChange = (pipelineId: string) => {
     if (!pipelineId) return;
     onValueChange?.(pipelineId);
@@ -116,7 +113,6 @@ const SelectPipelineProvider = ({
   );
 };
 
-/** Displays the selected ticket pipeline value. */
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, pipelines } = useSelectPipelineContext();
@@ -153,7 +149,6 @@ const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
   );
 };
 
-/** Renders an accessible pipeline choice in the selector. */
 const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   const { onValueChange, value } = useSelectPipelineContext();
 
@@ -173,7 +168,6 @@ const SelectPipelineCommandItem = ({ pipeline }: { pipeline: IPipeline }) => {
   );
 };
 
-/** Creates a pipeline inline and selects the new record. */
 const SelectPipelineCreateForm = ({
   name,
   channelId,
@@ -196,7 +190,6 @@ const SelectPipelineCreateForm = ({
     },
   });
 
-  /** Validates and submits the current form values. */
   const onSubmit = (data: TCreatePipelineForm) => {
     addPipeline({
       variables: { ...data, channelId },
@@ -229,7 +222,6 @@ const SelectPipelineCreateForm = ({
   );
 };
 
-/** Lists available pipeline choices and inline creation when allowed. */
 const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { pipelines, channelId, loading, error } = useSelectPipelineContext();
@@ -298,7 +290,6 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
   );
 };
 
-/** Composes the ticket pipeline picker and its change handler. */
 const SelectPipelineRoot = ({
   scope,
   value,
@@ -341,7 +332,6 @@ const SelectPipelineRoot = ({
   );
 };
 
-/** Displays and clears the active ticket pipeline filter. */
 const SelectPipelineFilterBar = ({ scope }: { scope?: string }) => {
   const [pipeline, setPipeline] = useQueryState<string>('pipeline');
   const [open, setOpen] = useState(false);
@@ -364,7 +354,6 @@ const SelectPipelineFilterBar = ({ scope }: { scope?: string }) => {
   );
 };
 
-/** Renders the ticket pipeline filter picker. */
 const SelectPipelineFilterView = () => {
   const [pipeline, setPipeline] = useFilterQueryState<string>('pipeline');
   const { resetFilterState } = useFilterContext();
@@ -383,7 +372,6 @@ const SelectPipelineFilterView = () => {
   );
 };
 
-/** Binds a ticket pipeline selector to its form value. */
 const SelectPipelineFormItem = <
   TFieldValues extends FieldValues = z.infer<typeof addTicketSchema>,
 >({
