@@ -36,6 +36,7 @@ export interface ILoyaltyLotModel extends Model<ILoyaltyLotDocument> {
     args: TLotRef & { target: number; expiresAt?: Date },
   ): Promise<void>;
   retime(key: string, expiresAt?: Date): Promise<void>;
+  moveToLog(fromLogId: string, toLogId: string): Promise<void>;
 }
 
 export const loadLoyaltyLotClass = (models: IModels) => {
@@ -72,6 +73,15 @@ export const loadLoyaltyLotClass = (models: IModels) => {
         sortAt: expiresAt || NO_EXPIRY_SORT,
         status: pending ? 'pending' : 'available',
       });
+    }
+
+    // A corrected earning's lots follow the entry that replaced it, so a
+    // later refund or correction takes back from them first.
+    public static async moveToLog(fromLogId: string, toLogId: string) {
+      await models.LoyaltyLots.updateMany(
+        { sourceLogId: fromLogId },
+        { $set: { sourceLogId: toLogId } },
+      );
     }
 
     // Soonest-expiring, then oldest first; preferred lots (the earning being
