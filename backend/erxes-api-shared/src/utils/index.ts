@@ -1,6 +1,7 @@
 export * from './apollo';
 export * from './agent-tools';
 export * from './constants';
+export * from './graphqlPolicy';
 export * from './graphqlPubSub';
 export * from './headers';
 export * from './logs';

@@ -397,7 +397,7 @@ The core agent discovers the live GraphQL schema and executes queries and
 mutations through the gateway as the signed-in user. tRPC procedures are
 internal service contracts: do not add agent metadata or admission lists.
 Authentication, credential and system-security operations are denied by
-`core-api/src/modules/agents/graphqlPolicy.ts`. All other business operations
+`erxes-api-shared/src/utils/graphqlPolicy.ts`. All other business operations
 are discoverable; existing resolver permissions apply to every execution.
 The configured approval policy gates mutations, including calls from code mode.
 

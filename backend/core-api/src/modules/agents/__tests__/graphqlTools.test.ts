@@ -19,10 +19,14 @@ jest.mock('erxes-api-shared/utils', () => {
   const responseLimit = jest.requireActual<
     typeof import('erxes-api-shared/utils/agent-tools/responseLimit')
   >('erxes-api-shared/utils/agent-tools/responseLimit');
+  const graphqlPolicy = jest.requireActual<
+    typeof import('erxes-api-shared/utils/graphqlPolicy')
+  >('erxes-api-shared/utils/graphqlPolicy');
 
   return {
     ...auth,
     ...responseLimit,
+    ...graphqlPolicy,
     getEnv: ({ name, defaultValue }: { name: string; defaultValue?: string }) =>
       process.env[name] || defaultValue || '',
     getPluginAddress: jest.fn(),

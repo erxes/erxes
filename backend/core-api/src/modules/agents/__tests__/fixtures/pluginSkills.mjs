@@ -41,6 +41,7 @@ const virtualModules = {
     export * from ${JSON.stringify(
       `${sharedUtils}agent-tools/responseLimit.ts`,
     )};
+    export * from ${JSON.stringify(`${sharedUtils}graphqlPolicy.ts`)};
     export { getEnv } from 'fake:env';
     const state = () => globalThis.__pluginSkillsFake;
     export const getPlugins = async () => state().plugins;
@@ -130,8 +131,8 @@ const built = await build({
           const alias = path.startsWith('@/')
             ? modulesDir
             : path.startsWith('~/')
-            ? srcDir
-            : null;
+              ? srcDir
+              : null;
           if (alias) {
             return builder.resolve(`./${path.slice(2)}`, {
               kind,
