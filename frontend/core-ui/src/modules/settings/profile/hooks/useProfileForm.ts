@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form';
+import { useForm, type FieldNamesMarkedBoolean } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -101,6 +101,50 @@ export const profileValidationSchema = z
   .required();
 
 export type FormType = z.infer<typeof profileValidationSchema>;
+export type ProfilePatch = Partial<FormType>;
+
+const pickDirtyFields = <T extends object>(
+  values: T,
+  dirtyFields: unknown,
+): Partial<T> => {
+  const keys = new Set(
+    Object.entries(
+      dirtyFields && typeof dirtyFields === 'object' ? dirtyFields : {},
+    )
+      .filter(([, dirty]) => dirty === true)
+      .map(([key]) => key),
+  );
+  const patch: Partial<T> = {};
+  for (const key in values) {
+    if (
+      Object.prototype.hasOwnProperty.call(values, key) &&
+      (dirtyFields === true || keys.has(key))
+    ) {
+      patch[key] = values[key];
+    }
+  }
+  return patch;
+};
+
+export const getProfilePatch = (
+  values: FormType,
+  dirtyFields: FieldNamesMarkedBoolean<FormType>,
+): ProfilePatch => {
+  const patch: ProfilePatch = {};
+  if (dirtyFields.username) patch.username = values.username;
+  if (dirtyFields.email) patch.email = values.email;
+  if (dirtyFields.positionIds) patch.positionIds = values.positionIds;
+  if (dirtyFields.details && values.details) {
+    const details = pickDirtyFields(values.details, dirtyFields.details);
+    if (Object.keys(details).length > 0) patch.details = details;
+  }
+  if (dirtyFields.links) {
+    const links = pickDirtyFields(values.links, dirtyFields.links);
+    if (Object.keys(links).length > 0) patch.links = links;
+  }
+  return patch;
+};
+
 const useProfileForm = () => {
   const form = useForm<FormType>({
     mode: 'onBlur',

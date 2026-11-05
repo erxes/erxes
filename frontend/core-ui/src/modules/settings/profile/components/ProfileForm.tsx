@@ -11,6 +11,7 @@ import { ProfileLoading } from '@/settings/profile/components/ProfileLoading';
 import { useProfile } from '@/settings/profile/hooks/useProfile';
 import {
   FormType,
+  getProfilePatch,
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
 import { Button, Form, Spinner, Upload, toast } from 'erxes-ui';
@@ -21,16 +22,22 @@ export const ProfileForm = () => {
     keyPrefix: 'profile',
   });
   const { form } = useProfileForm();
+  const { dirtyFields } = form.formState;
 
   const { loading, profileUpdate, profile, updating } = useProfile();
 
   const submitHandler: SubmitHandler<FormType> = useCallback(
     (data) => {
+      const patch = getProfilePatch(data, dirtyFields);
+      if (Object.keys(patch).length === 0) {
+        toast({ title: t('no-profile-changes', 'No profile changes to save') });
+        return;
+      }
       profileUpdate({
-        variables: data,
+        variables: patch,
       });
     },
-    [profileUpdate],
+    [dirtyFields, profileUpdate, t],
   );
 
   useEffect(() => {

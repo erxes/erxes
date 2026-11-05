@@ -11,7 +11,8 @@ import { GET_USER_DETAIL } from '@/settings/profile/graphql/queries/userDetail';
 import { UPDATE_PROFILE } from '@/settings/profile/graphql/mutations/updateProfile';
 import { currentUserState, IUser } from 'ui-modules';
 import { useAtom } from 'jotai';
-import type { FormType } from './useProfileForm';
+import type { FormType, ProfilePatch } from './useProfileForm';
+import { useRef } from 'react';
 
 type Profile = IUser & {
   details?: IUser['details'] & FormType['details'];
@@ -23,6 +24,7 @@ const useProfile = (
   options?: QueryHookOptions<{ userDetail: Profile }, { _id?: string }>,
 ) => {
   const [currentUser, setCurrentUser] = useAtom(currentUserState);
+  const savingRef = useRef(false);
 
   const { confirm } = useConfirm();
   const { t } = useTranslation('settings', { keyPrefix: 'profile' });
@@ -37,14 +39,18 @@ const useProfile = (
   );
 
   const [updateProfile, { loading: updating }] = useMutation<
-    { usersEditProfile: Profile },
-    FormType
+    { usersEditProfilePatch: Profile },
+    ProfilePatch
   >(UPDATE_PROFILE);
 
   const profileUpdate = ({
     variables,
     ...options
-  }: MutationFunctionOptions<{ usersEditProfile: Profile }, FormType>) => {
+  }: MutationFunctionOptions<
+    { usersEditProfilePatch: Profile },
+    ProfilePatch
+  >) => {
+    if (savingRef.current) return Promise.resolve();
     const confirmOptions = { confirmationValue: 'update' };
 
     return confirm({
@@ -52,15 +58,17 @@ const useProfile = (
       options: confirmOptions,
     })
       .then(() => {
+        if (savingRef.current) return;
+        savingRef.current = true;
         return updateProfile({
           ...options,
           variables,
-          onCompleted: ({ usersEditProfile }) => {
+          onCompleted: ({ usersEditProfilePatch }) => {
             setCurrentUser(
               (prev) =>
                 prev && {
                   ...prev,
-                  ...usersEditProfile,
+                  ...usersEditProfilePatch,
                 },
             );
 
@@ -76,6 +84,8 @@ const useProfile = (
               variant: 'destructive',
             });
           },
+        }).finally(() => {
+          savingRef.current = false;
         });
       })
       .catch(() => undefined);
