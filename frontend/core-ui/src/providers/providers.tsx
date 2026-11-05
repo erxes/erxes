@@ -20,9 +20,13 @@ import {
   RecordPickerWidgetProvider,
   RelationSettingsWidgetProvider,
   RelationWidgetProvider,
+  PlacementProvider,
+  RecordPlacementsProvider,
 } from 'ui-modules';
 import { IconsProvider, Spinner } from 'erxes-ui';
 import { optionalProvider } from '@/widgets/utils/optionalProvider';
+import { ExtensionBoundary } from '~/plugins/components/ExtensionBoundary';
+import { HostedExtensionsProvider } from '@/plugins/components/HostedExtensionsProvider';
 
 const SafeRelationSettingsWidgetProvider = optionalProvider(
   RelationSettingsWidgetProvider,
@@ -30,6 +34,8 @@ const SafeRelationSettingsWidgetProvider = optionalProvider(
 const SafeRecordPickerWidgetProvider = optionalProvider(
   RecordPickerWidgetProvider,
 );
+const SafePlacementProvider = optionalProvider(PlacementProvider);
+const SafeRecordPlacementsProvider = optionalProvider(RecordPlacementsProvider);
 
 export const Providers = () => {
   return (
@@ -52,11 +58,19 @@ export const Providers = () => {
               RecordPickerWidget={RecordPickerWidgetsComponent}
               recordPickerWidgetsModules={useRecordPickerWidgetsModules()}
             >
-              <Suspense
-                fallback={<Spinner withMascot containerClassName="h-svh" />}
-              >
-                <Outlet />
-              </Suspense>
+              <SafePlacementProvider Boundary={ExtensionBoundary}>
+                <SafeRecordPlacementsProvider>
+                  <HostedExtensionsProvider>
+                    <Suspense
+                      fallback={
+                        <Spinner withMascot containerClassName="h-svh" />
+                      }
+                    >
+                      <Outlet />
+                    </Suspense>
+                  </HostedExtensionsProvider>
+                </SafeRecordPlacementsProvider>
+              </SafePlacementProvider>
             </SafeRecordPickerWidgetProvider>
           </SafeRelationSettingsWidgetProvider>
         </RelationWidgetProvider>

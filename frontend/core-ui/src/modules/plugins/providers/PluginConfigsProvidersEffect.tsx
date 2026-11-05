@@ -2,15 +2,21 @@ import { getInstance, loadRemote } from '@module-federation/enhanced/runtime';
 import type { IUIConfig } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
-import { loadingPluginsConfigState, pluginsConfigState } from 'ui-modules';
+import {
+  extensionsConfigState,
+  loadingPluginsConfigState,
+  pluginsConfigState,
+} from 'ui-modules';
 import { i18nInstance } from '~/i18n';
 import {
   getPlatformMismatch,
   validatePluginConfig,
 } from '~/plugins/utils/pluginConfigSchema';
+import { validateExtensionConfig } from '~/plugins/utils/extensionConfigSchema';
+import { isExtensionRemote } from '~/plugins/utils/extensionRemotes';
 
 type RemoteConfig = {
-  CONFIG: IUIConfig;
+  CONFIG: unknown;
 };
 
 export const loadPluginI18nNamespace = async ({
@@ -39,15 +45,43 @@ export const PluginConfigsProvidersEffect = () => {
   const remotes = instance?.options.remotes;
   const setPluginsConfig = useSetAtom(pluginsConfigState);
   const setLoadingPluginsConfig = useSetAtom(loadingPluginsConfigState);
+  const setExtensionsConfig = useSetAtom(extensionsConfigState);
 
   useEffect(() => {
     if (remotes && remotes.length > 0) {
+      // An extension lives in a plugin, or in core.
+      const hosts = [
+        'core',
+        ...remotes
+          .filter((remote) => !isExtensionRemote(remote.name))
+          .map((remote) => remote.name.replace(/_ui$/, '')),
+      ];
+
       const loadConfig = async () => {
         for (const remote of remotes) {
           try {
             const remoteConfig = (await loadRemote(`${remote.name}/config`)) as
-              | RemoteConfig
-              | undefined;
+              RemoteConfig | undefined;
+
+            if (isExtensionRemote(remote.name)) {
+              const extension = validateExtensionConfig(
+                remote.name,
+                remoteConfig?.CONFIG,
+                hosts,
+              );
+
+              if (extension.ok) {
+                setExtensionsConfig((prev) => ({
+                  ...prev,
+                  [extension.pluginName]: extension.config,
+                }));
+              } else {
+                console.error(extension.message);
+              }
+
+              continue;
+            }
+
             const validation = validatePluginConfig(
               remote.name,
               remoteConfig?.CONFIG,
@@ -90,7 +124,7 @@ export const PluginConfigsProvidersEffect = () => {
     } else {
       setLoadingPluginsConfig(false);
     }
-  }, [remotes, setPluginsConfig]);
+  }, [remotes, setPluginsConfig, setExtensionsConfig]);
 
   return null;
 };

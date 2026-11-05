@@ -15,6 +15,10 @@ import './styles.css';
 import { App } from '@/app/components/App';
 import { ClientConfigError } from '@/error-handler/components/ClientConfigError';
 import { initSentry } from './sentry';
+import {
+  type FrontendRemote,
+  toFederationRemotes,
+} from '~/plugins/utils/extensionRemotes';
 
 // Install browser error handlers as early as possible, before any rendering.
 initSentry();
@@ -30,12 +34,13 @@ async function initFederation() {
     const localRemotes = new Set(
       getInstance()?.options.remotes.map(({ name }) => name),
     );
-    const remotes: Parameters<typeof registerRemotes>[0] = await fetch(
+    const listed: FrontendRemote[] = await fetch(
       `${REACT_APP_API_URL}/get-frontend-plugins`,
       { signal: AbortSignal.timeout(2000) },
     )
       .then((res) => (res.ok ? res.json() : []))
       .catch(() => []);
+    const remotes = toFederationRemotes(listed);
     const externalRemotes = remotes.filter(
       ({ name }) => !localRemotes.has(name),
     );
@@ -55,10 +60,10 @@ async function initFederation() {
       signal: AbortSignal.timeout(15000),
     })
       .then((res) => res.json())
-      .then((data) => {
+      .then((data: FrontendRemote[]) => {
         init({
           name: 'core',
-          remotes: data,
+          remotes: toFederationRemotes(data),
         });
 
         root.render(<App />);

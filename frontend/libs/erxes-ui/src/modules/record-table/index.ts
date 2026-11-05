@@ -50,3 +50,7 @@ export * from './contexts/RecordTableHotkeyContext';
 export * from './components/RecordTableHotkeyCell';
 
 export * from './states/RecordTableCursorState';
+export {
+  RecordTablePlacementsProvider,
+  type RecordTablePlacements,
+} from './contexts/RecordTablePlacementsContext';

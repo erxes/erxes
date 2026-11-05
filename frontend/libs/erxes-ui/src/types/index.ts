@@ -5,6 +5,7 @@ export * from './Gql';
 export * from './Key';
 export * from './Relations';
 export * from './SexCode';
+export * from './Extensions';
 export * from './Theme';
 export * from './UIConfig';
 export * from './Utils';

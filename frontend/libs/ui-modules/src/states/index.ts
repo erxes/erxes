@@ -5,3 +5,4 @@ export * from './currentUserState';
 export * from './isCurrentUserLoadingState';
 export * from './pluginsConfigState';
 export * from './currentUserPermissionsState';
+export * from './extensionsConfigState';

@@ -208,6 +208,47 @@ export const AppLayoutFooterLink = ({
   );
 };
 
+type AppLayoutExtensionLink = {
+  name: string;
+  path: string;
+  icon?: React.ElementType;
+};
+
+/**
+ * Extensions hosted in an app, keyed by the app's `AppLayout` `id`. core-ui
+ * provides it from the installed extensions' configs; erxes-ui cannot see
+ * those.
+ */
+export type AppLayoutExtensions = {
+  links: (layoutId: string) => AppLayoutExtensionLink[];
+  /** The extension page for this path, or null when the app's own routes own it. */
+  page: (layoutId: string, pathname: string) => React.ReactNode | null;
+};
+
+const AppLayoutExtensionsContext = React.createContext<AppLayoutExtensions>({
+  links: () => [],
+  page: () => null,
+});
+
+export const AppLayoutExtensionsProvider = AppLayoutExtensionsContext.Provider;
+
+const AppLayoutExtensionLinks = ({
+  links,
+}: {
+  links: AppLayoutExtensionLink[];
+}) => (
+  <Sidebar.Group>
+    <Sidebar.GroupLabel>Extensions</Sidebar.GroupLabel>
+    <Sidebar.GroupContent>
+      <Sidebar.Menu>
+        {links.map((link) => (
+          <AppLayoutFooterLink key={link.path} {...link} />
+        ))}
+      </Sidebar.Menu>
+    </Sidebar.GroupContent>
+  </Sidebar.Group>
+);
+
 const APP_LAYOUT_PAGE_ENTER: Keyframe[] = [{ opacity: 0.4 }, { opacity: 1 }];
 
 const getPageKey = (pathname: string) =>
@@ -416,15 +457,31 @@ export const AppLayout = ({
   footer?: React.ReactNode;
   title?: React.ReactNode;
   children: React.ReactNode;
-}) => (
-  <Sidebar.Provider className="min-h-0 flex-1" sidebarKeyboardShortcut={false}>
-    <AppLayoutBody
-      atoms={getAppLayoutAtoms(id)}
-      sidebar={sidebar}
-      footer={footer}
-      title={title}
+}) => {
+  const extensions = React.useContext(AppLayoutExtensionsContext);
+  const { pathname } = useLocation();
+  const links = extensions.links(id);
+  // An extension page replaces the app's own routes, which don't know it.
+  const extensionPage = extensions.page(id, pathname);
+
+  return (
+    <Sidebar.Provider
+      className="min-h-0 flex-1"
+      sidebarKeyboardShortcut={false}
     >
-      {children}
-    </AppLayoutBody>
-  </Sidebar.Provider>
-);
+      <AppLayoutBody
+        atoms={getAppLayoutAtoms(id)}
+        sidebar={
+          <>
+            {sidebar}
+            {links.length > 0 && <AppLayoutExtensionLinks links={links} />}
+          </>
+        }
+        footer={footer}
+        title={title}
+      >
+        {extensionPage ?? children}
+      </AppLayoutBody>
+    </Sidebar.Provider>
+  );
+};

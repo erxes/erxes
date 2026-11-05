@@ -5,4 +5,5 @@ export interface IRecordTableContext {
   handleReachedBottom?: () => void;
   columnSelectorOpen: boolean;
   setColumnSelectorOpen: (open: boolean) => void;
+  tableId?: string;
 }

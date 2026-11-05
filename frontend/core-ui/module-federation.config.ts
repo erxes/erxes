@@ -18,6 +18,9 @@ const coreLibraries = new Set([
   'jotai',
   'ui-modules',
   'react-i18next',
+  // Shared so an extension's useForm and erxes-ui's Form are one copy, and
+  // useFormContext works across the boundary.
+  'react-hook-form',
 ]);
 
 const config: ModuleFederationConfig = {
