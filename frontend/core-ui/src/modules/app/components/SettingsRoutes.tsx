@@ -27,6 +27,12 @@ const SettingsProfile = lazy(() =>
   })),
 );
 
+const SettingsMyActivity = lazy(() =>
+  import('~/pages/settings/account/MyActivityPage').then((module) => ({
+    default: module.SettingsMyActivityPage,
+  })),
+);
+
 const SettingsChangePassword = lazy(() =>
   import('~/pages/settings/account/ChangePasswordPage').then((module) => ({
     default: module.ChangePasswordPage,
@@ -187,6 +193,10 @@ export function SettingsRoutes() {
           element={<Navigate to={`${SettingsPath.Profile}`} replace />}
         />
         <Route path={SettingsPath.Profile} element={<SettingsProfile />} />
+        <Route
+          path={SettingsPath.MyActivity}
+          element={<SettingsMyActivity />}
+        />
         <Route
           path={SettingsPath.NotificationCatchAll}
           element={<SettingsNotificationRoutes />}
