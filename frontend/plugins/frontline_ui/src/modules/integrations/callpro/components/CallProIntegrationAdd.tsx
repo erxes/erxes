@@ -9,7 +9,9 @@ import {
 } from '@/integrations/components/IntegrationPanelForm';
 import { z } from 'zod';
 import { IntegrationType } from '@/types/Integration';
-import { useIntegrationAdd } from '@/integrations/hooks/useIntegrationAdd';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
+import { useEffect } from 'react';
+import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 import { CALL_PRO_INTEGRATION_FORM_SCHEMA } from '@/integrations/callpro/constants/callProIntegrationSchema';
 import { CallProIntegrationForm } from '@/integrations/callpro/components/CallProIntegrationForm';
 
@@ -32,7 +34,7 @@ export const CallProIntegrationAddSheet = () => {
 /** Creates a Call Pro integration through the record panel form. */
 export const CallProIntegrationAdd = () => {
   const id = useIntegrationChannelId();
-  const { close } = useSidePanel();
+  const { openRecord } = useSidePanel();
 
   const form = useForm<z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>>({
     resolver: zodResolver(CALL_PRO_INTEGRATION_FORM_SCHEMA),
@@ -43,13 +45,21 @@ export const CallProIntegrationAdd = () => {
       brandId: '',
     },
   });
-  const { clearDraft, isActive } = useFormDraft(form);
+  const { isActive } = useFormDraft(form);
 
-  const { addIntegration, loading } = useIntegrationAdd();
+  const { createIntegration, createdId, loading } =
+    useSocialIntegrationCreate();
+  useEffect(() => {
+    if (createdId && isActive())
+      openRecord(
+        { contentType: INTEGRATION_CONTENT_TYPE, contentId: createdId },
+        { replace: true },
+      );
+  }, [createdId, isActive, openRecord]);
 
   /** Creates a Call Pro line and clears the form before closing on success. */
   const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
-    addIntegration({
+    return createIntegration({
       variables: {
         name: `${data.name} - ${data.phoneNumber}`,
         kind: IntegrationType.CALLPRO,
@@ -59,12 +69,6 @@ export const CallProIntegrationAdd = () => {
           phoneNumber: data.phoneNumber,
           recordUrl: data.recordUrl || '',
         },
-      },
-      onCompleted(result) {
-        if (!result.integrationsCreateExternalIntegration?._id) return;
-        clearDraft();
-        form.reset();
-        if (isActive()) close();
       },
     });
   };

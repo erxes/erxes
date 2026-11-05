@@ -1,4 +1,5 @@
-import { useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from '@apollo/client';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
 import {
   CREATE_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
@@ -16,6 +17,8 @@ export const useCreateMessenger = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
+  const client = useApolloClient();
+  const { runCreate, loading: pending } = useSocialIntegrationCreate();
   const [createMessengerMutation, { loading: createLoading }] = useMutation(
     CREATE_EM_MESSENGER_MUTATION,
   );
@@ -31,78 +34,47 @@ export const useCreateMessenger = () => {
 
   const createMessenger = (
     configFormValues: z.infer<typeof EM_CONFIG_SCHEMA>,
-    onComplete?: () => void,
   ) => {
     const { createVariables, saveConfigVariables, uiOptions } =
       readVariables(configFormValues);
-
-    createMessengerMutation({
-      variables: createVariables,
-      refetchQueries: ['Integrations', 'ErxesMessengerIntegrationDetail'],
-      async onCompleted({ integrationsCreateMessengerIntegration }) {
-        if (!integrationsCreateMessengerIntegration) return;
-
-        const { _id } = integrationsCreateMessengerIntegration;
-
-        // Run all three saves in parallel and wait for every one to finish
-        // before refetching — guarantees integrationDetail reflects ALL
-        // updated fields (messengerData + uiOptions + ticketConfigId) at once.
-        await Promise.all([
-          saveConfigsMutation({
-            variables: {
-              _id,
-              brandId: createVariables.brandId,
-              ...saveConfigVariables,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-configs'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-          saveAppearanceMutation({
-            variables: {
-              _id,
-              brandId: configFormValues.brandId,
-              uiOptions,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-appearance'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-          saveTicketConfigMutation({
-            variables: {
-              _id,
-              configIds: configFormValues.ticketConfigIds,
-            },
-          }).catch((e) =>
-            toast({
-              title: t('failed-to-save-ticket-config'),
-              description: e.message,
-              variant: 'destructive',
-            }),
-          ),
-        ]);
-
-        onComplete?.();
-      },
-      onError(e) {
-        toast({
-          title: t('failed-to-create-messenger'),
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
+    return runCreate(async (created) => {
+      const result = await createMessengerMutation({
+        variables: createVariables,
+      });
+      const id = result.data?.integrationsCreateMessengerIntegration?._id;
+      if (!id) throw new Error(t('failed-to-create-messenger'));
+      created(id);
+      await Promise.all([
+        saveConfigsMutation({
+          variables: {
+            _id: id,
+            brandId: createVariables.brandId,
+            ...saveConfigVariables,
+          },
+        }),
+        saveAppearanceMutation({
+          variables: { _id: id, brandId: configFormValues.brandId, uiOptions },
+        }),
+        saveTicketConfigMutation({
+          variables: { _id: id, configIds: configFormValues.ticketConfigIds },
+        }),
+      ]);
+      await client.refetchQueries({
+        include: [
+          'Integrations',
+          'ErxesMessengerIntegrationDetail',
+          'ChannelIntegrationsPeek',
+        ],
+      });
+      toast({ title: t('integration-added') });
+      return id;
     });
   };
 
   return {
     createMessenger,
     loading:
+      pending ||
       createLoading ||
       saveConfigsLoading ||
       saveAppearanceLoading ||

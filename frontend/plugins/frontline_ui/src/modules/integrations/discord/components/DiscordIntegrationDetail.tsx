@@ -509,6 +509,7 @@ export const DiscordIntegrationPanelForm = () => {
   /** Creates integrations for selected channels and retains failed channels for retry. */
   const onSubmit = async (values: FormValues) => {
     if (
+      step !== 3 ||
       submitting ||
       (!isExistingMode && !currentValidation?.valid) ||
       !channels.length

@@ -1,4 +1,8 @@
 import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
+import { useSidePanel } from 'ui-modules';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
+import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 import { useTranslation } from 'react-i18next';
 import { IntegrationCreateButton } from '@/integrations/components/IntegrationPanelForm';
 import { erxesMessengerSetupEditSheetOpenAtom } from '../states/erxesMessengerSetupStates';
@@ -19,5 +23,14 @@ export const AddErxesMessengerSheet = () => {
 
 export const AddErxesMessengerPanelForm = () => {
   const ready = useMessengerDraft(false);
-  return ready ? <EMSetup /> : null;
+  const { openRecord } = useSidePanel();
+  const { createdId, loading } = useSocialIntegrationCreate();
+  useEffect(() => {
+    if (createdId && !loading)
+      openRecord(
+        { contentType: INTEGRATION_CONTENT_TYPE, contentId: createdId },
+        { replace: true },
+      );
+  }, [createdId, loading, openRecord]);
+  return ready ? <EMSetup loading={loading} /> : null;
 };

@@ -498,13 +498,14 @@ export const EMConfig = () => {
       />
       <form
         onSubmit={form.handleSubmit((values) => {
+          if (loading) return;
           const submittedRevision = captureRevision();
           if (isEditMode && idToEdit) {
             editMessenger(idToEdit, values, () =>
               handleComplete(submittedRevision),
             );
           } else {
-            createMessenger(values, () => handleComplete(submittedRevision));
+            return createMessenger(values);
           }
         })}
         className="flex-auto flex flex-col overflow-hidden"

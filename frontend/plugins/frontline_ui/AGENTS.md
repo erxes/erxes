@@ -101,7 +101,9 @@
   views while reusing the provider forms and mutation hooks. Provider fields and
   wizard progress survive Activity, other records, and reopening through typed
   memory drafts scoped by user, record, provider, and channel. Cancel retains
-  the draft; confirmed saves and deletion clear the affected drafts. Discord
+  the draft; acknowledged edits, completed creates and deletion clear the affected
+  drafts. Messenger refreshes untouched fields from server defaults and retains
+  values only after a user edit; its wizard step survives Edit → Add → Edit. Discord
   tokens stay in memory. Messenger keeps its existing preview storage contract
   while preserving each record and create context in separate memory snapshots.
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
@@ -1353,7 +1355,6 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
 - Confirmed Help Center deletion IDs are reconciled by the mounted title view
   against its current record; an earlier deletion must not close a newer panel.
 
-- Named integration callbacks retain JSDoc required by DeepSource `JS-D1001`.
 - Integration panel registration, the federation expose and the named panel
   export must stay aligned. Provider create/edit entry points use the shared
   side panel and its `IntegrationRecordForm` provider dispatcher.
@@ -1366,10 +1367,20 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   readiness query errors expose retry without clearing the fields.
 - Telegram setup separates field and webhook-status markup from its mutation
   handlers; presentation changes must retain recovery and callback precedence.
-- Messenger save entry points capture the submitted atom revision and acknowledge
-  it only if no newer revision exists, including after Activity/reopen. A newer
-  same-context edit prevents snapshot deletion, reset, and close. Equivalent
-  atom restoration does not advance the revision.
+- Messenger edit saves capture their submitted atom revision and acknowledge
+  only when no newer revision exists. Fresh server reads merge only user-edited
+  leaves over current defaults, including brand and ticket config selections;
+  untouched message languages and bot settings survive a save. Source refreshes
+  never replace another active Messenger's atoms or reset its wizard step.
+  Field forms accept refreshed atom values and publish only user field changes.
+- Messenger, Call, Call Pro and social creates share context-keyed request
+  ownership and created IDs. Messenger records its ID before saving settings,
+  so a later setup failure opens that record instead of creating it again.
+  Pending Messenger creation blocks its wizard. Completed creates open the saved
+  integration even after an Activity or close/reopen round trip.
+- Telegram saves use retained pending tokens across remounts. Successful connects
+  open the saved integration, and post-connect refreshes cannot repopulate a
+  cleared new-bot draft. Failed linking or webhook setup retains progress for retry.
 - Facebook and Instagram share context-scoped request ownership and confirmed
   create results. Handlers reject pending or completed repeats; a live remount
   observes success and closes/resets the completed setup. Pending ownership
@@ -3184,6 +3195,13 @@ null }`, fall back to the route pipeline and skip without one; never pass
   cannot repeat through remounts; failed creates retain input and allow retry.
   Test blocked Facebook login and OAuth account resume, Discord partial-channel
   failure/retry, and Messenger configuration edits across its tabs and remounts.
+  Check Edit A → Add → Edit A, inline/admin renames before Save, and nested edits
+  beside server changes. Reopen a slow Messenger, Call, Call Pro or Telegram create:
+  Save remains locked and success opens one created record. Fail a Messenger
+  settings write after creation and confirm retry uses its existing record.
+  Refresh Telegram after connecting, reopen Add, and connect a different bot.
+  Discord Enter must not create before its final step; blocked Instagram popups
+  must release the login control.
   Mail must submit only from its final confirmation step after sending readiness
   succeeds; readiness errors expose retry without losing fields. Telegram setup
   and disconnect regressions retain lost-response reconciliation, callback

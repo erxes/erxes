@@ -358,7 +358,11 @@ export const MailIntegrationPanelForm = () => {
       return;
     setSubmitting(true);
     try {
+      let failure: Error | undefined;
       const result = await addIntegration({
+        onError: (error) => {
+          failure = error;
+        },
         variables: {
           name: data.name,
           kind: IntegrationType.MAIL,
@@ -370,6 +374,7 @@ export const MailIntegrationPanelForm = () => {
           },
         },
       });
+      if (failure) throw failure;
       const newId = result.data?.integrationsCreateExternalIntegration?._id;
       if (!newId) throw new Error(t('failed-to-add-integration'));
       setCreatedId(newId);

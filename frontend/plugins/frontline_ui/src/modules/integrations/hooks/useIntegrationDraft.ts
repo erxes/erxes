@@ -1,4 +1,5 @@
 import { isDeeplyEqual } from 'erxes-ui';
+import { isRecord } from '@/shared/utils/isRecord';
 import {
   atom,
   useAtomValue,
@@ -171,6 +172,22 @@ export const createIntegrationDraftState = <T>(initialValue: T | (() => T)) => {
   };
 };
 
+const mergeDraftValues = <T>(source: T, defaults: T, draft: T): T => {
+  if (isDeeplyEqual(defaults, draft, { strict: true })) return source;
+  if (!isRecord(source) || !isRecord(defaults) || !isRecord(draft))
+    return draft;
+  return Object.assign(
+    {},
+    source,
+    Object.fromEntries(
+      Object.entries(draft).map(([key, value]) => [
+        key,
+        mergeDraftValues(source[key], defaults[key], value),
+      ]),
+    ),
+  );
+};
+
 export const createIntegrationAtomDraft = <T>(
   target: WritableAtom<T, [SetStateAction<T>], unknown>,
   initialValue: T | (() => T),
@@ -179,21 +196,79 @@ export const createIntegrationAtomDraft = <T>(
     ? initialValue()
     : initialValue;
   const drafts = atom<Record<string, T>>({});
+  const defaults = atom<Record<string, T>>({});
+  const refreshing = new WeakSet<Store>();
+  const activeKeys = new WeakMap<Store, string>();
   registerDrafts(drafts);
-  return function useIntegrationAtomDraft(): void {
+  registerDrafts(defaults);
+  const resolve = (
+    store: Store,
+    key: string,
+    source: T,
+    draft = activeKeys.get(store) === key
+      ? store.get(target)
+      : store.get(drafts)[key] ?? store.get(defaults)[key] ?? initial,
+  ): T => mergeDraftValues(source, store.get(defaults)[key] ?? initial, draft);
+  const refresh = (
+    store: Store,
+    key: string,
+    source: T,
+    submitted?: T,
+  ): void => {
+    const current =
+      activeKeys.get(store) === key
+        ? store.get(target)
+        : store.get(drafts)[key] ?? store.get(defaults)[key] ?? initial;
+    const value =
+      submitted === undefined
+        ? resolve(store, key, source)
+        : mergeDraftValues(source, submitted, current);
+    store.set(defaults, (previous) => ({ ...previous, [key]: source }));
+    store.set(drafts, (previous) => {
+      if (!isDeeplyEqual(value, source, { strict: true }))
+        return { ...previous, [key]: value };
+      return Object.fromEntries(
+        Object.entries(previous).filter(([candidate]) => candidate !== key),
+      );
+    });
+    refreshing.add(store);
+    try {
+      if (activeKeys.get(store) === key) store.set(target, value);
+    } finally {
+      refreshing.delete(store);
+    }
+  };
+  const useDraft = (): void => {
     const key = useContext(IntegrationDraftContext);
     const store = useStore();
     useLayoutEffect(() => {
-      store.set(target, store.get(drafts)[key] ?? initial);
-      return store.sub(target, () => {
+      activeKeys.set(store, key);
+      store.set(
+        target,
+        store.get(drafts)[key] ?? store.get(defaults)[key] ?? initial,
+      );
+      const unsubscribe = store.sub(target, () => {
+        if (refreshing.has(store)) return;
         const value = store.get(target);
-        const previous = store.get(drafts)[key] ?? initial;
+        const source = store.get(defaults)[key] ?? initial;
+        const previous = store.get(drafts)[key] ?? source;
         if (isDeeplyEqual(previous, value, { strict: true })) return;
         advanceRevision(store, key);
-        store.set(drafts, (values) => ({ ...values, [key]: value }));
+        store.set(drafts, (values) => {
+          if (!isDeeplyEqual(source, value, { strict: true }))
+            return { ...values, [key]: value };
+          return Object.fromEntries(
+            Object.entries(values).filter(([candidate]) => candidate !== key),
+          );
+        });
       });
+      return () => {
+        unsubscribe();
+        if (activeKeys.get(store) === key) activeKeys.delete(store);
+      };
     }, [key, store]);
   };
+  return Object.assign(useDraft, { refresh, resolve });
 };
 
 export const useIntegrationAuthorization = (

@@ -1,6 +1,7 @@
 import {
   createIntegrationDraftState,
   createIntegrationFormDraft,
+  useIntegrationDraftSession,
 } from '@/integrations/hooks/useIntegrationDraft';
 import { useSidePanel, SelectBrand } from 'ui-modules';
 import {
@@ -24,6 +25,7 @@ import {
   useConfirm,
 } from 'erxes-ui';
 import { useEffect, useState } from 'react';
+import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
 import { useForm, UseFormReturn } from 'react-hook-form';
 
 import { z } from 'zod';
@@ -383,6 +385,7 @@ export const TelegramSetup = ({
   const client = useApolloClient();
   const { confirm } = useConfirm();
   const [savedBot, setSavedBot] = useSavedBot();
+  const { captureRevision } = useIntegrationDraftSession();
   const [completedBot, setCompletedBot] = useState<TelegramBot>();
   const selectedBot = completedBot ?? savedBot;
   const [busy, setBusy] = useState(false);
@@ -402,7 +405,26 @@ export const TelegramSetup = ({
       url: integrationId ? '' : (defaultAddress ?? ''),
     },
   });
-  const { markSaved, clearSession } = useFormDraft(form);
+  const { markSaved, clearDraft, clearSession, beginSave, endSave, saving } =
+    useFormDraft(form);
+  const {
+    runCreate,
+    createdId,
+    loading: creating,
+  } = useSocialIntegrationCreate();
+  const { openRecord, record } = useSidePanel();
+  useEffect(() => {
+    if (
+      !integrationId &&
+      createdId &&
+      !creating &&
+      record?.contentId !== createdId
+    )
+      openRecord(
+        { contentType: INTEGRATION_CONTENT_TYPE, contentId: createdId },
+        { replace: true },
+      );
+  }, [integrationId, createdId, creating, record, openRecord]);
   const chosenId = form.watch('botId');
   const bot =
     botsQuery.data?.telegramBots.find((item) => {
@@ -469,8 +491,10 @@ export const TelegramSetup = ({
       form.setError('token', { message: t('tokenHint') });
       return;
     }
+    const saveId = beginSave();
+    if (saveId === undefined) return;
     setBusy(true);
-    try {
+    const perform = async (): Promise<string> => {
       let current = bot;
       if (!current) {
         const result = await addBot({ variables: { token: values.token } });
@@ -530,12 +554,20 @@ export const TelegramSetup = ({
       form.setValue('url', getTelegramServerAddress(url) ?? values.url);
       setCompletedBot(current);
       markSaved(form.getValues());
-      clearSession();
+      clearDraft();
+      if (integrationId) clearSession();
       toast({ title: t('success') });
+      if (!current.erxesApiId) throw new Error(t('failed'));
+      return current.erxesApiId;
+    };
+    try {
+      if (integrationId) await perform();
+      else await runCreate(perform, reportError);
     } catch (error: unknown) {
       reportError(error);
     } finally {
       await refresh().catch(reportError);
+      endSave(saveId);
       setBusy(false);
     }
   };
@@ -543,10 +575,15 @@ export const TelegramSetup = ({
   /** Verifies the connected bot and refreshes its webhook status. */
   const refreshStatus = async (): Promise<void> => {
     if (!bot) return;
+    const revision = captureRevision();
     setBusy(true);
     try {
       const result = await updateBot({ variables: { _id: bot._id } });
-      if (result.data) setSavedBot(result.data.telegramUpdateBot);
+      if (result.data && captureRevision() === revision) {
+        if (integrationId || !completedBot)
+          setSavedBot(result.data.telegramUpdateBot);
+        else setCompletedBot(result.data.telegramUpdateBot);
+      }
       await refresh();
     } catch (error: unknown) {
       reportError(error);
@@ -636,7 +673,7 @@ export const TelegramSetup = ({
             status={status}
             loading={statusQuery.loading}
             error={Boolean(statusQuery.error)}
-            busy={busy}
+            busy={busy || saving || creating}
             onRefresh={refreshStatus}
             onDisconnect={disconnectBot}
           />
@@ -665,6 +702,8 @@ export const TelegramSetup = ({
         type="submit"
         disabled={
           busy ||
+          saving ||
+          creating ||
           botsQuery.loading ||
           Boolean(!needsLink && statusQuery.loading) ||
           Boolean(botsQuery.error) ||

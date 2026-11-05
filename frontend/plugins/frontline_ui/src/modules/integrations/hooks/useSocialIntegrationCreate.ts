@@ -10,6 +10,7 @@ import {
 type CreateOptions = NonNullable<
   Parameters<ReturnType<typeof useIntegrationAdd>['addIntegration']>[0]
 >;
+type CreateOperation = (created: (id: string) => void) => Promise<string>;
 type Creation = { request: symbol | null; createdId: string | null };
 const useCreation = createIntegrationDraftState<Creation>({
   request: null,
@@ -18,6 +19,10 @@ const useCreation = createIntegrationDraftState<Creation>({
 
 export const useSocialIntegrationCreate = (): {
   createIntegration: (options: CreateOptions) => Promise<void>;
+  runCreate: (
+    operation: CreateOperation,
+    onError?: (error: unknown) => void,
+  ) => Promise<void>;
   createdId: string | null;
   loading: boolean;
 } => {
@@ -32,7 +37,7 @@ export const useSocialIntegrationCreate = (): {
     () => () => {
       let completed = false;
       updateCreation((current) => {
-        completed = Boolean(current.createdId);
+        completed = Boolean(current.createdId && !current.request);
         return current;
       });
       if (completed) clearSession();
@@ -40,8 +45,11 @@ export const useSocialIntegrationCreate = (): {
     [updateCreation, clearSession],
   );
 
-  const createIntegration = useCallback(
-    async (options: CreateOptions): Promise<void> => {
+  const runCreate = useCallback(
+    async (
+      operation: CreateOperation,
+      onError?: (error: unknown) => void,
+    ): Promise<void> => {
       const request = Symbol('social-integration-create');
       let started = false;
       updateCreation((current) => {
@@ -52,30 +60,52 @@ export const useSocialIntegrationCreate = (): {
       if (!started) return;
 
       try {
-        const result = await addIntegration(options);
-        const createdId =
-          result.data?.integrationsCreateExternalIntegration?._id;
+        const createdId = await operation((id) =>
+          updateCreation((current) =>
+            current.request === request
+              ? { ...current, createdId: id }
+              : current,
+          ),
+        );
         if (!createdId) throw new Error(t('failed-to-add-integration'));
         updateCreation((current) =>
           current.request === request ? { request: null, createdId } : current,
         );
       } catch (error: unknown) {
-        toast({
-          title: t('failed-to-add-integration'),
-          description: error instanceof Error ? error.message : undefined,
-          variant: 'destructive',
-        });
+        if (onError) onError(error);
+        else
+          toast({
+            title: t('failed-to-add-integration'),
+            description: error instanceof Error ? error.message : undefined,
+            variant: 'destructive',
+          });
       } finally {
         updateCreation((current) =>
           current.request === request ? { ...current, request: null } : current,
         );
       }
     },
-    [addIntegration, updateCreation, t],
+    [updateCreation, t],
   );
+
+  const createIntegration = (options: CreateOptions): Promise<void> =>
+    runCreate(async () => {
+      let failure: Error | undefined;
+      const result = await addIntegration({
+        ...options,
+        onError: (error) => {
+          failure = error;
+        },
+      });
+      if (failure) throw failure;
+      const id = result.data?.integrationsCreateExternalIntegration?._id;
+      if (!id) throw new Error(t('failed-to-add-integration'));
+      return id;
+    });
 
   return {
     createIntegration,
+    runCreate,
     createdId: creation.createdId,
     loading: loading || Boolean(creation.request),
   };
