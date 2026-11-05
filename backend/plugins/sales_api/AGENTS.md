@@ -276,6 +276,13 @@
 - `deals` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); sales saves them itself and makes no core relation for them. `dealsAdd` / `dealsEdit`, `cpDealsAdd`, the agent `deal.add` tool and the `deal.create` / `deal.createItem` tRPC take them on the doc; copies take the source deal's; automations set them with `setDealContacts` (`modules/sales/utils.ts`). `Deal` exposes `customerId` / `companyId` and keeps `customers` / `companies` (0–1 items). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills deals linked before (first of old arrays, else the oldest related contact).
 - Tenant-scoped Mongo collections are loaded through plugin connection
   resolvers.
+- `1970-01-01` never means an unset deal `startDate` / `closeDate`. A deal
+  created without a date has no such field; clearing the date through
+  `dealsEdit` stores `null`. The "no close date" filter matches only
+  `closeDate: { $exists: false }`, so a cleared (`null`) date is not in it.
+  Deals carried over from 2.x can hold the epoch value;
+  `backend/saas-migrations/core/commands/epochDealDates.ts` unsets exactly
+  `new Date(0)` and leaves every other date untouched.
 - Deal stage browsing uses `stageId`; its total count filters archived and
   child deals through the compound count index.
 - The unscoped deal list defaults to `order` then `_id` ordering and must avoid
