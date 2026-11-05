@@ -283,7 +283,6 @@ const MailIntegrationCreated = ({
   );
 };
 
-/** Keeps sending-readiness failures visible with a retry that retains wizard fields. */
 const MailReadinessError = ({
   message,
   onRetry,
@@ -347,7 +346,6 @@ export const MailIntegrationPanelForm = () => {
 
   const sendingReady = Boolean(readiness?.ready && !readinessError);
 
-  /** Creates only from the confirmed sending step and retains failures for retry. */
   const onSubmit = async (data: MailFormValues) => {
     if (
       step !== 3 ||

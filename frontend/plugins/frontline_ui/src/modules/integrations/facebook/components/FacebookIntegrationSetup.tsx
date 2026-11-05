@@ -66,7 +66,6 @@ export const FacebookIntegrationSetup = () => {
     close();
   }, [createdId, isActive, clearDraft, resetFacebookForm, close]);
 
-  /** Creates once per scoped context, retaining pending and confirmed state across remounts. */
   const onNext = (data: z.infer<typeof FACEBOOK_INTEGRATION_SCHEMA>) =>
     createIntegration({
       variables: {

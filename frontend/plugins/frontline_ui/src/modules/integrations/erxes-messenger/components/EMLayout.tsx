@@ -30,7 +30,6 @@ export const EMLayout = ({
   const [step, setStep] = useAtom(erxesMessengerSetupStepAtom);
   const editSave = useEMEditSave();
 
-  /** Closes the panel while retaining this messenger draft. */
   const handleCancel = () => {
     close();
   };

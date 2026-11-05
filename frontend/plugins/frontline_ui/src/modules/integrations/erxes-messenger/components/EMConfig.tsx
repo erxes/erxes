@@ -299,7 +299,6 @@ export const EMConfig = () => {
   const { createMessenger, loading: createLoading } = useCreateMessenger();
   const { editMessenger, loading: editLoading } = useEditMessenger();
 
-  /** Clears only the saved draft and closes its panel if it still owns the editor. */
   const handleComplete = (submittedRevision: number) => {
     if (!acknowledgeRevision(submittedRevision)) return;
     if (!isActive()) return;

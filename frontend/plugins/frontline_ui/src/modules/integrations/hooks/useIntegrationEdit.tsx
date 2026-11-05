@@ -12,14 +12,12 @@ type IntegrationEditOptions = MutationFunctionOptions<
   IntegrationsEditCommonFieldsMutationVariables
 >;
 
-/** Saves common fields and completes provider forms only after a confirmed payload. */
 export const useIntegrationEdit = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
-  /** Keeps empty successful HTTP responses from clearing an unsaved form. */
   const mutate = (options: IntegrationEditOptions) => {
     editIntegration({
       ...options,
@@ -75,13 +73,11 @@ export const useIntegrationEdit = () => {
   };
 };
 
-/** Saves a table field with the existing integration identity and common values. */
 export const useIntegrationEditField = (
   cellData: IntegrationsEditCommonFieldsMutationVariables,
 ) => {
   const { editIntegration, loading } = useIntegrationEdit();
 
-  /** Applies provided field changes unless the caller has skipped this update. */
   const editIntegrationField = (
     options: Omit<IntegrationEditOptions, 'variables'> & {
       variables?: Partial<IntegrationsEditCommonFieldsMutationVariables>;

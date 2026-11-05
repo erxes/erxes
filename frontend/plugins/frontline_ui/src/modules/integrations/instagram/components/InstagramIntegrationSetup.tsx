@@ -62,7 +62,6 @@ export const InstagramIntegrationSetup = () => {
     close();
   }, [createdId, isActive, clearDraft, resetInstagramForm, close]);
 
-  /** Creates once per scoped context and leaves failed inputs available for retry. */
   const onNext = (data: z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>) => {
     if (!channelId) return undefined;
     return createIntegration({

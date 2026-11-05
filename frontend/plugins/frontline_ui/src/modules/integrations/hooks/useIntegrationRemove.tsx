@@ -44,7 +44,6 @@ export const useIntegrationRemove = ({
     },
   });
 
-  /** Clears only this integration's pending marker when its removal settles. */
   const finishRemoval = () => {
     setRemovingIds((ids) => ids.filter((id) => id !== _id));
   };

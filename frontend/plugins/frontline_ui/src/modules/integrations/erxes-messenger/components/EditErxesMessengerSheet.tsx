@@ -9,7 +9,6 @@ import { useEffect } from 'react';
 import { erxesMessengerSetSetupAtom } from '@/integrations/erxes-messenger/states/EMSetupSetAtom';
 import { useMessengerDraft } from '../hooks/useMessengerDraft';
 
-/** Restores the selected draft and accepts detail only for the active edit identity. */
 export const EditErxesMessengerSheet = ({ id: idToEdit }: { id: string }) => {
   const ready = useMessengerDraft(idToEdit);
   const store = useStore();

@@ -3169,8 +3169,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Save persists settings. Activity uses the public platform list and its
   loading/empty behavior, including its existing query-error limitation.
 
-- `pnpm nx test frontline_ui` covers provider failure/retry, scoped drafts,
-  stale-field save reconciliation and deletion navigation across panel changes.
 - Integration panel smoke: create and edit each supported provider from its
   channel and catalog, visit Activity or another record and reopen; confirm
   fields and wizard steps remain scoped by user, record, provider and channel.
@@ -3190,9 +3188,6 @@ null }`, fall back to the route pipeline and skip without one; never pass
   succeeds; readiness errors expose retry without losing fields. Telegram setup
   and disconnect regressions retain lost-response reconciliation, callback
   precedence and independent local/provider cleanup outcomes.
-- The existing Telegram setup and disconnect specs use the UI, network and
-  panel fixtures in `src/modules/integrations/__tests__/fixtures`; keep
-  those fixtures aligned with the Telegram panel.
 
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its

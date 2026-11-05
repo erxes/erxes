@@ -26,7 +26,6 @@ const IntegrationRecordForm = lazy(() =>
   })),
 );
 
-/** Shows the integration name or the loading title placeholder. */
 const IntegrationPanelTitle = ({
   loading,
   integration,

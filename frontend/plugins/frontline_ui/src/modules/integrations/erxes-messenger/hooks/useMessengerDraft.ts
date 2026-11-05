@@ -40,7 +40,6 @@ const usePopulated = createIntegrationAtomDraft(
   false,
 );
 
-/** Restores this messenger's memory draft before any editor effects write values. */
 export const useMessengerDraft = (editId: string | false): boolean => {
   const key = useContext(IntegrationDraftContext);
   const [readyKey, setReadyKey] = useState<string>();

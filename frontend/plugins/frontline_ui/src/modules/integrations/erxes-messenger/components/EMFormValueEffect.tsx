@@ -12,7 +12,6 @@ type MessengerFormAtom<T extends FieldValues> = WritableAtom<
   unknown
 >;
 
-/** Restores each Messenger step before syncing later local edits to its atom. */
 export const EMFormValueEffectComponent = <T extends FieldValues>({
   form,
   atom,
@@ -51,7 +50,6 @@ export const EMFormValueEffectComponent = <T extends FieldValues>({
   );
 };
 
-/** Hydrates a mounted step before unlocking writes to its cached draft. */
 export const EMFormResetEffectComponent = <T extends FieldValues>({
   form,
   atom,
@@ -91,7 +89,6 @@ export const EMFormResetEffectComponent = <T extends FieldValues>({
   return null;
 };
 
-/** Stores the latest typed form values only after the draft has been restored. */
 export const EMFormValueSetterEffectComponent = <T extends FieldValues>({
   form,
   atom,

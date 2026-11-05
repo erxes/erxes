@@ -30,7 +30,6 @@ import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages
 import { useFbAuthPopup } from '@/integrations/facebook/hooks/useFbAuthPopup';
 import { useFbIntegrationContext } from '@/integrations/facebook/contexts/FbIntegrationContext';
 
-/** Renders one selectable Facebook account and its page connection status. */
 const FacebookAccountRow = ({
   account,
   selectedAccount,
@@ -89,7 +88,6 @@ const FacebookAccountRow = ({
   );
 };
 
-/** Selects an authorized Facebook account and supports retrying a blocked login popup. */
 export const FacebookGetAccounts = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -110,7 +108,6 @@ export const FacebookGetAccounts = () => {
     setIsLoggingIn(false);
   });
 
-  /** Starts authorization and releases the action immediately when the popup is blocked. */
   const handleFacebookLogin = () => {
     setIsLoggingIn(true);
     const opened = popupWindow(
@@ -128,7 +125,6 @@ export const FacebookGetAccounts = () => {
     }
   };
 
-  /** Advances the selected account to its page-selection step. */
   const onNext = () => setActiveStep(2);
 
   const filteredAccounts = facebookGetAccounts.filter((account) =>

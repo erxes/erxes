@@ -5,7 +5,6 @@ import { erxesMessengerSetupEditSheetOpenAtom } from '../states/erxesMessengerSe
 import { EMSetup } from './EMSetup';
 import { useMessengerDraft } from '../hooks/useMessengerDraft';
 
-/** Opens Messenger creation with the edit identity cleared even during a pending read. */
 export const AddErxesMessengerSheet = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -18,7 +17,6 @@ export const AddErxesMessengerSheet = () => {
   );
 };
 
-/** Restores the create draft before mounting Messenger setup. */
 export const AddErxesMessengerPanelForm = () => {
   const ready = useMessengerDraft(false);
   return ready ? <EMSetup /> : null;

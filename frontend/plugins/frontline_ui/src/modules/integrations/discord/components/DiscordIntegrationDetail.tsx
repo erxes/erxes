@@ -165,7 +165,6 @@ const useSubmitting = createIntegrationDraftState(false);
 
 const useFormDraft = createIntegrationFormDraft<FormValues>();
 
-/** Shows token validation and resumes channel selection for an existing Discord bot. */
 const DiscordTokenStep = ({
   currentValidation,
   validating,
@@ -351,7 +350,6 @@ const DiscordTokenStep = ({
   );
 };
 
-/** Renders available Discord servers and explains how to invite a missing bot. */
 const DiscordServerStep = ({
   guilds,
   loading,
@@ -411,7 +409,6 @@ const DiscordServerStep = ({
   );
 };
 
-/** Preserves scoped setup state and retries only channels without confirmed integrations. */
 export const DiscordIntegrationPanelForm = () => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
@@ -522,7 +519,6 @@ export const DiscordIntegrationPanelForm = () => {
     setSubmitting(true);
     const failed: MultiSelectOption[] = [];
 
-    /** Completes each channel before starting the next so partial progress stays recoverable. */
     const createChannel = async (channel: MultiSelectOption): Promise<void> => {
       const channelName = channel.label.replace(/^#/, '');
       const displayName = `${values.name} - #${channelName}`;

@@ -8,7 +8,6 @@ import {
 import { useTranslation } from 'react-i18next';
 import type { UseFormRegisterReturn } from 'react-hook-form';
 
-/** Shares panel name markup while preserving controlled and registered inputs. */
 export const IntegrationNameField = ({
   label,
   description,
@@ -52,7 +51,6 @@ export const IntegrationNameField = ({
   );
 };
 
-/** Shares brand markup while retaining each provider's selector and row layout. */
 export const IntegrationBrandField = ({
   required,
   variant = 'single',

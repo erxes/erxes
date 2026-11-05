@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Tracks authorization popups and reports blocked opens to the caller. */
 export const useFbAuthPopup = (onClose?: () => void) => {
   const popupRef = useRef<Window | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  /** Opens the centered popup, returning false when the browser blocks it. */
   const popupWindow = (url: string, title: string, w: number, h: number) => {
     const dualScreenLeft = window.screenLeft ?? window.screenX;
     const dualScreenTop = window.screenTop ?? window.screenY;

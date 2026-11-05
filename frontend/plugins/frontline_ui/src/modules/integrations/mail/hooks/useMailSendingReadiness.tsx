@@ -6,7 +6,6 @@ export type IMailSendingReadiness = NonNullable<
   MailSendingReadinessQuery['mailSendingReadiness']
 >;
 
-/** Exposes sending readiness together with query errors and retry. */
 export const useMailSendingReadiness = () => {
   const { data, loading, error, refetch } = useQuery(
     MAIL_SENDING_READINESS_QUERY,

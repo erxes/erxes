@@ -16,7 +16,6 @@ const useCreation = createIntegrationDraftState<Creation>({
   createdId: null,
 });
 
-/** Retains social-provider creation ownership and confirmed results across panel remounts. */
 export const useSocialIntegrationCreate = (): {
   createIntegration: (options: CreateOptions) => Promise<void>;
   createdId: string | null;
@@ -41,7 +40,6 @@ export const useSocialIntegrationCreate = (): {
     [updateCreation, clearSession],
   );
 
-  /** Starts at most one request per context and releases only its own failed attempt. */
   const createIntegration = useCallback(
     async (options: CreateOptions): Promise<void> => {
       const request = Symbol('social-integration-create');
