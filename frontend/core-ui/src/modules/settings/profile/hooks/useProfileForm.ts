@@ -2,6 +2,7 @@ import { useForm, type FieldNamesMarkedBoolean } from 'react-hook-form';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { isDeeplyEqual } from 'erxes-ui';
 
 const discordIdRegex = /^\d{17,19}$/;
 const discordUrlRegex = new RegExp(
@@ -126,6 +127,9 @@ const pickDirtyFields = <T extends object>(
   return patch;
 };
 
+const hasDirtyPositions = (dirty: unknown): boolean =>
+  Array.isArray(dirty) ? dirty.some((value) => value === true) : dirty === true;
+
 export const getProfilePatch = (
   values: FormType,
   dirtyFields: FieldNamesMarkedBoolean<FormType>,
@@ -133,7 +137,8 @@ export const getProfilePatch = (
   const patch: ProfilePatch = {};
   if (dirtyFields.username) patch.username = values.username;
   if (dirtyFields.email) patch.email = values.email;
-  if (dirtyFields.positionIds) patch.positionIds = values.positionIds;
+  if (hasDirtyPositions(dirtyFields.positionIds))
+    patch.positionIds = values.positionIds;
   if (dirtyFields.details && values.details) {
     const details = pickDirtyFields(values.details, dirtyFields.details);
     if (Object.keys(details).length > 0) patch.details = details;
@@ -143,6 +148,41 @@ export const getProfilePatch = (
     if (Object.keys(links).length > 0) patch.links = links;
   }
   return patch;
+};
+
+const pickChangedFields = <T extends object>(
+  values: T,
+  previous: T,
+): Partial<T> => {
+  const changed: Partial<T> = {};
+  for (const key in values) {
+    if (
+      Object.prototype.hasOwnProperty.call(values, key) &&
+      !isDeeplyEqual(values[key], previous[key], { strict: true })
+    ) {
+      changed[key] = values[key];
+    }
+  }
+  return changed;
+};
+
+export const getProfileValuesAfterSave = (
+  saved: FormType,
+  submitted: FormType,
+  current: FormType,
+): FormType => {
+  const values = { ...saved, ...pickChangedFields(current, submitted) };
+  if (current.details) {
+    values.details = {
+      ...saved.details,
+      ...pickChangedFields(current.details, submitted.details ?? {}),
+    };
+  }
+  values.links = {
+    ...saved.links,
+    ...pickChangedFields(current.links, submitted.links),
+  };
+  return values;
 };
 
 const useProfileForm = () => {

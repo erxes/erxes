@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { SubmitHandler } from 'react-hook-form';
 
 import {
@@ -12,6 +12,7 @@ import { useProfile } from '@/settings/profile/hooks/useProfile';
 import {
   FormType,
   getProfilePatch,
+  getProfileValuesAfterSave,
   useProfileForm,
 } from '@/settings/profile/hooks/useProfileForm';
 import { Button, Form, Spinner, Upload, toast } from 'erxes-ui';
@@ -23,6 +24,7 @@ export const ProfileForm = () => {
   });
   const { form } = useProfileForm();
   const { dirtyFields } = form.formState;
+  const saveInProgressRef = useRef(false);
 
   const { loading, profileUpdate, profile, updating } = useProfile();
 
@@ -33,22 +35,57 @@ export const ProfileForm = () => {
         toast({ title: t('no-profile-changes', 'No profile changes to save') });
         return;
       }
+      const submittedValues = structuredClone(form.getValues());
       profileUpdate({
         variables: patch,
+        onStart: () => {
+          saveInProgressRef.current = true;
+        },
+        onCompleted: ({ usersEditProfilePatch: saved }) => {
+          const currentValues = structuredClone(form.getValues());
+          // Saved values become the baseline; only later edits stay dirty.
+          form.reset({
+            username: saved.username,
+            positionIds: saved.positionIds ?? [],
+            email: saved.email,
+            details: saved.details,
+            links: saved.links ?? {},
+          });
+          form.reset(
+            getProfileValuesAfterSave(
+              form.getValues(),
+              submittedValues,
+              currentValues,
+            ),
+            { keepDefaultValues: true },
+          );
+          saveInProgressRef.current = false;
+        },
+        onError: () => {
+          saveInProgressRef.current = false;
+        },
       });
     },
-    [dirtyFields, profileUpdate, t],
+    [dirtyFields, form, profileUpdate, t],
   );
 
   useEffect(() => {
-    if (profile && Object.keys(profile).length > 0) {
-      form.reset({
-        username: profile.username,
-        positionIds: profile.positionIds,
-        email: profile.email,
-        details: profile.details,
-        links: profile.links,
-      });
+    // Apollo cache effects can run before the mutation's completion callback.
+    if (
+      !saveInProgressRef.current &&
+      profile &&
+      Object.keys(profile).length > 0
+    ) {
+      form.reset(
+        {
+          username: profile.username,
+          positionIds: profile.positionIds ?? [],
+          email: profile.email,
+          details: profile.details,
+          links: profile.links ?? {},
+        },
+        { keepDirtyValues: true },
+      );
     }
   }, [profile, form]);
 
