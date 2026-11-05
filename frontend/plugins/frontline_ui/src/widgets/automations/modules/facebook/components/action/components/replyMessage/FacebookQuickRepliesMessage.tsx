@@ -10,7 +10,7 @@ import { InputTextCounter } from '../InputTextCounter';
 export const FacebookQuickRepliesMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'quickReplies' }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control } = useReplyMessageAction();
   return (
     <>

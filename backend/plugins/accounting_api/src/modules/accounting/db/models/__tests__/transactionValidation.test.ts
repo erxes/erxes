@@ -34,7 +34,13 @@ const query = (value: unknown) => ({
 const setup = () => {
   const find = jest.fn(() => query(rows));
   const deleteMany = jest.fn();
-  const models = { Transactions: { find, deleteMany } } as unknown as IModels;
+  const models = {
+    Transactions: {
+      find,
+      deleteMany,
+      getTransaction: jest.fn().mockResolvedValue(rows[0]),
+    },
+  } as unknown as IModels;
   const events = {
     sendDbEventLog: jest.fn(),
     createActivityLog: jest.fn(),
@@ -42,7 +48,10 @@ const setup = () => {
   const schema = loadTransactionClass(models, 'tenant', events);
   const methods = schema.statics as unknown as Pick<
     ITransactionModel,
-    'createPTransaction' | 'updatePTransaction' | 'removePTransaction'
+    | 'createPTransaction'
+    | 'updatePTransaction'
+    | 'removePTransaction'
+    | 'removeTransaction'
   >;
   return { models, methods, find, deleteMany };
 };
@@ -118,5 +127,68 @@ describe('transaction model validation phases', () => {
     expect(calls.removeValidation).toHaveBeenCalledTimes(2);
     expect(calls.remove).not.toHaveBeenCalled();
     expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('passes loaded group rows into cleanup without fetching them again', async () => {
+    const { methods, models, find } = setup();
+    find
+      .mockReturnValueOnce(query(rows))
+      .mockReturnValueOnce(query(rows))
+      .mockReturnValueOnce(query([]))
+      .mockReturnValueOnce(query(rows));
+    const calls = spies();
+    await expect(
+      methods.removePTransaction({ parentId: 'parent' }),
+    ).rejects.toThrow('Unexpected cleanup');
+    expect(calls.remove).toHaveBeenCalledWith('tenant', models, rows[0], rows);
+    expect(find).toHaveBeenCalledTimes(4);
+  });
+
+  it('loads all source follows before dispatching single removal', async () => {
+    const { methods, models, find, deleteMany } = setup();
+    const follows = [{ ...rows[0], _id: 'follow', originId: 'retained' }];
+    find.mockReturnValueOnce(query([])).mockReturnValueOnce(query(follows));
+    const calls = spies();
+    await expect(methods.removeTransaction('retained')).rejects.toThrow(
+      'Unexpected cleanup',
+    );
+    expect(find).toHaveBeenLastCalledWith({ originId: 'retained' });
+    expect(calls.remove).toHaveBeenCalledWith(
+      'tenant',
+      models,
+      rows[0],
+      follows,
+    );
+    expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('loads group follows once for update cleanup without treating them as roots', async () => {
+    const { methods, models, find } = setup();
+    const group = [
+      ...rows,
+      { ...rows[0], _id: 'follow', originId: 'retained' },
+    ];
+    find.mockReturnValueOnce(query(group));
+    const calls = spies();
+    calls.session.mockResolvedValue({
+      startTransaction: jest.fn(),
+      abortTransaction: jest.fn(),
+      endSession: jest.fn(),
+    } as never);
+    await expect(
+      methods.updatePTransaction('parent', [], 'user', {
+        skipAccountPermission: true,
+      }),
+    ).rejects.toThrow('Unexpected cleanup');
+    expect(find).toHaveBeenCalledTimes(1);
+    expect(find).toHaveBeenCalledWith({ parentId: 'parent' });
+    expect(calls.removeValidation).toHaveBeenCalledTimes(2);
+    expect(calls.removeValidation).toHaveBeenCalledWith(
+      'tenant',
+      models,
+      rows[0],
+      group,
+    );
+    expect(calls.remove).toHaveBeenCalledWith('tenant', models, rows[0], group);
   });
 });

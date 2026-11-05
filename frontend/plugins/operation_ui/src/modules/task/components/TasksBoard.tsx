@@ -22,10 +22,7 @@ import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import clsx from 'clsx';
 import { taskCountByBoardAtom } from '@/task/states/tasksTotalCountState';
 import { IconBrandTrello, IconPlus, IconSettings } from '@tabler/icons-react';
-import {
-  taskCreateDefaultValuesState,
-  taskCreateSheetState,
-} from '@/task/states/taskCreateSheetState';
+import { useCreateTaskRecord } from '@/task/hooks/useCreateTaskRecord';
 import { useInView } from 'react-intersection-observer';
 import { StatusInlineIcon } from '@/operation/components/StatusInline';
 
@@ -266,16 +263,10 @@ export function TaskCardsFetchMore({
 }
 
 function TaskCreateSheetTrigger({ status }: Readonly<{ status: string }>) {
-  const setOpenCreateTask = useSetAtom(taskCreateSheetState);
-  const setDefaultValues = useSetAtom(taskCreateDefaultValuesState);
-
-  const handleClick = () => {
-    setDefaultValues({ status });
-    setOpenCreateTask(true);
-  };
+  const { openTaskDraft } = useCreateTaskRecord();
 
   return (
-    <Button variant="ghost" size="icon" onClick={handleClick}>
+    <Button variant="ghost" size="icon" onClick={() => openTaskDraft({ status })}>
       <IconPlus />
     </Button>
   );

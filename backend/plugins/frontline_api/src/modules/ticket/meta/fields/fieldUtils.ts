@@ -78,7 +78,7 @@ const TICKET_FIELD_NAMES_WITH_OPTIONS = new Set([
   'createdBy',
   'userId',
   'tagIds',
-  'companyIds',
+  'companyId',
 ]);
 
 const toStringValue = (value: unknown): string | undefined => {
@@ -169,13 +169,13 @@ const generateUsersOptions = (name: string, label: string, multi = false) =>
 
 const generateCompaniesOptions = () =>
   withQueryConfig({
-    name: 'companyIds',
-    label: 'Companies',
+    name: 'companyId',
+    label: 'Company',
     type: 'contact',
     configs: {
       queryName: 'companies',
       labelField: 'primaryName',
-      multi: true,
+      multi: false,
     },
   });
 

@@ -6,8 +6,8 @@ import type { QueryHookOptions } from '@apollo/client';
 import { toGraphqlView } from '@/utils/graphql';
 import { useQuery } from '@apollo/client';
 import { useEffect } from 'react';
-import { ADJUST_FIXED_ASSET_DETAIL_QUERY } from '../graphql/adjustFixedAssetQueries';
-import { ACCOUNTING_ADJUST_FIXED_ASSET_CHANGED } from '../graphql/adjustFixedAssetSubscription';
+import { ADJUST_FIXED_ASSET_DETAIL_QUERY } from '@/adjustments/fxa/graphql/adjustFixedAssetQueries';
+import { ACCOUNTING_ADJUST_FIXED_ASSET_CHANGED } from '@/adjustments/fxa/graphql/adjustFixedAssetSubscription';
 
 export const useAdjustFixedAssetDetail = (
   options?: QueryHookOptions<

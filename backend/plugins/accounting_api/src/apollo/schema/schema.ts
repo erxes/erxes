@@ -85,6 +85,16 @@ import {
   inputTypes as safeRemainderItemInputTypes,
 } from '~/modules/inventories/graphql/schemas/safeRemainderItem';
 import {
+  mutations as jobMutations,
+  queries as jobQueries,
+  types as jobTypes,
+} from '~/modules/inventories/graphql/schemas/job';
+import {
+  types as jobExecutionTypes,
+  queries as jobExecutionQueries,
+  mutations as jobExecutionMutations,
+} from '~/modules/inventories/graphql/schemas/jobExecution';
+import {
   mutations as fixedAssetMutations,
   queries as fixedAssetQueries,
   types as fixedAssetTypes,
@@ -137,6 +147,8 @@ export const types = `
   ${safeRemainderTypes}
   ${safeRemainderItemTypes}
   ${safeRemainderItemInputTypes}
+  ${jobTypes}
+  ${jobExecutionTypes}
 `;
 
 export const queries = `
@@ -160,6 +172,8 @@ export const queries = `
   ${reserveRemsQueries}
   ${safeRemainderQueries}
   ${safeRemainderItemQueries}
+  ${jobQueries}
+  ${jobExecutionQueries}
 `;
 
 export const mutations = `
@@ -182,6 +196,8 @@ export const mutations = `
   ${reserveRemsMutations}
   ${safeRemainderMutations}
   ${safeRemainderItemMutations}
+  ${jobMutations}
+  ${jobExecutionMutations}
 `;
 
 export default { types, queries, mutations };

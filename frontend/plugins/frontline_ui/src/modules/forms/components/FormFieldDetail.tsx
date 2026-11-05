@@ -17,6 +17,14 @@ import { IconInfoCircle, IconPlus, IconTrash } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DOMPurify from 'dompurify';
+import { useFormFieldConversion } from '../hooks/useFormFieldConversion';
+import { useFormConversionTranslation } from '../conversionTranslations';
+import { FormConversionFeedback } from './FormConversionFeedback';
+import { FORM_FIELD_TYPES } from '../constants/formFieldTypes';
+import {
+  canConvertFormField,
+  getConvertedFieldValidation,
+} from '../constants/formFieldConversions';
 import {
   FieldValidatorPresetKey,
   FieldValidatorType,
@@ -30,7 +38,7 @@ import {
 } from '../constants/formLogicLabels';
 
 const NUMBER_TYPES = ['number'];
-const DATE_TYPES = ['date'];
+const DATE_TYPES = ['date', 'core:customer:birthDate'];
 
 const VALIDATOR_PRESET_OPTIONS: {
   value: FieldValidatorPresetKey;
@@ -79,6 +87,7 @@ export const FormFieldDetail = ({
   handleClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const conversionText = useFormConversionTranslation();
   const { handleChangeField, handleDeleteField, fields, getFieldValue } =
     useFormDnd();
 
@@ -110,10 +119,19 @@ export const FormFieldDetail = ({
       ),
     )
     .filter((f): f is IFieldData => !!f && f.id !== fieldId.toString());
+  const conversionCheck = useFormFieldConversion(draft, availableFields);
 
   if (!draft) {
     return null;
   }
+
+  const originalType = draft.expectedType ?? draft.type;
+  const conversionTargets = FORM_FIELD_TYPES.filter(
+    (field) =>
+      field.value !== draft.type &&
+      field.value !== originalType &&
+      canConvertFormField(originalType, field.value),
+  );
 
   const handleValueChange = (
     key: keyof IFieldData,
@@ -201,7 +219,7 @@ export const FormFieldDetail = ({
   };
 
   const handleConfirm = async () => {
-    if (!draft) return;
+    if (!draft || !conversionCheck.canConfirm) return;
     const description = await serializeDescription();
     handleChangeField(stepId, fieldId, { ...draft, description });
     handleClose();
@@ -216,6 +234,83 @@ export const FormFieldDetail = ({
       <Sheet.Content className="grow size-full overflow-y-hidden flex flex-col">
         <ScrollArea className="h-full">
           <div className="grid grid-cols-2 gap-4 p-6">
+            {(conversionTargets.length > 0 || draft.type !== originalType) && (
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="form-field-conversion">
+                  {conversionText.t('convert')}
+                </Label>
+                <Select
+                  value={draft.type}
+                  onValueChange={(type) =>
+                    setDraft(
+                      (previous) =>
+                        previous && {
+                          ...previous,
+                          expectedType:
+                            type === originalType
+                              ? undefined
+                              : previous.expectedType ?? previous.type,
+                          type,
+                          validation:
+                            type === originalType
+                              ? conversionCheck.savedField?.validation ??
+                                fieldData?.validation ??
+                                ''
+                              : getConvertedFieldValidation(type),
+                          validator:
+                            type === originalType
+                              ? {
+                                  type:
+                                    conversionCheck.savedField?.validator
+                                      ?.type ??
+                                    fieldData?.validator?.type ??
+                                    'NONE',
+                                  presetKey:
+                                    conversionCheck.savedField?.validator
+                                      ?.presetKey ??
+                                    fieldData?.validator?.presetKey ??
+                                    undefined,
+                                  customRegex:
+                                    conversionCheck.savedField?.validator
+                                      ?.customRegex ??
+                                    fieldData?.validator?.customRegex ??
+                                    undefined,
+                                  errorMessage:
+                                    conversionCheck.savedField?.validator
+                                      ?.errorMessage ??
+                                    fieldData?.validator?.errorMessage ??
+                                    undefined,
+                                }
+                              : { type: 'NONE' },
+                        },
+                    )
+                  }
+                >
+                  <Select.Trigger id="form-field-conversion">
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value={draft.type}>
+                      {conversionText.fieldType(draft.type)}
+                    </Select.Item>
+                    {draft.type !== originalType && (
+                      <Select.Item value={originalType}>
+                        {conversionText.fieldType(originalType)}
+                      </Select.Item>
+                    )}
+                    {conversionTargets.map((field) => (
+                      <Select.Item key={field.value} value={field.value}>
+                        {conversionText.fieldType(field.value)}
+                      </Select.Item>
+                    ))}
+                  </Select.Content>
+                </Select>
+                <p className="text-sm text-muted-foreground">
+                  {conversionText.t('help')}
+                </p>
+                <FormConversionFeedback check={conversionCheck} />
+              </div>
+            )}
             <div className="space-y-2 col-span-2">
               <Label>{t('field-label', 'Label')}</Label>
               <Input
@@ -343,19 +438,18 @@ export const FormFieldDetail = ({
                   />
                 )}
 
-                {draft.validator?.type &&
-                  draft.validator.type !== 'NONE' && (
-                    <Input
-                      value={draft.validator.errorMessage ?? ''}
-                      onChange={(e) =>
-                        handleChangeValidator({ errorMessage: e.target.value })
-                      }
-                      placeholder={t(
-                        'error-message-placeholder',
-                        'Error message shown to the user',
-                      )}
-                    />
-                  )}
+                {draft.validator?.type && draft.validator.type !== 'NONE' && (
+                  <Input
+                    value={draft.validator.errorMessage ?? ''}
+                    onChange={(e) =>
+                      handleChangeValidator({ errorMessage: e.target.value })
+                    }
+                    placeholder={t(
+                      'error-message-placeholder',
+                      'Error message shown to the user',
+                    )}
+                  />
+                )}
               </div>
             )}
 
@@ -542,7 +636,9 @@ export const FormFieldDetail = ({
           <IconTrash />
           {t('delete', 'Delete')}
         </Button>
-        <Button onClick={handleConfirm}>{t('confirm', 'Confirm')}</Button>
+        <Button onClick={handleConfirm} disabled={!conversionCheck.canConfirm}>
+          {t('confirm', 'Confirm')}
+        </Button>
       </Sheet.Footer>
     </div>
   );

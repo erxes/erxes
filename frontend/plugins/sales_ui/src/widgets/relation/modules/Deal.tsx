@@ -1,110 +1,108 @@
-import { Button, ScrollArea, Separator, Spinner } from 'erxes-ui';
+import { useQuery } from '@apollo/client';
+import { Button, Spinner } from 'erxes-ui';
 import { IconCaretLeftRight, IconPlus } from '@tabler/icons-react';
-import { useCreateMultipleRelations, useRelations } from 'ui-modules';
+import {
+  getHostContacts,
+  IRelationWidgetProps,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+} from 'ui-modules';
 
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
-import ChooseDealSheet from '@/deals/components/ChooseDealSheet';
 import { DealWidget } from './DealWidget';
 import { dealCreateSheetState } from '@/deals/states/dealCreateSheetState';
+import { SALES_CONTACT_DEALS } from '~/widgets/contact/contactDeals';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
+// The most deals listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The deals of the host's customer and company, found by the contact on the
+ * deals themselves; "+" creates one for them (dealsAdd saves the contact).
+ */
 export const Deal = ({
   contentId,
   contentType,
   customerId,
   companyId,
-}: {
-  contentId: string;
-  contentType: string;
-  customerId?: string;
-  companyId?: string;
-}) => {
+  customerIds,
+  companyIds,
+}: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('sales');
-  const { ownEntities, loading: loadingRelations } = useRelations({
-    variables: {
-      contentId,
-      contentType,
-      relatedContentType: 'sales:deal',
-    },
+  const contacts = getHostContacts({
+    contentType,
+    contentId,
+    customerId,
+    companyId,
+    customerIds,
+    companyIds,
   });
-
-  const { createMultipleRelations } = useCreateMultipleRelations();
+  const customerDeals = useQuery(SALES_CONTACT_DEALS, {
+    variables: {
+      customerId: contacts.customerId,
+      limit: CONTACT_RECORDS_LIMIT,
+    },
+    skip: !contacts.customerId,
+  });
+  const companyDeals = useQuery(SALES_CONTACT_DEALS, {
+    variables: {
+      companyId: contacts.companyId,
+      limit: CONTACT_RECORDS_LIMIT,
+    },
+    skip: !contacts.companyId,
+  });
   const setOpenCreateDeal = useSetAtom(dealCreateSheetState);
 
-  if (loadingRelations) {
+  if (customerDeals.loading || companyDeals.loading) {
     return <Spinner containerClassName="py-20" />;
   }
 
-  const onComplete = (dealId: string) => {
-    const createRelation = (ct: string, cid: string) => ({
-      entities: [
-        { contentType: ct, contentId: cid },
-        { contentType: 'sales:deal', contentId: dealId },
-      ],
-    });
-
-    const relationKeys = new Set<string>();
-
-    const relations = [
-      [contentType, contentId],
-      ...(customerId ? [['core:customer', customerId]] : []),
-      ...(companyId ? [['core:company', companyId]] : []),
-    ]
-      .filter(([ct, cid]) => {
-        const key = `${ct}:${cid}`;
-        if (relationKeys.has(key)) {
-          return false;
-        }
-        relationKeys.add(key);
-        return true;
-      })
-      .map(([ct, cid]) => createRelation(ct, cid));
-
-    createMultipleRelations(relations);
-  };
+  // The host itself is not listed among its contacts' deals.
+  const dealIds = [
+    ...new Set(
+      [
+        ...(customerDeals.data?.deals?.list || []),
+        ...(companyDeals.data?.deals?.list || []),
+      ].flatMap((deal) => (deal && deal._id !== contentId ? [deal._id] : [])),
+    ),
+  ];
 
   const handleDealOpen = () => {
     setOpenCreateDeal(true);
   };
 
-  if (ownEntities?.length === 0) {
+  if (dealIds.length === 0) {
     return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconCaretLeftRight />
-        </div>
-        <span className="text-sm">{t('no-deals-to-display')}</span>
+      <RelationWidgetEmptyState
+        icon={IconCaretLeftRight}
+        message={t('no-deals-to-display')}
+      >
         <Button variant="secondary" onClick={handleDealOpen}>
           <IconPlus />
           {t('add-a-deal')}
         </Button>
-        <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
-        <ChooseDealSheet onComplete={onComplete} showText={true} />
-      </div>
+        <AddDealSheet contacts={contacts} showWorkflowFields />
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <>
-      <div className="h-11 px-4 flex items-center gap-2 flex-none bg-background justify-between">
-        <span className="font-medium text-primary">{t('deals')}</span>
-        <div className="flex gap-2 items-center">
+    <RelationWidgetList
+      label={t('deals')}
+      actions={
+        <>
           <Button variant="secondary" onClick={handleDealOpen}>
             <IconPlus />
           </Button>
-          <AddDealSheet onComplete={onComplete} showWorkflowFields={true} />
-          <ChooseDealSheet onComplete={onComplete} />
-        </div>
-      </div>
-      <Separator />
-      <ScrollArea className="flex-auto">
-        <div className="flex flex-col gap-4 p-4">
-          {ownEntities?.map((entity) => (
-            <DealWidget key={entity.contentId} dealId={entity.contentId} />
-          ))}
-        </div>
-      </ScrollArea>
-    </>
+          <AddDealSheet contacts={contacts} showWorkflowFields />
+        </>
+      }
+    >
+      {dealIds.map((dealId) => (
+        <DealWidget key={dealId} dealId={dealId} />
+      ))}
+    </RelationWidgetList>
   );
 };

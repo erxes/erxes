@@ -37,7 +37,7 @@ export const ComposerReplyPreview = ({
   replyTo: MessageReplyTarget;
   onCancel: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <div className="flex h-8 min-w-0 items-center gap-2 border-l border-border/60 pl-3 text-xs text-muted-foreground">

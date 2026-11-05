@@ -20,6 +20,7 @@ import { gql } from '~/gql';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { DISCORD_EDIT_SCHEMA } from '../constants/discordSchema';
+import { useTranslation } from 'react-i18next';
 
 // Both edit + repair reuse the generic inbox integration mutations; the only
 // Discord-specific piece is the repair backend handler (re-validate + reconnect).
@@ -37,6 +38,9 @@ const DiscordIntegrationEditForm = ({
   id: string;
   setOpen: (open: boolean) => void;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { loading, integrationDetail } = useIntegrationDetail({
     integrationId: id,
   });
@@ -66,7 +70,7 @@ const DiscordIntegrationEditForm = ({
       },
       onCompleted: () => {
         setOpen(false);
-        toast({ title: 'Integration updated' });
+        toast({ title: t('integration-updated') });
       },
       onError: (error: { message: string }) => {
         toast({ title: error.message, variant: 'destructive' });
@@ -90,7 +94,7 @@ const DiscordIntegrationEditForm = ({
               name="name"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Name</Form.Label>
+                  <Form.Label>{t('name')}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>
@@ -102,7 +106,7 @@ const DiscordIntegrationEditForm = ({
               name="brandId"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>Brand</Form.Label>
+                  <Form.Label>{t('brand')}</Form.Label>
                   <SelectBrands.FormItem
                     value={field.value}
                     onValueChange={field.onChange}
@@ -116,11 +120,11 @@ const DiscordIntegrationEditForm = ({
           <Dialog.Footer className="flex justify-end py-4 px-6">
             <Dialog.Close asChild>
               <Button disabled={loading || editLoading} variant="ghost">
-                Close
+                {t('close')}
               </Button>
             </Dialog.Close>
             <Button type="submit" disabled={loading || editLoading}>
-              Save
+              {t('save')}
             </Button>
           </Dialog.Footer>
         </form>
@@ -135,6 +139,9 @@ export const DiscordIntegrationActions = ({
 }: {
   integration: IIntegration;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
 
   return (
@@ -142,7 +149,7 @@ export const DiscordIntegrationActions = ({
       <Dialog.Trigger asChild>
         <div className="flex items-center gap-2 w-full">
           <IconEdit size={16} />
-          Edit
+          {t('edit')}
         </div>
       </Dialog.Trigger>
       <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
@@ -161,6 +168,9 @@ export const DiscordIntegrationRepair = ({
 }: {
   integration: IIntegration;
 }) => {
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const kind = integration.kind || IntegrationType.DISCORD_MESSENGER;
   const [repairIntegration, { loading }] = useMutation(REPAIR_INTEGRATION, {
     refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
@@ -172,7 +182,7 @@ export const DiscordIntegrationRepair = ({
 
     repairIntegration({
       variables: { _id: integration._id, kind },
-      onCompleted: () => toast({ title: 'Repaired successfully' }),
+      onCompleted: () => toast({ title: t('repaired-successfully') }),
       onError: (error) =>
         toast({ title: error.message, variant: 'destructive' }),
     });
@@ -196,7 +206,7 @@ export const DiscordIntegrationRepair = ({
       ) : (
         <IconTool size={16} />
       )}
-      Repair
+      {t('repair')}
     </div>
   );
 };

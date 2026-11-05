@@ -13,7 +13,9 @@ import { EM_CONFIG_SCHEMA } from '@/integrations/erxes-messenger/constants/emCon
 import { erxesMessengerSetupValuesAtom } from '@/integrations/erxes-messenger/states/EMStateValues';
 
 export const useEditMessenger = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const client = useApolloClient();
 
   const [editMessengerMutation, { loading: editLoading }] = useMutation(

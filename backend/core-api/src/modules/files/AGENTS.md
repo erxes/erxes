@@ -53,6 +53,17 @@ previews).
   (`fileAccessFields` / `fileAccessPipeline`); never write them directly.
 - Batch operations check every item before changing any.
 - Bytes never pass through this service: uploads and downloads are presigned.
+- With `VERSION=saas`, `FILES_BUCKET`, `FILES_QUOTA_GB`, `FILES_MAX_FILE_SIZE_MB`
+  and the AWS storage settings come from env only (`utils/config.ts`): storage
+  runs on platform credentials and `configsUpdate` accepts any code, so tenant
+  configs must never steer it. Self-hosted still reads tenant configs first.
+- SaaS storage keys are `<subdomain>/files/<fileId>/<versionId>`, self-hosted
+  `files/<fileId>/<versionId>`. Each version stores its own `storageKey`
+  (thumbnail/viewer keys derive from it), so old keys keep working; never
+  rebuild a key from ids.
+- The R2/S3 bucket needs CORS for browser PUT/GET/HEAD on presigned URLs;
+  tenant custom domains make the origin list open-ended (`*` is safe: the
+  signature carries the authorization).
 - Production MongoDB is 4.4: no 5.0+ operators in queries or pipelines.
 - Product `files` hold public share URLs (`/files/s/:token`), not file ids:
   POS and websites read them without login. Revoking the link or purging the

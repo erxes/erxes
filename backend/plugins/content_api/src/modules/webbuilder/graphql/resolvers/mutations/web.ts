@@ -94,7 +94,7 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
     const updated = await models.Web.updateWeb(_id, restDoc);
 
-    const changes = diffWeb(oldWeb, restDoc);
+    const changes = diffWeb(oldWeb, { ...restDoc, texts: updated.texts });
     if (changes.length > 0) {
       await models.WebActivityLogs.createLog({
         webId: _id,
@@ -164,7 +164,10 @@ export const webBuilderMutations: Record<string, Resolver> = {
 
     const updated = await models.Web.updateWeb(_id, updatedDoc);
 
-    const changes = diffWeb(web.toObject(), restDoc);
+    const changes = diffWeb(web.toObject(), {
+      ...restDoc,
+      texts: updated.texts,
+    });
     if (changes.length > 0) {
       await models.WebActivityLogs.createLog({
         webId: _id,

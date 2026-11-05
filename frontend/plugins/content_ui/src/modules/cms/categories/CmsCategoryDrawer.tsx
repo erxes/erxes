@@ -25,10 +25,14 @@ import {
 } from '../constants/categoryFormSchema';
 import { LanguageSelector } from '../shared/LanguageSelector';
 import {
+  CMS_TRANSLATION_FIELDS,
   TranslationData,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
+import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 
 interface ITreeOption {
   _id: string;
@@ -229,22 +233,23 @@ export function CmsCategoryDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,
     setSelectedLanguage,
     translations,
     defaultLangData,
+    savedRowLoad,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -253,6 +258,8 @@ export function CmsCategoryDrawer({
     type: 'category',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
 
@@ -265,8 +272,14 @@ export function CmsCategoryDrawer({
     skip: !isOpen || !category?._id,
   });
 
-  const baseCategory: Partial<Category> | undefined =
+  const storedCategory: Partial<Category> | undefined =
     categoryDetailData?.cmsCategory || category;
+  const baseCategory = useRecordInDefaultLanguage(
+    storedCategory,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.category,
+  );
 
   // Fetch custom field groups first to create schema
   const { data: customFieldsData } = useQuery(CMS_CUSTOM_FIELD_GROUPS, {
@@ -306,9 +319,11 @@ export function CmsCategoryDrawer({
 
   useEffect(() => {
     if (!isOpen) return;
-    form.reset(categoryToFormValues(baseCategory));
+    form.reset(categoryToFormValues(baseCategory), {
+      keepDirtyValues: baseCategory !== storedCategory,
+    });
     setIsSlugManuallyEdited(false);
-  }, [baseCategory, isOpen, form]);
+  }, [baseCategory, storedCategory, isOpen, form]);
 
   // Watch for name changes and update slug accordingly
   const nameValue = form.watch('name');
@@ -440,25 +455,30 @@ export function CmsCategoryDrawer({
     ],
   );
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
 
-    applyTranslationToForm(cmsLanguage);
-    setSelectedLanguage(cmsLanguage);
+    applyTranslationToForm(initialLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     isOpen,
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
   ]);
@@ -550,6 +570,8 @@ export function CmsCategoryDrawer({
   );
 
   const onSubmit = (data: CategoryFormData) => {
+    if (savedRowLoad.isBlocked) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -631,6 +653,9 @@ export function CmsCategoryDrawer({
               onSubmit={form.handleSubmit(onSubmit)}
               className="p-4 space-y-4"
             >
+              {savedRowLoad.hasFailed && (
+                <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+              )}
               {availableLanguages.length > 0 && (
                 <LanguageSelector
                   selectedLanguage={selectedLanguage}
@@ -799,7 +824,10 @@ export function CmsCategoryDrawer({
                 <Button onClick={() => onClose()} variant="outline">
                   {t('cancel')}
                 </Button>
-                <Button type="submit" disabled={adding || editing}>
+                <Button
+                  type="submit"
+                  disabled={adding || editing || savedRowLoad.isBlocked}
+                >
                   {adding || editing
                     ? isEditing
                       ? t('saving')

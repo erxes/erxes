@@ -10,6 +10,7 @@ import {
   CodeField,
   DeletedStatusField,
 } from '../StructureFormFields';
+import { BranchLocationField } from './location/BranchLocationField';
 
 export const BranchForm = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
@@ -128,64 +129,7 @@ export const BranchForm = () => {
           <LinkFields />
         </Collapsible.Content>
       </Collapsible>
-      <Form.Field
-        control={control}
-        name="radius"
-        render={({ field }) => (
-          <Form.Item className="col-span-2">
-            <Form.Label>{t('radius')}</Form.Label>
-            <Form.Control>
-              <Input
-                value={field.value ?? ''}
-                onChange={(e) =>
-                  field.onChange(
-                    e.currentTarget.value === ''
-                      ? 0
-                      : Number(e.currentTarget.value),
-                  )
-                }
-                inputMode="numeric"
-                placeholder={t('radius')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="coordinate.latitude"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('latitude')}</Form.Label>
-            <Form.Control>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder={t('latitude')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
-      <Form.Field
-        control={control}
-        name="coordinate.longitude"
-        render={({ field }) => (
-          <Form.Item>
-            <Form.Label>{t('longitude')}</Form.Label>
-            <Form.Control>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                placeholder={t('longitude')}
-              />
-            </Form.Control>
-            <Form.Message />
-          </Form.Item>
-        )}
-      />
+      <BranchLocationField />
       {wasDeleted && <DeletedStatusField control={control} />}
     </div>
   );

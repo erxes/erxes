@@ -37,7 +37,7 @@ export const useMessageNavigation = ({
   loading: boolean;
   handleFetchMore: () => Promise<unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const containerRef = useRef<HTMLDivElement>(null);
   const [pendingTarget, setPendingTarget] = useState<{
     conversationId: string;

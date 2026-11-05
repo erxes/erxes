@@ -48,6 +48,18 @@ export const SOCIAL_LINKS = z.object({
     .or(z.literal('')),
 });
 
+const coordinateValue = (limit: number, message: string) =>
+  z
+    .string()
+    .optional()
+    .nullable()
+    .refine(
+      (value) =>
+        !value ||
+        (Number.isFinite(Number(value)) && Math.abs(Number(value)) <= limit),
+      { message },
+    );
+
 export const BRANCH_CREATE_SCHEMA = z.object({
   title: z.string(),
   address: z.string().optional().nullable().or(z.literal('')),
@@ -59,8 +71,8 @@ export const BRANCH_CREATE_SCHEMA = z.object({
   email: z.string().optional().nullable(),
   coordinate: z
     .object({
-      latitude: z.string().optional().nullable(),
-      longitude: z.string().optional().nullable(),
+      latitude: coordinateValue(90, 'Latitude must be between -90 and 90'),
+      longitude: coordinateValue(180, 'Longitude must be between -180 and 180'),
     })
     .optional()
     .nullable(),

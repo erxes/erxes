@@ -77,6 +77,29 @@
     "selected": "{{count}} selected",
     "removed-success": "Document removed successfully",
     "saved-success": "Successfully saved document",
-    "error": "Error"
-  }
+    "error": "Error",
+    "comments": "Comments",
+    "save-comments-hint": "Save the document to keep comment changes.",
+    "no-comments": "No comments yet.",
+    "duplicate": "Duplicate",
+    "duplicate-document": "Duplicate document",
+    "duplicating": "Duplicating…",
+    "create-document": "Create document",
+    "document-type": "Document type",
+    "select-type": "Select a type",
+    "types-load-error": "Could not load document types.",
+    "no-types": "No document types are available.",
+    "type-description": "Choose which record type this document will use.",
+    "change-type-description": "Changing the type starts with an empty template to avoid incompatible attributes.",
+    "duplicated-success": "Document duplicated",
+    "duplicate-error": "Could not duplicate document",
+    "check-document": "Check the document",
+    "required-name-content": "Name and content are required.",
+    "saving": "Saving…",
+    "preview-unavailable": "Preview unavailable",
+    "load-more-error": "Could not load more documents",
+    "comment-authors-error": "Could not load comment authors"
+  },
+  "loading": "Loading…",
+  "load-more-documents": "Load more documents"
 }

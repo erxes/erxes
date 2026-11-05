@@ -8,8 +8,8 @@ export interface FilterItem {
 
 export type SalesFilterState = {
   search?: string | null;
-  companyIds?: string[] | null;
-  customerIds?: string[] | null;
+  companyId?: string | null;
+  customerId?: string | null;
   userIds?: string[] | null;
   branchIds?: string[] | null;
   departmentIds?: string[] | null;

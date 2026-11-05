@@ -222,6 +222,7 @@ export const SelectEstimatedPointRoot = ({
 };
 
 export const SelectEstimatedPointFormItem = ({
+  variant = 'form',
   value,
   teamId,
   onValueChange,
@@ -233,6 +234,8 @@ export const SelectEstimatedPointFormItem = ({
   onValueChange: (value: number) => void;
   scope: string;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const [open, setOpen] = useState(false);
   return (
@@ -245,10 +248,10 @@ export const SelectEstimatedPointFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectEstimatedPointValue />
         </SelectTriggerOperation>
-        <SelectOperationContent variant="form">
+        <SelectOperationContent variant={variant}>
           <SelectEstimatedPointContent />
         </SelectOperationContent>
       </PopoverScoped>

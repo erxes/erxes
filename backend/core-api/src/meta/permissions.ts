@@ -40,6 +40,23 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'notificationTemplates',
+      description: 'Notification email templates',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All templates' }],
+
+      actions: [
+        {
+          title: 'Manage notification templates',
+          name: 'notificationTemplatesManage',
+          description:
+            'Edit, publish and revert notification emails and the email brand',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,
@@ -463,6 +480,11 @@ export const permissions: IPermissionConfig = {
           description: 'Reset team member password',
         },
         {
+          title: 'View member activity',
+          name: 'teamMembersViewActivity',
+          description: 'See when and how long other team members are active',
+        },
+        {
           title: 'Import team members',
           name: 'teamMembersImportManage',
           description: 'Import team members',
@@ -747,6 +769,34 @@ export const permissions: IPermissionConfig = {
         },
       ],
     },
+    {
+      name: 'agents',
+      description: 'AI agents',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All agents access' }],
+
+      actions: [
+        {
+          title: 'View agents',
+          name: 'showAgents',
+          description: 'View agents',
+          always: true,
+        },
+        {
+          title: 'Use agents chat',
+          name: 'agentsChat',
+          description: 'Use agents chat',
+        },
+        {
+          title: 'Manage agents settings',
+          name: 'manageAgentsSettings',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
+        },
+      ],
+    },
   ],
   defaultGroups: [
     {
@@ -836,6 +886,7 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersViewActivity',
             'teamMembersImportManage',
             'teamMembersExportManage',
           ],
@@ -910,6 +961,12 @@ export const permissions: IPermissionConfig = {
         },
         {
           plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat', 'manageAgentsSettings'],
+          scope: 'all',
+        },
+        {
+          plugin: 'core',
           module: 'files',
           actions: ['filesRead'],
           scope: 'all',
@@ -950,6 +1007,12 @@ export const permissions: IPermissionConfig = {
           module: 'broadcasts',
           actions: ['broadcastRead', 'broadcastCreate', 'broadcastUpdate'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents', 'agentsChat'],
+          scope: 'all',
         },
         // What each person sees inside Files is decided by folder access.
         {
@@ -1097,6 +1160,12 @@ export const permissions: IPermissionConfig = {
           module: 'internalNotes',
           actions: ['internalNotesManage'],
           scope: 'own',
+        },
+        {
+          plugin: 'core',
+          module: 'agents',
+          actions: ['showAgents'],
+          scope: 'all',
         },
         {
           plugin: 'core',

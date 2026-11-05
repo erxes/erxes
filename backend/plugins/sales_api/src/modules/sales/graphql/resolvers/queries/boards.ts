@@ -274,32 +274,6 @@ export const boardQueries = {
     };
   },
 
-  /**
-   *  ConvertTo info
-   */
-  async salesConvertToInfo(
-    _root,
-    { conversationId }: { conversationId: string },
-    { models: { Deals, Stages, Pipelines, Boards } }: IContext,
-  ) {
-    const filter = { sourceConversationIds: { $in: [conversationId] } };
-    let dealUrl = '';
-
-    const deal = await Deals.findOne(filter).lean();
-
-    if (deal) {
-      const stage = await Stages.getStage(deal.stageId);
-      const pipeline = await Pipelines.getPipeline(stage.pipelineId);
-      const board = await Boards.getBoard(pipeline.boardId);
-
-      dealUrl = `/deal/board?id=${board._id}&pipelineId=${pipeline._id}&itemId=${deal._id}`;
-    }
-
-    return {
-      dealUrl,
-    };
-  },
-
   // async salesItemsCountBySegments() {}
 
   async salesBoardLogs(_root, args, { models, subdomain }: IContext) {

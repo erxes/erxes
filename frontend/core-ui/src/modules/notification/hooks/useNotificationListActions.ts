@@ -27,12 +27,19 @@ export const useNotificationListActions = ({
   const { search, key: locationKey } = useLocation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { selectedIds, focusedId, select, extend, setAnchor, clear } =
-    useNotificationSelection(
-      notifications.map((notification) => notification._id),
-      search,
-      id,
-    );
+  const {
+    selectedIds,
+    focusedId,
+    select,
+    toggleAll,
+    extend,
+    setAnchor,
+    clear,
+  } = useNotificationSelection(
+    notifications.map((notification) => notification._id),
+    search,
+    id,
+  );
   const markAsRead = useMarkAsReadNotification();
   const deleteNotifications = useDeleteNotifications();
   const setHiddenIds = useSetAtom(hiddenNotificationIdsState);
@@ -68,6 +75,22 @@ export const useNotificationListActions = ({
     [extend, loading, pending],
     {
       enableOnContentEditable: false,
+      ignoreEventWhen: shouldIgnoreNotificationHotkey,
+    },
+  );
+
+  useScopedHotkeys(
+    'ctrl+a,meta+a',
+    () => {
+      if (!loading && !pending && selectedIds.length < notifications.length) {
+        toggleAll();
+      }
+    },
+    MyInboxHotkeyScope.MainPage,
+    [loading, pending, selectedIds.length, notifications.length, toggleAll],
+    {
+      enableOnContentEditable: false,
+      enableOnFormTags: false,
       ignoreEventWhen: shouldIgnoreNotificationHotkey,
     },
   );
@@ -174,6 +197,12 @@ export const useNotificationListActions = ({
     selectedIds,
     focusedId,
     clear,
+    select: (notificationId, shiftKey) => {
+      if (!pending && !loading) select(notificationId, shiftKey);
+    },
+    toggleAll: () => {
+      if (!pending && !loading) toggleAll();
+    },
     pending,
     allRead,
     markSelectedAsRead,

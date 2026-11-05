@@ -3,12 +3,14 @@ import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks
 import { useDirectMailInsertTools } from '@/integrations/mail/composer/hooks/useDirectMailInsertTools';
 import { IconPaperclip, IconPhoto } from '@tabler/icons-react';
 import { Button, Input } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const DirectMailInsertTools = () => {
   const { sending, failedDelivery } = useDirectMailComposerContext();
   const disabled = sending || Boolean(failedDelivery);
   const { fileInput, attachmentInput, uploadAttachment, uploadImage } =
     useDirectMailInsertTools();
+  const { t } = useTranslation('frontline');
   return (
     <>
       <DirectMailTemplateSelector />
@@ -17,8 +19,8 @@ export const DirectMailInsertTools = () => {
         variant="ghost"
         size="icon"
         className="size-7 rounded-sm"
-        title="Attach files"
-        aria-label="Attach files"
+        title={t('attach-files')}
+        aria-label={t('attach-files')}
         disabled={disabled}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => attachmentInput.current?.click()}
@@ -29,7 +31,7 @@ export const DirectMailInsertTools = () => {
         ref={attachmentInput}
         type="file"
         className="hidden"
-        aria-label="Upload attachment"
+        aria-label={t('upload-attachment')}
         disabled={disabled}
         onChange={uploadAttachment}
       />
@@ -38,8 +40,8 @@ export const DirectMailInsertTools = () => {
         variant="ghost"
         size="icon"
         className="size-7 rounded-sm"
-        title="Insert image"
-        aria-label="Insert image"
+        title={t('insert-image')}
+        aria-label={t('insert-image')}
         disabled={disabled}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => fileInput.current?.click()}
@@ -51,7 +53,7 @@ export const DirectMailInsertTools = () => {
         type="file"
         accept="image/*"
         className="hidden"
-        aria-label="Upload image"
+        aria-label={t('upload-image')}
         disabled={disabled}
         onChange={uploadImage}
       />

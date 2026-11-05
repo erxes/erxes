@@ -1,15 +1,12 @@
 import { useCustomerCell } from '@/contacts/hooks/useContactTableCell';
-import { renderingCustomerDetailAtom } from '@/contacts/states/customerDetailStates';
 import { ContactsHotKeyScope } from '@/contacts/types/ContactsHotKeyScope';
 import clsx from 'clsx';
-import { FullNameValue, RecordTableInlineCell, useQueryState } from 'erxes-ui';
-import { useSetAtom } from 'jotai';
-import { CustomerName } from 'ui-modules';
+import { FullNameValue, RecordTableInlineCell } from 'erxes-ui';
+import { CustomerName, useSidePanel } from 'ui-modules';
 
 export const CustomerNameCell = () => {
   const { cell } = useCustomerCell();
-  const [, setDetailOpen] = useQueryState('contactId');
-  const setRenderingCustomerDetail = useSetAtom(renderingCustomerDetailAtom);
+  const { openRecord } = useSidePanel();
 
   const {
     firstName = '',
@@ -27,10 +24,9 @@ export const CustomerNameCell = () => {
     >
       <RecordTableInlineCell.Trigger>
         <RecordTableInlineCell.Anchor
-          onClick={() => {
-            setDetailOpen(_id);
-            setRenderingCustomerDetail(false);
-          }}
+          onClick={() =>
+            openRecord({ contentType: 'core:customer', contentId: _id })
+          }
         >
           <FullNameValue />
         </RecordTableInlineCell.Anchor>

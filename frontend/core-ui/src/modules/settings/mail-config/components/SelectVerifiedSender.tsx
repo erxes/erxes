@@ -5,18 +5,30 @@ import {
   IEmailSender,
   useSenderOptions,
 } from '@/settings/mail-config/hooks/useVerifiedSenders';
-import { IconMailCheck, IconMailPlus, IconRefresh } from '@tabler/icons-react';
+import {
+  IconMailCheck,
+  IconMailForward,
+  IconMailPlus,
+  IconRefresh,
+} from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover } from 'erxes-ui';
 import { useState } from 'react';
+import { z } from 'zod';
 
+/**
+ * @param allowDomains domains whose addresses can be typed in as they are:
+ * mail from a verified domain needs no confirmation of its own.
+ */
 export const SelectVerifiedSender = ({
   value,
   onChange,
   placeholder = 'Select a sender',
+  allowDomains = [],
 }: {
   value?: string;
   onChange: (value: string, sender?: IEmailSender) => void;
   placeholder?: string;
+  allowDomains?: string[];
 }) => {
   const [open, setOpen] = useState(false);
   const { t } = useTranslation('settings', { keyPrefix: 'mail-config' });
@@ -28,6 +40,21 @@ export const SelectVerifiedSender = ({
   const confirmed = singleSenders.filter(
     (sender) => sender.status === 'verified',
   );
+
+  const typed = search.trim().toLowerCase();
+  const typedAddress =
+    allowDomains.includes(typed.split('@')[1] || '') &&
+    z.string().email().safeParse(typed).success &&
+    !confirmed.some((sender) => sender.value === typed)
+      ? typed
+      : '';
+
+  // a picked address closes the search with it, so reopening starts clean
+  const pick = (address: string, sender?: IEmailSender) => {
+    onChange(address, sender);
+    setSearch('');
+    setOpen(false);
+  };
 
   const handleAdd = () => {
     setOpen(false);
@@ -49,10 +76,26 @@ export const SelectVerifiedSender = ({
             <Command.Input
               value={search}
               onValueChange={setSearch}
-              placeholder={t('search-senders-ellipsis')}
+              placeholder={
+                allowDomains.length
+                  ? t('search-or-type-address', {
+                      domains: allowDomains.join(', '),
+                    })
+                  : t('search-senders-ellipsis')
+              }
             />
             <Command.List className="max-h-[300px] overflow-y-auto">
               <Combobox.Empty loading={loading} />
+
+              {typedAddress && (
+                <Command.Item
+                  value={typedAddress}
+                  onSelect={() => pick(typedAddress)}
+                >
+                  <IconMailForward />
+                  {t('use-address', { address: typedAddress })}
+                </Command.Item>
+              )}
 
               {!loading && confirmed.length === 0 && (
                 <div className="p-4 text-center text-muted-foreground text-sm">
@@ -64,10 +107,7 @@ export const SelectVerifiedSender = ({
                 <Command.Item
                   key={sender.id}
                   value={sender.value}
-                  onSelect={() => {
-                    onChange(sender.value, sender);
-                    setOpen(false);
-                  }}
+                  onSelect={() => pick(sender.value, sender)}
                 >
                   <div className="flex flex-col">
                     <span className="font-medium">{sender.value}</span>

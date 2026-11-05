@@ -71,7 +71,9 @@ const IntegrationNamePicker = ({
   onChange: (value: string) => void;
   presets: string[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
 
   const query = value.trim().toLowerCase();
@@ -109,7 +111,7 @@ const IntegrationNamePicker = ({
                 className="font-medium"
               >
                 <IconPlus />
-                Use “{value.trim()}”
+                {t('discord-use-name', { name: value.trim() })}
               </Command.Item>
             )}
             {matches.length > 0 && (
@@ -145,7 +147,9 @@ const IntegrationNamePicker = ({
 
 // skipcq: JS-R1005
 export const DiscordIntegrationDetail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { id: inboxChannelId } = useParams();
   const [open, setOpen] = useState(false);
   const { addIntegration, loading } = useIntegrationAdd();
@@ -652,7 +656,7 @@ export const DiscordIntegrationDetail = () => {
                               <Form.Control>
                                 <Input
                                   {...field}
-                                  placeholder={NAME_PLACEHOLDER}
+                                  placeholder={t('discord-name-placeholder')}
                                 />
                               </Form.Control>
                             )}

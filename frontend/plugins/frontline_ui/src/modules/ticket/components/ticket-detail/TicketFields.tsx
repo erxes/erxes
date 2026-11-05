@@ -5,7 +5,10 @@ import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectA
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
 import { SelectChannel } from '@/ticket/components/ticket-selects/SelectChannel';
-import { SelectDateTicket } from '@/ticket/components/ticket-selects/SelectDateTicket';
+import {
+  formatDateLabel,
+  SelectDateTicket,
+} from '@/ticket/components/ticket-selects/SelectDateTicket';
 import { SelectDepartmentTicket } from '@/ticket/components/ticket-selects/SelectDepartmentTicket';
 import { SelectPipeline } from '@/ticket/components/ticket-selects/SelectPipeline';
 import { SelectPriorityTicket } from '@/ticket/components/ticket-selects/SelectPriorityTicket';
@@ -19,7 +22,9 @@ import { compactList } from '@/shared/utils/cursorList';
 import { Block } from '@blocknote/core';
 import {
   BlockEditor,
+  Combobox,
   Input,
+  Popover,
   Separator,
   Tooltip,
   useBlockEditor,
@@ -47,7 +52,7 @@ const LockedField = ({
 );
 
 export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const {
     _id: ticketId,
     priority,
@@ -63,6 +68,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
     tagIds,
     attachments,
     startDate,
+    statusChangedDate,
     description,
   } = ticket || {};
   const ticketAttachments = React.useMemo(
@@ -127,7 +133,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
 
   const editor = useBlockEditor({
     initialContent: descriptionContent,
-    placeholder: t('description-ellipsis', 'Description...'),
+    placeholder: t('description-ellipsis'),
   });
   const { pipeline } = useGetPipeline(pipelineId ?? undefined);
   const { status: currentStatus } = useGetTicketStatusById(
@@ -201,7 +207,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
           <div className="min-w-0 flex-1">
             <Input
               className="shadow-none focus-visible:shadow-none h-8 text-xl p-0"
-              placeholder={t('ticket-name', 'Ticket Name')}
+              placeholder={t('ticket-name')}
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={!canEditTicket}
@@ -210,30 +216,20 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
           {titleAction}
         </div>
         <div className="gap-2 flex flex-wrap w-full items-center">
-          <LockedField
-            message={t(
-              'channel-cannot-be-changed',
-              'Channel cannot be changed',
-            )}
-          >
+          <LockedField message={t('channel-cannot-be-changed')}>
             <SelectChannel
               value={channelId ?? ''}
               variant="detail"
-              label={t('channel', 'Channel')}
+              label={t('channel')}
               disabled
             />
           </LockedField>
-          <LockedField
-            message={t(
-              'pipeline-cannot-be-changed',
-              'Pipeline cannot be changed',
-            )}
-          >
+          <LockedField message={t('pipeline-cannot-be-changed')}>
             <SelectPipeline
               value={pipelineId ?? ''}
               variant="detail"
               channelId={channelId ?? undefined}
-              label={t('pipeline', 'Pipeline')}
+              label={t('pipeline')}
               disabled
             />
           </LockedField>
@@ -241,14 +237,14 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             id={ticketId}
             value={branchId || ''}
             variant="detail"
-            label={t('branch-label', 'Branch')}
+            label={t('branch-label')}
             disabled={!canEditTicket}
           />
           <SelectDepartmentTicket
             id={ticketId}
             value={departmentId || ''}
             variant="detail"
-            label={t('department-label', 'Department')}
+            label={t('department-label')}
             disabled={!canEditTicket}
           />
           <SelectStatusTicket
@@ -256,28 +252,28 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             value={statusId ?? ''}
             id={ticketId}
             pipelineId={pipelineId ?? ''}
-            label={t('status', 'Status')}
+            label={t('status')}
             disabled={!canMoveTicket}
           />
           <SelectPriorityTicket
             id={ticketId}
             value={priority ?? undefined}
             variant="detail"
-            label={t('priority', 'Priority')}
+            label={t('priority')}
             disabled={!canEditTicket}
           />
           <SelectAssigneeTicket
             variant="detail"
             value={assigneeId ?? ''}
             id={ticketId}
-            label={t('assignee', 'Assignee')}
+            label={t('assignee')}
             disabled={!canEditTicket}
           />
           <SelectAssignedMembersTicket
             variant="detail"
             value={assignedMembers ? compactList(assignedMembers) : undefined}
             id={ticketId}
-            label={t('members-title', 'Members')}
+            label={t('members-title')}
             disabled={!canEditTicket}
           />
           <SelectDateTicket
@@ -285,7 +281,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             id={ticketId}
             type="startDate"
             variant="input"
-            label={t('start-date', 'Start date')}
+            label={t('start-date')}
             disabled={!canEditTicket}
           />
           <SelectDateTicket
@@ -293,14 +289,25 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             id={ticketId}
             type="targetDate"
             variant="input"
-            label={t('target-date', 'Target date')}
+            label={t('target-date')}
             disabled={!canEditTicket}
           />
+          <Popover>
+            <Combobox.ChipTrigger label={t('status-changed-date')} disabled>
+              {statusChangedDate ? (
+                formatDateLabel(new Date(statusChangedDate))
+              ) : (
+                <span className="text-accent-foreground">
+                  {t('not-specified')}
+                </span>
+              )}
+            </Combobox.ChipTrigger>
+          </Popover>
           <SelectTagsTicket
             id={ticketId}
             value={compactList(tagIds)}
             variant="detail"
-            label={t('tags', 'Tags')}
+            label={t('tags-label')}
             disabled={!canEditTicket}
           />
         </div>

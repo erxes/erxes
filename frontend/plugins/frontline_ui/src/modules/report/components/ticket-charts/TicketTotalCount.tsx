@@ -31,7 +31,7 @@ export const TicketTotalCount = ({
   colSpan = 6,
   onColSpanChange,
 }: TicketTotalCountProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const id = title.toLowerCase().replace(/\s+/g, '-');
   const [dateValue] = useAtom(getReportDateFilterAtom(id));
   const [channelFilter] = useAtom(getReportChannelFilterAtom(id));
@@ -71,7 +71,7 @@ export const TicketTotalCount = ({
       <FrontlineCard
         id={id}
         title={title}
-        description="Total ticket count"
+        description={t('total-ticket-count')}
         colSpan={colSpan}
         onColSpanChange={onColSpanChange}
       >
@@ -91,7 +91,7 @@ export const TicketTotalCount = ({
     <FrontlineCard
       id={id}
       title={title}
-      description="Total ticket count"
+      description={t('total-ticket-count')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
     >

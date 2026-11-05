@@ -13,7 +13,9 @@ export const CallSelectConfig = ({
 }: {
   callUserIntegrations: ICallConfig[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useAtom(callSelectConfigDialogAtom);
   const [selectedIntegrationId, setSelectedIntegrationId] = useState(
     callUserIntegrations[0]?._id ?? undefined,

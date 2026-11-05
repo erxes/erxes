@@ -25,7 +25,9 @@ export const CallIntegrationSheetEdit = () => {
 };
 
 export const CallIntegrationEdit = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   const [integrationId, setEditSheet] = useAtom(callEditSheetAtom);
   const { integrationDetail, loading } = useIntegrationDetail({

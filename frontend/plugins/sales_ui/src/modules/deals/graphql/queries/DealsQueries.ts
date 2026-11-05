@@ -7,8 +7,8 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql(`
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
     $_ids: [String]
-    $companyIds: [String]
-    $customerIds: [String]
+    $companyId: String
+    $customerId: String
     $assignedUserIds: [String]
     $productIds: [String]
     $labelIds: [String]
@@ -44,8 +44,8 @@ export const GET_DEALS_SEARCH_DROPDOWN = gql(`
       cursor: $cursor
       direction: $direction
       _ids: $_ids
-      companyIds: $companyIds
-      customerIds: $customerIds
+      companyId: $companyId
+      customerId: $customerId
       assignedUserIds: $assignedUserIds
       priority: $priority
       productIds: $productIds
@@ -109,8 +109,8 @@ export const GET_DEALS = gql(`
     $direction: CURSOR_DIRECTION
     $orderBy: JSON
     $_ids: [String]
-    $companyIds: [String]
-    $customerIds: [String]
+    $companyId: String
+    $customerId: String
     $assignedUserIds: [String]
     $productIds: [String]
     $labelIds: [String]
@@ -149,8 +149,8 @@ export const GET_DEALS = gql(`
       direction: $direction
       orderBy: $orderBy
       _ids: $_ids
-      companyIds: $companyIds
-      customerIds: $customerIds
+      companyId: $companyId
+      customerId: $customerId
       assignedUserIds: $assignedUserIds
       priority: $priority
       productIds: $productIds

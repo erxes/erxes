@@ -12,6 +12,7 @@ import {
   IconPower,
 } from '@tabler/icons-react';
 import { AlertDialog, Button, cn, Form, Tooltip } from 'erxes-ui';
+import { AutomationPreflightChecks } from '@/automations/components/builder/header/preflight/AutomationPreflightChecks';
 import { SubmitErrorHandler } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +38,9 @@ export const AutomationBuilderStatusSwitch = ({
     handleConfirm,
     isUntouchedDuplicate,
     duplicatedFromName,
+    preflight,
+    canConfirm,
+    openFailingNode,
   } = useAutomationBuilderStatusSwitcher({ onSave, onError });
   const { isReadOnly, detail, actionConstMap } = useAutomation();
   const { actions } = useAutomationNodes();
@@ -143,9 +147,29 @@ export const AutomationBuilderStatusSwitch = ({
                       )}
                     </AlertDialog.Description>
                   </AlertDialog.Header>
+                  {isActivating && (
+                    <AutomationPreflightChecks
+                      preflight={preflight}
+                      title={detail?.name || translate('header-activate-title')}
+                      onOpenNode={openFailingNode}
+                    />
+                  )}
                   <AlertDialog.Footer>
+                    {isActivating && preflight.done && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="mr-auto"
+                        onClick={preflight.run}
+                      >
+                        {translate('preflight-run-again')}
+                      </Button>
+                    )}
                     <AlertDialog.Cancel>{t('cancel')}</AlertDialog.Cancel>
-                    <AlertDialog.Action onClick={handleConfirm}>
+                    <AlertDialog.Action
+                      onClick={handleConfirm}
+                      disabled={!canConfirm}
+                    >
                       {pickDialogText(
                         translate('header-activate-anyway'),
                         translate('header-save-and-activate'),

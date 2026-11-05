@@ -8,6 +8,10 @@ import { IMilestone } from '@/milestone/types';
 import { IProject } from '@/project/@types/project';
 import { ITask } from '@/task/@types/task';
 import { ITeam } from '@/team/@types/team';
+import {
+  projectCreateActionConfigSchema,
+  taskCreateActionConfigSchema,
+} from './configSchemas';
 
 export const OPERATION_TASK_TARGET_TYPE = 'operation:task.tasks';
 export const OPERATION_PROJECT_TARGET_TYPE = 'operation:project.projects';
@@ -357,6 +361,7 @@ export const operationAutomationConstants: AutomationConstants = {
       moduleName: 'task',
       collectionName: 'tasks',
       method: 'create',
+      configSchema: taskCreateActionConfigSchema,
       icon: 'IconCheckbox',
       label: 'Create task',
       description: 'Create an operation task with required task fields.',
@@ -372,6 +377,7 @@ export const operationAutomationConstants: AutomationConstants = {
       moduleName: 'project',
       collectionName: 'projects',
       method: 'create',
+      configSchema: projectCreateActionConfigSchema,
       icon: 'IconFolderPlus',
       label: 'Create project',
       description: 'Create an operation project with required project fields.',

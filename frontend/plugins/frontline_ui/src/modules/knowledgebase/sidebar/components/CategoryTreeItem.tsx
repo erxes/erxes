@@ -18,7 +18,9 @@ export const CategoryTreeItem = ({
   activeCategoryId?: string | null;
   onEdit: (category: ICategoryFields) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const children = categoryGroups.get(category._id) ?? [];
   const isActive = activeCategoryId === category._id;
 

@@ -34,7 +34,7 @@ const StatusSheetForm = ({
   onClose: () => void;
   statusType: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const { toast } = useToast();
   const { pipelineId } = useParams<{ pipelineId: string }>();
   const { addStatus, loading: adding } = useAddTicketStatus();

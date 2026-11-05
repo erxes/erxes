@@ -3,6 +3,7 @@ import { useQuery } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import { cmsLanguageAtom } from '../states/cmsLanguageState';
 import { CONTENT_CMS_LIST } from '../../graphql/queries';
+import { getCmsDefaultLanguage } from '../utils';
 
 export const useIsTranslationMissing = () => {
   const { websiteId } = useParams();
@@ -16,9 +17,11 @@ export const useIsTranslationMissing = () => {
     (cms: { clientPortalId?: string }) => cms.clientPortalId === websiteId,
   );
 
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
   const isNonDefaultLanguage =
-    !!selectedLanguage && selectedLanguage !== defaultLanguage;
+    !!selectedLanguage &&
+    !!defaultLanguage &&
+    selectedLanguage !== defaultLanguage;
 
   const isMissing = (translations?: { language: string }[]) => {
     if (!isNonDefaultLanguage) return false;

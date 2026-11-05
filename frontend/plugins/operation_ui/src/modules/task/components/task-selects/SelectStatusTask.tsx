@@ -1,3 +1,4 @@
+import type { ApolloError } from '@apollo/client';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -27,7 +28,7 @@ interface SelectStatusContextType {
   value: string;
   onValueChange: (status: string) => void;
   loading?: boolean;
-  error?: any;
+  error?: ApolloError;
   statuses?: ITaskStatus[];
 }
 
@@ -93,7 +94,8 @@ const SelectStatusValue = ({
 
   if (!selectedStatus) {
     return (
-      <span className="text-accent-foreground/80">
+      <span className="flex items-center gap-2 text-muted-foreground">
+        <StatusInlineIcon statusType={STATUS_TYPES.UNSTARTED} />
         {placeholder || t('select-status')}
       </span>
     );
@@ -252,6 +254,7 @@ export const SelectStatusTaskFilterBar = ({
 };
 
 export const SelectStatusTaskFormItem = ({
+  variant = 'form',
   value,
   onValueChange,
   form,
@@ -261,6 +264,8 @@ export const SelectStatusTaskFormItem = ({
   onValueChange: (value: string) => void;
   form?: UseFormReturn<z.infer<typeof addTaskSchema>>;
   label?: string;
+  // `table` draws it as a record table cell, as in the side panel.
+  variant?: `${SelectTriggerVariant}`;
 }) => {
   const teamId = useWatch({ name: 'teamId', control: form?.control });
   const { statuses } = useGetStatusByTeam({
@@ -290,12 +295,12 @@ export const SelectStatusTaskFormItem = ({
       teamId={teamId}
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
-        <SelectTriggerOperation variant="form" label={label}>
+        <SelectTriggerOperation variant={variant} label={label}>
           <SelectStatusValue />
         </SelectTriggerOperation>
-        <Combobox.Content>
+        <SelectOperationContent variant={variant}>
           <SelectStatusContent />
-        </Combobox.Content>
+        </SelectOperationContent>
       </PopoverScoped>
     </SelectStatusProvider>
   );

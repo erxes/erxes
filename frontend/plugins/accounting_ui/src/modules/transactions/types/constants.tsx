@@ -229,8 +229,8 @@ export const TR_SIDES = {
     { value: 'ct', label: 'credit' },
   ],
   FUND_OPTIONS: [
-    { value: 'dt', label: 'receipt' },
-    { value: 'ct', label: 'issue' },
+    { value: 'dt', label: 'cash-receipt' },
+    { value: 'ct', label: 'cash-payment' },
   ],
   JUSTIFY_OPTIONS: [
     { value: 'dt', label: 'cost-increase' },
@@ -294,11 +294,11 @@ export const TR_STATUS_LABELS: Record<string, string> = {
   returned: 'response-request',
   // business level
   progress: 'in-progress',
-  assigned: 'approve',
+  assigned: 'assigned',
   confirmed: 'approved-label',
   canelled: 'cancelled',
 
-  complete: 'complete-label',
+  complete: 'complete',
 };
 
 export const TR_STATUS_OPTIONS = TR_STATUSES.ALL.map((status) => ({

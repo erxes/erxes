@@ -3,10 +3,23 @@ import {
   IconSearch,
   IconToggleRightFilled,
 } from '@tabler/icons-react';
+import {
+  FilterAuthorViews,
+  FilterBarAuthors,
+  FilterPopoverAuthorItems,
+} from '@/settings/account/components/filters/AuthorFilters';
 import { Combobox, Command, Filter, useMultiQueryState } from 'erxes-ui';
-import { SelectBranches, SelectDepartments, SelectMember } from 'ui-modules';
+import { SelectBranches, SelectDepartments } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
+import {
+  AccountsFilterTrStatus,
+  FilterBarTrStatus,
+} from '@/settings/account/components/filters/FilterHelpers';
 import { useSafeRemainderQueryParams } from '../hooks/useSafeRemainders';
+import {
+  SAFE_REMAINDER_STATUS_LABELS,
+  SAFE_REMAINDER_STATUSES,
+} from '@/inventories/safeRemainders/types/SafeRemainder';
 
 const SafeRemainderFilterPopover = () => {
   const { t } = useTranslation('accounting');
@@ -44,20 +57,13 @@ const SafeRemainderFilterPopover = () => {
                   value="departmentId"
                   label={t('department')}
                 />
-                <Filter.Item value="statuses" disabled={true}>
+                <Filter.Item value="statuses">
                   <IconToggleRightFilled />
                   {t('statuses')}
                 </Filter.Item>
 
                 <Command.Separator className="my-1" />
-                <SelectMember.FilterItem
-                  value="createdUserId"
-                  label={t('date-type-created')}
-                />
-                <SelectMember.FilterItem
-                  value="modifiedUserId"
-                  label={t('modified')}
-                />
+                <FilterPopoverAuthorItems />
                 <Filter.Item value="updatedDate" inDialog>
                   <IconCalendar />
                   {t('updated-date')}
@@ -77,9 +83,14 @@ const SafeRemainderFilterPopover = () => {
             mode="single"
             filterKey="departmentId"
           />
+          <Filter.View filterKey="statuses">
+            <AccountsFilterTrStatus
+              statuses={SAFE_REMAINDER_STATUSES.ALL}
+              labels={SAFE_REMAINDER_STATUS_LABELS}
+            />
+          </Filter.View>
 
-          <SelectMember.FilterView mode="single" queryKey="createdUserId" />
-          <SelectMember.FilterView mode="single" queryKey="modifiedUserId" />
+          <FilterAuthorViews />
           <Filter.View filterKey="updatedDate">
             <Filter.DateView filterKey="updatedDate" />
           </Filter.View>
@@ -150,17 +161,13 @@ export const SafeRemainderFilter = ({
           filterKey="departmentId"
           mode="single"
         />
+        <FilterBarTrStatus
+          labelKey="statuses"
+          statuses={SAFE_REMAINDER_STATUSES.ALL}
+          labels={SAFE_REMAINDER_STATUS_LABELS}
+        />
 
-        <SelectMember.FilterBar
-          queryKey="createdUserId"
-          label={t('date-type-created')}
-          mode="single"
-        />
-        <SelectMember.FilterBar
-          queryKey="modifiedUserId"
-          label={t('modified')}
-          mode="single"
-        />
+        <FilterBarAuthors />
         <Filter.BarItem queryKey="createdDate">
           <Filter.BarName>
             <IconCalendar />

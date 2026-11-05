@@ -1,4 +1,3 @@
-import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import { IAccountDocument } from '../@types/account';
@@ -13,8 +12,8 @@ import {
   ITransactionDocument,
   ITrDetail,
 } from '../@types/transaction';
-import { activeCost } from './inventories';
 import { createOrUpdateTr, syncProductsInventory } from './utils';
+import { applyActiveInventoryCosts } from './inventoryCosts';
 
 class InvSaleOutCostTrs {
   private readonly models: IModels;
@@ -72,7 +71,7 @@ class InvSaleOutCostTrs {
     return oldTr;
   }
 
-  public async doTrs(transaction) {
+  public async doTrs(transaction: ITransactionDocument) {
     const { details } = transaction;
 
     const oldFollowOutTrs = await this.models.Transactions.find({
@@ -91,6 +90,21 @@ class InvSaleOutCostTrs {
 
     const oldFollowOutTr = await this.cleanFollowTrs(oldFollowOutTrs);
     const oldFollowCostTr = await this.cleanFollowTrs(oldFollowCostTrs);
+
+    const inventoryDoc: ITransaction = {
+      ...transaction,
+      details: details.map((detail) => ({
+        ...detail,
+        accountId: this.outAccount?._id ?? '',
+      })),
+    };
+    const costedDetails = (
+      await applyActiveInventoryCosts(
+        this.models,
+        inventoryDoc,
+        oldFollowOutTr ? [oldFollowOutTr._id] : [],
+      )
+    ).details;
 
     const ptrId = oldFollowOutTr?.ptrId || oldFollowCostTr?.ptrId || nanoid();
 
@@ -114,16 +128,7 @@ class InvSaleOutCostTrs {
     const followOutDetails: ITrDetail[] = [];
     const followCostDetails: ITrDetail[] = [];
 
-    const costs = await activeCost(
-      this.models,
-      this.outAccount?._id ?? '',
-      transaction.branchId,
-      transaction.departmentId,
-      details.map((d) => d.productId),
-      oldFollowOutTr?._id ? [oldFollowOutTr._id] : [],
-    );
-
-    for (const detail of details) {
+    for (const [index, detail] of details.entries()) {
       const oldOutDetail = oldFollowOutTr?.details.find(
         (oldDet) => oldDet.originId === detail._id,
       );
@@ -131,9 +136,7 @@ class InvSaleOutCostTrs {
         (oldDet) => oldDet.originId === detail._id,
       );
 
-      const cost = costs[detail.productId] || {};
-      const unitPrice = cost?.unitCost ?? 0;
-      const amount = fixNum(unitPrice * detail.count, 4);
+      const amount = costedDetails[index].amount;
 
       const commonDetail = {
         originId: detail._id,
@@ -141,6 +144,8 @@ class InvSaleOutCostTrs {
         count: detail.count,
         amount,
         unitPrice: amount / (detail.count ?? 1),
+        branchId: detail.branchId || transaction.branchId,
+        departmentId: detail.departmentId || transaction.departmentId,
       };
 
       followOutDetails.push({

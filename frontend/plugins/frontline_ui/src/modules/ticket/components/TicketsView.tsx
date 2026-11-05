@@ -32,7 +32,7 @@ const TicketsBoard = lazy(() =>
 );
 
 export const TicketsViewControl = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [view, setView] = useAtom(ticketViewAtom);
   const [isOpen, setIsOpen] = useState(false);
 

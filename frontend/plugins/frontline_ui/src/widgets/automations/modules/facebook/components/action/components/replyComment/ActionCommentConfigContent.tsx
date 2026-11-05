@@ -6,7 +6,7 @@ import { toCommentActionFormValues } from '~/widgets/automations/modules/faceboo
 export const ActionCommentConfigContent = ({
   config,
 }: AutomationActionNodeConfigProps<{ text?: string; texts?: string[] }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { texts } = toCommentActionFormValues(config);
 
   return (

@@ -1,3 +1,4 @@
+import { AiAgentDetailFooter } from '@/automations/components/settings/components/agents/components/detail/AiAgentDetailFooter';
 import { AiAgentProfileBar } from '@/automations/components/settings/components/agents/components/detail/AiAgentProfileBar';
 import { AiAgentStepContent } from '@/automations/components/settings/components/agents/components/detail/AiAgentStepContent';
 import { AiAgentStepNav } from '@/automations/components/settings/components/agents/components/detail/AiAgentStepNav';
@@ -62,6 +63,7 @@ const AiAgentDetailView = ({
       <AiAgentProfileBar />
       <AiAgentStepNav />
       <AiAgentStepContent />
+      <AiAgentDetailFooter />
     </AiAgentDetailProvider>
   );
 };

@@ -16,12 +16,17 @@ import { ticketCreateSheetState } from '@/ticket/states/ticketCreateSheetState';
 export const AddTicketSheet = ({
   onComplete,
   isRelation = false,
+  hideTrigger = false,
+  contacts,
   ...props
 }: {
   onComplete?: (ticketId: string) => void;
+  contacts?: { customerId?: string; companyId?: string };
   isRelation?: boolean;
+  // Opened from elsewhere through `ticketCreateSheetState`.
+  hideTrigger?: boolean;
 } & ButtonProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [open, setOpen] = useAtom(ticketCreateSheetState);
   const {
     setHotkeyScopeAndMemorizePreviousScope,
@@ -48,27 +53,33 @@ export const AddTicketSheet = ({
 
   return (
     <Sheet open={open} onOpenChange={(open) => (open ? onOpen() : onClose())}>
-      <Sheet.Trigger asChild>
-        <Button {...props}>
-          <IconPlus />
-          {t('add-ticket', 'Add ticket')}
-          {!isRelation && <Kbd>C</Kbd>}
-        </Button>
-      </Sheet.Trigger>
+      {!hideTrigger && (
+        <Sheet.Trigger asChild>
+          <Button {...props}>
+            <IconPlus />
+            {t('add-ticket', 'Add ticket')}
+            {!isRelation && <Kbd>C</Kbd>}
+          </Button>
+        </Sheet.Trigger>
+      )}
       <Sheet.View
         className="sm:max-w-3xl w-full p-0"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
-        <AddTicketForm onClose={onClose} onComplete={onComplete} />
+        <AddTicketForm
+          onClose={onClose}
+          onComplete={onComplete}
+          contacts={contacts}
+        />
       </Sheet.View>
     </Sheet>
   );
 };
 
 export const AddTicketSheetHeader = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <Sheet.Header className="p-5">
       <Sheet.Title>{t('add-ticket', 'Add ticket')}</Sheet.Title>

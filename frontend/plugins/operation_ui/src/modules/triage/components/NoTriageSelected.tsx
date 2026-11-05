@@ -1,6 +1,6 @@
 import { IconCircleMinus } from '@tabler/icons-react';
 
-import { AddTriageSheet } from './add-triage/AddTriageSheet';
+import { AddTriageButton } from './add-triage/AddTriageButton';
 import { useTranslation } from 'react-i18next';
 
 export const NoTriageSelected = () => {
@@ -20,7 +20,7 @@ export const NoTriageSelected = () => {
         {t('please-select-triage')}
       </div>
       <div className="mt-4 w-full flex justify-center">
-        <AddTriageSheet />
+        <AddTriageButton />
       </div>
     </div>
   );

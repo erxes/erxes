@@ -25,6 +25,34 @@ describe('commonSave inventory costs', () => {
     jest.clearAllMocks();
   });
 
+  it('supports a tax-account single credit without generating additional tax rows', async () => {
+    const doc: ITransaction = {
+      date: new Date(),
+      journal: 'tax',
+      side: 'ct',
+      details: [{ accountId: 'tax-account', amount: 20 }],
+    };
+    const saved = { ...doc, _id: 'tax-credit' };
+    const models = {
+      Configs: { getConfigValue: jest.fn().mockResolvedValue(false) },
+      Transactions: {
+        getTransaction: jest.fn().mockResolvedValue(saved),
+        find: jest
+          .fn()
+          .mockReturnValue({ lean: jest.fn().mockResolvedValue([]) }),
+      },
+    } as unknown as IModels;
+    jest.mocked(createOrUpdateTr).mockResolvedValue(saved as never);
+    const result = await commonSave('tenant', models, 'user', doc);
+    expect(createOrUpdateTr).toHaveBeenCalledWith(
+      models,
+      'user',
+      doc,
+      undefined,
+    );
+    expect(result.otherTrs).toEqual([]);
+  });
+
   it('persists cost changes without inventory quantity movement', async () => {
     const doc = {
       journal: 'invJustify',
@@ -118,6 +146,66 @@ describe('commonSave inventory costs', () => {
         ],
       }),
       undefined,
+    );
+  });
+
+  it('excludes the complete old execution group when repricing a posted inventory out edit', async () => {
+    const doc: ITransaction = {
+      date: new Date(),
+      journal: 'invOut',
+      contentType: 'jobExecution',
+      contentId: 'execution',
+      details: [
+        {
+          accountId: 'inventory-account',
+          productId: 'product-a',
+          count: 4,
+          amount: 0,
+        },
+      ],
+    };
+    const oldTransaction = { ...doc, _id: 'out', parentId: 'parent' };
+    const saved = { ...doc, _id: 'out', parentId: 'parent' };
+    const models = {
+      Transactions: {
+        getTransaction: jest.fn().mockResolvedValue(saved),
+        find: jest
+          .fn()
+          .mockReturnValue({
+            lean: jest
+              .fn()
+              .mockResolvedValue([
+                { _id: 'out' },
+                { _id: 'income' },
+                { _id: 'cost' },
+              ]),
+          }),
+      },
+    } as unknown as IModels;
+    jest
+      .mocked(activeCost)
+      .mockResolvedValue({
+        'product-a': { unitCost: 12, totalCost: 120, remainder: 10 },
+      });
+    jest.mocked(createOrUpdateTr).mockResolvedValue(saved as never);
+    await commonSave('tenant', models, 'user', doc, oldTransaction as never);
+    expect(activeCost).toHaveBeenCalledWith(
+      models,
+      'inventory-account',
+      undefined,
+      undefined,
+      ['product-a'],
+      ['out', 'income', 'cost'],
+    );
+    expect(createOrUpdateTr).toHaveBeenCalledWith(
+      models,
+      'user',
+      expect.objectContaining({
+        details: [
+          expect.objectContaining({ count: 4, unitPrice: 12, amount: 48 }),
+        ],
+      }),
+      oldTransaction,
     );
   });
 

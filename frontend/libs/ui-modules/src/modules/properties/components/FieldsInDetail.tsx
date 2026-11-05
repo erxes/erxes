@@ -161,6 +161,7 @@ export const FieldsInDetail = ({
   mutateHook,
   id,
   className,
+  bare = false,
 }: {
   fieldContentType: string;
   propertiesData: Record<string, any>;
@@ -170,6 +171,9 @@ export const FieldsInDetail = ({
   };
   id: string;
   className?: string;
+  // Only the property groups, without the outer "… Properties" card; for
+  // hosts that already say what they show (a side panel tab).
+  bare?: boolean;
 }) => {
   const { fieldGroups, loading: fieldGroupsLoading } = useFieldGroups({
     contentType: fieldContentType,
@@ -180,25 +184,30 @@ export const FieldsInDetail = ({
   }
   const [, propertyName] = fieldContentType.split(':');
 
+  const groups =
+    fieldGroups.length === 0 ? (
+      <EmptyProperties fieldContentType={fieldContentType} />
+    ) : (
+      fieldGroups.map((group) => (
+        <FieldGroupContent
+          key={group._id}
+          group={group}
+          id={id}
+          contentType={fieldContentType}
+          propertiesData={propertiesData}
+          mutateHook={mutateHook}
+        />
+      ))
+    );
+
+  if (bare) {
+    return <div className={cn('flex flex-col gap-2', className)}>{groups}</div>;
+  }
+
   return (
     <div className={cn('flex flex-col gap-4', className)}>
       <InfoCard title={`${propertyName} Properties`}>
-        <InfoCard.Content>
-          {fieldGroups.length === 0 ? (
-            <EmptyProperties fieldContentType={fieldContentType} />
-          ) : (
-            fieldGroups.map((group) => (
-              <FieldGroupContent
-                key={group._id}
-                group={group}
-                id={id}
-                contentType={fieldContentType}
-                propertiesData={propertiesData}
-                mutateHook={mutateHook}
-              />
-            ))
-          )}
-        </InfoCard.Content>
+        <InfoCard.Content>{groups}</InfoCard.Content>
       </InfoCard>
     </div>
   );

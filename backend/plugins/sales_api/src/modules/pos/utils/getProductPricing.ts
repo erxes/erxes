@@ -27,8 +27,8 @@ export const getProductPricing = async (
           input: {
             prioritizeRule: 'only',
             totalAmount: 0,
-            departmentId: pos.departmentId,
-            branchId: pos.branchId,
+            branchId: pos.branchId || '',
+            departmentId: pos.departmentId || '',
             products: batch.map((product) => ({
               itemId: product._id,
               productId: product._id,

@@ -27,7 +27,9 @@ export const KbEmptyState = ({
 );
 
 export const KbErrorState = ({ message }: { message: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <KbEmptyState

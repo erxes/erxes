@@ -1,5 +1,4 @@
 import {
-  Alert,
   ChartContainer,
   ChartTooltipContent,
   cn,
@@ -7,6 +6,7 @@ import {
   RecordTableInlineCell,
 } from 'erxes-ui';
 import { FrontlineCard } from '../frontline-card/FrontlineCard';
+import { FrontlineChartCard } from '../frontline-card/FrontlineChartCard';
 import {
   useTicketStatusSummary,
   TicketStatusSummaryItem,
@@ -61,7 +61,7 @@ export const TicketStatusSummary = ({
   colSpan = 12,
   onColSpanChange,
 }: TicketStatusSummaryProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { id, filterConfig, queryFilters, filtersRestored } =
     useTicketChartCard({ title, cardId, savedChart });
   const setChartType = useSetAtom(getReportChartTypeAtom(id));
@@ -115,70 +115,19 @@ export const TicketStatusSummary = ({
     </>
   );
 
-  if (loading || !filtersRestored) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Tickets by status"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Skeleton />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (error) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="Tickets by status"
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Content>
-          <Alert variant="destructive">
-            <Alert.Title>
-              {t('error-loading-data', 'Error loading data')}
-            </Alert.Title>
-            <Alert.Description>{error.message}</Alert.Description>
-          </Alert>
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
-  if (!data.length) {
-    return (
-      <FrontlineCard
-        id={id}
-        title={title}
-        description="No ticket status data."
-        colSpan={colSpan}
-        onColSpanChange={onColSpanChange}
-      >
-        <FrontlineCard.Header filter={filterEl} />
-        <FrontlineCard.Content>
-          <FrontlineCard.Empty />
-        </FrontlineCard.Content>
-      </FrontlineCard>
-    );
-  }
-
   return (
-    <FrontlineCard
+    <FrontlineChartCard
       id={id}
       title={title}
-      description="Tickets by status"
+      description={t('tickets-by-status')}
+      emptyDescription={t('no-ticket-status-data')}
       colSpan={colSpan}
       onColSpanChange={onColSpanChange}
+      filter={filterEl}
+      loading={loading || !filtersRestored}
+      error={error}
+      isEmpty={!data.length}
     >
-      <FrontlineCard.Header filter={filterEl} />
       <FrontlineCard.Content>
         <div
           className={cn(
@@ -210,7 +159,7 @@ export const TicketStatusSummary = ({
           onNext={handleNext}
         />
       </FrontlineCard.Content>
-    </FrontlineCard>
+    </FrontlineChartCard>
   );
 };
 
@@ -222,6 +171,7 @@ const StatusBarChart = memo(function StatusBarChart({
 }: {
   data: TicketStatusSummaryItem[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const chartConfig = useMemo(
     () => ({ count: { label: 'Count', color: 'var(--primary)' } }),
     [],
@@ -250,7 +200,7 @@ const StatusBarChart = memo(function StatusBarChart({
           tickFormatter={truncateStatusName}
         />
         <YAxis tickLine={false} axisLine={false} />
-        <Bar dataKey="count" name="Count">
+        <Bar dataKey="count" name={t('count')}>
           {chartData.map((entry, i) => (
             <Cell key={i} fill={entry.fill ?? undefined} />
           ))}
@@ -397,6 +347,7 @@ const StatusTableChart = memo(function StatusTableChart({
 }: {
   data: TicketStatusSummaryItem[];
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const columns: ColumnDef<TicketStatusSummaryItem>[] = [
     {
       id: 'color',
@@ -414,7 +365,7 @@ const StatusTableChart = memo(function StatusTableChart({
     },
     {
       id: 'name',
-      header: 'Status',
+      header: t('status'),
       accessorKey: 'name',
       cell: ({ cell }) => {
         const { name, group } = cell.row.original;
@@ -434,7 +385,7 @@ const StatusTableChart = memo(function StatusTableChart({
     },
     {
       id: 'count',
-      header: 'Count',
+      header: t('count'),
       accessorKey: 'count',
       size: 60,
       cell: ({ cell }) => (

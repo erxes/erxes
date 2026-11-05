@@ -24,7 +24,7 @@ export const TicketDetailSheet = ({
 }: {
   hideRelationWidgetSideTabs?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [activeTicket, setActiveTicket] = useTicketDetailSheet();
   const { ticket, loading, error } = useGetTicket({
     variables: activeTicket ? { _id: activeTicket } : undefined,
@@ -61,9 +61,9 @@ export const TicketDetailSheet = ({
         >
           <FocusSheet.SidebarTrigger />
           <div className="flex flex-col">
-            <Sheet.Title>{t('ticket-detail', 'Ticket Detail')}</Sheet.Title>
+            <Sheet.Title>{t('ticket-detail')}</Sheet.Title>
             <Sheet.Description className="sr-only">
-              {t('ticket-detail', 'Ticket Detail')}
+              {t('ticket-detail')}
             </Sheet.Description>
           </div>
           <div className="flex flex-1 justify-end">
@@ -110,11 +110,8 @@ export const TicketDetailSheet = ({
           </div>
           {!hideRelationWidgetSideTabs && (
             <RelationWidgetSideTabs
-              contentId={activeTicket || ''}
-              contentType="frontline:ticket"
-              hookOptions={{
-                hiddenModules: ['ticket'],
-              }}
+              customerId={ticket?.customerId}
+              companyId={ticket?.companyId}
             />
           )}
         </FocusSheet.Content>

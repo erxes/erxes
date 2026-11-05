@@ -12,7 +12,7 @@ interface QueuesSectionProps {
 }
 
 export function QueuesSection({ queueOptions }: QueuesSectionProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { queueStats, loading } = useDashboard();
   const { queueId } = useCallFilters();
 

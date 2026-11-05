@@ -92,7 +92,9 @@ const wrapHtml = (body: string, imageSources: string) =>
   </style></head><body>${body}</body></html>`;
 
 export const EmailBody: React.FC<EmailBodyProps> = ({ body, attachments }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const ref = useRef<HTMLIFrameElement>(null);
   const [h, setH] = useState(80);
   const [showImages, setShowImages] = useState(false);

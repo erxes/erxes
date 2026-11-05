@@ -34,7 +34,7 @@ const DISPLAY_STATUSES: ConversationStatus[] = [
 ];
 
 export const Progress = ({ customerId }: ProgressProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { conversationProgressChart, loading } = useConversationProgressChart({
     variables: customerId ? { customerId } : undefined,
     skip: !customerId,

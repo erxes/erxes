@@ -13,7 +13,9 @@ export const HelpCenterRecordTable = ({
 }: {
   onCreate: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.helpcenter',
+  });
   const { helpCenters, loading, error } = useHelpCenters();
   const columns = useHelpCenterColumns();
 

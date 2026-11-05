@@ -14,6 +14,8 @@ export const CREATE_PROJECT_MUTATION = gql(`
     $targetDate: Date
     $convertedFromId: String
     $tagIds: [String]
+    $customerId: String
+    $companyId: String
   ) {
     createProject(
       name: $name
@@ -28,6 +30,8 @@ export const CREATE_PROJECT_MUTATION = gql(`
       targetDate: $targetDate
       convertedFromId: $convertedFromId
       tagIds: $tagIds
+      customerId: $customerId
+      companyId: $companyId
     ) {
       _id
       name

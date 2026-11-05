@@ -17,7 +17,9 @@ export const KbFilterPopover = ({
   items?: ReactNode;
   views?: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <Filter.Popover scope={scope}>
@@ -50,7 +52,9 @@ export const KbSearchFilterBar = ({
 }: {
   searchValue?: string | null;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
 
   return (
     <>

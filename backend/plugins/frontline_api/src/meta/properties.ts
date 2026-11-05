@@ -106,8 +106,8 @@ export const properties: IPropertyMeta = {
           visibleToCreateByDefault: true,
         },
         {
-          code: 'companyIds',
-          name: 'Companies',
+          code: 'companyId',
+          name: 'Company',
           type: 'relation',
           notOnCreate: true,
         },

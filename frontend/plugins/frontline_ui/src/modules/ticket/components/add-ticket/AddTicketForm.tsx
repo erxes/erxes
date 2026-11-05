@@ -40,11 +40,14 @@ import { currentUserState } from 'ui-modules';
 export const AddTicketForm = ({
   onClose,
   onComplete,
+  contacts,
 }: {
   onClose: () => void;
   onComplete?: (ticketId: string) => void;
+  // Customers / companies the ticket is created for; linked on the server.
+  contacts?: { customerId?: string; companyId?: string };
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const [pipelineId] = useQueryState<string>('pipelineId');
   const [channelId] = useQueryState<string>('channelId');
   const { toast } = useToast();
@@ -143,7 +146,12 @@ export const AddTicketForm = ({
         priority: data.priority || 0,
         statusId: data.statusId,
         propertiesData: shownPropertiesData(),
+        ...contacts,
       },
+      // The ticket keeps its contacts itself; contacts' ticket lists are
+      // read again.
+      update: (cache) =>
+        cache.evict({ id: 'ROOT_QUERY', fieldName: 'getTickets' }),
       onCompleted: (data) => {
         toast({
           title: t('success', 'Success!'),
@@ -205,7 +213,7 @@ export const AddTicketForm = ({
                     {t('channels', 'Channels')}
                   </Form.Label>
                   <SelectChannel.FormItem
-                    label={t('channel', 'Channel')}
+                    label={t('channel')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -230,7 +238,7 @@ export const AddTicketForm = ({
                     {t('pipeline-label', 'Pipeline')}
                   </Form.Label>
                   <SelectPipeline.FormItem
-                    label={t('pipeline', 'Pipeline')}
+                    label={t('pipeline')}
                     value={field.value || ''}
                     onValueChange={(value) => {
                       field.onChange(value);
@@ -255,7 +263,7 @@ export const AddTicketForm = ({
                     {t('status-label', 'Status')}
                   </Form.Label>
                   <SelectStatusTicket.FormItem
-                    label={t('status', 'Status')}
+                    label={t('status')}
                     value={field.value || ''}
                     onValueChange={(value) => field.onChange(value)}
                     form={form}

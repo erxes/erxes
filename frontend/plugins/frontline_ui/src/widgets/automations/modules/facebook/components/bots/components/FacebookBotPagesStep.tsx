@@ -21,7 +21,7 @@ const getBotPageIds = (bots: { pageId?: string | null }[]) =>
   );
 
 export const FacebookBotPagesStep = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const { facebookGetPages, loading } = useFacebookPages();
@@ -79,6 +79,7 @@ const FacebookBotPagesStepContent = ({
   loading: boolean;
   facebookGetPages: FacebookPageOption[];
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
 
   const handleSelect = (page: FacebookPageOption) => {
@@ -119,7 +120,7 @@ const FacebookBotPagesStepContent = ({
         </div>
         {page.isBotUsed && (
           <span className="ml-auto text-xs text-muted-foreground">
-            Already used by bot
+            {t('already-used-by-bot')}
           </span>
         )}
       </Command.Item>

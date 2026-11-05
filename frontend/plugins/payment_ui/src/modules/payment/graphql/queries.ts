@@ -1,11 +1,5 @@
 import { gql } from '~/gql';
 
-export const INVOICE_SCANNED_SUBSCRIPTION = gql(`
-  subscription InvoiceScanned {
-    invoiceScanned
-  }
-`);
-
 export const COUNTS = gql(`
   query paymentsTotalCount($kind: String, $status: String) {
     paymentsTotalCount(kind: $kind, status: $status) {
@@ -24,13 +18,6 @@ export const PAYMENTS = gql(`
       kind
       status
       config
-      sendEmailOnPayment
-      dealConfig {
-        enabled
-        boardId
-        pipelineId
-        stageId
-      }
       createdAt
     }
   }
@@ -79,9 +66,6 @@ export const INVOICES = gql(`
         description
         invoiceNumber
         status
-        scannedAt
-        scannedCount
-        ticketCount
         transactions {
           amount
           createdAt

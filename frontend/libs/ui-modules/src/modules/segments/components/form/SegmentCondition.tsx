@@ -91,7 +91,7 @@ export const SegmentCondition = ({
             'flex flex-auto items-center gap-2 rounded-md',
             'border border-dashed bg-muted px-3 py-1.5 text-sm',
             !stepped &&
-              (propertyTypes.length > 1 ? 'min-w-[564px]' : 'min-w-[436px]'),
+              (propertyTypes.length > 1 ? 'min-w-[604px]' : 'min-w-[436px]'),
             stepped && 'min-w-0',
           )}
         >
@@ -123,7 +123,7 @@ export const SegmentCondition = ({
         )}
       >
         {propertyTypes.length > 1 && (
-          <div className="w-[120px] shrink-0">
+          <div className="w-[160px] shrink-0">
             <Select
               value={
                 selectedType?.relationKey || selectedType?.contentType || ''
@@ -276,7 +276,7 @@ export const SegmentCondition = ({
         <p
           className={cn(
             'flex items-start gap-1.5 pt-1 text-xs text-muted-foreground',
-            stepped ? 'pl-1' : 'pl-[128px]',
+            stepped ? 'pl-1' : 'pl-[168px]',
           )}
         >
           <IconInfoCircle className="size-3.5 shrink-0 mt-px" />

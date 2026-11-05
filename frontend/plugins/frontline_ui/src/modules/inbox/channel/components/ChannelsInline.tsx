@@ -54,7 +54,7 @@ export const ChannelsInlineProvider = ({
   updateChannels?: (channels: IChannel[]) => void;
   showIcon?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [_channels, _setChannels] = useState<IChannel[]>(channels || []);
 
   return (

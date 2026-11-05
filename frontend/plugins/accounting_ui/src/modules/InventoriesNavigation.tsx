@@ -3,16 +3,22 @@ import {
   IconBuildingWarehouse,
   IconFlagStar,
   IconScale,
+  IconAssembly,
 } from '@tabler/icons-react';
 
 import { NavigationSection } from './NavigationSection';
 
 export const InventoriesNavigation = () => (
   <NavigationSection
-    name="inventory-reports"
+    name="inventory-acc"
     icon={IconBuildingWarehouse}
     sectionPath="/accounting/inventories"
     items={[
+      {
+        name: 'production-executions',
+        icon: IconAssembly,
+        path: 'accounting/inventories/job-executions',
+      },
       {
         name: 'remainder',
         icon: IconFlagStar,

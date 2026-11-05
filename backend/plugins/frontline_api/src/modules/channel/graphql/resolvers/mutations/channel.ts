@@ -85,6 +85,7 @@ export const channelMutations = {
       action: 'resolved',
       priority: 'medium',
       notificationType: 'channelMembersChange',
+      event: 'frontline:channels:channelMembersChange',
     });
 
     return channel;

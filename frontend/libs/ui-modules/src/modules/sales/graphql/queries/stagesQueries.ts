@@ -2,8 +2,8 @@ import gql from 'graphql-tag';
 
 const commonParams = `
   $search: String,
-  $customerIds: [String],
-  $companyIds: [String],
+  $customerId: String,
+  $companyId: String,
   $assignedUserIds: [String],
   $labelIds: [String],
   $extraParams: JSON,
@@ -24,8 +24,8 @@ const commonParams = `
 
 const commonParamDefs = `
   search: $search,
-  customerIds: $customerIds,
-  companyIds: $companyIds,
+  customerId: $customerId,
+  companyId: $companyId,
   assignedUserIds: $assignedUserIds,
   labelIds: $labelIds,
   extraParams: $extraParams,

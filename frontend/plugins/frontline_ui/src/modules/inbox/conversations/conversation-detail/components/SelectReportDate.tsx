@@ -47,7 +47,7 @@ const REPORT_DATE_OPTIONS = [
 ];
 
 export const SelectReportDate = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [open, setOpen] = useState<boolean>(false);
   const optionRefs = useRef<HTMLDivElement[]>([]);
   const [selected, setSelected] = useState<string>(
@@ -107,7 +107,7 @@ export const SelectReportDate = () => {
 };
 
 export const SelectReportDateValue = ({ selected }: { selected: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   return (
     <Combobox.TriggerBase
       asChild

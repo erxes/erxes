@@ -17,6 +17,7 @@ import { useCallback, useRef, useState } from 'react';
 
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
+import { DealContactsField } from '@/deals/components/deal-selects/DealContactsField';
 import { SelectDealPriority } from '@/deals/components/deal-selects/SelectDealPriority';
 import { SelectDealStage } from '@/deals/components/deal-selects/SelectDealStage';
 import { useDealsContext } from '@/deals/context/DealContext';
@@ -256,6 +257,18 @@ export const SalesFormFields = ({ deal }: { deal: IDealDetail }) => {
             onValueChange={(value) =>
               optimisticTags.setValue(normalizeMultiValue(value))
             }
+          />
+          <DealContactsField
+            dealId={_id}
+            kind="customer"
+            value={deal.customers?.[0]?._id}
+            label={t('customers', 'Customers')}
+          />
+          <DealContactsField
+            dealId={_id}
+            kind="company"
+            value={deal.companies?.[0]?._id}
+            label={t('companies', 'Companies')}
           />
         </div>
         <div className="flex flex-wrap items-center gap-2">

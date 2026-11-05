@@ -11,7 +11,7 @@ export const MessageAuthorHeader = ({
   authorName?: string;
   showBotName: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <>

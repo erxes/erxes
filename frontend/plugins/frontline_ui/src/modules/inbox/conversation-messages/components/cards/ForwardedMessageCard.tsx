@@ -10,6 +10,7 @@ import type {
 import { ShareCard } from '@/inbox/conversation-messages/components/cards/SocialCards';
 import { StickerCard } from '@/inbox/conversation-messages/components/stickers/StickerCard';
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/messages/MessageStatus';
+import { useTranslation } from 'react-i18next';
 
 export const ForwardedMessageCard = ({
   snapshot,
@@ -18,6 +19,7 @@ export const ForwardedMessageCard = ({
   snapshot: IMessageForwardedSnapshot;
   className?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const socialShareAttachment = snapshot.attachments?.find(
     (attachment: IAttachment) =>
       attachment.type === 'share' ||
@@ -57,7 +59,7 @@ export const ForwardedMessageCard = ({
         !snapshot.stickers?.length &&
         !snapshot.embeds?.length &&
         !snapshot.poll && (
-          <UnsupportedMessage text="Forwarded message unavailable" />
+          <UnsupportedMessage text={t('forwarded-message-unavailable')} />
         )}
     </div>
   );

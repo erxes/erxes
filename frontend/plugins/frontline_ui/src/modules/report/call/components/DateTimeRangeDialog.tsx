@@ -43,7 +43,7 @@ export function DateTimeRangeDialog({
   value,
   onApply,
 }: DateTimeRangeDialogProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [range, setRange] = useState<DateRange | undefined>();
   const [fromTime, setFromTime] = useState<Time>(DAY_START);
   const [toTime, setToTime] = useState<Time>(DAY_END);

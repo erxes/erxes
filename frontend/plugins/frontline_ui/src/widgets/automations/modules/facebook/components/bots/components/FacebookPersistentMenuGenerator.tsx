@@ -15,6 +15,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus, IconX } from '@tabler/icons-react';
 import { Button, Card, cn, Input, Select } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 import { generateAutomationElementId } from 'ui-modules';
 import { TFacebookBotForm } from '../states/facebookBotForm';
 
@@ -23,12 +24,12 @@ type TPersistentMenuType = TPersistentMenu['type'];
 
 const PERSISTENT_MENU_TYPES: {
   value: TPersistentMenuType;
-  label: string;
+  labelKey: string;
 }[] = [
-  { value: 'button', label: 'Button' },
-  { value: 'link', label: 'Link' },
-  { value: 'human_handoff', label: 'Talk to human' },
-  { value: 'back_button', label: 'Back' },
+  { value: 'button', labelKey: 'menu-type-button' },
+  { value: 'link', labelKey: 'menu-type-link' },
+  { value: 'human_handoff', labelKey: 'menu-type-talk-to-human' },
+  { value: 'back_button', labelKey: 'menu-type-back' },
 ];
 
 const isPersistentMenuType = (value: string): value is TPersistentMenuType =>
@@ -43,6 +44,7 @@ export const FacebookPersistentMenuGenerator = ({
   setMenus: (menus: TPersistentMenu[]) => void;
   limit: number;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const sensors = useSensors(useSensor(PointerSensor));
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -82,6 +84,13 @@ export const FacebookPersistentMenuGenerator = ({
 
   return (
     <div className="space-y-2">
+      {!menus.length && (
+        <p className="text-sm text-muted-foreground">
+          {t('persistent-menu-empty', {
+            defaultValue: 'No menu. Messenger shows no ☰ menu for this page.',
+          })}
+        </p>
+      )}
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -111,7 +120,7 @@ export const FacebookPersistentMenuGenerator = ({
         onClick={handleAddMenu}
       >
         <IconPlus />
-        Add persistent menu
+        {t('add-persistent-menu')}
       </Button>
     </div>
   );
@@ -128,6 +137,7 @@ const FacebookPersistentMenuRow = ({
   onChange: (menu: TPersistentMenu) => void;
   onRemove: () => void;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: menu._id });
 
@@ -171,13 +181,13 @@ const FacebookPersistentMenuRow = ({
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
-            {PERSISTENT_MENU_TYPES.map(({ value, label }) => (
+            {PERSISTENT_MENU_TYPES.map(({ value, labelKey }) => (
               <Select.Item
                 key={value}
                 value={value}
                 disabled={value === 'back_button' && hasAnotherBackButton}
               >
-                {label}
+                {t(labelKey)}
               </Select.Item>
             ))}
           </Select.Content>
@@ -185,7 +195,7 @@ const FacebookPersistentMenuRow = ({
         {menu.type !== 'back_button' && (
           <Input
             maxLength={20}
-            placeholder="Menu label"
+            placeholder={t('menu-label')}
             value={menu.text}
             onChange={(event) =>
               onChange({ ...menu, text: event.currentTarget.value })

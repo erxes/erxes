@@ -18,7 +18,9 @@ export const ArticlesRecordTable = memo(function ArticlesRecordTable({
   canCreate: boolean;
   onCreate: () => void;
 }) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { articles, loading, error } = useArticles(topicId);
   const columns = useArticlesColumns(topicId);
 

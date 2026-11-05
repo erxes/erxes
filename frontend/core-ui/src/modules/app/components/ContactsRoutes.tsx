@@ -3,6 +3,7 @@ import { Route, Routes, Navigate } from 'react-router';
 
 import { ContactsPath } from '@/types/paths/ContactsPath';
 import { ContactsPageEffect } from '@/contacts/components/ContactsPageEffect';
+import { NotFoundPage } from '~/pages/not-found/NotFoundPage';
 
 const CustomersIndexPage = lazy(() =>
   import('~/pages/contacts/CustomersIndexPage').then((module) => ({
@@ -42,6 +43,7 @@ export const ContactsRoutes = () => {
           path={ContactsPath.ClientPortalUsers}
           element={<ClientPortalUsersIndexPage />}
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <ContactsPageEffect />
     </Suspense>

@@ -58,7 +58,7 @@ export const MainSettingsForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="h-full w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
+        className="w-full mx-auto max-w-2xl px-9 py-5 flex flex-col gap-8"
       >
         <h1 className="text-lg font-semibold">{t('general-settings-label')}</h1>
         <Collapsible defaultOpen>
@@ -67,7 +67,7 @@ export const MainSettingsForm = () => {
             {t('access-priority-settings')}
           </Collapsible.TriggerButton>
 
-          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-4">
+          <Collapsible.Content className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <DominantAccountPermissionFields form={form} />
           </Collapsible.Content>
         </Collapsible>
@@ -76,7 +76,7 @@ export const MainSettingsForm = () => {
             <Collapsible.TriggerIcon />
             {t('tax-settings')}
           </Collapsible.TriggerButton>
-          <Collapsible.Content className="pt-4 grid grid-cols-2 gap-5">
+          <Collapsible.Content className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-5">
             <VatFormFields form={form} />
             <CtaxFormFields form={form} />
           </Collapsible.Content>
@@ -107,7 +107,7 @@ export const DominantAccountPermissionFields = ({
         control={form.control}
         name="dominantReadAccountUsers"
         render={({ field }) => (
-          <Form.Item className="col-span-2">
+          <Form.Item className="sm:col-span-2">
             <Form.Label>{t('users-with-access-to-all-accounts')}</Form.Label>
             <Form.Control>
               <SelectMember.FormItem
@@ -126,7 +126,7 @@ export const DominantAccountPermissionFields = ({
         control={form.control}
         name="dominantWriteAccountUsers"
         render={({ field }) => (
-          <Form.Item className="col-span-2">
+          <Form.Item className="sm:col-span-2">
             <Form.Label>
               {t('users-with-write-access-to-all-accounts')}
             </Form.Label>
@@ -161,7 +161,7 @@ export const VatFormFields = ({
         control={form.control}
         name="HasVat"
         render={({ field }) => (
-          <Form.Item className="col-span-2 flex items-center gap-2 space-y-0">
+          <Form.Item className="sm:col-span-2 flex items-center gap-2 space-y-0">
             <Form.Control>
               <Checkbox
                 checked={field.value}
@@ -257,7 +257,7 @@ export const CtaxFormFields = ({
         control={form.control}
         name="HasCtax"
         render={({ field }) => (
-          <Form.Item className="col-span-2 flex items-center gap-2 space-y-0 mt-7">
+          <Form.Item className="sm:col-span-2 flex items-center gap-2 space-y-0 mt-7">
             <Form.Control>
               <Checkbox
                 checked={field.value}

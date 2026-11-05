@@ -297,40 +297,62 @@ export const readImportBulkOutcome = ({
   return insertedId ? { insertedId } : { error: 'Insert was not acknowledged' };
 };
 
+export const splitImportTagNames = (tags: unknown): string[] => [
+  ...new Set(
+    String(tags ?? '')
+      .split(',')
+      .map((tagName) => tagName.trim())
+      .filter(Boolean),
+  ),
+];
+
 /**
- * Resolve the tag names in a CSV cell into ids, creating what is missing.
+ * Resolve the tag names of many CSV cells into ids, creating what is missing:
+ * one lookup for the batch, then one create per new name.
  *
  * Tag names are unique across every content type, so the lookup must not be
  * narrowed by type — a name already held by another type has to be reused
- * instead of re-created. Names are also deduplicated and resolved one at a
- * time: the same name twice in one cell would otherwise race itself into a
- * duplicate-key error.
+ * instead of re-created. Names are also deduplicated and created one at a
+ * time: the same name twice would otherwise race itself into a duplicate-key
+ * error.
  */
+export const resolveImportTagIdsByName = async (
+  models: IModels,
+  type: string,
+  cells: unknown[],
+): Promise<Map<string, string>> => {
+  const tagNames = [...new Set(cells.flatMap(splitImportTagNames))];
+  const idByName = new Map<string, string>();
+
+  if (!tagNames.length) {
+    return idByName;
+  }
+
+  const existing = await models.Tags.find(
+    { name: { $in: tagNames } },
+    { name: 1 },
+  ).lean();
+
+  for (const tag of existing) {
+    idByName.set(tag.name, String(tag._id));
+  }
+
+  for (const name of tagNames) {
+    if (!idByName.has(name)) {
+      const created = await models.Tags.createTag({ name, type });
+      idByName.set(name, String(created._id));
+    }
+  }
+
+  return idByName;
+};
+
 export const resolveImportTagIds = async (
   models: IModels,
   type: string,
-  tags: string = '',
+  tags = '',
 ): Promise<string[]> => {
-  const tagNames = [
-    ...new Set(
-      String(tags ?? '')
-        .split(',')
-        .map((tagName) => tagName.trim())
-        .filter(Boolean),
-    ),
-  ];
+  const idByName = await resolveImportTagIdsByName(models, type, [tags]);
 
-  const tagIds: string[] = [];
-
-  for (const name of tagNames) {
-    const existing = await models.Tags.findOne({ name }).lean();
-
-    tagIds.push(
-      String(
-        existing?._id ?? (await models.Tags.createTag({ name, type }))._id,
-      ),
-    );
-  }
-
-  return tagIds;
+  return splitImportTagNames(tags).flatMap((name) => idByName.get(name) ?? []);
 };

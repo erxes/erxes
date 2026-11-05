@@ -113,6 +113,11 @@ const InventoryReserveRemainders = lazy(() =>
     default: module.ReserveRemaindersPage,
   })),
 );
+const JobExecutions = lazy(() =>
+  import('~/pages/inventories/JobExecutionsPage').then((module) => ({
+    default: module.JobExecutionsPage,
+  })),
+);
 
 const FxaOwnerRecords = lazy(() =>
   import('~/pages/fixed-assets/FxaOwnerRecordsPage').then((module) => ({
@@ -147,6 +152,12 @@ const AdjustClosingDetail = lazy(() =>
 const AccountingCheckSync = lazy(() =>
   import('~/modules/check-synced/AccountingCheckSync').then((module) => ({
     default: module.AccountingCheckSync,
+  })),
+);
+
+const AccountingNotFound = lazy(() =>
+  import('~/pages/NotFoundPage').then((module) => ({
+    default: module.AccountingNotFoundPage,
   })),
 );
 
@@ -211,6 +222,10 @@ const PluginAccounting = () => {
             element={<InventoryRemainders />}
           />
           <Route
+            path="/inventories/job-executions"
+            element={<JobExecutions />}
+          />
+          <Route
             path="/inventories/safe-remainders"
             element={<InventorySafeRemainders />}
           />
@@ -232,6 +247,7 @@ const PluginAccounting = () => {
             path="adjustment/closing/:id"
             element={<AdjustClosingDetail />}
           />
+          <Route path="*" element={<AccountingNotFound />} />
         </Routes>
         <PageChangeEffect />
       </Suspense>
@@ -239,8 +255,10 @@ const PluginAccounting = () => {
   );
 };
 
-const AccountingSettingsRoutes = lazy(
-  () => import('~/modules/AccountingSettings'),
+const AccountingSettingsRoutes = lazy(() =>
+  import('~/modules/AccountingSettings').then((module) => ({
+    default: module.AccountingSettings,
+  })),
 );
 // JSX needs a capitalised name.
 const AccountingAppRoutes = PluginAccounting;

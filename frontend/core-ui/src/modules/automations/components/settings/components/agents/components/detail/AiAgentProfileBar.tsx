@@ -2,15 +2,11 @@ import { AiAgentBot } from '@/automations/components/settings/components/agents/
 import { TAiAgentStepStatus } from '@/automations/components/settings/components/agents/constants/aiAgentSteps';
 import { useAiAgentDetailContext } from '@/automations/components/settings/components/agents/context/AiAgentDetailContext';
 import { useAiAgentProfile } from '@/automations/components/settings/components/agents/hooks/useAiAgentProfile';
-import { AUTOMATION_APPROVAL_CONTENT_TYPES } from '@/automations/constants';
 import { useSessionTab } from '@/automations/hooks/useSessionTab';
-import {
-  IconAlertTriangle,
-  IconDeviceFloppy,
-  IconX,
-} from '@tabler/icons-react';
+import { IconAlertTriangle, IconArrowBackUp, IconX } from '@tabler/icons-react';
 import { Badge, BadgeProps, Button, cn, Sheet } from 'erxes-ui';
-import { ApprovalLockButton } from 'ui-modules';
+import { Link, useSearchParams } from 'react-router';
+import { parseAutomationReturnLink } from 'ui-modules';
 
 const HEADLINE_VARIANTS: Record<TAiAgentStepStatus, BadgeProps['variant']> = {
   error: 'destructive',
@@ -22,7 +18,7 @@ const HEADLINE_VARIANTS: Record<TAiAgentStepStatus, BadgeProps['variant']> = {
 };
 
 export const AiAgentProfileBar = () => {
-  const { detail, headline, setStep, openMemory, save, requestClose } =
+  const { headline, setStep, openMemory, requestClose } =
     useAiAgentDetailContext();
   const { name, pose, missingParts, summary, memoryChips } =
     useAiAgentProfile();
@@ -31,6 +27,9 @@ export const AiAgentProfileBar = () => {
     'large',
   ]);
   const isLarge = botSize === 'large';
+  // Set when another module sent the user here to create an agent.
+  const [searchParams] = useSearchParams();
+  const returnTo = parseAutomationReturnLink(searchParams);
 
   return (
     <header className="shrink-0 border-b px-5 py-3">
@@ -64,25 +63,17 @@ export const AiAgentProfileBar = () => {
           </Sheet.Description>
         </div>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2">
-          {headline.status !== 'done' && (
-            <Button variant="outline" onClick={() => setStep(headline.step)}>
-              {headline.cta} →
+        <div className="ml-auto flex shrink-0 items-center gap-1 self-start">
+          {returnTo && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link to={returnTo.path}>
+                <IconArrowBackUp className="shrink-0" />
+                <span className="max-w-40 truncate">
+                  Back to {returnTo.label || 'previous page'}
+                </span>
+              </Link>
             </Button>
           )}
-          {detail?._id && (
-            <ApprovalLockButton
-              contentType={
-                AUTOMATION_APPROVAL_CONTENT_TYPES.AUTOMATION_AI_AGENT
-              }
-              contentId={detail._id}
-              action="edit"
-            />
-          )}
-          <Button onClick={save}>
-            <IconDeviceFloppy className="size-4" />
-            Save
-          </Button>
           <Button
             variant="ghost"
             size="icon"

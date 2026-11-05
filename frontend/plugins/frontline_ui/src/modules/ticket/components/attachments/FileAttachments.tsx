@@ -7,7 +7,7 @@ import { IAttachment } from '@/ticket/types/attachments';
 import { useCreateTicket } from '@/ticket/hooks/useCreateTicket';
 
 const FileAttachments = ({ attachments }: { attachments: IAttachment[] }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { handleRemoveImage, removingUrl } = useAttachmentContext();
   const { loading } = useCreateTicket();
 

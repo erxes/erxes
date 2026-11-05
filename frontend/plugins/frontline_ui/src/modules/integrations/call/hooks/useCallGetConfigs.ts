@@ -6,7 +6,9 @@ import { useTranslation } from 'react-i18next';
 export const useCallGetConfigs = ({
   skip = false,
 }: { skip?: boolean } = {}) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { data, loading } = useQuery(CALL_GET_CONFIGS, {
     skip,
     onError: (e) => {

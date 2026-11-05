@@ -25,6 +25,7 @@ import {
   MessageItemMedia,
   MessageItemContent,
 } from '@/inbox/conversation-messages/components/MessageItemContent';
+import { useTranslation } from 'react-i18next';
 
 const MessageItemStatus = ({
   presentation,
@@ -79,6 +80,7 @@ const MessageItemStatus = ({
 };
 
 export const MessageItem = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [actionsOpen, setActionsOpen] = useState(false);
   const presentation = useMessagePresentation();
   const {
@@ -153,7 +155,7 @@ export const MessageItem = () => {
                 variant="ghost"
                 size="icon"
                 className="size-8 shrink-0 rounded-full bg-background shadow-sm md:hidden"
-                aria-label="Message actions"
+                aria-label={t('message-actions')}
                 onClick={() => setActionsOpen(true)}
               >
                 <IconDots className="size-4" />

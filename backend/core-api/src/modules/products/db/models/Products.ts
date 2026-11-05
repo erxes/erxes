@@ -1,9 +1,10 @@
 import {
   IProduct,
+  IProductCategory,
   IProductDocument,
   IPropertyField,
 } from 'erxes-api-shared/core-types';
-import { Model, UpdateQuery } from 'mongoose';
+import { Model, mongo, UpdateQuery } from 'mongoose';
 import { nanoid } from 'nanoid';
 import { EventDispatcherReturn } from 'erxes-api-shared/core-modules';
 
@@ -22,9 +23,70 @@ import {
 import { IModels } from '~/connectionResolvers';
 import { generateProductUpdateActivityLogs } from '../../meta/activity-log';
 
+export interface IProductUpsertResult {
+  _id?: string;
+  error?: string;
+}
+
+type ProductWriteDoc = Partial<IProduct> & { _id?: string; createdAt?: Date };
+
+type ProductRefs = {
+  uomCodes: Map<string, string>;
+  defaultUom: string;
+  categories: Map<string, IProductCategory & { _id: string }>;
+  vendors: Map<string, { _id: string }>;
+};
+
+// A vendor reference may be any of these company fields
+const VENDOR_REF_FIELDS = [
+  '_id',
+  'code',
+  'primaryEmail',
+  'primaryPhone',
+  'primaryName',
+] as const;
+
+const uniqueRefs = (values: Array<string | undefined>) => [
+  ...new Set(values.filter((value): value is string => !!value)),
+];
+
+// Earlier getters win, so an _id never loses to another doc's code or name.
+// A ref two docs share at the same level (a repeated name) is left out
+// rather than guessed.
+const indexByRefs = <T>(docs: T[], refGetters: Array<(doc: T) => unknown>) => {
+  const byRef = new Map<string, T>();
+
+  for (const getRef of refGetters) {
+    const level = new Map<string, T | null>();
+
+    for (const doc of docs) {
+      const value = getRef(doc);
+      const ref = value ? String(value) : '';
+
+      if (ref && !byRef.has(ref)) {
+        level.set(ref, level.has(ref) ? null : doc);
+      }
+    }
+
+    for (const [ref, doc] of level) {
+      if (doc) {
+        byRef.set(ref, doc);
+      }
+    }
+  }
+
+  return byRef;
+};
+
+const normalizeNewCode = (code: string) =>
+  code.replace(/\*/g, '').replace(/_/g, '').replace(/ /g, '');
+
 export interface IProductModel extends Model<IProductDocument> {
   getProduct(selector: any): Promise<IProductDocument>;
   createProduct(doc: IProduct): Promise<IProductDocument>;
+  upsertProductsByCode(
+    docs: Partial<IProduct>[],
+  ): Promise<IProductUpsertResult[]>;
   updateProduct(_id: string, doc: IProduct): Promise<IProductDocument>;
   updateProductFromBulk(
     _id: string,
@@ -145,7 +207,7 @@ export const loadProductClass = (
 
   class Product {
     private static normalizeDuration(
-      doc: IProduct,
+      doc: Partial<IProduct>,
       currentProduct?: IProductDocument,
     ) {
       const type = doc.type || currentProduct?.type || PRODUCT_TYPES.PRODUCT;
@@ -183,6 +245,169 @@ export const loadProductClass = (
       return true;
     }
 
+    // A fixed number of queries, however many docs are passed
+    private static async loadRefs(
+      docs: ProductWriteDoc[],
+    ): Promise<ProductRefs> {
+      const categoryRefs = uniqueRefs(
+        docs.map((doc) => doc.categoryCode || doc.categoryId),
+      );
+      const vendorRefs = uniqueRefs(docs.map((doc) => doc.vendorCode));
+
+      const [defaultUomConfig, categories, vendors] = await Promise.all([
+        models.ProductsConfigs.getConfig('defaultUOM'),
+        categoryRefs.length
+          ? models.ProductCategories.find({
+              $or: [
+                { _id: { $in: categoryRefs } },
+                { code: { $in: categoryRefs } },
+                { name: { $in: categoryRefs } },
+              ],
+            }).lean()
+          : [],
+        vendorRefs.length
+          ? models.Companies.find(
+              {
+                $or: VENDOR_REF_FIELDS.map((field) => ({
+                  [field]: { $in: vendorRefs },
+                })),
+              },
+              { code: 1, primaryEmail: 1, primaryPhone: 1, primaryName: 1 },
+            ).lean()
+          : [],
+      ]);
+
+      // getConfig resolves to the stored value despite its declared type
+      const defaultUom =
+        typeof defaultUomConfig === 'string' ? defaultUomConfig : '';
+
+      const uomCodes = await models.Uoms.resolveCodes([
+        defaultUom,
+        ...docs.flatMap((doc) => [
+          doc.uom,
+          ...(doc.subUoms || []).map((subUom) => subUom.uom),
+        ]),
+      ]);
+
+      return {
+        uomCodes,
+        defaultUom,
+        categories: indexByRefs(categories, [
+          (category) => category._id,
+          (category) => category.code,
+          (category) => category.name,
+        ]),
+        vendors: indexByRefs(
+          vendors,
+          VENDOR_REF_FIELDS.map((field) => (vendor) => vendor[field]),
+        ),
+      };
+    }
+
+    // Import onboards whole catalogs: a category the file names but nobody has
+    // yet is created at the root, under that name
+    private static async createMissingCategories(docs: Partial<IProduct>[]) {
+      const refs = uniqueRefs(
+        docs.map((doc) => doc.categoryCode || doc.categoryId),
+      );
+
+      if (!refs.length) {
+        return;
+      }
+
+      const existing = await models.ProductCategories.find(
+        {
+          $or: [
+            { _id: { $in: refs } },
+            { code: { $in: refs } },
+            { name: { $in: refs } },
+          ],
+        },
+        { code: 1, name: 1 },
+      ).lean();
+      const known = new Set(
+        existing.flatMap((category) => [
+          category._id,
+          category.code,
+          category.name,
+        ]),
+      );
+
+      for (const name of refs.filter((ref) => !known.has(ref))) {
+        // A failed create (a concurrent import took the code) surfaces later
+        // as the rows' "category not found"
+        await models.ProductCategories.createProductCategory({
+          name,
+          code: name,
+          order: '',
+        }).catch(() => undefined);
+      }
+    }
+
+    // Every create rule that needs no query: normalizes the doc in place and
+    // returns its category
+    private static checkProduct(doc: ProductWriteDoc, refs: ProductRefs) {
+      this.normalizeDuration(doc);
+
+      if (!doc.code) {
+        throw new Error('code is required');
+      }
+
+      // An existing product keeps the code it was saved with
+      if (!doc._id) {
+        doc.code = normalizeNewCode(doc.code);
+      }
+
+      Object.assign(doc, this.fixBarcodes(doc.barcodes, doc.variants));
+
+      const categoryRef = doc.categoryCode || doc.categoryId;
+      const category = categoryRef
+        ? refs.categories.get(categoryRef)
+        : undefined;
+
+      if (!category) {
+        throw new Error(
+          `Product & service category not found: ${categoryRef || '-'}`,
+        );
+      }
+
+      if (!checkCodeMask(category, doc.code)) {
+        throw new Error('Code does not match the category mask');
+      }
+
+      doc.categoryId = category._id;
+      delete doc.categoryCode;
+
+      if (doc.vendorCode) {
+        doc.vendorId = refs.vendors.get(doc.vendorCode)?._id;
+
+        if (!doc.vendorId) {
+          throw new Error(`Vendor not found: ${doc.vendorCode}`);
+        }
+
+        delete doc.vendorCode;
+      }
+
+      const uom = doc.uom || refs.defaultUom;
+
+      if (!uom) {
+        throw new Error('uom is required');
+      }
+
+      doc.uom = refs.uomCodes.get(uom) ?? uom;
+
+      if (doc.subUoms) {
+        doc.subUoms = doc.subUoms.map((subUom) => ({
+          ...subUom,
+          uom: subUom.uom
+            ? refs.uomCodes.get(subUom.uom) ?? subUom.uom
+            : subUom.uom,
+        }));
+      }
+
+      return category;
+    }
+
     private static async refreshKnowledge(productIds: string[]) {
       try {
         await refreshProductKnowledge({ subdomain, productIds });
@@ -210,47 +435,12 @@ export const loadProductClass = (
      * Create a product
      */
     public static async createProduct(doc: IProduct) {
-      this.normalizeDuration(doc);
+      const refs = await this.loadRefs([doc]);
+      const category = this.checkProduct(doc, refs);
 
-      doc.code = doc.code
-        .replace(/\*/g, '')
-        .replace(/_/g, '')
-        .replace(/ /g, '');
       await this.checkCodeDuplication(doc.code);
 
-      doc = { ...doc, ...this.fixBarcodes(doc.barcodes, doc.variants) };
-
-      if (doc.categoryCode) {
-        const category = await models.ProductCategories.getProductCategory({
-          code: doc.categoryCode,
-        });
-        doc.categoryId = category._id;
-      }
-
-      if (doc.vendorCode) {
-        const vendor = await models.Companies.findOne({
-          $or: [
-            { code: doc.vendorCode },
-            { primaryEmail: doc.vendorCode },
-            { primaryPhone: doc.vendorCode },
-            { primaryName: doc.vendorCode },
-          ],
-        });
-
-        doc.vendorId = vendor?._id;
-      }
-
-      const category = await models.ProductCategories.getProductCategory({
-        _id: doc.categoryId,
-      });
-
-      if (!checkCodeMask(category, doc.code)) {
-        throw new Error('Code does not match the category mask');
-      }
-
       doc.sameMasks = await checkSameMaskConfig(models, doc);
-
-      doc.uom = await models.Uoms.checkUOM(doc);
 
       doc.propertiesData = await initCustomField(
         models,
@@ -284,6 +474,154 @@ export const loadProductClass = (
       await this.refreshKnowledge([product._id]);
 
       return product;
+    }
+
+    public static async upsertProductsByCode(docs: Partial<IProduct>[]) {
+      const codes = uniqueRefs(
+        docs.flatMap((doc) =>
+          doc.code ? [doc.code, normalizeNewCode(doc.code)] : [],
+        ),
+      );
+      // Deleted products too: the unique index still holds their codes
+      const currents = codes.length
+        ? await models.Products.find({ code: { $in: codes } }).lean()
+        : [];
+      const currentByCode = new Map(currents.map((p) => [p.code, p]));
+
+      const items = docs.map((doc) => {
+        const current = doc.code
+          ? currentByCode.get(doc.code) ??
+            currentByCode.get(normalizeNewCode(doc.code))
+          : undefined;
+        const merged: ProductWriteDoc = current
+          ? { ...current, ...doc, code: current.code }
+          : { ...doc };
+
+        return { current, doc: merged };
+      });
+
+      await this.createMissingCategories(docs);
+
+      const refs = await this.loadRefs(items.map(({ doc }) => doc));
+      const results: IProductUpsertResult[] = docs.map(() => ({}));
+      const writes: Array<{
+        index: number;
+        _id: string;
+        doc: ProductWriteDoc;
+        isInsert: boolean;
+      }> = [];
+      const insertedCodes = new Set<string>();
+
+      items.forEach(({ current, doc }, index) => {
+        try {
+          if (current?.status === PRODUCT_STATUSES.DELETED) {
+            throw new Error(
+              `Code ${current.code} belongs to a deleted product`,
+            );
+          }
+
+          this.checkProduct(doc, refs);
+
+          const code = doc.code || '';
+
+          if (!current && insertedCodes.has(code)) {
+            throw new Error(`Code ${code} repeats an earlier row`);
+          }
+
+          const _id = current?._id ?? nanoid();
+          doc._id = _id;
+
+          // Validated here so bulkWrite sends every operation and the
+          // driver's error indexes stay ours
+          const invalid = new models.Products(doc).validateSync();
+
+          if (invalid) {
+            throw invalid;
+          }
+
+          if (!current) {
+            insertedCodes.add(code);
+          }
+
+          writes.push({ index, _id, doc, isInsert: !current });
+        } catch (e) {
+          results[index] = { error: (e as Error).message };
+        }
+      });
+
+      if (!writes.length) {
+        return results;
+      }
+
+      const now = new Date();
+      const failures = new Map<number, string>();
+
+      try {
+        await models.Products.bulkWrite(
+          writes.map(({ _id, doc, isInsert }) =>
+            isInsert
+              ? {
+                  insertOne: {
+                    document: { ...doc, createdAt: now, updatedAt: now },
+                  },
+                }
+              : {
+                  replaceOne: {
+                    filter: { _id },
+                    replacement: {
+                      ...doc,
+                      createdAt: doc.createdAt ?? now,
+                      updatedAt: now,
+                    },
+                  },
+                },
+          ),
+          // unordered so one refused row does not abandon the rest
+          { ordered: false },
+        );
+      } catch (error) {
+        // Thrown only after every other operation has run
+        if (!(error instanceof mongo.MongoBulkWriteError)) {
+          throw error;
+        }
+
+        for (const writeError of [error.writeErrors].flat()) {
+          failures.set(
+            writeError.index,
+            writeError.errmsg || 'Failed to save row',
+          );
+        }
+      }
+
+      const insertedIds: string[] = [];
+      const updatedIds: string[] = [];
+
+      writes.forEach(({ index, _id, isInsert }, operationIndex) => {
+        const error = failures.get(operationIndex);
+
+        if (error) {
+          results[index] = { error };
+          return;
+        }
+
+        if (isInsert) {
+          insertedIds.push(_id);
+        } else {
+          updatedIds.push(_id);
+        }
+
+        results[index] = { _id };
+      });
+
+      if (insertedIds.length || updatedIds.length) {
+        sendDbEventLog({
+          action: 'bulkWrite',
+          docIds: [...insertedIds, ...updatedIds],
+          updateDescription: { insertedIds, updatedIds },
+        });
+      }
+
+      return results;
     }
 
     public static async updateProduct(_id: string, doc: IProduct) {

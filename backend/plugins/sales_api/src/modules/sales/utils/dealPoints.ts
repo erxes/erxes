@@ -199,7 +199,7 @@ export const planDealPoints = async ({
 
   // Earning and paying with points go to the same, first customer.
   const [customerId] =
-    customerIds ?? ((await getCustomerIds(subdomain, dealId)) || []);
+    customerIds ?? ((await getCustomerIds(subdomain, models, dealId)) || []);
 
   if (!customerId) {
     if (spends.some(({ pointsPaymentAmount }) => pointsPaymentAmount > 0)) {
@@ -354,6 +354,7 @@ const askVoucher = (
  */
 export const syncDealVoucher = async ({
   subdomain,
+  models,
   dealId,
   previousVoucherId,
   voucherId,
@@ -361,6 +362,7 @@ export const syncDealVoucher = async ({
   userId,
 }: {
   subdomain: string;
+  models: IModels;
   dealId: string;
   previousVoucherId?: string;
   voucherId?: string;
@@ -381,7 +383,7 @@ export const syncDealVoucher = async ({
     return;
   }
 
-  const [customerId] = (await getCustomerIds(subdomain, dealId)) || [];
+  const [customerId] = (await getCustomerIds(subdomain, models, dealId)) || [];
 
   if (!customerId) {
     throw new Error('Attach a customer to use their voucher');

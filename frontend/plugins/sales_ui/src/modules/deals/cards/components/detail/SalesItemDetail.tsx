@@ -2,9 +2,11 @@
 
 import { IconAlertCircle, IconCloudExclamation } from '@tabler/icons-react';
 import {
+  Button,
   Empty,
   FocusSheet,
   ScrollArea,
+  Sheet,
   Tabs,
   useFocusSheet,
   useQueryState,
@@ -18,7 +20,8 @@ import { SalesItemDetailHeader } from '@/deals/cards/components/detail/SalesItem
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useAtom } from 'jotai';
+import { useSetAtom } from 'jotai';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { DealPipelineProperties } from './DealPipelineProperties';
@@ -82,11 +85,8 @@ const SalesItemDetailView = () => {
               </div>
             </div>
             <RelationWidgetSideTabs
-              contentId={deal?._id || ''}
-              contentType="sales:deal"
-              hookOptions={{
-                hiddenModules: ['deals'],
-              }}
+              customerId={deal?.customers?.[0]?._id}
+              companyId={deal?.companies?.[0]?._id}
             />
           </FocusSheet.Content>
         </>
@@ -96,24 +96,36 @@ const SalesItemDetailView = () => {
 };
 
 export const SalesItemDetail = () => {
-  const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
+  const setActiveDealId = useSetAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
 
-  const isOpen = Boolean(activeDealId) || Boolean(salesItemId);
+  useEffect(() => {
+    setActiveDealId(salesItemId);
+  }, [salesItemId, setActiveDealId]);
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
-      setActiveDealId(null);
       setSalesItemId(null);
     }
   };
 
   return (
-    <FocusSheet open={isOpen} onOpenChange={handleOpenChange}>
+    <FocusSheet open={Boolean(salesItemId)} onOpenChange={handleOpenChange}>
       <DealsProvider>
         <SalesItemDetailView />
       </DealsProvider>
     </FocusSheet>
+  );
+};
+
+const SalesItemDetailCloseAction = () => {
+  const { t } = useTranslation('sales');
+  return (
+    <Empty.Content>
+      <Sheet.Close asChild>
+        <Button variant="outline">{t('close')}</Button>
+      </Sheet.Close>
+    </Empty.Content>
   );
 };
 
@@ -129,6 +141,7 @@ const SalesItemDetailEmptyState = () => {
           <Empty.Title>{t('deal-not-found')}</Empty.Title>
           <Empty.Description>{t('no-deal-with-id')}</Empty.Description>
         </Empty.Header>
+        <SalesItemDetailCloseAction />
       </Empty>
     </div>
   );
@@ -148,6 +161,7 @@ const SalesItemDetailErrorState = () => {
           <Empty.Title>{t('error')}</Empty.Title>
           <Empty.Description>{error?.message}</Empty.Description>
         </Empty.Header>
+        <SalesItemDetailCloseAction />
       </Empty>
     </div>
   );

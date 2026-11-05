@@ -114,11 +114,12 @@ const SelectPipelineProvider = ({
 };
 
 const SelectPipelineValue = ({ placeholder }: { placeholder?: string }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { value, pipelines } = useSelectPipelineContext();
   if (!pipelines || pipelines.length === 0 || !value) {
     return (
       <span className="text-accent-foreground/80">
-        {placeholder || 'Select pipeline'}
+        {placeholder || t('select-pipeline')}
       </span>
     );
   }
@@ -176,7 +177,7 @@ const SelectPipelineCreateForm = ({
   channelId: string;
   onBack: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const { onValueChange } = useSelectPipelineContext();
   const { addPipeline, loading } = usePipelineAdd();
@@ -194,13 +195,13 @@ const SelectPipelineCreateForm = ({
       variables: { ...data, channelId },
       awaitRefetchQueries: true,
       onCompleted: ({ createPipeline }) => {
-        toast({ title: t('success', 'Success!'), variant: 'success' });
+        toast({ title: t('success'), variant: 'success' });
         onBack();
         if (createPipeline) onValueChange(createPipeline._id);
       },
       onError: (error) =>
         toast({
-          title: t('error', 'Error'),
+          title: t('error'),
           description: error.message,
           variant: 'destructive',
         }),
@@ -210,7 +211,7 @@ const SelectPipelineCreateForm = ({
   return (
     <Form {...form}>
       <SelectCreateContainer
-        title={t('create-pipeline', 'Create pipeline')}
+        title={t('create-pipeline')}
         onBack={onBack}
         onSubmit={form.handleSubmit(onSubmit)}
         loading={loading}
@@ -222,7 +223,7 @@ const SelectPipelineCreateForm = ({
 };
 
 const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { pipelines, channelId, loading, error } = useSelectPipelineContext();
   const { search, setSearch, newName, setNewName, showCreate } =
     useSelectCreate({
@@ -253,26 +254,23 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
             <div className="text-muted-foreground">
               {channelId ? (
                 <div className="flex items-center flex-col gap-2">
-                  {t('no-pipelines-found', 'No pipelines found')}
+                  {t('no-pipelines-found')}
                   {allowCreate ? (
                     <span className="text-xs">
-                      {t(
-                        'type-name-to-create-pipeline',
-                        'Type a name to create a pipeline',
-                      )}
+                      {t('type-name-to-create-pipeline')}
                     </span>
                   ) : (
                     <Button asChild variant="secondary">
                       <Link
                         to={`/frontline/settings/channels/${channelId}/pipelines`}
                       >
-                        {t('add-pipeline', 'Add pipeline')}
+                        {t('add-pipeline')}
                       </Link>
                     </Button>
                   )}
                 </div>
               ) : (
-                t('channel-not-selected', 'Channel not selected')
+                t('channel-not-selected')
               )}
             </div>
           </Command.Empty>
@@ -283,7 +281,7 @@ const SelectPipelineContent = ({ allowCreate }: { allowCreate?: boolean }) => {
         {showCreate && (
           <SelectCreateCommandItem
             search={search}
-            label={t('create-new-pipeline', 'Create new pipeline')}
+            label={t('create-new-pipeline')}
             onSelect={setNewName}
           />
         )}

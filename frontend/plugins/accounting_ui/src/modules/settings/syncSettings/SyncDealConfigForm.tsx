@@ -1,9 +1,9 @@
 import { parsePaymentTypes } from './paymentTypes';
 import { toGraphqlView } from '@/utils/graphql';
-import { Form, isEnabled } from 'erxes-ui';
+import { isEnabled } from 'erxes-ui';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 import {
   SyncConfigAccountsSection,
-  SyncConfigFormFooter,
   SyncConfigGeneralFields,
   SyncConfigPaymentsSection,
   SyncConfigPipelineSection,
@@ -59,10 +59,12 @@ export const SyncDealConfigForm = ({
   form,
   onSubmit,
   loading,
+  onCancel,
 }: {
   form: UseFormReturn<ConfigFormValues>;
   onSubmit: (data: ConfigFormValues) => void;
   loading: boolean;
+  onCancel: () => void;
 }) => {
   const { t } = useTranslation('accounting');
   const { boardId, pipelineId } = usePipelineReset(form);
@@ -99,33 +101,30 @@ export const SyncDealConfigForm = ({
     onSubmit(normalizeSyncConfigData(data, mongolianEnabled));
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(handleSubmit)}
-        className="flex flex-col flex-1 min-h-0 bg-background"
-      >
-        <div className="flex-1 min-h-0 overflow-y-auto p-5 space-y-5">
-          <SyncSettingSection title={t('general')}>
-            <SyncConfigGeneralFields control={form.control} />
-          </SyncSettingSection>
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={handleSubmit}
+      onCancel={onCancel}
+      saving={loading}
+    >
+      <SyncSettingSection title={t('general')}>
+        <SyncConfigGeneralFields control={form.control} />
+      </SyncSettingSection>
 
-          <SyncConfigPipelineSection
-            boardId={boardId}
-            pipelineId={pipelineId}
-            form={form}
-          />
+      <SyncConfigPipelineSection
+        boardId={boardId}
+        pipelineId={pipelineId}
+        form={form}
+      />
 
-          <SyncConfigAccountsSection control={form.control} />
-          <SyncConfigPaymentsSection
-            control={form.control}
-            paymentTypes={paymentTypes}
-            paymentKey={pipelineId || ''}
-          />
-          <SyncConfigVatCtaxSection control={form.control} />
-        </div>
-        <SyncConfigFormFooter loading={loading} />
-      </form>
-    </Form>
+      <SyncConfigAccountsSection control={form.control} />
+      <SyncConfigPaymentsSection
+        control={form.control}
+        paymentTypes={paymentTypes}
+        paymentKey={pipelineId || ''}
+      />
+      <SyncConfigVatCtaxSection control={form.control} />
+    </SettingsPanelDraftForm>
   );
 };
 

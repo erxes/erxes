@@ -10,7 +10,7 @@ import type {
 } from '~/gql/graphql';
 
 export const useDeleteTicketStatus = (type: number) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.status' });
   const { toast } = useToast();
   const { pipelineId } = useParams();
   const [_deleteStatus, { loading, error }] = useMutation(DELETE_TICKET_STATUS);

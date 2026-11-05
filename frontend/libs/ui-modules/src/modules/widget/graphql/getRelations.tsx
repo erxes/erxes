@@ -19,3 +19,23 @@ export const GET_RELATIONS_BY_ENTITY = gql`
     }
   }
 `;
+
+export const GET_RELATIONS_BY_CONTENT_IDS = gql`
+  query getRelationsByContentIds(
+    $contentType: String!
+    $contentIds: [String!]!
+    $relatedContentType: String!
+  ) {
+    getRelationsByContentIds(
+      contentType: $contentType
+      contentIds: $contentIds
+      relatedContentType: $relatedContentType
+    ) {
+      _id
+      entities {
+        contentType
+        contentId
+      }
+    }
+  }
+`;

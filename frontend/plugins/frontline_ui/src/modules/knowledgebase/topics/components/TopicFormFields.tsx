@@ -110,7 +110,7 @@ export const TopicFormFields = ({
                   <Select.Content>
                     {LANGUAGES.map((language) => (
                       <Select.Item key={language.value} value={language.value}>
-                        {language.label}
+                        {t(language.labelKey)}
                       </Select.Item>
                     ))}
                   </Select.Content>

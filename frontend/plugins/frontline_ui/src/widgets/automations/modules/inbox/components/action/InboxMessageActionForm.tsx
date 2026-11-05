@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import {
   AutomationActionFormProps,
   useAutomationRemoteFormSubmit,
@@ -19,13 +20,14 @@ export const InboxMessageActionForm = ({
   currentAction,
   onSaveActionConfig,
 }: AutomationActionFormProps<TMessageActionForm>) => {
+  const { t } = useTranslation('frontline');
   const form = useForm<TMessageActionForm>({
     resolver: zodResolver(replyMessageFormSchema),
     defaultValues: { messages: [], ...(currentAction?.config || {}) },
   });
   const { handleSubmit } = form;
   const { handleValidationErrors } = useFormValidationErrorHandler({
-    formName: 'Messenger Message Action Form',
+    formName: t('messenger-message-action-form-name'),
   });
 
   useAutomationRemoteFormSubmit({

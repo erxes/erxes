@@ -11,6 +11,7 @@ import { ForgotPassword } from '@/auth/login/grahpql/mutations/forgotPassword';
 import { Login } from '@/auth/login/grahpql/mutations/login';
 import { ResetPassword } from '@/auth/login/grahpql/mutations/resetPassword';
 import { AppPath } from '@/types/paths/AppPath';
+import { ITwoFactorChallenge } from '@/auth/two-factor/types';
 import { useSetAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 
@@ -35,23 +36,48 @@ export const useLogin = () => {
 
   const client = useApolloClient();
 
-  const handleCrendentialsLogin = ({
-    email,
-    password,
-  }: {
-    email: string;
-    password: string;
-  }) =>
+  const finishLogin = useCallback(() => {
+    setIsCurrentUserLoaded(false);
+    navigate(safeRedirect, { replace: true });
+  }, [navigate, safeRedirect, setIsCurrentUserLoaded]);
+
+  const handleCrendentialsLogin = (
+    {
+      email,
+      password,
+    }: {
+      email: string;
+      password: string;
+    },
+    onTwoFactor?: (step: ITwoFactorChallenge) => void,
+  ) =>
     login({
       variables: { email, password },
-      onCompleted() {
-        setIsCurrentUserLoaded(false);
-        navigate(safeRedirect, { replace: true });
-      },
+      onCompleted: finishLogin,
       onError(error) {
+        const extensions = error.graphQLErrors[0]?.extensions;
+        const reason = extensions?.reason;
+
+        // The password was right; the server wants the second factor now
+        if (
+          onTwoFactor &&
+          typeof extensions?.challenge === 'string' &&
+          (reason === 'two_factor_required' ||
+            reason === 'two_factor_setup_required')
+        ) {
+          onTwoFactor({
+            challenge: extensions.challenge,
+            setup: reason === 'two_factor_setup_required',
+          });
+          return;
+        }
+
         toast({
-          title: t('incorrect-credentials'),
-          description: error.message,
+          title: t(
+            `login-failure.${
+              typeof reason === 'string' ? reason : 'invalid_credentials'
+            }`,
+          ),
           variant: 'destructive',
         });
       },
@@ -117,6 +143,7 @@ export const useLogin = () => {
       loading || logoutLoading || forgotPasswordLoading || resetPasswordLoading,
     handleLogout,
     handleCrendentialsLogin,
+    finishLogin,
     handleForgotPassword,
     handleResetPassword,
   };

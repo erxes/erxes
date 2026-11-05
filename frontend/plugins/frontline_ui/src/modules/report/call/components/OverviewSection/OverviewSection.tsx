@@ -8,7 +8,7 @@ import { SectionCard } from '../SectionCard';
 import { useTranslation } from 'react-i18next';
 
 export function OverviewSection() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { series, loading: volumeLoading } = useVolumeSeries();
   const { breakdown, loading: carrierLoading } = useCarrierBreakdown();
   const { cells, loading: heatLoading } = useHeatmap();

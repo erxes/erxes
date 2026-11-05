@@ -95,6 +95,7 @@ const NotificationHeader = ({
   description: string;
   statusView: TFacebookBotHealthStatusView;
 }) => {
+  const { t } = useTranslation('frontline');
   return (
     <div className="flex items-start gap-4">
       <div
@@ -108,7 +109,7 @@ const NotificationHeader = ({
 
       <div className="min-w-0 flex-1">
         <h2 className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
-          {title || 'Bot health status'}
+          {title || t('bot-health-status')}
         </h2>
         <h2 className="mt-1 text-3xl font-semibold tracking-tight text-foreground">
           {message}

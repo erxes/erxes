@@ -1,0 +1,692 @@
+{
+ "if": [
+  {
+   "contentId": "flowtestDeletedSegment",
+   "yes": "t07yes",
+   "no": "t07no"
+  },
+  {
+   "contentId": "flowtestSegment",
+   "yes": "t08yes",
+   "no": "t08no"
+  },
+  {
+   "contentId": "mo_tFvK_WILPSfg3J0qr6",
+   "yes": "9r4xmbgzfg460jp"
+  },
+  {
+   "contentId": "0-bVm2VJTF4QMRtGehwrm"
+  }
+ ],
+ "split": [
+  {
+   "options": [
+    {
+     "id": "xpbjcjn8",
+     "label": "golden",
+     "segmentId": "wxIFGSMXwQfZt_Lh62GO8",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    },
+    {
+     "id": "1s9stib0",
+     "label": "silver",
+     "segmentId": "IvmFBAa6ZKSzruMSKOVVd",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    },
+    {
+     "id": "jxwztvsy",
+     "label": "bronze",
+     "segmentId": "pMIjMb2xziEohOK_hQQ98",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    }
+   ],
+   "optionalConnects": [
+    {
+     "optionalConnectId": "xpbjcjn8",
+     "actionId": "cys4q8o9y2w6n66",
+     "sourceId": "27x6n4jhx9oxs5q"
+    },
+    {
+     "optionalConnectId": "1s9stib0",
+     "actionId": "gjy7p3rq6stn8a1",
+     "sourceId": "27x6n4jhx9oxs5q"
+    },
+    {
+     "optionalConnectId": "jxwztvsy",
+     "actionId": "kp4koe8wxqa2nik",
+     "sourceId": "27x6n4jhx9oxs5q"
+    }
+   ]
+  },
+  {
+   "options": [
+    {
+     "id": "gqqh4qbb",
+     "label": "Алт",
+     "segmentId": "C7fw12epNkLP7mHNLubRj",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    },
+    {
+     "id": "vdwqpoij",
+     "label": "Мөнгө",
+     "segmentId": "Lj5jKP6ssd3En-s-ZVjzt",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    },
+    {
+     "id": "ow8ltqxc",
+     "label": "Хүрэл",
+     "segmentId": "YQy3dzvkaSOlYdusqx0UC",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": []
+     }
+    }
+   ],
+   "optionalConnects": [
+    {
+     "optionalConnectId": "gqqh4qbb",
+     "actionId": "hd1v80owigr9yag",
+     "sourceId": "yu7yy7ty8hwanvl"
+    },
+    {
+     "optionalConnectId": "vdwqpoij",
+     "actionId": "pl7pbv114kd4r2f",
+     "sourceId": "yu7yy7ty8hwanvl"
+    },
+    {
+     "optionalConnectId": "ow8ltqxc",
+     "actionId": "azunyzv2c0az8pp",
+     "sourceId": "yu7yy7ty8hwanvl"
+    }
+   ]
+  },
+  {
+   "options": [
+    {
+     "id": "intent_complaint",
+     "label": "Complaint",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": [
+       {
+        "propertyName": "attributes.intent",
+        "propertyOperator": "e",
+        "propertyValue": "complaint"
+       }
+      ]
+     }
+    },
+    {
+     "id": "intent_order",
+     "label": "Order",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": [
+       {
+        "propertyName": "attributes.intent",
+        "propertyOperator": "e",
+        "propertyValue": "order"
+       }
+      ]
+     }
+    },
+    {
+     "id": "intent_handoff",
+     "label": "Handoff",
+     "config": {
+      "conditionsConjunction": "or",
+      "conditions": [
+       {
+        "propertyName": "attributes.intent",
+        "propertyOperator": "e",
+        "propertyValue": "handoff"
+       },
+       {
+        "propertyName": "attributes.needsHuman",
+        "propertyOperator": "it",
+        "propertyValue": true
+       }
+      ]
+     }
+    }
+   ],
+   "optionalConnects": [
+    {
+     "optionalConnectId": "intent_complaint",
+     "actionId": "act_create_ticket"
+    },
+    {
+     "optionalConnectId": "intent_order",
+     "actionId": "act_split_order_ready"
+    },
+    {
+     "optionalConnectId": "intent_handoff",
+     "actionId": "act_reply_handoff"
+    },
+    {
+     "optionalConnectId": "fallback",
+     "actionId": "act_reply_faq"
+    }
+   ]
+  },
+  {
+   "options": [
+    {
+     "id": "order_ready",
+     "label": "Ready",
+     "config": {
+      "conditionsConjunction": "and",
+      "conditions": [
+       {
+        "propertyName": "attributes.readyForOrder",
+        "propertyOperator": "it",
+        "propertyValue": true
+       },
+       {
+        "propertyName": "attributes.productId",
+        "propertyOperator": "is",
+        "propertyValue": ""
+       },
+       {
+        "propertyName": "attributes.phone",
+        "propertyOperator": "is",
+        "propertyValue": ""
+       },
+       {
+        "propertyName": "attributes.address",
+        "propertyOperator": "is",
+        "propertyValue": ""
+       }
+      ]
+     }
+    }
+   ],
+   "optionalConnects": [
+    {
+     "optionalConnectId": "order_ready",
+     "actionId": "act_reply_confirm_order"
+    },
+    {
+     "optionalConnectId": "fallback",
+     "actionId": "act_reply_missing_order_info"
+    }
+   ]
+  }
+ ],
+ "findObject": [
+  {
+   "isExists": "a26ny130iob2982",
+   "objectType": "core:contacts.customers",
+   "lookupField": "_id",
+   "value": "{{ trigger.customerId._id }}"
+  },
+  {
+   "objectType": "core:contacts.customers",
+   "lookupField": "primaryEmail",
+   "value": "{{ customers.primaryEmail }}",
+   "isExists": "t09found",
+   "notExists": "t09missing"
+  },
+  {
+   "objectType": "core:organization.users",
+   "lookupField": "email",
+   "value": "person@example.com",
+   "isExists": "nqllwxwoqq3hrt7"
+  },
+  {
+   "objectType": "core:contacts.companies",
+   "lookupField": "primaryEmail",
+   "value": "person@example.com",
+   "optionalConnects": []
+  }
+ ],
+ "transform": [
+  {
+   "mappings": [
+    {
+     "key": "өмнөх зэрэг",
+     "value": "{{ trigger.customers.customFieldsData.buBHlIEfOv4W9UwQnZ4KM }}",
+     "type": "number"
+    },
+    {
+     "key": "шинэ хөнгөлөлтийн зэрэг",
+     "value": "{{ trigger.totalAmount }} >= 1500000 && {{ trigger.customers.customFieldsData.buBHlIEfOv4W9UwQnZ4KM }}< 10 ? 10 :\n{{ trigger.totalAmount }} >= 1000000 &&  {{ trigger.customers.customFieldsData.buBHlIEfOv4W9UwQnZ4KM }}< 5 ? 5 :\n{{ trigger.totalAmount }} >= 500000 && {{ trigger.customers.customFieldsData.buBHlIEfOv4W9UwQnZ4KM }}< 3 ? 3 :  \n{{ trigger.customers.customFieldsData.buBHlIEfOv4W9UwQnZ4KM ",
+     "type": "number"
+    }
+   ]
+  }
+ ],
+ "setProperty": [
+  {
+   "optionalConnects": [],
+   "module": "frontline:tickets.tickets",
+   "setPropertyTarget": {
+    "label": "Ticket",
+    "type": "frontline:tickets.tickets",
+    "source": "target",
+    "cardinality": "one",
+    "sourceType": "frontline:tickets.tickets",
+    "pluginName": "frontline",
+    "value": "frontline:tickets.tickets",
+    "description": "Ticket"
+   },
+   "rules": [
+    {
+     "field": "description",
+     "fieldLabel": "Description",
+     "operator": "concat",
+     "value": "{{ actions.1e5wy8it4gut98d.attributes.description }}",
+     "isExpression": false
+    },
+    {
+     "field": "attachments",
+     "fieldLabel": "Attachments (conversation media)",
+     "operator": "addToSet",
+     "value": "{{ actions.1e5wy8it4gut98d.attributes.attachmentIds }}",
+     "isExpression": false
+    }
+   ],
+   "onSuccessActionId": "5wrbdjwhapooeea",
+   "errorPolicy": {
+    "retry": {
+     "attempts": 0,
+     "delaySeconds": 60,
+     "backoff": "none"
+    },
+    "onError": "branch"
+   },
+   "onErrorActionId": "sr4xmwsqmu3afnd"
+  },
+  {
+   "module": "core:contacts.customers",
+   "rules": [
+    {
+     "field": "description",
+     "operator": "set",
+     "value": "touched by TEST-10"
+    }
+   ]
+  },
+  {
+   "module": "core:contacts.customers",
+   "setPropertyTarget": {
+    "label": "Customer",
+    "type": "core:contacts.customers",
+    "source": "target",
+    "cardinality": "one",
+    "sourceType": "core:contacts.customers",
+    "value": "core:contacts.customers",
+    "description": "Customer"
+   },
+   "rules": [
+    {
+     "field": "propertiesData.D8h7x5bw6l4t8-WqbyQwt",
+     "fieldLabel": "adsfd",
+     "operator": "set",
+     "value": "1",
+     "isExpression": false
+    }
+   ]
+  },
+  {
+   "module": "core:contacts.customers",
+   "setPropertyTarget": {
+    "label": "Customer",
+    "type": "core:contacts.customers",
+    "source": "target",
+    "cardinality": "one",
+    "sourceType": "core:contacts.customers",
+    "value": "core:contacts.customers",
+    "description": "Customer"
+   },
+   "rules": [
+    {
+     "field": "propertiesData.D8h7x5bw6l4t8-WqbyQwt",
+     "fieldLabel": "adsfd",
+     "operator": "set",
+     "value": "1",
+     "isExpression": false
+    }
+   ]
+  }
+ ],
+ "sendEmail": [
+  {
+   "sender": "dsfsdgf",
+   "fromEmailPlaceHolder": "person@example.com",
+   "replyToEmail": "",
+   "toEmailsPlaceHolders": "person@example.com",
+   "ccEmailsPlaceHolders": "",
+   "subject": "dfsd",
+   "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><!--$--><html dir=\"ltr\" lang=\"en\"><head><meta content=\"text/html; charset=UTF-8\" http-equiv=\"Content-Type\"/><meta name=\"x-apple-disable-message-reformatting\"/><style>\n    @font-face {\n      font-family: 'Inter';\n      font-style: normal;\n      font-weight: 400;\n      mso-font-al",
+   "contentJson": {
+    "type": "doc",
+    "content": [
+     {
+      "type": "paragraph",
+      "attrs": {
+       "textDirection": "ltr"
+      },
+      "content": [
+       {
+        "type": "text",
+        "text": "adsfd"
+       }
+      ]
+     }
+    ]
+   },
+   "contentFormat": "maily",
+   "html": "",
+   "type": "default"
+  },
+  {
+   "sender": "dkahsvd",
+   "fromEmailPlaceHolder": "person@example.com",
+   "replyToEmail": "",
+   "toEmailsPlaceHolders": "person@example.com",
+   "ccEmailsPlaceHolders": "",
+   "subject": "dasf",
+   "content": "[{\"id\":\"a32e61b3-f18e-4c08-9dc4-3cc040b81558\",\"type\":\"paragraph\",\"props\":{\"textColor\":\"default\",\"backgroundColor\":\"default\",\"textAlignment\":\"left\"},\"content\":[{\"type\":\"text\",\"text\":\"Захиалагчийн мэдээлэл: \",\"styles\":{}},{\"type\":\"attribute\",\"props\":{\"name\":\"trigger.customers.fullName\",\"value\":\"trigger.customers.fullName\",\"width\":150,\"height\":50}},{\"type\":\"text\",\"text\":\" \",\"styles\":{}},{\"type\":\"attr",
+   "contentFormat": "blocks",
+   "html": "<p style=\"margin: 0 0 16px 0;\">Захиалагчийн мэдээлэл: {{ trigger.customers.fullName }} {{ trigger.customers.primaryEmail }} {{ trigger.customers.primaryPhone }}   </p><p style=\"margin: 0 0 16px 0;\">Захиалгын дугаар: {{ trigger.name }} </p><p style=\"margin: 0 0 16px 0;\">Захиалгын огноо: {{ now }}</p><p style=\"margin: 0 0 16px 0;\">Бүтээгдэхүүний мэдээлэл: {{ trigger.productsData.name }} </p><p style",
+   "type": "default"
+  },
+  {
+   "subject": "flowtest",
+   "content": "flowtest",
+   "fromUserId": "",
+   "errorPolicy": {
+    "onError": "continue"
+   }
+  },
+  {
+   "sender": "dsfsdgf",
+   "fromEmailPlaceHolder": "person@example.com",
+   "replyToEmail": "",
+   "toEmailsPlaceHolders": "person@example.com",
+   "ccEmailsPlaceHolders": "",
+   "subject": "dasdsa",
+   "content": "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\"><!--$--><html dir=\"ltr\" lang=\"en\"><head><meta content=\"text/html; charset=UTF-8\" http-equiv=\"Content-Type\"/><meta name=\"x-apple-disable-message-reformatting\"/><style>\n    @font-face {\n      font-family: 'Inter';\n      font-style: normal;\n      font-weight: 400;\n      mso-font-al",
+   "contentJson": {
+    "type": "doc",
+    "content": [
+     {
+      "type": "paragraph",
+      "attrs": {
+       "textDirection": "ltr"
+      },
+      "content": [
+       {
+        "type": "variable",
+        "attrs": {
+         "id": "{{ trigger.body }}",
+         "label": "Body",
+         "required": false,
+         "hideDefaultValue": false
+        }
+       }
+      ]
+     }
+    ]
+   },
+   "contentFormat": "maily",
+   "html": "",
+   "type": "default"
+  }
+ ],
+ "outgoingWebhook": [
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:4599/ok?m=fb02-after-send",
+   "bodyMode": "json"
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:4599/ok?m=t10b",
+   "bodyMode": "json"
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:4599/404?m=t01a",
+   "bodyMode": "json"
+  },
+  {
+   "method": "GET",
+   "url": "http://127.0.0.1:4599/ok?m=t01b",
+   "bodyMode": "json"
+  }
+ ],
+ "messagePro": [
+  {
+   "contentType": "core:contact.customer",
+   "documentId": "6a355445bc7d127ea5a52cd4"
+  }
+ ],
+ "aiAgent": [
+  {
+   "goalType": "generateText",
+   "prompt": "",
+   "fallbackText": "",
+   "captureFields": [
+    {
+     "id": "5tfwa010z72l236",
+     "fieldName": "email",
+     "prompt": "хэрэглэгч email ээ холбогдох эсвэл чатботод зориулж өгвөл",
+     "dataType": "string",
+     "validation": "spam email биш зөвхөн valid email байна",
+     "options": []
+    },
+    {
+     "id": "g005xrrpbylfspt",
+     "fieldName": "phone",
+     "prompt": "хэрэглэгч холбогдох утасны дугаараа үлдээсэн бол",
+     "dataType": "string",
+     "validation": "монгол улсад valid утасны утасны дугаар байна",
+     "options": []
+    },
+    {
+     "id": "2weryka6jjdc57q",
+     "fieldName": "priority",
+     "prompt": "Хэрэглэгчийн мессежээс тухайн асуудлын яаралтай байдлыг тодорхойл. Дүрмүүдийг дээрээс доош шалгаж, хамгийн түрүүнд таарсан дүрмийн утгыг сонго. Хэрэглэгчийн \"яаралтай\", \"маш чухал\" гэх мэт үгийг дангаар нь баримтлахгүй, бодит нөлөөллөөр нь дүгнэ. Мессеж асуудал агуулаагүй (мэндчилгээ, талархал, ойлгомжгүй) бол null буцаа.",
+     "dataType": "option",
+     "validation": "",
+     "options": [
+      {
+       "value": "4",
+       "prompt": "\tМөнгө алдагдсан эсвэл алдагдах эрсдэлтэй: төлбөр хасагдсан ч захиалга/үйлчилгээ идэвхжээгүй, давхар төлбөр, зөвшөөрөлгүй гүйлгээ. Эсвэл хэрэглэгч үйлчилгээг огт ашиглаж чадахгүй (нэвтэрч чадахгүй, бүх зүйл зогссон). Эсвэл аюулгүй байдал, хувийн мэдээлэл алдагдсан тухай."
+      },
+      {
+       "value": "3",
+       "prompt": "\tГол функц ажиллахгүй, хэрэглэгчид түр шийдэл байхгүй: захиалга өгч чадахгүй, хүргэлт хэтэрсэн эсвэл алга болсон, буруу бараа ирсэн, буцаалт/солилт шаардлагатай. Эсвэл хугацаатай асуудал (өнөөдөр/маргааш болох арга хэмжээ, дуусах гэж буй эрх)."
+      },
+      {
+       "value": "2",
+       "prompt": "Асуудал байгаа ч хэрэглэгч үргэлжлүүлэх боломжтой: хэсэгчилсэн алдаа, удаашрал, мэдээлэл буруу харагдах, урамшуулал/оноо тооцогдоогүй, түр шийдэл байгаа."
+      },
+      {
+       "value": "1",
+       "prompt": "Асуудал биш: мэдээлэл лавлах (үнэ, цаг, хаяг, бараа байгаа эсэх), санал хүсэлт, ерөнхий асуулт."
+      }
+     ]
+    },
+    {
+     "id": "o5marjidku659jg",
+     "fieldName": "attachmentIds",
+     "prompt": "Хэрэглэгчийн илгээсэн, энэ гомдолд хамаатай media",
+     "dataType": "array",
+     "validation": "",
+     "options": []
+    },
+    {
+     "id": "n0o90p3bxrn9h6m",
+     "fieldName": "title",
+     "prompt": "Асуудлын товч гарчиг, 10 үгээс ихгүй. Хэрэглэгчийн хэлсэн бодит асуудлаар бич.",
+     "dataType": "string",
+     "validation": "",
+     "options": []
+    },
+    {
+     "id": "cfwfmafqlftp4g6",
+     "fieldName": "description",
+     "prompt": "Энэ ярианд хэрэглэгчийн шинээр өгсөн асуудал эсвэл нэмэлт мэдээлэл: юу болсон, хэзээ, захиалга/дугаар зэрэг баримт. Хэрэглэгчийн хэлснийг л бич, таамаг нэмэхгүй.",
+     "dataType": "string",
+     "validation": "",
+     "options": []
+    }
+   ],
+   "aiAgentId": "OQ0o_UMHWMIzq8H4Aq69y",
+   "input": "{{ trigger.content }}",
+   "memory": {
+    "read": {
+     "enabled": true,
+     "namespace": "main"
+    },
+    "write": {
+     "enabled": false,
+     "namespace": "main",
+     "key": "lastReplyText",
+     "resultPath": "text",
+     "mode": "replace",
+     "ttlMinutes": 1440
+    }
+   },
+   "optionalConnects": [
+    {
+     "sourceId": "1e5wy8it4gut98d",
+     "actionId": "76q7ii8cy590haq",
+     "optionalConnectId": "r8nk03qutemm4zp"
+    },
+    {
+     "sourceId": "1e5wy8it4gut98d",
+     "actionId": "q5alixdcsymrzfr",
+     "optionalConnectId": "qzf35a12le6rlwt"
+    }
+   ],
+   "tools": [
+    {
+     "id": "r8nk03qutemm4zp",
+     "name": "гомдол бүртгэх",
+     "description": "Хэрэглэгч шинэ асуудал, гомдол мэдээлсэн бол дуудна (төлбөр, хүргэлт, захиалга, оноо гэх мэт). Жагсаалтад байгаа нээлттэй гомдлын нэмэлт мэдээлэл, зураг бол энийг биш \"Гомдол засварлах\"-ыг дууд. Мэндчилгээ, ерөнхий асуулт, мэдээлэл лавлахад дуудахгүй.",
+     "kind": "handoff",
+     "memorizeFields": []
+    },
+    {
+     "id": "qzf35a12le6rlwt",
+     "name": "Гомдол засварлах",
+     "description": "Хэрэглэгч өмнө бүртгүүлсэн гомдлынхоо талаар нэмэлт мэдээлэл эсвэл зураг явуулсан бол дуудна. Аль гомдол болохыг жагсаалтаас сонго.",
+     "kind": "handoff",
+     "memorizeFields": []
+    }
+   ]
+  },
+  {
+   "goalType": "generateText",
+   "prompt": "using this generate some sos email for send email on campaing",
+   "fallbackText": "",
+   "captureFields": [],
+   "tools": [],
+   "aiAgentId": "hDfsIqtHrzm9TXNJ6HJj2",
+   "input": "{{ trigger.firstName }},{{ trigger.lastName }},{{ trigger.primaryEmail }},{{ trigger.addresses }}",
+   "memory": {
+    "read": {
+     "enabled": true,
+     "namespace": "main"
+    },
+    "write": {
+     "enabled": false,
+     "namespace": "main",
+     "key": "lastReplyText",
+     "resultPath": "text",
+     "mode": "replace",
+     "ttlMinutes": 1440
+    }
+   }
+  },
+  {
+   "goalType": "generateText",
+   "prompt": "using this generate some sos email for send email on campaing",
+   "fallbackText": "",
+   "captureFields": [],
+   "tools": [],
+   "aiAgentId": "hDfsIqtHrzm9TXNJ6HJj2",
+   "input": "{{ trigger.firstName }},{{ trigger.lastName }},{{ trigger.primaryEmail }},{{ trigger.addresses }}",
+   "memory": {
+    "read": {
+     "enabled": true,
+     "namespace": "main"
+    },
+    "write": {
+     "enabled": false,
+     "namespace": "main",
+     "key": "lastReplyText",
+     "resultPath": "text",
+     "mode": "replace",
+     "ttlMinutes": 1440
+    }
+   }
+  },
+  {
+   "goalType": "generateText",
+   "prompt": "You are the official AI Assistant for Block Developers Club.\n\nYour primary role is to assist members, guests, developers, investors, architects, suppliers, and partners by providing accurate information about the club, its activities, events, memberships, and the real estate industry.\n\nResponsibilities:\n- Answer questions about Block Developers Club.\n- Explain memberships, benefits, pricing, and r",
+   "fallbackText": "Уучлаарай, таны хүсэлтийг боловсруулахад бага зэрэг хугацаа шаардагдаж байна. Түр хүлээгээд дахин оролдоно уу. Хэрэв асуудал үргэлжилбэл Block Developers Club-ийн админтай холбогдоно уу.",
+   "aiAgentId": "OQ0o_UMHWMIzq8H4Aq69y",
+   "inputMapping": {
+    "source": "trigger",
+    "path": "content",
+    "customValue": ""
+   },
+   "memory": {
+    "read": {
+     "enabled": true,
+     "namespace": "main"
+    },
+    "write": {
+     "enabled": false,
+     "namespace": "main",
+     "key": "lastReplyText",
+     "resultPath": "text",
+     "mode": "replace",
+     "ttlMinutes": 1440
+    }
+   },
+   "input": "{{ trigger.content }}",
+   "optionalConnects": [],
+   "captureFields": [],
+   "tools": []
+  }
+ ],
+ "delay": [
+  {
+   "value": "5",
+   "type": "minute"
+  },
+  {
+   "value": "5",
+   "type": "day"
+  },
+  {
+   "value": "9",
+   "type": "day"
+  },
+  {
+   "value": "3",
+   "type": "day"
+  }
+ ]
+}

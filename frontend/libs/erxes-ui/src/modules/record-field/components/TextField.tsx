@@ -25,13 +25,24 @@ export const TextField = React.forwardRef<
     scope?: string;
     onValueChange?: (value: string) => void;
     onSave?: (value: string) => void;
+    // Starts with the editor open, e.g. the first field of a new record.
+    defaultOpen?: boolean;
   }
 >(
   (
-    { placeholder, value, scope, onSave, onValueChange, children, ...props },
+    {
+      placeholder,
+      value,
+      scope,
+      onSave,
+      onValueChange,
+      defaultOpen = false,
+      children,
+      ...props
+    },
     ref,
   ) => {
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(defaultOpen);
     const [editingValue, setEditingValue] = useState(value);
 
     useEffect(() => {

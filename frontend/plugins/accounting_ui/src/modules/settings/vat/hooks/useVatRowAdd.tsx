@@ -1,4 +1,8 @@
 import type { GraphqlMutationOptions } from '@/utils/graphqlMutation';
+import {
+  notifyMutationResult,
+  withMutationToast,
+} from '@/utils/graphqlMutation';
 import { useMutation } from '@apollo/client';
 import { VAT_ROWS_ADD } from '../graphql/mutations/vatMutations';
 
@@ -9,8 +13,8 @@ export const useAddVatRow = () => {
   const [_addVat, { loading }] = useMutation(VAT_ROWS_ADD);
 
   const addVat = (options?: GraphqlMutationOptions<typeof VAT_ROWS_ADD>) => {
-    _addVat({
-      ...options,
+    void _addVat({
+      ...withMutationToast(options ?? {}, notifyMutationResult, ''),
       variables: { ...options?.variables },
       update: (cache, { data }) => {
         const existingData = cache.readQuery({

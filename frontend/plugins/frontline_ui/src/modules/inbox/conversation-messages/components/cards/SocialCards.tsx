@@ -2,6 +2,7 @@ import { IconExternalLink, IconPlayerPlay } from '@tabler/icons-react';
 import { useEffect, useState } from 'react';
 import { InboxImage } from '@/inbox/conversation-messages/components/InboxImage';
 import { UnsupportedMessage } from '@/inbox/conversation-messages/components/messages/MessageStatus';
+import { useTranslation } from 'react-i18next';
 
 export const StoryCard = ({
   kind,
@@ -18,6 +19,7 @@ export const StoryCard = ({
   fallbackText?: string;
   mediaType?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [failed, setFailed] = useState(false);
   const [expired, setExpired] = useState(
     Boolean(expiresAt && new Date(expiresAt) <= new Date()),
@@ -43,13 +45,15 @@ export const StoryCard = ({
 
   const displayUrl = url || sourceUrl;
   const unavailable = expired || failed || !displayUrl;
-  const label = kind === 'story_reply' ? 'Story reply' : 'Story mention';
+  const label = kind === 'story_reply' ? t('story-reply') : t('story-mention');
 
   if (unavailable) {
     return (
       <UnsupportedMessage
         text={
-          expired ? `${label} expired` : fallbackText || 'Story unavailable'
+          expired
+            ? t('story-expired', { label })
+            : fallbackText || t('story-unavailable')
         }
       />
     );
@@ -97,6 +101,7 @@ export const ShareCard = ({
   shareType?: 'post' | 'reel';
   attachmentType?: string;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   let safeUrl: string | undefined;
   try {
     safeUrl =
@@ -109,7 +114,7 @@ export const ShareCard = ({
 
   if (attachmentType === 'ig_post' || attachmentType === 'ig_reel') {
     const isReel = attachmentType === 'ig_reel' || shareType === 'reel';
-    const label = isReel ? 'Reel' : 'Post';
+    const label = isReel ? t('reel') : t('post');
     const permalink = safeUrl;
 
     const preview = (
@@ -127,10 +132,12 @@ export const ShareCard = ({
         )}
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-medium text-foreground">
-            Instagram {label}
+            {t('instagram-label', { label })}
           </span>
           <span className="block text-xs text-muted-foreground">
-            {permalink ? 'View on Instagram' : 'Post preview'}
+            {permalink
+              ? t('view-on', { platform: 'Instagram' })
+              : t('post-preview')}
           </span>
         </span>
         {permalink && (
@@ -155,7 +162,8 @@ export const ShareCard = ({
     );
   }
 
-  if (!safeUrl) return <UnsupportedMessage text="Shared content unavailable" />;
+  if (!safeUrl)
+    return <UnsupportedMessage text={t('shared-content-unavailable')} />;
 
   return (
     <a
@@ -167,7 +175,7 @@ export const ShareCard = ({
       <IconExternalLink className="size-5 shrink-0 text-muted-foreground" />
       <span className="min-w-0">
         <span className="block text-sm font-medium text-foreground">
-          {title || 'Shared content'}
+          {title || t('shared-content')}
         </span>
         <span className="block truncate text-xs text-muted-foreground">
           {safeUrl}

@@ -13,7 +13,12 @@ import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
+import {
+  ActivityLogs,
+  AddInternalNote,
+  FieldsInDetail,
+  PrintDocument,
+} from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -149,6 +154,8 @@ export const ProductDetailSheet = () => {
           variant: 'destructive',
         });
       },
+      refetchQueries: ['ProductsMain'],
+      awaitRefetchQueries: true,
     });
   };
 
@@ -186,6 +193,14 @@ export const ProductDetailSheet = () => {
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
+            {productDetail?._id && (
+              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
+                <PrintDocument
+                  items={[{ _id: productDetail._id }]}
+                  contentType="core:product"
+                />
+              </div>
+            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}

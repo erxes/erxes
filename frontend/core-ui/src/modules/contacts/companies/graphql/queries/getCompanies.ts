@@ -5,6 +5,34 @@ import {
   GQL_PAGE_INFO,
 } from 'erxes-ui';
 
+// A company as a row of the companies table.
+export const COMPANY_RECORD_TABLE_FIELDS = `
+  _id
+  avatar
+  primaryName
+  names
+  size
+  industry
+  code
+  website
+  location
+  parentCompanyId
+  parentCompany {
+    _id
+    primaryName
+  }
+  emails
+  primaryEmail
+  ownerId
+  phones
+  primaryPhone
+  businessType
+  links
+  ownerId
+  tagIds
+  score
+`;
+
 export const GET_COMPANIES = gql`
   query companies(
     $segment: String
@@ -43,30 +71,7 @@ export const GET_COMPANIES = gql`
       ${GQL_CURSOR_PARAMS}
     ) {
       list {
-        _id
-        avatar
-        primaryName
-        names
-        size
-        industry
-        code
-        website
-        location
-        parentCompanyId
-        parentCompany {
-          _id
-          primaryName
-        }
-        emails
-        primaryEmail
-        ownerId
-        phones
-        primaryPhone
-        businessType
-        links
-        ownerId
-        tagIds
-        score
+        ${COMPANY_RECORD_TABLE_FIELDS}
       }
       ${GQL_PAGE_INFO}
     }

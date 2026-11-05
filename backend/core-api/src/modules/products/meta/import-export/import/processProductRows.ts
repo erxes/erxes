@@ -1,89 +1,56 @@
+import { IProduct } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
-import {
-  buildImportUpdateDoc,
-  readImportBulkOutcome,
-} from '~/meta/import-export/utils';
-import { prepareProductDoc } from './utils';
+import { resolveImportTagIdsByName } from '~/meta/import-export/utils';
+import { parseProductRow, ProductImportRow } from './utils';
+
+type ProductErrorRow = ProductImportRow & { error: string };
+type ProductSuccessRow = ProductImportRow & { _id: string };
 
 export async function processProductRows(
   models: IModels,
-  rows: any[],
-): Promise<{ successRows: any[]; errorRows: any[] }> {
-  const successRows: any[] = [];
-  const errorRows: any[] = [];
+  rows: ProductImportRow[],
+): Promise<{ successRows: ProductSuccessRow[]; errorRows: ProductErrorRow[] }> {
+  const successRows: ProductSuccessRow[] = [];
+  const errorRows: ProductErrorRow[] = [];
 
   try {
-    const codes = rows.map((r) => r.code).filter(Boolean);
+    const tagIdsByName = await resolveImportTagIdsByName(
+      models,
+      'core:product',
+      rows.map((row) => row.tags),
+    );
 
-    const existingDocs = await models.Products.find({
-      ...(codes.length ? { code: { $in: codes } } : {}),
-    }).lean();
-
-    const existingByCode = new Map<string, any>();
-    for (const doc of existingDocs) {
-      if (doc.code) existingByCode.set(doc.code, doc);
-    }
-
-    const operations: any[] = [];
-    const rowToMetaMap = new Map<any, { _id?: any; operationIndex: number }>();
+    const parsed: Array<{ row: ProductImportRow; doc: Partial<IProduct> }> = [];
 
     for (const row of rows) {
       try {
-        const doc = await prepareProductDoc(models, row);
-        const existing = existingByCode.get(doc.code);
-
-        const operationIndex = operations.length;
-
-        if (existing) {
-          operations.push({
-            updateOne: {
-              filter: { _id: existing._id },
-              update: { $set: buildImportUpdateDoc(existing, doc) },
-            },
-          });
-          rowToMetaMap.set(row, { _id: existing._id, operationIndex });
-        } else {
-          operations.push({ insertOne: { document: doc } });
-          rowToMetaMap.set(row, { operationIndex });
-        }
-      } catch (e: any) {
-        errorRows.push({
-          ...row,
-          error: e?.message || 'Failed to prepare row',
-        });
+        parsed.push({ row, doc: parseProductRow(row, tagIdsByName) });
+      } catch (e) {
+        errorRows.push({ ...row, error: (e as Error).message });
       }
     }
 
-    if (operations.length) {
-      // unordered so one refused row does not abandon the rest of the batch
-      const result = await models.Products.bulkWrite(operations, {
-        ordered: false,
-      });
+    const results = await models.Products.upsertProductsByCode(
+      parsed.map(({ doc }) => doc),
+    );
 
-      for (const [row, meta] of rowToMetaMap.entries()) {
-        const isInsert = !meta._id;
-        const { error, insertedId } = readImportBulkOutcome({
-          bulkResult: result,
-          operationIndex: meta.operationIndex,
-          isInsert,
-        });
+    results.forEach(({ _id, error }, index) => {
+      const { row } = parsed[index];
 
-        if (error) {
-          errorRows.push({ ...row, error });
-          continue;
-        }
-
-        successRows.push({ ...row, _id: isInsert ? insertedId : meta._id });
+      if (_id) {
+        successRows.push({ ...row, _id });
+      } else {
+        errorRows.push({ ...row, error: error || 'Failed to save row' });
       }
-    }
+    });
 
     return { successRows, errorRows };
-  } catch (e: any) {
+  } catch (e) {
     return {
       successRows: [],
-      errorRows: rows.map((r) => ({
-        ...r,
-        error: e?.message || 'Failed to process rows',
+      errorRows: rows.map((row) => ({
+        ...row,
+        error: (e as Error)?.message || 'Failed to process rows',
       })),
     };
   }

@@ -20,6 +20,7 @@ import {
   outputResolver,
 } from './placeholderResolvers';
 import {
+  extractValidEmails,
   filterOutSenderEmail,
   formatFromEmail,
   formatIsoDatesInText,
@@ -57,6 +58,7 @@ export const generateEmailPayload = async ({
     targetType,
   );
   let fromUserEmail = '';
+  let fromPlaceholder = false;
 
   if (isDefaultSender) {
     fromUserEmail = resolveDefaultSenderEmail({
@@ -76,9 +78,13 @@ export const generateEmailPayload = async ({
       throw new Error('Cannot find from user');
     }
     fromUserEmail = emails[0];
+    // a typed address is the author's choice; anything else came out of data
+    fromPlaceholder = !extractValidEmails(
+      normalizedFromEmailPlaceHolder,
+    ).includes(fromUserEmail);
   }
 
-  await assertSenderAllowed(subdomain, fromUserEmail);
+  await assertSenderAllowed(subdomain, fromUserEmail, { fromPlaceholder });
 
   // The body is rendered first, a row reading `{{ list.$.field }}` written
   // once per item, so every field the recipient gets is asked for below.

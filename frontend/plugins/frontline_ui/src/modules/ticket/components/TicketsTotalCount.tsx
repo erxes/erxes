@@ -22,7 +22,7 @@ export const TicketsTotalCountContent = ({
 }: {
   totalCount?: number | null;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   return (
     <div className="text-muted-foreground font-medium text-sm whitespace-nowrap h-7 leading-7">
       {totalCount === null || totalCount === undefined ? (

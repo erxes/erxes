@@ -1,7 +1,7 @@
 import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
 import { ProjectDetailBreadCrumb } from '@/project/components/breadcumb/ProjectDetailBreadCrumb';
 import { ProjectsSideWidget } from '@/project/components/details/ProjectsSideWidget';
-import { AddTaskSheet } from '@/task/components/add-task/AddTaskSheet';
+import { AddTaskButton } from '@/task/components/add-task/AddTaskButton';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
 import { Breadcrumb, Separator } from 'erxes-ui';
 import { Outlet, useParams } from 'react-router-dom';
@@ -37,7 +37,7 @@ export const ProjectLayout = () => {
         </PageHeader.Start>
         <PageHeader.End>
           <Can action="taskCreate">
-            <AddTaskSheet />
+            <AddTaskButton />
           </Can>
         </PageHeader.End>
       </PageHeader>

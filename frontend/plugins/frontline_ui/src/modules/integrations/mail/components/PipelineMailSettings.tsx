@@ -88,7 +88,9 @@ const PipelineMailStatusSelect = ({
   value: string;
   onValueChange: (statusId: string) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [open, setOpen] = useState(false);
 
   return (
@@ -124,7 +126,9 @@ const PipelineMailStatusField = ({
   pipelineId: string;
   control: Control<PipelineMailValues>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <Form.Field
@@ -169,7 +173,9 @@ const PipelineMailFields = ({
 );
 
 const PipelineMailConnect = ({ pipelineId }: { pipelineId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const form = usePipelineMailForm(null);
   const { connectPipelineMail, loading } = useMailPipelineConnect();
 
@@ -214,7 +220,9 @@ const PipelineMailConnected = ({
   integration: IMailPipelineIntegration;
   waitingForForwardVerification: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { confirm } = useConfirm();
   const form = usePipelineMailForm(integration);
   const { updatePipelineMail, loading: updating } = useMailPipelineUpdate();

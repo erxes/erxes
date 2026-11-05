@@ -17,7 +17,9 @@ export const KbSelectionCommandBar = ({
   loading: boolean;
   actions?: ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { table } = RecordTable.useRecordTable();
   const confirmRemove = useKbConfirmRemove();
 

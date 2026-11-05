@@ -13,7 +13,9 @@ import { FacebookGetPages } from '@/integrations/facebook/components/FacebookGet
 import { FacebookIntegrationSetup } from '@/integrations/facebook/components/FacebookIntegrationSetup';
 
 export const FacebookIntegrationFormSheet = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [facebookFormSheet, setFacebookFormSheet] = useAtom(
     facebookFormSheetAtom,
   );
@@ -61,7 +63,9 @@ export const FacebookIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
 
   return (

@@ -56,6 +56,14 @@ const ApprovalNotificationContent = lazy(() =>
   ),
 );
 
+const SupportAccessNotificationContent = lazy(() =>
+  import('@/notification/components/contents/security/SupportAccessNotificationContent').then(
+    (module) => ({
+      default: module.SupportAccessNotificationContent,
+    }),
+  ),
+);
+
 export const CoreNotificationContent = {
   welcome: WelcomeNotificationContent,
   approval: ApprovalNotificationContent,
@@ -64,4 +72,5 @@ export const CoreNotificationContent = {
   position: PositionNotificationContent,
   exports: ExportNotificationContent,
   imports: ImportNotificationContent,
+  supportAccess: SupportAccessNotificationContent,
 };

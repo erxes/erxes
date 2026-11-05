@@ -1,4 +1,7 @@
-import { buildErkhetProductDocForTest } from '../erkhetReferenceMigration';
+import {
+  buildErkhetProductDocForTest,
+  syncErkhetJobs,
+} from '../erkhetReferenceMigration';
 import {
   buildErkhetContactQueryForTest,
   findOrCreateErkhetContact,
@@ -175,5 +178,116 @@ describe('Erkhet contact migration writes', () => {
     expect(
       send.mock.calls.every(([request]) => request.method !== 'mutation'),
     ).toBe(true);
+  });
+});
+
+describe('Erkhet job references', () => {
+  let send: jest.SpyInstance;
+  beforeAll(() => {
+    send = jest.spyOn(trpc, 'sendTRPCMessage');
+  });
+  const createJob = jest.fn();
+  const updateJob = jest.fn();
+  const findOne = jest.fn();
+  const getAccount = jest.fn();
+  const models = {
+    Jobs: { findOne, createJob, updateJob },
+    Accounts: { getAccount },
+  } as unknown as IModels;
+  const job = {
+    code: 'ERKHET-TECHCARD-7',
+    name: 'Assembly',
+    durationType: 'real' as const,
+    inputs: [{ productCode: 'RAW_*1', quantity: 2, uom: 'kg' }],
+    outputs: [{ productCode: 'FINAL', quantity: 1, costRatio: 1 }],
+    laborCosts: [{ name: 'Labor', amount: 50, accountCode: '6001' }],
+  };
+  const sync = (dryRun = false, jobs = [job]) =>
+    syncErkhetJobs({
+      models,
+      subdomain: 'tenant',
+      userId: 'user',
+      dryRun,
+      jobs,
+    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+    send.mockResolvedValue([
+      { _id: 'raw', code: 'RAW1' },
+      { _id: 'final', code: 'FINAL' },
+    ]);
+    findOne.mockResolvedValue(null);
+    getAccount.mockResolvedValue({ _id: 'account' });
+    createJob.mockResolvedValue({ _id: 'job' });
+    updateJob.mockResolvedValue({ _id: 'job' });
+  });
+  afterAll(() => send.mockRestore());
+
+  it('resolves canonical product codes and tenant cost accounts before saving', async () => {
+    expect(await sync()).toEqual([
+      { type: 'job', code: job.code, action: 'create', _id: 'job' },
+    ]);
+    expect(getAccount).toHaveBeenCalledWith({ code: '6001', status: 'active' });
+    expect(createJob).toHaveBeenCalledWith(
+      expect.objectContaining({
+        inputs: [{ productId: 'raw', quantity: 2, uom: 'kg' }],
+        outputs: [{ productId: 'final', quantity: 1, costRatio: 1, uom: '' }],
+        laborCosts: [{ name: 'Labor', amount: 50, accountId: 'account' }],
+      }),
+      'user',
+    );
+  });
+  it('updates the same source code on retry', async () => {
+    findOne.mockResolvedValue({ _id: 'job' });
+    expect((await sync())[0].action).toBe('update');
+    expect(updateJob).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'job', code: job.code }),
+      'user',
+    );
+    expect(createJob).not.toHaveBeenCalled();
+  });
+  it('validates dry-run dependencies without writing', async () => {
+    send.mockResolvedValue([]);
+    const rows = await syncErkhetJobs({
+      models,
+      subdomain: 'tenant',
+      dryRun: true,
+      jobs: [job],
+      productIdsByCode: { RAW1: 'dry-run:RAW1', FINAL: 'dry-run:FINAL' },
+    });
+    expect(rows[0].action).toBe('create');
+    expect(getAccount).toHaveBeenCalled();
+    expect(createJob).not.toHaveBeenCalled();
+    expect(updateJob).not.toHaveBeenCalled();
+  });
+  it.each([0, -1, Infinity, NaN])(
+    'rejects invalid quantity %s without saving',
+    async (quantity) => {
+      const rows = await sync(false, [
+        { ...job, inputs: [{ ...job.inputs[0], quantity }] },
+      ]);
+      expect(rows[0].action).toBe('error');
+      expect(createJob).not.toHaveBeenCalled();
+    },
+  );
+  it('rejects missing products and missing cost accounts during dry run', async () => {
+    send.mockResolvedValue([]);
+    expect((await sync(true))[0].error).toContain('product not found');
+    send.mockResolvedValue([
+      { _id: 'raw', code: 'RAW1' },
+      { _id: 'final', code: 'FINAL' },
+    ]);
+    getAccount.mockRejectedValue(new Error('Account not found'));
+    expect((await sync(true))[0].error).toBe('Account not found');
+    expect(createJob).not.toHaveBeenCalled();
+  });
+  it('rejects zero output allocation and keeps later successful rows', async () => {
+    const invalid = { ...job, outputs: [{ ...job.outputs[0], costRatio: 0 }] };
+    const rows = await sync(false, [
+      invalid,
+      { ...job, code: 'ERKHET-TECHCARD-8' },
+    ]);
+    expect(rows.map((row) => row.action)).toEqual(['error', 'create']);
+    expect(createJob).toHaveBeenCalledTimes(1);
   });
 });

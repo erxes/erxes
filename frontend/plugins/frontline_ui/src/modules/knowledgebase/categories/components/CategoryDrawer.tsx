@@ -45,7 +45,9 @@ export const CategoryDrawer = ({
   onClose: () => void;
   onSaved?: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const isEditing = !!category;
   const { saveCategory, loading } = useSaveCategory();
 

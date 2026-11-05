@@ -20,7 +20,7 @@ export type TUseToggleTicketArchive = {
 };
 
 export const useToggleTicketArchive = (): TUseToggleTicketArchive => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { bulkUpdateTickets } = useBulkUpdateTickets();
   const { removeTicketsFromView } = useRemoveTicketsFromView();
   const [stateFilter] = useQueryState<string>('state');

@@ -34,6 +34,11 @@ export const useAccountEdit = () => {
         options?.onCompleted?.(data);
       },
       refetchQueries: ['accountingAccountsMain'],
+      update: (cache, result, updateOptions) => {
+        options.update?.(cache, result, updateOptions);
+        cache.evict({ fieldName: 'accountsMain' });
+        cache.gc();
+      },
     });
   };
 

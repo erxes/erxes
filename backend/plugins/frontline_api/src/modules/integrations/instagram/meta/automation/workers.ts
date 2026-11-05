@@ -1,3 +1,4 @@
+import { toAiMemoryScopes } from '@/inbox/meta/automation/aiMemoryScopes';
 import {
   actionCreateComment,
   checkCommentTrigger,
@@ -8,10 +9,63 @@ import {
 } from '@/integrations/instagram/meta/automation/messages';
 import { ICheckTriggerData } from '@/integrations/instagram/meta/automation/types/automationTypes';
 import {
-  setProperty,
+  formatMessageForAi,
+  listAiMedia,
+} from '@/integrations/facebook/meta/automation/utils/turnTaking';
+import { toInstagramInboxMessageId } from '@/integrations/instagram/meta/automation/utils/turnTaking';
+import {
+  findOpenConversationTickets,
+  resolveInboxConversationId,
+} from '@/ticket/utils/conversationTickets';
+import {
+  TAiContext,
   TAutomationProducers,
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
+
+const toISOString = (value?: Date | string) => {
+  if (!value) {
+    return undefined;
+  }
+
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+
+  return String(value);
+};
+
+const toHistoryCutoff = (value?: Date | string) => {
+  const date = value instanceof Date ? value : new Date(String(value || ''));
+
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
+const toHistoryRole = (message: { fromBot?: boolean; userId?: string }) => {
+  if (message.fromBot) {
+    return 'bot' as const;
+  }
+
+  if (message.userId) {
+    return 'agent' as const;
+  }
+
+  return 'customer' as const;
+};
+
+type TAiMessage = {
+  _id: string;
+  content?: string;
+  attachments?: Array<{ type?: string; url?: string }> | null;
+  createdAt?: Date | string;
+  fromBot?: boolean;
+  userId?: string;
+};
+
+const toAiMessage = (message: TAiMessage): TAiMessage => ({
+  ...message,
+  _id: toInstagramInboxMessageId(message._id),
+});
 
 export const instagramAutomationWorkers = {
   receiveActions: async (
@@ -49,5 +103,125 @@ export const instagramAutomationWorkers = {
       default:
         return false;
     }
+  },
+
+  generateAiContext: async (
+    {
+      target,
+      triggerType,
+    }: TAutomationProducersInput[TAutomationProducers.GENERATE_AI_CONTEXT],
+    { models },
+  ): Promise<TAiContext | null> => {
+    if (!target) {
+      return null;
+    }
+
+    const targetMessage = toAiMessage({
+      _id: String(target._id || ''),
+      content: typeof target.content === 'string' ? target.content : '',
+      attachments: Array.isArray(target.attachments) ? target.attachments : [],
+    });
+    const context: TAiContext = {
+      version: 1,
+      input: {
+        text: formatMessageForAi(targetMessage),
+        id: target._id,
+        createdAt: toISOString(target.createdAt),
+      },
+      facts: {
+        conversationId: target.conversationId,
+        customerId: target.customerId,
+        botId: target.botId,
+        triggerType,
+      },
+      memory: {
+        scopeKey:
+          (typeof target.conversationId === 'string' &&
+            target.conversationId.trim()) ||
+          (typeof target.customerId === 'string' && target.customerId.trim()) ||
+          (typeof target._id === 'string' && target._id.trim()) ||
+          undefined,
+        scopes: toAiMemoryScopes({
+          conversationType: 'frontline:instagram.conversation',
+          conversationId: target.conversationId,
+          customerId: target.customerId,
+        }),
+      },
+    };
+
+    if (!target.conversationId) {
+      return context;
+    }
+
+    const historyCutoff = toHistoryCutoff(target.createdAt);
+    const storedMessages: TAiMessage[] =
+      await models.InstagramConversationMessages.find({
+        conversationId: target.conversationId,
+        internal: { $ne: true },
+        _id: { $ne: target._id },
+        ...(historyCutoff ? { createdAt: { $lt: historyCutoff } } : {}),
+      })
+        .sort({ createdAt: -1 })
+        .limit(12)
+        .lean();
+    const messages = storedMessages.reverse().map(toAiMessage);
+
+    let firstUnanswered = messages.length;
+
+    while (
+      firstUnanswered > 0 &&
+      toHistoryRole(messages[firstUnanswered - 1]) === 'customer'
+    ) {
+      firstUnanswered--;
+    }
+
+    const unanswered = messages.slice(firstUnanswered);
+    const customerMessages = [
+      ...messages.filter((message) => toHistoryRole(message) === 'customer'),
+      targetMessage,
+    ];
+
+    context.input = {
+      ...context.input,
+      text: [...unanswered, targetMessage]
+        .map(formatMessageForAi)
+        .filter(Boolean)
+        .join('\n'),
+    };
+    context.history = messages.slice(0, firstUnanswered).map((message) => ({
+      type: 'message',
+      role: toHistoryRole(message),
+      text:
+        toHistoryRole(message) === 'customer'
+          ? formatMessageForAi(message)
+          : message.content || '',
+      createdAt: toISOString(message.createdAt),
+      meta: {
+        id: message._id,
+      },
+    }));
+    context.facts = {
+      ...context.facts,
+      mediaIds: customerMessages.flatMap((message) =>
+        listAiMedia(message).map(({ id }) => id),
+      ),
+    };
+
+    const inboxConversationId = await resolveInboxConversationId(
+      models,
+      target.conversationId,
+    );
+    const openTickets = inboxConversationId
+      ? await findOpenConversationTickets({
+          models,
+          conversationId: inboxConversationId,
+        })
+      : [];
+
+    if (openTickets.length) {
+      context.facts.openTickets = openTickets;
+    }
+
+    return context;
   },
 };

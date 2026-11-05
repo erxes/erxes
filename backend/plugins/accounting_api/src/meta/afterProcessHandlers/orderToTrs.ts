@@ -16,6 +16,7 @@ import {
   subtractPreTaxAmount,
 } from './taxRules';
 import { getJournal } from './utils';
+import { saveSaleTransactions } from './saveSaleTransactions';
 
 export const orderToTrs = async ({
   subdomain,
@@ -23,13 +24,14 @@ export const orderToTrs = async ({
   userId,
   order,
   config,
+  allowRealJobProduction = false,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
+  allowRealJobProduction?: boolean;
   order: any;
   config: {
-    dateRule: 'alwaysNow' | 'syncedDateOrNow';
     saleAccountId: string;
     saleOutAccountId: string;
     saleCostAccountId: string;
@@ -48,11 +50,17 @@ export const orderToTrs = async ({
   };
 }) => {
   const activeProductsData = order.items;
+  if (!order.paidDate) {
+    throw new Error('POS order paidDate is required for accounting sync.');
+  }
   if (!activeProductsData?.length) {
-    return;
+    throw new Error('POS order has no items to sync to accounting.');
   }
 
-  let date = new Date();
+  const date = new Date(order.paidDate);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('POS order paidDate is invalid.');
+  }
   let mainId = nanoid();
   let ptrId = nanoid();
   let parentId = mainId;
@@ -66,9 +74,6 @@ export const orderToTrs = async ({
     journal: JOURNALS.INV_SALE,
   }).lean();
   if (oldTrs?.length) {
-    if (config.dateRule === 'syncedDateOrNow') {
-      date = oldTrs[0].date;
-    }
     const oldSaleTr = oldTrs[0];
     mainId = oldSaleTr?._id || mainId;
     ptrId = oldSaleTr?.ptrId || ptrId;
@@ -277,18 +282,14 @@ export const orderToTrs = async ({
         });
       }
     }
-
-    await models.Transactions.updatePTransaction(
-      parentId,
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
-  } else {
-    await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
   }
+
+  await saveSaleTransactions({
+    subdomain,
+    models,
+    userId,
+    docs: [{ ...saleTrDoc }, ...paymentTrs],
+    parentId: oldTrs.length ? parentId : undefined,
+    allowRealJobProduction,
+  });
 };

@@ -10,7 +10,7 @@ export const FacebookBotMoreColumnCell = ({
 }: {
   cell: CellContext<IFacebookBot, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { _id } = cell.row.original;
   const {
     loadingRepair,

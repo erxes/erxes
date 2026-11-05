@@ -1,105 +1,112 @@
+import { compactList } from '@/operation/utils/cursorList';
+import { GET_TASKS } from '@/task/graphql/queries/getTasks';
+import { AddTriageButton } from '@/triage/components/add-triage/AddTriageButton';
+import { GET_TRIAGES } from '@/triage/graphql/queries/getTriages';
+import { useQuery } from '@apollo/client';
 import { IconCaretLeftRight } from '@tabler/icons-react';
-import { ScrollArea, Separator, Spinner } from 'erxes-ui';
-import { useCreateWidgetRelations } from '../hooks/useCreateWidgetRelations';
-import { useWidgetRelations } from '../hooks/useWidgetRelations';
-import { useConnectedProjects } from '../hooks/useConnectedProjects';
-import { AddTaskRelation } from './AddTaskRelation';
-import { ProjectTasks } from './ProjectTasks';
-import { WidgetQueryError } from './WidgetQueryError';
-import { TaskWidget } from './TaskWidget';
+import { Spinner } from 'erxes-ui';
+import {
+  getHostContacts,
+  IRelationWidgetProps,
+  RelationWidgetEmptyState,
+  RelationWidgetList,
+} from 'ui-modules';
+import { TaskItemRow, TriageRow } from '~/widgets/rows/TaskRow';
 import { useTranslation } from 'react-i18next';
 
+// The most records listed for one customer or company.
+const CONTACT_RECORDS_LIMIT = 50;
+
+/**
+ * The tasks and triages of the host's customer and company, found by the
+ * contact on the records themselves. "+" files a triage for them (its create
+ * mutation saves the contact); accepted, it becomes a task that keeps it.
+ */
 export const Task = ({
   contentId,
   contentType,
   customerId,
   companyId,
-}: {
-  contentId: string;
-  contentType: string;
-  customerId?: string;
-  companyId?: string;
-}) => {
+  customerIds,
+  companyIds,
+}: Omit<IRelationWidgetProps, 'module' | 'pluginName'>) => {
   const { t } = useTranslation('operation');
-  const direct = useWidgetRelations({
-    contentId,
+  const contacts = getHostContacts({
     contentType,
-    relatedContentType: 'operation:task',
-  });
-  const connected = useConnectedProjects({
     contentId,
-    contentType,
-  });
-  const { createRelations: onComplete } = useCreateWidgetRelations({
-    contentId,
-    contentType,
     customerId,
     companyId,
-    relatedContentType: 'operation:task',
-    successMessage: t('task-or-triage-connected', {
-      defaultValue: 'Record created and connected successfully',
-    }),
+    customerIds,
+    companyIds,
   });
+  const byCustomer = {
+    variables: {
+      filter: { customerId: contacts.customerId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.customerId,
+  };
+  const byCompany = {
+    variables: {
+      filter: { companyId: contacts.companyId, limit: CONTACT_RECORDS_LIMIT },
+    },
+    skip: !contacts.companyId,
+  };
+  const customerTasks = useQuery(GET_TASKS, byCustomer);
+  const companyTasks = useQuery(GET_TASKS, byCompany);
+  const customerTriages = useQuery(GET_TRIAGES, byCustomer);
+  const companyTriages = useQuery(GET_TRIAGES, byCompany);
 
-  if (direct.loading || connected.loading) {
+  if (
+    customerTasks.loading ||
+    companyTasks.loading ||
+    customerTriages.loading ||
+    companyTriages.loading
+  ) {
     return <Spinner containerClassName="py-20" />;
   }
-  if (direct.error)
-    return <WidgetQueryError error={direct.error} onRetry={direct.refetch} />;
-  if (connected.error)
+
+  // Each record once, the host itself left out.
+  const notHost = <T extends { _id: string }>(records: T[]) => [
+    ...new Map(
+      records
+        .filter((record) => record._id !== contentId)
+        .map((record) => [record._id, record]),
+    ).values(),
+  ];
+  const triages = notHost([
+    ...compactList(customerTriages.data?.operationGetTriageList?.list),
+    ...compactList(companyTriages.data?.operationGetTriageList?.list),
+  ]);
+  // An accepted triage's task keeps its id: list it once, as the triage.
+  const triageIds = new Set(triages.map((triage) => triage._id));
+  const tasks = notHost([
+    ...compactList(customerTasks.data?.getTasks?.list),
+    ...compactList(companyTasks.data?.getTasks?.list),
+  ]).filter((task) => !triageIds.has(task._id));
+
+  if (triages.length === 0 && tasks.length === 0) {
     return (
-      <WidgetQueryError error={connected.error} onRetry={connected.retry} />
-    );
-  const projects = connected.projects;
-  if (direct.ids.length === 0 && projects.length === 0) {
-    return (
-      <div className="flex flex-auto flex-col gap-4 justify-center items-center text-muted-foreground">
-        <div className="border border-dashed p-6 bg-background rounded-xl">
-          <IconCaretLeftRight />
-        </div>
-        <span className="text-sm">
-          {t('no-tasks-or-triages', {
-            defaultValue: 'No tasks or triages to display.',
-          })}
-        </span>
-        <AddTaskRelation onComplete={onComplete} showText />
-      </div>
+      <RelationWidgetEmptyState
+        icon={IconCaretLeftRight}
+        message={t('no-triages-to-display')}
+      >
+        <AddTriageButton contacts={contacts} />
+      </RelationWidgetEmptyState>
     );
   }
 
   return (
-    <div className="flex min-h-0 w-0 min-w-full flex-auto flex-col">
-      <div className="h-11 px-4 flex items-center justify-between gap-2 flex-none bg-background">
-        <span className="font-medium text-primary truncate">
-          {t('tasks-and-triages')}
-        </span>
-        <AddTaskRelation onComplete={onComplete} />
-      </div>
-      <Separator />
-      <ScrollArea
-        className="min-h-0 min-w-0 flex-auto"
-        viewportClassName="[&>div]:!block"
-      >
-        <div className="flex min-w-0 flex-col gap-6 p-4">
-          {direct.ids.length > 0 && (
-            <section className="space-y-3">
-              <h4 className="text-sm font-medium">
-                {t('directly-linked', { defaultValue: 'Directly linked' })}
-              </h4>
-              {direct.ids.map((id) => (
-                <TaskWidget key={id} taskId={id} />
-              ))}
-            </section>
-          )}
-          {projects.map((project) => (
-            <ProjectTasks
-              key={project._id}
-              project={project}
-              directIds={direct.ids}
-            />
-          ))}
-        </div>
-      </ScrollArea>
-    </div>
+    <RelationWidgetList
+      dense
+      label={t('tasks-and-triages', 'Tasks & triages')}
+      actions={<AddTriageButton contacts={contacts} iconOnly />}
+    >
+      {triages.map((triage) => (
+        <TriageRow key={triage._id} triage={triage} />
+      ))}
+      {tasks.map((task) => (
+        <TaskItemRow key={task._id} task={task} />
+      ))}
+    </RelationWidgetList>
   );
 };

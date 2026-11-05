@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import { CALL_PRO_CUSTOMER_SELECT } from '@/integrations/callpro/graphql/mutations/callProMutations';
 
 export const useCallProCustomerSelect = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   const [callProCustomerSelect, { loading }] = useMutation(
     CALL_PRO_CUSTOMER_SELECT,

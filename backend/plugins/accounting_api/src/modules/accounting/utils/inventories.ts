@@ -21,6 +21,7 @@ import {
   TR_STATUSES,
 } from '../@types/constants';
 import { ITransactionDocument, ITrDetail } from '../@types/transaction';
+import { reallocateJobExecutionIncome } from '../../inventories/utils/jobExecutionAdjustment';
 
 const RELATED_OUT_DEBIT_JOURNALS = [
   JOURNALS.MAIN,
@@ -787,7 +788,7 @@ export const getInventoryOutAdjustment = (
   };
 };
 
-const fixOutTrs = async (
+export const fixOutTrs = async (
   subdomain: string,
   models: IModels,
   {
@@ -801,113 +802,147 @@ const fixOutTrs = async (
     }[];
   },
 ) => {
-  for (const outTrs of outAggrs) {
-    const trIds: string[] = [];
-    const { _id, records } = outTrs;
-    const { accountId, branchId, departmentId, productId } = _id;
+  await outAggrs.reduce<Promise<void>>(
+    (pendingGroup, outTrs) =>
+      pendingGroup.then(async () => {
+        const trIds: string[] = [];
+        const executions = new Map<string, string>();
+        const { _id, records } = outTrs;
+        const { accountId, branchId, departmentId, productId } = _id;
 
-    if (!branchId || !departmentId || !productId || !accountId) {
-      continue;
-    }
+        if (!branchId || !departmentId || !productId || !accountId) {
+          return;
+        }
 
-    const detailFilter = {
-      productId,
-      accountId,
-      branchId,
-      departmentId,
-    };
+        const detailFilter = {
+          productId,
+          accountId,
+          branchId,
+          departmentId,
+        };
 
-    const sumCount = fixNum(
-      records.reduce((sum, rec) => sum + (rec.details.count ?? 0), 0),
-    );
+        const sumCount = fixNum(
+          records.reduce((sum, rec) => sum + (rec.details.count ?? 0), 0),
+        );
 
-    const adjustDetail = await models.AdjustInvDetails.getAdjustInvDetail({
-      ...detailFilter,
-      adjustId,
-    });
+        const adjustDetail = await models.AdjustInvDetails.getAdjustInvDetail({
+          ...detailFilter,
+          adjustId,
+        });
 
-    let remainder = fixNum(adjustDetail.remainder ?? 0);
-    let cost = fixNum(adjustDetail.cost ?? 0);
-    const unitCost = fixNum(cost / (remainder ?? 1));
+        let remainder = fixNum(adjustDetail.remainder ?? 0);
+        let cost = fixNum(adjustDetail.cost ?? 0);
+        const unitCost = fixNum(cost / (remainder ?? 1));
 
-    if (remainder < sumCount) {
-      const error = await getErrorDesc(
-        subdomain,
-        models,
-        `Not enough stock for {productId} in {accountId} {branchId} {departmentId} (out)`,
-        { productId, accountId, branchId, departmentId },
-      );
-      await models.AdjustInvDetails.updateOne(
-        { _id: adjustDetail._id },
-        { $set: { error } },
-      );
-      throw new Error(error);
-    }
+        if (remainder < sumCount) {
+          const error = await getErrorDesc(
+            subdomain,
+            models,
+            `Not enough stock for {productId} in {accountId} {branchId} {departmentId} (out)`,
+            { productId, accountId, branchId, departmentId },
+          );
+          await models.AdjustInvDetails.updateOne(
+            { _id: adjustDetail._id },
+            { $set: { error } },
+          );
+          throw new Error(error);
+        }
 
-    // bichleg bureer zalruulga hiine ingehdee haritstsan buyu orlogo talaa davhar shinechilsen, shinechilj baih burtee cache ee tsenegleh yostoi
-    for (const rec of records) {
-      const { details } = rec;
-      const { count, amount } = details;
-      const { cost: newCost, preserveCost } = getInventoryOutAdjustment(
-        rec,
-        unitCost,
-      );
+        // bichleg bureer zalruulga hiine ingehdee haritstsan buyu orlogo talaa davhar shinechilsen, shinechilj baih burtee cache ee tsenegleh yostoi
+        await records.reduce<Promise<void>>(
+          (pendingRecord, rec) =>
+            pendingRecord.then(async () => {
+              const { details } = rec;
+              const { count, amount } = details;
+              const { cost: newCost, preserveCost } = getInventoryOutAdjustment(
+                rec,
+                unitCost,
+              );
 
-      remainder -= fixNum(count ?? 0);
-      cost -= newCost;
+              remainder -= fixNum(count ?? 0);
+              cost -= newCost;
 
-      if (preserveCost || newCost === amount) {
-        continue;
-      }
+              if (rec.contentType === 'jobExecution') {
+                if (!rec.parentId || !rec.contentId)
+                  throw new Error(
+                    'Job execution transaction linkage is missing',
+                  );
+                executions.set(rec.parentId, rec.contentId);
+              }
 
-      // out - fix
-      await models.Transactions.updateOne(
-        { _id: rec._id },
-        {
-          $set: {
-            'details.$[d].unitPrice': unitCost,
-            'details.$[d].amount': newCost,
-            sumDt: 0,
-            sumCt: fixNum(rec.sumCt - amount + newCost),
-          },
-        },
-        { arrayFilters: [{ 'd._id': { $eq: details._id } }] },
-      );
+              if (preserveCost || newCost === amount) {
+                return;
+              }
 
-      trIds.push(rec._id);
+              // out - fix
+              await models.Transactions.updateOne(
+                { _id: rec._id },
+                {
+                  $set: {
+                    'details.$[d].unitPrice': unitCost,
+                    'details.$[d].amount': newCost,
+                    sumDt: 0,
+                    sumCt: fixNum(rec.sumCt - amount + newCost),
+                  },
+                },
+                { arrayFilters: [{ 'd._id': { $eq: details._id } }] },
+              );
 
-      const relatedTrIds = await fixRelatedMainJournal(models, {
-        ptrId: rec.ptrId,
-        excludeTrId: rec._id,
-        oldAmount: amount,
-        newAmount: newCost,
-      });
-      trIds.push(...relatedTrIds);
-    }
+              trIds.push(rec._id);
 
-    // cache out adjustDetail
-    await models.AdjustInvDetails.updateAdjustInvDetail({
-      adjustId,
-      productId,
-      accountId,
-      branchId,
-      departmentId,
-      remainder,
-      cost,
-      unitCost,
-    });
-    await afterCalc(models, trIds);
+              if (rec.contentType === 'jobExecution') {
+                return;
+              }
 
-    if (trIds.length) {
-      const ptrIds = [...new Set(records.map((record) => record.ptrId))].filter(
-        Boolean,
-      );
+              const relatedTrIds = await fixRelatedMainJournal(models, {
+                ptrId: rec.ptrId,
+                excludeTrId: rec._id,
+                oldAmount: amount,
+                newAmount: newCost,
+              });
+              trIds.push(...relatedTrIds);
+            }),
+          Promise.resolve(),
+        );
 
-      await Promise.all(
-        ptrIds.map((ptrId) => models.Transactions.checkPtr(ptrId)),
-      );
-    }
-  }
+        // cache out adjustDetail
+        await models.AdjustInvDetails.updateAdjustInvDetail({
+          adjustId,
+          productId,
+          accountId,
+          branchId,
+          departmentId,
+          remainder,
+          cost,
+          unitCost,
+        });
+        await [...executions].reduce<Promise<void>>(
+          (previous, [parentId, contentId]) =>
+            previous.then(async () => {
+              trIds.push(
+                ...(await reallocateJobExecutionIncome(models, {
+                  adjustId,
+                  parentId,
+                  contentId,
+                })),
+              );
+            }),
+          Promise.resolve(),
+        );
+        await afterCalc(models, trIds);
+
+        if (trIds.length) {
+          const ptrIds = [
+            ...new Set(records.map((record) => record.ptrId)),
+          ].filter(Boolean);
+
+          await Promise.all(
+            ptrIds.map((ptrId) => models.Transactions.checkPtr(ptrId)),
+          );
+        }
+      }),
+    Promise.resolve(),
+  );
 };
 
 const fixMoveTrs = async (

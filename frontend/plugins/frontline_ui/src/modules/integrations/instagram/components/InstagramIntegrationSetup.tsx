@@ -26,7 +26,9 @@ const INTEGRATION_KINDS = {
 };
 
 export const InstagramIntegrationSetup = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { id: channelId } = useParams();
   const { isPost } = useIgIntegrationContext();
   const form = useForm<z.infer<typeof INSTAGRAM_INTEGRATION_SCHEMA>>({

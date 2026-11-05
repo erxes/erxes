@@ -2,7 +2,7 @@ import { CompaniesHeader } from '@/contacts/companies/components/CompaniesHeader
 import { CompaniesRecordTable } from '@/contacts/companies/components/CompaniesRecordTable';
 import { CompaniesFilter } from '@/contacts/companies/components/CompaniesFilter';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
-import { CompanyDetail } from '@/contacts/companies/company-detail/CompanyDetail';
+import { ContactDetailLink } from '@/contacts/components/ContactDetailLink';
 import { useCompanies } from '@/contacts/companies/hooks/useCompanies';
 import { Can, Export, Import } from 'ui-modules';
 
@@ -36,7 +36,7 @@ export const CompaniesIndexPage = () => {
         </Can>
       </PageSubHeader>
       <CompaniesRecordTable />
-      <CompanyDetail />
+      <ContactDetailLink queryKey="companyId" contentType="core:company" />
     </PageContainer>
   );
 };

@@ -5,9 +5,10 @@ export type OrderAuditLog = {
   _id: string
   orderId?: string
   orderNumber?: string | null
+  coverId?: string
   cartId?: string
   source?: string
-  action?: "create" | "update" | "cancel" | "return" | null
+  action?: "create" | "update" | "cancel" | "return" | "delete" | null
   userId?: string
   occurredAt?: string
   createdAt?: string
@@ -85,6 +86,7 @@ export const orderAuditLogs = gql`
       _id
       orderId
       orderNumber
+      coverId
       cartId
       source
       action

@@ -1,4 +1,4 @@
-import { fixNum, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { fixNum } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -16,7 +16,8 @@ import {
   subtractPreTaxAmount,
 } from './taxRules';
 import { getDealAccountingDate } from './dealDate';
-import { getJournal } from './utils';
+import { getDealOwner, getJournal } from './utils';
+import { saveSaleTransactions } from './saveSaleTransactions';
 
 export const dealToTrs = async ({
   subdomain,
@@ -25,12 +26,14 @@ export const dealToTrs = async ({
   deal,
   config,
   dateType,
+  allowRealJobProduction = false,
 }: {
   subdomain: string;
   models: IModels;
   userId: string;
   deal: any;
   dateType?: string;
+  allowRealJobProduction?: boolean;
   config: {
     dateRule: 'alwaysNow' | 'syncedDateOrNow';
     responseFieldId?: string;
@@ -55,7 +58,9 @@ export const dealToTrs = async ({
     (pd) => pd.tickUsed && pd.quantity,
   );
   if (!activeProductsData?.length) {
-    return;
+    throw new Error(
+      'Deal has no selected products with quantity to sync to accounting.',
+    );
   }
 
   let mainId = nanoid();
@@ -106,39 +111,9 @@ export const dealToTrs = async ({
     details: [],
   };
 
-  const companyIds = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'relation',
-    action: 'getRelationIds',
-    input: {
-      contentType,
-      contentId,
-      relatedContentType: 'core:company',
-    },
-    defaultValue: [],
-  });
-
-  if (companyIds?.length) {
-    saleTrDoc.customerType = 'company';
-    saleTrDoc.customerId = companyIds[0];
-  } else {
-    const customerIds = await sendTRPCMessage({
-      subdomain,
-      pluginName: 'core',
-      module: 'relation',
-      action: 'getRelationIds',
-      input: {
-        contentType,
-        contentId,
-        relatedContentType: 'core:customer',
-      },
-      defaultValue: [],
-    });
-
-    saleTrDoc.customerType = 'customer';
-    saleTrDoc.customerId = customerIds[0];
-  }
+  const owner = getDealOwner(deal);
+  saleTrDoc.customerType = owner.customerType;
+  saleTrDoc.customerId = owner.customerId;
 
   const paymentTypes = await getDealPaymentTypes(subdomain, deal);
   const { itemAmountPrePercent, preTaxPaymentTypes } = calcDealPreTaxPercent(
@@ -331,18 +306,14 @@ export const dealToTrs = async ({
         });
       }
     }
-
-    await models.Transactions.updatePTransaction(
-      parentId,
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
-  } else {
-    await models.Transactions.createPTransaction(
-      [{ ...saleTrDoc }, ...paymentTrs],
-      userId,
-      { skipAccountPermission: true },
-    );
   }
+
+  await saveSaleTransactions({
+    subdomain,
+    models,
+    userId,
+    docs: [{ ...saleTrDoc }, ...paymentTrs],
+    parentId: oldTrs.length ? parentId : undefined,
+    allowRealJobProduction,
+  });
 };

@@ -72,7 +72,9 @@ export const IntegrationTypeItem = ({
   // How many of those are waiting on a reply from us.
   awaitingCount?: number;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [{ channelId: selectedChannelId, integrationType }, setFilters] =
     useMultiQueryState<TInboxNavigationFilters>(INBOX_NAVIGATION_FILTER_KEYS);
 
