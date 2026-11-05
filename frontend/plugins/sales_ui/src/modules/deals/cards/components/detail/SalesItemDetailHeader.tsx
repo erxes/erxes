@@ -76,7 +76,7 @@ export const SalesItemDetailHeader = ({ deal }: { deal: IDealDetail }) => {
       <div className="flex flex-col flex-1 min-w-0">
         <Sheet.Title>
           <Input
-            className="h-8 w-auto min-w-32 max-w-full border-0 bg-transparent px-2 py-1 text-lg font-semibold shadow-none"
+            className="h-8 w-auto min-w-0 max-w-full border-0 bg-transparent px-2 py-1 text-lg font-semibold shadow-none"
             placeholder={t('deal-name')}
             size={Math.min(Math.max(name.length, 12), 48)}
             value={name}

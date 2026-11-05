@@ -112,10 +112,11 @@ const FocusSheetContent = ({
   className,
   ...props
 }: React.ComponentProps<typeof Sheet.Content>) => {
+  // Radix's table wrapper otherwise imposes its contents' minimum width.
   return (
     <Sheet.Content
       className={cn(
-        'flex min-h-0 min-w-0 flex-col sm:flex-row border-b-0 rounded-b-none overflow-y-hidden [&>div]:min-w-0 [&>div]:min-h-0',
+        'flex min-h-0 min-w-0 flex-col lg:flex-row border-b-0 rounded-b-none overflow-y-hidden [&>div]:min-w-0 [&>div]:min-h-0 [&_[data-radix-scroll-area-viewport]>div]:block!',
         className,
       )}
       {...props}
@@ -139,7 +140,7 @@ const FocusSheetSideBar = ({
     <Sidebar
       collapsible="none"
       className={cn(
-        'flex-none h-auto w-full max-h-40 overflow-y-auto border-b sm:h-full sm:max-h-none sm:w-64 sm:border-b-0 sm:border-r',
+        'flex-none h-auto w-full max-h-40 overflow-y-auto border-b lg:h-full lg:max-h-none lg:w-64 lg:border-b-0 lg:border-r',
         className,
       )}
       {...props}
@@ -182,7 +183,7 @@ const FocusSheetSideTabs = forwardRef<
     <Tabs
       ref={ref}
       className={cn(
-        'flex min-h-0 min-w-0 max-sm:flex-col-reverse max-sm:max-h-1/2 max-sm:shrink-0',
+        'flex min-h-0 min-w-0 shrink-0 max-lg:flex-col-reverse max-lg:max-h-1/2',
         className,
       )}
       orientation="horizontal"
@@ -208,7 +209,7 @@ const FocusSheetSideContent = forwardRef<
     <Tabs.Content
       ref={ref}
       className={cn(
-        'sm:data-[state=active]:border-l sm:data-[state=active]:min-w-80 min-w-0 w-full max-sm:w-full! max-sm:max-w-full! max-sm:flex-1 max-sm:min-h-0 transition-all data-[state=active]:flex flex-col overflow-hidden bg-sidebar',
+        'lg:data-[state=active]:border-l lg:data-[state=active]:min-w-80 min-w-0 w-full max-lg:w-full! max-lg:max-w-full! max-lg:flex-1 max-lg:min-h-0 transition-all data-[state=active]:flex flex-col overflow-hidden bg-sidebar',
         className,
       )}
       {...props}
@@ -259,7 +260,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-full sm:w-12 flex-none border-t sm:border-t-0 sm:border-l bg-sidebar h-12 sm:h-full py-1 sm:py-3 flex flex-row sm:flex-col items-center justify-start gap-3 border-b-0',
+        'w-full lg:w-12 flex-none border-t lg:border-t-0 lg:border-l bg-sidebar h-12 lg:h-full py-1 lg:py-3 flex flex-row lg:flex-col items-center justify-start gap-3 border-b-0',
         className,
       )}
       {...props}
