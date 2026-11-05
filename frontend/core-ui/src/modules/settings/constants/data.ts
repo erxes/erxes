@@ -19,6 +19,7 @@ import {
   IconMessage,
   IconNotification,
   IconPassword,
+  IconPuzzle,
   IconDeviceMobileCheck,
   IconShoppingCart,
   IconSparkles,
@@ -224,6 +225,11 @@ export const SETTINGS_PATH_DATA = (
       name: t('oauth-clients'),
       icon: IconShieldLock,
       path: SettingsWorkspacePath.OAuthClients,
+    },
+    {
+      name: t('extensions', 'Extensions'),
+      icon: IconPuzzle,
+      path: SettingsWorkspacePath.Extensions,
     },
     {
       name: t('security', 'Security'),

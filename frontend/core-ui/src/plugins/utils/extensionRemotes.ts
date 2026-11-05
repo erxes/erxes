@@ -16,6 +16,14 @@ const extensionRemotes = new Set<string>();
 export const isExtensionRemote = (remoteName: string) =>
   extensionRemotes.has(remoteName);
 
+/** Where an extension may live: core, or any loaded plugin. */
+export const extensionHosts = (remotes: { name: string }[]) => [
+  'core',
+  ...remotes
+    .filter(({ name }) => !isExtensionRemote(name))
+    .map(({ name }) => name.replace(/_ui$/, '')),
+];
+
 /** Remembers which remotes are extensions; returns what federation takes. */
 export const toFederationRemotes = (remotes: FrontendRemote[]) =>
   remotes.map(({ name, entry, kind }) => {
