@@ -32,6 +32,7 @@ import { useTaskOptionalFields } from '@/task/hooks/useTaskOptionalFields';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITask } from '@/task/types';
 import {
+  cn,
   RecordTableInlineCell,
   ScrollArea,
   Spinner,
@@ -60,10 +61,15 @@ const TaskNameField = ({ task }: { task: ITask }) => {
 
   return (
     <TextField
+      data-panel-inline
       scope={`${SCOPE}.name`}
       value={task.name || ''}
       placeholder={t('task-name')}
-      className={PANEL_TEXT_FIELD_CLASS_NAME}
+      className={cn(
+        PANEL_TEXT_FIELD_CLASS_NAME,
+        'h-auto min-h-7 py-1',
+        '[&_.truncate]:whitespace-normal [&_.truncate]:wrap-anywhere',
+      )}
       onSave={(name) => updateTask({ variables: { _id: task._id, name } })}
     />
   );

@@ -1,3 +1,4 @@
+import { RecordPageSlot } from '@/side-panel/components/RecordPageSlot';
 import { AppLayout, AppLayoutFooterLink } from 'erxes-ui';
 import { IconSettings } from '@tabler/icons-react';
 import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
@@ -67,7 +68,9 @@ export const CoreAppOutlet = () => {
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
-        <Outlet />
+        <RecordPageSlot>
+          <Outlet />
+        </RecordPageSlot>
       </AppLayout>
     );
   }
@@ -86,7 +89,9 @@ export const CoreAppOutlet = () => {
       <NavigationChildControlsProvider
         activity={activity?.kind === 'plugin' ? activity : undefined}
       >
-        <Outlet />
+        <RecordPageSlot>
+          <Outlet />
+        </RecordPageSlot>
       </NavigationChildControlsProvider>
     );
   }
@@ -102,7 +107,9 @@ export const CoreAppOutlet = () => {
         </NavigationChildControlsProvider>
       }
     >
-      <Outlet />
+      <RecordPageSlot>
+        <Outlet />
+      </RecordPageSlot>
     </AppLayout>
   );
 };

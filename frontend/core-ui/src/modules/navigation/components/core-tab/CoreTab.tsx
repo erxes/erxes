@@ -1,5 +1,5 @@
 import { Button, Tooltip, activePluginState, cn } from 'erxes-ui';
-import { IconInbox, IconSearch } from '@tabler/icons-react';
+import { IconInbox, IconSearch, IconSettings } from '@tabler/icons-react';
 import {
   INBOX_TAB_ID,
   SETTINGS_TAB_ID,
@@ -51,8 +51,12 @@ export const CoreTab = () => {
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const routeActivityId = routeActivity?.id;
   const isInboxActive = routeActivityId === INBOX_TAB_ID;
+  const isSettingsActive = routeActivityId === SETTINGS_TAB_ID;
   const inboxActivity = activities.find(
     (activity) => activity.id === INBOX_TAB_ID,
+  );
+  const settingsActivity = activities.find(
+    (activity) => activity.id === SETTINGS_TAB_ID,
   );
   // Inbox and organization settings have their own entry points.
   const appActivities = activities.filter(
@@ -133,6 +137,20 @@ export const CoreTab = () => {
             </Button>
           </CoreTabTooltip>
           <AssistantButton />
+          <CoreTabTooltip label={t('app-settings', 'Settings')}>
+            <Button
+              aria-label={t('app-settings', 'Settings')}
+              className={coreTabIconClassName(isSettingsActive)}
+              size="icon"
+              type="button"
+              variant="ghost"
+              onClick={() =>
+                settingsActivity && selectActivity(settingsActivity)
+              }
+            >
+              <IconSettings className="size-4" />
+            </Button>
+          </CoreTabTooltip>
           <CoreTabUserMenu />
         </div>
       </header>
