@@ -1,5 +1,6 @@
 import { IContext } from '~/connectionResolvers';
 import { getPlugins, getPlugin } from 'erxes-api-shared/utils';
+import { getExtensionPermissionConfigs } from 'erxes-api-shared/core-modules';
 
 const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
   const existing = map.get(perm.module);
@@ -23,7 +24,11 @@ const mergePerm = (map: Map<string, any>, perm: any, plugin?: string) => {
 };
 
 export const permissionQueries = {
-  async permissionModules() {
+  async permissionModules(
+    _root: unknown,
+    _args: unknown,
+    { subdomain }: IContext,
+  ) {
     const grouped: { plugin: string; modules: any[] }[] = [];
     const services = await getPlugins();
 
@@ -39,10 +44,25 @@ export const permissionQueries = {
       grouped.push({ plugin: name, modules });
     }
 
+    // Extensions the tenant installed, listed like plugins.
+    for (const config of await getExtensionPermissionConfigs(subdomain)) {
+      grouped.push({
+        plugin: config.plugin,
+        modules: config.modules.map((module) => ({
+          ...module,
+          plugin: config.plugin,
+        })),
+      });
+    }
+
     return grouped.sort((a, b) => a.plugin.localeCompare(b.plugin));
   },
 
-  async permissionDefaultGroups() {
+  async permissionDefaultGroups(
+    _root: unknown,
+    _args: unknown,
+    { subdomain }: IContext,
+  ) {
     const groups: any[] = [];
     const services = await getPlugins();
 
@@ -53,6 +73,12 @@ export const permissionQueries = {
 
       for (const group of permissions.defaultGroups) {
         groups.push({ ...group, plugin: name });
+      }
+    }
+
+    for (const config of await getExtensionPermissionConfigs(subdomain)) {
+      for (const group of config.defaultGroups || []) {
+        groups.push({ ...group, plugin: config.plugin });
       }
     }
 
@@ -74,7 +100,7 @@ export const permissionQueries = {
   async currentUserPermissions(
     _root: any,
     _args: any,
-    { user, models }: IContext,
+    { user, models, subdomain }: IContext,
   ) {
     if (!user) throw new Error('Login required');
 
@@ -96,9 +122,16 @@ export const permissionQueries = {
       }
     }
 
+    for (const config of await getExtensionPermissionConfigs(subdomain)) {
+      pluginsWithPermissions.push(config.plugin);
+      allDefaultGroups.push(...(config.defaultGroups || []));
+    }
+
     if (user.isOwner) {
       return {
-        permissions: [{ plugin: '*', module: '*', actions: ['*'], scope: 'all' }],
+        permissions: [
+          { plugin: '*', module: '*', actions: ['*'], scope: 'all' },
+        ],
         pluginsWithPermissions,
       };
     }
