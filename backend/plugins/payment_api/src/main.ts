@@ -7,7 +7,7 @@ import { appRouter } from '~/trpc/init-trpc';
 import resolvers from './apollo/resolvers';
 import { generateModels } from '~/connectionResolvers';
 import { PAYMENTS } from '~/constants';
-import { callbackHandler } from '~/apis/controller';
+import { callbackHandler, golomtNotificationRoute } from '~/apis/controller';
 import { initPaymentsWorker } from './workers/payments';
 import { afterProcess } from './meta/afterProcess';
 import { permissions } from './meta/permissions';
@@ -60,19 +60,26 @@ startPlugin({
     },
   },
 
-  apiHandlers: PAYMENTS.ALL.flatMap((kind) => [
+  apiHandlers: [
+    ...PAYMENTS.ALL.flatMap((kind) => [
+      {
+        path: `/callback/${kind}`,
+        method: 'GET' as const,
+        resolver: callbackHandler,
+      },
+      {
+        path: `/callback/${kind}`,
+        method: 'POST' as const,
+        resolver: callbackHandler,
+      },
+    ]),
+    // Golomt server-to-server push notification (see golomt/api.ts)
     {
-      path: `/callback/${kind}`,
-      method: 'GET',
-      resolver: callbackHandler,
+      path: '/notification/golomt',
+      method: 'POST' as const,
+      resolver: golomtNotificationRoute,
     },
-    {
-      path: `/callback/${kind}`,
-      method: 'POST',
-      resolver: callbackHandler,
-    },
-  ]),
-
+  ],
   onServerInit: async (app) => {
     app.get('/widget/config.js', (req, res) => {
       const apiUrl = getWidgetApiUrl(req);
