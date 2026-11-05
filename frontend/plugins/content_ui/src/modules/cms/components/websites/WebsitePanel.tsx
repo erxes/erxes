@@ -1,10 +1,8 @@
 import { useMutation, useQuery } from '@apollo/client';
 import {
-  Button,
   Form,
   Input,
   Select,
-  Spinner,
   Textarea,
   toast,
   MultipleSelector,
@@ -17,6 +15,11 @@ import {
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
+import {
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormLayout,
+  PanelFormRow,
+} from 'ui-modules';
 import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
@@ -29,10 +32,7 @@ import {
   WebsiteFormType,
 } from '../../constants/websiteFormSchema';
 import { IWebsite } from '../../types';
-import {
-  ContentPanelBody,
-  ContentPanelRecordState,
-} from '@/cms/shared/side-panel/ContentPanelLayout';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import {
   CMS_WEBSITE_CONTENT_TYPE,
   IContentPanelViewProps,
@@ -59,8 +59,7 @@ const WebsitePanelForm = ({
   const isEditing = !!website;
   const languagesSelectorRef = useRef<HTMLDivElement>(null);
   const defaultLanguageTriggerRef = useRef<HTMLButtonElement>(null);
-  const saveButtonRef = useRef<HTMLButtonElement>(null);
-  const cancelButtonRef = useRef<HTMLButtonElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const {
     clientPortals,
@@ -254,14 +253,21 @@ const WebsitePanelForm = ({
       return;
     }
 
-    const saveButton = saveButtonRef.current;
+    const saveButton = formRef.current?.querySelector<HTMLButtonElement>(
+      'button[type="submit"]',
+    );
 
     if (saveButton && !saveButton.disabled) {
       saveButton.focus();
       return;
     }
 
-    cancelButtonRef.current?.focus();
+    const buttons =
+      formRef.current?.querySelectorAll<HTMLButtonElement>(
+        'button[type="button"]',
+      ) || [];
+
+    buttons[buttons.length - 1]?.focus();
   };
 
   const handleLanguagesSelectorKeyDownCapture = (
@@ -287,195 +293,181 @@ const WebsitePanelForm = ({
     }
   };
 
+  const { errors } = form.formState;
+
   return (
     <Form {...form}>
       <form
+        ref={formRef}
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-1 min-h-0 flex-col"
       >
-        <ContentPanelBody>
-          <Form.Field
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('cms-name')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder={t('enter-website-name')} />
-                </Form.Control>
-                <Form.Message className="text-destructive" />
-              </Form.Item>
-            )}
-          />
+        <PanelFormLayout
+          onCancel={onCancel}
+          saving={saving || savingUpdate}
+          saveLabel={isEditing ? t('save-changes') : t('create-cms')}
+        >
+          <PanelFormRow
+            label={t('cms-name')}
+            required
+            error={errors.name?.message}
+          >
+            <Input
+              {...form.register('name')}
+              autoFocus={!isEditing}
+              placeholder={t('enter-website-name')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
 
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
-                <Form.Control>
-                  <Textarea
-                    {...field}
-                    placeholder={t('enter-website-description')}
-                  />
-                </Form.Control>
-                <Form.Message className="text-destructive" />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="kind"
-            render={({ field }) => {
-              return (
-                <Form.Item>
-                  <Form.Label>{t('client-portal')}</Form.Label>
-                  <Form.Control>
-                    <Select
-                      {...field}
-                      onValueChange={field.onChange}
-                      value={field.value}
-                      disabled={clientPortalsLoading}
-                    >
-                      <Select.Trigger>
-                        <Select.Value
-                          placeholder={
-                            clientPortalsLoading
-                              ? t('loading')
-                              : t('select-client-portal')
-                          }
-                        />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {clientPortals.map((portal) => {
-                          const ownerName = portalOwnerNames.get(portal._id);
-
-                          return (
-                            <Select.Item
-                              key={portal._id}
-                              value={portal._id}
-                              disabled={Boolean(ownerName)}
-                            >
-                              {ownerName
-                                ? t('cms-client-portal-used-by', {
-                                    defaultValue:
-                                      '{{portal}} (used by {{name}})',
-                                    portal: portal.name,
-                                    name: ownerName,
-                                  })
-                                : portal.name}
-                            </Select.Item>
-                          );
-                        })}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              );
-            }}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="languages"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('languages')}</Form.Label>
-                <Form.Control>
-                  <div
-                    ref={languagesSelectorRef}
-                    onKeyDownCapture={handleLanguagesSelectorKeyDownCapture}
-                  >
-                    <MultipleSelector
-                      defaultOptions={LANGUAGES}
-                      onSearchSync={(term) =>
-                        LANGUAGES.filter(
-                          (o) =>
-                            o.label
-                              .toLowerCase()
-                              .includes(term.toLowerCase()) ||
-                            o.value.toLowerCase().includes(term.toLowerCase()),
-                        )
+          <PanelFormRow
+            label={t('client-portal')}
+            required
+            error={errors.kind?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="kind"
+              render={({ field }) => (
+                <Select
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  disabled={clientPortalsLoading}
+                >
+                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+                    <Select.Value
+                      placeholder={
+                        clientPortalsLoading
+                          ? t('loading')
+                          : t('select-client-portal')
                       }
-                      triggerSearchOnFocus
-                      value={(field.value || []).map((lng) => ({
-                        value: lng,
-                        label:
-                          LANGUAGES.find((l) => l.value === lng)?.label || lng,
-                      }))}
-                      onChange={(val) =>
-                        field.onChange(val.map((v) => v.value))
-                      }
-                      placeholder={t('select-languages')}
-                      commandProps={{ shouldFilter: false }}
                     />
-                  </div>
-                </Form.Control>
-                <Form.Message className="text-destructive" />
-              </Form.Item>
-            )}
-          />
+                  </Select.Trigger>
+                  <Select.Content align="start">
+                    {clientPortals.map((portal) => {
+                      const ownerName = portalOwnerNames.get(portal._id);
 
-          <Form.Field
-            control={form.control}
-            name="language"
-            render={({ field }) => {
-              const selectedLanguages = form.watch('languages') || [];
-              const available = LANGUAGES.filter((l) =>
-                selectedLanguages.includes(l.value),
-              );
-              return (
-                <Form.Item>
-                  <Form.Label>{t('default-language')}</Form.Label>
-                  <Form.Control>
-                    <Select
-                      value={field.value}
-                      onValueChange={field.onChange}
-                      disabled={available.length === 0}
+                      return (
+                        <Select.Item
+                          key={portal._id}
+                          value={portal._id}
+                          disabled={Boolean(ownerName)}
+                          className="h-7 text-xs"
+                        >
+                          {ownerName
+                            ? t('cms-client-portal-used-by', {
+                                defaultValue: '{{portal}} (used by {{name}})',
+                                portal: portal.name,
+                                name: ownerName,
+                              })
+                            : portal.name}
+                        </Select.Item>
+                      );
+                    })}
+                  </Select.Content>
+                </Select>
+              )}
+            />
+          </PanelFormRow>
+
+          <PanelFormRow
+            label={t('languages')}
+            error={errors.languages?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="languages"
+              render={({ field }) => (
+                <div
+                  ref={languagesSelectorRef}
+                  onKeyDownCapture={handleLanguagesSelectorKeyDownCapture}
+                >
+                  <MultipleSelector
+                    defaultOptions={LANGUAGES}
+                    onSearchSync={(term) =>
+                      LANGUAGES.filter(
+                        (o) =>
+                          o.label.toLowerCase().includes(term.toLowerCase()) ||
+                          o.value.toLowerCase().includes(term.toLowerCase()),
+                      )
+                    }
+                    triggerSearchOnFocus
+                    value={(field.value || []).map((lng) => ({
+                      value: lng,
+                      label:
+                        LANGUAGES.find((l) => l.value === lng)?.label || lng,
+                    }))}
+                    onChange={(val) => field.onChange(val.map((v) => v.value))}
+                    placeholder={t('select-languages')}
+                    commandProps={{ shouldFilter: false }}
+                    className="text-xs"
+                  />
+                </div>
+              )}
+            />
+          </PanelFormRow>
+
+          <PanelFormRow
+            label={t('default-language')}
+            error={errors.language?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="language"
+              render={({ field }) => {
+                const selectedLanguages = form.watch('languages') || [];
+                const available = LANGUAGES.filter((l) =>
+                  selectedLanguages.includes(l.value),
+                );
+
+                return (
+                  <Select
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    disabled={available.length === 0}
+                  >
+                    <Select.Trigger
+                      ref={defaultLanguageTriggerRef}
+                      className={PANEL_INPUT_CLASS_NAME}
                     >
-                      <Select.Trigger ref={defaultLanguageTriggerRef}>
-                        <Select.Value
-                          placeholder={t('select-default-language')}
-                        />
-                      </Select.Trigger>
-                      <Select.Content>
-                        {available.map((opt) => (
-                          <Select.Item key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.Message className="text-destructive" />
-                </Form.Item>
-              );
-            }}
-          />
-        </ContentPanelBody>
-        <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
-          <Button
-            ref={cancelButtonRef}
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={onCancel}
-          >
-            {t('cancel')}
-          </Button>
-          <Button
-            ref={saveButtonRef}
-            type="submit"
-            size="sm"
-            disabled={saving || savingUpdate}
-          >
-            {(saving || savingUpdate) && <Spinner size="sm" />}
-            {isEditing ? t('save-changes') : t('create-cms')}
-          </Button>
-        </div>
+                      <Select.Value
+                        placeholder={t('select-default-language')}
+                      />
+                    </Select.Trigger>
+                    <Select.Content align="start">
+                      {available.map((opt) => (
+                        <Select.Item
+                          key={opt.value}
+                          value={opt.value}
+                          className="h-7 text-xs"
+                        >
+                          {opt.label}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                );
+              }}
+            />
+          </PanelFormRow>
+
+          <div className="flex flex-col gap-1.5 pt-2">
+            <span className="text-xs font-medium text-accent-foreground">
+              {t('description')}
+              <span className="text-destructive"> *</span>
+            </span>
+            <Textarea
+              {...form.register('description')}
+              placeholder={t('enter-website-description')}
+              className="min-h-24 text-xs"
+            />
+            {errors.description?.message && (
+              <span className="text-xs text-destructive">
+                {errors.description.message}
+              </span>
+            )}
+          </div>
+        </PanelFormLayout>
       </form>
     </Form>
   );

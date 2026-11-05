@@ -1,5 +1,5 @@
-import { Combobox, Command, Form, Input, Popover, Textarea } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { Form, Input, Select, Textarea } from 'erxes-ui';
+import { ReactNode, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCreateWeb } from '../hooks/useCreateWeb';
@@ -14,10 +14,11 @@ import { WebCustomDomain } from './WebCustomDomain';
 import { Uploader } from '@/cms/settings/components/Uploader';
 import { IconPhoto } from '@tabler/icons-react';
 import {
-  ContentPanelBody,
-  ContentPanelFooter,
-  ContentPanelRecordState,
-} from '@/cms/shared/side-panel/ContentPanelLayout';
+  PANEL_INPUT_CLASS_NAME,
+  PanelFormLayout,
+  PanelFormRow,
+} from 'ui-modules';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
 import {
   CONTENT_WEB_CONTENT_TYPE,
@@ -31,7 +32,7 @@ interface SelectOption {
   label: string;
 }
 
-const FormComboSelect = ({
+const PanelSelect = ({
   options,
   value,
   onChange,
@@ -39,43 +40,47 @@ const FormComboSelect = ({
 }: {
   options: SelectOption[];
   value: string;
-  onChange: (v: string) => void;
+  onChange: (value: string) => void;
   placeholder: string;
-}) => {
-  const [open, setOpen] = useState(false);
-  const label = options.find((o) => o.value === value)?.label;
+}) => (
+  <Select value={value} onValueChange={onChange}>
+    <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+      <Select.Value placeholder={placeholder} />
+    </Select.Trigger>
+    <Select.Content align="start">
+      {options.map((option) => (
+        <Select.Item
+          key={option.value}
+          value={option.value}
+          className="h-7 text-xs"
+        >
+          {option.label}
+        </Select.Item>
+      ))}
+    </Select.Content>
+  </Select>
+);
 
-  return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <Form.Control>
-        <Combobox.Trigger className="w-full shadow-xs">
-          <span className={label ? '' : 'text-muted-foreground'}>
-            {label || placeholder}
-          </span>
-        </Combobox.Trigger>
-      </Form.Control>
-      <Combobox.Content>
-        <Command>
-          <Command.List>
-            {options.map((opt) => (
-              <Command.Item
-                key={opt.value}
-                value={opt.value}
-                onSelect={() => {
-                  onChange(opt.value);
-                  setOpen(false);
-                }}
-              >
-                {opt.label}
-                <Combobox.Check checked={value === opt.value} />
-              </Command.Item>
-            ))}
-          </Command.List>
-        </Command>
-      </Combobox.Content>
-    </Popover>
-  );
-};
+const PanelFormBlock = ({
+  label,
+  required,
+  error,
+  children,
+}: {
+  label: string;
+  required?: boolean;
+  error?: string;
+  children: ReactNode;
+}) => (
+  <div className="flex flex-col gap-1.5 pt-2">
+    <span className="text-xs font-medium text-accent-foreground">
+      {label}
+      {required && <span className="text-destructive"> *</span>}
+    </span>
+    {children}
+    {error && <span className="text-xs text-destructive">{error}</span>}
+  </div>
+);
 
 const WebPanelForm = ({
   web,
@@ -156,129 +161,111 @@ const WebPanelForm = ({
     label: p.name,
   }));
 
+  const { errors } = form.formState;
+
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-1 min-h-0 flex-col"
       >
-        <ContentPanelBody>
-          <Form.Field
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('name')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder={t('my-website')} required />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+        <PanelFormLayout
+          onCancel={onCancel}
+          saving={creating || updating}
+          saveLabel={isEditing ? t('save-changes') : t('create')}
+        >
+          <PanelFormRow label={t('name')} required error={errors.name?.message}>
+            <Input
+              {...form.register('name', { required: 'Name is required' })}
+              autoFocus={!isEditing}
+              placeholder={t('my-website')}
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
 
-          <Form.Field
-            control={form.control}
-            name="clientPortalId"
-            rules={{ required: 'Client portal is required' }}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('client-portal')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <FormComboSelect
+          <PanelFormRow
+            label={t('client-portal')}
+            required
+            error={errors.clientPortalId?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="clientPortalId"
+              rules={{ required: 'Client portal is required' }}
+              render={({ field }) => (
+                <PanelSelect
                   options={portalOptions}
                   value={field.value || ''}
                   onChange={field.onChange}
                   placeholder={t('select-a-client-portal')}
                 />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+              )}
+            />
+          </PanelFormRow>
 
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
-                <Form.Control>
-                  <Textarea
-                    {...field}
-                    placeholder={t('optional-description')}
-                    rows={3}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+          <PanelFormRow label={t('domain')}>
+            <Input
+              {...form.register('domain')}
+              placeholder="example.com"
+              className={PANEL_INPUT_CLASS_NAME}
+            />
+          </PanelFormRow>
 
-          <Form.Field
-            control={form.control}
-            name="domain"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('domain')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="example.com" />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="templateType"
-            rules={{ required: 'Template type is required' }}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('template-type')}{' '}
-                  <span className="text-destructive">*</span>
-                </Form.Label>
-                <FormComboSelect
+          <PanelFormRow
+            label={t('template-type')}
+            required
+            error={errors.templateType?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="templateType"
+              rules={{ required: 'Template type is required' }}
+              render={({ field }) => (
+                <PanelSelect
                   options={TEMPLATE_TYPES}
                   value={field.value || ''}
-                  onChange={(v) => {
-                    field.onChange(v);
+                  onChange={(value) => {
+                    field.onChange(value);
                     form.setValue('templateId', '');
                   }}
                   placeholder={t('select-a-template-type')}
                 />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+              )}
+            />
+          </PanelFormRow>
 
-          <Form.Field
-            control={form.control}
-            name="templateId"
-            rules={{ required: 'Template is required' }}
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('template')} <span className="text-destructive">*</span>
-                </Form.Label>
+          <PanelFormBlock
+            label={t('template')}
+            required
+            error={errors.templateId?.message}
+          >
+            <Form.Field
+              control={form.control}
+              name="templateId"
+              rules={{ required: 'Template is required' }}
+              render={({ field }) => (
                 <TemplateSelect
                   type={selectedType || ''}
                   value={field.value || ''}
                   onChange={field.onChange}
                 />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+              )}
+            />
+          </PanelFormBlock>
 
-          <Form.Field
-            control={form.control}
-            name="thumbnail"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('thumbnail')}</Form.Label>
+          <PanelFormBlock label={t('description')}>
+            <Textarea
+              {...form.register('description')}
+              placeholder={t('optional-description')}
+              className="min-h-20 text-xs"
+            />
+          </PanelFormBlock>
+
+          <PanelFormBlock label={t('thumbnail')}>
+            <Form.Field
+              control={form.control}
+              name="thumbnail"
+              render={({ field }) => (
                 <Uploader
                   icon={IconPhoto}
                   label={t('thumbnail')}
@@ -296,18 +283,16 @@ const WebPanelForm = ({
                   }
                   onChange={field.onChange}
                 />
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
+              )}
+            />
+          </PanelFormBlock>
 
-          {web && <WebCustomDomain webId={web._id} />}
-        </ContentPanelBody>
-        <ContentPanelFooter
-          onCancel={onCancel}
-          saving={creating || updating}
-          submitLabel={isEditing ? t('save-changes') : t('create')}
-        />
+          {web && (
+            <div className="pt-2">
+              <WebCustomDomain webId={web._id} />
+            </div>
+          )}
+        </PanelFormLayout>
       </form>
     </Form>
   );

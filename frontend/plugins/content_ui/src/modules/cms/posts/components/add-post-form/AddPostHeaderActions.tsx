@@ -1,5 +1,12 @@
-import { Button, Form, Spinner, Switch } from 'erxes-ui';
-import { FieldValues, UseFormReturn, useWatch } from 'react-hook-form';
+import { IconArchive } from '@tabler/icons-react';
+import { Button, Form, Popover, Select, Spinner, Switch, cn } from 'erxes-ui';
+import { useEffect } from 'react';
+import {
+  FieldValues,
+  UseFormReturn,
+  useFormState,
+  useWatch,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { DateTimeInput } from './DateTimeInput';
 
@@ -43,6 +50,153 @@ interface AddPostHeaderActionsProps {
   isSaveBlocked: boolean;
 }
 
+const POST_STATUS_DOTS = {
+  published: 'bg-success',
+  draft: 'bg-muted-foreground',
+  scheduled: 'bg-warning',
+} as const;
+
+type PostStatus = keyof typeof POST_STATUS_DOTS;
+
+const POST_STATUSES = Object.keys(POST_STATUS_DOTS) as PostStatus[];
+
+const formatDateTime = (value?: Date | null) =>
+  value
+    ? new Date(value).toLocaleString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+      })
+    : '';
+
+const PostStatusSelect = ({ form }: { form: UseFormReturn<FieldValues> }) => {
+  const { t } = useTranslation('content');
+
+  return (
+    <Form.Field
+      control={form.control}
+      name="status"
+      render={({ field }) => (
+        <Select
+          value={field.value}
+          onValueChange={(value) => {
+            field.onChange(value);
+            if (value === 'published' && !form.getValues('publishDate')) {
+              form.setValue('publishDate', new Date());
+            }
+          }}
+        >
+          <Select.Trigger className="w-32">
+            <Select.Value placeholder={t('status')} />
+          </Select.Trigger>
+          <Select.Content align="end">
+            {POST_STATUSES.map((status) => (
+              <Select.Item key={status} value={status}>
+                <span className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      'size-2 rounded-full',
+                      POST_STATUS_DOTS[status],
+                    )}
+                  />
+                  {t(status)}
+                </span>
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+      )}
+    />
+  );
+};
+
+const PostDateField = ({
+  form,
+  status,
+}: {
+  form: UseFormReturn<FieldValues>;
+  status: 'published' | 'scheduled';
+}) => {
+  const { t } = useTranslation('content');
+  const dateField = status === 'published' ? 'publishDate' : 'scheduledDate';
+  const dateLabel = status === 'published' ? t('publish-date') : t('schedule');
+
+  return (
+    <Form.Field
+      key={dateField}
+      control={form.control}
+      name={dateField}
+      render={({ field }) => (
+        <DateTimeInput
+          value={field.value || undefined}
+          onChange={field.onChange}
+          placeholder={dateLabel}
+        />
+      )}
+    />
+  );
+};
+
+const PostAutoArchive = ({ form }: { form: UseFormReturn<FieldValues> }) => {
+  const { t } = useTranslation('content');
+  const [enableAutoArchive, autoArchiveDate] = useWatch({
+    control: form.control,
+    name: ['enableAutoArchive', 'autoArchiveDate'],
+  });
+
+  return (
+    <Popover>
+      <Popover.Trigger asChild>
+        <Button
+          variant={enableAutoArchive ? 'secondary' : 'ghost'}
+          className="font-normal text-muted-foreground"
+        >
+          <IconArchive />
+          {(enableAutoArchive && formatDateTime(autoArchiveDate)) ||
+            t('auto-archive')}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content align="end" className="flex w-auto flex-col gap-3 p-3">
+        <Form.Field
+          control={form.control}
+          name="enableAutoArchive"
+          render={({ field }) => (
+            <Form.Item className="flex items-center justify-between gap-4 space-y-0">
+              <Form.Label>{t('auto-archive')}</Form.Label>
+              <Form.Control>
+                <Switch
+                  checked={!!field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </Form.Control>
+            </Form.Item>
+          )}
+        />
+        {enableAutoArchive && (
+          <Form.Field
+            control={form.control}
+            name="autoArchiveDate"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t('archive-date')}</Form.Label>
+                <Form.Control>
+                  <DateTimeInput
+                    value={field.value || undefined}
+                    onChange={field.onChange}
+                    placeholder={t('archive-date')}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+        )}
+      </Popover.Content>
+    </Popover>
+  );
+};
+
 export const AddPostHeaderActions = ({
   form,
   onSubmit,
@@ -55,146 +209,44 @@ export const AddPostHeaderActions = ({
     control: form.control,
     name: 'status',
   });
+  const { isDirty } = useFormState({ control: form.control });
+  const disabled = creating || saving || isSaveBlocked;
 
-  const enableAutoArchive = useWatch({
-    control: form.control,
-    name: 'enableAutoArchive',
-  });
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
+        event.preventDefault();
+        if (!disabled) {
+          form.handleSubmit(onSubmit)();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [disabled, form, onSubmit]);
 
   return (
     <div className="flex items-center gap-2">
+      {isDirty && !creating && !saving && (
+        <span className="flex items-center gap-1.5 whitespace-nowrap text-xs text-muted-foreground">
+          <span className="size-1.5 rounded-full bg-warning" />
+          {t('unsaved-changes')}
+        </span>
+      )}
       <Form {...form}>
-        <div className="flex items-center gap-2">
-          {status === 'published' && (
-            <Form.Field
-              control={form.control}
-              name="publishDate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <DateTimeInput
-                      value={field.value || undefined}
-                      onChange={field.onChange}
-                      placeholder="Нийтлэх огноо"
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )}
-
-          {status === 'scheduled' && (
-            <Form.Field
-              control={form.control}
-              name="scheduledDate"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <DateTimeInput
-                      value={field.value || undefined}
-                      onChange={field.onChange}
-                      placeholder="Товлосон огноо"
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )}
-
-          {(status === 'published' || status === 'scheduled') && (
-            <Form.Field
-              control={form.control}
-              name="enableAutoArchive"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <div className="flex items-center gap-1">
-                      <span className="text-sm text-muted-foreground whitespace-nowrap">
-                        {t('auto-archive')}
-                      </span>
-                      <Switch
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </div>
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-          )}
-
-          {enableAutoArchive &&
-            (status === 'published' || status === 'scheduled') && (
-              <Form.Field
-                control={form.control}
-                name="autoArchiveDate"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Control>
-                      <DateTimeInput
-                        value={field.value || undefined}
-                        onChange={field.onChange}
-                        placeholder={t('archive-date')}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-            )}
-
-          <Form.Field
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Control>
-                  <div className="inline-flex items-center rounded-md border bg-background p-1 gap-1">
-                    <Button
-                      type="button"
-                      variant={
-                        field.value === 'published' ? 'default' : 'ghost'
-                      }
-                      size="sm"
-                      onClick={() => {
-                        field.onChange('published');
-                        if (!form.getValues('publishDate')) {
-                          form.setValue('publishDate', new Date());
-                        }
-                      }}
-                      className="h-8"
-                    >
-                      {t('publish')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={field.value === 'draft' ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => field.onChange('draft')}
-                      className="h-8"
-                    >
-                      {t('draft')}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant={
-                        field.value === 'scheduled' ? 'default' : 'ghost'
-                      }
-                      size="sm"
-                      onClick={() => field.onChange('scheduled')}
-                      className="h-8"
-                    >
-                      {t('scheduled')}
-                    </Button>
-                  </div>
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-        </div>
+        {(status === 'published' || status === 'scheduled') && (
+          <>
+            <PostDateField form={form} status={status} />
+            <PostAutoArchive form={form} />
+          </>
+        )}
+        <PostStatusSelect form={form} />
       </Form>
       <Button
         onClick={() => form.handleSubmit(onSubmit)()}
-        disabled={creating || saving || isSaveBlocked}
+        disabled={disabled}
+        title={t('save-shortcut')}
       >
         {creating || saving ? (
           <>

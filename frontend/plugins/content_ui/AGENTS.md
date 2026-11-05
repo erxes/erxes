@@ -166,6 +166,13 @@
   or delete is a group edit. A new field's draft carries `groupId`.
 - Panel forms pass `control` explicitly to `Form.Field`; never rely on
   `useFormContext` inside this remote.
+- The CMS panel (`WebsitePanel.tsx`) and the web project panel
+  (`web-builder/components/WebPanel.tsx`) are laid out like the contacts
+  customer panel: `ui-modules` `PanelFormLayout` with one `PanelFormRow` per
+  short field (label left, `PANEL_INPUT_CLASS_NAME` inputs and `Select`s
+  right, error below), wide fields (description, template grid, thumbnail
+  uploader, custom domains) as full-width blocks with the label above, and the
+  shared Cancel/Save footer.
 - Post and page panels are read-only overviews; editing content stays in the
   full-page editors so autosave, translations, media, and the BlockNote
   document rules above keep applying.
@@ -175,6 +182,11 @@
 
 ### UI Conventions
 
+- The post editor header (`posts/components/add-post-form/AddPostHeaderActions.tsx`, shared by the add and edit pages) stays compact and fits the 40px `PageHeader`. The status `Select` (published, draft, scheduled, each with a colored dot) and the save button always sit together at the right end, so the select never shifts when the status changes. For published or scheduled posts the publish or scheduled `DateTimeInput` and an Auto Archive button (its archive date once enabled, opening a `Popover` with the auto-archive switch and archive date) appear to their left, and the "Unsaved changes" dot is leftmost. Choosing published fills an empty publish date with now.
+- The post editor title is a large borderless `Input` (its label is screen-reader only) with a language badge when editing a non-default language; the content label is screen-reader only too. `components/PostWritingStats.tsx` shows the word count and reading time (200 words a minute) under the editor, read from the content HTML's text. The header shows an "Unsaved changes" dot while the form is dirty, and Ctrl+S / Cmd+S saves like the save button (blocked while saving or while saving is blocked). Their strings (`words-count`, `min-read`, `unsaved-changes`, `save-shortcut`) live in `backend/gateway/src/locales/{en,mn}/content.json`.
+- The post sidebar Content tab (`posts/components/add-post-form/ContentTab.tsx`) groups fields into `SidebarSection`s: General (language, type, URL field, a 4-row short description), Organize (category, tag, and Featured as a label/switch row), then a borderless collapsible SEO section that starts with `SeoSearchPreview`, a search-result preview from the SEO title and description falling back to the post title and short description, with the CMS domain and slug as the URL line. SEO stays hidden in translation mode.
+- Post date and time fields (`posts/components/add-post-form/DateTimeInput.tsx`) use `erxes-ui` `DatePicker` with `TimeField` + `DateInput` (24-hour, `@internationalized/date` `Time`), like other plugins' schedule fields. Never use a native `<input type="time">` or `type="date"`.
+- The CMS list at `/content/cms` shows cards (`CmsWebsiteCard` in `src/modules/cms/shared/components/CmsWebsiteCard.tsx`) or a standard `RecordTable` laid out like the contacts table (`CmsWebsitesRecordTable`, table id `content_cms_websites_table`, `m-3`): a `more` menu (Manage opens the CMS side panel, Posts opens the CMS), an avatar, a name `RecordTableInlineCell.Anchor` that opens the CMS, then description, domain, languages and created columns. The list/grid view toggle sits in the page header just left of Add CMS, with no separate sub-header or result count; `Cms.tsx` passes `contentClassName` to `CmsLayout` so the table fills the page instead of scrolling inside padding. Keep the cards minimal and on theme tokens: a bordered `bg-background` item whose hover changes only the border, a neutral `bg-accent` initial mark, the name with a lock icon when restricted, the domain when set, the description, the languages (default first) and created date as muted text, and an icon-only Manage action that opens the CMS side panel. No banners, gradients, accent colors or hover motion.
 - Published CMS posts check `agentPostizTenantEnabled` before offering the Postiz sheet. Disabled or unavailable Postiz access keeps the normal CMS publish path; enabled tenants retain the sharing sheet and its CMS-only action.
 - Ordinary published CMS posts offer a shared-erxes publish sheet with CMS-only fallback and a separate social queue result. Keep a saved CMS ID and immutable request across an uncertain share response; never recreate the CMS post on a social retry. Delivery history and reviewed failed-channel retries live in `posts/postiz`. The delivery list does not poll; its Refresh status button calls `cmsPostizRefresh` and writes the result into the `cmsPostizDeliveries` cache.
 - Match existing CMS page structure: header, optional CMS sidebar, content area,

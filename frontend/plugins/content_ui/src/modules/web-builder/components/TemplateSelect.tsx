@@ -23,7 +23,7 @@ export const TemplateSelect = ({
 
   if (!type) {
     return (
-      <p className="text-sm text-muted-foreground py-2">
+      <p className="text-xs text-muted-foreground">
         {t('select-template-type-first')}
       </p>
     );
@@ -31,7 +31,7 @@ export const TemplateSelect = ({
 
   if (!templates.length) {
     return (
-      <p className="text-sm text-muted-foreground py-2">
+      <p className="text-xs text-muted-foreground">
         {t('no-templates-available')}
       </p>
     );
