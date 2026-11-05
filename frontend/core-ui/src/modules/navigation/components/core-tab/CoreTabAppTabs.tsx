@@ -46,7 +46,7 @@ const CoreTabAppTab = ({
   tabbable: boolean;
   canCloseOthers: boolean;
   canCloseToRight: boolean;
-  onClose: () => void;
+  onClose: (restoreFocus?: boolean) => void;
   onCloseOthers: () => void;
   onCloseToRight: () => void;
   onSelect: () => void;
@@ -102,11 +102,21 @@ const CoreTabAppTab = ({
           )}
           style={{ transform: CSS.Transform.toString(transform), transition }}
           onClick={onSelect}
+          onMouseDown={(event) => {
+            // Keep middle-click from taking focus before the close event.
+            if (event.button === 1) {
+              event.preventDefault();
+              return;
+            }
+            listeners?.onMouseDown?.(event);
+          }}
           onAuxClick={(event) => {
             // Middle click closes, like a browser tab.
             if (event.button === 1) {
               event.preventDefault();
-              onClose();
+              onClose(
+                active || event.currentTarget.contains(document.activeElement),
+              );
             }
           }}
           onKeyDown={(event) => {
@@ -165,7 +175,7 @@ const CoreTabAppTab = ({
         </div>
       </ContextMenu.Trigger>
       <ContextMenu.Content>
-        <ContextMenu.Item onSelect={onClose}>
+        <ContextMenu.Item onSelect={() => onClose()}>
           <IconX />
           {closeLabel}
         </ContextMenu.Item>
@@ -223,7 +233,7 @@ export const CoreTabAppTabs = ({
     }
   };
 
-  const handleClose = (index: number) => {
+  const handleClose = (index: number, restoreFocus = true) => {
     const tabElements =
       tabListRef.current?.querySelectorAll<HTMLElement>('[role="tab"]');
     const survivor = index < tabs.length - 1 ? index + 1 : index - 1;
@@ -234,6 +244,7 @@ export const CoreTabAppTabs = ({
         ?.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
 
     onClose(tabs[index].id);
+    if (!restoreFocus) return;
     // Context menus release their focus scope when the closing tab unmounts.
     requestAnimationFrame(() => focusTarget?.focus());
   };
@@ -301,7 +312,7 @@ export const CoreTabAppTabs = ({
               tabbable={tab.id === tabStopId}
               canCloseOthers={tabs.length > 1}
               canCloseToRight={index < tabs.length - 1}
-              onClose={() => handleClose(index)}
+              onClose={(restoreFocus) => handleClose(index, restoreFocus)}
               onCloseOthers={() => onCloseOthers(tab.id)}
               onCloseToRight={() => onCloseToRight(tab.id)}
               onSelect={() => onSelect(tab.id)}
