@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -211,7 +211,9 @@
 - URL query state owns selected detail ids and account table filters where existing accounting patterns use query params.
 - `settings/account/components/filters/FilterHelpers.tsx` is the single source for account filter views and bar items. Reuse them on other pages through `queryKey`, `filterKey`, and `labelKey`; `AccountsFilterTrStatus` and `FilterBarTrStatus` also take `statuses` and `labels` so other documents reuse the same multi-select.
 - Filter helpers read the cursor key from the surrounding `Filter sessionKey`, so a filter change resets the table cursor. Transaction filters pass `ACCTRANSACTIONS_CURSOR_SESSION_KEY`, the key `useTransactionsVariables` reads on both the main and record lists.
-- Rate adjustment detail subscriptions replace the loaded detail with the published calculated detail payload.
+- Inventory, fixed asset, fund rate, and debt rate adjustment detail hooks subscribe by the selected `adjustId`, resubscribe when it changes, and replace the loaded detail with the published payload; empty events keep the previous detail. The inventory adjustment detail and details-list queries use `cache-and-network`, so reopening a detail page revalidates a `running` status left in cache by a run that finished while the page was closed.
+- Creating an inventory adjustment navigates to its existing `/accounting/adjustment/inventory/detail?id=` route; there is no `/edit` route.
+- Inventory adjustment runs finish in the background; `useAdjustInventoryRunFinished` refetches the details list when a loaded adjustment leaves `running` or receives a new `checkedAt` while not running, so a missed `running` event still refreshes it; first load, publish/cancel and switching adjustments do not refetch. A failed post-run refetch shows a destructive toast with the error message. The run mutation selects only `_id` and has no `refetchQueries`, so a late mutation/refetch response can never overwrite the subscription's newer status or race the post-run details refetch.
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
