@@ -403,9 +403,11 @@ const SidePanelSavedRecord = ({
               )
                 ? () => {
                     setTab(
-                      overview.layout.tabs.includes('frontline.conversation')
-                        ? 'messages'
-                        : 'relations',
+                      tabs.find(
+                        (tab) =>
+                          tab.value === 'messages' ||
+                          tab.value === 'module:frontline.conversation',
+                      )?.value || 'relations',
                     );
                   }
                 : undefined

@@ -68,6 +68,7 @@ export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
       />
       <Can action="broadcastUpdate">
         <TeamMemberActivityLogSheet
+          memberId={user._id}
           email={user.email}
           open={activityLogOpen}
           onOpenChange={setActivityLogOpen}

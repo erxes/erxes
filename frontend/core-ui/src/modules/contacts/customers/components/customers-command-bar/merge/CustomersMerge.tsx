@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CUSTOMERS_MERGE_PANEL, MergeSheet } from './MergeSheet';
 import { useSidePanel } from 'ui-modules';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
@@ -35,7 +35,9 @@ const getCustomerMergeName = (customer?: ICustomer) => {
 export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();
-  const { dismissPath } = useSidePanel();
+  const panel = useSidePanel();
+  const currentPanel = useRef(panel);
+  currentPanel.current = panel;
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();
@@ -53,7 +55,10 @@ export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
         });
       },
       onCompleted: () => {
-        dismissPath(getModulePanelPath(CUSTOMERS_MERGE_PANEL));
+        const mergePath = getModulePanelPath(CUSTOMERS_MERGE_PANEL);
+        if (currentPanel.current.path === mergePath) {
+          currentPanel.current.dismissPath(mergePath);
+        }
         table.resetRowSelection(true);
         setSheetOpen(false);
         toast({

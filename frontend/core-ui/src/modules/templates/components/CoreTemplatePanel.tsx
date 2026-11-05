@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { TemplateForm } from 'ui-modules';
+import { useRef } from 'react';
+import { TemplateForm, useSidePanel } from 'ui-modules';
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
 
 export const CoreTemplatePanel = ({
   contentType,
@@ -14,12 +16,12 @@ export const CoreTemplatePanel = ({
   onOpenChange: (open: boolean) => void;
 }) => {
   const { t } = useTranslation('templates');
+  const panel = useSidePanel();
+  const currentPanel = useRef(panel);
+  currentPanel.current = panel;
+  const name = `templates/new/${contentType}/${contentId}`;
   return (
-    <CoreModulePanel
-      name={`templates/new/${contentType}/${contentId}`}
-      open={open}
-      onOpenChange={onOpenChange}
-    >
+    <CoreModulePanel name={name} open={open} onOpenChange={onOpenChange}>
       <CoreModulePanel.View>
         <CoreModulePanel.Header>
           <CoreModulePanel.Title>
@@ -30,7 +32,10 @@ export const CoreTemplatePanel = ({
         <TemplateForm
           contentType={contentType}
           contentId={contentId}
-          onClose={() => onOpenChange(false)}
+          onClose={() => {
+            currentPanel.current.dismissPath(getModulePanelPath(name));
+            onOpenChange(false);
+          }}
         />
       </CoreModulePanel.View>
     </CoreModulePanel>

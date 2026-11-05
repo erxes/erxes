@@ -5,10 +5,12 @@ import { Tabs, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const TeamMemberActivityLogSheet = ({
+  memberId,
   email,
   open,
   onOpenChange,
 }: {
+  memberId: string;
   email: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,7 +20,7 @@ export const TeamMemberActivityLogSheet = ({
 
   return (
     <CoreModulePanel
-      name={`settings/team-member/activity/${email}`}
+      name={`settings/team-member/activity/${memberId}`}
       open={open}
       onOpenChange={(nextOpen) => {
         if (!nextOpen) setDeliveryId(null);

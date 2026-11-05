@@ -1,10 +1,10 @@
 import { gql, useQuery } from '@apollo/client';
 import { useQueryState } from 'erxes-ui';
 import { PrimitiveAtom, useAtom } from 'jotai';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { IFieldGroup } from '@/properties/types/Properties';
 
-const CORE_PROPERTY_PANEL_GROUP = gql`
+export const CORE_PROPERTY_PANEL_GROUP = gql`
   query corePropertyPanelGroup($params: FieldGroupParams) {
     fieldGroups(params: $params) {
       list {
@@ -31,7 +31,9 @@ export const useGroupPanelSelection = (
   queryKey: string,
 ) => {
   const [selected, setSelected] = useAtom(state);
-  const [code, setCode] = useQueryState<string>(queryKey);
+  const [searchParams] = useSearchParams();
+  const code = searchParams.get(queryKey);
+  const [, setCode] = useQueryState<string>(queryKey);
   const { type: contentType } = useParams<{ type: string }>();
   const selectedMatches =
     !!selected &&

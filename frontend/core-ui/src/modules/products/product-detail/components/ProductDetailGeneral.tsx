@@ -41,7 +41,11 @@ export const ProductDetailGeneral = ({
   return (
     <InfoCard title={t('product-information')}>
       <InfoCard.Content>
-        <div className={compact ? 'grid gap-3' : 'grid grid-cols-2 gap-4'}>
+        <div
+          className={
+            compact ? 'grid grid-cols-1 gap-3' : 'grid grid-cols-2 gap-4'
+          }
+        >
           <Form.Field
             control={form.control}
             name="categoryId"
@@ -184,7 +188,7 @@ export const ProductDetailGeneral = ({
                 typeof field.value === 'string' ? field.value : '';
 
               return (
-                <div className="col-span-2 space-y-2">
+                <div className={compact ? 'space-y-2' : 'col-span-2 space-y-2'}>
                   <Label>{t('unit-of-measurements')}</Label>
                   <SelectUOMWithName
                     key={uomValue || 'empty'}
@@ -202,7 +206,7 @@ export const ProductDetailGeneral = ({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <div className="col-span-2 space-y-2">
+              <div className={compact ? 'space-y-2' : 'col-span-2 space-y-2'}>
                 <Label>{t('description')}</Label>
                 <Editor
                   key={productId || 'new-product'}
