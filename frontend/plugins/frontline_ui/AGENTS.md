@@ -51,7 +51,7 @@
   each topic collapses open to its categories (nested by parent, with article
   counts, actions behind a `...` menu) — and, per topic, the `articles`, `categories` and `kbsettings`
   routes: record tables with inline editing, filters, command bar bulk delete,
-  and the topic, category and article drawers. A topic's embed script opens as
+  and topic, category and article record panels. A topic's embed script opens as
   a dialog from its `kbsettings` page.
 - Help Center UI: the `/frontline/helpcenter` record table over client portal
   configs, its filter bar and command bar, its inline-editable name cell and its
@@ -87,6 +87,11 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Knowledge base article, category and topic creation/editing use shared record
+  panels with explicit Save, scoped in-memory drafts, independent placement
+  history and a supported Activity empty state. Save waits for media uploads;
+  failed uploads release the pending operation and keep existing media intact.
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -820,11 +825,11 @@ owns the setup form and connection actions.
 | JSON narrowing            | `src/modules/shared/utils/isRecord.ts`                                                                                                            | `isRecord` type guard for `JSON` outputs that stay untyped                                                                                      |
 | Survey inbox row          | `src/modules/survey/components/ChannelSurveyNavItem.tsx`                                                                                          | `Surveys` row inside an expanded team channel, filtering the inbox by `withSurvey`                                                              |
 | Knowledge base routes     | `src/modules/knowledgebase/Main.tsx`, `src/pages/knowledgebase/`                                                                                  | `/frontline/knowledgebase` (redirects to the first topic, or an empty state) plus `:topicId/{articles,categories,kbsettings}`                   |
-| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, record table, form sheet, row actions, bulk delete, filters, columns, feedback hooks, states, appearance fields, embed panel            |
-| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree with collapsible categories, hover row actions, route/open-state/prefetch hooks, open-topic atom, topic/category drawers             |
-| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic drawer and form fields, list/options/mutation hooks                                                           |
-| Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, drawer, command bar, mutation hooks                                                                           |
-| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, filters, drawer (scheduling, move topic), duplicate, bulk status/category, hooks                                    |
+| Knowledge base shell      | `src/modules/knowledgebase/shared/`                                                                                                               | Layout, tables, panel forms, draft state, legacy links, row actions, filters, feedback, appearance and embed components                         |
+| Knowledge base sidebar    | `src/modules/knowledgebase/sidebar/`                                                                                                              | Topic tree, category groups, row actions, routing, prefetch and topic/category record panel entry points                                        |
+| Knowledge base topics     | `src/modules/knowledgebase/topics/`                                                                                                               | Index redirect/empty state, topic panel form fields, list/options/mutation hooks                                                                |
+| Knowledge base categories | `src/modules/knowledgebase/categories/`                                                                                                           | Topic-scoped category tree table, panel form, command bar and mutation hooks                                                                    |
+| Knowledge base articles   | `src/modules/knowledgebase/articles/`                                                                                                             | Topic-scoped article table, panel form, scheduling, placement, duplication, bulk actions and hooks                                              |
 | Knowledge base data       | `src/modules/knowledgebase/{graphql,types,constants,utils}/`                                                                                      | `frontlineKb*` operations, local KB types, icons/reactions/languages, table ids, embed builder                                                  |
 | Automation widgets        | `src/widgets/automations/modules/<module>/`                                                                                                       | Per-module trigger/action/bot/history components                                                                                                |
 | Mail automation           | `src/widgets/automations/modules/mail/`                                                                                                           | Email Received trigger form with inbox checklist, shared Send Email / Draft Email Reply form                                                    |
@@ -856,11 +861,12 @@ owns the setup form and connection actions.
 - `./frontline` retains its federation path and loads the named `Frontline`
   export from `src/modules/FrontlineMain.tsx`.
 
-- `widgets.recordPanels: [{ contentType: 'frontline:ticket' }]` and the `./recordPanel` federation
-  expose (`src/widgets/record-panel/RecordPanel.tsx`) provide `frontline:ticket`
+- `CONFIG.widgets.recordPanels` registers `frontline:ticket`; the
+  `./recordPanel` federation expose (`src/widgets/record-panel/RecordPanel.tsx`)
+  provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
-  supports only `frontline:ticket`; its properties view remains available.
+  supports ticket and knowledge base records; ticket properties remain available.
   `TicketPanelDetail.tsx` renders ticket fields and attachments.
 - `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with
   `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`) provide contact
@@ -869,6 +875,17 @@ owns the setup form and connection actions.
   navigation. `createTicket` saves those associations; `AddTicketForm` evicts
   cached `getTickets` lists. Conversations use `useConversations({ customerId })`
   for customers and are absent for companies.
+
+- `CONFIG.widgets.recordPanels` also registers the knowledge base saved types
+  `frontline:knowledgebase.article`, `frontline:knowledgebase.category` and
+  `frontline:knowledgebase.topic`, plus the draft types `frontline:article`,
+  `frontline:category` and `frontline:topic`, all with `properties: false`.
+  `./recordPanel` exposes the named `RecordPanel` at
+  `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
+  `KnowledgeBaseRecordPanel` for those six types and ignores unsupported types.
+  The views are title, actions, new, Detail and Activity. Activity has an explicit
+  supported empty state because the available Frontline history API is
+  ticket-specific. `KnowledgeBaseDetailLink` consumes legacy `editId` links.
 
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
@@ -1101,12 +1118,20 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   scope. Scalar image replacement and removal invalidate older uploads for that
   field; attachment additions merge
   with the latest retained values. Discard, deletion and session cleanup invalidate
-  old callbacks. Upload lifetime bookkeeping never locks Save after a failed upload.
+  old callbacks. Knowledge base uploads use the public
+  `useErxesUpload().uploadFile` promise and settle both successful and failed
+  requests before releasing Save; oversized files are rejected before capture.
 
 - Ticket create drafts and attachment operation locks live in plugin-owned Jotai
   state, scoped by signed-in user. They survive component remounts in this
   session; ticket drafts clear on confirmed discard or successful creation
   unless newer edits remain.
+- Knowledge base panel field drafts, mounted form ownership and pending saves
+  stay in plugin-owned Jotai memory scoped by signed-in user, kind and record
+  or create placement.
+  `useKbPanelCreatePlacement` additionally retains each history entry's accepted
+  topic/category and observed public defaults source through filter navigation
+  and remounts. Authentication changes clear retained drafts, saves and placements.
 
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
@@ -2368,14 +2393,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   sidebar and breadcrumbs build their links from `KNOWLEDGE_BASE_PATH`; never
   reintroduce a `?topicId=` selection. A sidebar category links to its topic's
   `articles` route with the existing `categoryId` filter param, so the sidebar
-  and the filter bar chip always show the same selection. `editId`,
-  `createTopic`, `categoryId` and `status` stay query params, because they are
-  filter and drawer state, not routes.
+  and the filter bar chip always show the same selection. `categoryId` and
+  `status` remain filters. `createTopic=true` is consumed by the sidebar;
+  `KnowledgeBaseDetailLink` replaces legacy `editId` with a panel URL.
 - `KnowledgeBaseLayout` renders `sidebar/components/KnowledgeBaseSidebar` on
   every knowledge base page, including the index; there is no topics card grid
   or topics table. The index redirects to the first topic's `articles` route,
   carrying the query string so `?createTopic=true` from the Frontline
-  navigation still opens the sidebar's topic drawer; with no topics it shows
+  navigation still opens the topic record panel; with no topics it shows
   `TopicsEmptyState`.
 - The sidebar reads its selection from the route through
   `useKnowledgeBaseRoute` and its expanded topic from
@@ -2406,16 +2431,14 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `null` = the panel's default `w-60`) and is passed as an inline `width`;
   the panel's width transition is switched off while `kbSidebarResizingAtom`
   is set, and its collapsed `w-0!` still wins over the inline width. The panel
-  keeps its children mounted while collapsed, so the topic and category
-  drawers inside it still open from `?createTopic=true`. The `+` opens
-  the full `TopicDrawer` sheet (every topic field, including appearance), and
-  creating or editing a category from the sidebar opens the full
-  `CategoryDrawer` sheet — never a reduced create dialog for either. A topic
+  keeps its children mounted while collapsed. The `+` opens a topic draft
+  using `openNewRecord`; category creation and editing use the corresponding
+  record panel, reusing `TopicDrawer` and `CategoryDrawer` as form bodies. A topic
   row has one `...` button, shown on hover, that opens a dropdown through
   `KbSidebarRowActions` (new category, manage categories, settings — a topic
   is deleted only from its `kbsettings` danger zone). A category row has no
   dropdown: `CategoryRowActions` shows two inline icon buttons on hover or
-  focus — pencil (edit, opens `CategoryDrawer`) and trash (delete, confirms
+  focus — pencil (edit, opens the category record panel) and trash (delete, confirms
   first, turns destructive on hover) — `size-5` with `size-3.5` icons and a
   `title`. A topic row
   uses the default `Sidebar.MenuButton` size (`h-7`) with the title only — no
@@ -2462,14 +2485,76 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `FrontlineSubGroups` renders nothing for `/frontline/knowledgebase`: topics
   are navigated from the knowledge base's own sidebar panel, never from a
   second navigation column.
-- The topic, category and article sheets group their fields into `InfoCard`
-  sections inside a `ScrollArea`, the same shape the help center drawer uses —
-  a new field joins a section, it does not sit loose in the form. The topic
-  settings page uses the same sections (General and Appearance on the left,
-  Installation and Danger zone on the right). The article sheet is the wide one
-  (`sm:max-w-5xl lg:max-w-6xl xl:max-w-[92rem]`) and splits into two columns
-  from `lg`: Content on the left, Publishing and Media stacked on the right, so
-  the editor never sits at the bottom of a long scroll.
+- `TopicDrawer`, `CategoryDrawer` and `ArticleDrawer` are panel form bodies.
+  `KbFormSheet` renders a real form around the public `PanelFormLayout`; fields
+  use `KbFormSection` and `KbFormItem`, with the layout supplying scrolling and
+  Save/Cancel controls. Only an explicitly typed submit button saves: implicit
+  buttons inside selectors must not submit the containing form. Single-line
+  `KbTextField` inputs prevent implicit Enter submission before the browser can activate an
+  untyped chip removal button. Textarea newlines, IME composition and combobox
+  interactions remain available; the explicit Save button submits normally.
+  Submissions with no submitter or an untyped selector button are ignored.
+- Dirty values and their original defaults live in plugin Jotai draft atoms
+  keyed by authenticated user, record kind and record ID, or create placement
+  (topic/category for articles, topic for categories), through
+  `useKbPanelFormDraft` over the shared `usePanelFormDraft`. These atoms live in
+  memory and do not survive a page reload. Each Jotai store installs one public
+  `currentUserState` subscription for its lifetime; a user change or logout clears
+  all knowledge base drafts and save state even while editors are unmounted.
+  Activity/record switches preserve them, background
+  refetches cannot reset dirty input, and explicit Cancel clears them.
+  Successful Save acknowledges the submitted baseline. Save admission and its
+  button remain blocked while captured uploads are pending; Cancel can discard
+  an upload draft without accepting later callbacks.
+  A background update deferred while dirty is applied when all edits are undone;
+  a successful save clears that pending update before advancing the baseline.
+  Restore and watch callbacks check the current record key before reading or
+  writing a form session, including when a session has not initialized yet.
+  Create placements are also retained per authenticated user and browser entry
+  by `useKbPanelCreatePlacement`, independently of the host's latest draft slot.
+  Query/filter navigation carries the accepted placement and observed host
+  draft source into its new browser entry, including panel remounts; only fresh
+  Create defaults select a different placement.
+  Back/Forward restores the accepted topic/category even after another content
+  type or placement opens Create; a fresh explicit request takes precedence on
+  its active entry; navigation or unmount cancels queued microtask placement acceptance.
+  User changes clear these placements and reject stale host
+  defaults. Create placements keep separate drafts, so switching placement does not
+  replace unfinished input. The shared helper requires `useConfirm` before
+  replacing dirty defaults within one scope; dismissal keeps current values.
+  A save finishing after navigation cannot close another form.
+  Pending saves are shared across reopening in the same scope. A create returns
+  its identifier; while that form remains open, newer edits update the confirmed
+  record and the button changes to Save Changes. Undo retains its confirmed
+  values. Closing a completed create moves remaining edits and upload operations
+  to that saved record's draft and removes the create identity. New always starts
+  a separate record; late completions cannot write into its draft.
+  Logout and deletion invalidate pending save
+  acknowledgements. Delete actions become busy only after affirmative confirmation;
+  `useConfirm` deliberately leaves its promise unresolved on dismissal.
+  Article, category and topic deletions use `useKbCloseRemovedRecord` to check
+  the latest panel record on confirmed removal, before cache eviction can
+  unmount the initiating row; already unmounted initiators cannot navigate.
+  Removal clears the record's draft and associated category/topic placement drafts.
+  A retained create-context draft is associated through its saved `createdId`:
+  deletion clears that key before removing its save mapping. Per-key revisions
+  invalidate mounted editors, clear/suspend their form draft and close the active
+  form through its normal callback; later writes cannot recreate the deleted draft.
+  Article panels reuse the article they loaded instead of querying it twice.
+  Article media and the topic background image use `KbImageUpload`, composed
+  from the public `Dropzone` and `useErxesUpload().uploadFile` API. A valid file
+  captures its draft writer before storage starts. Network and server failures
+  settle that writer without changing the field. Upload controls are disabled
+  during a mutation, and Save waits for every captured upload.
+  Completion merges into the latest draft, including after Details unmounts for
+  Activity or another record, and consumes its operation once. Explicit Cancel,
+  deletion and authentication changes invalidate old completions. Image/PDF
+  replacements, including the topic `backgroundImage`, are scoped by field:
+  a newer selection or Remove invalidates an
+  older pending completion even after remount; separate attachment uploads merge.
+  Rejected and oversized files display an error and leave retry and Cancel
+  available. Closing a completed create forwards its remaining upload callbacks
+  only to the saved record's retained operation; a fresh New draft stays isolated.
 - `TopicColorField`'s label comes from `kb-color-required`, which already ends
   in `*`; never add a second asterisk around it (the help center appearance tab
   renders the same component).
@@ -2500,8 +2585,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   through `utils/withoutEmptyCode`, which drops a blank code; a new write path
   must do the same.
 - `KnowledgeBaseCategory` has **no** `topicId` field — selecting one makes the
-  whole query fail with a 400. A category's topic comes from the route
-  (`useParams().topicId`), and that is what an edit sends back in the doc.
+  whole query fail with a 400. The detail query exposes `firstTopic._id`,
+  which category panels use for ownership; routed lists use their route topic.
 - Knowledge base GraphQL operation names are prefixed `frontlineKb*`
   (`frontlineKbTopics`, `frontlineKbArticleDetail`, `frontlineKbCategoryEdit`, …)
   even though the fields they select are the shared `knowledgeBase*` ones —
@@ -2511,13 +2596,33 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   required `content`, so an inline cell edit must re-read the article detail
   first (`useEditArticleField` does) and never send a doc built from the list
   row alone — that would blank the article body.
+  `ArticleDrawer` passes RHF dirty metadata to `useSaveArticle`: edit saves
+  re-read required title/content/status (and scheduledDate when scheduled),
+  replace only dirty fields and omit untouched optional fields. Nested dirty
+  flags must contain a true leaf; metadata is snapshotted with submitted values
+  before awaiting fresh data so later input belongs to the next save.
+  Changed media objects/arrays are complete
+  replacements; cleared image/PDF/date values are explicit nulls. Create retains
+  the complete validated payload.
+  Category and topic panel saves likewise snapshot dirty metadata before async
+  work: category edits reread required title/icon and topic edits reread required
+  title, while untouched optional fields and placement are omitted. Explicit
+  description, parent and appearance clears remain part of the edited payload.
+  The settings route's existing full-document contract stays separate.
+- Article content and publishing sections accept only form/translation props;
+  upload
+  capture and invalidation callbacks belong to the media section and its
+  composer. Category form sections
+  are composed through `CategoryFormFields` to keep the drawer JSX shallow;
+  attachment list keys use their upload URL, matching existing frontline
+  attachment surfaces.
 - The backend paginates topics, categories and articles with `page`/`perPage`;
   there is no cursor query for them. Knowledge base tables therefore use
   `RecordTable.Scroll` with the `*_PER_PAGE` constants, not
   `RecordTable.CursorProvider`.
 - A topic's three sections are switched only by the `ToggleGroup` tabs that
   `KnowledgeBaseLayout` renders after the topic in the header breadcrumb (the
-  contacts header pattern); there is no knowledge base sidebar. Add a new
+  contacts header pattern), alongside the topic/category sidebar. Add a new
   section to `SECTIONS` there and to `TKnowledgeBaseSection`, never as a
   second navigation surface.
 - A parent category's article count is its own plus every descendant's
@@ -2535,8 +2640,8 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   `scheduledDate` so an inline edit of a scheduled article passes the backend's
   date check.
 - `C` is wired through `shared/hooks/useKbCreateHotkey`, which sets the page
-  scope (`TopicsPage`, `ArticlesPage`, `CategoriesPage`) and switches to
-  `KnowledgeBaseHotKeyScope.FormSheet` while a drawer is open. The erxes
+  scope (`ArticlesPage`, `CategoriesPage`) and switches to
+  `KnowledgeBaseHotKeyScope.FormSheet` while a record panel is open. The erxes
   hotkeys fire inside content-editable elements by default, so a page must
   never keep its page scope while the article editor is open. A header button
   that shows `<Kbd>C</Kbd>` must have this hook on its page.
@@ -2549,13 +2654,11 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
 - `useDuplicateArticle` copies an article as a `draft` titled
   `<title> (copy)`, rebuilding every attachment through `toAttachmentInput` —
   query results carry `__typename`, which `AttachmentInput` rejects.
-- Articles load `ARTICLES_PER_PAGE` at a time. `useArticles` exposes
-  `hasMore` / `handleFetchMore` (next `page`, de-duplicated by `_id`), and
-  `KbRecordTable` renders an in-view skeleton row that loads the next page.
-  A refetch after a write resets the list to the first page.
-- `Articles` opens the create drawer once when the URL carries
-  `createArticle=true` (with `categoryId` preselecting the category), then
-  clears the param; the category row action links there.
+- Articles load one `ARTICLES_PER_PAGE` page. The Create button, `C` shortcut
+  and category actions open `frontline:article` drafts with topic/category
+  defaults through `openNewRecord`.
+  `Articles` keeps `onCreate` stable with a latest-handler ref and `useCallback`,
+  so shared panel state changes do not invalidate the memoized record table.
 - The articles table reads left to right as identity, placement, state, reach,
   freshness, author, then summary: `title`, `categoryId`, `status`,
   `viewCount` (right-aligned, locale-formatted, muted at zero),
@@ -2904,6 +3007,21 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open or play, external media stays covered until revealed, and no upload or
   removal control appears. Repeat while permission queries load or fail, then
   confirm an assigned user can edit a private pipeline when its status allows.
+- Knowledge base panel smoke: open article/category/topic drafts, edit fields,
+  visit Activity or another record, then return and confirm edits remain.
+  Switch create placement, use Back/Forward, change a background filter and
+  repeat with panel remounts; the original topic/category and field draft must
+  return. While a create is pending, reopening must keep Save guarded; after
+  confirmation, newer edits must update the confirmed ID. Undo those edits and
+  confirm the saved values stay visible. Close a completed create and use New;
+  it must create a separate record. Try oversized files, network upload failure
+  and retry, and Save during a slow upload, including after Activity/remount.
+  Discard only the selected placement. Change users and verify old defaults and
+  drafts do not return. Enter in a single-line field must neither remove a reaction chip nor
+  save; textarea, IME and selector Enter must keep their normal behavior.
+  Edit title while another view changes status/summary and confirm saving does
+  not revert those changes; clearing media or leaving scheduled status must
+  persist the explicit clear. Verify the supported Activity empty state.
 
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its
@@ -2934,9 +3052,9 @@ null }`, fall back to the route pipeline and skip without one; never pass
   `groupCategoriesByParent` and `withoutEmptyCode` specs.
 - `pnpm nx lint frontline_ui` from the repository root; distinguish existing
   baseline lint failures from regressions in touched files.
-- `npx tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json` - no
-  errors under `frontend/plugins/frontline_ui`; errors reported inside
-  `frontend/libs` are pre-existing and owned by those libraries.
+- `pnpm exec tsc --noEmit -p frontend/plugins/frontline_ui/tsconfig.app.json`
+  and the corresponding `tsconfig.spec.json` check; compare diagnostics against
+  the base with the same dependency resolution before attributing failures.
 - `project.json` defines `build`, `serve`, `serve-static`, `test`, `codegen`
   and `codegen:watch`.
 - Smoke: Pipeline → Ticket statuses → Create automation with two statuses
@@ -3052,43 +3170,3 @@ null }`, fall back to the route pipeline and skip without one; never pass
   open a Call Pro conversation — the recording plays, and a conversation with
   several candidates shows the picker until a customer is chosen, after which
   the picker is replaced by the confirm/switch control without a reload.
-
-## Recent Changes
-
-<!-- Newest first. Keep at most 10 entries. -->
-
-### `2026-10-16` — Knowledge scope tree and ticket media
-
-- **Summary:** Topic/category scope for the AI knowledge base source, attachments on the Create ticket action, audio and non-MIME ticket attachments, and covered customer media.
-- **Affected areas:** `widgets/automations/modules/{knowledgebase,ticket}`, `ticket/components/attachments`, `activity/components/NoteInputReadOnly.tsx`.
-- **Contracts changed:** New GraphQL operation `frontlineAiKnowledgeTopics`; knowledge source config keys `topicIds`, `categoryIds`, `articleIds`.
-
-### `2026-10-06` — Telegram metadata promise handling
-
-- **Summary:** Handles chat-label loader promises explicitly while preserving failure fallbacks and later recovery.
-- **Affected areas:** `useTelegramChats.ts` and chat-label regression tests.
-- **Contracts changed:** None.
-
-### `2026-10-06` — Telegram setup recovery and attachment guards
-
-- **Summary:** Recovers setup after interrupted responses, validates cumulative attachment sizes and tightens Telegram rendering hygiene.
-- **Affected areas:** Telegram setup/media presentation, inbox attachment hook, documentation and regression tests.
-- **Contracts changed:** None; uses existing bot queries, upload callbacks and inbox contracts.
-
-### `2026-10-06` — Telegram review fixes
-
-- **Summary:** Keeps disconnect usable with revoked tokens, explains unconfirmed webhook cleanup and avoids repeated URL suffix scans.
-- **Affected areas:** Telegram setup, translations, link rendering, webhook URL helper and regression tests.
-- **Contracts changed:** Consumes `telegramDisconnectBot` Boolean as provider-cleanup confirmation after local deactivation.
-
-### `2026-10-06` — Telegram config entry and automatic setup defaults
-
-- **Summary:** Adds Telegram guidance to Integrations config and derives production webhook addresses and connection names while retaining local/custom overrides.
-- **Affected areas:** `src/pages/IntegrationConfigPage.tsx`, Telegram setup/config components, webhook URL helper/tests and plugin-owned translations.
-- **Contracts changed:** None; existing routes and per-bot setup are reused.
-
-### `2026-10-06` — Telegram on the native composer and message components
-
-- **Summary:** Integrates Telegram setup and message presentation using the current inbox composer, replies and attachment renderer.
-- **Affected areas:** `src/modules/integrations/telegram`, inbox provider metadata, composer hooks, message actions and integration menus.
-- # **Contracts changed:** Adds the Telegram integration kind and optional message metadata; consumes the existing canonical reply mutation with Telegram provider IDs.

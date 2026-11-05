@@ -1,3 +1,7 @@
+import {
+  KB_DRAFT_CONTENT_TYPES,
+  KB_RECORD_CONTENT_TYPES,
+} from '@/knowledgebase/constants';
 import { AddTicketForm } from '@/ticket/components/add-ticket/AddTicketForm';
 import { ActivityList } from '@/activity/components/ActivityList';
 import { isRecord } from '@/shared/utils/isRecord';
@@ -15,9 +19,20 @@ import {
   currentUserState,
 } from 'ui-modules';
 import { useAtomValue } from 'jotai';
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { ticketRemovedIdsState } from '@/ticket/states/removedTicketsState';
 import { TicketPanelDetail } from './TicketPanelDetail';
+
+const KNOWLEDGE_BASE_CONTENT_TYPES = new Set<string>([
+  ...Object.values(KB_RECORD_CONTENT_TYPES),
+  ...Object.values(KB_DRAFT_CONTENT_TYPES),
+]);
+
+const KnowledgeBaseRecordPanel = lazy(() =>
+  import('./KnowledgeBaseRecordPanel').then((module) => ({
+    default: module.KnowledgeBaseRecordPanel,
+  })),
+);
 
 const TicketPanelEmptyState = ({ message }: { message?: string }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -116,6 +131,13 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
+  if (KNOWLEDGE_BASE_CONTENT_TYPES.has(props.contentType)) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <KnowledgeBaseRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.contentType !== TICKET_PROPERTY_CONTENT_TYPE) return null;
   return props.view === 'new' ? <AddTicketForm /> : <TicketPanel {...props} />;
 };
