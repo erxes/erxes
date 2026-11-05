@@ -188,7 +188,7 @@ export type IUIConfig = {
         value: string;
         label: string;
         icon?: Icon;
-        after?: 'detail' | 'properties' | 'relations' | 'activity';
+        after?: 'detail' | 'properties' | 'activity';
       }[];
     }[];
     // Sections a plugin adds to a customer's or company's overview (its
