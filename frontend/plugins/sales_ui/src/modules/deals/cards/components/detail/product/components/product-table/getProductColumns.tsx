@@ -18,7 +18,11 @@ import {
 import { TFunction } from 'i18next';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectBranches, SelectDepartments } from 'ui-modules';
+import {
+  SelectBranches,
+  SelectDepartments,
+  usePermissionCheck,
+} from 'ui-modules';
 
 import { SelectAssigneeDeal } from '@/deals/components/deal-selects/SelectAssigneeDeal';
 import { ColumnDef } from '@tanstack/table-core';
@@ -54,6 +58,13 @@ export const ProductNumberField = ({
   children?: React.ReactNode;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+
+  if (field === 'unitPrice' && !canEdit) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
 
   return (
     <NumberField
@@ -111,6 +122,13 @@ const ProductUomInfoNumberField = ({
   const { t } = useTranslation('sales');
   const info = getProductUomInfo(product);
   const value = info[field];
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+
+  if (field === 'unitPrice' && !canEdit) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
 
   return (
     <NumberField
@@ -219,6 +237,13 @@ export const ProductDiscountNumberField = ({
       setIsOpen(false);
     }
   };
+
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+
+  if (!canEdit) {
+    return <TextOverflowTooltip value={formatAmount(value)} />;
+  }
 
   return (
     <PopoverScoped

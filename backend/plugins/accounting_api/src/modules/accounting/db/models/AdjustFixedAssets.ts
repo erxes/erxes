@@ -32,7 +32,11 @@ export interface IAdjustFxaDetailModel extends Model<IAdjustFxaDetailDocument> {
   }): Promise<void>;
 }
 
-export const loadAdjustFixedAssetClass = (models: IModels) => {
+export const loadAdjustFixedAssetClass = (
+  models: IModels,
+  subdomain: string,
+) => {
+  // skipcq: JS-0327
   class AdjustFixedAsset {
     public static async getAdjustFixedAsset(_id: string) {
       const adjusting = await models.AdjustFixedAssets.findOne({ _id }).lean();
@@ -44,7 +48,7 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
       return adjusting;
     }
 
-    public static async createAdjustFixedAsset(doc: IAdjustFixedAsset) {
+    public static createAdjustFixedAsset(doc: IAdjustFixedAsset) {
       return models.AdjustFixedAssets.create({
         ...doc,
         status: ADJ_FXA_STATUSES.DRAFT,
@@ -76,9 +80,12 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
 
       const adjust = await models.AdjustFixedAssets.getAdjustFixedAsset(_id);
 
-      graphqlPubsub.publish(`accountingAdjustFixedAssetChanged:${_id}`, {
-        accountingAdjustFixedAssetChanged: adjust,
-      });
+      graphqlPubsub.publish(
+        `accountingAdjustFixedAssetChanged:${subdomain}:${_id}`,
+        {
+          accountingAdjustFixedAssetChanged: adjust,
+        },
+      );
 
       return adjust;
     }
@@ -107,6 +114,7 @@ export const loadAdjustFixedAssetClass = (models: IModels) => {
 };
 
 export const loadAdjustFxaDetailClass = (models: IModels) => {
+  // skipcq: JS-0327
   class AdjustFxaDetail {
     public static async replaceAdjustFxaDetails({
       adjustId,

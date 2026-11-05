@@ -274,7 +274,6 @@ const processItemWithPlan = (
   plan: any,
   totalAmount: number,
   defaultValue: number,
-  result: Record<string, { type: string; value: number; bonusProducts: any[] }>,
 ): {
   type: string;
   value: number;
@@ -410,6 +409,7 @@ const typedParticipantContext = ({
 
 // Main function with reduced complexity
 export const checkPricing = async (params: {
+  date?: Date;
   models: IModels;
   subdomain: string;
   prioritizeRule: string;
@@ -424,6 +424,7 @@ export const checkPricing = async (params: {
   brokerId?: string;
 }) => {
   const {
+    date = new Date(),
     models,
     subdomain,
     prioritizeRule,
@@ -456,7 +457,12 @@ export const checkPricing = async (params: {
   });
 
   // Prepare query conditions
-  const conditions = getMainConditions({ branchId, departmentId, pipelineId });
+  const conditions = getMainConditions({
+    branchId,
+    departmentId,
+    pipelineId,
+    date,
+  });
   applyPriorityConditions(
     conditions,
     prioritizeRule,
@@ -522,7 +528,7 @@ export const checkPricing = async (params: {
       productIds || [],
     );
 
-    if (!checkRepeatRule(plan)) {
+    if (!checkRepeatRule(plan, date)) {
       continue;
     }
 
@@ -592,7 +598,6 @@ export const checkPricing = async (params: {
           plan,
           totalAmount,
           defaultValue,
-          result,
         ));
 
         if (shouldApply && conditionRule) {

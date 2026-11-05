@@ -26,10 +26,14 @@ export const invoiceSchema = schemaWrapper(
     apiResponse: { type: Schema.Types.Mixed },
     callback: { type: String },
     warningText: { type: String },
+    // set together with the paid status; cleared once paid notifications
+    // are queued. The pending-invoice cron retries invoices still flagged.
+    notifyPending: { type: Boolean },
   }),
 );
 
 invoiceSchema.index({ invoiceNumber: 1 });
+invoiceSchema.index({ notifyPending: 1 }, { sparse: true });
 invoiceSchema.index({
   contentType: 1,
   contentTypeId: 1,

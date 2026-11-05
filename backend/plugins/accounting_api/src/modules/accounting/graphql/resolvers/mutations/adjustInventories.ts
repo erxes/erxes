@@ -1,24 +1,40 @@
-import { graphqlPubsub } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { IAdjustInventory, ADJ_INV_STATUSES } from '@/accounting/@types/adjustInventory';
-import { detailsClear, adjustRunning, checkValidDate, modifierWrapper } from '../../../utils/inventories';
+import {
+  IAdjustInventory,
+  ADJ_INV_STATUSES,
+} from '@/accounting/@types/adjustInventory';
+import {
+  detailsClear,
+  adjustRunning,
+  checkValidDate,
+  modifierWrapper,
+} from '../../../utils/inventories';
 
 const adjustInventoryMutations = {
   async adjustInventoryAdd(
     _root,
     doc: IAdjustInventory,
-    { user, models, checkPermission }: IContext
+    { user, models, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustInventories');
     const { beginDate } = await checkValidDate(models, doc);
 
-    const adjusting = await models.AdjustInventories.createAdjustInventory({ ...doc, beginDate, createdBy: user._id });
+    const adjusting = await models.AdjustInventories.createAdjustInventory({
+      ...doc,
+      beginDate,
+      createdBy: user._id,
+    });
     return adjusting;
   },
 
-  async adjustInventoryPublish(_root, { adjustId }: { adjustId: string }, { models, user, checkPermission }: IContext) {
+  async adjustInventoryPublish(
+    _root,
+    { adjustId }: { adjustId: string },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
     await checkPermission('publishAdjustInventories');
-    const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
+    const adjusting =
+      await models.AdjustInventories.getAdjustInventory(adjustId);
     if (adjusting.status === ADJ_INV_STATUSES.PUBLISH) {
       throw new Error('this adjusting is published');
     }
@@ -30,80 +46,121 @@ const adjustInventoryMutations = {
       date: { $gte: adjusting.beginDate, $lte: adjusting.successDate },
       'details.productId': { $exists: true, $ne: '' },
       $or: [
-        { updatedAt: { $exists: false }, createdAt: { $gte: adjusting.checkedAt } },
+        {
+          updatedAt: { $exists: false },
+          createdAt: { $gte: adjusting.checkedAt },
+        },
         { updatedAt: { $gte: adjusting.checkedAt } },
-      ]
-    }).lean()
+      ],
+    }).lean();
 
     if (betweenModifiedTr) {
-      await modifierWrapper(models, adjusting, { status: ADJ_INV_STATUSES.PROCESS, modifiedBy: '' });
-      throw new Error('This adjusting cannot be published yet. Cause: modified some transactions');
+      await modifierWrapper(subdomain, models, adjusting, {
+        status: ADJ_INV_STATUSES.PROCESS,
+        modifiedBy: '',
+      });
+      throw new Error(
+        'This adjusting cannot be published yet. Cause: modified some transactions',
+      );
     }
 
-    await modifierWrapper(models, adjusting, { status: ADJ_INV_STATUSES.PUBLISH, modifiedBy: user._id });
+    await modifierWrapper(subdomain, models, adjusting, {
+      status: ADJ_INV_STATUSES.PUBLISH,
+      modifiedBy: user._id,
+    });
 
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   },
 
-  async adjustInventoryCancel(_root, { adjustId }: { adjustId: string }, { models, user, checkPermission }: IContext) {
+  async adjustInventoryCancel(
+    _root,
+    { adjustId }: { adjustId: string },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
     await checkPermission('cancelAdjustInventories');
-    const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
+    const adjusting =
+      await models.AdjustInventories.getAdjustInventory(adjustId);
     if (adjusting.status !== ADJ_INV_STATUSES.PUBLISH) {
-      throw new Error('this adjusting cannot be cancel yet, it has not been published.');
+      throw new Error(
+        'this adjusting cannot be cancel yet, it has not been published.',
+      );
     }
 
-    await modifierWrapper(models, adjusting, { status: ADJ_INV_STATUSES.DRAFT, modifiedBy: user._id });
+    await modifierWrapper(subdomain, models, adjusting, {
+      status: ADJ_INV_STATUSES.DRAFT,
+      modifiedBy: user._id,
+    });
     return await models.AdjustInventories.getAdjustInventory(adjustId);
   },
 
-  async adjustInventoryRemove(_root, { adjustId }: { adjustId: string }, { models, checkPermission }: IContext) {
+  async adjustInventoryRemove(
+    _root,
+    { adjustId }: { adjustId: string },
+    { models, checkPermission }: IContext,
+  ) {
     await checkPermission('removeAdjustInventories');
     return await models.AdjustInventories.removeAdjustInventory(adjustId);
   },
 
-  async adjustInventoryClear(_root, { adjustId, date }: { adjustId: string, date?: Date }, { models, user, checkPermission }: IContext) {
+  async adjustInventoryClear(
+    _root,
+    { adjustId, date }: { adjustId: string; date?: Date },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
     await checkPermission('clearAdjustInventories');
-    const adjusting = await models.AdjustInventories.getAdjustInventory(adjustId);
-    if (![ADJ_INV_STATUSES.DRAFT, ADJ_INV_STATUSES.PROCESS, ADJ_INV_STATUSES.COMPLETE].includes(adjusting.status)) {
-      throw new Error('this adjusting cannot be clear yet, it has not been published or running.');
+    const adjusting =
+      await models.AdjustInventories.getAdjustInventory(adjustId);
+    if (
+      ![
+        ADJ_INV_STATUSES.DRAFT,
+        ADJ_INV_STATUSES.PROCESS,
+        ADJ_INV_STATUSES.COMPLETE,
+      ].includes(adjusting.status)
+    ) {
+      throw new Error(
+        'this adjusting cannot be clear yet, it has not been published or running.',
+      );
     }
-    return await detailsClear(models, user, adjusting, date);
+    return await detailsClear(subdomain, models, user, adjusting, date);
   },
 
-  async adjustInventoryRun(_root, { adjustId }: { adjustId: string }, { models, user, subdomain, checkPermission }: IContext) {
+  async adjustInventoryRun(
+    _root,
+    { adjustId }: { adjustId: string },
+    { models, user, subdomain, checkPermission }: IContext,
+  ) {
     await checkPermission('manageAdjustInventories');
-    const adjustInventory = await models.AdjustInventories.getAdjustInventory(adjustId);
+    const adjustInventory =
+      await models.AdjustInventories.getAdjustInventory(adjustId);
 
-    if ([ADJ_INV_STATUSES.RUNNING, ADJ_INV_STATUSES.PUBLISH].includes(adjustInventory.status)) {
-      throw new Error('this adjusting cannot be run yet, it has not been published or running.');
+    if (
+      [ADJ_INV_STATUSES.RUNNING, ADJ_INV_STATUSES.PUBLISH].includes(
+        adjustInventory.status,
+      )
+    ) {
+      throw new Error(
+        'this adjusting cannot be run yet, it has not been published or running.',
+      );
     }
 
-    const { beginDate, beforeAdjInv } = await checkValidDate(models, adjustInventory);
+    const { beginDate } = await checkValidDate(models, adjustInventory);
 
-    await models.AdjustInventories.updateOne(
-      { _id: adjustId },
-      {
-        $set: {
-          status: ADJ_INV_STATUSES.RUNNING,
-          modifiedBy: user._id,
-          error: '',
-          warning: '',
-        },
-      },
-    );
-
-    graphqlPubsub.publish(`accountingAdjustInventoryChanged:${adjustId}`, {
-      accountingAdjustInventoryChanged: {
-        ...adjustInventory,
-        status: ADJ_INV_STATUSES.RUNNING,
-        modifiedBy: user._id
-      },
+    await modifierWrapper(subdomain, models, adjustInventory, {
+      status: ADJ_INV_STATUSES.RUNNING,
+      modifiedBy: user._id,
+      error: '',
+      warning: '',
     });
 
-    adjustRunning(subdomain, models, user, { adjustInventory, beginDate, beforeAdjInv });
+    adjustRunning(subdomain, models, user, {
+      adjustInventory,
+      beginDate,
+    }).catch((error) => {
+      console.error('Failed to run inventory adjustment', error);
+    });
 
     return await models.AdjustInventories.getAdjustInventory(adjustId);
-  }
+  },
 };
 
 export default adjustInventoryMutations;

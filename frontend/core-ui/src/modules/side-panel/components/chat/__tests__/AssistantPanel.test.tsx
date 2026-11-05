@@ -32,14 +32,16 @@ jest.mock('ui-modules', () => {
       width: number;
       maxWidth: number;
       className?: string;
-      onWidthChange: (width: number) => void;
+      onWidthChange?: (width: number) => void;
     }>) => (
       <aside
         data-testid="panel"
         style={{ width: Math.min(width, maxWidth) }}
         className={`flex-none ${className ?? ''}`}
       >
-        <button onClick={() => onWidthChange(1000)}>Resize panel</button>
+        {onWidthChange && (
+          <button onClick={() => onWidthChange(1000)}>Resize panel</button>
+        )}
         {children}
       </aside>
     ),
@@ -58,21 +60,30 @@ jest.mock('../SidePanelChat', () => {
     SidePanelChat: ({
       active,
       onClose,
+      mode,
+      onModeChange,
     }: {
       active: boolean;
       onClose: () => void;
+      mode: 'lens' | 'companion';
+      onModeChange: (mode: 'lens' | 'companion') => void;
     }) => {
       const [draft, setDraft] = useState('');
       useEffect(() => {
         mockMounts += 1;
       }, []);
       return (
-        <div data-testid="chat" data-active={String(active)}>
+        <div data-testid="chat" data-active={String(active)} data-mode={mode}>
           <input
             aria-label="Draft"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
           />
+          <button
+            onClick={() => onModeChange(mode === 'lens' ? 'companion' : 'lens')}
+          >
+            {mode === 'lens' ? 'Pin to side panel' : 'Unpin and float'}
+          </button>
           <button onClick={onClose}>Close assistant</button>
         </div>
       );
@@ -81,6 +92,7 @@ jest.mock('../SidePanelChat', () => {
 });
 
 beforeEach(() => {
+  localStorage.clear();
   window.innerWidth = 1600;
   mockPath = null;
   mockAllowed = true;
@@ -88,7 +100,7 @@ beforeEach(() => {
   mockClose.mockClear();
 });
 
-it('loads only on first open, occupies a normal layout column, and keeps the same chat and draft while hidden', async () => {
+it('opens as Lens, switches to Companion without remounting, and preserves the draft while hidden', async () => {
   const store = createStore();
   const { rerender } = render(
     <Provider store={store}>
@@ -103,11 +115,18 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
     </Provider>,
   );
   await screen.findByTestId('chat');
-  expect(screen.getByTestId('panel').className).toContain('flex-none');
-  expect(screen.getByTestId('panel').style.width).toBe('400px');
+  expect(screen.getByTestId('chat').getAttribute('data-mode')).toBe('lens');
+  expect(screen.getByTestId('panel').style.width).toBe('440px');
+  expect(screen.queryByRole('button', { name: 'Resize panel' })).toBeNull();
   fireEvent.change(screen.getByRole('textbox'), {
     target: { value: 'Keep this draft' },
   });
+  fireEvent.click(screen.getByRole('button', { name: 'Pin to side panel' }));
+  expect(screen.getByTestId('chat').getAttribute('data-mode')).toBe(
+    'companion',
+  );
+  expect(screen.getByTestId('panel').style.width).toBe('400px');
+  expect(localStorage.getItem('agent:panel-mode')).toBe('"companion"');
   fireEvent.click(screen.getByRole('button', { name: 'Resize panel' }));
   expect(screen.getByTestId('panel').style.width).toBe('1000px');
   mockPath = null;
@@ -132,9 +151,6 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
   expect(
     screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
   ).toBe('true');
-  expect(screen.getByTestId('panel').parentElement?.hasAttribute('inert')).toBe(
-    true,
-  );
   mockPath = '/chat';
   rerender(
     <Provider store={store}>
@@ -152,11 +168,19 @@ it('loads only on first open, occupies a normal layout column, and keeps the sam
   );
   expect(mockMounts).toBe(1);
   expect(screen.getByTestId('panel').style.width).toBe('1000px');
+  fireEvent.click(screen.getByRole('button', { name: 'Unpin and float' }));
+  expect(screen.getByTestId('chat').getAttribute('data-mode')).toBe('lens');
+  expect(screen.getByTestId('panel').style.width).toBe('440px');
+  expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(
+    'Keep this draft',
+  );
+  expect(mockMounts).toBe(1);
   fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }));
   expect(mockClose).toHaveBeenCalledTimes(1);
 });
 
-it('reserves space for the page on smaller windows and restores the preferred width', async () => {
+it('reserves space for the page in Companion and restores the preferred width', async () => {
+  localStorage.setItem('agent:panel-mode', '"companion"');
   mockPath = '/chat';
   render(<AssistantPanel />);
   await screen.findByTestId('chat');

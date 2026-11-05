@@ -10,6 +10,9 @@ export const GET_PIPELINE_DETAIL = gql(`
       hackScoringType
       tagId
       initialCategoryIds
+      productIds
+      tagIds
+      excludeTagIds
       excludeCategoryIds
       excludeProductIds
       paymentIds

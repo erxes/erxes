@@ -144,7 +144,7 @@ export interface IModels {
 export interface IContext extends IMainContext {
   subdomain: string;
   models: IModels;
-  commonQuerySelector: any;
+  commonQuerySelector: Record<string, unknown>;
 }
 
 export const loadClasses = (
@@ -223,7 +223,7 @@ export const loadClasses = (
   models.AdjustFixedAssets = db.model<
     IAdjustFixedAssetDocument,
     IAdjustFixedAssetModel
-  >('adjust_fixed_assets', loadAdjustFixedAssetClass(models));
+  >('adjust_fixed_assets', loadAdjustFixedAssetClass(models, subdomain));
 
   models.AdjustFxaDetails = db.model<
     IAdjustFxaDetailDocument,
