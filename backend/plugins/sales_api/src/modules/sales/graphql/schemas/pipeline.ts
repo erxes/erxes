@@ -33,6 +33,9 @@ export const types = `
     numberSize: String
     nameConfig: String
     initialCategoryIds: [String]
+    productIds: [String]
+    tagIds: [String]
+    excludeTagIds: [String]
     excludeCategoryIds: [String]
     excludeProductIds: [String]
     paymentIds: [String]
@@ -96,6 +99,9 @@ const mutationParams = `
   departmentIds: [String],
   branchIds: [String],
   initialCategoryIds: [String]
+  productIds: [String]
+  tagIds: [String]
+  excludeTagIds: [String]
   excludeCategoryIds: [String]
   excludeProductIds: [String]
   paymentIds: [String]

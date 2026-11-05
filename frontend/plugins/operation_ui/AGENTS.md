@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-10-29`
+- **Last synchronized:** `2026-11-04`
 
 ## Scope
 
@@ -52,24 +52,24 @@
 
 ## Architecture
 
-| Area                    | Path                                                                                     | Responsibility                                                                                                               |
-| ----------------------- | ---------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/operation_ui/src/Sidebar.tsx` | `OperationSidebar` (app sidebar) and `OperationSidebarFooter` (Settings link), rendered by the `./operation` entry through `AppLayout` |
-| Runtime                 | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                                              |
-| Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                              |
-| Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                |
-| Plugin config           | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                                               |
-| Navigation              | `frontend/plugins/operation_ui/src/modules/navigation`                                   | `MainNavigation` (`navigationGroup.content`) and the active-team `TeamsNavigation` (`navigationGroup.subGroup`).             |
-| Property side panel     | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state.                  |
-| Description editor      | `frontend/plugins/operation_ui/src/modules/operation/hooks/useDescriptionEditor.ts`      | Loads BlockNote JSON or imports Markdown for task and triage details.                                                        |
-| Operation modules       | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                                             |
-| Activity timeline       | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                                             |
-| GitHub triage detection | `frontend/plugins/operation_ui/src/modules/operation/utils/isGithubTriage.ts`            | Shared type guard for GitHub source links and creator attribution in triage details, creation timelines, and relation cards. |
-| Pages                   | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                                        |
-| GraphQL codegen         | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/gateway/generated/schema.graphql`.                                           |
-| Relation widgets        | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                                            |
-| Notification widgets    | `frontend/plugins/operation_ui/src/widgets/notifications`                                | Provides notification widget exports.                                                                                        |
-| Automation widgets      | `frontend/plugins/operation_ui/src/widgets/automations`                                  | Provides automation remote entry exports.                                                                                    |
+| Area                    | Path                                                                                     | Responsibility                                                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar             | `frontend/plugins/operation_ui/src/Sidebar.tsx`                                          | `OperationSidebar` (app sidebar) and `OperationSidebarFooter` (Settings link), rendered by the `./operation` entry through `AppLayout` |
+| Runtime                 | `frontend/plugins/operation_ui/src/main.ts`                                              | Starts the operation UI remote.                                                                                                        |
+| Federation config       | `frontend/plugins/operation_ui/module-federation.config.ts`                              | Exposes config, routes, settings, widgets, notifications, and automation entry.                                                        |
+| Dev server config       | `frontend/plugins/operation_ui/rspack.config.ts`                                         | Module Federation development serving and watch ignore rules.                                                                          |
+| Plugin config           | `frontend/plugins/operation_ui/src/config.tsx`                                           | Registers navigation, modules, widgets, property inputs, and search providers.                                                         |
+| Navigation              | `frontend/plugins/operation_ui/src/modules/navigation`                                   | `MainNavigation` (`navigationGroup.content`) and the active-team `TeamsNavigation` (`navigationGroup.subGroup`).                       |
+| Property side panel     | `frontend/plugins/operation_ui/src/modules/operation/components/PropertiesSidePanel.tsx` | Renders settings-configured task and project fields with a header, content inset, and centered empty state.                            |
+| Description editor      | `frontend/plugins/operation_ui/src/modules/operation/hooks/useDescriptionEditor.ts`      | Loads BlockNote JSON or imports Markdown for task and triage details.                                                                  |
+| Operation modules       | `frontend/plugins/operation_ui/src/modules`                                              | Owns operation feature UI and route composition.                                                                                       |
+| Activity timeline       | `frontend/plugins/operation_ui/src/modules/activity/components`                          | Renders activity actors and field changes for task, project, and triage details.                                                       |
+| GitHub triage detection | `frontend/plugins/operation_ui/src/modules/operation/utils/isGithubTriage.ts`            | Shared type guard for GitHub source links and creator attribution in triage details, creation timelines, and relation cards.           |
+| Pages                   | `frontend/plugins/operation_ui/src/pages`                                                | Provides route-level operation pages.                                                                                                  |
+| GraphQL codegen         | `frontend/plugins/operation_ui/codegen.ts`                                               | Generates `src/gql/` (gitignored) from `backend/gateway/generated/schema.graphql`.                                                     |
+| Relation widgets        | `frontend/plugins/operation_ui/src/widgets/relation`                                     | Provides relation widget exports.                                                                                                      |
+| Notification widgets    | `frontend/plugins/operation_ui/src/widgets/notifications`                                | Provides notification widget exports.                                                                                                  |
+| Automation widgets      | `frontend/plugins/operation_ui/src/widgets/automations`                                  | Provides automation remote entry exports.                                                                                              |
 
 ## Contracts
 
@@ -101,6 +101,7 @@
 
 ## Local Invariants
 
+- Task side-panel names use the shared `PanelField` columns and inherit its text sizing. Their `TextField` uses `data-panel-inline` for automatic height and wraps long names within the value column, including unbroken text. Table-variant task statuses inherit their trigger's font size with normal weight; table-variant assignees use the shared `MembersInline` composition with a 20px (`size-5`) avatar, including draft form fields.
 - Tasks and projects listed for another record (overview sections, the `tasks` / `projects` relation widgets in `dense` mode) are one-line rows: `widgets/rows/TaskRow` (name and due date; falls back to the triage when the id is one; opens the task stacked in the side panel, a triage in a sheet) and `ProjectRow` (opens `/operation/projects/<id>/overview`). There are no widget cards.
 - Task details (the side panel's `TaskPanelDetail` rows and the full-page `TaskFields` chips) show Cycle only when the team has `cycleEnabled`, Estimate only when the team has estimate choices, and Milestone only when the task's project has milestones, all from `useTaskOptionalFields` (it reuses the selects' queries).
 - `useTaskDetailSheet()` is the task open in the side panel: `[taskId | null, setTask]`, where `setTask(id, { stack: true })` opens it from inside the panel (relation cards, so the panel's Back returns to the previous record) and a plain `setTask(id)` (lists, boards) starts the panel's history afresh; `setTask(id)` opens it there and `setTask(null)` closes the panel only when it shows a task. Never reintroduce a task popup or `?task_id=` state; `TaskDetailLink` (rendered by the tasks and triage views) only redirects old links.
@@ -195,6 +196,7 @@
 
 ## Validation
 
+- Task panel smoke: short names sit beside Name, long names wrap without truncation, selected statuses match neighboring field text, and assignee avatars are 20px. Name editing still saves with Enter and cancels with Escape.
 - `pnpm nx lint operation_ui`
 - `pnpm nx build operation_ui`
 - `pnpm nx test operation_ui --passWithNoTests` (the inferred Jest target currently has no test files)

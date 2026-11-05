@@ -191,7 +191,13 @@ const SelectStatusTaskRoot = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen} scope={scope}>
         <SelectTriggerOperation variant={variant} label={label}>
-          <SelectStatusValue />
+          <SelectStatusValue
+            className={
+              variant === 'table'
+                ? 'text-[length:inherit] font-normal'
+                : undefined
+            }
+          />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
           <SelectStatusContent />
@@ -296,7 +302,13 @@ export const SelectStatusTaskFormItem = ({
     >
       <PopoverScoped open={open} onOpenChange={setOpen}>
         <SelectTriggerOperation variant={variant} label={label}>
-          <SelectStatusValue />
+          <SelectStatusValue
+            className={
+              variant === 'table'
+                ? 'text-[length:inherit] font-normal'
+                : undefined
+            }
+          />
         </SelectTriggerOperation>
         <SelectOperationContent variant={variant}>
           <SelectStatusContent />

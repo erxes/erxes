@@ -25,6 +25,12 @@
 
 ## Current Capabilities
 
+- Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
+
+- Pipeline and POS product filters share a two-column layout. Collapsed, category and More occupy one row. Expanded, rows pair category/exclude category, include tag/exclude tag, and include products/exclude products; the collapse button follows the grid. Hidden fields retain their saved values.
+- POS product-group settings edit and reload include products (`productIds`), include tags (`tagIds`), and exclude tags (`excludeTagIds`). React Hook Form with Zod validates selections. Saves project all six filter arrays into `GroupInput` and refetch the current POS groups.
+- Product filters use OR between category/tag/product includes; all category/tag/product exclusions always win, including against explicit product ids. Category/tag filters include descendants. Product tag pickers use public `ui-modules` `SelectTags` scoped to `core:product`; English/Mongolian explanatory labels live in `modules/productFilters`.
+
 - POS Cover detail displays the POS client's root `description` in a dedicated
   read-only "Хаалтын тэмдэглэл" textarea (`components/CoverDescription.tsx`) and edits
   Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
@@ -573,6 +579,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Deal mutations send no `sourceConversationIds`; a deal is linked to a conversation only through its customer (`customerId`), which the conversation rail's Deals tab lists by.
 
 ## Validation
+
+- POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 
 - Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
   discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions

@@ -1,17 +1,17 @@
 import { useTranslation } from 'react-i18next';
-import {
-  IconAlertTriangle,
-  IconArrowMerge,
-  IconLayoutSidebarLeftCollapse,
-} from '@tabler/icons-react';
-import { Alert, Button, Sheet, cn } from 'erxes-ui';
+import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { IconAlertTriangle, IconArrowMerge } from '@tabler/icons-react';
+import { Alert, Button, cn } from 'erxes-ui';
 import { ReactNode } from 'react';
 import { MergeTooltip } from '@/contacts/customers/components/customers-command-bar/merge/MergeTooltip';
 
 const noop = () => {
   //
 };
-interface MergeSheetProps extends React.ComponentProps<typeof Sheet> {
+interface MergeSheetProps extends Omit<
+  React.ComponentProps<typeof CoreModulePanel>,
+  'name'
+> {
   children?: ReactNode;
   disabled?: boolean;
   className?: string;
@@ -33,16 +33,22 @@ export const MergeSheet = ({
 }: MergeSheetProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
-    <Sheet {...props}>
+    <CoreModulePanel
+      name="contacts/customers/customers-command-bar/merge/MergeSheet"
+      requiredPermission="contactsMerge"
+      maxWidth={1000}
+      defaultWidth={800}
+      {...props}
+    >
       <MergeTooltip disabled={!disabled}>
-        <Sheet.Trigger asChild>
+        <CoreModulePanel.Trigger asChild>
           <Button variant={'secondary'} disabled={disabled}>
             <IconArrowMerge />
             {t('action-merge')}
           </Button>
-        </Sheet.Trigger>
+        </CoreModulePanel.Trigger>
       </MergeTooltip>
-      <Sheet.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
+      <CoreModulePanel.View className="sm:max-w-5xl flex gap-0 flex-col m-0 p-0">
         <MergeSheetHeader />
         {notice && (
           <Alert variant="warning" className="mx-6 mt-4 w-auto">
@@ -50,9 +56,9 @@ export const MergeSheet = ({
             <Alert.Description>{notice}</Alert.Description>
           </Alert>
         )}
-        <Sheet.Content className="min-h-0 overflow-y-auto">
+        <CoreModulePanel.Content className="min-h-0 overflow-y-auto">
           <div className={cn('w-full', className)}>{children}</div>
-        </Sheet.Content>
+        </CoreModulePanel.Content>
         {!disabled && (
           <MergeSheetFooter
             saveLabel={saveLabel}
@@ -60,19 +66,16 @@ export const MergeSheet = ({
             onSave={onSave}
           />
         )}
-      </Sheet.View>
-    </Sheet>
+      </CoreModulePanel.View>
+    </CoreModulePanel>
   );
 };
 
 const MergeSheetHeader = () => (
-  <Sheet.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
-    <Button variant="ghost" size="icon">
-      <IconLayoutSidebarLeftCollapse />
-    </Button>
-    <Sheet.Title>Merge Customers</Sheet.Title>
-    <Sheet.Close />
-  </Sheet.Header>
+  <CoreModulePanel.Header className="border-b p-3 m-0 flex-row items-center space-y-0 gap-3">
+    <CoreModulePanel.Title>Merge Customers</CoreModulePanel.Title>
+    <CoreModulePanel.Close />
+  </CoreModulePanel.Header>
 );
 
 interface MergeSheetFooterProps {
@@ -88,7 +91,7 @@ const MergeSheetFooter = ({
 }: MergeSheetFooterProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   return (
-    <Sheet.Footer className="flex justify-end p-5">
+    <CoreModulePanel.Footer className="flex justify-end p-5">
       <Button
         onClick={() => {
           onDiscard();
@@ -104,6 +107,6 @@ const MergeSheetFooter = ({
       >
         {saveLabel ?? t('action-save')}
       </Button>
-    </Sheet.Footer>
+    </CoreModulePanel.Footer>
   );
 };

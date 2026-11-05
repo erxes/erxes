@@ -26,6 +26,7 @@
 - TMS branch records open in the app side panel (`?panel=/detail/<contentType>/<id|new>`): amenities, tour categories, elements, custom tour types, custom field groups and custom fields create, edit and delete there; orders show and edit their booking there.
 - Tours are created and edited in the side panel: the Detail tab is a grouped row form (general, content, duration and dates, crew, pricing, more info) with the tour's bookings and customers below it, and the Properties tab edits the tour's custom field groups.
 - Clicking an itinerary name opens a read-only overview in the side panel; the overview Edit and the row ⋯ Edit both open the existing itinerary builder sheet. Row ⋯ Duplicate opens a `tourism:tmsItineraryDuplicate` panel (name and color) that opens the new itinerary's overview after saving. Itinerary creation, tour duplication and tour group add stay as sheets.
+- TMS branch cards open through a thumbnail link named after the branch, with or without a logo.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture

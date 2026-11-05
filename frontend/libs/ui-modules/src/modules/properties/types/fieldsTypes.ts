@@ -83,12 +83,16 @@ export type mutateFunction = (
   callbacks?: IMutateCallbacks,
 ) => void;
 
+export interface IFieldMutation {
+  mutate: mutateFunction;
+  loading: boolean;
+  // Patch APIs need an explicit null to clear a value; omitted keys stay intact.
+  propertiesDataMode?: 'replace' | 'patch';
+}
+
 export interface FieldColumnProps {
   fields: IField[];
-  mutateHook: () => {
-    mutate: mutateFunction;
-    loading: boolean;
-  };
+  mutateHook: () => IFieldMutation;
 }
 
 export interface FieldCellProps {
