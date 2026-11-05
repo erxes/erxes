@@ -2,7 +2,7 @@ import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, RecordTableTree } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { CategoryCreateSheet } from './CategoryCreateSheet';
+import { CategoryCreateButton } from './CategoryPanel';
 import { categoryColumns } from './CategoryColumns';
 import { useCategories } from '../hooks/useCategories';
 import { CategoryCommandBar } from './CategoryCommandBar';
@@ -12,7 +12,6 @@ import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface CategoryRecordTableProps {
   branchId?: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
@@ -32,7 +31,6 @@ function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
 
 export const CategoryRecordTable = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: CategoryRecordTableProps) => {
   const { t } = useTranslation('tourism');
@@ -61,23 +59,12 @@ export const CategoryRecordTable = ({
   }, [categoriesWithChildren]);
 
   if (!loading && (categories?.length ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
-      columns={categoryColumns(
-        categoryObject,
-        branchLanguages,
-        mainLanguage,
-        t,
-      )}
+      columns={categoryColumns(categoryObject, t)}
       data={categoriesWithChildren || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -91,15 +78,7 @@ export const CategoryRecordTable = ({
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: Readonly<{
-  branchId?: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}>) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId?: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -117,11 +96,7 @@ function EmptyStateRow({
         {t('no-categories-yet-desc')}
       </p>
 
-      <CategoryCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <CategoryCreateButton branchId={branchId} />
     </div>
   );
 }

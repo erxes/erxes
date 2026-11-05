@@ -96,7 +96,6 @@ export const TmsInformationFields = ({
   const renderStepContent = () => {
     return (
       <div className="w-full">
-        {/* Step 1 */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 1 ? 'opacity-100 block' : 'opacity-0 hidden'
@@ -112,7 +111,6 @@ export const TmsInformationFields = ({
           </div>
         </div>
 
-        {/* Step 2 */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 2 ? 'opacity-100 block' : 'opacity-0 hidden'
@@ -124,7 +122,6 @@ export const TmsInformationFields = ({
           </div>
         </div>
 
-        {/* Step 3 */}
         <div
           className={`w-full transition-all duration-300 ease-in-out ${
             currentStep === 3 ? 'opacity-100 block' : 'opacity-0 hidden'
@@ -172,7 +169,7 @@ export const TmsInformationFields = ({
   }
 
   return (
-    <div className="flex flex-col mx-auto w-full h-full border-r bg-background">
+    <div className="flex h-full min-h-0 w-full flex-col bg-background">
       <div className="flex flex-col gap-3 justify-center items-start self-stretch p-5 border-b shrink-0">
         <div className="flex gap-2 items-center">
           <div className="flex h-5 px-2 justify-center items-center gap-1 rounded-[21px] bg-[rgba(79,70,229,0.10)] transition-all duration-300">
@@ -210,13 +207,11 @@ export const TmsInformationFields = ({
               : t('setup-payments')}
         </p>
       </div>
-      <div className="overflow-hidden relative flex-1 min-h-0">
-        <div className="overflow-y-auto overflow-x-hidden px-4 py-2 h-full">
-          {renderStepContent()}
-        </div>
+      <div className="styled-scroll min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-5 py-4">
+        {renderStepContent()}
       </div>
 
-      <div className="flex gap-2 justify-between items-center p-4 border-t shrink-0">
+      <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-t px-5">
         {currentStep === 1 ? (
           <Button
             variant="outline"

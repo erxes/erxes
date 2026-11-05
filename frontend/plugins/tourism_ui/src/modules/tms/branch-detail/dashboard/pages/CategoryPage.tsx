@@ -18,7 +18,6 @@ export const CategoryPage = ({ branch }: CategoryPageProps) => {
         <div className="flex flex-col h-full min-h-0">
           <CategoryRecordTable
             branchId={branch._id}
-            branchLanguages={branch.languages}
             mainLanguage={branch.language}
           />
         </div>

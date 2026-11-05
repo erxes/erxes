@@ -1,5 +1,7 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
-import { Form, Input, Upload, readImage } from 'erxes-ui';
+import { Input, Upload, readImage } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
+import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
 import { useTranslation } from 'react-i18next';
 import { CategoryCreateFormType } from '../constants/formSchema';
 import { SelectParentCategory } from './SelectParentCategory';
@@ -24,23 +26,22 @@ export const CategoryNameField = ({
 }: CategoryNameFieldProps) => {
   const { t } = useTranslation('tourism');
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
-            <span className="text-destructive">*</span>
-          </Form.Label>
-          <Form.Control>
-            <Input
-              placeholder={t('category-name-placeholder')}
-              {...field}
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+      required
+      label={
+        <>
+          {t('name')}
+          <span className="text-primary">{labelSuffix}</span>
+        </>
+      }
+      render={(field) => (
+        <Input
+          placeholder={t('category-name-placeholder')}
+          className={PANEL_INPUT_CLASS_NAME}
+          {...field}
+        />
       )}
     />
   );
@@ -53,19 +54,17 @@ export const CategoryCodeField = ({
 }) => {
   const { t } = useTranslation('tourism');
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name="code"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {t('code')} <span className="text-destructive">*</span>
-          </Form.Label>
-          <Form.Control>
-            <Input placeholder={t('category-code-placeholder')} {...field} />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+      required
+      label={t('code')}
+      render={(field) => (
+        <Input
+          placeholder={t('category-code-placeholder')}
+          className={PANEL_INPUT_CLASS_NAME}
+          {...field}
+        />
       )}
     />
   );
@@ -82,22 +81,17 @@ export const CategoryParentIdField = ({
 }) => {
   const { t } = useTranslation('tourism');
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name="parentId"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('parent-category')}</Form.Label>
-          <Form.Control>
-            <SelectParentCategory
-              selected={field.value}
-              onSelect={field.onChange}
-              branchId={branchId}
-              language={language}
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+      label={t('parent-category')}
+      render={(field) => (
+        <SelectParentCategory
+          selected={field.value}
+          onSelect={field.onChange}
+          branchId={branchId}
+          language={language}
+        />
       )}
     />
   );
@@ -112,83 +106,77 @@ export const CategoryAttachmentField = ({
   const [isLoading, setIsLoading] = useState(false);
 
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name="attachment"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('category-image')}</Form.Label>
-
-          <Form.Control>
-            <Upload.Root
-              value={field.value?.url || ''}
-              onChange={(fileInfo) => {
-                if (typeof fileInfo === 'string') {
-                  field.onChange({ ...field.value, url: fileInfo });
-                } else if (fileInfo && 'url' in fileInfo) {
-                  field.onChange(fileInfo);
-                }
-              }}
-              className="relative group"
-            >
-              <Upload.Button
-                size="sm"
-                type="button"
-                variant="secondary"
-                className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
-                style={
-                  field.value?.url
-                    ? {
-                        backgroundImage: `url(${readImage(field.value.url)})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }
-                    : {}
-                }
-              >
-                {!field.value?.url && (
-                  <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
-                    {isLoading ? (
-                      <span>{t('uploading')}</span>
-                    ) : (
-                      <>
-                        <IconUpload size={22} />
-                        <span>{t('upload-category-image')}</span>
-                      </>
-                    )}
-                  </div>
+      block
+      label={t('category-image')}
+      render={(field) => (
+        <Upload.Root
+          value={field.value?.url || ''}
+          onChange={(fileInfo) => {
+            if (typeof fileInfo === 'string') {
+              field.onChange({ ...field.value, url: fileInfo });
+            } else if (fileInfo && 'url' in fileInfo) {
+              field.onChange(fileInfo);
+            }
+          }}
+          className="relative group"
+        >
+          <Upload.Button
+            size="sm"
+            type="button"
+            variant="secondary"
+            className="overflow-hidden relative w-full min-h-[94px] rounded-md border border-dashed transition aspect-video bg-background hover:bg-accent"
+            style={
+              field.value?.url
+                ? {
+                    backgroundImage: `url(${readImage(field.value.url)})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  }
+                : {}
+            }
+          >
+            {!field.value?.url && (
+              <div className="flex flex-col gap-2 justify-center items-center text-sm text-muted-foreground">
+                {isLoading ? (
+                  <span>{t('uploading')}</span>
+                ) : (
+                  <>
+                    <IconUpload size={22} />
+                    <span>{t('upload-category-image')}</span>
+                  </>
                 )}
-
-                {field.value?.url && (
-                  <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
-                    <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
-                      {t('change-image')}
-                    </span>
-                  </div>
-                )}
-              </Upload.Button>
-
-              {field.value?.url && (
-                <Upload.RemoveButton
-                  size="sm"
-                  variant="destructive"
-                  className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
-                >
-                  <IconTrash size={14} />
-                </Upload.RemoveButton>
-              )}
-
-              <div className="hidden">
-                <Upload.Preview
-                  onUploadStart={() => setIsLoading(true)}
-                  onAllUploadsComplete={() => setIsLoading(false)}
-                />
               </div>
-            </Upload.Root>
-          </Form.Control>
+            )}
 
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+            {field.value?.url && (
+              <div className="flex absolute inset-0 justify-center items-center transition bg-black/0 group-hover:bg-black/30">
+                <span className="px-2 py-1 text-xs font-medium text-white rounded opacity-0 group-hover:opacity-100 bg-black/70">
+                  {t('change-image')}
+                </span>
+              </div>
+            )}
+          </Upload.Button>
+
+          {field.value?.url && (
+            <Upload.RemoveButton
+              size="sm"
+              variant="destructive"
+              className="absolute top-2 right-2 shadow opacity-0 group-hover:opacity-100"
+            >
+              <IconTrash size={14} />
+            </Upload.RemoveButton>
+          )}
+
+          <div className="hidden">
+            <Upload.Preview
+              onUploadStart={() => setIsLoading(true)}
+              onAllUploadsComplete={() => setIsLoading(false)}
+            />
+          </div>
+        </Upload.Root>
       )}
     />
   );

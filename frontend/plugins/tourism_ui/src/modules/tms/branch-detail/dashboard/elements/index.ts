@@ -1,6 +1,5 @@
 export { ElementRecordTable } from './_components/ElementRecordTable';
-export { ElementCreateSheet } from './_components/ElementCreateSheet';
-export { ElementEditSheet } from './_components/ElementEditSheet';
+export { ELEMENT_PANEL, ElementCreateButton } from './_components/ElementPanel';
 export { ElementCommandBar } from './_components/ElementCommandBar';
 export { ElementFilter } from './_components/ElementFilter';
 export { elementColumns } from './_components/ElementColumns';

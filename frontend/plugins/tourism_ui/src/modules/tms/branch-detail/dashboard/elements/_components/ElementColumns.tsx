@@ -15,42 +15,52 @@ import {
   RelativeDateDisplay,
 } from 'erxes-ui';
 import { IElement } from '../types/element';
-import { ElementEditSheet } from './ElementEditSheet';
 import { elementMoreColumn } from './ElementMoreCell';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TMS_ELEMENT_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+
+const ElementNameBadge = ({
+  elementId,
+  name,
+}: {
+  elementId: string;
+  name: string;
+}) => {
+  const { openDetail } = useTourismPanel(TMS_ELEMENT_CONTENT_TYPE);
+
+  return (
+    <Badge
+      variant="secondary"
+      className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+      onClick={() => openDetail(elementId)}
+    >
+      <TextOverflowTooltip value={name} />
+    </Badge>
+  );
+};
 
 export const elementColumns = (
   getCategoryNamesByIds: (ids: string[]) => string[],
   branchId?: string,
-  branchLanguages?: string[],
-  mainLanguage?: string,
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IElement>[] => {
   return [
-    elementMoreColumn(branchId, branchLanguages, mainLanguage),
+    elementMoreColumn(branchId),
     RecordTable.checkboxColumn as ColumnDef<IElement>,
     {
       id: 'name',
       accessorKey: 'name',
-      header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconLabel} label={t('name')} />
+      ),
       cell: ({ cell, row }: { cell: any; row: any }) => {
         const element = row.original as IElement;
         return (
           <RecordTableInlineCell>
-            <ElementEditSheet
-              element={element}
-              branchLanguages={branchLanguages}
-              mainLanguage={mainLanguage}
-              showTrigger={false}
-            >
-              <Badge
-                variant="secondary"
-                className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
-              >
-                <TextOverflowTooltip
-                  value={(cell.getValue() as string) || '-'}
-                />
-              </Badge>
-            </ElementEditSheet>
+            <ElementNameBadge
+              elementId={element._id}
+              name={(cell.getValue() as string) || '-'}
+            />
           </RecordTableInlineCell>
         );
       },
@@ -74,7 +84,9 @@ export const elementColumns = (
     {
       id: 'cost',
       accessorKey: 'cost',
-      header: () => <RecordTable.InlineHead icon={IconCoin} label={t('cost')} />,
+      header: () => (
+        <RecordTable.InlineHead icon={IconCoin} label={t('cost')} />
+      ),
       cell: ({ cell }: { cell: any }) => (
         <RecordTableInlineCell>
           <TextOverflowTooltip

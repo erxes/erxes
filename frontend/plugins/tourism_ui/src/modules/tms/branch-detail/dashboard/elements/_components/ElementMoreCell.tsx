@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash, IconCopy } from '@tabler/icons-react';
@@ -12,30 +11,27 @@ import {
 } from 'erxes-ui';
 import { IElement } from '../types/element';
 import { useRemoveElements } from '../hooks/useRemoveElements';
-import { ElementEditSheet } from './ElementEditSheet';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TMS_ELEMENT_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { ElementDuplicate } from './ElementDuplicate';
 
 interface ElementMoreCellProps extends CellContext<IElement, unknown> {
   branchId?: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
 }
 
 export const ElementMoreColumn = ({
   branchId,
-  branchLanguages,
-  mainLanguage,
   ...props
 }: ElementMoreCellProps) => {
   const { t } = useTranslation('tourism');
   const element = props.row.original;
-  const [editOpen, setEditOpen] = useState(false);
+  const { openDetail } = useTourismPanel(TMS_ELEMENT_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeElements } = useRemoveElements();
 
   const handleEdit = () => {
-    setEditOpen(true);
+    openDetail(element._id);
   };
 
   const handleDelete = () => {
@@ -51,10 +47,10 @@ export const ElementMoreColumn = ({
             description: t('element-deleted-successfully'),
           });
         })
-        .catch((e: any) => {
+        .catch((e: unknown) => {
           toast({
             title: t('error'),
-            description: e.message,
+            description: e instanceof Error ? e.message : '',
             variant: 'destructive',
           });
         });
@@ -62,64 +58,43 @@ export const ElementMoreColumn = ({
   };
 
   return (
-    <>
-      <Popover>
-        <Popover.Trigger asChild>
-          <RecordTable.MoreButton className="w-full h-full" />
-        </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              <Command.Item value="edit" onSelect={handleEdit}>
-                <IconEdit className="w-4 h-4" />
-                {t('edit')}
-              </Command.Item>
-              <ElementDuplicate element={element} branchId={branchId}>
-                {({ onClick, disabled }) => (
-                  <Command.Item
-                    value="duplicate"
-                    onSelect={onClick}
-                    disabled={disabled}
-                  >
-                    <IconCopy className="w-4 h-4" />
-                    {t('duplicate')}
-                  </Command.Item>
-                )}
-              </ElementDuplicate>
-              <Command.Item value="delete" onSelect={handleDelete}>
-                <IconTrash className="w-4 h-4" />
-                {t('delete')}
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
-      </Popover>
-      <ElementEditSheet
-        element={element}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        showTrigger={false}
-      />
-    </>
+    <Popover>
+      <Popover.Trigger asChild>
+        <RecordTable.MoreButton className="w-full h-full" />
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Command shouldFilter={false}>
+          <Command.List>
+            <Command.Item value="edit" onSelect={handleEdit}>
+              <IconEdit className="w-4 h-4" />
+              {t('edit')}
+            </Command.Item>
+            <ElementDuplicate element={element} branchId={branchId}>
+              {({ onClick, disabled }) => (
+                <Command.Item
+                  value="duplicate"
+                  onSelect={onClick}
+                  disabled={disabled}
+                >
+                  <IconCopy className="w-4 h-4" />
+                  {t('duplicate')}
+                </Command.Item>
+              )}
+            </ElementDuplicate>
+            <Command.Item value="delete" onSelect={handleDelete}>
+              <IconTrash className="w-4 h-4" />
+              {t('delete')}
+            </Command.Item>
+          </Command.List>
+        </Command>
+      </Combobox.Content>
+    </Popover>
   );
 };
 
-export const elementMoreColumn = (
-  branchId?: string,
-  branchLanguages?: string[],
-  mainLanguage?: string,
-): ColumnDef<IElement> => ({
+export const elementMoreColumn = (branchId?: string): ColumnDef<IElement> => ({
   id: 'more',
   header: () => <RecordTable.ColumnSelector />,
-  cell: (props) => (
-    <ElementMoreColumn
-      {...props}
-      branchId={branchId}
-      branchLanguages={branchLanguages}
-      mainLanguage={mainLanguage}
-    />
-  ),
+  cell: (props) => <ElementMoreColumn {...props} branchId={branchId} />,
   size: 33,
 });

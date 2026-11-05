@@ -1,5 +1,7 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
-import { Form, Input } from 'erxes-ui';
+import { Input } from 'erxes-ui';
+import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
+import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
 import { useTranslation } from 'react-i18next';
 import { AmenityCreateFormType } from '../constants/formSchema';
 import { AmenityIconPicker } from './AmenityIconPicker';
@@ -22,23 +24,22 @@ export const AmenityNameField = ({
 }: AmenityNameFieldProps) => {
   const { t } = useTranslation('tourism');
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name={name}
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>
-            {t('name')}<span className="text-primary">{labelSuffix}</span>{' '}
-            <span className="text-destructive">*</span>
-          </Form.Label>
-          <Form.Control>
-            <Input
-              placeholder={t('amenity-name-placeholder')}
-              {...field}
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+      required
+      label={
+        <>
+          {t('name')}
+          <span className="text-primary">{labelSuffix}</span>
+        </>
+      }
+      render={(field) => (
+        <Input
+          placeholder={t('amenity-name-placeholder')}
+          className={PANEL_INPUT_CLASS_NAME}
+          {...field}
+        />
       )}
     />
   );
@@ -51,21 +52,16 @@ export const AmenityIconField = ({
 }) => {
   const { t } = useTranslation('tourism');
   return (
-    <Form.Field
+    <TourismPanelFormField
       control={control}
       name="icon"
-      render={({ field }) => (
-        <Form.Item>
-          <Form.Label>{t('icon')}</Form.Label>
-          <Form.Control>
-            <AmenityIconPicker
-              value={field.value}
-              onValueChange={field.onChange}
-              className="w-[42px] border bg-background"
-            />
-          </Form.Control>
-          <Form.Message className="text-destructive" />
-        </Form.Item>
+      label={t('icon')}
+      render={(field) => (
+        <AmenityIconPicker
+          value={field.value}
+          onValueChange={field.onChange}
+          className="size-7 justify-center rounded-sm border bg-background p-0 shadow-none [&_svg]:size-4"
+        />
       )}
     />
   );

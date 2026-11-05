@@ -16,7 +16,9 @@ import {
 import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import { MembersInline } from 'ui-modules';
+import { PMS_BRANCH_QUERY_KEY } from '~/modules/TourismSubNavigation';
 import { useVisitWebsite } from '~/hooks/useVisitWebsite';
 import CreatePmsForm from './CreatePmsForm';
 import { PmsCreateSheet } from './CreatePmsSheet';
@@ -149,6 +151,15 @@ export function PmsList() {
   const [editOpen, setEditOpen] = useState(false);
   const [editingBranchId, setEditingBranchId] = useState<string>('');
   const setCurrentStep = useSetAtom(stepState);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryBranchId = searchParams.get(PMS_BRANCH_QUERY_KEY) || '';
+
+  useEffect(() => {
+    if (queryBranchId) {
+      setEditingBranchId(queryBranchId);
+      setEditOpen(true);
+    }
+  }, [queryBranchId]);
 
   useEffect(() => {
     if (editOpen) {
@@ -157,6 +168,22 @@ export function PmsList() {
   }, [editOpen, setCurrentStep]);
 
   const { removeBranch } = usePmsRemoveBranch();
+
+  const handleEditOpenChange = (open: boolean) => {
+    setEditOpen(open);
+
+    if (open) return;
+
+    setEditingBranchId('');
+
+    if (queryBranchId) {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        next.delete(PMS_BRANCH_QUERY_KEY);
+        return next;
+      });
+    }
+  };
 
   const onEdit = (branchId: string) => {
     setEditingBranchId(branchId);
@@ -190,7 +217,7 @@ export function PmsList() {
     });
   };
 
-  if (loading) {
+  if (loading && !list.length) {
     return (
       <div className="flex justify-center items-center w-full min-h-screen">
         <Spinner />
@@ -208,15 +235,7 @@ export function PmsList() {
 
   return (
     <>
-      <Sheet
-        open={editOpen}
-        onOpenChange={(open) => {
-          setEditOpen(open);
-          if (!open) {
-            setEditingBranchId('');
-          }
-        }}
-      >
+      <Sheet open={editOpen} onOpenChange={handleEditOpenChange}>
         <Sheet.View
           className="p-0 sm:max-w-5xl"
           onEscapeKeyDown={(e) => {
@@ -226,7 +245,7 @@ export function PmsList() {
           <CreatePmsForm
             mode="edit"
             branchId={editingBranchId}
-            onOpenChange={setEditOpen}
+            onOpenChange={handleEditOpenChange}
           />
         </Sheet.View>
       </Sheet>

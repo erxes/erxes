@@ -1,311 +1,87 @@
-import { useMutation, useQuery } from '@apollo/client';
-import {
-  IconEdit,
-  IconPlus,
-  IconTrash,
-  IconSettings,
-} from '@tabler/icons-react';
-import {
-  Badge,
-  Button,
-  Form,
-  Input,
-  MultipleSelector,
-  PageSubHeader,
-  Select,
-  Sheet,
-  Spinner,
-  Switch,
-  Table,
-  Tabs,
-  Textarea,
-  toast,
-  useConfirm,
-} from 'erxes-ui';
-import { useEffect, useMemo, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { IconEdit, IconPlus, IconTrash } from '@tabler/icons-react';
+import { Badge, Button, Spinner, Table, Tabs, useConfirm } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { IBranch } from '@/tms/types/branch';
 import {
-  TOUR_CUSTOM_FIELD_GROUPS,
-  TOUR_CUSTOM_FIELD_GROUP_ADD,
-  TOUR_CUSTOM_FIELD_GROUP_EDIT,
-  TOUR_CUSTOM_FIELD_GROUP_REMOVE,
-  TOUR_CUSTOM_TYPE_ADD,
-  TOUR_CUSTOM_TYPE_EDIT,
-  TOUR_CUSTOM_TYPE_REMOVE,
-  TOUR_CUSTOM_TYPES,
-} from '../tours/graphql/customFields';
+  TMS_CUSTOM_FIELD_CONTENT_TYPE,
+  TMS_FIELD_GROUP_CONTENT_TYPE,
+  TMS_TOUR_TYPE_CONTENT_TYPE,
+} from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 import type {
   ITourCustomField,
   ITourCustomFieldGroup,
   ITourCustomPostType,
 } from '../tours/hooks/useTourCustomFields';
+import {
+  getTourCustomFieldKey,
+  getTourCustomFieldPanelId,
+} from '../custom-fields/customFieldUtils';
+import {
+  useFieldGroupList,
+  useFieldGroupMutations,
+  useTourTypeList,
+  useTourTypeMutations,
+} from '../custom-fields/useCustomFieldData';
 
-type TourTypeForm = {
-  label: string;
-  pluralLabel: string;
-  code: string;
-  description?: string;
-  isActive?: boolean;
+export const CustomFieldsCreateButtons = ({
+  branchId,
+}: {
+  branchId: string;
+}) => {
+  const { t } = useTranslation('tourism');
+  const typePanel = useTourismPanel(TMS_TOUR_TYPE_CONTENT_TYPE);
+  const groupPanel = useTourismPanel(TMS_FIELD_GROUP_CONTENT_TYPE);
+
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        onClick={() => typePanel.openDraft({ branchId })}
+      >
+        <IconPlus />
+        {t('tour-type')}
+      </Button>
+      <Button onClick={() => groupPanel.openDraft({ branchId })}>
+        <IconPlus />
+        {t('field-group')}
+      </Button>
+    </div>
+  );
 };
-
-type FieldGroupForm = {
-  label: string;
-  code?: string;
-  customTourTypeIds: string[];
-};
-
-type FieldForm = {
-  label: string;
-  code?: string;
-  type: string;
-  description?: string;
-  isRequired?: boolean;
-  options?: string;
-};
-
-const FIELD_TYPES = [
-  { value: 'text', label: 'Text' },
-  { value: 'textarea', label: 'Textarea' },
-  { value: 'number', label: 'Number' },
-  { value: 'date', label: 'Date' },
-  { value: 'checkbox', label: 'Checkbox' },
-  { value: 'select', label: 'Select' },
-  { value: 'multiSelect', label: 'Multi select' },
-  { value: 'radio', label: 'Radio' },
-  { value: 'image', label: 'Image' },
-  { value: 'file', label: 'File' },
-];
-
-const SYSTEM_TOUR_TYPE: ITourCustomPostType = {
-  _id: 'tour',
-  code: 'tour',
-  name: 'tour',
-  label: 'Tour',
-  pluralLabel: 'Tours',
-  isActive: true,
-};
-
-const generateCode = (value: string) =>
-  value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '_')
-    .replace(/(^_|_$)/g, '');
-
-const parseOptions = (value?: string) =>
-  value
-    ? value
-        .split(',')
-        .map((option) => option.trim())
-        .filter(Boolean)
-    : [];
-
-const buildFieldFormValues = (field?: ITourCustomField | null): FieldForm => ({
-  label: field?.label || '',
-  code: field?.code || '',
-  type: field?.type || 'text',
-  description: field?.description || '',
-  isRequired: field?.isRequired || false,
-  options: (field?.options || []).join(', '),
-});
 
 export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
   const { t } = useTranslation('tourism');
   const { confirm } = useConfirm();
-  const [typeDrawerOpen, setTypeDrawerOpen] = useState(false);
-  const [groupDrawerOpen, setGroupDrawerOpen] = useState(false);
-  const [fieldDrawerOpen, setFieldDrawerOpen] = useState(false);
-  const [editingType, setEditingType] = useState<ITourCustomPostType | null>(
-    null,
-  );
-  const [editingGroup, setEditingGroup] =
-    useState<ITourCustomFieldGroup | null>(null);
-  const [selectedGroup, setSelectedGroup] =
-    useState<ITourCustomFieldGroup | null>(null);
-  const [editingField, setEditingField] = useState<ITourCustomField | null>(
-    null,
-  );
+  const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
+  const typePanel = useTourismPanel(TMS_TOUR_TYPE_CONTENT_TYPE);
+  const groupPanel = useTourismPanel(TMS_FIELD_GROUP_CONTENT_TYPE);
+  const fieldPanel = useTourismPanel(TMS_CUSTOM_FIELD_CONTENT_TYPE);
 
   const {
-    data: typesData,
+    customTypes,
+    typeOptions,
     loading: typesLoading,
-    refetch: refetchTypes,
-  } = useQuery<{ bmsCustomTourTypes: ITourCustomPostType[] }>(
-    TOUR_CUSTOM_TYPES,
-    {
-      variables: { branchId: branch._id },
-      fetchPolicy: 'cache-and-network',
-    },
-  );
+  } = useTourTypeList(branch._id);
+  const { groups, loading: groupsLoading } = useFieldGroupList(branch._id);
+  const { removeTourType } = useTourTypeMutations();
+  const { removeFieldGroup, saveGroupFields } = useFieldGroupMutations();
 
-  const {
-    data: groupsData,
-    loading: groupsLoading,
-    refetch: refetchGroups,
-  } = useQuery<{
-    bmsCustomTourGroupList: {
-      list: ITourCustomFieldGroup[];
-      totalCount: number;
-    };
-  }>(TOUR_CUSTOM_FIELD_GROUPS, {
-    variables: { branchId: branch._id },
-    fetchPolicy: 'cache-and-network',
-  });
-
-  const customTypes = typesData?.bmsCustomTourTypes || [];
-  const typeOptions = useMemo(
-    () => [SYSTEM_TOUR_TYPE, ...customTypes],
-    [customTypes],
-  );
-  const groups = groupsData?.bmsCustomTourGroupList?.list || [];
-
-  useEffect(() => {
-    if (groupsLoading) return;
-
-    if (!groups.length) {
-      if (selectedGroup) {
-        setSelectedGroup(null);
-      }
-      return;
-    }
-
-    const latestSelectedGroup = selectedGroup
-      ? groups.find((group) => group._id === selectedGroup._id)
-      : null;
-    const nextSelectedGroup = latestSelectedGroup || groups[0];
-
-    if (selectedGroup !== nextSelectedGroup) {
-      setSelectedGroup(nextSelectedGroup);
-    }
-  }, [groups, groupsLoading, selectedGroup]);
-
-  const refetchAll = () => {
-    refetchTypes();
-    refetchGroups();
-  };
-
-  const [addType] = useMutation(TOUR_CUSTOM_TYPE_ADD, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-created') });
-      refetchTypes();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
-
-  const [editType] = useMutation(TOUR_CUSTOM_TYPE_EDIT, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-updated') });
-      refetchTypes();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
-
-  const [removeType] = useMutation(TOUR_CUSTOM_TYPE_REMOVE, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('tour-type-removed') });
-      refetchTypes();
-      refetchGroups();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
-
-  const [addGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_ADD, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-created') });
-      refetchGroups();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
-
-  const [editGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_EDIT, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-updated') });
-      refetchGroups();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
-
-  const [removeGroup] = useMutation(TOUR_CUSTOM_FIELD_GROUP_REMOVE, {
-    onCompleted: () => {
-      toast({ title: t('success'), description: t('field-group-removed') });
-      setSelectedGroup(null);
-      refetchGroups();
-    },
-    onError: (error) =>
-      toast({
-        title: t('error'),
-        description: error.message,
-        variant: 'destructive',
-      }),
-  });
+  const selectedGroup =
+    groups.find((group) => group._id === selectedGroupId) || groups[0] || null;
 
   const handleRemoveType = (type: ITourCustomPostType) => {
     confirm({
       message: t('confirm-delete-tour-type', { label: type.label }),
-    }).then(() => removeType({ variables: { _id: type._id } }));
+    }).then(() => removeTourType(type._id));
   };
 
   const handleRemoveGroup = (group: ITourCustomFieldGroup) => {
     confirm({
       message: t('confirm-delete-field-group', { label: group.label }),
-    }).then(() => removeGroup({ variables: { _id: group._id } }));
-  };
-
-  const upsertGroupFields = (
-    group: ITourCustomFieldGroup,
-    fields: ITourCustomField[],
-  ) => {
-    editGroup({
-      variables: {
-        _id: group._id,
-        input: {
-          branchId: branch._id,
-          label: group.label,
-          code: group.code,
-          parentId: group.parentId,
-          order: group.order,
-          customTourTypeIds: group.customTourTypeIds || [],
-          enabledTourIds: group.enabledTourIds || [],
-          fields,
-        },
-      },
-      onCompleted: async () => {
-        const result = await refetchGroups();
-        const latestGroup = result.data?.bmsCustomTourGroupList?.list?.find(
-          (item: ITourCustomFieldGroup) => item._id === group._id,
-        );
-        if (latestGroup) {
-          setSelectedGroup(latestGroup);
-        }
-      },
-    });
+    }).then(() => removeFieldGroup(group._id));
   };
 
   const handleRemoveField = (
@@ -314,46 +90,20 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
   ) => {
     confirm({
       message: t('confirm-delete-field', { label: field.label }),
-    }).then(() => {
-      const fields = (group.fields || []).filter(
-        (item) => item._id !== field._id,
-      );
-      upsertGroupFields(group, fields);
-    });
+    }).then(() =>
+      saveGroupFields(
+        group,
+        (group.fields || []).filter(
+          (item) =>
+            getTourCustomFieldKey(item) !== getTourCustomFieldKey(field),
+        ),
+        branch._id,
+      ),
+    );
   };
 
   return (
     <div className="flex flex-col h-full">
-      <PageSubHeader>
-        <div className="flex items-center gap-2 text-sm font-medium">
-          <IconSettings size={16} />
-          {t('custom-fields')}
-        </div>
-        <div className="flex items-center gap-2 ml-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setEditingType(null);
-              setTypeDrawerOpen(true);
-            }}
-          >
-            <IconPlus size={16} />
-            {t('tour-type')}
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              setEditingGroup(null);
-              setGroupDrawerOpen(true);
-            }}
-          >
-            <IconPlus size={16} />
-            {t('field-group')}
-          </Button>
-        </div>
-      </PageSubHeader>
-
       <div className="flex-auto min-h-0 p-4 overflow-auto">
         <Tabs defaultValue="groups" className="flex flex-col gap-4">
           <Tabs.List className="w-fit">
@@ -367,21 +117,24 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
               typeOptions={typeOptions}
               loading={groupsLoading}
               selectedGroup={selectedGroup}
-              onSelectGroup={setSelectedGroup}
-              onEditGroup={(group) => {
-                setEditingGroup(group);
-                setGroupDrawerOpen(true);
-              }}
+              onSelectGroup={(group) => setSelectedGroupId(group?._id || null)}
+              onEditGroup={(group) => groupPanel.openDetail(group._id)}
               onRemoveGroup={handleRemoveGroup}
               onAddField={(group) => {
-                setSelectedGroup(group);
-                setEditingField(null);
-                setFieldDrawerOpen(true);
+                setSelectedGroupId(group._id);
+                fieldPanel.openDraft({
+                  branchId: branch._id,
+                  groupId: group._id,
+                });
               }}
               onEditField={(group, field) => {
-                setSelectedGroup(group);
-                setEditingField(field);
-                setFieldDrawerOpen(true);
+                setSelectedGroupId(group._id);
+                fieldPanel.openDetail(
+                  getTourCustomFieldPanelId(
+                    group._id,
+                    getTourCustomFieldKey(field),
+                  ),
+                );
               }}
               onRemoveField={handleRemoveField}
             />
@@ -391,104 +144,12 @@ export const CustomFieldsPage = ({ branch }: { branch: IBranch }) => {
             <TourTypesView
               customTypes={customTypes}
               loading={typesLoading}
-              onEditType={(type) => {
-                setEditingType(type);
-                setTypeDrawerOpen(true);
-              }}
+              onEditType={(type) => typePanel.openDetail(type._id)}
               onRemoveType={handleRemoveType}
             />
           </Tabs.Content>
         </Tabs>
       </div>
-
-      <TourTypeDrawer
-        open={typeDrawerOpen}
-        branchId={branch._id}
-        editingType={editingType}
-        onOpenChange={(open) => {
-          setTypeDrawerOpen(open);
-          if (!open) setEditingType(null);
-        }}
-        onSubmit={(values) => {
-          const input = {
-            branchId: branch._id,
-            label: values.label,
-            pluralLabel: values.pluralLabel,
-            code: values.code,
-            description: values.description,
-            isActive: values.isActive,
-          };
-
-          if (editingType?._id) {
-            editType({ variables: { _id: editingType._id, input } });
-          } else {
-            addType({ variables: { input } });
-          }
-          setTypeDrawerOpen(false);
-          setEditingType(null);
-        }}
-      />
-
-      <FieldGroupDrawer
-        open={groupDrawerOpen}
-        branchId={branch._id}
-        typeOptions={typeOptions}
-        editingGroup={editingGroup}
-        onOpenChange={(open) => {
-          setGroupDrawerOpen(open);
-          if (!open) setEditingGroup(null);
-        }}
-        onSubmit={(values) => {
-          const input = {
-            branchId: branch._id,
-            label: values.label,
-            code: values.code,
-            customTourTypeIds: values.customTourTypeIds || [],
-            enabledTourIds: editingGroup?.enabledTourIds || [],
-            fields: editingGroup?.fields || [],
-          };
-
-          if (editingGroup?._id) {
-            editGroup({ variables: { _id: editingGroup._id, input } });
-          } else {
-            addGroup({ variables: { input } });
-          }
-          setGroupDrawerOpen(false);
-          setEditingGroup(null);
-        }}
-      />
-
-      <FieldDrawer
-        open={fieldDrawerOpen}
-        editingField={editingField}
-        onOpenChange={(open) => {
-          setFieldDrawerOpen(open);
-          if (!open) setEditingField(null);
-        }}
-        onSubmit={(values) => {
-          if (!selectedGroup) return;
-
-          const currentFields = selectedGroup.fields || [];
-          const nextField: ITourCustomField = {
-            ...(editingField?._id ? { _id: editingField._id } : {}),
-            label: values.label,
-            code: values.code || generateCode(values.label),
-            type: values.type,
-            description: values.description,
-            isRequired: values.isRequired,
-            options: parseOptions(values.options),
-          };
-          const nextFields = editingField
-            ? currentFields.map((field) =>
-                field._id === editingField._id ? nextField : field,
-              )
-            : [...currentFields, nextField];
-
-          upsertGroupFields(selectedGroup, nextFields);
-          setFieldDrawerOpen(false);
-          setEditingField(null);
-        }}
-      />
     </div>
   );
 };
@@ -810,402 +471,6 @@ const FieldList = ({
     </div>
   );
 };
-
-const TourTypeDrawer = ({
-  open,
-  editingType,
-  onOpenChange,
-  onSubmit,
-}: {
-  open: boolean;
-  branchId: string;
-  editingType: ITourCustomPostType | null;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (values: TourTypeForm) => void;
-}) => {
-  const { t } = useTranslation('tourism');
-  const form = useForm<TourTypeForm>({
-    defaultValues: {
-      label: '',
-      pluralLabel: '',
-      code: '',
-      description: '',
-      isActive: true,
-    },
-  });
-
-  useEffect(() => {
-    if (!open) return;
-    form.reset({
-      label: editingType?.label || '',
-      pluralLabel: editingType?.pluralLabel || '',
-      code: editingType?.code || '',
-      description: editingType?.description || '',
-      isActive: editingType?.isActive ?? true,
-    });
-  }, [editingType, form, open]);
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.View className="p-0 sm:max-w-lg">
-        <Sheet.Header>
-          <Sheet.Title>
-            {editingType ? t('edit-tour-type') : t('new-tour-type')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Form {...form}>
-          <form
-            className="flex flex-col h-full"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <Sheet.Content className="p-4 space-y-4">
-              <TextField
-                form={form}
-                name="label"
-                label={t('label')}
-                onChange={(value) => {
-                  if (!editingType && !form.getValues('code')) {
-                    form.setValue('code', generateCode(value));
-                  }
-                  if (!editingType && !form.getValues('pluralLabel')) {
-                    form.setValue('pluralLabel', `${value}s`);
-                  }
-                }}
-              />
-              <TextField form={form} name="pluralLabel" label={t('plural-label')} />
-              <TextField form={form} name="code" label={t('key')} />
-              <TextAreaField
-                form={form}
-                name="description"
-                label={t('description')}
-              />
-              <Form.Field
-                control={form.control}
-                name="isActive"
-                render={({ field }) => (
-                  <Form.Item className="flex items-center gap-2">
-                    <Form.Control>
-                      <Switch
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Label>{t('active')}</Form.Label>
-                  </Form.Item>
-                )}
-              />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                {t('cancel')}
-              </Button>
-              <Button type="submit">{editingType ? t('save') : t('create')}</Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-const FieldGroupDrawer = ({
-  open,
-  typeOptions,
-  editingGroup,
-  onOpenChange,
-  onSubmit,
-}: {
-  open: boolean;
-  branchId: string;
-  typeOptions: ITourCustomPostType[];
-  editingGroup: ITourCustomFieldGroup | null;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (values: FieldGroupForm) => void;
-}) => {
-  const { t } = useTranslation('tourism');
-  const form = useForm<FieldGroupForm>({
-    defaultValues: {
-      label: '',
-      code: '',
-      customTourTypeIds: [],
-    },
-  });
-  const typeSelectOptions = useMemo(
-    () =>
-      typeOptions.map((type) => ({
-        label: type.label || type.code || t('unnamed-type'),
-        value: type._id,
-      })),
-    [typeOptions, t],
-  );
-
-  useEffect(() => {
-    if (!open) return;
-    form.reset({
-      label: editingGroup?.label || '',
-      code: editingGroup?.code || '',
-      customTourTypeIds: editingGroup?.customTourTypeIds || [],
-    });
-  }, [editingGroup, form, open]);
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.View className="p-0 sm:max-w-lg">
-        <Sheet.Header>
-          <Sheet.Title>
-            {editingGroup ? t('edit-field-group') : t('new-field-group')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Form {...form}>
-          <form
-            className="flex flex-col h-full"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <Sheet.Content className="p-4 space-y-4">
-              <TextField
-                form={form}
-                name="label"
-                label={t('label')}
-                onChange={(value) => {
-                  if (!editingGroup && !form.getValues('code')) {
-                    form.setValue('code', generateCode(value));
-                  }
-                }}
-              />
-              <TextField form={form} name="code" label={t('key')} />
-              <Form.Field
-                control={form.control}
-                name="customTourTypeIds"
-                render={({ field }) => {
-                  const selectedValues = field.value || [];
-
-                  return (
-                    <Form.Item>
-                      <Form.Label>{t('show-on-tour-types')}</Form.Label>
-                      <Form.Control>
-                        <MultipleSelector
-                          value={typeSelectOptions.filter((option) =>
-                            selectedValues.includes(option.value),
-                          )}
-                          options={typeSelectOptions}
-                          placeholder={t('select-tour-types')}
-                          hidePlaceholderWhenSelected
-                          emptyIndicator={t('no-tour-types')}
-                          onChange={(options) =>
-                            field.onChange(
-                              options.map((option) => option.value),
-                            )
-                          }
-                        />
-                      </Form.Control>
-                    </Form.Item>
-                  );
-                }}
-              />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                {t('cancel')}
-              </Button>
-              <Button type="submit">{editingGroup ? t('save') : t('create')}</Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-const FieldDrawer = ({
-  open,
-  editingField,
-  onOpenChange,
-  onSubmit,
-}: {
-  open: boolean;
-  editingField: ITourCustomField | null;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (values: FieldForm) => void;
-}) => {
-  const { t } = useTranslation('tourism');
-  const form = useForm<FieldForm>({
-    defaultValues: buildFieldFormValues(),
-  });
-  const type = form.watch('type');
-  const needsOptions = ['select', 'multiSelect', 'radio'].includes(type);
-
-  useEffect(() => {
-    if (!open) return;
-    form.reset(buildFieldFormValues(editingField));
-  }, [editingField, form, open]);
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <Sheet.View className="p-0 sm:max-w-lg">
-        <Sheet.Header>
-          <Sheet.Title>{editingField ? t('edit-field') : t('new-field')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Form {...form}>
-          <form
-            className="flex flex-col h-full"
-            onSubmit={form.handleSubmit(onSubmit)}
-          >
-            <Sheet.Content className="p-4 space-y-4">
-              <TextField
-                form={form}
-                name="label"
-                label={t('label')}
-                onChange={(value) => {
-                  if (!editingField && !form.getValues('code')) {
-                    form.setValue('code', generateCode(value));
-                  }
-                }}
-              />
-              <TextField form={form} name="code" label={t('key')} />
-              <Form.Field
-                control={form.control}
-                name="type"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('field-type')}</Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder={t('select-field-type')} />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {FIELD_TYPES.map((option) => (
-                            <Select.Item
-                              key={option.value}
-                              value={option.value}
-                            >
-                              {t(`field-type-${option.value}`)}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                  </Form.Item>
-                )}
-              />
-              <TextAreaField
-                form={form}
-                name="description"
-                label={t('description')}
-              />
-              {needsOptions && (
-                <TextField
-                  form={form}
-                  name="options"
-                  label={t('options')}
-                  placeholder={t('option-placeholder')}
-                />
-              )}
-              <Form.Field
-                control={form.control}
-                name="isRequired"
-                render={({ field }) => (
-                  <Form.Item className="flex items-center gap-2">
-                    <Form.Control>
-                      <Switch
-                        checked={!!field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </Form.Control>
-                    <Form.Label>{t('required')}</Form.Label>
-                  </Form.Item>
-                )}
-              />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                {t('cancel')}
-              </Button>
-              <Button type="submit">{editingField ? t('save') : t('create')}</Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
-const TextField = ({
-  form,
-  name,
-  label,
-  placeholder,
-  onChange,
-}: {
-  form: any;
-  name: string;
-  label: string;
-  placeholder?: string;
-  onChange?: (value: string) => void;
-}) => (
-  <Form.Field
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>{label}</Form.Label>
-        <Form.Control>
-          <Input
-            {...field}
-            placeholder={placeholder || label}
-            onChange={(event) => {
-              field.onChange(event);
-              onChange?.(event.target.value);
-            }}
-          />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
-
-const TextAreaField = ({
-  form,
-  name,
-  label,
-}: {
-  form: any;
-  name: string;
-  label: string;
-}) => (
-  <Form.Field
-    control={form.control}
-    name={name}
-    render={({ field }) => (
-      <Form.Item>
-        <Form.Label>{label}</Form.Label>
-        <Form.Control>
-          <Textarea {...field} rows={4} />
-        </Form.Control>
-        <Form.Message />
-      </Form.Item>
-    )}
-  />
-);
 
 const LoadingBlock = () => (
   <div className="flex items-center justify-center h-40">

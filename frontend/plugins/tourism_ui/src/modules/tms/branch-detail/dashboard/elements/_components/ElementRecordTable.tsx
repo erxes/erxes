@@ -1,7 +1,7 @@
 import { IconPuzzle } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ElementCreateSheet } from './ElementCreateSheet';
+import { ElementCreateButton } from './ElementPanel';
 import { elementColumns } from './ElementColumns';
 import { useElements } from '../hooks/useElements';
 import { useElementCategories } from '../hooks/useElementCategories';
@@ -12,13 +12,11 @@ import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 
 interface ElementRecordTableProps {
   branchId: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 export const ElementRecordTable = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: ElementRecordTableProps) => {
   const { t } = useTranslation('tourism');
@@ -43,24 +41,12 @@ export const ElementRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
-      columns={elementColumns(
-        getCategoryNamesByIds,
-        branchId,
-        branchLanguages,
-        mainLanguage,
-        t,
-      )}
+      columns={elementColumns(getCategoryNamesByIds, branchId, t)}
       data={elements || []}
       className="h-full"
       stickyColumns={['more', 'checkbox', 'name']}
@@ -91,15 +77,7 @@ export const ElementRecordTable = ({
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}) {
+function EmptyStateRow({ branchId }: { branchId: string }) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -113,11 +91,7 @@ function EmptyStateRow({
         {t('no-elements-yet-desc')}
       </p>
 
-      <ElementCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <ElementCreateButton branchId={branchId} />
     </div>
   );
 }
