@@ -1,9 +1,9 @@
-import { splitType } from 'erxes-api-shared/core-modules';
 import { Resolver } from 'erxes-api-shared/core-types';
-import { getEnv, graphqlPubsub, sendWorkerQueue } from 'erxes-api-shared/utils';
+import { getEnv, graphqlPubsub } from 'erxes-api-shared/utils';
 import { CURRENCIES, PAYMENT_STATUS } from '~/constants';
 import { IContext } from '~/connectionResolvers';
 import { IInvoice, IInvoiceEditInput } from '~/modules/payment/@types/invoices';
+import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 import { buildInvoiceUrl } from '~/modules/payment/services/invoiceUrl';
 
 const mutations: Record<string, Resolver<any, any, IContext>> = {
@@ -89,62 +89,21 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
+    if (status === 'paid' && claimed) {
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
         );
-
-        sendWorkerQueue(pluginName, 'payments')
-          .add(
-            'callback',
-            {
-              subdomain,
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-                apiResponse: 'success',
-              },
-            },
-            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-          )
-          .catch((err) => {
-            process.stderr.write(
-              `[invoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-            );
-          });
-      }
-
-      if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
       }
     }
 
@@ -157,62 +116,21 @@ const mutations: Record<string, Resolver<any, any, IContext>> = {
     { _id }: { _id: string },
     { subdomain, models }: IContext,
   ) {
-    const status = await models.Invoices.checkInvoice(_id, subdomain);
+    const { status, claimed } = await models.Invoices.checkInvoiceAndClaim(
+      _id,
+      subdomain,
+    );
 
-    if (status === 'paid') {
-      const invoice = await models.Invoices.getInvoice({ _id }, true);
-
-      if (invoice.contentType) {
-        const [pluginName, moduleName, collectionType] = splitType(
-          invoice.contentType,
+    // notify only if this call moved the invoice to paid; if this fails,
+    // notifyPending stays set and the pending-invoice cron retries
+    if (status === 'paid' && claimed) {
+      try {
+        await notifyPaidInvoice(models, subdomain, _id);
+      } catch (err) {
+        console.error(
+          `[invoicesCheck] Failed to queue paid notifications for invoice ${_id}:`,
+          err,
         );
-
-        sendWorkerQueue(pluginName, 'payments')
-          .add(
-            'callback',
-            {
-              subdomain,
-              data: {
-                ...invoice,
-                status: 'paid',
-                moduleName,
-                collectionType,
-                apiResponse: 'success',
-              },
-            },
-            { attempts: 3, backoff: { type: 'exponential', delay: 2000 } },
-          )
-          .catch((err) => {
-            process.stderr.write(
-              `[cpInvoicesCheck] Failed to enqueue worker job for invoice ${invoice._id}: ${err.message}\n`,
-            );
-          });
-      }
-
-      if (invoice.callback) {
-        // Fire callback – do not await
-        fetch(invoice.callback, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            _id: invoice._id,
-            amount: invoice.amount,
-            status: 'paid',
-          }),
-        })
-          .then((res) => {
-            if (!res.ok) {
-              throw new Error(`HTTP ${res.status} – ${res.statusText}`);
-            }
-          })
-          .catch((err) => {
-            console.error(
-              `[invoicesCheck] Callback failed for invoice ${_id}:`,
-              err,
-            );
-          });
       }
     }
 
