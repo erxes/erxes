@@ -200,11 +200,12 @@ const paginateDataSources = async (
     offsets.push(0);
   }
 
-  const batches = await Promise.all(
-    sources.map((source, index) => source.fetch(offsets[index], limit)),
-  );
-
-  const counts = await Promise.all(sources.map((source) => source.count()));
+  const [batches, counts] = await Promise.all([
+    Promise.all(
+      sources.map((source, index) => source.fetch(offsets[index], limit)),
+    ),
+    Promise.all(sources.map((source) => source.count())),
+  ]);
   const totalCount = counts.reduce((sum, count) => sum + count, 0);
 
   const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
