@@ -43,6 +43,9 @@ export const PMS_BRANCH_QUERY_KEY = 'branchId';
 
 const TMS_BRANCH_ROUTE = '/tourism/tms/branches/:branchId';
 
+const GROUP_CLASS_NAME =
+  '[&_[data-sidebar=group-label]]:min-w-0 [&_[data-sidebar=group-label]>span]:truncate';
+
 const getTmsBranchPath = (branchId: string, section: string) =>
   `/tourism/tms/branches/${branchId}?activeTab=${section}`;
 
@@ -159,7 +162,10 @@ const TmsSubNavigation = () => {
   const activeSection = new URLSearchParams(search).get('activeTab') || 'tour';
 
   return (
-    <NavigationMenuGroup name={t('tour-management')}>
+    <NavigationMenuGroup
+      name={t('tour-management')}
+      className={GROUP_CLASS_NAME}
+    >
       {loading && !list.length ? (
         <NavigationSkeleton />
       ) : (
@@ -186,7 +192,10 @@ const PmsSubNavigation = () => {
     new URLSearchParams(search).get(PMS_BRANCH_QUERY_KEY) || '';
 
   return (
-    <NavigationMenuGroup name={t('property-management')}>
+    <NavigationMenuGroup
+      name={t('property-management')}
+      className={GROUP_CLASS_NAME}
+    >
       {loading && !list.length ? (
         <NavigationSkeleton />
       ) : (

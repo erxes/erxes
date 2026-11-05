@@ -5,6 +5,7 @@ import {
   ControllerRenderProps,
   FieldPath,
   FieldValues,
+  RegisterOptions,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Form } from 'erxes-ui';
@@ -67,6 +68,7 @@ export const TourismPanelFormField = <
   label,
   required,
   block,
+  rules,
   render,
 }: {
   control: Control<TValues>;
@@ -74,6 +76,10 @@ export const TourismPanelFormField = <
   label: ReactNode;
   required?: boolean;
   block?: boolean;
+  rules?: Omit<
+    RegisterOptions<TValues, TName>,
+    'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
+  >;
   render: (
     field: ControllerRenderProps<TValues, TName>,
     fieldState: ControllerFieldState,
@@ -82,6 +88,7 @@ export const TourismPanelFormField = <
   <Form.Field
     control={control}
     name={name}
+    rules={rules}
     render={({ field, fieldState }) =>
       block ? (
         <TourismPanelFormBlock
