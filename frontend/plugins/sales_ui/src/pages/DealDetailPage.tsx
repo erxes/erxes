@@ -90,7 +90,7 @@ const DealPageBreadcrumb = ({ dealId }: { dealId: string }) => {
           <>
             <Separator.Inline />
             <Breadcrumb.Item className="min-w-0">
-              <Breadcrumb.Page className="flex min-w-0 px-2 text-sm">
+              <Breadcrumb.Page className="flex min-w-0 max-w-md px-2 text-sm">
                 <TextOverflowTooltip value={deal.name || t('untitled')} />
               </Breadcrumb.Page>
             </Breadcrumb.Item>

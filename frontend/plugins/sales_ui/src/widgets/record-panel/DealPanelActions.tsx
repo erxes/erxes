@@ -43,20 +43,15 @@ export const DealPanelActions = ({
       <DealsProvider>
         <div className="flex items-center gap-1 [&_button]:h-7 [&_button]:text-xs">
           {productConfigUrl && (
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-7"
-              title={t('product-config')}
-              aria-label={t('product-config')}
-              asChild
-            >
+            <Button variant="outline" className="gap-2" asChild>
               <Link to={productConfigUrl}>
-                <IconSettings className="size-4" />
+                <IconSettings size={16} />
+                {t('product-config')}
               </Link>
             </Button>
           )}
           <MoveDealDropdown deal={deal} />
+          <DealsActions deals={[deal]} variant="menu" />
         </div>
       </DealsProvider>
     );
