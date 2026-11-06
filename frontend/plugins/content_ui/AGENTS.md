@@ -135,7 +135,9 @@
   `shared/hooks/useCmsTranslation.ts`. While the CMS settings or a no-default
   site's rows are loading, or after that load fails, `isBlocked` is on: the save
   handler refuses and the save button is disabled, without a "Saving" label. A
-  failed load also shows `CmsSavedRowLoadError` with a retry. While blocked, never
+  failed load also shows `CmsSavedRowLoadError` with a retry. `MenuPanel`
+  renders a spinner instead of its form while blocked and only the retry error
+  after a failed load, because `PanelFormLayout` has no disabled prop. While blocked, never
   keep a copy of the default language's text, because it may be stale stored text.
 - Post and page edit payloads always send the gallery (`images`/`pageImages`),
   `documents`, and `attachments` lists, even when empty: the backend applies
@@ -153,7 +155,8 @@
   edits, external document replacement, and editor unmount. Every post save
   (button and Cmd/Ctrl+S) awaits `flushCmsEditors()` from
   `posts/utils/editorFlush.ts` so a pending debounced editor output reaches the
-  form before `handleSubmit`.
+  form before `handleSubmit`; an in-flight ref ignores repeated saves until the
+  current one settles.
 - CMS routes are keyed by `clientPortalId` (the `websiteId` param), so each
   CMS must use its own real client portal. The CMS side panel
   (`WebsitePanel.tsx`) has no default portal, rejects unknown portals and disables portals bound to another CMS;

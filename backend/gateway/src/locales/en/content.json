@@ -502,5 +502,7 @@
   "use-this-template": "Use this template",
   "thumbnail": "Thumbnail",
   "thumbnail-hint": "Shown on the web project card",
-  "edit-web-project": "Edit Web Project"
+  "edit-web-project": "Edit Web Project",
+  "default": "Default",
+  "open-website": "Open website"
 }

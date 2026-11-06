@@ -185,7 +185,7 @@ export const ContentPanelLanguageRow = ({
               {option.label}
               {option.isDefault && (
                 <span className="ml-2 text-xs text-muted-foreground">
-                  ({t('default', 'Default')})
+                  ({t('default')})
                 </span>
               )}
               {option.hasTranslation && (

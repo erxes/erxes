@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle, IconExternalLink } from '@tabler/icons-react';
-import { Checkbox, Form, Input, Select, toast } from 'erxes-ui';
+import { Checkbox, Form, Input, Select, Spinner, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { PanelFormLayout } from 'ui-modules';
 import { CMS_MENU_REMOVE } from '../graphql/queries';
@@ -68,6 +68,18 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
     </span>
   );
 
+  if (savedRowLoad.hasFailed) {
+    return (
+      <div className="p-3">
+        <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+      </div>
+    );
+  }
+
+  if (savedRowLoad.isBlocked) {
+    return <Spinner containerClassName="py-12" />;
+  }
+
   return (
     <Form {...form}>
       <form
@@ -79,9 +91,6 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
           saving={saving}
           saveLabel={isEditing ? t('save-changes') : t('create-menu')}
         >
-          {savedRowLoad.hasFailed && (
-            <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
-          )}
           {hasPermissionError && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3">
               <div className="flex items-start gap-2">

@@ -1,6 +1,6 @@
 import { IconArchive } from '@tabler/icons-react';
 import { Button, Form, Popover, Select, Spinner, Switch, cn } from 'erxes-ui';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   FieldValues,
   UseFormReturn,
@@ -214,10 +214,18 @@ export const AddPostHeaderActions = ({
   const { isDirty } = useFormState({ control: form.control });
   const disabled = creating || saving || isSaveBlocked;
 
+  const submittingRef = useRef(false);
+
   const submit = useCallback(() => {
+    if (submittingRef.current) return;
+
+    submittingRef.current = true;
     flushCmsEditors()
       .then(() => form.handleSubmit(onSubmit)())
-      .catch(() => undefined);
+      .catch(() => undefined)
+      .finally(() => {
+        submittingRef.current = false;
+      });
   }, [form, onSubmit]);
 
   useEffect(() => {

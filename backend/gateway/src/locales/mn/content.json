@@ -502,5 +502,7 @@
   "use-this-template": "Энэ загварыг ашиглах",
   "thumbnail": "Нүүр зураг",
   "thumbnail-hint": "Вэб төслийн карт дээр харагдана",
-  "edit-web-project": "Вэб төсөл засах"
+  "edit-web-project": "Вэб төсөл засах",
+  "default": "Үндсэн",
+  "open-website": "Вэбсайт нээх"
 }

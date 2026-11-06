@@ -80,7 +80,13 @@ const CmsWebsiteActions = ({
     <div className="relative z-10 flex shrink-0 items-center">
       {website.url && (
         <Button variant="ghost" size="icon" asChild>
-          <a href={website.url} target="_blank" rel="noopener noreferrer">
+          <a
+            href={website.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={t('open-website')}
+            title={t('open-website')}
+          >
             <IconArrowUpRight />
           </a>
         </Button>
