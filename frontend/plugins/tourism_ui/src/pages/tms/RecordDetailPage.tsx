@@ -127,22 +127,23 @@ export const RecordDetailPage = () => {
     () => ({ contentType, contentId: recordId }),
     [contentType, recordId],
   );
+  const navigator = useMemo<ISidePanelNavigator>(() => {
+    const backToList = () => navigate(listPath);
+
+    return {
+      record,
+      tab: tab ?? '',
+      setTab,
+      openRecord,
+      back: backToList,
+      canGoBack: false,
+      close: backToList,
+    };
+  }, [record, tab, setTab, openRecord, navigate, listPath]);
 
   if (!panel || !TOURISM_RECORD_SECTIONS[contentType]) {
     return <Navigate to={listPath} replace />;
   }
-
-  const backToList = () => navigate(listPath);
-
-  const navigator: ISidePanelNavigator = {
-    record,
-    tab: tab ?? '',
-    setTab,
-    openRecord,
-    back: backToList,
-    canGoBack: false,
-    close: backToList,
-  };
 
   const viewProps = { contentType, contentId: recordId };
 

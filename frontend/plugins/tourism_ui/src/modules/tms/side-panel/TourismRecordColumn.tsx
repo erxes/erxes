@@ -23,7 +23,7 @@ export const TourismRecordColumn = ({
 
   useEffect(() => () => stopDrag.current?.(), []);
 
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) return;
     event.preventDefault();
     stopDrag.current?.();
@@ -55,7 +55,7 @@ export const TourismRecordColumn = ({
     setDragging(true);
   };
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     const step = event.shiftKey ? KEY_STEP * 4 : KEY_STEP;
     const widths: Record<string, number> = {
       ArrowLeft: width - step,
@@ -80,14 +80,9 @@ export const TourismRecordColumn = ({
         {header}
       </div>
       {children}
-      <div
-        role="separator"
-        aria-orientation="vertical"
+      <button
+        type="button"
         aria-label={t('resize', 'Resize side panel')}
-        aria-valuenow={width}
-        aria-valuemin={MIN_WIDTH}
-        aria-valuemax={MAX_WIDTH}
-        tabIndex={0}
         title={t('drag-to-resize', 'Drag to resize')}
         data-resizing={dragging || undefined}
         onPointerDown={handlePointerDown}
@@ -95,7 +90,7 @@ export const TourismRecordColumn = ({
         className="group absolute inset-y-0 -right-2 z-10 flex w-4 cursor-col-resize touch-none items-center justify-center outline-none after:absolute after:inset-y-0 after:w-px after:bg-transparent hover:after:bg-primary/50 focus-visible:after:bg-primary data-[resizing=true]:after:bg-primary"
       >
         <span className="relative z-10 h-10 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary group-data-[resizing=true]:bg-primary" />
-      </div>
+      </button>
     </div>
   );
 };
