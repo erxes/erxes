@@ -79,6 +79,8 @@
   and on `salesDealCountsChanged` (`salesDealListChanged` for the selected
   pipeline, `action` only), so own adds, moves, and archives update without a
   reload; other pipelines' changes by other users show on the next refetch.
+  A pipeline with no count (query error, or created since the last fetch)
+  shows the round skeleton while loading and nothing after, never a false 0.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
 - The deals list's bulk bar opens an "Actions" menu. Duplicate and Archive ask

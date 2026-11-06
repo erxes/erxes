@@ -9,6 +9,7 @@ import {
   TextOverflowTooltip,
   cn,
   isDefined,
+  isUndefinedOrNull,
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
@@ -53,11 +54,15 @@ function DealCount({
   count,
   loading,
 }: Readonly<{ count?: number; loading: boolean }>) {
-  return loading ? (
-    <Skeleton className="size-4 shrink-0 rounded-full" />
-  ) : (
+  if (isUndefinedOrNull(count)) {
+    return loading ? (
+      <Skeleton className="size-4 shrink-0 rounded-full" />
+    ) : null;
+  }
+
+  return (
     <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
-      {count ?? 0}
+      {count}
     </span>
   );
 }

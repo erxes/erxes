@@ -15,7 +15,7 @@ export const useBoardDealCounts = ({
   pipelineId?: string | null;
 }) => {
   const currentUser = useAtomValue(currentUserState);
-  const { data, loading, refetch } = useQuery(GET_BOARD_DEAL_COUNTS, {
+  const { data, loading, error, refetch } = useQuery(GET_BOARD_DEAL_COUNTS, {
     fetchPolicy: 'cache-and-network',
     pollInterval: 30000,
   });
@@ -39,6 +39,8 @@ export const useBoardDealCounts = ({
   return useMemo(() => {
     const byPipeline: Record<string, number> = {};
 
+    if (error) return { byPipeline, loading };
+
     for (const board of data?.salesBoards?.filter(isDefined) || []) {
       for (const pipeline of board.pipelines?.filter(isDefined) || []) {
         byPipeline[pipeline._id] = pipeline.itemsTotalCount ?? 0;
@@ -46,5 +48,5 @@ export const useBoardDealCounts = ({
     }
 
     return { byPipeline, loading };
-  }, [data, loading]);
+  }, [data, loading, error]);
 };
