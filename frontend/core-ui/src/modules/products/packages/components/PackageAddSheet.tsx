@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconPackage, IconPlus } from '@tabler/icons-react';
 import {
@@ -9,6 +8,7 @@ import {
   Input,
   ScrollArea,
   Select,
+  Sheet,
   Spinner,
   Textarea,
   toast,
@@ -26,10 +26,10 @@ import {
   IPackageProduct,
   PACKAGE_STATUSES,
   PACKAGE_STATUS_OPTIONS,
-} from '@/products/packages/types/Package';
-import { useAddPackage } from '@/products/packages/hooks/usePackageMutations';
-import { usePricing } from '@/products/packages/hooks/usePricing';
-import { PackageProductPicker } from '@/products/packages/components/PackageProductPicker';
+} from '../types/Package';
+import { useAddPackage } from '../hooks/usePackageMutations';
+import { usePricing } from '../hooks/usePricing';
+import { PackageProductPicker } from './PackageProductPicker';
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
@@ -89,44 +89,39 @@ export const PackageAddSheet = () => {
         title: t('package-created', 'Package created'),
       });
       handleClose();
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast({
         variant: 'destructive',
         title: t('create-failed', 'Failed to create package'),
-        description: e instanceof Error ? e.message : undefined,
+        description: e?.message,
       });
     }
   };
 
   return (
-    <CoreModulePanel
-      defaultWidth={1000}
-      maxWidth={1200}
-      name={'products/packages/PackageAddSheet'}
+    <Sheet
       open={open}
       onOpenChange={(v) => (v ? setOpen(true) : handleClose())}
     >
-      <CoreModulePanel.Trigger asChild>
+      <Sheet.Trigger asChild>
         <Button>
           <IconPlus />
           {t('new-package', 'New package')}
         </Button>
-      </CoreModulePanel.Trigger>
-      <CoreModulePanel.View className="p-0 sm:max-w-5xl">
+      </Sheet.Trigger>
+      <Sheet.View className="p-0 sm:max-w-5xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col flex-auto overflow-hidden"
           >
-            <CoreModulePanel.Header className="flex gap-2">
+            <Sheet.Header className="flex gap-2">
               <IconPackage />
-              <CoreModulePanel.Title>
-                {t('new-package', 'New package')}
-              </CoreModulePanel.Title>
-              <CoreModulePanel.Close />
-            </CoreModulePanel.Header>
+              <Sheet.Title>{t('new-package', 'New package')}</Sheet.Title>
+              <Sheet.Close />
+            </Sheet.Header>
 
-            <CoreModulePanel.Content className="flex flex-auto p-0 overflow-hidden">
+            <Sheet.Content className="flex flex-auto p-0 overflow-hidden">
               <ScrollArea className="border-r w-2/5 h-full shrink-0">
                 <div className="flex flex-col gap-4 p-5">
                   <InfoCard title={t('basic-information', 'Basic information')}>
@@ -209,8 +204,8 @@ export const PackageAddSheet = () => {
                                     Array.isArray(value)
                                       ? value
                                       : value
-                                      ? [value]
-                                      : [],
+                                        ? [value]
+                                        : [],
                                   )
                                 }
                               />
@@ -315,9 +310,9 @@ export const PackageAddSheet = () => {
                   disabled={saving}
                 />
               </div>
-            </CoreModulePanel.Content>
+            </Sheet.Content>
 
-            <CoreModulePanel.Footer className="flex-none">
+            <Sheet.Footer className="flex-none">
               <Button
                 type="button"
                 variant="outline"
@@ -330,10 +325,10 @@ export const PackageAddSheet = () => {
                 {saving && <Spinner containerClassName="flex-none" />}
                 {t('create', 'Create')}
               </Button>
-            </CoreModulePanel.Footer>
+            </Sheet.Footer>
           </form>
         </Form>
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };

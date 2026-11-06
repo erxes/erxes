@@ -1,13 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { IconFilter, IconPlus } from '@tabler/icons-react';
-import { Button, Kbd, RecordTable } from 'erxes-ui';
-import { Can, useSidePanel } from 'ui-modules';
-import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
+import { IconFilter } from '@tabler/icons-react';
+import { RecordTable } from 'erxes-ui';
 import { useBundleConditions } from '@/products/settings/hooks/useBundleConditions';
 import { useBundleConditionsVariables } from '@/products/settings/hooks/useBundleConditionsVariables';
 import { bundleConditionColumns } from './bundleConditionColumns';
 import { BundleConditionCommandBar } from './BundleConditionCommandBar';
-import { BUNDLE_CONDITION_CREATE_PANEL } from './BundleConditionSheet';
+import { BundleConditionSheet } from './BundleConditionSheet';
 
 export const BundleConditionRecordTable = () => {
   const variables = useBundleConditionsVariables();
@@ -40,8 +38,6 @@ export const BundleConditionRecordTable = () => {
 };
 
 function EmptyStateRow() {
-  const { openPath } = useSidePanel();
-  const { t: tAdd } = useTranslation('product', { keyPrefix: 'add' });
   const { t } = useTranslation('product', { keyPrefix: 'bundle-conditions' });
   return (
     <div className="flex flex-col gap-2 justify-center items-center p-6 w-full h-full text-center">
@@ -50,17 +46,7 @@ function EmptyStateRow() {
         {t('empty-title')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
-      <Can action="bundleConditionsManage">
-        <Button
-          onClick={() =>
-            openPath(getModulePanelPath(BUNDLE_CONDITION_CREATE_PANEL))
-          }
-        >
-          <IconPlus />
-          {tAdd('add-bundle-condition')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Can>
+      <BundleConditionSheet />
     </div>
   );
 }

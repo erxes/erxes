@@ -1,13 +1,12 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable, Sheet } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
 import { useProductConditionsRemove } from '@/products/settings/hooks/useProductConditionsRemove';
-import { ConditionForm } from '@/products/settings/components/productsConfig/condition/ConditionForm';
-import { IProductCondition } from '@/products/settings/components/productsConfig/condition/types';
+import { ConditionForm } from './ConditionForm';
+import { IProductCondition } from './types';
 
 const ConditionMoreColumn = ({
   row,
@@ -43,22 +42,16 @@ const ConditionMoreColumn = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <CoreModulePanel
-        requiredPermission="productsConfigsManage"
-        name={`products/settings/productsConfig/condition/ConditionMoreColumn/${row.original._id}`}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-        modal
-      >
-        <CoreModulePanel.View className="p-0 sm:max-w-lg">
+      <Sheet open={editOpen} onOpenChange={setEditOpen} modal>
+        <Sheet.View className="p-0 sm:max-w-lg">
           {editOpen && (
             <ConditionForm
               condition={row.original}
               onDone={() => setEditOpen(false)}
             />
           )}
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </>
   );
 };

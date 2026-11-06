@@ -7,6 +7,7 @@ import {
   Label,
   NumberInput,
   Select,
+  useQueryState,
 } from 'erxes-ui';
 import {
   SelectCategory,
@@ -16,48 +17,30 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
+import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/productTypes';
 import { useProductLastCodeByCategory } from 'ui-modules/modules/products/hooks/useProducts';
 import { SuggestedProductCodeInput } from 'ui-modules/modules/products/components/SuggestedProductCodeInput';
 import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
-import { ProductPanelGeneralFields } from './ProductPanelGeneralFields';
 
-export const ProductDetailGeneral = ({
-  compact = false,
-}: {
-  compact?: boolean;
-}) => {
+export const ProductDetailGeneral = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const form = useFormContext<ProductFormValues>();
+  const [productId] = useQueryState<string>(PRODUCT_QUERY_KEY);
   const productType = form.watch('type');
   const categoryId = form.watch('categoryId');
   const code = form.watch('code');
-  const { productDetail, productId } = useProductDetail();
+  const { productDetail } = useProductDetail();
   const { suggestedCode } = useProductLastCodeByCategory(
     code?.trim() ? undefined : categoryId,
   );
 
-  if (compact) {
-    return (
-      <ProductPanelGeneralFields
-        productId={productId}
-        codeDisabled={!!productDetail?.similarityId}
-        suggestedCode={suggestedCode}
-        durationTypes={PRODUCT_DURATION_TYPES}
-      />
-    );
-  }
-
   return (
     <InfoCard title={t('product-information')}>
       <InfoCard.Content>
-        <div
-          className={
-            compact ? 'grid grid-cols-1 gap-3' : 'grid grid-cols-2 gap-4'
-          }
-        >
+        <div className="grid grid-cols-2 gap-4">
           <Form.Field
             control={form.control}
             name="categoryId"
@@ -200,7 +183,7 @@ export const ProductDetailGeneral = ({
                 typeof field.value === 'string' ? field.value : '';
 
               return (
-                <div className={compact ? 'space-y-2' : 'col-span-2 space-y-2'}>
+                <div className="col-span-2 space-y-2">
                   <Label>{t('unit-of-measurements')}</Label>
                   <SelectUOMWithName
                     key={uomValue || 'empty'}
@@ -218,7 +201,7 @@ export const ProductDetailGeneral = ({
             control={form.control}
             name="description"
             render={({ field }) => (
-              <div className={compact ? 'space-y-2' : 'col-span-2 space-y-2'}>
+              <div className="col-span-2 space-y-2">
                 <Label>{t('description')}</Label>
                 <Editor
                   key={productId || 'new-product'}

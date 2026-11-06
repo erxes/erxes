@@ -1,9 +1,8 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { IconAlertTriangle } from '@tabler/icons-react';
-import { Alert, Button, Form, Input, Textarea } from 'erxes-ui';
+import { Alert, Button, Form, Input, Sheet, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useConditionForm } from '@/products/settings/hooks/useConditionForm';
-import { IProductCondition } from '@/products/settings/components/productsConfig/condition/types';
+import { IProductCondition } from './types';
 
 export const ConditionForm = ({
   condition,
@@ -21,15 +20,15 @@ export const ConditionForm = ({
   return (
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col h-full">
-        <CoreModulePanel.Header>
-          <CoreModulePanel.Title>
+        <Sheet.Header>
+          <Sheet.Title>
             {condition
               ? t('edit-condition', 'Edit condition')
               : t('add-condition', 'Add condition')}
-          </CoreModulePanel.Title>
-          <CoreModulePanel.Close />
-        </CoreModulePanel.Header>
-        <CoreModulePanel.Content className="flex flex-col gap-4 p-5 overflow-y-auto">
+          </Sheet.Title>
+          <Sheet.Close />
+        </Sheet.Header>
+        <Sheet.Content className="flex flex-col gap-4 p-5 overflow-y-auto">
           <Form.Field
             control={form.control}
             name="code"
@@ -37,10 +36,7 @@ export const ConditionForm = ({
               <Form.Item>
                 <Form.Label>{t('code', 'Code')}</Form.Label>
                 <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t('condition-code', 'e.g. DENTED')}
-                  />
+                  <Input {...field} placeholder={t('condition-code', 'e.g. DENTED')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -68,10 +64,7 @@ export const ConditionForm = ({
               <Form.Item>
                 <Form.Label>{t('name', 'Name')}</Form.Label>
                 <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t('condition-name', 'e.g. Dented')}
-                  />
+                  <Input {...field} placeholder={t('condition-name', 'e.g. Dented')} />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -89,15 +82,15 @@ export const ConditionForm = ({
               </Form.Item>
             )}
           />
-        </CoreModulePanel.Content>
-        <CoreModulePanel.Footer>
+        </Sheet.Content>
+        <Sheet.Footer>
           <Button type="button" variant="ghost" onClick={() => onDone()}>
             {t('cancel', 'Cancel')}
           </Button>
           <Button type="submit" disabled={saving}>
             {t('save', 'Save')}
           </Button>
-        </CoreModulePanel.Footer>
+        </Sheet.Footer>
       </form>
     </Form>
   );

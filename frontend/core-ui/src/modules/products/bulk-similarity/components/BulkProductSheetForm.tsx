@@ -1,21 +1,17 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { Button, Form, InfoCard, toast } from 'erxes-ui';
+import { Button, Form, InfoCard, Sheet, toast } from 'erxes-ui';
 import { IconLoader2 } from '@tabler/icons-react';
 import { FieldErrors, useFormContext, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useBulkProductForm } from '@/products/bulk-similarity/hooks/useBulkProductForm';
-import { useBulkRows } from '@/products/bulk-similarity/hooks/useBulkRows';
-import { BulkSimilarityFormValues } from '@/products/bulk-similarity/constants/bulkSimilaritySchema';
-import {
-  IBulkSaveInput,
-  IProductSimilarity,
-} from '@/products/bulk-similarity/types';
-import { BulkBaseInfo } from '@/products/bulk-similarity/components/BulkBaseInfo';
-import { GeneratedProductsTable } from '@/products/bulk-similarity/components/GeneratedProductsTable';
+import { useBulkProductForm } from '../hooks/useBulkProductForm';
+import { useBulkRows } from '../hooks/useBulkRows';
+import { BulkSimilarityFormValues } from '../constants/bulkSimilaritySchema';
+import { IBulkSaveInput, IProductSimilarity } from '../types';
+import { BulkBaseInfo } from './BulkBaseInfo';
+import { GeneratedProductsTable } from './GeneratedProductsTable';
 import {
   VariantFieldAddButton,
   VariantFieldPicker,
-} from '@/products/bulk-similarity/components/VariantFieldPicker';
+} from './VariantFieldPicker';
 
 interface BulkProductSheetFormProps {
   open: boolean;
@@ -50,19 +46,19 @@ const BulkProductSheetFields = ({
 
   return (
     <>
-      <CoreModulePanel.Header className="flex-row items-center gap-3 space-y-0 p-5 border-b">
-        <CoreModulePanel.Title>
+      <Sheet.Header className="flex-row items-center gap-3 space-y-0 p-5 border-b">
+        <Sheet.Title>
           {similarity?._id
             ? t('edit-similarity', 'Edit similarity')
             : t('new-similarity', 'New similarity')}
-        </CoreModulePanel.Title>
-        <CoreModulePanel.Close />
-        <CoreModulePanel.Description className="sr-only">
+        </Sheet.Title>
+        <Sheet.Close />
+        <Sheet.Description className="sr-only">
           {t('form-description', 'Similarity product form')}
-        </CoreModulePanel.Description>
-      </CoreModulePanel.Header>
+        </Sheet.Description>
+      </Sheet.Header>
 
-      <CoreModulePanel.Content className="flex-auto overflow-auto">
+      <Sheet.Content className="flex-auto overflow-auto">
         <div className="flex flex-col gap-4 p-5">
           <BulkBaseInfo />
 
@@ -91,9 +87,9 @@ const BulkProductSheetFields = ({
             </InfoCard.Content>
           </InfoCard>
         </div>
-      </CoreModulePanel.Content>
+      </Sheet.Content>
 
-      <CoreModulePanel.Footer className="flex-col items-stretch sm:items-stretch gap-2 bg-muted p-2.5 h-auto shrink-0">
+      <Sheet.Footer className="flex-col items-stretch sm:items-stretch gap-2 bg-muted p-2.5 h-auto shrink-0">
         <div className="flex justify-end gap-1">
           <Button
             type="button"
@@ -108,7 +104,7 @@ const BulkProductSheetFields = ({
             {saving ? t('saving', 'Saving…') : t('save', 'Save')}
           </Button>
         </div>
-      </CoreModulePanel.Footer>
+      </Sheet.Footer>
     </>
   );
 };
@@ -142,15 +138,8 @@ export const BulkProductSheetForm = ({
   };
 
   return (
-    <CoreModulePanel
-      maxWidth={1200}
-      defaultWidth={900}
-      name={`products/bulk-similarity/${similarity?._id || 'new'}`}
-      open={open}
-      onOpenChange={onOpenChange}
-      modal
-    >
-      <CoreModulePanel.View className="p-0 w-[70%] md:w-[70%] lg:w-3/4 sm:max-w-screen-2xl">
+    <Sheet open={open} onOpenChange={onOpenChange} modal>
+      <Sheet.View className="p-0 w-[70%] md:w-[70%] lg:w-3/4 sm:max-w-screen-2xl">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSave, handleInvalid)}
@@ -164,7 +153,7 @@ export const BulkProductSheetForm = ({
             />
           </form>
         </Form>
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };

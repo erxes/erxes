@@ -59,7 +59,7 @@ const EditableCell = ({
       onBlur={commit}
       onBeforeInput={(e) => {
         const data = (e.nativeEvent as InputEvent).data;
-        if (numeric && data && /[^0-9.-]/.test(data)) {
+        if (numeric && data && /[^0-9.\-]/.test(data)) {
           e.preventDefault();
         }
       }}
@@ -140,7 +140,6 @@ interface GeneratedProductsTableProps {
 }
 
 const RowSwapCell = ({
-  rowKey,
   index,
   isExcluded,
   productId,
@@ -150,7 +149,6 @@ const RowSwapCell = ({
   fieldIds,
   excludeIds,
 }: {
-  rowKey: string;
   index: number;
   isExcluded: boolean;
   productId?: string;
@@ -183,7 +181,6 @@ const RowSwapCell = ({
   return (
     <div className="flex justify-center items-center">
       <ProductChooserSheet
-        panelId={rowKey}
         excludeIds={excludeIds}
         value={productId}
         valueCode={code}
@@ -238,10 +235,7 @@ const useColumnWidths = (defaults: Record<string, number>) => {
       const startWidth = widths[id] ?? defaults[id] ?? DEFAULT_COLUMN_WIDTH;
 
       const onMove = (e: MouseEvent) => {
-        const next = Math.max(
-          MIN_COLUMN_WIDTH,
-          startWidth + e.clientX - startX,
-        );
+        const next = Math.max(MIN_COLUMN_WIDTH, startWidth + e.clientX - startX);
         setWidths((prev) => ({ ...prev, [id]: next }));
       };
 
@@ -499,9 +493,7 @@ export const GeneratedProductsTable = ({
                               className="mr-1 text-destructive shrink-0"
                             />
                           </Tooltip.Trigger>
-                          <Tooltip.Content>
-                            {t('duplicate-code', 'Duplicate code')}
-                          </Tooltip.Content>
+                          <Tooltip.Content>{t('duplicate-code', 'Duplicate code')}</Tooltip.Content>
                         </Tooltip>
                       </Tooltip.Provider>
                     )}
@@ -550,7 +542,6 @@ export const GeneratedProductsTable = ({
                 })}
                 <Table.Cell className="px-3" style={{ width: widthOf('swap') }}>
                   <RowSwapCell
-                    rowKey={row.key}
                     index={index}
                     isExcluded={isExcluded}
                     productId={row.productId}

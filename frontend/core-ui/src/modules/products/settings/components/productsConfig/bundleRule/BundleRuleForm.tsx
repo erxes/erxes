@@ -1,18 +1,14 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Form, Input, Textarea, useToast } from 'erxes-ui';
+import { Button, Form, Input, Sheet, Textarea, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { useBundleRulesAdd } from '@/products/settings/hooks/useBundleRulesAdd';
 import { useBundleRulesEdit } from '@/products/settings/hooks/useBundleRulesEdit';
-import {
-  IBundleRule,
-  IBundleRuleItem,
-} from '@/products/settings/components/productsConfig/bundleRule/types';
+import { IBundleRule, IBundleRuleItem } from './types';
 import { IconPlus, IconTrash, IconEdit } from '@tabler/icons-react';
 import { useState } from 'react';
-import { BundleRuleItemForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleItemForm';
+import { BundleRuleItemForm } from './BundleRuleItemForm';
 
 const bundleRuleFormSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -144,16 +140,16 @@ export const BundleRuleForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <CoreModulePanel.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <CoreModulePanel.Title>
+        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
+          <Sheet.Title>
             {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </CoreModulePanel.Title>
-          <CoreModulePanel.Close />
-          <CoreModulePanel.Description className="sr-only">
+          </Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
             {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </CoreModulePanel.Description>
-        </CoreModulePanel.Header>
-        <CoreModulePanel.Content className="overflow-hidden flex-auto">
+          </Sheet.Description>
+        </Sheet.Header>
+        <Sheet.Content className="overflow-hidden flex-auto">
           <div className="flex flex-col gap-4 p-5 w-full">
             <Form.Field
               control={form.control}
@@ -252,8 +248,8 @@ export const BundleRuleForm = ({
               </div>
             )}
           </div>
-        </CoreModulePanel.Content>
-        <CoreModulePanel.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+        </Sheet.Content>
+        <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
           <Button type="button" variant="outline" onClick={handleCancel}>
             {t('cancel')}
           </Button>
@@ -263,10 +259,10 @@ export const BundleRuleForm = ({
                 ? t('updating')
                 : t('creating')
               : bundleRule
-              ? t('update')
-              : t('create')}
+                ? t('update')
+                : t('create')}
           </Button>
-        </CoreModulePanel.Footer>
+        </Sheet.Footer>
       </form>
 
       <BundleRuleItemForm

@@ -4,4 +4,3 @@ export * from './components/SelectProduct';
 export * from './components';
 export * from './categories';
 export * from './utils/uom';
-export { useProductFileLinks } from './hooks/useProductFiles';

@@ -1,19 +1,16 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
+  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BundleConditionForm } from '@/products/settings/components/productsConfig/bundleCondition/BundleConditionForm';
+import { BundleConditionForm } from './BundleConditionForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
-
-export const BUNDLE_CONDITION_CREATE_PANEL =
-  'products/settings/productsConfig/bundleCondition/BundleConditionSheet';
 
 export const BundleConditionSheet = () => {
   const [open, setOpen] = useState<boolean>(false);
@@ -66,30 +63,24 @@ export const BundleConditionSheet = () => {
   );
 
   return (
-    <CoreModulePanel
-      requiredPermission="bundleConditionsManage"
-      name={BUNDLE_CONDITION_CREATE_PANEL}
-      onOpenChange={handleSheetOpenChange}
-      open={open}
-      modal
-    >
+    <Sheet onOpenChange={handleSheetOpenChange} open={open} modal>
       <Can action="bundleConditionsManage">
-        <CoreModulePanel.Trigger asChild>
+        <Sheet.Trigger asChild>
           <Button className="whitespace-nowrap shrink-0">
             <IconPlus />
             {t('add-bundle-condition')}
             <Kbd>C</Kbd>
           </Button>
-        </CoreModulePanel.Trigger>
+        </Sheet.Trigger>
       </Can>
-      <CoreModulePanel.View
+      <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
         <BundleConditionForm onOpenChange={handleFormOpenChange} />
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };

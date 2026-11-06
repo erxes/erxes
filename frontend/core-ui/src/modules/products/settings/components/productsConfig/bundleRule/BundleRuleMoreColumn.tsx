@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
@@ -7,13 +6,14 @@ import {
   Command,
   useConfirm,
   useToast,
+  Sheet,
 } from 'erxes-ui';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IBundleRule } from '@/products/settings/components/productsConfig/bundleRule/types';
+import { IBundleRule } from './types';
 import { useBundleRulesRemove } from '@/products/settings/hooks/useBundleRulesRemove';
-import { BundleRuleForm } from '@/products/settings/components/productsConfig/bundleRule/BundleRuleForm';
+import { BundleRuleForm } from './BundleRuleForm';
 import { Can } from 'ui-modules';
 
 export const BundleRuleMoreColumn = (
@@ -77,20 +77,14 @@ export const BundleRuleMoreColumn = (
         </Combobox.Content>
       </Popover>
 
-      <CoreModulePanel
-        requiredPermission="bundleRulesManage"
-        name={`products/settings/productsConfig/bundleRule/BundleRuleMoreColumn/${bundleRule._id}`}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        modal
-      >
-        <CoreModulePanel.View className="p-0 sm:max-w-lg">
+      <Sheet open={isEditOpen} onOpenChange={setIsEditOpen} modal>
+        <Sheet.View className="p-0 sm:max-w-lg">
           <BundleRuleForm
             bundleRule={bundleRule}
             onOpenChange={setIsEditOpen}
           />
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </>
   );
 };

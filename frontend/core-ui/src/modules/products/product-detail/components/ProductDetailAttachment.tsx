@@ -1,11 +1,4 @@
 import { InfoCard } from 'erxes-ui';
-import {
-  IconPaperclip,
-  IconPhoto,
-  IconPhotoPlus,
-  IconVideo,
-} from '@tabler/icons-react';
-import { ProductPanelSection } from './ProductPanelSection';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -31,17 +24,11 @@ export const ProductDetailAttachment = ({
   attachmentMore = [],
   videos = [],
   files,
-  deleteOnRemove = true,
-  compact = false,
-  disabled = false,
 }: {
   attachment?: ProductAttachment | null;
   attachmentMore?: ProductAttachment[] | ProductAttachment | null;
   videos?: ProductAttachment[] | ProductAttachment | null;
   files?: ProductAttachment[] | null;
-  deleteOnRemove?: boolean;
-  compact?: boolean;
-  disabled?: boolean;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
@@ -90,60 +77,6 @@ export const ProductDetailAttachment = ({
     form.setValue('files', fileItems);
   }, [fileItems]);
 
-  if (compact) {
-    return (
-      <>
-        <ProductPanelSection
-          title={t('featured-image')}
-          icon={IconPhoto}
-          count={featured ? 1 : 0}
-          defaultOpen={!!featured}
-          disabled={disabled}
-        >
-          <ProductPrimaryImageUpload
-            deleteOnRemove={deleteOnRemove}
-            value={featured}
-            onChange={setFeatured}
-          />
-        </ProductPanelSection>
-        <ProductPanelSection
-          title={t('secondary-images')}
-          icon={IconPhotoPlus}
-          count={secondary.length}
-          disabled={disabled}
-        >
-          <ProductSecondaryImagesUpload
-            deleteOnRemove={deleteOnRemove}
-            value={secondary}
-            onChange={setSecondary}
-            maxImages={PRODUCT_SECONDARY_IMAGE_LIMIT}
-          />
-        </ProductPanelSection>
-        <ProductPanelSection
-          title={t('videos', 'Videos')}
-          icon={IconVideo}
-          count={videoItems.length}
-          disabled={disabled}
-        >
-          <ProductVideosUpload
-            deleteOnRemove={deleteOnRemove}
-            value={videoItems}
-            onChange={setVideoItems}
-            maxVideos={PRODUCT_VIDEO_LIMIT}
-          />
-        </ProductPanelSection>
-        <ProductPanelSection
-          title={t('files', 'Files')}
-          icon={IconPaperclip}
-          count={fileItems.length}
-          disabled={disabled}
-        >
-          <ProductFilesUpload value={fileItems} onChange={setFileItems} />
-        </ProductPanelSection>
-      </>
-    );
-  }
-
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 gap-4 items-stretch md:grid-cols-3">
@@ -151,7 +84,6 @@ export const ProductDetailAttachment = ({
           <InfoCard title={t('featured-image')} className="h-full">
             <InfoCard.Content className="h-full">
               <ProductPrimaryImageUpload
-                deleteOnRemove={deleteOnRemove}
                 value={featured}
                 onChange={setFeatured}
               />
@@ -162,7 +94,6 @@ export const ProductDetailAttachment = ({
           <InfoCard title={t('secondary-images')} className="h-full">
             <InfoCard.Content className="h-full">
               <ProductSecondaryImagesUpload
-                deleteOnRemove={deleteOnRemove}
                 value={secondary}
                 onChange={setSecondary}
                 maxImages={PRODUCT_SECONDARY_IMAGE_LIMIT}
@@ -174,7 +105,6 @@ export const ProductDetailAttachment = ({
       <InfoCard title={t('videos', 'Videos')} className="h-full">
         <InfoCard.Content className="h-full">
           <ProductVideosUpload
-            deleteOnRemove={deleteOnRemove}
             value={videoItems}
             onChange={setVideoItems}
             maxVideos={PRODUCT_VIDEO_LIMIT}

@@ -84,11 +84,9 @@ const useAutoUpload = (uploadProps: ReturnType<typeof useErxesUpload>) => {
 export function ProductPrimaryImageUpload({
   value,
   onChange,
-  deleteOnRemove = true,
 }: {
   value?: ProductAttachmentItem | null;
   onChange: (value: ProductAttachmentItem | null) => void;
-  deleteOnRemove?: boolean;
 }) {
   const { removeFile, isLoading } = useRemoveFile();
 
@@ -109,17 +107,12 @@ export function ProductPrimaryImageUpload({
   const handleRemove = useCallback(() => {
     if (!value) return;
 
-    if (!deleteOnRemove) {
-      onChange(null);
-      return;
-    }
-
     removeFile(value.name, (status) => {
       if (status === 'ok') {
         onChange(null);
       }
     });
-  }, [deleteOnRemove, onChange, removeFile, value]);
+  }, [onChange, removeFile, value]);
 
   return (
     <div className="flex flex-col gap-2 h-full min-h-24">
@@ -188,12 +181,10 @@ export function ProductSecondaryImagesUpload({
   value,
   onChange,
   maxImages = PRODUCT_SECONDARY_IMAGE_LIMIT,
-  deleteOnRemove = true,
 }: {
   value?: ProductAttachmentItem[];
   onChange: (value: ProductAttachmentItem[]) => void;
   maxImages?: number;
-  deleteOnRemove?: boolean;
 }) {
   const images = useMemo(() => value || [], [value]);
   const { removeFile, isLoading } = useRemoveFile();
@@ -223,14 +214,6 @@ export function ProductSecondaryImagesUpload({
 
   const handleRemove = useCallback(
     (item: ProductAttachmentItem) => {
-      if (!deleteOnRemove) {
-        onChange(
-          images.filter(
-            (file) => file.url !== item.url && file.name !== item.name,
-          ),
-        );
-        return;
-      }
       removeFile(item.name, (status) => {
         if (status === 'ok') {
           onChange(
@@ -241,7 +224,7 @@ export function ProductSecondaryImagesUpload({
         }
       });
     },
-    [deleteOnRemove, images, onChange, removeFile],
+    [images, onChange, removeFile],
   );
 
   const handleDrag = useCallback(

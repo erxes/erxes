@@ -43,11 +43,6 @@ import {
 
 const DETAIL_TAB = 'detail';
 const ACTIVITY_TAB = 'activity';
-const ProductRecordPanel = lazy(() =>
-  import('@/products/product-detail/components/ProductRecordPanel').then(
-    (module) => ({ default: module.ProductRecordPanel }),
-  ),
-);
 const CPUserRecordPanel = lazy(() =>
   import(
     '@/contacts/client-portal-users/cp-user-detail/components/CPUserRecordPanel'
@@ -518,17 +513,10 @@ export const SidePanelRecord = (
       </ContactPanelPermission>
     );
   }
-  if (
-    props.record.contentType === 'core:product' ||
-    props.record.contentType === 'core:cpUser'
-  )
+  if (props.record.contentType === 'core:cpUser')
     return (
       <Suspense fallback={<Skeleton className="m-3 h-32" />}>
-        {props.record.contentType === 'core:product' ? (
-          <ProductRecordPanel {...props} />
-        ) : (
-          <CPUserRecordPanel {...props} />
-        )}
+        <CPUserRecordPanel {...props} />
       </Suspense>
     );
   if (props.record.contentType === USER_CONTENT_TYPE) {

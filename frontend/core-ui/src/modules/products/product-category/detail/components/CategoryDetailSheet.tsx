@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useEffect, useState } from 'react';
 import { useAtom } from 'jotai';
 import { useForm } from 'react-hook-form';
@@ -7,6 +6,7 @@ import { IconLoader2 } from '@tabler/icons-react';
 import {
   Button,
   cn,
+  Sheet,
   ScrollArea,
   Form,
   useToast,
@@ -17,16 +17,16 @@ import {
   type ProductAttachmentItem,
   toProductAttachmentItem,
 } from 'ui-modules';
-import { renderingCategoryDetailAtom } from '@/products/product-category/states/ProductCategory';
-import { CategoryHotKeyScope } from '@/products/product-category/types/CategoryHotKeyScope';
-import { CategoriesUpdateCoreFields } from '@/products/product-category/detail/components/CategoryUpdateCoreFields';
-import { useProductCategoriesEdit } from '@/products/product-category/detail/hooks/useUpdateCategory';
+import { renderingCategoryDetailAtom } from '../../states/ProductCategory';
+import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
+import { CategoriesUpdateCoreFields } from './CategoryUpdateCoreFields';
+import { useProductCategoriesEdit } from '../hooks/useUpdateCategory';
 import {
   productFormSchema,
   ProductFormValues,
-} from '@/products/product-category/add-category/components/formSchema';
-import { CategoryUpdateMoreFields } from '@/products/product-category/detail/components/CategoryUpdateMoreFields';
-import { useProductCategoryDetail } from '@/products/product-category/detail/hooks/useCategoryDetail';
+} from '../../add-category/components/formSchema';
+import { CategoryUpdateMoreFields } from './CategoryUpdateMoreFields';
+import { useProductCategoryDetail } from '../hooks/useCategoryDetail';
 import { useTranslation } from 'react-i18next';
 
 export const CategoryDetailSheet = () => {
@@ -118,8 +118,7 @@ export const CategoryDetailSheet = () => {
 
   if (loading) {
     return (
-      <CoreModulePanel
-        name={'products/product-category/CategoryDetailSheet'}
+      <Sheet
         open={!!categoryId}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
@@ -128,7 +127,7 @@ export const CategoryDetailSheet = () => {
           }
         }}
       >
-        <CoreModulePanel.View
+        <Sheet.View
           className={cn(
             'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
             !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
@@ -137,15 +136,14 @@ export const CategoryDetailSheet = () => {
           <div className="flex flex-1 min-h-[200px] items-center justify-center p-5 text-muted-foreground">
             <IconLoader2 className="w-4 h-4 animate-spin" />
           </div>
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     );
   }
 
   if (error) {
     return (
-      <CoreModulePanel
-        name={'products/product-category/CategoryDetailSheet'}
+      <Sheet
         open={!!categoryId}
         onOpenChange={(isOpen) => {
           if (!isOpen) {
@@ -154,7 +152,7 @@ export const CategoryDetailSheet = () => {
           }
         }}
       >
-        <CoreModulePanel.View
+        <Sheet.View
           className={cn(
             'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
             !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
@@ -163,14 +161,13 @@ export const CategoryDetailSheet = () => {
           <div className="p-5 text-sm text-destructive">
             {error?.message || t('failed-to-load-category')}
           </div>
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     );
   }
 
   return (
-    <CoreModulePanel
-      name={'products/product-category/CategoryDetailSheet'}
+    <Sheet
       open={!!categoryId}
       onOpenChange={(isOpen) => {
         if (!isOpen) {
@@ -179,7 +176,7 @@ export const CategoryDetailSheet = () => {
         }
       }}
     >
-      <CoreModulePanel.View
+      <Sheet.View
         className={cn(
           'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
           !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
@@ -190,17 +187,15 @@ export const CategoryDetailSheet = () => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex overflow-hidden flex-col h-full"
           >
-            <CoreModulePanel.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-              <CoreModulePanel.Title>
-                {t('edit-category')}
-              </CoreModulePanel.Title>
-              <CoreModulePanel.Close />
-              <CoreModulePanel.Description className="sr-only">
+            <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
+              <Sheet.Title>{t('edit-category')}</Sheet.Title>
+              <Sheet.Close />
+              <Sheet.Description className="sr-only">
                 {t('edit-category-details')}
-              </CoreModulePanel.Description>
-            </CoreModulePanel.Header>
+              </Sheet.Description>
+            </Sheet.Header>
 
-            <CoreModulePanel.Content className="overflow-hidden flex-auto">
+            <Sheet.Content className="overflow-hidden flex-auto">
               <ScrollArea className="h-full">
                 <div className="p-5">
                   <CategoriesUpdateCoreFields
@@ -215,9 +210,9 @@ export const CategoryDetailSheet = () => {
                   />
                 </div>
               </ScrollArea>
-            </CoreModulePanel.Content>
+            </Sheet.Content>
 
-            <CoreModulePanel.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
               <Button
                 type="button"
                 variant="outline"
@@ -228,10 +223,10 @@ export const CategoryDetailSheet = () => {
               <Button type="submit" disabled={editLoading}>
                 {editLoading ? t('saving') : t('save')}
               </Button>
-            </CoreModulePanel.Footer>
+            </Sheet.Footer>
           </form>
         </Form>
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };

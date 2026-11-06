@@ -1,9 +1,13 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { CellContext } from '@tanstack/react-table';
-import { RecordTableInlineCell, TextOverflowTooltip, Badge } from 'erxes-ui';
-import { IProductRule } from '@/products/settings/components/productsConfig/productRule/types';
+import {
+  RecordTableInlineCell,
+  TextOverflowTooltip,
+  Badge,
+  Sheet,
+} from 'erxes-ui';
+import { IProductRule } from './types';
 import { useState } from 'react';
-import { ProductRuleForm } from '@/products/settings/components/productsConfig/productRule/ProductRuleForm';
+import { ProductRuleForm } from './ProductRuleForm';
 import { Can } from 'ui-modules';
 
 const ProductRuleNameColumnCell = (
@@ -14,27 +18,21 @@ const ProductRuleNameColumnCell = (
 
   return (
     <RecordTableInlineCell>
-      <CoreModulePanel
-        requiredPermission="productRulesManage"
-        name={`products/settings/productsConfig/productRule/ProductRuleNameColumn/${productRule._id}`}
-        open={open}
-        onOpenChange={setOpen}
-        modal
-      >
+      <Sheet open={open} onOpenChange={setOpen} modal>
         <Can action="productRulesManage">
-          <CoreModulePanel.Trigger asChild>
+          <Sheet.Trigger asChild>
             <Badge variant="secondary" className="cursor-pointer">
               <TextOverflowTooltip value={props.getValue() as string} />
             </Badge>
-          </CoreModulePanel.Trigger>
+          </Sheet.Trigger>
         </Can>
-        <CoreModulePanel.View className="p-0 sm:max-w-lg">
+        <Sheet.View className="p-0 sm:max-w-lg">
           <ProductRuleForm
             productRule={productRule}
             onOpenChange={(isOpen) => setOpen(isOpen)}
           />
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </RecordTableInlineCell>
   );
 };

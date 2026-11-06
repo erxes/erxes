@@ -1,14 +1,14 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Button,
   Kbd,
+  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
 import { IconPlus } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UomForm } from '@/products/settings/components/uoms/UomForm';
+import { UomForm } from './UomForm';
 import { ProductHotKeyScope } from '@/products/types/ProductsHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 
@@ -45,23 +45,21 @@ export const AddUomSheet = () => {
   );
 
   return (
-    <CoreModulePanel
-      requiredPermission="uomsManage"
-      name={'products/settings/uoms/AddUomSheet'}
+    <Sheet
       onOpenChange={(open) => (open ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="uomsManage">
-        <CoreModulePanel.Trigger asChild>
+        <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
             {t('add-uom')}
             <Kbd>C</Kbd>
           </Button>
-        </CoreModulePanel.Trigger>
+        </Sheet.Trigger>
       </Can>
-      <CoreModulePanel.View
+      <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
@@ -76,7 +74,7 @@ export const AddUomSheet = () => {
             }
           }}
         />
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };

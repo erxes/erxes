@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useMutation } from '@apollo/client';
 import { IconArrowMerge, IconCheck } from '@tabler/icons-react';
 import {
@@ -7,13 +6,14 @@ import {
   Command,
   Input,
   ScrollArea,
+  Sheet,
   Spinner,
   toast,
 } from 'erxes-ui';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, IProduct } from 'ui-modules';
-import { productsMutations, productsQueries } from '@/products/graphql';
+import { productsMutations, productsQueries } from '../../graphql';
 
 type MergeField = {
   key: string;
@@ -146,23 +146,15 @@ export const ProductMerge = ({
 
   return (
     <Can action="productsMerge">
-      <CoreModulePanel
-        maxWidth={1000}
-        defaultWidth={800}
-        name={'products/product-command-bar/ProductMerge'}
-        open={open}
-        onOpenChange={onOpenChange}
-      >
-        <CoreModulePanel.View className="flex flex-col gap-0 p-0 sm:max-w-4xl">
-          <CoreModulePanel.Header className="flex-row items-center gap-3 space-y-0 border-b p-3">
-            <CoreModulePanel.Title>
+      <Sheet open={open} onOpenChange={onOpenChange}>
+        <Sheet.View className="flex flex-col gap-0 p-0 sm:max-w-4xl">
+          <Sheet.Header className="flex-row items-center gap-3 space-y-0 border-b p-3">
+            <Sheet.Title>{t('merge-products', 'Merge products')}</Sheet.Title>
+            <Sheet.Close />
+            <Sheet.Description className="sr-only">
               {t('merge-products', 'Merge products')}
-            </CoreModulePanel.Title>
-            <CoreModulePanel.Close />
-            <CoreModulePanel.Description className="sr-only">
-              {t('merge-products', 'Merge products')}
-            </CoreModulePanel.Description>
-          </CoreModulePanel.Header>
+            </Sheet.Description>
+          </Sheet.Header>
           {canMerge && (
             <ProductMergeBody
               productIds={productIds}
@@ -170,8 +162,8 @@ export const ProductMerge = ({
               setOpen={onOpenChange}
             />
           )}
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </Can>
   );
 };
@@ -262,6 +254,7 @@ const ProductMergeBody = ({
       values[field.key] = hasValue(a) ? a : b;
     }
     return values;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [productA?._id, productB?._id]);
 
   const [value, setValue] = useState<Record<string, any>>(initValues);
@@ -321,7 +314,7 @@ const ProductMergeBody = ({
 
   return (
     <>
-      <CoreModulePanel.Content className="min-h-0 flex-auto overflow-hidden">
+      <Sheet.Content className="min-h-0 flex-auto overflow-hidden">
         <ScrollArea className="h-full">
           <div className="p-6">
             <div className="overflow-hidden rounded-xl border">
@@ -452,18 +445,18 @@ const ProductMergeBody = ({
             </div>
           </div>
         </ScrollArea>
-      </CoreModulePanel.Content>
-      <CoreModulePanel.Footer className="flex justify-end border-t p-5">
-        <CoreModulePanel.Close asChild>
+      </Sheet.Content>
+      <Sheet.Footer className="flex justify-end border-t p-5">
+        <Sheet.Close asChild>
           <Button variant="secondary" type="button">
             {t('discard', 'Discard')}
           </Button>
-        </CoreModulePanel.Close>
+        </Sheet.Close>
         <Button onClick={handleSave} disabled={loading}>
           {loading && <Spinner />}
           {t('save', 'Save')}
         </Button>
-      </CoreModulePanel.Footer>
+      </Sheet.Footer>
     </>
   );
 };

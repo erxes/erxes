@@ -1,9 +1,9 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   Badge,
   Button,
   Collapsible,
   IconComponent,
+  Sheet,
   Table,
   toast,
   Tooltip,
@@ -19,7 +19,7 @@ import {
   useFieldGroups,
   useFields,
 } from 'ui-modules';
-import { useVariantFields } from '@/products/bulk-similarity/hooks/useVariantFields';
+import { useVariantFields } from '../hooks/useVariantFields';
 
 const CONTENT_TYPE = 'core:product';
 const FIELDS_LIMIT = 100;
@@ -112,9 +112,7 @@ export const VariantFieldPicker = () => {
                     <IconX size={14} />
                   </Button>
                 </Tooltip.Trigger>
-                <Tooltip.Content>
-                  {t('remove-field', 'Remove field')}
-                </Tooltip.Content>
+                <Tooltip.Content>{t('remove-field', 'Remove field')}</Tooltip.Content>
               </Tooltip>
             </Tooltip.Provider>
           </div>
@@ -199,12 +197,8 @@ const AddFieldSheet = ({
   };
 
   return (
-    <CoreModulePanel
-      name={'products/bulk-similarity/VariantFieldPicker'}
-      open={open}
-      onOpenChange={handleOpenChange}
-    >
-      <CoreModulePanel.Trigger asChild>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
+      <Sheet.Trigger asChild>
         <Button
           variant="ghost"
           size="icon"
@@ -212,12 +206,9 @@ const AddFieldSheet = ({
         >
           <IconPlus className="size-4" />
         </Button>
-      </CoreModulePanel.Trigger>
-      <CoreModulePanel.View
-        className="flex flex-col p-0 sm:max-w-md"
-        loading={!createGroup && (loading || groupsLoading)}
-      >
-        <CoreModulePanel.Header className="gap-3">
+      </Sheet.Trigger>
+      <Sheet.View className="flex flex-col p-0 sm:max-w-md">
+        <Sheet.Header className="gap-3">
           {createGroup && (
             <Button
               variant="ghost"
@@ -228,29 +219,28 @@ const AddFieldSheet = ({
               <IconArrowLeft className="size-4" />
             </Button>
           )}
-          <CoreModulePanel.Title>
+          <Sheet.Title>
             {createGroup
               ? t('new-property', 'New property')
               : t('add-variant-field', 'Add variant field')}
-          </CoreModulePanel.Title>
-          <CoreModulePanel.Close />
-          <CoreModulePanel.Description className="sr-only">
+          </Sheet.Title>
+          <Sheet.Close />
+          <Sheet.Description className="sr-only">
             {t(
               'add-field-description',
               'Pick a property to use as a variant axis, or create a new one.',
             )}
-          </CoreModulePanel.Description>
-        </CoreModulePanel.Header>
+          </Sheet.Description>
+        </Sheet.Header>
 
         {createGroup ? (
           <CreatePropertyForm
             groupId={createGroup}
             refetchFields={refetchFields}
             onCreated={handleCreated}
-            onCancel={() => setCreateGroup(null)}
           />
         ) : (
-          <CoreModulePanel.Content className="flex-auto p-5 overflow-auto">
+          <Sheet.Content className="flex-auto p-5 overflow-auto">
             <div className="flex flex-col gap-2">
               {groups.map((group) => (
                 <Collapsible
@@ -329,10 +319,10 @@ const AddFieldSheet = ({
                 </Collapsible>
               ))}
             </div>
-          </CoreModulePanel.Content>
+          </Sheet.Content>
         )}
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
@@ -340,12 +330,10 @@ const CreatePropertyForm = ({
   groupId,
   refetchFields,
   onCreated,
-  onCancel,
 }: {
   groupId: string;
   refetchFields: () => Promise<unknown>;
   onCreated: (fieldId: string, value: string) => void;
-  onCancel: () => void;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'bulk-similarity' });
   const { addProperty, loading } = useAddProperty();
@@ -354,6 +342,7 @@ const CreatePropertyForm = ({
     addProperty({
       variables: {
         ...data,
+        groupId: groupId || undefined,
         contentType: CONTENT_TYPE,
       },
       onCompleted: async (res) => {
@@ -361,10 +350,7 @@ const CreatePropertyForm = ({
         const newId = res?.fieldAdd?._id;
         const firstValue = data.options?.[0]?.value;
         if (newId && firstValue) onCreated(newId, firstValue);
-        toast({
-          title: t('property-created', 'Property created'),
-          variant: 'success',
-        });
+        toast({ title: t('property-created', 'Property created'), variant: 'success' });
       },
       onError: (error) =>
         toast({
@@ -376,32 +362,26 @@ const CreatePropertyForm = ({
   };
 
   return (
-    <CoreModulePanel.Content className="flex-auto p-5 overflow-auto">
+    <Sheet.Content className="flex-auto p-5 overflow-auto">
       <div className="flex flex-col gap-5">
         <div onSubmit={(e) => e.stopPropagation()}>
           <PropertyForm
             onSubmit={handleSubmit}
             loading={loading}
-            contentType={CONTENT_TYPE}
-            onCancel={onCancel}
             disableType
             defaultValues={{
               icon: '123',
               name: '',
               type: 'multiSelect',
-              groupId,
               isSearchable: false,
-              isVisible: true,
-              isVisibleToCreate: false,
-              isRequired: false,
-              isVisibleInCard: false,
               description: '',
               code: '',
+              validation: '',
               options: [],
             }}
           />
         </div>
       </div>
-    </CoreModulePanel.Content>
+    </Sheet.Content>
   );
 };

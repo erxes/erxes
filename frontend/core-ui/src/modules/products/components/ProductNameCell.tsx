@@ -1,8 +1,8 @@
 import { Cell } from '@tanstack/react-table';
-import { renderingProductDetailAtom } from '@/products/states/productDetailStates';
+import { renderingProductDetailAtom } from '../states/productDetailStates';
 import { IProduct } from '@/products/types/productTypes';
 import { useSetAtom } from 'jotai';
-import { useSidePanel } from 'ui-modules';
+import { useSearchParams } from 'react-router-dom';
 import { RecordTableInlineCell, TextOverflowTooltip, Badge } from 'erxes-ui';
 
 export const ProductNameCell = ({
@@ -10,12 +10,14 @@ export const ProductNameCell = ({
 }: {
   cell: Cell<IProduct, unknown>;
 }) => {
-  const { openRecord } = useSidePanel();
+  const [searchParams, setSearchParams] = useSearchParams();
   const setRenderingProductDetail = useSetAtom(renderingProductDetailAtom);
   const { _id } = cell.row.original;
 
   const setOpen = (productId: string) => {
-    openRecord({ contentType: 'core:product', contentId: productId });
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.set('product_id', productId);
+    setSearchParams(newSearchParams);
   };
 
   return (

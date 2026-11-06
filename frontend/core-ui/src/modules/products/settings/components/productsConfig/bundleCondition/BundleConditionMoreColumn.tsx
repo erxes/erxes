@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
@@ -7,13 +6,14 @@ import {
   Command,
   useConfirm,
   useToast,
+  Sheet,
 } from 'erxes-ui';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IBundleCondition } from '@/products/settings/components/productsConfig/bundleCondition/types';
+import { IBundleCondition } from './types';
 import { useBundleConditionRemove } from '@/products/settings/hooks/useBundleConditionRemove';
-import { BundleConditionForm } from '@/products/settings/components/productsConfig/bundleCondition/BundleConditionForm';
+import { BundleConditionForm } from './BundleConditionForm';
 import { Can } from 'ui-modules';
 
 export const BundleConditionMoreColumn = (
@@ -77,20 +77,14 @@ export const BundleConditionMoreColumn = (
         </Combobox.Content>
       </Popover>
 
-      <CoreModulePanel
-        requiredPermission="bundleConditionsManage"
-        name={`products/settings/productsConfig/bundleCondition/BundleConditionMoreColumn/${bundleCondition._id}`}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        modal
-      >
-        <CoreModulePanel.View className="p-0 sm:max-w-lg">
+      <Sheet open={isEditOpen} onOpenChange={setIsEditOpen} modal>
+        <Sheet.View className="p-0 sm:max-w-lg">
           <BundleConditionForm
             bundleCondition={bundleCondition}
             onOpenChange={setIsEditOpen}
           />
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </>
   );
 };

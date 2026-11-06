@@ -1,17 +1,16 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { PRODUCT_CATEGORY_CREATE_PANEL } from '@/products/product-category/constants/categoryPanel';
 import { IconPlus } from '@tabler/icons-react';
 
 import {
   Button,
   Kbd,
+  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
 } from 'erxes-ui';
 import { useState } from 'react';
-import { AddCategoryForm } from '@/products/product-category/add-category/components/AddProductCategory';
-import { CategoryHotKeyScope } from '@/products/product-category/types/CategoryHotKeyScope';
+import { AddCategoryForm } from '../add-category/components/AddProductCategory';
+import { CategoryHotKeyScope } from '../types/CategoryHotKeyScope';
 import { Can, usePermissionCheck } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
@@ -55,31 +54,29 @@ export const ProductCategoryAddSheet = () => {
   );
 
   return (
-    <CoreModulePanel
-      requiredPermission="productCategoriesManage"
-      name={PRODUCT_CATEGORY_CREATE_PANEL}
+    <Sheet
       onOpenChange={(open) => (open ? onOpen() : onClose())}
       open={open}
       modal
     >
       <Can action="productCategoriesManage">
-        <CoreModulePanel.Trigger asChild>
+        <Sheet.Trigger asChild>
           <Button>
             <IconPlus />
             {t('add-category')}
             <Kbd>C</Kbd>
           </Button>
-        </CoreModulePanel.Trigger>
+        </Sheet.Trigger>
       </Can>
-      <CoreModulePanel.View
+      <Sheet.View
         className="p-0 sm:max-w-lg"
         onEscapeKeyDown={(e) => {
           e.preventDefault();
         }}
       >
         <AddCategoryForm onOpenChange={setOpen} />
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+      </Sheet.View>
+    </Sheet>
   );
 };
 
@@ -88,9 +85,8 @@ export const CategoryAddSheetHeader = () => {
     keyPrefix: 'product-category',
   });
   return (
-    <CoreModulePanel.Header className="gap-3 border-b">
-      <CoreModulePanel.Title>{t('create-category')}</CoreModulePanel.Title>{' '}
-      <CoreModulePanel.Close />
-    </CoreModulePanel.Header>
+    <Sheet.Header className="gap-3 border-b">
+      <Sheet.Title>{t('create-category')}</Sheet.Title> <Sheet.Close />
+    </Sheet.Header>
   );
 };

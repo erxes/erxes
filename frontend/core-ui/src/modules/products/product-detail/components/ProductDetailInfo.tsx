@@ -4,16 +4,11 @@ import { SelectCompany } from 'ui-modules/modules/contacts';
 import { useTranslation } from 'react-i18next';
 import { ProductFormValues } from '@/products/constants/ProductFormSchema';
 import { useFormContext } from 'react-hook-form';
-import { ProductConditionsField } from '@/products/product-detail/components/ProductConditionsField';
-import { ProductPanelInfoFields } from './ProductPanelInfoFields';
+import { ProductConditionsField } from './ProductConditionsField';
 
-export function ProductDetailInfo({
-  compact = false,
-}: Readonly<{ compact?: boolean }>) {
+export function ProductDetailInfo() {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
-
-  if (compact) return <ProductPanelInfoFields />;
 
   return (
     <InfoCard title={t('more-info')}>

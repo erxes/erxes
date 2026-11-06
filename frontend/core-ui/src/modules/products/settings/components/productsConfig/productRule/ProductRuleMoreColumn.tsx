@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
@@ -7,13 +6,14 @@ import {
   Command,
   useConfirm,
   useToast,
+  Sheet,
 } from 'erxes-ui';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
-import { IProductRule } from '@/products/settings/components/productsConfig/productRule/types';
+import { IProductRule } from './types';
 import { useProductRulesRemove } from '@/products/settings/hooks/useProductRulesRemove';
-import { ProductRuleForm } from '@/products/settings/components/productsConfig/productRule/ProductRuleForm';
+import { ProductRuleForm } from './ProductRuleForm';
 import { Can } from 'ui-modules';
 
 export const ProductRuleMoreColumn = (
@@ -77,20 +77,14 @@ export const ProductRuleMoreColumn = (
         </Combobox.Content>
       </Popover>
 
-      <CoreModulePanel
-        requiredPermission="productRulesManage"
-        name={`products/settings/productsConfig/productRule/ProductRuleMoreColumn/${productRule._id}`}
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        modal
-      >
-        <CoreModulePanel.View className="p-0 sm:max-w-lg">
+      <Sheet open={isEditOpen} onOpenChange={setIsEditOpen} modal>
+        <Sheet.View className="p-0 sm:max-w-lg">
           <ProductRuleForm
             productRule={productRule}
             onOpenChange={setIsEditOpen}
           />
-        </CoreModulePanel.View>
-      </CoreModulePanel>
+        </Sheet.View>
+      </Sheet>
     </>
   );
 };
