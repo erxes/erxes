@@ -16,6 +16,7 @@ import {
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
 import {
   getCmsDefaultLanguage,
+  getCmsSubmitLanguage,
   getInitialCmsLanguage,
 } from '@/cms/shared/utils';
 import { CmsSavedRowLoadError } from '@/cms/shared/components/CmsSavedRowLoadError';
@@ -374,11 +375,12 @@ const TagPanelForm = ({
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
       selectedLanguage !== defaultLanguage;
+    const isNewTranslation = !isEditing && isNonDefaultLang;
     const currentTranslationData = getCurrentTranslationData();
 
     let mainName = data.name;
 
-    if (!isEditing && isNonDefaultLang) {
+    if (isNewTranslation) {
       if (!defaultLangData?.title?.trim()) {
         toast({
           title: t('validation-error'),
@@ -397,9 +399,14 @@ const TagPanelForm = ({
       name: mainName,
     };
 
-    if (selectedLanguage) {
-      input.language =
-        !isEditing && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+    const language = getCmsSubmitLanguage(
+      selectedLanguage,
+      defaultLanguage,
+      isNewTranslation,
+    );
+
+    if (language) {
+      input.language = language;
     }
 
     if (defaultLanguage) {
@@ -433,6 +440,9 @@ const TagPanelForm = ({
     }
   };
 
+  const submitLabel = isEditing ? t('save-changes') : t('create-tag');
+  const saveLabel = hasPermissionError ? t('permission-required') : submitLabel;
+
   const handleNameChange = (name: string) => {
     const slug = createSlug(name);
     form.setValue('slug', slug);
@@ -447,13 +457,7 @@ const TagPanelForm = ({
         <PanelFormLayout
           onCancel={onCancel}
           saving={saving || editing}
-          saveLabel={
-            hasPermissionError
-              ? t('permission-required')
-              : isEditing
-              ? t('save-changes')
-              : t('create-tag')
-          }
+          saveLabel={saveLabel}
         >
           {savedRowLoad.hasFailed && (
             <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />

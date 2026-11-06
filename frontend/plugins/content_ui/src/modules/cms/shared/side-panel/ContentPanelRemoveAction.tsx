@@ -37,6 +37,8 @@ export const ContentPanelRemoveAction = ({
           size="icon"
           className="size-7"
           disabled={loading}
+          aria-label={t('more-actions', 'More actions')}
+          title={t('more-actions', 'More actions')}
         >
           {loading ? (
             <Spinner size="sm" />

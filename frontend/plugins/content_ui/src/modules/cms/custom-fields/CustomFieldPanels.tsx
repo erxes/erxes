@@ -523,11 +523,11 @@ const toFieldFormValues = (field?: ICustomField): FieldFormValues =>
         type: field.type,
         description: field.description || '',
         isRequired: field.isRequired || false,
-        options: field.options ? field.options.join(', ') : '',
+        options: getValidCustomFieldOptions(field.options).join(', '),
       }
     : FIELD_FORM_DEFAULT_VALUES;
 
-const FIELD_TYPES_WITH_OPTIONS = ['select', 'multiSelect', 'radio'];
+const FIELD_TYPES_WITH_OPTIONS = new Set(['select', 'multiSelect', 'radio']);
 
 const CustomFieldPanelForm = ({
   field,
@@ -549,7 +549,7 @@ const CustomFieldPanelForm = ({
     form.reset(toFieldFormValues(field));
   }, [field, form]);
 
-  const needsOptions = FIELD_TYPES_WITH_OPTIONS.includes(form.watch('type'));
+  const needsOptions = FIELD_TYPES_WITH_OPTIONS.has(form.watch('type'));
 
   return (
     <Form {...form}>

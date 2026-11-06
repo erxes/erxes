@@ -12,7 +12,7 @@ interface CmsWebsiteItemProps {
 }
 
 const ITEM_CLASS_NAME =
-  'cursor-pointer rounded-lg border bg-background transition-colors hover:border-primary/40 focus-visible:outline-2 focus-visible:outline-ring/70';
+  'relative rounded-lg border bg-background transition-colors hover:border-primary/40 has-[[data-card-open]:focus-visible]:outline-2 has-[[data-card-open]:focus-visible]:outline-ring/70';
 
 const formatCreatedAt = (createdAt: string) =>
   new Date(createdAt).toLocaleDateString('en-US', {
@@ -29,16 +29,6 @@ export const getCmsWebsiteLanguages = (website: IWebsite) => {
 
   return [defaultLanguage, ...others].join(' · ').toUpperCase();
 };
-
-const openOnKey =
-  (onOpen: () => void) => (event: React.KeyboardEvent<HTMLDivElement>) => {
-    if (event.target !== event.currentTarget) return;
-
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      onOpen();
-    }
-  };
 
 const CmsWebsiteMark = ({ name }: { name: string }) => (
   <div className="flex size-9 shrink-0 items-center justify-center rounded-md bg-accent text-sm font-medium uppercase text-foreground">
@@ -87,15 +77,10 @@ const CmsWebsiteActions = ({
   const { t } = useTranslation('content');
 
   return (
-    <div className="flex shrink-0 items-center">
+    <div className="relative z-10 flex shrink-0 items-center">
       {website.url && (
         <Button variant="ghost" size="icon" asChild>
-          <a
-            href={website.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(event) => event.stopPropagation()}
-          >
+          <a href={website.url} target="_blank" rel="noopener noreferrer">
             <IconArrowUpRight />
           </a>
         </Button>
@@ -106,10 +91,7 @@ const CmsWebsiteActions = ({
         className="text-muted-foreground hover:text-foreground"
         aria-label={t('manage')}
         title={t('manage')}
-        onClick={(event) => {
-          event.stopPropagation();
-          onManage();
-        }}
+        onClick={onManage}
       >
         <IconSettings />
       </Button>
@@ -126,13 +108,14 @@ export const CmsWebsiteCard = ({
   const { t } = useTranslation('content');
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onOpen}
-      onKeyDown={openOnKey(onOpen)}
-      className={cn(ITEM_CLASS_NAME, 'flex flex-col gap-3 p-4')}
-    >
+    <div className={cn(ITEM_CLASS_NAME, 'flex flex-col gap-3 p-4')}>
+      <button
+        type="button"
+        data-card-open
+        aria-label={website.name}
+        className="absolute inset-0 cursor-pointer rounded-lg outline-none"
+        onClick={onOpen}
+      />
       <div className="flex items-center gap-3">
         <CmsWebsiteMark name={website.name} />
         <CmsWebsiteTitle website={website} restricted={restricted} />

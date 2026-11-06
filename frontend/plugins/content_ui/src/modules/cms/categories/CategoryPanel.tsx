@@ -31,7 +31,11 @@ import {
   useRecordInDefaultLanguage,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import {
+  getCmsDefaultLanguage,
+  getCmsSubmitLanguage,
+  getInitialCmsLanguage,
+} from '../shared/utils';
 import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import {
@@ -101,7 +105,7 @@ interface Category {
   description?: string;
   parentId?: string;
   status?: string;
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
   translations?: { language: string }[];
 }
 
@@ -119,8 +123,8 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
-  [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
+  [key: `customFields.${string}`]: CustomFieldValue;
 }
 
 interface CmsConfig {
@@ -573,6 +577,7 @@ const CategoryPanelForm = ({
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
       selectedLanguage !== defaultLanguage;
+    const isNewTranslation = !isEditing && isNonDefaultLang;
     const currentTranslationData = getCurrentTranslationData();
 
     let mainFields: TranslationData = {
@@ -581,7 +586,7 @@ const CategoryPanelForm = ({
       customFieldsData: data.customFieldsData || [],
     };
 
-    if (!isEditing && isNonDefaultLang) {
+    if (isNewTranslation) {
       if (!defaultLangData?.title) {
         toast({
           title: t('validation-error'),
@@ -602,9 +607,14 @@ const CategoryPanelForm = ({
       customFieldsData: toCategoryCustomFields(mainFields.customFieldsData),
     };
 
-    if (selectedLanguage) {
-      input.language =
-        !isEditing && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+    const language = getCmsSubmitLanguage(
+      selectedLanguage,
+      defaultLanguage,
+      isNewTranslation,
+    );
+
+    if (language) {
+      input.language = language;
     }
 
     if (defaultLanguage) {

@@ -1,6 +1,6 @@
 import { IconArchive } from '@tabler/icons-react';
 import { Button, Form, Popover, Select, Spinner, Switch, cn } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   FieldValues,
   UseFormReturn,
@@ -8,6 +8,7 @@ import {
   useWatch,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { flushCmsEditors } from '../../utils/editorFlush';
 import { DateTimeInput } from './DateTimeInput';
 
 interface PostThumbnail {
@@ -60,9 +61,9 @@ type PostStatus = keyof typeof POST_STATUS_DOTS;
 
 const POST_STATUSES = Object.keys(POST_STATUS_DOTS) as PostStatus[];
 
-const formatDateTime = (value?: Date | null) =>
+const formatDateTime = (language: string, value?: Date | null) =>
   value
-    ? new Date(value).toLocaleString('en-US', {
+    ? new Date(value).toLocaleString(language, {
         month: 'short',
         day: 'numeric',
         hour: '2-digit',
@@ -140,7 +141,7 @@ const PostDateField = ({
 };
 
 const PostAutoArchive = ({ form }: { form: UseFormReturn<FieldValues> }) => {
-  const { t } = useTranslation('content');
+  const { t, i18n } = useTranslation('content');
   const [enableAutoArchive, autoArchiveDate] = useWatch({
     control: form.control,
     name: ['enableAutoArchive', 'autoArchiveDate'],
@@ -154,7 +155,8 @@ const PostAutoArchive = ({ form }: { form: UseFormReturn<FieldValues> }) => {
           className="font-normal text-muted-foreground"
         >
           <IconArchive />
-          {(enableAutoArchive && formatDateTime(autoArchiveDate)) ||
+          {(enableAutoArchive &&
+            formatDateTime(i18n.language, autoArchiveDate)) ||
             t('auto-archive')}
         </Button>
       </Popover.Trigger>
@@ -212,19 +214,25 @@ export const AddPostHeaderActions = ({
   const { isDirty } = useFormState({ control: form.control });
   const disabled = creating || saving || isSaveBlocked;
 
+  const submit = useCallback(() => {
+    flushCmsEditors()
+      .then(() => form.handleSubmit(onSubmit)())
+      .catch(() => undefined);
+  }, [form, onSubmit]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 's') {
         event.preventDefault();
         if (!disabled) {
-          form.handleSubmit(onSubmit)();
+          submit();
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [disabled, form, onSubmit]);
+  }, [disabled, submit]);
 
   return (
     <div className="flex items-center gap-2">
@@ -243,31 +251,27 @@ export const AddPostHeaderActions = ({
         )}
         <PostStatusSelect form={form} />
       </Form>
-      <Button
-        onClick={() => form.handleSubmit(onSubmit)()}
-        disabled={disabled}
-        title={t('save-shortcut')}
-      >
+      <Button onClick={submit} disabled={disabled} title={t('save-shortcut')}>
         {creating || saving ? (
           <>
             <Spinner size="sm" className="mr-2" />
             {status === 'published'
               ? t('publishing')
               : status === 'draft'
-                ? t('saving')
-                : status === 'scheduled'
-                  ? t('scheduling')
-                  : t('saving')}
+              ? t('saving')
+              : status === 'scheduled'
+              ? t('scheduling')
+              : t('saving')}
           </>
         ) : (
           <div>
             {status === 'published'
               ? t('publish')
               : status === 'draft'
-                ? t('save-draft')
-                : status === 'scheduled'
-                  ? t('schedule')
-                  : t('save')}
+              ? t('save-draft')
+              : status === 'scheduled'
+              ? t('schedule')
+              : t('save')}
           </div>
         )}
       </Button>

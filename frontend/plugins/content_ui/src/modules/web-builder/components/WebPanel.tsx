@@ -2,6 +2,8 @@ import { useQuery } from '@apollo/client';
 import { Form, Input, Select, Textarea } from 'erxes-ui';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { useTranslation } from 'react-i18next';
 import { GET_WEB_LIST } from '../graphql/queries/getWebList';
 import { useCreateWeb } from '../hooks/useCreateWeb';
@@ -9,7 +11,7 @@ import { useEditWeb } from '../hooks/useEditWeb';
 import { useGetClientPortals } from '../hooks/useGetClientPortals';
 import { useGetWebList } from '../hooks/useGetWebList';
 import { useRemoveWeb } from '../hooks/useRemoveWeb';
-import { IWeb, IWebInput } from '../types';
+import { IWeb, IWebInput, IWebThumbnail } from '../types';
 import { TEMPLATE_TYPES } from '../constants';
 import { TemplateSelect } from './TemplateSelect';
 import { WebCustomDomain } from './WebCustomDomain';
@@ -33,6 +35,18 @@ import {
   IContentPanelViews,
 } from '@/cms/shared/side-panel/contentPanelTypes';
 import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
+
+const webFormSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required'),
+  description: z.string().optional(),
+  domain: z.string().trim().optional(),
+  templateType: z.string().min(1, 'Template type is required'),
+  templateId: z.string().min(1, 'Template is required'),
+  clientPortalId: z.string().min(1, 'Client portal is required'),
+  thumbnail: z.custom<IWebThumbnail | null>().optional(),
+});
+
+type WebFormValues = z.infer<typeof webFormSchema>;
 
 interface SelectOption {
   value: string;
@@ -85,7 +99,8 @@ const WebPanelForm = ({
   const { portals } = useGetClientPortals();
 
   const isEditing = !!web;
-  const form = useForm<IWebInput>({
+  const form = useForm<WebFormValues>({
+    resolver: zodResolver(webFormSchema),
     defaultValues: {
       name: '',
       description: '',
@@ -109,7 +124,7 @@ const WebPanelForm = ({
     });
   }, [web, form]);
 
-  const onSubmit = async ({ thumbnail, ...rest }: IWebInput) => {
+  const onSubmit = async ({ thumbnail, ...rest }: WebFormValues) => {
     const data: IWebInput = {
       ...rest,
       thumbnail: thumbnail?.url
@@ -163,7 +178,6 @@ const WebPanelForm = ({
             name="name"
             label={t('name')}
             required
-            rules={{ required: 'Name is required' }}
             render={(field) => (
               <Input
                 {...field}
@@ -180,7 +194,6 @@ const WebPanelForm = ({
             label={t('client-portal')}
             required
             icon={IconDeviceDesktop}
-            rules={{ required: 'Client portal is required' }}
             render={(field) => (
               <PanelSelect
                 options={portalOptions}
@@ -211,7 +224,6 @@ const WebPanelForm = ({
             label={t('template-type')}
             required
             icon={IconCategory}
-            rules={{ required: 'Template type is required' }}
             render={(field) => (
               <PanelSelect
                 options={TEMPLATE_TYPES}
@@ -232,7 +244,6 @@ const WebPanelForm = ({
             required
             block
             icon={IconTemplate}
-            rules={{ required: 'Template is required' }}
             render={(field) => (
               <TemplateSelect
                 type={selectedType || ''}
