@@ -11,25 +11,16 @@ export interface IParam {
   contentTypeId?: string;
 }
 
-// An invoice matches a kind only when a transaction was made with that kind.
-// Methods merely offered on the invoice (paymentIds) do not count.
-const buildKindQuery = async (kind: string, models: IContext['models']) => {
-  const invoiceIds: string[] = await models.Transactions.find({
-    paymentKind: kind,
-  }).distinct('invoiceId');
+// An invoice matches a kind only when a transaction was made with that kind
+// (indexed `paymentKinds`). Methods merely offered (paymentIds) do not count.
+const buildKindQuery = (kind: string) => ({ paymentKinds: kind });
 
-  return { _id: { $in: invoiceIds } };
-};
-
-const generateFilterQuery = async (
-  params: IParam,
-  models: IContext['models'],
-) => {
+const generateFilterQuery = (params: IParam) => {
   const query: any = {};
   const { searchValue, kind, status, contentType, contentTypeId } = params;
 
   if (kind) {
-    Object.assign(query, await buildKindQuery(kind, models));
+    Object.assign(query, buildKindQuery(kind));
   }
 
   if (status) {
@@ -58,7 +49,7 @@ const generateFilterQuery = async (
 
 const queries: Record<string, Resolver> = {
   async invoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = generateFilterQuery(params);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -70,7 +61,7 @@ const queries: Record<string, Resolver> = {
   },
 
   async cpInvoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = generateFilterQuery(params);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -88,7 +79,7 @@ const queries: Record<string, Resolver> = {
       byStatus: { paid: 0, pending: 0, refunded: 0, failed: 0 },
     };
 
-    const qry = await generateFilterQuery(params, models);
+    const qry = generateFilterQuery(params);
 
     const count = async (query) => {
       return models.Invoices.find(query).countDocuments();
@@ -104,8 +95,8 @@ const queries: Record<string, Resolver> = {
         params.kind === kind
           ? qry
           : Object.keys(qry).length > 0
-          ? { $and: [await buildKindQuery(kind, models), qry] }
-          : await buildKindQuery(kind, models);
+          ? { $and: [buildKindQuery(kind), qry] }
+          : buildKindQuery(kind);
 
       counts.byKind[kind] = await count(kindFilter);
     }

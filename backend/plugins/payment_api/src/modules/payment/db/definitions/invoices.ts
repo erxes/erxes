@@ -12,6 +12,10 @@ export const invoiceSchema = schemaWrapper(
     phone: { type: String },
     email: { type: String },
     paymentIds: { type: [String] },
+    // distinct paymentKind of this invoice's transactions; kept in sync by
+    // syncInvoicePaymentKinds and used by the invoice kind filter. No default:
+    // a missing field is what marks an invoice for the backfill.
+    paymentKinds: { type: [String], default: undefined },
     redirectUri: { type: String },
 
     description: { type: String },
@@ -34,6 +38,7 @@ export const invoiceSchema = schemaWrapper(
 
 invoiceSchema.index({ invoiceNumber: 1 });
 invoiceSchema.index({ notifyPending: 1 }, { sparse: true });
+invoiceSchema.index({ paymentKinds: 1 });
 invoiceSchema.index({
   contentType: 1,
   contentTypeId: 1,

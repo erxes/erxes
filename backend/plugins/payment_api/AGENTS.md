@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -37,8 +37,11 @@
 - Marks invoices paid from either a gateway callback or the
   `invoicesCheck`/`cpInvoicesCheck` GraphQL mutations; each of those sites
   enqueues the host-plugin `callback` job inline.
-- Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` using the invoice's
-  transactions only (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
+- Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` with an indexed match on the
+  invoice's `paymentKinds` field (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
+- Keeps `Invoice.paymentKinds` (distinct `paymentKind` of the invoice's own transactions) in sync
+  through `services/invoicePaymentKinds.ts`, and backfills invoices missing the field in batches
+  from the per-org pending-invoice job.
 - Declares the plugin permission config (`invoice` module with
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
@@ -104,6 +107,11 @@
   exists for it (any status). Methods merely offered via `paymentIds` must not match, or the
   filtered list shows invoices paid with other methods; `payment_ui`'s Payment Method column
   relies on this rule.
+- The kind filter reads `Invoice.paymentKinds`, never a `distinct` over transactions: an unbounded
+  id list can exceed MongoDB's 16 MB result limit. Every path that creates or deletes transactions
+  (`createTransaction`, `cancelTransaction`, `removeTransactions`) must call
+  `syncInvoicePaymentKinds` for the affected invoices; the sync in `createTransaction` runs after
+  the gateway try/catch so a sync failure never deletes a created transaction.
 - In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
   `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
   does not return, so Pocket users on mobile would see neither a QR nor a way to

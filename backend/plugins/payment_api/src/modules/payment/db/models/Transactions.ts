@@ -4,6 +4,7 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 import { PAYMENT_STATUS } from '~/constants';
+import { syncInvoicePaymentKinds } from '~/modules/payment/services/invoicePaymentKinds';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
@@ -107,12 +108,20 @@ export const loadTransactionClass = (models: IModels) => {
         console.log('[MODEL] api.createInvoice returned', reponse); // reponse, not response
         transaction.response = reponse;
         await transaction.save();
-
-        return transaction;
       } catch (e) {
         await models.Transactions.deleteOne({ _id: transaction._id });
         throw new Error(`Error creating transaction: ${e.message}`);
       }
+
+      // outside the try: a failure here must not delete a created transaction
+      await syncInvoicePaymentKinds(models, [transaction.invoiceId]).catch(
+        (e) =>
+          console.error(
+            `Failed to sync payment kinds of invoice ${transaction.invoiceId}: ${e.message}`,
+          ),
+      );
+
+      return transaction;
     }
 
     public static async updateTransaction(_id: string, doc: any) {
@@ -143,6 +152,7 @@ export const loadTransactionClass = (models: IModels) => {
       try {
         api.cancelInvoice(transaction);
         await models.Transactions.deleteOne({ _id });
+        await syncInvoicePaymentKinds(models, [transaction.invoiceId]);
       } catch (e) {
         console.error(e);
 
@@ -193,6 +203,11 @@ export const loadTransactionClass = (models: IModels) => {
       }
 
       await models.Transactions.deleteMany({ _id: { $in: _ids } });
+
+      await syncInvoicePaymentKinds(
+        models,
+        transactions.map((transaction) => transaction.invoiceId),
+      );
 
       return 'success';
     }
