@@ -16,7 +16,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, Command, Popover, toast, useConfirm } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -42,7 +42,9 @@ export const ContactPanelRecordActions = ({
   const { hasActionPermission } = usePermissionCheck();
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
-  currentPanel.current = panel;
+  useLayoutEffect(() => {
+    currentPanel.current = panel;
+  }, [panel]);
   const { confirm } = useConfirm();
   const { setContacts } = useBroadcastContacts();
   const [params] = useSearchParams();

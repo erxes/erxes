@@ -24,11 +24,13 @@ export const ProductDetailAttachment = ({
   attachmentMore = [],
   videos = [],
   files,
+  deleteOnRemove = true,
 }: {
   attachment?: ProductAttachment | null;
   attachmentMore?: ProductAttachment[] | ProductAttachment | null;
   videos?: ProductAttachment[] | ProductAttachment | null;
   files?: ProductAttachment[] | null;
+  deleteOnRemove?: boolean;
 }) => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
@@ -84,6 +86,7 @@ export const ProductDetailAttachment = ({
           <InfoCard title={t('featured-image')} className="h-full">
             <InfoCard.Content className="h-full">
               <ProductPrimaryImageUpload
+                deleteOnRemove={deleteOnRemove}
                 value={featured}
                 onChange={setFeatured}
               />
@@ -94,6 +97,7 @@ export const ProductDetailAttachment = ({
           <InfoCard title={t('secondary-images')} className="h-full">
             <InfoCard.Content className="h-full">
               <ProductSecondaryImagesUpload
+                deleteOnRemove={deleteOnRemove}
                 value={secondary}
                 onChange={setSecondary}
                 maxImages={PRODUCT_SECONDARY_IMAGE_LIMIT}
@@ -105,6 +109,7 @@ export const ProductDetailAttachment = ({
       <InfoCard title={t('videos', 'Videos')} className="h-full">
         <InfoCard.Content className="h-full">
           <ProductVideosUpload
+            deleteOnRemove={deleteOnRemove}
             value={videoItems}
             onChange={setVideoItems}
             maxVideos={PRODUCT_VIDEO_LIMIT}

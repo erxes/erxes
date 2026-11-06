@@ -145,10 +145,12 @@ export function ProductVideosUpload({
   value,
   onChange,
   maxVideos = PRODUCT_VIDEO_LIMIT,
+  deleteOnRemove = true,
 }: Readonly<{
   value?: ProductAttachmentItem[];
   onChange: (value: ProductAttachmentItem[]) => void;
   maxVideos?: number;
+  deleteOnRemove?: boolean;
 }>) {
   const videos = useMemo(() => value || [], [value]);
   const { upload, progress, loading, error } = useUploadChunked();
@@ -236,7 +238,7 @@ export function ProductVideosUpload({
 
   const handleRemove = useCallback(
     (item: ProductAttachmentItem, index: number) => {
-      if (isEmbedVideo(item)) {
+      if (!deleteOnRemove || isEmbedVideo(item)) {
         onChange(videos.filter((_file, i) => i !== index));
         return;
       }
@@ -247,7 +249,7 @@ export function ProductVideosUpload({
         }
       });
     },
-    [onChange, removeFile, videos],
+    [deleteOnRemove, onChange, removeFile, videos],
   );
 
   return (

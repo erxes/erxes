@@ -1,5 +1,11 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { ProductRecordPanel } from '../ProductRecordPanel';
 
 const mockProduct = {
@@ -15,6 +21,13 @@ const mockProduct = {
   files: [],
 };
 const mockProductsEdit = jest.fn().mockResolvedValue({});
+const mockRemoveFile = jest.fn(
+  async (_name: string, callback: (status: string) => void) => callback('ok'),
+);
+beforeEach(() => {
+  mockProductsEdit.mockReset().mockResolvedValue({});
+  mockRemoveFile.mockClear();
+});
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({
@@ -29,6 +42,7 @@ jest.mock('erxes-ui', () => {
   );
   return {
     Form: FormProvider,
+    useRemoveFile: () => ({ removeFile: mockRemoveFile }),
     Button: ({
       children,
       ...props
@@ -42,6 +56,9 @@ jest.mock('erxes-ui', () => {
   };
 });
 jest.mock('ui-modules', () => ({
+  toProductAttachmentList: jest.requireMock(
+    'ui-modules/modules/products/components/ProductImageUploads',
+  ).toProductAttachmentList,
   NEW_RECORD_ID: 'new',
   usePanelExpanded: () => false,
   usePermissionCheck: () => ({ hasActionPermission: () => true }),
@@ -91,35 +108,50 @@ jest.mock(
 jest.mock('@/products/graphql', () => ({
   productsQueries: { productsMain: 'productsMain' },
 }));
-jest.mock('../ProductDetailFields', () => ({
-  ProductDetailFields: ({
-    productDetail,
-  }: {
-    productDetail: typeof mockProduct;
-  }) => {
-    const { ProductDetailAttachment } = jest.requireActual<
-      typeof import('../ProductDetailAttachment')
-    >('../ProductDetailAttachment');
-    return <ProductDetailAttachment {...productDetail} />;
-  },
+jest.mock('../ProductDetailGeneral', () => ({
+  ProductDetailGeneral: () => null,
 }));
+jest.mock('../ProductDetailBarcode', () => ({
+  ProductDetailBarcode: () => null,
+}));
+jest.mock('../ProductDetailUom', () => ({ ProductDetailUom: () => null }));
+jest.mock('../ProductDetailInfo', () => ({ ProductDetailInfo: () => null }));
 jest.mock('ui-modules/modules/products/components/ProductImageUploads', () => ({
   PRODUCT_SECONDARY_IMAGE_LIMIT: 5,
-  toProductAttachmentItem: (value: unknown) => value ?? null,
-  toProductAttachmentList: (value: unknown) =>
-    Array.isArray(value) ? value : [],
+  toProductAttachmentItem: jest.requireActual(
+    'ui-modules/modules/products/components/ProductImageUploads',
+  ).toProductAttachmentItem,
+  toProductAttachmentList: jest.requireActual(
+    'ui-modules/modules/products/components/ProductImageUploads',
+  ).toProductAttachmentList,
   ProductPrimaryImageUpload: ({
     value,
     onChange,
+    deleteOnRemove = true,
   }: {
-    value: { url: string } | null;
-    onChange: (value: { url: string }) => void;
+    value: { url: string; name?: string } | null;
+    onChange: (value: { url: string } | null) => void;
+    deleteOnRemove?: boolean;
   }) => (
-    <input
-      aria-label="Product image"
-      value={value?.url || ''}
-      onChange={(event) => onChange({ url: event.target.value })}
-    />
+    <>
+      <input
+        aria-label="Product image"
+        value={value?.url || ''}
+        onChange={(event) => onChange({ url: event.target.value })}
+      />
+      <button
+        type="button"
+        onClick={() => {
+          if (deleteOnRemove)
+            void mockRemoveFile(value?.name || value?.url || '', () =>
+              onChange(null),
+            );
+          else onChange(null);
+        }}
+      >
+        Remove image
+      </button>
+    </>
   ),
   ProductSecondaryImagesUpload: () => null,
 }));
@@ -170,4 +202,84 @@ it('restores media controls and the saved payload when Cancel resets the product
     attachment: { url: 'saved-image' },
     videos: [{ url: 'saved-video' }],
   });
+});
+
+it('keeps a removed persisted image on storage when the user cancels', async () => {
+  render(
+    <ProductRecordPanel
+      record={{ contentType: 'core:product', contentId: mockProduct._id }}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove image' }));
+  expect(mockRemoveFile).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+  expect(
+    (screen.getByRole('textbox', { name: 'Product image' }) as HTMLInputElement)
+      .value,
+  ).toBe('saved-image');
+  expect(mockRemoveFile).not.toHaveBeenCalled();
+});
+
+it('deletes removed persisted media only after product save succeeds', async () => {
+  render(
+    <ProductRecordPanel
+      record={{ contentType: 'core:product', contentId: mockProduct._id }}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove image' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(mockProductsEdit).toHaveBeenCalled());
+  expect(mockRemoveFile).not.toHaveBeenCalled();
+  const options = mockProductsEdit.mock.calls[0][0];
+  expect(options.variables.attachment).toBeNull();
+  await act(async () =>
+    options.onCompleted({
+      productsEdit: {
+        attachment: null,
+        attachmentMore: [],
+        videos: mockProduct.videos,
+        files: [],
+      },
+    }),
+  );
+  expect(mockRemoveFile).toHaveBeenCalledWith('Image', expect.any(Function));
+});
+
+it('preserves storage media that the mutation response still references', async () => {
+  render(
+    <ProductRecordPanel
+      record={{ contentType: 'core:product', contentId: mockProduct._id }}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove image' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(mockProductsEdit).toHaveBeenCalled());
+  await act(async () =>
+    mockProductsEdit.mock.calls[0][0].onCompleted({
+      productsEdit: mockProduct,
+    }),
+  );
+  expect(mockRemoveFile).not.toHaveBeenCalled();
+});
+
+it('leaves removed persisted media intact when product save fails', async () => {
+  mockProductsEdit.mockImplementationOnce(
+    ({ onError }: { onError: (error: Error) => void }) => {
+      onError(new Error('Save failed'));
+      return Promise.resolve({});
+    },
+  );
+  render(
+    <ProductRecordPanel
+      record={{ contentType: 'core:product', contentId: mockProduct._id }}
+      onClose={jest.fn()}
+    />,
+  );
+  fireEvent.click(await screen.findByRole('button', { name: 'Remove image' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await waitFor(() => expect(mockProductsEdit).toHaveBeenCalled());
+  expect(mockRemoveFile).not.toHaveBeenCalled();
 });

@@ -278,19 +278,16 @@ export const useSidePanel = () => {
     if (previous) navigate(previous, history.slice(0, -1));
   };
 
-  // A hidden editor can finish saving while a related record stays active.
-  const dismissPath = (targetPath: string) => {
-    if (path === targetPath) {
-      const previous = history[history.length - 1];
-      navigate(previous || null, history.slice(0, -1), true);
-    } else if (history.includes(targetPath)) {
-      navigate(
-        path,
-        history.filter((entry) => entry !== targetPath),
-        true,
-      );
+  /** Dismisses every occurrence using committed navigation, including after async saves. */
+  const dismissPath = useCallback((targetPath: string) => {
+    const current = latest.current;
+    const retained = current.history.filter((entry) => entry !== targetPath);
+    if (current.path === targetPath) {
+      current.navigate(retained.at(-1) || null, retained.slice(0, -1), true);
+    } else if (retained.length !== current.history.length) {
+      current.navigate(current.path, retained, true);
     }
-  };
+  }, []);
 
   /** Discards draft defaults and clears the panel route and history. */
   const close = () => {

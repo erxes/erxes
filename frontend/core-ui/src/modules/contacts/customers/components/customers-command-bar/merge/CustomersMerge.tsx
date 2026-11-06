@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { CUSTOMERS_MERGE_PANEL, MergeSheet } from './MergeSheet';
 import { useSidePanel } from 'ui-modules';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
@@ -37,7 +37,9 @@ export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
   const { table } = RecordTable.useRecordTable();
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
-  currentPanel.current = panel;
+  useLayoutEffect(() => {
+    currentPanel.current = panel;
+  }, [panel]);
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();

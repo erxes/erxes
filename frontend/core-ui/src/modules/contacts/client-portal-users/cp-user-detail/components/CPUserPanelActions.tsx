@@ -1,7 +1,7 @@
 import { useMutation } from '@apollo/client';
 import { IconDotsVertical, IconKey, IconTrash } from '@tabler/icons-react';
 import { Button, Command, Popover, toast, useConfirm } from 'erxes-ui';
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can, getSidePanelRecordPath, useSidePanel } from 'ui-modules';
 import { CP_USERS_REMOVE } from '@/contacts/client-portal-users/graphql/cpUsersRemove';
@@ -14,7 +14,9 @@ export const CPUserPanelActions = ({ user }: { user: ICPUser }) => {
   const { confirm } = useConfirm();
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
-  currentPanel.current = panel;
+  useLayoutEffect(() => {
+    currentPanel.current = panel;
+  }, [panel]);
   const [open, setOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [remove, { loading }] = useMutation(CP_USERS_REMOVE, {

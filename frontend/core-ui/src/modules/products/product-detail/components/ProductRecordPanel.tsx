@@ -29,6 +29,10 @@ import { ProductPanelIdContext } from '@/products/product-detail/contexts/Produc
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
 import {
+  useProductMediaCleanup,
+  type ProductMediaValues,
+} from '@/products/product-detail/hooks/useProductMediaCleanup';
+import {
   useProductFormData,
   getProductFormDefaultValues,
 } from '@/products/product-detail/hooks/useProductFormData';
@@ -83,6 +87,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
     useProductDetailWithQuery();
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { linkFiles } = useProductFileLinks();
+  const cleanupMedia = useProductMediaCleanup();
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(ProductFormSchema),
     defaultValues: EMPTY_PRODUCT_FORM_VALUES,
@@ -122,7 +127,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
     const attachment =
       data.attachment != null && !Array.isArray(data.attachment)
         ? toAttachmentInput(data.attachment)
-        : undefined;
+        : null;
     const attachmentMore = Array.isArray(data.attachmentMore)
       ? data.attachmentMore
           .map((item: unknown) => toAttachmentInput(item))
@@ -174,8 +179,13 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
       variables,
       refetchQueries: [productsQueries.productsMain],
       awaitRefetchQueries: true,
-      onCompleted: () => {
+      onCompleted: ({
+        productsEdit: savedProduct,
+      }: {
+        productsEdit?: ProductMediaValues | null;
+      }) => {
         form.reset(data);
+        if (savedProduct) void cleanupMedia(productDetail, savedProduct);
         toast({
           title: t('successTitle'),
           description: t('productUpdated'),
@@ -288,6 +298,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
                           key={`${productId}-${formVersion}-${resetVersion}`}
                           productDetail={productDetail}
                           compact
+                          deferMediaDeletion
                         />
                       </fieldset>
                     </>,

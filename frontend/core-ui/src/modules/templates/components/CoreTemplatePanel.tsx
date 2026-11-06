@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { TemplateForm, useSidePanel } from 'ui-modules';
 import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
@@ -18,7 +18,9 @@ export const CoreTemplatePanel = ({
   const { t } = useTranslation('templates');
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
-  currentPanel.current = panel;
+  useLayoutEffect(() => {
+    currentPanel.current = panel;
+  }, [panel]);
   const name = `templates/new/${contentType}/${contentId}`;
   return (
     <CoreModulePanel name={name} open={open} onOpenChange={onOpenChange}>

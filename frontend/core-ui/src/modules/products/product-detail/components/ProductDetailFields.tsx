@@ -8,9 +8,11 @@ import { ProductDetail } from '@/products/product-detail/types/detailTypes';
 export const ProductDetailFields = ({
   productDetail,
   compact = false,
+  deferMediaDeletion = false,
 }: {
   productDetail: ProductDetail | null;
   compact?: boolean;
+  deferMediaDeletion?: boolean;
 }) => {
   if (!productDetail) return null;
 
@@ -30,6 +32,7 @@ export const ProductDetailFields = ({
         </div>
       </div>
       <ProductDetailAttachment
+        deleteOnRemove={!deferMediaDeletion}
         attachment={productDetail.attachment}
         attachmentMore={productDetail.attachmentMore}
         videos={productDetail.videos}
