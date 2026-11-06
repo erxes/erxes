@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -757,7 +757,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `+` (the Add Board dialog opens directly; empty name is rejected), confirm the new board is selected
   with the group still open, then click a board row's `+` and confirm the Add Pipeline sheet opens on the deals page with
   that board preselected and empty fields, and that the created pipeline
-  appears under its board without a reload.
+  appears under its board without a reload. From `/sales/deals/loyalty`,
+  creating a board opens `/sales/deals` on that board instead of writing
+  `boardId` into the loyalty page URL.
 - Loyalty points page smoke scenario: open Sales Pipeline → Loyalty points
   and verify rows from several pipelines with no board chosen and no
   `pipelineId` added to the URL; filter by two boards, then one pipeline and

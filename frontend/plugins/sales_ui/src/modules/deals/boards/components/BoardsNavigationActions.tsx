@@ -16,6 +16,7 @@ import { useAtom, useSetAtom } from 'jotai';
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
 type TBoardSelection = {
@@ -24,10 +25,13 @@ type TBoardSelection = {
   stageId: string;
 };
 
-export const BoardCreateDialog = () => {
+export const BoardCreateDialog = ({
+  onDealsPage,
+}: Readonly<{ onDealsPage: boolean }>) => {
   const { t } = useTranslation('sales');
   const [open, setOpen] = useAtom(boardCreateDialogState);
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [, setBoardSelection] = useMultiQueryState<TBoardSelection>([
     'boardId',
     'pipelineId',
@@ -60,11 +64,17 @@ export const BoardCreateDialog = () => {
         if (newBoardId) {
           localStorage.setItem('erxesCurrentBoardId', newBoardId);
           localStorage.removeItem('erxesCurrentPipelineId');
-          setBoardSelection({
-            boardId: newBoardId,
-            pipelineId: null,
-            stageId: null,
-          });
+          if (onDealsPage) {
+            setBoardSelection({
+              boardId: newBoardId,
+              pipelineId: null,
+              stageId: null,
+            });
+          } else {
+            navigate(
+              `/sales/deals?${new URLSearchParams({ boardId: newBoardId })}`,
+            );
+          }
         }
         handleOpenChange(false);
       },

@@ -308,7 +308,7 @@ const DealsNavigation = ({ onDealsPage }: { onDealsPage: boolean }) => {
           ))
         )}
       </NavigationMenuGroup>
-      <BoardCreateDialog />
+      <BoardCreateDialog onDealsPage={onDealsPage} />
       <PipelineCreateSheet />
     </>
   );
