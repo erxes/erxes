@@ -38,22 +38,25 @@ export const syncInvoicePaymentKinds = async (
 ) => {
   let pending = Array.from(new Set(invoiceIds.filter(Boolean)));
 
+  // Sequential by design: each attempt retries only the invoices that lost the
+  // compare-and-set in the previous attempt, and within an attempt the version
+  // must be read before aggregating and writing.
   for (
     let attempt = 0;
     attempt < SYNC_MAX_ATTEMPTS && pending.length;
     attempt++
   ) {
-    const invoices = await models.Invoices.find(
+    const invoices = await models.Invoices.find( // NOSONAR
       { _id: { $in: pending } },
       { _id: 1, paymentKindsVersion: 1 },
     ).lean();
 
-    const kindsById = await aggregatePaymentKinds(
+    const kindsById = await aggregatePaymentKinds( // NOSONAR
       models,
       invoices.map(({ _id }) => _id),
     );
 
-    const conflicts = await Promise.all(
+    const conflicts = await Promise.all( // NOSONAR
       invoices.map(async ({ _id, paymentKindsVersion }) => {
         const { modifiedCount } = await models.Invoices.updateOne(
           { _id, paymentKindsVersion: paymentKindsVersion ?? null },
@@ -127,8 +130,10 @@ export const syncMarkedInvoicePaymentKinds = async (
 export const backfillInvoicePaymentKinds = async (models: IModels) => {
   let updated = 0;
 
+  // Batches must run in order: each one reads the invoices the previous batch
+  // left unfilled, and running them one at a time keeps the DB load bounded.
   for (let batch = 0; batch < BACKFILL_MAX_BATCHES; batch++) {
-    const invoices = await models.Invoices.find(
+    const invoices = await models.Invoices.find( // NOSONAR
       { paymentKinds: { $exists: false } },
       { _id: 1 },
     )
@@ -139,7 +144,7 @@ export const backfillInvoicePaymentKinds = async (models: IModels) => {
       break;
     }
 
-    await syncInvoicePaymentKinds(
+    await syncInvoicePaymentKinds( // NOSONAR
       models,
       invoices.map(({ _id }) => _id),
     );
