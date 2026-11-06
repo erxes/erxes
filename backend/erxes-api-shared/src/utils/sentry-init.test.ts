@@ -1,9 +1,6 @@
-import {
-  context,
-  propagation,
-  ProxyTracerProvider,
-  trace,
-} from '@opentelemetry/api';
+import { propagation } from '@opentelemetry/api';
+
+import { registeredProvider, useOtelTestEnv } from './otelTestEnv.spec';
 
 jest.mock('@sentry/node', () => ({
   ...jest.requireActual('@sentry/node'),
@@ -37,37 +34,8 @@ const load = () => {
   return { initErxesSentry, Sentry };
 };
 
-const registeredProvider = () =>
-  (trace.getTracerProvider() as ProxyTracerProvider).getDelegate().constructor
-    .name;
-
 describe('initErxesSentry', () => {
-  const savedEnv: Record<string, string | undefined> = {};
-  let warn: jest.SpyInstance;
-  let log: jest.SpyInstance;
-
-  beforeEach(() => {
-    for (const key of ENV_KEYS) {
-      savedEnv[key] = process.env[key];
-      delete process.env[key];
-    }
-    warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    trace.disable();
-    propagation.disable();
-    context.disable();
-    jest.restoreAllMocks();
-    for (const key of ENV_KEYS) {
-      if (savedEnv[key] === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = savedEnv[key];
-      }
-    }
-  });
+  const spies = useOtelTestEnv(ENV_KEYS);
 
   test('does nothing without SENTRY_DSN', () => {
     const { initErxesSentry, Sentry } = load();
@@ -75,8 +43,8 @@ describe('initErxesSentry', () => {
     initErxesSentry();
 
     expect(Sentry.init).not.toHaveBeenCalled();
-    expect(warn).not.toHaveBeenCalled();
-    expect(log).not.toHaveBeenCalled();
+    expect(spies.warn).not.toHaveBeenCalled();
+    expect(spies.log).not.toHaveBeenCalled();
   });
 
   test('without SENTRY_DSN an OTLP endpoint only warns, once', () => {
@@ -88,8 +56,8 @@ describe('initErxesSentry', () => {
 
     expect(Sentry.init).not.toHaveBeenCalled();
     expect(registeredProvider()).toBe('NoopTracerProvider');
-    expect(warn).toHaveBeenCalledTimes(1);
-    expect(warn.mock.calls[0][0]).toContain('SENTRY_DSN');
+    expect(spies.warn).toHaveBeenCalledTimes(1);
+    expect(spies.warn.mock.calls[0][0]).toContain('SENTRY_DSN');
   });
 
   test('without an OTLP endpoint Sentry keeps its own OpenTelemetry setup', () => {
@@ -108,8 +76,8 @@ describe('initErxesSentry', () => {
     expect(options).not.toHaveProperty('skipOpenTelemetrySetup');
     expect(options).not.toHaveProperty('propagateTraceparent');
     expect(registeredProvider()).toBe('NoopTracerProvider');
-    expect(warn).not.toHaveBeenCalled();
-    expect(log).not.toHaveBeenCalled();
+    expect(spies.warn).not.toHaveBeenCalled();
+    expect(spies.log).not.toHaveBeenCalled();
   });
 
   test('with an OTLP endpoint Sentry skips its OpenTelemetry setup and our provider is registered', () => {

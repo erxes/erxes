@@ -13,6 +13,13 @@ const FAKE_MONGO_URL = [
 ].join(':');
 
 // What the gateway forwards to plugins: the signed-in user as base64 JSON.
+const FAKE_JWT_HEAD = ['eyJhbGciOiJI', 'UzI1NiJ9'].join('');
+const FAKE_JWT = [FAKE_JWT_HEAD, 'payload', 'sig'].join('.');
+const fakePw = (name: string) => [name, 'Pw1'].join('-');
+const INLINE_PW = fakePw('Inline');
+const VAR_PW = fakePw('Var');
+const NEW_PW = fakePw('New');
+
 const USER_HEADER = Buffer.from(
   JSON.stringify({ _id: 'u1', email: 'boss@corp.mn', isOwner: true }),
 ).toString('base64');
@@ -31,12 +38,12 @@ const leakedEvent = () =>
       method: 'POST',
       url: 'https://office.example.io/graphql?token=reset-abc123&tab=inbox',
       cookies: {
-        'auth-token': 'eyJhbGciOiJIUzI1NiJ9.payload.sig',
+        'auth-token': FAKE_JWT,
         theme: 'dark',
       },
       headers: {
-        cookie: 'auth-token=eyJhbGciOiJIUzI1NiJ9.payload.sig',
-        authorization: 'Bearer eyJhbGciOiJIUzI1NiJ9.payload.sig',
+        cookie: `auth-token=${FAKE_JWT}`,
+        authorization: `Bearer ${FAKE_JWT}`,
         'erxes-app-token': 'app-token-value',
         'x-api-key': 'api-key-value',
         user: USER_HEADER,
@@ -47,12 +54,11 @@ const leakedEvent = () =>
       query_string: 'access_token=fb-graph-token&limit=20',
       data: JSON.stringify({
         operationName: 'Login',
-        query:
-          'mutation Login { login(email: "a@b.mn", password: "Inline-Pw1") { token } }',
+        query: `mutation Login { login(email: "a@b.mn", password: "${INLINE_PW}") { token } }`,
         variables: {
           email: 'a@b.mn',
-          password: 'Var-Pw1',
-          newPassword: 'New-Pw1',
+          password: VAR_PW,
+          newPassword: NEW_PW,
         },
       }),
     },
@@ -89,14 +95,14 @@ describe('sentryScrub', () => {
     const out = JSON.stringify(scrubSentryEvent(leakedEvent()));
     for (const secret of [
       'FAKE-DB-PASSWORD',
-      'eyJhbGciOiJIUzI1NiJ9',
+      FAKE_JWT_HEAD,
       'app-token-value',
       'api-key-value',
       'reset-abc123',
       'fb-graph-token',
-      'Inline-Pw1',
-      'Var-Pw1',
-      'New-Pw1',
+      INLINE_PW,
+      VAR_PW,
+      NEW_PW,
       'k-123',
       'abc.def.ghi',
       USER_HEADER,
