@@ -600,19 +600,22 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   list does not jump when boards arrive; a pipeline whose deal count is still
   loading shows the round count skeleton (`Skeleton size-4 rounded-full`, the
   Frontline inbox filter pattern) instead of nothing.
-- Board rows expand through `BoardDisclosure` (grid-rows 0fr→1fr over 250ms
-  with the chevron's `cubic-bezier(0.22,1,0.36,1)` and a 150ms opacity fade,
-  `motion-reduce` off), the same pattern as core-ui `NavigationDisclosure` and
-  Frontline `KbDisclosure`; do not swap it back to `Collapsible.Content`,
-  which mounts and unmounts instantly. Closed lists stay `invisible` so their
-  links are not tabbable.
-- The POS ORDER sidebar (`pos/PosOrderNavigation.tsx`) reuses
-  `BoardDisclosure` for each POS row (controlled `open`, initially the active
-  POS) and the same `Sidebar.MenuSkeleton` row loader as BOARDS. POS rows use
-  the board row layout: full-width `group/pos-row` highlight, name button
-  `flex-1`, hover `⋯` menu (POS settings, copy link) left of the chevron. The
-  menu sits in a `stopPropagation` wrapper so its portal clicks never toggle
-  the row.
+- Board rows expand through `Collapsible.Content forceMount` wrapping a grid
+  (`group/board-content`: grid-rows 0fr→1fr with opacity over 200ms
+  `ease-out`, `motion-reduce` off). `forceMount` keeps the list mounted so it
+  animates both ways; a plain `Collapsible.Content` mounts and unmounts
+  instantly. Closed lists stay `invisible` so their links are not tabbable.
+  The board `open` state is controlled and opens whenever the board becomes
+  active.
+- The POS ORDER sidebar (`pos/PosOrderNavigation.tsx`) uses the same
+  `Collapsible.Content forceMount` grid (`group/pos-content`) for each POS row
+  (controlled `open`, opened when the POS is active) and the same
+  `Sidebar.MenuSkeleton` row loader as BOARDS. POS rows use the board row
+  layout: full-width `group/pos-row` highlight, the name button (a
+  `Collapsible.Trigger`, `flex-1`), the hover `⋯` menu (POS settings, copy
+  link), then the chevron trigger (`aria-hidden`, `tabIndex={-1}`). The menu is
+  a sibling of both triggers, not inside one, so its clicks never toggle the
+  row.
 - Expandable group rows (boards, POS) use `rounded-lg`; an active board row is
   gray (`bg-foreground/5 text-foreground`) while its active pipeline item keeps
   the purple `Sidebar.MenuButton` active tint, so the two never stack purple.
