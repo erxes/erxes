@@ -1,6 +1,8 @@
 import { ComponentType, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from 'erxes-ui';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
+import { CONTENT_PANEL_FIELDS_CLASS_NAME } from '@/cms/shared/side-panel/ContentPanelForm';
 import { ContentPanelActivity } from '@/cms/shared/side-panel/ContentPanelLayout';
 import {
   CMS_CATEGORY_CONTENT_TYPE,
@@ -9,7 +11,6 @@ import {
   CMS_FIELD_GROUP_CONTENT_TYPE,
   CMS_MENU_CONTENT_TYPE,
   CMS_PAGE_CONTENT_TYPE,
-  CMS_POST_CONTENT_TYPE,
   CMS_TAG_CONTENT_TYPE,
   CMS_WEBSITE_CONTENT_TYPE,
   CONTENT_WEB_CONTENT_TYPE,
@@ -25,7 +26,6 @@ import {
 import { CUSTOM_TYPE_PANEL } from '@/cms/custom-types/CustomTypePanel';
 import { MENU_PANEL } from '@/cms/menus/MenuPanel';
 import { PAGE_PANEL } from '@/cms/pages/PagePanel';
-import { POST_PANEL } from '@/cms/posts/PostPanel';
 import { WEBSITE_PANEL } from '@/cms/components/websites/WebsitePanel';
 import { TAG_PANEL } from '@/cms/tags/TagPanel';
 import { WEB_PANEL } from '@/web-builder/components/WebPanel';
@@ -39,12 +39,16 @@ export const RECORD_PANELS: Record<string, IContentPanelViews> = {
   [CMS_CUSTOM_FIELD_CONTENT_TYPE]: CUSTOM_FIELD_PANEL,
   [CMS_WEBSITE_CONTENT_TYPE]: WEBSITE_PANEL,
   [CONTENT_WEB_CONTENT_TYPE]: WEB_PANEL,
-  [CMS_POST_CONTENT_TYPE]: POST_PANEL,
   [CMS_PAGE_CONTENT_TYPE]: PAGE_PANEL,
 };
 
 const ContentPanelScroll = ({ children }: { children: ReactNode }) => (
-  <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll">
+  <div
+    className={cn(
+      'mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll',
+      CONTENT_PANEL_FIELDS_CLASS_NAME,
+    )}
+  >
     {children}
   </div>
 );

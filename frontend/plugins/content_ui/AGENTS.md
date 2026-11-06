@@ -34,9 +34,10 @@
 - CMS tags, categories, menus, custom post types, custom field groups and
   fields, CMS websites and Web Builder projects create and edit in the app
   side panel (`?panel=/detail/content:<type>/<id|new>`) instead of Sheets.
-- CMS posts and pages open a read-only overview in the app side panel from the
-  list (title click and more-menu Edit) with an Edit button that opens the
-  full-page editor; creating them still opens the full-page editor.
+- CMS posts have no side panel: the title click and more-menu Edit open the
+  full-page editor directly. CMS pages open a read-only overview in the app
+  side panel with an Edit button that opens the full-page editor; creating
+  either still opens the full-page editor.
 - The app sidebar lists CMS websites under a Content Management group
   (`ContentSubNavigation`): each website collapses to its sections (posts with
   the website's custom post types nested under them for the active website,
@@ -45,9 +46,13 @@
 - Side panel forms use the contacts row layout (`ContentPanelFormField`,
   `ContentPanelLanguageRow`, bordered `CONTENT_PANEL_INPUT_CLASS_NAME`, field
   icons) inside ui-modules `PanelFormLayout`, centered at `max-w-2xl`; missing
-  records show a not-found or error state.
+  records show a not-found or error state. Every panel view (new forms
+  included) wraps its fields in `CONTENT_PANEL_FIELDS_CLASS_NAME`, which drops
+  input, select, combobox, multi-select and editor borders and adds a hover
+  background, like contacts' detail fields; a multi-select's search input
+  grows to the full width and the hover covers its whole box.
 - Saved records are titled by name through each panel's `useHeading` and have
-  an expand button (`detailPath`): posts and pages open their full-page editors;
+  an expand button (`detailPath`): pages open their full-page editor;
   tags, categories, menus, custom post types, field groups and fields open
   `/content/cms/:websiteId/records/:recordType/:recordId`; websites and Web
   Builder projects open `/content/records/:recordType/:recordId`. That record
@@ -55,23 +60,24 @@
   record actions, a resizable Detail column (`ContentRecordColumn`) and the
   Activity tab.
 - CMS tables show row skeletons only while empty and use thin scrollbars
-  (`CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME`).
+  (`CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME`). Every table's `more` column is
+  33px wide.
 
 ## Architecture
 
-| Area          | Path                                                                   | Responsibility                                                                                                                                                           |
-| ------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`                          | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout`                                                                  |
-| Configuration | `frontend/plugins/content_ui/src/config.tsx`                           | Registers content navigation and modules.                                                                                                                                |
-| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`                         | Configures image assets, Module Federation development serving, and watch ignore rules.                                                                                  |
-| CMS           | `frontend/plugins/content_ui/src/modules/cms`                          | Owns CMS routes and feature UI.                                                                                                                                          |
-| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder`                  | Owns Web Builder UI.                                                                                                                                                     |
-| Pages         | `frontend/plugins/content_ui/src/pages`                                | Provides route-level pages.                                                                                                                                              |
-| Widgets       | `frontend/plugins/content_ui/src/widgets`                              | Provides plugin widget exports.                                                                                                                                          |
-| Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity.                                      |
-| Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel`        | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only post/page overview. |
-| Navigation    | `frontend/plugins/content_ui/src/modules/ContentSubNavigation.tsx`     | CMS website list with collapsible sections in the app sidebar.                                                                                                           |
-| Record page   | `frontend/plugins/content_ui/src/pages/cms/RecordDetailPage.tsx`       | A record's own page opened from the panel's expand button.                                                                                                               |
+| Area          | Path                                                                   | Responsibility                                                                                                                                                      |
+| ------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar   | `frontend/plugins/content_ui/src/Sidebar.tsx`                          | `ContentSidebar`: the plugin's whole app sidebar, rendered by the `./content` entry through `AppLayout`                                                             |
+| Configuration | `frontend/plugins/content_ui/src/config.tsx`                           | Registers content navigation and modules.                                                                                                                           |
+| Dev server    | `frontend/plugins/content_ui/rspack.config.ts`                         | Configures image assets, Module Federation development serving, and watch ignore rules.                                                                             |
+| CMS           | `frontend/plugins/content_ui/src/modules/cms`                          | Owns CMS routes and feature UI.                                                                                                                                     |
+| Web Builder   | `frontend/plugins/content_ui/src/modules/web-builder`                  | Owns Web Builder UI.                                                                                                                                                |
+| Pages         | `frontend/plugins/content_ui/src/pages`                                | Provides route-level pages.                                                                                                                                         |
+| Widgets       | `frontend/plugins/content_ui/src/widgets`                              | Provides plugin widget exports.                                                                                                                                     |
+| Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity.                                 |
+| Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel`        | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only page overview. |
+| Navigation    | `frontend/plugins/content_ui/src/modules/ContentSubNavigation.tsx`     | CMS website list with collapsible sections in the app sidebar.                                                                                                      |
+| Record page   | `frontend/plugins/content_ui/src/pages/cms/RecordDetailPage.tsx`       | A record's own page opened from the panel's expand button.                                                                                                          |
 
 ## Contracts
 
@@ -82,7 +88,7 @@
 - `widgets.recordPanels` entries for every `CONTENT_PANEL_CONTENT_TYPES` value
   (`content:cmsTag`, `content:cmsCategory`, `content:cmsMenu`,
   `content:cmsCustomType`, `content:cmsFieldGroup`, `content:cmsCustomField`,
-  `content:cmsWebsite`, `content:web`, `content:cmsPost`, `content:cmsPage`)
+  `content:cmsWebsite`, `content:web`, `content:cmsPage`)
   with `properties: false`, `draftTitle: true` and, for every type,
   `detailPath` from `getContentRecordDetailPath`.
 - Routes mounted under `/content`, including `/content/cms` and
@@ -206,7 +212,7 @@
   shared Cancel/Save footer. Both forms validate through `zodResolver`; the
   web project schema trims the name and requires portal, template type and
   template.
-- Post and page panels are read-only overviews; editing content stays in the
+- The page panel is a read-only overview and posts have no panel; editing content stays in the
   full-page editors so autosave, translations, media, and the BlockNote
   document rules above keep applying.
 - Custom-field choices use `getValidCustomFieldOptions` when saved and rendered.
@@ -323,8 +329,8 @@
   the side panel opens a draft, Save creates the record, the panel switches to
   its detail and the list updates; edit from the row menu, save, and confirm
   the panel closes and the row changes; delete from the panel header menu.
-- Click a CMS post or page title: the side panel shows its overview, and Edit
-  opens the full-page editor.
+- Click a CMS post title: the full-page editor opens. Click a CMS page title:
+  the side panel shows its overview, and Edit opens the full-page editor.
 - Add and edit a CMS website and a Web Builder project from their pages and
   confirm the cards update.
 

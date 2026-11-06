@@ -8,7 +8,6 @@ export const CMS_FIELD_GROUP_CONTENT_TYPE = 'content:cmsFieldGroup';
 export const CMS_CUSTOM_FIELD_CONTENT_TYPE = 'content:cmsCustomField';
 export const CMS_WEBSITE_CONTENT_TYPE = 'content:cmsWebsite';
 export const CONTENT_WEB_CONTENT_TYPE = 'content:web';
-export const CMS_POST_CONTENT_TYPE = 'content:cmsPost';
 export const CMS_PAGE_CONTENT_TYPE = 'content:cmsPage';
 
 export const CONTENT_PANEL_CONTENT_TYPES = [
@@ -20,7 +19,6 @@ export const CONTENT_PANEL_CONTENT_TYPES = [
   CMS_CUSTOM_FIELD_CONTENT_TYPE,
   CMS_WEBSITE_CONTENT_TYPE,
   CONTENT_WEB_CONTENT_TYPE,
-  CMS_POST_CONTENT_TYPE,
   CMS_PAGE_CONTENT_TYPE,
 ];
 
