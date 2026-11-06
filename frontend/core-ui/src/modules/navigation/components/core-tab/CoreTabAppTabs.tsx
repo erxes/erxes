@@ -25,7 +25,9 @@ import {
 import { Button, ContextMenu, cn } from 'erxes-ui';
 import {
   useCallback,
+  useContext,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type KeyboardEvent,
@@ -34,6 +36,49 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { useTranslation } from 'react-i18next';
+import { UNSAFE_DataRouterStateContext } from 'react-router-dom';
+
+const recoverCanceledTabFocus = (
+  source: HTMLElement | undefined,
+  dialog: HTMLElement | null,
+  onDone: () => void,
+): (() => void) | undefined => {
+  if (!source?.isConnected) {
+    onDone();
+    return;
+  }
+
+  let frame = 0;
+  const stop = () => {
+    observer.disconnect();
+    cancelAnimationFrame(frame);
+    document.removeEventListener('pointerdown', cancel, true);
+  };
+  const cancel = () => {
+    stop();
+    onDone();
+  };
+  const restore = () => {
+    if (dialog?.isConnected) return;
+
+    observer.disconnect();
+    // Let the dialog's focus scope finish unmounting before recovering focus.
+    frame = requestAnimationFrame(() => {
+      if (source.isConnected && document.activeElement === document.body) {
+        source.focus();
+      }
+      cancel();
+    });
+  };
+  const observer = new MutationObserver(restore);
+
+  observer.observe(document.body, { childList: true, subtree: true });
+  // A later pointer action owns focus, even on a non-focusable target.
+  document.addEventListener('pointerdown', cancel, true);
+  restore();
+
+  return stop;
+};
 
 const CoreTabAppTab = ({
   activity,
@@ -224,11 +269,16 @@ export const CoreTabAppTabs = ({
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const tabListRef = useRef<HTMLDivElement | null>(null);
+  const routerState = useContext(UNSAFE_DataRouterStateContext);
   const focusedTabRef = useRef<HTMLDivElement | null>(null);
   const [focusedTabId, setFocusedTabId] = useState(activeTabId);
-  const closeFocusRef = useRef<{
+  const pendingFocusRef = useRef<{
     tabId: string;
+    action: 'close' | 'select';
     target: HTMLElement | null | undefined;
+    source: HTMLElement | undefined;
+    locationKey: string | undefined;
+    wasBlocked: boolean;
   } | null>(null);
   const selectedTabStopId = tabs.some((tab) => tab.id === activeTabId)
     ? activeTabId
@@ -247,19 +297,51 @@ export const CoreTabAppTabs = ({
     setFocusedTabId(activeTabId);
   }, [activeTabId]);
 
-  useEffect(() => {
-    const pending = closeFocusRef.current;
+  useLayoutEffect(() => {
+    const pending = pendingFocusRef.current;
     const focusedTabRemoved =
       focusedTabRef.current && !focusedTabRef.current.isConnected;
-
     if (
-      (!pending && !focusedTabRemoved) ||
-      (pending && tabs.some((tab) => tab.id === pending.tabId))
+      pending?.action === 'select' &&
+      routerState?.location.key !== pending.locationKey
     ) {
+      pendingFocusRef.current = null;
       return;
     }
 
-    closeFocusRef.current = null;
+    const pendingTabPresent = tabs.some((tab) => tab.id === pending?.tabId);
+    const blockers = Array.from(routerState?.blockers.values() ?? []);
+
+    if (
+      pending &&
+      pendingTabPresent &&
+      blockers.some((b) => b.state === 'blocked')
+    ) {
+      pending.wasBlocked = true;
+      return;
+    }
+
+    const canceled =
+      pending?.wasBlocked &&
+      pendingTabPresent &&
+      routerState?.location.key === pending.locationKey &&
+      routerState?.navigation.state === 'idle' &&
+      blockers.every((blocker) => blocker.state === 'unblocked');
+
+    if (canceled && pending) {
+      return recoverCanceledTabFocus(
+        pending.source,
+        document.querySelector<HTMLElement>('[role="alertdialog"]'),
+        () => {
+          if (pendingFocusRef.current === pending)
+            pendingFocusRef.current = null;
+        },
+      );
+    }
+
+    if ((!pending && !focusedTabRemoved) || pendingTabPresent) return;
+
+    pendingFocusRef.current = null;
     focusedTabRef.current = null;
     // A dirty editor can delay removal until its leave dialog is confirmed.
     requestAnimationFrame(() => {
@@ -276,7 +358,7 @@ export const CoreTabAppTabs = ({
 
       target?.focus();
     });
-  }, [tabs]);
+  }, [routerState, tabs]);
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -299,10 +381,35 @@ export const CoreTabAppTabs = ({
         ?.closest('header')
         ?.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
 
-    closeFocusRef.current = restoreFocus
-      ? { tabId: tabs[index].id, target: focusTarget }
+    pendingFocusRef.current = restoreFocus
+      ? {
+          tabId: tabs[index].id,
+          action: 'close',
+          target: focusTarget,
+          source: tabElements?.[index],
+          locationKey: routerState?.location.key,
+          wasBlocked: false,
+        }
       : null;
     onClose(tabs[index].id);
+  };
+
+  const handleSelect = (index: number) => {
+    pendingFocusRef.current =
+      tabs[index].id === activeTabId
+        ? null
+        : {
+            tabId: tabs[index].id,
+            action: 'select',
+            target: undefined,
+            source:
+              tabListRef.current?.querySelectorAll<HTMLElement>('[role="tab"]')[
+                index
+              ],
+            locationKey: routerState?.location.key,
+            wasBlocked: false,
+          };
+    onSelect(tabs[index].id);
   };
 
   const handleTabKeyDown = (
@@ -339,7 +446,7 @@ export const CoreTabAppTabs = ({
 
     event.preventDefault();
     tabElements?.[nextIndex]?.focus();
-    onSelect(tabs[nextIndex].id);
+    handleSelect(nextIndex);
   };
 
   return (
@@ -371,12 +478,12 @@ export const CoreTabAppTabs = ({
               onClose={(restoreFocus) => handleClose(index, restoreFocus)}
               onCloseOthers={() => onCloseOthers(tab.id)}
               onCloseToRight={() => onCloseToRight(tab.id)}
-              onSelect={() => onSelect(tab.id)}
+              onSelect={() => handleSelect(index)}
               onFocus={(element) => {
                 focusedTabRef.current = element;
                 setFocusedTabId(tab.id);
-                if (closeFocusRef.current?.tabId === tab.id) {
-                  closeFocusRef.current = null;
+                if (pendingFocusRef.current?.tabId === tab.id) {
+                  pendingFocusRef.current = null;
                 }
               }}
               onBlur={(nextTarget) => {
