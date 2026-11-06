@@ -13,6 +13,7 @@ import {
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
 
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
@@ -53,6 +54,10 @@ export const CONFIG: IUIConfig = {
         draftTitle: true,
       },
       { contentType: 'frontline:integration', properties: false },
+      ...Array.from(SETTINGS_RECORD_CONTENT_TYPES, (contentType) => ({
+        contentType,
+        properties: false,
+      })),
     ],
     // A customer's / company's tickets and conversations on their overview
     // (`./contactWidget`).

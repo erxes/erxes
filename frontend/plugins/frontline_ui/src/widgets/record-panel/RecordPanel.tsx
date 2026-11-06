@@ -1,3 +1,4 @@
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
 import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 import {
@@ -35,6 +36,12 @@ const IntegrationRecordPanel = lazy(() =>
   import('./IntegrationRecordPanel').then((module) => ({
     default: module.IntegrationRecordPanel,
   })),
+);
+
+const SettingsRecordPanel = lazy(() =>
+  import('@/settings/components/record-panels/SettingsRecordPanel').then(
+    (module) => ({ default: module.SettingsRecordPanel }),
+  ),
 );
 
 const KNOWLEDGE_BASE_CONTENT_TYPES = new Set<string>([
@@ -156,6 +163,13 @@ export const RecordPanel = (props: IRecordPanelProps) => {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>
         <IntegrationRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (SETTINGS_RECORD_CONTENT_TYPES.has(props.contentType)) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <SettingsRecordPanel {...props} />
       </Suspense>
     );
   }

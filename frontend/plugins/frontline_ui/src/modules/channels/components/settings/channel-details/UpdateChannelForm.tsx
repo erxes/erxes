@@ -1,6 +1,9 @@
+import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
 import { useChannelsForm } from '@/channels/hooks/useChannelsForm';
 import { IChannelDetail, TChannelForm } from '@/channels/types';
 import { useChannelUpdate } from '@/channels/hooks/useChannelUpdate';
+import { channelPanelDraftsState } from '@/channels/states';
+import { usePanelFormDraft } from '@/shared/hooks/usePanelFormDraft';
 import { Button, Form, IconPicker, Input, Textarea, useToast } from 'erxes-ui';
 import { SubmitHandler } from 'react-hook-form';
 import React from 'react';
@@ -8,31 +11,52 @@ import { useTranslation } from 'react-i18next';
 
 export const UpdateChannelForm = ({
   channel,
+  onCancel,
+  onCompleted,
 }: {
   channel: Pick<IChannelDetail, '_id' | 'name' | 'description' | 'icon'>;
+  onCancel?: () => void;
+  onCompleted?: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const { toast } = useToast();
-  const { updateChannel } = useChannelUpdate();
+  const { updateChannel, loading } = useChannelUpdate();
+  const values: TChannelForm = {
+    name: channel.name,
+    description: channel.description ?? undefined,
+    icon: channel.icon,
+  };
   const form = useChannelsForm({
-    defaultValues: {
-      name: channel.name,
-      description: channel.description ?? undefined,
-      icon: channel.icon,
-    },
+    defaultValues: values,
   });
+  const { dirtyFields } = form.formState;
+  const { clearDraft, markSaved, isActive, beginSave, endSave, saving } =
+    usePanelFormDraft({
+      form,
+      recordKey: channel._id,
+      values,
+      draftsState: channelPanelDraftsState,
+    });
 
   const submitHandler: SubmitHandler<TChannelForm> = React.useCallback(
     async (data) => {
-      updateChannel({
+      const saveId = beginSave();
+      if (saveId === undefined) return;
+      const submittedValues = structuredClone(form.getValues());
+      await updateChannel({
         variables: {
           id: channel._id,
-          ...data,
+          ...(dirtyFields.name && { name: data.name }),
+          ...(dirtyFields.description && { description: data.description }),
+          ...(dirtyFields.icon && { icon: data.icon }),
         },
         onCompleted: () => {
+          endSave(saveId);
           toast({ title: t('success', 'Success!') });
+          if (markSaved(data, submittedValues) && isActive()) onCompleted?.();
         },
         onError: (error) => {
+          endSave(saveId);
           toast({
             title: t('error', 'Error'),
             description: error.message,
@@ -41,7 +65,19 @@ export const UpdateChannelForm = ({
         },
       });
     },
-    [updateChannel, channel._id],
+    [
+      updateChannel,
+      beginSave,
+      endSave,
+      dirtyFields,
+      channel._id,
+      onCompleted,
+      form,
+      markSaved,
+      isActive,
+      t,
+      toast,
+    ],
   );
 
   return (
@@ -99,9 +135,26 @@ export const UpdateChannelForm = ({
             </Form.Item>
           )}
         />
-        <div className="flex justify-end">
-          <Button type="submit">{t('update', 'Update')}</Button>
-        </div>
+        {onCancel ? (
+          <SettingsPanelFooter
+            onCancel={() => {
+              clearDraft();
+              onCancel();
+            }}
+            cancelLabel={t('cancel', 'Cancel')}
+            submitLabel={t('update', 'Update')}
+            loading={loading || saving || form.formState.isSubmitting}
+          />
+        ) : (
+          <div className="flex justify-end">
+            <Button
+              type="submit"
+              disabled={loading || saving || form.formState.isSubmitting}
+            >
+              {t('update', 'Update')}
+            </Button>
+          </div>
+        )}
       </form>
     </Form>
   );
