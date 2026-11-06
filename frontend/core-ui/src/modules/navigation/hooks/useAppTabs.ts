@@ -117,8 +117,7 @@ export const useAppTabs = () => {
 
     // A new action can run after Cancel commits but before passive cleanup.
     if (
-      pending &&
-      location === pending.fromLocation &&
+      location === pending?.fromLocation &&
       routerState !== pending.routerState &&
       routerState?.navigation.state === 'idle' &&
       Array.from(routerState.blockers.values()).every(
