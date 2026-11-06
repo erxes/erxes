@@ -16,6 +16,7 @@ import { ADJUST_CLOSING_PANEL } from '@/adjustments/closing/components/AdjustClo
 import { ADJUST_INVENTORY_PANEL } from '@/adjustments/inventories/components/AdjustInventoryForm';
 import { ADJUST_FIXED_ASSET_PANEL } from '@/adjustments/fxa/components/AdjustFixedAssetForm';
 import { SAFE_REMAINDER_PANEL } from '@/inventories/safeRemainders/components/SafeRemainderForm';
+import { TRANSACTION_PANEL } from '@/transactions/transaction-form/components/TrRightSidebar';
 import {
   ISettingsPanelViews,
   SettingsPanelActivity,
@@ -39,6 +40,7 @@ import {
   ADJUST_INVENTORY_CONTENT_TYPE,
 } from '@/adjustments/constants/adjustmentPanel';
 import { SAFE_REMAINDER_CONTENT_TYPE } from '@/inventories/safeRemainders/constants/safeRemainderPanel';
+import { TRANSACTION_CONTENT_TYPE } from '@/transactions/constants/transactionPanel';
 
 const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ACCOUNT_CONTENT_TYPE]: ACCOUNT_PANEL,
@@ -56,6 +58,7 @@ const RECORD_PANELS: Record<string, ISettingsPanelViews> = {
   [ADJUST_INVENTORY_CONTENT_TYPE]: ADJUST_INVENTORY_PANEL,
   [ADJUST_FIXED_ASSET_CONTENT_TYPE]: ADJUST_FIXED_ASSET_PANEL,
   [SAFE_REMAINDER_CONTENT_TYPE]: SAFE_REMAINDER_PANEL,
+  [TRANSACTION_CONTENT_TYPE]: TRANSACTION_PANEL,
 };
 
 const SettingsPanelHeaderTitle = ({ label }: { label: string }) => {
@@ -79,13 +82,17 @@ export const RecordPanel = ({
     return null;
   }
 
-  const { New, Actions, Detail } = panel;
+  const { New, Actions, Detail, Title, Activity } = panel;
 
   if (view === 'new') {
-    return <New contentType={contentType} contentId={contentId} />;
+    return New ? <New contentType={contentType} contentId={contentId} /> : null;
   }
 
   if (view === 'title') {
+    if (Title && contentId !== NEW_RECORD_ID) {
+      return <Title contentType={contentType} contentId={contentId} />;
+    }
+
     return (
       <SettingsPanelHeaderTitle
         label={contentId === NEW_RECORD_ID ? panel.addLabel : panel.editLabel}
@@ -100,7 +107,11 @@ export const RecordPanel = ({
   }
 
   if (view === 'activity') {
-    return <SettingsPanelActivity contentId={contentId} />;
+    return Activity ? (
+      <Activity contentType={contentType} contentId={contentId} />
+    ) : (
+      <SettingsPanelActivity contentId={contentId} />
+    );
   }
 
   if (view === 'properties') {

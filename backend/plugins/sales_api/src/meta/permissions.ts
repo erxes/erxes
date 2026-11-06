@@ -48,6 +48,11 @@ export const permissions: IPermissionConfig = {
           name: 'dealsArchive',
           description: 'Archive / unarchive deals',
         },
+        {
+          title: 'Export deals',
+          name: 'dealsExportManage',
+          description: 'Export deals',
+        },
       ],
     },
     {
@@ -62,7 +67,12 @@ export const permissions: IPermissionConfig = {
           name: 'boardsAdd',
           description: 'Create boards',
         },
-        { title: 'Archive / unarchive boards', name: 'boardsArchive', description: 'Archive boards and their pipelines and deals; unarchive boards' },
+        {
+          title: 'Archive / unarchive boards',
+          name: 'boardsArchive',
+          description:
+            'Archive boards and their pipelines and deals; unarchive boards',
+        },
         {
           title: 'Edit boards',
           name: 'boardsEdit',
@@ -266,6 +276,11 @@ export const permissions: IPermissionConfig = {
           name: 'posItemsExportManage',
           description: 'Export POS items',
         },
+        {
+          title: 'Export POS orders',
+          name: 'posOrdersExportManage',
+          description: 'Export POS orders',
+        },
       ],
     },
   ],
@@ -288,6 +303,7 @@ export const permissions: IPermissionConfig = {
             'dealsRemove',
             'dealsWatch',
             'dealsArchive',
+            'dealsExportManage',
           ],
           scope: 'all',
         },
@@ -358,6 +374,7 @@ export const permissions: IPermissionConfig = {
             'posCoversEdit',
             'posCoversRemove',
             'posItemsExportManage',
+            'posOrdersExportManage',
           ],
           scope: 'all',
         },

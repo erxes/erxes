@@ -869,8 +869,11 @@ owns the setup form and connection actions.
   provides `frontline:ticket`
   title, actions, new, detail, properties and activity views through
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
-  supports ticket, knowledge base and Help Center records; ticket properties remain available.
-  `TicketPanelDetail.tsx` renders ticket fields and attachments.
+  supports ticket and knowledge base records; ticket properties remain available.
+  `TicketPanelDetail.tsx` renders ticket fields and attachments, and
+  `TicketPanelName` edits the ticket's name in the panel's top bar (plain text
+  without edit permission); the name is not repeated in Detail. Knowledge base
+  records keep their full forms, because their titles are validated with them.
 - `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with
   `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`) provide contact
   overview sections. Ticket rows call `useTicketDetailSheet` with `stack: true`;

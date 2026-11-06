@@ -9,6 +9,8 @@ import {
   Avatar,
   DatePicker,
   formatPhoneNumber,
+  FullNameField,
+  FullNameValue,
   PhoneInput,
   Popover,
   readImage,
@@ -30,7 +32,37 @@ import {
 
 const SCOPE = 'team-member-panel';
 
-type TDetailCode = 'firstName' | 'middleName' | 'lastName' | 'shortName';
+/** Edits a member's name in the panel's top bar, as a customer's is edited. */
+export const MemberPanelName = ({ userId }: { userId: string }) => {
+  const { userDetail } = useUserDetail();
+  const details = userDetail?.details;
+  const editDetails = useUserObjectEdit(userId, 'details', details);
+  const firstName = details?.firstName || '';
+  const lastName = [details?.middleName, details?.lastName]
+    .filter(Boolean)
+    .join(' ');
+
+  return (
+    <FullNameField
+      scope={`${SCOPE}.name`}
+      firstName={firstName}
+      lastName={lastName}
+      onValueChange={(nextFirstName, nextLastName) => {
+        if (nextFirstName !== firstName || nextLastName !== lastName) {
+          editDetails({
+            firstName: nextFirstName,
+            middleName: '',
+            lastName: nextLastName,
+          });
+        }
+      }}
+    >
+      <PanelFieldTrigger className="px-1 font-medium">
+        <FullNameValue />
+      </PanelFieldTrigger>
+    </FullNameField>
+  );
+};
 
 export const MemberPanelTextField = ({
   scope,
@@ -225,18 +257,6 @@ export const MemberPanelDetail = () => {
   const { _id, details, email, username, score } = userDetail;
   const canEditProfile = !!currentUser?.isOwner;
 
-  const renderDetailField = (code: TDetailCode, label: string) => (
-    <PanelField label={label}>
-      <MemberPanelTextField
-        scope={code}
-        value={details?.[code] || ''}
-        placeholder={label}
-        disabled={code !== 'shortName' && !canEditProfile}
-        onSave={(next) => editDetails({ [code]: next })}
-      />
-    </PanelField>
-  );
-
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-2 p-3">
@@ -257,10 +277,14 @@ export const MemberPanelDetail = () => {
             </div>
           </PanelField>
         )}
-        {renderDetailField('firstName', nameT('first-name', 'First name'))}
-        {renderDetailField('middleName', nameT('middle-name', 'Middle name'))}
-        {renderDetailField('lastName', nameT('last-name', 'Last name'))}
-        {renderDetailField('shortName', t('short-name'))}
+        <PanelField label={t('short-name')}>
+          <MemberPanelTextField
+            scope="shortName"
+            value={details?.shortName || ''}
+            placeholder={t('short-name')}
+            onSave={(shortName) => editDetails({ shortName })}
+          />
+        </PanelField>
         <PanelField label={t('email')}>
           <MemberPanelTextField
             scope="email"

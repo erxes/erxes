@@ -204,11 +204,13 @@ const RecordSidePanelRoot = ({
   expanded: controlledExpanded,
   expandedMode = 'viewport',
   onExpandedChange,
+  expandable = true,
   children,
 }: RecordSidePanelRootProps) => {
   const [internalExpanded, setInternalExpanded] = useState(false);
   const expanded = controlledExpanded ?? internalExpanded;
-  const [entering, setEntering] = useState(true);
+  // A panel opening expanded is a page, which has nothing to slide in from.
+  const [entering, setEntering] = useState(!expanded);
   const panelRef = useRef<HTMLElement>(null);
   const previousExpanded = useRef(expanded);
   const showEntryMotion = entering && previousExpanded.current === expanded;
@@ -246,7 +248,10 @@ const RecordSidePanelRoot = ({
     setInternalExpanded(!expanded);
     onExpandedChange?.(!expanded);
   }, [expanded, onExpandedChange]);
-  const expansion = useMemo(() => ({ expanded, toggle }), [expanded, toggle]);
+  const expansion = useMemo(
+    () => ({ expanded, toggle: expandable ? toggle : undefined }),
+    [expanded, expandable, toggle],
+  );
   const upperBound = Math.max(SIDE_PANEL_WIDTH.min, maxWidth);
   const panelWidth = clampWidth(width, upperBound);
   return (
@@ -392,15 +397,17 @@ const RecordSidePanelHeader = ({
           )}
         </Button>
       )}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="size-7"
-        onClick={onClose}
-        title={t('close', 'Close')}
-      >
-        <IconX className="size-4" />
-      </Button>
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="icon"
+          className="size-7"
+          onClick={onClose}
+          title={t('close', 'Close')}
+        >
+          <IconX className="size-4" />
+        </Button>
+      )}
     </div>
   );
 };
@@ -422,6 +429,7 @@ const RecordSidePanelTabs = ({
   onValueChange,
   visibleCount = 3,
   overviewTab,
+  overviewHeader,
   expandedDefaultTab,
 }: RecordSidePanelTabsProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -554,12 +562,12 @@ const RecordSidePanelTabs = ({
 
   let contentLayout = 'flex flex-col';
   let navigationLayout =
-    'box-content items-center gap-1 h-10 px-2 border-b bg-background';
+    'box-content items-center gap-1 h-9 px-2 border-b bg-background';
   if (splitOverview) {
     contentLayout =
       'grid grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)_auto_minmax(0,1fr)] md:grid-cols-[minmax(18rem,24rem)_minmax(0,1fr)] md:grid-rows-[auto_minmax(0,1fr)]';
     navigationLayout =
-      'col-start-1 row-start-2 box-content h-10 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1';
+      'col-start-1 row-start-2 box-content h-9 items-center gap-1 border-b bg-background px-3 md:col-start-2 md:row-start-1';
   } else if (expanded) {
     contentLayout = 'flex flex-row';
     navigationLayout =
@@ -573,7 +581,8 @@ const RecordSidePanelTabs = ({
       orientation={expanded && !splitOverview ? 'vertical' : 'horizontal'}
       className={cn('flex-1 min-h-0 min-w-0', contentLayout)}
     >
-      {/* Lines up with a page's breadcrumb row: h-10 plus its 1px rule. */}
+      {/* Lines up with a page's filter row: h-9 plus its 1px rule. So does the
+          overview's own header beside it on a record's page. */}
       {/* Never wider than its container: pinning a tab moves tabs into More
           instead of widening whatever holds the panel. */}
       <div
@@ -654,9 +663,12 @@ const RecordSidePanelTabs = ({
             undefined
           }
           // A widget's own header lines up with a page's filter row (37px).
-          // A quick fade when switching tabs or opening another record.
+          // A quick fade when switching tabs or opening another record in the
+          // panel; a record's page opens without one.
           className={cn(
-            'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9 data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
+            'flex-1 min-h-0 min-w-0 flex-col [&_[data-side-menu-header]]:h-9',
+            !splitOverview &&
+              'data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-150 motion-reduce:animate-none',
             splitOverview && tab.value === overviewTab
               ? 'col-start-1 row-start-1 flex border-b bg-background md:row-span-2 md:border-b-0 md:border-r'
               : 'data-[state=active]:flex data-[state=inactive]:hidden',
@@ -665,6 +677,11 @@ const RecordSidePanelTabs = ({
               'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
           )}
         >
+          {splitOverview && tab.value === overviewTab && overviewHeader && (
+            <div className="box-content flex h-9 min-w-0 flex-none items-center gap-2 border-b px-3">
+              {overviewHeader}
+            </div>
+          )}
           {tab.content}
         </Tabs.Content>
       ))}
