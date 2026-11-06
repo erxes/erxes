@@ -43,54 +43,43 @@ import {
   PanelField,
   PanelFieldTrigger,
 } from 'ui-modules';
-import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 
 const SCOPE = 'side-panel-customer';
-
-type TTextCode = 'firstName' | 'middleName' | 'lastName' | 'code';
 
 // The phone cell, like the list, marks only valid and invalid numbers.
 const toCellPhoneStatus = (status: ICustomerDetail['phoneValidationStatus']) =>
   status === 'valid' || status === 'invalid' ? status : undefined;
 
-/** Saves one customer name or code field without submitting the other fields. */
-const CustomerTextField = ({
+/** Saves the customer code without submitting the other fields. */
+const CustomerCodeField = ({
   customer,
-  code,
   placeholder,
 }: {
   customer: ICustomerDetail;
-  code: TTextCode;
   placeholder: string;
 }) => {
   const { customerEdit } = useCustomerEdit();
-  const value = customer[code] || '';
+  const value = customer.code || '';
 
   return (
     <TextField
-      scope={`${SCOPE}.${code}`}
+      scope={`${SCOPE}.code`}
       value={value}
       placeholder={placeholder}
       className={cn(
         PANEL_TEXT_FIELD_CLASS_NAME,
         !value && 'text-muted-foreground',
       )}
-      onSave={(next) =>
-        customerEdit({ variables: { _id: customer._id, [code]: next } })
+      onSave={(code) =>
+        customerEdit({ variables: { _id: customer._id, code } })
       }
     >
-      {!value &&
-        (code === 'code' ? (
-          <IconHash
-            className="size-3.5 shrink-0 text-muted-foreground"
-            aria-hidden="true"
-          />
-        ) : (
-          <IconUser
-            className="size-3.5 shrink-0 text-muted-foreground"
-            aria-hidden="true"
-          />
-        ))}
+      {!value && (
+        <IconHash
+          className="size-3.5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
     </TextField>
   );
 };
@@ -255,33 +244,6 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-0.5 p-3">
-        <PanelAvatarField
-          value={customer.avatar || ''}
-          onSave={(avatar) =>
-            customerEdit({ variables: { _id: customer._id, avatar } })
-          }
-        />
-        <PanelField icon={IconUser} label={addT('first-name', 'First name')}>
-          <CustomerTextField
-            customer={customer}
-            code="firstName"
-            placeholder={addT('first-name', 'First name')}
-          />
-        </PanelField>
-        <PanelField icon={IconUser} label={addT('middle-name', 'Middle name')}>
-          <CustomerTextField
-            customer={customer}
-            code="middleName"
-            placeholder={addT('middle-name', 'Middle name')}
-          />
-        </PanelField>
-        <PanelField icon={IconUser} label={addT('last-name', 'Last name')}>
-          <CustomerTextField
-            customer={customer}
-            code="lastName"
-            placeholder={addT('last-name', 'Last name')}
-          />
-        </PanelField>
         <PanelField
           icon={IconTag}
           label={t('tags', 'Tags')}
@@ -375,9 +337,8 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           />
         </PanelField>
         <PanelField icon={IconHash} label={addT('code', 'Code')}>
-          <CustomerTextField
+          <CustomerCodeField
             customer={customer}
-            code="code"
             placeholder={addT('code', 'Code')}
           />
         </PanelField>

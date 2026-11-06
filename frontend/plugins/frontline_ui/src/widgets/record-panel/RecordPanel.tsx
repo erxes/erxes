@@ -21,7 +21,7 @@ import {
 import { useAtomValue } from 'jotai';
 import { lazy, Suspense, useEffect } from 'react';
 import { ticketRemovedIdsState } from '@/ticket/states/removedTicketsState';
-import { TicketPanelDetail } from './TicketPanelDetail';
+import { TicketPanelDetail, TicketPanelName } from './TicketPanelDetail';
 
 const KNOWLEDGE_BASE_CONTENT_TYPES = new Set<string>([
   ...Object.values(KB_RECORD_CONTENT_TYPES),
@@ -78,11 +78,11 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
   });
 
   if (view === 'title') {
-    return loading && !ticket ? (
-      <Skeleton className="h-4 w-32" />
-    ) : (
-      ticket?.name || t('ticket-detail')
-    );
+    if (loading && !ticket) {
+      return <Skeleton className="h-4 w-32" />;
+    }
+
+    return ticket ? <TicketPanelName ticket={ticket} /> : t('ticket-detail');
   }
 
   if (view === 'actions') {

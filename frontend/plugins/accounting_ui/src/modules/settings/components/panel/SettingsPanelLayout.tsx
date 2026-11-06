@@ -15,6 +15,8 @@ export interface ISettingsPanelViewProps {
 export interface ISettingsPanelViews {
   addLabel: string;
   editLabel: string;
+  // Replaces `editLabel` in the top bar for records whose name is edited there.
+  Title?: ComponentType<ISettingsPanelViewProps>;
   New: ComponentType<ISettingsPanelViewProps>;
   Detail: ComponentType<ISettingsPanelViewProps>;
   Actions?: ComponentType<ISettingsPanelViewProps>;
