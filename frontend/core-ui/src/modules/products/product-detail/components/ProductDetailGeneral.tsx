@@ -21,7 +21,7 @@ import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
 import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/productTypes';
 import { useProductLastCodeByCategory } from 'ui-modules/modules/products/hooks/useProducts';
 import { SuggestedProductCodeInput } from 'ui-modules/modules/products/components/SuggestedProductCodeInput';
-import { useProductDetail } from '../hooks/useProductDetail';
+import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
 
 export const ProductDetailGeneral = () => {
   const { t } = useTranslation('product', {
@@ -151,7 +151,10 @@ export const ProductDetailGeneral = () => {
                 render={({ field }) => (
                   <div className="space-y-2">
                     <Label>{t('duration-type')}</Label>
-                    <Select value={field.value} onValueChange={field.onChange}>
+                    <Select
+                      value={field.value ?? undefined}
+                      onValueChange={field.onChange}
+                    >
                       <Select.Trigger>
                         <Select.Value placeholder={t('select-duration-type')} />
                       </Select.Trigger>

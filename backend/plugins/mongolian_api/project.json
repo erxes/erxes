@@ -53,6 +53,12 @@
       ],
       "command": "docker build -f backend/plugins/mongolian_api/Dockerfile . -t erxes/erxes-next-mongolian_api"
     },
-    "schema:print": {}
+    "schema:print": {},
+    "test": {
+      "executor": "@nx/jest:jest",
+      "options": {
+        "jestConfig": "backend/plugins/mongolian_api/jest.config.cjs"
+      }
+    }
   }
 }

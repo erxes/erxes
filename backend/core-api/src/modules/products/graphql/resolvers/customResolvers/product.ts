@@ -20,6 +20,9 @@ type PipelineInventoryScope = {
   branchIds?: string[];
   departmentIds?: string[];
   initialCategoryIds?: string[];
+  productIds?: string[];
+  tagIds?: string[];
+  excludeTagIds?: string[];
   excludeCategoryIds?: string[];
   excludeProductIds?: string[];
 };
@@ -59,6 +62,9 @@ export const getPipelineInventoryScope = (
         branchIds: 1,
         departmentIds: 1,
         initialCategoryIds: 1,
+        productIds: 1,
+        tagIds: 1,
+        excludeTagIds: 1,
         excludeCategoryIds: 1,
         excludeProductIds: 1,
       },

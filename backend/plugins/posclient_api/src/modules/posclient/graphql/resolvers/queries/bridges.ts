@@ -360,10 +360,25 @@ const bridgesQueries = {
   ) {
     assertPosUser(posUser);
 
+    const order = orderId
+      ? await models.Orders.findOne(
+          {
+            _id: orderId,
+            $or: [{ posToken: config.token }, { subToken: config.token }],
+          },
+          { createdAt: 1 },
+        ).lean()
+      : undefined;
+
+    if (orderId && !order) {
+      throw new Error('Order not found');
+    }
+
     const originalByKey = new Map(items.map((item) => [item.key, item]));
     const priced = await checkPricing(
       subdomain,
       {
+        createdAt: order?.createdAt,
         items: items.map(({ key, ...item }) => ({ ...item, _id: key })),
         customerId,
         totalAmount: 0,

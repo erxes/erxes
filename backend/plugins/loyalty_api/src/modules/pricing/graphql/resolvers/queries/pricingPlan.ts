@@ -332,8 +332,9 @@ export const pricingPlanQueries = {
   },
 
   pricingCheckDiscount: async (
-    _root: any,
+    _root: unknown,
     params: {
+      date?: Date;
       prioritizeRule?: string;
       totalAmount: number;
       departmentId: string;
@@ -354,6 +355,7 @@ export const pricingPlanQueries = {
     { models, subdomain }: IContext,
   ) => {
     const {
+      date,
       prioritizeRule = 'exclude',
       totalAmount,
       departmentId,
@@ -367,6 +369,7 @@ export const pricingPlanQueries = {
     } = params;
 
     return checkPricing({
+      date,
       models,
       subdomain,
       prioritizeRule,

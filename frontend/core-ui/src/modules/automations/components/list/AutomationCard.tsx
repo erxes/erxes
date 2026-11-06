@@ -1,4 +1,5 @@
 import { AutomationFlowStrip } from '@/automations/components/list/AutomationFlowStrip';
+import { AutomationRecentRunsStrip } from '@/automations/components/list/AutomationRecentRunsStrip';
 import {
   AutomationStatusBadge,
   AutomationStatusToggle,
@@ -161,7 +162,10 @@ export const AutomationCard = ({ automation }: { automation: IAutomation }) => {
       />
 
       <div className="mt-auto flex items-center justify-between text-xs text-muted-foreground">
-        <AutomationCardRuns id={_id} />
+        <div className="flex items-center gap-3">
+          <AutomationCardRuns id={_id} />
+          <AutomationRecentRunsStrip automationId={_id} hideWhenEmpty />
+        </div>
         {updatedAt && (
           <RelativeDateDisplay value={updatedAt}>
             <RelativeDateDisplay.Value value={updatedAt} />

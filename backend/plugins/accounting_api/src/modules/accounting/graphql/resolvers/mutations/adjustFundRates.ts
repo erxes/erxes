@@ -98,37 +98,37 @@ const adjustFundRateMutations = {
   async adjustFundRateCalculate(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
-    return calculateAdjustFundRate(models, user._id, adjust);
+    return calculateAdjustFundRate(subdomain, models, user._id, adjust);
   },
 
   async adjustFundRateDoTransaction(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
-    return runAdjustFundRate(models, user._id, adjust);
+    return runAdjustFundRate(subdomain, models, user._id, adjust);
   },
 
   async adjustFundRateRun(
     _root: unknown,
     { _id }: { _id: string },
-    { models, user, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFundRates');
 
     const adjust = await models.AdjustFundRates.getAdjustFundRate(_id);
 
-    return runAdjustFundRate(models, user._id, adjust);
+    return runAdjustFundRate(subdomain, models, user._id, adjust);
   },
 };
 

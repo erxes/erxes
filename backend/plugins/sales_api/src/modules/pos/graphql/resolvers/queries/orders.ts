@@ -9,6 +9,14 @@ import {
   shortStrToDate,
 } from 'erxes-api-shared/utils';
 import { IContext, IModels } from '~/connectionResolvers';
+import {
+  posOrderScoreLogIds,
+  posOrderScoreLogInsights,
+  posOrderScoreLogPage,
+  posOrderScoreLogTimeline,
+} from '@/pos/utils/orderScoreLogs';
+import { drilledIds } from '@/sales/utils/scoreLogSums';
+import { isTimeZone } from '@/sales/utils/dealScoreLogTimeline';
 
 export const paginate = (
   collection,
@@ -422,7 +430,97 @@ export const posOrderRecordsCountQuery = async (
   return orders.length;
 };
 
+// The orders a loyalty view reads: the order list's filters, narrowed to
+// the POSes picked.
+const posScoreLogFilter = async (
+  models: IModels,
+  params: Record<string, unknown> & {
+    posIds?: string[];
+    orderIds?: string[];
+    branchIds?: string[];
+  },
+  userId?: string,
+) => {
+  const { posIds, orderIds, branchIds, ...rest } = params;
+  const filter = await generateFilterPosQuery(models, rest, userId);
+
+  if (orderIds?.length) {
+    filter._id = { $in: orderIds };
+  }
+
+  if (branchIds?.length) {
+    filter.branchId = { $in: branchIds };
+  }
+
+  if (posIds?.length) {
+    const tokens = (
+      await models.Pos.find({ _id: { $in: posIds } }, { token: 1 }).lean()
+    ).map(({ token }) => token);
+
+    filter.posToken = filter.posToken
+      ? { $in: tokens.filter((token) => token === filter.posToken) }
+      : { $in: tokens };
+  }
+
+  return filter;
+};
+
 const queries = {
+  // The loyalty entries the matching orders caused, one page at a time.
+  salesPosScoreLogs: async (
+    _root,
+    params,
+    { models, subdomain, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    const { page, perPage, kind, period, ...rest } = params;
+    const filter = await posScoreLogFilter(models, rest, user?._id);
+    // A kind or period is loyalty's to match; sales lists what it keeps.
+    const onlyIds =
+      kind || period
+        ? await drilledIds(
+            subdomain,
+            await posOrderScoreLogIds(models, filter),
+            { kind, period },
+          )
+        : null;
+
+    return posOrderScoreLogPage(models, filter, page, perPage, onlyIds);
+  },
+
+  // What those entries add up to, summed by loyalty.
+  salesPosScoreLogInsights: async (
+    _root,
+    params,
+    { models, subdomain, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    const filter = await posScoreLogFilter(models, params, user?._id);
+
+    return posOrderScoreLogInsights(models, subdomain, filter);
+  },
+
+  // What those entries moved per period.
+  salesPosScoreLogTimeline: async (
+    _root,
+    { interval, timezone, ...params },
+    { models, subdomain, user, checkPermission }: IContext,
+  ) => {
+    await checkPermission('posOrderRead');
+
+    const zone = timezone || 'UTC';
+
+    if (!isTimeZone(zone)) {
+      throw new Error(`Unknown time zone "${zone}"`);
+    }
+
+    const filter = await posScoreLogFilter(models, params, user?._id);
+
+    return posOrderScoreLogTimeline(models, subdomain, filter, interval, zone);
+  },
+
   posOrders: async (
     _root,
     params,

@@ -56,6 +56,9 @@ const getPipelineFormValues = (
       isCheckUser: false,
       isCheckDepartment: false,
       initialCategoryIds: [],
+      productIds: [],
+      tagIds: [],
+      excludeTagIds: [],
       excludeCategoryIds: [],
       excludeProductIds: [],
       excludeCheckUserIds: [],
@@ -83,6 +86,9 @@ const getPipelineFormValues = (
     isCheckDate: pipelineDetail.isCheckDate || false,
     isCheckUser: pipelineDetail.isCheckUser || false,
     isCheckDepartment: pipelineDetail.isCheckDepartment || false,
+    productIds: pipelineDetail.productIds?.filter(isDefined) || [],
+    tagIds: pipelineDetail.tagIds?.filter(isDefined) || [],
+    excludeTagIds: pipelineDetail.excludeTagIds?.filter(isDefined) || [],
     initialCategoryIds:
       pipelineDetail.initialCategoryIds?.filter(isDefined) || [],
     excludeCategoryIds:

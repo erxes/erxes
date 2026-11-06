@@ -396,8 +396,7 @@ describe('adjustRunning', () => {
     ).not.toHaveBeenCalledWith(
       'adj-a',
       expect.objectContaining({
-        checkedDate: expect.any(Date),
-        error: expect.any(String),
+        error: expect.stringMatching(/.+/),
       }),
     );
     expect(aggregate).toHaveBeenCalledWith(
