@@ -14,7 +14,6 @@ export const ElementsPage = ({ branch }: { branch: IBranch }) => {
         <div className="flex flex-col h-full min-h-0">
           <ElementRecordTable
             branchId={branch._id}
-            branchLanguages={branch.languages}
             mainLanguage={branch.language}
           />
         </div>

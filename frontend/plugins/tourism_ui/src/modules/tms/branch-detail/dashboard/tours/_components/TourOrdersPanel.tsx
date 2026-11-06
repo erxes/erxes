@@ -10,7 +10,8 @@ import { useTourOrders, ITourOrder } from '../hooks/useTourOrders';
 import { Card, Select, Separator, Spinner } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { CustomersInline } from 'ui-modules';
-import { OrderDetailSheet } from './OrderDetailSheet';
+import { TMS_ORDER_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 
 interface Props {
   readonly tourId: string;
@@ -175,9 +176,9 @@ function OrderRow({
 }
 
 export const TourOrdersPanel = ({ tourId }: Props) => {
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderFilterValue>('all');
-  const { orders, refetch, loading } = useTourOrders({
+  const { openDetail } = useTourismPanel(TMS_ORDER_CONTENT_TYPE);
+  const { orders, loading } = useTourOrders({
     variables: { tourId },
     skip: !tourId,
   });
@@ -216,70 +217,60 @@ export const TourOrdersPanel = ({ tourId }: Props) => {
   }
 
   return (
-    <>
-      <div className="flex flex-col h-full p-3">
-        <div className="flex items-center justify-between gap-3 px-1 pb-3 mb-4 border-b border-border/60">
-          <div className="flex items-center flex-1 min-w-0 gap-2">
-            <Select
-              value={statusFilter}
-              onValueChange={(value) =>
-                setStatusFilter(value as OrderFilterValue)
-              }
-            >
-              <Select.Trigger className="h-9 max-w-[120px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
-                <div className="flex items-center min-w-0 gap-2">
-                  <IconFilter className="w-4 h-4 text-muted-foreground" />
-                  <Select.Value placeholder="All statuses" />
-                </div>
-              </Select.Trigger>
-              <Select.Content>
-                {ORDER_FILTER_OPTIONS.map((option) => (
-                  <Select.Item key={option.value} value={option.value}>
-                    {option.label}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
+    <div className="flex flex-col h-full p-3">
+      <div className="flex items-center justify-between gap-3 px-1 pb-3 mb-4 border-b border-border/60">
+        <div className="flex items-center flex-1 min-w-0 gap-2">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) =>
+              setStatusFilter(value as OrderFilterValue)
+            }
+          >
+            <Select.Trigger className="h-9 max-w-[120px] rounded-md border border-border/60 bg-muted/30 px-3 text-sm text-foreground shadow-none">
+              <div className="flex items-center min-w-0 gap-2">
+                <IconFilter className="w-4 h-4 text-muted-foreground" />
+                <Select.Value placeholder="All statuses" />
+              </div>
+            </Select.Trigger>
+            <Select.Content>
+              {ORDER_FILTER_OPTIONS.map((option) => (
+                <Select.Item key={option.value} value={option.value}>
+                  {option.label}
+                </Select.Item>
+              ))}
+            </Select.Content>
+          </Select>
 
-            <span className="inline-flex items-center px-3 text-xs font-medium h-9 text-muted-foreground">
-              {filteredOrders.length}{' '}
-              {filteredOrders.length === 1 ? 'record found' : 'records found'}
-            </span>
+          <span className="inline-flex items-center px-3 text-xs font-medium h-9 text-muted-foreground">
+            {filteredOrders.length}{' '}
+            {filteredOrders.length === 1 ? 'record found' : 'records found'}
+          </span>
+        </div>
+      </div>
+
+      {filteredOrders.length ? (
+        <div className="space-y-3 overflow-y-auto">
+          {filteredOrders.map((order) => (
+            <OrderRow
+              key={order._id}
+              order={order}
+              onClick={() => openDetail(order._id)}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center justify-center flex-1">
+          <div className="flex flex-col items-center justify-center w-full gap-2 px-4 text-center min-h-32">
+            <IconClipboardList className="h-7 w-7 text-muted-foreground" />
+            <p className="text-sm font-medium text-foreground">
+              No matching bookings
+            </p>
+            <p className="max-w-xs text-xs text-muted-foreground">
+              There are no bookings with the selected status right now.
+            </p>
           </div>
         </div>
-
-        {filteredOrders.length ? (
-          <div className="space-y-3 overflow-y-auto">
-            {filteredOrders.map((order) => (
-              <OrderRow
-                key={order._id}
-                order={order}
-                onClick={() => setSelectedOrderId(order._id)}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center flex-1">
-            <div className="flex flex-col items-center justify-center w-full gap-2 px-4 text-center min-h-32">
-              <IconClipboardList className="h-7 w-7 text-muted-foreground" />
-              <p className="text-sm font-medium text-foreground">
-                No matching bookings
-              </p>
-              <p className="max-w-xs text-xs text-muted-foreground">
-                There are no bookings with the selected status right now.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-      <OrderDetailSheet
-        orderId={selectedOrderId}
-        open={!!selectedOrderId}
-        onUpdated={refetch}
-        onOpenChange={(open) => {
-          if (!open) setSelectedOrderId(null);
-        }}
-      />
-    </>
+      )}
+    </div>
   );
 };

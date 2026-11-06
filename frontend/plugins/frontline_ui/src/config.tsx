@@ -13,6 +13,8 @@ import {
 import { IUIConfig, TActivityRowProps, TPropertyInputProps } from 'erxes-ui';
 import { lazy, Suspense } from 'react';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
+import { FRONTLINE_DASHBOARD_WIDGETS } from '~/widgets/dashboard/frontlineDashboardWidgets';
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
 
 const TicketStatusPropertyInput = lazy(() =>
   import('@/ticket/components/ticket-selects/TicketStatusPropertyInput').then(
@@ -39,6 +41,25 @@ export const CONFIG: IUIConfig = {
     icon: IconStackFront,
   },
   widgets: {
+    recordPanels: [
+      { contentType: 'frontline:ticket' },
+      { contentType: 'frontline:knowledgebase.article', properties: false },
+      { contentType: 'frontline:knowledgebase.topic', properties: false },
+      { contentType: 'frontline:knowledgebase.category', properties: false },
+      { contentType: 'frontline:article', properties: false },
+      { contentType: 'frontline:topic', properties: false },
+      { contentType: 'frontline:category', properties: false },
+      {
+        contentType: 'frontline:helpcenter',
+        properties: false,
+        draftTitle: true,
+      },
+      { contentType: 'frontline:integration', properties: false },
+      ...Array.from(SETTINGS_RECORD_CONTENT_TYPES, (contentType) => ({
+        contentType,
+        properties: false,
+      })),
+    ],
     // A customer's / company's tickets and conversations on their overview
     // (`./contactWidget`).
     contactWidgets: [
@@ -57,6 +78,20 @@ export const CONFIG: IUIConfig = {
         label: 'Tickets',
       },
     ],
+    // One home dashboard tile per report chart (`./dashboardWidget`), drawn
+    // with the date range and filters picked when it is placed.
+    dashboardWidgets: FRONTLINE_DASHBOARD_WIDGETS.map(
+      ({ name, icon, preview, defaultSize, minSize }) => ({
+        name,
+        label: `${name}-title`,
+        description: `dashboard.${name}-description`,
+        icon,
+        preview,
+        defaultSize,
+        minSize,
+        configurable: true,
+      }),
+    ),
     propertyInputs: {
       ticketStatus: (props: TPropertyInputProps) => (
         <Suspense fallback={<div />}>

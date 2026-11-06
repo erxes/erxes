@@ -10,6 +10,7 @@ import { CategoriesCommandBar } from './categories-command-bar/CategoriesCommand
 import { ICategory } from '@/cms/categories/types';
 import { CategoriesFilter } from './CategoriesFilter';
 import { CATEGORIES_CURSOR_SESSION_KEY } from '../constants/categoriesCursorSessionKey';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 const naturalSort = (a: string, b: string) =>
   a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
@@ -100,7 +101,7 @@ export const CategoriesRecordTable = ({
             <RecordTable.Provider
               columns={columns}
               data={treeCategories}
-              className="h-full"
+              className={`h-full ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
               stickyColumns={['more', 'checkbox', 'name']}
               tableId="content_categories_record_table"
             >
@@ -116,7 +117,9 @@ export const CategoriesRecordTable = ({
                     <RecordTable.CursorBackwardSkeleton
                       handleFetchMore={handleFetchMore}
                     />
-                    {loading && <RecordTable.RowSkeleton rows={40} />}
+                    {loading && !treeCategories.length && (
+                      <RecordTable.RowSkeleton rows={40} />
+                    )}
                     <RecordTable.RowList />
                     <RecordTable.CursorForwardSkeleton
                       handleFetchMore={handleFetchMore}

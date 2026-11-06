@@ -1,15 +1,13 @@
 import { useQuery } from '@apollo/client';
-import { useAtomValue } from 'jotai';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { CALL_PRO_INTEGRATION_DETAIL } from '@/integrations/callpro/graphql/queries/callProQueries';
-import { callProEditSheetAtom } from '@/integrations/callpro/states/callProEditSheetAtom';
 
-export const useCallProIntegrationDetail = () => {
+/** Loads the selected Call Pro integration by ID. */
+export const useCallProIntegrationDetail = (integrationId: string) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const integrationId = useAtomValue(callProEditSheetAtom);
 
   const { data, loading } = useQuery(CALL_PRO_INTEGRATION_DETAIL, {
     variables: integrationId ? { integrationId } : undefined,

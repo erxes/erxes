@@ -9,6 +9,7 @@ import type { FilterQuery, PipelineStage } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
 import { IPipelineDocument } from '~/modules/sales/@types';
 import { SALES_STATUSES } from '~/modules/sales/constants';
+import { visiblePipelinesQuery } from '~/modules/sales/utils/pipelineVisibility';
 
 // Keep legacy pipelines without a status in the active group and cursor.
 const PIPELINE_STATUS_RANK_STAGE: PipelineStage = {
@@ -39,54 +40,10 @@ export const pipelineQueries: Record<string, Resolver> = {
   ) {
     const { boardId, isAll } = params;
 
-    const query: FilterQuery<IPipelineDocument> =
-      user.isOwner || isAll
-        ? {}
-        : {
-            $or: [
-              { visibility: 'public' },
-              {
-                $and: [
-                  { visibility: 'private' },
-                  {
-                    $or: [
-                      { memberIds: { $in: [user._id] } },
-                      { userId: user._id },
-                    ],
-                  },
-                ],
-              },
-            ],
-          };
-
-    // Owners may see private pipelines; only management callers see archived ones.
-    if (!isAll) {
-      query.status = { $ne: SALES_STATUSES.ARCHIVED };
-    }
-
-    if (!user.isOwner && !isAll) {
-      const userDetail = await sendTRPCMessage({
-        subdomain,
-
-        pluginName: 'core',
-        method: 'query',
-        module: 'users',
-        action: 'findOne',
-        input: { query: { _id: user._id } },
-        defaultValue: {},
-      });
-
-      const departmentIds = userDetail?.departmentIds || [];
-
-      if (Object.keys(query) && departmentIds.length > 0) {
-        query.$or?.push({
-          $and: [
-            { visibility: 'private' },
-            { departmentIds: { $in: departmentIds } },
-          ],
-        });
-      }
-    }
+    // Management callers (isAll) see every pipeline, archived ones included.
+    const query: FilterQuery<IPipelineDocument> = isAll
+      ? {}
+      : await visiblePipelinesQuery(subdomain, user);
 
     if (boardId) {
       query.boardId = boardId;
@@ -200,8 +157,9 @@ export const pipelineQueries: Record<string, Resolver> = {
       startDate: { $gt: now },
     };
 
-    const notStartedCount =
-      await models.Pipelines.find(notStartedQuery).countDocuments();
+    const notStartedCount = await models.Pipelines.find(
+      notStartedQuery,
+    ).countDocuments();
 
     counts['Not started'] = notStartedCount;
 
@@ -211,8 +169,9 @@ export const pipelineQueries: Record<string, Resolver> = {
       endDate: { $gt: now },
     };
 
-    const inProgressCount =
-      await models.Pipelines.find(inProgressQuery).countDocuments();
+    const inProgressCount = await models.Pipelines.find(
+      inProgressQuery,
+    ).countDocuments();
 
     counts['In progress'] = inProgressCount;
 
@@ -221,8 +180,9 @@ export const pipelineQueries: Record<string, Resolver> = {
       endDate: { $lt: now },
     };
 
-    const completedCounted =
-      await models.Pipelines.find(completedQuery).countDocuments();
+    const completedCounted = await models.Pipelines.find(
+      completedQuery,
+    ).countDocuments();
 
     counts.Completed = completedCounted;
 
