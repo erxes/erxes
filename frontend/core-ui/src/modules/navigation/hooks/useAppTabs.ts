@@ -147,11 +147,18 @@ export const useAppTabs = () => {
 
   const go = useCallback(
     (path: string, activityId?: string, closedIds?: string[]) => {
+      const deferredIds = [
+        ...new Set([
+          ...(pendingNavigationRef.current?.closedIds ?? []),
+          ...(closedIds ?? []),
+        ]),
+      ];
+
       pendingNavigationRef.current = {
         activityId,
         fromLocation: location,
         routerState,
-        closedIds,
+        closedIds: deferredIds.length ? deferredIds : undefined,
       };
       startTransition(() => {
         navigate(path);
@@ -257,7 +264,12 @@ export const useAppTabs = () => {
 
     if (!targetActivityId || !closedIds.includes(targetActivityId)) {
       if (closesCurrentRoute && pendingNavigationRef.current) {
-        pendingNavigationRef.current.closedIds = closedIds;
+        pendingNavigationRef.current.closedIds = [
+          ...new Set([
+            ...(pendingNavigationRef.current.closedIds ?? []),
+            ...closedIds,
+          ]),
+        ];
       }
       return;
     }
@@ -277,7 +289,15 @@ export const useAppTabs = () => {
   };
 
   const closeTab = (tabId: string) => {
-    const { tabIds: remaining, neighbourId } = closeAppTab(tabIds, tabId);
+    const deferredIds = pendingNavigationRef.current?.closedIds ?? [];
+
+    if (deferredIds.includes(tabId)) return;
+
+    const { tabIds: remaining } = closeAppTab(tabIds, tabId);
+    const { neighbourId } = closeAppTab(
+      tabIds.filter((id) => !deferredIds.includes(id)),
+      tabId,
+    );
 
     dropTabs(remaining, [tabId], neighbourId);
   };

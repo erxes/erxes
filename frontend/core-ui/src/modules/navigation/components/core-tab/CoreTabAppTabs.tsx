@@ -23,7 +23,13 @@ import {
   IconX,
 } from '@tabler/icons-react';
 import { Button, ContextMenu, cn } from 'erxes-ui';
-import { useCallback, useEffect, useRef, type KeyboardEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
@@ -39,6 +45,8 @@ const CoreTabAppTab = ({
   onCloseOthers,
   onCloseToRight,
   onSelect,
+  onFocus,
+  onBlur,
   onKeyDown,
 }: Readonly<{
   activity: INavigationActivity;
@@ -50,6 +58,8 @@ const CoreTabAppTab = ({
   onCloseOthers: () => void;
   onCloseToRight: () => void;
   onSelect: () => void;
+  onFocus: (element: HTMLDivElement) => void;
+  onBlur: (nextTarget: EventTarget | null) => void;
   onKeyDown: (event: KeyboardEvent<HTMLDivElement>) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
@@ -102,6 +112,8 @@ const CoreTabAppTab = ({
           )}
           style={{ transform: CSS.Transform.toString(transform), transition }}
           onClick={onSelect}
+          onFocus={(event) => onFocus(event.currentTarget)}
+          onBlur={(event) => onBlur(event.relatedTarget)}
           onMouseDown={(event) => {
             // Keep middle-click from taking focus before the close event.
             if (event.button === 1) {
@@ -212,11 +224,15 @@ export const CoreTabAppTabs = ({
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const tabListRef = useRef<HTMLDivElement | null>(null);
+  const focusedTabRef = useRef<HTMLDivElement | null>(null);
+  const [focusedTabId, setFocusedTabId] = useState(activeTabId);
   const closeFocusRef = useRef<{
     tabId: string;
     target: HTMLElement | null | undefined;
   } | null>(null);
-  const tabStopId = tabs.some((tab) => tab.id === activeTabId)
+  const tabStopId = tabs.some((tab) => tab.id === focusedTabId)
+    ? focusedTabId
+    : tabs.some((tab) => tab.id === activeTabId)
     ? activeTabId
     : tabs[0]?.id;
   const sensors = useSensors(
@@ -227,16 +243,31 @@ export const CoreTabAppTabs = ({
   );
 
   useEffect(() => {
-    const pending = closeFocusRef.current;
+    setFocusedTabId(activeTabId);
+  }, [activeTabId]);
 
-    if (!pending || tabs.some((tab) => tab.id === pending.tabId)) return;
+  useEffect(() => {
+    const pending = closeFocusRef.current;
+    const focusedTabRemoved =
+      focusedTabRef.current && !focusedTabRef.current.isConnected;
+
+    if (
+      (!pending && !focusedTabRemoved) ||
+      (pending && tabs.some((tab) => tab.id === pending.tabId))
+    ) {
+      return;
+    }
 
     closeFocusRef.current = null;
+    focusedTabRef.current = null;
     // A dirty editor can delay removal until its leave dialog is confirmed.
     requestAnimationFrame(() => {
-      const target = pending.target?.isConnected
+      const target = pending?.target?.isConnected
         ? pending.target
-        : tabListRef.current
+        : tabListRef.current?.querySelector<HTMLElement>(
+            '[role="tab"][tabindex="0"]',
+          ) ??
+          tabListRef.current
             ?.closest('header')
             ?.querySelector<HTMLButtonElement>(
               'button[aria-haspopup="dialog"]',
@@ -340,6 +371,21 @@ export const CoreTabAppTabs = ({
               onCloseOthers={() => onCloseOthers(tab.id)}
               onCloseToRight={() => onCloseToRight(tab.id)}
               onSelect={() => onSelect(tab.id)}
+              onFocus={(element) => {
+                focusedTabRef.current = element;
+                setFocusedTabId(tab.id);
+                if (closeFocusRef.current?.tabId === tab.id) {
+                  closeFocusRef.current = null;
+                }
+              }}
+              onBlur={(nextTarget) => {
+                if (
+                  nextTarget instanceof Node &&
+                  !tabListRef.current?.contains(nextTarget)
+                ) {
+                  focusedTabRef.current = null;
+                }
+              }}
               onKeyDown={(event) => handleTabKeyDown(event, index)}
             />
           ))}
