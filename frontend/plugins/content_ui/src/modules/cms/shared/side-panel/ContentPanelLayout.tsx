@@ -1,36 +1,30 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, ScrollArea, Spinner } from 'erxes-ui';
+import { IconInfoCircle } from '@tabler/icons-react';
+import { Empty, ScrollArea, Spinner } from 'erxes-ui';
 import { ActivityLogs } from 'ui-modules';
 
-export const ContentPanelBody = ({ children }: { children: ReactNode }) => (
-  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
-    <div className="flex flex-col gap-4 p-4">{children}</div>
-  </ScrollArea>
-);
-
-export const ContentPanelFooter = ({
-  onCancel,
-  submitLabel,
-  saving,
-  disabled,
-}: {
-  onCancel: () => void;
-  submitLabel: string;
-  saving?: boolean;
-  disabled?: boolean;
-}) => {
-  const { t } = useTranslation('content');
+const ContentPanelEmptyState = ({ error }: { error?: Error | null }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
 
   return (
-    <div className="flex shrink-0 justify-end gap-1 border-t bg-background p-2">
-      <Button type="button" variant="ghost" size="sm" onClick={onCancel}>
-        {t('cancel')}
-      </Button>
-      <Button type="submit" size="sm" disabled={saving || disabled}>
-        {saving && <Spinner size="sm" />}
-        {submitLabel}
-      </Button>
+    <div className="flex flex-1 items-center justify-center p-6">
+      <Empty>
+        <Empty.Header>
+          <Empty.Media variant="icon">
+            <IconInfoCircle />
+          </Empty.Media>
+          <Empty.Title>
+            {error
+              ? t('error', 'Unable to load record')
+              : t('not-found-title', 'Nothing here')}
+          </Empty.Title>
+          <Empty.Description>
+            {error?.message ||
+              t('record-not-found', 'This record no longer exists.')}
+          </Empty.Description>
+        </Empty.Header>
+      </Empty>
     </div>
   );
 };
@@ -38,10 +32,12 @@ export const ContentPanelFooter = ({
 export const ContentPanelRecordState = ({
   loading,
   hasRecord,
+  error,
   children,
 }: {
   loading: boolean;
   hasRecord: boolean;
+  error?: Error | null;
   children?: ReactNode;
 }) => {
   if (loading && !hasRecord) {
@@ -49,7 +45,7 @@ export const ContentPanelRecordState = ({
   }
 
   if (!hasRecord) {
-    return null;
+    return <ContentPanelEmptyState error={error} />;
   }
 
   return children ?? null;

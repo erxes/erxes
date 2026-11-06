@@ -23,6 +23,7 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IWebsite } from '../../types';
 import { getCmsWebsiteLanguages } from './CmsWebsiteCard';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface CmsWebsitesRecordTableProps {
   websites: IWebsite[];
@@ -176,7 +177,7 @@ export const CmsWebsitesRecordTable = ({
       columns={columns}
       data={websites}
       stickyColumns={['more', 'avatar', 'name']}
-      className="m-3"
+      className={`m-3 ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
       tableId="content_cms_websites_table"
     >
       <RecordTable>

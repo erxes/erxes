@@ -1,3 +1,4 @@
+import { ComponentType, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
 import { ContentPanelActivity } from '@/cms/shared/side-panel/ContentPanelLayout';
@@ -12,6 +13,8 @@ import {
   CMS_TAG_CONTENT_TYPE,
   CMS_WEBSITE_CONTENT_TYPE,
   CONTENT_WEB_CONTENT_TYPE,
+  IContentPanelHeading,
+  IContentPanelViewProps,
   IContentPanelViews,
 } from '@/cms/shared/side-panel/contentPanelTypes';
 import { CATEGORY_PANEL } from '@/cms/categories/CategoryPanel';
@@ -27,7 +30,7 @@ import { WEBSITE_PANEL } from '@/cms/components/websites/WebsitePanel';
 import { TAG_PANEL } from '@/cms/tags/TagPanel';
 import { WEB_PANEL } from '@/web-builder/components/WebPanel';
 
-const RECORD_PANELS: Record<string, IContentPanelViews> = {
+export const RECORD_PANELS: Record<string, IContentPanelViews> = {
   [CMS_TAG_CONTENT_TYPE]: TAG_PANEL,
   [CMS_CATEGORY_CONTENT_TYPE]: CATEGORY_PANEL,
   [CMS_MENU_CONTENT_TYPE]: MENU_PANEL,
@@ -40,10 +43,65 @@ const RECORD_PANELS: Record<string, IContentPanelViews> = {
   [CMS_PAGE_CONTENT_TYPE]: PAGE_PANEL,
 };
 
+const ContentPanelScroll = ({ children }: { children: ReactNode }) => (
+  <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll">
+    {children}
+  </div>
+);
+
 const ContentPanelTitle = ({ label }: { label: string }) => {
   const { t } = useTranslation('content');
 
   return t(label);
+};
+
+type TUseHeading = (contentId: string) => IContentPanelHeading;
+
+const ContentPanelRecordTitle = ({
+  contentId,
+  label,
+  useHeading,
+}: {
+  contentId: string;
+  label: string;
+  useHeading: TUseHeading;
+}) => {
+  const { t } = useTranslation('content');
+  const { name } = useHeading(contentId);
+
+  return name || t(label);
+};
+
+const ContentPanelHeaderTitle = ({
+  panel,
+  contentId,
+}: {
+  panel: IContentPanelViews;
+  contentId: string;
+}) => {
+  if (contentId === NEW_RECORD_ID) {
+    return <ContentPanelTitle label={panel.addLabel} />;
+  }
+
+  return panel.useHeading ? (
+    <ContentPanelRecordTitle
+      contentId={contentId}
+      label={panel.editLabel}
+      useHeading={panel.useHeading}
+    />
+  ) : (
+    <ContentPanelTitle label={panel.editLabel} />
+  );
+};
+
+const getScrolledView = (
+  panel: IContentPanelViews,
+  view: IRecordPanelProps['view'],
+): ComponentType<IContentPanelViewProps> | undefined => {
+  if (view === 'new') return panel.New;
+  if (view === 'detail') return panel.Detail;
+
+  return undefined;
 };
 
 export const RecordPanel = ({
@@ -57,23 +115,13 @@ export const RecordPanel = ({
     return null;
   }
 
-  const { New, Actions, Detail } = panel;
-
-  if (view === 'new') {
-    return New ? <New contentType={contentType} contentId={contentId} /> : null;
-  }
-
   if (view === 'title') {
-    return (
-      <ContentPanelTitle
-        label={contentId === NEW_RECORD_ID ? panel.addLabel : panel.editLabel}
-      />
-    );
+    return <ContentPanelHeaderTitle panel={panel} contentId={contentId} />;
   }
 
   if (view === 'actions') {
-    return Actions ? (
-      <Actions contentType={contentType} contentId={contentId} />
+    return panel.Actions ? (
+      <panel.Actions contentType={contentType} contentId={contentId} />
     ) : null;
   }
 
@@ -81,9 +129,11 @@ export const RecordPanel = ({
     return <ContentPanelActivity contentId={contentId} />;
   }
 
-  if (view === 'properties') {
-    return null;
-  }
+  const View = getScrolledView(panel, view);
 
-  return <Detail contentType={contentType} contentId={contentId} />;
+  return View ? (
+    <ContentPanelScroll>
+      <View contentType={contentType} contentId={contentId} />
+    </ContentPanelScroll>
+  ) : null;
 };

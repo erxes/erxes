@@ -1,15 +1,16 @@
 import { useMutation, useQuery } from '@apollo/client';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconExternalLink } from '@tabler/icons-react';
 import { Checkbox, Form, Input, Select, toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { PanelFormLayout } from 'ui-modules';
 import { CMS_MENU_REMOVE } from '../graphql/queries';
-import { LanguageSelector } from '../shared/LanguageSelector';
 import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
 import {
-  ContentPanelBody,
-  ContentPanelFooter,
-  ContentPanelRecordState,
-} from '@/cms/shared/side-panel/ContentPanelLayout';
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormField,
+  ContentPanelLanguageRow,
+} from '@/cms/shared/side-panel/ContentPanelForm';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
 import {
   CMS_MENU_CONTENT_TYPE,
@@ -24,7 +25,11 @@ import {
 import { MenuLinkField } from './components/MenuLinkField';
 import { CMS_MENU_DETAIL } from './graphql/menuDetailQuery';
 import { useMenuDrawer } from './hooks/useMenuDrawer';
-import { MenuPanelFormProps, MenuRecord } from './types/menuDrawerTypes';
+import {
+  MenuFormData,
+  MenuPanelFormProps,
+  MenuRecord,
+} from './types/menuDrawerTypes';
 
 const MenuPanelForm = (props: MenuPanelFormProps) => {
   const { t } = useTranslation('content');
@@ -52,13 +57,28 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
     parentOptions,
   } = useMenuDrawer(props);
 
+  const handleSubmit = (data: MenuFormData) => {
+    if (hasPermissionError || savedRowLoad.isBlocked) return;
+    onSubmit(data);
+  };
+
+  const sharedAcrossLanguages = isTranslationMode && (
+    <span className="ml-2 text-xs text-gray-500">
+      ({t('shared-across-languages')})
+    </span>
+  );
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit)}
         className="flex flex-1 min-h-0 flex-col"
       >
-        <ContentPanelBody>
+        <PanelFormLayout
+          onCancel={props.onCancel}
+          saving={saving}
+          saveLabel={isEditing ? t('save-changes') : t('create-menu')}
+        >
           {savedRowLoad.hasFailed && (
             <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
           )}
@@ -79,31 +99,34 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
           )}
 
           {availableLanguages.length > 0 && (
-            <LanguageSelector
+            <ContentPanelLanguageRow
               selectedLanguage={selectedLanguage}
               languageOptions={languageOptions}
               onLanguageChange={onLanguageChange}
             />
           )}
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="label"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('label')}
-                  {isTranslationMode && (
-                    <span className="ml-2 text-xs text-blue-600">
-                      ({selectedLanguage})
-                    </span>
-                  )}
-                </Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder={t('enter-label')} required />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            required
+            label={
+              <>
+                {t('label')}
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </>
+            }
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                placeholder={t('enter-label')}
+                required
+              />
             )}
           />
 
@@ -120,103 +143,70 @@ const MenuPanelForm = (props: MenuPanelFormProps) => {
             tags={tags}
           />
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="target"
-            render={({ field }) => (
-              <Form.Item>
-                <div className="flex items-center gap-2">
-                  <Form.Control>
-                    <Checkbox
-                      id="target-blank"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </Form.Control>
-                  <Form.Label
-                    htmlFor="target-blank"
-                    className="cursor-pointer font-normal"
-                  >
-                    {t('open-in-new-tab')}
-                  </Form.Label>
-                </div>
-              </Form.Item>
+            icon={IconExternalLink}
+            label={t('open-in-new-tab')}
+            render={(field) => (
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
             )}
           />
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="kind"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('kind')}
-                  {isTranslationMode && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      ({t('shared-across-languages')})
-                    </span>
-                  )}
-                </Form.Label>
-                <Form.Control>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <Select.Trigger>
-                      <Select.Value placeholder={t('select-kind')} />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="header">{t('header')}</Select.Item>
-                      <Select.Item value="footer">{t('footer')}</Select.Item>
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            label={
+              <>
+                {t('kind')}
+                {sharedAcrossLanguages}
+              </>
+            }
+            render={(field) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
+                  <Select.Value placeholder={t('select-kind')} />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="header">{t('header')}</Select.Item>
+                  <Select.Item value="footer">{t('footer')}</Select.Item>
+                </Select.Content>
+              </Select>
             )}
           />
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="parentId"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('parent-menu')}
-                  {isTranslationMode && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      ({t('shared-across-languages')})
-                    </span>
-                  )}
-                </Form.Label>
-                <Form.Control>
-                  <Select
-                    value={field.value || 'none'}
-                    onValueChange={field.onChange}
-                  >
-                    <Select.Trigger>
-                      <Select.Value placeholder={t('none-top-level')} />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="none">
-                        {t('none-top-level')}
-                      </Select.Item>
-                      {parentOptions.map((opt) => (
-                        <Select.Item key={opt._id} value={opt._id}>
-                          {opt.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            label={
+              <>
+                {t('parent-menu')}
+                {sharedAcrossLanguages}
+              </>
+            }
+            render={(field) => (
+              <Select
+                value={field.value || 'none'}
+                onValueChange={field.onChange}
+              >
+                <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
+                  <Select.Value placeholder={t('none-top-level')} />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="none">{t('none-top-level')}</Select.Item>
+                  {parentOptions.map((opt) => (
+                    <Select.Item key={opt._id} value={opt._id}>
+                      {opt.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
             )}
           />
-        </ContentPanelBody>
-        <ContentPanelFooter
-          onCancel={props.onCancel}
-          saving={saving}
-          disabled={hasPermissionError || savedRowLoad.isBlocked}
-          submitLabel={isEditing ? t('save-changes') : t('create-menu')}
-        />
+        </PanelFormLayout>
       </form>
     </Form>
   );
@@ -239,7 +229,7 @@ const MenuPanelNew = () => {
 const MenuPanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { closePanel } = useContentPanel(CMS_MENU_CONTENT_TYPE);
   const clientPortalId = useContentPanelWebsiteId();
-  const { data, loading } = useQuery(CMS_MENU_DETAIL, {
+  const { data, loading, error } = useQuery(CMS_MENU_DETAIL, {
     variables: { _id: contentId, clientPortalId },
     fetchPolicy: 'network-only',
     skip: !clientPortalId,
@@ -248,7 +238,7 @@ const MenuPanelDetail = ({ contentId }: IContentPanelViewProps) => {
     data?.cmsMenu;
 
   return (
-    <ContentPanelRecordState loading={loading} hasRecord={!!menu}>
+    <ContentPanelRecordState loading={loading} hasRecord={!!menu} error={error}>
       {menu && (
         <MenuPanelForm
           key={menu._id}
@@ -291,10 +281,21 @@ const MenuPanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const useMenuPanelHeading = (contentId: string) => {
+  const clientPortalId = useContentPanelWebsiteId();
+  const { data } = useQuery<{ cmsMenu?: MenuRecord }>(CMS_MENU_DETAIL, {
+    variables: { _id: contentId, clientPortalId },
+    skip: !clientPortalId,
+  });
+
+  return { name: data?.cmsMenu?.label };
+};
+
 export const MENU_PANEL: IContentPanelViews = {
   addLabel: 'new-menu',
   editLabel: 'edit-menu',
   New: MenuPanelNew,
+  useHeading: useMenuPanelHeading,
   Detail: MenuPanelDetail,
   Actions: MenuPanelActions,
 };

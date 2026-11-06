@@ -3,7 +3,6 @@ import { PostsRecordTable } from '~/modules/cms/posts/components/PostsRecordTabl
 import { PostsHeader } from '~/modules/cms/posts/components/PostsHeader';
 import { PostsAdd } from '~/modules/cms/posts/components/PostsAdd';
 import { PostsFilter } from '~/modules/cms/posts/components/PostFilter';
-import { CmsSidebar } from '~/modules/cms/shared/CmsSidebar';
 import { Posts } from '~/modules/cms/posts/types/postsType';
 import { CMS_POST_CONTENT_TYPE } from '~/modules/cms/shared/side-panel/contentPanelTypes';
 import { useContentPanel } from '~/modules/cms/shared/side-panel/useContentPanel';
@@ -48,7 +47,6 @@ export const PostsIndexPage = ({
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <PostsHeader>
           <PostsAdd clientPortalId={clientPortalId} />

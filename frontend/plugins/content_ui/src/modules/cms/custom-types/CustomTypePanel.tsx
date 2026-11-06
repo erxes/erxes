@@ -1,4 +1,5 @@
 import { Form, Input, toast } from 'erxes-ui';
+import { PanelFormLayout } from 'ui-modules';
 import { useMutation, useQuery } from '@apollo/client';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
@@ -8,10 +9,10 @@ import {
   CMS_CUSTOM_POST_TYPE_EDIT,
 } from '../graphql/queries';
 import {
-  ContentPanelBody,
-  ContentPanelFooter,
-  ContentPanelRecordState,
-} from '@/cms/shared/side-panel/ContentPanelLayout';
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormField,
+} from '@/cms/shared/side-panel/ContentPanelForm';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
 import {
   CMS_CUSTOM_TYPE_CONTENT_TYPE,
@@ -143,81 +144,74 @@ const CustomTypePanelForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-1 min-h-0 flex-col"
       >
-        <ContentPanelBody>
-          <Form.Field
-            control={form.control}
-            name="label"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('label')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    autoFocus={!isEditing}
-                    placeholder={t('enter-label')}
-                    required
-                    onChange={(e) => {
-                      field.onChange(e);
-                      handleLabelChange(e.target.value);
-                    }}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="pluralLabel"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('plural-label')}</Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    placeholder={t('enter-plural-label')}
-                    required
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('description')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder={t('optional-description')} />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-
-          <Form.Field
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t('key')}</Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="custom_type_key" required />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
-            )}
-          />
-        </ContentPanelBody>
-        <ContentPanelFooter
+        <PanelFormLayout
           onCancel={onCancel}
           saving={creating || updating}
-          submitLabel={isEditing ? t('save-changes') : t('create')}
-        />
+          saveLabel={isEditing ? t('save-changes') : t('create')}
+        >
+          <ContentPanelFormField
+            control={form.control}
+            name="label"
+            required
+            label={t('label')}
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                autoFocus={!isEditing}
+                placeholder={t('enter-label')}
+                required
+                onChange={(e) => {
+                  field.onChange(e);
+                  handleLabelChange(e.target.value);
+                }}
+              />
+            )}
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="pluralLabel"
+            required
+            label={t('plural-label')}
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                placeholder={t('enter-plural-label')}
+                required
+              />
+            )}
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="description"
+            label={t('description')}
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                placeholder={t('optional-description')}
+              />
+            )}
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="code"
+            required
+            label={t('key')}
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                placeholder="custom_type_key"
+                required
+              />
+            )}
+          />
+        </PanelFormLayout>
       </form>
     </Form>
   );
@@ -241,7 +235,7 @@ const CustomTypePanelNew = () => {
 
 const CustomTypePanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { closePanel } = useContentPanel(CMS_CUSTOM_TYPE_CONTENT_TYPE);
-  const { data, loading } = useQuery(CMS_CUSTOM_POST_TYPE_DETAIL, {
+  const { data, loading, error } = useQuery(CMS_CUSTOM_POST_TYPE_DETAIL, {
     variables: { _id: contentId },
     fetchPolicy: 'network-only',
   });
@@ -249,7 +243,11 @@ const CustomTypePanelDetail = ({ contentId }: IContentPanelViewProps) => {
     data?.cmsCustomPostType;
 
   return (
-    <ContentPanelRecordState loading={loading} hasRecord={!!customType}>
+    <ContentPanelRecordState
+      loading={loading}
+      hasRecord={!!customType}
+      error={error}
+    >
       {customType && (
         <CustomTypePanelForm
           key={customType._id}
@@ -295,10 +293,20 @@ const CustomTypePanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const useCustomTypePanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ cmsCustomPostType?: ICustomPostType }>(
+    CMS_CUSTOM_POST_TYPE_DETAIL,
+    { variables: { _id: contentId } },
+  );
+
+  return { name: data?.cmsCustomPostType?.label };
+};
+
 export const CUSTOM_TYPE_PANEL: IContentPanelViews = {
   addLabel: 'new-custom-type',
   editLabel: 'edit-custom-type',
   New: CustomTypePanelNew,
+  useHeading: useCustomTypePanelHeading,
   Detail: CustomTypePanelDetail,
   Actions: CustomTypePanelActions,
 };

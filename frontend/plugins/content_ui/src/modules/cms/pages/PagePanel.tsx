@@ -32,14 +32,20 @@ interface IPagePanelRecord {
 const PagePanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { t } = useTranslation('content');
   const navigate = useNavigate();
-  const { data, loading } = useQuery(PAGE_DETAIL, {
+  const { data, loading, error } = useQuery(PAGE_DETAIL, {
     variables: { id: contentId },
     fetchPolicy: 'cache-and-network',
   });
   const page: IPagePanelRecord | undefined = data?.cmsPage;
 
   if (!page) {
-    return <ContentPanelRecordState loading={loading} hasRecord={false} />;
+    return (
+      <ContentPanelRecordState
+        loading={loading}
+        hasRecord={false}
+        error={error}
+      />
+    );
   }
 
   return (
@@ -109,9 +115,18 @@ const PagePanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const usePagePanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ cmsPage?: IPagePanelRecord }>(PAGE_DETAIL, {
+    variables: { id: contentId },
+  });
+
+  return { name: data?.cmsPage?.name, image: data?.cmsPage?.thumbnail?.url };
+};
+
 export const PAGE_PANEL: IContentPanelViews = {
   addLabel: 'add-page',
   editLabel: 'page',
+  useHeading: usePagePanelHeading,
   Detail: PagePanelDetail,
   Actions: PagePanelActions,
 };

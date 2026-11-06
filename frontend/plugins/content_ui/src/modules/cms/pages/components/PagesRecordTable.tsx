@@ -8,6 +8,7 @@ import { PAGES_CURSOR_SESSION_KEY } from '../constants/pagesCursorSessionKey';
 import { usePages } from '../hooks/usePages';
 import { IPage } from '../types/pageTypes';
 import { EmptyState } from '../../shared/EmptyState';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface PagesRecordTableProps {
   clientPortalId: string;
@@ -54,7 +55,7 @@ export const PagesRecordTable = ({
         <RecordTable.Provider
           columns={columns}
           data={pages || []}
-          className="h-full"
+          className={`h-full ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
           stickyColumns={['more', 'checkbox', 'name']}
           tableId="content_pages_record_table"
         >
@@ -70,7 +71,9 @@ export const PagesRecordTable = ({
                 <RecordTable.CursorBackwardSkeleton
                   handleFetchMore={handleFetchMore}
                 />
-                {loading && <RecordTable.RowSkeleton rows={40} />}
+                {loading && !pages?.length && (
+                  <RecordTable.RowSkeleton rows={40} />
+                )}
                 <RecordTable.RowList />
                 <RecordTable.CursorForwardSkeleton
                   handleFetchMore={handleFetchMore}

@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next';
 import { PagesRecordTable } from './components/PagesRecordTable';
 import { IPage } from './types/pageTypes';
 import { PagesHeader } from './components/PagesHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { PagesFilter } from './components/PagesFilter';
 import { CMS_PAGE_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
 import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
@@ -34,7 +33,6 @@ export function Page() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <PagesHeader>{headerActions}</PagesHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">

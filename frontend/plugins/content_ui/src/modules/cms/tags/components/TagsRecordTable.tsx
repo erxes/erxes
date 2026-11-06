@@ -4,6 +4,7 @@ import { TagsCommandBar } from './tags-command-bar/TagsCommandBar';
 import { useTags } from '../../hooks/useTags';
 import { TAGS_CURSOR_SESSION_KEY } from '../constants/tagsCursorSessionKey';
 import { CmsTag } from '../types/tagTypes';
+import { CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME } from '@/cms/shared/constants/recordTable';
 
 interface TagsRecordTableProps {
   clientPortalId: string;
@@ -30,7 +31,7 @@ export const TagsRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={tags || []}
-      className="h-full"
+      className={`h-full ${CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME}`}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="content_tags_record_table"
     >
@@ -46,7 +47,7 @@ export const TagsRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={40} />}
+            {loading && !tags?.length && <RecordTable.RowSkeleton rows={40} />}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

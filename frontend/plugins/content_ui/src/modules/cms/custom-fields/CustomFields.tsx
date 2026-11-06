@@ -30,7 +30,6 @@ import { CSS } from '@dnd-kit/utilities';
 import { useTranslation } from 'react-i18next';
 
 import { CustomFieldsHeader } from './components/CustomFieldsHeader';
-import { CmsSidebar } from '../shared/CmsSidebar';
 
 import { ICustomFieldGroup, ICustomField } from './types/customFieldTypes';
 import { useCustomFieldGroups } from './hooks/useCustomFieldGroups';
@@ -176,7 +175,6 @@ export function CustomFields() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CustomFieldsHeader>
           <Button onClick={handleAddGroup}>

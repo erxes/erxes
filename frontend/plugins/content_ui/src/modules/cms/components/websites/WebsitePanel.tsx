@@ -15,11 +15,8 @@ import {
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  PANEL_INPUT_CLASS_NAME,
-  PanelFormLayout,
-  PanelFormRow,
-} from 'ui-modules';
+import { IconDeviceDesktop, IconLanguage } from '@tabler/icons-react';
+import { PanelFormLayout } from 'ui-modules';
 import { CONTENT_CMS_LIST, GET_WEBSITES } from '../../graphql/queries';
 import {
   CONTENT_CREATE_CMS,
@@ -32,6 +29,10 @@ import {
   WebsiteFormType,
 } from '../../constants/websiteFormSchema';
 import { IWebsite } from '../../types';
+import {
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormField,
+} from '@/cms/shared/side-panel/ContentPanelForm';
 import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import {
   CMS_WEBSITE_CONTENT_TYPE,
@@ -293,7 +294,10 @@ const WebsitePanelForm = ({
     }
   };
 
-  const { errors } = form.formState;
+  const selectedLanguages = form.watch('languages') || [];
+  const availableLanguages = LANGUAGES.filter((l) =>
+    selectedLanguages.includes(l.value),
+  );
 
   return (
     <Form {...form}>
@@ -307,166 +311,148 @@ const WebsitePanelForm = ({
           saving={saving || savingUpdate}
           saveLabel={isEditing ? t('save-changes') : t('create-cms')}
         >
-          <PanelFormRow
+          <ContentPanelFormField
+            control={form.control}
+            name="name"
             label={t('cms-name')}
             required
-            error={errors.name?.message}
-          >
-            <Input
-              {...form.register('name')}
-              autoFocus={!isEditing}
-              placeholder={t('enter-website-name')}
-              className={PANEL_INPUT_CLASS_NAME}
-            />
-          </PanelFormRow>
+            render={(field) => (
+              <Input
+                {...field}
+                autoFocus={!isEditing}
+                placeholder={t('enter-website-name')}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+              />
+            )}
+          />
 
-          <PanelFormRow
+          <ContentPanelFormField
+            control={form.control}
+            name="kind"
             label={t('client-portal')}
             required
-            error={errors.kind?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="kind"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={clientPortalsLoading}
-                >
-                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                    <Select.Value
-                      placeholder={
-                        clientPortalsLoading
-                          ? t('loading')
-                          : t('select-client-portal')
-                      }
-                    />
-                  </Select.Trigger>
-                  <Select.Content align="start">
-                    {clientPortals.map((portal) => {
-                      const ownerName = portalOwnerNames.get(portal._id);
-
-                      return (
-                        <Select.Item
-                          key={portal._id}
-                          value={portal._id}
-                          disabled={Boolean(ownerName)}
-                          className="h-7 text-xs"
-                        >
-                          {ownerName
-                            ? t('cms-client-portal-used-by', {
-                                defaultValue: '{{portal}} (used by {{name}})',
-                                portal: portal.name,
-                                name: ownerName,
-                              })
-                            : portal.name}
-                        </Select.Item>
-                      );
-                    })}
-                  </Select.Content>
-                </Select>
-              )}
-            />
-          </PanelFormRow>
-
-          <PanelFormRow
-            label={t('languages')}
-            error={errors.languages?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="languages"
-              render={({ field }) => (
-                <div
-                  ref={languagesSelectorRef}
-                  onKeyDownCapture={handleLanguagesSelectorKeyDownCapture}
-                >
-                  <MultipleSelector
-                    defaultOptions={LANGUAGES}
-                    onSearchSync={(term) =>
-                      LANGUAGES.filter(
-                        (o) =>
-                          o.label.toLowerCase().includes(term.toLowerCase()) ||
-                          o.value.toLowerCase().includes(term.toLowerCase()),
-                      )
+            icon={IconDeviceDesktop}
+            render={(field) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={clientPortalsLoading}
+              >
+                <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
+                  <Select.Value
+                    placeholder={
+                      clientPortalsLoading
+                        ? t('loading')
+                        : t('select-client-portal')
                     }
-                    triggerSearchOnFocus
-                    value={(field.value || []).map((lng) => ({
-                      value: lng,
-                      label:
-                        LANGUAGES.find((l) => l.value === lng)?.label || lng,
-                    }))}
-                    onChange={(val) => field.onChange(val.map((v) => v.value))}
-                    placeholder={t('select-languages')}
-                    commandProps={{ shouldFilter: false }}
-                    className="text-xs"
                   />
-                </div>
-              )}
-            />
-          </PanelFormRow>
+                </Select.Trigger>
+                <Select.Content align="start">
+                  {clientPortals.map((portal) => {
+                    const ownerName = portalOwnerNames.get(portal._id);
 
-          <PanelFormRow
-            label={t('default-language')}
-            error={errors.language?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="language"
-              render={({ field }) => {
-                const selectedLanguages = form.watch('languages') || [];
-                const available = LANGUAGES.filter((l) =>
-                  selectedLanguages.includes(l.value),
-                );
-
-                return (
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                    disabled={available.length === 0}
-                  >
-                    <Select.Trigger
-                      ref={defaultLanguageTriggerRef}
-                      className={PANEL_INPUT_CLASS_NAME}
-                    >
-                      <Select.Value
-                        placeholder={t('select-default-language')}
-                      />
-                    </Select.Trigger>
-                    <Select.Content align="start">
-                      {available.map((opt) => (
-                        <Select.Item
-                          key={opt.value}
-                          value={opt.value}
-                          className="h-7 text-xs"
-                        >
-                          {opt.label}
-                        </Select.Item>
-                      ))}
-                    </Select.Content>
-                  </Select>
-                );
-              }}
-            />
-          </PanelFormRow>
-
-          <div className="flex flex-col gap-1.5 pt-2">
-            <span className="text-xs font-medium text-accent-foreground">
-              {t('description')}
-              <span className="text-destructive"> *</span>
-            </span>
-            <Textarea
-              {...form.register('description')}
-              placeholder={t('enter-website-description')}
-              className="min-h-24 text-xs"
-            />
-            {errors.description?.message && (
-              <span className="text-xs text-destructive">
-                {errors.description.message}
-              </span>
+                    return (
+                      <Select.Item
+                        key={portal._id}
+                        value={portal._id}
+                        disabled={Boolean(ownerName)}
+                        className="h-7 text-xs"
+                      >
+                        {ownerName
+                          ? t('cms-client-portal-used-by', {
+                              defaultValue: '{{portal}} (used by {{name}})',
+                              portal: portal.name,
+                              name: ownerName,
+                            })
+                          : portal.name}
+                      </Select.Item>
+                    );
+                  })}
+                </Select.Content>
+              </Select>
             )}
-          </div>
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="languages"
+            label={t('languages')}
+            block
+            icon={IconLanguage}
+            render={(field) => (
+              <div
+                ref={languagesSelectorRef}
+                onKeyDownCapture={handleLanguagesSelectorKeyDownCapture}
+              >
+                <MultipleSelector
+                  defaultOptions={LANGUAGES}
+                  onSearchSync={(term) =>
+                    LANGUAGES.filter(
+                      (o) =>
+                        o.label.toLowerCase().includes(term.toLowerCase()) ||
+                        o.value.toLowerCase().includes(term.toLowerCase()),
+                    )
+                  }
+                  triggerSearchOnFocus
+                  value={(field.value || []).map((lng) => ({
+                    value: lng,
+                    label: LANGUAGES.find((l) => l.value === lng)?.label || lng,
+                  }))}
+                  onChange={(val) => field.onChange(val.map((v) => v.value))}
+                  placeholder={t('select-languages')}
+                  commandProps={{ shouldFilter: false }}
+                  className="text-xs"
+                />
+              </div>
+            )}
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="language"
+            label={t('default-language')}
+            icon={IconLanguage}
+            render={(field) => (
+              <Select
+                value={field.value}
+                onValueChange={field.onChange}
+                disabled={availableLanguages.length === 0}
+              >
+                <Select.Trigger
+                  ref={defaultLanguageTriggerRef}
+                  className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                >
+                  <Select.Value placeholder={t('select-default-language')} />
+                </Select.Trigger>
+                <Select.Content align="start">
+                  {availableLanguages.map((opt) => (
+                    <Select.Item
+                      key={opt.value}
+                      value={opt.value}
+                      className="h-7 text-xs"
+                    >
+                      {opt.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            )}
+          />
+
+          <ContentPanelFormField
+            control={form.control}
+            name="description"
+            label={t('description')}
+            required
+            block
+            render={(field) => (
+              <Textarea
+                {...field}
+                placeholder={t('enter-website-description')}
+                className="min-h-24 text-xs"
+              />
+            )}
+          />
         </PanelFormLayout>
       </form>
     </Form>
@@ -486,14 +472,18 @@ const WebsitePanelNew = () => {
 
 const WebsitePanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { closePanel } = useContentPanel(CMS_WEBSITE_CONTENT_TYPE);
-  const { data, loading } = useQuery<{ contentCMSList: IWebsite[] }>(
+  const { data, loading, error } = useQuery<{ contentCMSList: IWebsite[] }>(
     CONTENT_CMS_LIST,
     { fetchPolicy: 'cache-first' },
   );
   const website = data?.contentCMSList?.find((cms) => cms._id === contentId);
 
   return (
-    <ContentPanelRecordState loading={loading} hasRecord={!!website}>
+    <ContentPanelRecordState
+      loading={loading}
+      hasRecord={!!website}
+      error={error}
+    >
       {website && (
         <WebsitePanelForm
           key={website._id}
@@ -506,9 +496,18 @@ const WebsitePanelDetail = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const useWebsitePanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ contentCMSList: IWebsite[] }>(CONTENT_CMS_LIST);
+
+  return {
+    name: data?.contentCMSList?.find((cms) => cms._id === contentId)?.name,
+  };
+};
+
 export const WEBSITE_PANEL: IContentPanelViews = {
   addLabel: 'new-cms',
   editLabel: 'edit-cms',
   New: WebsitePanelNew,
+  useHeading: useWebsitePanelHeading,
   Detail: WebsitePanelDetail,
 };

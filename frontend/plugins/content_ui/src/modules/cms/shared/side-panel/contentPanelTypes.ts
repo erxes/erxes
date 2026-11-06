@@ -34,10 +34,16 @@ export interface IContentPanelViewProps {
   contentId: string;
 }
 
+export interface IContentPanelHeading {
+  name?: string;
+  image?: string;
+}
+
 export interface IContentPanelViews {
   addLabel: string;
   editLabel: string;
   New?: ComponentType<IContentPanelViewProps>;
+  useHeading?: (contentId: string) => IContentPanelHeading;
   Detail: ComponentType<IContentPanelViewProps>;
   Actions?: ComponentType<IContentPanelViewProps>;
 }

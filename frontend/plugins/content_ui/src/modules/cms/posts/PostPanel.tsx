@@ -36,14 +36,20 @@ const PostPanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { t } = useTranslation('content');
   const navigate = useNavigate();
   const location = useLocation();
-  const { data, loading } = useQuery(CMS_POST, {
+  const { data, loading, error } = useQuery(CMS_POST, {
     variables: { id: contentId },
     fetchPolicy: 'cache-and-network',
   });
   const post: IPostPanelRecord | undefined = data?.cmsPost;
 
   if (!post) {
-    return <ContentPanelRecordState loading={loading} hasRecord={false} />;
+    return (
+      <ContentPanelRecordState
+        loading={loading}
+        hasRecord={false}
+        error={error}
+      />
+    );
   }
 
   const openEditor = () =>
@@ -130,9 +136,18 @@ const PostPanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const usePostPanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ cmsPost?: IPostPanelRecord }>(CMS_POST, {
+    variables: { id: contentId },
+  });
+
+  return { name: data?.cmsPost?.title, image: data?.cmsPost?.thumbnail?.url };
+};
+
 export const POST_PANEL: IContentPanelViews = {
   addLabel: 'new-post',
   editLabel: 'edit-post',
+  useHeading: usePostPanelHeading,
   Detail: PostPanelDetail,
   Actions: PostPanelActions,
 };

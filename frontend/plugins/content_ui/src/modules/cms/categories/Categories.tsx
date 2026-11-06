@@ -3,7 +3,6 @@ import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { CategoriesHeader } from './components/CategoriesHeader';
 import { CategoriesRecordTable } from './components/CategoriesRecordTable';
 import { useRemoveCategories } from './hooks/useRemoveCategories';
@@ -51,7 +50,6 @@ export function Categories() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CategoriesHeader>{headerActions}</CategoriesHeader>
         <div className="flex flex-col w-full overflow-hidden flex-auto">

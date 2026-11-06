@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { EmptyState } from '../shared/EmptyState';
 import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { TagsHeader } from './components/TagsHeader';
@@ -57,7 +56,6 @@ export function Tag() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <TagsHeader>
           <HeaderLanguageTabs />

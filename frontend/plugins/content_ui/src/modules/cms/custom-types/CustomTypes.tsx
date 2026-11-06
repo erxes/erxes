@@ -3,7 +3,6 @@ import { Button, Kbd, PageContainer } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { EmptyState } from '../shared/EmptyState';
 import { CustomTypesHeader } from './components/CustomTypesHeader';
 import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
@@ -57,7 +56,6 @@ export function CustomTypes() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CustomTypesHeader>{headerActions}</CustomTypesHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">

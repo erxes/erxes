@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -37,6 +37,25 @@
 - CMS posts and pages open a read-only overview in the app side panel from the
   list (title click and more-menu Edit) with an Edit button that opens the
   full-page editor; creating them still opens the full-page editor.
+- The app sidebar lists CMS websites under a Content Management group
+  (`ContentSubNavigation`): each website collapses to its sections (posts with
+  the website's custom post types nested under them for the active website,
+  pages, categories, tags, menus, custom fields, custom post types, settings), the group action adds a CMS. Pages no
+  longer render a second CMS side menu.
+- Side panel forms use the contacts row layout (`ContentPanelFormField`,
+  `ContentPanelLanguageRow`, bordered `CONTENT_PANEL_INPUT_CLASS_NAME`, field
+  icons) inside ui-modules `PanelFormLayout`, centered at `max-w-2xl`; missing
+  records show a not-found or error state.
+- Saved records are titled by name through each panel's `useHeading` and have
+  an expand button (`detailPath`): posts and pages open their full-page editors;
+  tags, categories, menus, custom post types, field groups and fields open
+  `/content/cms/:websiteId/records/:recordType/:recordId`; websites and Web
+  Builder projects open `/content/records/:recordType/:recordId`. That record
+  page (`pages/cms/RecordDetailPage.tsx`) has a breadcrumb header with the
+  record actions, a resizable Detail column (`ContentRecordColumn`) and the
+  Activity tab.
+- CMS tables show row skeletons only while empty and use thin scrollbars
+  (`CONTENT_RECORD_TABLE_SCROLL_CLASS_NAME`).
 
 ## Architecture
 
@@ -51,6 +70,8 @@
 | Widgets       | `frontend/plugins/content_ui/src/widgets`                              | Provides plugin widget exports.                                                                                                                                          |
 | Record panel  | `frontend/plugins/content_ui/src/widgets/record-panel/RecordPanel.tsx` | `./recordPanel` remote mapping each `content:*` content type to its panel views (new, title, actions, detail) plus shared activity.                                      |
 | Panel kit     | `frontend/plugins/content_ui/src/modules/cms/shared/side-panel`        | Content types, `useContentPanel`/`useContentPanelDraft`/`useContentPanelWebsiteId`, panel body/footer/record state, remove action, and the read-only post/page overview. |
+| Navigation    | `frontend/plugins/content_ui/src/modules/ContentSubNavigation.tsx`     | CMS website list with collapsible sections in the app sidebar.                                                                                                           |
+| Record page   | `frontend/plugins/content_ui/src/pages/cms/RecordDetailPage.tsx`       | A record's own page opened from the panel's expand button.                                                                                                               |
 
 ## Contracts
 
@@ -62,7 +83,8 @@
   (`content:cmsTag`, `content:cmsCategory`, `content:cmsMenu`,
   `content:cmsCustomType`, `content:cmsFieldGroup`, `content:cmsCustomField`,
   `content:cmsWebsite`, `content:web`, `content:cmsPost`, `content:cmsPage`)
-  with `properties: false` and `draftTitle: true`.
+  with `properties: false`, `draftTitle: true` and, for every type,
+  `detailPath` from `getContentRecordDetailPath`.
 - Routes mounted under `/content`, including `/content/cms` and
   `/content/web-builder`.
 
@@ -85,7 +107,7 @@
   `ContentSidebar`. Core-ui draws only the top `CoreTab` bar; `navigationGroup` in
   `src/config.tsx` supplies just the tab name, icon and `defaultPath` and takes
   no `content`/`subGroup`.
-- Page-level side menus render `Sidebar.Panel` from `erxes-ui`, which keeps its own open state (`sidebarPanelOpenState`), separate from the plugin's `AppLayout` sidebar. The panel sits beside the page header, never under it: the page is a row of the panel and a column holding the header and content. The panel passes its heading as `label`, which renders a 40px title row with optional `actions` and the collapse toggle on the right, level with the page header; when collapsed, the toggle moves into the header's panel slot. Do not add a second heading or an in-panel `Sidebar.PanelTrigger` row. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs. Every `CmsSidebar` page and `CmsLayout` render the panel beside their page header.
+- CMS navigation lives in the app sidebar (`ContentSubNavigation`); CMS pages render no `Sidebar.Panel` side menu. Keep `<Sidebar collapsible="none">` for sidebars inside sheets and dialogs.
 - This plugin is the Module Federation remote `content_ui`.
 - Dev server port is `3003` from `project.json`.
 - Public exposes are `./config`, `./content`, and `./recordPanel` in

@@ -2,11 +2,11 @@ import { useMutation, useQuery } from '@apollo/client';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Form, Input, toast } from 'erxes-ui';
+import { PanelFormLayout } from 'ui-modules';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
-import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
   CMS_TRANSLATION_FIELDS,
   TranslationData,
@@ -20,10 +20,11 @@ import {
 } from '@/cms/shared/utils';
 import { CmsSavedRowLoadError } from '@/cms/shared/components/CmsSavedRowLoadError';
 import {
-  ContentPanelBody,
-  ContentPanelFooter,
-  ContentPanelRecordState,
-} from '@/cms/shared/side-panel/ContentPanelLayout';
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormField,
+  ContentPanelLanguageRow,
+} from '@/cms/shared/side-panel/ContentPanelForm';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
 import {
   CMS_TAG_CONTENT_TYPE,
@@ -367,7 +368,7 @@ const TagPanelForm = ({
   });
 
   const onSubmit = (data: TagFormData) => {
-    if (savedRowLoad.isBlocked) return;
+    if (hasPermissionError || savedRowLoad.isBlocked) return;
 
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
@@ -443,12 +444,22 @@ const TagPanelForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-1 min-h-0 flex-col"
       >
-        <ContentPanelBody>
+        <PanelFormLayout
+          onCancel={onCancel}
+          saving={saving || editing}
+          saveLabel={
+            hasPermissionError
+              ? t('permission-required')
+              : isEditing
+              ? t('save-changes')
+              : t('create-tag')
+          }
+        >
           {savedRowLoad.hasFailed && (
             <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
           )}
           {availableLanguages.length > 0 && (
-            <LanguageSelector
+            <ContentPanelLanguageRow
               selectedLanguage={selectedLanguage}
               languageOptions={languageOptions}
               onLanguageChange={onLanguageChange}
@@ -471,71 +482,61 @@ const TagPanelForm = ({
             </div>
           )}
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('tag-name')}
-                  {isTranslationMode && (
-                    <span className="ml-2 text-xs text-blue-600">
-                      ({selectedLanguage})
-                    </span>
-                  )}
-                </Form.Label>
-                <Form.Control>
-                  <Input
-                    {...field}
-                    autoFocus={!isEditing}
-                    placeholder={t('enter-tag-name')}
-                    required
-                    onChange={(e) => {
-                      field.onChange(e);
-                      if (!isTranslationMode) {
-                        handleNameChange(e.target.value);
-                      }
-                    }}
-                  />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            required
+            label={
+              <>
+                {t('tag-name')}
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
+                )}
+              </>
+            }
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                autoFocus={!isEditing}
+                placeholder={t('enter-tag-name')}
+                required
+                onChange={(e) => {
+                  field.onChange(e);
+                  if (!isTranslationMode) {
+                    handleNameChange(e.target.value);
+                  }
+                }}
+              />
             )}
           />
 
-          <Form.Field
+          <ContentPanelFormField
             control={form.control}
             name="slug"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>
-                  {t('slug')}
-                  {isTranslationMode && (
-                    <span className="ml-2 text-xs text-muted-foreground">
-                      ({t('shared-across-languages')})
-                    </span>
-                  )}
-                </Form.Label>
-                <Form.Control>
-                  <Input {...field} placeholder="tag-slug" required />
-                </Form.Control>
-                <Form.Message />
-              </Form.Item>
+            required
+            label={
+              <>
+                {t('slug')}
+                {isTranslationMode && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    ({t('shared-across-languages')})
+                  </span>
+                )}
+              </>
+            }
+            render={(field) => (
+              <Input
+                {...field}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                placeholder="tag-slug"
+                required
+              />
             )}
           />
-        </ContentPanelBody>
-        <ContentPanelFooter
-          onCancel={onCancel}
-          saving={saving || editing}
-          disabled={hasPermissionError || savedRowLoad.isBlocked}
-          submitLabel={
-            hasPermissionError
-              ? t('permission-required')
-              : isEditing
-                ? t('save-changes')
-                : t('create-tag')
-          }
-        />
+        </PanelFormLayout>
       </form>
     </Form>
   );
@@ -557,14 +558,14 @@ const TagPanelNew = () => {
 
 const TagPanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { closePanel } = useContentPanel(CMS_TAG_CONTENT_TYPE);
-  const { data, loading } = useQuery(CMS_TAG_DETAIL, {
+  const { data, loading, error } = useQuery(CMS_TAG_DETAIL, {
     variables: { _id: contentId },
     fetchPolicy: 'network-only',
   });
   const tag: CmsTag | undefined = data?.cmsTag;
 
   return (
-    <ContentPanelRecordState loading={loading} hasRecord={!!tag}>
+    <ContentPanelRecordState loading={loading} hasRecord={!!tag} error={error}>
       {tag && (
         <TagPanelForm
           key={tag._id}
@@ -608,10 +609,19 @@ const TagPanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const useTagPanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ cmsTag?: CmsTag }>(CMS_TAG_DETAIL, {
+    variables: { _id: contentId },
+  });
+
+  return { name: data?.cmsTag?.name };
+};
+
 export const TAG_PANEL: IContentPanelViews = {
   addLabel: 'new-tag',
   editLabel: 'edit-tag',
   New: TagPanelNew,
+  useHeading: useTagPanelHeading,
   Detail: TagPanelDetail,
   Actions: TagPanelActions,
 };

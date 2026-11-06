@@ -1,7 +1,9 @@
+import { useQuery } from '@apollo/client';
 import { Form, Input, Select, Textarea } from 'erxes-ui';
-import { ReactNode, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { GET_WEB_LIST } from '../graphql/queries/getWebList';
 import { useCreateWeb } from '../hooks/useCreateWeb';
 import { useEditWeb } from '../hooks/useEditWeb';
 import { useGetClientPortals } from '../hooks/useGetClientPortals';
@@ -12,12 +14,17 @@ import { TEMPLATE_TYPES } from '../constants';
 import { TemplateSelect } from './TemplateSelect';
 import { WebCustomDomain } from './WebCustomDomain';
 import { Uploader } from '@/cms/settings/components/Uploader';
-import { IconPhoto } from '@tabler/icons-react';
 import {
-  PANEL_INPUT_CLASS_NAME,
-  PanelFormLayout,
-  PanelFormRow,
-} from 'ui-modules';
+  IconCategory,
+  IconDeviceDesktop,
+  IconPhoto,
+  IconTemplate,
+} from '@tabler/icons-react';
+import { PanelFormLayout } from 'ui-modules';
+import {
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormField,
+} from '@/cms/shared/side-panel/ContentPanelForm';
 import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
 import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
 import {
@@ -44,7 +51,7 @@ const PanelSelect = ({
   placeholder: string;
 }) => (
   <Select value={value} onValueChange={onChange}>
-    <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+    <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
       <Select.Value placeholder={placeholder} />
     </Select.Trigger>
     <Select.Content align="start">
@@ -59,27 +66,6 @@ const PanelSelect = ({
       ))}
     </Select.Content>
   </Select>
-);
-
-const PanelFormBlock = ({
-  label,
-  required,
-  error,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  error?: string;
-  children: ReactNode;
-}) => (
-  <div className="flex flex-col gap-1.5 pt-2">
-    <span className="text-xs font-medium text-accent-foreground">
-      {label}
-      {required && <span className="text-destructive"> *</span>}
-    </span>
-    {children}
-    {error && <span className="text-xs text-destructive">{error}</span>}
-  </div>
 );
 
 const WebPanelForm = ({
@@ -161,8 +147,6 @@ const WebPanelForm = ({
     label: p.name,
   }));
 
-  const { errors } = form.formState;
-
   return (
     <Form {...form}>
       <form
@@ -174,118 +158,130 @@ const WebPanelForm = ({
           saving={creating || updating}
           saveLabel={isEditing ? t('save-changes') : t('create')}
         >
-          <PanelFormRow label={t('name')} required error={errors.name?.message}>
-            <Input
-              {...form.register('name', { required: 'Name is required' })}
-              autoFocus={!isEditing}
-              placeholder={t('my-website')}
-              className={PANEL_INPUT_CLASS_NAME}
-            />
-          </PanelFormRow>
+          <ContentPanelFormField
+            control={form.control}
+            name="name"
+            label={t('name')}
+            required
+            rules={{ required: 'Name is required' }}
+            render={(field) => (
+              <Input
+                {...field}
+                autoFocus={!isEditing}
+                placeholder={t('my-website')}
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+              />
+            )}
+          />
 
-          <PanelFormRow
+          <ContentPanelFormField
+            control={form.control}
+            name="clientPortalId"
             label={t('client-portal')}
             required
-            error={errors.clientPortalId?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="clientPortalId"
-              rules={{ required: 'Client portal is required' }}
-              render={({ field }) => (
-                <PanelSelect
-                  options={portalOptions}
-                  value={field.value || ''}
-                  onChange={field.onChange}
-                  placeholder={t('select-a-client-portal')}
-                />
-              )}
-            />
-          </PanelFormRow>
+            icon={IconDeviceDesktop}
+            rules={{ required: 'Client portal is required' }}
+            render={(field) => (
+              <PanelSelect
+                options={portalOptions}
+                value={field.value || ''}
+                onChange={field.onChange}
+                placeholder={t('select-a-client-portal')}
+              />
+            )}
+          />
 
-          <PanelFormRow label={t('domain')}>
-            <Input
-              {...form.register('domain')}
-              placeholder="example.com"
-              className={PANEL_INPUT_CLASS_NAME}
-            />
-          </PanelFormRow>
+          <ContentPanelFormField
+            control={form.control}
+            name="domain"
+            label={t('domain')}
+            render={(field) => (
+              <Input
+                {...field}
+                value={field.value || ''}
+                placeholder="example.com"
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+              />
+            )}
+          />
 
-          <PanelFormRow
+          <ContentPanelFormField
+            control={form.control}
+            name="templateType"
             label={t('template-type')}
             required
-            error={errors.templateType?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="templateType"
-              rules={{ required: 'Template type is required' }}
-              render={({ field }) => (
-                <PanelSelect
-                  options={TEMPLATE_TYPES}
-                  value={field.value || ''}
-                  onChange={(value) => {
-                    field.onChange(value);
-                    form.setValue('templateId', '');
-                  }}
-                  placeholder={t('select-a-template-type')}
-                />
-              )}
-            />
-          </PanelFormRow>
+            icon={IconCategory}
+            rules={{ required: 'Template type is required' }}
+            render={(field) => (
+              <PanelSelect
+                options={TEMPLATE_TYPES}
+                value={field.value || ''}
+                onChange={(value) => {
+                  field.onChange(value);
+                  form.setValue('templateId', '');
+                }}
+                placeholder={t('select-a-template-type')}
+              />
+            )}
+          />
 
-          <PanelFormBlock
+          <ContentPanelFormField
+            control={form.control}
+            name="templateId"
             label={t('template')}
             required
-            error={errors.templateId?.message}
-          >
-            <Form.Field
-              control={form.control}
-              name="templateId"
-              rules={{ required: 'Template is required' }}
-              render={({ field }) => (
-                <TemplateSelect
-                  type={selectedType || ''}
-                  value={field.value || ''}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </PanelFormBlock>
+            block
+            icon={IconTemplate}
+            rules={{ required: 'Template is required' }}
+            render={(field) => (
+              <TemplateSelect
+                type={selectedType || ''}
+                value={field.value || ''}
+                onChange={field.onChange}
+              />
+            )}
+          />
 
-          <PanelFormBlock label={t('description')}>
-            <Textarea
-              {...form.register('description')}
-              placeholder={t('optional-description')}
-              className="min-h-20 text-xs"
-            />
-          </PanelFormBlock>
+          <ContentPanelFormField
+            control={form.control}
+            name="description"
+            label={t('description')}
+            block
+            render={(field) => (
+              <Textarea
+                {...field}
+                value={field.value || ''}
+                placeholder={t('optional-description')}
+                className="min-h-20 text-xs"
+              />
+            )}
+          />
 
-          <PanelFormBlock label={t('thumbnail')}>
-            <Form.Field
-              control={form.control}
-              name="thumbnail"
-              render={({ field }) => (
-                <Uploader
-                  icon={IconPhoto}
-                  label={t('thumbnail')}
-                  hint={t('thumbnail-hint', {
-                    defaultValue: 'Shown on the web project card',
-                  })}
-                  value={
-                    field.value?.url
-                      ? {
-                          ...field.value,
-                          url: field.value.url,
-                          name: field.value.name || '',
-                        }
-                      : null
-                  }
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </PanelFormBlock>
+          <ContentPanelFormField
+            control={form.control}
+            name="thumbnail"
+            label={t('thumbnail')}
+            block
+            render={(field) => (
+              <Uploader
+                icon={IconPhoto}
+                label={t('thumbnail')}
+                hint={t('thumbnail-hint', {
+                  defaultValue: 'Shown on the web project card',
+                })}
+                value={
+                  field.value?.url
+                    ? {
+                        ...field.value,
+                        url: field.value.url,
+                        name: field.value.name || '',
+                      }
+                    : null
+                }
+                onChange={field.onChange}
+              />
+            )}
+          />
 
           {web && (
             <div className="pt-2">
@@ -299,9 +295,9 @@ const WebPanelForm = ({
 };
 
 const useWebRecord = (webId: string) => {
-  const { webs, loading } = useGetWebList();
+  const { webs, loading, error } = useGetWebList();
 
-  return { web: webs.find((item) => item._id === webId), loading };
+  return { web: webs.find((item) => item._id === webId), loading, error };
 };
 
 const WebPanelNew = () => {
@@ -317,10 +313,10 @@ const WebPanelNew = () => {
 
 const WebPanelDetail = ({ contentId }: IContentPanelViewProps) => {
   const { closePanel } = useContentPanel(CONTENT_WEB_CONTENT_TYPE);
-  const { web, loading } = useWebRecord(contentId);
+  const { web, loading, error } = useWebRecord(contentId);
 
   return (
-    <ContentPanelRecordState loading={loading} hasRecord={!!web}>
+    <ContentPanelRecordState loading={loading} hasRecord={!!web} error={error}>
       {web && (
         <WebPanelForm
           key={web._id}
@@ -353,10 +349,18 @@ const WebPanelActions = ({ contentId }: IContentPanelViewProps) => {
   );
 };
 
+const useWebPanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ getWebList?: IWeb[] }>(GET_WEB_LIST);
+  const web = data?.getWebList?.find((item) => item._id === contentId);
+
+  return { name: web?.name, image: web?.thumbnail?.url };
+};
+
 export const WEB_PANEL: IContentPanelViews = {
   addLabel: 'new-web-project',
   editLabel: 'edit-web-project',
   New: WebPanelNew,
+  useHeading: useWebPanelHeading,
   Detail: WebPanelDetail,
   Actions: WebPanelActions,
 };
