@@ -272,12 +272,13 @@ export const useGlobalSearch = (
     queryLoading: loading,
     hasError: Boolean(error),
     hasData: Boolean(data),
+    hasRequiredProviderError: baseGroups.some(
+      (group) => group.status === 'error',
+    ),
     hasUnscopedError:
       Boolean(error?.networkError) ||
       Boolean(
-        error?.graphQLErrors.some(
-          ({ path }) => typeof path?.[0] !== 'string',
-        ),
+        error?.graphQLErrors.some(({ path }) => typeof path?.[0] !== 'string'),
       ),
     hasInvalidFields: invalidFields.length > 0,
     canQuarantineFields,
