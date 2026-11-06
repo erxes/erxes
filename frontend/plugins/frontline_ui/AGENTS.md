@@ -1195,7 +1195,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   record's draft and opens that record in the still-active panel. Another Create
   never uses the previous site's ID.
 - Channel create/edit, response template, ticket configuration, pipeline
-  create/General, ticket status and channel member editors persist unsaved
+  create/General/Mail, ticket status and channel member editors persist unsaved
   values and their original defaults in plugin draft atoms through
   `src/modules/shared/hooks/usePanelFormDraft.ts`. Draft keys identify saved
   records or scope new records to their channel and, for ticket configurations,
