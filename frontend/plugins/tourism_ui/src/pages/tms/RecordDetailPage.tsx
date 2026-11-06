@@ -1,12 +1,7 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, Navigate, useNavigate, useParams } from 'react-router-dom';
-import {
-  IconBox,
-  IconHierarchy2,
-  IconHistory,
-  IconLayoutList,
-} from '@tabler/icons-react';
+import { IconBox, IconHierarchy2, IconHistory } from '@tabler/icons-react';
 import {
   Breadcrumb,
   Button,
@@ -116,6 +111,7 @@ const RecordPageBreadcrumb = ({
 
 export const RecordDetailPage = () => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t: tourismT } = useTranslation('tourism');
   const {
     branchId = '',
     recordType = '',
@@ -163,8 +159,10 @@ export const RecordDetailPage = () => {
       : []),
     ...(TOURISM_PANEL_TABS[contentType] ?? []).map((extraTab) => ({
       value: extraTab.value,
-      label: extraTab.label,
-      icon: IconLayoutList,
+      label: extraTab.labelKey
+        ? tourismT(extraTab.labelKey, { defaultValue: extraTab.label })
+        : extraTab.label,
+      icon: extraTab.icon,
       content: <RecordPanel {...viewProps} view="tab" tab={extraTab.value} />,
     })),
     {

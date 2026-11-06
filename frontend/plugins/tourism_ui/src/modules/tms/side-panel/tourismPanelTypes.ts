@@ -1,4 +1,5 @@
 import { ComponentType } from 'react';
+import { IconTicket, IconUsers, type Icon } from '@tabler/icons-react';
 
 export const TMS_TOUR_CONTENT_TYPE = 'tourism:tmsTour';
 export const TMS_ORDER_CONTENT_TYPE = 'tourism:tmsOrder';
@@ -25,13 +26,29 @@ export const TOURISM_PANEL_CONTENT_TYPES = [
   TMS_CUSTOM_FIELD_CONTENT_TYPE,
 ];
 
-export const TOURISM_PANEL_TABS: Record<
-  string,
-  { value: string; label: string }[]
-> = {
+export interface ITourismPanelTab {
+  value: string;
+  label: string;
+  labelKey?: string;
+  icon: Icon;
+  after: 'properties';
+}
+
+export const TOURISM_PANEL_TABS: Record<string, ITourismPanelTab[]> = {
   [TMS_TOUR_CONTENT_TYPE]: [
-    { value: 'bookings', label: 'Bookings' },
-    { value: 'customers', label: 'Customers' },
+    {
+      value: 'bookings',
+      label: 'Bookings',
+      labelKey: 'bookings',
+      icon: IconTicket,
+      after: 'properties',
+    },
+    {
+      value: 'customers',
+      label: 'Customers',
+      icon: IconUsers,
+      after: 'properties',
+    },
   ],
 };
 

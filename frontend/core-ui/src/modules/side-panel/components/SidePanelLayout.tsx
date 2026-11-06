@@ -37,10 +37,7 @@ import {
 import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelNew';
 import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
-import {
-  IRecordPanelPluginTab,
-  useRecordPanelPlugin,
-} from '@/side-panel/hooks/useRecordPanelPlugin';
+import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
@@ -86,7 +83,6 @@ const getPluginRecordViews = (
   { contentType, contentId }: TRelationEntity,
   pluginName: string | null,
   hasProperties: boolean,
-  tabs: IRecordPanelPluginTab[],
 ) =>
   pluginName
     ? {
@@ -106,19 +102,6 @@ const getPluginRecordViews = (
             view="properties"
           />
         ) : null,
-        extraTabs: tabs.map((tab) => ({
-          value: tab.value,
-          label: tab.label,
-          content: (
-            <PluginRecordPanel
-              pluginName={pluginName}
-              contentType={contentType}
-              contentId={contentId}
-              view="tab"
-              tab={tab.value}
-            />
-          ),
-        })),
       }
     : null;
 
@@ -309,10 +292,15 @@ const SidePanelSavedRecord = ({
   // Types core has no views for may be drawn by the plugin owning them.
   const {
     pluginName,
+    i18nNamespace,
     hasProperties,
     tabs: pluginTabs,
   } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
+  const { t: pluginT } = useTranslation(
+    (panelPluginName && i18nNamespace) || undefined,
+    { useSuspense: false },
+  );
   const expanded = usePanelExpanded();
   const { title, avatar, state, email, website, customer, company } =
     useRecordHeading(record, panelPluginName);
@@ -331,8 +319,7 @@ const SidePanelSavedRecord = ({
     );
   }
   const views =
-    coreViews ||
-    getPluginRecordViews(record, panelPluginName, hasProperties, pluginTabs);
+    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRecordRelationTabs({
     record,
     access,
@@ -357,6 +344,12 @@ const SidePanelSavedRecord = ({
     record,
     views,
     pluginName: panelPluginName,
+    pluginTabs: pluginTabs.map((pluginTab) => ({
+      ...pluginTab,
+      label: pluginTab.labelKey
+        ? pluginT(pluginTab.labelKey, { defaultValue: pluginTab.label })
+        : pluginTab.label,
+    })),
     overview,
     access,
     noteRef: activityRef,
@@ -391,8 +384,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-      ? DETAIL_TAB
-      : ACTIVITY_TAB;
+        ? DETAIL_TAB
+        : ACTIVITY_TAB;
   const contactActions = contactType && (
     <ContactPanelActions
       contentType={contactType}
@@ -652,8 +645,8 @@ export const SidePanelLayout = () => {
           onExpandedChange={() => recordPage && navigate(recordPage)}
           width={
             moduleEntry && path
-              ? moduleWidths[path] ??
-                Math.max(width, moduleEntry.defaultWidth || 0)
+              ? (moduleWidths[path] ??
+                Math.max(width, moduleEntry.defaultWidth || 0))
               : width
           }
           maxWidth={moduleEntry?.maxWidth}

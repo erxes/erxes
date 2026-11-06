@@ -2,7 +2,7 @@ import {
   IconHierarchy2,
   IconHistory,
   IconId,
-  IconLayoutList,
+  IconLayoutGrid,
   IconLink,
   IconMessage,
 } from '@tabler/icons-react';
@@ -17,6 +17,8 @@ import { ContactOverview } from '@/side-panel/components/relations/ContactOvervi
 import type { TContactOverviewEntry } from '@/side-panel/components/relations/contactOverviewEntries';
 import { SidePanelRelations } from '@/side-panel/components/relations/SidePanelRelations';
 import { RecordPanelActivity } from '@/side-panel/components/details/RecordPanelActivity';
+import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
+import type { TRecordPanelPluginTab } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { RenderPluginsComponent } from '~/plugins/components/RenderPluginsComponent';
 import type { IContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
 
@@ -68,12 +70,9 @@ const PinnedModuleTab = ({
 
 interface IRecordPanelTabsOptions {
   record: TRelationEntity;
-  views: {
-    detail: ReactNode;
-    properties: ReactNode;
-    extraTabs?: { value: string; label: string; content: ReactNode }[];
-  } | null;
+  views: { detail: ReactNode; properties: ReactNode } | null;
   pluginName: string | null;
+  pluginTabs: TRecordPanelPluginTab[];
   overview: IContactPanelOverview;
   access: 'read' | 'write';
   noteRef: RefObject<HTMLDivElement>;
@@ -88,6 +87,7 @@ export const buildRecordPanelTabs = ({
   record,
   views,
   pluginName,
+  pluginTabs,
   overview,
   access,
   noteRef,
@@ -147,7 +147,7 @@ export const buildRecordPanelTabs = ({
     ? allEntries.length > 0
     : moreTabs.length > 0;
 
-  const tabs: IRecordSidePanelTab[] = [
+  const baseTabs: IRecordSidePanelTab[] = [
     ...(views
       ? [
           {
@@ -166,12 +166,6 @@ export const buildRecordPanelTabs = ({
                 },
               ]
             : []),
-          ...(views.extraTabs ?? []).map((tab) => ({
-            value: `plugin:${tab.value}`,
-            label: tab.label,
-            icon: IconLayoutList,
-            content: tab.content,
-          })),
         ]
       : []),
     ...pinnedTabs,
@@ -217,5 +211,36 @@ export const buildRecordPanelTabs = ({
     },
   ];
 
-  return tabs;
+  const extraTabs = pluginName
+    ? pluginTabs.map((pluginTab) => ({
+        after: pluginTab.after,
+        tab: {
+          value: `plugin:${pluginTab.value}`,
+          label: pluginTab.label,
+          icon: pluginTab.icon || IconLayoutGrid,
+          content: (
+            <PluginRecordPanel
+              pluginName={pluginName}
+              contentType={record.contentType}
+              contentId={record.contentId}
+              view="tab"
+              tab={pluginTab.value}
+            />
+          ),
+        },
+      }))
+    : [];
+  const baseValues = new Set(baseTabs.map((entry) => entry.value));
+
+  return [
+    ...baseTabs.flatMap((baseTab) => [
+      baseTab,
+      ...extraTabs
+        .filter((extra) => extra.after === baseTab.value)
+        .map((extra) => extra.tab),
+    ]),
+    ...extraTabs
+      .filter((extra) => !extra.after || !baseValues.has(extra.after))
+      .map((extra) => extra.tab),
+  ];
 };

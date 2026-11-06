@@ -1,13 +1,11 @@
+import type { IUIConfig } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 
-export interface IRecordPanelPluginTab {
-  value: string;
-  label: string;
-}
-
-const NO_TABS: IRecordPanelPluginTab[] = [];
+export type TRecordPanelPluginTab = NonNullable<
+  NonNullable<NonNullable<IUIConfig['widgets']>['recordPanels']>[number]['tabs']
+>[number];
 
 /**
  * The plugin that draws `contentType` records in the side panel (its config
@@ -18,9 +16,10 @@ export const useRecordPanelPlugin = (
   contentType: string,
 ): {
   pluginName: string | null;
+  i18nNamespace: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
-  tabs: IRecordPanelPluginTab[];
+  tabs: TRecordPanelPluginTab[];
   detailPath: ((recordId: string, pathname: string) => string) | null;
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
@@ -43,18 +42,20 @@ export const useRecordPanelPlugin = (
     ) {
       return {
         pluginName: null,
+        i18nNamespace: null,
         hasProperties: false,
         hasDraftTitle: false,
-        tabs: NO_TABS,
+        tabs: [],
         detailPath: null,
       };
     }
 
     return {
       pluginName: plugin.name,
+      i18nNamespace: plugin.i18nNamespace ?? plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
-      tabs: panel?.tabs ?? NO_TABS,
+      tabs: panel?.tabs ?? [],
       detailPath: panel?.detailPath ?? null,
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
