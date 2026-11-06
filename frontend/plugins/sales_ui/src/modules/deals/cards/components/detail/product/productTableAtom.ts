@@ -25,5 +25,5 @@ export interface ProductRowActions {
 export const productRowActionsAtom = atom<ProductRowActions | null>(null);
 
 export const dealProductsDraftAtomFamily = atomFamily((_dealId: string) =>
-  atom<DealProductData[] | null>(null),
+  atom<Record<string, Partial<DealProductData>> | null>(null),
 );

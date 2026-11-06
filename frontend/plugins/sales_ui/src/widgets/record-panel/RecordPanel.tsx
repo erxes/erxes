@@ -18,9 +18,18 @@ import {
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
-export const DealPanelTitle = ({ dealId }: { dealId: string }) => {
+export const DealPanelTitle = ({
+  dealId,
+  subscribe = true,
+}: {
+  dealId: string;
+  subscribe?: boolean;
+}) => {
   const { t } = useTranslation('sales');
-  const { deal, loading } = useDealDetail({ variables: { _id: dealId } });
+  const { deal, loading } = useDealDetail(
+    { variables: { _id: dealId } },
+    { subscribe },
+  );
 
   if (loading && !deal) {
     return <Skeleton className="h-4 w-32" />;

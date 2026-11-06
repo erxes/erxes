@@ -14,9 +14,16 @@ import {
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
+import { type ReactNode, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
-import { PageHeader, RecordSidePanel } from 'ui-modules';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import {
+  type ISidePanelNavigator,
+  PageHeader,
+  RecordSidePanel,
+  SidePanelNavigatorContext,
+  useSidePanel,
+} from 'ui-modules';
 import { DealActivityTab } from '@/deals/cards/components/detail/DealActivityTab';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
@@ -36,26 +43,37 @@ const DETAIL_TAB = 'detail';
 const PRODUCTS_TAB = 'products';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
+const DEAL_CONTENT_TYPE = 'sales:deal';
 
-const DealPageBreadcrumb = ({ dealId }: { dealId: string }) => {
-  const { t } = useTranslation('sales');
+const useDealBoardPath = (dealId: string) => {
   const { deal } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
   );
-  const params = new URLSearchParams();
+  const lastPathRef = useRef('/sales/deals');
   const boardId = deal?.pipeline?.boardId || deal?.boardId;
   const pipelineId = deal?.pipeline?._id || deal?.pipelineId;
 
-  if (boardId) params.set('boardId', boardId);
-  if (pipelineId) params.set('pipelineId', pipelineId);
+  if (boardId) {
+    const params = new URLSearchParams({ boardId });
+
+    if (pipelineId) params.set('pipelineId', pipelineId);
+    lastPathRef.current = `/sales/deals?${params.toString()}`;
+  }
+
+  return { deal, boardPath: lastPathRef.current };
+};
+
+const DealPageBreadcrumb = ({ dealId }: { dealId: string }) => {
+  const { t } = useTranslation('sales');
+  const { deal, boardPath } = useDealBoardPath(dealId);
 
   return (
     <Breadcrumb className="min-w-0">
       <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
         <Breadcrumb.Item className="shrink-0">
           <Button variant="ghost" asChild>
-            <Link to={`/sales/deals?${params.toString()}`}>
+            <Link to={boardPath}>
               <IconSandbox />
               {t('sales-pipeline')}
             </Link>
@@ -65,9 +83,9 @@ const DealPageBreadcrumb = ({ dealId }: { dealId: string }) => {
           <>
             <Separator.Inline />
             <Breadcrumb.Item className="min-w-0">
-              <Button variant="ghost" className="min-w-0">
+              <Breadcrumb.Page className="min-w-0 px-2 text-sm">
                 <TextOverflowTooltip value={deal.name || t('untitled')} />
-              </Button>
+              </Breadcrumb.Page>
             </Breadcrumb.Item>
           </>
         )}
@@ -91,7 +109,7 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
       expandedDefaultTab={PRODUCTS_TAB}
       overviewHeader={
         <div className="min-w-0 flex-1 truncate text-sm">
-          <DealPanelTitle dealId={dealId} />
+          <DealPanelTitle dealId={dealId} subscribe={false} />
         </div>
       }
       tabs={[
@@ -148,6 +166,41 @@ const DealPageBody = ({ dealId }: { dealId: string }) => {
   return <DealPageTabs dealId={dealId} />;
 };
 
+const DealPageNavigator = ({
+  dealId,
+  children,
+}: {
+  dealId: string;
+  children: ReactNode;
+}) => {
+  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
+  const [tab, setTab] = useQueryState<string>('tab');
+  const { boardPath } = useDealBoardPath(dealId);
+  const record = useMemo(
+    () => ({ contentType: DEAL_CONTENT_TYPE, contentId: dealId }),
+    [dealId],
+  );
+
+  const backToBoard = () => navigate(boardPath, { replace: true });
+
+  const navigator: ISidePanelNavigator = {
+    record,
+    tab: tab ?? '',
+    setTab,
+    openRecord,
+    back: backToBoard,
+    canGoBack: false,
+    close: backToBoard,
+  };
+
+  return (
+    <SidePanelNavigatorContext.Provider value={navigator}>
+      {children}
+    </SidePanelNavigatorContext.Provider>
+  );
+};
+
 export const DealDetailPage = () => {
   const { dealId } = useParams<{ dealId: string }>();
 
@@ -157,19 +210,21 @@ export const DealDetailPage = () => {
 
   return (
     <DealIdProvider value={dealId}>
-      <PageContainer>
-        <RecordSidePanel expanded expandedMode="page" expandable={false}>
-          <PageHeader>
-            <PageHeader.Start className="flex-auto min-w-0">
-              <DealPageBreadcrumb dealId={dealId} />
-            </PageHeader.Start>
-            <PageHeader.End>
-              <DealPanelActions dealId={dealId} />
-            </PageHeader.End>
-          </PageHeader>
-          <DealPageBody dealId={dealId} />
-        </RecordSidePanel>
-      </PageContainer>
+      <DealPageNavigator dealId={dealId}>
+        <PageContainer>
+          <RecordSidePanel expanded expandedMode="page" expandable={false}>
+            <PageHeader>
+              <PageHeader.Start className="flex-auto min-w-0">
+                <DealPageBreadcrumb dealId={dealId} />
+              </PageHeader.Start>
+              <PageHeader.End>
+                <DealPanelActions dealId={dealId} />
+              </PageHeader.End>
+            </PageHeader>
+            <DealPageBody dealId={dealId} />
+          </RecordSidePanel>
+        </PageContainer>
+      </DealPageNavigator>
     </DealIdProvider>
   );
 };

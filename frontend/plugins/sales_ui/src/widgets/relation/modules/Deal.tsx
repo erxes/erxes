@@ -68,7 +68,7 @@ export const Deal = ({
   ];
 
   const handleDealOpen = () => {
-    openNewRecord('sales:deal', contacts);
+    openNewRecord('sales:deal', contacts, { stack: true });
   };
 
   if (dealIds.length === 0) {

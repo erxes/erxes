@@ -12,6 +12,7 @@ const IGNORED_QUERY_VARIABLE_KEYS = [
   'stageId',
   SIDE_PANEL_QUERY_KEY,
   'panelHistory',
+  'panelExpanded',
   ...DEAL_ACTIVITY_FILTER_KEYS,
 ];
 

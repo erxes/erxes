@@ -121,9 +121,13 @@ const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
             { value: 'company', label: t('company') },
             { value: 'user', label: t('user') },
           ]}
-          onValueChange={(value) =>
-            broker.setValue({ id: '', type: toBrokerType(value) })
-          }
+          onValueChange={(value) => {
+            const type = toBrokerType(value);
+
+            if (type === broker.value.type) return;
+
+            broker.setValue({ id: '', type });
+          }}
         />
       </PanelField>
       {broker.value.type === 'customer' && (

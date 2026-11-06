@@ -4,6 +4,7 @@ import {
   MutableRefObject,
   SetStateAction,
   useEffect,
+  useRef,
   useState,
 } from 'react';
 
@@ -36,6 +37,8 @@ export const useSyncLocalProductsData = ({
   productByIdRef,
   sortByStableProductOrder,
 }: UseSyncLocalProductsDataParams) => {
+  const seenServerIdsRef = useRef(new Set<DealProductData['_id']>());
+
   useEffect(() => {
     setLocalProductsData((prev) => {
       const hasPendingPatches =
@@ -94,10 +97,18 @@ export const useSyncLocalProductsData = ({
       const updated =
         hasPendingPatches && incomingProductsData.length < prev.length
           ? [
-              ...prev.map((data) => incomingById.get(data._id) || data),
+              ...prev
+                .filter(
+                  (data) =>
+                    incomingById.has(data._id) ||
+                    !seenServerIdsRef.current.has(data._id),
+                )
+                .map((data) => incomingById.get(data._id) || data),
               ...updatedIncoming.filter((data) => !previousById.has(data._id)),
             ]
           : updatedIncoming;
+
+      serverProductIds.forEach((id) => seenServerIdsRef.current.add(id));
 
       return sortByStableProductOrder(updated);
     });
