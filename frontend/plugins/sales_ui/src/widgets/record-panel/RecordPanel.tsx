@@ -18,7 +18,7 @@ import {
 
 const DEAL_CONTENT_TYPE = 'sales:deal';
 
-const DealPanelTitle = ({ dealId }: { dealId: string }) => {
+export const DealPanelTitle = ({ dealId }: { dealId: string }) => {
   const { t } = useTranslation('sales');
   const { deal, loading } = useDealDetail({ variables: { _id: dealId } });
 
@@ -29,7 +29,7 @@ const DealPanelTitle = ({ dealId }: { dealId: string }) => {
   return deal?.name || t('untitled');
 };
 
-const DealPanelProperties = ({ dealId }: { dealId: string }) => {
+export const DealPanelProperties = ({ dealId }: { dealId: string }) => {
   const { deal, loading, error } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
@@ -62,7 +62,13 @@ const DealPanelProperties = ({ dealId }: { dealId: string }) => {
   );
 };
 
-const DealPanelProductsTab = ({ dealId }: { dealId: string }) => {
+export const DealPanelProductsTab = ({
+  dealId,
+  compact = true,
+}: {
+  dealId: string;
+  compact?: boolean;
+}) => {
   const { deal, loading, error, refetch } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
     { subscribe: false },
@@ -83,7 +89,7 @@ const DealPanelProductsTab = ({ dealId }: { dealId: string }) => {
   return (
     <DealsProvider>
       <div className="flex flex-1 min-h-0 flex-col p-3">
-        <Products deal={deal} refetch={refetch} compact />
+        <Products deal={deal} refetch={refetch} compact={compact} />
       </div>
     </DealsProvider>
   );

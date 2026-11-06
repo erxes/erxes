@@ -53,6 +53,7 @@ export const CONFIG: IUIConfig = {
     recordPanels: [
       {
         contentType: 'sales:deal',
+        detailPath: (dealId: string) => `/sales/deals/${dealId}`,
         tabs: [
           {
             value: 'products',
