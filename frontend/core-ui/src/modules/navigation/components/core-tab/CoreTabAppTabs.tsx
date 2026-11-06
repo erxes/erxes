@@ -230,11 +230,12 @@ export const CoreTabAppTabs = ({
     tabId: string;
     target: HTMLElement | null | undefined;
   } | null>(null);
-  const tabStopId = tabs.some((tab) => tab.id === focusedTabId)
-    ? focusedTabId
-    : tabs.some((tab) => tab.id === activeTabId)
+  const selectedTabStopId = tabs.some((tab) => tab.id === activeTabId)
     ? activeTabId
     : tabs[0]?.id;
+  const tabStopId = tabs.some((tab) => tab.id === focusedTabId)
+    ? focusedTabId
+    : selectedTabStopId;
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, {

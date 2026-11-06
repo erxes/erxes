@@ -112,10 +112,31 @@ export const useAppTabs = () => {
     return activity ? [activity] : [];
   });
 
-  const getTargetActivityId = () =>
-    pendingNavigationRef.current && !navigationBlocked
-      ? pendingNavigationRef.current.activityId
-      : routeActivityId;
+  const getPendingNavigation = useCallback(() => {
+    const pending = pendingNavigationRef.current;
+
+    // A new action can run after Cancel commits but before passive cleanup.
+    if (
+      pending &&
+      location === pending.fromLocation &&
+      routerState !== pending.routerState &&
+      routerState?.navigation.state === 'idle' &&
+      Array.from(routerState.blockers.values()).every(
+        (blocker) => blocker.state === 'unblocked',
+      )
+    ) {
+      pendingNavigationRef.current = null;
+      return null;
+    }
+
+    return pending;
+  }, [location, routerState]);
+
+  const getTargetActivityId = () => {
+    const pending = getPendingNavigation();
+
+    return pending && !navigationBlocked ? pending.activityId : routeActivityId;
+  };
 
   // Remember where each app was left, like a browser tab.
   useEffect(() => {
@@ -149,7 +170,7 @@ export const useAppTabs = () => {
     (path: string, activityId?: string, closedIds?: string[]) => {
       const deferredIds = [
         ...new Set([
-          ...(pendingNavigationRef.current?.closedIds ?? []),
+          ...(getPendingNavigation()?.closedIds ?? []),
           ...(closedIds ?? []),
         ]),
       ];
@@ -164,7 +185,7 @@ export const useAppTabs = () => {
         navigate(path);
       });
     },
-    [location, navigate, routerState],
+    [getPendingNavigation, location, navigate, routerState],
   );
 
   const resume = useCallback(
@@ -254,6 +275,7 @@ export const useAppTabs = () => {
     fallbackId?: string,
   ) => {
     const targetActivityId = getTargetActivityId();
+    const pending = getPendingNavigation();
     const closesCurrentRoute =
       !!routeActivityId && closedIds.includes(routeActivityId);
 
@@ -263,12 +285,9 @@ export const useAppTabs = () => {
     }
 
     if (!targetActivityId || !closedIds.includes(targetActivityId)) {
-      if (closesCurrentRoute && pendingNavigationRef.current) {
-        pendingNavigationRef.current.closedIds = [
-          ...new Set([
-            ...(pendingNavigationRef.current.closedIds ?? []),
-            ...closedIds,
-          ]),
+      if (closesCurrentRoute && pending) {
+        pending.closedIds = [
+          ...new Set([...(pending.closedIds ?? []), ...closedIds]),
         ];
       }
       return;
@@ -289,7 +308,7 @@ export const useAppTabs = () => {
   };
 
   const closeTab = (tabId: string) => {
-    const deferredIds = pendingNavigationRef.current?.closedIds ?? [];
+    const deferredIds = getPendingNavigation()?.closedIds ?? [];
 
     if (deferredIds.includes(tabId)) return;
 
