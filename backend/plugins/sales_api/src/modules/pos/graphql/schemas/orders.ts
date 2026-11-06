@@ -115,6 +115,57 @@ export const types = () => `
     totalCount: Int
     pageInfo: PageInfo
   }
+
+  type SalesPosScoreLog {
+    orderId: String!
+    orderNumber: String
+    posId: String
+    posName: String
+    branchId: String
+    scoreLogId: String!
+  }
+
+  type SalesPosScoreLogList {
+    list: [SalesPosScoreLog!]!
+    totalCount: Int!
+  }
+
+  type SalesPosScoreLogPosTotal {
+    posId: String
+    posName: String
+    earned: Float!
+    spent: Float!
+    refunded: Float!
+    other: Float!
+    recalculated: Float!
+    net: Float!
+  }
+
+  type SalesPosScoreLogOrderTotal {
+    orderId: String!
+    orderNumber: String
+    posName: String
+    earned: Float!
+    net: Float!
+  }
+
+  type SalesPosScoreLogInsights {
+    # Per action, without recalculations.
+    totals: [SalesDealScoreLogActionTotal!]!
+    # Every entry counted, recalculations included.
+    entryCount: Int!
+    recalculatedEarned: Float!
+    recalculatedSpent: Float!
+    net: Float!
+    orderCount: Int!
+    customerCount: Int!
+    byPos: [SalesPosScoreLogPosTotal!]!
+    topOrders: [SalesPosScoreLogOrderTotal!]!
+    byCashier: [SalesDealScoreLogGroupTotal!]!
+    byBranch: [SalesDealScoreLogGroupTotal!]!
+    topEarners: [SalesDealScoreLogGroupTotal!]!
+    topSpenders: [SalesDealScoreLogGroupTotal!]!
+  }
 `;
 
 const commonQueryParams = `
@@ -173,6 +224,9 @@ export const queries = `
   posOrderRecordsCount(${queryParams}): Int
   posOrderCustomers(${commonQueryParams}):[PosOrdersByCustomer]
   posOrderCustomersTotalCount(${commonQueryParams}):Int
+  salesPosScoreLogs(posIds: [String], orderIds: [String], branchIds: [String], kind: SalesScoreLogKind, period: SalesScoreLogPeriod, ${queryParams}): SalesPosScoreLogList
+  salesPosScoreLogInsights(posIds: [String], orderIds: [String], branchIds: [String], ${queryParams}): SalesPosScoreLogInsights
+  salesPosScoreLogTimeline(interval: SalesDealScoreLogInterval!, timezone: String, posIds: [String], orderIds: [String], branchIds: [String], ${queryParams}): SalesDealScoreLogTimeline
   checkSubscription(customerId:String, productId:String,productIds:[String]): PosOrder
   posOrderBySubscriptions(${commonSubsQueryParams}):[PosOrdersBySubs]
   posOrderBySubscriptionsTotalCount(${commonSubsQueryParams}):Int

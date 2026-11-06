@@ -1,5 +1,7 @@
 import {
   IconCoins,
+  IconFolder,
+  IconGitBranch,
   IconHash,
   IconLabelFilled,
   IconLayoutGridAdd,
@@ -8,15 +10,24 @@ import {
   IconToggleRightFilled,
 } from '@tabler/icons-react';
 import {
+  Combobox,
   CurrencyCode,
   CurrencyField,
   Filter,
+  Popover,
   SelectTree,
   useFilterContext,
   useFilterQueryState,
   useQueryState,
 } from 'erxes-ui';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  BranchBadge,
+  DepartmentBadge,
+  SelectBranches,
+  SelectDepartments,
+} from 'ui-modules';
 import {
   SelectAccountCatCommand,
   SelectAccountCategory,
@@ -424,6 +435,119 @@ export const FilterBarTrJournal = () => {
           className="rounded-none h-7 bg-background"
         />
       </Filter.BarButton>
+    </Filter.BarItem>
+  );
+};
+
+const MISSING_STRUCTURE_FALLBACK = "empty:before:content-['-']";
+
+const BranchFilterValue = ({ id }: { id: string }) => (
+  <span className={MISSING_STRUCTURE_FALLBACK}>
+    <BranchBadge branchId={id} renderAsPlainText />
+  </span>
+);
+
+const DepartmentFilterValue = ({ id }: { id: string }) => (
+  <span className={MISSING_STRUCTURE_FALLBACK}>
+    <DepartmentBadge departmentId={id} renderAsPlainText />
+  </span>
+);
+
+const STRUCTURE_FILTERS = {
+  branchId: {
+    Select: SelectBranches,
+    Value: BranchFilterValue,
+    Icon: IconGitBranch,
+    labelKey: 'branch',
+  },
+  departmentId: {
+    Select: SelectDepartments,
+    Value: DepartmentFilterValue,
+    Icon: IconFolder,
+    labelKey: 'department',
+  },
+};
+
+type StructureQueryKey = keyof typeof STRUCTURE_FILTERS;
+
+type StructureFilterProps = { queryKey: StructureQueryKey };
+
+const useStructureFilterQuery = (queryKey: StructureQueryKey) => {
+  const [value, setValue] = useAccountFilterQuery<string | null>(queryKey);
+
+  const setStructure = (next?: string[] | string) =>
+    setValue(typeof next === 'string' && next ? next : null);
+
+  return [value, setStructure] as const;
+};
+
+export const AccountsFilterStructure = ({ queryKey }: StructureFilterProps) => {
+  const { Select } = STRUCTURE_FILTERS[queryKey];
+  const [value, setValue] = useStructureFilterQuery(queryKey);
+  const { resetFilterState } = useFilterContext();
+
+  return (
+    <Select
+      mode="single"
+      value={value ?? undefined}
+      onValueChange={(next) => {
+        setValue(next);
+        resetFilterState();
+      }}
+    >
+      <Select.Content />
+    </Select>
+  );
+};
+
+const FilterBarStructurePopover = ({
+  queryKey,
+  value,
+}: StructureFilterProps & { value: string }) => {
+  const { Select, Value } = STRUCTURE_FILTERS[queryKey];
+
+  return (
+    <>
+      <Popover.Trigger asChild>
+        <Filter.BarButton filterKey={queryKey}>
+          <Value id={value} />
+        </Filter.BarButton>
+      </Popover.Trigger>
+      <Combobox.Content>
+        <Select.Content />
+      </Combobox.Content>
+    </>
+  );
+};
+
+export const FilterBarStructure = ({ queryKey }: StructureFilterProps) => {
+  const { t } = useTranslation('accounting');
+  const { Select, Icon, labelKey } = STRUCTURE_FILTERS[queryKey];
+  const [value, setValue] = useStructureFilterQuery(queryKey);
+  const [open, setOpen] = useState(false);
+
+  if (!value) {
+    return null;
+  }
+
+  return (
+    <Filter.BarItem queryKey={queryKey}>
+      <Filter.BarName>
+        <Icon />
+        {t(labelKey)}
+      </Filter.BarName>
+      <Select
+        mode="single"
+        value={value}
+        onValueChange={(next) => {
+          setValue(next);
+          setOpen(false);
+        }}
+      >
+        <Popover open={open} onOpenChange={setOpen}>
+          <FilterBarStructurePopover queryKey={queryKey} value={value} />
+        </Popover>
+      </Select>
     </Filter.BarItem>
   );
 };

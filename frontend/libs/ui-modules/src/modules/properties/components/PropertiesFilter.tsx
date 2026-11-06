@@ -18,18 +18,21 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { Fragment, useState } from 'react';
-import { useFields } from '../hooks/useFields';
-import { useFieldGroups } from '../hooks/useFieldGroups';
-import { useFieldDetail } from '../hooks/useFieldDetail';
+import { useFields } from 'ui-modules/modules/properties/hooks/useFields';
+import { useFieldGroups } from 'ui-modules/modules/properties/hooks/useFieldGroups';
+import { useFieldDetail } from 'ui-modules/modules/properties/hooks/useFieldDetail';
 import {
   IField,
   IFieldGroup,
   IPropertyFilterCondition,
   PropertyFilterOperator,
-} from '../types/fieldsTypes';
-import { OPERATOR_BY_TYPE } from '../constants/field_operators';
-import { parsePropertyDataKey, toPropertyRowKey } from '../propertyUtils';
-import { FIELD_ICON_BY_TYPE } from '../constants/field_icons';
+} from 'ui-modules/modules/properties/types/fieldsTypes';
+import { OPERATOR_BY_TYPE } from 'ui-modules/modules/properties/constants/field_operators';
+import {
+  parsePropertyDataKey,
+  toPropertyRowKey,
+} from 'ui-modules/modules/properties/propertyUtils';
+import { FIELD_ICON_BY_TYPE } from 'ui-modules/modules/properties/constants/field_icons';
 import {
   CompaniesInline,
   CustomersInline,
@@ -265,8 +268,8 @@ const PropertyValueInput = ({
       const selected = Array.isArray(value)
         ? (value as string[])
         : value
-        ? [value as string]
-        : [];
+          ? [value as string]
+          : [];
 
       const toggle = (optionValue: string) => {
         if (multiple) {
@@ -313,7 +316,7 @@ const PropertyValueInput = ({
     case 'file': {
       const text = Array.isArray(value)
         ? (value as string[]).join(', ')
-        : (value as string) ?? '';
+        : ((value as string) ?? '');
       return (
         <Input
           value={text}
@@ -374,8 +377,9 @@ const RelationValueInput = ({
       return <SelectCompany {...commonProps} />;
     case 'relation:core:product':
       return <SelectProduct {...commonProps} />;
+    case 'relation:core:user':
     case 'relation:core:teamMembers':
-      return <SelectMember {...commonProps} />;
+      return <SelectMember {...commonProps} showInactive />;
     case 'relation:core:branch':
       return (
         <SelectBranches.Root
@@ -411,8 +415,9 @@ const RelationValueDisplay = ({
       return <CompaniesInline companyIds={ids} />;
     case 'relation:core:product':
       return <ProductsInline productIds={ids} />;
+    case 'relation:core:user':
     case 'relation:core:teamMembers':
-      return <MembersInline memberIds={ids} />;
+      return <MembersInline memberIds={ids} showInactive />;
     case 'relation:core:branch':
       return <BranchesInline branchIds={ids} />;
     case 'relation:core:department':

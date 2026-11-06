@@ -111,6 +111,7 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
               </span>
               {config.type === 'textarea' ? (
                 <Textarea
+                  placeholder={config.label}
                   value={item.values[config.key] ?? ''}
                   onChange={(e) =>
                     updateRowLocal(item.id, config.key, e.target.value)
@@ -119,6 +120,7 @@ export const FieldObjectList = (props: SpecificFieldProps) => {
                 />
               ) : (
                 <Input
+                  placeholder={config.label}
                   value={item.values[config.key] ?? ''}
                   onChange={(e) =>
                     updateRowLocal(item.id, config.key, e.target.value)

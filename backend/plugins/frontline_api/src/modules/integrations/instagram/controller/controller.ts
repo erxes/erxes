@@ -4,28 +4,11 @@ import { receiveComment } from '@/integrations/instagram/controller/receiveComme
 import { receiveMessage } from '@/integrations/instagram/controller/receiveMessage';
 import { getSubdomain, isDev } from 'erxes-api-shared/utils';
 import { generateModels } from '~/connectionResolvers';
-import { createHmac, timingSafeEqual } from 'node:crypto';
+import { hasValidWebhookSignature } from '@/integrations/instagram/webhookSignature';
 import type { IModels } from '~/connectionResolvers';
 import type { IMessageData } from '@/integrations/instagram/@types/utils';
 import { getErrorMessage } from '@/integrations/utils';
 import { INTEGRATION_KINDS } from '@/integrations/instagram/constants';
-
-const hasValidWebhookSignature = (
-  rawBody: Buffer | string | undefined,
-  signature: string | undefined,
-  appSecret: string | undefined,
-) => {
-  if (!rawBody || !signature || !appSecret) return false;
-  const expected = `sha256=${createHmac('sha256', appSecret)
-    .update(rawBody)
-    .digest('hex')}`;
-  const actualBuffer = Buffer.from(signature);
-  const expectedBuffer = Buffer.from(expected);
-  return (
-    actualBuffer.length === expectedBuffer.length &&
-    timingSafeEqual(actualBuffer, expectedBuffer)
-  );
-};
 
 export const instagramGetPost = async (req, res, next) => {
   try {
@@ -157,13 +140,39 @@ export const instagramWebhook = async (
       `Received webhook for subdomain ${subdomain}:`,
       JSON.stringify(req.body || {}),
     );
+    console.log(
+      '[instagram]',
+      'Webhook headers:',
+      JSON.stringify(
+        Object.fromEntries(
+          Object.entries(req.headers).filter(
+            ([name]) => !['cookie', 'authorization'].includes(name),
+          ),
+        ),
+      ),
+    );
     const models = await generateModels(subdomain);
     const appSecret = await getConfig(models, 'INSTAGRAM_APP_SECRET');
-    const signature = req.get('x-hub-signature-256');
-    if (!hasValidWebhookSignature(req.rawBody, signature, appSecret)) {
+    const signatureHeaders = {
+      'x-hub-signature-256': req.get('x-hub-signature-256'),
+      'x-hub-signature': req.get('x-hub-signature'),
+    };
+    if (
+      !hasValidWebhookSignature(
+        req.rawBody,
+        req.body,
+        signatureHeaders,
+        appSecret,
+      )
+    ) {
+      const hasSignature = Object.values(signatureHeaders).some(Boolean);
       console.error(
         '[instagram]',
-        `Rejected webhook: invalid signature (hasRawBody=${!!req.rawBody}, hasSignature=${!!signature}, hasAppSecret=${!!appSecret})`,
+        `Rejected webhook: ${
+          hasSignature ? 'signature mismatch' : 'missing signature header'
+        } (hasRawBody=${!!req.rawBody}, hasAppSecret=${!!appSecret}, headers=${JSON.stringify(
+          signatureHeaders,
+        )})`,
       );
       return res.status(401).send('Invalid webhook signature');
     }

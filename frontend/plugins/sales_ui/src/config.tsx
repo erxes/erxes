@@ -65,6 +65,7 @@ export const CONFIG: IUIConfig = {
           {
             value: 'payments',
             label: 'Payments',
+            labelKey: 'payments',
             icon: IconCreditCard,
             after: 'detail',
           },

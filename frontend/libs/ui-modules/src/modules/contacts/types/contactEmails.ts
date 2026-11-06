@@ -1,6 +1,7 @@
 import type { TEmailsOnValueChange, ValidationStatus } from 'erxes-ui';
 import type { Dispatch, SetStateAction } from 'react';
 export type CompanyEmailsProps = {
+  maxVisible?: number;
   primaryEmail: string;
   _id: string;
   emails: string[];
@@ -11,6 +12,7 @@ export type CompanyEmailsProps = {
 };
 
 export interface CustomerEmailsProps {
+  maxVisible?: number;
   primaryEmail: string;
   _id: string;
   emailValidationStatus?: `${ValidationStatus}`;
@@ -23,6 +25,8 @@ export interface CustomerEmailsProps {
 export type SendEmailButtonProps = {
   target?: ComposeEmailRequest;
   compact?: boolean;
+  variant?: 'ghost' | 'outline';
+  className?: string;
 };
 
 export interface ComposeEmailRequest {
@@ -52,11 +56,10 @@ export interface ContactEmailsState extends EmailDoubleClickState {
   handleValueChange: TEmailsOnValueChange;
   handleValidationStatusChange: (status: ValidationStatus) => void;
 }
-export interface CustomerEmailsState
-  extends Omit<
-    ContactEmailsState,
-    'handleEmailClick' | 'handleEmailDoubleClick'
-  > {
+export interface CustomerEmailsState extends Omit<
+  ContactEmailsState,
+  'handleEmailClick' | 'handleEmailDoubleClick'
+> {
   handleVerifiedEmailClick: (email: string) => void;
   handleVerifiedEmailDoubleClick: (email: string) => void;
 }

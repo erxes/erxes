@@ -131,6 +131,19 @@ export const getBranchesUtil = async (
 // The record loyalty ties these points to.
 const POS_ORDER_TARGET_TYPE = 'sales:pos.orders';
 
+// What loyalty wrote for one call; a recalculation writes a reversal too,
+// and an older loyalty names only the one entry.
+type TLoyaltyWrite = {
+  _id?: string;
+  scoreLogId?: string;
+  scoreLogIds?: string[];
+};
+
+const writtenIds = (write: TLoyaltyWrite | null | undefined) =>
+  write?.scoreLogIds?.length
+    ? write.scoreLogIds
+    : [write?.scoreLogId || write?._id];
+
 /**
  * Tells loyalty what this order paid with points. Every point payment type of
  * the POS is sent, so one taken off the order is recorded as nothing spent.
@@ -159,7 +172,7 @@ export const spendOrderPoints = async (
       .filter(({ type }) => type === paymentType.type)
       .reduce((sum, { amount }) => sum + (Number(amount) || 0), 0);
 
-    await sendTRPCMessage({
+    const spent: TLoyaltyWrite | null = await sendTRPCMessage({
       subdomain,
       pluginName: 'loyalty',
       method: 'mutation',
@@ -178,6 +191,8 @@ export const spendOrderPoints = async (
       },
       throwOnError: true,
     });
+
+    await models.PosOrders.addScoreLogs(order._id, writtenIds(spent));
   }
 };
 
@@ -199,7 +214,7 @@ export const earnOrderPoints = async (
   }
 
   for (const { campaignId, totalAmount, paidAmount, items } of plan.earns) {
-    await sendTRPCMessage({
+    const earned: TLoyaltyWrite | null = await sendTRPCMessage({
       subdomain,
       pluginName: 'loyalty',
       method: 'mutation',
@@ -216,6 +231,8 @@ export const earnOrderPoints = async (
         purchase: { totalAmount, paidAmount, items },
       },
     });
+
+    await models.PosOrders.addScoreLogs(order._id, writtenIds(earned));
   }
 
   // A return leaves the tier alone; the next purchase sets it again.
@@ -247,13 +264,14 @@ export const earnOrderPoints = async (
 // A returned order takes back what it earned and gives back what it spent.
 export const refundOrderPoints = async (
   subdomain: string,
+  models: IModels,
   order: IPosOrder & { _id?: string },
 ) => {
   if (!order._id) {
     return;
   }
 
-  await sendTRPCMessage({
+  const refunds: { _id?: string }[] | null = await sendTRPCMessage({
     subdomain,
     pluginName: 'loyalty',
     method: 'mutation',
@@ -266,6 +284,11 @@ export const refundOrderPoints = async (
     },
     defaultValue: null,
   });
+
+  await models.PosOrders.addScoreLogs(
+    order._id,
+    (refunds || []).map(({ _id }) => _id),
+  );
 };
 
 /** A fully returned order gives its vouchers back, with their own expiry. */
@@ -782,7 +805,7 @@ export const syncOrderFromClient = async ({
     const steps =
       newOrder.status === 'return'
         ? [
-            () => refundOrderPoints(subdomain, newOrder),
+            () => refundOrderPoints(subdomain, models, newOrder),
             () => returnOrderVouchers(subdomain, newOrder),
           ]
         : [

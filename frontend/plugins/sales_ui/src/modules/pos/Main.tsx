@@ -58,11 +58,18 @@ const PosByItemsMain = lazy(() =>
   })),
 );
 
+const PosLoyaltyPointsMain = lazy(() =>
+  import('~/pages/PosLoyaltyPointsPage').then((module) => ({
+    default: module.PosLoyaltyPointsPage,
+  })),
+);
+
 const App = () => {
   return (
     <Suspense fallback={<Spinner />}>
       <Routes>
         <Route path="/" element={<PosMain />} />
+        <Route path="loyalty" element={<PosLoyaltyPointsMain />} />
         <Route path=":posId/orders" element={<OrdersMain />} />
         <Route path=":posId/covers" element={<CoversMain />} />
         <Route path=":posId/by-items" element={<PosByItemsMain />} />

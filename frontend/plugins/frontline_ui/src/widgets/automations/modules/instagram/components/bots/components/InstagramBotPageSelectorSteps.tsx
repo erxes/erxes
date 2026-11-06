@@ -71,7 +71,7 @@ export const InstagramBotPageSelectorSteps = ({
         </div>
         <Sheet.Close />
       </Sheet.Header>
-      <Sheet.Content>
+      <Sheet.Content className="flex flex-col overflow-hidden">
         <div className="p-5 flex flex-col gap-3">
           <div className="flex items-center gap-1 w-full">
             {Array.from({ length: 2 }).map((_, index) => (

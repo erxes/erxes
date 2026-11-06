@@ -79,13 +79,17 @@ export const RecordPanel = ({
     return null;
   }
 
-  const { New, Actions, Detail } = panel;
+  const { New, Actions, Detail, Title } = panel;
 
   if (view === 'new') {
     return <New contentType={contentType} contentId={contentId} />;
   }
 
   if (view === 'title') {
+    if (Title && contentId !== NEW_RECORD_ID) {
+      return <Title contentType={contentType} contentId={contentId} />;
+    }
+
     return (
       <SettingsPanelHeaderTitle
         label={contentId === NEW_RECORD_ID ? panel.addLabel : panel.editLabel}
