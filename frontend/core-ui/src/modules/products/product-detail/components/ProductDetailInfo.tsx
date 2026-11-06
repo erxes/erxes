@@ -18,7 +18,7 @@ export function ProductDetailInfo({
   return (
     <InfoCard title={t('more-info')}>
       <InfoCard.Content>
-        <div className={compact ? 'grid gap-3' : 'grid grid-cols-3 gap-4'}>
+        <div className="grid grid-cols-3 gap-4">
           <Form.Field
             control={form.control}
             name="scopeBrandIds"
