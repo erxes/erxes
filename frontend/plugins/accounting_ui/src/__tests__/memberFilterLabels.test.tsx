@@ -125,6 +125,8 @@ jest.mock('@/settings/account/components/filters/FilterHelpers', () => ({
   FilterBarStatus: () => null,
   FilterBarTrJournal: () => null,
   FilterBarTrStatus: () => null,
+  AccountsFilterStructure: () => null,
+  FilterBarStructure: () => null,
 }));
 
 jest.mock('@/transactions/hooks/useTransactionVars', () => ({
@@ -170,12 +172,15 @@ describe.each([
       expect(new Set(labels).size).toBe(labels.length);
     });
 
-    it('keeps the labels distinct on the receipts page, which moves branch, department and journal to the sidebar', () => {
-      render(<TransactionsFilter sidebarFilters />);
+    it('keeps the labels distinct next to the branch, department and journal filters of the receipts page', () => {
+      render(<TransactionsFilter />);
 
       const labels = menuLabels();
       expect(new Set(labels).size).toBe(labels.length);
       expect(optionText('createdUserId')).toBe(createdBy);
+      expect(optionText('branchId')).not.toBe(createdBy);
+      expect(optionText('departmentId')).not.toBe(createdBy);
+      expect(optionText('journal')).not.toBe(modifiedBy);
     });
 
     it('names an applied filter chip after the same person label as the menu', () => {

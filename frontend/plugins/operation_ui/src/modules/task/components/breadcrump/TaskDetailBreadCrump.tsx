@@ -1,5 +1,5 @@
 import { Breadcrumb, Button, Skeleton } from 'erxes-ui';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { FavoriteToggleIconButton } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
@@ -11,13 +11,10 @@ export const TaskDetailBreadCrump = () => {
     taskId: string;
   }>();
   const { t } = useTranslation('operation');
+  const { pathname } = useLocation();
 
   const { task, loading } = useGetTask(taskId);
 
-  // Determine base path
-  const basePath = teamId
-    ? `/operation/team/${teamId}/tasks/${taskId}`
-    : `/operation/tasks/${taskId}`;
   const taskSegment = taskId ? task?.name || 'Unknown' : undefined;
   const { breadcrumb: favoriteBreadcrumb, loading: teamLoading } =
     useTeamFavoriteBreadcrumb(
@@ -35,11 +32,13 @@ export const TaskDetailBreadCrump = () => {
       <Breadcrumb.List className="gap-1">
         <Breadcrumb.Item>
           <Button variant="ghost" asChild>
-            <Link to={`${basePath}`}>{task?.name}</Link>
+            <Link to={pathname}>{task?.name}</Link>
           </Button>
         </Breadcrumb.Item>
         <Breadcrumb.Item className="ml-1">
+          {/* The path alone: the open tab must not make it another favorite. */}
           <FavoriteToggleIconButton
+            path={pathname}
             breadcrumb={favoriteBreadcrumb}
             icon="IconChecklist"
           />

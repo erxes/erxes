@@ -54,7 +54,7 @@
 ### Provides
 
 - Module Federation exposes: `./config`, `./pms`, `./tms`, `./tourism`, and `./recordPanel` (named `RecordPanel`).
-- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title and `pageExpanded`; `tourism:tmsTour` also declares `tabs` for bookings and customers; so an expanded panel replaces the page beside the app sidebar like contacts; only `tourism:tmsTour` has a Properties tab).
+- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title; `tourism:tmsTour` also declares `tabs` for bookings and customers; no type sets `detailPath`, so tourism panels have no expand button; so an expanded panel replaces the page beside the app sidebar like contacts; only `tourism:tmsTour` has a Properties tab).
 - Frontend navigation paths under `tourism/pms` and `tourism/tms` registered from `src/config.tsx`.
 
 ### Consumes

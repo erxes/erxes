@@ -2,11 +2,6 @@ import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { pluginsConfigState, usePermissionCheck } from 'ui-modules';
 
-/**
- * The plugin that draws `contentType` records in the side panel (its config
- * lists the type under `widgets.recordPanels`), if the user may use it, and
- * whether those records have a Properties tab.
- */
 export interface IRecordPanelPluginTab {
   value: string;
   label: string;
@@ -14,14 +9,19 @@ export interface IRecordPanelPluginTab {
 
 const NO_TABS: IRecordPanelPluginTab[] = [];
 
+/**
+ * The plugin that draws `contentType` records in the side panel (its config
+ * lists the type under `widgets.recordPanels`), if the user may use it, and
+ * whether those records have a Properties tab.
+ */
 export const useRecordPanelPlugin = (
   contentType: string,
 ): {
   pluginName: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
-  hasPageExpanded: boolean;
   tabs: IRecordPanelPluginTab[];
+  detailPath: ((recordId: string, pathname: string) => string) | null;
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
@@ -45,8 +45,8 @@ export const useRecordPanelPlugin = (
         pluginName: null,
         hasProperties: false,
         hasDraftTitle: false,
-        hasPageExpanded: false,
         tabs: NO_TABS,
+        detailPath: null,
       };
     }
 
@@ -54,19 +54,8 @@ export const useRecordPanelPlugin = (
       pluginName: plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
-      hasPageExpanded: panel?.pageExpanded === true,
       tabs: panel?.tabs ?? NO_TABS,
+      detailPath: panel?.detailPath ?? null,
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
-};
-
-const PAGE_EXPANDED_CONTENT_TYPES = ['core:customer', 'core:company'];
-
-export const useRecordExpandsInPage = (contentType?: string) => {
-  const { hasPageExpanded } = useRecordPanelPlugin(contentType || '');
-
-  return Boolean(
-    contentType &&
-      (PAGE_EXPANDED_CONTENT_TYPES.includes(contentType) || hasPageExpanded),
-  );
 };
