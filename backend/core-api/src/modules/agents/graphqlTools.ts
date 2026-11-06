@@ -18,6 +18,12 @@ import {
   isUnionType,
   parse,
   printType,
+  validate,
+  FieldsOnCorrectTypeRule,
+  KnownArgumentNamesRule,
+  ProvidedRequiredArgumentsRule,
+  ScalarLeafsRule,
+  type DocumentNode,
   type GraphQLField,
   type GraphQLNamedType,
   type GraphQLSchema,
@@ -38,11 +44,7 @@ import {
   parseAgentGraphqlOperation,
   requiresGraphqlApproval,
 } from './graphqlPolicy';
-import {
-  readApprovalMode,
-  readIdentity,
-  toToolFailure,
-} from './tools';
+import { readApprovalMode, readIdentity, toToolFailure } from './tools';
 import {
   buildAgentPluginContributions,
   EMPTY_AGENT_PLUGIN_CONTRIBUTIONS,
@@ -407,6 +409,52 @@ const collectArgumentTypes = (
  * nested objects by name only. `printed` dedupes types already emitted for
  * earlier results so shared inputs are not repeated.
  */
+const MAX_NESTED_TYPES = 12;
+
+// Only the rules that catch what the model gets wrong; the gateway still runs
+// the full validation, so a gap here costs a round trip, never correctness.
+const VALIDATION_RULES = [
+  FieldsOnCorrectTypeRule,
+  ScalarLeafsRule,
+  KnownArgumentNamesRule,
+  ProvidedRequiredArgumentsRule,
+];
+
+/**
+ * Rejects a document the gateway would reject, before the round trip, and
+ * returns the SDL of every type the errors name so the retry is informed.
+ */
+const validateAgainstSchema = async (document: DocumentNode) => {
+  // Validation only saves a round trip, so an unavailable schema sends the call unchecked.
+  const schema = await loadMergedSchema().catch(() => null);
+  if (!schema) {
+    return null;
+  }
+
+  const errors = validate(schema, document, VALIDATION_RULES);
+  if (!errors.length) {
+    return null;
+  }
+
+  const typeNames = new Set(
+    errors.flatMap((error) =>
+      [...error.message.matchAll(/type "(\w+)"/g)].map((match) => match[1]),
+    ),
+  );
+  const types = [...typeNames]
+    .map((name) => schema.getType(name))
+    .filter((type) => type !== undefined)
+    .map((type) => printType(type))
+    .join('\n\n');
+
+  return {
+    status: 'error',
+    code: 'GRAPHQL_VALIDATION_FAILED',
+    error: errors.map((error) => error.message).join('; '),
+    ...(types ? { types } : {}),
+  };
+};
+
 const typesSdlForField = (
   field: GraphQLField<unknown, unknown>,
   printed: Set<string>,
@@ -421,6 +469,22 @@ const typesSdlForField = (
     isEnumType(returnType)
   ) {
     types.push(returnType);
+  }
+
+  // One level of nested object types, so the model sees e.g. User.details
+  // instead of guessing User.firstName.
+  if (isObjectType(returnType) || isInterfaceType(returnType)) {
+    const nested = Object.values(returnType.getFields())
+      .map((child) => getNamedType(child.type))
+      .filter(
+        (type, index, all) =>
+          (isObjectType(type) || isInterfaceType(type)) &&
+          type.name !== returnType.name &&
+          !type.name.startsWith('_') &&
+          all.findIndex((other) => other.name === type.name) === index,
+      )
+      .slice(0, MAX_NESTED_TYPES);
+    types.push(...nested);
   }
 
   return types
@@ -472,240 +536,260 @@ const sanitizeGraphqlErrors = (errors: unknown): IGraphqlErrorEntry[] => {
 // other Mastra entries) and build the two tools once per process.
 export const listGraphqlCapabilities = async () => {
   const { schema, owners, hiddenOperations } = await loadAgentGraphqlCatalog();
-  return schema ? collectRootFields({ schema, hiddenOperations }).map((entry) => ({
-    id: `graphql.${entry.operation}.${entry.name}`,
-    plugin: owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
-    module: entry.operation,
-    path: entry.name,
-    method: entry.operation,
-    description: entry.field.description ?? fieldSignature(entry.field),
-    inputFields: entry.field.args.map((arg) => ({
-      name: arg.name, type: String(arg.type), required: String(arg.type).endsWith('!'),
-    })),
-  })) : [];
+  return schema
+    ? collectRootFields({ schema, hiddenOperations }).map((entry) => ({
+        id: `graphql.${entry.operation}.${entry.name}`,
+        plugin: owners.get(`${entry.operation}.${entry.name}`) ?? 'graphql',
+        module: entry.operation,
+        path: entry.name,
+        method: entry.operation,
+        description: entry.field.description ?? fieldSignature(entry.field),
+        inputFields: entry.field.args.map((arg) => ({
+          name: arg.name,
+          type: String(arg.type),
+          required: String(arg.type).endsWith('!'),
+        })),
+      }))
+    : [];
 };
 
-let graphqlToolsPromise:
-  | Promise<{ searchGraphql: MastraTool; callGraphql: MastraTool }>
-  | null = null;
+let graphqlToolsPromise: Promise<{
+  searchGraphql: MastraTool;
+  callGraphql: MastraTool;
+}> | null = null;
 
 export const buildGraphqlTools = async (): Promise<{
   searchGraphql: MastraTool;
   callGraphql: MastraTool;
 }> => {
   if (!graphqlToolsPromise) {
-    graphqlToolsPromise = import('@mastra/core/tools').then(({ createTool }) => ({
-      searchGraphql: createTool({
-        id: 'searchGraphql',
-        description:
-          'Search the workspace GraphQL API — the same API the erxes UI uses — for queries and mutations relevant to the user\'s goal. Returns matching root fields with signatures and the SDL of their argument and return types. Use this to discover the operation and its fields before calling callGraphql.',
-        inputSchema: z.object({
-          intent: z
-            .string()
-            .min(1)
-            .describe('What the user wants to accomplish, in a few words'),
-          maxResults: z
-            .number()
-            .int()
-            .min(1)
-            .max(20)
-            .optional()
-            .describe('Maximum number of fields to return (default 8)'),
+    graphqlToolsPromise = import('@mastra/core/tools').then(
+      ({ createTool }) => ({
+        searchGraphql: createTool({
+          id: 'searchGraphql',
+          description:
+            "Search the workspace GraphQL API — the same API the erxes UI uses — for queries and mutations relevant to the user's goal. Returns matching root fields with signatures and the SDL of their argument and return types. Use this to discover the operation and its fields before calling callGraphql.",
+          inputSchema: z.object({
+            intent: z
+              .string()
+              .min(1)
+              .describe('What the user wants to accomplish, in a few words'),
+            maxResults: z
+              .number()
+              .int()
+              .min(1)
+              .max(20)
+              .optional()
+              .describe('Maximum number of fields to return (default 8)'),
+          }),
+          execute: async ({ intent, maxResults }, context) => {
+            readIdentity(context);
+            const approvalMode = readApprovalMode(context);
+            const { schema, hiddenOperations } =
+              await loadAgentGraphqlCatalog();
+
+            if (!schema) {
+              return { matched: 0, fields: [] };
+            }
+
+            const entries = collectRootFields({ schema, hiddenOperations });
+            const matches = rankFieldsByIntent(entries, intent);
+            const ranked = matches.slice(0, maxResults ?? 8);
+
+            const printed = new Set<string>();
+            let typesBudget = TYPES_BUDGET_BYTES;
+
+            return {
+              matched: matches.length,
+              fields: ranked.map((entry) => {
+                let types = typesSdlForField(entry.field, printed);
+                const typesBytes = Buffer.byteLength(types, 'utf8');
+
+                if (typesBytes > typesBudget) {
+                  types =
+                    'Type SDL omitted: the response type budget was reached by earlier results — search again with a narrower intent to see these types.';
+                } else {
+                  typesBudget -= typesBytes;
+                }
+
+                return {
+                  operation: entry.operation,
+                  field: entry.name,
+                  signature: fieldSignature(entry.field),
+                  ...(entry.field.description
+                    ? { description: entry.field.description }
+                    : {}),
+                  requiresApproval: requiresGraphqlApproval(
+                    { operation: entry.operation, rootFields: [entry.name] },
+                    approvalMode,
+                  ),
+                  types,
+                };
+              }),
+            };
+          },
         }),
-        execute: async ({ intent, maxResults }, context) => {
-          readIdentity(context);
-          const approvalMode = readApprovalMode(context);
-          const { schema, hiddenOperations } = await loadAgentGraphqlCatalog();
-
-          if (!schema) {
-            return { matched: 0, fields: [] };
-          }
-
-          const entries = collectRootFields({ schema, hiddenOperations });
-          const matches = rankFieldsByIntent(entries, intent);
-          const ranked = matches.slice(0, maxResults ?? 8);
-
-          const printed = new Set<string>();
-          let typesBudget = TYPES_BUDGET_BYTES;
-
-          return {
-            matched: matches.length,
-            fields: ranked.map((entry) => {
-              let types = typesSdlForField(entry.field, printed);
-              const typesBytes = Buffer.byteLength(types, 'utf8');
-
-              if (typesBytes > typesBudget) {
-                types =
-                  'Type SDL omitted: the response type budget was reached by earlier results — search again with a narrower intent to see these types.';
-              } else {
-                typesBudget -= typesBytes;
-              }
-
-              return {
-                operation: entry.operation,
-                field: entry.name,
-                signature: fieldSignature(entry.field),
-                ...(entry.field.description
-                  ? { description: entry.field.description }
-                  : {}),
-                requiresApproval: requiresGraphqlApproval(
-                  { operation: entry.operation, rootFields: [entry.name] },
-                  approvalMode,
-                ),
-                types,
-              };
-            }),
-          };
-        },
-      }),
-      callGraphql: createTool({
-        id: 'callGraphql',
-        description:
-          'Run one GraphQL query or mutation against the workspace API as the acting user, with exactly their permissions. Send a single operation, pass values through variables, and select only the fields you need. Mutations may be held for the user\'s approval. Authentication operations (login, logout, passwords, tokens) are not available.',
-        inputSchema: z.object({
-          query: z
-            .string()
-            .min(1)
-            .describe('A GraphQL document with exactly one operation'),
-          variables: z
-            .record(z.string(), z.unknown())
-            .optional()
-            .describe('Variable values referenced by the operation'),
-          operationName: z
-            .string()
-            .optional()
-            .describe('The operation to run when the document defines several'),
-        }),
-        // Mutations may suspend for approval; parse failures return false so
-        // `execute` can report the actionable error to the model.
-        requireApproval: async (input, ctx) => {
-          const query = input?.query;
-          const operationName = input?.operationName;
-
-          if (typeof query !== 'string') {
-            return false;
-          }
-
-          try {
-            return requiresGraphqlApproval(
-              parseAgentGraphqlOperation(
-                query,
-                typeof operationName === 'string' ? operationName : undefined,
-                input?.variables,
+        callGraphql: createTool({
+          id: 'callGraphql',
+          description:
+            "Run one GraphQL query or mutation against the workspace API as the acting user, with exactly their permissions. Send a single operation, pass values through variables, and select only the fields you need. Mutations may be held for the user's approval. Authentication operations (login, logout, passwords, tokens) are not available.",
+          inputSchema: z.object({
+            query: z
+              .string()
+              .min(1)
+              .describe('A GraphQL document with exactly one operation'),
+            variables: z
+              .record(z.string(), z.unknown())
+              .optional()
+              .describe('Variable values referenced by the operation'),
+            operationName: z
+              .string()
+              .optional()
+              .describe(
+                'The operation to run when the document defines several',
               ),
-              readApprovalMode(ctx),
-            );
-          } catch {
-            return false;
-          }
-        },
-        execute: async ({ query, variables, operationName }, context) => {
-          const { subdomain, userId } = readIdentity(context);
-          const stampedThreadId = context.requestContext.get('threadId');
-          const threadId =
-            typeof stampedThreadId === 'string' && stampedThreadId
-              ? stampedThreadId
-              : undefined;
+          }),
+          // Mutations may suspend for approval; parse failures return false so
+          // `execute` can report the actionable error to the model.
+          requireApproval: async (input, ctx) => {
+            const query = input?.query;
+            const operationName = input?.operationName;
 
-          let parsed: ReturnType<typeof parseAgentGraphqlOperation>;
-          try {
-            parsed = parseAgentGraphqlOperation(
-              query,
-              typeof operationName === 'string' ? operationName : undefined,
-              variables,
-            );
-          } catch (error) {
-            return toToolFailure(error);
-          }
-
-          let response: Response;
-          let payload: { data?: unknown; errors?: unknown } | null;
-
-          try {
-            response = await fetch(`${gatewayUrl(subdomain)}/graphql`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'nginx-hostname': subdomain,
-                [agentToolsAuthHeaderName]: encodeAgentToolsAuthHeader(
-                  subdomain,
-                  userId,
-                  threadId ? { threadId } : undefined,
-                ),
-              },
-              body: JSON.stringify({ query, variables, operationName }),
-              signal: AbortSignal.timeout(GRAPHQL_CALL_TIMEOUT_MS),
-            });
-          } catch (error) {
-            return toToolFailure(error);
-          }
-
-          try {
-            payload = (await response.json()) as {
-              data?: unknown;
-              errors?: unknown;
-            } | null;
-          } catch {
-            return toToolFailure(
-              Object.assign(
-                new Error(
-                  `The gateway answered the GraphQL request with a non-JSON response (HTTP ${response.status}).`,
-                ),
-                { code: 'GRAPHQL_ERROR', statusCode: response.status },
-              ),
-            );
-          }
-
-          const errors = sanitizeGraphqlErrors(payload?.errors);
-          const data = payload?.data ?? null;
-
-          if (data !== null) {
-            const maxResponseBytes = getAgentToolMaxResponseBytes();
-            const dataBytes = oversizedAgentToolResultBytes(
-              data,
-              maxResponseBytes,
-            );
-
-            if (dataBytes !== null) {
-              return toToolFailure(
-                agentToolResponseTooLargeError(
-                  'callGraphql',
-                  dataBytes,
-                  maxResponseBytes,
-                ),
-              );
+            if (typeof query !== 'string') {
+              return false;
             }
 
             try {
-              assertAgentGraphqlResultAllowed(parsed.document, data);
+              return requiresGraphqlApproval(
+                parseAgentGraphqlOperation(
+                  query,
+                  typeof operationName === 'string' ? operationName : undefined,
+                  input?.variables,
+                ),
+                readApprovalMode(ctx),
+              );
+            } catch {
+              return false;
+            }
+          },
+          execute: async ({ query, variables, operationName }, context) => {
+            const { subdomain, userId } = readIdentity(context);
+            const stampedThreadId = context.requestContext.get('threadId');
+            const threadId =
+              typeof stampedThreadId === 'string' && stampedThreadId
+                ? stampedThreadId
+                : undefined;
+
+            let parsed: ReturnType<typeof parseAgentGraphqlOperation>;
+            try {
+              parsed = parseAgentGraphqlOperation(
+                query,
+                typeof operationName === 'string' ? operationName : undefined,
+                variables,
+              );
             } catch (error) {
               return toToolFailure(error);
             }
 
-            const schema = schemaCache?.schema;
-            const references = schema
-              ? extractGraphqlReferences(schema, parsed.document, data, operationName)
-              : [];
-            return {
-              status: 'ok',
-              data,
-              ...(references.length ? issueAgentReferences(references) : {}),
-              ...(errors.length ? { errors } : {}),
-            };
-          }
+            const invalid = await validateAgainstSchema(parsed.document);
+            if (invalid) {
+              return invalid;
+            }
 
-          return {
-            status: 'error',
-            error: errors.length
-              ? errors.map((entry) => entry.message).join('; ')
-              : `The GraphQL request failed (HTTP ${response.status}).`,
-            code: errors[0]?.code ?? 'GRAPHQL_ERROR',
-            errors,
-            httpStatus: response.status,
-          };
-        },
+            let response: Response;
+            let payload: { data?: unknown; errors?: unknown } | null;
+
+            try {
+              response = await fetch(`${gatewayUrl(subdomain)}/graphql`, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'nginx-hostname': subdomain,
+                  [agentToolsAuthHeaderName]: encodeAgentToolsAuthHeader(
+                    subdomain,
+                    userId,
+                    threadId ? { threadId } : undefined,
+                  ),
+                },
+                body: JSON.stringify({ query, variables, operationName }),
+                signal: AbortSignal.timeout(GRAPHQL_CALL_TIMEOUT_MS),
+              });
+            } catch (error) {
+              return toToolFailure(error);
+            }
+
+            try {
+              payload = (await response.json()) as {
+                data?: unknown;
+                errors?: unknown;
+              } | null;
+            } catch {
+              return toToolFailure(
+                Object.assign(
+                  new Error(
+                    `The gateway answered the GraphQL request with a non-JSON response (HTTP ${response.status}).`,
+                  ),
+                  { code: 'GRAPHQL_ERROR', statusCode: response.status },
+                ),
+              );
+            }
+
+            const errors = sanitizeGraphqlErrors(payload?.errors);
+            const data = payload?.data ?? null;
+
+            if (data !== null) {
+              const maxResponseBytes = getAgentToolMaxResponseBytes();
+              const dataBytes = oversizedAgentToolResultBytes(
+                data,
+                maxResponseBytes,
+              );
+
+              if (dataBytes !== null) {
+                return toToolFailure(
+                  agentToolResponseTooLargeError(
+                    'callGraphql',
+                    dataBytes,
+                    maxResponseBytes,
+                  ),
+                );
+              }
+
+              try {
+                assertAgentGraphqlResultAllowed(parsed.document, data);
+              } catch (error) {
+                return toToolFailure(error);
+              }
+
+              const schema = schemaCache?.schema;
+              const references = schema
+                ? extractGraphqlReferences(
+                    schema,
+                    parsed.document,
+                    data,
+                    operationName,
+                  )
+                : [];
+              return {
+                status: 'ok',
+                data,
+                ...(references.length ? issueAgentReferences(references) : {}),
+                ...(errors.length ? { errors } : {}),
+              };
+            }
+
+            return {
+              status: 'error',
+              error: errors.length
+                ? errors.map((entry) => entry.message).join('; ')
+                : `The GraphQL request failed (HTTP ${response.status}).`,
+              code: errors[0]?.code ?? 'GRAPHQL_ERROR',
+              errors,
+              httpStatus: response.status,
+            };
+          },
+        }),
       }),
-    }));
+    );
   }
 
   return graphqlToolsPromise;
