@@ -40,52 +40,61 @@ export const CallProIntegrationEdit = ({
     resolver: zodResolver(CALL_PRO_INTEGRATION_FORM_SCHEMA),
   });
 
-  const { markSaved, isActive, getSaveValues } = useFormDraft(form, {
-    name: integrationDetail?.name || '',
-    brandId: integrationDetail?.brandId || '',
-    phoneNumber: callProIntegrationDetail?.phoneNumber || '',
-    recordUrl: callProIntegrationDetail?.recordUrl || '',
-  });
+  const { markSaved, isActive, getSaveValues, beginSave, endSave, saving } =
+    useFormDraft(form, {
+      name: integrationDetail?.name || '',
+      brandId: integrationDetail?.brandId || '',
+      phoneNumber: callProIntegrationDetail?.phoneNumber || '',
+      recordUrl: callProIntegrationDetail?.recordUrl || '',
+    });
 
-  const onSubmit = (data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>) => {
+  const onSubmit = async (
+    data: z.infer<typeof CALL_PRO_INTEGRATION_FORM_SCHEMA>,
+  ) => {
     if (!integrationId || !integrationDetail) return;
+    const saveId = beginSave();
+    if (saveId === undefined) return;
     const submittedValues = data;
     const savedValues = getSaveValues(data);
-    editIntegration({
-      variables: {
-        _id: integrationId,
-        name: savedValues.name,
-        channelId: integrationDetail.channelId ?? '',
-        brandId: savedValues.brandId,
-        details: {
-          phoneNumber: savedValues.phoneNumber,
-          recordUrl: savedValues.recordUrl || '',
+    try {
+      await editIntegration({
+        variables: {
+          _id: integrationId,
+          name: savedValues.name,
+          channelId: integrationDetail.channelId ?? '',
+          brandId: savedValues.brandId,
+          details: {
+            phoneNumber: savedValues.phoneNumber,
+            recordUrl: savedValues.recordUrl || '',
+          },
         },
-      },
-      refetchQueries: [
-        'Integrations',
-        'IntegrationDetail',
-        {
-          query: CALL_PRO_INTEGRATION_DETAIL,
-          variables: { integrationId },
+        refetchQueries: [
+          'Integrations',
+          'IntegrationDetail',
+          {
+            query: CALL_PRO_INTEGRATION_DETAIL,
+            variables: { integrationId },
+          },
+          'ChannelIntegrationsPeek',
+        ],
+        onCompleted() {
+          if (markSaved(savedValues, submittedValues) && isActive()) close();
+          toast({
+            title: t('integration-updated'),
+            description: t('integration-updated-successfully'),
+          });
         },
-        'ChannelIntegrationsPeek',
-      ],
-      onCompleted() {
-        if (markSaved(savedValues, submittedValues) && isActive()) close();
-        toast({
-          title: t('integration-updated'),
-          description: t('integration-updated-successfully'),
-        });
-      },
-      onError(e) {
-        toast({
-          title: t('something-went-wrong'),
-          description: e.message,
-          variant: 'destructive',
-        });
-      },
-    });
+        onError(e) {
+          toast({
+            title: t('something-went-wrong'),
+            description: e.message,
+            variant: 'destructive',
+          });
+        },
+      });
+    } finally {
+      endSave(saveId);
+    }
   };
 
   if (loading || callProLoading) {
@@ -96,7 +105,7 @@ export const CallProIntegrationEdit = ({
     <CallProIntegrationForm
       form={form}
       onSubmit={onSubmit}
-      loading={editLoading}
+      loading={editLoading || saving}
     />
   );
 };

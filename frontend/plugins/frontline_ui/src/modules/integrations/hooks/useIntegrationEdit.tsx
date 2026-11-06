@@ -19,7 +19,7 @@ export const useIntegrationEdit = () => {
   const [editIntegration, { loading }] = useMutation(EDIT_INTEGRATION);
 
   const mutate = (options: IntegrationEditOptions) => {
-    editIntegration({
+    return editIntegration({
       ...options,
       onCompleted: (data) => {
         if (!data.integrationsEditCommonFields?._id) {

@@ -2,6 +2,7 @@ import { useApolloClient, useMutation } from '@apollo/client';
 import { useSocialIntegrationCreate } from '@/integrations/hooks/useSocialIntegrationCreate';
 import {
   CREATE_EM_MESSENGER_MUTATION,
+  EDIT_EM_MESSENGER_MUTATION,
   SAVE_EM_CONFIGS_MUTATION,
   SAVE_EM_APPEARANCE_MUTATION,
   SAVE_EM_TICKET_CONFIG_MUTATION,
@@ -22,6 +23,9 @@ export const useCreateMessenger = () => {
   const [createMessengerMutation, { loading: createLoading }] = useMutation(
     CREATE_EM_MESSENGER_MUTATION,
   );
+  const [editMessengerMutation, { loading: editLoading }] = useMutation(
+    EDIT_EM_MESSENGER_MUTATION,
+  );
   const [saveConfigsMutation, { loading: saveConfigsLoading }] = useMutation(
     SAVE_EM_CONFIGS_MUTATION,
   );
@@ -37,14 +41,21 @@ export const useCreateMessenger = () => {
   ) => {
     const { createVariables, saveConfigVariables, uiOptions } =
       readVariables(configFormValues);
-    return runCreate(async (created) => {
-      const result = await createMessengerMutation({
-        variables: createVariables,
-      });
-      const id = result.data?.integrationsCreateMessengerIntegration?._id;
+    return runCreate(async (created, existingId) => {
+      const id = existingId
+        ? (
+            await editMessengerMutation({
+              variables: { id: existingId, ...createVariables },
+            })
+          ).data?.integrationsEditMessengerIntegration?._id
+        : (
+            await createMessengerMutation({
+              variables: createVariables,
+            })
+          ).data?.integrationsCreateMessengerIntegration?._id;
       if (!id) throw new Error(t('failed-to-create-messenger'));
       created(id);
-      await Promise.all([
+      const results = await Promise.allSettled([
         saveConfigsMutation({
           variables: {
             _id: id,
@@ -59,6 +70,18 @@ export const useCreateMessenger = () => {
           variables: { _id: id, configIds: configFormValues.ticketConfigIds },
         }),
       ]);
+      const failed = results.find((result) => result.status === 'rejected');
+      if (failed?.status === 'rejected') throw failed.reason;
+      const [configs, appearance, tickets] = results;
+      if (
+        configs.status !== 'fulfilled' ||
+        !configs.value.data?.integrationsSaveMessengerConfigs?._id ||
+        appearance.status !== 'fulfilled' ||
+        !appearance.value.data?.integrationsSaveMessengerAppearanceData?._id ||
+        tickets.status !== 'fulfilled' ||
+        !tickets.value.data?.integrationsSaveMessengerTicketData?._id
+      )
+        throw new Error(t('failed-to-create-messenger'));
       await client.refetchQueries({
         include: [
           'Integrations',
@@ -76,6 +99,7 @@ export const useCreateMessenger = () => {
     loading:
       pending ||
       createLoading ||
+      editLoading ||
       saveConfigsLoading ||
       saveAppearanceLoading ||
       saveTicketConfigLoading,

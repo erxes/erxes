@@ -10,11 +10,19 @@ import {
 type CreateOptions = NonNullable<
   Parameters<ReturnType<typeof useIntegrationAdd>['addIntegration']>[0]
 >;
-type CreateOperation = (created: (id: string) => void) => Promise<string>;
-type Creation = { request: symbol | null; createdId: string | null };
+type CreateOperation = (
+  created: (id: string) => void,
+  existingId: string | null,
+) => Promise<string>;
+type Creation = {
+  request: symbol | null;
+  createdId: string | null;
+  completed: boolean;
+};
 const useCreation = createIntegrationDraftState<Creation>({
   request: null,
   createdId: null,
+  completed: false,
 });
 
 export const useSocialIntegrationCreate = (): {
@@ -24,6 +32,7 @@ export const useSocialIntegrationCreate = (): {
     onError?: (error: unknown) => void,
   ) => Promise<void>;
   createdId: string | null;
+  completed: boolean;
   loading: boolean;
 } => {
   const { t } = useTranslation('frontline', {
@@ -37,7 +46,7 @@ export const useSocialIntegrationCreate = (): {
     () => () => {
       let completed = false;
       updateCreation((current) => {
-        completed = Boolean(current.createdId && !current.request);
+        completed = current.completed && !current.request;
         return current;
       });
       if (completed) clearSession();
@@ -52,24 +61,30 @@ export const useSocialIntegrationCreate = (): {
     ): Promise<void> => {
       const request = Symbol('social-integration-create');
       let started = false;
+      let existingId: string | null = null;
       updateCreation((current) => {
-        if (current.request || current.createdId) return current;
+        if (current.request || current.completed) return current;
         started = true;
-        return { request, createdId: null };
+        existingId = current.createdId;
+        return { ...current, request };
       });
       if (!started) return;
 
       try {
-        const createdId = await operation((id) =>
-          updateCreation((current) =>
-            current.request === request
-              ? { ...current, createdId: id }
-              : current,
-          ),
+        const createdId = await operation(
+          (id) =>
+            updateCreation((current) =>
+              current.request === request
+                ? { ...current, createdId: id }
+                : current,
+            ),
+          existingId,
         );
         if (!createdId) throw new Error(t('failed-to-add-integration'));
         updateCreation((current) =>
-          current.request === request ? { request: null, createdId } : current,
+          current.request === request
+            ? { request: null, createdId, completed: true }
+            : current,
         );
       } catch (error: unknown) {
         if (onError) onError(error);
@@ -107,6 +122,7 @@ export const useSocialIntegrationCreate = (): {
     createIntegration,
     runCreate,
     createdId: creation.createdId,
+    completed: creation.completed,
     loading: loading || Boolean(creation.request),
   };
 };

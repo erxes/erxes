@@ -24,13 +24,13 @@ export const AddErxesMessengerSheet = () => {
 export const AddErxesMessengerPanelForm = () => {
   const ready = useMessengerDraft(false);
   const { openRecord } = useSidePanel();
-  const { createdId, loading } = useSocialIntegrationCreate();
+  const { createdId, completed, loading } = useSocialIntegrationCreate();
   useEffect(() => {
-    if (createdId && !loading)
+    if (createdId && completed && !loading)
       openRecord(
         { contentType: INTEGRATION_CONTENT_TYPE, contentId: createdId },
         { replace: true },
       );
-  }, [createdId, loading, openRecord]);
+  }, [createdId, completed, loading, openRecord]);
   return ready ? <EMSetup loading={loading} /> : null;
 };

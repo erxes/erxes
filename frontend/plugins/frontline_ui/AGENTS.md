@@ -1375,7 +1375,9 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   Field forms accept refreshed atom values and publish only user field changes.
 - Messenger, Call, Call Pro and social creates share context-keyed request
   ownership and created IDs. Messenger records its ID before saving settings,
-  so a later setup failure opens that record instead of creating it again.
+  so a later settings failure retains the input for retry against that ID.
+  Navigation and draft cleanup require every configuration write to complete;
+  retry updates the existing record instead of creating a duplicate.
   Pending Messenger creation blocks its wizard. Completed creates open the saved
   integration even after an Activity or close/reopen round trip.
 - Telegram saves use retained pending tokens across remounts. Successful connects
