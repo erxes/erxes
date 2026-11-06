@@ -57,7 +57,7 @@
   configs, its filter bar and command bar, its inline-editable name cell and its
   website / knowledge base topic / ticket channel / pipeline / status selects,
   and the
-  help center drawer (General, Appearance, and — when editing — Embed and
+  help center record panel (General, Appearance, and — when editing — Embed and
   Domain), which is
   the only place a help center is edited. Its **Forms** card, shown only while the ticket
   switch is on, has its own channel select and a multi-select of that
@@ -92,6 +92,9 @@
   panels with explicit Save, scoped in-memory drafts, independent placement
   history and a supported Activity empty state. Save waits for media uploads;
   failed uploads release the pending operation and keep existing media intact.
+- Help Center creation/editing uses the shared record panel, retaining General,
+  Appearance, Embed and Domain behavior with scoped in-memory drafts, confirmed
+  create continuation and full-config conflict confirmation.
 
 - Pipeline → Properties has a **Create form** card: a preview of the rows and
   "Edit layout", which opens the shared `LayoutEditor` drawn like the
@@ -184,7 +187,7 @@
   (`SelectErxesMessenger`, saved as `config.integrationId`); empty means every
   messenger. The trigger node shows the chosen messenger or "All erxes
   messengers".
-- Every colour field in the help center drawer and the knowledge base topic
+- Every colour field in the help center form and the knowledge base topic
   drawer carries a **Default** reset beside its label, showing the colour it
   would return to and hidden while the field already holds it. The help center
   reads each default from `DEFAULT_HELP_CENTER_STYLES`, so a colour changed by
@@ -422,7 +425,7 @@
   the settings status sheet's `StatusNameColorField`, which takes the
   caller's `form`, and adds a type field) and selects the new record once its list
   has refetched. Create is on only where `allowCreate` is passed: every
-  `FormItem` variant (add ticket, help center drawer,
+  `FormItem` variant (add ticket, help center panel,
   pipeline config, automation create-ticket action) and the status select's
   root (ticket detail, card, table). Pipeline needs a channel, status a
   pipeline, and the status option also `ticketStatusesManage`. No create
@@ -810,7 +813,7 @@ owns the setup form and connection actions.
 | Ticket notes              | `src/modules/activity/components/{NoteInput,NoteInputToolbar,NoteAudienceHint,NoteInputReadOnly}.tsx`, `src/modules/activity/utils/noteKind.ts`   | Ticket composer with reply/internal tabs and audience hint, and the timeline note card with its kind badge                                      |
 | Composer mode tabs        | `src/modules/inbox/conversations/conversation-detail/components/ComposerModeTabs.tsx`                                                             | The Reply / Internal Note segment tabs shared by the inbox `ComposerShell` and the ticket `NoteInput`                                           |
 | Forms                     | `src/modules/forms/`                                                                                                                              | Form builder, preview, submissions                                                                                                              |
-| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and the `editId` drawer over it |
+| Help Center               | `src/modules/helpcenter/`, `src/pages/HelpCenterIndexPage.tsx`                                                                                    | `/frontline/helpcenter` — the help center record table (columns, more column, filter, total count, command bar) and create/edit record panels with legacy `editId` redirects |
 | Surveys management        | `src/modules/survey/components/survey-page/`, `src/pages/ChannelSurveysPage.tsx`                                                                  | Channel-scoped list, results dialog, command bar, create button, detail breadcrumb                                                              |
 | Survey wizard             | `src/modules/survey/components/{SurveyCreate,SurveyEdit}.tsx`, `src/modules/survey/components/mutate/`, `src/pages/Survey{Create,Detail}Page.tsx` | Three-step create/edit flow, `Add Step` builder, live preview                                                                                   |
 | Survey ticket automation  | `src/modules/survey/components/mutate/SurveyOptionTicketConfig.tsx`                                                                               | Per-option threshold, pipeline and status picker for automatic ticket creation                                                                  |
@@ -889,6 +892,14 @@ owns the setup form and connection actions.
   The views are title, actions, new, Detail and Activity. Activity has an explicit
   supported empty state because the available Frontline history API is
   ticket-specific. `KnowledgeBaseDetailLink` consumes legacy `editId` links.
+- `CONFIG.widgets.recordPanels` also registers `frontline:helpcenter`, with
+  `properties: false` and `draftTitle: true`. `./recordPanel` exposes the named
+  `RecordPanel` at `src/widgets/record-panel/RecordPanel.tsx`; it lazy-loads
+  `HelpCenterRecordPanel` for that type and ignores unsupported types. The views
+  are title, actions, new, Detail and Activity; the new view supplies the Create
+  Help Center title.
+- `FrontlineMain` lazy-loads the named `HelpCenterIndexPage` export from
+  `src/pages/HelpCenterIndexPage.tsx` for `/frontline/helpcenter`.
 
 - Routes `frontline/forms` (list), `frontline/forms/create` (builder wizard),
   `frontline/forms/:formId` (builder wizard on an existing form),
@@ -1121,7 +1132,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   scope. Scalar image replacement and removal invalidate older uploads for that
   field; attachment additions merge
   with the latest retained values. Discard, deletion and session cleanup invalidate
-  old callbacks. Knowledge base uploads use the public
+  old callbacks. Knowledge base and Help Center uploads use the public
   `useErxesUpload().uploadFile` promise and settle both successful and failed
   requests before releasing Save; oversized files are rejected before capture.
 
@@ -1135,6 +1146,18 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   `useKbPanelCreatePlacement` additionally retains each history entry's accepted
   topic/category and observed public defaults source through filter navigation
   and remounts. Authentication changes clear retained drafts, saves and placements.
+- Help Center form drafts use `helpcenter/states/helpCenterPanelDraftsState.ts`
+  with user/record keys and the shared `usePanelFormDraft` lifecycle. They stay
+  in memory and clear on confirmed discard, completed save or record removal.
+  Pending saves are shared by record; new-draft generations prevent a remount
+  from creating twice or reusing a completed creation as another new record.
+  Every existing-record save reads the full config through `GET_HELP_CENTER`
+  with `network-only`, compares it with the accepted baseline and requires
+  affirmative overwrite confirmation when it changed. Failed and missing-record
+  reads preserve input for retry. Completed creation retires the New generation
+  and its created ID before closing. Newer input, if present, moves to the saved
+  record's draft and opens that record in the still-active panel. Another Create
+  never uses the previous site's ID.
 
 - Telegram reply selection uses the inbox `messageReplyState`; provider IDs
   come from `extraData.telegram.messageId` or the first outbound `messageIds`
@@ -1188,12 +1211,10 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   entry also carries the source property's `type` and `options`, taken from
   `useFields` when the property is toggled on; the API overwrites both from the
   current core definition on save, so never edit them in this UI.
-- The help center list is read twice on purpose: `useHelpCenters` applies the
-  `searchValue`/`brand` URL filters and owns `helpCenterTotalCountAtom` for the
-  filter bar, while `useAllHelpCenters` reads the same document unfiltered so
-  `HelpCenterIndexPage` can resolve the one help center `editId` names even when
-  the table is narrowed past it. With no filter set both resolve to the same
-  variables and Apollo serves one request.
+- `useHelpCenters` applies the list's URL filters and owns its total count.
+  Help center panels load independently through `useHelpCenterDetail`, so a
+  filtered-out record remains addressable. `HelpCenterIndexPage` converts
+  legacy `editId` URLs into `frontline:helpcenter` panel links.
 
 - React Hook Form + Zod for every form (`CHANNEL_SCHEMA`); the
   Facebook message action schema is in
@@ -1292,6 +1313,19 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   unverified-media reveal and
   fullscreen stay unchanged. Other URLs fall back to native attachment rendering;
   repeated stored URLs render once with URL-based keys.
+- Help Center image selections use `KbImageUpload`, composed from the public
+  `Dropzone` and `useErxesUpload().uploadFile` API. Valid files capture the current
+  draft writer before storage starts. Completion merges into that user/record
+  draft across Activity remounts;
+  explicit discard, deletion and user-session changes invalidate that writer.
+  Replacement or removal invalidates older uploads for that image field across
+  remounts, while other image fields retain their independent completions.
+- The Save button and submit admission reject pending image uploads. Network or
+  server failures settle the captured operation without replacing the old image;
+  oversized files show an error before capture. Retry and Cancel remain usable.
+  The completed image must be in the form before its configuration is saved.
+- Confirmed Help Center deletion IDs are reconciled by the mounted title view
+  against its current record; an earlier deletion must not close a newer panel.
 
 - `useIntegrationTypeColumns` returns memoized columns. A fresh `cell` function is a new component type to `flexRender`, so unstable columns remount every cell on any URL change; the bot Sheet inside the Bot cell then remounts while Radix's body `pointer-events: none` is set and records `none` as the original, locking the next page.
 - Integration create and remove stay visible until the list has caught up: the Facebook setup sheet closes only after `addIntegration` succeeds (with `awaitRefetchQueries`), and `useIntegrationRemove` puts the id in `removingIntegrationIdsAtom`, which `IntegrationRecordRow` dims and locks and `NameField` marks with a spinner until the refetch lands or the mutation fails.
@@ -1651,7 +1685,7 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   The API blanks a switched-off feature's whole group in
   `normalizeHelpCenterConfig`, so a disabled feature never keeps stale
   configuration no matter which surface saved it.
-- `HelpCenterDrawer` splits across `SheetNavSidebar` tabs — **general** and
+- `HelpCenterDrawer` is a form body using horizontal `Tabs` and `PanelFormLayout` — **general** and
   **appearance** always, plus **embed** and **domain** while editing
   (`HELP_CENTER_TABS` vs `HELP_CENTER_CREATE_TABS`, because a config must exist
   before its script or domain is worth showing): general stacks full-width cards in a fixed order — general
@@ -1667,12 +1701,12 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   site's whole look — logo and favicon, the six main colours, fonts with their
   text and link colours, the three form-element colours, this help center's own
   accent colour and cover image, the header's wording, the footer's content, and
-  the raw header/footer HTML. The sidebar
-  keeps the active tab in the `tab` URL query param, so the drawer clears it on
-  close or the next one opens wherever the last was left. Both tabs stay mounted
-  (hidden, not unmounted) so values and validation survive switching, and an
-  invalid submit switches to the tab holding the first failing field via
-  `HELP_CENTER_FIELD_TAB` — add every new form field to that map.
+  the raw header/footer HTML. The form keeps its selected tab locally;
+  General and Appearance stay mounted while hidden, so validation and input
+  survive tab switches. `HelpCenterGeneralTab` composes `Form.Item` with the
+  public `PanelFormRow`; its fields do not depend on knowledge base panel
+  layout helpers. Invalid submits select the tab for the first error
+  through `HELP_CENTER_FIELD_TAB`.
 - The appearance tab's Header card edits `header` through
   `HelpCenterHeaderFields`, which renders `HELP_CENTER_HEADER_FIELDS` as plain
   inputs whose `placeholder` is the published site's own built-in wording — a
@@ -1701,22 +1735,38 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   published site to keep its built-in Support / Knowledge base / Account
   columns — so the card never seeds defaults on its own; the author asks for
   them with the "Start from the built-in columns" action.
-- A help center has **no page of its own**: `/frontline/helpcenter/:id` was
-  removed, and editing is addressed by the `editId` URL query on the list page,
-  which opens `HelpCenterDrawer` over the table. The page mounts **one** drawer
-  for both creating and editing, keyed on the record — two would each mount a
-  `FocusSheet` and each read the same `tab` query param. The row menu's Edit, the
-  name cell's anchor and a shared link all go through that one param — never
-  reintroduce a detail route. Every surface widens a list record for a save
-  through `toHelpCenterConfigInput`; passing a partial record would reset the
-  fields it omitted on the next save.
+- `/frontline/helpcenter` opens saved and new `frontline:helpcenter` records
+  through the shared panel. `RecordPanel.tsx` supplies title, delete
+  actions, Detail and Activity; legacy `editId` links become panel paths.
+  `HelpCenterDrawer` retains unsaved values in a user/record-scoped in-memory
+  form draft through `usePanelFormDraft`, including navigation to Activity,
+  another row and Create. Same-record query updates do not reset dirty edits;
+  a different record initializes independently. Cancel requires affirmative
+  discard for dirty values, and deleted records clear their drafts. Enter in
+  single-line settings never saves; `preventImplicitSubmit` is attached to the
+  existing General/Header/Footer inputs, while textarea, IME and selector
+  handlers retain their behavior. The existing `erxes-ui` colour picker is
+  portalled outside the form, using the main knowledge base colour-field API.
+  Only the explicit Save button submits.
+  All settings and Cancel are disabled during a save. Successful responses
+  retain any newer asynchronous edits and their confirmed record identity;
+  otherwise they clear the saved draft and close only its still-active form.
+  Failures retain input. Because the API replaces the full config, both edit
+  and retained-created saves call `loadCreatedValues` before comparing fresh
+  settings with the baseline. Only an affirmative conflict confirmation permits
+  overwriting newer settings. The submitted values are snapshotted before that
+  read, and read failures preserve the draft. Pending mutation
+  state begins only after affirmative confirmation, so dismissing the prompt
+  leaves editing available.
+  Activity renders the public `ActivityLogs` view for the record with loading,
+  list and empty states. Its public list currently ignores query errors, which
+  therefore show as empty content when no entries are available.
 - Category editing lives on the knowledge base categories route
   (`/frontline/knowledgebase/:topicId/categories`), which owns create, edit and
   delete. The help center surface does not duplicate it.
-- The upload slots use the repo's usual `Upload.Root` handler
-  (`if ('url' in fileInfo) field.onChange(fileInfo.url)`) — `Upload.RemoveButton`
-  reports a removal in that same shape, so no special case is needed here. The
-  gateway stamps the `userid` header `/delete-file` needs from the session.
+- Help Center upload slots reuse `KbImageUpload` and the configured file-size
+  limit. Storage failure reports an error and releases Save; explicit Remove
+  invalidates that field's earlier completion before clearing its value.
 - Never hide a pane or a field group with the `hidden` **attribute** here: this
   app runs Tailwind v4, whose `display` utilities are declared after preflight's
   `[hidden]` rule and win over it, so `<div className="grid" hidden>` stays
@@ -1808,8 +1858,8 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   Change the option query in that one file — never fork a second copy for one of
   the two surfaces.
 - The help center drawer is split by responsibility, all under
-  `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns only
-  the sheet, the form and the save; `HelpCenterGeneralTab.tsx` and
+  `helpcenter/components/help-center-drawer/`: `HelpCenterDrawer.tsx` owns
+  the form body and save; `HelpCenterGeneralTab.tsx` and
   `HelpCenterAppearanceTab.tsx` own a tab each; `HelpCenterStyleFields.tsx` the
   reusable `Style*Field` helpers; the knowledge base module's
   `shared/components/TopicEmbedTab.tsx` the Embed tab panel (presentational,
@@ -2987,6 +3037,17 @@ null }`, fall back to the route pipeline and skip without one; never pass
 - Ticket deletion smoke: confirm Delete on A, open B while the request is pending,
   then finish it; B stays open. Keep A selected and confirm a stacked parent returns.
   Cancel a confirmation, reopen Actions and retry Delete.
+- Help Center lifecycle smoke: upload an image, switch Activity before completion,
+  return and confirm the image and any newer input survive. Repeat with Save
+  attempted during the upload, and explicit discard, deletion and logout before upload
+  completion. Remove a preview before its upload finishes and confirm it stays
+  removed; select replacement images in succession and keep the newest selection.
+  Verify failed/oversize uploads release Save and leave Cancel usable. Save
+  during a valid pending upload stays blocked; after completion, save and reopen
+  the record to confirm the image persisted. Create twice after a failed upload
+  and confirm the second request has no previous ID.
+  Delete A, open B while pending and confirm B stays open; keep A selected and
+  confirm its stacked parent returns.
 
 - `frontline_ui:build` explicitly depends on `erxes-ui:build` and
   `frontline_ui:codegen`. Keep those project dependencies explicit: shared
@@ -3025,6 +3086,17 @@ null }`, fall back to the route pipeline and skip without one; never pass
   Edit title while another view changes status/summary and confirm saving does
   not revert those changes; clearing media or leaving scheduled status must
   persist the explicit clear. Verify the supported Activity empty state.
+- Help Center panel smoke: edit General and Appearance, switch tabs, visit
+  Activity or another record and reopen; confirm unsaved values remain separate
+  for each user/new/record scope. Dismiss then affirm dirty Cancel. While create
+  is pending, remount without creating again. Finish the request, then create
+  another Help Center and confirm a new ID. Change the full config
+  elsewhere, then dismiss/affirm overwrite and repeat after a retained-create
+  fresh read; read errors or missing records must preserve input for retry.
+  Enter in a single-line settings input must not save; textarea, IME, selectors
+  and the portalled colour picker must retain their normal behavior. Explicit
+  Save persists settings. Activity uses the public platform list and its
+  loading/empty behavior, including its existing query-error limitation.
 
 - Smoke: open `/frontline/knowledgebase` — it lands on the first topic's
   articles. Create a topic from the sidebar `+`, add a category from its

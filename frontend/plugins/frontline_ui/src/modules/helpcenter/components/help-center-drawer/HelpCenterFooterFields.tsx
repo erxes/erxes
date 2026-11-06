@@ -1,3 +1,4 @@
+import { preventImplicitSubmit } from '@/helpcenter/utils/preventImplicitSubmit';
 import { IconPlus, IconRestore, IconTrash } from '@tabler/icons-react';
 import { Accordion, Button, Form, Input, Separator, Textarea } from 'erxes-ui';
 import { TFunction } from 'i18next';
@@ -8,7 +9,11 @@ import {
   UseFormReturn,
   useWatch,
 } from 'react-hook-form';
-import { StyleImageField } from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
+import {
+  StyleImageField,
+  type TCaptureHelpCenterImage,
+  type THelpCenterImageField,
+} from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
 import {
   createEmptyFooterColumn,
   DEFAULT_HELP_CENTER_FOOTER_COLUMNS,
@@ -38,9 +43,10 @@ function FooterLinkRows({
               control={control}
               name={`${columnName}.links.${index}.label`}
               render={({ field }) => (
-                <Form.Item className="flex-1 space-y-0">
+                <Form.Item className="min-w-0 flex-1 space-y-0">
                   <Form.Control>
                     <Input
+                      onKeyDown={preventImplicitSubmit}
                       {...field}
                       className="h-8"
                       placeholder={t('kb-footer-link-label', 'Link label')}
@@ -54,9 +60,10 @@ function FooterLinkRows({
               control={control}
               name={`${columnName}.links.${index}.url`}
               render={({ field }) => (
-                <Form.Item className="flex-1 space-y-0">
+                <Form.Item className="min-w-0 flex-1 space-y-0">
                   <Form.Control>
                     <Input
+                      onKeyDown={preventImplicitSubmit}
                       {...field}
                       className="h-8 font-mono text-xs"
                       placeholder="/knowledge-base"
@@ -193,6 +200,7 @@ function FooterColumnsField({
                       </Form.Label>
                       <Form.Control>
                         <Input
+                          onKeyDown={preventImplicitSubmit}
                           {...field}
                           className="h-8"
                           placeholder={t('kb-footer-column-support', 'Support')}
@@ -220,7 +228,7 @@ function FooterColumnsField({
         </p>
       )}
 
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <Button
           type="button"
           size="sm"
@@ -256,18 +264,24 @@ function FooterColumnsField({
 export function HelpCenterFooterFields({
   form,
   t,
+  captureImageUpdate,
+  invalidateImageUpdate,
 }: Readonly<{
   form: UseFormReturn<IHelpCenterConfigInput>;
   t: TFunction;
+  captureImageUpdate?: TCaptureHelpCenterImage;
+  invalidateImageUpdate?: (name: THelpCenterImageField) => void;
 }>) {
   const control = form.control;
 
   return (
     <div className="grid gap-4">
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3">
         <StyleImageField
           control={control}
           name="footer.logo"
+          captureImageUpdate={captureImageUpdate}
+          invalidateImageUpdate={invalidateImageUpdate}
           label={t('kb-footer-logo', 'Footer logo')}
           description={t(
             'kb-footer-logo-description',
@@ -320,6 +334,7 @@ export function HelpCenterFooterFields({
             </Form.Description>
             <Form.Control>
               <Input
+                onKeyDown={preventImplicitSubmit}
                 {...field}
                 placeholder="© {year} erxes. All rights reserved."
               />
