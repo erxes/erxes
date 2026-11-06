@@ -10,10 +10,7 @@ import {
   TDiscordRemovedRecord,
 } from '@/discordIntegration/@types/discordNotification';
 import { IDiscordMessage } from '@/discordIntegration/@types/discordMessage';
-import {
-  DISCORD_ERROR_CODES,
-  DISCORD_MEMBER_LINKING_ON,
-} from '@/discordIntegration/constants';
+import { DISCORD_ERROR_CODES } from '@/discordIntegration/constants';
 import { getDiscordAccountPageUrl } from '@/discordIntegration/utils/discordAccountLink';
 import { recordDiscordFailure } from '@/discordIntegration/utils/discordBot';
 import {
@@ -22,6 +19,7 @@ import {
 } from '@/discordIntegration/utils/discordCustomerUpdate';
 import {
   buildDiscordCard,
+  getEventAssigneeId,
   isMovedOutJob,
   loadDiscordCardEntity,
   TDiscordCardEntity,
@@ -38,6 +36,7 @@ import {
   editDiscordMessage,
   getDiscordGuildMember,
   isRetryableDiscordError,
+  withDiscordNonce,
 } from '~/utils/discordClient';
 
 class DiscordCardBusyError extends Error {
@@ -49,6 +48,7 @@ class DiscordCardBusyError extends Error {
 
 type TCardDelivery = {
   models: IModels;
+  jobId: string;
   token: string;
   config: Pick<IDiscordConfigDocument, '_id' | 'channelId'>;
   job: TDiscordNotificationJob;
@@ -58,10 +58,17 @@ type TCardDelivery = {
 };
 
 const sendReply = (delivery: TCardDelivery, messageId: string) =>
-  createDiscordMessage(delivery.token, delivery.config.channelId, {
-    ...delivery.reply,
-    message_reference: { message_id: messageId, fail_if_not_exists: false },
-  });
+  createDiscordMessage(
+    delivery.token,
+    delivery.config.channelId,
+    withDiscordNonce(
+      {
+        ...delivery.reply,
+        message_reference: { message_id: messageId, fail_if_not_exists: false },
+      },
+      `${delivery.jobId}:reply`,
+    ),
+  );
 
 const resolveAssigneeMention = async ({
   models,
@@ -78,8 +85,7 @@ const resolveAssigneeMention = async ({
   entity: TDiscordCardEntity;
   job: TDiscordNotificationJob;
 }): Promise<TDiscordCardMention> => {
-  const assigneeId =
-    entity.kind === 'task' ? entity.record.assigneeId : undefined;
+  const assigneeId = getEventAssigneeId(entity, job);
 
   if (job.event !== 'taskAssigned' || !assigneeId) {
     return {};
@@ -91,10 +97,8 @@ const resolveAssigneeMention = async ({
   }).lean();
 
   if (!link) {
-    const linkingEnabled = await models.DiscordConnection.exists({
-      subdomain,
-      ...DISCORD_MEMBER_LINKING_ON,
-    });
+    const linkingEnabled =
+      await models.DiscordConnection.findLinkingConnection(subdomain);
 
     return linkingEnabled
       ? { linkAccountUrl: getDiscordAccountPageUrl(subdomain) }
@@ -111,7 +115,7 @@ const resolveAssigneeMention = async ({
 };
 
 const postNewCard = async (delivery: TCardDelivery) => {
-  const { models, token, config, job, card } = delivery;
+  const { models, jobId, token, config, job, card } = delivery;
   const key = {
     entityId: job.entityId,
     channelId: config.channelId,
@@ -128,7 +132,11 @@ const postNewCard = async (delivery: TCardDelivery) => {
   }
 
   try {
-    const message = await createDiscordMessage(token, config.channelId, card);
+    const message = await createDiscordMessage(
+      token,
+      config.channelId,
+      withDiscordNonce(card, `${jobId}:card`),
+    );
 
     await models.DiscordMessage.saveCardMessage(
       String(claim._id),
@@ -175,7 +183,10 @@ const updateCard = async (
   await models.DiscordMessage.saveCardMessage(cardId, messageId, job.event);
 };
 
-const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
+const deliverDiscordCustomerUpdate = async (
+  data: TDiscordNotificationJob,
+  jobId: string,
+) => {
   const { subdomain, entityId, event } = data;
   const models = await generateModels(subdomain);
 
@@ -223,22 +234,30 @@ const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
   });
 
   try {
-    await createDiscordMessage(connection.token, thread.channelId, {
-      ...payload,
-      ...(thread.messageId
-        ? {
-            message_reference: {
-              message_id: thread.messageId,
-              fail_if_not_exists: false,
-            },
-          }
-        : {}),
-    });
+    await createDiscordMessage(
+      connection.token,
+      thread.channelId,
+      withDiscordNonce(
+        {
+          ...payload,
+          ...(thread.messageId
+            ? {
+                message_reference: {
+                  message_id: thread.messageId,
+                  fail_if_not_exists: false,
+                },
+              }
+            : {}),
+        },
+        `${jobId}:customer`,
+      ),
+    );
   } catch (error) {
     await recordDiscordFailure({
       models,
       error,
       connectionId: String(connection._id),
+      customerChannelId: String(customerChannel._id),
     });
 
     if (isRetryableDiscordError(error)) {
@@ -248,10 +267,16 @@ const deliverDiscordCustomerUpdate = async (data: TDiscordNotificationJob) => {
     return 'failed';
   }
 
-  await models.DiscordMessage.updateOne(
-    { _id: thread._id },
-    { $set: { lastEvent: event } },
-  );
+  await Promise.all([
+    models.DiscordMessage.updateOne(
+      { _id: thread._id },
+      { $set: { lastEvent: event } },
+    ),
+    models.DiscordCustomerChannel.updateOne(
+      { _id: customerChannel._id },
+      { $set: { lastError: null } },
+    ),
+  ]);
 
   return 'sent';
 };
@@ -279,12 +304,10 @@ const findSubscribedConfig = (
     events: event,
   }).lean();
 
-const deliverDiscordPullRequest = async ({
-  configId,
-  subdomain,
-  teamId,
-  pullRequest,
-}: TDiscordPullRequestJob) => {
+const deliverDiscordPullRequest = async (
+  { configId, subdomain, teamId, pullRequest }: TDiscordPullRequestJob,
+  jobId: string,
+) => {
   const models = await generateModels(subdomain);
 
   const config = await findSubscribedConfig(
@@ -312,11 +335,14 @@ const deliverDiscordPullRequest = async ({
     await createDiscordMessage(
       connection.token,
       config.channelId,
-      buildDiscordPullRequestMessage({
-        pullRequest,
-        teamName: team?.name,
-        mention: getChannelMention(config, 'pullRequestMerged'),
-      }),
+      withDiscordNonce(
+        buildDiscordPullRequestMessage({
+          pullRequest,
+          teamName: team?.name,
+          mention: getChannelMention(config, 'pullRequestMerged'),
+        }),
+        `${jobId}:pull-request`,
+      ),
     );
   } catch (error) {
     await recordDiscordFailure({
@@ -341,7 +367,10 @@ const deliverDiscordPullRequest = async ({
   return 'sent';
 };
 
-const deliverDiscordMovedOut = async (data: TDiscordNotificationJob) => {
+const deliverDiscordMovedOut = async (
+  data: TDiscordNotificationJob,
+  jobId: string,
+) => {
   const { configId, subdomain, entityId, teamId } = data;
   const models = await generateModels(subdomain);
 
@@ -397,6 +426,7 @@ const deliverDiscordMovedOut = async (data: TDiscordNotificationJob) => {
     await sendReply(
       {
         models,
+        jobId,
         token: connection.token,
         config,
         job: data,
@@ -494,16 +524,24 @@ const removeThreadMessage = (
   token: string,
   thread: TCleanupThread,
   record: TDiscordRemovedRecord,
+  jobId: string,
 ) => {
   if (thread.audience === 'customer') {
-    return createDiscordMessage(token, thread.channelId, {
-      ...buildDiscordCustomerRemoval({
-        label: record.label,
-        name: record.name,
-        reporterId: thread.discordUserId,
-      }),
-      ...replyTo(thread.messageId),
-    });
+    return createDiscordMessage(
+      token,
+      thread.channelId,
+      withDiscordNonce(
+        {
+          ...buildDiscordCustomerRemoval({
+            label: record.label,
+            name: record.name,
+            reporterId: thread.discordUserId,
+          }),
+          ...replyTo(thread.messageId),
+        },
+        `${jobId}:removal:${thread.entityId}`,
+      ),
+    );
   }
 
   return thread.messageId
@@ -516,6 +554,7 @@ const cleanupThread = async (
   subdomain: string,
   thread: TCleanupThread,
   record: TDiscordRemovedRecord,
+  jobId: string,
 ) => {
   const connection = await findThreadConnection(
     models,
@@ -526,12 +565,15 @@ const cleanupThread = async (
 
   if (connection) {
     try {
-      await removeThreadMessage(connection.token, thread, record);
+      await removeThreadMessage(connection.token, thread, record, jobId);
     } catch (error) {
       await recordDiscordFailure({
         models,
         error,
         connectionId: String(connection._id),
+        ...(thread.audience === 'customer'
+          ? { customerChannelId: thread.configId }
+          : { configId: thread.configId }),
       });
 
       if (isRetryableDiscordError(error)) {
@@ -543,11 +585,10 @@ const cleanupThread = async (
   await models.DiscordMessage.deleteOne({ _id: thread._id });
 };
 
-const cleanupDiscordCards = async ({
-  subdomain,
-  records,
-  configIds,
-}: TDiscordCleanupJob) => {
+const cleanupDiscordCards = async (
+  { subdomain, records, configIds }: TDiscordCleanupJob,
+  jobId: string,
+) => {
   const models = await generateModels(subdomain);
   const recordsById = new Map(
     records.map((record) => [record.entityId, record]),
@@ -563,7 +604,7 @@ const cleanupDiscordCards = async ({
     const record = recordsById.get(thread.entityId);
 
     return record
-      ? cleanupThread(models, subdomain, thread, record)
+      ? cleanupThread(models, subdomain, thread, record, jobId)
       : Promise.resolve();
   });
 
@@ -575,21 +616,21 @@ const getRateLimitDelayMs = (error: unknown) =>
     ? error.retryAfterMs
     : undefined;
 
-const processDiscordJob = async (data: TDiscordJob) => {
+const processDiscordJob = async (data: TDiscordJob, jobId: string) => {
   if (isCleanupJob(data)) {
-    return cleanupDiscordCards(data);
+    return cleanupDiscordCards(data, jobId);
   }
 
   if (isPullRequestJob(data)) {
-    return deliverDiscordPullRequest(data);
+    return deliverDiscordPullRequest(data, jobId);
   }
 
   if (data.target === 'customer') {
-    return deliverDiscordCustomerUpdate(data);
+    return deliverDiscordCustomerUpdate(data, jobId);
   }
 
   if (isMovedOutJob(data)) {
-    return deliverDiscordMovedOut(data);
+    return deliverDiscordMovedOut(data, jobId);
   }
 
   const { configId, subdomain, event, entityId, teamId } = data;
@@ -646,6 +687,7 @@ const processDiscordJob = async (data: TDiscordJob) => {
 
   const delivery: TCardDelivery = {
     models,
+    jobId,
     token: connection.token,
     config,
     job: data,
@@ -702,7 +744,7 @@ export const deliverDiscordNotification = async (
   token?: string,
 ) => {
   try {
-    return await processDiscordJob(job.data);
+    return await processDiscordJob(job.data, String(job.id));
   } catch (error) {
     const delayMs = getRateLimitDelayMs(error);
 

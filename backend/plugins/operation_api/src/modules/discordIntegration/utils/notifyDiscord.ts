@@ -11,6 +11,7 @@ import {
   DISCORD_NOTIFY_JOB_OPTIONS,
   DISCORD_NOTIFY_QUEUE,
 } from '@/discordIntegration/constants';
+import { STATUS_TYPES } from '@/status/constants/types';
 import { IModels } from '~/connectionResolvers';
 import { isDuplicateKeyError } from '~/utils/mongoErrors';
 
@@ -168,6 +169,33 @@ const keepsMovedCard = (
   notify: boolean,
 ) => notify && config.isActive && config.events.includes('taskMoved');
 
+const repointSharedCards = (
+  models: IModels,
+  { subdomain, entityId }: { subdomain: string; entityId: string },
+  previousConfigs: Pick<IDiscordConfig, 'channelId'>[],
+  nextConfigs: (Pick<IDiscordConfig, 'channelId'> & { _id: unknown })[],
+) => {
+  const previousChannelIds = new Set(
+    previousConfigs.map((config) => config.channelId),
+  );
+
+  return Promise.all(
+    nextConfigs
+      .filter((config) => previousChannelIds.has(config.channelId))
+      .map((config) =>
+        models.DiscordMessage.updateOne(
+          {
+            entityId,
+            channelId: config.channelId,
+            subdomain,
+            audience: { $ne: 'customer' },
+          },
+          { $set: { configId: String(config._id) } },
+        ),
+      ),
+  );
+};
+
 export const notifyDiscordTeamChange = async (
   models: IModels,
   subdomain: string,
@@ -184,9 +212,16 @@ export const notifyDiscordTeamChange = async (
         .select('_id channelId isActive events')
         .lean(),
       models.DiscordConfig.find({ teamId, subdomain })
-        .select('channelId')
+        .select('_id channelId')
         .lean(),
     ]);
+
+    await repointSharedCards(
+      models,
+      { subdomain, entityId },
+      previousConfigs,
+      nextConfigs,
+    );
 
     const nextChannelIds = new Set(
       nextConfigs.map((config) => config.channelId),
@@ -275,6 +310,46 @@ export const notifyDiscord = async (
         error instanceof Error ? error.message : String(error)
       }`,
     );
+  }
+};
+
+type TDiscordTriageState = TDiscordRemovableRecord & {
+  teamId: unknown;
+  status?: number;
+};
+
+export const notifyDiscordTriageChange = async (
+  models: IModels,
+  subdomain: string,
+  {
+    previous,
+    triage,
+    actorId,
+  }: {
+    previous: TDiscordTriageState;
+    triage: TDiscordTriageState;
+    actorId: string;
+  },
+) => {
+  const previousTeamId = String(previous.teamId);
+
+  if (previousTeamId !== String(triage.teamId)) {
+    await notifyDiscordTeamChange(models, subdomain, triage, previousTeamId, {
+      actorId,
+    });
+  }
+
+  const wasDeclined = previous.status === STATUS_TYPES.CANCELLED;
+  const isDeclined = triage.status === STATUS_TYPES.CANCELLED;
+
+  if (wasDeclined !== isDeclined) {
+    await notifyDiscord(models, {
+      subdomain,
+      event: isDeclined ? 'triageDeclined' : 'taskReopened',
+      entityId: String(triage._id),
+      teamId: String(triage.teamId),
+      actorId,
+    });
   }
 };
 

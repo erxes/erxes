@@ -3,6 +3,7 @@ import { TDiscordNotificationJob } from '@/discordIntegration/@types/discordNoti
 import { DISCORD_LIMITS } from '@/discordIntegration/constants';
 import {
   escapeDiscordMarkdown,
+  getEventAssigneeId,
   getUserNames,
   TDiscordCardEntity,
   truncateDiscordText,
@@ -12,11 +13,13 @@ const NAME_PREVIEW_LENGTH = 100;
 
 const describeCustomerUpdate = ({
   job,
+  kind,
   title,
   taskLabel,
   assigneeName,
 }: {
   job: TDiscordNotificationJob;
+  kind: TDiscordCardEntity['kind'];
   title: string;
   taskLabel: string;
   assigneeName?: string;
@@ -35,7 +38,9 @@ const describeCustomerUpdate = ({
     case 'taskMoved':
       return `↪️ **${taskLabel} · ${title}** moved to another team.`;
     case 'taskReopened':
-      return `🔄 **${taskLabel} · ${title}** was reopened and is being worked on again.`;
+      return kind === 'triage'
+        ? `🔄 Your report **${title}** was reopened.`
+        : `🔄 **${taskLabel} · ${title}** was reopened and is being worked on again.`;
     case 'taskCancelled':
       return `🚫 **${taskLabel} · ${title}** was cancelled.`;
     case 'triageCreated':
@@ -78,8 +83,7 @@ export const buildDiscordCustomerUpdate = async ({
     truncateDiscordText(record.name, NAME_PREVIEW_LENGTH),
   );
 
-  const assigneeId =
-    entity.kind === 'task' ? entity.record.assigneeId : undefined;
+  const assigneeId = getEventAssigneeId(entity, job);
   const assigneeName =
     job.event === 'taskAssigned' && assigneeId
       ? (await getUserNames(job.subdomain, [assigneeId])).get(assigneeId)
@@ -92,6 +96,7 @@ export const buildDiscordCustomerUpdate = async ({
       [
         `${mention}${describeCustomerUpdate({
           job,
+          kind: entity.kind,
           title,
           taskLabel,
           assigneeName,

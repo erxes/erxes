@@ -23,6 +23,7 @@ import {
   Popover,
   RecordTable,
   RecordTableInlineCell,
+  Tooltip,
   useConfirm,
   useToast,
 } from 'erxes-ui';
@@ -115,6 +116,18 @@ const ChannelNameCell = ({ row }: TChannelCell) => (
   <RecordTableInlineCell className="gap-1.5">
     <IconHash className="size-4 shrink-0 text-muted-foreground" />
     <span className="truncate font-medium">{row.original.channelName}</span>
+    {row.original.lastError ? (
+      <Tooltip.Provider>
+        <Tooltip delayDuration={100}>
+          <Tooltip.Trigger asChild>
+            <Badge variant="warning" className="shrink-0 text-xs">
+              Last update failed
+            </Badge>
+          </Tooltip.Trigger>
+          <Tooltip.Content>{row.original.lastError}</Tooltip.Content>
+        </Tooltip>
+      </Tooltip.Provider>
+    ) : null}
   </RecordTableInlineCell>
 );
 

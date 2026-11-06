@@ -64,7 +64,7 @@ const formatItem = (item: TWorkItem) =>
     truncateDiscordText(item.name, NAME_PREVIEW_LENGTH),
   )} — ${item.status}${item.due}`;
 
-export const buildTasksButtonId = (
+const buildTasksButtonId = (
   action: 'filter' | 'previous' | 'next',
   filter: TDiscordTasksFilter,
   page: number,

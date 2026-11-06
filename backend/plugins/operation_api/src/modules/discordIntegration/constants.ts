@@ -71,10 +71,16 @@ export const DISCORD_REQUEST_TIMEOUT_MS = 15_000;
 export const DISCORD_UNREADABLE_TOKEN_MESSAGE =
   'The bot token can no longer be decrypted, so the bot is paused. Update the token in Discord Integration settings.';
 
+export const DISCORD_BOT_REMOVED_MESSAGE =
+  'The bot is no longer in this Discord server. Add it back, then update the bot token.';
+
 export const DISCORD_NOTIFY_CONCURRENCY = 5;
 
+const DISCORD_SEND_MESSAGES_IN_THREADS = 2 ** 38;
+
 export const DISCORD_BOT_PERMISSIONS =
-  (1 << 10) | (1 << 11) | (1 << 14) | (1 << 16);
+  ((1 << 10) | (1 << 11) | (1 << 14) | (1 << 16)) +
+  DISCORD_SEND_MESSAGES_IN_THREADS;
 
 export const DISCORD_BOT_SCOPES = 'bot applications.commands';
 
@@ -82,6 +88,7 @@ export const DISCORD_MESSAGE_CHANNEL_TYPES = [0, 5];
 
 export const DISCORD_ERROR_CODES = {
   UNKNOWN_CHANNEL: 10003,
+  UNKNOWN_GUILD: 10004,
   UNKNOWN_MESSAGE: 10008,
   CANNOT_EDIT_OTHER_USER_MESSAGE: 50005,
   UNKNOWN_MEMBER: 10007,
@@ -106,6 +113,7 @@ export const DISCORD_LIMITS = {
   fieldValue: 1024,
   footer: 2048,
   content: 2000,
+  nonce: 25,
 };
 
 export const DISCORD_INTERACTIONS_PATH = '/integrations/discord/interactions';

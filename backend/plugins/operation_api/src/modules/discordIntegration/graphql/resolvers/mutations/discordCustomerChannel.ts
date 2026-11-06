@@ -279,7 +279,7 @@ export const discordCustomerChannelMutations = {
     if (keptDoc) {
       await models.DiscordCustomerChannel.updateOne(
         { _id, subdomain },
-        { $set: keptDoc },
+        { $set: { ...keptDoc, lastError: null } },
       );
     } else {
       await models.DiscordCustomerChannel.deleteOne({ _id, subdomain });
@@ -310,12 +310,7 @@ export const discordCustomerChannelMutations = {
   ) {
     await checkPermission('teamUpdate');
 
-    await models.DiscordCustomerChannel.deleteOne({ _id, subdomain });
-    await models.DiscordMessage.deleteMany({
-      configId: _id,
-      audience: 'customer',
-      subdomain,
-    });
+    await models.DiscordCustomerChannel.removeChannels(subdomain, { _id });
 
     return { success: true };
   },

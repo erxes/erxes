@@ -100,6 +100,7 @@ const notifyDiscordTaskAssigned = async ({
     entityId: String(task._id),
     teamId: String(task.teamId),
     actorId: userId,
+    assigneeId: task.assigneeId,
   });
 };
 
@@ -420,7 +421,11 @@ export const loadTaskClass = (
           doc.assigneeId &&
           doc.assigneeId !== task.assigneeId
         ) {
-          await notifyDiscord(models, { ...discordJob, event: 'taskAssigned' });
+          await notifyDiscord(models, {
+            ...discordJob,
+            event: 'taskAssigned',
+            assigneeId: doc.assigneeId,
+          });
         }
 
         const statusEvent = getDiscordStatusEvent(

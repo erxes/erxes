@@ -44,7 +44,7 @@ const ServerHealthCell = ({ row }: TServerCell) =>
   row.original.health?.status === 'broken' ? (
     <DiscordStatusCell
       variant="destructive"
-      label="Token broken"
+      label="Not working"
       tooltip={row.original.health.lastError}
     />
   ) : (

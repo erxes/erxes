@@ -18,11 +18,7 @@ export const discordConnectionQueries = {
   ) {
     await checkPermission('teamRead');
 
-    await models.DiscordConnection.dropUnreadableClientSecrets(subdomain);
-
-    return models.DiscordConnection.find({ subdomain })
-      .sort({ guildName: 1 })
-      .lean();
+    return models.DiscordConnection.listWithSecretStatus(subdomain);
   },
 
   async operationDiscordCheckToken(

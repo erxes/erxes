@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import {
   TDiscordApplication,
   TDiscordApplicationUpdate,
@@ -19,6 +20,7 @@ import {
   DISCORD_BOT_PERMISSIONS,
   DISCORD_BOT_SCOPES,
   DISCORD_ERROR_CODES,
+  DISCORD_LIMITS,
   DISCORD_MAX_RATE_LIMIT_RETRIES,
   DISCORD_MESSAGE_CHANNEL_TYPES,
   DISCORD_RATE_LIMIT_INLINE_WAIT_MS,
@@ -323,6 +325,27 @@ export const updateDiscordApplication = (
 export const listDiscordBotGuilds = (token: string) =>
   discordRequest<TDiscordGuild[]>({ token, path: '/users/@me/guilds' });
 
+export const isDiscordBotInGuild = async (token: string, guildId: string) => {
+  try {
+    await discordRequest<TDiscordGuild>({
+      token,
+      path: `/guilds/${encodeURIComponent(guildId)}`,
+    });
+
+    return true;
+  } catch (error) {
+    if (
+      error instanceof DiscordApiError &&
+      (error.code === DISCORD_ERROR_CODES.UNKNOWN_GUILD ||
+        error.code === DISCORD_ERROR_CODES.MISSING_ACCESS)
+    ) {
+      return false;
+    }
+
+    throw error;
+  }
+};
+
 export const listDiscordGuildChannels = async (
   token: string,
   guildId: string,
@@ -336,6 +359,18 @@ export const listDiscordGuildChannels = async (
     .filter((channel) => DISCORD_MESSAGE_CHANNEL_TYPES.includes(channel.type))
     .sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
 };
+
+export const withDiscordNonce = (
+  payload: TDiscordMessagePayload,
+  key: string,
+): TDiscordMessagePayload => ({
+  ...payload,
+  nonce: createHash('sha256')
+    .update(key)
+    .digest('hex')
+    .slice(0, DISCORD_LIMITS.nonce),
+  enforce_nonce: true,
+});
 
 export const createDiscordMessage = (
   token: string,

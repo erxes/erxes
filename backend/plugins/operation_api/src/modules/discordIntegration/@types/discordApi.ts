@@ -52,7 +52,7 @@ export type TDiscordEmbedField = {
   inline?: boolean;
 };
 
-export type TDiscordEmbed = {
+type TDiscordEmbed = {
   author?: { name: string };
   title?: string;
   url?: string;
@@ -78,7 +78,7 @@ export type TDiscordButton = {
   disabled?: boolean;
 };
 
-export type TDiscordTextInput = {
+type TDiscordTextInput = {
   type: 4;
   custom_id: string;
   style: 1 | 2;
@@ -87,14 +87,14 @@ export type TDiscordTextInput = {
   placeholder?: string;
 };
 
-export type TDiscordSelectOption = {
+type TDiscordSelectOption = {
   label: string;
   value: string;
   description?: string;
   default?: boolean;
 };
 
-export type TDiscordStringSelect = {
+type TDiscordStringSelect = {
   type: 3;
   custom_id: string;
   placeholder?: string;
@@ -122,6 +122,8 @@ export type TDiscordMessagePayload = {
   components?: TDiscordActionRow[];
   allowed_mentions?: { parse?: string[]; users?: string[] };
   message_reference?: { message_id: string; fail_if_not_exists?: boolean };
+  nonce?: string;
+  enforce_nonce?: boolean;
 };
 
 export type TDiscordMessage = {
@@ -137,7 +139,7 @@ export type TDiscordErrorBody = {
   error_description?: string;
 };
 
-export type TDiscordCommandOption = {
+type TDiscordCommandOption = {
   type: number;
   name: string;
   description: string;

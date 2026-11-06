@@ -80,11 +80,11 @@ export const teamMutations = {
   teamRemove: async (
     _parent: undefined,
     { _id }: { _id: string },
-    { models, checkPermission }: IContext,
+    { models, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('teamRemove');
 
-    return models.Team.removeTeam(_id);
+    return models.Team.removeTeam(_id, subdomain);
   },
 
   teamAddMembers: async (

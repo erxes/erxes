@@ -1,6 +1,6 @@
 import { IDiscordConnection } from '../types';
 
-export type TDiscordCommandsStatus = 'on' | 'failed' | 'off';
+type TDiscordCommandsStatus = 'on' | 'failed' | 'off';
 
 export const getCommandsStatus = (
   connection: Pick<

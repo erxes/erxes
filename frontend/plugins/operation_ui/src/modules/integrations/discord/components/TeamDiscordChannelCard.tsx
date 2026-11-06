@@ -31,9 +31,12 @@ function TeamDiscordDeliveryAlert({
   if (connection.health?.status === 'broken') {
     return (
       <Alert variant="destructive">
+        <Alert.Title>
+          The connection to {connection.guildName} stopped working
+        </Alert.Title>
         <Alert.Description>
-          The bot token for {connection.guildName} stopped working. Update it in
-          Discord Integration settings.
+          {connection.health.lastError ||
+            'Update the bot in Discord Integration settings.'}
         </Alert.Description>
       </Alert>
     );

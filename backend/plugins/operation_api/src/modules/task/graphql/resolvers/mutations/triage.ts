@@ -1,7 +1,10 @@
 import { IContext } from '~/connectionResolvers';
 import { ITriageAddInput, ITriageUpdateInput } from '@/task/@types/triage';
 import { STATUS_TYPES } from '@/status/constants/types';
-import { notifyDiscord } from '@/discordIntegration/utils/notifyDiscord';
+import {
+  notifyDiscord,
+  notifyDiscordTriageChange,
+} from '@/discordIntegration/utils/notifyDiscord';
 
 export const triageMutations = {
   operationAddTriage: async (
@@ -34,11 +37,22 @@ export const triageMutations = {
   operationUpdateTriage: async (
     _parent: undefined,
     { _id, input }: { _id: string; input: ITriageUpdateInput },
-    { models, checkPermission }: IContext,
+    { models, user, subdomain, checkPermission }: IContext,
   ) => {
     await checkPermission('triageUpdate');
 
-    return models.Triage.updateTriage(_id, input);
+    const previous = await models.Triage.getTriage(_id);
+    const triage = await models.Triage.updateTriage(_id, input);
+
+    if (previous && triage) {
+      await notifyDiscordTriageChange(models, subdomain, {
+        previous,
+        triage,
+        actorId: user._id,
+      });
+    }
+
+    return triage;
   },
 
   operationCancelTriage: async (
@@ -57,11 +71,9 @@ export const triageMutations = {
       status: STATUS_TYPES.CANCELLED,
     });
 
-    await notifyDiscord(models, {
-      subdomain,
-      event: 'triageDeclined',
-      entityId: String(triage._id),
-      teamId: String(triage.teamId),
+    await notifyDiscordTriageChange(models, subdomain, {
+      previous: triage,
+      triage: cancelledTriage,
       actorId: user._id,
     });
 

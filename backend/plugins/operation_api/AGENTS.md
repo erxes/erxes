@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -79,8 +79,8 @@
   "Open in erxes" and, for GitHub-opened records, "GitHub #n" link buttons.
   Later events edit that card and reply to it with one emoji-prefixed
   activity line. User-supplied text in fields and replies is
-  markdown-escaped. `taskMoved` ("X moved the task from A to B") works on
-  both sides of a move: a channel of the new team that subscribes gets the
+  markdown-escaped. `taskMoved` ("X moved the task from A to B", or "the
+  triage" for a triage) works on both sides of a move: a channel of the new team that subscribes gets the
   card (posted, or edited with a reply when that channel already had it),
   and a channel the task leaves keeps its card when that channel's config
   is active and subscribes: the card is edited once into a grey "moved"
@@ -210,7 +210,7 @@
 
 ### Provides
 
-- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (operation declares `operation:task`, `operation:project`, `operation:triage` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
+- Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (operation declares `operation:task`, `operation:project`, `operation:triage` in `main.ts`); applied with `applyContactFieldsSync`, plus `DiscordCustomerChannel.syncCompanyContacts` for Discord company links. Not agent-callable.
 - Plugin meta `properties` (`src/meta/properties.ts`) — the `task` and `project` property
   types, each with the `systemFields` (`code`, `name`, `type`) core lists as
   the read-only "Basic information" group in Settings → Properties. A
@@ -322,7 +322,11 @@ propertiesData? } })`
   recipient's settings resolve to.
 - Discord REST API v10 with each connection's bot token; the invite link asks
   for the `bot` and `applications.commands` scopes with View Channels, Send
-  Messages, Embed Links and Read Message History.
+  Messages, Send Messages in Threads, Embed Links and Read Message History
+  (`DISCORD_BOT_PERMISSIONS`). Send Messages in Threads is bit 38, past the
+  32-bit range of `<<`, so it is added as `2 ** 38`. A bot invited before this
+  permission existed needs the invite link again before it can answer reports
+  made in a thread.
   Server membership is read one member at a time with
   `GET /guilds/{id}/members/{user}`, which needs no privileged intent.
 - Discord OAuth2 (`/oauth2/token`, `/oauth2/token/revoke`, `/users/@me` with a
@@ -362,18 +366,27 @@ propertiesData? } })`
   reads only the token (`findWithToken` / `getConnectionWithToken`) and
   OAuth reads only the client secret (`findWithClientSecret`); both re-seal
   legacy plaintext values, so an unreadable client secret never stops bot
-  traffic. A client secret that can no longer be decrypted counts as absent:
-  `findWithClientSecret` and `dropUnreadableClientSecrets` (run by
-  `operationDiscordConnections`, `operationDiscordMyAccount` and before
-  picking the linking server) unset it and set `hasClientSecret: false`, so
-  member linking shows Off until an admin adds the secret again. A bot token
+  traffic. A client secret that can no longer be decrypted counts as absent
+  but is never deleted on read, so restoring the key brings it back:
+  `findWithClientSecret` returns it empty, `findLinkingConnection` picks the
+  first linking server whose secret is readable (`operationDiscordMyAccount`,
+  `operationDiscordRemindMember`, starting a link and the assignee reply), and
+  `listWithSecretStatus` (`operationDiscordConnections`) reports
+  `hasClientSecret: false`, so member linking shows Off until the key returns
+  or an admin saves a new secret. A bot token
   that can no longer be decrypted makes `findWithToken` mark the connection
   `health.status: 'broken'` with `DISCORD_UNREADABLE_TOKEN_MESSAGE` and
   return `null`, so the worker skips it, the team members list still loads
   (without the in-server check), and `getConnectionWithToken` throws that
   message; reconnecting the server with Update token stores a readable token
-  and clears it. A 401 also marks the connection broken, and the worker
-  skips it until it is reconnected.
+  and clears it. A 401 also marks the connection broken, and so does a
+  Missing Access, Unknown Guild or Unknown Channel error when
+  `GET /guilds/<id>` confirms the bot left the server
+  (`DISCORD_BOT_REMOVED_MESSAGE`); a bot that is still in the server only
+  lacks access to that channel, so the connection stays healthy. The worker
+  skips a broken connection until it is reconnected. `recordDiscordFailure`
+  logs every failure and stores it as `lastError` on the team config or
+  customer channel that was being delivered to.
 - `operation_discord_configs` holds one config per team channel (unique
   `teamId` + `channelId` + `subdomain`), with `lastError` / `lastSentAt` written by the worker and the
   test message, and `mention` (default `none`) / `mentionEvents` (default
@@ -396,7 +409,13 @@ propertiesData? } })`
   the new bot cannot edit the old bot's cards.
 - `operation_discord_customer_channels` maps one Discord channel (unique
   `channelId` + `subdomain`) to one company and the team that receives its
-  triages; a company may have several channels. Connections store the
+  triages; a company may have several channels. `lastError` holds why the
+  last customer update failed and is cleared by the next successful one or by
+  editing the link. `contactFields.sync` keeps links current: a company merge
+  moves them to the merged company, and a company removal deletes them with
+  their customer threads. `removeTeam` deletes the team's configs, team card
+  mappings and customer channels with their threads; the cards already posted
+  in Discord stay. Connections store the
   application `publicKey` (from `verify_key`, refreshed by
   `operationDiscordEnableCommands`), `commandsRegisteredAt` (set while slash
   commands are on), `commandsVersion`, a SHA-256 hash of `DISCORD_SLASH_COMMANDS`,
@@ -427,7 +446,10 @@ propertiesData? } })`
   Moving a task to another team queues the same job limited to the old
   team's configs that do not keep the card (`configIds`), so only those
   cards are removed (skipped when both teams post to the same channel) and
-  the customer thread stays. `notifyDiscordTeamChange` queues the keeping
+  the customer thread stays. A card in a channel both teams post to stays and
+  its mapping's `configId` moves to the new team's config
+  (`repointSharedCards`), so a later move can still find and remove it; this
+  also runs for imports (`skipDiscord`). `notifyDiscordTeamChange` queues the keeping
   configs as `taskMoved` jobs for the old team (`teamId` = `move.fromTeamId`,
   only when that channel has a posted card) and calls `notifyDiscord` for the
   new team. The worker tells the two apart with `isMovedOutJob`; a moved-out
@@ -469,8 +491,20 @@ propertiesData? } })`
   `taskReopened` on leaving a completed or cancelled status for an open
   one.
   `taskMoved` fires from `Task.updateTask` when `teamId` changes; it carries
-  `move: { fromTeamId, toTeamId }` and is never a customer event. Triage
-  team changes (`Triage.updateTriage`) send nothing.
+  `move: { fromTeamId, toTeamId }` and is never a customer event.
+  `operationUpdateTriage` and `operationCancelTriage` go through
+  `notifyDiscordTriageChange`: a team change works like a task move, entering
+  the cancelled status sends `triageDeclined` and leaving it sends
+  `taskReopened`, so cancelling an already cancelled triage sends nothing.
+  `taskAssigned` jobs carry the assignee at event time (`assigneeId`,
+  `getEventAssigneeId`): the mention, reply, card footer and customer message
+  use it, so a quick reassignment names and pings each person once, while the
+  card's Assignee field shows the current one.
+  Every message the worker creates has a `nonce` from the BullMQ job id and
+  the message's purpose, with `enforce_nonce` (`withDiscordNonce`), so a retry
+  after a timeout gets the message Discord already created instead of posting
+  it twice. Discord checks this for a few minutes, which covers the job's
+  retries. The test message is user-triggered and has none.
   `notifyDiscord` never throws. It queues one `team` job per active config
   of the team that subscribes to the event (`configId` on the job; the
   worker loads that config and, for a job without `configId`, the team's

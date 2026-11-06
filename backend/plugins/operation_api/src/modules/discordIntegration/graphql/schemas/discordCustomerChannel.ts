@@ -7,6 +7,7 @@ export const type = `
     channelName: String!
     companyId: String!
     teamId: String!
+    lastError: String
     createdAt: Date!
     updatedAt: Date!
   }

@@ -3,7 +3,10 @@ import {
   IDiscordConnection,
   IDiscordConnectionDocument,
 } from '@/discordIntegration/@types/discordConnection';
-import { DISCORD_UNREADABLE_TOKEN_MESSAGE } from '@/discordIntegration/constants';
+import {
+  DISCORD_MEMBER_LINKING_ON,
+  DISCORD_UNREADABLE_TOKEN_MESSAGE,
+} from '@/discordIntegration/constants';
 import { discordConnectionSchema } from '@/discordIntegration/db/definitions/discordConnection';
 import {
   isSealedDiscordSecret,
@@ -28,7 +31,12 @@ export interface IDiscordConnectionModel
   findWithClientSecret(
     filter: FilterQuery<IDiscordConnectionDocument>,
   ): Promise<Omit<IDiscordConnectionDocument, 'token'> | null>;
-  dropUnreadableClientSecrets(subdomain: string): Promise<void>;
+  findLinkingConnection(
+    subdomain: string,
+  ): Promise<Omit<IDiscordConnectionDocument, 'token'> | null>;
+  listWithSecretStatus(
+    subdomain: string,
+  ): Promise<Omit<IDiscordConnectionDocument, 'token' | 'clientSecret'>[]>;
   markBroken(_id: string, error: string): Promise<void>;
 }
 
@@ -40,16 +48,12 @@ const openReadableSecret = (value: string) => {
   }
 };
 
-export const loadDiscordConnectionClass = (models: IModels) => {
-  const dropClientSecrets = (ids: string[]) =>
-    models.DiscordConnection.updateMany(
-      { _id: { $in: ids } },
-      {
-        $unset: { clientSecret: '', memberLinkingPaused: '' },
-        $set: { hasClientSecret: false },
-      },
-    );
+const hasReadableClientSecret = ({
+  clientSecret,
+}: Pick<IDiscordConnection, 'clientSecret'>) =>
+  Boolean(clientSecret && openReadableSecret(clientSecret));
 
+export const loadDiscordConnectionClass = (models: IModels) => {
   class DiscordConnectionClass {
     public static async upsertConnection(connection: IDiscordConnection) {
       const filter = {
@@ -125,8 +129,6 @@ export const loadDiscordConnectionClass = (models: IModels) => {
       const clientSecret = openReadableSecret(connection.clientSecret);
 
       if (clientSecret === null) {
-        await dropClientSecrets([connection._id]);
-
         return {
           ...connection,
           clientSecret: undefined,
@@ -148,24 +150,33 @@ export const loadDiscordConnectionClass = (models: IModels) => {
       return { ...connection, clientSecret };
     }
 
-    public static async dropUnreadableClientSecrets(subdomain: string) {
+    public static async findLinkingConnection(subdomain: string) {
       const connections = await models.DiscordConnection.find({
         subdomain,
-        clientSecret: { $nin: [null, ''] },
+        ...DISCORD_MEMBER_LINKING_ON,
       })
         .select('+clientSecret')
         .lean();
 
-      const unreadable = connections
-        .filter(
-          ({ clientSecret }) =>
-            clientSecret && openReadableSecret(clientSecret) === null,
-        )
-        .map(({ _id }) => _id);
+      const readable = connections.find(hasReadableClientSecret);
 
-      if (unreadable.length) {
-        await dropClientSecrets(unreadable);
-      }
+      return readable
+        ? models.DiscordConnection.findWithClientSecret({ _id: readable._id })
+        : null;
+    }
+
+    public static async listWithSecretStatus(subdomain: string) {
+      const connections = await models.DiscordConnection.find({ subdomain })
+        .select('+clientSecret')
+        .sort({ guildName: 1 })
+        .lean();
+
+      return connections.map(({ clientSecret, ...connection }) => ({
+        ...connection,
+        hasClientSecret:
+          connection.hasClientSecret &&
+          hasReadableClientSecret({ clientSecret }),
+      }));
     }
 
     public static async getConnectionWithToken(_id: string, subdomain: string) {

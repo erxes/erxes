@@ -19,6 +19,7 @@ export interface IDiscordConfigModel extends Model<IDiscordConfigDocument> {
     config: IDiscordConfig,
     _id?: string | null,
   ): Promise<IDiscordConfigDocument | null>;
+  removeTeamLinks(teamId: string, subdomain: string): Promise<void>;
 }
 
 export const loadDiscordConfigClass = (models: IModels) => {
@@ -27,6 +28,28 @@ export const loadDiscordConfigClass = (models: IModels) => {
       return models.DiscordConfig.find({ teamId, subdomain })
         .sort({ createdAt: 1 })
         .lean();
+    }
+
+    public static async removeTeamLinks(teamId: string, subdomain: string) {
+      const configs = await models.DiscordConfig.find({ teamId, subdomain })
+        .select('_id')
+        .lean();
+
+      if (configs.length) {
+        const configIds = configs.map(({ _id }) => String(_id));
+
+        await models.DiscordMessage.deleteMany({
+          configId: { $in: configIds },
+          audience: { $ne: 'customer' },
+          subdomain,
+        });
+        await models.DiscordConfig.deleteMany({
+          _id: { $in: configIds },
+          subdomain,
+        });
+      }
+
+      await models.DiscordCustomerChannel.removeChannels(subdomain, { teamId });
     }
 
     public static async saveConfig(

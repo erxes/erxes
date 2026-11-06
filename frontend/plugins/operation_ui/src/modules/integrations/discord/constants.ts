@@ -50,7 +50,7 @@ export const DISCORD_EVENT_OPTIONS: {
   {
     value: 'taskReopened',
     label: 'Task reopened',
-    description: 'A completed or cancelled task is opened again.',
+    description: 'A completed or cancelled task, or a declined triage, is opened again.',
   },
   {
     value: 'taskCancelled',
@@ -61,7 +61,7 @@ export const DISCORD_EVENT_OPTIONS: {
     value: 'taskMoved',
     label: 'Task moved',
     description:
-      'A task moves into or out of this team. A card it leaves is kept and marked as moved instead of being deleted.',
+      'A task or triage moves into or out of this team. A card it leaves is kept and marked as moved instead of being deleted.',
   },
   {
     value: 'pullRequestMerged',
@@ -105,6 +105,7 @@ export const DISCORD_DEVELOPER_PORTAL_URL =
 export const DISCORD_BOT_PERMISSIONS = [
   'View channels',
   'Send messages',
+  'Send messages in threads',
   'Embed links',
   'Read message history',
 ];

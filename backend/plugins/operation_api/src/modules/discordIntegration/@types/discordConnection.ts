@@ -1,8 +1,8 @@
 import { Document } from 'mongoose';
 
-export type TDiscordHealthStatus = 'healthy' | 'broken';
+type TDiscordHealthStatus = 'healthy' | 'broken';
 
-export type IDiscordConnectionHealth = {
+type IDiscordConnectionHealth = {
   status: TDiscordHealthStatus;
   lastVerifiedAt?: Date;
   lastError?: string | null;

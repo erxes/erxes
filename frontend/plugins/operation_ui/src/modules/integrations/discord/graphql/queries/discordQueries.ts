@@ -125,6 +125,7 @@ export const GET_DISCORD_CUSTOMER_CHANNELS = gql(`
       channelName
       companyId
       teamId
+      lastError
     }
   }
 `);

@@ -7,6 +7,7 @@ export type IDiscordCustomerChannel = {
   channelName: string;
   companyId: string;
   teamId: string;
+  lastError?: string | null;
   createdBy?: string;
   subdomain: string;
 };

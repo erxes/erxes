@@ -1,5 +1,4 @@
 import { IDiscordUserLink } from '@/discordIntegration/@types/discordUserLink';
-import { DISCORD_MEMBER_LINKING_ON } from '@/discordIntegration/constants';
 import {
   getDiscordOAuthRedirectUri,
   requireDiscordLinkUser,
@@ -87,17 +86,12 @@ export const discordAccountQueries = {
   ) {
     const userId = requireDiscordLinkUser(user);
 
-    await models.DiscordConnection.dropUnreadableClientSecrets(subdomain);
-
-    const [linkingEnabled, link] = await Promise.all([
-      models.DiscordConnection.exists({
-        subdomain,
-        ...DISCORD_MEMBER_LINKING_ON,
-      }),
+    const [linkingConnection, link] = await Promise.all([
+      models.DiscordConnection.findLinkingConnection(subdomain),
       models.DiscordUserLink.findOne({ userId, subdomain }).lean(),
     ]);
 
-    return { linkingEnabled: Boolean(linkingEnabled), link };
+    return { linkingEnabled: Boolean(linkingConnection), link };
   },
 
   async operationDiscordOAuthRedirectUri(

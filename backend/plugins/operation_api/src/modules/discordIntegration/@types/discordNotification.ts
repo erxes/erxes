@@ -37,6 +37,7 @@ export type TDiscordNotificationJob = {
   entityId: string;
   teamId: string;
   actorId?: string;
+  assigneeId?: string;
   reason?: string;
   move?: TDiscordTaskMove;
 };

@@ -8,6 +8,7 @@ export const discordCustomerChannelSchema = new Schema(
     channelName: { type: String, label: 'Channel Name', required: true },
     companyId: { type: String, label: 'Company ID', required: true },
     teamId: { type: Schema.Types.ObjectId, label: 'Team ID', required: true },
+    lastError: { type: String, label: 'Last Error' },
     createdBy: { type: String, label: 'Created By' },
     subdomain: { type: String, label: 'Subdomain', required: true },
   },

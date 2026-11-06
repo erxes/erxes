@@ -3,7 +3,6 @@ import {
   requireDiscordLinkUser,
   startDiscordAccountLink,
 } from '@/discordIntegration/utils/discordAccountLink';
-import { DISCORD_MEMBER_LINKING_ON } from '@/discordIntegration/constants';
 import { IContext } from '~/connectionResolvers';
 import { createNotifications } from '~/utils/notifications';
 
@@ -64,10 +63,7 @@ export const discordAccountMutations = {
     const [isMember, isLinked, linkingEnabled] = await Promise.all([
       models.TeamMember.exists({ teamId, memberId: userId }),
       models.DiscordUserLink.exists({ userId, subdomain }),
-      models.DiscordConnection.exists({
-        subdomain,
-        ...DISCORD_MEMBER_LINKING_ON,
-      }),
+      models.DiscordConnection.findLinkingConnection(subdomain),
     ]);
 
     if (!isMember) {

@@ -43,7 +43,7 @@ const DISCORD_COMMANDS_VERSION = createHash('sha256')
   .update(JSON.stringify(DISCORD_SLASH_COMMANDS))
   .digest('hex');
 
-export const getDiscordInteractionsUrl = (subdomain: string) =>
+const getDiscordInteractionsUrl = (subdomain: string) =>
   `${getDiscordGatewayUrl(subdomain)}/pl:operation${DISCORD_INTERACTIONS_PATH}`;
 
 const isPublicHttpsUrl = (value: string) => {

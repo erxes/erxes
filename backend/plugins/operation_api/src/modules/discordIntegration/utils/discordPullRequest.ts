@@ -63,7 +63,7 @@ const describeImageTag = (tag: string) => {
 const describeMarkdownImage = (_image: string, alt: string, url: string) =>
   `[${alt.trim() || 'image'}](${url})`;
 
-export const cleanPullRequestBody = (body: string) =>
+const cleanPullRequestBody = (body: string) =>
   stripHtmlComments(body.replace(LINE_BREAK, '\n'))
     .replace(IMAGE_TAG, describeImageTag)
     .replace(MARKDOWN_IMAGE, describeMarkdownImage)

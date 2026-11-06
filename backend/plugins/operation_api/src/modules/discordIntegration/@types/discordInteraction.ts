@@ -38,7 +38,7 @@ export type TDiscordInteraction = {
   };
 };
 
-export type TDiscordModal = {
+type TDiscordModal = {
   custom_id: string;
   title: string;
   components: TDiscordLabel[];

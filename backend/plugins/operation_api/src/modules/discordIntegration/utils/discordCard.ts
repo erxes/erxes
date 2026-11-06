@@ -80,6 +80,13 @@ type TDiscordMoveTeamNames = { from: string; to: string };
 export const isMovedOutJob = (job: TDiscordNotificationJob) =>
   job.event === 'taskMoved' && job.move?.fromTeamId === job.teamId;
 
+export const getEventAssigneeId = (
+  entity: TDiscordCardEntity,
+  job: TDiscordNotificationJob,
+) =>
+  job.assigneeId ??
+  (entity.kind === 'task' ? entity.record.assigneeId : undefined);
+
 export const truncateDiscordText = (value: string, max: number) =>
   value.length > max ? `${value.slice(0, max - 1)}…` : value;
 
@@ -252,6 +259,7 @@ const formatDiscordDate = (value?: Date | string | null) => {
 
 const describeActivity = ({
   job,
+  kind,
   actorName,
   assigneeName,
   assigneeMention,
@@ -259,6 +267,7 @@ const describeActivity = ({
   markdown,
 }: {
   job: TDiscordNotificationJob;
+  kind: TDiscordCardEntity['kind'];
   actorName: string;
   assigneeName?: string;
   assigneeMention?: string;
@@ -285,11 +294,11 @@ const describeActivity = ({
     case 'taskCompleted':
       return `${actor} completed the task`;
     case 'taskMoved':
-      return `${actor} moved the task from ${strong(
+      return `${actor} moved the ${kind} from ${strong(
         teamNames?.from || 'another team',
       )} to ${strong(teamNames?.to || 'another team')}`;
     case 'taskReopened':
-      return `${actor} reopened the task`;
+      return `${actor} reopened the ${kind}`;
     case 'taskCancelled':
       return `${actor} cancelled the task`;
   }
@@ -330,6 +339,7 @@ const getFallbackActorName = (record: TDiscordCardRecord) => {
 
 const buildCardReply = ({
   job,
+  kind,
   actorName,
   assigneeName,
   teamNames,
@@ -337,6 +347,7 @@ const buildCardReply = ({
   reason,
 }: {
   job: TDiscordNotificationJob;
+  kind: TDiscordCardEntity['kind'];
   actorName: string;
   assigneeName?: string;
   teamNames?: TDiscordMoveTeamNames;
@@ -357,6 +368,7 @@ const buildCardReply = ({
           EVENT_EMOJIS[job.event]
         } ${describeActivity({
           job,
+          kind,
           actorName: disarm(actorName),
           assigneeName: safeAssigneeName,
           assigneeMention: mention.discordUserId,
@@ -495,6 +507,7 @@ export const buildDiscordCard = async ({
   const { record } = entity;
   const assigneeId =
     entity.kind === 'task' ? entity.record.assigneeId : undefined;
+  const eventAssigneeId = getEventAssigneeId(entity, job);
   const actorId = job.actorId || record.createdBy || '';
   const statusType = getStatusType(entity);
   const movedOut = isMovedOutJob(job);
@@ -505,7 +518,11 @@ export const buildDiscordCard = async ({
       .select('name')
       .lean(),
     getStatusName(models, entity, statusType),
-    getUserNames(job.subdomain, [actorId, assigneeId || '']),
+    getUserNames(job.subdomain, [
+      actorId,
+      assigneeId || '',
+      eventAssigneeId || '',
+    ]),
     getContactNames(job.subdomain, record),
     job.event === 'taskMoved'
       ? getMoveTeamNames(models, job.move)
@@ -514,13 +531,17 @@ export const buildDiscordCard = async ({
 
   const actorName = userNames.get(actorId) || getFallbackActorName(record);
   const assigneeName = assigneeId ? userNames.get(assigneeId) : undefined;
+  const eventAssigneeName = eventAssigneeId
+    ? userNames.get(eventAssigneeId)
+    : undefined;
   const reason = job.event === 'triageDeclined' ? job.reason?.trim() : '';
   const link = getCardLink(job.subdomain, entity);
 
   const reply = buildCardReply({
     job,
+    kind: entity.kind,
     actorName,
-    assigneeName,
+    assigneeName: eventAssigneeName,
     teamNames,
     mention,
     reason,
@@ -566,8 +587,9 @@ export const buildDiscordCard = async ({
             text: truncateDiscordText(
               describeActivity({
                 job,
+                kind: entity.kind,
                 actorName,
-                assigneeName,
+                assigneeName: eventAssigneeName,
                 teamNames,
                 markdown: false,
               }),
