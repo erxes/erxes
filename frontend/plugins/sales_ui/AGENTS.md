@@ -374,12 +374,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- In `AddCardForm`, the stage selector shown when the sheet opens with a
-  pipeline is not a form field (it writes `createDefaults`), so its heading is
-  the plain erxes-ui `Label`, never `Form.Label`, which needs `Form.Field`.
 - RecordTable sets `leading-0`: a cell's text goes straight into the cell's
   flex span; a wrapping element (a tooltip trigger, a link) needs
   `leading-normal` and no `overflow-hidden`, or it renders with no height.
+- In `AddCardForm`, the stage selector shown when the sheet opens with a
+  pipeline is not a form field (it writes `createDefaults`), so its heading is
+  the plain erxes-ui `Label`, never `Form.Label`, which needs `Form.Field`.
 
 - recharts is not a shared Module Federation library: inside a chart take
   `Tooltip`, `Legend` and every other recharts part from `recharts`, never
