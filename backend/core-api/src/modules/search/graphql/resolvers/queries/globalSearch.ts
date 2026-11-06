@@ -116,6 +116,37 @@ const buildCustomerSearchFilter = (
   };
 };
 
+const getCustomerSearchHint = async (
+  customers: IContext['models']['Customers'],
+  rawSearch: string,
+): Promise<string | undefined> => {
+  const words = splitSearchWords(rawSearch);
+
+  // Multi-word intersections, short searches and identifiers need the planner.
+  if (
+    CONTACT_SEARCH_PATTERN.test(rawSearch) ||
+    IDENTIFIER_SEARCH_PATTERN.test(rawSearch) ||
+    words.length !== 1 ||
+    !isTokenWord(words[0])
+  ) {
+    return undefined;
+  }
+
+  // Tenants may not have this index. Sparse/partial indexes omit legacy rows.
+  const indexes = await customers.collection.indexes().catch(() => []);
+  const index = indexes.find(
+    ({ key, sparse, partialFilterExpression, collation, hidden }) =>
+      !sparse &&
+      !partialFilterExpression &&
+      !collation &&
+      !hidden &&
+      JSON.stringify(key) ===
+        JSON.stringify({ searchTokens: 1, state: 1, status: 1 }),
+  );
+
+  return index?.name;
+};
+
 type TSearchPage = {
   list: TGlobalSearchItem[];
   totalCount: number;
@@ -307,7 +338,7 @@ export const globalSearchQueries = {
         queryPage: async (skip, limit) => {
           // The legacy fallback can scan most customers. Share that scan between
           // the exact total and the page instead of evaluating the filter twice.
-          const [page] = await models.Customers.aggregate<{
+          const aggregate = models.Customers.aggregate<{
             list: Array<
               Pick<
                 ICustomerDocument,
@@ -343,6 +374,23 @@ export const globalSearchQueries = {
               },
             },
           ]);
+          const hint = await getCustomerSearchHint(models.Customers, rawSearch);
+          const [page] = await aggregate.option(hint ? { hint } : {}).catch(
+            (error: unknown) => {
+              // The index can be dropped between discovery and execution.
+              if (
+                hint &&
+                error instanceof Error &&
+                'code' in error &&
+                error.code === 2 &&
+                error.message.includes('hint provided does not correspond')
+              ) {
+                return aggregate.option({ hint: undefined }).exec();
+              }
+
+              throw error;
+            },
+          );
           const docs = page?.list ?? [];
 
           const list = docs.map((doc) => {
