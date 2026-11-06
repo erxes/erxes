@@ -13,7 +13,6 @@ import {
   LoyaltyDrillProvider,
   LoyaltyDrillSheet,
 } from '@/loyalty-points/drill';
-import { PosOrderSheet } from '@/pos/orders/components/PosOrderSheet';
 import { PosLoyaltyFilter } from '@/pos/loyalty-points/components/PosLoyaltyFilter';
 import { PosLoyaltyInsights } from '@/pos/loyalty-points/components/PosLoyaltyInsights';
 import { PosScoreLogsTable } from '@/pos/loyalty-points/components/PosScoreLogsTable';
@@ -61,7 +60,6 @@ export const PosLoyaltyPointsPage = () => {
             <LoyaltyDrillSheet>
               <PosScoreLogsTable />
             </LoyaltyDrillSheet>
-            <PosOrderSheet />
           </PageContainer>
         </div>
       </div>

@@ -163,8 +163,8 @@
   (`PosLoyaltyPointsPage`, `modules/pos/loyalty-points`), linked as
   "Loyalty points" above the POS list (`PosOrderNavigation`, loyalty only,
   after a `Sidebar.Separator`): filters POS (multiple), cashier and
-  customer; rows are orders (`#number`, opening `PosOrderSheet` through
-  `pos_order_id`), POS and branch; insights group by POS and rank orders,
+  customer; rows are orders (`#number`, opening the order panel through
+  `openRecord` with `POS_ORDER_CONTENT_TYPE`), POS and branch; insights group by POS and rank orders,
   customers, cashiers and branches. Both pages share
   `modules/loyalty-points` (`summary.ts`, `useScoreLogsByIds`,
   `ScoreLogsTable` cells, columns and view, `LoyaltyInsightsView`,
