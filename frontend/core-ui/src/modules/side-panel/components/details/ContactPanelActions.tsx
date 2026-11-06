@@ -4,12 +4,11 @@ import {
   IconMessage,
   IconNote,
   IconDots,
-  IconPrinter,
 } from '@tabler/icons-react';
 import { Button, DropdownMenu } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PrintDocument, useComposeEmail, usePermissionCheck } from 'ui-modules';
+import { useComposeEmail, usePermissionCheck } from 'ui-modules';
 
 /** Opens existing mail, conversation, and note workflows for this contact. */
 export const ContactPanelActions = ({
@@ -34,13 +33,11 @@ export const ContactPanelActions = ({
   const { t } = useTranslation('contact');
   const { canComposeEmail, composeEmail } = useComposeEmail();
   const { hasActionPermission } = usePermissionCheck();
-  const [printOpen, setPrintOpen] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
   const [compact, setCompact] = useState(true);
   const canMessage =
     Boolean(onMessage) && hasActionPermission('conversationMessageAdd');
   const canNote = hasActionPermission('internalNotesManage');
-  const canPrint = hasActionPermission('documentsRead');
 
   useEffect(() => {
     const container = containerRef.current;
@@ -92,16 +89,6 @@ export const ContactPanelActions = ({
       onClick: onNote,
       className:
         'bg-amber-500/10 text-amber-700 hover:bg-amber-500/20 dark:text-amber-400',
-    },
-    {
-      key: 'print',
-      iconClassName: 'text-blue-500',
-      label: t('print', 'Print'),
-      icon: IconPrinter,
-      visible: canPrint,
-      onClick: () => setPrintOpen(true),
-      className:
-        'bg-blue-500/10 text-blue-700 hover:bg-blue-500/20 dark:text-blue-400',
     },
   ].filter((action) => action.visible);
 
@@ -157,12 +144,7 @@ export const ContactPanelActions = ({
                     <IconDots className="size-4" aria-hidden="true" />
                   </Button>
                 </DropdownMenu.Trigger>
-                <DropdownMenu.Content
-                  align="end"
-                  onCloseAutoFocus={(event) => {
-                    if (printOpen) event.preventDefault();
-                  }}
-                >
+                <DropdownMenu.Content align="end">
                   {actions.map(
                     ({ key, label, icon: Icon, onClick, iconClassName }) => (
                       <DropdownMenu.Item key={key} onSelect={onClick}>
@@ -191,19 +173,6 @@ export const ContactPanelActions = ({
           </div>
         )}
       </div>
-      {canPrint && (
-        <PrintDocument
-          items={[{ _id: contentId }]}
-          contentType={
-            contentType === 'core:customer'
-              ? 'core:contact.customer'
-              : 'core:contact.company'
-          }
-          open={printOpen}
-          onOpenChange={setPrintOpen}
-          trigger={null}
-        />
-      )}
     </section>
   );
 };

@@ -5,7 +5,8 @@ import {
   TasksSetDueDateCommandBarItem,
   TasksSetDueDateTrigger,
 } from './SetDueDate';
-import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconPrinter, IconTrash } from '@tabler/icons-react';
+import { Can, PrintDocument } from 'ui-modules';
 import {
   TasksMoveToTeamCommandBarItem,
   TasksMoveToTeamTrigger,
@@ -23,7 +24,12 @@ import { useTaskDetailSheet } from '@/task/hooks/useTaskDetailSheet';
 
 export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
   const { t } = useTranslation('operation');
+  const { t: documentsT } = useTranslation('documents', {
+    keyPrefix: 'document',
+  });
+  const { t: commonT } = useTranslation('common');
   const [open, setOpen] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
   const [currentContent, setCurrentContent] = useState<string>('main');
   const [converting, setConverting] = useState(false);
   const { task } = useGetTask(taskId);
@@ -44,7 +50,12 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
         }}
       >
         <Popover.Trigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={commonT('navigation.more-actions')}
+          >
             <IconDotsVertical className="size-4" />
           </Button>
         </Popover.Trigger>
@@ -74,6 +85,18 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
                     />
                   )}
                   <CopyTaskTrigger setCurrentContent={setCurrentContent} />
+                  <Can action="documentsRead">
+                    <Command.Item
+                      value="print"
+                      onSelect={() => {
+                        setOpen(false);
+                        setPrintOpen(true);
+                      }}
+                    >
+                      <IconPrinter className="size-4" />
+                      {documentsT('print')}
+                    </Command.Item>
+                  </Can>
                 </Command.Group>
                 <Command.Separator />
                 <Command.Group>
@@ -140,6 +163,13 @@ export const TaskDetailActions = ({ taskId }: { taskId: string }) => {
           )}
         </Popover.Content>
       </Popover>
+      <PrintDocument
+        items={[{ _id: taskId }]}
+        contentType="operation:task"
+        open={printOpen}
+        onOpenChange={setPrintOpen}
+        trigger={null}
+      />
       {task && (
         <ConvertToProjectSheet
           task={task}

@@ -1,5 +1,3 @@
-import { Can, PrintDocument } from 'ui-modules';
-import { campaignActions } from '../../utils/campaignActions';
 import { Skeleton } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,13 +46,6 @@ export const BroadcastDetail = () => {
       />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        {!campaignActions(message).locked && (
-          <Can action="documentsRead">
-            <div className="flex flex-wrap items-center gap-2 px-5 pt-5 pb-2">
-              <PrintDocument items={[]} contentType="core:broadcast" />
-            </div>
-          </Can>
-        )}
         <BroadcastTabContent message={message} />
       </div>
     </div>

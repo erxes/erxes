@@ -24,6 +24,7 @@ import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelN
 import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
@@ -357,14 +358,26 @@ const SidePanelSavedRecord = ({
           )
         }
         actions={
-          panelPluginName && (
-            <PluginRecordPanel
-              pluginName={panelPluginName}
-              contentType={record.contentType}
-              contentId={record.contentId}
-              view="actions"
-              quiet
+          coreViews ? (
+            <DocumentPrintMenu
+              key={`${record.contentType}:${record.contentId}`}
+              items={[{ _id: record.contentId }]}
+              contentType={
+                record.contentType === 'core:customer'
+                  ? 'core:contact.customer'
+                  : 'core:contact.company'
+              }
             />
+          ) : (
+            panelPluginName && (
+              <PluginRecordPanel
+                pluginName={panelPluginName}
+                contentType={record.contentType}
+                contentId={record.contentId}
+                view="actions"
+                quiet
+              />
+            )
           )
         }
         onBack={onBack}

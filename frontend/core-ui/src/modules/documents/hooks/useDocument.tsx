@@ -66,6 +66,9 @@ export const useDocument = ({
       const values = getValues();
       const { data: saved } = await saveDocument({
         variables: { ...values, _id: cleanDocumentId || undefined },
+        update: (cache) => {
+          cache.evict({ fieldName: 'documents' });
+        },
         refetchQueries: [GET_DOCUMENTS, DOCUMENTS_QUERY, GET_DOCUMENT_DETAIL],
         awaitRefetchQueries: true,
       });

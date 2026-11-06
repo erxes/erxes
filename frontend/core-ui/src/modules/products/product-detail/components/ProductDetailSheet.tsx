@@ -13,12 +13,7 @@ import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  ActivityLogs,
-  AddInternalNote,
-  FieldsInDetail,
-  PrintDocument,
-} from 'ui-modules';
+import { ActivityLogs, AddInternalNote, FieldsInDetail } from 'ui-modules';
 import { productCustomActivities } from './ProductActivityRows';
 import { useProductDetailWithQuery } from '@/products/product-detail/hooks/useProductDetailWithQuery';
 import { useProductCustomFieldEdit } from '@/products/product-detail/hooks/useProductCustomFieldEdit';
@@ -40,27 +35,27 @@ import {
 } from '@/products/constants/ProductFormSchema';
 import { useProductsEdit } from '@/products/hooks/useProductsEdit';
 import { useProductFileLinks } from 'ui-modules/modules/products/hooks/useProductFiles';
+import { DocumentPrintMenu } from '@/documents/components/DocumentPrintMenu';
 
 export const ProductDetailSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
   });
   const { toast } = useToast();
-  
+
   const [queries, setQueries] = useMultiQueryState<{
     [PRODUCT_QUERY_KEY]: string;
     tab: string;
   }>([PRODUCT_QUERY_KEY, 'tab']);
 
-  const { 
-    [PRODUCT_QUERY_KEY]: open, 
-    tab: selectedTab = 'overview' 
-  } = queries || {}
-  
+  const { [PRODUCT_QUERY_KEY]: open, tab: selectedTab = 'overview' } =
+    queries || {};
+
   const setSelectedTab = (tab: string | null) => setQueries({ tab });
-  
-  const { productDetail, productId, loading, error, refetch } = useProductDetailWithQuery();
-  
+
+  const { productDetail, productId, loading, error, refetch } =
+    useProductDetailWithQuery();
+
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { linkFiles } = useProductFileLinks();
 
@@ -176,9 +171,7 @@ export const ProductDetailSheet = () => {
   return (
     <FocusSheet
       open={!!open}
-      onOpenChange={() =>
-        setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })
-      }
+      onOpenChange={() => setQueries({ [PRODUCT_QUERY_KEY]: null, tab: null })}
     >
       <ProductDetailSheetView
         loading={loading}
@@ -187,20 +180,22 @@ export const ProductDetailSheet = () => {
         notFoundState={<ProductDetailEmptyState />}
         errorState={<ProductDetailErrorState />}
       >
-        <FocusSheet.Header title={productDetail?.name || t('product-detail')} />
+        <FocusSheet.Header title={productDetail?.name || t('product-detail')}>
+          {productDetail?._id && (
+            <div className="ml-auto">
+              <DocumentPrintMenu
+                key={productDetail._id}
+                items={[{ _id: productDetail._id }]}
+                contentType="core:product"
+              />
+            </div>
+          )}
+        </FocusSheet.Header>
         <FocusSheet.Content className="flex overflow-hidden flex-row flex-1 min-w-0 min-h-0">
           <FocusSheet.SideBar>
             <ProductDetailSidebar />
           </FocusSheet.SideBar>
           <div className="flex overflow-hidden flex-col flex-1 min-w-0 min-h-0">
-            {productDetail?._id && (
-              <div className="flex flex-wrap items-center gap-2 px-4 pt-4 pb-2">
-                <PrintDocument
-                  items={[{ _id: productDetail._id }]}
-                  contentType="core:product"
-                />
-              </div>
-            )}
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleSave, handleInvalid)}
@@ -305,10 +300,7 @@ const ProductDetailSheetView = ({
 
   return (
     <FocusSheet.View
-      className={cn(
-        'transition-[width] duration-300 ease-in-out',
-        widthClass,
-      )}
+      className={cn('transition-[width] duration-300 ease-in-out', widthClass)}
       {...props}
     >
       {children}
