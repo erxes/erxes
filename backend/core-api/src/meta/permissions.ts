@@ -213,14 +213,12 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Use files',
           name: 'filesRead',
-          description:
-            'Use Files; what each person sees and changes is set by folder access',
+          description: 'Use Files; what each person sees and changes is set by folder access',
         },
         {
           title: 'Files admin',
           name: 'filesAdmin',
-          description:
-            'See and download every file and folder (read only); each use is logged',
+          description: 'See and download every file and folder (read only); each use is logged',
         },
       ],
     },
@@ -794,7 +792,8 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Manage agents settings',
           name: 'manageAgentsSettings',
-          description: 'Manage tenant-wide agents settings (code mode toggle)',
+          description:
+            'Manage tenant-wide agents settings (code mode toggle)',
         },
       ],
     },

@@ -103,13 +103,7 @@
     "import-error": "Failed to import template. Please check the file format.",
     "importing": "Importing...",
     "select-type-placeholder": "Select type...",
-    "no-type-found": "No type found",
-    "edit-template": "Edit Template",
-    "description": "Description",
-    "cancel": "Cancel",
-    "save": "Save",
-    "saving": "Saving...",
-    "update-success": "Template updated successfully"
+    "no-type-found": "No type found"
   },
   "template-category": {
     "category": "Category",

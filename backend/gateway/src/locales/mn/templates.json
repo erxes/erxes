@@ -103,13 +103,7 @@
     "import-error": "Загварыг импортлож чадсангүй. Файлын форматаа шалгана уу.",
     "importing": "Импортолж байна...",
     "select-type-placeholder": "Төрөл сонгох...",
-    "no-type-found": "Төрөл олдсонгүй",
-    "edit-template": "Загвар засах",
-    "description": "Тайлбар",
-    "cancel": "Цуцлах",
-    "save": "Хадгалах",
-    "saving": "Хадгалж байна...",
-    "update-success": "Загвар амжилттай шинэчлэгдлээ"
+    "no-type-found": "Төрөл олдсонгүй"
   },
   "template-category": {
     "category": "Ангилал",

@@ -15,7 +15,8 @@ export interface IUserActivityDaily {
 }
 
 export interface IUserActivityDailyDocument
-  extends IUserActivityDaily, Document {
+  extends IUserActivityDaily,
+    Document {
   _id: string;
 }
 
