@@ -1,6 +1,8 @@
 import { ComponentType, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from 'erxes-ui';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
+import { TOURISM_PANEL_FIELDS_CLASS_NAME } from '@/tms/side-panel/TourismPanelForm';
 import { TourismPanelActivity } from '@/tms/side-panel/TourismPanelLayout';
 import {
   ITourismPanelHeading,
@@ -43,8 +45,19 @@ export const RECORD_PANELS: Record<string, ITourismPanelViews> = {
   [TMS_CUSTOM_FIELD_CONTENT_TYPE]: CUSTOM_FIELD_PANEL,
 };
 
-const TourismPanelScroll = ({ children }: { children: ReactNode }) => (
-  <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll">
+const TourismPanelScroll = ({
+  className,
+  children,
+}: {
+  className?: string;
+  children: ReactNode;
+}) => (
+  <div
+    className={cn(
+      'mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll',
+      className,
+    )}
+  >
     {children}
   </div>
 );
@@ -136,7 +149,7 @@ export const RecordPanel = ({
   const View = getScrolledView(panel, view, tab);
 
   return View ? (
-    <TourismPanelScroll>
+    <TourismPanelScroll className={TOURISM_PANEL_FIELDS_CLASS_NAME}>
       <View contentType={contentType} contentId={contentId} />
     </TourismPanelScroll>
   ) : null;

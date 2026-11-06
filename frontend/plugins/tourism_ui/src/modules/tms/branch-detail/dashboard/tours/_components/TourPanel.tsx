@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
+import { FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Button, Form, ScrollArea, useToast } from 'erxes-ui';
 import { PanelFormLayout, PanelFormRow } from 'ui-modules';
@@ -38,6 +39,7 @@ import {
   sortTourDates,
   TourPanelFormFields,
   TourPanelSection,
+  TTourPanelSection,
   useTourPanelForm,
 } from './TourPanelForm';
 
@@ -54,6 +56,22 @@ const NON_INPUT_KEYS = [
 ] as const;
 
 type TNonInputKey = (typeof NON_INPUT_KEYS)[number];
+
+const getFirstErrorMessage = (errors: FieldErrors): string | undefined => {
+  for (const error of Object.values(errors)) {
+    if (!error) continue;
+
+    if (typeof error.message === 'string' && error.message) {
+      return error.message;
+    }
+
+    const nested = getFirstErrorMessage(error as FieldErrors);
+
+    if (nested) return nested;
+  }
+
+  return undefined;
+};
 
 const toTourInput = (values: TourFormValues) => {
   const rest: Partial<TourFormValues> = { ...values };
@@ -228,11 +246,13 @@ const TourPanelEditForm = ({
   branchId,
   branchLanguages,
   mainLanguage,
+  section,
 }: {
   tour: ITourDetail;
   branchId: string;
   branchLanguages: string[];
   mainLanguage?: string;
+  section: TTourPanelSection;
 }) => {
   const { t } = useTranslation('tourism');
   const { toast } = useToast();
@@ -337,10 +357,18 @@ const TourPanelEditForm = ({
     }
   };
 
+  const handleInvalid = (errors: FieldErrors<TourFormValues>) => {
+    toast({
+      title: t('validation-error'),
+      description: getFirstErrorMessage(errors),
+      variant: 'destructive',
+    });
+  };
+
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
         className="flex flex-1 min-h-0 flex-col"
       >
         <PanelFormLayout
@@ -352,6 +380,7 @@ const TourPanelEditForm = ({
             state={state}
             branchId={branchId}
             editorKey={editorKey}
+            section={section}
           />
         </PanelFormLayout>
       </form>
@@ -359,7 +388,13 @@ const TourPanelEditForm = ({
   );
 };
 
-const TourPanelDetail = ({ contentId }: ITourismPanelViewProps) => {
+const TourPanelSectionView = ({
+  contentId,
+  section,
+}: {
+  contentId: string;
+  section: TTourPanelSection;
+}) => {
   const { tourDetail, loading } = useTourDetail({
     variables: { id: contentId },
     fetchPolicy: 'network-only',
@@ -385,11 +420,24 @@ const TourPanelDetail = ({ contentId }: ITourismPanelViewProps) => {
           branchId={branchId}
           branchLanguages={branchLanguages}
           mainLanguage={mainLanguage}
+          section={section}
         />
       )}
     </TourismPanelRecordState>
   );
 };
+
+const TourPanelDetail = ({ contentId }: ITourismPanelViewProps) => (
+  <TourPanelSectionView contentId={contentId} section="detail" />
+);
+
+const TourPanelPricing = ({ contentId }: ITourismPanelViewProps) => (
+  <TourPanelSectionView contentId={contentId} section="pricing" />
+);
+
+const TourPanelMedia = ({ contentId }: ITourismPanelViewProps) => (
+  <TourPanelSectionView contentId={contentId} section="media" />
+);
 
 const toCustomFieldEntries = (data?: TourCustomFieldData[]) =>
   (data ?? []).map((item) => ({ field: item.field, value: item.value }));
@@ -601,6 +649,11 @@ export const TOUR_PANEL: ITourismPanelViews = {
   useHeading: useTourPanelHeading,
   Detail: TourPanelDetail,
   Properties: TourPanelProperties,
-  Tabs: { bookings: TourPanelBookings, customers: TourPanelCustomers },
+  Tabs: {
+    pricing: TourPanelPricing,
+    media: TourPanelMedia,
+    bookings: TourPanelBookings,
+    customers: TourPanelCustomers,
+  },
   Actions: TourPanelActions,
 };

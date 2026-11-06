@@ -1,7 +1,9 @@
+import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import { Button, DropdownMenu, Spinner, useConfirm } from 'erxes-ui';
 import { useSidePanel } from 'ui-modules';
+import { TourismRecordPageContext } from './tourismRecordPage';
 
 export const TourismPanelRemoveAction = ({
   message,
@@ -15,12 +17,32 @@ export const TourismPanelRemoveAction = ({
   const { t } = useTranslation('tourism');
   const { confirm } = useConfirm();
   const { close } = useSidePanel();
+  const isRecordPage = useContext(TourismRecordPageContext);
 
   const confirmRemove = () =>
     confirm({
       message,
       options: { okLabel: t('delete'), cancelLabel: t('cancel') },
     }).then(() => onRemove(close));
+
+  if (isRecordPage) {
+    return (
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={loading}
+        onClick={confirmRemove}
+      >
+        {loading ? (
+          <Spinner size="sm" />
+        ) : (
+          <IconTrash className="size-4 text-destructive" aria-hidden="true" />
+        )}
+        {t('delete')}
+      </Button>
+    );
+  }
 
   return (
     <DropdownMenu>

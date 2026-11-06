@@ -14,6 +14,7 @@ import {
   Select,
   Switch,
   Textarea,
+  cn,
 } from 'erxes-ui';
 import { PanelFormLayout } from 'ui-modules';
 import {
@@ -152,7 +153,7 @@ const PanelDescriptionField = <T extends FieldValues>({
           {...field}
           value={field.value ?? ''}
           rows={4}
-          className="text-xs"
+          className={cn(TOURISM_PANEL_INPUT_CLASS_NAME, 'h-auto min-h-16')}
         />
       )}
     />
@@ -288,6 +289,7 @@ export const FieldGroupForm = ({
               placeholder={t('select-tour-types')}
               hidePlaceholderWhenSelected
               emptyIndicator={t('no-tour-types')}
+              className={cn(TOURISM_PANEL_INPUT_CLASS_NAME, 'h-auto min-h-7')}
               onChange={(options) =>
                 field.onChange(options.map((option) => option.value))
               }

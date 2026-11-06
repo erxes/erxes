@@ -6,6 +6,7 @@ import {
   Select,
   Spinner,
   Textarea,
+  cn,
   useConfirm,
   useToast,
 } from 'erxes-ui';
@@ -327,7 +328,7 @@ const OrderEditForm = ({
               setValidationError(null);
             }}
             placeholder={t('add-internal-note')}
-            className="min-h-20 text-xs"
+            className={cn(TOURISM_PANEL_INPUT_CLASS_NAME, 'h-auto min-h-20')}
           />
           <span className="text-xs text-muted-foreground">
             {t('explanation-required-for-cancel')}

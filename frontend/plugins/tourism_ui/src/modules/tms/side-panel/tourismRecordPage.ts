@@ -1,3 +1,4 @@
+import { createContext } from 'react';
 import {
   TMS_AMENITY_CONTENT_TYPE,
   TMS_CATEGORY_CONTENT_TYPE,
@@ -45,3 +46,5 @@ export const getTourismRecordDetailPath =
       ? `/tourism/tms/branches/${branchId}/records/${recordType}/${recordId}`
       : '/tourism/tms';
   };
+
+export const TourismRecordPageContext = createContext(false);

@@ -27,6 +27,7 @@ import {
 } from '@/tms/side-panel/tourismPanelTypes';
 import {
   TOURISM_RECORD_SECTIONS,
+  TourismRecordPageContext,
   getTourismBranchSectionPath,
   toTourismContentType,
 } from '@/tms/side-panel/tourismRecordPage';
@@ -179,36 +180,38 @@ export const RecordDetailPage = () => {
   return (
     <PageContainer>
       <SidePanelNavigatorContext.Provider value={navigator}>
-        <PageHeader>
-          <PageHeader.Start>
-            <RecordPageBreadcrumb
-              branchId={branchId}
-              contentType={contentType}
-              contentId={recordId}
-            />
-          </PageHeader.Start>
-          <PageHeader.End>
-            <RecordPanel {...viewProps} view="actions" />
-          </PageHeader.End>
-        </PageHeader>
-        <div className="flex min-h-0 flex-1">
-          <TourismRecordColumn
-            header={<RecordHeading contentId={recordId} panel={panel} />}
-          >
-            <div className="flex min-h-0 flex-1 flex-col px-2 pt-2">
-              <RecordPanel {...viewProps} view="detail" />
+        <TourismRecordPageContext.Provider value>
+          <PageHeader>
+            <PageHeader.Start>
+              <RecordPageBreadcrumb
+                branchId={branchId}
+                contentType={contentType}
+                contentId={recordId}
+              />
+            </PageHeader.Start>
+            <PageHeader.End>
+              <RecordPanel {...viewProps} view="actions" />
+            </PageHeader.End>
+          </PageHeader>
+          <div className="flex min-h-0 flex-1">
+            <TourismRecordColumn
+              header={<RecordHeading contentId={recordId} panel={panel} />}
+            >
+              <div className="flex min-h-0 flex-1 flex-col px-2 pt-2">
+                <RecordPanel {...viewProps} view="detail" />
+              </div>
+            </TourismRecordColumn>
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+              <RecordSidePanel.Tabs
+                key={recordId}
+                tabs={tabs}
+                value={selectedTab}
+                onValueChange={setTab}
+                visibleCount={tabs.length}
+              />
             </div>
-          </TourismRecordColumn>
-          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-            <RecordSidePanel.Tabs
-              key={recordId}
-              tabs={tabs}
-              value={selectedTab}
-              onValueChange={setTab}
-              visibleCount={tabs.length}
-            />
           </div>
-        </div>
+        </TourismRecordPageContext.Provider>
       </SidePanelNavigatorContext.Provider>
     </PageContainer>
   );

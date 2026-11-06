@@ -34,6 +34,17 @@ import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_componen
 
 export const TOURISM_PANEL_INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
 
+export const TOURISM_PANEL_FIELDS_CLASS_NAME = [
+  '[&_.border-input]:border-transparent',
+  '[&_input]:shadow-none',
+  '[&_textarea]:shadow-none',
+  '[&_[role=combobox]]:shadow-none',
+  '[&_.erxes-blocknote]:shadow-none',
+  '[&_input:not(:disabled):hover]:bg-accent',
+  '[&_textarea:not(:disabled):hover]:bg-accent',
+  '[&_[role=combobox]:not(:disabled):hover]:bg-accent',
+].join(' ');
+
 const FIELD_ICONS: Record<string, Icon> = {
   name: IconLabel,
   label: IconLabel,

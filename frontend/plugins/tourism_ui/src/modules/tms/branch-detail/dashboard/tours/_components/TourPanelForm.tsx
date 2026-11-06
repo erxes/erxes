@@ -421,44 +421,39 @@ const TourPanelInfoSection = ({
   );
 };
 
-export const TourPanelFormFields = ({
-  state,
-  branchId,
-  editorKey = 0,
-}: {
+export type TTourPanelSection = 'all' | 'detail' | 'pricing' | 'media';
+
+interface ITourPanelFieldsProps {
   state: TTourPanelFormState;
   branchId?: string;
   editorKey?: number;
-}) => {
-  const { t } = useTranslation('tourism');
-  const { form, language, customTypes } = state;
-  const { control } = form;
-  const {
-    allLanguages,
-    selectedLang,
-    setSelectedLang,
-    labelSuffix,
-    fieldPaths,
-    isMainLang,
-    translationIndex,
-    currencySymbol,
-  } = language;
+  titled?: boolean;
+}
 
-  const suffixedLabel = (key: string) => (
+const useSuffixedLabel = (labelSuffix: string) => {
+  const { t } = useTranslation('tourism');
+
+  return (key: string) => (
     <>
       {t(key)}
       <span className="text-primary">{labelSuffix}</span>
     </>
   );
+};
+
+const TourPanelGeneralFields = ({
+  state,
+  branchId,
+  editorKey = 0,
+}: ITourPanelFieldsProps) => {
+  const { t } = useTranslation('tourism');
+  const { form, language, customTypes } = state;
+  const { control } = form;
+  const { selectedLang, labelSuffix, fieldPaths } = language;
+  const suffixedLabel = useSuffixedLabel(labelSuffix);
 
   return (
     <>
-      <TourismPanelLanguageRow
-        languages={allLanguages}
-        value={selectedLang}
-        onValueChange={setSelectedLang}
-      />
-
       <TourPanelSection title={t('general-information')}>
         <TourismPanelFormField
           key={fieldPaths.name}
@@ -556,6 +551,7 @@ export const TourPanelFormFields = ({
               placeholder={t('select-categories-placeholder')}
               branchId={branchId}
               language={selectedLang}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
             />
           )}
         />
@@ -575,7 +571,17 @@ export const TourPanelFormFields = ({
           />
         )}
       />
+    </>
+  );
+};
 
+const TourPanelScheduleFields = ({ state }: ITourPanelFieldsProps) => {
+  const { t } = useTranslation('tourism');
+  const { form } = state;
+  const { control } = form;
+
+  return (
+    <>
       <TourPanelSection title={t('duration-info')}>
         <TourismPanelFormField
           control={control}
@@ -604,37 +610,91 @@ export const TourPanelFormFields = ({
             />
           )}
         />
-        <div className="pt-2">
-          <TourDateSchedulingField control={control} setValue={form.setValue} />
-        </div>
+        <TourDateSchedulingField control={control} setValue={form.setValue} />
       </TourPanelSection>
 
       <TourPanelSection title={t('crew')}>
         <TourGuidesField control={control} />
       </TourPanelSection>
+    </>
+  );
+};
 
-      <TourPanelSection title={t('pricing-info')}>
-        <TourPricingOptionsField
-          key={`pricing-${translationIndex}`}
-          control={control}
-          translationIndex={isMainLang ? undefined : translationIndex}
-          labelSuffix={labelSuffix}
-          currencySymbol={currencySymbol}
-        />
-      </TourPanelSection>
+const TourPanelPricingFields = ({
+  state,
+  titled = true,
+}: ITourPanelFieldsProps) => {
+  const { t } = useTranslation('tourism');
+  const { form, language } = state;
+  const { control } = form;
+  const { labelSuffix, isMainLang, translationIndex, currencySymbol } =
+    language;
 
-      <TourPanelSection title={t('more-info')}>
-        <div className="flex flex-col gap-4">
-          <TourImageThumbnailField control={control} />
-          <TourImagesField control={control} />
-          <TourAttachmentsField control={control} />
-        </div>
-        <TourPanelInfoSection
-          key={`info-${editorKey}`}
-          form={form}
-          fieldPaths={fieldPaths}
-        />
-      </TourPanelSection>
+  return (
+    <TourPanelSection title={titled ? t('pricing-info') : undefined}>
+      <TourPricingOptionsField
+        key={`pricing-${translationIndex}`}
+        control={control}
+        translationIndex={isMainLang ? undefined : translationIndex}
+        labelSuffix={labelSuffix}
+        currencySymbol={currencySymbol}
+      />
+    </TourPanelSection>
+  );
+};
+
+const TourPanelMediaFields = ({
+  state,
+  editorKey = 0,
+  titled = true,
+}: ITourPanelFieldsProps) => {
+  const { t } = useTranslation('tourism');
+  const { form, language } = state;
+  const { control } = form;
+  const { fieldPaths } = language;
+
+  return (
+    <TourPanelSection title={titled ? t('more-info') : undefined}>
+      <div className="flex flex-col gap-4">
+        <TourImageThumbnailField control={control} />
+        <TourImagesField control={control} />
+        <TourAttachmentsField control={control} />
+      </div>
+      <TourPanelInfoSection
+        key={`info-${editorKey}`}
+        form={form}
+        fieldPaths={fieldPaths}
+      />
+    </TourPanelSection>
+  );
+};
+
+export const TourPanelFormFields = ({
+  state,
+  branchId,
+  editorKey = 0,
+  section = 'all',
+}: ITourPanelFieldsProps & { section?: TTourPanelSection }) => {
+  const { allLanguages, selectedLang, setSelectedLang } = state.language;
+  const fieldsProps = { state, branchId, editorKey, titled: section === 'all' };
+  const shows = (target: Exclude<TTourPanelSection, 'all'>) =>
+    section === 'all' || section === target;
+
+  return (
+    <>
+      <TourismPanelLanguageRow
+        languages={allLanguages}
+        value={selectedLang}
+        onValueChange={setSelectedLang}
+      />
+      {shows('detail') && (
+        <>
+          <TourPanelGeneralFields {...fieldsProps} />
+          <TourPanelScheduleFields {...fieldsProps} />
+        </>
+      )}
+      {shows('pricing') && <TourPanelPricingFields {...fieldsProps} />}
+      {shows('media') && <TourPanelMediaFields {...fieldsProps} />}
     </>
   );
 };
