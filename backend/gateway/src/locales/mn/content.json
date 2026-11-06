@@ -252,6 +252,7 @@
   "no-cms-yet-desc": "Эхний вэбсайтаа үүсгэж эхлэх.",
   "add-cms": "CMS нэмэх",
   "no-pages-found": "Хуудас олдсонгүй.",
+  "no-pages-yet": "Одоогоор хуудас байхгүй",
   "no-pages-yet-desc": "Эхний хуудсаа үүсгэж эхлэх.",
   "no-permission-to-create-tags": "Та шошго үүсгэх эрхгүй байна.",
   "no-permission-to-edit-tags": "Та шошго засах эрхгүй байна.",

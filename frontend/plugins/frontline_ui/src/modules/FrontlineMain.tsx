@@ -75,7 +75,7 @@ const FormPreviewPage = lazy(() =>
 
 const HelpCenter = lazy(() =>
   import('~/pages/HelpCenterIndexPage').then((module) => ({
-    default: module.default,
+    default: module.HelpCenterIndexPage,
   })),
 );
 
@@ -200,4 +200,4 @@ const FrontlineEntry = () => (
   </Routes>
 );
 
-export default FrontlineEntry;
+export { FrontlineEntry as Frontline };

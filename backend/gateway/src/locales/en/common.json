@@ -209,6 +209,7 @@
     "agents": "Agents",
     "ldap": "LDAP",
     "two-factor": "Two-factor authentication",
+    "my-activity": "My activity",
     "security": "Security",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Support access"

@@ -39,6 +39,20 @@ export const CONFIG: IUIConfig = {
     icon: IconStackFront,
   },
   widgets: {
+    recordPanels: [
+      { contentType: 'frontline:ticket' },
+      { contentType: 'frontline:knowledgebase.article', properties: false },
+      { contentType: 'frontline:knowledgebase.topic', properties: false },
+      { contentType: 'frontline:knowledgebase.category', properties: false },
+      { contentType: 'frontline:article', properties: false },
+      { contentType: 'frontline:topic', properties: false },
+      { contentType: 'frontline:category', properties: false },
+      {
+        contentType: 'frontline:helpcenter',
+        properties: false,
+        draftTitle: true,
+      },
+    ],
     // A customer's / company's tickets and conversations on their overview
     // (`./contactWidget`).
     contactWidgets: [

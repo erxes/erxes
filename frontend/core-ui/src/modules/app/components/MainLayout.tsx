@@ -72,7 +72,7 @@ export const DefaultLayout = () => {
 
   // Core draws no sidebar; the provider only backs Sidebar.* parts used on
   // pages without an AppLayout (apps nest their own provider). The side
-  // panel runs the full window height, beside the top bar too.
+  // panel sits below the top bar, beside the workspace.
   return (
     <RecordViewContext.Provider value={SidePanelRecord}>
       <Sidebar.Provider
@@ -85,9 +85,11 @@ export const DefaultLayout = () => {
         <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
           <SupportAccessBanner />
           <CoreTab />
-          <AppWorkspace />
+          <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+            <AppWorkspace />
+            <SidePanelLayout />
+          </div>
         </div>
-        <SidePanelLayout />
       </Sidebar.Provider>
     </RecordViewContext.Provider>
   );

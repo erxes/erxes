@@ -43,6 +43,7 @@ export const FieldStringDetail = (props: SpecificFieldProps) => {
   return (
     <Input
       id={id}
+      placeholder={props.field.name}
       value={currentValue}
       onChange={(e) => {
         setCurrentValue(e.target.value);

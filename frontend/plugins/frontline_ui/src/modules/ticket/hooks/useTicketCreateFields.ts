@@ -2,8 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { ISystemFieldRules, isFieldVisibleByLogic } from 'ui-modules';
 import { TTicketLayoutCell } from '@/ticket/hooks/useTicketCreateLayout';
 import { TAddTicket } from '@/ticket/types';
-
-type TPropertiesData = Record<string, unknown>;
+import type { UseFormReturn } from 'react-hook-form';
 
 const isEmpty = (value: unknown) =>
   value === undefined ||
@@ -19,11 +18,17 @@ const isEmpty = (value: unknown) =>
 export const useTicketCreateFields = ({
   rows,
   rules,
+  form,
 }: {
   rows: TTicketLayoutCell[][];
   rules: ISystemFieldRules;
+  form: UseFormReturn<TAddTicket>;
 }) => {
-  const [propertiesData, setPropertiesData] = useState<TPropertiesData>({});
+  const watchedPropertiesData = form.watch('propertiesData');
+  const propertiesData = useMemo(
+    () => watchedPropertiesData ?? {},
+    [watchedPropertiesData],
+  );
   const [missingIds, setMissingIds] = useState<string[]>([]);
 
   const visibleRows = useMemo(
@@ -40,14 +45,21 @@ export const useTicketCreateFields = ({
     [rows, propertiesData],
   );
 
-  const setPropertyValue = useCallback((fieldId: string, value: unknown) => {
-    setPropertiesData((prev) => ({ ...prev, [fieldId]: value }));
-    setMissingIds((prev) =>
-      prev.filter((id) => id !== `property:${fieldId}`),
-    );
-  }, []);
+  const setPropertyValue = useCallback(
+    (fieldId: string, value: unknown) => {
+      form.setValue(
+        'propertiesData',
+        { ...form.getValues('propertiesData'), [fieldId]: value },
+        { shouldDirty: true },
+      );
+      setMissingIds((prev) =>
+        prev.filter((id) => id !== `property:${fieldId}`),
+      );
+    },
+    [form],
+  );
 
-  // Names of required fields left empty; marks them for the form to show.
+  /** Names of required fields left empty; marks them for the form to show. */
   const findMissing = ({
     values,
     descriptionEmpty,
@@ -76,7 +88,7 @@ export const useTicketCreateFields = ({
     return names;
   };
 
-  // Only what the form shows now goes out.
+  /** Only what the form shows now goes out. */
   const shownPropertiesData = () => {
     const entries = visibleRows
       .flat()
@@ -90,7 +102,7 @@ export const useTicketCreateFields = ({
   };
 
   const reset = () => {
-    setPropertiesData({});
+    form.setValue('propertiesData', {});
     setMissingIds([]);
   };
 

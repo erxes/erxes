@@ -120,7 +120,9 @@ const queries: Record<string, Resolver> = {
       password: process.env.QUICK_QR_PASSWORD || '',
     });
 
-    return api.getDistricts(args.cityCode);
+    const districts = await api.getDistricts(args.cityCode);
+
+    return Array.isArray(districts) ? districts : [];
   },
 };
 

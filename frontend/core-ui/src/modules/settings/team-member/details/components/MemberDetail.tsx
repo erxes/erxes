@@ -3,7 +3,10 @@ import { MemberDetailEmptyState } from '@/settings/team-member/details/component
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
 import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
-import { MemberPanelDetail } from '@/settings/team-member/details/components/MemberPanelDetail';
+import {
+  MemberPanelDetail,
+  MemberPanelName,
+} from '@/settings/team-member/details/components/MemberPanelDetail';
 import { MembersPermissions } from '@/settings/team-member/details/components/MembersPermissions';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
@@ -82,7 +85,11 @@ export const MemberDetail = ({
       t('member-detail');
 
     return {
-      title,
+      title: currentUser?.isOwner ? (
+        <MemberPanelName userId={userDetail._id} />
+      ) : (
+        title
+      ),
       avatar: (
         <Avatar size="lg" className="size-7 flex-none">
           <Avatar.Image src={readImage(avatar || '')} />

@@ -8,6 +8,7 @@ import { TRANSACTIONS_QUERY } from '@/transactions/graphql/transactionQueries';
 
 const mockToast = jest.fn();
 const mockNavigate = jest.fn();
+let mockSearch = '';
 const listVariables = { limit: 20, orderBy: { date: 1 }, cursor: '' };
 
 jest.mock('erxes-ui', () => ({ toast: (args: unknown) => mockToast(args) }), {
@@ -18,6 +19,7 @@ jest.mock('react-i18next', () => ({
 }));
 jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
+  useSearchParams: () => [new URLSearchParams(mockSearch)],
 }));
 jest.mock('@/transactions/hooks/useTransactionVars', () => ({
   useTransactionsVariables: () => listVariables,
@@ -90,6 +92,7 @@ describe('adding a General journal transaction', () => {
   beforeEach(() => {
     mockToast.mockClear();
     mockNavigate.mockClear();
+    mockSearch = '';
   });
 
   it('drops every cached Journal Entries list so the page loads the new lines without a refresh', async () => {
@@ -118,6 +121,31 @@ describe('adding a General journal transaction', () => {
       expect.objectContaining({
         description: 'transactions-created-successfully',
       }),
+    );
+  });
+
+  it('opens the saved voucher still remembering the filtered list it was created from', async () => {
+    mockSearch = `defaultJournal=main&returnTo=${encodeURIComponent(
+      '/accounting/main?branchId=branch-1&journal=main',
+    )}`;
+    const { result } = renderCreate(cacheWithJournalEntries(), [
+      createMock({
+        data: {
+          accTransactionsCreate: [{ _id: 'tr-new-dt', parentId: 'parent-new' }],
+        },
+      }),
+    ]);
+
+    await act(async () => {
+      await result.current.createTransaction({
+        variables: { trDocs: generalJournalDocs },
+      });
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith(
+      `/accounting/transaction/edit?parentId=parent-new&returnTo=${encodeURIComponent(
+        '/accounting/main?branchId=branch-1&journal=main',
+      )}`,
     );
   });
 

@@ -1,10 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Time } from '@internationalized/date';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
 import { IconReport } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import {
   Button,
   Checkbox,
+  DateInput,
   DatePicker,
   Dialog,
   Form,
@@ -12,6 +14,7 @@ import {
   Input,
   Select,
   Separator,
+  TimeField,
 } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useEffect, useMemo } from 'react';
@@ -37,7 +40,11 @@ import {
   ReportFilterDefinition,
 } from '@/journal-reports/types/reportFilters';
 import { getReportPeriodSchema } from '@/journal-reports/types/reportFormSchema';
-import { getReportPeriodParam } from '@/journal-reports/utils/reportNavigation';
+import {
+  getReportPeriodParam,
+  REPORT_PERIOD_DEFAULT_TIME,
+  setReportPeriodTime,
+} from '@/journal-reports/utils/reportNavigation';
 import { IReportConfig, ReportRules } from '@/journal-reports/types/reportsMap';
 
 interface ReportFormValues {
@@ -385,18 +392,46 @@ const ReportFormField = ({
       <Form.Field
         control={form.control}
         name={field}
-        render={({ field: control }) => (
-          <Form.Item>
-            <Form.Label>{label}</Form.Label>
-            <DatePicker
-              value={control.value}
-              onChange={control.onChange}
-              format="YYYY-MM-DD"
-              className={datePickerClassName}
-            />
-            <Form.Message />
-          </Form.Item>
-        )}
+        render={({ field: control }) => {
+          const date = control.value;
+          const time = date
+            ? { hour: date.getHours(), minute: date.getMinutes() }
+            : REPORT_PERIOD_DEFAULT_TIME[field];
+
+          return (
+            <Form.Item>
+              <Form.Label>{label}</Form.Label>
+              <div className="flex gap-2">
+                <DatePicker
+                  value={date}
+                  onChange={(next) =>
+                    control.onChange(
+                      next instanceof Date
+                        ? setReportPeriodTime(next, time)
+                        : undefined,
+                    )
+                  }
+                  format="YYYY-MM-DD"
+                  className={datePickerClassName}
+                />
+                <TimeField
+                  value={new Time(time.hour, time.minute)}
+                  isDisabled={!date}
+                  onChange={(next) =>
+                    next &&
+                    date &&
+                    control.onChange(setReportPeriodTime(date, next))
+                  }
+                  hourCycle={24}
+                  aria-label={label}
+                >
+                  <DateInput className="h-8 w-20 justify-center" />
+                </TimeField>
+              </div>
+              <Form.Message />
+            </Form.Item>
+          );
+        }}
       />
     );
   }
