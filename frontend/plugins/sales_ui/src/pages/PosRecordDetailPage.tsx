@@ -11,19 +11,25 @@ import {
   Separator,
   useQueryState,
 } from 'erxes-ui';
-import type { ReactNode } from 'react';
+import { type ReactNode, useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
   type IRecordSidePanelTab,
+  type ISidePanelNavigator,
   PageHeader,
   RecordSidePanel,
+  SidePanelNavigatorContext,
+  useSidePanel,
 } from 'ui-modules';
+import {
+  POS_COVER_CONTENT_TYPE,
+  POS_ORDER_CONTENT_TYPE,
+} from '@/pos/constants/posPanel';
 import { useGetCurrentUsersPos } from '@/pos/hooks/useGetCurrentUsersPos';
 import {
   PosCoverPanelActions,
   PosCoverPanelDetail,
-  PosCoverPanelTitle,
 } from '~/widgets/record-panel/PosCoverPanel';
 import {
   PosOrderPanelDetail,
@@ -75,9 +81,9 @@ const PosPageBreadcrumb = ({
         )}
         <Separator.Inline />
         <Breadcrumb.Item className="min-w-0">
-          <Button variant="ghost" className="min-w-0">
+          <Breadcrumb.Page className="flex min-w-0 px-2 text-sm">
             {title}
-          </Button>
+          </Breadcrumb.Page>
         </Breadcrumb.Item>
       </Breadcrumb.List>
     </Breadcrumb>
@@ -85,44 +91,78 @@ const PosPageBreadcrumb = ({
 };
 
 const PosRecordPage = ({
+  contentType,
+  contentId,
+  section,
   breadcrumb,
   actions,
-  overviewHeader,
   tabs,
   defaultTab,
 }: {
+  contentType: string;
+  contentId: string;
+  section: 'orders' | 'covers';
   breadcrumb: ReactNode;
   actions?: ReactNode;
-  overviewHeader: ReactNode;
   tabs: IRecordSidePanelTab[];
   defaultTab: string;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [tab, setTab] = useQueryState<string>('tab');
+  const { posId } = useParams<{ posId?: string }>();
+  const navigate = useNavigate();
+  const { openRecord } = useSidePanel();
+  const listPath = posId ? `/sales/pos/${posId}/${section}` : '/sales/pos';
+  const record = useMemo(
+    () => ({ contentType, contentId }),
+    [contentType, contentId],
+  );
+
+  const backToList = useCallback(
+    () => navigate(listPath, { replace: true }),
+    [navigate, listPath],
+  );
+
+  const navigator = useMemo<ISidePanelNavigator>(
+    () => ({
+      record,
+      tab: tab ?? '',
+      setTab,
+      openRecord,
+      back: backToList,
+      canGoBack: false,
+      close: backToList,
+    }),
+    [record, tab, setTab, openRecord, backToList],
+  );
 
   return (
-    <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
-        <PageHeader>
-          <PageHeader.Start className="flex-auto min-w-0">
-            {breadcrumb}
-          </PageHeader.Start>
-          {actions && <PageHeader.End>{actions}</PageHeader.End>}
-        </PageHeader>
-        <RecordSidePanel.Tabs
-          value={tab ?? defaultTab}
-          onValueChange={setTab}
-          visibleCount={3}
-          overviewTab={DETAIL_TAB}
-          expandedDefaultTab={defaultTab}
-          overviewHeader={
-            <div className="min-w-0 flex-1 truncate text-sm">
-              {overviewHeader}
-            </div>
-          }
-          tabs={tabs}
-        />
-      </RecordSidePanel>
-    </PageContainer>
+    <SidePanelNavigatorContext.Provider value={navigator}>
+      <PageContainer>
+        <RecordSidePanel expanded expandedMode="page" expandable={false}>
+          <PageHeader>
+            <PageHeader.Start className="flex-auto min-w-0">
+              {breadcrumb}
+            </PageHeader.Start>
+            {actions && <PageHeader.End>{actions}</PageHeader.End>}
+          </PageHeader>
+          <RecordSidePanel.Tabs
+            value={tab ?? defaultTab}
+            onValueChange={setTab}
+            visibleCount={3}
+            overviewTab={DETAIL_TAB}
+            expandedDefaultTab={defaultTab}
+            overviewHeader={
+              <div className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+                <IconId className="size-4 shrink-0" />
+                <span className="truncate">{t('detail')}</span>
+              </div>
+            }
+            tabs={tabs}
+          />
+        </RecordSidePanel>
+      </PageContainer>
+    </SidePanelNavigatorContext.Provider>
   );
 };
 
@@ -144,6 +184,9 @@ export const PosOrderDetailPage = () => {
   return (
     <PosRecordPage
       key={orderId}
+      contentType={POS_ORDER_CONTENT_TYPE}
+      contentId={orderId}
+      section="orders"
       breadcrumb={
         <PosPageBreadcrumb
           section="orders"
@@ -151,7 +194,6 @@ export const PosOrderDetailPage = () => {
           title={<PosOrderPanelTitle orderId={orderId} />}
         />
       }
-      overviewHeader={<PosOrderPanelTitle orderId={orderId} />}
       defaultTab={PAYMENTS_TAB}
       tabs={[
         {
@@ -193,6 +235,9 @@ export const PosCoverDetailPage = () => {
   return (
     <PosRecordPage
       key={coverId}
+      contentType={POS_COVER_CONTENT_TYPE}
+      contentId={coverId}
+      section="covers"
       breadcrumb={
         <PosPageBreadcrumb
           section="covers"
@@ -201,7 +246,6 @@ export const PosCoverDetailPage = () => {
         />
       }
       actions={<PosCoverPanelActions coverId={coverId} />}
-      overviewHeader={<PosCoverPanelTitle coverId={coverId} />}
       defaultTab={ACTIVITY_TAB}
       tabs={[
         {
