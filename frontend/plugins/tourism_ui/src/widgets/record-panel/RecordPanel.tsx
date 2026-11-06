@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
-import { TourismPanelIdentity } from '@/tms/side-panel/TourismPanelIdentity';
 import { TourismPanelActivity } from '@/tms/side-panel/TourismPanelLayout';
 import {
   ITourismPanelHeading,
@@ -30,7 +29,7 @@ import { ITINERARY_PANEL } from '@/tms/branch-detail/dashboard/itinerary/_compon
 import { ORDER_PANEL } from '@/tms/branch-detail/dashboard/tours/_components/OrderPanel';
 import { TOUR_PANEL } from '@/tms/branch-detail/dashboard/tours/_components/TourPanel';
 
-const RECORD_PANELS: Record<string, ITourismPanelViews> = {
+export const RECORD_PANELS: Record<string, ITourismPanelViews> = {
   [TMS_TOUR_CONTENT_TYPE]: TOUR_PANEL,
   [TMS_ORDER_CONTENT_TYPE]: ORDER_PANEL,
   [TMS_ITINERARY_CONTENT_TYPE]: ITINERARY_PANEL,
@@ -70,18 +69,6 @@ const TourismPanelRecordTitle = ({
   const { name } = useHeading(contentId);
 
   return name || t(label);
-};
-
-const TourismPanelRecordIdentity = ({
-  contentId,
-  useHeading,
-}: {
-  contentId: string;
-  useHeading: TUseHeading;
-}) => {
-  const heading = useHeading(contentId);
-
-  return heading.name ? <TourismPanelIdentity {...heading} /> : null;
 };
 
 export const RecordPanel = ({
@@ -152,12 +139,6 @@ export const RecordPanel = ({
 
   return (
     <TourismPanelScroll>
-      {useHeading && (
-        <TourismPanelRecordIdentity
-          contentId={contentId}
-          useHeading={useHeading}
-        />
-      )}
       <Detail contentType={contentType} contentId={contentId} />
     </TourismPanelScroll>
   );

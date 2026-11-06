@@ -25,6 +25,16 @@ export const TOURISM_PANEL_CONTENT_TYPES = [
   TMS_CUSTOM_FIELD_CONTENT_TYPE,
 ];
 
+export const TOURISM_PANEL_TABS: Record<
+  string,
+  { value: string; label: string }[]
+> = {
+  [TMS_TOUR_CONTENT_TYPE]: [
+    { value: 'bookings', label: 'Bookings' },
+    { value: 'customers', label: 'Customers' },
+  ],
+};
+
 export interface ITourismPanelDraftDefaults extends Record<string, unknown> {
   branchId?: string;
   groupId?: string;
