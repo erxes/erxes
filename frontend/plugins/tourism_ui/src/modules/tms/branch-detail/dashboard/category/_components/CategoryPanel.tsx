@@ -17,6 +17,7 @@ import {
   useTourismPanel,
   useTourismPanelBranch,
   useTourismPanelDraft,
+  useTourismPanelRouteBranchId,
 } from '@/tms/side-panel/useTourismPanel';
 import {
   CategoryCreateFormSchema,
@@ -314,10 +315,23 @@ export const CategoryCreateButton = ({ branchId }: { branchId?: string }) => {
   );
 };
 
+const useCategoryPanelHeading = (contentId: string) => {
+  const branchId = useTourismPanelRouteBranchId();
+  const { data } = useQuery<{ bmsTourCategories?: ICategory[] }>(
+    GET_CATEGORIES,
+    { variables: { branchId }, skip: !branchId },
+  );
+
+  return {
+    name: data?.bmsTourCategories?.find((item) => item._id === contentId)?.name,
+  };
+};
+
 export const CATEGORY_PANEL: ITourismPanelViews = {
   addLabel: 'create-category',
   editLabel: 'edit-category',
   New: CategoryPanelNew,
+  useHeading: useCategoryPanelHeading,
   Detail: CategoryPanelDetail,
   Actions: CategoryPanelActions,
 };

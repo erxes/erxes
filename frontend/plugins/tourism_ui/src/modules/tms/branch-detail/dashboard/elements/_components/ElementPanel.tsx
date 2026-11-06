@@ -341,10 +341,20 @@ export const ElementCreateButton = ({ branchId }: { branchId: string }) => {
   );
 };
 
+const useElementPanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ bmsElementDetail?: IElement }>(
+    GET_ELEMENT_DETAIL,
+    { variables: { id: contentId } },
+  );
+
+  return { name: data?.bmsElementDetail?.name };
+};
+
 export const ELEMENT_PANEL: ITourismPanelViews = {
   addLabel: 'create-element',
   editLabel: 'edit-element',
   New: ElementPanelNew,
+  useHeading: useElementPanelHeading,
   Detail: ElementPanelDetail,
   Actions: ElementPanelActions,
 };

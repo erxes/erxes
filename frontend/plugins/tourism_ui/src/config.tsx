@@ -33,6 +33,13 @@ export const CONFIG: IUIConfig = {
       contentType,
       properties: contentType === TMS_TOUR_CONTENT_TYPE,
       draftTitle: true,
+      pageExpanded: true,
+      ...(contentType === TMS_TOUR_CONTENT_TYPE && {
+        tabs: [
+          { value: 'bookings', label: 'Bookings' },
+          { value: 'customers', label: 'Customers' },
+        ],
+      }),
     })),
   },
 };

@@ -7,6 +7,7 @@ import {
   useQueryState,
 } from 'erxes-ui';
 import { useSidePanel } from 'ui-modules';
+import { useRecordExpandsInPage } from '@/side-panel/hooks/useRecordPanelPlugin';
 
 const recordPageTargetState = atom<HTMLDivElement | null>(null);
 
@@ -14,19 +15,14 @@ const recordPageTargetState = atom<HTMLDivElement | null>(null);
 export const RecordPageSlot = ({ children }: React.PropsWithChildren) => {
   const [expanded] = useQueryState<boolean>('panelExpanded');
   const { open, record } = useSidePanel();
+  const expandsInPage = useRecordExpandsInPage(record?.contentType);
   const setTarget = useSetAtom(recordPageTargetState);
   const appPageTarget = useAtomValue(appLayoutPageTargetState);
   const setPageTarget = useCallback(
     (element: HTMLDivElement | null) => setTarget(element),
     [setTarget],
   );
-  const active = Boolean(
-    !appPageTarget &&
-    expanded &&
-    open &&
-    record &&
-    ['core:customer', 'core:company'].includes(record.contentType),
-  );
+  const active = Boolean(!appPageTarget && expanded && open && expandsInPage);
 
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

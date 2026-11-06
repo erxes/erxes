@@ -326,10 +326,20 @@ export const AmenityCreateButton = ({ branchId }: { branchId?: string }) => {
   );
 };
 
+const useAmenityPanelHeading = (contentId: string) => {
+  const { data } = useQuery<{ bmsElementDetail?: IAmenity }>(
+    GET_AMENITY_DETAIL,
+    { variables: { id: contentId } },
+  );
+
+  return { name: data?.bmsElementDetail?.name };
+};
+
 export const AMENITY_PANEL: ITourismPanelViews = {
   addLabel: 'create-amenity',
   editLabel: 'edit-amenity',
   New: AmenityPanelNew,
+  useHeading: useAmenityPanelHeading,
   Detail: AmenityPanelDetail,
   Actions: AmenityPanelActions,
 };

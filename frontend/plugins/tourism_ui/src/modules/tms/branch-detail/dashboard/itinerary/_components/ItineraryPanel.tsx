@@ -154,9 +154,16 @@ const ItineraryPanelActions = ({ contentId }: ITourismPanelViewProps) => {
   );
 };
 
+const useItineraryPanelHeading = (contentId: string) => {
+  const { itinerary } = useItineraryDetail(contentId);
+
+  return { name: itinerary?.name, image: itinerary?.images?.[0] };
+};
+
 export const ITINERARY_PANEL: ITourismPanelViews = {
   addLabel: 'create-itinerary',
   editLabel: 'itinerary',
+  useHeading: useItineraryPanelHeading,
   Detail: ItineraryPanelDetail,
   Actions: ItineraryPanelActions,
 };

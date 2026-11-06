@@ -9,20 +9,24 @@ import { CategoryCommandBar } from './CategoryCommandBar';
 import { useMemo } from 'react';
 import { ICategory } from '../types/category';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface CategoryRecordTableProps {
   branchId?: string;
   mainLanguage?: string;
 }
 
-function CategoryTableContent({ loading }: Readonly<{ loading: boolean }>) {
+function CategoryTableContent({
+  loading,
+  length,
+}: Readonly<{ loading: boolean; length: number }>) {
   return (
     <RecordTable.Scroll>
       <RecordTable>
         <RecordTable.Header />
         <RecordTable.Body>
           <RecordTable.RowList Row={RecordTableTree.Row} />
-          {loading && <RecordTable.RowSkeleton rows={10} />}
+          {loading && !length && <RecordTable.RowSkeleton rows={10} />}
         </RecordTable.Body>
       </RecordTable>
     </RecordTable.Scroll>
@@ -66,12 +70,15 @@ export const CategoryRecordTable = ({
     <RecordTable.Provider
       columns={categoryColumns(categoryObject, t)}
       data={categoriesWithChildren || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="tourism_categories_record_table"
     >
       <RecordTableTree id="tour-categories" ordered>
-        <CategoryTableContent loading={loading} />
+        <CategoryTableContent
+          loading={loading}
+          length={categoriesWithChildren?.length ?? 0}
+        />
       </RecordTableTree>
       <CategoryCommandBar />
     </RecordTable.Provider>

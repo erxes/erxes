@@ -13,6 +13,7 @@ import { TourCommandBar } from './TourCommandBar';
 import { useCategories } from '../../category/hooks/useCategories';
 import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 export const TourRecordTable = ({
   branchId,
@@ -74,7 +75,7 @@ export const TourRecordTable = ({
       <RecordTable.Provider
         columns={columns}
         data={rowData}
-        className="h-full"
+        className={TOURISM_RECORD_TABLE_CLASS_NAME}
         stickyColumns={['more', 'checkbox', 'name']}
         tableId="tourism_tours_record_table"
       >
@@ -91,7 +92,9 @@ export const TourRecordTable = ({
               <RecordTable.CursorBackwardSkeleton
                 handleFetchMore={handleFetchMore}
               />
-              {loading && <RecordTable.RowSkeleton rows={30} />}
+              {loading && !rowData.length && (
+                <RecordTable.RowSkeleton rows={30} />
+              )}
               <RecordTable.RowList />
               <RecordTable.CursorForwardSkeleton
                 handleFetchMore={handleFetchMore}

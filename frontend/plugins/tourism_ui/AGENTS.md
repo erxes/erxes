@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -24,36 +24,37 @@
 - Registers tourism navigation for PMS and TMS.
 - Exposes PMS, PMS settings, TMS, TMS settings, tourism main routes, plugin config, and the record panel through Module Federation.
 - TMS branch records open in the app side panel (`?panel=/detail/<contentType>/<id|new>`): amenities, tour categories, elements, custom tour types, custom field groups and custom fields create, edit and delete there; orders show and edit their booking there.
-- Tours are created and edited in the side panel: the Detail tab is a grouped row form (general, content, duration and dates, crew, pricing, more info) with the tour's bookings and customers below it, and the Properties tab edits the tour's custom field groups.
+- Tours are created and edited in the side panel: the Detail tab is a grouped row form (general, content, duration and dates, crew, pricing, more info); Bookings and Customers are their own top-level panel tabs (`tabs` in the `tourism:tmsTour` record panel config, drawn through the `tab` view), and the Properties tab edits the tour's custom field groups.
 - Clicking an itinerary name opens a read-only overview in the side panel; the overview Edit and the row ⋯ Edit both open the existing itinerary builder sheet. Row ⋯ Duplicate opens a `tourism:tmsItineraryDuplicate` panel (name and color) that opens the new itinerary's overview after saving. Itinerary creation, tour duplication and tour group add stay as sheets.
 - TMS branch cards open through a thumbnail link named after the branch, with or without a logo.
+- Saved-record panels follow the contacts detail look inside the plugin: each panel's `useHeading` hook names the record, which titles the panel (falling back to the edit label) and heads the Detail tab with an avatar and the name; bookings and itinerary duplicates have no heading. Panel views render in a centered `max-w-2xl` column (like contacts' new-record form when expanded), inputs use `TOURISM_PANEL_INPUT_CLASS_NAME` (bordered panel input) and `TourismPanelFormField` picks a row icon from the field name.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture
 
-| Area              | Path                                                      | Responsibility                                                 |
-| ----------------- | --------------------------------------------------------- | -------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/tourism_ui/src/Sidebar.tsx` | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout` |
-| Sub navigation | `frontend/plugins/tourism_ui/src/modules/TourismSubNavigation.tsx` | TMS branches with their sections and PMS branches, shown under PMS/TMS in the app sidebar |
-| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                 | Starts the tourism UI remote.                                  |
-| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts` | Exposes config, PMS, TMS, settings, and tourism route entries. |
-| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`            | Module Federation development serving and watch ignore rules.  |
-| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`              | Registers navigation, modules, and search providers.           |
-| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`             | Owns PMS route composition and UI.                             |
-| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`             | Owns TMS route composition and UI.                             |
-| Main module       | `frontend/plugins/tourism_ui/src/modules/main`            | Owns shared tourism route composition.                         |
-| Pages             | `frontend/plugins/tourism_ui/src/pages`                   | Provides route-level PMS and TMS pages.                        |
-| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                 | Provides plugin widget exports.                                |
-| Record panel | `frontend/plugins/tourism_ui/src/widgets/record-panel/RecordPanel.tsx` | `RecordPanel`: maps each tourism content type to its side panel views (title, new, detail, actions, activity). |
-| Panel kit | `frontend/plugins/tourism_ui/src/modules/tms/side-panel` | Content types, `useTourismPanel`/`useTourismPanelBranch`/`useTourismPanelDraft`, row form fields and language row, record state, overview and remove action. |
-| Custom fields | `frontend/plugins/tourism_ui/src/modules/tms/branch-detail/dashboard/custom-fields` | Tour type, field group and field forms, data hooks and panels used by `CustomFieldsPage`. |
+| Area              | Path                                                                                | Responsibility                                                                                                                                               |
+| ----------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| App sidebar       | `frontend/plugins/tourism_ui/src/Sidebar.tsx`                                       | `TourismSidebar`: the plugin's whole app sidebar, rendered by the `./tourism` entry through `AppLayout`                                                      |
+| Sub navigation    | `frontend/plugins/tourism_ui/src/modules/TourismSubNavigation.tsx`                  | TMS branches with their sections and PMS branches, shown under PMS/TMS in the app sidebar                                                                    |
+| Runtime           | `frontend/plugins/tourism_ui/src/main.ts`                                           | Starts the tourism UI remote.                                                                                                                                |
+| Federation config | `frontend/plugins/tourism_ui/module-federation.config.ts`                           | Exposes config, PMS, TMS, settings, and tourism route entries.                                                                                               |
+| Dev server config | `frontend/plugins/tourism_ui/rspack.config.ts`                                      | Module Federation development serving and watch ignore rules.                                                                                                |
+| Plugin config     | `frontend/plugins/tourism_ui/src/config.tsx`                                        | Registers navigation, modules, and search providers.                                                                                                         |
+| PMS module        | `frontend/plugins/tourism_ui/src/modules/pms`                                       | Owns PMS route composition and UI.                                                                                                                           |
+| TMS module        | `frontend/plugins/tourism_ui/src/modules/tms`                                       | Owns TMS route composition and UI.                                                                                                                           |
+| Main module       | `frontend/plugins/tourism_ui/src/modules/main`                                      | Owns shared tourism route composition.                                                                                                                       |
+| Pages             | `frontend/plugins/tourism_ui/src/pages`                                             | Provides route-level PMS and TMS pages.                                                                                                                      |
+| Widgets           | `frontend/plugins/tourism_ui/src/widgets`                                           | Provides plugin widget exports.                                                                                                                              |
+| Record panel      | `frontend/plugins/tourism_ui/src/widgets/record-panel/RecordPanel.tsx`              | `RecordPanel`: maps each tourism content type to its side panel views (title, new, detail, actions, activity).                                               |
+| Panel kit         | `frontend/plugins/tourism_ui/src/modules/tms/side-panel`                            | Content types, `useTourismPanel`/`useTourismPanelBranch`/`useTourismPanelDraft`, row form fields and language row, record state, overview and remove action. |
+| Custom fields     | `frontend/plugins/tourism_ui/src/modules/tms/branch-detail/dashboard/custom-fields` | Tour type, field group and field forms, data hooks and panels used by `CustomFieldsPage`.                                                                    |
 
 ## Contracts
 
 ### Provides
 
 - Module Federation exposes: `./config`, `./pms`, `./tms`, `./tourism`, and `./recordPanel` (named `RecordPanel`).
-- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title; only `tourism:tmsTour` has a Properties tab).
+- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title and `pageExpanded`; `tourism:tmsTour` also declares `tabs` for bookings and customers; so an expanded panel replaces the page beside the app sidebar like contacts; only `tourism:tmsTour` has a Properties tab).
 - Frontend navigation paths under `tourism/pms` and `tourism/tms` registered from `src/config.tsx`.
 
 ### Consumes

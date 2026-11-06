@@ -12,12 +12,14 @@ import {
 import { IconPencil } from '@tabler/icons-react';
 import {
   CustomersInline,
-  PANEL_INPUT_CLASS_NAME,
   PanelField,
   PanelFormLayout,
   PanelFormRow,
 } from 'ui-modules';
-import { TourismPanelFormBlock } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  TourismPanelFormBlock,
+} from '@/tms/side-panel/TourismPanelForm';
 import {
   ITourismPanelViewProps,
   ITourismPanelViews,
@@ -290,7 +292,7 @@ const OrderEditForm = ({
               setValidationError(null);
             }}
           >
-            <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+            <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
               <Select.Value placeholder={t('select-booking-status')} />
             </Select.Trigger>
             <Select.Content align="start">

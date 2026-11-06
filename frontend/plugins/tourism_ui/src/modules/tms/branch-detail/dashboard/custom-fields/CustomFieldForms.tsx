@@ -15,8 +15,11 @@ import {
   Switch,
   Textarea,
 } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME, PanelFormLayout } from 'ui-modules';
-import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
+import { PanelFormLayout } from 'ui-modules';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  TourismPanelFormField,
+} from '@/tms/side-panel/TourismPanelForm';
 import type { ITourCustomPostType } from '../tours/hooks/useTourCustomFields';
 import {
   FIELD_TYPES,
@@ -97,7 +100,7 @@ const PanelTextField = <T extends FieldValues>({
           value={field.value ?? ''}
           autoFocus={autoFocus}
           placeholder={placeholder ?? label}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           onChange={(event) => {
             field.onChange(event);
             onValueChange?.(event.target.value);
@@ -312,7 +315,7 @@ export const FieldForm = ({
         rules={{ required: t('required') }}
         render={(field) => (
           <Select value={field.value} onValueChange={field.onChange}>
-            <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+            <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
               <Select.Value placeholder={t('select-field-type')} />
             </Select.Trigger>
             <Select.Content>

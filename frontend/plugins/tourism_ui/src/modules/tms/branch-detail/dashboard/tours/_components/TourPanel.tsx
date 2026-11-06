@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { IconPlus } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { useTranslation } from 'react-i18next';
-import { Button, Form, useToast } from 'erxes-ui';
+import { Button, Form, ScrollArea, useToast } from 'erxes-ui';
 import { PanelFormLayout, PanelFormRow } from 'ui-modules';
 import { TourismPanelRecordState } from '@/tms/side-panel/TourismPanelLayout';
 import { TourismPanelRemoveAction } from '@/tms/side-panel/TourismPanelRemoveAction';
@@ -354,16 +354,6 @@ const TourPanelEditForm = ({
             branchId={branchId}
             editorKey={editorKey}
           />
-          <TourPanelSection title={t('bookings')}>
-            <div className="-mx-3">
-              <TourOrdersPanel tourId={tour._id} />
-            </div>
-          </TourPanelSection>
-          <TourPanelSection>
-            <div className="-mx-3">
-              <TourCustomersPanel tourId={tour._id} />
-            </div>
-          </TourPanelSection>
         </PanelFormLayout>
       </form>
     </Form>
@@ -587,11 +577,31 @@ export const TourCreateButton = ({ branchId }: { branchId?: string }) => {
   );
 };
 
+const useTourPanelHeading = (contentId: string) => {
+  const { tourDetail } = useTourDetail({ variables: { id: contentId } });
+
+  return { name: tourDetail?.name, image: tourDetail?.images?.[0] };
+};
+
+const TourPanelBookings = ({ contentId }: ITourismPanelViewProps) => (
+  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <TourOrdersPanel tourId={contentId} />
+  </ScrollArea>
+);
+
+const TourPanelCustomers = ({ contentId }: ITourismPanelViewProps) => (
+  <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
+    <TourCustomersPanel tourId={contentId} />
+  </ScrollArea>
+);
+
 export const TOUR_PANEL: ITourismPanelViews = {
   addLabel: 'create-tour',
   editLabel: 'edit-tour',
   New: TourPanelNew,
+  useHeading: useTourPanelHeading,
   Detail: TourPanelDetail,
   Properties: TourPanelProperties,
+  Tabs: { bookings: TourPanelBookings, customers: TourPanelCustomers },
   Actions: TourPanelActions,
 };

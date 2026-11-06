@@ -8,6 +8,7 @@ import { useAmenities } from '../hooks/useAmenities';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
 import { AmenityCommandBar } from './AmenityCommandBar';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface AmenityRecordTableProps {
   branchId: string;
@@ -46,7 +47,7 @@ export const AmenityRecordTable = ({
     <RecordTable.Provider
       columns={amenityColumns(branchId, t)}
       data={amenities || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name', 'icon']}
       tableId="tourism_amenities_record_table"
     >
@@ -63,7 +64,9 @@ export const AmenityRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !amenities?.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

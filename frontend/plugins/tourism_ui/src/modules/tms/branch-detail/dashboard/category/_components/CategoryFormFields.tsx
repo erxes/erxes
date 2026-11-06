@@ -1,7 +1,9 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { Input, Upload, readImage } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
-import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  TourismPanelFormField,
+} from '@/tms/side-panel/TourismPanelForm';
 import { useTranslation } from 'react-i18next';
 import { CategoryCreateFormType } from '../constants/formSchema';
 import { SelectParentCategory } from './SelectParentCategory';
@@ -39,7 +41,7 @@ export const CategoryNameField = ({
       render={(field) => (
         <Input
           placeholder={t('category-name-placeholder')}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           {...field}
         />
       )}
@@ -62,7 +64,7 @@ export const CategoryCodeField = ({
       render={(field) => (
         <Input
           placeholder={t('category-code-placeholder')}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           {...field}
         />
       )}

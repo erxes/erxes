@@ -13,6 +13,7 @@ import { GroupedTourColumns, TourGroupRow } from './TourGroupColumns';
 import { flattenGroups } from './TourGroupUtils';
 import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 function TourGroupTableContent({
   loading,
@@ -27,7 +28,7 @@ function TourGroupTableContent({
         <RecordTable>
           <RecordTable.Header />
           <RecordTable.Body>
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !length && <RecordTable.RowSkeleton rows={30} />}
             <RecordTable.RowList Row={RecordTableTree.Row} />
           </RecordTable.Body>
         </RecordTable>
@@ -98,7 +99,7 @@ export const TourGroupList = ({
     <RecordTable.Provider
       columns={columns}
       data={groupedTours}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableOptions={tableOptions}
       tableId="tourism_tour_groups_record_table"

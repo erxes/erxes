@@ -1,7 +1,9 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { Input } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
-import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  TourismPanelFormField,
+} from '@/tms/side-panel/TourismPanelForm';
 import { useTranslation } from 'react-i18next';
 import { AmenityCreateFormType } from '../constants/formSchema';
 import { AmenityIconPicker } from './AmenityIconPicker';
@@ -37,7 +39,7 @@ export const AmenityNameField = ({
       render={(field) => (
         <Input
           placeholder={t('amenity-name-placeholder')}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           {...field}
         />
       )}

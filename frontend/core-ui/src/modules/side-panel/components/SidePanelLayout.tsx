@@ -23,7 +23,11 @@ import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPan
 import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelNew';
 import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
-import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
+import {
+  IRecordPanelPluginTab,
+  useRecordExpandsInPage,
+  useRecordPanelPlugin,
+} from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
@@ -67,6 +71,7 @@ const getPluginRecordViews = (
   { contentType, contentId }: TRelationEntity,
   pluginName: string | null,
   hasProperties: boolean,
+  tabs: IRecordPanelPluginTab[],
 ) =>
   pluginName
     ? {
@@ -86,6 +91,19 @@ const getPluginRecordViews = (
             view="properties"
           />
         ) : null,
+        extraTabs: tabs.map((tab) => ({
+          value: tab.value,
+          label: tab.label,
+          content: (
+            <PluginRecordPanel
+              pluginName={pluginName}
+              contentType={contentType}
+              contentId={contentId}
+              view="tab"
+              tab={tab.value}
+            />
+          ),
+        })),
       }
     : null;
 
@@ -270,9 +288,11 @@ const SidePanelSavedRecord = ({
   const access =
     coreViews && !hasActionPermission('contactsUpdate') ? 'read' : 'write';
   // Types core has no views for may be drawn by the plugin owning them.
-  const { pluginName, hasProperties } = useRecordPanelPlugin(
-    record.contentType,
-  );
+  const {
+    pluginName,
+    hasProperties,
+    tabs: pluginTabs,
+  } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
   const expanded = usePanelExpanded();
   const { title, avatar, state, email, website } = useRecordHeading(
@@ -280,7 +300,8 @@ const SidePanelSavedRecord = ({
     panelPluginName,
   );
   const views =
-    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+    coreViews ||
+    getPluginRecordViews(record, panelPluginName, hasProperties, pluginTabs);
   const relationTabs = useRecordRelationTabs({
     record,
     access,
@@ -339,15 +360,13 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-        ? DETAIL_TAB
-        : ACTIVITY_TAB;
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
 
   return (
     <>
       <RecordSidePanel.Header
-        className={
-          contactType && expanded ? 'bg-background px-3' : undefined
-        }
+        className={contactType && expanded ? 'bg-background px-3' : undefined}
         avatar={contactType ? undefined : avatar}
         title={
           contactType && expanded ? (
@@ -516,11 +535,8 @@ export const SidePanelLayout = () => {
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
-  const pageExpanded = Boolean(
-    expanded &&
-    record &&
-    ['core:customer', 'core:company'].includes(record.contentType),
-  );
+  const expandsInPage = useRecordExpandsInPage(record?.contentType);
+  const pageExpanded = Boolean(expanded && expandsInPage);
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {
@@ -572,8 +588,8 @@ export const SidePanelLayout = () => {
             onExpandedChange={setExpanded}
             width={
               moduleEntry && path
-                ? (moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0))
+                ? moduleWidths[path] ??
+                  Math.max(width, moduleEntry.defaultWidth || 0)
                 : width
             }
             maxWidth={moduleEntry?.maxWidth}

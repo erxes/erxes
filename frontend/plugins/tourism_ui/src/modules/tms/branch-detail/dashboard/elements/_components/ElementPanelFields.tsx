@@ -1,8 +1,10 @@
 import { Control, FieldPathByValue } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Editor, Input } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME } from 'ui-modules';
-import { TourismPanelFormField } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
+  TourismPanelFormField,
+} from '@/tms/side-panel/TourismPanelForm';
 import { ElementCreateFormType } from '../constants/formSchema';
 import { ElementCategoriesPicker } from './SelectElementCategories';
 
@@ -49,7 +51,7 @@ export const ElementPanelNameField = ({
       render={(field) => (
         <Input
           placeholder={t('element-name')}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           {...field}
         />
       )}
@@ -70,7 +72,11 @@ export const ElementPanelStartTimeField = ({
       name="startTime"
       label={t('start-time')}
       render={(field) => (
-        <Input type="time" className={PANEL_INPUT_CLASS_NAME} {...field} />
+        <Input
+          type="time"
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
+          {...field}
+        />
       )}
     />
   );
@@ -92,7 +98,7 @@ export const ElementPanelDurationField = ({
         <Input
           type="number"
           placeholder="0"
-          className={PANEL_INPUT_CLASS_NAME}
+          className={TOURISM_PANEL_INPUT_CLASS_NAME}
           {...field}
         />
       )}
@@ -125,7 +131,7 @@ export const ElementPanelCostField = ({
             type="number"
             step="0.01"
             placeholder="0.00"
-            className={`${PANEL_INPUT_CLASS_NAME} pl-6`}
+            className={`${TOURISM_PANEL_INPUT_CLASS_NAME} pl-6`}
             {...field}
           />
         </div>
@@ -150,7 +156,7 @@ export const ElementPanelCategoriesField = ({
         <ElementCategoriesPicker
           value={field.value}
           onChange={field.onChange}
-          triggerClassName={PANEL_INPUT_CLASS_NAME}
+          triggerClassName={TOURISM_PANEL_INPUT_CLASS_NAME}
         />
       )}
     />

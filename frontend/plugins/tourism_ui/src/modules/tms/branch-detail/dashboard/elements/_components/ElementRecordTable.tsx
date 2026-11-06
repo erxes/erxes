@@ -9,6 +9,7 @@ import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKe
 import { ElementCommandBar } from './ElementCommandBar';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface ElementRecordTableProps {
   branchId: string;
@@ -48,7 +49,7 @@ export const ElementRecordTable = ({
     <RecordTable.Provider
       columns={elementColumns(getCategoryNamesByIds, branchId, t)}
       data={elements || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="tourism_elements_record_table"
     >
@@ -65,7 +66,9 @@ export const ElementRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !elements?.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

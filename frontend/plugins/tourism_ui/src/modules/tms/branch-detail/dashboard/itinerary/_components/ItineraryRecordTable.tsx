@@ -11,6 +11,7 @@ import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
 import { TMS_ITINERARY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface ItineraryRecordTableProps {
   branchId: string;
@@ -73,7 +74,7 @@ export const ItineraryRecordTable = ({
     <RecordTable.Provider
       columns={columns}
       data={rowData}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="tourism_itineraries_record_table"
     >
@@ -94,7 +95,9 @@ export const ItineraryRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !rowData.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}

@@ -358,10 +358,31 @@ const CustomFieldPanelActions = ({ contentId }: ITourismPanelViewProps) => {
   );
 };
 
+const useTourTypePanelHeading = (contentId: string) => {
+  const branchId = useTourismPanelRouteBranchId();
+  const { customTypes } = useTourTypeList(branchId);
+
+  return { name: customTypes.find((item) => item._id === contentId)?.label };
+};
+
+const useFieldGroupPanelHeading = (contentId: string) => {
+  const branchId = useTourismPanelRouteBranchId();
+  const { groups } = useFieldGroupList(branchId);
+
+  return { name: groups.find((item) => item._id === contentId)?.label };
+};
+
+const useCustomFieldPanelHeading = (contentId: string) => {
+  const { field } = useGroupField(contentId);
+
+  return { name: field?.label };
+};
+
 export const TOUR_TYPE_PANEL: ITourismPanelViews = {
   addLabel: 'new-tour-type',
   editLabel: 'edit-tour-type',
   New: TourTypePanelNew,
+  useHeading: useTourTypePanelHeading,
   Detail: TourTypePanelDetail,
   Actions: TourTypePanelActions,
 };
@@ -370,6 +391,7 @@ export const FIELD_GROUP_PANEL: ITourismPanelViews = {
   addLabel: 'new-field-group',
   editLabel: 'edit-field-group',
   New: FieldGroupPanelNew,
+  useHeading: useFieldGroupPanelHeading,
   Detail: FieldGroupPanelDetail,
   Actions: FieldGroupPanelActions,
 };
@@ -378,6 +400,7 @@ export const CUSTOM_FIELD_PANEL: ITourismPanelViews = {
   addLabel: 'new-field',
   editLabel: 'edit-field',
   New: CustomFieldPanelNew,
+  useHeading: useCustomFieldPanelHeading,
   Detail: CustomFieldPanelDetail,
   Actions: CustomFieldPanelActions,
 };

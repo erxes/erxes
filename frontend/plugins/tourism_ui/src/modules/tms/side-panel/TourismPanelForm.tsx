@@ -8,9 +8,60 @@ import {
   RegisterOptions,
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import {
+  IconAlignLeft,
+  IconAsterisk,
+  IconCategory,
+  IconCategory2,
+  IconCircleDot,
+  IconClock,
+  IconFolder,
+  IconHash,
+  IconIcons,
+  IconLabel,
+  IconLanguage,
+  IconList,
+  IconPalette,
+  IconPaperclip,
+  IconRoute,
+  IconToggleRight,
+  IconUsers,
+  type Icon,
+} from '@tabler/icons-react';
 import { Form } from 'erxes-ui';
-import { PanelFormRow } from 'ui-modules';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
 import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
+
+export const TOURISM_PANEL_INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
+
+const FIELD_ICONS: Record<string, Icon> = {
+  name: IconLabel,
+  label: IconLabel,
+  pluralLabel: IconLabel,
+  code: IconHash,
+  refNumber: IconHash,
+  status: IconCircleDot,
+  type: IconCategory2,
+  customTourTypeId: IconCategory2,
+  customTourTypeIds: IconCategory2,
+  itineraryId: IconRoute,
+  categoryIds: IconCategory,
+  categories: IconCategory,
+  parentId: IconFolder,
+  duration: IconClock,
+  startTime: IconClock,
+  groupSize: IconUsers,
+  color: IconPalette,
+  icon: IconIcons,
+  options: IconList,
+  isRequired: IconAsterisk,
+  isActive: IconToggleRight,
+  attachment: IconPaperclip,
+  content: IconAlignLeft,
+  description: IconAlignLeft,
+};
+
+const getFieldIcon = (name: string) => FIELD_ICONS[name.split('.').pop() || ''];
 
 export const TourismPanelLanguageRow = ({
   languages,
@@ -28,7 +79,7 @@ export const TourismPanelLanguageRow = ({
   }
 
   return (
-    <PanelFormRow label={t('language')}>
+    <PanelFormRow label={t('language')} icon={IconLanguage}>
       <TourFieldLanguageSwitch
         availableLanguages={languages}
         value={value}
@@ -40,17 +91,20 @@ export const TourismPanelLanguageRow = ({
 
 export const TourismPanelFormBlock = ({
   label,
+  icon: LabelIcon = IconAlignLeft,
   required,
   error,
   children,
 }: {
   label: ReactNode;
+  icon?: Icon;
   required?: boolean;
   error?: string;
   children: ReactNode;
 }) => (
   <div className="flex flex-col gap-1.5 pt-2">
-    <span className="text-xs font-medium text-accent-foreground">
+    <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+      <LabelIcon className="size-3.5 shrink-0" aria-hidden="true" />
       {label}
       {required && <span className="text-destructive"> *</span>}
     </span>
@@ -68,6 +122,7 @@ export const TourismPanelFormField = <
   label,
   required,
   block,
+  icon,
   rules,
   render,
 }: {
@@ -76,6 +131,7 @@ export const TourismPanelFormField = <
   label: ReactNode;
   required?: boolean;
   block?: boolean;
+  icon?: Icon;
   rules?: Omit<
     RegisterOptions<TValues, TName>,
     'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
@@ -93,6 +149,7 @@ export const TourismPanelFormField = <
       block ? (
         <TourismPanelFormBlock
           label={label}
+          icon={icon ?? getFieldIcon(name)}
           required={required}
           error={fieldState.error?.message}
         >
@@ -101,6 +158,7 @@ export const TourismPanelFormField = <
       ) : (
         <PanelFormRow
           label={label}
+          icon={icon ?? getFieldIcon(name)}
           required={required}
           error={fieldState.error?.message}
         >

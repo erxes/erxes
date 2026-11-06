@@ -2,6 +2,7 @@ import {
   IconHierarchy2,
   IconHistory,
   IconId,
+  IconLayoutList,
   IconLink,
   IconMessage,
 } from '@tabler/icons-react';
@@ -67,7 +68,11 @@ const PinnedModuleTab = ({
 
 interface IRecordPanelTabsOptions {
   record: TRelationEntity;
-  views: { detail: ReactNode; properties: ReactNode } | null;
+  views: {
+    detail: ReactNode;
+    properties: ReactNode;
+    extraTabs?: { value: string; label: string; content: ReactNode }[];
+  } | null;
   pluginName: string | null;
   overview: IContactPanelOverview;
   access: 'read' | 'write';
@@ -161,6 +166,12 @@ export const buildRecordPanelTabs = ({
                 },
               ]
             : []),
+          ...(views.extraTabs ?? []).map((tab) => ({
+            value: `plugin:${tab.value}`,
+            label: tab.label,
+            icon: IconLayoutList,
+            content: tab.content,
+          })),
         ]
       : []),
     ...pinnedTabs,

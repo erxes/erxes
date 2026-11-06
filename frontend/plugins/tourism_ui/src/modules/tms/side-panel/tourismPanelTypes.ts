@@ -36,11 +36,18 @@ export interface ITourismPanelViewProps {
   contentId: string;
 }
 
+export interface ITourismPanelHeading {
+  name?: string;
+  image?: string;
+}
+
 export interface ITourismPanelViews {
   addLabel: string;
   editLabel: string;
   New?: ComponentType<ITourismPanelViewProps>;
+  useHeading?: (contentId: string) => ITourismPanelHeading;
   Detail: ComponentType<ITourismPanelViewProps>;
   Actions?: ComponentType<ITourismPanelViewProps>;
   Properties?: ComponentType<ITourismPanelViewProps>;
+  Tabs?: Record<string, ComponentType<ITourismPanelViewProps>>;
 }

@@ -2,8 +2,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ColorPicker, Form, Input, useToast } from 'erxes-ui';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PANEL_INPUT_CLASS_NAME, PanelFormLayout } from 'ui-modules';
+import { PanelFormLayout } from 'ui-modules';
 import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
   TourismPanelFormField,
   TourismPanelLanguageRow,
 } from '@/tms/side-panel/TourismPanelForm';
@@ -216,7 +217,7 @@ const ItineraryDuplicateForm = ({
             render={(field) => (
               <Input
                 placeholder={t('itinerary-name')}
-                className={PANEL_INPUT_CLASS_NAME}
+                className={TOURISM_PANEL_INPUT_CLASS_NAME}
                 {...field}
                 value={field.value || ''}
               />
@@ -240,7 +241,9 @@ const ItineraryDuplicateForm = ({
   );
 };
 
-const ItineraryDuplicatePanelDetail = ({ contentId }: ITourismPanelViewProps) => {
+const ItineraryDuplicatePanelDetail = ({
+  contentId,
+}: ITourismPanelViewProps) => {
   const { cancelDraft, closePanel } = useTourismPanel(
     TMS_ITINERARY_DUPLICATE_CONTENT_TYPE,
   );

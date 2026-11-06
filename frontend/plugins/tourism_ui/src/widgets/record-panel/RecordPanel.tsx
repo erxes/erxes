@@ -1,8 +1,10 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
+import { TourismPanelIdentity } from '@/tms/side-panel/TourismPanelIdentity';
 import { TourismPanelActivity } from '@/tms/side-panel/TourismPanelLayout';
 import {
+  ITourismPanelHeading,
   ITourismPanelViews,
   TMS_AMENITY_CONTENT_TYPE,
   TMS_CATEGORY_CONTENT_TYPE,
@@ -42,7 +44,9 @@ const RECORD_PANELS: Record<string, ITourismPanelViews> = {
 };
 
 const TourismPanelScroll = ({ children }: { children: ReactNode }) => (
-  <div className="contents [&_.overflow-y-auto]:styled-scroll">{children}</div>
+  <div className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col [&_.overflow-y-auto]:styled-scroll">
+    {children}
+  </div>
 );
 
 const TourismPanelTitle = ({ label }: { label: string }) => {
@@ -51,10 +55,40 @@ const TourismPanelTitle = ({ label }: { label: string }) => {
   return t(label);
 };
 
+type TUseHeading = (contentId: string) => ITourismPanelHeading;
+
+const TourismPanelRecordTitle = ({
+  contentId,
+  label,
+  useHeading,
+}: {
+  contentId: string;
+  label: string;
+  useHeading: TUseHeading;
+}) => {
+  const { t } = useTranslation('tourism');
+  const { name } = useHeading(contentId);
+
+  return name || t(label);
+};
+
+const TourismPanelRecordIdentity = ({
+  contentId,
+  useHeading,
+}: {
+  contentId: string;
+  useHeading: TUseHeading;
+}) => {
+  const heading = useHeading(contentId);
+
+  return heading.name ? <TourismPanelIdentity {...heading} /> : null;
+};
+
 export const RecordPanel = ({
   contentType,
   contentId,
   view,
+  tab,
 }: IRecordPanelProps) => {
   const panel = RECORD_PANELS[contentType];
 
@@ -62,7 +96,7 @@ export const RecordPanel = ({
     return null;
   }
 
-  const { New, Actions, Detail, Properties } = panel;
+  const { New, useHeading, Actions, Detail, Properties, Tabs } = panel;
 
   if (view === 'new') {
     return New ? (
@@ -73,10 +107,18 @@ export const RecordPanel = ({
   }
 
   if (view === 'title') {
-    return (
-      <TourismPanelTitle
-        label={contentId === NEW_RECORD_ID ? panel.addLabel : panel.editLabel}
+    if (contentId === NEW_RECORD_ID) {
+      return <TourismPanelTitle label={panel.addLabel} />;
+    }
+
+    return useHeading ? (
+      <TourismPanelRecordTitle
+        contentId={contentId}
+        label={panel.editLabel}
+        useHeading={useHeading}
       />
+    ) : (
+      <TourismPanelTitle label={panel.editLabel} />
     );
   }
 
@@ -90,6 +132,16 @@ export const RecordPanel = ({
     return <TourismPanelActivity contentId={contentId} />;
   }
 
+  if (view === 'tab') {
+    const TabView = tab ? Tabs?.[tab] : undefined;
+
+    return TabView ? (
+      <TourismPanelScroll>
+        <TabView contentType={contentType} contentId={contentId} />
+      </TourismPanelScroll>
+    ) : null;
+  }
+
   if (view === 'properties') {
     return Properties ? (
       <TourismPanelScroll>
@@ -100,6 +152,12 @@ export const RecordPanel = ({
 
   return (
     <TourismPanelScroll>
+      {useHeading && (
+        <TourismPanelRecordIdentity
+          contentId={contentId}
+          useHeading={useHeading}
+        />
+      )}
       <Detail contentType={contentType} contentId={contentId} />
     </TourismPanelScroll>
   );

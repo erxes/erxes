@@ -17,8 +17,9 @@ import {
 } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Editor, Input, Select } from 'erxes-ui';
-import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
+import { PanelFormRow } from 'ui-modules';
 import {
+  TOURISM_PANEL_INPUT_CLASS_NAME,
   TourismPanelFormField,
   TourismPanelLanguageRow,
 } from '@/tms/side-panel/TourismPanelForm';
@@ -367,7 +368,7 @@ const TourPanelInfoSection = ({
           value={section}
           onValueChange={(value) => setSection(value as TInfoSection)}
         >
-          <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+          <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -468,7 +469,7 @@ export const TourPanelFormFields = ({
           render={(field) => (
             <Input
               placeholder={t('tour-name')}
-              className={PANEL_INPUT_CLASS_NAME}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
               {...field}
             />
           )}
@@ -482,7 +483,7 @@ export const TourPanelFormFields = ({
           render={(field) => (
             <Input
               placeholder={t('ref-number-label')}
-              className={PANEL_INPUT_CLASS_NAME}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
               {...field}
             />
           )}
@@ -494,7 +495,7 @@ export const TourPanelFormFields = ({
           label={t('status')}
           render={(field) => (
             <Select value={field.value} onValueChange={field.onChange}>
-              <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+              <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
                 <Select.Value placeholder={t('select-status')} />
               </Select.Trigger>
               <Select.Content>
@@ -514,7 +515,7 @@ export const TourPanelFormFields = ({
             label={t('tour-type')}
             render={(field) => (
               <Select value={field.value || ''} onValueChange={field.onChange}>
-                <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
+                <Select.Trigger className={TOURISM_PANEL_INPUT_CLASS_NAME}>
                   <Select.Value placeholder={t('select-tour-type')} />
                 </Select.Trigger>
                 <Select.Content>
@@ -540,7 +541,7 @@ export const TourPanelFormFields = ({
               branchId={branchId}
               language={selectedLang}
               placeholder={t('select-itinerary-placeholder')}
-              className={PANEL_INPUT_CLASS_NAME}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
             />
           )}
         />
@@ -585,7 +586,7 @@ export const TourPanelFormFields = ({
               type="number"
               placeholder="1"
               disabled
-              className={PANEL_INPUT_CLASS_NAME}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
               {...field}
             />
           )}
@@ -598,7 +599,7 @@ export const TourPanelFormFields = ({
             <Input
               type="number"
               placeholder="0"
-              className={PANEL_INPUT_CLASS_NAME}
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
               {...field}
             />
           )}

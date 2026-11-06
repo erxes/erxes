@@ -28,15 +28,14 @@ export const TourismPanelOverview = ({
           className="aspect-video w-full rounded-md object-cover"
         />
       )}
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="min-w-0 break-words text-base font-semibold">{title}</h3>
-        {onEdit && editLabel && (
+      {onEdit && editLabel && (
+        <div className="flex justify-end">
           <Button size="sm" variant="secondary" onClick={onEdit}>
             <IconPencil />
             {editLabel}
           </Button>
-        )}
-      </div>
+        </div>
+      )}
       <div className="flex flex-col gap-0.5">
         {fields.map(({ label, value }) => (
           <PanelField key={label} label={label} cell={false}>
