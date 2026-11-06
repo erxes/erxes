@@ -212,6 +212,10 @@ export const CoreTabAppTabs = ({
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const tabListRef = useRef<HTMLDivElement | null>(null);
+  const closeFocusRef = useRef<{
+    tabId: string;
+    target: HTMLElement | null | undefined;
+  } | null>(null);
   const tabStopId = tabs.some((tab) => tab.id === activeTabId)
     ? activeTabId
     : tabs[0]?.id;
@@ -221,6 +225,26 @@ export const CoreTabAppTabs = ({
       activationConstraint: { delay: 250, tolerance: 6 },
     }),
   );
+
+  useEffect(() => {
+    const pending = closeFocusRef.current;
+
+    if (!pending || tabs.some((tab) => tab.id === pending.tabId)) return;
+
+    closeFocusRef.current = null;
+    // A dirty editor can delay removal until its leave dialog is confirmed.
+    requestAnimationFrame(() => {
+      const target = pending.target?.isConnected
+        ? pending.target
+        : tabListRef.current
+            ?.closest('header')
+            ?.querySelector<HTMLButtonElement>(
+              'button[aria-haspopup="dialog"]',
+            );
+
+      target?.focus();
+    });
+  }, [tabs]);
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (
@@ -243,10 +267,10 @@ export const CoreTabAppTabs = ({
         ?.closest('header')
         ?.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]');
 
+    closeFocusRef.current = restoreFocus
+      ? { tabId: tabs[index].id, target: focusTarget }
+      : null;
     onClose(tabs[index].id);
-    if (!restoreFocus) return;
-    // Context menus release their focus scope when the closing tab unmounts.
-    requestAnimationFrame(() => focusTarget?.focus());
   };
 
   const handleTabKeyDown = (

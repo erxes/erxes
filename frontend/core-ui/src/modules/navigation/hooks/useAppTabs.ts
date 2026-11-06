@@ -1,11 +1,16 @@
 import {
   startTransition,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
 } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  UNSAFE_DataRouterStateContext,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
@@ -45,6 +50,11 @@ export const useAppTabs = () => {
   });
   const { pathname, search } = useLocation();
   const navigate = useNavigate();
+  // Observe existing editor blockers without registering a second blocker.
+  const routerState = useContext(UNSAFE_DataRouterStateContext);
+  const navigationBlocked = Array.from(
+    routerState?.blockers.values() ?? [],
+  ).some((blocker) => blocker.state === 'blocked');
   const [storedTabIds, setStoredTabIds] = useAtom(openAppTabsState);
   const [lastLocations, setLastLocations] = useAtom(appLastLocationState);
 
@@ -89,7 +99,12 @@ export const useAppTabs = () => {
   const routeActivityId = routeActivity?.id;
   const location = `${pathname}${search}`;
   // Another tab action can arrive before the route transition commits.
-  const pendingNavigationRef = useRef<{ activityId?: string } | null>(null);
+  const pendingNavigationRef = useRef<{
+    activityId?: string;
+    fromLocation: string;
+    routerState: typeof routerState;
+    closedIds?: string[];
+  } | null>(null);
   const tabIds = resolveAppTabIds(storedTabIds, tabActivities);
   const tabs = tabIds.flatMap((id) => {
     const activity = tabActivities.find((item) => item.id === id);
@@ -97,12 +112,8 @@ export const useAppTabs = () => {
     return activity ? [activity] : [];
   });
 
-  useEffect(() => {
-    pendingNavigationRef.current = null;
-  }, [location]);
-
   const getTargetActivityId = () =>
-    pendingNavigationRef.current
+    pendingNavigationRef.current && !navigationBlocked
       ? pendingNavigationRef.current.activityId
       : routeActivityId;
 
@@ -135,13 +146,18 @@ export const useAppTabs = () => {
   }, [tabActivities, routeActivityId, setStoredTabIds]);
 
   const go = useCallback(
-    (path: string, activityId?: string) => {
-      pendingNavigationRef.current = { activityId };
+    (path: string, activityId?: string, closedIds?: string[]) => {
+      pendingNavigationRef.current = {
+        activityId,
+        fromLocation: location,
+        routerState,
+        closedIds,
+      };
       startTransition(() => {
         navigate(path);
       });
     },
-    [navigate],
+    [location, navigate, routerState],
   );
 
   const resume = useCallback(
@@ -161,6 +177,50 @@ export const useAppTabs = () => {
       }),
     [setLastLocations],
   );
+
+  useEffect(() => {
+    const pending = pendingNavigationRef.current;
+
+    if (
+      !pending ||
+      (routerState === pending.routerState && location === pending.fromLocation)
+    ) {
+      return;
+    }
+
+    if (
+      pending.closedIds &&
+      location !== pending.fromLocation &&
+      !pending.closedIds.includes(routeActivityId ?? '')
+    ) {
+      const closedIds = pending.closedIds;
+
+      setStoredTabIds((current) =>
+        resolveAppTabIds(current, tabActivities).filter(
+          (id) => !closedIds.includes(id),
+        ),
+      );
+      forget(closedIds);
+    }
+
+    // A blocked navigation can finish with Cancel and no location change.
+    // Keep a deferred close only while the existing blocker awaits a decision.
+    if (
+      routerState?.navigation.state === 'idle' &&
+      Array.from(routerState.blockers.values()).every(
+        (blocker) => blocker.state === 'unblocked',
+      )
+    ) {
+      pendingNavigationRef.current = null;
+    }
+  }, [
+    location,
+    routeActivityId,
+    routerState,
+    tabActivities,
+    setStoredTabIds,
+    forget,
+  ]);
 
   /** Open (or switch to) an app; re-selecting the open app goes home. */
   const selectActivity = (activity: INavigationActivity) => {
@@ -186,21 +246,33 @@ export const useAppTabs = () => {
     closedIds: string[],
     fallbackId?: string,
   ) => {
-    setStoredTabIds(remainingIds);
-    forget(closedIds);
-
     const targetActivityId = getTargetActivityId();
+    const closesCurrentRoute =
+      !!routeActivityId && closedIds.includes(routeActivityId);
+
+    if (!closesCurrentRoute) {
+      setStoredTabIds(remainingIds);
+      forget(closedIds);
+    }
 
     if (!targetActivityId || !closedIds.includes(targetActivityId)) {
+      if (closesCurrentRoute && pendingNavigationRef.current) {
+        pendingNavigationRef.current.closedIds = closedIds;
+      }
       return;
     }
 
     const fallback = tabs.find((tab) => tab.id === fallbackId);
+    const deferredClosedIds = closesCurrentRoute ? closedIds : undefined;
 
     if (fallback) {
-      resume(fallback);
+      go(
+        lastLocations[fallback.id] || toHomePath(fallback),
+        fallback.id,
+        deferredClosedIds,
+      );
     } else {
-      go(AppPath.Index);
+      go(AppPath.Index, undefined, deferredClosedIds);
     }
   };
 
