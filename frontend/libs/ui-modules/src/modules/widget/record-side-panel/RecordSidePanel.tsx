@@ -347,10 +347,10 @@ const RecordSidePanelHeader = ({
   }, [expand]);
 
   return (
-    // Same height and surface as the app's top bar, so the two read as one.
+    // Lines up with a page's breadcrumb row: h-10 plus its 1px rule.
     <div
       className={cn(
-        'flex items-center gap-1 h-12 px-2 border-b bg-sidebar flex-none',
+        'box-content flex items-center gap-1 h-10 px-2 border-b bg-sidebar flex-none',
         className,
       )}
     >
