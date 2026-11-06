@@ -39,11 +39,7 @@ export const ContactWidgetSection = ({
   const overview = useContactOverviewSection();
   const [ownFolded, setOwnFolded] = useState(false);
   const [showAll, setShowAll] = useState(false);
-  const folded = overview?.standalone
-    ? false
-    : overview
-    ? overview.folded
-    : ownFolded;
+  const folded = !overview?.standalone && (overview?.folded ?? ownFolded);
   const setFolded = overview ? overview.setFolded : setOwnFolded;
   const shown = showAll ? ids : ids.slice(0, PREVIEW_COUNT);
 
@@ -51,11 +47,11 @@ export const ContactWidgetSection = ({
     <section className="border-b last:border-b-0 py-1">
       <div className="flex items-center gap-1 h-8 px-1.5">
         {overview?.standalone ? (
-          <span className="px-2 text-xs text-muted-foreground" role="status">
+          <output className="px-2 text-xs text-muted-foreground">
             {loading
               ? t('loading', 'Loading…')
               : t('linked-records', '{{count}} linked', { count: ids.length })}
-          </span>
+          </output>
         ) : (
           <Button
             type="button"

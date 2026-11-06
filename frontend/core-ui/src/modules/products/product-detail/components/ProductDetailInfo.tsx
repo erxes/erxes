@@ -7,7 +7,9 @@ import { useFormContext } from 'react-hook-form';
 import { ProductConditionsField } from '@/products/product-detail/components/ProductConditionsField';
 import { ProductPanelInfoFields } from './ProductPanelInfoFields';
 
-export function ProductDetailInfo({ compact = false }: { compact?: boolean }) {
+export function ProductDetailInfo({
+  compact = false,
+}: Readonly<{ compact?: boolean }>) {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
 

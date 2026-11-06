@@ -125,7 +125,9 @@ export const ProductPanelNumberField = ({
                       {label}
                     </ProductPanelPlaceholder>
                   ) : (
-                    field.value.toLocaleString()
+                    field.value.toLocaleString(undefined, {
+                      maximumFractionDigits: 20,
+                    })
                   )}
                 </PanelFieldTrigger>
               </Form.Control>

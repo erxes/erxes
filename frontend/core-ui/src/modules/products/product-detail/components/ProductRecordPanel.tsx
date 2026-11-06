@@ -7,7 +7,7 @@ import {
   IconPrinter,
 } from '@tabler/icons-react';
 import { Button, Empty, Form, ScrollArea, Spinner, toast } from 'erxes-ui';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -86,6 +86,15 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
   const [resetVersion, setResetVersion] = useState(0);
   const { productDetail, productId, loading, error, refetch } =
     useProductDetailWithQuery();
+  const panelView = useMemo(
+    () => ({
+      ...parentView,
+      contentType: 'core:product',
+      contentId: productId,
+      tab: selectedTab,
+    }),
+    [parentView, productId, selectedTab],
+  );
   const { productsEdit, loading: editLoading } = useProductsEdit();
   const { linkFiles } = useProductFileLinks();
   const cleanupMedia = useProductMediaCleanup();
@@ -282,14 +291,7 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
   return (
     <>
       {header}
-      <PanelRecordContext.Provider
-        value={{
-          ...parentView,
-          contentType: 'core:product',
-          contentId: productId,
-          tab: selectedTab,
-        }}
-      >
+      <PanelRecordContext.Provider value={panelView}>
         <Form {...form}>
           <form
             className="flex min-h-0 flex-1 flex-col"
@@ -304,17 +306,15 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
                   label: t('overview', 'Details'),
                   icon: IconId,
                   content: scroll(
-                    <>
-                      <div className="min-w-0">
-                        <ProductDetailFields
-                          key={`${productId}-${formVersion}-${resetVersion}`}
-                          productDetail={productDetail}
-                          compact
-                          deferMediaDeletion
-                          disabled={!canEdit || saving}
-                        />
-                      </div>
-                    </>,
+                    <div className="min-w-0">
+                      <ProductDetailFields
+                        key={`${productId}-${formVersion}-${resetVersion}`}
+                        productDetail={productDetail}
+                        compact
+                        deferMediaDeletion
+                        disabled={!canEdit || saving}
+                      />
+                    </div>,
                   ),
                 },
                 {

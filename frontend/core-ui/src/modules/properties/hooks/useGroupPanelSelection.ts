@@ -46,10 +46,15 @@ export const useGroupPanelSelection = (
     skip: !code || !contentType || selectedMatches,
   });
 
+  let group: IFieldGroup | null = null;
+  if (selectedMatches) {
+    group = selected;
+  } else if (code) {
+    group = data?.fieldGroups.list[0] || null;
+  }
+
   return {
-    group:
-      (selectedMatches ? selected : code ? data?.fieldGroups.list[0] : null) ||
-      null,
+    group,
     open: !!code,
     loading,
     error,

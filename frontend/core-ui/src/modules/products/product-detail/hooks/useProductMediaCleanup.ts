@@ -32,16 +32,20 @@ export const useProductMediaCleanup = () => {
           (current) => current.url === item.url || current.name === item.name,
         ),
     );
-    const failed: string[] = [];
-    for (const name of new Set(removed.map((item) => item.name))) {
-      try {
-        await removeFile(name, (status) => {
-          if (status !== 'ok') failed.push(name);
-        });
-      } catch {
-        failed.push(name);
-      }
-    }
+    const failures = await Promise.all(
+      Array.from(new Set(removed.map((item) => item.name)), async (name) => {
+        let failed = false;
+        try {
+          await removeFile(name, (status) => {
+            failed = status !== 'ok';
+          });
+        } catch {
+          failed = true;
+        }
+        return failed ? name : null;
+      }),
+    );
+    const failed = failures.filter((name): name is string => name !== null);
     if (failed.length) {
       toast({
         title: t(

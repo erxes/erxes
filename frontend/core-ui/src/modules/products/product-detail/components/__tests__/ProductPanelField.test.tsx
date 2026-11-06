@@ -122,11 +122,13 @@ jest.mock('ui-modules', () => ({
 
 const ProductForm = ({
   onSave,
+  initialValues = {},
 }: {
   onSave: (values: ProductFormValues) => void;
+  initialValues?: Partial<ProductFormValues>;
 }) => {
   const form = useForm<ProductFormValues>({
-    defaultValues: { name: 'Original', weight: undefined },
+    defaultValues: { name: 'Original', weight: undefined, ...initialValues },
   });
   return (
     <Form {...form}>
@@ -137,11 +139,41 @@ const ProductForm = ({
           label="Weight"
           icon={IconWeight}
         />
+        <ProductPanelNumberField
+          name="unitPrice"
+          label="Unit price"
+          icon={IconPackage}
+        />
+        <ProductPanelNumberField
+          name="duration"
+          label="Duration"
+          icon={IconPackage}
+        />
         <button type="submit">Save product</button>
       </form>
     </Form>
   );
 };
+
+it.each([
+  ['weight', 'Weight', 0.0005, '0.0005'],
+  ['unitPrice', 'Unit price', 12.34567, '12.34567'],
+  ['duration', 'Duration', 0.1234567, '0.1234567'],
+] as const)(
+  'shows the stored precision of %s',
+  (name, label, value, expected) => {
+    render(
+      <ProductForm onSave={jest.fn()} initialValues={{ [name]: value }} />,
+    );
+    const decimalSeparator =
+      new Intl.NumberFormat()
+        .formatToParts(1.1)
+        .find((part) => part.type === 'decimal')?.value || '.';
+    expect(screen.getByRole('button', { name: label }).textContent).toBe(
+      expected.replace('.', decimalSeparator),
+    );
+  },
+);
 
 it('commits an inline text edit to the draft without submitting the product', async () => {
   const save = jest.fn();

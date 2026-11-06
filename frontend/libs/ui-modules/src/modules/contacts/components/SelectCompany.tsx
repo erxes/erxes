@@ -415,6 +415,7 @@ export const SelectCompanyFilterBar = ({
   label,
   variant,
   scope,
+  targetId,
   initialValue,
   value,
   onValueChange,
@@ -479,6 +480,7 @@ export const SelectCompanyFilterBar = ({
   if (isCardVariant) {
     return (
       <SelectCompanyProvider
+        key={targetId}
         mode={mode}
         value={query || []}
         onValueChange={handleValueChange}

@@ -21,6 +21,7 @@ import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useCli
 import { TextFieldCPUser } from '@/contacts/client-portal-users/cp-user-detail/components/TextFieldCPUser';
 import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
 import { useTranslation } from 'react-i18next';
+import type { ReactNode } from 'react';
 
 export const CPUserDetailFields = () => {
   const { cpUser } = useClientPortalUser();
@@ -34,6 +35,32 @@ export const CPUserDetailFields = () => {
   const { _id, type, lastLoginAt, createdAt, erxesCustomerId, erxesCompanyId } =
     cpUser;
   const readOnly = !hasActionPermission('clientPortalManage');
+  let customerField: ReactNode = '-';
+  if (type === 'customer') {
+    customerField = (
+      <ContactsRelationField
+        kind="customer"
+        value={erxesCustomerId}
+        readOnly={readOnly}
+        onValueChange={(value) =>
+          cpUserEdit({ variables: { _id, erxesCustomerId: value || '' } })
+        }
+      />
+    );
+  } else if (erxesCustomerId) {
+    customerField = (
+      <ContactRecordChip
+        kind="customer"
+        id={erxesCustomerId}
+        onOpen={() =>
+          openRecord(
+            { contentType: 'core:customer', contentId: erxesCustomerId },
+            { stack: true },
+          )
+        }
+      />
+    );
+  }
   const textFields = [
     ['firstName', 'First name', IconUser],
     ['lastName', 'Last name', IconUser],
@@ -82,29 +109,7 @@ export const CPUserDetailFields = () => {
         icon={IconUser}
         label={t('customer', { defaultValue: 'Customer' })}
       >
-        {type === 'customer' ? (
-          <ContactsRelationField
-            kind="customer"
-            value={erxesCustomerId}
-            readOnly={readOnly}
-            onValueChange={(value) =>
-              cpUserEdit({ variables: { _id, erxesCustomerId: value || '' } })
-            }
-          />
-        ) : erxesCustomerId ? (
-          <ContactRecordChip
-            kind="customer"
-            id={erxesCustomerId}
-            onOpen={() =>
-              openRecord(
-                { contentType: 'core:customer', contentId: erxesCustomerId },
-                { stack: true },
-              )
-            }
-          />
-        ) : (
-          '-'
-        )}
+        {customerField}
       </PanelField>
       {lastLoginAt && (
         <PanelField

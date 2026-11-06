@@ -1,6 +1,6 @@
 import { IconBell, IconHistory, IconId } from '@tabler/icons-react';
 import { Button, Empty, ScrollArea, Spinner } from 'erxes-ui';
-import { useContext, type ReactNode } from 'react';
+import { useContext, useMemo, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
@@ -40,6 +40,10 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
   const tab = ['overview', 'activity', 'notifications'].includes(selectedTab)
     ? selectedTab
     : 'overview';
+  const panelView = useMemo(
+    () => ({ ...parentView, ...record, tab }),
+    [parentView, record, tab],
+  );
   const title = isNew
     ? t('add._', 'Add client portal user')
     : [cpUser?.firstName, cpUser?.lastName].filter(Boolean).join(' ') ||
@@ -104,7 +108,7 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
       </>
     );
   return (
-    <PanelRecordContext.Provider value={{ ...parentView, ...record, tab }}>
+    <PanelRecordContext.Provider value={panelView}>
       <RecordSidePanel.Layout
         header={header}
         profile={<CPUserPanelProfile />}

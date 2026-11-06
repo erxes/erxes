@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconId, IconHierarchy2 } from '@tabler/icons-react';
-import { useContext, useState } from 'react';
+import { useContext, useMemo, useState } from 'react';
 import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,15 @@ export const ProductPanelNew = () => {
   const parentView = useContext(PanelRecordContext);
   const [tab, setTab] = useState(parentView?.tab || 'overview');
   const [showMore, setShowMore] = useState(false);
+  const panelView = useMemo(
+    () => ({
+      ...parentView,
+      contentType: 'core:product',
+      contentId: 'new',
+      tab,
+    }),
+    [parentView, tab],
+  );
   const widgets = useFormWidgetTabs({ contentType: 'core:product', form });
   const cancel = () => (canGoBack ? back() : close());
   const content = (activeTab: string, extraContent?: React.ReactNode) => (
@@ -50,14 +59,7 @@ export const ProductPanelNew = () => {
   );
 
   return (
-    <PanelRecordContext.Provider
-      value={{
-        ...parentView,
-        contentType: 'core:product',
-        contentId: 'new',
-        tab,
-      }}
-    >
+    <PanelRecordContext.Provider value={panelView}>
       <RecordSidePanel.Tabs
         value={tab}
         onValueChange={setTab}

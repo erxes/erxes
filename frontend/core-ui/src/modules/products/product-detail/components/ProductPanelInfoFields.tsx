@@ -23,6 +23,8 @@ import {
 import { ProductConditionsField } from './ProductConditionsField';
 import { ProductPanelPlaceholder } from './ProductPanelField';
 
+const EMPTY_BRAND_IDS: string[] = [];
+
 export const ProductPanelInfoFields = () => {
   const { t } = useTranslation('product', { keyPrefix: 'detail' });
   const form = useFormContext<ProductFormValues>();
@@ -38,7 +40,7 @@ export const ProductPanelInfoFields = () => {
           <Form.Item className="space-y-0">
             <PanelField icon={IconLabel} label={t('brand')}>
               <SelectBrand.Provider
-                value={field.value || []}
+                value={field.value || EMPTY_BRAND_IDS}
                 onValueChange={field.onChange}
                 mode="multiple"
               >
