@@ -79,6 +79,47 @@ export const syncInvoicePaymentKinds = async (
 };
 
 /**
+ * Marks invoices for a recount before their transactions change: removes
+ * `paymentKinds` (the backfill picks up invoices without it) and bumps the
+ * version so a sync that read the old state cannot write it back. Callers
+ * mark first, change the transactions, then sync. If that sync fails the mark
+ * stays, so recovery never depends on the failed call.
+ */
+export const markInvoicePaymentKindsStale = async (
+  models: IModels,
+  invoiceIds: string[],
+) => {
+  const ids = Array.from(new Set(invoiceIds.filter(Boolean)));
+
+  if (!ids.length) {
+    return;
+  }
+
+  await models.Invoices.updateMany(
+    { _id: { $in: ids } },
+    { $unset: { paymentKinds: 1 }, $inc: { paymentKindsVersion: 1 } },
+  );
+};
+
+/**
+ * `syncInvoicePaymentKinds` for callers that already marked the invoices
+ * stale: a failure is logged instead of thrown, because the mark already
+ * hands the invoices to the backfill.
+ */
+export const syncMarkedInvoicePaymentKinds = async (
+  models: IModels,
+  invoiceIds: string[],
+) => {
+  try {
+    await syncInvoicePaymentKinds(models, invoiceIds);
+  } catch (e) {
+    console.error(
+      `Payment kinds sync failed for invoices ${invoiceIds.join(', ')}; the backfill will recompute them: ${e.message}`,
+    );
+  }
+};
+
+/**
  * Fills `paymentKinds` on invoices created before the field existed, in
  * batches. Runs from the per-org pending-invoice job; once every invoice has
  * the field this is a single indexed lookup that finds nothing.

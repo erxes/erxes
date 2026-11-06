@@ -4,7 +4,10 @@ import { IModels } from '~/connectionResolvers';
 import { ITransactionDocument } from '~/modules/payment/@types/transactions';
 import { transactionSchema } from '~/modules/payment/db/definitions/transactions';
 import { PAYMENT_STATUS } from '~/constants';
-import { syncInvoicePaymentKinds } from '~/modules/payment/services/invoicePaymentKinds';
+import {
+  markInvoicePaymentKindsStale,
+  syncMarkedInvoicePaymentKinds,
+} from '~/modules/payment/services/invoicePaymentKinds';
 export interface ITransactionModel extends Model<ITransactionDocument> {
   getTransaction(doc: any, leanObject?: boolean): Promise<ITransactionDocument>;
   createTransaction({
@@ -99,6 +102,8 @@ export const loadTransactionClass = (models: IModels) => {
         code: await generateCode(models),
       };
 
+      await markInvoicePaymentKindsStale(models, [doc.invoiceId]);
+
       const transaction = await models.Transactions.create(updatedDoc);
 
 
@@ -110,16 +115,12 @@ export const loadTransactionClass = (models: IModels) => {
         await transaction.save();
       } catch (e) {
         await models.Transactions.deleteOne({ _id: transaction._id });
+        await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
         throw new Error(`Error creating transaction: ${e.message}`);
       }
 
       // outside the try: a failure here must not delete a created transaction
-      await syncInvoicePaymentKinds(models, [transaction.invoiceId]).catch(
-        (e) =>
-          console.error(
-            `Failed to sync payment kinds of invoice ${transaction.invoiceId}: ${e.message}`,
-          ),
-      );
+      await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
 
       return transaction;
     }
@@ -149,14 +150,17 @@ export const loadTransactionClass = (models: IModels) => {
       );
       const api = new ErxesPayment(payment);
 
+      await markInvoicePaymentKindsStale(models, [transaction.invoiceId]);
+
       try {
         api.cancelInvoice(transaction);
         await models.Transactions.deleteOne({ _id });
-        await syncInvoicePaymentKinds(models, [transaction.invoiceId]);
       } catch (e) {
         console.error(e);
 
         return 'error';
+      } finally {
+        await syncMarkedInvoicePaymentKinds(models, [transaction.invoiceId]);
       }
 
       return 'success';
@@ -202,12 +206,15 @@ export const loadTransactionClass = (models: IModels) => {
         throw new Error('Transactions not found');
       }
 
+      const invoiceIds = transactions.map(
+        (transaction) => transaction.invoiceId,
+      );
+
+      await markInvoicePaymentKindsStale(models, invoiceIds);
+
       await models.Transactions.deleteMany({ _id: { $in: _ids } });
 
-      await syncInvoicePaymentKinds(
-        models,
-        transactions.map((transaction) => transaction.invoiceId),
-      );
+      await syncMarkedInvoicePaymentKinds(models, invoiceIds);
 
       return 'success';
     }

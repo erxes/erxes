@@ -110,8 +110,10 @@
 - The kind filter reads `Invoice.paymentKinds`, never a `distinct` over transactions: an unbounded
   id list can exceed MongoDB's 16 MB result limit. Every path that creates or deletes transactions
   (`createTransaction`, `cancelTransaction`, `removeTransactions`) must call
-  `syncInvoicePaymentKinds` for the affected invoices; the sync in `createTransaction` runs after
-  the gateway try/catch so a sync failure never deletes a created transaction.
+  `markInvoicePaymentKindsStale` **before** the change and `syncMarkedInvoicePaymentKinds` after
+  it. The mark (unset field + version bump) is what makes recovery durable: if the sync fails,
+  the backfill recomputes the invoice. The sync in `createTransaction` runs after the gateway
+  try/catch so a sync failure never deletes a created transaction.
 - `paymentKinds` writes go only through `syncInvoicePaymentKinds`, which serializes concurrent
   syncs with a compare-and-set on `paymentKindsVersion` (read the version, aggregate, write only
   if unchanged, retry otherwise). Never `$set` `paymentKinds` directly: an unguarded write can
