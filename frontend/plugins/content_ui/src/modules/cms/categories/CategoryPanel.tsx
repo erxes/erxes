@@ -1,5 +1,6 @@
-import { useMutation, useQuery } from '@apollo/client';
-import { Button, Form, Input, Select, Sheet, Textarea, toast } from 'erxes-ui';
+import { useApolloClient, useMutation, useQuery } from '@apollo/client';
+import { Form, Input, Select, Textarea, toast } from 'erxes-ui';
+import { PanelFormLayout } from 'ui-modules';
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
@@ -23,7 +24,6 @@ import {
   createCategoryFormSchema,
   CategoryFormType,
 } from '../constants/categoryFormSchema';
-import { LanguageSelector } from '../shared/LanguageSelector';
 import {
   CMS_TRANSLATION_FIELDS,
   TranslationData,
@@ -31,8 +31,30 @@ import {
   useRecordInDefaultLanguage,
 } from '../shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '../shared/states/cmsLanguageState';
-import { getCmsDefaultLanguage, getInitialCmsLanguage } from '../shared/utils';
+import {
+  getCmsDefaultLanguage,
+  getCmsSubmitLanguage,
+  getInitialCmsLanguage,
+} from '../shared/utils';
 import { CmsSavedRowLoadError } from '../shared/components/CmsSavedRowLoadError';
+import { ContentPanelRecordState } from '@/cms/shared/side-panel/ContentPanelLayout';
+import {
+  CONTENT_PANEL_INPUT_CLASS_NAME,
+  ContentPanelFormBlock,
+  ContentPanelFormField,
+  ContentPanelLanguageRow,
+} from '@/cms/shared/side-panel/ContentPanelForm';
+import { ContentPanelRemoveAction } from '@/cms/shared/side-panel/ContentPanelRemoveAction';
+import {
+  CMS_CATEGORY_CONTENT_TYPE,
+  IContentPanelViewProps,
+  IContentPanelViews,
+} from '@/cms/shared/side-panel/contentPanelTypes';
+import {
+  useContentPanel,
+  useContentPanelDraft,
+} from '@/cms/shared/side-panel/useContentPanel';
+import { useRemoveCategories } from './hooks/useRemoveCategories';
 
 interface ITreeOption {
   _id: string;
@@ -83,16 +105,16 @@ interface Category {
   description?: string;
   parentId?: string;
   status?: string;
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
   translations?: { language: string }[];
 }
 
-interface CmsCategoryDrawerProps {
+interface CategoryPanelFormProps {
   category?: Partial<Category>;
-  isOpen: boolean;
-  onClose: () => void | Promise<void>;
   clientPortalId: string;
-  onRefetch?: () => void;
+  onCancel: () => void;
+  onCreated?: (categoryId: string) => void;
+  onUpdated?: () => void;
 }
 
 interface CategoryFormData {
@@ -101,8 +123,8 @@ interface CategoryFormData {
   description?: string;
   parentId?: string;
   status: 'active' | 'inactive';
-  customFieldsData?: { field: string; value?: CustomFieldValue }[];
-  [key: `customFields.${string}`]: CustomFieldValue | undefined; // Allow dynamic custom field properties
+  customFieldsData?: { field: string; value: CustomFieldValue }[];
+  [key: `customFields.${string}`]: CustomFieldValue;
 }
 
 interface CmsConfig {
@@ -220,13 +242,13 @@ const buildCategoryTranslations = (
   return entries;
 };
 
-export function CmsCategoryDrawer({
+const CategoryPanelForm = ({
   category,
-  isOpen,
-  onClose,
   clientPortalId,
-  onRefetch,
-}: CmsCategoryDrawerProps) {
+  onCancel,
+  onCreated,
+  onUpdated,
+}: CategoryPanelFormProps) => {
   const { t } = useTranslation('content');
   const isEditing = !!category?._id;
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState(false);
@@ -260,22 +282,11 @@ export function CmsCategoryDrawer({
     defaultLanguage,
     cmsConfig,
     cmsQuery,
-    resetKey: `${clientPortalId}-${isOpen}`,
+    resetKey: `${clientPortalId}-${category?._id || 'new'}`,
   });
 
-  const { data: categoryDetailData } = useQuery(CMS_CATEGORY_DETAIL, {
-    variables: {
-      _id: category?._id,
-      clientPortalId,
-    },
-    fetchPolicy: 'network-only',
-    skip: !isOpen || !category?._id,
-  });
-
-  const storedCategory: Partial<Category> | undefined =
-    categoryDetailData?.cmsCategory || category;
   const baseCategory = useRecordInDefaultLanguage(
-    storedCategory,
+    category,
     cmsConfig,
     translations,
     CMS_TRANSLATION_FIELDS.category,
@@ -287,7 +298,6 @@ export function CmsCategoryDrawer({
       clientPortalId,
     },
     fetchPolicy: 'cache-first',
-    skip: !isOpen,
   });
 
   const currentCategoryId = category?._id;
@@ -318,12 +328,11 @@ export function CmsCategoryDrawer({
   });
 
   useEffect(() => {
-    if (!isOpen) return;
     form.reset(categoryToFormValues(baseCategory), {
-      keepDirtyValues: baseCategory !== storedCategory,
+      keepDirtyValues: baseCategory !== category,
     });
     setIsSlugManuallyEdited(false);
-  }, [baseCategory, storedCategory, isOpen, form]);
+  }, [baseCategory, category, form]);
 
   // Watch for name changes and update slug accordingly
   const nameValue = form.watch('name');
@@ -332,7 +341,6 @@ export function CmsCategoryDrawer({
 
   useEffect(() => {
     if (
-      !isOpen ||
       !nameValue ||
       isSlugManuallyEdited ||
       !isNameDirty ||
@@ -350,7 +358,6 @@ export function CmsCategoryDrawer({
     isNameDirty,
     form,
     slugValue,
-    isOpen,
     isTranslationMode,
   ]);
 
@@ -362,7 +369,6 @@ export function CmsCategoryDrawer({
       language: selectedLanguage || defaultLanguage,
     },
     fetchPolicy: 'cache-first',
-    skip: !isOpen,
   });
   const allCategories: Category[] = catsData?.cmsCategories?.list || [];
   const descendantIds = collectDescendantIds(allCategories, category?._id);
@@ -463,7 +469,6 @@ export function CmsCategoryDrawer({
 
   useEffect(() => {
     if (
-      !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
       initialLanguage === defaultLanguage ||
@@ -475,7 +480,6 @@ export function CmsCategoryDrawer({
     applyTranslationToForm(initialLanguage);
     setSelectedLanguage(initialLanguage);
   }, [
-    isOpen,
     selectedLanguage,
     defaultLanguage,
     initialLanguage,
@@ -485,7 +489,6 @@ export function CmsCategoryDrawer({
 
   useEffect(() => {
     if (
-      !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
       selectedLanguage === defaultLanguage
@@ -495,7 +498,6 @@ export function CmsCategoryDrawer({
 
     applyTranslationToForm(selectedLanguage);
   }, [
-    isOpen,
     selectedLanguage,
     defaultLanguage,
     translations,
@@ -534,11 +536,12 @@ export function CmsCategoryDrawer({
 
   const [addCategory, { loading: adding }] = useMutation(CMS_CATEGORIES_ADD, {
     refetchQueries: ['CmsCategories'],
-    onCompleted: () => {
-      onRefetch?.();
+    onCompleted: (data) => {
       toast({ title: t('success'), description: t('category-created') });
-      onClose();
-      form.reset();
+
+      if (data?.cmsCategoriesAdd?._id) {
+        onCreated?.(data.cmsCategoriesAdd._id);
+      }
     },
     onError: (error) => {
       toast({
@@ -554,10 +557,8 @@ export function CmsCategoryDrawer({
     {
       refetchQueries: ['CmsCategories'],
       onCompleted: () => {
-        onRefetch?.();
         toast({ title: t('success'), description: t('category-updated') });
-        onClose();
-        form.reset();
+        onUpdated?.();
       },
       onError: (error) => {
         toast({
@@ -576,6 +577,7 @@ export function CmsCategoryDrawer({
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
       selectedLanguage !== defaultLanguage;
+    const isNewTranslation = !isEditing && isNonDefaultLang;
     const currentTranslationData = getCurrentTranslationData();
 
     let mainFields: TranslationData = {
@@ -584,7 +586,7 @@ export function CmsCategoryDrawer({
       customFieldsData: data.customFieldsData || [],
     };
 
-    if (!isEditing && isNonDefaultLang) {
+    if (isNewTranslation) {
       if (!defaultLangData?.title) {
         toast({
           title: t('validation-error'),
@@ -605,9 +607,14 @@ export function CmsCategoryDrawer({
       customFieldsData: toCategoryCustomFields(mainFields.customFieldsData),
     };
 
-    if (selectedLanguage) {
-      input.language =
-        !isEditing && isNonDefaultLang ? defaultLanguage : selectedLanguage;
+    const language = getCmsSubmitLanguage(
+      selectedLanguage,
+      defaultLanguage,
+      isNewTranslation,
+    );
+
+    if (language) {
+      input.language = language;
     }
 
     if (defaultLanguage) {
@@ -633,214 +640,276 @@ export function CmsCategoryDrawer({
   };
 
   return (
-    <Sheet
-      open={isOpen}
-      onOpenChange={(open) => {
-        if (!open) onClose();
-      }}
-    >
-      <Sheet.View className="sm:max-w-lg p-0">
-        <Sheet.Header className="border-b gap-3">
-          <Sheet.Title>
-            {isEditing ? t('edit-category') : t('new-category')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-1 min-h-0 flex-col"
+      >
+        <PanelFormLayout
+          onCancel={onCancel}
+          saving={adding || editing}
+          saveLabel={isEditing ? t('save-changes') : t('create-category')}
+        >
+          {savedRowLoad.hasFailed && (
+            <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+          )}
+          <ContentPanelLanguageRow
+            selectedLanguage={selectedLanguage}
+            languageOptions={languageOptions}
+            onLanguageChange={onLanguageChange}
+          />
 
-        <Form {...form}>
-          <Sheet.Content className="overflow-y-auto">
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="p-4 space-y-4"
-            >
-              {savedRowLoad.hasFailed && (
-                <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
-              )}
-              {availableLanguages.length > 0 && (
-                <LanguageSelector
-                  selectedLanguage={selectedLanguage}
-                  languageOptions={languageOptions}
-                  onLanguageChange={onLanguageChange}
-                />
-              )}
-
-              <Form.Field
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('name')}
-                      {isTranslationMode && (
-                        <span className="ml-2 text-xs text-blue-600">
-                          ({selectedLanguage})
-                        </span>
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder={t('enter-category-name')}
-                        required
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+          <ContentPanelFormField
+            control={form.control}
+            name="name"
+            required
+            label={
+              <>
+                {t('name')}
+                {isTranslationMode && (
+                  <span className="ml-1 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
                 )}
+              </>
+            }
+            render={(field) => (
+              <Input
+                {...field}
+                placeholder={t('enter-category-name')}
+                required
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
               />
+            )}
+          />
 
-              <Form.Field
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('slug')}
-                      {isTranslationMode && (
-                        <span className="ml-2 text-xs text-gray-500">
-                          ({t('shared-across-languages')})
-                        </span>
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Input
-                        {...field}
-                        placeholder="category-slug"
-                        required
-                        onChange={(e) => {
-                          field.onChange(e);
-                          setIsSlugManuallyEdited(true);
-                        }}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+          <ContentPanelFormField
+            control={form.control}
+            name="slug"
+            required
+            label={
+              <>
+                {t('slug')}
+                {isTranslationMode && (
+                  <span className="ml-1 text-xs text-gray-500">
+                    ({t('shared-across-languages')})
+                  </span>
                 )}
+              </>
+            }
+            render={(field) => (
+              <Input
+                {...field}
+                placeholder="category-slug"
+                required
+                className={CONTENT_PANEL_INPUT_CLASS_NAME}
+                onChange={(e) => {
+                  field.onChange(e);
+                  setIsSlugManuallyEdited(true);
+                }}
               />
+            )}
+          />
 
-              <Form.Field
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('description')}
-                      {isTranslationMode && (
-                        <span className="ml-2 text-xs text-blue-600">
-                          ({selectedLanguage})
-                        </span>
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Textarea
-                        {...field}
-                        placeholder={t('enter-description')}
-                        rows={3}
-                      />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+          <ContentPanelFormField
+            control={form.control}
+            name="parentId"
+            label={
+              <>
+                {t('parent-category')}
+                {isTranslationMode && (
+                  <span className="ml-1 text-xs text-gray-500">
+                    ({t('shared-across-languages')})
+                  </span>
                 )}
-              />
+              </>
+            }
+            render={(field) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
+                  <Select.Value placeholder={t('select')} />
+                </Select.Trigger>
+                <Select.Content>
+                  {parentOptions.map((opt) => (
+                    <Select.Item
+                      key={opt._id}
+                      value={opt._id}
+                      className="h-7 text-xs"
+                    >
+                      {opt.label}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            )}
+          />
 
-              <Form.Field
-                control={form.control}
-                name="parentId"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('parent-category')}
-                      {isTranslationMode && (
-                        <span className="ml-2 text-xs text-gray-500">
-                          ({t('shared-across-languages')})
-                        </span>
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder={t('select')} />
-                        </Select.Trigger>
-                        <Select.Content>
-                          {parentOptions.map((opt) => (
-                            <Select.Item key={opt._id} value={opt._id}>
-                              {opt.label}
-                            </Select.Item>
-                          ))}
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+          <ContentPanelFormField
+            control={form.control}
+            name="status"
+            label={
+              <>
+                {t('status')}
+                {isTranslationMode && (
+                  <span className="ml-1 text-xs text-gray-500">
+                    ({t('shared-across-languages')})
+                  </span>
                 )}
-              />
+              </>
+            }
+            render={(field) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <Select.Trigger className={CONTENT_PANEL_INPUT_CLASS_NAME}>
+                  <Select.Value placeholder={t('select-status')} />
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value="active" className="h-7 text-xs">
+                    {t('active')}
+                  </Select.Item>
+                  <Select.Item value="inactive" className="h-7 text-xs">
+                    {t('inactive')}
+                  </Select.Item>
+                </Select.Content>
+              </Select>
+            )}
+          />
 
-              <Form.Field
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>
-                      {t('status')}
-                      {isTranslationMode && (
-                        <span className="ml-2 text-xs text-gray-500">
-                          ({t('shared-across-languages')})
-                        </span>
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Select
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <Select.Trigger>
-                          <Select.Value placeholder={t('select-status')} />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value="active">{t('active')}</Select.Item>
-                          <Select.Item value="inactive">{t('inactive')}</Select.Item>
-                        </Select.Content>
-                      </Select>
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
+          <ContentPanelFormField
+            control={form.control}
+            name="description"
+            block
+            label={
+              <>
+                {t('description')}
+                {isTranslationMode && (
+                  <span className="ml-1 text-xs text-blue-600">
+                    ({selectedLanguage})
+                  </span>
                 )}
+              </>
+            }
+            render={(field) => (
+              <Textarea
+                {...field}
+                placeholder={t('enter-description')}
+                rows={3}
+                className="text-xs"
               />
+            )}
+          />
 
-              {fieldGroups.length > 0 && (
-                <CategoryCustomFieldsSection
-                  fieldGroups={fieldGroups}
-                  websiteId={clientPortalId}
-                  getCustomFieldValue={getCustomFieldValue}
-                  updateCustomFieldValue={updateCustomFieldValue}
-                  form={form}
-                />
-              )}
-
-              <div className="flex justify-end space-x-2">
-                <Button onClick={() => onClose()} variant="outline">
-                  {t('cancel')}
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={adding || editing || savedRowLoad.isBlocked}
-                >
-                  {adding || editing
-                    ? isEditing
-                      ? t('saving')
-                      : t('creating')
-                    : isEditing
-                      ? t('save-changes')
-                      : t('create-category')}
-                </Button>
-              </div>
-            </form>
-          </Sheet.Content>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+          {fieldGroups.length > 0 && (
+            <ContentPanelFormBlock label={t('custom-fields')}>
+              <CategoryCustomFieldsSection
+                fieldGroups={fieldGroups}
+                websiteId={clientPortalId}
+                getCustomFieldValue={getCustomFieldValue}
+                updateCustomFieldValue={updateCustomFieldValue}
+                form={form}
+              />
+            </ContentPanelFormBlock>
+          )}
+        </PanelFormLayout>
+      </form>
+    </Form>
   );
-}
+};
+
+const CategoryPanelNew = () => {
+  const { clientPortalId } = useContentPanelDraft(CMS_CATEGORY_CONTENT_TYPE);
+  const { openDetail, cancelDraft } = useContentPanel(
+    CMS_CATEGORY_CONTENT_TYPE,
+  );
+
+  return (
+    <CategoryPanelForm
+      key={clientPortalId}
+      clientPortalId={clientPortalId}
+      onCancel={cancelDraft}
+      onCreated={(categoryId) => openDetail(categoryId, { replace: true })}
+    />
+  );
+};
+
+const CategoryPanelDetail = ({ contentId }: IContentPanelViewProps) => {
+  const { closePanel } = useContentPanel(CMS_CATEGORY_CONTENT_TYPE);
+  const { data, loading, error } = useQuery(CMS_CATEGORY_DETAIL, {
+    variables: { _id: contentId },
+    fetchPolicy: 'network-only',
+  });
+  const category: Category | undefined = data?.cmsCategory;
+
+  return (
+    <ContentPanelRecordState
+      loading={loading}
+      hasRecord={!!category}
+      error={error}
+    >
+      {category && (
+        <CategoryPanelForm
+          key={category._id}
+          category={category}
+          clientPortalId={category.clientPortalId}
+          onCancel={closePanel}
+          onUpdated={closePanel}
+        />
+      )}
+    </ContentPanelRecordState>
+  );
+};
+
+const useCategoryPanelHeading = (contentId: string) => {
+  const { data } = useQuery(CMS_CATEGORY_DETAIL, {
+    variables: { _id: contentId },
+    skip: !contentId,
+  });
+  const category: Category | undefined = data?.cmsCategory;
+
+  return { name: category?.name };
+};
+
+const CategoryPanelActions = ({ contentId }: IContentPanelViewProps) => {
+  const { t } = useTranslation('content');
+  const client = useApolloClient();
+  const { data } = useQuery(CMS_CATEGORY_DETAIL, {
+    variables: { _id: contentId },
+    fetchPolicy: 'cache-first',
+  });
+  const { removeSingleCategory, loading } = useRemoveCategories(
+    data?.cmsCategory?.clientPortalId || '',
+    () => client.refetchQueries({ include: ['CmsCategories'] }),
+  );
+
+  return (
+    <ContentPanelRemoveAction
+      message={t('confirm-delete-this-category')}
+      loading={loading}
+      onRemove={(onCompleted) =>
+        removeSingleCategory(contentId)
+          .then(() => {
+            toast({
+              title: t('success'),
+              description: t('category-deleted-successfully'),
+            });
+            onCompleted();
+          })
+          .catch((error: Error) => {
+            toast({
+              title: t('error'),
+              description: error.message,
+              variant: 'destructive',
+            });
+          })
+      }
+    />
+  );
+};
+
+export const CATEGORY_PANEL: IContentPanelViews = {
+  addLabel: 'new-category',
+  editLabel: 'edit-category',
+  New: CategoryPanelNew,
+  useHeading: useCategoryPanelHeading,
+  Detail: CategoryPanelDetail,
+  Actions: CategoryPanelActions,
+};

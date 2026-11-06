@@ -1,4 +1,5 @@
-import { DatePicker } from 'erxes-ui';
+import { Time } from '@internationalized/date';
+import { DateInput, DatePicker, TimeField } from 'erxes-ui';
 
 interface DateTimeInputProps {
   value: Date | undefined;
@@ -6,58 +7,59 @@ interface DateTimeInputProps {
   placeholder: string;
 }
 
+const combine = (day: Date, time: Time) =>
+  new Date(
+    day.getFullYear(),
+    day.getMonth(),
+    day.getDate(),
+    time.hour,
+    time.minute,
+  );
+
 export const DateTimeInput = ({
   value,
   onChange,
   placeholder,
 }: DateTimeInputProps) => {
-  const handleDateChange = (d: Date | Date[] | undefined) => {
-    const picked = Array.isArray(d) ? d[0] : d;
+  const date = value ? new Date(value) : undefined;
+  const time = date ? new Time(date.getHours(), date.getMinutes()) : null;
+
+  const handleDateChange = (picked: Date | undefined) => {
     if (!picked) {
       onChange(undefined);
       return;
     }
-    const current = value || new Date();
-    const merged = new Date(picked);
-    merged.setHours(current.getHours());
-    merged.setMinutes(current.getMinutes());
-    merged.setSeconds(0);
-    merged.setMilliseconds(0);
-    onChange(merged);
+
+    const current = date || new Date();
+
+    onChange(
+      combine(picked, new Time(current.getHours(), current.getMinutes())),
+    );
   };
 
-  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const timeValue = e.target.value;
-    if (!timeValue) return;
-    const [hh, mm] = timeValue.split(':').map((v) => Number.parseInt(v, 10));
-    const base = value || new Date();
-    const merged = new Date(base);
-    merged.setHours(hh || 0);
-    merged.setMinutes(mm || 0);
-    merged.setSeconds(0);
-    merged.setMilliseconds(0);
-    onChange(merged);
-  };
+  const handleTimeChange = (next: Time | null) => {
+    if (!next) return;
 
-  const timeValue = value
-    ? `${String(new Date(value).getHours()).padStart(2, '0')}:${String(
-        new Date(value).getMinutes(),
-      ).padStart(2, '0')}`
-    : '';
+    onChange(combine(date || new Date(), new Time(next.hour, next.minute)));
+  };
 
   return (
     <div className="flex items-center gap-1">
       <DatePicker
-        value={value}
-        onChange={handleDateChange}
+        value={date}
+        onChange={(next) =>
+          handleDateChange(next instanceof Date ? next : undefined)
+        }
         placeholder={placeholder}
       />
-      <input
-        type="time"
-        className="border rounded px-2 py-1 h-9 text-sm w-[100px]"
-        value={timeValue}
+      <TimeField
+        value={time}
         onChange={handleTimeChange}
-      />
+        hourCycle={24}
+        aria-label={placeholder}
+      >
+        <DateInput className="w-20 justify-center" />
+      </TimeField>
     </div>
   );
 };
