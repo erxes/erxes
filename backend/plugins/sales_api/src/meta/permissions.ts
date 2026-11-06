@@ -26,7 +26,12 @@ export const permissions: IPermissionConfig = {
         {
           title: 'Edit deal products',
           name: 'dealsProductsEdit',
-          description: 'Add, edit, and remove products on deals',
+          description: 'Add and edit products on deals',
+        },
+        {
+          title: 'Delete deal products',
+          name: 'dealsProductsDelete',
+          description: 'Remove products from deals',
         },
         {
           title: 'Remove deals',
@@ -43,6 +48,11 @@ export const permissions: IPermissionConfig = {
           name: 'dealsArchive',
           description: 'Archive / unarchive deals',
         },
+        {
+          title: 'Export deals',
+          name: 'dealsExportManage',
+          description: 'Export deals',
+        },
       ],
     },
     {
@@ -57,7 +67,12 @@ export const permissions: IPermissionConfig = {
           name: 'boardsAdd',
           description: 'Create boards',
         },
-        { title: 'Archive / unarchive boards', name: 'boardsArchive', description: 'Archive boards and their pipelines and deals; unarchive boards' },
+        {
+          title: 'Archive / unarchive boards',
+          name: 'boardsArchive',
+          description:
+            'Archive boards and their pipelines and deals; unarchive boards',
+        },
         {
           title: 'Edit boards',
           name: 'boardsEdit',
@@ -261,6 +276,11 @@ export const permissions: IPermissionConfig = {
           name: 'posItemsExportManage',
           description: 'Export POS items',
         },
+        {
+          title: 'Export POS orders',
+          name: 'posOrdersExportManage',
+          description: 'Export POS orders',
+        },
       ],
     },
   ],
@@ -279,9 +299,11 @@ export const permissions: IPermissionConfig = {
             'dealsAdd',
             'dealsEdit',
             'dealsProductsEdit',
+            'dealsProductsDelete',
             'dealsRemove',
             'dealsWatch',
             'dealsArchive',
+            'dealsExportManage',
           ],
           scope: 'all',
         },
@@ -352,6 +374,7 @@ export const permissions: IPermissionConfig = {
             'posCoversEdit',
             'posCoversRemove',
             'posItemsExportManage',
+            'posOrdersExportManage',
           ],
           scope: 'all',
         },

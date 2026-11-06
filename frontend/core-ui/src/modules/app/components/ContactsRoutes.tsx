@@ -17,6 +17,12 @@ const CompaniesIndexPage = lazy(() =>
   })),
 );
 
+const ContactDetailPage = lazy(() =>
+  import('~/pages/contacts/ContactDetailPage').then((module) => ({
+    default: module.ContactDetailPage,
+  })),
+);
+
 const ClientPortalUsersIndexPage = lazy(() =>
   import('~/pages/contacts/ClientPortalUsersIndexPage').then((module) => ({
     default: module.ClientPortalUsersIndexPage,
@@ -39,6 +45,18 @@ export const ContactsRoutes = () => {
         <Route path={ContactsPath.Leads} element={<CustomersIndexPage />} />
         <Route path={ContactsPath.Customers} element={<CustomersIndexPage />} />
         <Route path={ContactsPath.Companies} element={<CompaniesIndexPage />} />
+        <Route
+          path={`${ContactsPath.Leads}/:id`}
+          element={<ContactDetailPage contentType="core:customer" />}
+        />
+        <Route
+          path={`${ContactsPath.Customers}/:id`}
+          element={<ContactDetailPage contentType="core:customer" />}
+        />
+        <Route
+          path={`${ContactsPath.Companies}/:id`}
+          element={<ContactDetailPage contentType="core:company" />}
+        />
         <Route
           path={ContactsPath.ClientPortalUsers}
           element={<ClientPortalUsersIndexPage />}

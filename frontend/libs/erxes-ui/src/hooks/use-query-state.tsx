@@ -32,6 +32,7 @@ const getSearchParamsDraft = (
   return searchParamsDraft;
 };
 
+/** Returns a reader for pending query changes at the latest router location. */
 const useSearchParamsDraft = (): (() => ISearchParamsDraft) => {
   const location = useLocation();
   const latestLocation = useRef(location);
@@ -39,6 +40,7 @@ const useSearchParamsDraft = (): (() => ISearchParamsDraft) => {
   return () => getSearchParamsDraft(latestLocation.current);
 };
 
+/** Preserves pending query values and explicit navigation state for the next setter. */
 const updateSearchParamsDraft = (
   draft: ISearchParamsDraft,
   nextParams: URLSearchParams,
@@ -56,6 +58,7 @@ export type QueryState<T> = [
   (value: T | null, navigationOptions?: NavigateOptions) => void,
 ];
 
+/** Reads and updates one URL query value while preserving concurrent query changes. */
 export function useQueryState<T>(
   queryKey: string,
   options?: {
@@ -65,6 +68,7 @@ export function useQueryState<T>(
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
+  /** Decodes JSON query values while keeping search text and plain strings intact. */
   const parseQueryValue = (value: string | null): T | null => {
     if (!value) {
       if (options?.defaultValue !== undefined) {
@@ -89,6 +93,7 @@ export function useQueryState<T>(
 
   const query = parseQueryValue(searchParams.get(queryKey));
 
+  /** Updates the requested query key without discarding other pending query changes. */
   const setQuery = (value: T | null, navigationOptions?: NavigateOptions) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
@@ -122,12 +127,20 @@ type QueryValues<T extends QueryTypes> = {
   [K in keyof T]: T[K] | null;
 };
 
+/** Reads and updates several query values through one shared navigation draft. */
 export function useMultiQueryState<T extends QueryTypes>(
   queryKeys: (keyof T)[],
-): [QueryValues<T>, (values: Partial<QueryValues<T>>) => void] {
+): [
+  QueryValues<T>,
+  (
+    values: Partial<QueryValues<T>>,
+    navigationOptions?: NavigateOptions,
+  ) => void,
+] {
   const [searchParams, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
+  /** Decodes JSON query values while keeping search text and plain strings intact. */
   const parseQueryValue = <K extends keyof T>(
     value: string | null,
     key: K,
@@ -154,7 +167,11 @@ export function useMultiQueryState<T extends QueryTypes>(
     return acc;
   }, {} as QueryValues<T>);
 
-  const setQueries = (values: Partial<QueryValues<T>>) => {
+  /** Applies a batch without discarding other query changes from the same event. */
+  const setQueries = (
+    values: Partial<QueryValues<T>>,
+    navigationOptions?: NavigateOptions,
+  ) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
     let hasChanges = false;
@@ -174,15 +191,20 @@ export function useMultiQueryState<T extends QueryTypes>(
       }
     });
 
-    if (!hasChanges) return;
+    if (!hasChanges && !navigationOptions) return;
 
-    updateSearchParamsDraft(draft, nextParams);
-    setSearchParams(nextParams, { replace: true, state: draft.state });
+    updateSearchParamsDraft(draft, nextParams, navigationOptions);
+    setSearchParams(nextParams, {
+      replace: true,
+      ...navigationOptions,
+      state: draft.state,
+    });
   };
 
   return [queries, setQueries];
 }
 
+/** Returns only the query values that are present in the URL. */
 export const useNonNullMultiQueryState = <T extends QueryTypes>(
   queryKeys: (keyof T)[],
 ): QueryValues<T> => {
@@ -195,10 +217,12 @@ export const useNonNullMultiQueryState = <T extends QueryTypes>(
   return nonNullQueries;
 };
 
+/** Creates a setter for a query key using the shared pending navigation draft. */
 export function useSetQueryStateByKey() {
   const [, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
+  /** Updates the requested query key without discarding other pending query changes. */
   const setQuery = (key: string, value: string) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);
@@ -211,10 +235,12 @@ export function useSetQueryStateByKey() {
   return setQuery;
 }
 
+/** Creates a remover that preserves the remaining query values and router state. */
 export function useRemoveQueryStateByKey() {
   const [, setSearchParams] = useSearchParams();
   const getDraft = useSearchParamsDraft();
 
+  /** Removes one query key when present and preserves other pending changes. */
   const removeQuery = (key: string) => {
     const draft = getDraft();
     const nextParams = new URLSearchParams(draft.params);

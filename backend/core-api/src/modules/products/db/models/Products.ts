@@ -304,6 +304,46 @@ export const loadProductClass = (
       };
     }
 
+    // Import onboards whole catalogs: a category the file names but nobody has
+    // yet is created at the root, under that name
+    private static async createMissingCategories(docs: Partial<IProduct>[]) {
+      const refs = uniqueRefs(
+        docs.map((doc) => doc.categoryCode || doc.categoryId),
+      );
+
+      if (!refs.length) {
+        return;
+      }
+
+      const existing = await models.ProductCategories.find(
+        {
+          $or: [
+            { _id: { $in: refs } },
+            { code: { $in: refs } },
+            { name: { $in: refs } },
+          ],
+        },
+        { code: 1, name: 1 },
+      ).lean();
+      const known = new Set(
+        existing.flatMap((category) => [
+          category._id,
+          category.code,
+          category.name,
+        ]),
+      );
+
+      for (const name of refs.filter((ref) => !known.has(ref))) {
+        // A failed create (a concurrent import took the code) surfaces later
+        // as the rows' "category not found"
+        await models.ProductCategories.createProductCategory({
+          name,
+          code: name,
+          order: '',
+        }).catch(() => undefined);
+      }
+    }
+
     // Every create rule that needs no query: normalizes the doc in place and
     // returns its category
     private static checkProduct(doc: ProductWriteDoc, refs: ProductRefs) {
@@ -436,11 +476,6 @@ export const loadProductClass = (
       return product;
     }
 
-    /**
-     * Import write under createProduct's rules: a doc whose code matches a
-     * product replaces it merged with the doc, any other is inserted.
-     * Results keep the order of docs.
-     */
     public static async upsertProductsByCode(docs: Partial<IProduct>[]) {
       const codes = uniqueRefs(
         docs.flatMap((doc) =>
@@ -464,6 +499,8 @@ export const loadProductClass = (
 
         return { current, doc: merged };
       });
+
+      await this.createMissingCategories(docs);
 
       const refs = await this.loadRefs(items.map(({ doc }) => doc));
       const results: IProductUpsertResult[] = docs.map(() => ({}));

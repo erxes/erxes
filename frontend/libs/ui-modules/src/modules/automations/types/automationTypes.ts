@@ -87,6 +87,7 @@ export interface IAutomationHistoryAction {
     | 'standby'
     | 'dropped';
   skipReason?: string;
+  errorCode?: string;
   // Which try this row is; above 1 only when an error policy asked for another.
   attempt?: number;
   actionId: string;

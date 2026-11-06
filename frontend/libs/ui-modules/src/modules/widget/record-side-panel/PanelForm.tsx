@@ -1,6 +1,7 @@
 import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { PanelLabel } from './PanelLabel';
+import { PanelLabel } from 'ui-modules/modules/widget/record-side-panel/PanelLabel';
+import { IconForms, type Icon } from '@tabler/icons-react';
 
 // Inputs inside a panel form row: the height and text of the panel's cells.
 export const PANEL_INPUT_CLASS_NAME =
@@ -12,24 +13,30 @@ export const PANEL_INPUT_CLASS_NAME =
  */
 export const PanelFormRow = ({
   label,
+  icon: Icon = IconForms,
   required,
   error,
   children,
 }: {
   label: React.ReactNode;
+  icon?: Icon;
   required?: boolean;
   error?: string;
   children: React.ReactNode;
 }) => (
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 gap-y-0.5 min-h-7">
-    <PanelLabel
-      tooltip={label}
-      className="text-xs font-medium text-accent-foreground"
-    >
-      {label}
-      {required && <span className="text-destructive"> *</span>}
-    </PanelLabel>
-    <div className="min-w-0 text-xs [&_button:not([role=switch])]:h-7 [&_button:not([role=switch])]:text-xs">
+    <span className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground">
+      <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+      <PanelLabel tooltip={label}>
+        {label}
+        {required && <span className="text-destructive"> *</span>}
+      </PanelLabel>
+    </span>
+    <div className="group/panel-value relative min-w-0 text-xs [&_button:not([role=switch])]:h-7 [&_button:not([role=switch])]:text-xs [&_input:placeholder-shown]:pl-7">
+      <Icon
+        className="pointer-events-none absolute left-2 top-1/2 z-1 hidden size-3.5 -translate-y-1/2 text-muted-foreground group-has-[input:placeholder-shown]/panel-value:block"
+        aria-hidden="true"
+      />
       {children}
     </div>
     {error && (

@@ -135,7 +135,5 @@ them in-process would tear the runner down after the first one.
 ## Not included here
 
 Migrations that are **loaded at runtime** by a plugin (rather than run as a
-standalone script) stay in the plugin. For example,
-`insurance_api`'s `dropCodeIndex.ts` is imported and invoked from
-`connectionResolvers.ts`, so it is not a standalone migration and lives with the
-plugin.
+standalone script) stay in the plugin, next to the `connectionResolvers.ts`
+that imports and invokes them.

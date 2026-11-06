@@ -17,6 +17,12 @@ import {
 import { useNavigationActivities } from '@/navigation/hooks/useNavigationActivities';
 import { useTranslation } from 'react-i18next';
 
+const AppPageOutlet = () => (
+  <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+    <Outlet />
+  </div>
+);
+
 const getCoreModuleSidebar = (
   activity: INavigationActivity,
   pathname: string,
@@ -67,7 +73,7 @@ export const CoreAppOutlet = () => {
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
-        <Outlet />
+        <AppPageOutlet />
       </AppLayout>
     );
   }
@@ -86,7 +92,7 @@ export const CoreAppOutlet = () => {
       <NavigationChildControlsProvider
         activity={activity?.kind === 'plugin' ? activity : undefined}
       >
-        <Outlet />
+        <AppPageOutlet />
       </NavigationChildControlsProvider>
     );
   }
@@ -102,7 +108,7 @@ export const CoreAppOutlet = () => {
         </NavigationChildControlsProvider>
       }
     >
-      <Outlet />
+      <AppPageOutlet />
     </AppLayout>
   );
 };

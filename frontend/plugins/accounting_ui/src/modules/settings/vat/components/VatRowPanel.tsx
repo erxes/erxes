@@ -24,6 +24,7 @@ import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsP
 import {
   SettingsPanelNumberField,
   SettingsPanelSwitch,
+  SettingsPanelTitleField,
 } from '@/settings/components/panel/SettingsPanelFields';
 import {
   ISettingsPanelViewProps,
@@ -96,6 +97,20 @@ const VatRowPanelActions = ({ contentId }: ISettingsPanelViewProps) => {
   );
 };
 
+const VatRowPanelTitle = ({ contentId }: ISettingsPanelViewProps) => {
+  const { vatRowDetail: vatRow, loading } = useVatRowDetail(contentId);
+  const { editVatRow } = useVatRowEdit();
+
+  return (
+    <SettingsPanelTitleField
+      scope={SCOPE}
+      loading={loading}
+      value={vatRow ? vatRow.name || '' : undefined}
+      onSave={(name) => editVatRow({ variables: { _id: contentId, name } })}
+    />
+  );
+};
+
 const VatRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
   const { t } = useTranslation('accounting');
   const { vatRowDetail: vatRow, loading } = useVatRowDetail(contentId);
@@ -142,6 +157,7 @@ const VatRowPanelDetail = ({ contentId }: ISettingsPanelViewProps) => {
 export const VAT_ROW_PANEL: ISettingsPanelViews = {
   addLabel: 'add-vat',
   editLabel: 'edit-vat-details',
+  Title: VatRowPanelTitle,
   New: VatRowPanelNew,
   Actions: VatRowPanelActions,
   Detail: VatRowPanelDetail,

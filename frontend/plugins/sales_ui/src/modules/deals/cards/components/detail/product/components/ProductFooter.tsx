@@ -5,7 +5,7 @@ import { IconDeviceFloppy, IconPlus } from '@tabler/icons-react';
 import { Button, Input, Label, NumberInput } from 'erxes-ui';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectProductsBulk } from 'ui-modules';
+import { SelectProductsBulk, usePermissionCheck } from 'ui-modules';
 import {
   applyFooterDiscountAmount,
   applyFooterDiscountPercent,
@@ -103,6 +103,8 @@ export const ProductFooter = ({
   onSave,
   hasUnsavedChanges,
 }: ProductFooterProps) => {
+  const { isLoaded, hasActionPermission } = usePermissionCheck();
+  const canEditProducts = isLoaded && hasActionPermission('dealsProductsEdit');
   const [discountPercentDraft, setDiscountPercentDraft] = useState<
     Record<string, string>
   >({});
@@ -256,6 +258,7 @@ export const ProductFooter = ({
                     <div className="flex items-center gap-2">
                       <Input
                         id={`discount-percent-${currency}`}
+                        readOnly={!canEditProducts}
                         className="h-8 w-16 text-right tabular-nums @2xl:w-20 @2xl:text-left"
                         inputMode="numeric"
                         placeholder="0"
@@ -270,6 +273,7 @@ export const ProductFooter = ({
                       <span className="text-xs text-muted-foreground">%</span>
                       <Input
                         id={`discount-amount-${currency}`}
+                        readOnly={!canEditProducts}
                         className="h-8 w-28 text-right tabular-nums @2xl:w-32 @2xl:text-left"
                         inputMode="numeric"
                         placeholder={t('set-amount')}

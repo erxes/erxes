@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-10-30`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -31,6 +31,11 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- Pipelines persist `productIds`, `tagIds`, and `excludeTagIds` for deal product selection. Core reads them through the existing tenant-scoped `pipeline.findOne` contract.
+
+- POS product groups store `productIds` (include), `tagIds`, and `excludeTagIds` alongside category/product exclusions. Category, tag and explicit-product includes form a union; category, tag and product exclusions apply to that whole union, including explicitly included products. Include and exclude tags expand through Core `tags.findWithChild` in the request tenant. Empty groups retain their empty-catalog behavior.
+- POS sync retains the included category tree minus excluded category descendants, plus the direct categories of products matched by tags or explicit ids. Each group resolves its trees once, then reuses those ids for the product query and category payload. Product changes add their direct category before the product or remove products that no longer match. Tag assignment/tree and category changes resync affected POS catalogs through the existing token-scoped import contract.
 
 - POS cover `details[]` stores immutable terminal fetch results
   per `paidType`, including zero-amount terminal rows received from POS client.
@@ -87,12 +92,21 @@
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
   batch of them through the `evaluateFields` segment producer. The `tagIds`
   lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
+- Registers three core import-export export types in `main.ts`:
+  `sales:sales.deals` (`dealsExportManage`), `sales:pos.posOrders`
+  (`posOrdersExportManage`) and `sales:pos.posItems` (`posItemsExportManage`).
+  Deals export one row per deal (board/pipeline/stage, labels, tags, contacts,
+  users, branches, departments, products summary, amounts, payments) plus one
+  column per live `sales:deal` property; a property group already stored as
+  rows on deals becomes numbered columns (`toPropertyRowColumnKey`, at most 20).
+  POS orders export one row per order (POS name, cashier, customer by
+  `customerType`, items summary, amounts, payment types, converted deal).
 
 ## Architecture
 
 | Area                       | Path                                                      | Responsibility                                                                                       |
 | -------------------------- | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Schema export              | `scripts/print-subgraph-schema.ts`                                         | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
+| Schema export              | `scripts/print-subgraph-schema.ts`                        | Print the Sales subgraph and subscriptions for GraphQL type-generation tooling.                      |
 | Runtime                    | `src/main.ts`, `src/connectionResolvers.ts`, `src/trpc`   | Start the plugin, load tenant-scoped models, and expose tRPC procedures.                             |
 | Sales models               | `src/modules/sales/db`                                    | Store deals, boards, pipelines, stages, labels, and sales metadata.                                  |
 | Sales GraphQL              | `src/modules/sales/graphql`, `src/apollo`                 | Provide sales schemas, resolvers, mutations, queries, and subscriptions.                             |
@@ -102,6 +116,7 @@
 | Relation measures          | `src/modules/sales/meta/segments/evaluate/relations.ts`   | Fold a relation into deals for a batch, over a core-resolved edge table or a stored join.            |
 | Stage-derived filters      | `src/modules/sales/meta/segments/evaluate/stageFilter.ts` | Rewrite pipeline, board and probability conditions into the stage ids they name.                     |
 | Documents                  | `src/modules/sales/documents`                             | Generate sales document content and amount mappings.                                                 |
+| Export                     | `src/meta/export`, `src/modules/{sales,pos}/meta/export`  | Route export collections, build export headers and rows, and resolve core names per batch.           |
 | POS and ecommerce          | `src/modules/pos`, `src/modules/ecommerce`                | Provide sales-owned POS and ecommerce behavior.                                                      |
 | Benchmark data             | `scripts/benchmarks/seed-deals.js`                        | Seed resumable, deterministic high-volume deal data directly through mongosh.                        |
 
@@ -121,6 +136,63 @@
   (ticked products), `paidAmount` → `paidAmount`, `items` → `purchaseItems`;
   POS orders map `totalAmount`, `paidAmount` (total minus point payments) and
   `purchaseItems`. Earning is decided by automations, never by sales.
+- A POS order keeps the ids of the loyalty entries it caused in
+  `pos_orders.scoreLogIds` the same way: `spendOrderPoints`,
+  `earnOrderPoints` and `refundOrderPoints` (`modules/pos/utils.ts`) link
+  what loyalty returns through `PosOrders.addScoreLogs`; `createOrUpdate`
+  drops `scoreLogIds` from a synced document, so the POS client never
+  overwrites them. `salesPosScoreLogs` / `salesPosScoreLogInsights` /
+  `salesPosScoreLogTimeline` (`modules/pos/utils/orderScoreLogs.ts`,
+  `posOrderRead`) take the order list's filters (`generateFilterPosQuery`)
+  plus `posIds`, `orderIds`, `branchIds`; insights group by POS (`byPos`),
+  cashier (`byCashier`, `userId`), branch, customers and `topOrders`.
+  `salesDealScoreLogs` and `salesPosScoreLogs` take an optional `kind`
+  (`SalesScoreLogKind`) and `period` (`SalesScoreLogPeriod`: interval,
+  timezone, key): the matching records' ids go to loyalty
+  `score.filterIds` (`drilledIds`, batches of 1000) and the page lists only
+  those. Insights return `entryCount` (every entry, recalculations
+  included). A cancelled order is deleted
+  after its refund, so its entries are no longer listed here.
+- Deal and POS sums share `modules/sales/utils/scoreLogSums.ts`
+  (`loyaltyTotals` batching `score.totalsByIds`, `sumScoreLogs` over
+  sources with a group, people and branches) and `scoreLogTimeline` in
+  `dealScoreLogTimeline.ts`; each source only maps its records.
+- A deal keeps the ids of the loyalty entries it caused in `scoreLogIds`:
+  `syncDealPoints` links what `score.spend`, `score.earn` (`scoreLogIds`,
+  else `scoreLogId` / `_id` from an older loyalty) and `score.refund` return
+  through `Deals.addScoreLogs` (a recalculation's reversal and replacement
+  both), also when a later call
+  in the same sync fails. `salesDealScoreLogs(page, perPage, …deal list
+filters)` (`utils/dealScoreLogs.ts`, `showDeals`) runs the deal list's
+  `generateFilter`, unwinds the ids and returns one page of
+  `{dealId, dealName, stageId, stageName, pipelineId, pipelineName, boardId,
+boardName, scoreLogId}` (each deal's entries together, latest linked
+  first, at most 50). Without `pipelineId` it spans every pipeline the user
+  may open (`utils/pipelineVisibility.ts` `visiblePipelinesQuery`, the same
+  rule `salesPipelines` uses) with each pipeline's `isCheckUser` /
+  `isCheckDepartment` rule applied (`visibleDealsScope`); `boardIds` /
+  `pipelineIds` narrow it. `salesDealScoreLogInsights(…same filters)`
+  (`dealScoreLogInsights`) reads every matching deal's ids, asks loyalty
+  `score.totalsByIds` in batches of 1000 and returns `totals` per action,
+  `net`, `dealCount`, `customerCount`, `byPipeline`, `topDeals` (ten deals by
+  points earned), `byAssignee` / `byBranch` (ten each; a deal with several
+  assignees or branches counts in full for each) and `topEarners` /
+  `topSpenders` (customers) (earned = add, spent
+  = subtract, refunded = refund + return, other = expire + set; a row with
+  loyalty's `recalculates` counts apart as `recalculatedEarned` /
+  `recalculatedSpent` (pipelines and periods: `recalculated`), never as a
+  refund; `topDeals` and the rankings read what is earned or spent now; the kinds add up to `net`). `salesDealScoreLogTimeline(interval:
+day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
+  asks loyalty `score.timelineByIds` in batches of 1000 and returns the last
+  30 days, 26 ISO weeks or 12 months in that zone (default UTC), empty
+  periods as zeros, each with the kinds, `recalculated`, `net` and
+  `cumulative` (everything
+  the deals moved before plus each period's net: the deals' running net, not
+  a wallet balance; expiry and resets are not linked to deals); nothing is stored. The client asks loyalty
+  `loyaltyScoreLogsByIds` for that page. Entries written without sales
+  (automations, by hand) are not linked; those written before this field are
+  linked once by `backend/saas-migrations/sales/commands/linkDealScoreLogs.ts`
+  (ids only, safe to rerun, `DRY_RUN=true` counts).
 - Sales tells loyalty what a purchase paid with points and when it is undone
   (`modules/sales/utils/dealPoints.ts`): `planDealPoints` decides per deal
   create, edit or move (a new deal passes its `customerId` as `customerIds` and a pre-made
@@ -224,6 +296,9 @@
 
 ### Provides
 
+- Import-export `getExportHeaders` / `getExportData` producers for module
+  `sales` (collection `deals`) and module `pos` (collections `posOrders`,
+  `posItems`).
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
@@ -247,6 +322,7 @@
   answers `unknownValueUsage(part)`.
 - Federated sales GraphQL contracts for deals, stages, pipelines, boards, POS,
   and ecommerce modules.
+- Query `salesDealScoreLogs` → `SalesDealScoreLogList { list: [SalesDealScoreLog], totalCount }`.
 - Sales-owned tRPC and record-reference contracts.
 - `segmentFields` and a `propertiesData` `segmentFieldNamespaces` entry
   (`propertyType` `sales:deal`) for
@@ -279,11 +355,32 @@
   `discountInfos`, `totalAmount`, `unUsedTotalAmount`, `bothTotalAmount`,
   `mobileAmount`, `mobileAmounts`, and `paymentsData`.
 - Pipeline documents store validated Core deal field ids in `propertyIds`.
+- `deals.scoreLogIds` and `pos_orders.scoreLogIds` (indexed) hold only ids
+  of loyalty `score_logs`; points and balances are never copied to sales.
+  `backend/saas-migrations/sales/commands/linkDealScoreLogs.ts` and
+  `linkPosOrderScoreLogs.ts` backfill entries written before the links.
 - POS order items keep the optional `conditionCode` (core product condition code) the POS client sold a line under, for reporting.
 - POS `customerCreateConfig.layout` rows hold customer system field codes from
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
+
+- Export handlers read the inner payload through `unwrapExportPayload`: the
+  module producer passes `data`, not the `{ subdomain, data }` envelope the
+  shared types describe. Deal and POS order rows always carry `_id` and are
+  read in `_id` order, because the export worker pages with the last `_id`
+  (or an index into `ids`). Filters reuse the list filters
+  (`generateFilter`, `generateFilterPosQuery`) with no user, since export jobs
+  run without one; user-dependent filters therefore narrow, never widen.
+- A deal list not scoped to one `pipelineId` must keep to
+  `visibleDealsScope`: `generateFilter` applies a pipeline's "own deals only"
+  rule only for a single `pipelineId`.
+- `Deals.addScoreLogs` only `$addToSet`s ids and sends no db event log, so
+  deal-updated automations and segments do not run on point movements. Never
+  store a score, total or balance next to the ids: loyalty is the only ledger.
+- The product-row deletion mutation requires `dealsProductsDelete` in addition to
+  `dealsEdit`. Full-array `dealsEdit` saves require `dealsEdit` and
+  `dealsProductsEdit`. The Sales Admin default group includes both product actions.
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
@@ -593,6 +690,12 @@
 
 ## Validation
 
+- POS filter smoke: save category/tag/product includes and each exclusion, reopen, sync, and verify the include union minus all exclusions appears. Tag-only/product-only groups must include each product's direct category; moving or removing tags/products must remove obsolete POS membership.
+- `pnpm nx test sales_api --runInBand --testPathPattern="(productGroupFilter|catalogSync|posProductSync|getProductPricing)"`
+
+- Permission regression: `requiredInputs.test.ts` covers denied deletion before model
+  access and product-row deletion without product-edit permission.
+
 - `node --test backend/plugins/sales_api/src/modules/pos/db/definitions/__tests__/coverDetails.test.cjs`
 - `node --test backend/plugins/sales_api/src/modules/pos/db/models/__tests__/posOnServer.test.cjs`
 - Cover smoke: confirm in POS client (editing is locked), remove in Sales
@@ -646,6 +749,24 @@
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-11-05` — POS orders link their loyalty entries
+
+- **Summary:** POS orders keep `scoreLogIds` from loyalty's spend, earn and refund answers; `salesPosScoreLogs`, `salesPosScoreLogInsights` and `salesPosScoreLogTimeline` list and sum them across POSes. Deal and POS sums share `scoreLogSums.ts`.
+- **Affected areas:** `modules/pos/{utils.ts,utils/orderScoreLogs.ts,@types/orders.ts,db/definitions/orders.ts,db/models/Orders.ts,graphql/schemas/orders.ts,graphql/resolvers/queries/orders.ts}` (+ `__tests__/orderScoreLogs.test.ts`), `modules/sales/utils/{scoreLogSums,dealScoreLogs,dealScoreLogTimeline}.ts`, `backend/saas-migrations/sales/commands/linkPosOrderScoreLogs.ts`.
+- **Contracts changed:** `PosOrder` field `scoreLogIds`; new queries `salesPosScoreLogs`, `salesPosScoreLogInsights`, `salesPosScoreLogTimeline`.
+
+### `2026-11-05` — Recalculations link both entries; points over time
+
+- **Summary:** A recalculated deal links loyalty's reversal and replacement (`scoreLogIds`); insights and the timeline count recalculations apart (totals keep what was first given, rankings read what is earned or spent now). `salesDealScoreLogTimeline` gives the points per day, week or month.
+- **Affected areas:** `modules/sales/utils/{dealPoints,dealScoreLogs,dealScoreLogTimeline}.ts` (+ `__tests__/{dealPoints,dealScoreLogInsights,dealScoreLogTimeline}.test.ts`), `modules/sales/graphql/{schemas/deal.ts,resolvers/queries/deals.ts}`.
+- **Contracts changed:** consumes loyalty `score.earn` / `score.spend` `scoreLogIds`, `score.totalsByIds` `recalculates` and `score.timelineByIds`; new query `salesDealScoreLogTimeline`.
+
+### `2026-11-05` — Deals link the loyalty entries they caused
+
+- **Summary:** Deals keep `scoreLogIds` from loyalty's spend, earn and refund answers; `salesDealScoreLogs` pages those links with the deal list's filters so the UI can list point movements per pipeline and stage.
+- **Affected areas:** `modules/sales/{@types/deal.ts,db/definitions/deals.ts,db/models/Deals.ts,utils/dealPoints.ts,utils/dealScoreLogs.ts,graphql/schemas/deal.ts,graphql/resolvers/queries/deals.ts}`, `utils/__tests__/dealPoints.test.ts`.
+- **Contracts changed:** `Deal` schema field `scoreLogIds`; new queries `salesDealScoreLogs`, `salesDealScoreLogInsights`; consumes loyalty `score.earn.scoreLogId`, `score.totalsByIds`.
+
 ### `2026-10-24` — Deal notifications reach email and push
 
 - **Summary:** Deal notifications went straight to core `notifications.create` with no event, so they never reached email or push. They now go through the shared `sendNotification` with an `event` key. Meta adds `dealUpdated`; the `note` module (no sender) is gone.
@@ -690,34 +811,3 @@
 - **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
 - **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
 - **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
-
-### `2026-09-21` — The deal action says it needs someone to act for
-
-- **Summary:** `Create deal` now declares `requiresActor: true` on its action
-  descriptor. The deal it opens takes an owner from the run's
-  `createdVia.actorId`, and the builder reads this declaration to decide
-  whether putting an automation live is worth saying whose name its records
-  will carry. Nothing about how the deal is created changed.
-- **Affected areas:** `src/modules/sales/meta/automations/constants.ts`
-- **Contracts changed:** The action descriptor carries `requiresActor`, a field
-  `erxes-api-shared` added for every plugin to use.
-
-### `2026-09-14` — A deal an automation opened records what produced it
-
-- **Summary:** Deals created by an automation now carry `createdVia` — the
-  configuration that produced them, the run that did it, and whose
-  configuration it was — and take that actor as `userId` when the execution
-  target carries none, instead of being left ownerless.
-- **Affected areas:**
-  `src/modules/sales/meta/automations/action/createDealAction.ts`,
-  `src/modules/sales/@types/deal.ts`
-- **Contracts changed:** Consumes the new `TCreatedVia` and
-  `IExecution.createdVia` from `erxes-api-shared`; `createdVia` itself is added
-  to every schema by `schemaWrapper`.
-
-### `2026-09-17` — Property types declare system fields
-
-- **Summary:** The `deal` property types now declare `systemFields`, shown
-  as the "Basic information" group in Settings → Properties.
-- **Affected areas:** `src/meta/properties.ts` (`deal`), `src/main.ts`
-- **Contracts changed:** Plugin meta `properties.types[].systemFields` added.

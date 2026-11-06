@@ -57,6 +57,7 @@ export const CONFIG: IUIConfig = {
           {
             value: 'products',
             label: 'Products',
+            labelKey: 'products',
             icon: IconPackage,
           },
         ],

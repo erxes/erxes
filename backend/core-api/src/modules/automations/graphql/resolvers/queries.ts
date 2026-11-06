@@ -301,6 +301,14 @@ export const automationQueries = {
     return models.AutomationExecutions.getExecutionCounts(automationIds);
   },
 
+  async automationRecentRuns(
+    _root,
+    { automationIds }: { automationIds: string[] },
+    { models }: IContext,
+  ) {
+    return models.AutomationExecutions.getRecentRuns(automationIds);
+  },
+
   /**
    * Execution stats of one automation: run status breakdown, daily buckets and
    * per action node counts/durations.

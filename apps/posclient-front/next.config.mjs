@@ -31,7 +31,7 @@ const nextConfig = {
       ...config.watchOptions,
       aggregateTimeout: 300,
       ignored: ignoredWatchPaths,
-      poll: process.env.WATCHPACK_POLLING === 'false' ? undefined : 1000,
+      poll: process.env.WATCHPACK_POLLING === 'false' ? undefined : true,
     }
 
     return config

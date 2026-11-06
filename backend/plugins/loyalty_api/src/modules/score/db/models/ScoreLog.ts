@@ -31,6 +31,71 @@ import { IModels } from '~/connectionResolvers';
 import { getLoyaltyOwner } from '~/utils';
 
 const MAX_TARGET_TOTALS = 500;
+const MAX_LOGS_BY_IDS = 100;
+const MAX_TOTALS_BY_IDS = 1000;
+
+// The action an entry recalculates, or null: a recalculation writes a
+// reversal (negative when it takes back an earning) and the entry that
+// replaced the reversed one; both belong to the recalculation, not to what
+// was first earned or spent.
+const recalculates = (replacementIds: string[]) => ({
+  $cond: [
+    { $gt: ['$replacedByScoreLogId', null] },
+    {
+      $cond: [
+        { $lt: ['$changeScore', 0] },
+        SCORE_ACTION.ADD,
+        SCORE_ACTION.SUBTRACT,
+      ],
+    },
+    { $cond: [{ $in: ['$_id', replacementIds] }, '$action', null] },
+  ],
+});
+
+export type TScoreLogIdTotal = {
+  targetId: string;
+  ownerId: string;
+  action: string;
+  // Set on a recalculation's reversal and replacement: the action they
+  // recalculate, so a source shows them apart from what was first given.
+  recalculates: 'add' | 'subtract' | null;
+  total: number;
+  count: number;
+};
+
+export const SCORE_TIMELINE_FORMATS = {
+  day: '%Y-%m-%d',
+  week: '%G-W%V',
+  month: '%Y-%m',
+} as const;
+
+export type TScoreTimelineInterval = keyof typeof SCORE_TIMELINE_FORMATS;
+
+export type TScoreLogIdBucket = Omit<
+  TScoreLogIdTotal,
+  'targetId' | 'ownerId'
+> & {
+  // The entry's period in the asker's time zone; the keys sort as text.
+  bucket: string;
+};
+
+// What a source calls an entry; recalculations go apart from what they
+// recalculate, as in the sums.
+export const SCORE_LOG_KINDS = [
+  'earned',
+  'spent',
+  'refunded',
+  'recalculated',
+  'other',
+] as const;
+
+export type TScoreLogKind = (typeof SCORE_LOG_KINDS)[number];
+
+export type TScoreLogIdFilter = {
+  kind?: TScoreLogKind;
+  // One period of a source's timeline, keyed as the timeline keys it.
+  period?: { interval: TScoreTimelineInterval; timezone: string; key: string };
+};
 
 export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getScoreLog(_id: string): Promise<IScoreLogDocument>;
@@ -39,6 +104,15 @@ export interface IScoreLogModel extends Model<IScoreLogDocument> {
   getTargetTotals(
     targetIds: string[],
   ): Promise<{ targetId: string; total: number }[]>;
+  getByIds(ids: string[]): Promise<IScoreLogDocument[]>;
+  getTotalsByIds(ids: string[]): Promise<TScoreLogIdTotal[]>;
+  writtenWith(log: IScoreLogDocument): Promise<string[]>;
+  filterIds(ids: string[], filter: TScoreLogIdFilter): Promise<string[]>;
+  getTimelineByIds(
+    ids: string[],
+    interval: TScoreTimelineInterval,
+    timezone: string,
+  ): Promise<TScoreLogIdBucket[]>;
   changeScore(doc: IScoreLog): Promise<IScoreLogDocument | null>;
   changeOwnersScore(doc): Promise<IScoreLogDocument[]>;
   repairOwnerScore(
@@ -192,6 +266,16 @@ export const loadScoreLogClass = (
   subdomain: string,
   { createActivityLog }: EventDispatcherReturn,
 ) => {
+  // Which of these entries replaced one a recalculation reversed; the
+  // reversal may be outside the given ids.
+  const replacementsAmong = async (ids: string[]) =>
+    (
+      await models.ScoreLogs.find(
+        { replacedByScoreLogId: { $in: ids } },
+        { replacedByScoreLogId: 1 },
+      ).lean()
+    ).map(({ replacedByScoreLogId }) => replacedByScoreLogId as string);
+
   class ScoreLog {
     /**
      * Tells the owner's timeline, and the record the points came from, that
@@ -407,6 +491,183 @@ export const loadScoreLogClass = (
         targetId: _id,
         total: fixScoreNumber(total),
       }));
+    }
+
+    // A source keeps the ids of the entries it caused and filters them by its
+    // own fields; it asks for one page of them here.
+    public static async getByIds(ids: string[]) {
+      const unique = [...new Set(ids)].slice(0, MAX_LOGS_BY_IDS);
+
+      if (!unique.length) {
+        return [];
+      }
+
+      return models.ScoreLogs.find({ _id: { $in: unique } }).lean();
+    }
+
+    // The points a set of entries moved, per record, owner and action, for a
+    // source that picked the entries by its own fields and sums them itself.
+    public static async getTotalsByIds(ids: string[]) {
+      const unique = [...new Set(ids)].slice(0, MAX_TOTALS_BY_IDS);
+
+      if (!unique.length) {
+        return [];
+      }
+
+      const replacementIds = await replacementsAmong(unique);
+
+      const rows = await models.ScoreLogs.aggregate<{
+        _id: Omit<TScoreLogIdTotal, 'total' | 'count'>;
+        total: number;
+        count: number;
+      }>([
+        { $match: { _id: { $in: unique } } },
+        {
+          $group: {
+            _id: {
+              targetId: '$targetId',
+              ownerId: '$ownerId',
+              action: '$action',
+              recalculates: recalculates(replacementIds),
+            },
+            total: { $sum: '$changeScore' },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      return rows.map(({ _id, total, count }) => ({
+        ..._id,
+        total: fixScoreNumber(total),
+        count,
+      }));
+    }
+
+    // The points a set of entries moved per period and action, for a source
+    // that picked the entries by its own fields and draws them over time.
+    // Periods are cut in the asker's time zone and come back as text keys.
+    public static async getTimelineByIds(
+      ids: string[],
+      interval: TScoreTimelineInterval,
+      timezone: string,
+    ) {
+      const unique = [...new Set(ids)].slice(0, MAX_TOTALS_BY_IDS);
+
+      if (!unique.length) {
+        return [];
+      }
+
+      const replacementIds = await replacementsAmong(unique);
+
+      const rows = await models.ScoreLogs.aggregate<{
+        _id: Pick<TScoreLogIdBucket, 'bucket' | 'action' | 'recalculates'>;
+        total: number;
+        count: number;
+      }>([
+        { $match: { _id: { $in: unique } } },
+        {
+          $group: {
+            _id: {
+              bucket: {
+                $dateToString: {
+                  date: '$createdAt',
+                  format: SCORE_TIMELINE_FORMATS[interval],
+                  timezone,
+                },
+              },
+              action: '$action',
+              recalculates: recalculates(replacementIds),
+            },
+            total: { $sum: '$changeScore' },
+            count: { $sum: 1 },
+          },
+        },
+      ]);
+
+      return rows.map(({ _id, total, count }) => ({
+        ..._id,
+        total: fixScoreNumber(total),
+        count,
+      }));
+    }
+
+    // Which of these entries are of a kind or fall in a period, for a
+    // source listing the entries behind one of its sums.
+    public static async filterIds(ids: string[], filter: TScoreLogIdFilter) {
+      const unique = [...new Set(ids)].slice(0, MAX_TOTALS_BY_IDS);
+
+      if (!unique.length) {
+        return [];
+      }
+
+      const replacementIds = await replacementsAmong(unique);
+      const { kind, period } = filter;
+      const rows = await models.ScoreLogs.aggregate<{ _id: string }>([
+        { $match: { _id: { $in: unique } } },
+        {
+          $addFields: {
+            kind: {
+              $switch: {
+                branches: [
+                  {
+                    case: { $ne: [recalculates(replacementIds), null] },
+                    then: 'recalculated',
+                  },
+                  {
+                    case: { $eq: ['$action', SCORE_ACTION.ADD] },
+                    then: 'earned',
+                  },
+                  {
+                    case: { $eq: ['$action', SCORE_ACTION.SUBTRACT] },
+                    then: 'spent',
+                  },
+                  {
+                    case: {
+                      $in: [
+                        '$action',
+                        [SCORE_ACTION.REFUND, SCORE_ACTION.RETURN],
+                      ],
+                    },
+                    then: 'refunded',
+                  },
+                ],
+                default: 'other',
+              },
+            },
+            ...(period
+              ? {
+                  bucket: {
+                    $dateToString: {
+                      date: '$createdAt',
+                      format: SCORE_TIMELINE_FORMATS[period.interval],
+                      timezone: period.timezone,
+                    },
+                  },
+                }
+              : {}),
+          },
+        },
+        {
+          $match: {
+            ...(kind ? { kind } : {}),
+            ...(period ? { bucket: period.key } : {}),
+          },
+        },
+        { $project: { _id: 1 } },
+      ]);
+
+      return rows.map(({ _id }) => _id);
+    }
+
+    // The entries one write left on its record: a correction's reversal goes
+    // with the entry that replaced the reversed one.
+    public static async writtenWith(log: IScoreLogDocument) {
+      const reversal = await models.ScoreLogs.findOne(
+        { replacedByScoreLogId: log._id },
+        { _id: 1 },
+      ).lean();
+
+      return reversal ? [reversal._id, log._id] : [log._id];
     }
 
     public static async getStatistic(doc: IScoreLogParams) {

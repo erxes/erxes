@@ -142,6 +142,20 @@ const types = `
     count: Int
   }
 
+  type AutomationRecentRun {
+    _id: String
+    status: String
+    createdAt: Date
+    errorCode: String
+    failedActionId: String
+    failedActionType: String
+  }
+
+  type AutomationRecentRuns {
+    automationId: String
+    runs: [AutomationRecentRun]
+  }
+
   type AutomationStatsBucket {
     date: String
     total: Int

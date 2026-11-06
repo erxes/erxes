@@ -210,6 +210,7 @@
     "agents": "AI туслах",
     "ldap": "LDAP",
     "two-factor": "Хоёр шатлалт баталгаажуулалт",
+    "my-activity": "Миний идэвх",
     "security": "Аюулгүй байдал",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Дэмжлэгийн хандалт"
@@ -704,6 +705,9 @@
     "retry": "Дахин оролдох",
     "scroll-to-bottom": "Доош гүйлгэх",
     "viewing": "Харж байна",
+    "current-page": "Одоогийн хуудас",
+    "pin-to-side": "Хажуу самбарт түжих",
+    "unpin-and-float": "Түжилтийг тайлж хуудас дээр салаах",
     "remove-context": "Хуудасны контекстыг хасах",
     "reconnect": "Дахин холбогдох",
     "dismiss-error": "Алдааг нуух",

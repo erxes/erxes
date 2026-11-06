@@ -6,6 +6,7 @@ import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Can } from 'ui-modules';
 import { productRowActionsAtom } from '@/deals/cards/components/detail/product/productTableAtom';
 
 export const ProductMoreMenu = ({
@@ -53,13 +54,15 @@ export const ProductMoreMenu = ({
             >
               <IconCopy /> {t('duplicate')}
             </Command.Item>
-            <Command.Item
-              value="remove"
-              className="text-destructive"
-              onSelect={() => runAction(onRemove)}
-            >
-              <IconTrash /> {t('delete')}
-            </Command.Item>
+            <Can action="dealsProductsDelete">
+              <Command.Item
+                value="remove"
+                className="text-destructive"
+                onSelect={() => runAction(onRemove)}
+              >
+                <IconTrash /> {t('delete')}
+              </Command.Item>
+            </Can>
           </Command.List>
         </Command>
       </Combobox.Content>

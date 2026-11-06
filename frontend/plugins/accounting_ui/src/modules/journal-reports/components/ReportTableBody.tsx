@@ -1,6 +1,7 @@
-import { ReportTable, Skeleton, cn } from 'erxes-ui';
+import { Button, ReportTable, Skeleton, cn } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import { useJournalReportData } from '../hooks/useJournalReportData';
 import { useJournalReportMore } from '../hooks/useJournalReportMore';
@@ -13,6 +14,7 @@ import {
   getRenderMoreHandler,
 } from './includes';
 import {
+  countVisibleRows,
   groupRecords,
   moreDataByKey,
   shouldKeepZeroRows,
@@ -37,12 +39,59 @@ export function useQueryObject(): QueryObject {
   return obj;
 }
 
+const SKELETON_ROW_KEYS = Array.from(
+  { length: 8 },
+  (_value, rowIndex) => `journal-report-loading-row-${rowIndex}`,
+);
+
+const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => {
+  const cells = Array.from({ length: columnCount }, (_value, cellIndex) => ({
+    key: `journal-report-loading-cell-${cellIndex}`,
+    className: cellIndex < 2 ? 'w-32' : 'w-full',
+  }));
+
+  return (
+    <tbody data-slot="table-body" className={cn('[&_tr:last-child]:border-0')}>
+      {SKELETON_ROW_KEYS.map((rowKey) => (
+        <ReportTable.Row key={rowKey}>
+          {cells.map((cell) => (
+            <ReportTable.Cell key={cell.key}>
+              <Skeleton className={cn('h-4 min-w-12', cell.className)} />
+            </ReportTable.Cell>
+          ))}
+        </ReportTable.Row>
+      ))}
+    </tbody>
+  );
+};
+
+const ReportTableEmptyRow = ({
+  colSpan,
+  children,
+}: {
+  colSpan: number;
+  children: React.ReactNode;
+}) => (
+  <tbody data-slot="table-body">
+    <ReportTable.Row>
+      <ReportTable.Cell
+        colSpan={colSpan}
+        className="py-6 text-center text-muted-foreground"
+      >
+        {children}
+      </ReportTable.Cell>
+    </ReportTable.Row>
+  </tbody>
+);
+
 export const ReportTableBody = () => {
+  const { t } = useTranslation('accounting');
   const {
     report: reportParam,
     groupKey: groupKeyParam,
     ...params
   } = useQueryObject();
+  const [, setSearchParams] = useSearchParams();
   const report = getStringParam(reportParam) || '';
   const groupKey = getStringParam(groupKeyParam);
   const reportConf = ReportRules[report];
@@ -67,6 +116,8 @@ export const ReportTableBody = () => {
   const setMoreData = useSetAtom(moreDataState);
 
   const tableRef = useRef<HTMLTableSectionElement>(null);
+  const [hasVisibleRows, setHasVisibleRows] = useState(true);
+  const keepZeroRows = shouldKeepZeroRows(isMore, unhideZero);
 
   const grouped = React.useMemo(() => {
     if (error || !groupRule) return {};
@@ -81,12 +132,9 @@ export const ReportTableBody = () => {
     if (error) return;
     if (!groupRule) return;
 
-    totalsCalc(
-      tableRef.current,
-      groupRule,
-      shouldKeepZeroRows(isMore, unhideZero),
-    );
-  }, [grouped, groupRule, loading, error, isMore, unhideZero]); // дата солигдох бүрт дахин бодно
+    totalsCalc(tableRef.current, groupRule, keepZeroRows);
+    setHasVisibleRows(countVisibleRows(tableRef.current) > 0);
+  }, [grouped, groupRule, loading, error, keepZeroRows]);
 
   useEffect(() => {
     if (!tableRef?.current) return;
@@ -120,41 +168,54 @@ export const ReportTableBody = () => {
     return <ReportTableBodySkeleton columnCount={colCount + 2} />;
   }
 
+  if (!records.length) {
+    return (
+      <ReportTableEmptyRow colSpan={colCount + 2}>
+        {t('no-transactions-in-period')}
+      </ReportTableEmptyRow>
+    );
+  }
+
+  const showZeroRows = () =>
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('unhideZero', 'true');
+      return next;
+    });
+
   return (
-    <tbody
-      data-slot="table-body"
-      ref={tableRef}
-      className={cn('[&_tr:last-child]:border-0')}
-    >
-      <ReportRecursiveRenderer
-        groupedDic={grouped}
-        groupRule={groupRule}
-        colCount={colCount}
-        calcReport={calcReport}
-        report={report}
-        isMore={isMore}
-      />
-    </tbody>
+    <>
+      <tbody
+        data-slot="table-body"
+        ref={tableRef}
+        className={cn('[&_tr:last-child]:border-0')}
+      >
+        <ReportRecursiveRenderer
+          groupedDic={grouped}
+          groupRule={groupRule}
+          colCount={colCount}
+          calcReport={calcReport}
+          report={report}
+          isMore={isMore}
+        />
+      </tbody>
+      {!hasVisibleRows && (
+        <ReportTableEmptyRow colSpan={colCount + 2}>
+          {keepZeroRows ? (
+            t('no-transactions-in-period')
+          ) : (
+            <div className="flex flex-col items-center gap-2">
+              {t('report-zero-rows-hidden')}
+              <Button variant="outline" size="sm" onClick={showZeroRows}>
+                {t('show-empty-rows')}
+              </Button>
+            </div>
+          )}
+        </ReportTableEmptyRow>
+      )}
+    </>
   );
 };
-
-const ReportTableBodySkeleton = ({ columnCount }: { columnCount: number }) => (
-  <tbody data-slot="table-body" className={cn('[&_tr:last-child]:border-0')}>
-    {Array.from({ length: 8 }).map((_, rowIndex) => (
-      <ReportTable.Row key={`journal-report-loading-row-${rowIndex}`}>
-        {Array.from({ length: columnCount }).map((__, cellIndex) => (
-          <ReportTable.Cell
-            key={`journal-report-loading-cell-${rowIndex}-${cellIndex}`}
-          >
-            <Skeleton
-              className={cn('h-4 min-w-12', cellIndex < 2 ? 'w-32' : 'w-full')}
-            />
-          </ReportTable.Cell>
-        ))}
-      </ReportTable.Row>
-    ))}
-  </tbody>
-);
 
 // extract and render
 interface ReportRendererProps {
@@ -215,6 +276,42 @@ const openDetailedReport = (report: string, attr: string, isMore?: boolean) => {
   );
 };
 
+const RenderMore = ({
+  report,
+  treeIds,
+  leafId,
+  nodeExtra,
+}: {
+  report: string;
+  treeIds: string;
+  leafId: string;
+  nodeExtra?: Record<string, unknown>;
+}) => {
+  const ReportMore = getRenderMoreHandler(report);
+
+  const treeIdsStr = treeIds ? `${treeIds}#` : '';
+  const perkey = `${treeIdsStr}${leafId}`;
+
+  const allMoreData = useAtomValue(moreDataState);
+  const moreData = useMemo(() => {
+    return allMoreData?.[perkey] || [];
+  }, [perkey, allMoreData]);
+
+  if (!ReportMore) {
+    return null;
+  }
+
+  // moreData Context
+  return (
+    <ReportMore
+      report={report}
+      moreData={moreData}
+      currentKey={perkey}
+      nodeExtra={nodeExtra}
+    />
+  );
+};
+
 function renderGroup(
   groupedDic: Record<string, unknown>,
   groupRule: IGroupRule,
@@ -264,7 +361,7 @@ function renderGroup(
               onDoubleClick={() => openDetailedReport(report, attr, isMore)}
             >
               <ReportTable.Cell
-                className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+                className={cn('text-left', padding && 'pl-(--cellPadding)')}
                 style={
                   { '--cellPadding': `${padding}px` } as React.CSSProperties
                 }
@@ -325,7 +422,7 @@ function renderGroup(
           onDoubleClick={() => openDetailedReport(report, attr, isMore)}
         >
           <ReportTable.Cell
-            className={cn(`text-left `, padding && 'pl-(--cellPadding)')}
+            className={cn('text-left', padding && 'pl-(--cellPadding)')}
             style={{ '--cellPadding': `${padding}px` } as React.CSSProperties}
           >
             {groupCode}
@@ -348,39 +445,3 @@ function renderGroup(
     );
   });
 }
-
-const RenderMore = ({
-  report,
-  treeIds,
-  leafId,
-  nodeExtra,
-}: {
-  report: string;
-  treeIds: string;
-  leafId: string;
-  nodeExtra?: Record<string, unknown>;
-}) => {
-  const ReportMore = getRenderMoreHandler(report);
-
-  const treeIdsStr = treeIds ? `${treeIds}#` : '';
-  const perkey = `${treeIdsStr}${leafId}`;
-
-  const allMoreData = useAtomValue(moreDataState);
-  const moreData = useMemo(() => {
-    return allMoreData?.[perkey] || [];
-  }, [perkey, allMoreData]);
-
-  if (!ReportMore) {
-    return null;
-  }
-
-  // moreData Context
-  return (
-    <ReportMore
-      report={report}
-      moreData={moreData}
-      currentKey={perkey}
-      nodeExtra={nodeExtra}
-    />
-  );
-};
