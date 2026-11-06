@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -87,6 +87,16 @@
 - Other plugins' modules or state.
 
 ## Current Capabilities
+
+- Home dashboard tiles: every report chart (conversation open/resolved/source/
+  tag/responses/list, ticket status summary/date/source/tags/custom
+  properties/list, Facebook activity/posts/bots) can be placed on the core home
+  dashboard. Placing one asks for a date preset, the chart's filters (source and
+  channels for conversations, channels and pipelines for tickets, Facebook pages
+  for Facebook) and, where the chart has a type switch, its chart type. The tile
+  title names the chart and the date preset; "Open report" goes to the matching
+  report page. Inside a tile the chart draws no header: its filters, chart type,
+  save/remove, export and Facebook sync controls stay on the report page.
 
 - Knowledge base article, category and topic creation/editing use shared record
   panels with explicit Save, scoped in-memory drafts, independent placement
@@ -788,6 +798,7 @@ owns the setup form and connection actions.
 | App sidebar               | `frontend/plugins/frontline_ui/src/Sidebar.tsx`                                                                                                   | `FrontlineSidebar` (app sidebar) and `FrontlineSidebarFooter` (Settings link), rendered by the `./frontline` entry through `AppLayout`          |
 | Host registration         | `src/config.tsx`                                                                                                                                  | `CONFIG` — navigation, settings, widgets, property inputs, routes, and Module Federation exposes                                                |
 | Federation                | `module-federation.config.ts`                                                                                                                     | Remote name `frontline_ui` and its exposes                                                                                                      |
+| Dashboard widgets         | `src/widgets/dashboard/`                                                                                                                          | `./dashboardWidget` remote: tile definitions, config schema, report chart tile and its filter form                                              |
 | GraphQL codegen           | `codegen.ts`                                                                                                                                      | Generates `src/gql/` (gitignored) from the composed gateway schema                                                                              |
 | Routes                    | `src/modules/FrontlineMain.tsx`, `src/pages/`                                                                                                     | Routed pages for inbox, ticket, forms, call, channels                                                                                           |
 | Navigation groups         | `src/modules/FrontlineSubGroups.tsx`                                                                                                              | Route-aware sidebar sub-groups for every frontline page                                                                                         |
@@ -868,6 +879,21 @@ owns the setup form and connection actions.
   `IRecordPanelProps`. The expose uses the named `RecordPanel` export and
   supports ticket and knowledge base records; ticket properties remain available.
   `TicketPanelDetail.tsx` renders ticket fields and attachments.
+- `widgets.dashboardWidgets` (from `FRONTLINE_DASHBOARD_WIDGETS` in
+  `src/widgets/dashboard/frontlineDashboardWidgets.ts`) with `./dashboardWidget`
+  (`src/widgets/dashboard/DashboardWidgets.tsx`, given ui-modules'
+  `IDashboardWidgetProps`) provide one `configurable` tile per report registry
+  key, each with a catalog `preview` kind (bar for date counts and
+  per-member/per-status bars, pie for source/tag shares, table for lists and
+  custom properties, line for Facebook activity); the widget `name` is the registry key, so core types it
+  `frontline:<chart>`. `label` is `<chart>-title` and `description` is
+  `dashboard.<chart>-description` in the `frontline` namespace. The stored
+  config is `{ visualType?, filters: { date, source?, channelIds?,
+pipelineIds?, pageIds? } }` (`frontlineDashboardConfig.ts`); view mode turns
+  it into a `ReportChart` (`toDashboardReportChart`, id derived from the
+  config) and renders the registry chart inside `DashboardWidgetCard` under
+  `ReportChartEmbedProvider`, which makes `FrontlineCard` drop its frame and
+  header. The chart's own loading, empty and error states show in the tile.
 - `widgets.contactWidgets: [{ name: 'ticket' }, { name: 'conversation' }]` with
   `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`) provide contact
   overview sections. Ticket rows call `useTicketDetailSheet` with `stack: true`;
@@ -1212,6 +1238,14 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   state and deliberately not persisted.
 
 ## Local Invariants
+
+- `FRONTLINE_DASHBOARD_WIDGETS` must list only keys of `reportComponents`,
+  `ticketReportComponents` or `facebookReportComponents` in its `group`; a
+  renamed registry key orphans placed tiles (they show "no longer available").
+  `config.tsx` imports only that definitions file, never the lazy registry.
+- Every report card goes through `FrontlineCard`, so a header control added to
+  a chart stays hidden in dashboard tiles automatically; anything a tile must
+  show belongs in the chart body.
 
 - Successful ticket removals publish confirmed IDs through `ticketRemovedIdsState`.
   Only the mounted title view reconciles the current panel and returns to its
@@ -2702,7 +2736,7 @@ status })` returns the leaving side as `canMoveTicket` (what disables the
   pushed or created ticket written into the list carries every field the
   list selects.
 - Every module is typed from the schema: each document is
-  ``gql(`...`)`` from `~/gql`, Apollo hooks take no type arguments, hook
+  `` gql(`...`) `` from `~/gql`, Apollo hooks take no type arguments, hook
   options are typed as `QueryHookOptions<XQuery, XQueryVariables>` from
   `~/gql/graphql`, and response types derive from the generated query types.
   `eslint.config.js` enforces this with operation_ui's rules:
