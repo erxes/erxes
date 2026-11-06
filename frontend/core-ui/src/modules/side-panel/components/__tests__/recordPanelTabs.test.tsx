@@ -30,9 +30,13 @@ const conversation = {
   },
 };
 
-const getTabs = (pinned: boolean) => {
+const getTabs = (
+  pinned: boolean,
+  expanded = false,
+  contactType: 'core:customer' | 'core:company' = 'core:customer',
+) => {
   const overview: IContactPanelOverview = {
-    contactType: 'core:customer',
+    contactType,
     allEntries: [conversation],
     pinned: pinned ? [conversation] : [],
     overviewEntries: pinned ? [] : [conversation],
@@ -43,8 +47,13 @@ const getTabs = (pinned: boolean) => {
     onToggleTab: jest.fn(),
   };
   return buildRecordPanelTabs({
-    record: { contentType: 'core:customer', contentId: 'customer-1' },
-    views: { detail: 'Customer fields', properties: 'Custom properties' },
+    record: { contentType: contactType, contentId: 'contact-1' },
+    views: {
+      detail: 'Contact fields',
+      properties: 'Custom properties',
+      description: 'Description editor',
+    },
+    expanded,
     pluginName: null,
     overview,
     access: 'write',
@@ -52,6 +61,7 @@ const getTabs = (pinned: boolean) => {
     labels: {
       detail: 'Detail',
       properties: 'Properties',
+      description: 'Description',
       messages: 'Conversations',
       relations: 'Relations',
       activity: 'Activity',
@@ -59,7 +69,27 @@ const getTabs = (pinned: boolean) => {
   });
 };
 
-describe('contact relation tabs', () => {
+describe('contact panel tabs', () => {
+  it.each([
+    { contentType: 'core:customer' as const, expanded: false, visible: false },
+    { contentType: 'core:customer' as const, expanded: true, visible: true },
+    { contentType: 'core:company' as const, expanded: false, visible: false },
+    { contentType: 'core:company' as const, expanded: true, visible: true },
+  ])(
+    'description tab visibility is $visible for $contentType with expanded=$expanded',
+    ({ contentType, expanded, visible }) => {
+      const description = getTabs(false, expanded, contentType).find(
+        (tab) => tab.value === 'description',
+      );
+      if (visible) {
+        expect(description?.label).toBe('Description');
+        expect(description?.content).toBe('Description editor');
+      } else {
+        expect(description).toBeUndefined();
+      }
+    },
+  );
+
   it('keeps conversations in Relations until the user pins them', () => {
     expect(getTabs(false).map(({ value }) => value)).toEqual([
       'detail',

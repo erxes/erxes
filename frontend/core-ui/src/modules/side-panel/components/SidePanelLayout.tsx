@@ -1,5 +1,6 @@
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
 import { ContactDetailHeader } from '@/side-panel/components/details/ContactDetailHeader';
+import { ContactPanelDescription } from '@/side-panel/components/details/ContactPanelDescription';
 import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
 import { useRecordRelationTabs } from '@/side-panel/hooks/useRecordRelationTabs';
 import {
@@ -343,7 +344,19 @@ const SidePanelSavedRecord = ({
   }, [noteFocusRequest]);
   const tabs = buildRecordPanelTabs({
     record,
-    views,
+    views: views && {
+      ...views,
+      description: contactType && (
+        <ContactPanelDescription
+          contentType={contactType}
+          contentId={record.contentId}
+          value={customer?.description || company?.description || ''}
+          loading={!customer && !company}
+          readonly={!canEdit}
+        />
+      ),
+    },
+    expanded,
     pluginName: panelPluginName,
     overview,
     access,
@@ -351,6 +364,7 @@ const SidePanelSavedRecord = ({
     labels: {
       detail: t('detail', 'Detail'),
       properties: t('properties', 'Properties'),
+      description: t('description', 'Description'),
       messages: t('conversations', 'Conversations'),
       relations: t('relations', 'Relations'),
       activity: t('activity', 'Activity'),

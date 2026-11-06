@@ -1,4 +1,5 @@
 import { ContactPanelTags } from '@/side-panel/components/details/ContactPanelTags';
+import { ContactDescriptionField } from '@/side-panel/components/details/ContactPanelDescription';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
 import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
@@ -38,8 +39,8 @@ import {
   ICustomerDetail,
   useCustomerDetail,
   useCustomerEdit,
+  usePanelExpanded,
   PANEL_TEXT_FIELD_CLASS_NAME,
-  PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
 } from 'ui-modules';
@@ -198,29 +199,9 @@ const CustomerSubscribedField = ({
   );
 };
 
-/** Saves the customer description through the shared panel editor. */
-const CustomerDescriptionField = ({
-  customer,
-}: {
-  customer: ICustomerDetail;
-}) => {
-  const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
-  const { customerEdit } = useCustomerEdit();
-
-  return (
-    <PanelDescriptionField
-      label={t('description', 'Description')}
-      value={customer.description || ''}
-      scope={`${SCOPE}.description`}
-      onSave={(description) =>
-        customerEdit({ variables: { _id: customer._id, description } })
-      }
-    />
-  );
-};
-
 // The customer's fields as record table cells: click a value to edit it.
 export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
+  const expanded = usePanelExpanded();
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { t: addT } = useTranslation('contact', { keyPrefix: 'customer.add' });
@@ -245,7 +226,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div>
-        <ContactDetailSection title={sectionT('fields', 'Fields')}>
+        <div className="border-b px-3 pb-2">
           <ContactDetailSection title={sectionT('general', 'General')} nested>
             <PanelField
               icon={IconUser}
@@ -345,8 +326,14 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
               <CustomerBirthDateField customer={customer} />
             </PanelField>
           </ContactDetailSection>
-          <CustomerDescriptionField customer={customer} />
-        </ContactDetailSection>
+          {!expanded && (
+            <ContactDescriptionField
+              contentType="core:customer"
+              contentId={customer._id}
+              value={customer.description || ''}
+            />
+          )}
+        </div>
         <ContactPanelTags
           contentType="core:customer"
           contentId={customer._id}

@@ -1,4 +1,5 @@
 import { ContactPanelTags } from '@/side-panel/components/details/ContactPanelTags';
+import { ContactDescriptionField } from '@/side-panel/components/details/ContactPanelDescription';
 import { ContactDetailSection } from '@/side-panel/components/details/ContactDetailSection';
 import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
@@ -30,8 +31,8 @@ import {
   CompanyPhones,
   SelectMember,
   useCompaniesEdit,
+  usePanelExpanded,
   PANEL_TEXT_FIELD_CLASS_NAME,
-  PanelDescriptionField,
   PanelField,
   PanelFieldTrigger,
 } from 'ui-modules';
@@ -85,6 +86,7 @@ const CompanyTextField = ({
 
 /** Edits company fields through the contact mutation hooks. */
 const CompanyFields = () => {
+  const expanded = usePanelExpanded();
   const ownerControlId = useId();
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -103,7 +105,7 @@ const CompanyFields = () => {
 
   return (
     <div>
-      <ContactDetailSection title={sectionT('fields', 'Fields')}>
+      <div className="border-b px-3 pb-2">
         <ContactDetailSection title={sectionT('general', 'General')} nested>
           <PanelField
             icon={IconUser}
@@ -243,15 +245,14 @@ const CompanyFields = () => {
             </div>
           </PanelField>
         </ContactDetailSection>
-        <PanelDescriptionField
-          label={t('description', 'Description')}
-          value={company.description || ''}
-          scope={`${SCOPE}.description`}
-          onSave={(description) =>
-            companiesEdit({ variables: { _id: company._id, description } })
-          }
-        />
-      </ContactDetailSection>
+        {!expanded && (
+          <ContactDescriptionField
+            contentType="core:company"
+            contentId={company._id}
+            value={company.description || ''}
+          />
+        )}
+      </div>
       <ContactPanelTags
         contentType="core:company"
         contentId={company._id}
