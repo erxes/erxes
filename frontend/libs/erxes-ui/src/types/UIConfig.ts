@@ -125,6 +125,17 @@ export type TPropertyInputProps = {
   disabled?: boolean;
 };
 
+export type TDashboardWidgetPreview =
+  | 'bar'
+  | 'line'
+  | 'area'
+  | 'pie'
+  | 'table'
+  | 'list'
+  | 'kpi'
+  | 'heatmap'
+  | 'progress';
+
 export type IUIConfig = {
   name: string;
   path: string;
@@ -206,6 +217,25 @@ export type IUIConfig = {
     }[];
     customerDetailWidgets?: {
       name: string;
+    }[];
+    // Tiles a plugin offers for the home dashboard (its `./dashboardWidget`
+    // remote, given ui-modules' `IDashboardWidgetProps`): one per module.
+    // Sizes are grid units on a 12-column grid.
+    dashboardWidgets?: {
+      name: string;
+      // Keys in the plugin's translation namespace, shown as is when missing.
+      label: string;
+      description?: string;
+      icon?: React.ElementType;
+      defaultSize: { w: number; h: number };
+      minSize?: { w: number; h: number };
+      maxSize?: { w: number; h: number };
+      // Ask for the widget's settings (`mode: 'config'`) before placing it.
+      configurable?: boolean;
+      // At most one tile of it on a dashboard.
+      singleton?: boolean;
+      // The schematic core draws for it in the widget catalog.
+      preview?: TDashboardWidgetPreview;
     }[];
     formWidgets?: {
       name: string;

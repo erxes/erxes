@@ -4317,5 +4317,30 @@
   "could-not-load-more-contacts": "Нэмэлт харилцагчдыг ачаалж чадсангүй. Дахин оролдох",
   "loading-more-contacts": "Ачаалж байна…",
   "email-message": "Имэйлийн агуулга",
-  "loading-sender": "Илгээгчийг ачаалж байна…"
+  "loading-sender": "Илгээгчийг ачаалж байна…",
+  "dashboard": {
+    "open-report": "Тайлан нээх",
+    "unknown-widget": "Энэ widget ашиглах боломжгүй болсон.",
+    "nothing-found": "Олдсонгүй",
+    "all-pipelines": "Бүх дамжлага",
+    "pick-channel-first": "Дамжлага сонгохын тулд эхлээд суваг сонгоно уу",
+    "all-pages": "Бүх хуудас",
+    "chart-type": "Графикийн төрөл",
+    "save-widget": "Widget хадгалах",
+    "conversation-open-description": "Өдөр бүр нээгдсэн харилцаа",
+    "conversation-resolved-description": "Өдөр бүр шийдвэрлэгдсэн харилцаа",
+    "conversation-source-description": "Ирсэн сувгаар нь ангилсан харилцаа",
+    "conversation-tag-description": "Шошгоор ангилсан харилцаа",
+    "conversation-responses-description": "Багийн гишүүн бүрийн илгээсэн хариу",
+    "conversation-list-description": "Сүүлийн харилцаанууд, төлөв болон хариуцагчтай",
+    "ticket-status-summary-description": "Төлөв бүрт байгаа тикет",
+    "ticket-date-description": "Өдөр бүр үүссэн тикет",
+    "ticket-source-description": "Ирсэн сувгаар нь ангилсан тикет",
+    "ticket-tags-description": "Шошгоор ангилсан тикет",
+    "ticket-custom-properties-description": "Өөрийн шинж чанараар бүлэглэсэн тикет",
+    "ticket-list-description": "Сүүлийн тикетүүд, төлөв болон хариуцагчтай",
+    "facebook-activity-description": "Facebook хуудсуудын харилцаа, мессеж, сэтгэгдэл өдрөөр",
+    "facebook-posts-description": "Facebook постууд, сэтгэгдэл, хариу, reaction-тай",
+    "facebook-bots-description": "Facebook бот бүрийн хариулсан харилцаа, мессеж"
+  }
 }

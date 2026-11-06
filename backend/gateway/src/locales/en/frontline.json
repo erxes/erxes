@@ -4316,5 +4316,30 @@
   "could-not-load-more-contacts": "Could not load more contacts. Retry",
   "loading-more-contacts": "Loading…",
   "email-message": "Email message",
-  "loading-sender": "Loading sender…"
+  "loading-sender": "Loading sender…",
+  "dashboard": {
+    "open-report": "Open report",
+    "unknown-widget": "This widget is no longer available.",
+    "nothing-found": "Nothing found",
+    "all-pipelines": "All pipelines",
+    "pick-channel-first": "Pick a channel to choose pipelines",
+    "all-pages": "All pages",
+    "chart-type": "Chart type",
+    "save-widget": "Save widget",
+    "conversation-open-description": "Conversations opened per day",
+    "conversation-resolved-description": "Conversations resolved per day",
+    "conversation-source-description": "Conversations by the channel they came from",
+    "conversation-tag-description": "Conversations by tag",
+    "conversation-responses-description": "Replies sent by each team member",
+    "conversation-list-description": "Latest conversations with their status and assignee",
+    "ticket-status-summary-description": "Tickets in each status",
+    "ticket-date-description": "Tickets created per day",
+    "ticket-source-description": "Tickets by the channel they came from",
+    "ticket-tags-description": "Tickets by tag",
+    "ticket-custom-properties-description": "Tickets grouped by a custom property",
+    "ticket-list-description": "Latest tickets with their status and assignee",
+    "facebook-activity-description": "Conversations, messages and comments on your Facebook pages per day",
+    "facebook-posts-description": "Facebook posts with their comments, replies and reactions",
+    "facebook-bots-description": "Conversations and messages handled by each Facebook bot"
+  }
 }

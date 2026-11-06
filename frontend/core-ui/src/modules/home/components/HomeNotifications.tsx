@@ -1,8 +1,8 @@
 import {
-  HomeEmptyState,
-  HomeListSkeleton,
-  HomeSection,
-} from '@/home/components/HomeSection';
+  DashboardWidgetEmptyState,
+  DashboardWidgetListSkeleton,
+  DashboardWidgetCard,
+} from 'ui-modules';
 
 import { AppPath } from '@/types/paths/AppPath';
 import { Button } from 'erxes-ui';
@@ -25,11 +25,15 @@ export const HomeNotifications = () => {
 
   const renderContent = () => {
     if (loading && notifications.length === 0) {
-      return <HomeListSkeleton />;
+      return <DashboardWidgetListSkeleton />;
     }
 
     if (notifications.length === 0) {
-      return <HomeEmptyState>{t('notifications-empty')}</HomeEmptyState>;
+      return (
+        <DashboardWidgetEmptyState>
+          {t('notifications-empty')}
+        </DashboardWidgetEmptyState>
+      );
     }
 
     return (
@@ -48,7 +52,7 @@ export const HomeNotifications = () => {
   };
 
   return (
-    <HomeSection
+    <DashboardWidgetCard
       title={t('notifications')}
       action={
         <Button asChild size="sm" variant="ghost">
@@ -57,6 +61,6 @@ export const HomeNotifications = () => {
       }
     >
       {renderContent()}
-    </HomeSection>
+    </DashboardWidgetCard>
   );
 };

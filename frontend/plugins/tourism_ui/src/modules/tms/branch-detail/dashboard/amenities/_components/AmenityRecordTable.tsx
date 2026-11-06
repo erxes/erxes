@@ -2,22 +2,21 @@ import { IconLayoutGrid } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useAtomValue } from 'jotai';
-import { AmenityCreateSheet } from './AmenityCreateSheet';
+import { AmenityCreateButton } from './AmenityPanel';
 import { amenityColumns } from './AmenityColumns';
 import { useAmenities } from '../hooks/useAmenities';
 import { AMENITIES_CURSOR_SESSION_KEY } from '../constants/amenityCursorSessionKey';
 import { AmenityCommandBar } from './AmenityCommandBar';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface AmenityRecordTableProps {
   branchId: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 export const AmenityRecordTable = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: AmenityRecordTableProps) => {
   const { t } = useTranslation('tourism');
@@ -41,20 +40,14 @@ export const AmenityRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
-      columns={amenityColumns(branchId, branchLanguages, mainLanguage, t)}
+      columns={amenityColumns(branchId, t)}
       data={amenities || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name', 'icon']}
       tableId="tourism_amenities_record_table"
     >
@@ -71,7 +64,9 @@ export const AmenityRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !amenities?.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
@@ -83,15 +78,7 @@ export const AmenityRecordTable = ({
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -109,11 +96,7 @@ function EmptyStateRow({
         {t('no-amenities-yet-desc')}
       </p>
 
-      <AmenityCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <AmenityCreateButton branchId={branchId} />
     </div>
   );
 }

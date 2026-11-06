@@ -61,9 +61,10 @@ const CurrentLocation = () => {
 
 const renderMenu = (
   props: Partial<Parameters<typeof AddTransaction>[0]> = {},
+  listPath = '/accounting/main',
 ) =>
   render(
-    <MemoryRouter initialEntries={['/accounting/main']}>
+    <MemoryRouter initialEntries={[listPath]}>
       <AddTransaction {...props}>
         <button>open-menu</button>
       </AddTransaction>
@@ -110,9 +111,22 @@ describe('add transaction menu', () => {
     fireEvent.click(menu().getByRole('link', { name: 'bank' }));
 
     expect(currentPath()).toBe(
-      '/accounting/transaction/create?defaultJournal=bank',
+      '/accounting/transaction/create?defaultJournal=bank&returnTo=%2Faccounting%2Fmain',
     );
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  test('remembers the filtered Journal entries list it was opened from', () => {
+    renderMenu({}, '/accounting/records?journal=cash&accountId=acc-1101');
+    openMenu();
+
+    fireEvent.click(menu().getByRole('link', { name: 'bank' }));
+
+    expect(currentPath()).toBe(
+      `/accounting/transaction/create?defaultJournal=bank&returnTo=${encodeURIComponent(
+        '/accounting/records?journal=cash&accountId=acc-1101',
+      )}`,
+    );
   });
 
   test('searching then pressing enter opens the first match', () => {
@@ -125,7 +139,7 @@ describe('add transaction menu', () => {
     });
 
     expect(currentPath()).toBe(
-      '/accounting/transaction/create?defaultJournal=bank',
+      '/accounting/transaction/create?defaultJournal=bank&returnTo=%2Faccounting%2Fmain',
     );
     expect(screen.queryByRole('dialog')).toBeNull();
   });

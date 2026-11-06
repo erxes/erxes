@@ -1,21 +1,17 @@
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { PanelFormLayout, PanelFormRow, SelectBrand } from 'ui-modules';
+
+import { IntegrationEditButton } from '@/integrations/components/IntegrationPanelForm';
+
 import { IIntegration } from '@/integrations/types/Integration';
-import {
-  Alert,
-  Button,
-  Form,
-  Separator,
-  Sheet,
-  Spinner,
-  toast,
-} from 'erxes-ui';
-import { IconAlertTriangle, IconEdit } from '@tabler/icons-react';
+import { Alert, Form, Separator, Spinner, toast } from 'erxes-ui';
+import { IconAlertTriangle } from '@tabler/icons-react';
 import { useIntegrationDetail } from '@/integrations/hooks/useIntegrationDetail';
 import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { useForm, type Control } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { SelectBrand } from 'ui-modules';
+
 import {
   MAIL_FORM_FIELDS,
   MailAddressCallout,
@@ -31,8 +27,10 @@ import { isRecord } from '@/shared/utils/isRecord';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
+/** Extracts mail-specific string fields from the integration details. */
 const readMailDetails = (details: unknown) => {
   const data = isRecord(details) && isRecord(details.data) ? details.data : {};
+  /** Returns a mail detail value only when it is a string. */
   const text = (key: string) => {
     const value = data[key];
     return typeof value === 'string' ? value : undefined;
@@ -47,6 +45,7 @@ const readMailDetails = (details: unknown) => {
   };
 };
 
+/** Connects the mail integration brand picker to form state. */
 const MailIntegrationBrandField = ({
   control,
 }: {
@@ -61,23 +60,27 @@ const MailIntegrationBrandField = ({
       control={control}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('brand')}</Form.Label>
-          <Form.Control>
-            <SelectBrand
-              value={field.value}
-              onValueChange={field.onChange}
-              placeholder={t('select-a-brand')}
-              className="w-full h-10 rounded-lg border bg-background"
-            />
-          </Form.Control>
-          <Form.Message />
+          <PanelFormRow label={t('brand')}>
+            <Form.Control>
+              <SelectBrand
+                value={field.value}
+                onValueChange={field.onChange}
+                placeholder={t('select-a-brand')}
+                className="w-full h-10 rounded-lg border bg-background"
+              />
+            </Form.Control>
+            <Form.Message />
+          </PanelFormRow>
         </Form.Item>
       )}
     />
   );
 };
 
-const MailIntegrationEditForm = ({
+const useFormDraft = createIntegrationFormDraft<MailFormValues>();
+
+/** Edits mail integration settings with delivery health and sender details. */
+export const MailIntegrationEditForm = ({
   id,
   setOpen,
 }: {
@@ -102,31 +105,27 @@ const MailIntegrationEditForm = ({
 
   const details = readMailDetails(integrationDetail?.details);
 
-  useEffect(() => {
-    if (!integrationDetail) {
-      return;
-    }
+  const mailDetails = readMailDetails(integrationDetail?.details);
+  const { markSaved, isActive, getSaveValues } = useFormDraft(form, {
+    name: integrationDetail?.name ?? '',
+    forwardFrom: mailDetails.forwardFrom ?? '',
+    senderName: mailDetails.senderName ?? '',
+    brandId: integrationDetail?.brandId ?? '',
+  });
 
-    const d = readMailDetails(integrationDetail.details);
-
-    form.reset({
-      name: integrationDetail.name ?? '',
-      forwardFrom: d.forwardFrom ?? '',
-      senderName: d.senderName ?? '',
-      brandId: integrationDetail.brandId ?? '',
-    });
-  }, [integrationDetail, form]);
-
+  /** Saves mail integration fields, refreshes lists, and closes on success. */
   const onSubmit = (data: MailFormValues) => {
+    const submittedValues = data;
+    const savedValues = getSaveValues(data);
     editIntegration({
       variables: {
         _id: id,
-        name: data.name,
+        name: savedValues.name,
         channelId: integrationDetail?.channelId ?? '',
-        brandId: data.brandId,
+        brandId: savedValues.brandId,
         details: {
-          forwardFrom: data.forwardFrom,
-          senderName: data.senderName,
+          forwardFrom: savedValues.forwardFrom,
+          senderName: savedValues.senderName,
         },
       },
       refetchQueries: [
@@ -135,7 +134,8 @@ const MailIntegrationEditForm = ({
         'ChannelIntegrationsPeek',
       ],
       onCompleted: () => {
-        setOpen(false);
+        if (markSaved(savedValues, submittedValues) && isActive())
+          setOpen(false);
         toast({ title: t('mail-integration-updated') });
       },
       onError: (err) => {
@@ -149,7 +149,7 @@ const MailIntegrationEditForm = ({
   }
 
   const content = (
-    <Sheet.Content className="min-h-0 space-y-4 overflow-y-auto p-4">
+    <div className="space-y-4">
       {details.healthStatus === MAIL_HEALTH_UNHEALTHY && details.error && (
         <Alert variant="destructive" className="mb-4">
           <IconAlertTriangle className="h-4 w-4" />
@@ -196,20 +196,7 @@ const MailIntegrationEditForm = ({
       <Separator />
 
       <MailIntegrationBrandField control={form.control} />
-    </Sheet.Content>
-  );
-
-  const footer = (
-    <Sheet.Footer>
-      <Sheet.Close asChild>
-        <Button type="button" variant="ghost" disabled={editLoading}>
-          {t('close')}
-        </Button>
-      </Sheet.Close>
-      <Button type="submit" disabled={editLoading}>
-        {editLoading ? t('saving') : t('save')}
-      </Button>
-    </Sheet.Footer>
+    </div>
   );
 
   return (
@@ -219,44 +206,20 @@ const MailIntegrationEditForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex h-full flex-col overflow-hidden"
       >
-        <Sheet.Header>
-          <Sheet.Title>{integrationDetail?.name || t('edit')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-
-        {content}
-
-        {footer}
+        <PanelFormLayout onCancel={() => setOpen(false)} saving={editLoading}>
+          {content}
+        </PanelFormLayout>
       </form>
     </Form>
   );
 };
 
-const MailIntegrationEditSheet = ({ id }: { id: string }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <div className="flex items-center gap-2 w-full cursor-pointer">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Sheet.Trigger>
-      <Sheet.View className="sm:max-w-xl">
-        <MailIntegrationEditForm id={id} setOpen={setOpen} />
-      </Sheet.View>
-    </Sheet>
-  );
-};
-
+/** Opens the selected mail integration in the edit panel. */
 export const MailIntegrationActions = ({
   integration,
 }: {
   integration: IIntegration;
-}) => <MailIntegrationEditSheet id={integration._id} />;
+}) => <IntegrationEditButton integration={integration} />;
 
+/** Renders the entry point for adding a mail integration. */
 export const MailIntegrationDetail = () => <MailIntegrationFormLayout />;

@@ -60,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -446,6 +451,7 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -748,6 +754,11 @@ export const loadClasses = (
     'favorites',
     loadFavoritesClass(models),
   );
+
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',

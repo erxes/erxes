@@ -10,10 +10,11 @@ import {
   Spinner,
   useConfirm,
 } from 'erxes-ui';
-import { useEffect, useState } from 'react';
-import { Control, useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { Control, useForm, type UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import { useStore } from 'jotai';
 
 import { SelectStatusTicket } from '@/ticket/components/ticket-selects/SelectStatusTicket';
 import { SelectTriggerTicket } from '@/ticket/components/ticket-selects/SelectTicket';
@@ -34,6 +35,8 @@ import {
   useMailPipelineUpdate,
 } from '../hooks/useMailPipelineIntegration';
 import { useMailSendingReadiness } from '../hooks/useMailSendingReadiness';
+import { usePanelFormDraft } from '@/shared/hooks/usePanelFormDraft';
+import { pipelineMailPanelDraftsState } from '@/pipelines/states/pipelineStates';
 
 const MAIL_HEALTH_UNHEALTHY = 'unHealthy';
 
@@ -62,21 +65,36 @@ const PIPELINE_MAIL_FIELDS = [
   },
 ];
 
-const usePipelineMailForm = (integration: IMailPipelineIntegration | null) => {
+const toPipelineMailValues = (
+  integration: IMailPipelineIntegration | null,
+): PipelineMailValues => ({
+  senderName: integration?.senderName ?? '',
+  forwardFrom: integration?.forwardFrom ?? '',
+  statusId: integration?.statusId ?? '',
+});
+
+const usePipelineMailForm = (
+  pipelineId: string,
+  integration: IMailPipelineIntegration | null,
+): {
+  form: UseFormReturn<PipelineMailValues>;
+  draft: ReturnType<typeof usePanelFormDraft<PipelineMailValues>>;
+  recordKey: string;
+} => {
+  const values = toPipelineMailValues(integration);
+  const recordKey = `${pipelineId}~${integration?._id ?? 'new'}`;
   const form = useForm<PipelineMailValues>({
     resolver: zodResolver(pipelineMailSchema),
-    defaultValues: { senderName: '', forwardFrom: '', statusId: '' },
+    defaultValues: values,
+  });
+  const draft = usePanelFormDraft({
+    form,
+    recordKey,
+    values,
+    draftsState: pipelineMailPanelDraftsState,
   });
 
-  useEffect(() => {
-    form.reset({
-      senderName: integration?.senderName ?? '',
-      forwardFrom: integration?.forwardFrom ?? '',
-      statusId: integration?.statusId ?? '',
-    });
-  }, [form, integration]);
-
-  return form;
+  return { form, draft, recordKey };
 };
 
 const PipelineMailStatusSelect = ({
@@ -162,7 +180,7 @@ const PipelineMailFields = ({
   form,
 }: {
   pipelineId: string;
-  form: ReturnType<typeof usePipelineMailForm>;
+  form: ReturnType<typeof usePipelineMailForm>['form'];
 }) => (
   <>
     <PipelineMailStatusField pipelineId={pipelineId} control={form.control} />
@@ -176,16 +194,60 @@ const PipelineMailConnect = ({ pipelineId }: { pipelineId: string }) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const form = usePipelineMailForm(null);
+  const store = useStore();
+  const { form, draft, recordKey } = usePipelineMailForm(pipelineId, null);
   const { connectPipelineMail, loading } = useMailPipelineConnect();
+  const onSubmit = async (submitted: PipelineMailValues): Promise<void> => {
+    const saveId = draft.beginSave();
+    if (saveId === undefined) return;
+    const submittedValues = structuredClone(form.getValues());
+    const completeDraft = draft.captureUpdate();
+    try {
+      const result = await connectPipelineMail(pipelineId, submitted);
+      const saved = result.data?.mailPipelineConnect;
+      if (saved?._id && saved.pipelineId === pipelineId) {
+        completeDraft((latest) => latest);
+        draft.markSaved(toPipelineMailValues(saved), submittedValues);
+        store.set(pipelineMailPanelDraftsState, (previous) => {
+          const remaining = previous[recordKey];
+          if (!remaining) return previous;
+          const savedKey = `${pipelineId}~${saved._id}`;
+          const existing = previous[savedKey];
+          const values = {
+            ...(existing?.defaultValues ?? remaining.defaultValues),
+          };
+          for (const source of [remaining, existing]) {
+            if (!source) continue;
+            for (const field of [
+              'senderName',
+              'forwardFrom',
+              'statusId',
+            ] as const) {
+              if (source.values[field] !== source.defaultValues[field])
+                values[field] = source.values[field];
+            }
+          }
+          return {
+            ...previous,
+            [savedKey]: existing
+              ? { ...existing, values, submittedValues: existing.values }
+              : remaining,
+          };
+        });
+        draft.clearDraft();
+      } else completeDraft((latest) => latest);
+    } catch {
+      completeDraft((latest) => latest);
+    } finally {
+      draft.endSave(saveId);
+    }
+  };
 
   return (
     <Form {...form}>
       <form
         className="flex flex-col gap-5"
-        onSubmit={form.handleSubmit((values) =>
-          connectPipelineMail(pipelineId, values),
-        )}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <InfoCard
           title={t('pipeline-mail', 'Mail settings')}
@@ -199,8 +261,8 @@ const PipelineMailConnect = ({ pipelineId }: { pipelineId: string }) => {
           </InfoCard.Content>
         </InfoCard>
         <div className="flex justify-end border-t pt-5">
-          <Button type="submit" disabled={loading}>
-            {loading ? <Spinner /> : <IconMail />}
+          <Button type="submit" disabled={loading || draft.saving}>
+            {loading || draft.saving ? <Spinner /> : <IconMail />}
             {t('pipeline-mail-connect', 'Create mail address')}
           </Button>
         </div>
@@ -224,10 +286,30 @@ const PipelineMailConnected = ({
     keyPrefix: 'modules.integrations',
   });
   const { confirm } = useConfirm();
-  const form = usePipelineMailForm(integration);
+  const { form, draft } = usePipelineMailForm(pipelineId, integration);
   const { updatePipelineMail, loading: updating } = useMailPipelineUpdate();
   const { disconnectPipelineMail, loading: disconnecting } =
     useMailPipelineDisconnect();
+  const { dirtyFields } = form.formState;
+  const onSubmit = async (values: PipelineMailValues): Promise<void> => {
+    const saveId = draft.beginSave();
+    if (saveId === undefined) return;
+    const submittedValues = structuredClone(form.getValues());
+    try {
+      const result = await updatePipelineMail(pipelineId, {
+        ...(dirtyFields.senderName && { senderName: values.senderName }),
+        ...(dirtyFields.forwardFrom && { forwardFrom: values.forwardFrom }),
+        ...(dirtyFields.statusId && { statusId: values.statusId }),
+      });
+      const saved = result.data?.mailPipelineUpdate;
+      if (saved?._id === integration._id && saved.pipelineId === pipelineId)
+        draft.markSaved(toPipelineMailValues(saved), submittedValues);
+    } catch {
+      return;
+    } finally {
+      draft.endSave(saveId);
+    }
+  };
 
   const senderName =
     form.watch('senderName')?.trim() || integration.name || pipelineName;
@@ -238,15 +320,16 @@ const PipelineMailConnected = ({
         'pipeline-mail-disconnect-confirm',
         'Mail sent to this address will stop opening tickets and the address is released. Mail already on tickets stays.',
       ),
-    }).then(() => disconnectPipelineMail(pipelineId));
+    }).then(async () => {
+      const result = await disconnectPipelineMail(pipelineId);
+      if (result.data?.mailPipelineDisconnect) draft.clearDraft();
+    });
 
   return (
     <Form {...form}>
       <form
         className="flex flex-col gap-5"
-        onSubmit={form.handleSubmit((values) =>
-          updatePipelineMail(pipelineId, values),
-        )}
+        onSubmit={form.handleSubmit(onSubmit)}
       >
         <InfoCard
           title={t('pipeline-mail', 'Mail settings')}
@@ -294,14 +377,17 @@ const PipelineMailConnected = ({
           <Button
             type="button"
             variant="destructive"
-            disabled={disconnecting}
+            disabled={disconnecting || updating || draft.saving}
             onClick={onDisconnect}
           >
             {disconnecting ? <Spinner /> : <IconTrash />}
             {t('pipeline-mail-disconnect', 'Remove mail address')}
           </Button>
-          <Button type="submit" disabled={updating}>
-            {updating ? <Spinner /> : null}
+          <Button
+            type="submit"
+            disabled={updating || disconnecting || draft.saving}
+          >
+            {updating || draft.saving ? <Spinner /> : null}
             {t('update')}
           </Button>
         </div>

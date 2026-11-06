@@ -5,15 +5,17 @@ import type {
   ChannelUpdateMutationVariables,
 } from '~/gql/graphql';
 
+/** Provides channel updates that refresh channel and member lists. */
 export const useChannelUpdate = () => {
   const [updateChannel, { loading }] = useMutation(UPDATE_CHANNEL);
+  /** Runs an update with caller callbacks and channel/member refetches. */
   const handleUpdateChannel = (
     options: MutationHookOptions<
       ChannelUpdateMutation,
       ChannelUpdateMutationVariables
     >,
   ) => {
-    updateChannel({
+    return updateChannel({
       ...options,
       onCompleted: (data) => {
         options?.onCompleted?.(data);

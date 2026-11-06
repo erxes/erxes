@@ -1,4 +1,10 @@
-import { IconAward } from '@tabler/icons-react';
+import {
+  IconAward,
+  IconChartHistogram,
+  IconCoins,
+  IconDiscount,
+  IconTicket,
+} from '@tabler/icons-react';
 import { IUIConfig } from 'erxes-ui';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
@@ -85,6 +91,47 @@ export const CONFIG: IUIConfig = {
     ],
     recordPickerWidgets: [
       { name: 'scoreCampaign', contentType: 'loyalty:score.campaigns' },
+    ],
+    dashboardWidgets: [
+      {
+        name: 'scoreSummary',
+        preview: 'kpi',
+        label: 'dashboard.score-summary',
+        description: 'dashboard.score-summary-description',
+        icon: IconChartHistogram,
+        defaultSize: { w: 4, h: 7 },
+        minSize: { w: 3, h: 6 },
+        configurable: true,
+      },
+      {
+        name: 'recentScoreLogs',
+        preview: 'list',
+        label: 'dashboard.recent-score-logs',
+        description: 'dashboard.recent-score-logs-description',
+        icon: IconCoins,
+        defaultSize: { w: 6, h: 6 },
+        minSize: { w: 4, h: 4 },
+        configurable: true,
+      },
+      {
+        name: 'recentVouchers',
+        preview: 'list',
+        label: 'dashboard.recent-vouchers',
+        description: 'dashboard.recent-vouchers-description',
+        icon: IconTicket,
+        defaultSize: { w: 6, h: 6 },
+        minSize: { w: 4, h: 4 },
+        configurable: true,
+      },
+      {
+        name: 'recentCoupons',
+        preview: 'table',
+        label: 'dashboard.recent-coupons',
+        description: 'dashboard.recent-coupons-description',
+        icon: IconDiscount,
+        defaultSize: { w: 6, h: 6 },
+        minSize: { w: 5, h: 4 },
+      },
     ],
   },
   searchProviders: SEARCH_PROVIDERS,
