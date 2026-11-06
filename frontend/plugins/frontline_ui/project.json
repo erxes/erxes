@@ -28,7 +28,7 @@
           "rspackConfig": "frontend/plugins/frontline_ui/rspack.config.prod.ts"
         }
       },
-      "dependsOn": ["^build", "codegen"],
+      "dependsOn": [{ "projects": ["erxes-ui"], "target": "build" }, "codegen"],
       "inputs": [
         "production",
         "^production",

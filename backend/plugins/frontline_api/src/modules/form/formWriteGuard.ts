@@ -48,7 +48,7 @@ export const runFormTransaction = async <Result>(
   models: IModels,
   write: (session: ClientSession) => Promise<Result>,
 ): Promise<Result> => {
-  const session = await models.Forms.db.startSession();
+  const session = models.Forms.db.getClient().startSession();
   try {
     return await session.withTransaction(() => write(session), {
       readConcern: { level: 'snapshot' },

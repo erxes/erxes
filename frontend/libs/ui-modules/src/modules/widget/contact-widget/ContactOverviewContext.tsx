@@ -7,6 +7,7 @@ import { createContext, useContext } from 'react';
 export interface IContactOverviewSection {
   folded: boolean;
   setFolded: (folded: boolean) => void;
+  access?: 'read' | 'write';
 }
 
 export const ContactOverviewSectionContext =

@@ -1,32 +1,66 @@
-import { stringifyAutomationHistoryValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
+import {
+  getActionErrorMessage,
+  toSingleLine,
+} from '@/automations/utils/automationHistoryUtils/actionResultShape';
+import {
+  EXECUTION_STATUS_LABEL_KEYS,
+  getExecutionActionStatus,
+  TExecutionStatus,
+} from '@/automations/utils/automationHistoryUtils/executionFormat';
+import { TFunction } from 'i18next';
 import { IAutomationHistoryAction } from 'ui-modules';
 
-const PREVIEW_MAX_LENGTH = 120;
-
-const toSingleLine = (text: string) =>
-  text.replace(/\s+/g, ' ').trim().slice(0, PREVIEW_MAX_LENGTH);
-
-export const getActionResultErrorText = (value: unknown) =>
-  toSingleLine(stringifyAutomationHistoryValue(value)) || 'Action failed';
+export type TActionStatusView = {
+  status: Exclude<TExecutionStatus, 'success'>;
+  message?: string;
+  code?: string;
+  details?: unknown;
+};
 
 /**
- * Used when an action registers no preview of its own — every action gets a
- * readable cell without the history table having to know about it.
+ * Every outcome but success is the engine's, so it reads the same for every
+ * action; an action's own renderer is only asked to lay out a success.
  */
-export const getGenericActionResultPreview = (
+export const readActionStatus = (
   action: IAutomationHistoryAction,
+): TActionStatusView | null => {
+  const status = getExecutionActionStatus(action);
+
+  if (status === 'success') {
+    return null;
+  }
+
+  if (status === 'error') {
+    return {
+      status,
+      message: getActionErrorMessage(action.result?.error),
+      code: action.errorCode,
+      details: action.result?.result,
+    };
+  }
+
+  if (status === 'skipped') {
+    const reason = action.skipReason ?? action.result?.reason;
+
+    return {
+      status,
+      message: typeof reason === 'string' ? reason : undefined,
+      details: action.result,
+    };
+  }
+
+  return { status, details: action.result };
+};
+
+export const getActionStatusPreview = (
+  { status, message }: TActionStatusView,
+  t: TFunction,
 ) => {
-  if (!action.result) {
-    return action.status === 'waiting'
-      ? 'Waiting'
-      : 'Result has not been recorded yet';
+  if (status === 'error' && message) {
+    return toSingleLine(message);
   }
 
-  if (action.result.error) {
-    return getActionResultErrorText(action.result.error);
-  }
+  const label = t(EXECUTION_STATUS_LABEL_KEYS[status]);
 
-  return (
-    toSingleLine(stringifyAutomationHistoryValue(action.result)) || 'Completed'
-  );
+  return message ? `${label} · ${toSingleLine(message)}` : label;
 };

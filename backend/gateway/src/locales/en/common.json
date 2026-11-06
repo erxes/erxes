@@ -209,6 +209,7 @@
     "agents": "Agents",
     "ldap": "LDAP",
     "two-factor": "Two-factor authentication",
+    "my-activity": "My activity",
     "security": "Security",
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Support access"
@@ -703,6 +704,9 @@
     "retry": "Retry",
     "scroll-to-bottom": "Scroll to bottom",
     "viewing": "Viewing",
+    "current-page": "Current page",
+    "pin-to-side": "Pin to side panel",
+    "unpin-and-float": "Unpin and float over page",
     "remove-context": "Remove page context",
     "reconnect": "Reconnect",
     "dismiss-error": "Dismiss error",

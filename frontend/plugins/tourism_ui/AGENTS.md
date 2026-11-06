@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-10-18`
+- **Last synchronized:** `2026-11-02`
 
 ## Scope
 
@@ -23,6 +23,7 @@
 - Runs as the `tourism_ui` Module Federation remote on port `3011`.
 - Registers tourism navigation for PMS and TMS.
 - Exposes PMS, PMS settings, TMS, TMS settings, tourism main routes, and plugin config through Module Federation.
+- TMS branch cards open through a thumbnail link named after the branch, with or without a logo.
 - Development Rspack serving ignores generated dependency/cache/output folders to keep local file watchers bounded.
 
 ## Architecture

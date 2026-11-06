@@ -20,8 +20,8 @@ import {
 } from '@/products/utils';
 import {
   getMatchingBaseDiscount,
-  getPipelineInventoryScope,
 } from '@/products/graphql/resolvers/customResolvers/product';
+import { getPipelineProductSelectionForRequest } from '@/products/utils/pipelineProductFilter';
 
 const inventoryKey = (id?: string) => id || '_';
 type DiscountField = 'discount' | 'discountPercent';
@@ -305,17 +305,8 @@ const getPipelineInitialCategoryIds = async (
     return [];
   }
 
-  const pipeline = await getPipelineInventoryScope(context, pipelineId);
-
-  if (!pipeline?.initialCategoryIds?.length) {
-    return [];
-  }
-
-  const categories = await context.models.ProductCategories.getChildCategories(
-    pipeline.initialCategoryIds,
-  );
-
-  return categories.map((category) => category._id);
+  return (await getPipelineProductSelectionForRequest(context, pipelineId))
+    .categoryIds;
 };
 
 const withInitialCategoryPriority = (
@@ -502,24 +493,11 @@ const generateFilter = async (
   }
 
   if (pipelineId) {
-    const pipeline = await getPipelineInventoryScope(context, pipelineId);
-
-    if (pipeline?.excludeCategoryIds?.length) {
-      const excludedCategories =
-        await models.ProductCategories.getChildCategories(
-          pipeline.excludeCategoryIds,
-        );
-
-      if (excludedCategories.length) {
-        andFilters.push({
-          categoryId: { $nin: excludedCategories.map((c) => c._id) },
-        });
-      }
-    }
-
-    if (pipeline?.excludeProductIds?.length) {
-      andFilters.push({ _id: { $nin: pipeline.excludeProductIds } });
-    }
+    const selection = await getPipelineProductSelectionForRequest(
+      context,
+      pipelineId,
+    );
+    andFilters.push(...selection.conditions);
   }
 
   if (branchId || departmentId) {
