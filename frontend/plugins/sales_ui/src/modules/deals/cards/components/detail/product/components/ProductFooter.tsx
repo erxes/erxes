@@ -35,6 +35,7 @@ type ProductFooterProps = {
   updateTotal: (data: DealProductData[]) => void;
   onAddProducts: (products: DealProduct[]) => void;
   onSave: () => void;
+  saving?: boolean;
   hasUnsavedChanges?: boolean;
 };
 
@@ -101,6 +102,7 @@ export const ProductFooter = ({
   updateTotal,
   onAddProducts,
   onSave,
+  saving,
   hasUnsavedChanges,
 }: ProductFooterProps) => {
   const { isLoaded, hasActionPermission } = usePermissionCheck();
@@ -395,7 +397,11 @@ export const ProductFooter = ({
               {t('unsaved-changes')}
             </span>
           )}
-          <Button onClick={onSave} className="flex-1 @2xl:flex-none">
+          <Button
+            onClick={onSave}
+            disabled={saving}
+            className="flex-1 @2xl:flex-none"
+          >
             <IconDeviceFloppy size={16} />
             {t('save')}
           </Button>

@@ -1,5 +1,6 @@
 import { useConfirm, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
 import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
@@ -29,7 +30,38 @@ export const useDealActions = ({
   const [activeDealId, setActiveDealId] = useAtom(dealDetailSheetState);
   const [salesItemId, setSalesItemId] = useQueryState<string>('salesItemId');
   const panelDealId = useDealIdOverride();
-  const { back: backPanel, canGoBack, close: closePanel } = useSidePanel();
+  const {
+    record: panelRecord,
+    back: backPanel,
+    canGoBack,
+    close: closePanel,
+  } = useSidePanel();
+  const panelRecordId = panelRecord?.contentId;
+  const panelStateRef = useRef({
+    backPanel,
+    canGoBack,
+    closePanel,
+    panelRecordId,
+  });
+
+  useEffect(() => {
+    panelStateRef.current = {
+      backPanel,
+      canGoBack,
+      closePanel,
+      panelRecordId,
+    };
+  }, [backPanel, canGoBack, closePanel, panelRecordId]);
+
+  useEffect(
+    () => () => {
+      panelStateRef.current = {
+        ...panelStateRef.current,
+        panelRecordId: undefined,
+      };
+    },
+    [],
+  );
   const { editDeals, loading: editLoading } = useDealsEdit();
   const { removeDeals, loading: removeLoading } = useDealsRemove();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
@@ -109,9 +141,15 @@ export const useDealActions = ({
       setSalesItemId(null);
     }
 
-    if (panelDealId && removedDealIds.has(panelDealId)) {
+    const panel = panelStateRef.current;
+
+    if (
+      panelDealId &&
+      removedDealIds.has(panelDealId) &&
+      panel.panelRecordId === panelDealId
+    ) {
       leaveDeletedDealPanel(panelDealId, () =>
-        canGoBack ? backPanel() : closePanel(),
+        panel.canGoBack ? panel.backPanel() : panel.closePanel(),
       );
     }
   };

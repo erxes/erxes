@@ -123,7 +123,7 @@ export const ProductsList = ({
     updateTotal,
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
-  const { editDeals } = useDealsEdit(
+  const { editDeals, loading: saving } = useDealsEdit(
     {
       onCompleted: () => {
         if (editRevisionRef.current !== savedRevisionRef.current) {
@@ -393,6 +393,7 @@ export const ProductsList = ({
           savedRevisionRef.current = editRevisionRef.current;
           handleSave();
         }}
+        saving={saving}
         hasUnsavedChanges={Boolean(productsDraft)}
       />
     </>
