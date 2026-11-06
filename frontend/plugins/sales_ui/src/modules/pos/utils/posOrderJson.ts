@@ -112,7 +112,7 @@ export const getPosItemRowIdSplits = (rowId: string) => {
   const splits: { orderId: string; itemId: string }[] = [];
 
   for (
-    let index = rowId.indexOf('_');
+    let index = rowId.indexOf('_', 1);
     index > 0 && index < rowId.length - 1;
     index = rowId.indexOf('_', index + 1)
   ) {

@@ -43,12 +43,15 @@
   the item suffix; the automation
   history link and the API's automation `link` open the Orders page with the
   panel's `panel` query key. The old sheets' links are rewritten to the panel
-  by `useOpenPosPanelFromQuery` (`modules/pos/hooks`): Orders `pos_order_id`,
-  Covers `pos_cover_id`, and Items `pos_order_id` (`<order>_<item>`: both ids
-  may contain `_` and item ids have no fixed length, as the POS client may
-  send its own, so `useResolvePosItemOrderId` tries each `_` split from
-  `getPosItemRowIdSplits` and keeps the order whose items hold the rest; it
-  never splits by position or at the first `_`). Both
+  by `useOpenPosPanelFromQuery` (`modules/pos/hooks`): Orders and POS Loyalty
+  `pos_order_id`, Covers `pos_cover_id`, and Items `pos_order_id`
+  (`<order>_<item>`: both ids may contain `_`, even as their first character,
+  and item ids have no fixed length, as the POS client may send its own, so
+  `useResolvePosItemOrderId` tries each `_` split from `getPosItemRowIdSplits`
+  and keeps the order whose items hold the rest; it never splits by position
+  or at the first `_`). A GraphQL error marks a split as not the order; a
+  network or parse failure without a match throws, so the legacy URL is kept
+  and a reload retries instead of opening the composite id. Both
   detail views follow operation's layout (`PosPanelFields` / `PosPanelAside`):
   one column, two from the panel's `@3xl` width with the aside capped at
   `max-w-3xl`. An order shows its customer (opens the customer / company panel stacked; a
