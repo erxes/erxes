@@ -16,6 +16,8 @@ export const invoiceSchema = schemaWrapper(
     // syncInvoicePaymentKinds and used by the invoice kind filter. No default:
     // a missing field is what marks an invoice for the backfill.
     paymentKinds: { type: [String], default: undefined },
+    // bumped on every paymentKinds write; compare-and-set guard for syncs
+    paymentKindsVersion: { type: Number },
     redirectUri: { type: String },
 
     description: { type: String },

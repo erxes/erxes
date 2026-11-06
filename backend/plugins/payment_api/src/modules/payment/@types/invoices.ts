@@ -18,6 +18,7 @@ export interface IInvoice {
   redirectUri?: string;
   paymentIds: string[];
   paymentKinds?: string[];
+  paymentKindsVersion?: number;
   callback?: string;
   warningText?: string;
   notifyPending?: boolean;

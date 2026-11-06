@@ -3,44 +3,79 @@ import { IModels } from '~/connectionResolvers';
 const BACKFILL_BATCH = 500;
 const BACKFILL_MAX_BATCHES = 50;
 
-/**
- * Recomputes `paymentKinds` (the distinct kinds of the invoice's own
- * transactions) for the given invoices. Each invoice only reads its own
- * transactions, so the work is bounded by the ids passed in. Invoices without
- * transactions get an empty array, which also marks them as backfilled.
- */
-export const syncInvoicePaymentKinds = async (
-  models: IModels,
-  invoiceIds: string[],
-) => {
-  const ids = Array.from(new Set(invoiceIds.filter(Boolean)));
+const SYNC_MAX_ATTEMPTS = 5;
 
-  if (!ids.length) {
-    return;
-  }
-
+const aggregatePaymentKinds = async (models: IModels, ids: string[]) => {
   const grouped: { _id: string; kinds: (string | null)[] }[] =
     await models.Transactions.aggregate([
       { $match: { invoiceId: { $in: ids } } },
       { $group: { _id: '$invoiceId', kinds: { $addToSet: '$paymentKind' } } },
     ]);
 
-  const kindsById = new Map(
+  return new Map(
     grouped.map(({ _id, kinds }) => [
       _id,
       kinds.filter((kind): kind is string => !!kind),
     ]),
   );
+};
 
-  await models.Invoices.bulkWrite(
-    ids.map((_id) => ({
-      updateOne: {
-        filter: { _id },
-        update: { $set: { paymentKinds: kindsById.get(_id) || [] } },
-      },
-    })),
-    { ordered: false },
-  );
+/**
+ * Recomputes `paymentKinds` (the distinct kinds of the invoice's own
+ * transactions) for the given invoices. Invoices without transactions get an
+ * empty array, which also marks them as backfilled.
+ *
+ * Concurrent syncs of one invoice are serialized with a compare-and-set on
+ * `paymentKindsVersion`: the version is read before the transactions are
+ * aggregated, and the write only applies if no other sync wrote in between.
+ * A sync that loses re-reads and retries, so an older snapshot can never
+ * overwrite a newer one. If an invoice is still contended after the last
+ * attempt, its field is removed so the backfill recomputes it.
+ */
+export const syncInvoicePaymentKinds = async (
+  models: IModels,
+  invoiceIds: string[],
+) => {
+  let pending = Array.from(new Set(invoiceIds.filter(Boolean)));
+
+  for (
+    let attempt = 0;
+    attempt < SYNC_MAX_ATTEMPTS && pending.length;
+    attempt++
+  ) {
+    const invoices = await models.Invoices.find(
+      { _id: { $in: pending } },
+      { _id: 1, paymentKindsVersion: 1 },
+    ).lean();
+
+    const kindsById = await aggregatePaymentKinds(
+      models,
+      invoices.map(({ _id }) => _id),
+    );
+
+    const conflicts = await Promise.all(
+      invoices.map(async ({ _id, paymentKindsVersion }) => {
+        const { modifiedCount } = await models.Invoices.updateOne(
+          { _id, paymentKindsVersion: paymentKindsVersion ?? null },
+          {
+            $set: { paymentKinds: kindsById.get(_id) || [] },
+            $inc: { paymentKindsVersion: 1 },
+          },
+        );
+
+        return modifiedCount ? null : _id;
+      }),
+    );
+
+    pending = conflicts.filter((_id): _id is string => !!_id);
+  }
+
+  if (pending.length) {
+    await models.Invoices.updateMany(
+      { _id: { $in: pending } },
+      { $unset: { paymentKinds: 1 } },
+    );
+  }
 };
 
 /**

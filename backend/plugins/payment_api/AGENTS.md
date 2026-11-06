@@ -112,6 +112,11 @@
   (`createTransaction`, `cancelTransaction`, `removeTransactions`) must call
   `syncInvoicePaymentKinds` for the affected invoices; the sync in `createTransaction` runs after
   the gateway try/catch so a sync failure never deletes a created transaction.
+- `paymentKinds` writes go only through `syncInvoicePaymentKinds`, which serializes concurrent
+  syncs with a compare-and-set on `paymentKindsVersion` (read the version, aggregate, write only
+  if unchanged, retry otherwise). Never `$set` `paymentKinds` directly: an unguarded write can
+  replace a newer snapshot with an older one. A sync that keeps losing unsets the field so the
+  backfill recomputes it.
 - In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
   `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
   does not return, so Pocket users on mobile would see neither a QR nor a way to
