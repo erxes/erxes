@@ -1,9 +1,9 @@
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
-import { MoveDealDropdown } from '@/deals/actionBar/components/MoveDealDropdown';
+import { MoveDealSubmenu } from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IconSettings } from '@tabler/icons-react';
-import { Button } from 'erxes-ui';
+import { DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -32,22 +32,23 @@ export const DealPanelActions = ({ dealId }: { dealId: string }) => {
   return (
     <DealsProvider>
       <div className="flex items-center gap-1 [&_button]:h-7 [&_button]:text-xs">
-        {productConfigUrl && (
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-7"
-            title={t('product-config')}
-            aria-label={t('product-config')}
-            asChild
-          >
-            <Link to={productConfigUrl}>
-              <IconSettings className="size-4" />
-            </Link>
-          </Button>
-        )}
-        <MoveDealDropdown deal={deal} />
-        <DealsActions deals={[deal]} variant="menu" />
+        <DealsActions
+          deals={[deal]}
+          variant="menu"
+          menuItems={
+            <>
+              <MoveDealSubmenu deal={deal} />
+              {productConfigUrl && (
+                <DropdownMenu.Item asChild>
+                  <Link to={productConfigUrl}>
+                    <IconSettings />
+                    {t('product-config')}
+                  </Link>
+                </DropdownMenu.Item>
+              )}
+            </>
+          }
+        />
       </div>
     </DealsProvider>
   );
