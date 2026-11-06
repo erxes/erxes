@@ -150,6 +150,7 @@ export function PmsList() {
 
   const [editOpen, setEditOpen] = useState(false);
   const [editingBranchId, setEditingBranchId] = useState<string>('');
+  const [openedFromUrl, setOpenedFromUrl] = useState(false);
   const setCurrentStep = useSetAtom(stepState);
   const [searchParams, setSearchParams] = useSearchParams();
   const queryBranchId = searchParams.get(PMS_BRANCH_QUERY_KEY) || '';
@@ -158,8 +159,16 @@ export function PmsList() {
     if (queryBranchId) {
       setEditingBranchId(queryBranchId);
       setEditOpen(true);
+      setOpenedFromUrl(true);
+      return;
     }
-  }, [queryBranchId]);
+
+    if (openedFromUrl) {
+      setEditOpen(false);
+      setEditingBranchId('');
+      setOpenedFromUrl(false);
+    }
+  }, [queryBranchId, openedFromUrl]);
 
   useEffect(() => {
     if (editOpen) {
@@ -175,13 +184,17 @@ export function PmsList() {
     if (open) return;
 
     setEditingBranchId('');
+    setOpenedFromUrl(false);
 
     if (queryBranchId) {
-      setSearchParams((prev) => {
-        const next = new URLSearchParams(prev);
-        next.delete(PMS_BRANCH_QUERY_KEY);
-        return next;
-      });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete(PMS_BRANCH_QUERY_KEY);
+          return next;
+        },
+        { replace: true },
+      );
     }
   };
 

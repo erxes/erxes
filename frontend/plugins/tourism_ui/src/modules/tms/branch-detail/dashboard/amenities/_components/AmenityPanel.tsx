@@ -130,7 +130,7 @@ const AmenityPanelForm = ({
           variables: {
             id: amenity._id,
             name: mainName,
-            ...icon,
+            icon: values.icon?.trim() ?? '',
             quick: true,
             language: mainLanguage,
             translations,

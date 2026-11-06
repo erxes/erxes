@@ -1,9 +1,10 @@
-import { ReactNode } from 'react';
+import { ComponentType, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IRecordPanelProps, NEW_RECORD_ID } from 'ui-modules';
 import { TourismPanelActivity } from '@/tms/side-panel/TourismPanelLayout';
 import {
   ITourismPanelHeading,
+  ITourismPanelViewProps,
   ITourismPanelViews,
   TMS_AMENITY_CONTENT_TYPE,
   TMS_CATEGORY_CONTENT_TYPE,
@@ -71,6 +72,41 @@ const TourismPanelRecordTitle = ({
   return name || t(label);
 };
 
+const TourismPanelHeaderTitle = ({
+  panel,
+  contentId,
+}: {
+  panel: ITourismPanelViews;
+  contentId: string;
+}) => {
+  if (contentId === NEW_RECORD_ID) {
+    return <TourismPanelTitle label={panel.addLabel} />;
+  }
+
+  return panel.useHeading ? (
+    <TourismPanelRecordTitle
+      contentId={contentId}
+      label={panel.editLabel}
+      useHeading={panel.useHeading}
+    />
+  ) : (
+    <TourismPanelTitle label={panel.editLabel} />
+  );
+};
+
+const getScrolledView = (
+  panel: ITourismPanelViews,
+  view: IRecordPanelProps['view'],
+  tab?: string,
+): ComponentType<ITourismPanelViewProps> | undefined => {
+  if (view === 'new') return panel.New;
+  if (view === 'properties') return panel.Properties;
+  if (view === 'tab') return tab ? panel.Tabs?.[tab] : undefined;
+  if (view === 'detail') return panel.Detail;
+
+  return undefined;
+};
+
 export const RecordPanel = ({
   contentType,
   contentId,
@@ -83,35 +119,13 @@ export const RecordPanel = ({
     return null;
   }
 
-  const { New, useHeading, Actions, Detail, Properties, Tabs } = panel;
-
-  if (view === 'new') {
-    return New ? (
-      <TourismPanelScroll>
-        <New contentType={contentType} contentId={contentId} />
-      </TourismPanelScroll>
-    ) : null;
-  }
-
   if (view === 'title') {
-    if (contentId === NEW_RECORD_ID) {
-      return <TourismPanelTitle label={panel.addLabel} />;
-    }
-
-    return useHeading ? (
-      <TourismPanelRecordTitle
-        contentId={contentId}
-        label={panel.editLabel}
-        useHeading={useHeading}
-      />
-    ) : (
-      <TourismPanelTitle label={panel.editLabel} />
-    );
+    return <TourismPanelHeaderTitle panel={panel} contentId={contentId} />;
   }
 
   if (view === 'actions') {
-    return Actions ? (
-      <Actions contentType={contentType} contentId={contentId} />
+    return panel.Actions ? (
+      <panel.Actions contentType={contentType} contentId={contentId} />
     ) : null;
   }
 
@@ -119,27 +133,11 @@ export const RecordPanel = ({
     return <TourismPanelActivity contentId={contentId} />;
   }
 
-  if (view === 'tab') {
-    const TabView = tab ? Tabs?.[tab] : undefined;
+  const View = getScrolledView(panel, view, tab);
 
-    return TabView ? (
-      <TourismPanelScroll>
-        <TabView contentType={contentType} contentId={contentId} />
-      </TourismPanelScroll>
-    ) : null;
-  }
-
-  if (view === 'properties') {
-    return Properties ? (
-      <TourismPanelScroll>
-        <Properties contentType={contentType} contentId={contentId} />
-      </TourismPanelScroll>
-    ) : null;
-  }
-
-  return (
+  return View ? (
     <TourismPanelScroll>
-      <Detail contentType={contentType} contentId={contentId} />
+      <View contentType={contentType} contentId={contentId} />
     </TourismPanelScroll>
-  );
+  ) : null;
 };

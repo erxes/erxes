@@ -141,6 +141,12 @@ const ItineraryDuplicateForm = ({
     name: 'translations',
   });
 
+  const handleInvalid = () => {
+    if (!form.getValues('name')?.trim()) {
+      setSelectedLang(primaryLanguage);
+    }
+  };
+
   const handleSubmit = (values: ItineraryCreateFormType) => {
     const duplicateTranslations = sanitizeTranslations(values.translations);
 
@@ -190,7 +196,7 @@ const ItineraryDuplicateForm = ({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(handleSubmit)}
+        onSubmit={form.handleSubmit(handleSubmit, handleInvalid)}
         className="flex flex-1 min-h-0 flex-col"
       >
         <PanelFormLayout

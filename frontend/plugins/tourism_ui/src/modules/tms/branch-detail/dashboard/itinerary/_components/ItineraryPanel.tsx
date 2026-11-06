@@ -23,14 +23,20 @@ const ItineraryPanelDetail = ({ contentId }: ITourismPanelViewProps) => {
   const { t } = useTranslation('tourism');
   const [editOpen, setEditOpen] = useState(false);
   const { branchId, branchLanguages, mainLanguage } = useTourismPanelBranch();
-  const { itinerary, loading, refetch } = useItineraryDetail(
+  const { itinerary, loading, error, refetch } = useItineraryDetail(
     contentId,
     true,
     mainLanguage,
   );
 
   if (!itinerary) {
-    return <TourismPanelRecordState loading={loading} hasRecord={false} />;
+    return (
+      <TourismPanelRecordState
+        loading={loading}
+        hasRecord={false}
+        error={error}
+      />
+    );
   }
 
   const handleEditOpenChange = (open: boolean) => {

@@ -186,7 +186,7 @@ const TmsSubNavigation = () => {
 const PmsSubNavigation = () => {
   const { t } = useTranslation('tourism');
   const { search } = useLocation();
-  const { list, loading } = usePmsBranchList();
+  const { list, loading } = usePmsBranchList({ page: 1, perPage: 50 });
 
   const activeBranchId =
     new URLSearchParams(search).get(PMS_BRANCH_QUERY_KEY) || '';

@@ -11,8 +11,9 @@ import {
   RecordTable,
   RecordTableInlineCell,
   TextOverflowTooltip,
-  Badge,
   RelativeDateDisplay,
+  badgeVariants,
+  cn,
 } from 'erxes-ui';
 import { IElement } from '../types/element';
 import { elementMoreColumn } from './ElementMoreCell';
@@ -29,13 +30,16 @@ const ElementNameBadge = ({
   const { openDetail } = useTourismPanel(TMS_ELEMENT_CONTENT_TYPE);
 
   return (
-    <Badge
-      variant="secondary"
-      className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+    <button
+      type="button"
+      className={cn(
+        badgeVariants({ variant: 'secondary' }),
+        'px-2 py-1 font-medium cursor-pointer hover:bg-accent',
+      )}
       onClick={() => openDetail(elementId)}
     >
       <TextOverflowTooltip value={name} />
-    </Badge>
+    </button>
   );
 };
 

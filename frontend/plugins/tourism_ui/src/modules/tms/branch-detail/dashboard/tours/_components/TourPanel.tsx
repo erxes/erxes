@@ -277,7 +277,6 @@ const TourPanelEditForm = ({
         id: tour._id,
         language: primaryLanguage || undefined,
         ...rest,
-        customFieldsData,
         pricingOptions,
         translations,
         dateType: isFlexible ? 'flexible' : 'fixed',

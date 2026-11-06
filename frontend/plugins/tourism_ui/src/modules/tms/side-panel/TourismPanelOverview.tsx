@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { IconPencil } from '@tabler/icons-react';
-import { Button, ScrollArea } from 'erxes-ui';
-import { readImage } from 'erxes-ui/utils/core';
+import { Button, ScrollArea, readImage } from 'erxes-ui';
 import { PanelField } from 'ui-modules';
 
 export const TourismPanelOverview = ({

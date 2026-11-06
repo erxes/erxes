@@ -11,9 +11,10 @@ import {
   RecordTableInlineCell,
   RecordTableTree,
   Avatar,
-  Badge,
   TextOverflowTooltip,
   RelativeDateDisplay,
+  badgeVariants,
+  cn,
 } from 'erxes-ui';
 import { ICategory } from '../types/category';
 import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
@@ -24,13 +25,16 @@ const CategoryNameBadge = ({ category }: { category: ICategory }) => {
   const { openDetail } = useTourismPanel(TMS_CATEGORY_CONTENT_TYPE);
 
   return (
-    <Badge
-      variant="secondary"
-      className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+    <button
+      type="button"
+      className={cn(
+        badgeVariants({ variant: 'secondary' }),
+        'px-2 py-1 font-medium cursor-pointer hover:bg-accent',
+      )}
       onClick={() => openDetail(category._id)}
     >
       <TextOverflowTooltip value={category.name || '-'} />
-    </Badge>
+    </button>
   );
 };
 

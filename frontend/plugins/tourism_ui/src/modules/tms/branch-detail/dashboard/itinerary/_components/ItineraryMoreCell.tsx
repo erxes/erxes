@@ -95,14 +95,16 @@ export const ItineraryMoreColumn = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <ItineraryEditSheet
-        itineraryId={itinerary._id}
-        branchId={itinerary.branchId || branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-      />
+      {editOpen && (
+        <ItineraryEditSheet
+          itineraryId={itinerary._id}
+          branchId={itinerary.branchId || branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </>
   );
 };

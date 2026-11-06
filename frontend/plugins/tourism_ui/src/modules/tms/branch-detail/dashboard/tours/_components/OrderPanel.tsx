@@ -30,10 +30,7 @@ import {
   useTourOrderDetail,
 } from '../hooks/useTourOrders';
 
-const ORDER_STATUS_OPTIONS = [
-  { value: 'refunded', label: 'Refunded' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+const ORDER_STATUS_OPTIONS = ['refunded', 'cancelled'];
 
 const TERMINAL_ORDER_STATUSES = new Set(['refunded', 'cancelled']);
 
@@ -53,10 +50,10 @@ const STATUS_LABELS: Record<string, string> = {
   cancelled: 'Cancelled',
 };
 
-const formatDate = (dateStr?: string) => {
+const formatDate = (locale: string, dateStr?: string) => {
   if (!dateStr) return '';
 
-  return new Date(dateStr).toLocaleDateString('mn-MN', {
+  return new Date(dateStr).toLocaleDateString(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -77,7 +74,17 @@ const getAdditionalCustomers = (order: ITourOrder) =>
       )
     : [];
 
+const useOrderStatusLabel = () => {
+  const { t } = useTranslation('tourism');
+
+  return (status: string) =>
+    t(`order-status-${status}`, {
+      defaultValue: STATUS_LABELS[status] ?? STATUS_LABELS.pending,
+    });
+};
+
 const OrderStatusBadge = ({ status }: { status?: string }) => {
+  const getStatusLabel = useOrderStatusLabel();
   const safeStatus = status ?? 'pending';
   const tone =
     STATUS_TONES[safeStatus] ??
@@ -88,7 +95,7 @@ const OrderStatusBadge = ({ status }: { status?: string }) => {
       className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${tone}`}
     >
       <span className="size-1.5 rounded-full bg-current opacity-75" />
-      {STATUS_LABELS[safeStatus] ?? 'Pending'}
+      {getStatusLabel(safeStatus)}
     </span>
   );
 };
@@ -134,7 +141,7 @@ const OrderNote = ({ label, note }: { label: string; note: string }) => (
 );
 
 const OrderSummary = ({ order }: { order: ITourOrder }) => {
-  const { t } = useTranslation('tourism');
+  const { t, i18n } = useTranslation('tourism');
   const additionalCustomers = getAdditionalCustomers(order);
 
   return (
@@ -153,7 +160,7 @@ const OrderSummary = ({ order }: { order: ITourOrder }) => {
       </OrderValueRow>
       <OrderValueRow label={t('detail-row-type')}>{order.type}</OrderValueRow>
       <OrderValueRow label={t('detail-row-created-at')}>
-        {formatDate(order.createdAt)}
+        {formatDate(i18n.language, order.createdAt)}
       </OrderValueRow>
       <OrderValueRow label={t('main-customer')}>
         {order.customerId && <OrderCustomer customerId={order.customerId} />}
@@ -182,6 +189,7 @@ const OrderEditForm = ({
   onDone: () => void;
 }) => {
   const { t } = useTranslation('tourism');
+  const getStatusLabel = useOrderStatusLabel();
   const { toast } = useToast();
   const { confirm } = useConfirm();
   const { editOrder, loading } = useEditTourOrder({
@@ -296,13 +304,13 @@ const OrderEditForm = ({
               <Select.Value placeholder={t('select-booking-status')} />
             </Select.Trigger>
             <Select.Content align="start">
-              {ORDER_STATUS_OPTIONS.map((option) => (
+              {ORDER_STATUS_OPTIONS.map((status) => (
                 <Select.Item
-                  key={option.value}
-                  value={option.value}
+                  key={status}
+                  value={status}
                   className="h-7 text-xs"
                 >
-                  {option.label}
+                  {getStatusLabel(status)}
                 </Select.Item>
               ))}
             </Select.Content>

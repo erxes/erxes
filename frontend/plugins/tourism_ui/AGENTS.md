@@ -55,7 +55,7 @@
 ### Provides
 
 - Module Federation exposes: `./config`, `./pms`, `./tms`, `./tourism`, and `./recordPanel` (named `RecordPanel`).
-- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title; `tourism:tmsTour` also declares `tabs` for bookings and customers; every saved-record type except `tourism:tmsItineraryDuplicate` sets `detailPath` (`getTourismRecordDetailPath`), so the panel's expand button opens `/tourism/tms/branches/:branchId/records/:recordType/:recordId`; so an expanded panel replaces the page beside the app sidebar like contacts; only `tourism:tmsTour` has a Properties tab).
+- `widgets.recordPanels` in `src/config.tsx` registers `tourism:tmsTour`, `tourism:tmsOrder`, `tourism:tmsItinerary`, `tourism:tmsItineraryDuplicate` (id is the source itinerary), `tourism:tmsElement`, `tourism:tmsAmenity`, `tourism:tmsCategory`, `tourism:tmsTourType`, `tourism:tmsFieldGroup` and `tourism:tmsCustomField` (draft title; only `tourism:tmsTour` has a Properties tab and declares `tabs` from `TOURISM_PANEL_TABS` — Bookings (`labelKey: 'bookings'`) and Customers, both `after: 'properties'` — drawn through the `tab` view; every saved-record type except `tourism:tmsItineraryDuplicate` sets `detailPath` (`getTourismRecordDetailPath`), so the panel's expand button opens `/tourism/tms/branches/:branchId/records/:recordType/:recordId`).
 - Frontend navigation paths under `tourism/pms` and `tourism/tms` registered from `src/config.tsx`.
 
 ### Consumes

@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useMemo, useRef } from 'react';
 import {
   Control,
   FieldPathByValue,
@@ -159,17 +159,28 @@ const PanelDescriptionField = <T extends FieldValues>({
   );
 };
 
-const buildCodeFiller =
-  (
-    isNew: boolean,
-    getCode: () => string | undefined,
-    setCode: (code: string) => void,
-  ) =>
-  (label: string) => {
-    if (isNew && !getCode()) {
-      setCode(generateCode(label));
-    }
+const useGeneratedValue = (
+  isNew: boolean,
+  getValue: () => string | undefined,
+  setValue: (value: string) => void,
+  derive: (source: string) => string,
+) => {
+  const lastGenerated = useRef('');
+
+  return (source: string) => {
+    if (!isNew) return;
+
+    const current = getValue() ?? '';
+
+    if (current && current !== lastGenerated.current) return;
+
+    const next = derive(source);
+    lastGenerated.current = next;
+    setValue(next);
   };
+};
+
+const toPluralLabel = (label: string) => (label ? `${label}s` : '');
 
 export const TourTypeForm = ({
   defaultValues,
@@ -177,10 +188,17 @@ export const TourTypeForm = ({
 }: ICustomFieldFormProps<ITourTypeFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<ITourTypeFormValues>({ defaultValues });
-  const setGeneratedCode = buildCodeFiller(
+  const setGeneratedPluralLabel = useGeneratedValue(
+    props.isNew,
+    () => form.getValues('pluralLabel'),
+    (pluralLabel) => form.setValue('pluralLabel', pluralLabel),
+    toPluralLabel,
+  );
+  const setGeneratedCode = useGeneratedValue(
     props.isNew,
     () => form.getValues('code'),
     (code) => form.setValue('code', code),
+    generateCode,
   );
 
   return (
@@ -193,9 +211,7 @@ export const TourTypeForm = ({
         autoFocus={props.isNew}
         onValueChange={(value) => {
           setGeneratedCode(value);
-          if (props.isNew && !form.getValues('pluralLabel')) {
-            form.setValue('pluralLabel', `${value}s`);
-          }
+          setGeneratedPluralLabel(value);
         }}
       />
       <PanelTextField
@@ -229,10 +245,11 @@ export const FieldGroupForm = ({
 }) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldGroupFormValues>({ defaultValues });
-  const setGeneratedCode = buildCodeFiller(
+  const setGeneratedCode = useGeneratedValue(
     props.isNew,
     () => form.getValues('code'),
     (code) => form.setValue('code', code),
+    generateCode,
   );
   const typeSelectOptions = useMemo(
     () =>
@@ -288,10 +305,11 @@ export const FieldForm = ({
 }: ICustomFieldFormProps<IFieldFormValues>) => {
   const { t } = useTranslation('tourism');
   const form = useForm<IFieldFormValues>({ defaultValues });
-  const setGeneratedCode = buildCodeFiller(
+  const setGeneratedCode = useGeneratedValue(
     props.isNew,
     () => form.getValues('code'),
     (code) => form.setValue('code', code),
+    generateCode,
   );
   const type = form.watch('type');
   const needsOptions = ['select', 'multiSelect', 'radio'].includes(type);

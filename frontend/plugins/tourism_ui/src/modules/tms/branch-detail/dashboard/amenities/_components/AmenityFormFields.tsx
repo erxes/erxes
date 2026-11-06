@@ -29,7 +29,7 @@ export const AmenityNameField = ({
     <TourismPanelFormField
       control={control}
       name={name}
-      required
+      required={name === 'name'}
       label={
         <>
           {t('name')}
@@ -61,7 +61,7 @@ export const AmenityIconField = ({
       render={(field) => (
         <AmenityIconPicker
           value={field.value}
-          onValueChange={field.onChange}
+          onValueChange={(value) => field.onChange(value ?? '')}
           className="size-7 justify-center rounded-sm border bg-background p-0 shadow-none [&_svg]:size-4"
         />
       )}
