@@ -39,10 +39,13 @@ const built = await build({
     },
   ],
 });
-const { isAgentsRunAlive } = await import(
+const { probeAgentsRun } = await import(
   'data:text/javascript;base64,' +
     Buffer.from(built.outputFiles[0].text).toString('base64')
 );
+// What the reconnect route's observer asks: is a producer still there?
+const isAgentsRunAlive = async (...args) =>
+  (await probeAgentsRun(...args)) === 'live';
 const scope = { runId: 'orphan-run', threadId: 'thread', resourceId: 'user' };
 let runtime;
 let workflows;
@@ -190,4 +193,52 @@ test('propagates backend failures without declaring a producer dead', async () =
     /Redis unavailable/,
   );
   assert.equal((await runtime.agent.listActiveRuns(scope)).runs.length, 1);
+});
+
+test('reports a producerless run as interrupted at once, with the restart message', async () => {
+  const started = Date.now();
+  assert.equal(await probeAgentsRun(runtime, scope), 'interrupted');
+  assert(Date.now() - started < 1_000);
+  assert.equal((await runtime.agent.listActiveRuns(scope)).runs.length, 0);
+  const snapshot = await workflows.loadWorkflowSnapshot({
+    workflowName: 'durable-agentic-loop',
+    runId: scope.runId,
+  });
+  assert.equal(snapshot.status, 'failed');
+  assert.equal(snapshot.error.name, 'AgentsRunInterrupted');
+  assert.equal(
+    snapshot.error.message,
+    'The server restarted while answering. Retry to continue.',
+  );
+});
+
+test('reports a live producer as live without touching the run', async () => {
+  await workflows.claimRunOwnership({
+    runId: scope.runId,
+    ownerId: 'producer',
+    leaseMs: 30_000,
+  });
+  assert.equal(await probeAgentsRun(runtime, scope), 'live');
+  assert.equal((await runtime.agent.listActiveRuns(scope)).runs.length, 1);
+});
+
+test('never reports a run that already finished as interrupted', async () => {
+  const snapshot = await workflows.loadWorkflowSnapshot({
+    workflowName: 'durable-agentic-loop',
+    runId: scope.runId,
+  });
+  await workflows.persistWorkflowSnapshot({
+    workflowName: 'durable-agentic-loop',
+    runId: scope.runId,
+    resourceId: scope.resourceId,
+    snapshot: { ...snapshot, status: 'success' },
+  });
+  assert.equal(await probeAgentsRun(runtime, scope), 'inactive');
+});
+
+test('never reports a run that finishes during the probe as interrupted', async () => {
+  // The producer completes between the running read and the settle write:
+  // the expected-running guard turns the write into a no-op.
+  mock.method(workflows, 'updateWorkflowState', async () => undefined);
+  assert.equal(await probeAgentsRun(runtime, scope), 'inactive');
 });

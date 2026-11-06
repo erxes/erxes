@@ -1,17 +1,81 @@
-import { Button, Form, Sheet, Spinner, useMultiQueryState } from 'erxes-ui';
+import {
+  Button,
+  Combobox,
+  Form,
+  Popover,
+  Sheet,
+  Spinner,
+  useMultiQueryState,
+} from 'erxes-ui';
 import { SelectBranches, SelectCategory, SelectDepartments } from 'ui-modules';
 
 import { AccountingSheet } from '~/modules/layout/components/Sheet';
-import { IconRefresh } from '@tabler/icons-react';
-import { TReCalcRemainderForm } from '../types/reCalcRemainderForm';
-import { reCalcRemainderSchema } from '../types/reCalcRemainderSchema';
-import { selectedProductIdsAtom } from '../states/productCounts';
+import { IconCheck, IconRefresh } from '@tabler/icons-react';
+import { TReCalcRemainderForm } from '@/inventories/remainders/types/reCalcRemainderForm';
+import { reCalcRemainderSchema } from '@/inventories/remainders/types/reCalcRemainderSchema';
+import { selectedProductIdsAtom } from '@/inventories/remainders/states/productCounts';
 import { useAtomValue } from 'jotai';
 import { useForm } from 'react-hook-form';
-import { useReCalcRemainders } from '../hooks/useReCalcRemainders';
+import { useReCalcRemainders } from '@/inventories/remainders/hooks/useReCalcRemainders';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
+
+const RecalcLocationSelect = ({
+  kind,
+  value,
+  onValueChange,
+}: {
+  kind: 'branch' | 'department';
+  value?: string;
+  onValueChange: (value?: string) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+  const [open, setOpen] = useState(false);
+  const SelectLocation = kind === 'branch' ? SelectBranches : SelectDepartments;
+  const emptyLabel =
+    kind === 'branch'
+      ? t('branch-not-assigned', { defaultValue: 'Салбар сонгогдоогүй' })
+      : t('department-not-assigned', { defaultValue: 'Нэгж сонгогдоогүй' });
+
+  const handleChange = (nextValue?: string | string[]) => {
+    if (typeof nextValue === 'string' || nextValue === undefined) {
+      onValueChange(nextValue);
+      setOpen(false);
+    }
+  };
+
+  return (
+    <SelectLocation
+      mode="single"
+      value={value === '_' ? undefined : value}
+      onValueChange={handleChange}
+    >
+      <Popover open={open} onOpenChange={setOpen}>
+        <Form.Control>
+          <Combobox.Trigger className="w-full shadow-xs">
+            {value === '_' ? emptyLabel : <SelectLocation.Value />}
+          </Combobox.Trigger>
+        </Form.Control>
+        <Combobox.Content>
+          <div className="border-b p-1">
+            <Button
+              type="button"
+              variant="ghost"
+              className="w-full justify-between"
+              aria-pressed={value === '_'}
+              onClick={() => handleChange(value === '_' ? '' : '_')}
+            >
+              {emptyLabel}
+              {value === '_' && <IconCheck className="size-4" />}
+            </Button>
+          </div>
+          <SelectLocation.Command disableCreateOption />
+        </Combobox.Content>
+      </Popover>
+    </SelectLocation>
+  );
+};
 
 const ReCalcRemaindersForm = ({
   setOpen,
@@ -38,10 +102,10 @@ const ReCalcRemaindersForm = ({
   const { addSafeRemainder, loading } = useReCalcRemainders();
 
   const onSubmit = (data: TReCalcRemainderForm) => {
-    const variables: Record<string, unknown> = { ...data };
-    if (productIds && productIds.length > 0) {
-      variables.productIds = productIds;
-    }
+    const variables = {
+      ...data,
+      ...(productIds?.length ? { productIds } : {}),
+    };
     addSafeRemainder({
       variables,
       onCompleted: () => {
@@ -68,8 +132,8 @@ const ReCalcRemaindersForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('branch')}</Form.Label>
-                  <SelectBranches.FormItem
-                    mode="single"
+                  <RecalcLocationSelect
+                    kind="branch"
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -83,8 +147,8 @@ const ReCalcRemaindersForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t('department')}</Form.Label>
-                  <SelectDepartments.FormItem
-                    mode="single"
+                  <RecalcLocationSelect
+                    kind="department"
                     value={field.value}
                     onValueChange={field.onChange}
                   />

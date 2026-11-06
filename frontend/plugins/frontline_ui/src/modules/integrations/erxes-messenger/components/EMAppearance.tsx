@@ -22,7 +22,9 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 
 export const EMAppearance = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const atomValue = useAtomValue(erxesMessengerSetupAppearanceAtom);
   const setStep = useSetAtom(erxesMessengerSetupStepAtom);
   const form = useForm<z.infer<typeof EMAPPEARANCE_SCHEMA>>({

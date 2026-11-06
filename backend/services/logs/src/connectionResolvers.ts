@@ -9,7 +9,9 @@ import mongoose, { Model } from 'mongoose';
 import {
   activityLogsSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   logsSchema,
+  userActivityDailySchema,
   userSchema,
 } from 'erxes-api-shared/core-modules';
 
@@ -17,6 +19,7 @@ export interface IModels {
   Users: Model<IUserDocument>;
   Logs: Model<ILogDocument>;
   ActivityLogs: Model<IActivityLogDocument>;
+  UserActivities: Model<IUserActivityDailyDocument>;
 }
 
 export interface IContext extends IMainContext {
@@ -38,12 +41,20 @@ export const loadClasses = (db: mongoose.Connection): IModels => {
 
   const db_name = db.name;
 
-  const logDb = db.useDb(`${db_name}_logs`);
+  const logDb = db.useDb(`${db_name}_logs`, {
+    useCache: true,
+    noListener: true,
+  });
 
   models.Logs = logDb.model<ILogDocument, Model<ILogDocument>>(
     'logs',
     logsSchema,
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    Model<IUserActivityDailyDocument>
+  >('user_activity_daily', userActivityDailySchema);
 
   return models;
 };

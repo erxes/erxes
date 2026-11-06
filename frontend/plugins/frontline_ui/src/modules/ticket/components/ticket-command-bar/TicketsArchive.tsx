@@ -12,7 +12,7 @@ export const TicketsArchive = ({
   archived: boolean;
   setOpen: (open: boolean) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toggleArchive } = useToggleTicketArchive();
 
   return (

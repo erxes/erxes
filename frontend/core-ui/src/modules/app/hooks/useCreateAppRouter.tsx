@@ -167,7 +167,7 @@ export const useCreateAppRouter = () => {
               />
 
               <Route
-                path={AppPath.AgentCatchAll}
+                path={AppPath.AssistantCatchAll}
                 element={<LegacyAgentRedirect />}
               />
 

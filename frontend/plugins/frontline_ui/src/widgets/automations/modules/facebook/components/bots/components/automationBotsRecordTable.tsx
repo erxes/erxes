@@ -6,14 +6,14 @@ import { automationFacebookBotsColumns } from '~/widgets/automations/modules/fac
 import { useAutomationBotsRecordTable } from '~/widgets/automations/modules/facebook/components/bots/hooks/useAutomationBotsRecordTable';
 
 export const AutomationBotsRecordTable = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { facebookMessengerBots, loading } = useAutomationBotsRecordTable();
 
   return (
     <>
       <AutomationBotSheetForm />
       <RecordTable.Provider
-        columns={automationFacebookBotsColumns}
+        columns={automationFacebookBotsColumns(t)}
         data={facebookMessengerBots || []}
         className="h-full"
         tableId="frontline_facebook_automation_bots_record_table"

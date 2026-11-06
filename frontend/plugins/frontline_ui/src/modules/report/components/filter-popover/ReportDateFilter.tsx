@@ -29,7 +29,7 @@ export const ReportDateFilter = ({
   onChange: (value: string) => void;
   label?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { resetFilterState } = useFilterContext();
   const { fromDate, toDate } = getDateRange(value);
   const dialogValue =

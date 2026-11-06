@@ -4,10 +4,11 @@ import {
   IconDeviceImac,
   IconGlobe,
   IconMapPin,
+  IconAlertTriangle,
   IconShield,
 } from '@tabler/icons-react';
 import { UAParser } from 'ua-parser-js';
-import { ILogDoc } from '../types';
+import { ILogDoc, ILogStatusType } from '../types';
 import { maskIpValue } from '../utils/logFormUtils';
 import { LogDetailMetricCard, LogDetailSection } from './LogDetailPrimitives';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +49,7 @@ const getClientInfo = (headers: any) => {
   };
 };
 
-export const AuthLogDetailContent = ({ payload }: ILogDoc) => {
+export const AuthLogDetailContent = ({ payload, status }: ILogDoc) => {
   const { t } = useTranslation('common', { keyPrefix: 'logs' });
   const { headers } = payload || {};
 
@@ -90,6 +91,14 @@ export const AuthLogDetailContent = ({ payload }: ILogDoc) => {
           value={payload?.method}
           icon={IconGlobe}
         />
+        {status === ILogStatusType.FAILED && (
+          <LogDetailMetricCard
+            title={t('failure-reason')}
+            value={payload?.error?.message}
+            icon={IconAlertTriangle}
+            className="sm:col-span-2 xl:col-span-3"
+          />
+        )}
       </div>
     </LogDetailSection>
   );

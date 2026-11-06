@@ -1,16 +1,14 @@
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Sheet,
-  Spinner,
-  Textarea,
-} from 'erxes-ui';
+import { Button, Form, Input } from 'erxes-ui';
 import { ReactNode, useEffect, useMemo } from 'react';
 import { UseFormReturn, useWatch } from 'react-hook-form';
+import { PANEL_INPUT_CLASS_NAME, PanelFormRow } from 'ui-modules';
+import {
+  SettingsPanelDescriptionInput,
+  SettingsPanelSelect,
+} from '@/settings/components/panel/SettingsPanelFields';
+import { SettingsPanelDraftForm } from '@/settings/components/panel/SettingsPanelLayout';
 import { JobCosts } from './JobCosts';
 import { JobItems } from '@/settings/jobs/components/JobItems';
 import { JobNumberInput } from '@/settings/jobs/components/JobNumberInput';
@@ -23,29 +21,32 @@ import {
   uomToCode,
 } from '../utils/jobUnits';
 
-export const JobForm = ({
-  form,
-  onSubmit,
-  loading,
-  header,
-  hideSettings = false,
-  readOnly = false,
-  onInvalid,
-  embedded = false,
-  baseUnitsOnly = false,
-  readOnlyCostRatio = false,
-}: {
+type JobFormProps = {
   form: UseFormReturn<TJobForm>;
   onSubmit: (data: TJobForm) => void;
   loading: boolean;
   header?: ReactNode;
   hideSettings?: boolean;
   readOnly?: boolean;
-  onInvalid?: () => void;
-  embedded?: boolean;
   baseUnitsOnly?: boolean;
   readOnlyCostRatio?: boolean;
-}) => {
+} & (
+  | { embedded: true; onCancel?: undefined }
+  | { embedded?: false; onCancel: () => void }
+);
+
+export const JobForm = (props: JobFormProps) => {
+  const {
+    form,
+    onSubmit,
+    loading,
+    header,
+    hideSettings = false,
+    readOnly = false,
+    embedded,
+    baseUnitsOnly = false,
+    readOnlyCostRatio = false,
+  } = props;
   const { t } = useTranslation('accounting');
   const [inputs, outputs] = useWatch({
     control: form.control,
@@ -137,208 +138,193 @@ export const JobForm = ({
     }
   }, [form, inputs, outputs, products, uoms, baseUnitsOnly, t]);
 
-  const Container = embedded ? 'div' : 'form';
-  return (
-    <Form {...form}>
-      <Container
-        onSubmit={embedded ? undefined : form.handleSubmit(onSubmit, onInvalid)}
-        className="flex flex-col flex-1 bg-background min-h-0"
-      >
-        <fieldset
-          disabled={readOnly || (baseUnitsOnly && unitsLoading)}
-          className={
-            embedded
-              ? 'space-y-5'
-              : 'flex-1 min-h-0 overflow-y-auto p-5 space-y-5'
-          }
-        >
-          {header}
-          {!hideSettings && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              <Form.Field
-                control={form.control}
-                name="code"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('code')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} value={field.value ?? ''} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
+  const unitsBlocked =
+    unitsLoading || (productIds.length > 0 && Boolean(unitsError));
 
-              <Form.Field
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <Form.Item className="md:col-span-2">
-                    <Form.Label>{t('job-production-stage')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              <Form.Field
-                control={form.control}
-                name="durationType"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('job-duration-type')}</Form.Label>
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                        if (value === 'real') {
-                          form.setValue('duration', undefined, {
-                            shouldDirty: true,
-                            shouldValidate: true,
-                          });
-                        }
-                      }}
-                    >
-                      <Form.Control>
-                        <Select.Trigger>
-                          <Select.Value />
-                        </Select.Trigger>
-                      </Form.Control>
-                      <Select.Content>
-                        {JOB_DURATION_TYPES.map((value) => (
-                          <Select.Item key={value} value={value}>
-                            {t(`job-duration-${value}`)}
-                          </Select.Item>
-                        ))}
-                      </Select.Content>
-                    </Select>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-
-              {durationType !== 'real' && (
-                <Form.Field
-                  control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <Form.Item>
-                      <Form.Label>{t('job-duration')}</Form.Label>
-                      <Form.Control>
-                        <JobNumberInput
-                          value={field.value}
-                          min={0}
-                          onChange={field.onChange}
-                        />
-                      </Form.Control>
-                      <Form.Message />
-                    </Form.Item>
-                  )}
+  const content = (
+    <fieldset
+      disabled={readOnly || (baseUnitsOnly && unitsLoading)}
+      className="min-w-0 space-y-5"
+    >
+      {header}
+      {!hideSettings && (
+        <div className="flex flex-col gap-1">
+          <Form.Field
+            control={form.control}
+            name="code"
+            render={({ field, fieldState }) => (
+              <PanelFormRow label={t('code')} error={fieldState.error?.message}>
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  autoComplete="off"
+                  className={PANEL_INPUT_CLASS_NAME}
                 />
-              )}
+              </PanelFormRow>
+            )}
+          />
 
-              <Form.Field
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label>{t('status')}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} value={field.value ?? ''} />
-                    </Form.Control>
-                    <Form.Message />
-                  </Form.Item>
-                )}
-              />
-            </div>
+          <Form.Field
+            control={form.control}
+            name="name"
+            render={({ field, fieldState }) => (
+              <PanelFormRow
+                label={t('job-production-stage')}
+                required
+                error={fieldState.error?.message}
+              >
+                <Input
+                  {...field}
+                  autoFocus
+                  autoComplete="off"
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
+            )}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="durationType"
+            render={({ field, fieldState }) => (
+              <PanelFormRow
+                label={t('job-duration-type')}
+                error={fieldState.error?.message}
+              >
+                <SettingsPanelSelect
+                  value={field.value}
+                  placeholder={t('job-duration-type')}
+                  options={JOB_DURATION_TYPES.map((value) => ({
+                    value,
+                    label: t(`job-duration-${value}`),
+                  }))}
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    if (value === 'real') {
+                      form.setValue('duration', undefined, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      });
+                    }
+                  }}
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
+            )}
+          />
+
+          {durationType !== 'real' && (
+            <Form.Field
+              control={form.control}
+              name="duration"
+              render={({ field, fieldState }) => (
+                <PanelFormRow
+                  label={t('job-duration')}
+                  error={fieldState.error?.message}
+                >
+                  <JobNumberInput
+                    value={field.value}
+                    min={0}
+                    onChange={field.onChange}
+                    className={PANEL_INPUT_CLASS_NAME}
+                  />
+                </PanelFormRow>
+              )}
+            />
           )}
+
+          <Form.Field
+            control={form.control}
+            name="status"
+            render={({ field, fieldState }) => (
+              <PanelFormRow
+                label={t('status')}
+                error={fieldState.error?.message}
+              >
+                <Input
+                  {...field}
+                  value={field.value ?? ''}
+                  autoComplete="off"
+                  className={PANEL_INPUT_CLASS_NAME}
+                />
+              </PanelFormRow>
+            )}
+          />
 
           {!embedded && (
             <Form.Field
               control={form.control}
               name="description"
               render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('description')}</Form.Label>
-                  <Form.Control>
-                    <Textarea {...field} value={field.value ?? ''} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
+                <SettingsPanelDescriptionInput
+                  value={field.value ?? ''}
+                  onChange={field.onChange}
+                />
               )}
             />
           )}
+        </div>
+      )}
 
-          {unitsError && productIds.length > 0 && (
-            <div
-              className="flex items-center gap-2 text-sm text-destructive"
-              role="alert"
-            >
-              {t('job-units-load-failed')}
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => void refetch()}
-              >
-                {t('job-retry')}
-              </Button>
-            </div>
-          )}
-          <JobItems
-            form={form}
-            name="inputs"
-            title={t('job-input-products')}
-            products={products}
-            uoms={uoms}
-            unitsLoading={unitsLoading}
-            baseUnitsOnly={baseUnitsOnly}
-          />
-          <JobItems
-            form={form}
-            name="outputs"
-            title={t('job-output-products')}
-            showCostRatio
-            readOnlyCostRatio={readOnlyCostRatio}
-            products={products}
-            uoms={uoms}
-            unitsLoading={unitsLoading}
-            baseUnitsOnly={baseUnitsOnly}
-          />
-          <JobCosts form={form} name="laborCosts" title={t('job-labor')} />
-          <JobCosts
-            form={form}
-            name="overheadCosts"
-            title={t('job-overhead')}
-          />
-        </fieldset>
+      {unitsError && productIds.length > 0 && (
+        <div
+          className="flex items-center gap-2 text-sm text-destructive"
+          role="alert"
+        >
+          {t('job-units-load-failed')}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => void refetch()}
+          >
+            {t('job-retry')}
+          </Button>
+        </div>
+      )}
+      <JobItems
+        form={form}
+        name="inputs"
+        title={t('job-input-products')}
+        products={products}
+        uoms={uoms}
+        unitsLoading={unitsLoading}
+        baseUnitsOnly={baseUnitsOnly}
+      />
+      <JobItems
+        form={form}
+        name="outputs"
+        title={t('job-output-products')}
+        showCostRatio
+        readOnlyCostRatio={readOnlyCostRatio}
+        products={products}
+        uoms={uoms}
+        unitsLoading={unitsLoading}
+        baseUnitsOnly={baseUnitsOnly}
+      />
+      <JobCosts form={form} name="laborCosts" title={t('job-labor')} />
+      <JobCosts form={form} name="overheadCosts" title={t('job-overhead')} />
+    </fieldset>
+  );
 
-        {!embedded && (
-          <Sheet.Footer className="shrink-0 border-t bg-background">
-            <Sheet.Close asChild>
-              <Button variant="outline" size="lg">
-                {t('cancel')}
-              </Button>
-            </Sheet.Close>
+  if (props.embedded) {
+    return (
+      <Form {...form}>
+        <div className="flex flex-col flex-1 bg-background min-h-0">
+          {content}
+        </div>
+      </Form>
+    );
+  }
 
-            {!readOnly && (
-              <Button
-                type="submit"
-                disabled={
-                  loading ||
-                  unitsLoading ||
-                  (productIds.length > 0 && Boolean(unitsError))
-                }
-                size="lg"
-              >
-                {loading ? <Spinner /> : t('save')}
-              </Button>
-            )}
-          </Sheet.Footer>
-        )}
-      </Container>
-    </Form>
+  return (
+    <SettingsPanelDraftForm
+      form={form}
+      onSubmit={onSubmit}
+      onCancel={props.onCancel}
+      saving={loading || unitsBlocked}
+    >
+      {content}
+    </SettingsPanelDraftForm>
   );
 };

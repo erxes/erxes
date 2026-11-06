@@ -5,6 +5,7 @@ export const ORDER_CHANGE_LOG_ACTIONS = [
   'update',
   'cancel',
   'return',
+  'delete',
 ] as const;
 export type OrderChangeLogAction = (typeof ORDER_CHANGE_LOG_ACTIONS)[number];
 
@@ -16,6 +17,7 @@ export interface IOrderChangeEntry {
 
 export interface IOrderChangeLog {
   orderId?: string;
+  coverId?: string;
   cartId?: string;
   eventId?: string;
   source?: string;

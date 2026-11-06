@@ -13,7 +13,9 @@ import { useFacebookPages } from '@/integrations/facebook/hooks/useFacebookPages
 import { FacebookPageUsage } from '@/integrations/facebook/components/FacebookPageUsage';
 
 export const FacebookGetPages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [selectedPage, setSelectedPage] = useAtom(selectedFacebookPageAtom);
   const { facebookGetPages } = useFacebookPages();
   const setActiveStep = useSetAtom(activeFacebookFormStepAtom);

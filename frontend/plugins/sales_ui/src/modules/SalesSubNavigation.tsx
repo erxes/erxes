@@ -1,8 +1,9 @@
-import { IconChevronRight, IconPlus } from '@tabler/icons-react';
+import { IconChevronRight, IconCoins, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
   NavigationMenuGroup,
+  NavigationMenuLinkItem,
   Sidebar,
   Skeleton,
   TextOverflowTooltip,
@@ -11,7 +12,7 @@ import {
   useMultiQueryState,
   useQueryState,
 } from 'erxes-ui';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import {
   BoardCreateDialog,
@@ -26,6 +27,7 @@ import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBoards } from '@/deals/boards/hooks/useBoards';
+import { useLoyaltyEnabled } from '@/deals/loyaltyRules/hooks/useLoyaltyEnabled';
 
 type TBoardSelection = {
   boardId: string;
@@ -44,6 +46,9 @@ function LoadingSkeleton() {
   );
 }
 
+// Elsewhere in the module (Loyalty points) a board opens the deals page.
+const DEALS_PATH = '/sales/deals';
+
 function DealCount({
   count,
   loading,
@@ -59,18 +64,21 @@ function DealCount({
 
 function BoardItem({
   board,
+  onDealsPage,
   pipelineCounts,
   countsLoading,
 }: Readonly<{
   board: IBoard;
+  onDealsPage: boolean;
   pipelineCounts: Record<string, number>;
   countsLoading: boolean;
 }>) {
   const { t } = useTranslation('sales');
+  const navigate = useNavigate();
   const [{ boardId, pipelineId }, setBoardSelection] =
     useMultiQueryState<TBoardSelection>(['boardId', 'pipelineId', 'stageId']);
 
-  const isActive = boardId === board._id;
+  const isActive = onDealsPage && boardId === board._id;
   const pipelines = (board.pipelines?.filter(isDefined) || []).filter(
     (pipeline) => pipeline.status !== 'archived',
   );
@@ -84,13 +92,26 @@ function BoardItem({
     if (isActive) setOpen(true);
   }, [isActive]);
 
+  const openDeals = (nextPipelineId: string | null) => {
+    const params = new URLSearchParams({ boardId: board._id });
+
+    if (nextPipelineId) params.set('pipelineId', nextPipelineId);
+    navigate(`${DEALS_PATH}?${params.toString()}`);
+  };
+
   const handleBoardClick = () => {
-    if (board._id === boardId) return;
+    if (onDealsPage && board._id === boardId) return;
 
     const nextPipelineId = pipelines[0]?._id || null;
 
     localStorage.setItem('erxesCurrentBoardId', board._id);
     localStorage.removeItem('erxesCurrentPipelineId');
+
+    if (!onDealsPage) {
+      openDeals(nextPipelineId);
+      return;
+    }
+
     setBoardSelection({
       boardId: board._id,
       pipelineId: nextPipelineId,
@@ -101,6 +122,12 @@ function BoardItem({
   const handlePipelineClick = (nextPipelineId: string) => {
     localStorage.setItem('erxesCurrentBoardId', board._id);
     localStorage.setItem('erxesCurrentPipelineId', nextPipelineId);
+
+    if (!onDealsPage) {
+      openDeals(nextPipelineId);
+      return;
+    }
+
     setBoardSelection({
       boardId: board._id,
       pipelineId: nextPipelineId,
@@ -202,7 +229,7 @@ function BoardItem({
   );
 }
 
-const DealsNavigation = () => {
+const DealsNavigation = ({ onDealsPage }: { onDealsPage: boolean }) => {
   useBoardArchiveSubscription();
   const { boards, loading, error } = useBoards();
   const [boardId, setBoardId] = useQueryState<string | null>('boardId');
@@ -215,18 +242,20 @@ const DealsNavigation = () => {
     pipelineId,
   });
 
+  // Only the deals page is scoped to one board and pipeline.
   useEffect(() => {
+    if (!onDealsPage) return;
     if (!boards || boards.some((board) => board._id === boardId)) return;
 
     const storedBoardId = localStorage.getItem('erxesCurrentBoardId');
     const storedBoard = boards.find((board) => board._id === storedBoardId);
     const nextBoardId = storedBoard?._id || boards[0]?._id || null;
-    if (nextBoardId !== boardId) setBoardId(nextBoardId);
-  }, [boards, setBoardId, boardId]);
+    if (nextBoardId !== boardId) setBoardId(nextBoardId, { replace: true });
+  }, [boards, setBoardId, boardId, onDealsPage]);
 
   // Keep the selected pipeline within the selected board.
   useEffect(() => {
-    if (!boards) return;
+    if (!onDealsPage || !boards) return;
     if (boards.length === 0 || !boardId) {
       if (pipelineId) setPipelineId(null);
       return;
@@ -247,8 +276,11 @@ const DealsNavigation = () => {
       (pipeline) => pipeline._id === storedPipelineId,
     );
 
-    setPipelineId(storedPipeline?._id || pipelines[0]?._id || null);
-  }, [boards, boardId, pipelineId, setPipelineId]);
+    const nextPipelineId = storedPipeline?._id || pipelines[0]?._id || null;
+    if (nextPipelineId !== pipelineId) {
+      setPipelineId(nextPipelineId, { replace: true });
+    }
+  }, [boards, boardId, pipelineId, setPipelineId, onDealsPage]);
 
   return (
     <>
@@ -269,6 +301,7 @@ const DealsNavigation = () => {
             <BoardItem
               key={board._id}
               board={board}
+              onDealsPage={onDealsPage}
               pipelineCounts={byPipeline}
               countsLoading={countsLoading}
             />
@@ -283,9 +316,34 @@ const DealsNavigation = () => {
 
 export function SalesSubNavigation() {
   const location = useLocation();
-  const isDeals = location.pathname.startsWith('/sales/deals');
+  const isDeals = location.pathname.startsWith(DEALS_PATH);
+  const loyaltyEnabled = useLoyaltyEnabled();
+  const { t } = useTranslation('sales');
 
   if (!isDeals) return null;
 
-  return <DealsNavigation />;
+  return (
+    <>
+      {loyaltyEnabled && (
+        <>
+          {/* Sets the module's own pages apart from the plugin menu above. */}
+          <Sidebar.Separator />
+          <Sidebar.Group className="px-2 py-1">
+            <Sidebar.GroupContent>
+              <Sidebar.Menu>
+                <NavigationMenuLinkItem
+                  name={t('loyalty-deal-points')}
+                  path="sales/deals/loyalty"
+                  icon={IconCoins}
+                />
+              </Sidebar.Menu>
+            </Sidebar.GroupContent>
+          </Sidebar.Group>
+        </>
+      )}
+      <DealsNavigation
+        onDealsPage={location.pathname.replace(/\/$/, '') === DEALS_PATH}
+      />
+    </>
+  );
 }

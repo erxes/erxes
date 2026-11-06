@@ -176,6 +176,7 @@ export const loadTaskClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'taskAssignee',
+          event: 'operation:task:taskAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
           models,
@@ -213,28 +214,15 @@ export const loadTaskClass = (
         rest.statusType = status.type;
       }
 
-      if (task.projectId && doc.teamId && doc.teamId !== task.teamId) {
-        const project = await models.Project.findOne({ _id: task.projectId });
+      if (doc.teamId && doc.teamId.toString() !== task.teamId.toString()) {
+        if (task.projectId) {
+          const project = await models.Project.findOne({ _id: task.projectId });
 
-        if (project && !project.teamIds.includes(doc.teamId)) {
-          throw new Error('Task project is not in this team');
+          if (project && !project.teamIds.includes(doc.teamId)) {
+            throw new Error('Task project is not in this team');
+          }
         }
-      }
 
-      if (
-        task.teamId &&
-        doc.teamId &&
-        task.teamId !== doc.teamId &&
-        task.projectId
-      ) {
-        const project = await models.Project.findOne({ _id: task.projectId });
-
-        if (project && !project.teamIds.includes(doc.teamId)) {
-          throw new Error('Task project is not in this team');
-        }
-      }
-
-      if (doc.teamId && doc.teamId !== task.teamId) {
         const [result] = await models.Task.aggregate([
           { $match: { teamId: doc.teamId } },
           { $group: { _id: null, maxNumber: { $max: '$number' } } },
@@ -274,7 +262,8 @@ export const loadTaskClass = (
           contentTypeId: task._id,
           fromUserId: userId,
           subdomain,
-          notificationType: 'note',
+          notificationType: 'taskAssignee',
+          event: 'operation:task:taskAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
           models,

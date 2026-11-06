@@ -43,7 +43,7 @@ export const ReplyMessageProvider = ({
   maxMessages?: number;
   children: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control, watch, setValue, setError, handleSubmit } = form;
 
   const messages = watch('messages') || [];

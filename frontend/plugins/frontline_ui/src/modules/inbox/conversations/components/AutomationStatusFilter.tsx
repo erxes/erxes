@@ -25,7 +25,7 @@ const AutomationStatusList = ({
   counts?: TAutomationStatusCounts;
   loading?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [value, setValue] = useQueryState<string>('automationStatus');
   const { resetFilterState } = useFilterContext();
 
@@ -61,7 +61,7 @@ const AutomationStatusList = ({
 };
 
 export const AutomationStatusFilterItem = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
 
   return (
     <Filter.Item value="automationStatus">
@@ -88,7 +88,7 @@ export const AutomationStatusFilterBar = ({
 }: {
   iconOnly?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [value] = useQueryState<string>('automationStatus');
 
   const selected = AUTOMATION_STATUS_FILTERS.find(

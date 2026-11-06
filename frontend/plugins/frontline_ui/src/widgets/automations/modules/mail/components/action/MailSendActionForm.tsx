@@ -8,7 +8,9 @@ import {
 export const MailSendActionForm = (
   props: AutomationActionFormProps<TMailReplyActionForm>,
 ) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-mail',
+  });
 
   return (
     <MailReplyActionForm

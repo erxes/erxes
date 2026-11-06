@@ -39,7 +39,7 @@ const Ticket = lazy(() =>
 
 const Report = lazy(() =>
   import('~/pages/ReportIndexPage').then((module) => ({
-    default: module.default,
+    default: module.ReportIndexPage,
   })),
 );
 
@@ -200,4 +200,4 @@ const FrontlineEntry = () => (
   </Routes>
 );
 
-export default FrontlineEntry;
+export { FrontlineEntry as Frontline };

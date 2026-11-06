@@ -27,7 +27,9 @@ import { useDebounce } from 'use-debounce';
 import { safeFormatDate } from '@/integrations/call/utils/callUtils';
 
 export const CallHistory = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [totalCalls, setTotalCalls] = useState(0);
   return (
     <Tabs defaultValue="all">
@@ -64,7 +66,9 @@ export const CallHistoryList = ({
   callType?: string;
   setTotalCalls?: (totalCalls: number) => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [search, setSearch] = useState('');
   const [debouncedSearch] = useDebounce(search, 500);
   const { callHistoriesTotalCount, callHistories, loading, handleFetchMore } =

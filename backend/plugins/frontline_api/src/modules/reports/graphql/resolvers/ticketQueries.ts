@@ -375,18 +375,18 @@ export const reportTicketQueries = {
       filters,
     );
 
-    // Tickets keep the conversations they were made from themselves.
-    const conversationIds: string[] = await models.Ticket.distinct(
-      'sourceConversationIds',
-      matchFilter,
-    );
+    // The channels the tickets' customers write through: their inbox
+    // conversations, grouped by integration kind.
+    const customerIds = (
+      await models.Ticket.distinct('customerId', matchFilter)
+    ).filter((id): id is string => !!id);
 
-    if (!conversationIds.length) {
+    if (!customerIds.length) {
       return [];
     }
 
     const pipeline: any[] = [
-      { $match: { _id: { $in: conversationIds } } },
+      { $match: { customerId: { $in: customerIds } } },
       {
         $lookup: {
           from: 'integrations',

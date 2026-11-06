@@ -7,7 +7,7 @@ export const DirectMessageEmptyState = ({
 }: {
   onAddFirstCondition: () => void;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   return (
     <div className="flex flex-col items-center justify-center rounded-md border border-dashed px-6 py-10 text-center">
       <div className="mb-3 rounded-full bg-muted p-3 text-muted-foreground">

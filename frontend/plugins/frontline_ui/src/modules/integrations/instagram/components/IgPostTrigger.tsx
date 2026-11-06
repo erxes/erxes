@@ -6,7 +6,9 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const IgPostTrigger = ({ erxesApiId }: { erxesApiId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { post, loading } = useIgPost({ erxesApiId });
   const { content, attachments, permalink_url } = post || {};
 

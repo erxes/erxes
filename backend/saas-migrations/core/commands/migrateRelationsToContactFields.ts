@@ -20,7 +20,12 @@ dotenv.config();
  *    still hold every contact and let old code be rolled back);
  * 2. otherwise its core relations to customers / companies, oldest first →
  *    the first one;
- * 3. otherwise `null` (no contact; the record is migrated).
+ * 3. deals and tickets still without a customer: the customer of the inbox
+ *    conversation they were made from (conversation relations, oldest first,
+ *    then the old `sourceConversationIds` field and a migrated ticket's
+ *    `customerFieldData.sourceConversationIds`). Records keep no conversation
+ *    link any more, so this keeps them in the customer's widgets;
+ * 4. otherwise `null` (no contact; the record is migrated).
  *
  * A record with several customers or companies keeps only the first in its
  * fields; the counts are printed. The old array indexes are dropped. Relations are left in place. A field that is empty
@@ -51,21 +56,26 @@ const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
 
 const CUSTOMER = 'core:customer';
 const COMPANY = 'core:company';
+const CONVERSATION = 'frontline:conversation';
 
 interface ITarget {
   collection: string;
   // Every content type the records were ever related as.
   contentTypes: string[];
+  // Made from inbox conversations: falls back to the conversation's customer.
+  fromConversations?: boolean;
 }
 
 const TARGETS: ITarget[] = [
   {
     collection: 'deals',
     contentTypes: ['sales:deal'],
+    fromConversations: true,
   },
   {
     collection: 'frontline_tickets',
     contentTypes: ['frontline:ticket'],
+    fromConversations: true,
   },
   { collection: 'operation_tasks', contentTypes: ['operation:task'] },
   { collection: 'operation_projects', contentTypes: ['operation:project'] },
@@ -85,6 +95,13 @@ interface IRecord {
   companyId?: string | null;
   customerIds?: string[] | null;
   companyIds?: string[] | null;
+  sourceConversationIds?: unknown;
+  customerFieldData?: { sourceConversationIds?: unknown };
+}
+
+interface IConversation {
+  _id: string;
+  customerId?: string | null;
 }
 
 interface IRelationDoc {
@@ -97,6 +114,11 @@ const firstOf = (ids?: (string | null)[] | null) =>
 
 const countOf = (ids?: (string | null)[] | null) =>
   (ids || []).filter(Boolean).length;
+
+const toIds = (value: unknown): string[] =>
+  Array.isArray(value)
+    ? value.filter((id): id is string => typeof id === 'string' && !!id)
+    : [];
 
 // The record's first related customer and company, oldest relation first.
 const firstRelatedContacts = async (
@@ -136,6 +158,61 @@ const firstRelatedContacts = async (
   };
 };
 
+// The customer of the inbox conversation the record was made from: its
+// conversation relations (oldest first), then the old `sourceConversationIds`
+// field and a migrated ticket's `customerFieldData.sourceConversationIds`.
+// The first of those conversations that has a customer wins.
+const sourceConversationCustomer = async (
+  db: Db,
+  contentTypes: string[],
+  record: IRecord,
+) => {
+  const relations = await db
+    .collection<IRelationDoc>('relations')
+    .find({
+      entities: {
+        $elemMatch: {
+          contentType: { $in: contentTypes },
+          contentId: String(record._id),
+        },
+      },
+      'entities.contentType': CONVERSATION,
+    })
+    .sort({ createdAt: 1 })
+    .toArray();
+
+  const conversationIds = [
+    ...new Set([
+      ...relations.flatMap(({ entities = [] }) =>
+        entities
+          .filter(
+            (entity) => entity.contentType === CONVERSATION && entity.contentId,
+          )
+          .map((entity) => entity.contentId as string),
+      ),
+      ...toIds(record.sourceConversationIds),
+      ...toIds(record.customerFieldData?.sourceConversationIds),
+    ]),
+  ];
+
+  if (!conversationIds.length) {
+    return null;
+  }
+
+  const conversations = await db
+    .collection<IConversation>('conversations')
+    .find(
+      { _id: { $in: conversationIds }, customerId: { $nin: [null, ''] } },
+      { projection: { customerId: 1 } },
+    )
+    .toArray();
+  const customerOf = new Map(
+    conversations.map(({ _id, customerId }) => [_id, customerId]),
+  );
+
+  return conversationIds.map((id) => customerOf.get(id)).find(Boolean) ?? null;
+};
+
 const migrateTarget = async (db: Db, target: ITarget) => {
   const records: Collection<IRecord> = db.collection<IRecord>(
     target.collection,
@@ -150,6 +227,7 @@ const migrateTarget = async (db: Db, target: ITarget) => {
     records: 0,
     fromArrays: 0,
     fromRelations: 0,
+    fromConversations: 0,
     droppedContacts: 0,
   };
   let operations: AnyBulkWriteOperation<IRecord>[] = [];
@@ -206,6 +284,19 @@ const migrateTarget = async (db: Db, target: ITarget) => {
           set.companyId = related.companyId;
         }
       }
+
+      if (!record.customerId && !set.customerId && target.fromConversations) {
+        const customerId = await sourceConversationCustomer(
+          db,
+          target.contentTypes,
+          record,
+        );
+
+        if (customerId) {
+          stats.fromConversations += 1;
+          set.customerId = customerId;
+        }
+      }
     }
 
     operations.push({
@@ -240,7 +331,8 @@ const migrateTarget = async (db: Db, target: ITarget) => {
   console.log(
     `${DRY_RUN ? '[DRY RUN]' : '[DONE]'} ${target.collection}: ` +
       `${stats.records} record(s) to migrate, ${stats.fromArrays} from ` +
-      `arrays, ${stats.fromRelations} from relations; extra contacts not ` +
+      `arrays, ${stats.fromRelations} from relations, ` +
+      `${stats.fromConversations} from source conversations; extra contacts not ` +
       `in the fields (still in arrays / relations): ${stats.droppedContacts}`,
   );
 };

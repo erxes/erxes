@@ -2,6 +2,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useAtom } from 'jotai';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { cn } from 'erxes-ui';
 import {
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
@@ -10,22 +11,27 @@ import {
   useSidePanel,
 } from 'ui-modules';
 
+import { agentPanelModeState } from '@/agent/states/agentPanelStates';
+
 const SidePanelChat = lazy(() =>
   import('./SidePanelChat').then((module) => ({
     default: module.SidePanelChat,
   })),
 );
 
+const LENS_WIDTH = 440;
+
 // Leave room for the workspace while allowing a much wider transcript.
 const getMaxWidth = () =>
   Math.max(320, Math.min(1200, window.innerWidth - 320));
 
-/** A normal layout column; hidden chat stays mounted to keep its stream and draft. */
+/** Floating Lens or docked Companion; the routed chat stays mounted in both. */
 export const AssistantPanel = () => {
   const reduceMotion = useReducedMotion();
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const { open, path, close } = useSidePanel();
   const [width, setWidth] = useAtom(sidePanelWidthState);
+  const [mode, setMode] = useAtom(agentPanelModeState);
   const [maxWidth, setMaxWidth] = useState(getMaxWidth);
   useEffect(() => {
     const handleResize = () => setMaxWidth(getMaxWidth());
@@ -35,6 +41,7 @@ export const AssistantPanel = () => {
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const allowed = isLoaded && hasActionPermission('agentsChat');
   const visible = open && path === SIDE_PANEL_CHAT_PATH && allowed;
+  const lens = mode === 'lens';
   const everOpened = useRef(false);
   if (visible) everOpened.current = true;
 
@@ -43,17 +50,32 @@ export const AssistantPanel = () => {
   return (
     <motion.div
       initial={{ width: 0, opacity: 0 }}
-      animate={{ width: visible ? 'auto' : 0, opacity: visible ? 1 : 0 }}
+      animate={{
+        width: visible ? 'auto' : 0,
+        opacity: visible ? 1 : 0,
+        y: visible ? 0 : lens ? -8 : 0,
+      }}
       transition={{ duration: reduceMotion ? 0 : 0.18, ease: 'easeOut' }}
       aria-hidden={!visible}
+      data-agent-panel-mode={mode}
       {...(!visible ? { inert: '' } : {})}
-      className="flex min-h-0 shrink-0 overflow-hidden"
+      className={cn(
+        'flex min-h-0 shrink-0 overflow-hidden',
+        lens
+          ? 'fixed right-4 top-14 z-40 max-sm:inset-x-0 max-sm:bottom-0 max-sm:top-auto'
+          : 'max-sm:fixed max-sm:inset-0 max-sm:z-40',
+      )}
     >
       <RecordSidePanel
-        width={width}
-        maxWidth={maxWidth}
-        onWidthChange={setWidth}
-        className="animate-none"
+        width={lens ? LENS_WIDTH : width}
+        maxWidth={lens ? LENS_WIDTH : maxWidth}
+        onWidthChange={lens ? undefined : setWidth}
+        className={cn(
+          'animate-none',
+          lens
+            ? 'h-[min(720px,calc(100svh-5rem))] rounded-2xl border shadow-2xl max-sm:h-[85svh] max-sm:rounded-b-none'
+            : 'max-sm:h-svh',
+        )}
       >
         <Suspense
           fallback={
@@ -62,7 +84,12 @@ export const AssistantPanel = () => {
             </div>
           }
         >
-          <SidePanelChat onClose={close} active={visible} />
+          <SidePanelChat
+            onClose={close}
+            active={visible}
+            mode={mode}
+            onModeChange={setMode}
+          />
         </Suspense>
       </RecordSidePanel>
     </motion.div>

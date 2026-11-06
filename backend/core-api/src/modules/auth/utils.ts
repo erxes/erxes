@@ -1,17 +1,67 @@
 import sendgridMail from '@sendgrid/mail';
-import { IUserDocument } from 'erxes-api-shared/core-types';
 import {
   getEnv,
   getSaasOrganizationDetail,
   redis,
 } from 'erxes-api-shared/utils';
+import { Request } from 'express';
 import { IModels } from '~/connectionResolvers';
+import { checkRateLimit } from '~/modules/auth/routes/oauth/utils';
+import { LoginError } from '~/modules/auth/loginError';
 import { getConfig } from '~/modules/organization/settings/utils/configs';
 import { applyTemplate } from '~/utils/common';
 
-export const saveValidatedToken = (token: string, user: IUserDocument) => {
-  return redis.set(`user_token_${user._id}_${token}`, 1, 'EX', 24 * 60 * 60);
+const LOGIN_WINDOW_SECS = 15 * 60;
+const MAX_LOGIN_FAILURES = 10;
+
+// Rightmost entry is the one the gateway appended; leftmost ones are client-controlled
+export const getRequestIp = (req: Request) => {
+  const xff = req.headers['x-forwarded-for'];
+
+  if (xff) {
+    const parts = (Array.isArray(xff) ? xff[0] : xff).split(',');
+    return parts[parts.length - 1].trim();
+  }
+
+  return req.ip || 'unknown';
 };
+
+const loginFailureKey = (subdomain: string, identifier: string) =>
+  `auth:login:fail:${subdomain}:${(identifier || '').toLowerCase().trim()}`;
+
+export const assertLoginAllowed = async (
+  subdomain: string,
+  ip: string,
+  identifier: string,
+) => {
+  await checkRateLimit(
+    `auth:login:ip:${subdomain}:${ip}`,
+    30,
+    LOGIN_WINDOW_SECS,
+  );
+
+  const failures =
+    Number(await redis.get(loginFailureKey(subdomain, identifier))) || 0;
+
+  if (failures >= MAX_LOGIN_FAILURES) {
+    throw new LoginError('rate_limited');
+  }
+};
+
+export const recordLoginFailure = async (
+  subdomain: string,
+  identifier: string,
+) => {
+  const key = loginFailureKey(subdomain, identifier);
+  const count = await redis.incr(key);
+
+  if (count === 1) {
+    await redis.expire(key, LOGIN_WINDOW_SECS);
+  }
+};
+
+export const clearLoginFailures = (subdomain: string, identifier: string) =>
+  redis.del(loginFailureKey(subdomain, identifier));
 
 export function isEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);

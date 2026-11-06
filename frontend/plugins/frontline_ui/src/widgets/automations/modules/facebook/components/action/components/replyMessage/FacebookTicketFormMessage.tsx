@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 export const FacebookTicketFormMessage = ({
   index,
 }: FacebookMessageProps<{ type: 'ticketForm' }>) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { control } = useReplyMessageAction();
 
   return (

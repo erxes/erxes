@@ -1,5 +1,5 @@
-import { useQuery, useSubscription } from '@apollo/client';
-import { TASK_LIST_CHANGED } from '@/task/graphql/subscriptions/taskListChanged';
+import { useQuery } from '@apollo/client';
+import { useRefetchOnTaskListChange } from '@/task/hooks/useRefetchOnTaskListChange';
 import { GET_CYCLE_PROGRESS } from '@/cycle/graphql/queries/getCycleProgress';
 import { useQueryState } from 'erxes-ui';
 
@@ -13,15 +13,10 @@ export const useGetCycleProgress = (cycleId?: string | null) => {
     skip: !cycleId,
   });
 
-  useSubscription(TASK_LIST_CHANGED, {
-    variables: {
-      filter: { cycleId },
-    },
+  useRefetchOnTaskListChange({
+    filter: { cycleId },
     skip: !cycleId,
-    ignoreResults: true,
-    onData: () => {
-      refetch();
-    },
+    refetch,
   });
 
   const cycleProgress = data?.getCycleProgress;

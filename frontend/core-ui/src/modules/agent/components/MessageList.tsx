@@ -29,11 +29,12 @@ import {
   MessagePartRenderer,
   readMessageAskUserAnswerCard,
 } from './MessagePart';
-import { AgentWorkSteps } from './AgentWorkSteps';
+import { AgentTurnActivity } from './AgentTurnActivity';
 import {
-  agentMessageActivity,
-  groupAgentWorkSteps,
-} from '../utils/agentWorkSteps';
+  agentTurnActivity,
+  buildAgentTurnLayout,
+} from '../utils/agentTurnTimeline';
+import { withoutFileOnlyText } from '../agentsFiles';
 import { extractPageContext } from '../utils/pageContext';
 import { getMessageText, isAgentsAnswerTurn } from '../utils/messages';
 import {
@@ -151,6 +152,8 @@ interface IMessageRowProps {
   isLastAssistant: boolean;
   /** Only the current response owns the transcript avatar. */
   showIdentity: boolean;
+  /** Working time measured for this turn, when this session watched it. */
+  durationMs?: number;
   onRetryTurn: () => void;
   approvalBusy: boolean;
   onApprovalRespond: (decision: {
@@ -180,6 +183,7 @@ const MessageRow = memo(
     isStreamingTail,
     isLastAssistant,
     showIdentity,
+    durationMs,
     onRetryTurn,
     approvalBusy,
     onApprovalRespond,
@@ -194,11 +198,19 @@ const MessageRow = memo(
     const referenceRegistry = useAgentReferenceRegistry();
     const [copied, setCopied] = useState(false);
 
+    const layout =
+      message.role === 'assistant'
+        ? buildAgentTurnLayout(message.parts, { streaming: isStreamingTail })
+        : null;
+
     const copyText = () => {
-      const text = message.parts
-        .filter(isTextUIPart)
-        .map((part) => part.text)
-        .join('\n');
+      // Assistant turns copy only the answer; narration stays in the timeline.
+      const text = layout
+        ? layout.answerText
+        : message.parts
+            .filter(isTextUIPart)
+            .map((part) => part.text)
+            .join('\n');
 
       if (!text) {
         return;
@@ -247,14 +259,20 @@ const MessageRow = memo(
       isStreaming: isStreamingTail,
     };
 
-    if (message.role === 'assistant') {
-      const items = groupAgentWorkSteps(message.parts);
+    if (layout) {
       const hasContent =
-        items.some((item) => item.kind === 'work' && item.steps.length > 0) ||
+        layout.sections.length > 0 ||
         hasVisibleParts(message.parts, answeredToolCallIds);
-      const hasText = message.parts.some(
-        (part) => isTextUIPart(part) && part.text.trim().length > 0,
-      );
+      const hasText = layout.answerText.trim().length > 0;
+      const activity = isStreamingTail
+        ? agentTurnActivity(message.parts, (key, defaultValue) =>
+            t(key, defaultValue),
+          )
+        : undefined;
+      // The avatar shares one row with the activity header when there is one.
+      const identity = showIdentity ? (
+        <AgentMessageIdentity activity={activity} current />
+      ) : null;
 
       // Fully hide turns with nothing left to show: an assistant message
       // whose only parts are resolved cards (or other hidden tool state)
@@ -273,33 +291,26 @@ const MessageRow = memo(
             </div>
           )}
           <div className="group/assistant agent-message-enter flex w-full flex-col">
-            {showIdentity && (
-              <AgentMessageIdentity
-                activity={
-                  isStreamingTail
-                    ? agentMessageActivity(message.parts)
-                    : undefined
-                }
-                current
-              />
-            )}
             <div className="min-w-0 flex-1">
-              {items.map((item, index) =>
-                item.kind === 'work' ? (
-                  <AgentWorkSteps
-                    key={`work-${index}`}
-                    steps={item.steps}
-                    streaming={isStreamingTail && index === items.length - 1}
-                  />
-                ) : (
-                  <MessagePartRenderer
-                    key={item.index}
-                    part={item.part}
-                    role={message.role}
-                    {...partProps}
-                  />
-                ),
+              {layout.sections.length > 0 ? (
+                <AgentTurnActivity
+                  layout={layout}
+                  streaming={isStreamingTail}
+                  activity={activity ?? ''}
+                  durationMs={durationMs}
+                  leading={identity}
+                />
+              ) : (
+                identity && <div className="mb-3">{identity}</div>
               )}
+              {layout.body.map((item) => (
+                <MessagePartRenderer
+                  key={item.index}
+                  part={item.part}
+                  role={message.role}
+                  {...partProps}
+                />
+              ))}
             </div>
             {hasContent &&
               (hasText || (isLastAssistant && !isStreamingTail)) && (
@@ -367,7 +378,7 @@ const MessageRow = memo(
 
     // User turn: muted right-aligned bubble. The persisted `[Page context]`
     // prefix is stripped and not shown; attachments render above.
-    const { parts } = extractPageContext(message.parts);
+    const parts = withoutFileOnlyText(extractPageContext(message.parts).parts);
 
     return (
       <Fragment>
@@ -576,6 +587,47 @@ export const MessageList = ({
     inFlight && lastRow?.message.role === 'assistant' ? lastRow.key : null;
   const showPendingResponse = inFlight && activeResponseRow === null;
 
+  // Working time per assistant row, measured only for runs this transcript
+  // watched start: a fresh send, or the continuation (after an approval or
+  // answer) of a turn already timed here. A reattached run's start is
+  // unknown, so its header falls back to the step count.
+  const [turnDurations, setTurnDurations] = useState<Record<string, number>>(
+    {},
+  );
+  const runStartRef = useRef<{ startedAt: number | null } | null>(null);
+
+  useEffect(() => {
+    if (loadingThread) {
+      if (runStartRef.current) runStartRef.current = { startedAt: null };
+      return;
+    }
+
+    if (inFlight && !runStartRef.current) {
+      const measurable =
+        !lastRow ||
+        lastRow.message.role === 'user' ||
+        lastRow.key in turnDurations;
+      runStartRef.current = { startedAt: measurable ? Date.now() : null };
+      return;
+    }
+
+    if (!inFlight && runStartRef.current) {
+      const { startedAt } = runStartRef.current;
+      runStartRef.current = null;
+
+      if (startedAt === null || lastRow?.message.role !== 'assistant') {
+        return;
+      }
+
+      const key = lastRow.key;
+      const elapsed = Date.now() - startedAt;
+      setTurnDurations((previous) => ({
+        ...previous,
+        [key]: (previous[key] ?? 0) + elapsed,
+      }));
+    }
+  }, [inFlight, lastRow, loadingThread, turnDurations]);
+
   const referenceScopes = useMemo(
     () => buildAgentReferenceScopes(messages),
     [messages],
@@ -597,6 +649,7 @@ export const MessageList = ({
             showIdentity={
               row.lastIndex === lastAssistantIndex && !showPendingResponse
             }
+            durationMs={turnDurations[row.key]}
             onRetryTurn={onRetryTurn}
             approvalBusy={approvalBusy}
             onApprovalRespond={onApprovalRespond}
@@ -615,6 +668,7 @@ export const MessageList = ({
       lastAssistantIndex,
       activeResponseRow,
       showPendingResponse,
+      turnDurations,
       onRetryTurn,
       approvalBusy,
       onApprovalRespond,
@@ -649,7 +703,7 @@ export const MessageList = ({
           >
             {transcript}
             {showPendingResponse && (
-              <div className="agent-message-enter">
+              <div className="agent-message-enter mb-3">
                 <AgentMessageIdentity
                   activity={t('working', 'Working…')}
                   current

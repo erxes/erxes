@@ -13,7 +13,7 @@ import { useCallFilters } from '../../hooks/useCallFilters';
 import { fmtDurOrDash, fmtNum, fmtPctOrDash } from '../../utils';
 
 export function KpiSection() {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { kpi, loading } = useKpiScorecard();
   const { direction, dateRangeLabel } = useCallFilters();
 

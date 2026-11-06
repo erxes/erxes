@@ -1,9 +1,16 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
-import type { ButtonHTMLAttributes, TextareaHTMLAttributes } from 'react';
-import { AskUserPrompt } from '../components/AskUserPrompt';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react';
+import { AskUserAnswered, AskUserPrompt } from '../components/AskUserPrompt';
 
 jest.mock('erxes-ui', () => ({
+  Badge: (props: HTMLAttributes<HTMLDivElement>) => (
+    <div data-testid="answer-chip" {...props} />
+  ),
   Button: ({
     variant: _variant,
     size: _size,
@@ -87,7 +94,13 @@ it('keeps drafts when moving back, reviews all answers, and submits positionally
   });
   fireEvent.click(screen.getByRole('button', { name: 'Review answers' }));
   expect(screen.getByText('Everything look right?')).toBeTruthy();
-  expect(screen.getByText('Sales, Support')).toBeTruthy();
+  const review = screen.getByRole('region', { name: 'Everything look right?' });
+  expect(
+    within(review)
+      .getAllByTestId('answer-chip')
+      .map((chip) => chip.textContent),
+  ).toEqual(['Last month', 'Sales', 'Support']);
+  expect(within(review).getByText('Revenue by owner')).toBeTruthy();
   expect(onAnswer).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button', { name: 'Edit answer 1' }));
   fireEvent.click(screen.getByRole('button', { name: /This month/ }));
@@ -152,4 +165,92 @@ it('prevents empty answers and interaction while submitting', () => {
     true,
   );
   expect(onAnswer).not.toHaveBeenCalled();
+});
+
+describe('AskUserAnswered', () => {
+  const chips = () =>
+    screen.queryAllByTestId('answer-chip').map((chip) => chip.textContent);
+
+  it('shows a single picked option as an answer chip under an Answered label', () => {
+    render(
+      <AskUserAnswered
+        answers={[{ question: 'Which period?', answer: 'Last month' }]}
+        questions={[questions[0]]}
+      />,
+    );
+    const card = screen.getByRole('region', { name: 'Your answers' });
+    expect(within(card).getByText('Answered')).toBeTruthy();
+    expect(within(card).getByText('Which period?')).toBeTruthy();
+    expect(chips()).toEqual(['Last month']);
+    expect(within(card).queryByText(/questions$/)).toBeNull();
+  });
+
+  it('renders every multi-select pick as its own chip', () => {
+    render(
+      <AskUserAnswered
+        answers={[{ question: 'Which teams?', answer: 'Sales, Support' }]}
+        questions={[questions[1]]}
+      />,
+    );
+    expect(chips()).toEqual(['Sales', 'Support']);
+  });
+
+  it('separates custom text from picked options', () => {
+    render(
+      <AskUserAnswered
+        answers={[
+          {
+            question: 'Which period?',
+            answer: 'Last month\nOnly closed deals',
+          },
+          { question: 'Which teams?', answer: 'Sales, Marketing too' },
+          { question: 'What should I focus on?', answer: 'Revenue by owner' },
+        ]}
+        questions={questions}
+      />,
+    );
+    expect(chips()).toEqual(['Last month', 'Sales']);
+    expect(screen.getByText('Only closed deals')).toBeTruthy();
+    expect(screen.getByText('Marketing too')).toBeTruthy();
+    expect(screen.getAllByText('Your own answer:')).toHaveLength(2);
+    expect(screen.getByText('Revenue by owner')).toBeTruthy();
+    expect(screen.getByText('3 questions')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Show all/ })).toBeNull();
+  });
+
+  it('falls back to plain text when the questions are unknown', () => {
+    render(
+      <AskUserAnswered
+        answers={[{ question: 'Which teams?', answer: 'Sales, Support' }]}
+      />,
+    );
+    expect(chips()).toEqual([]);
+    expect(screen.getByText('Sales, Support')).toBeTruthy();
+  });
+
+  it('collapses long groups behind Show all N answers', () => {
+    const answers = Array.from({ length: 6 }, (_, index) => ({
+      question: `Question ${index + 1}?`,
+      answer: `Answer ${index + 1}`,
+    }));
+    render(<AskUserAnswered answers={answers} />);
+    expect(screen.getByText('Question 3?')).toBeTruthy();
+    expect(screen.queryByText('Question 4?')).toBeNull();
+    const toggle = screen.getByRole('button', { name: 'Show all 6 answers' });
+    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    fireEvent.click(toggle);
+    expect(screen.getByText('Question 6?')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Show fewer' }));
+    expect(screen.queryByText('Question 6?')).toBeNull();
+  });
+
+  it('never hides a single extra answer behind the toggle', () => {
+    const answers = Array.from({ length: 4 }, (_, index) => ({
+      question: `Question ${index + 1}?`,
+      answer: `Answer ${index + 1}`,
+    }));
+    render(<AskUserAnswered answers={answers} />);
+    expect(screen.getByText('Question 4?')).toBeTruthy();
+    expect(screen.queryByRole('button', { name: /Show all/ })).toBeNull();
+  });
 });

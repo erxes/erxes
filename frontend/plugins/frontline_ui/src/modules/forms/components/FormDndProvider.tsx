@@ -9,6 +9,8 @@ import { IFieldValidator, IFormFieldLogics } from '../types/formTypes';
 export interface IFieldData {
   id: string;
   type: string;
+  expectedType?: string;
+  validation?: string | null;
   label: string;
   description: string;
   placeholder: string;

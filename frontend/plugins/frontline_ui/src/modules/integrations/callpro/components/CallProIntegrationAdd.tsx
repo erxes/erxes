@@ -13,7 +13,9 @@ import { CallProIntegrationForm } from '@/integrations/callpro/components/CallPr
 import { callProAddSheetAtom } from '@/integrations/callpro/states/callProAddSheetAtom';
 
 export const CallProIntegrationAddSheet = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [callProAddSheet, setCallProAddSheet] = useAtom(callProAddSheetAtom);
 
   return (

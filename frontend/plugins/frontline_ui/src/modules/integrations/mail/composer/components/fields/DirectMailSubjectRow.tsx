@@ -1,10 +1,12 @@
 import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
 import { Form, Input, Label } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SubjectRow = () => {
   const {
     form: { control },
   } = useDirectMailComposerContext();
+  const { t } = useTranslation('frontline');
   return (
     <Form.Field
       control={control}
@@ -16,7 +18,7 @@ export const SubjectRow = () => {
             className="text-xs leading-5 text-muted-foreground"
             htmlFor="direct-mail-subject"
           >
-            Subject
+            {t('subject')}
           </Label>
           <Input
             {...field}

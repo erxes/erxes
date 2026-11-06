@@ -1,4 +1,5 @@
 import { gql } from "@apollo/client"
+import { coverFields } from "./fields"
 
 const addEditParamDefs = `
     $beginDate: Date
@@ -25,7 +26,7 @@ const coversAdd = gql`
     coversAdd(
      ${addEditParams}
     ) {
-      _id
+      ${coverFields}
     }
   }
 `
@@ -39,7 +40,7 @@ const coversEdit = gql`
       _id: $id
       ${addEditParams}
     ) {
-      _id
+      ${coverFields}
     }
   }
 `
@@ -47,7 +48,7 @@ const coversEdit = gql`
 const coversConfirm = gql`
   mutation CoversConfirm($_id: String!) {
     coversConfirm(_id: $_id) {
-      _id
+      ${coverFields}
     }
   }
 `
@@ -58,6 +59,28 @@ const coversDelete = gql`
   }
 `
 
-const mutations = { coversAdd, coversEdit, coversConfirm, coversDelete }
+const terminalResultSave = gql`
+  mutation PosclientCoverTerminalResultSave(
+    $id: String!
+    $resultId: String!
+    $bank: String!
+    $response: String
+  ) {
+    posclientCoverTerminalResultSave(
+      _id: $id
+      resultId: $resultId
+      bank: $bank
+      response: $response
+    ) {
+      ${coverFields}
+    }
+  }
+`
 
-export default mutations
+export const mutations = {
+  coversAdd,
+  coversEdit,
+  coversConfirm,
+  coversDelete,
+  terminalResultSave,
+}

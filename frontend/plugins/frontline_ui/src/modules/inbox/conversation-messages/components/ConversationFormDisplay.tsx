@@ -8,7 +8,11 @@ import {
   IconPdf,
 } from '@tabler/icons-react';
 import type { IMessage } from '@/inbox/types/Conversation';
-import type { IFormWidgetItem } from '@/inbox/types/FormWidget';
+import {
+  formatFormWidgetValue,
+  getFormWidgetResource,
+  normalizeFormWidgetData,
+} from '@/inbox/conversation-messages/utils/formWidget';
 import { useTranslation } from 'react-i18next';
 import {
   Avatar,
@@ -22,13 +26,7 @@ import {
 } from 'erxes-ui';
 
 type FileVariant =
-  | 'image'
-  | 'text'
-  | 'pdf'
-  | 'spreadsheet'
-  | 'archive'
-  | 'code'
-  | 'other';
+  'image' | 'text' | 'pdf' | 'spreadsheet' | 'archive' | 'code' | 'other';
 
 const getFileVariant = (url: string): FileVariant => {
   const ext = url.split('?')[0].split('.').pop()?.toLowerCase() ?? '';
@@ -67,35 +65,13 @@ const FileVariantIcon = ({
   }
 };
 
-const TICKET_FIELD_LABELS: Record<string, string> = {
-  'ticket:name': 'Ticket name',
-  'ticket:description': 'Description',
-};
-
-const normalizeFormWidgetData = (
-  data: IFormWidgetItem[] | Record<string, string> | null | undefined,
-): IFormWidgetItem[] => {
-  if (!data) return [];
-  if (Array.isArray(data)) return data;
-  // Legacy object format: { "ticket:name": "...", "ticket:description": "..." }
-  return Object.entries(data).map(([key, value]) => ({
-    _id: key,
-    type: key === 'ticket:description' ? 'textarea' : 'input',
-    text: TICKET_FIELD_LABELS[key] || key,
-    value: String(value),
-    column: 6,
-  }));
-};
-
 export const ConversationFormDisplay = ({
   content,
   formWidgetData,
   createdAt,
 }: IMessage) => {
-  const { t } = useTranslation('frontline');
-  const items = normalizeFormWidgetData(
-    formWidgetData as IFormWidgetItem[] | Record<string, string> | null,
-  );
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
+  const items = normalizeFormWidgetData(formWidgetData);
   return (
     <div className="flex flex-col gap-2 relative flex-1 mt-8">
       <div className="flex flex-col bg-muted rounded-t-lg rounded-b-2xl p-2">
@@ -104,38 +80,52 @@ export const ConversationFormDisplay = ({
           <span className="text-sm font-semibold">{content}</span>
         </div>
         <div className="bg-background p-4 rounded-lg grid grid-cols-6 gap-6">
-          {items.map((item: IFormWidgetItem) => (
-            <div
-              key={item._id}
-              className={cn(
-                'col-span-6 flex flex-col gap-2',
-                item.column === 6 && 'col-span-6',
-                item.column === 5 && 'col-span-5',
-                item.column === 4 && 'col-span-4',
-                item.column === 3 && 'col-span-3',
-                item.column === 2 && 'col-span-2',
-                item.column === 1 && 'col-span-1',
-              )}
-            >
-              <Label>{item.text}</Label>
-              {item.type !== 'file' && item.type !== 'core:customer:avatar' ? (
-                item.value.length > 60 ? (
-                  <Textarea value={item.value} />
-                ) : (
-                  <Input value={item.value} />
-                )
-              ) : null}
-              {item.type === 'file' && (
-                <div className="flex items-center overflow-x-auto hide-scroll snap-x">
-                  {Array.isArray(item.value) &&
-                    item.value.map((url, i) => {
+          {items.map((item) => {
+            const text = formatFormWidgetValue(item.value);
+            const TextField = text.length > 60 ? Textarea : Input;
+            const fileUrls =
+              item.type === 'file' && Array.isArray(item.value)
+                ? Array.from(
+                    new Set(
+                      item.value
+                        .map(getFormWidgetResource)
+                        .filter((url): url is string => url !== undefined),
+                    ),
+                  )
+                : [];
+            const avatar =
+              item.type === 'core:customer:avatar'
+                ? getFormWidgetResource(item.value)
+                : undefined;
+
+            return (
+              <div
+                key={item._id}
+                className={cn(
+                  'col-span-6 flex flex-col gap-2',
+                  item.column === 6 && 'col-span-6',
+                  item.column === 5 && 'col-span-5',
+                  item.column === 4 && 'col-span-4',
+                  item.column === 3 && 'col-span-3',
+                  item.column === 2 && 'col-span-2',
+                  item.column === 1 && 'col-span-1',
+                )}
+              >
+                <Label>{item.text}</Label>
+                {item.type !== 'file' &&
+                  item.type !== 'core:customer:avatar' && (
+                    <TextField value={text} readOnly />
+                  )}
+                {item.type === 'file' && (
+                  <div className="flex items-center overflow-x-auto hide-scroll snap-x">
+                    {fileUrls.map((url) => {
                       const variant = getFileVariant(url);
-                      const resolvedUrl = readImage(decodeURIComponent(url));
+                      const resolvedUrl = readImage(url);
 
                       if (variant === 'image') {
                         return (
                           <Upload.Root
-                            key={i}
+                            key={url}
                             value={url}
                             className="w-full"
                             onChange={() => undefined}
@@ -154,7 +144,7 @@ export const ConversationFormDisplay = ({
                       }
                       return (
                         <a
-                          key={`${url}-${i}`}
+                          key={url}
                           href={resolvedUrl}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -168,19 +158,19 @@ export const ConversationFormDisplay = ({
                         </a>
                       );
                     })}
-                </div>
-              )}
-              {item.type === 'core:customer:avatar' && (
-                <Avatar size={'xl'}>
-                  <Avatar.Image
-                    src={readImage(String(item.value))}
-                    alt="avatar"
-                  />
-                  <Avatar.Fallback>C</Avatar.Fallback>
-                </Avatar>
-              )}
-            </div>
-          ))}
+                  </div>
+                )}
+                {item.type === 'core:customer:avatar' && (
+                  <Avatar size={'xl'}>
+                    {avatar && (
+                      <Avatar.Image src={readImage(avatar)} alt="avatar" />
+                    )}
+                    <Avatar.Fallback>C</Avatar.Fallback>
+                  </Avatar>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       <span className="absolute -bottom-5 font-medium right-2 text-xs text-accent-foreground">

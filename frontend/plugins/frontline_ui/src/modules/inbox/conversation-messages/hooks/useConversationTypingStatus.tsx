@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSubscription } from '@apollo/client';
 import { CONVERSATION_CLIENT_TYPING_STATUS_CHANGED } from '@/inbox/conversations/graphql/subscriptions/inboxSubscriptions';
+import { useTranslation } from 'react-i18next';
 
 const TYPING_TTL = 12000;
 
@@ -9,6 +10,7 @@ const PRUNE_INTERVAL = 1000;
 type TTypist = { name: string; expiresAt: number };
 
 export const useConversationTypingStatus = (conversationId?: string) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [typists, setTypists] = useState<Record<string, TTypist>>({});
 
   useSubscription(CONVERSATION_CLIENT_TYPING_STATUS_CHANGED, {
@@ -21,7 +23,7 @@ export const useConversationTypingStatus = (conversationId?: string) => {
         return;
       }
 
-      const name = event.customerName || 'Someone';
+      const name = event.customerName || t('someone');
 
       setTypists((prev) => ({
         ...prev,

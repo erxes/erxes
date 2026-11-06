@@ -212,3 +212,73 @@ export const readAskUserAnswers = (
     };
   });
 };
+
+/** One answer split for display: picked option labels and free text. */
+export interface IAskUserAnswerParts {
+  choices: string[];
+  custom: string;
+}
+
+/**
+ * Separates the option labels a user picked from their own words, using
+ * the question's options. Display only — the answer contract is unchanged.
+ * Live answers arrive structured (`string[]` for multi-select); stored ones
+ * are text: multi-select joins picks then custom text with ', ', and
+ * single-select puts the pick on the first line with custom text below.
+ */
+export const splitAskUserAnswer = (
+  answer: string | string[],
+  question?: IAskUserQuestionEntry,
+): IAskUserAnswerParts => {
+  const labels = (question?.options ?? []).map((option) => option.label);
+
+  if (Array.isArray(answer)) {
+    return {
+      choices: answer.filter((value) => labels.includes(value)),
+      custom: answer
+        .filter((value) => !labels.includes(value))
+        .join('\n')
+        .trim(),
+    };
+  }
+
+  if (!labels.length) {
+    return { choices: [], custom: answer.trim() };
+  }
+
+  if (question?.selectionMode === 'multi_select') {
+    // Labels may contain ', ' themselves: consume the longest matching
+    // label at each position; whatever no label matches is custom text.
+    const byLength = [...labels].sort((a, b) => b.length - a.length);
+    const choices: string[] = [];
+    let rest = answer.trim();
+
+    while (rest) {
+      const label = byLength.find(
+        (candidate) => rest === candidate || rest.startsWith(`${candidate}, `),
+      );
+
+      if (!label) {
+        break;
+      }
+
+      choices.push(label);
+      rest = rest.slice(label.length).replace(/^, /, '');
+    }
+
+    return { choices, custom: rest.trim() };
+  }
+
+  const trimmed = answer.trim();
+  const breakAt = trimmed.indexOf('\n');
+  const first = breakAt === -1 ? trimmed : trimmed.slice(0, breakAt);
+
+  if (labels.includes(first)) {
+    return {
+      choices: [first],
+      custom: breakAt === -1 ? '' : trimmed.slice(breakAt + 1).trim(),
+    };
+  }
+
+  return { choices: [], custom: trimmed };
+};

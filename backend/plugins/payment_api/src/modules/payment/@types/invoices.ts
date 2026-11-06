@@ -15,13 +15,11 @@ export interface IInvoice {
   contentTypeId: string;
   createdAt: Date;
   resolvedAt?: Date;
-  scannedAt?: Date;
-  ticketCodes?: { code: string; scannedAt?: Date | null }[];
-  qrEmailSentAt?: Date;
   redirectUri?: string;
   paymentIds: string[];
   callback?: string;
   warningText?: string;
+  notifyPending?: boolean;
   data?: any;
   transactions?: ITransaction[];
 }

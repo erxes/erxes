@@ -27,9 +27,8 @@ export const receivePost = async (
   const customer = await getOrCreateCustomer(
     models,
     subdomain,
-    pageId,
+    integration,
     userId,
-    INTEGRATION_KINDS.POST,
   );
   if (!customer) {
     throw new Error('Customer not found');

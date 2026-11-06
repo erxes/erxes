@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-10-23`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -25,6 +25,32 @@
 
 ## Current Capabilities
 
+- Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
+
+- Pipeline and POS product filters share a two-column layout. Collapsed, category and More occupy one row. Expanded, rows pair category/exclude category, include tag/exclude tag, and include products/exclude products; the collapse button follows the grid. Hidden fields retain their saved values.
+- POS product-group settings edit and reload include products (`productIds`), include tags (`tagIds`), and exclude tags (`excludeTagIds`). React Hook Form with Zod validates selections. Saves project all six filter arrays into `GroupInput` and refetch the current POS groups.
+- Product filters use OR between category/tag/product includes; all category/tag/product exclusions always win, including against explicit product ids. Category/tag filters include descendants. Product tag pickers use public `ui-modules` `SelectTags` scoped to `core:product`; English/Mongolian explanatory labels live in `modules/productFilters`.
+
+- POS Cover detail displays the POS client's root `description` in a dedicated
+  read-only "Хаалтын тэмдэглэл" textarea (`components/CoverDescription.tsx`) and edits
+  Sales-owned `note` through `posCoversEdit`. The note form loads saved text,
+  allows clearing it, gives save/error feedback, and refreshes active cover
+  detail/list queries after saving.
+- Cover terminal history is displayed only in the payment-table `paidType` tip
+  (`components/CoverPaidType.tsx`), with request times and formatted JSON or original
+  text from `terminalResults` (`components/CoverTerminalResults.tsx`).
+  The tip uses the public `Popover` so it stays open while a response textarea
+  is focused for selection/copy. Hover, keyboard focus, or click opens it;
+  Escape or clicking outside closes it. Response fields are read-only, styled
+  muted, and allow Ctrl/Cmd+A/C without table shortcuts intercepting them.
+  Cells without results retain their ordinary text display. There is no separate
+  terminal-history section in the cover sheet.
+  Created/modified times and payment totals remain visible above the details.
+  The general cover description and Sales note remain separate.
+  Cover labels, feedback, empty/pending states, and accessible response labels
+  use the `sales` namespace in the gateway's `locales/{en,mn}/sales.json`;
+  request numbers and paidType labels use translation interpolation. Original
+  bank responses and user-authored notes are never translated.
 - POS Summary displays order aggregates from `posOrdersGroupSummary`, with
   filters, payment columns, and totals. Its table has no row selection or
   create/delete actions; summary rows are report groups, not stored records.
@@ -55,6 +81,8 @@
   reload; other pipelines' changes by other users show on the next refetch.
 - Development Rspack serving ignores generated dependency/cache/output folders
   to keep local file watchers bounded.
+- The deals list's bulk bar opens an "Actions" menu. Duplicate and Archive ask
+  for confirmation with the count when more than one deal is selected.
 - Pipeline create/edit supports general settings, stages, product
   configuration, and grouped selection of Core `sales:deal` properties.
 - "Score earn configuration" (`deals/loyaltyRules`, button beside Add
@@ -87,6 +115,66 @@
   `GenericBoard` in `DealsBoard` with every loaded card's id) asks
   `loyaltyScoreTargetTotals` once and keeps the last answer while columns load
   (`previousData`); a card dragged outside the provider shows none.
+  With loyalty on, the deals Display menu has a third view, Points
+  (`dealsViewAtom` `'points'`, `DealScoreLogsTable`): the point movements of
+  the deals the page's filters match, one row per loyalty entry (deal, stage,
+  action, points, campaign, customer, date). Actions are named by what
+  they did (`scoreLogActions.ts`): a refund reads "Points taken back" when
+  negative and "Points given back" when positive, a reversal with
+  `replacedByScoreLogId` reads "Recalculated"; each explains itself on hover
+  and the Action header's info button lists them all
+  (`ScoreLogActionHelp.tsx`). `useDealScoreLogs` pages
+  `SalesDealScoreLogs` (50 per page, infinite scroll) and asks
+  `SalesLoyaltyScoreLogsByIds` once per new id, at most 100 per request; the
+  deal and the customer show as text with an open icon on hover
+  (`OpenableCell`): the deal's opens the deal sheet, the customer's goes to
+  `/contacts/customers?contactId=` (core's customer sheet is not shared). The stage filter shows in every view but
+  the board. Without loyalty a stored `'points'` view shows the board.
+  The same page for POS orders is `/sales/pos/loyalty`
+  (`PosLoyaltyPointsPage`, `modules/pos/loyalty-points`), linked as
+  "Loyalty points" above the POS list (`PosOrderNavigation`, loyalty only,
+  after a `Sidebar.Separator`): filters POS (multiple), cashier and
+  customer; rows are orders (`#number`, opening `PosOrderSheet` through
+  `pos_order_id`), POS and branch; insights group by POS and rank orders,
+  customers, cashiers and branches. Both pages share
+  `modules/loyalty-points` (`summary.ts`, `useScoreLogsByIds`,
+  `ScoreLogsTable` cells, columns and view, `LoyaltyInsightsView`,
+  `LoyaltyTimelineView`, `scoreLogActions`, `ScoreLogActionHelp`); a source
+  only maps its own GraphQL answers and record columns.
+  The Sales Pipeline module menu has "Loyalty points" above Boards, set
+  apart from the plugin menu above it by a `Sidebar.Separator`
+  (`SalesSubNavigation`, loyalty only) opening `/sales/deals/loyalty`
+  (`SalesLoyaltyPointsPage`): the same table with Board and Pipeline columns
+  (`DealScoreLogsTable scope="all"`) over every pipeline the user may see,
+  narrowed by its own filters (`DealLoyaltyFilter`: search, `board` and
+  `pipeline` multi-select, stage once one pipeline is chosen, assignee,
+  customer). The page is `DealLoyaltyInsights` (no tabs), loyalty's sums
+  for the same filters
+  (`SalesDealScoreLogInsights`): earned, spent, refunded, net, spend and
+  refund rate (% of earned), deals and customers tiles, expired/reset when
+  non-zero; `DealLoyaltyTimeline` (`SalesDealScoreLogTimeline`, browser time
+  zone, Day / Week / Month toggle, Week by default; the flow two thirds wide,
+  the running net one third): points moved per period
+  (earned up, spent and refunded down, net as a line) and the deals' running
+  net as an area, titled as not a wallet balance; recalculated purchases
+  show apart (a "Recalculated" series and a line under the tiles), and the
+  spend and refund rates divide by what is earned now; a per-pipeline table
+  (earned, spent, refunded, recalculated, net, refund rate) when more than one
+  pipeline is in view; then one grid of ranked lists, each as tall as its own
+  rows and shown only with data: the ten deals that earned most, customers
+  who earned or spent most, assignees and branches (names via ui-modules
+  `MembersInline`, `BranchesInline`, `CustomersInline`). Every figure drills:
+  the earned / spent / refunded tiles, the recalculated and expired lines, a
+  timeline bar, a pipeline row and a ranked row open `LoyaltyDrillSheet` (from the bottom, 75% of the screen high, so the figure stays in sight)
+  (`loyalty-points/drill.tsx`, `LoyaltyDrillProvider` on the page) with the
+  movement table narrowed to it; "All movements" opens it unnarrowed. Record
+  fields map to the source's own filters (deals: `pipelineIds`,
+  `customerId`, `assignedUserIds`, `branchIds`, `_ids`; POS: `posIds`,
+  `customerId`, `userId`, `branchIds`, `orderIds`); a kind or period goes to
+  the query as `kind` / `period` for loyalty to match. The count beside the
+  filter is the insights' `entryCount`; the deals' Points view, outside a
+  drill provider, still counts its own list. Only `/sales/deals` fills a missing board and pipeline into the
+  URL; elsewhere in the module a board or pipeline click opens `/sales/deals`.
   Loyalty's settings tab on a pipeline or POS gets what sales already does
   there as `context.config.loyalty` (`loyaltyBuiltInConfig`: a pipeline's
   stages' earning campaigns and tier wallets via `usePipelineLoyaltyBuiltIn`,
@@ -120,9 +208,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   Automations tab is listed last, beside the Loyalty tab.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
+- The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
   legacy pipelines continue showing all deal properties until their selection is
   saved for the first time.
+- The deal sheet header's icon-only buttons carry an `aria-label`: Close, and
+  Collapse or Expand sidebar, with the `sales` keys `close`, `collapse-sidebar`
+  and `expand-sidebar`.
 - Deal detail chips (priority, assignee, dates, labels, tags, branch,
   department, broker) render as a field group: a muted label segment, then the
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
@@ -213,21 +305,21 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Architecture
 
-| Area                | Path                                                                                                 | Responsibility                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| App sidebar | `frontend/plugins/sales_ui/src/Sidebar.tsx` | `SalesSidebar` (app sidebar) and `SalesSidebarFooter` (Settings link), rendered by the `./sales` entry through `AppLayout` |
-| Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                |
-| Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                     |
-| Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                    |
-| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                      |
-| Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save |
-| Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata |
-| Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products        |
-| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                |
-| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                              |
-| POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                      |
-| POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                              |
-| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`           | Validates documents against the composed gateway schema |
+| Area                | Path                                                                                                 | Responsibility                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| App sidebar         | `frontend/plugins/sales_ui/src/Sidebar.tsx`                                                          | `SalesSidebar` (app sidebar) and `SalesSidebarFooter` (Settings link), rendered by the `./sales` entry through `AppLayout` |
+| Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                                                          |
+| Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                                                               |
+| Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                                                              |
+| Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                                                                |
+| Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
+| Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
+| Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
+| POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                                                          |
+| POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                                                                        |
+| POS GraphQL         | `frontend/plugins/sales_ui/src/modules/pos/graphql`                                                  | Provides POS queries and mutations used by settings screens                                                                |
+| POS types           | `frontend/plugins/sales_ui/src/modules/pos/types`                                                    | Describes POS configuration data consumed by the UI                                                                        |
+| GraphQL tooling     | `frontend/plugins/sales_ui/codegen.ts`                                                               | Validates documents against the composed gateway schema                                                                    |
 
 ## Contracts
 
@@ -247,7 +339,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Consumes
 
-- `sales_api` GraphQL pipeline, deal, product, and POS contracts.
+- `sales_api` GraphQL pipeline, deal, product, and POS contracts, including `salesDealScoreLogs`; loyalty `loyaltyScoreLogsByIds` and `loyaltyScoreTargetTotals`.
 - For type-generation tooling, `codegen.ts` consumes only `backend/gateway/generated/schema.graphql`, generated by `gateway:schema:compose`. It includes the public POS client types and queries Sales reads through the default gateway client.
 - `sales_api` `salesLoyaltyRules`, `salesLoyaltyRulesSave`, `salesLoyaltyTierRules`, `salesLoyaltyTierRulesSave`, `SalesStage.loyaltyPoints`, `Pos.earnTier`; loyalty `loyaltyAccountTypes` (tier wallets); core `automations` (competing-writer warning); `ui-modules` score campaign list (`useLoyaltyScoreCampaign`).
 - Core properties through public `ui-modules` property hooks with
@@ -258,6 +350,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Data and State
 
+- The `salesItemId` URL key alone decides whether the deal sheet is open.
+  `SalesItemDetail` copies it into `dealDetailSheetState`, so browser Back and
+  Forward close and reopen the sheet. Its not-found and error states have a
+  Close button.
 - Apollo Client owns pipeline/deal/POS server state; React Hook Form owns
   pipeline and POS settings forms.
 - Product table filters, Advanced view, Tax view, expanded view, and edit sheet
@@ -279,6 +375,22 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - In `AddCardForm`, the stage selector shown when the sheet opens with a
   pipeline is not a form field (it writes `createDefaults`), so its heading is
   the plain erxes-ui `Label`, never `Form.Label`, which needs `Form.Field`.
+- RecordTable sets `leading-0`: a cell's text goes straight into the cell's
+  flex span; a wrapping element (a tooltip trigger, a link) needs
+  `leading-normal` and no `overflow-hidden`, or it renders with no height.
+
+- recharts is not a shared Module Federation library: inside a chart take
+  `Tooltip`, `Legend` and every other recharts part from `recharts`, never
+  erxes-ui's `ChartTooltip` / `ChartLegend` (another copy's store; the page
+  crashes with `activeIndex` of undefined). erxes-ui's `ChartContainer` and
+  `Chart*Content` components are safe.
+- Deal unit price (base and entry UOM), row discounts, and footer manual discounts
+  require `dealsProductsEdit`; restricted numeric cells remain readable. Row and bulk
+  product deletion controls require `dealsProductsDelete`.
+
+- The Sales Pipeline breadcrumb links to `/sales/deals` with the current
+  `boardId` and `pipelineId`. `SalesSubNavigation` fills a missing board or
+  pipeline with history `replace`, so Back can leave a bare `/sales/deals`.
 - Relation widgets go only through contacts: each lists the records whose
   own `customerId` / `companyId` is the host's customer or company
   (ui-modules `getHostContacts`: the host itself when it is a contact, else
@@ -296,7 +408,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   sidebar. The plugin owns its settings at `/sales/settings/*`, served by its
   own entry: the entry's top-level `<Routes>` sends `settings/*` to
   `SalesSettingsLayout` (`src/Sidebar.tsx`, an `AppLayout` titled
-  "<Plugin> settings" with a Back link to the app) and `*` to the app
+  "<Plugin> settings" whose sidebar starts with a sticky core-style "Exit settings" row linking back to the app; no footer link) and `*` to the app
   `AppLayout`. Settings pages render inside `PluginSettingsRoutes`
   (`ui-modules`), which also serves `tags` and `properties/*` scoped to
   this plugin's types; the settings sidebar appends
@@ -305,6 +417,9 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   plugin settings, `config.tsx` has no `settingsNavigation`, and there is
   no `./salesSettings` expose; old `/settings/sales/…` URLs are redirected
   by core. The settings navigation renders no `Sidebar.GroupLabel`.
+- Money and product text on board cards and column totals is `text-xs` (12 px)
+  or larger with `tabular-nums`. Column headings are `text-base`, the same size
+  as card titles.
 - All Sales documents use `gql()` from `~/gql`; hooks and cache/subscription updates
   infer their results from those documents. `eslint.config.js` enforces this
   with Operation's rules: `graphql-tag` and `gql` from `@apollo/client` are
@@ -372,9 +487,31 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - A Cover's `user` is its assignee, while `createdUser` resolves `createdBy`.
   Do not substitute one for the other when deriving display data. Covers list
   rows keep the selected `user` for the assignee column.
+- The Covers list reads its total from `posCoversCount` (same filter
+  arguments, same document as `posCovers`) so `hasNextPage` loads pages past
+  the first 30; it writes that count on every result, including
+  0, and resets it to `null` while a new result loads; the header shows the
+  skeleton only while the query loads (`posCoverTotalCountLoadingAtom`) and no
+  count after a failure, including a failed refetch while Apollo keeps the
+  previous data; a failed `posCovers` request shows the error alert
+  like Orders, never the empty state. A fetched page is appended only when it
+  matches the current filter (otherwise dropped) and keeps the loaded count
+  with no row overlap; a page whose `posCoversCount` differs or that repeats a
+  loaded `_id` (covers added or deleted meanwhile) is dropped and the list
+  refetches from page 1, so the length-based next page never loops.
+- POS report list documents (Orders, Items, ByItems, Summary, Covers) declare
+  `$posId` and pass it to the field so the `:posId` route scopes each list;
+  `posOrderCustomers` and `posOrderBySubscriptions` have no backend `posId`
+  argument and are not POS-scoped.
 - Product-group saves project only `GroupInput` fields and refetch that POS's
   groups before completing. Cover deletion removes each successfully deleted
-  id from every cached `posCovers` filter variant.
+  id from every cached `posCovers` filter variant; `useRemovePosCover`, once
+  in `finally` after the whole loop (also after a partial failure), evicts
+  `posCoversCount` and refetches the active `posCovers` query with
+  `refetchQueries`. An evict alone is dropped by Apollo while a fetchMore or
+  refetch is in flight, which left loaded rows short of the count. The list
+  returns to the first page after a delete: page-number fetchMore would skip
+  rows that shifted after local removals.
 - POS product-group saves use `productGroupsBulkInsert`. The Sales API has
   no `productGroupsAdd` or `cpSalesPipelineDetail` field; use implemented
   contracts rather than declaring documents for unsupported aliases.
@@ -560,14 +697,29 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   blur; clearing sends `null` so the backend unsets the date.
 - `Sheet.Header` is a fixed 40px row. A header with a visible second line (subtitle, record number, description) adds `h-auto py-2` so it sizes to its content; detail-page title rows are `h-10`, level with `PageHeader`.
 - The POS list filter (`modules/pos/pos/PosFilter.tsx`) renders `PosFilterPopover` as the first child of `Filter.Bar`, so the filter icon stays fixed while selected filter chips appear after it; the total count stays last.
+- Deal mutations send no `sourceConversationIds`; a deal is linked to a conversation only through its customer (`customerId`), which the conversation rail's Deals tab lists by.
 
 ## Validation
 
+- POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
+
+- Permission smoke: without `dealsProductsEdit`, base/entry prices and row/footer
+  discounts remain read-only; without `dealsProductsDelete`, row and bulk delete actions
+  are hidden. Grant each action independently and verify only its controls become
+  available.
+
+- `node --test frontend/plugins/sales_ui/src/modules/pos/pos-covers/components/__tests__/coverDetail.test.cjs`
+
+- Cover note smoke: open a cover, edit and save its note, reopen and verify the
+  saved text; clear and save, switch covers, and verify each one's own note.
+  A failed save must show the error and retain the draft for retry.
 - `node --test frontend/plugins/sales_ui/src/modules/pos/utils/__tests__/*.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/automations/utils/__tests__/*.test.cjs`
 - Smoke POS settings save/reopen, product-group add/remove, order/item payment
   details, filtered Cover deletion, Cover assignee display, and all POS report
-  routes.
+  routes; two POSes' Covers lists show only their own covers, a POS without
+  covers shows 0 records, an unknown `posId` shows an error, and a POS with
+  more than 30 covers loads the rest on scroll.
 - Integrations smoke: POS/pipeline Automations tab list and remove, payment
   selectors, deal relation POS orders panel, and the automation
   board/pipeline/stage text.
@@ -606,6 +758,15 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   with the group still open, then click a board row's `+` and confirm the Add Pipeline sheet opens on the deals page with
   that board preselected and empty fields, and that the created pipeline
   appears under its board without a reload.
+- Loyalty points page smoke scenario: open Sales Pipeline → Loyalty points
+  and verify rows from several pipelines with no board chosen and no
+  `pipelineId` added to the URL; filter by two boards, then one pipeline and
+  a stage; click a board in the sidebar and verify it opens the deals page.
+  As a user outside a private pipeline, verify its deals are not listed.
+- Points view smoke scenario: with loyalty enabled, move a deal with a
+  customer into an earning stage, open Display → Points and verify the
+  earned row; filter by stage and assignee, scroll to load more, open a
+  deal from its name, then move it to a refund stage and verify the refund row.
 - Tier rules smoke scenario: open "Score earn configuration", switch to Tier,
   add an every-board row, pick a wallet, set bands, save, reopen and verify
   the row; set a POS's tier in its Payment tab, save and verify after reload.

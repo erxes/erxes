@@ -1,17 +1,27 @@
 import { Fragment } from 'react';
 import { useAtomValue } from 'jotai';
-import { IconInbox } from '@tabler/icons-react';
-import { Button, ScrollArea, Spinner } from 'erxes-ui';
+import {
+  Button,
+  ScrollArea,
+  Spinner,
+  useNonNullMultiQueryState,
+} from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { NOTIFICATION_FILTER_QUERY_KEYS } from '@/notification/constants/notifications';
+import type { NotificationFilterQueryState } from '@/notification/types/notificationFilters';
 import { NotificationItem } from '@/notification/components/NotificationItem';
 import { NotificationSelectionToolbar } from '@/notification/components/NotificationSelectionToolbar';
+import { NotificationEmptyState } from '@/notification/components/NotificationEmptyState';
 import { useNotificationList } from '@/notification/hooks/useNotificationList';
 import { useNotificationListActions } from '@/notification/hooks/useNotificationListActions';
 import { inboxDisplayOptionsState } from '@/notification/states/notificationState';
 
 export const NotificationList = () => {
   const { t } = useTranslation('common', { keyPrefix: 'notification' });
-  const { unreadFirst } = useAtomValue(inboxDisplayOptionsState);
+  const filters = useNonNullMultiQueryState<NotificationFilterQueryState>(
+    NOTIFICATION_FILTER_QUERY_KEYS,
+  );
+  const { grouping, unreadFirst } = useAtomValue(inboxDisplayOptionsState);
   const {
     notifications,
     groups,
@@ -41,23 +51,15 @@ export const NotificationList = () => {
         </Button>
       </div>
     );
-  if (isEmpty)
-    return (
-      <div className="h-full flex flex-col gap-4 justify-center items-center text-muted-foreground p-6 text-center">
-        <div className="border border-dashed p-6 bg-sidebar rounded-xl">
-          <IconInbox />
-        </div>
-        <span className="text-sm">{t('no-notifications')}</span>
-        <p className="text-xs">
-          {t('empty-filter-hint', 'Try changing your filters.')}
-        </p>
-      </div>
-    );
+  if (isEmpty) return <NotificationEmptyState />;
   return (
     <div className="relative flex flex-col h-full min-h-0">
-      <ScrollArea.Root className="w-full h-full overflow-hidden relative bg-sidebar">
+      <ScrollArea.Root
+        key={JSON.stringify([filters, grouping, unreadFirst])}
+        className="relative h-full w-full overflow-hidden bg-sidebar"
+      >
         <ScrollArea.Viewport className="[&>div]:block!">
-          <div className="py-3 px-3 flex flex-col gap-2 w-full overflow-hidden">
+          <div className="flex w-full min-w-0 flex-col gap-2 px-3 py-3">
             {error && (
               <div role="alert" className="text-xs text-destructive">
                 {t('refresh-failed', 'Unable to refresh notifications')}{' '}
@@ -69,8 +71,14 @@ export const NotificationList = () => {
             {groups.map(([label, items]) => (
               <Fragment key={`${label}:${unreadFirst && items[0].isRead}`}>
                 {label && (
-                  <h3 className="px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
-                    {label}
+                  <h3 className="flex items-center justify-between px-2 pt-2 text-xs font-semibold text-muted-foreground capitalize">
+                    <span>{label}</span>
+                    <span
+                      className="tabular-nums"
+                      title={t('notification-count', { count: items.length })}
+                    >
+                      {items.length}
+                    </span>
                   </h3>
                 )}
                 {items.map((item) => (
@@ -78,7 +86,11 @@ export const NotificationList = () => {
                     key={item._id}
                     {...item}
                     selected={actions.selectedIds.includes(item._id)}
+                    selectionDisabled={actions.pending}
                     selectionFocused={actions.focusedId === item._id}
+                    onToggleSelection={(shiftKey) =>
+                      actions.select(item._id, shiftKey)
+                    }
                     onOpen={(event) => actions.onOpen(item._id, event)}
                   />
                 ))}
@@ -120,16 +132,16 @@ export const NotificationList = () => {
         </ScrollArea.Viewport>
         <ScrollArea.Bar orientation="vertical" />
       </ScrollArea.Root>
-      {actions.selectedIds.length > 0 && (
-        <NotificationSelectionToolbar
-          selectedCount={actions.selectedIds.length}
-          pending={actions.pending}
-          allRead={actions.allRead}
-          onMarkAsRead={actions.markSelectedAsRead}
-          onDelete={actions.deleteSelected}
-          onClear={actions.clear}
-        />
-      )}
+      <NotificationSelectionToolbar
+        selectedCount={actions.selectedIds.length}
+        visibleCount={notifications.length}
+        pending={actions.pending}
+        allRead={actions.allRead}
+        onToggleAll={actions.toggleAll}
+        onMarkAsRead={actions.markSelectedAsRead}
+        onDelete={actions.deleteSelected}
+        onClear={actions.clear}
+      />
     </div>
   );
 };

@@ -21,13 +21,14 @@ import {
   SelectMember,
   SelectProduct,
   SelectStage,
+  SelectTags,
 } from 'ui-modules';
 
 import { SalesFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { SelectPriority } from '@/deals/components/common/filters/SelectPriority';
 import { DealsTotalCount } from '@/deals/components/DealsTotalCount';
-import { dealsViewAtom } from '@/deals/states/dealsViewState';
+import { dealsViewAtom, TDealsView } from '@/deals/states/dealsViewState';
 import { IDeal } from '@/deals/types/deals';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
@@ -155,7 +156,7 @@ const SalesFilterBar = ({
   pipelineId,
 }: {
   queries: SalesFilterState;
-  view: 'list' | 'board';
+  view: TDealsView;
   pipelineId?: string;
 }) => {
   const { t } = useTranslation('sales');
@@ -169,6 +170,7 @@ const SalesFilterBar = ({
     userIds,
     priority,
     labelIds,
+    tagIds,
     productId,
   } = queries || {};
 
@@ -271,6 +273,14 @@ const SalesFilterBar = ({
       {labelIds && (
         <SelectLabels.FilterBar filterKey="labelIds" mode="multiple" />
       )}
+      {tagIds && (
+        <SelectTags.FilterBar
+          mode="multiple"
+          filterKey="tagIds"
+          tagType="sales:deal"
+          label={t('by-tag', 'By Tag')}
+        />
+      )}
       {productId && (
         <SelectProduct.FilterBar
           filterKey="productId"
@@ -278,7 +288,7 @@ const SalesFilterBar = ({
           label={t('by-product', 'By Product')}
         />
       )}
-      {view === 'list' && (
+      {view !== 'board' && (
         <SelectStage.FilterBar
           queryKey="stageId"
           pipelineId={pipelineId || undefined}
@@ -292,7 +302,7 @@ const SalesFilterView = ({
   view,
   pipelineId,
 }: {
-  view: 'list' | 'board';
+  view: TDealsView;
   pipelineId?: string;
 }) => {
   const { t } = useTranslation('sales');
@@ -344,7 +354,11 @@ const SalesFilterView = ({
               value="labelIds"
               label={t('by-label', 'By Label')}
             />
-            {view === 'list' && (
+            <SelectTags.FilterItem
+              value="tagIds"
+              label={t('by-tag', 'By Tag')}
+            />
+            {view !== 'board' && (
               <Filter.Item value="stageId">
                 <IconStack2 />
                 {t('by-stage', 'By Stage')}
@@ -379,7 +393,12 @@ const SalesFilterView = ({
       <SelectProduct.FilterView filterKey="productId" mode="multiple" />
       <SelectPriority.FilterView />
       <SelectLabels.FilterView filterKey="labelIds" mode="multiple" />
-      {view === 'list' && (
+      <SelectTags.FilterView
+        mode="multiple"
+        filterKey="tagIds"
+        tagType="sales:deal"
+      />
+      {view !== 'board' && (
         <SelectStage.FilterView
           queryKey="stageId"
           pipelineId={pipelineId || undefined}

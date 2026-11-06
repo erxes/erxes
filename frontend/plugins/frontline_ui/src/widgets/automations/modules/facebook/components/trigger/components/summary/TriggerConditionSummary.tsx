@@ -6,7 +6,7 @@ export const TriggerConditionSummary = ({
 }: {
   conditionSummaries: TTriggerConditionSummaryItem[];
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   return (
     <>
       {conditionSummaries.map((condition, index) => (

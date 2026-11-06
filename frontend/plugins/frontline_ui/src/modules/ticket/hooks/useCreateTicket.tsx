@@ -7,7 +7,7 @@ import { useRecordTableCursor, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useCreateTicket = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
   const { toast } = useToast();
   const { addTicketToView } = useAddTicketToView();
   const { setCursor } = useRecordTableCursor({

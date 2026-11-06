@@ -19,7 +19,11 @@ export const SelectExecutionJob = ({
     <Popover open={open} onOpenChange={setOpen}>
       <Form.Control>
         <Combobox.Trigger aria-label={t('production-job')}>
-          {label || t('production-job')}
+          <Combobox.Value
+            value={label}
+            placeholder={t('production-job')}
+            title={label || undefined}
+          />
         </Combobox.Trigger>
       </Form.Control>
       <Combobox.Content>
@@ -63,8 +67,10 @@ export const ExecutionJobSelectContent = ({
         onValueChange={setSearch}
         placeholder={t('search')}
         variant="secondary"
+        wrapperClassName="flex-auto"
+        focusOnMount
       />
-      <Command.List>
+      <Command.List className="max-h-[300px] overflow-y-auto">
         {loading && <Spinner />}
         {error && (
           <Button type="button" variant="ghost" onClick={() => void refetch()}>
@@ -76,18 +82,35 @@ export const ExecutionJobSelectContent = ({
         )}
         {(data?.jobs?.jobs ?? [])
           .flatMap((card) => (card ? [card] : []))
-          .map((card) => (
-            <Command.Item
-              key={card._id}
-              value={card._id}
-              onSelect={() => {
-                onChange(card);
-              }}
-            >
-              {card.code} {card.name}
-              <Combobox.Check checked={selectedId === card._id} />
-            </Command.Item>
-          ))}
+          .map((card) => {
+            const label = [card.code, card.name].filter(Boolean).join(' ');
+            return (
+              <Command.Item
+                key={card._id}
+                value={card._id}
+                onSelect={() => {
+                  onChange(card);
+                }}
+              >
+                <Combobox.Value
+                  title={label}
+                  value={
+                    card.code ? (
+                      <span className="flex gap-1.5 items-center min-w-0">
+                        <span className="font-mono text-xs bg-muted border rounded px-1 text-muted-foreground shrink-0">
+                          {card.code}
+                        </span>
+                        <span className="truncate">{card.name}</span>
+                      </span>
+                    ) : (
+                      card.name ?? undefined
+                    )
+                  }
+                />
+                <Combobox.Check checked={selectedId === card._id} />
+              </Command.Item>
+            );
+          })}
       </Command.List>
     </Command>
   );

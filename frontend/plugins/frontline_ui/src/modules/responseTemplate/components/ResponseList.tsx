@@ -35,7 +35,7 @@ const ResponseMoreCell = ({
 }: {
   cell: Cell<IResponseTemplate, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const { _id, channelId } = cell.row.original;
   const navigate = useNavigate();
   const { removeResponse, loading } = useRemoveResponse();
@@ -123,7 +123,7 @@ const ResponseNameCell = ({
 };
 
 export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   return [
     {
       id: 'more',
@@ -182,7 +182,7 @@ export const useResponseColumns = (): ColumnDef<IResponseTemplate>[] => {
 };
 
 export const ResponseList = ({ channelId }: { channelId: string }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const responseColumns = useResponseColumns();
   const [{ searchValue }] = useMultiQueryState<{ searchValue?: string }>([
     'searchValue',

@@ -8,10 +8,17 @@ import { useForm } from 'react-hook-form';
 import { CONTENT_CMS_LIST } from '@/cms/graphql/queries';
 import { LanguageSelector } from '@/cms/shared/LanguageSelector';
 import {
+  CMS_TRANSLATION_FIELDS,
   TranslationData,
   useCmsTranslation,
+  useRecordInDefaultLanguage,
 } from '@/cms/shared/hooks/useCmsTranslation';
 import { cmsLanguageAtom } from '@/cms/shared/states/cmsLanguageState';
+import {
+  getCmsDefaultLanguage,
+  getInitialCmsLanguage,
+} from '@/cms/shared/utils';
+import { CmsSavedRowLoadError } from '@/cms/shared/components/CmsSavedRowLoadError';
 import { CMS_TAGS_ADD, CMS_TAGS_EDIT } from '@/cms/tags/graphql/mutations';
 import { CMS_TAG_DETAIL } from '@/cms/tags/graphql/queries';
 import { createSlug } from '@/cms/utils/createSlug';
@@ -109,22 +116,23 @@ export function TagDrawer({
   const setCmsLanguage = useSetAtom(cmsLanguageAtom);
   const cmsLanguage = useAtomValue(cmsLanguageAtom);
 
-  const { data: cmsData } = useQuery(CONTENT_CMS_LIST, {
+  const cmsQuery = useQuery(CONTENT_CMS_LIST, {
     fetchPolicy: 'cache-first',
     skip: !clientPortalId,
   });
 
-  const cmsConfig = cmsData?.contentCMSList?.find(
+  const cmsConfig = cmsQuery.data?.contentCMSList?.find(
     (cms: CmsConfig) => cms.clientPortalId === clientPortalId,
   );
   const availableLanguages: string[] = cmsConfig?.languages || [];
-  const defaultLanguage: string = cmsConfig?.language || 'en';
+  const defaultLanguage: string = getCmsDefaultLanguage(cmsConfig);
 
   const {
     selectedLanguage,
     setSelectedLanguage,
     translations,
     defaultLangData,
+    savedRowLoad,
     isTranslationMode,
     languageOptions,
     handleLanguageChange,
@@ -133,6 +141,8 @@ export function TagDrawer({
     type: 'tag',
     availableLanguages,
     defaultLanguage,
+    cmsConfig,
+    cmsQuery,
     resetKey: `${clientPortalId}-${isOpen}`,
   });
 
@@ -145,7 +155,13 @@ export function TagDrawer({
     skip: !isOpen || !tag?._id,
   });
 
-  const baseTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
+  const storedTag: CmsTag | undefined = tagDetailData?.cmsTag || tag;
+  const baseTag = useRecordInDefaultLanguage(
+    storedTag,
+    cmsConfig,
+    translations,
+    CMS_TRANSLATION_FIELDS.tag,
+  );
 
   const form = useForm<TagFormData>({
     defaultValues: getEmptyTagFormValues(clientPortalId),
@@ -154,9 +170,11 @@ export function TagDrawer({
   useEffect(() => {
     if (!isOpen) return;
 
-    form.reset(tagToFormValues(baseTag, clientPortalId));
+    form.reset(tagToFormValues(baseTag, clientPortalId), {
+      keepDirtyValues: baseTag !== storedTag,
+    });
     setHasPermissionError(false);
-  }, [baseTag, form, isOpen, clientPortalId]);
+  }, [baseTag, storedTag, form, isOpen, clientPortalId]);
 
   const getCurrentTranslationData = useCallback(
     (): TranslationData => ({
@@ -197,27 +215,32 @@ export function TagDrawer({
     ],
   );
 
+  const initialLanguage = getInitialCmsLanguage(
+    cmsLanguage,
+    availableLanguages,
+    defaultLanguage,
+  );
+
   useEffect(() => {
     if (
       !isOpen ||
       !selectedLanguage ||
       !defaultLanguage ||
-      !cmsLanguage ||
-      cmsLanguage === defaultLanguage ||
+      initialLanguage === defaultLanguage ||
       selectedLanguage !== defaultLanguage
     ) {
       return;
     }
 
     if (!form.getValues('name')) {
-      applyTranslationToForm(cmsLanguage);
+      applyTranslationToForm(initialLanguage);
     }
-    setSelectedLanguage(cmsLanguage);
+    setSelectedLanguage(initialLanguage);
   }, [
     isOpen,
     selectedLanguage,
     defaultLanguage,
-    cmsLanguage,
+    initialLanguage,
     applyTranslationToForm,
     setSelectedLanguage,
     form,
@@ -347,6 +370,8 @@ export function TagDrawer({
   });
 
   const onSubmit = (data: TagFormData) => {
+    if (savedRowLoad.isBlocked) return;
+
     const isNonDefaultLang =
       Boolean(selectedLanguage) &&
       Boolean(defaultLanguage) &&
@@ -433,6 +458,9 @@ export function TagDrawer({
             onSubmit={form.handleSubmit(onSubmit)}
             className="p-4 space-y-4"
           >
+            {savedRowLoad.hasFailed && (
+              <CmsSavedRowLoadError onRetry={savedRowLoad.retry} />
+            )}
             {availableLanguages.length > 0 && (
               <LanguageSelector
                 selectedLanguage={selectedLanguage}
@@ -515,7 +543,12 @@ export function TagDrawer({
               </Button>
               <Button
                 type="submit"
-                disabled={saving || editing || hasPermissionError}
+                disabled={
+                  saving ||
+                  editing ||
+                  hasPermissionError ||
+                  savedRowLoad.isBlocked
+                }
               >
                 {saving || editing
                   ? isEditing

@@ -23,6 +23,10 @@ export const SalesIndexPage = () => {
   const [searchParams] = useSearchParams();
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
+  const boardSearchParams = new URLSearchParams();
+
+  if (boardId) boardSearchParams.set('boardId', boardId);
+  if (pipelineId) boardSearchParams.set('pipelineId', pipelineId);
 
   return (
     <div className="flex h-full overflow-hidden w-full">
@@ -33,7 +37,7 @@ export const SalesIndexPage = () => {
               <Breadcrumb.List className="gap-1 flex-nowrap min-w-0">
                 <Breadcrumb.Item className="shrink-0">
                   <Button variant="ghost" asChild>
-                    <Link to="/sales/deal">
+                    <Link to={`/sales/deals?${boardSearchParams.toString()}`}>
                       <IconSandbox />
                       {t('sales-pipeline', 'Sales Pipeline')}
                     </Link>

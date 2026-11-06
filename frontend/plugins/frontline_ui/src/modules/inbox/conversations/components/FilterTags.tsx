@@ -5,7 +5,7 @@ import { IntegrationTypeTag } from '@/integrations/components/IntegrationTypeTag
 import { useTranslation } from 'react-i18next';
 
 export const FilterTags = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [{ channelId, integrationType, status }] = useMultiQueryState<{
     channelId: string;
     integrationType: string;

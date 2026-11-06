@@ -34,7 +34,7 @@ export const PropertyFilterView = ({
   fields: IField[];
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
@@ -82,7 +82,7 @@ export const GroupByFilterView = ({
   fields: IField[];
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
 
   return (
     <Command.List className="max-h-[500px] overflow-y-auto">
@@ -127,7 +127,7 @@ export const PropertyValueFilterView = ({
   onValueChange,
   onClose,
 }: PropertyValueFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   if (field.type === 'date') {
     return (
       <PropertyDateFilter
@@ -205,7 +205,7 @@ const PropertyDateFilter = ({
   onValueChange,
   onClose,
 }: PropertyValueFilterProps) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const { setDialogView, setOpenDialog, setOpen } = useFilterContext();
   const selectedValues = getPropertyFilterValues(value, field._id);
   const selectedValue = selectedValues[0];
@@ -216,7 +216,7 @@ const PropertyDateFilter = ({
   const rangeLabel =
     selectedValues.length > 1
       ? `${selectedValues[0]} - ${selectedValues[1]}`
-      : 'Custom range...';
+      : t('property-custom-range');
 
   const openRangeDialog = () => {
     onClose?.();

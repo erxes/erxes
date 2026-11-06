@@ -1,11 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import { useConfirm, useQueryState } from 'erxes-ui';
-import { MoreActionsCell } from '../../components/SettingsRowsTable';
-import { useJobRemove } from '../hooks/useJobMutations';
+import { useConfirm } from 'erxes-ui';
+import { MoreActionsCell } from '@/settings/components/SettingsRowsTable';
+import { JOB_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { useJobRemove } from '@/settings/jobs/hooks/useJobMutations';
 
 export const JobActions = ({ cardId }: { cardId: string }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('job_id');
+  const { openDetail } = useSettingsPanel(JOB_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeJob } = useJobRemove();
 
@@ -19,6 +21,9 @@ export const JobActions = ({ cardId }: { cardId: string }) => {
   };
 
   return (
-    <MoreActionsCell onEdit={() => setOpen(cardId)} onDelete={handleDelete} />
+    <MoreActionsCell
+      onEdit={() => openDetail(cardId)}
+      onDelete={handleDelete}
+    />
   );
 };

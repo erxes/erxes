@@ -122,6 +122,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
+          event: 'frontline:tickets:ticketAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
         });
@@ -232,6 +233,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'ticketAssignee',
+          event: 'frontline:tickets:ticketAssignee',
           userIds: [doc.assigneeId],
           action: 'assignee',
         });
@@ -274,6 +276,7 @@ export const loadTicketClass = (
           fromUserId: userId,
           subdomain,
           notificationType: 'updateTicket',
+          event: 'frontline:tickets:ticketUpdated',
           userIds,
           action: 'updated',
         });

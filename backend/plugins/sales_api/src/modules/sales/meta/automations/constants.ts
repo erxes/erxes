@@ -18,6 +18,11 @@ import {
 import { IDeal, IProductData } from '../../@types';
 import { buildDealAmountAttributes } from '../../documents/dealContent';
 import { generateProducts } from '../../utils';
+import {
+  checklistCreateActionConfigSchema,
+  dealCreateActionConfigSchema,
+} from './configSchemas';
+import { validateDealCreateConfig } from './configValidators';
 
 type TAutomationProductData = IProductData & { maxQuantity?: number };
 
@@ -481,6 +486,8 @@ export const salesAutomationContants = {
       moduleName: 'sales',
       collectionName: 'deals',
       method: 'create',
+      configSchema: dealCreateActionConfigSchema,
+      validateConfig: validateDealCreateConfig,
       icon: 'IconPigMoney',
       label: 'Create deal',
       description: 'Create deal',
@@ -495,6 +502,7 @@ export const salesAutomationContants = {
       moduleName: 'sales',
       collectionName: 'checklist',
       method: 'create',
+      configSchema: checklistCreateActionConfigSchema,
       icon: 'IconPigMoney',
       label: 'Create sales checklist',
       description: 'Create sales checklist',

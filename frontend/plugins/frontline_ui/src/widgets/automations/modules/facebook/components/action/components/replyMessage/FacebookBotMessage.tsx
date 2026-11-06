@@ -6,6 +6,7 @@ import { REPLY_MESSAGE_ACTION_BUTTONS } from '../../constants/ReplyMessage';
 import { TBotMessage } from '../../states/replyMessageActionForm';
 import { FacebookMessageContent } from '~/widgets/automations/modules/facebook/components/action/components/replyMessage/FacebookMessageContent';
 import { FieldPath } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 
 export const FacebookBotMessage = ({
   index,
@@ -22,6 +23,7 @@ export const FacebookBotMessage = ({
     newData: any,
   ) => void;
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.facebook' });
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: message._id });
 
@@ -38,7 +40,7 @@ export const FacebookBotMessage = ({
     message.type === 'text'
       ? message.text
         ? message.text
-        : 'Text Message'
+        : t('text-message')
       : `${title} Message`;
 
   return (

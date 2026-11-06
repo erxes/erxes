@@ -32,8 +32,8 @@ export const ComposerFooter = () => {
           variant="ghost"
           size="icon"
           className="ml-auto size-8"
-          title="Discard draft"
-          aria-label="Discard draft"
+          title={t('discard-draft')}
+          aria-label={t('discard-draft')}
           onClick={onDiscard}
           disabled={loading}
         >

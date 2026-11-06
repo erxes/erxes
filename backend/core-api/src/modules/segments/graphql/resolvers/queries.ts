@@ -1,18 +1,16 @@
 import {
   ISegmentContentType,
   segmentDependencyKey,
-  resolveSegmentFieldOperators,
-  SEGMENT_NUMBER_OPERATORS,
-  SegmentFieldMeta,
-  SegmentFieldNamespace,
   SegmentNode,
-  SegmentRelationMeta,
 } from 'erxes-api-shared/core-modules';
 import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { ISegmentDocument } from '../../db/definitions/segments';
 import { visibleTo } from '../../utils/access';
-import { listPropertySegmentFields } from '../../utils/propertyFields';
+import {
+  listSegmentFields,
+  listSegmentRelations,
+} from '../../utils/segmentCatalog';
 
 const HOUR_MS = 3_600_000;
 const DAY_MS = 86_400_000;
@@ -151,53 +149,11 @@ export const segmentQueries = {
     { contentType }: { contentType: string },
     { models }: IContext,
   ) {
-    const [pluginName] = contentType.split(':');
-    const plugin = await getPlugin(pluginName);
-    const segments = plugin.config?.meta?.segments;
-    const declared: SegmentFieldMeta[] =
-      segments?.segmentFields?.[contentType] || [];
-    const namespaces: SegmentFieldNamespace[] =
-      segments?.segmentFieldNamespaces?.[contentType] || [];
-
-    const properties = await Promise.all(
-      namespaces.map((namespace) =>
-        listPropertySegmentFields(models, namespace),
-      ),
-    );
-
-    return [...declared, ...properties.flat()].map((field) => ({
-      ...field,
-      operators: resolveSegmentFieldOperators(field),
-    }));
+    return listSegmentFields(models, contentType);
   },
 
   async segmentRelations(_root, { subjectType }: { subjectType: string }) {
-    const pluginNames = await getPlugins();
-    const relations: SegmentRelationMeta[] = [];
-
-    for (const pluginName of pluginNames) {
-      const plugin = await getPlugin(pluginName);
-      const declared: SegmentRelationMeta[] =
-        plugin.config?.meta?.segments?.segmentRelations || [];
-
-      relations.push(
-        ...declared
-          .filter((relation) => relation.subjectType === subjectType)
-          .map((relation) => ({
-            ...relation,
-            measureOperators: resolveSegmentFieldOperators({
-              key: relation.key,
-              label: relation.label,
-              operators: SEGMENT_NUMBER_OPERATORS,
-              kind: 'projected',
-              path: relation.key,
-              input: 'number',
-            }),
-          })),
-      );
-    }
-
-    return relations;
+    return listSegmentRelations(subjectType);
   },
 
   async segmentMembers(

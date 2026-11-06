@@ -26,6 +26,7 @@ export const SplitConditionsConfigForm = ({
     outputVariables,
     handleValidationErrors,
     remove,
+    hasConditionsWithoutSource,
   } = useSplitCondtionsConfigForm(currentAction);
 
   if (!contentType) {
@@ -58,6 +59,12 @@ export const SplitConditionsConfigForm = ({
             {t('split-add-option')}
           </Button>
         </div>
+        {hasConditionsWithoutSource && (
+          <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
+            <IconAlertCircle className="size-4 shrink-0" />
+            {t('split-conditions-need-source')}
+          </div>
+        )}
         {hasDirtyConditionOptions && (
           <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/10 px-3 py-2 text-xs text-warning">
             <IconAlertCircle className="size-4 shrink-0" />

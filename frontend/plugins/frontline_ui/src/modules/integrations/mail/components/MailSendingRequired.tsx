@@ -5,7 +5,9 @@ import { Link } from 'react-router';
 import { FrontlinePaths } from '@/types/FrontlinePaths';
 
 export const MailSendingRequired = ({ reason }: { reason?: string | null }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
 
   return (
     <div className="space-y-4">

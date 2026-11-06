@@ -1,4 +1,7 @@
-import { AppLayout } from 'erxes-ui';
+import { RecordPageSlot } from '@/side-panel/components/RecordPageSlot';
+import { AppLayout, AppLayoutFooterLink } from 'erxes-ui';
+import { IconSettings } from '@tabler/icons-react';
+import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { DocumentsContextNavigation } from '@/documents/components/DocumentsContextNavigation';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { NavigationChildControlsProvider } from '@/navigation/components/app-sidebar/NavigationChildControlsProvider';
@@ -7,6 +10,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import { SegmentsContextNavigation } from '@/segments/components/SegmentsSidebar';
 import { SettingsSidebar } from '@/settings/components/SettingsSidebar';
 import { AppPath } from '@/types/paths/AppPath';
+import { SETTINGS_TAB_ID } from '@/navigation/hooks/useAppTabs';
 import {
   findAppActivityByPath,
   isOrganizationSettingsPath,
@@ -33,6 +37,20 @@ const getCoreModuleSidebar = (
   return null;
 };
 
+const getCoreModuleSidebarFooter = (pathname: string, label: string) => {
+  if (pathname.startsWith(`/${AppPath.Automations}`)) {
+    return (
+      <AppLayoutFooterLink
+        path={AutomationSettingsPath.Index}
+        name={label}
+        icon={IconSettings}
+      />
+    );
+  }
+
+  return null;
+};
+
 /**
  * Plugin routes render bare: the plugin entry draws its own sidebar, pages
  * and settings. Core apps (organization settings, core modules) get their
@@ -46,11 +64,13 @@ export const CoreAppOutlet = () => {
   if (isOrganizationSettingsPath(pathname)) {
     return (
       <AppLayout
-        id="core:settings"
+        id={SETTINGS_TAB_ID}
         title={t('organization-settings')}
         sidebar={<SettingsSidebar />}
       >
-        <Outlet />
+        <RecordPageSlot>
+          <Outlet />
+        </RecordPageSlot>
       </AppLayout>
     );
   }
@@ -69,7 +89,9 @@ export const CoreAppOutlet = () => {
       <NavigationChildControlsProvider
         activity={activity?.kind === 'plugin' ? activity : undefined}
       >
-        <Outlet />
+        <RecordPageSlot>
+          <Outlet />
+        </RecordPageSlot>
       </NavigationChildControlsProvider>
     );
   }
@@ -78,13 +100,16 @@ export const CoreAppOutlet = () => {
     <AppLayout
       id={activity.id}
       title={activity.label}
+      footer={getCoreModuleSidebarFooter(pathname, t('app-settings'))}
       sidebar={
         <NavigationChildControlsProvider activity={activity}>
           {sidebar}
         </NavigationChildControlsProvider>
       }
     >
-      <Outlet />
+      <RecordPageSlot>
+        <Outlet />
+      </RecordPageSlot>
     </AppLayout>
   );
 };

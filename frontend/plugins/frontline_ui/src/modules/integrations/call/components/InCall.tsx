@@ -42,7 +42,9 @@ export const InCall = ({
   channels: ICallChannels | undefined;
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sipState = useAtomValue(sipStateAtom);
 
   const phoneNumber = extractPhoneNumberFromCounterpart(
@@ -104,7 +106,9 @@ export const InCallActionButton = React.forwardRef<
 });
 
 export const Mute = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { mute, isMuted, unmute } = useSip();
   const [isMutedState, setIsMutedState] = useState(isMuted());
   const [checkIsMuted, setCheckIsMuted] = useState(false);
@@ -135,7 +139,9 @@ export const Mute = () => {
 };
 
 export const Detail = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sip = useAtomValue(sipStateAtom);
   const currentCallConversationId = useAtomValue(currentCallConversationIdAtom);
   const setRefetchNewMessages = useSetAtom(refetchNewMessagesState);
@@ -164,7 +170,9 @@ export const Detail = () => {
 const DTMF_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'];
 
 export const KeypadTrigger = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { sendDtmf } = useSip();
   const sip = useAtomValue(sipStateAtom);
   const [sentTones, setSentTones] = useState('');
@@ -204,7 +212,9 @@ export const KeypadTrigger = () => {
 };
 
 export const Hold = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { hold, unhold, isHeld } = useSip();
   const sip = useAtomValue(sipStateAtom);
   const [isHeldState, setIsHeldState] = useState(!!isHeld().localHold);
@@ -243,7 +253,9 @@ const CallInfo = ({
   phoneNumber: string;
   loading: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const sip = useAtomValue(sipStateAtom);
   const setStartDate = useSetAtom(callDurationAtom);
   const time = useCallDuration();

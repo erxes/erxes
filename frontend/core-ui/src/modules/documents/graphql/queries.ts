@@ -6,7 +6,7 @@ import {
 import gql from 'graphql-tag';
 
 export const GET_DOCUMENTS_TYPES = gql(`
-  query DocumentsTypes {
+  query documentsTypesList {
     documentsTypes {
       label
       contentType
@@ -16,7 +16,7 @@ export const GET_DOCUMENTS_TYPES = gql(`
 `);
 
 export const GET_DOCUMENTS = gql(`
-  query Documents(
+  query documentsList(
     $searchValue: String
     $contentType: String
     $subType: String
@@ -67,7 +67,7 @@ export const GET_DOCUMENTS = gql(`
 `);
 
 export const GET_DOCUMENT_DETAIL = gql(`
-  query Document(
+  query documentsDetailQuery(
     $_id: String!
   ) {
     documentsDetail(
@@ -90,12 +90,13 @@ export const GET_DOCUMENT_DETAIL = gql(`
       name
       content
       replacer
+      commentState
     }
   }
 `);
 
 export const GET_DOCUMENT_EDITOR_ATTRIBUTES = gql(`
-  query DocumentEditorAttributes(
+  query documentsEditorAttributesQuery(
     $contentType: String!
   ) {
     documentsGetEditorAttributes(
@@ -104,6 +105,21 @@ export const GET_DOCUMENT_EDITOR_ATTRIBUTES = gql(`
       value
       name
       groupDetail
+    }
+  }
+`);
+
+export const COMMENT_AUTHORS = gql(`
+  query documentsCommentAuthors($ids: [String], $limit: Int) {
+    users(ids: $ids, limit: $limit) {
+      list {
+        _id
+        email
+        details {
+          fullName
+          avatar
+        }
+      }
     }
   }
 `);

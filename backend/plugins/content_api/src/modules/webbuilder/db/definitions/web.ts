@@ -29,6 +29,7 @@ export const webSchema = new mongoose.Schema<IWebDocument>(
     templateType: { type: String },
     erxesAppToken: { type: String },
     externalLinks: { type: Map, of: String },
+    texts: { type: mongoose.Schema.Types.Mixed },
     integrations: {
       googleAnalytics: String,
       facebookPixel: String,

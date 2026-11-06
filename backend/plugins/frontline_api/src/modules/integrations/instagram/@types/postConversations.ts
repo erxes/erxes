@@ -11,6 +11,7 @@ export interface IInstagramPostConversation {
   integrationId: string;
   customerId?: string;
   permalink_url: string;
+  metadataPending?: boolean;
   attachments: string[];
 }
 

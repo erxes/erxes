@@ -22,7 +22,7 @@ type MarkConversationAsReadOptions = MutationFunctionOptions<
 };
 
 export const useConversationMarkAsRead = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const client = useApolloClient();
   const [markAsRead] = useMutation(MARK_AS_READ_CONVERSATION);
   const currentUser = useAtomValue(currentUserState);

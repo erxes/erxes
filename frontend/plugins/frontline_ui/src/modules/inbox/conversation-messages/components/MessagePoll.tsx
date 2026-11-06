@@ -6,6 +6,7 @@ import {
   IconCircleCheckFilled,
   IconClock,
 } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
 
 const timeLeftLabel = (expiry?: string): string => {
   if (!expiry) return '';
@@ -31,6 +32,7 @@ export const MessagePoll = ({
   poll: IMessagePoll;
   provider?: 'Discord' | 'Telegram';
 }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     if (!poll.expiry) return undefined;
@@ -44,7 +46,7 @@ export const MessagePoll = ({
     return (
       <div className="mt-2 flex items-center gap-2 rounded-xl border border-dashed bg-muted/30 px-3.5 py-3 text-sm text-muted-foreground">
         <IconChartBar className="size-4 shrink-0" />
-        Poll results unavailable
+        {t('poll-results-unavailable')}
       </div>
     );
   }
@@ -58,7 +60,7 @@ export const MessagePoll = ({
   const closed =
     Boolean(poll.results?.isFinalized) ||
     (poll.expiry ? new Date(poll.expiry).getTime() <= now : false);
-  const status = closed ? 'Poll closed' : timeLeftLabel(poll.expiry);
+  const status = closed ? t('poll-closed') : timeLeftLabel(poll.expiry);
   const highestCount = Math.max(0, ...countById.values());
 
   return (
@@ -66,7 +68,7 @@ export const MessagePoll = ({
       <div className="px-4 pt-4 pb-3">
         <div className="mb-1 flex items-start justify-between gap-3">
           <h3 className="min-w-0 text-[15px] leading-5 font-semibold text-foreground">
-            {poll.question || 'Poll'}
+            {poll.question || t('poll')}
           </h3>
           <Badge
             variant={closed ? 'secondary' : 'ghost'}
@@ -75,12 +77,14 @@ export const MessagePoll = ({
               !closed && 'border',
             )}
           >
-            {closed ? 'Closed' : 'Live'}
+            {closed ? t('poll-status-closed') : t('poll-status-live')}
           </Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          {poll.allowMultiselect ? 'Multiple answers allowed' : 'Choose one'}
-          {` · Vote in ${provider}`}
+          {poll.allowMultiselect
+            ? t('multiple-answers-allowed')
+            : t('choose-one')}
+          {` · ${t('vote-in', { provider })}`}
         </p>
       </div>
 

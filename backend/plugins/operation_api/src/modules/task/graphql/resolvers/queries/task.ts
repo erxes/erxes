@@ -1,6 +1,7 @@
 import { buildTaskDateRangeQuery } from '@/task/utils/dateFilters';
 import { IProjectDocument } from '@/project/@types/project';
 import { ITaskDocument, ITaskFilter } from '@/task/@types/task';
+import { ICycleDocument } from '@/cycle/types';
 import { cursorPaginate, escapeRegExp } from 'erxes-api-shared/utils';
 import { FilterQuery } from 'mongoose';
 import { IContext } from '~/connectionResolvers';
@@ -67,65 +68,53 @@ export const taskQueries = {
       filterQuery.cycleId = filter.cycleId;
     }
 
-    if (filter.cycleFilter && filter.teamId) {
+    if (filter.cycleFilter === 'noCycle') {
+      filterQuery.cycleId = null;
+    } else if (filter.cycleFilter) {
       const now = new Date();
+      const cycleQuery: FilterQuery<ICycleDocument> = {};
+
+      if (filter.teamId) {
+        cycleQuery.teamId = filter.teamId;
+      }
 
       switch (filter.cycleFilter) {
-        case 'noCycle':
-          filterQuery.cycleId = null;
+        case 'anyPastCycle':
+        case 'previousCycle':
+          cycleQuery.endDate = { $lt: now };
           break;
+        case 'currentCycle':
+          cycleQuery.startDate = { $lte: now };
+          cycleQuery.endDate = { $gte: now };
+          break;
+        case 'upcomingCycle':
+        case 'anyFutureCycle':
+          cycleQuery.startDate = { $gt: now };
+          break;
+      }
 
-        case 'anyPastCycle': {
-          const pastCycles = await models.Cycle.find({
-            teamId: filter.teamId,
-            endDate: { $lt: now },
-          }).distinct('_id');
-          filterQuery.cycleId = { $in: pastCycles };
-          break;
-        }
+      const matchingCycles = models.Cycle.find(cycleQuery);
 
-        case 'previousCycle': {
-          const previousCycle = await models.Cycle.findOne({
-            teamId: filter.teamId,
-            endDate: { $lt: now },
-          }).sort({ endDate: -1 });
-          if (previousCycle) {
-            filterQuery.cycleId = previousCycle._id;
-          }
-          break;
-        }
-
-        case 'currentCycle': {
-          const currentCycle = await models.Cycle.findOne({
-            teamId: filter.teamId,
-            startDate: { $lte: now },
-            endDate: { $gte: now },
-          });
-          if (currentCycle) {
-            filterQuery.cycleId = currentCycle._id;
-          }
-          break;
-        }
-
-        case 'upcomingCycle': {
-          const upcomingCycle = await models.Cycle.findOne({
-            teamId: filter.teamId,
-            startDate: { $gt: now },
-          }).sort({ startDate: 1 });
-          if (upcomingCycle) {
-            filterQuery.cycleId = upcomingCycle._id;
-          }
-          break;
-        }
-
-        case 'anyFutureCycle': {
-          const futureCycles = await models.Cycle.find({
-            teamId: filter.teamId,
-            startDate: { $gt: now },
-          }).distinct('_id');
-          filterQuery.cycleId = { $in: futureCycles };
-          break;
-        }
+      if (
+        filter.cycleFilter === 'previousCycle' ||
+        filter.cycleFilter === 'upcomingCycle'
+      ) {
+        matchingCycles.cast();
+        const cycles = await models.Cycle.aggregate<{
+          cycleId: ICycleDocument['_id'];
+        }>([
+          { $match: matchingCycles.getFilter() },
+          {
+            $sort:
+              filter.cycleFilter === 'previousCycle'
+                ? { endDate: -1 }
+                : { startDate: 1 },
+          },
+          { $group: { _id: '$teamId', cycleId: { $first: '$_id' } } },
+        ]);
+        filterQuery.cycleId = { $in: cycles.map((cycle) => cycle.cycleId) };
+      } else {
+        filterQuery.cycleId = { $in: await matchingCycles.distinct('_id') };
       }
     }
 

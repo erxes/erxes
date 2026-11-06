@@ -47,7 +47,9 @@ export const MailReplyActionForm = ({
 }: AutomationActionFormProps<TMailReplyActionForm> & {
   copy: TMailReplyActionCopy;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'widgets.automations-mail',
+  });
 
   const schema = useMemo(
     () =>

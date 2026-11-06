@@ -1,4 +1,5 @@
 import {
+  IconAffiliate,
   IconArrowUpRight,
   IconBriefcase,
   IconBuilding,
@@ -128,6 +129,13 @@ export const AGENT_REFERENCE_TARGETS: Record<
     permissionModule: 'inbox',
     pluginRemote: 'frontline_ui',
     path: (id) => `/frontline/inbox?conversationId=${id}`,
+  },
+  automation: {
+    type: 'automation',
+    icon: IconAffiliate,
+    labelKey: 'automation',
+    permissionModule: 'automations',
+    path: (id) => `/automations/edit/${id}`,
   },
   page: {
     type: 'page',

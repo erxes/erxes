@@ -1,3 +1,4 @@
+import { buildClosedAtFilter } from '@/inbox/utils/closedAtFilter';
 import { withConversationPreviews } from '@/inbox/utils/conversationPreview';
 import { inboxFieldQueries } from '@/inbox/graphql/resolvers/queries/inboxFields';
 import type { FilterQuery } from 'mongoose';
@@ -7,7 +8,6 @@ import {
   IConversationRes,
 } from '@/inbox/@types/conversations';
 import { countByConversations } from '@/inbox/utils/conversationCounts';
-import { getConversationConvertedItems } from '@/inbox/services/conversationConvert';
 import {
   CONVERSATION_AUTOMATION_STATUS,
   CONVERSATION_STATUSES,
@@ -51,7 +51,7 @@ export const conversationQueries = {
             ...params,
             orderBy: params.orderBy ?? { updatedAt: -1 },
           },
-          query: { _id: { $in: params.ids } },
+          query: { _id: { $in: params.ids }, ...buildClosedAtFilter(params) },
         });
 
       return {
@@ -70,7 +70,10 @@ export const conversationQueries = {
             orderBy: params.orderBy ?? { updatedAt: -1 },
             limit: params.limit || 20,
           },
-          query: { customerId: params.customerId },
+          query: {
+            customerId: params.customerId,
+            ...buildClosedAtFilter(params),
+          },
         });
 
       return {
@@ -115,7 +118,19 @@ export const conversationQueries = {
     const response: IConversationRes = {};
     const _user = toQueryUser(user);
 
-    const qb = new QueryBuilder(models, subdomain, params, _user);
+    const qb = new QueryBuilder(
+      models,
+      subdomain,
+      {
+        ...params,
+        status:
+          params.status ||
+          (params.closedAtFrom || params.closedAtTo
+            ? CONVERSATION_STATUSES.CLOSED
+            : undefined),
+      },
+      _user,
+    );
 
     await qb.buildAllQueries();
 
@@ -166,18 +181,21 @@ export const conversationQueries = {
     // resolved count
     response.resolved = await count(models, {
       ...mainQuery,
-      ...qb.statusFilter(['closed']),
+      ...QueryBuilder.statusFilter(['closed']),
     });
 
     // awaiting response count
     response.awaitingResponse = await count(models, {
       ...mainQuery,
-      ...qb.awaitingResponse(),
+      ...QueryBuilder.awaitingResponse(),
     });
 
     const automationCounts = await Promise.all(
       CONVERSATION_AUTOMATION_STATUS.ALL.map((key) =>
-        count(models, { ...mainQuery, ...qb.automationStatusFilter(key) }),
+        count(models, {
+          ...mainQuery,
+          ...QueryBuilder.automationStatusFilter(key),
+        }),
       ),
     );
 
@@ -191,22 +209,8 @@ export const conversationQueries = {
   /**
    * Get one conversation
    */
-  async conversationDetail(
-    _root,
-    { _id }: { _id: string },
-    { models }: IContext,
-  ) {
-    return models.Conversations.findOne({ _id });
-  },
-
-  async conversationConvertedItems(
-    _root,
-    { _id }: { _id: string },
-    { models, subdomain, checkPermission }: IContext,
-  ) {
-    await checkPermission('showConversations');
-
-    return getConversationConvertedItems(models, subdomain, _id);
+  conversationDetail(_root, { _id }: { _id: string }, { models }: IContext) {
+    return models.Conversations.findOne({ _id }).exec();
   },
 
   /**
@@ -293,7 +297,7 @@ export const conversationQueries = {
           ...args,
           limit: perPage,
         },
-        query: query,
+        query,
       });
 
     return { list, totalCount, pageInfo };

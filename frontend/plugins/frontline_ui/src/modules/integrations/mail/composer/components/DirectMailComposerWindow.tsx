@@ -7,9 +7,11 @@ import {
 import { ComposerFields } from '@/integrations/mail/composer/components/fields/DirectMailComposerFields';
 import { useDirectMailComposerContext } from '@/integrations/mail/composer/hooks/useDirectMailComposerFields';
 import { cn, Sheet } from 'erxes-ui';
+import { useTranslation } from 'react-i18next';
 
 export const ComposerWindow = () => {
   const { expanded, minimized, form, submit } = useDirectMailComposerContext();
+  const { t } = useTranslation('frontline');
   const { handleSubmit } = form;
   return (
     <>
@@ -18,7 +20,7 @@ export const ComposerWindow = () => {
       )}
       <Sheet.Content
         role="region"
-        aria-label="New email"
+        aria-label={t('new-email')}
         className={cn(
           'fixed z-50 flex flex-col overflow-hidden rounded-b-none rounded-t-lg border bg-background text-foreground shadow-2xl',
           expanded && !minimized

@@ -1,3 +1,5 @@
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
+import { useSidePanel } from 'ui-modules';
 import { IconCopy } from '@tabler/icons-react';
 import { Cell } from '@tanstack/react-table';
 import { useTranslation } from 'react-i18next';
@@ -18,17 +20,25 @@ const ArticlesMoreColumnCell = ({
 }: {
   cell: Cell<IArticle, unknown>;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const article = cell.row.original;
   const { _id, title } = article;
   const { removeArticles } = useRemoveArticles();
   const { topicId = '' } = useParams();
+  const { openRecord } = useSidePanel();
   const { duplicateArticle } = useDuplicateArticle(topicId);
   const confirmRemove = useKbConfirmRemove();
 
   return (
     <KbRowActions
-      id={_id}
+      onEdit={() =>
+        openRecord({
+          contentType: KB_RECORD_CONTENT_TYPES.article,
+          contentId: _id,
+        })
+      }
       actions={[
         {
           value: 'duplicate',

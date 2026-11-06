@@ -8,7 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 
 export const ConversationRefetch = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const newMessagesCount = useAtomValue(newMessagesCountState);
   const setRefetchNewMessages = useSetAtom(refetchNewMessagesState);
 
@@ -19,6 +19,7 @@ export const ConversationRefetch = () => {
           <Button
             variant="ghost"
             size="icon"
+            aria-label={t('refresh', 'Refresh')}
             className="relative"
             onClick={() => setRefetchNewMessages(true)}
           >

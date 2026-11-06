@@ -7,6 +7,8 @@ import {
 } from '@tabler/icons-react';
 import { NavigationMenuLinkItem, Sidebar } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
+import { PluginNavigationItem } from 'ui-modules';
+import { PRODUCT_PLACES_SETTINGS_ROUTES } from '@/productplaces/constants/settingRoutes';
 
 export const SettingsNavigation = () => {
   const { t } = useTranslation('mongolian');
@@ -26,11 +28,14 @@ export const SettingsNavigation = () => {
             name={t('erkhet')}
             icon={IconRefresh}
           />
-          <NavigationMenuLinkItem
+          <PluginNavigationItem
             pathPrefix="mongolian/settings"
-            path="/product-places"
+            path="product-places"
             name={t('product-place')}
             icon={IconMapPin}
+            subPaths={Object.entries(PRODUCT_PLACES_SETTINGS_ROUTES).map(
+              ([path, label]) => ({ name: t(label), path }),
+            )}
           />
           <NavigationMenuLinkItem
             pathPrefix="mongolian/settings"

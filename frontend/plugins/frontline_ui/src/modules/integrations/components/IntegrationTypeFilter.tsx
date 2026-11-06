@@ -41,7 +41,9 @@ const SelectIntegrationTypeProvider = ({
 };
 
 export const ChooseIntegrationTypeContent = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationTypes } = useUsedIntegrationTypes();
   const { value, onSelect } = useSelectIntegrationTypeContext();
 
@@ -66,7 +68,9 @@ export const ChooseIntegrationTypeContent = () => {
 };
 
 export const IntegrationTypeFilterItem = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   return (
     <Filter.Item value="integrationType">
       <IconPlug />
@@ -96,7 +100,9 @@ export const IntegrationTypeFilterView = () => {
 };
 
 export const IntegrationTypeValue = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const { integrationTypes, loading } = useUsedIntegrationTypes();
   const { value } = useSelectIntegrationTypeContext();
 
@@ -118,7 +124,9 @@ export const IntegrationTypeFilterBar = ({
 }: {
   iconOnly?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [integrationTypeId, setIntegrationTypeId] =
     useQueryState<string>('integrationType');
   const { resetFilterState } = useFilterContext();

@@ -11,7 +11,7 @@ export const MessageContent = ({
   content?: string;
   internal?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [viewerFailed, setViewerFailed] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);

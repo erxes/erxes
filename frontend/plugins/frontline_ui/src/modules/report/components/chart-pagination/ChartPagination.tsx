@@ -1,6 +1,8 @@
 import { memo, useMemo, useState, useCallback, useEffect } from 'react';
 import { Button } from 'erxes-ui';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
+import { useTranslation } from 'react-i18next';
+import { useFrontlineCardTitle } from '../frontline-card/FrontlineCard';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -52,6 +54,9 @@ export const ChartPagination = memo(function ChartPagination({
   onPrev: () => void;
   onNext: () => void;
 }) {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
+  const title = useFrontlineCardTitle();
+
   if (totalPages <= 1) return null;
 
   return (
@@ -61,6 +66,10 @@ export const ChartPagination = memo(function ChartPagination({
         <Button
           variant="outline"
           size="sm"
+          aria-label={t('previous-page-of', {
+            title,
+            defaultValue: 'Previous page of {{title}}',
+          })}
           onClick={onPrev}
           disabled={page <= 1}
         >
@@ -72,6 +81,10 @@ export const ChartPagination = memo(function ChartPagination({
         <Button
           variant="outline"
           size="sm"
+          aria-label={t('next-page-of', {
+            title,
+            defaultValue: 'Next page of {{title}}',
+          })}
           onClick={onNext}
           disabled={page >= totalPages}
         >

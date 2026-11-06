@@ -21,7 +21,9 @@ export const FacebookIntegrationFormSheet = ({
 }: {
   isPost?: boolean;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const [facebookFormSheet, setFacebookFormSheet] = useAtom(
     facebookFormSheetAtom,
   );
@@ -66,7 +68,9 @@ export const FacebookIntegrationFormLayout = ({
   children: React.ReactNode;
   actions: React.ReactNode;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const resetForm = useSetAtom(resetFacebookAddStateAtom);
   const { isPost } = useFbIntegrationContext();
 

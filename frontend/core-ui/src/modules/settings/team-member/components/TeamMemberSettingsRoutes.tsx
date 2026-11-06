@@ -22,6 +22,14 @@ const PermissionsPage = lazy(() =>
   ),
 );
 
+const TeamActivityPage = lazy(() =>
+  import('~/pages/settings/workspace/team-member/TeamActivityPage').then(
+    (module) => ({
+      default: module.TeamActivityPage,
+    }),
+  ),
+);
+
 export const TeamMemberSettingsRoutes = () => {
   return (
     <PageContainer>
@@ -53,6 +61,10 @@ export const TeamMemberSettingsRoutes = () => {
             <Route
               path={TeamMembersPath.TeamPermissions}
               element={<PermissionsPage />}
+            />
+            <Route
+              path={TeamMembersPath.TeamActivity}
+              element={<TeamActivityPage />}
             />
           </Routes>
         </Suspense>

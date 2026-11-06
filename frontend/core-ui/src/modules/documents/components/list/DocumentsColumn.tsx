@@ -25,10 +25,10 @@ import {
 
 import { DOCUMENTS_TYPES_SET } from '../../constants';
 import { IDocument } from '../../types';
+import { GET_DOCUMENTS } from '../../graphql/queries';
 import { documentsMoreColumn } from './DocumentsMoreColumn';
 import { useTranslation } from 'react-i18next';
 
-/** Updates cached document tags and refreshes filtered lists after tagging. */
 export function getDocumentsTagOptions(
   documentIds: string[],
 ): ComponentProps<typeof TagsSelect>['options'] {
@@ -43,7 +43,7 @@ export function getDocumentsTagOptions(
         });
       });
     },
-    refetchQueries: ['Documents'],
+    refetchQueries: [GET_DOCUMENTS],
     onCompleted: () => {
       toast({ title: 'Document tags updated', variant: 'success' });
     },

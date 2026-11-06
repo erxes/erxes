@@ -29,7 +29,9 @@ export const SelectKbCategory = ({
   allowEmpty?: boolean;
   placeholder?: string;
 }) => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const [open, setOpen] = useState(false);
   const { categories, loading } = useCategories(topicId);
 

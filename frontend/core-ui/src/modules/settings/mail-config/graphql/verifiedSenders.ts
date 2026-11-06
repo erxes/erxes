@@ -6,6 +6,7 @@ export const SENDER_OPTIONS = gql`
       provider
       supportsSenderVerification
       supportsDynamicSender
+      verifiedDomains
       defaultSenderEmail
       alignedFrom
       sameAsMailConfig
@@ -15,6 +16,27 @@ export const SENDER_OPTIONS = gql`
         value
         name
         status
+      }
+    }
+  }
+`;
+
+export const FROM_DOMAIN_CHECK = gql`
+  query EmailFromDomainCheck($scope: String) {
+    emailSenderOptions(scope: $scope) {
+      fromDomain {
+        domain
+        region
+        state
+        error
+        dnsRecords {
+          type
+          host
+          data
+          valid
+        }
+        otherVerifiedDomains
+        listError
       }
     }
   }

@@ -1,4 +1,5 @@
-import { NetworkStatus, useQuery } from '@apollo/client';
+import { useTranslation } from 'react-i18next';
+import { NetworkStatus, QueryResult, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   IRecordTableCursorPageInfo,
@@ -6,7 +7,9 @@ import {
   parseDateRangeFromString,
   useMultiQueryState,
   validateFetchMore,
+  toast,
 } from 'erxes-ui';
+import { useRef } from 'react';
 import { GET_DOCUMENTS } from '../graphql/queries';
 import { DocumentFilterState, IDocument } from '../types';
 
@@ -16,10 +19,24 @@ type DocumentsQueryResponse = {
   documents: {
     list?: IDocument[];
     pageInfo?: IRecordTableCursorPageInfo;
+    totalCount?: number;
   };
 };
 
-export const useDocuments = () => {
+export const useDocuments = (): Pick<
+  QueryResult<DocumentsQueryResponse>,
+  'error' | 'loading' | 'refetch'
+> & {
+  documents: IDocument[];
+  hasError: boolean;
+  pageInfo: IRecordTableCursorPageInfo | undefined;
+  totalCount: number | undefined;
+  handleFetchMore: (options: {
+    direction: EnumCursorDirection;
+  }) => Promise<void>;
+} => {
+  const { t } = useTranslation('documents', { keyPrefix: 'document' });
+  const fetchingMore = useRef(false);
   const [{ createdAt, createdBy, contentType, searchValue, tagIds }] =
     useMultiQueryState<DocumentFilterState>([
       'createdAt',
@@ -65,38 +82,72 @@ export const useDocuments = () => {
       variables,
     });
 
-  const { list: documents = [], pageInfo } = data?.documents || {};
+  const { list: documents = [], pageInfo, totalCount } = data?.documents || {};
   const hasError = Boolean(error || networkStatus === NetworkStatus.error);
 
-  function handleFetchMore({ direction }: { direction: EnumCursorDirection }) {
-    if (!pageInfo || !validateFetchMore({ direction, pageInfo })) {
+  async function handleFetchMore({
+    direction,
+  }: {
+    direction: EnumCursorDirection;
+  }): Promise<void> {
+    if (
+      fetchingMore.current ||
+      loading ||
+      !pageInfo ||
+      !validateFetchMore({ direction, pageInfo })
+    ) {
       return;
     }
 
-    fetchMore({
-      variables: {
-        cursor:
-          direction === EnumCursorDirection.FORWARD
-            ? pageInfo.endCursor
-            : pageInfo.startCursor,
-        direction,
-        limit: DOCUMENTS_PER_PAGE,
-      },
-      updateQuery: (previousResult, { fetchMoreResult }) => {
-        if (!fetchMoreResult) {
-          return previousResult;
-        }
+    fetchingMore.current = true;
+    try {
+      await fetchMore({
+        variables: {
+          cursor:
+            direction === EnumCursorDirection.FORWARD
+              ? pageInfo.endCursor
+              : pageInfo.startCursor,
+          direction,
+          limit: DOCUMENTS_PER_PAGE,
+        },
+        updateQuery: (previousResult, { fetchMoreResult }) => {
+          if (!fetchMoreResult) {
+            return previousResult;
+          }
 
-        return {
-          ...previousResult,
-          documents: mergeCursorData({
+          const merged = mergeCursorData({
             direction,
             fetchMoreResult: fetchMoreResult.documents,
             prevResult: previousResult.documents,
-          }),
-        };
-      },
-    });
+          });
+          return {
+            ...previousResult,
+            documents: {
+              ...merged,
+              list: Array.from(
+                new Map(
+                  (merged.list || []).map((document) => [
+                    document._id,
+                    document,
+                  ]),
+                ).values(),
+              ),
+              totalCount:
+                fetchMoreResult.documents.totalCount ??
+                previousResult.documents.totalCount,
+            },
+          };
+        },
+      });
+    } catch (error) {
+      toast({
+        title: t('load-more-error'),
+        description: error instanceof Error ? error.message : String(error),
+        variant: 'destructive',
+      });
+    } finally {
+      fetchingMore.current = false;
+    }
   }
 
   return {
@@ -104,6 +155,7 @@ export const useDocuments = () => {
     hasError,
     loading,
     pageInfo,
+    totalCount,
     handleFetchMore,
     error,
     refetch,

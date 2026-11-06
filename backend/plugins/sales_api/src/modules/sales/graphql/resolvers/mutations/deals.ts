@@ -207,8 +207,6 @@ export const dealMutations: Record<string, Resolver> = {
       })),
     };
 
-    delete doc.sourceConversationIds;
-
     for (const param of [
       'productsData',
       'paymentsData',
@@ -528,7 +526,7 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
+    await checkPermission('dealsProductsDelete');
     if (!dealId) {
       throw new Error('dealId is required');
     }

@@ -13,7 +13,7 @@ interface AgentTableProps {
 }
 
 export function AgentTable({ stats }: AgentTableProps) {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.report' });
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const toggle = (agent: string) =>
@@ -45,7 +45,7 @@ export function AgentTable({ stats }: AgentTableProps) {
             {t('missed', 'Missed')}
           </ReportTable.Head>
           <ReportTable.Head align="right" className="w-32">
-            Ans. Rate
+            {t('ans-rate')}
           </ReportTable.Head>
           <ReportTable.Head align="right">
             {t('avg-wait', 'Avg Wait')}
@@ -71,7 +71,7 @@ export function AgentTable({ stats }: AgentTableProps) {
                   <button
                     type="button"
                     aria-expanded={isOpen}
-                    aria-label={`${isOpen ? 'Collapse' : 'Expand'} ${label}`}
+                    aria-label={`${isOpen ? t('collapse') : t('expand')} ${label}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggle(stat.agent);

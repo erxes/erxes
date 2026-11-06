@@ -25,7 +25,9 @@ import {
 } from '../states/emPreviewStates';
 
 export const EMPreviewMessages = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.integrations',
+  });
   const greeting = useAtomValue(erxesMessengerSetupGreetingAtom);
   const settings = useAtomValue(erxesMessengerSetupSettingsAtom);
   const config = useAtomValue(erxesMessengerSetupConfigAtom);

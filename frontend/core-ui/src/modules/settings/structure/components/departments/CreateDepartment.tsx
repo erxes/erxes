@@ -6,15 +6,18 @@ import {
   Kbd,
   Sheet,
   Spinner,
-  usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
-import React, { useState } from 'react';
+import { useEffect } from 'react';
+import { ApolloError } from '@apollo/client';
 import { SubmitHandler } from 'react-hook-form';
 import { useDepartmentForm } from '../../hooks/useDepartmentForm';
-import { useDepartmentAdd } from '../../hooks/useDepartmentActions';
+import {
+  useDepartmentAdd,
+  useDepartmentEdit,
+} from '../../hooks/useDepartmentActions';
+import { useDepartmentCreateSheet } from '../../hooks/useStructureCreateSheet';
 import { DepartmentHotKeyScope, TDepartmentForm } from '../../types/department';
 import { DepartmentForm } from './DepartmentForm';
 import { Can, usePermissionCheck } from 'ui-modules';
@@ -25,66 +28,74 @@ export const CreateDepartment = () => {
     methods,
     methods: { handleSubmit },
   } = useDepartmentForm();
-  const [open, setOpen] = useState<boolean>(false);
+  const { target, isOpen, openSheet, closeSheet } = useDepartmentCreateSheet();
   const { handleAdd, loading } = useDepartmentAdd();
+  const { handleEdit } = useDepartmentEdit();
   const { toast } = useToast();
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canManageDepartments =
     isLoaded && hasActionPermission('departmentsManage');
+  const presetParentId = target?.parentId;
 
-  const onOpen = () => {
-    setOpen(true);
-    setHotkeyScopeAndMemorizePreviousScope(
-      DepartmentHotKeyScope.DepartmentAddSheet,
-    );
-  };
-
-  const onClose = () => {
-    setHotkeyScope(DepartmentHotKeyScope.DepartmentSettingsPage);
-    setOpen(false);
-  };
+  // A chart "+" opens the sheet with its parent already chosen
+  useEffect(() => {
+    methods.setValue('parentId', presetParentId ?? '');
+  }, [presetParentId, methods]);
 
   useScopedHotkeys(
     `c`,
     () => {
       if (!canManageDepartments) return;
-      onOpen();
+      openSheet();
     },
     DepartmentHotKeyScope.DepartmentSettingsPage,
   );
   useScopedHotkeys(
     `esc`,
-    () => onClose(),
+    () => closeSheet(),
     DepartmentHotKeyScope.DepartmentAddSheet,
   );
 
-  const submitHandler: SubmitHandler<TDepartmentForm> = React.useCallback(
-    async (data) => {
-      handleAdd({
-        variables: data,
-        onCompleted: () => {
-          toast({
-            title: t('success'),
-            variant: 'success',
-            description: t('department-created'),
+  const showError = (error: ApolloError) =>
+    toast({
+      title: t('error'),
+      description: error.message,
+      variant: 'destructive',
+    });
+
+  const submitHandler: SubmitHandler<TDepartmentForm> = (data) => {
+    const insertBefore = target?.insertBefore;
+
+    handleAdd({
+      variables: data,
+      onCompleted: ({ departmentsAdd }) => {
+        if (insertBefore) {
+          // The backend rebuilds `order` from the code, so it must be sent
+          handleEdit({
+            variables: {
+              id: insertBefore._id,
+              code: insertBefore.code,
+              parentId: departmentsAdd._id,
+            },
+            onError: showError,
           });
-          methods.reset();
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [handleAdd],
-  );
+        }
+        toast({
+          title: t('success'),
+          variant: 'success',
+          description: t('department-created'),
+        });
+        methods.reset();
+        closeSheet();
+      },
+      onError: showError,
+    });
+  };
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
+    <Sheet
+      onOpenChange={(open) => (open ? openSheet() : closeSheet())}
+      open={isOpen}
+    >
       <Can action="departmentsManage">
         <Sheet.Trigger asChild>
           <Button>
@@ -115,7 +126,7 @@ export const CreateDepartment = () => {
               <DepartmentForm />
             </Sheet.Content>
             <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(false)}>
+              <Button variant={'ghost'} onClick={closeSheet}>
                 {t('cancel')}
               </Button>
               <Button type="submit" disabled={loading}>

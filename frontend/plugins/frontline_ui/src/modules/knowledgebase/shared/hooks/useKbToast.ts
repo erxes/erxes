@@ -2,7 +2,9 @@ import { useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const useKbToast = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', {
+    keyPrefix: 'modules.knowledgebase',
+  });
   const { toast } = useToast();
 
   const success = (description: string) =>

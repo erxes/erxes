@@ -4,7 +4,7 @@ import { Navigate, Route, Routes } from 'react-router';
 import { SettingsHeader } from 'ui-modules';
 import { AccountSettingsBreadcrumb } from '@/settings/components/AccountSettingsBreadcrumb';
 import { AccountingTopbar } from '@/settings/components/AccountingTopbar';
-import { AccountingSidebar } from '@/settings/components/Sidebar';
+import { AccountingNotFound } from '@/layout/components/AccountingNotFound';
 
 const AccountingMainConfig = lazy(() =>
   import('~/pages/SettingsPage').then((module) => ({
@@ -90,119 +90,121 @@ const Jobs = lazy(() =>
   })),
 );
 
+const AccountingSubSettingsRoutes = () => {
+  return (
+    <Routes>
+      <Route path="config" element={<AccountingMainConfig />} />
+      <Route path="/config/accounts" element={<Accounts />} />
+      <Route
+        path="/config/account-categories"
+        element={<AccountCategories />}
+      />
+      <Route
+        path="/config/fixed-assets"
+        element={
+          <Navigate to="/accounting/settings/fixed-assets/assets" replace />
+        }
+      />
+      <Route
+        path="/config/fixed-assets/categories"
+        element={
+          <Navigate to="/accounting/settings/fixed-assets/categories" replace />
+        }
+      />
+      <Route
+        path="/config/fixed-assets/accounts-config"
+        element={
+          <Navigate
+            to="/accounting/settings/fixed-assets/accounts-config"
+            replace
+          />
+        }
+      />
+      <Route
+        path="/config/fixed-assets/assets"
+        element={
+          <Navigate to="/accounting/settings/fixed-assets/assets" replace />
+        }
+      />
+      <Route
+        path="/fixed-assets"
+        element={
+          <Navigate to="/accounting/settings/fixed-assets/assets" replace />
+        }
+      />
+      <Route
+        path="/fixed-assets/categories"
+        element={<FixedAssetCategories />}
+      />
+      <Route
+        path="/fixed-assets/accounts-config"
+        element={<FixedAssetAccountConfigs />}
+      />
+      <Route path="/fixed-assets/assets" element={<FixedAssets />} />
+      <Route path="/config/vat-rows" element={<VatRows />} />
+      <Route path="/config/ctax-rows" element={<CTaxRows />} />
+      <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
+      <Route
+        path="/config/sync-deal-movement"
+        element={<SettingSyncDealMovement />}
+      />
+      <Route
+        path="/config/sync-deal-return"
+        element={<SettingSyncDealReturn />}
+      />
+      <Route path="/config/sync-order" element={<SettingSyncOrder />} />
+      <Route path="/config/permissions" element={<Permissions />} />
+      <Route
+        path="/inventories"
+        element={
+          <Navigate to="/accounting/settings/inventories/jobs" replace />
+        }
+      />
+      <Route path="/inventories/jobs" element={<Jobs />} />
+      <Route path="/inventories/job-outputs" element={<Jobs unwindOutputs />} />
+      <Route
+        path="*"
+        element={
+          <AccountingNotFound returnLink="/accounting/settings/config" />
+        }
+      />
+    </Routes>
+  );
+};
+
+const AccountingSubSettingsHeader = () => {
+  return (
+    <SettingsHeader breadcrumbs={<AccountSettingsBreadcrumb />}>
+      <div className="flex ml-auto">
+        <AccountingTopbar />
+      </div>
+    </SettingsHeader>
+  );
+};
+
+const AccountingSubSettingsContent = () => {
+  return (
+    <div className="flex flex-auto flex-col overflow-hidden">
+      <Suspense
+        fallback={
+          <div className="flex flex-auto justify-center items-center h-full w-full">
+            <Spinner />
+          </div>
+        }
+      >
+        <AccountingSubSettingsRoutes />
+      </Suspense>
+    </div>
+  );
+};
+
 const AccountingSubSettings = () => {
   return (
     <Filter id="accounting-settings">
       <div className="flex flex-auto overflow-hidden">
-        <AccountingSidebar />
         <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
-          <SettingsHeader breadcrumbs={<AccountSettingsBreadcrumb />}>
-            <div className="flex ml-auto">
-              <AccountingTopbar />
-            </div>
-          </SettingsHeader>
-          <div className="flex flex-auto flex-col overflow-hidden">
-            <Suspense
-              fallback={
-                <div className="flex flex-auto justify-center items-center h-full w-full">
-                  <Spinner />
-                </div>
-              }
-            >
-              <Routes>
-                <Route path="config" element={<AccountingMainConfig />} />
-                <Route path="/config/accounts" element={<Accounts />} />
-                <Route
-                  path="/config/account-categories"
-                  element={<AccountCategories />}
-                />
-                <Route
-                  path="/config/fixed-assets"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/fixed-assets/assets"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="/config/fixed-assets/categories"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/fixed-assets/categories"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="/config/fixed-assets/accounts-config"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/fixed-assets/accounts-config"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="/config/fixed-assets/assets"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/fixed-assets/assets"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="/fixed-assets"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/fixed-assets/assets"
-                      replace
-                    />
-                  }
-                />
-                <Route
-                  path="/fixed-assets/categories"
-                  element={<FixedAssetCategories />}
-                />
-                <Route
-                  path="/fixed-assets/accounts-config"
-                  element={<FixedAssetAccountConfigs />}
-                />
-                <Route path="/fixed-assets/assets" element={<FixedAssets />} />
-                <Route path="/config/vat-rows" element={<VatRows />} />
-                <Route path="/config/ctax-rows" element={<CTaxRows />} />
-                <Route path="/config/sync-deal" element={<SettingSyncDeal />} />
-                <Route
-                  path="/config/sync-deal-movement"
-                  element={<SettingSyncDealMovement />}
-                />
-                <Route
-                  path="/config/sync-deal-return"
-                  element={<SettingSyncDealReturn />}
-                />
-                <Route
-                  path="/config/sync-order"
-                  element={<SettingSyncOrder />}
-                />
-                <Route path="/config/permissions" element={<Permissions />} />
-                <Route
-                  path="/inventories"
-                  element={
-                    <Navigate
-                      to="/accounting/settings/inventories/jobs"
-                      replace
-                    />
-                  }
-                />
-                <Route path="/inventories/jobs" element={<Jobs />} />
-                <Route
-                  path="/inventories/job-outputs"
-                  element={<Jobs unwindOutputs />}
-                />
-              </Routes>
-            </Suspense>
-          </div>
+          <AccountingSubSettingsHeader />
+          <AccountingSubSettingsContent />
         </div>
       </div>
     </Filter>

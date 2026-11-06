@@ -27,6 +27,18 @@ const userNotificationSchema = baseNotificationSchema.extend({
   allowMultiple: z.boolean().default(false),
 
   contentTypeId: z.union([z.string(), z.instanceof(Types.ObjectId)]),
+
+  // The preference slot, `<plugin>:<module>:<event>` as the plugin's
+  // notifications meta declares it. Not derived from contentType, which
+  // points at the record.
+  event: z
+    .string()
+    .regex(/^[^:]+:[^:]+:[^:]+$/)
+    .optional(),
+  // false: email and push only, no inbox item (a chat message)
+  inApp: z.boolean().default(true),
+  // FCM data the mobile app routes on; values must be strings
+  pushData: z.record(z.string()).optional(),
 });
 
 // Union for notification
@@ -63,7 +75,12 @@ export const sendNotification = async (
     defaultValue: [],
   });
 
-  if (notificationType) {
+  // Core delivers email and push for an event it can name. A caller not yet
+  // on `event` keeps this in-process delivery, so a mixed deploy never sends
+  // twice.
+  const event = parsedData.kind === 'user' ? parsedData.event : undefined;
+
+  if (notificationType && !event) {
     await sendNotificationChannels(subdomain, data);
   }
 };

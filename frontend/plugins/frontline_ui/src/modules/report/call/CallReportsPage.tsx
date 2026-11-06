@@ -49,7 +49,10 @@ export function CallReportsPage() {
 
   const integrationOptions = useMemo<SelectOption[]>(() => {
     const deduped = deduplicateIntegrations(integrations);
-    return deduped.map((i) => ({ label: i.phone, value: i.inboxId }));
+    return deduped.map((i) => ({
+      label: i.name || i.phone,
+      value: i.inboxId,
+    }));
   }, [integrations]);
 
   useEffect(() => {

@@ -5,7 +5,7 @@ import { GET_RESPONSES } from '../graphql/queries/getResponses';
 import { useTranslation } from 'react-i18next';
 
 export const useRemoveResponse = () => {
-  const { t } = useTranslation('frontline');
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.response-template' });
   const [removeResponse, { loading, error }] = useMutation(REMOVE_RESPONSE, {
     onCompleted: () => {
       toast({

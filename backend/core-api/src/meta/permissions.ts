@@ -40,6 +40,23 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'notificationTemplates',
+      description: 'Notification email templates',
+      scopeField: null,
+      ownerFields: [],
+
+      scopes: [{ name: 'all', description: 'All templates' }],
+
+      actions: [
+        {
+          title: 'Manage notification templates',
+          name: 'notificationTemplatesManage',
+          description:
+            'Edit, publish and revert notification emails and the email brand',
+        },
+      ],
+    },
+    {
       name: 'contacts',
       description: 'Contact management',
       scopeField: null,
@@ -463,6 +480,11 @@ export const permissions: IPermissionConfig = {
           description: 'Reset team member password',
         },
         {
+          title: 'View member activity',
+          name: 'teamMembersViewActivity',
+          description: 'See when and how long other team members are active',
+        },
+        {
           title: 'Import team members',
           name: 'teamMembersImportManage',
           description: 'Import team members',
@@ -864,6 +886,7 @@ export const permissions: IPermissionConfig = {
             'teamMembersUpdate',
             'teamMembersRemove',
             'teamMembersResetPassword',
+            'teamMembersViewActivity',
             'teamMembersImportManage',
             'teamMembersExportManage',
           ],

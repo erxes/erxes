@@ -155,6 +155,15 @@ describe('extractAgentReferences', () => {
     ).toEqual(['[[deal:deal1:Big Order]]']);
   });
 
+  it('maps automations to tokens labelled by their name', () => {
+    expect(
+      extractAgentReferences('automation', {
+        _id: 'auto1',
+        name: 'Welcome new customers',
+      }),
+    ).toEqual(['[[automation:auto1:Welcome new customers]]']);
+  });
+
   it('maps the agent write tools to customer/deal tokens by prefix', () => {
     expect(
       extractAgentReferences('customer', {

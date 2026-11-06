@@ -12,7 +12,6 @@ import {
   cn,
   toast,
   useConfirm,
-  useQueryState,
 } from 'erxes-ui';
 import { IconEdit, IconFolderOff, IconTrash } from '@tabler/icons-react';
 
@@ -22,12 +21,12 @@ import { AddAccountCategory } from '@/settings/account/account-categories/compon
 import { IAccountCategory } from '@/settings/account/account-categories/types/AccountCategory';
 import { SelectAccountCategory } from '@/settings/account/account-categories/components/SelectAccountCategory';
 import type { TFunction } from 'i18next';
-import { accountCategoryDetailAtom } from '@/settings/account/account-categories/states/accountCategoryStates';
 import { useAccountCategoriesRemove } from '@/settings/account/account-categories/hooks/useAccountCategoriesRemove';
 import { useAccountCategoryEdit } from '@/settings/account/account-categories/hooks/useAccountCategoryEdit';
 import { useFilteredAccountCategories } from '@/settings/account/account-categories/hooks/useFilteredAccountCategories';
 import { useMemo } from 'react';
-import { useSetAtom } from 'jotai';
+import { useSettingsPanel } from '@/settings/hooks/useSettingsPanel';
+import { ACCOUNT_CATEGORY_CONTENT_TYPE } from '@/settings/constants/settingsPanel';
 import { useTranslation } from 'react-i18next';
 
 type AccountCategoryRow = IAccountCategory & {
@@ -191,14 +190,12 @@ const AccountCategoryMoreColumnCell = ({
   cell: Cell<AccountCategoryRow, unknown>;
 }) => {
   const { t } = useTranslation('accounting');
-  const [, setOpen] = useQueryState<string>('accountCategoryId');
-  const setAccountCategoryDetail = useSetAtom(accountCategoryDetailAtom);
+  const { openDetail } = useSettingsPanel(ACCOUNT_CATEGORY_CONTENT_TYPE);
   const { confirm } = useConfirm();
   const { removeAccountCategories } = useAccountCategoriesRemove();
 
   const handleEdit = () => {
-    setAccountCategoryDetail(cell.row.original);
-    setOpen(cell.row.original._id);
+    openDetail(cell.row.original._id);
   };
 
   const handleDelete = () =>

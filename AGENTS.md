@@ -401,6 +401,23 @@ Authentication, credential and system-security operations are denied by
 are discoverable; existing resolver permissions apply to every execution.
 The configured approval policy gates mutations, including calls from code mode.
 
+A plugin **may** shape how the agent works with it through
+`startPlugin({ meta: { agent } })` (`IAgentPluginMeta` in
+`erxes-api-shared/core-modules`):
+
+- `skills`: text-only guidance (`name`, `description`, markdown
+  `instructions`, optional `operations` hints). Core mounts each one as
+  `<plugin>-<name>`; the model sees names and descriptions and loads
+  instructions on demand. Skills cannot add tools or run code, and core
+  instructions, the approval policy, the deny policy, permissions and
+  reference rules always take precedence over them.
+- `hiddenOperations`: root queries/mutations the plugin owns that the agent
+  should not discover. Hiding is visibility only: the operations stay
+  executable and never replace resolver permissions or the deny policy.
+
+Only enabled, reachable plugins contribute. The how-to guide and limits live in
+`backend/core-api/src/modules/agents/AGENTS.md`.
+
 ### Frontend plugin requirements
 
 The frontend project owns its routes, navigation, pages, widgets, GraphQL

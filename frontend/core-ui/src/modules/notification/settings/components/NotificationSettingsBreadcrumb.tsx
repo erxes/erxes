@@ -1,6 +1,7 @@
 import {
   IconMail,
   IconNotification,
+  IconPalette,
   IconSettings,
 } from '@tabler/icons-react';
 import { Breadcrumb, Button, useIsMatchingLocation } from 'erxes-ui';
@@ -34,6 +35,30 @@ const NotificationBreadcrumb = () => {
               <Link to={'/settings/notification/email'}>
                 <IconMail />
                 {t('Email')}
+              </Link>
+            </Button>
+          </>
+        )}
+
+        {isMatchingLocation('/settings/notification/templates') && (
+          <>
+            <Breadcrumb.Separator />
+            <Button variant="ghost" asChild>
+              <Link to={'/settings/notification/templates'}>
+                <IconMail />
+                {notificationT('email-templates')}
+              </Link>
+            </Button>
+          </>
+        )}
+
+        {isMatchingLocation('/settings/notification/brand') && (
+          <>
+            <Breadcrumb.Separator />
+            <Button variant="ghost" asChild>
+              <Link to={'/settings/notification/brand'}>
+                <IconPalette />
+                {notificationT('brand')}
               </Link>
             </Button>
           </>

@@ -1,35 +1,54 @@
-import { cn, RecordTableInlineCell } from 'erxes-ui';
+import { IconForms, type Icon } from '@tabler/icons-react';
+import { cn, Label, RecordTableInlineCell } from 'erxes-ui';
 import { forwardRef } from 'react';
+import { PanelLabel } from 'ui-modules/modules/widget/record-side-panel/PanelLabel';
 
 // One field in the side panel: its label, then the value as a record table
 // cell. Click to edit; Enter saves and Escape cancels, as in the list.
 export const PanelField = ({
   label,
+  icon: Icon = IconForms,
   children,
+  placeholder,
+  htmlFor,
   cell = true,
 }: {
   label: React.ReactNode;
+  icon?: Icon;
+  placeholder?: React.ReactNode;
+  htmlFor?: string;
   children: React.ReactNode;
   // The value is a record table cell, tightened to the panel's rows; off for
   // values with their own layout (e.g. an avatar upload).
   cell?: boolean;
 }) => (
   <div className="grid grid-cols-[6.5rem_minmax(0,1fr)] items-center gap-x-2 min-h-7">
-    <span className="truncate text-xs font-medium text-accent-foreground">
-      {label}
-    </span>
+    <Label
+      htmlFor={htmlFor}
+      variant="peer"
+      className="flex min-w-0 items-center gap-1.5 text-xs font-medium text-accent-foreground"
+    >
+      {Icon && <Icon className="size-3.5 shrink-0" aria-hidden="true" />}
+      <PanelLabel>{label}</PanelLabel>
+    </Label>
     {/* Record table cells are 32px and 14px; the panel's rows are a little
         tighter and their values the size of their labels. Switches and
         smaller inline controls (`data-panel-inline`, e.g. relation chips)
         keep their own height. */}
     <div
       className={cn(
-        'min-w-0',
+        'relative min-w-0',
         cell &&
           'text-xs [&_button:not([role=switch],[data-panel-inline])]:h-7 [&_button:not([role=switch])]:text-xs [&_input]:text-xs',
       )}
     >
       {children}
+      {placeholder && (
+        <span className="pointer-events-none absolute inset-y-0 left-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+          {placeholder}
+        </span>
+      )}
     </div>
   </div>
 );

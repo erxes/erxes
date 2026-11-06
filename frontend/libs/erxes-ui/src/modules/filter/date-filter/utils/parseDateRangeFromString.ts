@@ -2,6 +2,7 @@ import { endOfDay, startOfDay, subDays, subMonths } from 'date-fns';
 import { MONTHS } from 'erxes-ui/modules/filter/date-filter/constants/dateTypes';
 import { isUndefinedOrNull } from 'erxes-ui/utils';
 import {
+  normalizeFixedDate,
   parseHalfToken,
   parseQuarterToken,
 } from 'erxes-ui/modules/filter/date-filter/utils/dateTokens';
@@ -23,27 +24,28 @@ export const parseDateRangeFromString = (
       from: startOfDay(new Date(1979, 0, 1)),
       to: endOfDay(today),
     },
-    '1-day-from-now': {
+    'last-1-day': {
       from: startOfDay(subDays(today, 1)),
       to: endOfDay(today),
     },
-    '3-days-from-now': {
+    'last-3-days': {
       from: startOfDay(subDays(today, 3)),
       to: endOfDay(today),
     },
-    '1-week-from-now': {
+    'last-7-days': {
       from: startOfDay(subDays(today, 7)),
       to: endOfDay(today),
     },
-    '3-months-from-now': {
+    'last-3-months': {
       from: startOfDay(subMonths(today, 3)),
       to: endOfDay(today),
     },
   };
 
   // Check for predefined ranges
-  if (dateRanges[date]) {
-    return dateRanges[date];
+  const fixedDate = normalizeFixedDate(date);
+  if (dateRanges[fixedDate]) {
+    return dateRanges[fixedDate];
   }
 
   // Month format: YYYY-MMM
