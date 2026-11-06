@@ -5,3 +5,7 @@ import { atomFamily } from 'jotai/utils';
 export const dealProductsDraftAtomFamily = atomFamily((_dealId: string) =>
   atom<Record<string, Partial<DealProductData>> | null>(null),
 );
+
+export const dealProductsDraftRevisionAtomFamily = atomFamily(
+  (_dealId: string) => atom(0),
+);

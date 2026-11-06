@@ -1,5 +1,5 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import {
   SetStateAction,
   useCallback,
@@ -21,7 +21,10 @@ import {
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import { dealProductsDraftAtomFamily } from '@/deals/cards/components/detail/product/productTableAtom';
+import {
+  dealProductsDraftAtomFamily,
+  dealProductsDraftRevisionAtomFamily,
+} from '@/deals/cards/components/detail/product/productTableAtom';
 import { ProductListHandlersContext } from '@/deals/cards/components/detail/product/productListHandlers';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
@@ -88,12 +91,13 @@ export const ProductsList = ({
   const hasUnsavedEditsRef = useRef(
     Object.keys(restoredDraftPatches).length > 0,
   );
-  const editRevisionRef = useRef(0);
-  const savedRevisionRef = useRef(0);
+  const store = useStore();
+  const draftRevisionAtom = dealProductsDraftRevisionAtomFamily(dealId);
+  const savedRevisionRef = useRef<number | null>(null);
   const editLocalProductsData = useCallback(
     (update: SetStateAction<DealProductData[]>) => {
       hasUnsavedEditsRef.current = true;
-      editRevisionRef.current += 1;
+      store.set(draftRevisionAtom, (revision) => revision + 1);
       setLocalProductsData((prev) => {
         const next = typeof update === 'function' ? update(prev) : update;
         const patches = getProductsDraftPatches(next, prev);
@@ -112,7 +116,7 @@ export const ProductsList = ({
         return next;
       });
     },
-    [],
+    [store, draftRevisionAtom],
   );
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
@@ -138,7 +142,7 @@ export const ProductsList = ({
   const { editDeals, loading: saving } = useDealsEdit(
     {
       onCompleted: () => {
-        if (editRevisionRef.current !== savedRevisionRef.current) {
+        if (store.get(draftRevisionAtom) !== savedRevisionRef.current) {
           return;
         }
 
@@ -268,10 +272,22 @@ export const ProductsList = ({
         );
 
         affectedProductData.forEach((productData) => {
-          pendingProductPatchesRef.current[String(productData._id)] = {
-            ...pendingProductPatchesRef.current[String(productData._id)],
+          const rowId = String(productData._id);
+          pendingProductPatchesRef.current[rowId] = {
+            ...pendingProductPatchesRef.current[rowId],
             ...patch,
           };
+
+          const draftPatch = draftPatchesRef.current[rowId];
+
+          if (draftPatch) {
+            draftPatchesRef.current[rowId] = {
+              ...draftPatch,
+              ...Object.fromEntries(
+                Object.entries(patch).filter(([key]) => key in draftPatch),
+              ),
+            };
+          }
         });
 
         const affectedIds = new Set(
@@ -295,6 +311,13 @@ export const ProductsList = ({
       setProductsDraft({ ...draftPatchesRef.current });
     }
   }, [localProductsData, setProductsDraft]);
+
+  useEffect(() => {
+    if (productsDraft === null) {
+      hasUnsavedEditsRef.current = false;
+      draftPatchesRef.current = {};
+    }
+  }, [productsDraft]);
 
   useSyncLocalProductsData({
     productsData,
@@ -396,7 +419,7 @@ export const ProductsList = ({
         updateTotal={updateTotal}
         onAddProducts={addProducts}
         onSave={() => {
-          savedRevisionRef.current = editRevisionRef.current;
+          savedRevisionRef.current = store.get(draftRevisionAtom);
           handleSave();
         }}
         saving={saving}
