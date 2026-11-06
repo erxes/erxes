@@ -28,7 +28,6 @@ export const itineraryColumns = (
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IItinerary>[] => [
   itineraryMoreColumn(
-    props?.onEditClick,
     props?.branchId,
     props?.branchLanguages,
     props?.mainLanguage,

@@ -1,7 +1,22 @@
 import { useCallback, useMemo } from 'react';
-import { Control, UseFormSetValue, useController } from 'react-hook-form';
+import {
+  Control,
+  FieldErrors,
+  UseFormSetValue,
+  useController,
+  useFormState,
+} from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Form, Switch } from 'erxes-ui';
+import {
+  IconCalendar,
+  IconCalendarDue,
+  IconCalendarEvent,
+  IconCalendarRepeat,
+  IconUsersGroup,
+} from '@tabler/icons-react';
+import { Switch } from 'erxes-ui';
+import { PanelFormRow } from 'ui-modules';
+import { TOURISM_PANEL_INPUT_CLASS_NAME } from '@/tms/side-panel/TourismPanelForm';
 import { RHFDatePicker } from './RHFDatePicker';
 import { TourFormValues } from '../constants/formSchema';
 
@@ -10,29 +25,66 @@ type Props = {
   setValue: UseFormSetValue<TourFormValues>;
 };
 
+const toShortLabel = (label: string) => {
+  const hintStart = label.indexOf('(');
+
+  return hintStart === -1 ? label : label.slice(0, hintStart).trimEnd();
+};
+
+const getErrorMessage = (
+  errors: FieldErrors<TourFormValues>,
+  name: 'startDate' | 'availableFrom' | 'availableTo',
+) => {
+  const message = errors[name]?.message;
+
+  return typeof message === 'string' ? message : undefined;
+};
+
+const SwitchRow = ({
+  label,
+  icon,
+  checked,
+  onCheckedChange,
+}: {
+  label: string;
+  icon: typeof IconCalendar;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+}) => (
+  <PanelFormRow
+    label={<span title={label}>{toShortLabel(label)}</span>}
+    icon={icon}
+  >
+    <div className="flex h-7 items-center px-2">
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
+    </div>
+  </PanelFormRow>
+);
+
 export const TourDateSchedulingField = ({ control, setValue }: Props) => {
   const { t } = useTranslation('tourism');
+  const { errors } = useFormState({
+    control,
+    name: ['startDate', 'availableFrom', 'availableTo'],
+  });
   const { field: flexibleField } = useController({
     control,
     name: 'isFlexibleDate',
     defaultValue: false,
   });
-
   const { field: groupField } = useController({
     control,
     name: 'isGroupTour',
     defaultValue: false,
   });
-
   const { field: availableFromField } = useController({
     control,
     name: 'availableFrom',
   });
 
-  const isFlexibleDate = flexibleField.value;
+  const isFlexibleDate = !!flexibleField.value;
+  const isGroupTour = !!groupField.value;
   const today = useMemo(() => new Date(), []);
-  const isGroupTour = groupField.value;
-  const availableFrom = availableFromField.value;
 
   const handleFlexibleChange = useCallback(
     (checked: boolean) => {
@@ -53,7 +105,6 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
   const handleGroupChange = useCallback(
     (checked: boolean) => {
       groupField.onChange(checked);
-
       setValue('startDate', undefined);
       setValue('endDate', undefined);
     },
@@ -61,103 +112,77 @@ export const TourDateSchedulingField = ({ control, setValue }: Props) => {
   );
 
   return (
-    <div className="space-y-6">
-      <Form.Item className="flex gap-3 items-center space-y-0">
-        <Switch
-          checked={!!isFlexibleDate}
-          onCheckedChange={handleFlexibleChange}
-        />
-        <div className="space-y-1">
-          <Form.Label>{t('flexible-dates')}</Form.Label>
-          <Form.Description className="text-xs">
-            {isFlexibleDate
-              ? t('customers-can-choose-date')
-              : t('tour-has-specific-dates')}
-          </Form.Description>
-        </div>
-      </Form.Item>
+    <>
+      <SwitchRow
+        label={t('flexible-dates')}
+        icon={IconCalendarEvent}
+        checked={isFlexibleDate}
+        onCheckedChange={handleFlexibleChange}
+      />
 
       {isFlexibleDate ? (
-        <div className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Form.Item>
-              <Form.Label>
-                {t('available-from')} <span className="text-destructive">*</span>
-              </Form.Label>
-              <Form.Control>
-                <RHFDatePicker
-                  control={control}
-                  name="availableFrom"
-                  fromDate={today}
-                />
-              </Form.Control>
-            </Form.Item>
-
-            <Form.Item>
-              <Form.Label>
-                {t('available-until-label')} <span className="text-destructive">*</span>
-              </Form.Label>
-              <Form.Control>
-                <RHFDatePicker
-                  control={control}
-                  name="availableTo"
-                  fromDate={availableFrom}
-                />
-              </Form.Control>
-            </Form.Item>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          <Form.Item className="flex gap-3 items-center space-y-0">
-            <Switch
-              checked={!!isGroupTour}
-              onCheckedChange={handleGroupChange}
+        <>
+          <PanelFormRow
+            label={t('available-from')}
+            icon={IconCalendar}
+            required
+            error={getErrorMessage(errors, 'availableFrom')}
+          >
+            <RHFDatePicker
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
+              control={control}
+              name="availableFrom"
+              fromDate={today}
             />
-            <div className="space-y-1">
-              <Form.Label>{t('group-tour')}</Form.Label>
-              <Form.Description className="text-xs">
-                {isGroupTour
-                  ? t('create-one-tour-per-date')
-                  : t('create-single-tour-date')}
-              </Form.Description>
-            </div>
-          </Form.Item>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <Form.Item>
-              <Form.Label>
-                {isGroupTour ? t('start-dates') : t('start-date')}{' '}
-                <span className="text-destructive">*</span>
-              </Form.Label>
-
-              {isGroupTour && (
-                <Form.Description className="text-xs">
-                  {t('select-multiple-start-dates')}
-                </Form.Description>
-              )}
-
-              <Form.Control>
-                <RHFDatePicker
-                  control={control}
-                  name="startDate"
-                  mode={isGroupTour ? 'multiple' : 'single'}
-                  fromDate={today}
-                />
-              </Form.Control>
-            </Form.Item>
-
-            {!isGroupTour && (
-              <Form.Item>
-                <Form.Label>{t('end-date')}</Form.Label>
-                <Form.Control>
-                  <RHFDatePicker control={control} name="endDate" disabled />
-                </Form.Control>
-              </Form.Item>
-            )}
-          </div>
-        </div>
+          </PanelFormRow>
+          <PanelFormRow
+            label={t('available-until-label')}
+            icon={IconCalendarDue}
+            required
+            error={getErrorMessage(errors, 'availableTo')}
+          >
+            <RHFDatePicker
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
+              control={control}
+              name="availableTo"
+              fromDate={availableFromField.value}
+            />
+          </PanelFormRow>
+        </>
+      ) : (
+        <>
+          <SwitchRow
+            label={t('group-tour')}
+            icon={IconUsersGroup}
+            checked={isGroupTour}
+            onCheckedChange={handleGroupChange}
+          />
+          <PanelFormRow
+            label={isGroupTour ? t('start-dates') : t('start-date')}
+            icon={isGroupTour ? IconCalendarRepeat : IconCalendar}
+            required
+            error={getErrorMessage(errors, 'startDate')}
+          >
+            <RHFDatePicker
+              className={TOURISM_PANEL_INPUT_CLASS_NAME}
+              control={control}
+              name="startDate"
+              mode={isGroupTour ? 'multiple' : 'single'}
+              fromDate={today}
+            />
+          </PanelFormRow>
+          {!isGroupTour && (
+            <PanelFormRow label={t('end-date')} icon={IconCalendarDue}>
+              <RHFDatePicker
+                className={TOURISM_PANEL_INPUT_CLASS_NAME}
+                control={control}
+                name="endDate"
+                disabled
+              />
+            </PanelFormRow>
+          )}
+        </>
       )}
-    </div>
+    </>
   );
 };

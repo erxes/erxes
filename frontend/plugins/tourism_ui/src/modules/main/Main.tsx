@@ -14,6 +14,12 @@ const TmsBranchDetail = lazy(() =>
   })),
 );
 
+const TmsRecordDetail = lazy(() =>
+  import('~/pages/tms/RecordDetailPage').then((module) => ({
+    default: module.RecordDetailPage,
+  })),
+);
+
 const Pms = lazy(() =>
   import('~/pages/pms/IndexPage').then((module) => ({
     default: module.IndexPage,
@@ -28,6 +34,10 @@ const App = () => {
           <Route path="/" element={<Navigate to="tms" replace />} />
           <Route path="tms" element={<Tms />} />
           <Route path="tms/branches/:branchId" element={<TmsBranchDetail />} />
+          <Route
+            path="tms/branches/:branchId/records/:recordType/:recordId"
+            element={<TmsRecordDetail />}
+          />
           <Route path="pms" element={<Pms />} />
         </Routes>
       </Suspense>
