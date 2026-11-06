@@ -103,7 +103,7 @@ export const useSyncLocalProductsData = ({
                     incomingById.has(data._id) ||
                     !seenServerIdsRef.current.has(data._id),
                 )
-                .map((data) => incomingById.get(data._id) || data),
+                .map((data) => incomingById.get(data._id) ?? data),
               ...updatedIncoming.filter((data) => !previousById.has(data._id)),
             ]
           : updatedIncoming;

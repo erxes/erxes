@@ -16,7 +16,7 @@ import {
   TextOverflowTooltip,
   useQueryState,
 } from 'erxes-ui';
-import { type ReactNode, useMemo, useRef } from 'react';
+import { type ReactNode, useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
@@ -198,17 +198,23 @@ const DealPageNavigator = ({
     [dealId],
   );
 
-  const backToBoard = () => navigate(boardPath, { replace: true });
+  const backToBoard = useCallback(
+    () => navigate(boardPath, { replace: true }),
+    [navigate, boardPath],
+  );
 
-  const navigator: ISidePanelNavigator = {
-    record,
-    tab: tab ?? '',
-    setTab,
-    openRecord,
-    back: backToBoard,
-    canGoBack: false,
-    close: backToBoard,
-  };
+  const navigator = useMemo<ISidePanelNavigator>(
+    () => ({
+      record,
+      tab: tab ?? '',
+      setTab,
+      openRecord,
+      back: backToBoard,
+      canGoBack: false,
+      close: backToBoard,
+    }),
+    [record, tab, setTab, openRecord, backToBoard],
+  );
 
   return (
     <SidePanelNavigatorContext.Provider value={navigator}>
