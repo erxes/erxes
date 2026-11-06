@@ -76,7 +76,6 @@ const INSTAGRAM_KINDS: string[] = [
   IntegrationType.INSTAGRAM_POST,
 ];
 
-// Kinds with an edit action below; others (e.g. lead forms) get no Edit item.
 const EDITABLE_KINDS: string[] = [
   IntegrationType.ERXES_MESSENGER,
   ...FACEBOOK_KINDS,
@@ -88,12 +87,13 @@ const EDITABLE_KINDS: string[] = [
   IntegrationType.TELEGRAM_MESSENGER,
 ];
 
+/** Identifies providers that offer an integration repair action. */
 export const isRepairableIntegration = (kind: string) =>
   FACEBOOK_KINDS.includes(kind) ||
   INSTAGRAM_KINDS.includes(kind) ||
   kind === IntegrationType.DISCORD_MESSENGER;
 
-/** The kind's own repair action, for every place an integration is listed. */
+/** Renders the repair action supported by the integration provider. */
 export const IntegrationRepairAction = ({
   integration,
 }: {
@@ -114,6 +114,7 @@ export const IntegrationRepairAction = ({
   return null;
 };
 
+/** Loads the edit controls for the selected integration's provider. */
 const IntegrationEditAction = ({
   integration,
 }: {
@@ -151,18 +152,90 @@ const IntegrationEditAction = ({
   );
 };
 
-/** Row actions of one integration, independent of the page it is listed on. */
-export const IntegrationActionsMenu = ({
-  integration,
-  trigger,
-}: {
+type IntegrationMenuContentProps = {
   integration: IIntegration;
-  trigger?: ReactNode;
-}) => {
+  setMenuOpen: (open: boolean) => void;
+  setMoveOpen: (open: boolean) => void;
+  showEdit: boolean;
+};
+
+/** Renders the available actions for the selected integration. */
+const IntegrationMenuItems = ({
+  integration,
+  setMenuOpen,
+  setMoveOpen,
+  showEdit,
+}: IntegrationMenuContentProps) => {
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.integrations',
   });
-  const { _id, name, isActive, channelId, kind } = integration;
+  const { _id, name, isActive, kind } = integration;
+  return (
+    <Command.List>
+      {showEdit && EDITABLE_KINDS.includes(kind) && (
+        <Command.Item
+          value="edit"
+          onSelect={() => {
+            setMenuOpen(false);
+          }}
+        >
+          <IntegrationEditAction integration={integration} />
+        </Command.Item>
+      )}
+      {kind === IntegrationType.ERXES_MESSENGER && (
+        <Command.Item value="install">
+          <EMInstallScript integrationId={_id} />
+        </Command.Item>
+      )}
+      {isRepairableIntegration(kind) && (
+        <Command.Item value="repair">
+          <IntegrationRepairAction integration={integration} />
+        </Command.Item>
+      )}
+      <Command.Item
+        value="move"
+        onSelect={() => {
+          setMenuOpen(false);
+          setMoveOpen(true);
+        }}
+      >
+        <IconArrowBarToRight />
+        {t('move-to-channel', 'Move to Channel')}
+      </Command.Item>
+      <Command.Item value="archive">
+        <ArchiveIntegration
+          _id={_id}
+          name={name}
+          isActive={isActive ?? false}
+        />
+      </Command.Item>
+      <Command.Item value="remove">
+        <RemoveIntegration _id={_id} name={name} />
+      </Command.Item>
+    </Command.List>
+  );
+};
+
+/** Composes the integration action menu with the shared combobox. */
+const IntegrationMenuContent = (props: IntegrationMenuContentProps) => (
+  <Combobox.Content>
+    <Command shouldFilter={false}>
+      <IntegrationMenuItems {...props} />
+    </Command>
+  </Combobox.Content>
+);
+
+/** Controls the integration action menu and move-to-channel dialog. */
+export const IntegrationActionsMenu = ({
+  integration,
+  trigger,
+  showEdit = true,
+}: {
+  integration: IIntegration;
+  trigger?: ReactNode;
+  showEdit?: boolean;
+}) => {
+  const { _id, channelId } = integration;
   const [menuOpen, setMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
 
@@ -172,47 +245,12 @@ export const IntegrationActionsMenu = ({
         <Popover.Trigger asChild>
           {trigger ?? <RecordTable.MoreButton className="w-full h-full" />}
         </Popover.Trigger>
-        <Combobox.Content>
-          <Command shouldFilter={false}>
-            <Command.List>
-              {EDITABLE_KINDS.includes(kind) && (
-                <Command.Item value="edit">
-                  <IntegrationEditAction integration={integration} />
-                </Command.Item>
-              )}
-              {kind === IntegrationType.ERXES_MESSENGER && (
-                <Command.Item value="install">
-                  <EMInstallScript integrationId={_id} />
-                </Command.Item>
-              )}
-              {isRepairableIntegration(kind) && (
-                <Command.Item value="repair">
-                  <IntegrationRepairAction integration={integration} />
-                </Command.Item>
-              )}
-              <Command.Item
-                value="move"
-                onSelect={() => {
-                  setMenuOpen(false);
-                  setMoveOpen(true);
-                }}
-              >
-                <IconArrowBarToRight />
-                {t('move-to-channel', 'Move to Channel')}
-              </Command.Item>
-              <Command.Item value="archive">
-                <ArchiveIntegration
-                  _id={_id}
-                  name={name}
-                  isActive={isActive ?? false}
-                />
-              </Command.Item>
-              <Command.Item value="remove">
-                <RemoveIntegration _id={_id} name={name} />
-              </Command.Item>
-            </Command.List>
-          </Command>
-        </Combobox.Content>
+        <IntegrationMenuContent
+          integration={integration}
+          setMenuOpen={setMenuOpen}
+          setMoveOpen={setMoveOpen}
+          showEdit={showEdit}
+        />
       </Popover>
       <MoveToChannelDialog
         open={moveOpen}
@@ -225,6 +263,7 @@ export const IntegrationActionsMenu = ({
   );
 };
 
+/** Builds the integration actions column with optional column selection. */
 export const integrationMoreColumn = (
   showColumnSelector = false,
 ): ColumnDef<IIntegration> => ({

@@ -5,10 +5,10 @@ import { Empty, RecordTable, useQueryState } from 'erxes-ui';
 import { IconBrandTrello, IconSearchOff } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { ChannelsCommandBar } from './ChannelsCommandBar';
-import { IntegrationEditSheets } from '@/integrations/components/IntegrationEditSheets';
 import { useChannelsColumns } from './ChannelsColumns';
 import { useTranslation } from 'react-i18next';
 
+/** Lists searchable channels with their members, actions, and empty states. */
 export function Channels() {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.channels' });
   const [searchValue] = useQueryState<string | null>('searchValue');
@@ -73,7 +73,6 @@ export function Channels() {
         </RecordTable>
       </RecordTable.Scroll>
       <ChannelsCommandBar />
-      <IntegrationEditSheets />
     </RecordTable.Provider>
   );
 }

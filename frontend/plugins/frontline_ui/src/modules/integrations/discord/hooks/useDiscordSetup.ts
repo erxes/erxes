@@ -27,8 +27,12 @@ export const useDiscordValidateToken = () => {
     fetchPolicy: 'network-only',
   });
 
+  const validateToken = useCallback(
+    (token: string) => validate({ variables: { token } }),
+    [validate],
+  );
   return {
-    validate: (token: string) => validate({ variables: { token } }),
+    validate: validateToken,
     validation: data?.discordValidateToken,
     loading,
   };

@@ -16,7 +16,8 @@ export const useIntegrationAdd = () => {
       'DiscordConnectedServers',
       'DiscordTakenChannels',
     ],
-    onCompleted() {
+    onCompleted(data) {
+      if (!data.integrationsCreateExternalIntegration?._id) return;
       toast({
         title: t('integration-added'),
         variant: 'default',

@@ -1,4 +1,5 @@
 import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
+import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 import {
   KB_DRAFT_CONTENT_TYPES,
   KB_RECORD_CONTENT_TYPES,
@@ -27,6 +28,12 @@ import { TicketPanelDetail, TicketPanelName } from './TicketPanelDetail';
 const HelpCenterRecordPanel = lazy(() =>
   import('./HelpCenterRecordPanel').then((module) => ({
     default: module.HelpCenterRecordPanel,
+  })),
+);
+
+const IntegrationRecordPanel = lazy(() =>
+  import('./IntegrationRecordPanel').then((module) => ({
+    default: module.IntegrationRecordPanel,
   })),
 );
 
@@ -142,6 +149,13 @@ export const RecordPanel = (props: IRecordPanelProps) => {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>
         <HelpCenterRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (props.contentType === INTEGRATION_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <IntegrationRecordPanel {...props} />
       </Suspense>
     );
   }
