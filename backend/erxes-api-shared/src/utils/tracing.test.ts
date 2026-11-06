@@ -1,15 +1,13 @@
-import {
-  context,
-  propagation,
-  ProxyTracerProvider,
-  trace,
-} from '@opentelemetry/api';
+import { context, propagation, trace } from '@opentelemetry/api';
+
 import {
   BasicTracerProvider,
   InMemorySpanExporter,
   ReadableSpan,
   SimpleSpanProcessor,
 } from '@opentelemetry/sdk-trace-base';
+
+import { registeredProvider, useOtelTestEnv } from './otelTestEnv.spec';
 
 type Tracing = typeof import('./tracing');
 
@@ -28,37 +26,8 @@ const loadTracing = (): Tracing => {
   return tracing as Tracing;
 };
 
-const registeredProvider = () =>
-  (trace.getTracerProvider() as ProxyTracerProvider).getDelegate().constructor
-    .name;
-
 describe('tracing', () => {
-  const savedEnv: Record<string, string | undefined> = {};
-  let warn: jest.SpyInstance;
-  let log: jest.SpyInstance;
-
-  beforeEach(() => {
-    for (const key of ENV_KEYS) {
-      savedEnv[key] = process.env[key];
-      delete process.env[key];
-    }
-    warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-    log = jest.spyOn(console, 'log').mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    trace.disable();
-    propagation.disable();
-    context.disable();
-    jest.restoreAllMocks();
-    for (const key of ENV_KEYS) {
-      if (savedEnv[key] === undefined) {
-        delete process.env[key];
-      } else {
-        process.env[key] = savedEnv[key];
-      }
-    }
-  });
+  const spies = useOtelTestEnv(ENV_KEYS);
 
   describe('env gating', () => {
     test.each([[undefined], [''], ['   ']])(
@@ -77,8 +46,8 @@ describe('tracing', () => {
 
         expect(registeredProvider()).toBe('NoopTracerProvider');
         expect(propagation.fields()).toEqual([]);
-        expect(warn).not.toHaveBeenCalled();
-        expect(log).not.toHaveBeenCalled();
+        expect(spies.warn).not.toHaveBeenCalled();
+        expect(spies.log).not.toHaveBeenCalled();
       },
     );
 
@@ -97,9 +66,9 @@ describe('tracing', () => {
 
       expect(registeredProvider()).toBe('BasicTracerProvider');
       expect(propagation.fields()).toEqual(['traceparent', 'tracestate']);
-      expect(log).toHaveBeenCalledTimes(1);
-      expect(log.mock.calls[0][0]).toContain('"sales"');
-      expect(warn).not.toHaveBeenCalled();
+      expect(spies.log).toHaveBeenCalledTimes(1);
+      expect(spies.log.mock.calls[0][0]).toContain('"sales"');
+      expect(spies.warn).not.toHaveBeenCalled();
     });
 
     test('names spans after OTEL_SERVICE_NAME', () => {
@@ -128,8 +97,8 @@ describe('tracing', () => {
         .startSpan('op') as unknown as ReadableSpan;
 
       expect(span.resource.attributes['service.name']).toBe('erxes-plugin');
-      expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0][0]).toContain('OTEL_SERVICE_NAME');
+      expect(spies.warn).toHaveBeenCalledTimes(1);
+      expect(spies.warn.mock.calls[0][0]).toContain('OTEL_SERVICE_NAME');
     });
 
     test('warns once that tracing needs SENTRY_DSN', () => {
@@ -139,8 +108,8 @@ describe('tracing', () => {
       tracing.warnTracingWithoutDsn();
       tracing.warnTracingWithoutDsn();
 
-      expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0][0]).toContain('SENTRY_DSN');
+      expect(spies.warn).toHaveBeenCalledTimes(1);
+      expect(spies.warn.mock.calls[0][0]).toContain('SENTRY_DSN');
       expect(registeredProvider()).toBe('NoopTracerProvider');
     });
   });
@@ -156,14 +125,14 @@ describe('tracing', () => {
       [' 0.5 ', 0.5],
     ])('OTEL_TRACES_SAMPLER_ARG=%p gives %p', (value, expected) => {
       expect(loadTracing().parseSampleRatio(value)).toBe(expected);
-      expect(warn).not.toHaveBeenCalled();
+      expect(spies.warn).not.toHaveBeenCalled();
     });
 
     test.each([['abc'], ['-0.1'], ['1.5'], ['NaN'], ['Infinity']])(
       'OTEL_TRACES_SAMPLER_ARG=%p falls back to 0.1 with a warning',
       (value) => {
         expect(loadTracing().parseSampleRatio(value)).toBe(0.1);
-        expect(warn).toHaveBeenCalledTimes(1);
+        expect(spies.warn).toHaveBeenCalledTimes(1);
       },
     );
 
