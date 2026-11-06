@@ -9,12 +9,44 @@ export const ProductDetailFields = ({
   productDetail,
   compact = false,
   deferMediaDeletion = false,
+  disabled = false,
 }: {
   productDetail: ProductDetail | null;
   compact?: boolean;
   deferMediaDeletion?: boolean;
+  disabled?: boolean;
 }) => {
   if (!productDetail) return null;
+
+  if (compact) {
+    return (
+      <div className="flex min-w-0 flex-col gap-3 p-3">
+        <fieldset disabled={disabled} className="min-w-0 space-y-3">
+          <ProductDetailGeneral compact />
+          <div className="border-t pt-2">
+            <ProductDetailInfo compact />
+          </div>
+        </fieldset>
+        <div className="min-w-0">
+          <ProductDetailBarcode
+            productDetail={productDetail}
+            compact
+            disabled={disabled}
+          />
+          <ProductDetailUom compact disabled={disabled} />
+          <ProductDetailAttachment
+            compact
+            disabled={disabled}
+            deleteOnRemove={!deferMediaDeletion}
+            attachment={productDetail.attachment}
+            attachmentMore={productDetail.attachmentMore}
+            videos={productDetail.videos}
+            files={productDetail.files}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 space-y-4">

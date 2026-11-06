@@ -17,6 +17,8 @@ interface SelectUOMWithNameProps {
   onValueChange: (value: string) => void;
   inForm?: boolean;
   disabledUoms?: string[];
+  className?: string;
+  placeholder?: React.ReactNode;
 }
 
 export const SelectUOMWithName = ({
@@ -24,6 +26,8 @@ export const SelectUOMWithName = ({
   onValueChange,
   inForm = false,
   disabledUoms = [],
+  className,
+  placeholder = 'Choose UOM',
 }: SelectUOMWithNameProps) => {
   const { uoms, loading } = useUom();
   const [isCreating, setIsCreating] = useState(false);
@@ -76,7 +80,7 @@ export const SelectUOMWithName = ({
   const selectedUom = uoms.find((uom) => uom.code === value);
 
   const displayValue =
-    selectedUom?.name || (value && !loading ? value : 'Choose UOM');
+    selectedUom?.name || (value && !loading ? value : placeholder);
 
   if (isCreating) {
     return (
@@ -127,8 +131,8 @@ export const SelectUOMWithName = ({
       <div className="flex-1">
         <Select value={value} onValueChange={onValueChange} disabled={loading}>
           <Controller>
-            <Select.Trigger>
-              <Select.Value placeholder="Choose UOM">
+            <Select.Trigger className={className}>
+              <Select.Value placeholder={placeholder}>
                 {displayValue}
               </Select.Value>
             </Select.Trigger>

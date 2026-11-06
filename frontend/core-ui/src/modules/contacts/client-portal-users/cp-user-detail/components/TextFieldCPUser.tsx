@@ -1,4 +1,5 @@
 import { cn, TextField } from 'erxes-ui';
+import { type Icon } from '@tabler/icons-react';
 import { useCPUserEdit } from '@/contacts/client-portal-users/hooks/useCPUserEdit';
 import { PANEL_TEXT_FIELD_CLASS_NAME, usePermissionCheck } from 'ui-modules';
 
@@ -16,6 +17,7 @@ interface TextFieldCPUserProps {
   _id: string;
   value: string;
   placeholder?: string;
+  icon: Icon;
 }
 
 export function TextFieldCPUser({
@@ -23,6 +25,7 @@ export function TextFieldCPUser({
   _id,
   value,
   placeholder,
+  icon: Icon,
 }: TextFieldCPUserProps) {
   const { cpUserEdit } = useCPUserEdit();
   const { hasActionPermission } = usePermissionCheck();
@@ -43,8 +46,25 @@ export function TextFieldCPUser({
         !value && 'text-muted-foreground',
       )}
       onSave={onSave}
-    />
+    >
+      {!value && (
+        <Icon
+          className="size-3.5 shrink-0 text-muted-foreground"
+          aria-hidden="true"
+        />
+      )}
+    </TextField>
   ) : (
-    <span>{value || '-'}</span>
+    <span className="flex h-7 items-center gap-1.5 px-2">
+      {value || (
+        <>
+          <Icon
+            className="size-3.5 shrink-0 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <span className="text-muted-foreground">{placeholder}</span>
+        </>
+      )}
+    </span>
   );
 }

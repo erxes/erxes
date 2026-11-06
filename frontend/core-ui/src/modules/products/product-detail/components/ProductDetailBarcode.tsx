@@ -1,4 +1,5 @@
-import { IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconBarcode, IconPlus, IconTrash } from '@tabler/icons-react';
+import { ProductPanelSection } from './ProductPanelSection';
 import {
   Button,
   Editor,
@@ -125,8 +126,12 @@ const BarcodeRow = ({
 
 export const ProductDetailBarcode = ({
   productDetail,
+  compact = false,
+  disabled = false,
 }: {
   productDetail: ProductDetail;
+  compact?: boolean;
+  disabled?: boolean;
 }) => {
   const { t } = useTranslation('product', {
     keyPrefix: 'detail',
@@ -248,50 +253,70 @@ export const ProductDetailBarcode = ({
     form.setValue('barcodeDescription', content);
   };
 
-  return (
+  const content = (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <Label>{t('barcodes')}</Label>
+        <Input
+          value={code}
+          onChange={(e) => setCode(e.target.value)}
+          onKeyDown={(event) => {
+            if (compact && event.key === 'Enter') {
+              event.preventDefault();
+              handleAddBarcode();
+            }
+          }}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handleAddBarcode}
+          disabled={isAddDisabled}
+          className="w-full"
+        >
+          <IconPlus className="mr-2 w-4 h-4" />
+          {t('add-barcode') || 'Add barcode'}
+        </Button>
+        {barcodeItems.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {barcodeItems.map((barcode, index) => (
+              <BarcodeRow
+                key={barcode.code || index}
+                barcode={barcode}
+                index={index}
+                availableImages={availableImages}
+                t={t}
+                onUpdate={handleUpdateBarcode}
+                onRemove={handleRemoveBarcode}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
+      <div className="space-y-2">
+        <Label>{t('barcode-description')}</Label>
+        <Editor
+          key={productDetail?._id ?? 'new'}
+          initialContent={formBarcodeDescription}
+          onChange={handleDescriptionChange}
+        />
+      </div>
+    </div>
+  );
+
+  return compact ? (
+    <ProductPanelSection
+      title={t('barcodes')}
+      icon={IconBarcode}
+      count={barcodeItems.length}
+      disabled={disabled}
+    >
+      {content}
+    </ProductPanelSection>
+  ) : (
     <InfoCard title={t('barcodes')}>
-      <InfoCard.Content>
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('barcodes')}</Label>
-            <Input value={code} onChange={(e) => setCode(e.target.value)} />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleAddBarcode}
-              disabled={isAddDisabled}
-              className="w-full"
-            >
-              <IconPlus className="mr-2 w-4 h-4" />
-              {t('add-barcode') || 'Add barcode'}
-            </Button>
-            {barcodeItems.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {barcodeItems.map((barcode, index) => (
-                  <BarcodeRow
-                    key={barcode.code || index}
-                    barcode={barcode}
-                    index={index}
-                    availableImages={availableImages}
-                    t={t}
-                    onUpdate={handleUpdateBarcode}
-                    onRemove={handleRemoveBarcode}
-                  />
-                ))}
-              </div>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label>{t('barcode-description')}</Label>
-            <Editor
-              key={productDetail?._id ?? 'new'}
-              initialContent={formBarcodeDescription}
-              onChange={handleDescriptionChange}
-            />
-          </div>
-        </div>
-      </InfoCard.Content>
+      <InfoCard.Content>{content}</InfoCard.Content>
     </InfoCard>
   );
 };

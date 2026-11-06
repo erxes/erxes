@@ -277,7 +277,7 @@ export const ContactsRelationField = ({
               variant="ghost"
               size="sm"
               data-panel-inline=""
-              className="h-6 px-1 text-xs font-normal text-muted-foreground"
+              className="h-6 gap-1.5 px-1 text-xs font-normal text-muted-foreground [&>svg]:size-3.5"
             >
               <IconPlus className="size-3.5" />
               {addLabel}

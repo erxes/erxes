@@ -38,6 +38,7 @@ export const MemberLinks = () => {
             <PanelField key={field.name} icon={field.Icon} label={field.label}>
               <div className="flex items-center gap-1">
                 <MemberPanelTextField
+                  icon={field.Icon}
                   scope={`links.${field.name}`}
                   value={value}
                   placeholder={field.label}

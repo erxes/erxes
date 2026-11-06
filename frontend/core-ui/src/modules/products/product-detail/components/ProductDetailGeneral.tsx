@@ -20,6 +20,7 @@ import { PRODUCT_DURATION_TYPES } from 'ui-modules/modules/products/constants/pr
 import { useProductLastCodeByCategory } from 'ui-modules/modules/products/hooks/useProducts';
 import { SuggestedProductCodeInput } from 'ui-modules/modules/products/components/SuggestedProductCodeInput';
 import { useProductDetail } from '@/products/product-detail/hooks/useProductDetail';
+import { ProductPanelGeneralFields } from './ProductPanelGeneralFields';
 
 export const ProductDetailGeneral = ({
   compact = false,
@@ -37,6 +38,17 @@ export const ProductDetailGeneral = ({
   const { suggestedCode } = useProductLastCodeByCategory(
     code?.trim() ? undefined : categoryId,
   );
+
+  if (compact) {
+    return (
+      <ProductPanelGeneralFields
+        productId={productId}
+        codeDisabled={!!productDetail?.similarityId}
+        suggestedCode={suggestedCode}
+        durationTypes={PRODUCT_DURATION_TYPES}
+      />
+    );
+  }
 
   return (
     <InfoCard title={t('product-information')}>

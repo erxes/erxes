@@ -9,6 +9,7 @@ import {
   IconPhoto,
   IconStar,
   IconUser,
+  type Icon,
 } from '@tabler/icons-react';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import {
@@ -46,12 +47,14 @@ type TDetailCode = 'firstName' | 'middleName' | 'lastName' | 'shortName';
 
 export const MemberPanelTextField = ({
   scope,
+  icon: Icon,
   value,
   placeholder,
   disabled,
   onSave,
 }: {
   scope: string;
+  icon: Icon;
   value: string;
   placeholder: string;
   disabled?: boolean;
@@ -67,14 +70,23 @@ export const MemberPanelTextField = ({
     )}
     disabled={disabled}
     onSave={onSave}
-  />
+  >
+    {!value && (
+      <Icon
+        className="size-3.5 shrink-0 text-muted-foreground"
+        aria-hidden="true"
+      />
+    )}
+  </TextField>
 );
 
 const MemberDateField = ({
   value,
+  icon: Icon,
   onSave,
 }: {
   value?: Date | string;
+  icon: Icon;
   onSave: (date: Date | null) => void;
 }) => {
   const [open, setOpen] = useState(false);
@@ -97,7 +109,10 @@ const MemberDateField = ({
         {saved ? (
           format(saved, 'yyyy/MM/dd')
         ) : (
-          <span className="text-muted-foreground">YYYY/MM/DD</span>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+            YYYY/MM/DD
+          </span>
         )}
       </PanelFieldTrigger>
       <RecordTableInlineCell.Content className="w-auto">
@@ -154,7 +169,10 @@ const MemberPhoneField = ({
         {value ? (
           formatPhoneNumber({ value: `+${value}` })
         ) : (
-          <span className="text-muted-foreground">{t('phone')}</span>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <IconPhone className="size-3.5 shrink-0" aria-hidden="true" />
+            {t('phone')}
+          </span>
         )}
       </PanelFieldTrigger>
       <RecordTableInlineCell.Content>
@@ -240,6 +258,7 @@ export const MemberPanelDetail = () => {
   const renderDetailField = (code: TDetailCode, label: string) => (
     <PanelField icon={IconUser} label={label}>
       <MemberPanelTextField
+        icon={IconUser}
         scope={code}
         value={details?.[code] || ''}
         placeholder={label}
@@ -279,6 +298,7 @@ export const MemberPanelDetail = () => {
         {renderDetailField('shortName', t('short-name'))}
         <PanelField icon={IconMail} label={t('email')}>
           <MemberPanelTextField
+            icon={IconMail}
             scope="email"
             value={email || ''}
             placeholder={t('add-primary-email')}
@@ -293,6 +313,7 @@ export const MemberPanelDetail = () => {
         </PanelField>
         <PanelField icon={IconAt} label={t('username')}>
           <MemberPanelTextField
+            icon={IconAt}
             scope="username"
             value={username || ''}
             placeholder={t('username')}
@@ -301,18 +322,21 @@ export const MemberPanelDetail = () => {
         </PanelField>
         <PanelField icon={IconCalendar} label={t('birthday')}>
           <MemberDateField
+            icon={IconCalendar}
             value={details?.birthDate}
             onSave={(birthDate) => editDetails({ birthDate })}
           />
         </PanelField>
         <PanelField icon={IconCalendarPlus} label={t('joined-date')}>
           <MemberDateField
+            icon={IconCalendarPlus}
             value={details?.workStartedDate}
             onSave={(workStartedDate) => editDetails({ workStartedDate })}
           />
         </PanelField>
         <PanelField icon={IconStar} label={t('score')}>
           <MemberPanelTextField
+            icon={IconStar}
             scope="score"
             value={score === undefined || score === null ? '' : String(score)}
             placeholder={t('add-score')}

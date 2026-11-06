@@ -4,6 +4,7 @@ import {
   IconHistory,
   IconId,
   IconLayoutGrid,
+  IconPrinter,
 } from '@tabler/icons-react';
 import { Button, Empty, Form, ScrollArea, Spinner, toast } from 'erxes-ui';
 import { useContext, useState } from 'react';
@@ -229,6 +230,26 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
     <RecordSidePanel.Header
       className={expanded ? 'h-10 bg-background px-3' : undefined}
       title={productDetail?.name || t('product-detail', 'Product')}
+      actions={
+        productDetail && (
+          <PrintDocument
+            items={[{ _id: productId }]}
+            contentType="core:product"
+            trigger={
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={t('print', 'Print')}
+                title={t('print', 'Print')}
+              >
+                <IconPrinter className="size-4" />
+              </Button>
+            }
+          />
+        )
+      }
       onBack={onBack}
       onClose={onClose}
     />
@@ -284,23 +305,15 @@ const ProductSavedPanel = ({ onBack, onClose }: IRecordViewProps) => {
                   icon: IconId,
                   content: scroll(
                     <>
-                      <div className="px-3 pt-3">
-                        <PrintDocument
-                          items={[{ _id: productId }]}
-                          contentType="core:product"
-                        />
-                      </div>
-                      <fieldset
-                        disabled={!canEdit || saving}
-                        className="min-w-0"
-                      >
+                      <div className="min-w-0">
                         <ProductDetailFields
                           key={`${productId}-${formVersion}-${resetVersion}`}
                           productDetail={productDetail}
                           compact
                           deferMediaDeletion
+                          disabled={!canEdit || saving}
                         />
-                      </fieldset>
+                      </div>
                     </>,
                   ),
                 },

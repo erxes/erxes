@@ -116,6 +116,11 @@ jest.mock('../ProductDetailBarcode', () => ({
 }));
 jest.mock('../ProductDetailUom', () => ({ ProductDetailUom: () => null }));
 jest.mock('../ProductDetailInfo', () => ({ ProductDetailInfo: () => null }));
+jest.mock('../ProductPanelSection', () => ({
+  ProductPanelSection: ({ children }: React.PropsWithChildren) => (
+    <div>{children}</div>
+  ),
+}));
 jest.mock('ui-modules/modules/products/components/ProductImageUploads', () => ({
   PRODUCT_SECONDARY_IMAGE_LIMIT: 5,
   toProductAttachmentItem: jest.requireActual(

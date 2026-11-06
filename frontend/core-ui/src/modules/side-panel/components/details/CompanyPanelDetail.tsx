@@ -257,7 +257,14 @@ const CompanyFields = () => {
           onSave={(size) =>
             companiesEdit({ variables: { _id: company._id, size } })
           }
-        />
+        >
+          {company.size == null && (
+            <IconUsers
+              className="size-3.5 shrink-0 text-muted-foreground"
+              aria-hidden="true"
+            />
+          )}
+        </NumberField>
       </PanelField>
       <PanelField icon={IconBell} label={t('subscribed', 'Subscribed')}>
         <div className="flex h-7 items-center px-2">

@@ -51,6 +51,7 @@ export const CPUserDetailFields = () => {
           label={t(field, { defaultValue: label })}
         >
           <TextFieldCPUser
+            icon={icon}
             field={field}
             _id={_id}
             value={cpUser[field] || ''}
