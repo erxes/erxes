@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { afterProcess } from '~/meta/afterProcess';

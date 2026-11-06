@@ -6,8 +6,15 @@
  */
 
 import * as Sentry from '@sentry/node';
+import {
+  sentryTracingOptions,
+  startTracing,
+  warnTracingWithoutDsn,
+} from './tracing';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { withStableFingerprint } from './sentryFingerprint';
+import { scrubSentryEvent } from './sentryScrub';
 
 function findUp(startDir: string, predicate: (dir: string) => boolean) {
   let dir = startDir;
@@ -111,18 +118,54 @@ function getSentryRelease() {
  * @param serverName - Optional server name override (defaults to env or 'erxes')
  */
 export function initErxesSentry(
-  beforeSend?: (event: Sentry.ErrorEvent, hint?: Sentry.EventHint) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
+  beforeSend?: (
+    event: Sentry.ErrorEvent,
+    hint?: Sentry.EventHint,
+  ) => PromiseLike<Sentry.ErrorEvent | null> | Sentry.ErrorEvent | null,
   serverName?: string,
 ) {
+  // Already initialised, e.g. by `import 'erxes-api-shared/instrument'` at the top of main.ts:
+  // don't init twice, but keep the server name this caller passes (core-api, gateway).
+  if (Sentry.getClient()) {
+    if (serverName) {
+      Sentry.getGlobalScope().addEventProcessor((event) => ({
+        ...event,
+        server_name: serverName,
+      }));
+    }
+    return;
+  }
+
   const dsn = process.env.SENTRY_DSN;
-  if (!dsn) return;
+  if (!dsn) {
+    warnTracingWithoutDsn();
+    return;
+  }
 
   Sentry.init({
     dsn,
+    ...sentryTracingOptions(),
     environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV,
     release: getSentryRelease(),
     serverName: serverName || process.env.SENTRY_SERVER_NAME,
     tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
-    ...(beforeSend ? { beforeSend } : {}),
+    sendDefaultPii: false,
+    beforeSendTransaction: (event) => scrubSentryEvent(event),
+    beforeSend: (event, hint) => {
+      const scrubbed = scrubSentryEvent(event);
+      const result = beforeSend ? beforeSend(scrubbed, hint) : scrubbed;
+      if (
+        result &&
+        typeof (result as PromiseLike<Sentry.ErrorEvent | null>).then ===
+          'function'
+      ) {
+        return (result as PromiseLike<Sentry.ErrorEvent | null>).then((e) =>
+          e ? withStableFingerprint(e) : null,
+        );
+      }
+      return result ? withStableFingerprint(result as Sentry.ErrorEvent) : null;
+    },
   });
+
+  startTracing();
 }

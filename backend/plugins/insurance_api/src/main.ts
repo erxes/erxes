@@ -1,3 +1,4 @@
+import 'erxes-api-shared/instrument';
 import { getSubdomain, startPlugin } from 'erxes-api-shared/utils';
 import { typeDefs } from '~/apollo/typeDefs';
 import { appRouter } from '~/trpc/init-trpc';
