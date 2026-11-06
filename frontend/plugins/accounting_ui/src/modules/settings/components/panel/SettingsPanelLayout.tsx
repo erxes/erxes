@@ -17,9 +17,10 @@ export interface ISettingsPanelViews {
   editLabel: string;
   // Replaces `editLabel` in the top bar for records whose name is edited there.
   Title?: ComponentType<ISettingsPanelViewProps>;
-  New: ComponentType<ISettingsPanelViewProps>;
+  New?: ComponentType<ISettingsPanelViewProps>;
   Detail: ComponentType<ISettingsPanelViewProps>;
   Actions?: ComponentType<ISettingsPanelViewProps>;
+  Activity?: ComponentType<ISettingsPanelViewProps>;
 }
 
 export const SettingsPanelDraftForm = <T extends FieldValues>({
