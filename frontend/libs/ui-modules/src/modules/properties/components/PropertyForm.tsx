@@ -98,7 +98,7 @@ export const PropertyForm = ({
         onSubmit={form.handleSubmit(handleSubmit)}
       >
         <Sheet.Header>
-          <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
+          <Sheet.Title className="text-base text-foreground flex items-center gap-1">
             {isEdit
               ? t('edit-property', 'Edit Property')
               : t('add-property', 'Add Property')}

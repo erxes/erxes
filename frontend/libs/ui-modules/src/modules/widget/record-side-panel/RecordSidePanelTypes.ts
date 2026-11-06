@@ -8,7 +8,8 @@ export interface IRecordSidePanelTab {
 }
 export type PanelExpansionContextValue = {
   expanded: boolean;
-  toggle: () => void;
+  // Missing when the panel cannot expand: its header draws no expand button.
+  toggle?: () => void;
 } | null;
 
 export type RecordSidePanelResizeHandleProps = {
@@ -27,6 +28,7 @@ export type RecordSidePanelRootProps = {
   expanded?: boolean;
   expandedMode?: 'viewport' | 'page';
   onExpandedChange?: (expanded: boolean) => void;
+  expandable?: boolean;
   children: ReactNode;
 };
 
@@ -39,7 +41,9 @@ export type RecordSidePanelHeaderProps = {
   // The record's own actions (e.g. a "more" menu), before expand and close.
   actions?: ReactNode;
   onExpand?: () => void;
-  onClose: () => void;
+  // Without it there is no close button: a record's own page has nothing to
+  // close back to.
+  onClose?: () => void;
 };
 
 export type RecordSidePanelTabsProps = {
@@ -48,6 +52,8 @@ export type RecordSidePanelTabsProps = {
   onValueChange: (value: string) => void;
   visibleCount?: number;
   overviewTab?: string;
+  // Tops the expanded overview column, level with the tab row beside it.
+  overviewHeader?: ReactNode;
   expandedDefaultTab?: string;
 };
 

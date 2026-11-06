@@ -1,6 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Form, Input, Select, Switch, TextField, Textarea } from 'erxes-ui';
+import {
+  Form,
+  Input,
+  Select,
+  Skeleton,
+  Switch,
+  TextField,
+  Textarea,
+} from 'erxes-ui';
 import {
   PANEL_INPUT_CLASS_NAME,
   PANEL_TEXT_FIELD_CLASS_NAME,
@@ -78,38 +86,58 @@ export const SettingsPanelTextField = ({
   />
 );
 
-export const SettingsPanelNameCodeFields = ({
+/** A record's name, edited in place in the panel's top bar. */
+export const SettingsPanelTitleField = ({
   scope,
-  name,
+  loading,
+  value,
+  placeholder,
+  onSave,
+}: {
+  scope: string;
+  loading: boolean;
+  // Undefined until the record has loaded.
+  value?: string;
+  placeholder?: string;
+  onSave: (value: string) => void;
+}) => {
+  const { t } = useTranslation('accounting');
+
+  if (value === undefined) {
+    return loading ? <Skeleton className="h-4 w-32" /> : null;
+  }
+
+  return (
+    <TextField
+      scope={`${scope}.name`}
+      value={value}
+      placeholder={placeholder || t('name')}
+      className="rounded-sm px-1 font-medium shadow-none"
+      onSave={(next) => next.trim() && onSave(next)}
+    />
+  );
+};
+
+export const SettingsPanelCodeField = ({
+  scope,
   code,
   onSave,
 }: {
   scope: string;
-  name?: string;
   code?: string;
-  onSave: (fields: { name?: string; code?: string }) => void;
+  onSave: (code: string) => void;
 }) => {
   const { t } = useTranslation('accounting');
 
   return (
-    <>
-      <PanelField label={t('name')}>
-        <SettingsPanelTextField
-          scope={`${scope}.name`}
-          value={name || ''}
-          placeholder={t('name')}
-          onSave={(next) => next.trim() && onSave({ name: next })}
-        />
-      </PanelField>
-      <PanelField label={t('code')}>
-        <SettingsPanelTextField
-          scope={`${scope}.code`}
-          value={code || ''}
-          placeholder={t('code')}
-          onSave={(next) => next.trim() && onSave({ code: next })}
-        />
-      </PanelField>
-    </>
+    <PanelField label={t('code')}>
+      <SettingsPanelTextField
+        scope={`${scope}.code`}
+        value={code || ''}
+        placeholder={t('code')}
+        onSave={(next) => next.trim() && onSave(next)}
+      />
+    </PanelField>
   );
 };
 

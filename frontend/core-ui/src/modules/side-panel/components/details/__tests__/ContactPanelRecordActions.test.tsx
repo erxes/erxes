@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ContactPanelRecordActions } from '../ContactPanelRecordActions';
 
 const mockClose = jest.fn();
+const mockNavigate = jest.fn();
 let mockPanel = { close: mockClose, dismissPath: jest.fn() };
 let mockComplete: () => void;
 
@@ -21,7 +22,7 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 jest.mock('react-router-dom', () => ({
-  useNavigate: () => jest.fn(),
+  useNavigate: () => mockNavigate,
   useSearchParams: () => [new URLSearchParams()],
 }));
 jest.mock('@/broadcast/hooks/useBroadcastContacts', () => ({
@@ -83,6 +84,11 @@ jest.mock('ui-modules', () => ({
     }/${contentId}`,
 }));
 
+beforeEach(() => {
+  window.history.replaceState(null, '', '/');
+  mockNavigate.mockClear();
+});
+
 it.each(['core:customer', 'core:company'] as const)(
   'dismisses the deleted %s using current navigation without clearing the active panel',
   async (contentType) => {
@@ -113,5 +119,37 @@ it.each(['core:customer', 'core:company'] as const)(
     );
     expect(previousDismiss).not.toHaveBeenCalled();
     expect(mockClose).not.toHaveBeenCalled();
+  },
+);
+
+it.each([
+  ['core:customer', '/contacts/customers/contact-1', '/contacts/customers'],
+  ['core:customer', '/contacts/leads/contact-1', '/contacts/leads'],
+  ['core:company', '/contacts/companies/contact-1', '/contacts/companies'],
+  ['core:customer', '/contacts/customers/another-contact', null],
+] as const)(
+  'leaves the deleted record page only when it is still active at %s %s',
+  async (contentType, pathname, listPath) => {
+    mockPanel = { close: mockClose, dismissPath: jest.fn() };
+    render(
+      <ContactPanelRecordActions
+        contentType={contentType}
+        contentId="contact-1"
+      />,
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    });
+    window.history.replaceState(null, '', `${pathname}?tab=activity`);
+    act(() => mockComplete());
+
+    if (listPath) {
+      expect(mockNavigate).toHaveBeenCalledWith({
+        pathname: listPath,
+        search: '?tab=activity',
+      });
+    } else {
+      expect(mockNavigate).not.toHaveBeenCalled();
+    }
   },
 );

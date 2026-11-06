@@ -87,11 +87,11 @@ const groupOf = (label: string) =>
   within(menu().getByRole('group', { name: label }));
 
 beforeAll(() => {
-  global.ResizeObserver = class {
-    observe() {}
-    unobserve() {}
-    disconnect() {}
-  };
+  global.ResizeObserver = jest.fn(() => ({
+    observe: jest.fn(),
+    unobserve: jest.fn(),
+    disconnect: jest.fn(),
+  }));
   Element.prototype.scrollIntoView = jest.fn();
 });
 

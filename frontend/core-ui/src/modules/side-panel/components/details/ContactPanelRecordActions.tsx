@@ -5,6 +5,10 @@ import { GET_COMPANIES } from '@/contacts/companies/graphql/queries/getCompanies
 import { CUSTOMERS_REMOVE } from '@/contacts/customers/graphql/mutations/removeCustomers';
 import { GET_CUSTOMERS } from '@/contacts/customers/graphql/queries/getCustomers';
 import { ContactsPath } from '@/types/paths/ContactsPath';
+import {
+  getContactDetailPath,
+  getContactListPath,
+} from '@/contacts/utils/contactDetailPath';
 import { useMutation } from '@apollo/client';
 import {
   IconArrowLeft,
@@ -16,7 +20,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { Button, Command, Popover, toast, useConfirm } from 'erxes-ui';
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -32,9 +36,20 @@ import {
 export const ContactPanelRecordActions = ({
   contentType,
   contentId,
+  includePrint = true,
+  quickActions = [],
+  preventCloseAutoFocus = false,
 }: {
   contentType: 'core:customer' | 'core:company';
   contentId: string;
+  includePrint?: boolean;
+  quickActions?: {
+    key: string;
+    label: string;
+    icon: ReactNode;
+    onSelect: () => void;
+  }[];
+  preventCloseAutoFocus?: boolean;
 }) => {
   const { t } = useTranslation('contact');
   const { t: exportT } = useTranslation('importExport');
@@ -53,7 +68,7 @@ export const ContactPanelRecordActions = ({
   const [printOpen, setPrintOpen] = useState(false);
   const [actionsOpen, setActionsOpen] = useState(false);
   const [view, setView] = useState<'main' | 'broadcast'>('main');
-  const canPrint = hasActionPermission('documentsRead');
+  const canPrint = includePrint && hasActionPermission('documentsRead');
   const isCustomer = contentType === 'core:customer';
   const canBroadcast = isCustomer && hasActionPermission('broadcastCreate');
   const canDelete = hasActionPermission('contactsDelete');
@@ -85,6 +100,15 @@ export const ContactPanelRecordActions = ({
         currentPanel.current.dismissPath(
           getSidePanelRecordPath({ contentType, contentId }),
         );
+        const { pathname, search } = window.location;
+        if (
+          pathname === getContactDetailPath(contentType, contentId, pathname)
+        ) {
+          navigate({
+            pathname: getContactListPath(contentType, pathname),
+            search,
+          });
+        }
         toast({
           title: t('deleted-success', 'Contact deleted'),
           variant: 'success',
@@ -115,7 +139,11 @@ export const ContactPanelRecordActions = ({
 
   return (
     <>
-      {(canPrint || canBroadcast || canExport || canDelete) && (
+      {(quickActions.length > 0 ||
+        canPrint ||
+        canBroadcast ||
+        canExport ||
+        canDelete) && (
         <Popover
           open={actionsOpen}
           onOpenChange={(open) => {
@@ -140,7 +168,8 @@ export const ContactPanelRecordActions = ({
             side="bottom"
             sideOffset={8}
             onCloseAutoFocus={(event) => {
-              if (printOpen || exportOpen) event.preventDefault();
+              if (printOpen || exportOpen || preventCloseAutoFocus)
+                event.preventDefault();
             }}
           >
             {view === 'main' ? (
@@ -149,6 +178,26 @@ export const ContactPanelRecordActions = ({
                   <Command.Empty>
                     {t('no-actions', 'No actions found.')}
                   </Command.Empty>
+                  {quickActions.length > 0 && (
+                    <Command.Group className="p-1">
+                      {quickActions.map((action) => (
+                        <Command.Item
+                          key={action.key}
+                          onSelect={() => {
+                            setActionsOpen(false);
+                            action.onSelect();
+                          }}
+                        >
+                          {action.icon}
+                          {action.label}
+                        </Command.Item>
+                      ))}
+                    </Command.Group>
+                  )}
+                  {quickActions.length > 0 &&
+                    (canPrint || canBroadcast || canExport || canDelete) && (
+                      <Command.Separator />
+                    )}
                   {(canPrint || canBroadcast || canExport) && (
                     <Command.Group className="p-1">
                       {canPrint && (

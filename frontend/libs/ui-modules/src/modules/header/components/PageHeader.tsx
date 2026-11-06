@@ -1,6 +1,7 @@
 import { Separator, cn } from 'erxes-ui';
 
 import { FavoriteToggleIconButton } from '../../favorites/components/FavoriteToggleIconButton';
+import { PAGE_HEADER_FIRST_CRUMB_CLASS_NAME } from '../constants/pageHeaderClassNames';
 import React from 'react';
 
 export const PageHeaderRoot = React.forwardRef<
@@ -36,7 +37,11 @@ export const PageHeaderStart = React.forwardRef<
   return (
     <div
       ref={ref}
-      className={cn('flex items-center gap-2 flex-none pr-8', className)}
+      className={cn(
+        'flex items-center gap-2 flex-none pr-8',
+        PAGE_HEADER_FIRST_CRUMB_CLASS_NAME,
+        className,
+      )}
       {...props}
     >
       <span data-sidebar-panel-slot="" className="contents" />

@@ -4,7 +4,10 @@ import { MemberDetailEmptyState } from '@/settings/team-member/details/component
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
 import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
-import { MemberPanelDetail } from '@/settings/team-member/details/components/MemberPanelDetail';
+import {
+  MemberPanelDetail,
+  MemberPanelName,
+} from '@/settings/team-member/details/components/MemberPanelDetail';
 import { MembersPermissions } from '@/settings/team-member/details/components/MembersPermissions';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
@@ -78,7 +81,11 @@ export const MemberDetail = ({
       t('member-detail');
 
     return {
-      title,
+      title: currentUser?.isOwner ? (
+        <MemberPanelName userId={userDetail._id} />
+      ) : (
+        title
+      ),
       avatar: (
         <Avatar size="lg" className="size-7 flex-none">
           <Avatar.Image src={readImage(avatar || '')} />
@@ -213,24 +220,12 @@ export const MemberDetail = ({
     <>
       <RecordSidePanel.Header
         className={expanded ? 'h-10 bg-background px-3' : undefined}
+        avatar={avatar}
         title={expanded ? <MemberPanelBreadcrumb title={title} /> : title}
         actions={userDetail && <MemberPanelActions user={userDetail} />}
         onBack={onBack}
         onClose={handleClose}
       />
-      {userDetail && !error && (
-        <section className="shrink-0 border-b p-4">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="shrink-0 [&>*]:size-11">{avatar}</div>
-            <div className="min-w-0">
-              <h2 className="truncate text-lg font-semibold">{title}</h2>
-              <p className="truncate text-xs text-muted-foreground">
-                {userDetail.email}
-              </p>
-            </div>
-          </div>
-        </section>
-      )}
       {renderBody()}
     </>
   );
