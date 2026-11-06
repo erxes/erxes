@@ -118,7 +118,7 @@ export const usePipelines = (
 
   const handleFetchMore = () => {
     if (totalCount <= (pipelines?.length || 0)) return;
-    fetchMore({
+    return fetchMore({
       variables: {
         ...options?.variables,
         cursor: pageInfo?.endCursor,

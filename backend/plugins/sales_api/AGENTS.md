@@ -364,6 +364,10 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 
 - `createBoardItem` sets `createdAt` at `models.Deals.create`, overriding any
   supplied date, including when copying an existing deal.
+- `Boards.createBoard` and `Pipelines.createPipeline` store `userId` from their
+  `userId` argument, falling back to `doc.userId`; resolvers pass the creator
+  in `doc`, and a copied pipeline keeps its source's creator. Archiving or
+  unarchiving a pipeline changes only `status`, never `userId`.
 - POS model `posAdd` and `posEdit` always persist `onServer: true`, even when
   callers submit `false` or omit the field. This applies to GraphQL and tRPC
   creation; transport-side `onServer`/offline routing checks remain in place.
