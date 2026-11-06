@@ -21,7 +21,7 @@ const migrateField = async (
   deals: Collection,
   field: (typeof DATE_FIELDS)[number],
 ) => {
-  const filter = { [field]: EPOCH };
+  const filter = { [field]: { $eq: EPOCH, $not: { $type: 'array' } } };
 
   if (isDryRun) {
     const count = await deals.countDocuments(filter);
@@ -35,11 +35,26 @@ const migrateField = async (
 const migrateDb = async (db: Db) => {
   const deals = db.collection('deals');
 
-  const lines = await Promise.all(
+  const results = await Promise.allSettled(
     DATE_FIELDS.map((field) => migrateField(deals, field)),
   );
 
-  lines.forEach((line) => console.log(line));
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') {
+      console.log(result.value);
+      return;
+    }
+    const { reason } = result;
+    console.error(
+      `[FAILED] ${DATE_FIELDS[index]}: ${
+        reason instanceof Error ? reason.message : reason
+      }`,
+    );
+  });
+
+  if (results.some((result) => result.status === 'rejected')) {
+    throw new Error('deal date update failed');
+  }
 };
 
 const command = async () => {
