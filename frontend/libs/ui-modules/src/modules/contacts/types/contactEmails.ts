@@ -25,6 +25,8 @@ export interface CustomerEmailsProps {
 export type SendEmailButtonProps = {
   target?: ComposeEmailRequest;
   compact?: boolean;
+  variant?: 'ghost' | 'outline';
+  className?: string;
 };
 
 export interface ComposeEmailRequest {

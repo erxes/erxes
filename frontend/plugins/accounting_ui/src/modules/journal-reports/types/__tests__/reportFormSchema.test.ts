@@ -39,6 +39,24 @@ describe('journal report period validation', () => {
     expect(getFieldErrors({ fromDate: day, toDate: day })).toEqual({});
   });
 
+  it('rejects a same-day shift whose end time is before its start time', () => {
+    expect(
+      getFieldErrors({
+        fromDate: new Date(2026, 9, 15, 18, 0),
+        toDate: new Date(2026, 9, 15, 9, 0),
+      }),
+    ).toEqual({ toDate: ['end-date-after-start'] });
+  });
+
+  it('accepts a same-day shift from 09:00 to 18:00', () => {
+    expect(
+      getFieldErrors({
+        fromDate: new Date(2026, 9, 15, 9, 0),
+        toDate: new Date(2026, 9, 15, 18, 0),
+      }),
+    ).toEqual({});
+  });
+
   it('accepts a month and keeps the other report filters for the URL', () => {
     const result = schema.safeParse({
       fromDate: new Date(2026, 9, 1),

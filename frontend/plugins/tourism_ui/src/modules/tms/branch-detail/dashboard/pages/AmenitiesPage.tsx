@@ -14,7 +14,6 @@ export const AmenitiesPage = ({ branch }: { branch: IBranch }) => {
         <div className="flex flex-col h-full min-h-0">
           <AmenityRecordTable
             branchId={branch._id}
-            branchLanguages={branch.languages}
             mainLanguage={branch.language}
           />
         </div>

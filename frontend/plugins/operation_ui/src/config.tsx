@@ -12,6 +12,7 @@ import {
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import { getTaskDetailPath } from '@/task/utils/getTaskDetailPath';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 import { TASK_CONNECTION_CONTENT_TYPE } from '~/widgets/contact/taskContactConnection';
 import { OPERATION_DASHBOARD_MODULES } from '~/widgets/dashboard/dashboardModules';
@@ -155,7 +156,7 @@ export const CONFIG: IUIConfig = {
     ],
 
     recordPanels: [
-      { contentType: 'operation:task' },
+      { contentType: 'operation:task', detailPath: getTaskDetailPath },
       { contentType: 'operation:triage', properties: false },
       {
         contentType: TASK_CONNECTION_CONTENT_TYPE,

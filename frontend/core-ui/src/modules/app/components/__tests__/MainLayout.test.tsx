@@ -82,14 +82,18 @@ jest.mock('ui-modules', () => {
   const { createContext } = jest.requireActual<typeof import('react')>('react');
   return { RecordViewContext: createContext(null) };
 });
-it('keeps the side panel beside the navigation/workspace column, outside the animated page', () => {
+it('keeps the side panel below the top bar, beside the workspace, outside the animated page', () => {
   render(<DefaultLayout />);
   const layout = screen.getByTestId('layout');
-  const column = screen.getByTestId('navigation').parentElement;
+  const navigation = screen.getByTestId('navigation');
+  const column = navigation.parentElement;
+  const panel = screen.getByTestId('relation-panel');
+  const workspaceRow = panel.parentElement;
   expect(column?.parentElement).toBe(layout);
-  expect(column?.contains(screen.getByTestId('workspace'))).toBe(true);
-  expect(screen.getByTestId('relation-panel').parentElement).toBe(layout);
-  expect(layout.className.split(' ')).not.toContain('flex-col');
+  expect(workspaceRow?.parentElement).toBe(column);
+  expect(workspaceRow?.contains(navigation)).toBe(false);
+  expect(workspaceRow?.contains(screen.getByTestId('workspace'))).toBe(true);
+  expect(workspaceRow?.className.split(' ')).not.toContain('flex-col');
   expect(
     screen
       .getByTestId('workspace')

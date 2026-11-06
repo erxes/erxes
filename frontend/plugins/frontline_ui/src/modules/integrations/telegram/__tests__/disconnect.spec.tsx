@@ -3,10 +3,11 @@ import { MockedProvider } from '@apollo/client/testing';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Provider, createStore } from 'jotai';
 import { toast } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 import type { IIntegration } from '@/integrations/types/Integration';
 import {
   TelegramIntegrationActions,
-  TelegramIntegrationDetail,
+  TelegramSetup,
 } from '../TelegramIntegrationDetail';
 import {
   TELEGRAM_BOTS,
@@ -27,7 +28,21 @@ jest.mock('erxes-ui', () => {
         {children}
       </button>
     ),
-    Form: Object.assign(Wrap, { Field: () => null }),
+    Input: () => null,
+    Form: Object.assign(Wrap, {
+      Field: () => null,
+      Item: Wrap,
+      Label: Wrap,
+      Control: Wrap,
+      Description: Wrap,
+      Message: () => null,
+    }),
+    Select: Object.assign(Wrap, {
+      Trigger: Wrap,
+      Value: () => null,
+      Content: Wrap,
+      Item: Wrap,
+    }),
     Collapsible: Object.assign(Wrap, {
       Trigger: Wrap,
       TriggerIcon: () => null,
@@ -43,16 +58,50 @@ jest.mock('erxes-ui', () => {
       Footer: Wrap,
     }),
     Spinner: () => <span>Loading</span>,
+    isDeeplyEqual: (left: unknown, right: unknown) =>
+      JSON.stringify(left) === JSON.stringify(right),
     toast: jest.fn(),
     useConfirm: () => ({ confirm: () => Promise.resolve() }),
     REACT_APP_API_URL: 'https://api.example.com',
   };
 });
-jest.mock('ui-modules', () => ({ SelectBrand: () => null }));
-jest.mock('react-router', () => ({ useParams: () => ({}) }));
+jest.mock('ui-modules', () => {
+  const { atom, useAtom } = jest.requireActual<typeof import('jotai')>('jotai');
+  const panelRecord = atom<{ contentId: string } | null>(null);
+  return {
+    useSidePanel: () => {
+      const [record, setRecord] = useAtom(panelRecord);
+      return {
+        record,
+        openRecord: ({ contentId }: { contentId: string }) =>
+          setRecord({ contentId }),
+        openNewRecord: () => setRecord({ contentId: 'new' }),
+      };
+    },
+    SelectBrand: () => null,
+  };
+});
+jest.mock('react-router-dom', () => ({ useParams: () => ({}) }));
+jest.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key }),
+}));
 jest.mock('../translations', () => ({
   useTelegramTranslation: () => ({ t: (key: string) => key }),
 }));
+
+const TelegramPanel = ({ children }: PropsWithChildren) => {
+  const { record } = useSidePanel();
+  return (
+    <>
+      {children}
+      {record && (
+        <TelegramSetup
+          integrationId={record.contentId === 'new' ? null : record.contentId}
+        />
+      )}
+    </>
+  );
+};
 
 const bot = {
   __typename: 'TelegramBot',
@@ -69,6 +118,11 @@ const integration: IIntegration = {
   _id: 'integration',
   name: 'Telegram',
   kind: 'telegram',
+  isActive: true,
+  brandId: null,
+  channelId: null,
+  healthStatus: null,
+  facebookPage: null,
 };
 beforeEach(() => jest.clearAllMocks());
 
@@ -106,8 +160,9 @@ test.each([true, false])(
         ]}
       >
         <Provider store={createStore()}>
-          <TelegramIntegrationActions integration={integration} />
-          <TelegramIntegrationDetail />
+          <TelegramPanel>
+            <TelegramIntegrationActions integration={integration} />
+          </TelegramPanel>
         </Provider>
       </MockedProvider>,
     );

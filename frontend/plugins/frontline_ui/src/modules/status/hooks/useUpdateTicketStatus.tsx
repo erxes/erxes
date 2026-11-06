@@ -29,6 +29,10 @@ export const useUpdateTicketStatus = () => {
         options?.onCompleted?.(data);
       },
       onError: (error) => {
+        if (options.onError) {
+          options.onError(error);
+          return;
+        }
         toast({
           title: t('error', 'Error'),
           description: t('update-failed', 'Update failed: {{message}}', {

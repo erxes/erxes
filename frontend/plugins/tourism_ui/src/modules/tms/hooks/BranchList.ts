@@ -42,8 +42,7 @@ export const useBranchList = ({
         direction,
         orderBy,
       },
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'cache-and-network',
     },
   );
 

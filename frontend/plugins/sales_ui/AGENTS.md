@@ -25,6 +25,11 @@
 
 ## Current Capabilities
 
+- Deals and POS orders export to CSV through the shared `ui-modules`
+  `Export` button: the deals action bar exports the current pipeline, stage
+  and URL filters (`DealsExport`), the deals list command bar exports the
+  selected rows, and the POS orders page exports the current order filters.
+  Buttons render only with `dealsExportManage` / `posOrdersExportManage`.
 - Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
 
 - Pipeline and POS product filters share a two-column layout. Collapsed, category and More occupy one row. Expanded, rows pair category/exclude category, include tag/exclude tag, and include products/exclude products; the collapse button follows the grid. Hidden fields retain their saved values.
@@ -319,6 +324,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                                                          |
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                                                               |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                                                              |
+| Export buttons      | `src/modules/deals/actionBar/components/DealsExport.tsx`, `src/pages/OrdersPage.tsx`                 | Start `sales:sales.deals` and `sales:pos.posOrders` exports with the page filters                                          |
 | Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                                                                |
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
@@ -335,6 +341,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
+- Starts core `exportStart` jobs for entity types `sales:sales.deals` and
+  `sales:pos.posOrders` (served by `sales_api`) through `ui-modules` `Export`.
 - `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
@@ -395,6 +403,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   "This widget is no longer available". A stored config that no longer parses
   reads as every pipeline, by week.
 
+- Export filters are the list query variables without paging or sorting
+  (`getDealsQueryVariables` plus `pipelineId` / `stageId`; `useOrdersVariables`
+  minus `perPage` / `page`), so an export matches what the page lists. With
+  selected rows the export sends `ids` and no filters.
 - RecordTable sets `leading-0`: a cell's text goes straight into the cell's
   flex span; a wrapping element (a tooltip trigger, a link) needs
   `leading-normal` and no `overflow-hidden`, or it renders with no height.

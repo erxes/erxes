@@ -18,7 +18,6 @@ import { useUpdateTicket } from '@/ticket/hooks/useUpdateTicket';
 import type { ITicketDetail } from '@/ticket/types';
 import { toTicketAttachments } from '@/ticket/utils/ticketAttachments';
 import {
-  IconAlignLeft,
   IconBuilding,
   IconCalendar,
   IconCalendarDue,
@@ -38,13 +37,36 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ContactRecordChip,
-  PANEL_TEXT_FIELD_CLASS_NAME,
   PanelDescriptionField,
   PanelField,
   useSidePanel,
 } from 'ui-modules';
 
 const SCOPE = 'side-panel-ticket';
+
+/** Edits the ticket's name in the panel's top bar, for those who may edit it. */
+export const TicketPanelName = ({ ticket }: { ticket: ITicketDetail }) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
+  const { updateTicket } = useUpdateTicket();
+  const { canEditTicket } = useTicketDetailPermissions(ticket);
+  const { _id } = ticket;
+
+  if (!canEditTicket) {
+    return ticket.name || t('ticket-detail');
+  }
+
+  return (
+    <TextField
+      scope={`${SCOPE}.${_id}.name`}
+      value={ticket.name || ''}
+      placeholder={t('ticket-name')}
+      className="rounded-sm px-1 font-medium shadow-none"
+      onSave={(name) => {
+        if (name.trim()) updateTicket({ variables: { _id, name } });
+      }}
+    />
+  );
+};
 
 export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.ticket' });
@@ -72,18 +94,6 @@ export const TicketPanelDetail = ({ ticket }: { ticket: ITicketDetail }) => {
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="grid gap-5 p-3 @3xl/record-panel:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] @3xl/record-panel:p-6">
         <div className="flex min-w-0 flex-col gap-1">
-          <PanelField icon={IconAlignLeft} label={t('name')}>
-            <TextField
-              scope={`${SCOPE}.name`}
-              value={ticket.name || ''}
-              placeholder={t('ticket-name')}
-              className={PANEL_TEXT_FIELD_CLASS_NAME}
-              disabled={!canEdit}
-              onSave={(name) => {
-                if (name) updateTicket({ variables: { _id, name } });
-              }}
-            />
-          </PanelField>
           <PanelField icon={IconCircleCheck} label={t('status')}>
             <SelectStatusTicket
               variant="table"

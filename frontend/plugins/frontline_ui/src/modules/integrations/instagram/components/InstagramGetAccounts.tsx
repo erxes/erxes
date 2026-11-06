@@ -48,12 +48,13 @@ export const InstagramGetAccounts = () => {
 
   const handleInstagramLogin = () => {
     setIsLoggingIn(true);
-    popupWindow(
+    const opened = popupWindow(
       `${REACT_APP_API_URL}/pl:frontline/instagram/iglogin`,
       'Instagram Login',
       660,
       750,
     );
+    if (!opened) setIsLoggingIn(false);
   };
 
   const onNext = () => setActiveStep(2);

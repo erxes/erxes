@@ -20,7 +20,6 @@ export const MainNavigation = () => {
         icon={IconListDetails}
         path="main"
         pathPrefix="accounting"
-        onClick={() => setSidebarPanelOpen(true)}
       />
       <NavigationMenuLinkItem
         name={t('journal-entries')}
