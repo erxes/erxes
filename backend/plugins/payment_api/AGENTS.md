@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -37,6 +37,8 @@
 - Marks invoices paid from either a gateway callback or the
   `invoicesCheck`/`cpInvoicesCheck` GraphQL mutations; each of those sites
   enqueues the host-plugin `callback` job inline.
+- Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` using the invoice's
+  transactions only (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
 - Declares the plugin permission config (`invoice` module with
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
@@ -98,6 +100,10 @@
 - Because this plugin now declares permissions, core lists `payment` in
   `pluginsWithPermissions`. Non-owner users need `payment:admin`,
   `payment:viewer`, or an equivalent custom group to see payment surfaces at all.
+- The invoice `kind` filter matches an invoice only when a transaction of that `paymentKind`
+  exists for it (any status). Methods merely offered via `paymentIds` must not match, or the
+  filtered list shows invoices paid with other methods; `payment_ui`'s Payment Method column
+  relies on this rule.
 - In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
   `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
   does not return, so Pocket users on mobile would see neither a QR nor a way to

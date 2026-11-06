@@ -11,20 +11,14 @@ export interface IParam {
   contentTypeId?: string;
 }
 
+// An invoice matches a kind only when a transaction was made with that kind.
+// Methods merely offered on the invoice (paymentIds) do not count.
 const buildKindQuery = async (kind: string, models: IContext['models']) => {
-  const [txInvoiceIds, pmIds] = await Promise.all([
-    models.Transactions.find({ paymentKind: kind }).distinct('invoiceId'),
-    models.PaymentMethods.find({ kind }).distinct('_id'),
-  ]);
+  const invoiceIds: string[] = await models.Transactions.find({
+    paymentKind: kind,
+  }).distinct('invoiceId');
 
-  const conditions: any[] = [];
-  if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
-  if (pmIds.length > 0)
-    conditions.push({ paymentIds: { $in: pmIds.map(String) } });
-
-  if (conditions.length === 0) return { _id: { $in: [] } };
-  if (conditions.length === 1) return conditions[0];
-  return { $or: conditions };
+  return { _id: { $in: invoiceIds } };
 };
 
 const generateFilterQuery = async (
@@ -44,17 +38,7 @@ const generateFilterQuery = async (
 
   if (searchValue) {
     const regex = new RegExp(escapeRegExp(searchValue), 'i');
-    const searchCondition = {
-      $or: [{ description: regex }, { invoiceNumber: regex }],
-    };
-    if (query.$or) {
-      // kind filter already set $or — wrap both in $and to avoid key collision
-      const kindOr = query.$or;
-      delete query.$or;
-      query.$and = [{ $or: kindOr }, searchCondition];
-    } else {
-      Object.assign(query, searchCondition);
-    }
+    query.$or = [{ description: regex }, { invoiceNumber: regex }];
   }
 
   if (contentType) {
