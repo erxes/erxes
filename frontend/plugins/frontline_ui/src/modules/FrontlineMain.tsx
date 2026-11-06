@@ -200,4 +200,4 @@ const FrontlineEntry = () => (
   </Routes>
 );
 
-export default FrontlineEntry;
+export { FrontlineEntry as Frontline };

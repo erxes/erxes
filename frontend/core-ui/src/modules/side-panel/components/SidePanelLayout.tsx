@@ -1,17 +1,25 @@
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
-import { ContactPanelBreadcrumb } from '@/side-panel/components/details/ContactPanelBreadcrumb';
+import { ContactDetailHeader } from '@/side-panel/components/details/ContactDetailHeader';
 import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
 import { useRecordRelationTabs } from '@/side-panel/hooks/useRecordRelationTabs';
-import { RecordPagePortal } from '@/side-panel/components/RecordPageSlot';
+import {
+  getContactDetailPath,
+  isContactContentType,
+} from '@/contacts/utils/contactDetailPath';
 import { IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { ReactNode, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
 import { ContactPanelPermission } from '@/side-panel/components/ContactPanelPermission';
-import { ContactPanelActions } from '@/side-panel/components/details/ContactPanelActions';
+import {
+  ContactPanelActions,
+  ContactPanelIdentity,
+  ContactPanelWebsiteLink,
+} from '@/side-panel/components/details/ContactPanelActions';
 import {
   isModulePanelPath,
   modulePanelEntriesState,
@@ -20,6 +28,12 @@ import { CompanyPanelDetail } from '@/side-panel/components/details/CompanyPanel
 import { CompanyPanelProperties } from '@/side-panel/components/details/CompanyPanelProperties';
 import { CompanyPanelNew } from '@/side-panel/components/details/CompanyPanelNew';
 import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPanelDetail';
+import { CompanyPanelName } from '@/side-panel/components/details/CompanyPanelName';
+import { CustomerPanelName } from '@/side-panel/components/details/CustomerPanelName';
+import {
+  CompanyPanelAvatar,
+  CustomerPanelAvatar,
+} from '@/side-panel/components/details/ContactPanelAvatar';
 import { CustomerPanelNew } from '@/side-panel/components/details/CustomerPanelNew';
 import { CustomerPanelProperties } from '@/side-panel/components/details/CustomerPanelProperties';
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
@@ -27,6 +41,8 @@ import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
+  ICompany,
+  ICustomerDetail,
   NEW_RECORD_ID,
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
@@ -113,6 +129,8 @@ const useRecordHeading = (
   avatar?: ReactNode;
   email?: string;
   website?: string;
+  customer?: ICustomerDetail;
+  company?: ICompany;
   state?: 'error' | 'not-found';
 } => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -151,6 +169,7 @@ const useRecordHeading = (
       title,
       avatar: <RecordAvatar src={avatar} name={title} />,
       email: primaryEmail,
+      customer: customerDetail,
     };
   }
 
@@ -164,6 +183,7 @@ const useRecordHeading = (
       avatar: <RecordAvatar src={avatar} name={title} />,
       email: companyDetail.primaryEmail,
       website: companyDetail.website,
+      company: companyDetail,
     };
   }
 
@@ -282,10 +302,22 @@ const SidePanelSavedRecord = ({
     { useSuspense: false },
   );
   const expanded = usePanelExpanded();
-  const { title, avatar, state, email, website } = useRecordHeading(
-    record,
-    panelPluginName,
-  );
+  const { title, avatar, state, email, website, customer, company } =
+    useRecordHeading(record, panelPluginName);
+  const canEdit = access === 'write';
+  let editableTitle = title;
+  let editableAvatar = avatar;
+  if (canEdit && customer) {
+    editableTitle = <CustomerPanelName customer={customer} />;
+    editableAvatar = (
+      <CustomerPanelAvatar customer={customer}>{avatar}</CustomerPanelAvatar>
+    );
+  } else if (canEdit && company) {
+    editableTitle = <CompanyPanelName company={company} />;
+    editableAvatar = (
+      <CompanyPanelAvatar company={company}>{avatar}</CompanyPanelAvatar>
+    );
+  }
   const views =
     coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
   const relationTabs = useRecordRelationTabs({
@@ -354,52 +386,55 @@ const SidePanelSavedRecord = ({
       : views
         ? DETAIL_TAB
         : ACTIVITY_TAB;
+  const contactActions = contactType && (
+    <ContactPanelActions
+      contentType={contactType}
+      contentId={record.contentId}
+      email={email}
+      onMessage={
+        tabs.some((entry) => entry.value === 'messages')
+          ? () => setTab('messages')
+          : undefined
+      }
+      onNote={() => {
+        setTab(ACTIVITY_TAB);
+        setNoteFocusRequest((value) => value + 1);
+      }}
+    />
+  );
 
   return (
     <>
-      <RecordSidePanel.Header
-        className={
-          contactType && expanded ? 'h-10 bg-background px-3' : undefined
-        }
-        avatar={contactType ? undefined : avatar}
-        title={
-          contactType && expanded ? (
-            <ContactPanelBreadcrumb contentType={contactType} title={title} />
-          ) : (
-            title
-          )
-        }
-        actions={
-          panelPluginName && (
-            <PluginRecordPanel
-              pluginName={panelPluginName}
-              contentType={record.contentType}
-              contentId={record.contentId}
-              view="actions"
-              quiet
-            />
-          )
-        }
-        onBack={onBack}
-        onClose={onClose}
-      />
-      {contactType && (
-        <ContactPanelActions
+      {contactType && expanded ? (
+        <ContactDetailHeader
           contentType={contactType}
-          contentId={record.contentId}
-          email={email}
-          website={website}
           title={title}
-          avatar={avatar}
-          onMessage={
-            tabs.some((entry) => entry.value === 'messages')
-              ? () => setTab('messages')
-              : undefined
+          actions={contactActions}
+        />
+      ) : (
+        <RecordSidePanel.Header
+          avatar={editableAvatar}
+          title={editableTitle}
+          actions={
+            contactActions ? (
+              <>
+                <ContactPanelWebsiteLink website={website} />
+                {contactActions}
+              </>
+            ) : (
+              panelPluginName && (
+                <PluginRecordPanel
+                  pluginName={panelPluginName}
+                  contentType={record.contentType}
+                  contentId={record.contentId}
+                  view="actions"
+                  quiet
+                />
+              )
+            )
           }
-          onNote={() => {
-            setTab(ACTIVITY_TAB);
-            setNoteFocusRequest((value) => value + 1);
-          }}
+          onBack={onBack}
+          onClose={onClose}
         />
       )}
       <RecordSidePanel.Tabs
@@ -408,6 +443,15 @@ const SidePanelSavedRecord = ({
         onValueChange={setTab}
         visibleCount={8}
         overviewTab={contactType ? DETAIL_TAB : undefined}
+        overviewHeader={
+          contactType && (
+            <ContactPanelIdentity
+              title={editableTitle}
+              avatar={editableAvatar}
+              website={website}
+            />
+          )
+        }
         expandedDefaultTab={ACTIVITY_TAB}
       />
     </>
@@ -515,8 +559,8 @@ export const SidePanelRecord = (
 };
 
 /**
- * The app-wide side panel: a full-height column right of every app. What it
- * shows is its own route, kept in the `panel` query param
+ * The app-wide side panel: a column below the top bar, right of every app. What
+ * it shows is its own route, kept in the `panel` query param
  * (`?panel=/detail/customer/<id>`), so it can be linked and reloaded.
  */
 export const SidePanelLayout = () => {
@@ -525,15 +569,30 @@ export const SidePanelLayout = () => {
     useSidePanel();
   const onBack = canGoBack ? back : undefined;
   const [width, setWidth] = useAtom(sidePanelWidthState);
-  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
+  const [expanded] = useQueryState<boolean>('panelExpanded');
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
-  const pageExpanded = Boolean(
-    expanded &&
-    record &&
-    ['core:customer', 'core:company'].includes(record.contentType),
-  );
+  const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
+  // Expanding leads to the record's own page; without one, it cannot expand.
+  const getRecordPage = () => {
+    if (!record || record.contentId === NEW_RECORD_ID) return null;
+
+    if (isContactContentType(record.contentType)) {
+      return getContactDetailPath(
+        record.contentType,
+        record.contentId,
+        pathname,
+      );
+    }
+
+    return detailPath
+      ? detailPath(encodeURIComponent(record.contentId), pathname)
+      : null;
+  };
+  const recordPage = getRecordPage();
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {
@@ -576,33 +635,33 @@ export const SidePanelLayout = () => {
 
   return (
     <>
-      {open && path !== SIDE_PANEL_CHAT_PATH && (
-        <RecordPagePortal active={pageExpanded}>
-          <RecordSidePanel
-            key="record"
-            expandedMode={pageExpanded ? 'page' : 'viewport'}
-            expanded={Boolean(expanded)}
-            onExpandedChange={setExpanded}
-            width={
-              moduleEntry && path
-                ? (moduleWidths[path] ??
-                  Math.max(width, moduleEntry.defaultWidth || 0))
-                : width
-            }
-            maxWidth={moduleEntry?.maxWidth}
-            onWidthChange={
-              moduleEntry && path
-                ? (nextWidth) =>
-                    setModuleWidths((previous) => ({
-                      ...previous,
-                      [path]: nextWidth,
-                    }))
-                : setWidth
-            }
-          >
-            {renderRoute()}
-          </RecordSidePanel>
-        </RecordPagePortal>
+      {/* Links saved while records still expanded in place. */}
+      {recordPage && expanded && <Navigate to={recordPage} replace />}
+      {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
+        <RecordSidePanel
+          key="record"
+          expanded={false}
+          expandable={Boolean(recordPage)}
+          onExpandedChange={() => recordPage && navigate(recordPage)}
+          width={
+            moduleEntry && path
+              ? (moduleWidths[path] ??
+                Math.max(width, moduleEntry.defaultWidth || 0))
+              : width
+          }
+          maxWidth={moduleEntry?.maxWidth}
+          onWidthChange={
+            moduleEntry && path
+              ? (nextWidth) =>
+                  setModuleWidths((previous) => ({
+                    ...previous,
+                    [path]: nextWidth,
+                  }))
+              : setWidth
+          }
+        >
+          {renderRoute()}
+        </RecordSidePanel>
       )}
       <AssistantPanel />
     </>

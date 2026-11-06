@@ -21,6 +21,8 @@ export const types = `
     createdBy: String
     createdAt: Date
     breakdown: JSON
+    sourceScoreLogId: String
+    replacedByScoreLogId: String
 
     totalScore: Float
     owner: JSON
@@ -74,6 +76,7 @@ export const queries = `
   cpScoreLogList(${queryParams} ${GQL_CURSOR_PARAM_DEFS}, clientPortal:String): ScoreLogList
   scoreLogStatistics(${queryParams}): JSON
   loyaltyScoreTargetTotals(targetIds: [String!]!): [LoyaltyScoreTargetTotal]
+  loyaltyScoreLogsByIds(ids: [String!]!): [ScoreLogItem]
 `;
 
 const mutationParams = `

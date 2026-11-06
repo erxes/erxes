@@ -191,6 +191,10 @@ export type IUIConfig = {
         icon?: Icon;
         after?: 'detail' | 'properties' | 'activity';
       }[];
+      // The record's own page, built from its URL-encoded id and the page the
+      // panel is open on; the panel's expand button leads there. Without one,
+      // the panel has no expand button.
+      detailPath?: (recordId: string, pathname: string) => string;
     }[];
     // Sections a plugin adds to a customer's or company's overview (its
     // `./contactWidget` remote, given ui-modules' `IContactWidgetProps`):

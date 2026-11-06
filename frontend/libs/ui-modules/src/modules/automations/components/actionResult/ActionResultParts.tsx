@@ -1,3 +1,4 @@
+import { IconChevronRight } from '@tabler/icons-react';
 import { Badge, Button, cn } from 'erxes-ui';
 import { ReactNode, useState } from 'react';
 import { IAutomationHistoryAction } from '../../types/automationTypes';
@@ -135,3 +136,39 @@ export const ActionResultJson = ({ value }: { value: unknown }) => (
     {typeof value === 'string' ? value : JSON.stringify(value, null, 2)}
   </pre>
 );
+
+/**
+ * The stored payload, closed by default: it is for inspecting a result, never
+ * for reading one.
+ */
+export const ActionResultRaw = ({
+  value,
+  label = 'Raw',
+}: {
+  value: unknown;
+  label?: string;
+}) => {
+  const [isOpen, setOpen] = useState(false);
+
+  if (value === undefined || value === null) {
+    return null;
+  }
+
+  return (
+    <section className="min-w-0 space-y-1.5">
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-expanded={isOpen}
+        className="h-6 gap-1 px-0 text-xs text-muted-foreground"
+        onClick={() => setOpen((open) => !open)}
+      >
+        <IconChevronRight
+          className={cn('size-3 transition-transform', isOpen && 'rotate-90')}
+        />
+        {label}
+      </Button>
+      {isOpen && <ActionResultJson value={value} />}
+    </section>
+  );
+};

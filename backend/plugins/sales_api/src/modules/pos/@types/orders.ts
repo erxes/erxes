@@ -78,6 +78,8 @@ export interface IPosOrder {
   origin?: string;
   taxInfo?: any;
   convertDealId?: string;
+  // Ids of the loyalty entries this order caused; the points stay in loyalty.
+  scoreLogIds?: string[];
   returnInfo?: IPosOrderReturnInfo;
   subscriptionInfo?: {
     subscriptionId: string;

@@ -1,4 +1,5 @@
 import { useAutomationExecutionCounts } from '@/automations/hooks/useAutomationExecutionCounts';
+import { useAutomationRecentRuns } from '@/automations/hooks/useAutomationRecentRuns';
 import {
   automationExecutionCountAtomFamily,
   automationExecutionCountsLoadingState,
@@ -8,7 +9,7 @@ import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 
 /**
- * Renders nothing — it only owns the counts request, so resolving it re-renders
+ * Renders nothing — it only owns the counts and recent runs requests, so resolving it re-renders
  * this component instead of the table.
  */
 export const AutomationExecutionCountsLoader = ({
@@ -20,6 +21,7 @@ export const AutomationExecutionCountsLoader = ({
   const ids = useMemo(() => automationIds, [automationIds.join(',')]);
 
   useAutomationExecutionCounts(ids);
+  useAutomationRecentRuns(ids);
 
   return null;
 };

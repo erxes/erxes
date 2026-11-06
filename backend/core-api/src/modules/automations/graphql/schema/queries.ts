@@ -55,6 +55,7 @@ const queries = `
   automationStats(automationId: String!, beginDate: Date, endDate: Date): AutomationStats
   automationActivity(automationId: String!, beginDate: Date!, endDate: Date!, buckets: Int!, actionId: String): AutomationActivity
   automationExecutionCounts(automationIds: [String!]!): [AutomationStatsCount]
+  automationRecentRuns(automationIds: [String!]!): [AutomationRecentRuns]
   automationsTotalCount(status: String): automationsTotalCountResponse
   automationConstants: JSON
   automationSetPropertyTargets(sourceType: String!): JSON
