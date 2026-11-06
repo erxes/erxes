@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { TAutomationSendEmailConfig } from '@/automations/components/builder/nodes/actions/sendEmail/states/sendEmailConfigForm';
-import { getActionResultErrorText } from '@/automations/utils/automationHistoryUtils/executionResultPreview';
+import { getActionErrorMessage } from '@/automations/utils/automationHistoryUtils/actionResultShape';
 import { IAutomationHistoryAction } from 'ui-modules';
 
 export const useSendEmailActionResult = (
@@ -20,7 +20,7 @@ export const useSendEmailActionResult = (
   return {
     hasError,
     statusText: hasError
-      ? getActionResultErrorText(response.error)
+      ? getActionErrorMessage(response.error)
       : t('send-email-sent-successfully'),
     from:
       response?.from ||

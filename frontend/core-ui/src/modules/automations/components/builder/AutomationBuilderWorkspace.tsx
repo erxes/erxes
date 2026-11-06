@@ -1,4 +1,5 @@
 import { AutomationBuilderCanvas } from '@/automations/components/builder/AutomationBuilderCanvas';
+import { AutomationRunHealthBanner } from '@/automations/components/builder/AutomationRunHealthBanner';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import { AutomationsHotKeyScope } from '@/automations/types';
 import { Icon, IconProps } from '@tabler/icons-react';
@@ -35,6 +36,7 @@ export const AutomationBuilderWorkspace = () => {
 
   return (
     <div className="h-full relative flex min-h-0 w-full flex-row overflow-hidden">
+      <AutomationRunHealthBanner />
       <AutomationBuilderCanvas />
       <AutomationBuilderSidebar />
     </div>

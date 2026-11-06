@@ -157,7 +157,7 @@ export const ThreadTabs = ({
 
   return (
     <div className="shrink-0 bg-sidebar">
-      <div className="flex h-12 min-w-0 items-stretch gap-0.5 border-b pl-2 pr-1">
+      <div className="box-content flex h-10 min-w-0 items-stretch gap-0.5 border-b pl-2 pr-1">
         {(overflow.left || overflow.right) && (
           <Button
             variant="ghost"

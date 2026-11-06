@@ -1,4 +1,10 @@
-import { startTransition, useCallback, useEffect, useMemo, useRef } from 'react';
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { AppPath } from '@/types/paths/AppPath';
@@ -28,7 +34,8 @@ const toHomePath = (activity: INavigationActivity) =>
 
 /**
  * Browser-like app tabs: every plugin, core module and the inbox opens as a
- * tab, keeps where it was left, and can be closed or reordered.
+ * tab, keeps where it was left, and can be closed or reordered. Organization
+ * settings keeps where it was left too, but has no tab.
  */
 export const useAppTabs = () => {
   const navigationActivities = useNavigationActivities();
@@ -69,8 +76,13 @@ export const useAppTabs = () => {
     [navigationActivities, navigationT, t],
   );
 
-  // Organization settings opens as its own tab; plugin settings live under
-  // the plugin's own path, so they resolve to that plugin's tab.
+  // Organization settings opens from its own top bar button and never takes a
+  // tab, even one stored earlier; plugin settings live under the plugin's own
+  // path, so they resolve to that plugin's tab.
+  const tabActivities = useMemo(
+    () => activities.filter((activity) => activity.id !== SETTINGS_TAB_ID),
+    [activities],
+  );
   const routeActivity = isOrganizationSettingsPath(pathname)
     ? activities.find((activity) => activity.id === SETTINGS_TAB_ID)
     : findAppActivityByPath(activities, pathname);
@@ -78,9 +90,9 @@ export const useAppTabs = () => {
   const location = `${pathname}${search}`;
   // Another tab action can arrive before the route transition commits.
   const pendingNavigationRef = useRef<{ activityId?: string } | null>(null);
-  const tabIds = resolveAppTabIds(storedTabIds, activities);
+  const tabIds = resolveAppTabIds(storedTabIds, tabActivities);
   const tabs = tabIds.flatMap((id) => {
-    const activity = activities.find((item) => item.id === id);
+    const activity = tabActivities.find((item) => item.id === id);
 
     return activity ? [activity] : [];
   });
@@ -109,18 +121,18 @@ export const useAppTabs = () => {
 
   // Whatever app the route lands on (a link, search, the inbox) gets a tab.
   useEffect(() => {
-    if (!routeActivityId) {
+    if (!routeActivityId || routeActivityId === SETTINGS_TAB_ID) {
       return;
     }
 
     setStoredTabIds((current) => {
-      const ids = resolveAppTabIds(current, activities);
+      const ids = resolveAppTabIds(current, tabActivities);
 
       return ids.includes(routeActivityId)
         ? current
         : openAppTab(ids, routeActivityId);
     });
-  }, [activities, routeActivityId, setStoredTabIds]);
+  }, [tabActivities, routeActivityId, setStoredTabIds]);
 
   const go = useCallback(
     (path: string, activityId?: string) => {

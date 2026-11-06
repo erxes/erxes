@@ -9,6 +9,16 @@ export type TExecutionStatus =
   | 'standby'
   | 'dropped';
 
+export const EXECUTION_STATUS_LABEL_KEYS: Record<TExecutionStatus, string> = {
+  success: 'history-status-succeeded',
+  skipped: 'history-status-skipped',
+  error: 'history-status-failed',
+  waiting: 'history-status-waiting',
+  queued: 'history-status-queued',
+  standby: 'history-status-standby',
+  dropped: 'history-status-dropped',
+};
+
 export const formatExecutionDuration = (durationMs?: number) => {
   if (typeof durationMs !== 'number' || durationMs < 0) {
     return 'N/A';

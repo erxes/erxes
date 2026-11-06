@@ -4,17 +4,14 @@ import { withFilter } from 'graphql-subscriptions';
 export default {
   name: 'accounting',
   typeDefs: `
-				accountingAdjustInventoryChanged(adjustId: String!): AdjustInventory
-      accountingAdjustFixedAssetChanged(adjustId: String!): AdjustFixedAsset
-      accountingAdjustFundRateChanged(adjustId: String!): AdjustFundRate
-      accountingAdjustDebtRateChanged(adjustId: String!): AdjustDebtRate
-      accountingTransactionChanged(parentId: String, userId: String, filter: JSON): JSON
-			`,
+    accountingAdjustInventoryChanged(adjustId: String!): AdjustInventory
+    accountingAdjustFixedAssetChanged(adjustId: String!): AdjustFixedAsset
+    accountingAdjustFundRateChanged(adjustId: String!): AdjustFundRate
+    accountingAdjustDebtRateChanged(adjustId: String!): AdjustDebtRate
+    accountingTransactionChanged(parentId: String, userId: String, filter: JSON): JSON
+  `,
   generateResolvers: (graphqlPubsub) => {
     return {
-      /*
-       * Listen for conversation changes like status, assignee, read state
-       */
       accountingAdjustInventoryChanged: {
         subscribe: (_, { adjustId }, { subdomain }) =>
           graphqlPubsub.asyncIterator(

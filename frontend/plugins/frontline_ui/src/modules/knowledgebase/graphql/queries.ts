@@ -133,6 +133,17 @@ export const CATEGORIES = gql(`
   }
 `);
 
+export const CATEGORY_DETAIL = gql(`
+  query frontlineKbCategoryDetail($_id: String!) {
+    knowledgeBaseCategoryDetail(_id: $_id) {
+      ...FrontlineKbCategoryFields
+      firstTopic {
+        _id
+      }
+    }
+  }
+`);
+
 export const ARTICLES = gql(`
   query frontlineKbArticles(
     $topicIds: [String]

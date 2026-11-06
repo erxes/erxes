@@ -13,6 +13,7 @@ export const useRecordPanelPlugin = (
   pluginName: string | null;
   hasProperties: boolean;
   hasDraftTitle: boolean;
+  detailPath: ((recordId: string, pathname: string) => string) | null;
 } => {
   const pluginsMetaData = useAtomValue(pluginsConfigState);
   const { isLoaded, isWildcard, hasPluginPermission } = usePermissionCheck();
@@ -32,13 +33,19 @@ export const useRecordPanelPlugin = (
       !plugin ||
       (isLoaded && !isWildcard && !hasPluginPermission(plugin.name))
     ) {
-      return { pluginName: null, hasProperties: false, hasDraftTitle: false };
+      return {
+        pluginName: null,
+        hasProperties: false,
+        hasDraftTitle: false,
+        detailPath: null,
+      };
     }
 
     return {
       pluginName: plugin.name,
       hasProperties: panel?.properties !== false,
       hasDraftTitle: panel?.draftTitle === true,
+      detailPath: panel?.detailPath ?? null,
     };
   }, [pluginsMetaData, contentType, isLoaded, isWildcard, hasPluginPermission]);
 };
