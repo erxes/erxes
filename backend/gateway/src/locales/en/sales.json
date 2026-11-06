@@ -1115,5 +1115,21 @@
   "loyalty-insight-by-assignee": "Points earned by assignee",
   "loyalty-insight-by-branch": "Points earned by branch",
   "loyalty-insight-top-earners": "Customers who earned most",
-  "loyalty-insight-top-spenders": "Customers who spent most"
+  "loyalty-insight-top-spenders": "Customers who spent most",
+  "dashboard-loyalty-kpis": "Loyalty points",
+  "dashboard-loyalty-kpis-description": "Points earned, spent and refunded on deals, net, spend and refund rates",
+  "dashboard-loyalty-flow-description": "Points earned, spent and refunded on deals per day, week or month",
+  "dashboard-loyalty-running-net-description": "The deals' running net of points over time",
+  "dashboard-loyalty-by-pipeline-description": "Earned, spent, refunded and net points per pipeline",
+  "dashboard-loyalty-top-deals-description": "The ten deals that earned the most points",
+  "dashboard-loyalty-top-earners-description": "Customers who earned the most points on deals",
+  "dashboard-loyalty-top-spenders-description": "Customers who spent the most points on deals",
+  "dashboard-loyalty-all-boards": "All boards",
+  "dashboard-loyalty-scope-hint": "Leave empty to sum every pipeline you can see",
+  "dashboard-loyalty-period": "Period",
+  "dashboard-loyalty-save": "Save widget",
+  "dashboard-loyalty-disabled": "Turn on the loyalty plugin to see points here",
+  "dashboard-loyalty-empty": "No points moved in these pipelines",
+  "dashboard-loyalty-open": "Open",
+  "dashboard-widget-unknown": "This widget is no longer available"
 }

@@ -214,7 +214,7 @@ export const Summary = ({
         <IconTrashX />
         {t('delete')}
       </Button>
-      <TrRightSidebar form={form} />
+      <TrRightSidebar />
     </div>
   );
 };

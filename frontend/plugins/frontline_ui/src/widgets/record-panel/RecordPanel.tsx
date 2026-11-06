@@ -1,3 +1,6 @@
+import { SETTINGS_RECORD_CONTENT_TYPES } from '@/settings/constants/recordPanels';
+import { HELP_CENTER_CONTENT_TYPE } from '@/helpcenter/constants';
+import { INTEGRATION_CONTENT_TYPE } from '@/integrations/components/IntegrationPanelForm';
 import {
   KB_DRAFT_CONTENT_TYPES,
   KB_RECORD_CONTENT_TYPES,
@@ -22,6 +25,24 @@ import { useAtomValue } from 'jotai';
 import { lazy, Suspense, useEffect } from 'react';
 import { ticketRemovedIdsState } from '@/ticket/states/removedTicketsState';
 import { TicketPanelDetail, TicketPanelName } from './TicketPanelDetail';
+
+const HelpCenterRecordPanel = lazy(() =>
+  import('./HelpCenterRecordPanel').then((module) => ({
+    default: module.HelpCenterRecordPanel,
+  })),
+);
+
+const IntegrationRecordPanel = lazy(() =>
+  import('./IntegrationRecordPanel').then((module) => ({
+    default: module.IntegrationRecordPanel,
+  })),
+);
+
+const SettingsRecordPanel = lazy(() =>
+  import('@/settings/components/record-panels/SettingsRecordPanel').then(
+    (module) => ({ default: module.SettingsRecordPanel }),
+  ),
+);
 
 const KNOWLEDGE_BASE_CONTENT_TYPES = new Set<string>([
   ...Object.values(KB_RECORD_CONTENT_TYPES),
@@ -131,6 +152,27 @@ const TicketPanel = ({ contentId, view }: IRecordPanelProps) => {
 };
 
 export const RecordPanel = (props: IRecordPanelProps) => {
+  if (props.contentType === HELP_CENTER_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <HelpCenterRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (props.contentType === INTEGRATION_CONTENT_TYPE) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <IntegrationRecordPanel {...props} />
+      </Suspense>
+    );
+  }
+  if (SETTINGS_RECORD_CONTENT_TYPES.has(props.contentType)) {
+    return (
+      <Suspense fallback={<Spinner containerClassName="py-12" />}>
+        <SettingsRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (KNOWLEDGE_BASE_CONTENT_TYPES.has(props.contentType)) {
     return (
       <Suspense fallback={<Spinner containerClassName="py-12" />}>

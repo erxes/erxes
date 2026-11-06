@@ -49,3 +49,21 @@ export const GET_AMENITIES = gql`
     }
   }
 `;
+
+export const GET_AMENITY_DETAIL = gql`
+  query BmsAmenityDetail($id: String!) {
+    bmsElementDetail(_id: $id) {
+      _id
+      branchId
+      name
+      icon
+      quick
+      language
+      translations {
+        _id
+        language
+        name
+      }
+    }
+  }
+`;

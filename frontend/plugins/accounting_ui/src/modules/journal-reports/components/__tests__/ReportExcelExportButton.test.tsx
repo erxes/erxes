@@ -29,8 +29,8 @@ jest.mock('erxes-ui', () => ({
     [
       {
         report: 'tb',
-        fromDate: '2026-10-01',
-        toDate: '2026-10-31',
+        fromDate: '2026-10-01 09:00:00',
+        toDate: '2026-10-31 18:00:59.999',
       }[key],
     ] as const,
   useToast: () => ({ toast: mockToast }),
@@ -88,7 +88,7 @@ describe('ReportExcelExportButton organization name', () => {
       expect.any(HTMLDivElement),
       expect.objectContaining({
         organizationName: 'Altai Taiga Tour LLC',
-        dateRange: '2026-10-01 - 2026-10-31',
+        dateRange: '2026-10-01 09:00 - 2026-10-31 18:00',
       }),
     );
   });

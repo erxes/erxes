@@ -4,22 +4,20 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { useTags } from '../hooks/useTags';
-import { CmsSidebar } from '../shared/CmsSidebar';
 import { EmptyState } from '../shared/EmptyState';
 import { HeaderLanguageTabs } from '../shared/HeaderLanguageTabs';
 import { TagsHeader } from './components/TagsHeader';
 import { TagsFilter } from './components/TagsFilter';
 import { TagsRecordTable } from './components/TagsRecordTable';
 import { useRemoveTag } from './hooks/useRemoveTag';
-import { TagDrawer } from './TagDrawer';
 import { CmsTag } from './types/tagTypes';
+import { CMS_TAG_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 export function Tag() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
   const [searchValue] = useFilterQueryState<string>('searchValue');
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedTag, setSelectedTag] = useState<CmsTag | undefined>(undefined);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const { tags, loading } = useTags({
@@ -27,19 +25,18 @@ export function Tag() {
     searchValue: searchValue || undefined,
   });
   const { removeTag } = useRemoveTag();
+  const { openDraft, openDetail } = useContentPanel(CMS_TAG_CONTENT_TYPE);
 
   const refetch = () => {
     setRefetchTrigger((prev) => prev + 1);
   };
 
   const handleAddTag = () => {
-    setSelectedTag(undefined);
-    setDrawerOpen(true);
+    openDraft({ clientPortalId: websiteId });
   };
 
   const handleEditTag = (tag: CmsTag) => {
-    setSelectedTag(tag);
-    setDrawerOpen(true);
+    openDetail(tag._id);
   };
 
   const handleBulkDelete = async (ids: string[]) => {
@@ -59,7 +56,6 @@ export function Tag() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <TagsHeader>
           <HeaderLanguageTabs />
@@ -98,16 +94,6 @@ export function Tag() {
           )}
         </div>
       </div>
-
-      <TagDrawer
-        tag={selectedTag}
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setSelectedTag(undefined);
-        }}
-        clientPortalId={websiteId || ''}
-      />
     </PageContainer>
   );
 }

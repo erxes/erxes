@@ -1,23 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { IconFileSpreadsheet } from '@tabler/icons-react';
-import { formatDate as format } from '@/utils/graphqlDate';
 import { Button, useQueryState, useToast } from 'erxes-ui';
 import { useState, type RefObject } from 'react';
 import { useJournalReportOrganizationName } from '@/journal-reports/hooks/useJournalReportOrganizationName';
+import { formatReportPeriodQuery } from '@/journal-reports/utils/reportNavigation';
 import { ReportRules } from '../types/reportsMap';
 import { exportJournalReportExcel } from '../utils/exportJournalReportExcel';
 
 interface IReportExcelExportButtonProps {
   reportContainerRef: RefObject<HTMLDivElement>;
 }
-
-const formatQueryDate = (value: unknown) => {
-  if (typeof value !== 'string' || !value) {
-    return '';
-  }
-
-  return format(new Date(value), 'yyyy-MM-dd');
-};
 
 export const ReportExcelExportButton = ({
   reportContainerRef,
@@ -43,7 +35,10 @@ export const ReportExcelExportButton = ({
       await exportJournalReportExcel(reportContainerRef.current, {
         title,
         organizationName,
-        dateRange: [formatQueryDate(fromDate), formatQueryDate(toDate)]
+        dateRange: [
+          formatReportPeriodQuery(fromDate),
+          formatReportPeriodQuery(toDate),
+        ]
           .filter(Boolean)
           .join(' - '),
       });

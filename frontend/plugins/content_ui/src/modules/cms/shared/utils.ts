@@ -30,6 +30,16 @@ export const getInitialCmsLanguage = (
     ? cmsLanguage
     : defaultLanguage;
 
+export const getCmsSubmitLanguage = (
+  selectedLanguage: string,
+  defaultLanguage: string,
+  isNewTranslation: boolean,
+) => {
+  if (!selectedLanguage) return undefined;
+
+  return isNewTranslation ? defaultLanguage : selectedLanguage;
+};
+
 interface RecordTableRow<T extends { _id: string }> {
   original: T;
 }

@@ -65,7 +65,7 @@ const ItineraryItemLabel = ({ itinerary }: { itinerary: IItinerary }) => {
       <span className="truncate">{itinerary.name}</span>
       {itinerary.duration && (
         <span className="text-xs text-muted-foreground shrink-0">
-          ({itinerary.duration} {t('days')})
+          ({t('days', { count: itinerary.duration })})
         </span>
       )}
     </div>
@@ -169,7 +169,7 @@ const SelectItineraryValue = ({ placeholder }: { placeholder?: string }) => {
       <span className="truncate">{selectedItinerary.name}</span>
       {selectedItinerary.duration && (
         <span className="text-xs text-muted-foreground shrink-0">
-          ({selectedItinerary.duration} {t('days')})
+          ({t('days', { count: selectedItinerary.duration })})
         </span>
       )}
     </div>

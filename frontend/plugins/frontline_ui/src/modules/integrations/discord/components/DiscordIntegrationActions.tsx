@@ -1,18 +1,17 @@
+import { createIntegrationFormDraft } from '@/integrations/hooks/useIntegrationDraft';
+import { Form, Spinner, toast } from 'erxes-ui';
+import { PanelFormLayout } from 'ui-modules';
+import { IntegrationEditButton } from '@/integrations/components/IntegrationPanelForm';
+import {
+  IntegrationNameField,
+  IntegrationBrandField,
+} from '@/integrations/components/IntegrationFormFields';
+
 import { useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { IconEdit, IconTool } from '@tabler/icons-react';
-import {
-  Button,
-  Dialog,
-  Form,
-  Input,
-  Separator,
-  Spinner,
-  toast,
-} from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { IconTool } from '@tabler/icons-react';
+
 import { useForm } from 'react-hook-form';
-import { SelectBrands } from 'ui-modules';
 import { z } from 'zod';
 import { IIntegration } from '@/integrations/types/Integration';
 import { IntegrationType } from '@/types/Integration';
@@ -22,16 +21,17 @@ import { useIntegrationEdit } from '@/integrations/hooks/useIntegrationEdit';
 import { DISCORD_EDIT_SCHEMA } from '../constants/discordSchema';
 import { useTranslation } from 'react-i18next';
 
-// Both edit + repair reuse the generic inbox integration mutations; the only
-// Discord-specific piece is the repair backend handler (re-validate + reconnect).
 const REPAIR_INTEGRATION = gql(`
   mutation IntegrationsRepair($_id: String!, $kind: String!) {
     integrationsRepair(_id: $_id, kind: $kind)
   }
 `);
 
-/** Edit form for a Discord integration's name and brand. */
-const DiscordIntegrationEditForm = ({
+const useFormDraft =
+  createIntegrationFormDraft<z.infer<typeof DISCORD_EDIT_SCHEMA>>();
+
+/** Edits the name and brand of a Discord integration. */
+export const DiscordIntegrationEditForm = ({
   id,
   setOpen,
 }: {
@@ -50,26 +50,25 @@ const DiscordIntegrationEditForm = ({
     resolver: zodResolver(DISCORD_EDIT_SCHEMA),
   });
 
-  useEffect(() => {
-    if (integrationDetail) {
-      form.reset({
-        name: integrationDetail.name,
-        brandId: integrationDetail.brandId ?? '',
-      });
-    }
-  }, [integrationDetail, form]);
+  const { markSaved, isActive, getSaveValues } = useFormDraft(form, {
+    name: integrationDetail?.name ?? '',
+    brandId: integrationDetail?.brandId ?? '',
+  });
 
-  /** Persist the edited Discord integration. */
+  /** Saves the integration name and brand with success and error feedback. */
   const onSubmit = (data: z.infer<typeof DISCORD_EDIT_SCHEMA>) => {
+    const submittedValues = data;
+    const savedValues = getSaveValues(data);
     editIntegration({
       variables: {
         _id: id,
-        name: data.name,
+        name: savedValues.name,
         channelId: integrationDetail?.channelId || '',
-        brandId: data.brandId,
+        brandId: savedValues.brandId,
       },
       onCompleted: () => {
-        setOpen(false);
+        if (markSaved(savedValues, submittedValues) && isActive())
+          setOpen(false);
         toast({ title: t('integration-updated') });
       },
       onError: (error: { message: string }) => {
@@ -82,87 +81,35 @@ const DiscordIntegrationEditForm = ({
 
   return (
     // skipcq: JS-0415
-    <>
-      <Dialog.Header className="flex-row items-center justify-between space-y-0 px-4 py-3">
-        <Dialog.Title>{integrationDetail?.name}</Dialog.Title>
-      </Dialog.Header>
-      <Separator />
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="p-6 pb-8 space-y-6">
-            <Form.Field
-              name="name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('name')}</Form.Label>
-                  <Form.Control>
-                    <Input {...field} />
-                  </Form.Control>
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              name="brandId"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t('brand')}</Form.Label>
-                  <SelectBrands.FormItem
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                  <Form.Message />
-                </Form.Item>
-              )}
-            />
+    <Form {...form}>
+      <form
+        className="flex flex-1 min-h-0 flex-col"
+        onSubmit={form.handleSubmit(onSubmit)}
+      >
+        <PanelFormLayout
+          onCancel={() => setOpen(false)}
+          saving={loading || editLoading}
+        >
+          <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-3">
+            <IntegrationNameField />
+            <IntegrationBrandField variant="form-item" />
           </div>
-          <Separator />
-          <Dialog.Footer className="flex justify-end py-4 px-6">
-            <Dialog.Close asChild>
-              <Button disabled={loading || editLoading} variant="ghost">
-                {t('close')}
-              </Button>
-            </Dialog.Close>
-            <Button type="submit" disabled={loading || editLoading}>
-              {t('save')}
-            </Button>
-          </Dialog.Footer>
-        </form>
-      </Form>
-    </>
+        </PanelFormLayout>
+      </form>
+    </Form>
   );
 };
 
-/** Row actions (edit dialog) for a Discord integration. */
+/** Opens the selected Discord integration for editing. */
 export const DiscordIntegrationActions = ({
   integration,
 }: {
   integration: IIntegration;
 }) => {
-  const { t } = useTranslation('frontline', {
-    keyPrefix: 'modules.integrations',
-  });
-  const [open, setOpen] = useState(false);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger asChild>
-        <div className="flex items-center gap-2 w-full">
-          <IconEdit size={16} />
-          {t('edit')}
-        </div>
-      </Dialog.Trigger>
-      <Dialog.Content className="p-0 gap-0 border-0 shadow-lg">
-        <DiscordIntegrationEditForm
-          id={integration._id}
-          setOpen={setOpen}
-        />
-      </Dialog.Content>
-    </Dialog>
-  );
+  return <IntegrationEditButton integration={integration} />;
 };
 
-/** Repair action that re-syncs a broken Discord integration. */
+/** Repairs a Discord integration and refreshes affected lists. */
 export const DiscordIntegrationRepair = ({
   integration,
 }: {
@@ -176,7 +123,7 @@ export const DiscordIntegrationRepair = ({
     refetchQueries: ['Integrations', 'ChannelIntegrationsPeek'],
   });
 
-  /** Trigger the repair mutation for this integration. */
+  /** Runs the repair mutation unless another repair is in progress. */
   const handleRepair = () => {
     if (loading) return;
 

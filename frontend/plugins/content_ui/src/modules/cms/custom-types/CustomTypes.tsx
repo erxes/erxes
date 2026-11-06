@@ -1,23 +1,20 @@
 import { IconLayout, IconPlus } from '@tabler/icons-react';
 import { Button, Kbd, PageContainer } from 'erxes-ui';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useParams } from 'react-router-dom';
-import { CustomTypeDrawer } from '../components/customTypes/CustomTypeDrawer';
-import { CmsSidebar } from '../shared/CmsSidebar';
+import { useParams } from 'react-router-dom';
 import { EmptyState } from '../shared/EmptyState';
 import { CustomTypesHeader } from './components/CustomTypesHeader';
 import { CustomTypesRecordTable } from './components/CustomTypesRecordTable';
 import { useCustomTypes } from './hooks/useCustomTypes';
 import { useRemoveCustomType } from './hooks/useRemoveCustomType';
 import { ICustomPostType } from './types/customTypeTypes';
+import { CMS_CUSTOM_TYPE_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 
 export function CustomTypes() {
   const { t } = useTranslation('content');
   const { websiteId } = useParams();
-  const location = useLocation();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingType, setEditingType] = useState<any>(null);
   const [refetchTrigger, setRefetchTrigger] = useState(0);
 
   const { customTypes, loading } = useCustomTypes({
@@ -30,16 +27,16 @@ export function CustomTypes() {
 
   const { removeBulkTypes } = useRemoveCustomType(refetch);
 
-  useEffect(() => {}, [location]);
+  const { openDraft, openDetail } = useContentPanel(
+    CMS_CUSTOM_TYPE_CONTENT_TYPE,
+  );
 
   const handleAddType = () => {
-    setEditingType(null);
-    setDrawerOpen(true);
+    openDraft({ clientPortalId: websiteId });
   };
 
   const handleEditType = (customType: ICustomPostType) => {
-    setEditingType(customType);
-    setDrawerOpen(true);
+    openDetail(customType._id);
   };
 
   const handleBulkDelete = async (ids: string[]) => {
@@ -59,7 +56,6 @@ export function CustomTypes() {
 
   return (
     <PageContainer className="flex-row">
-      <CmsSidebar />
       <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
         <CustomTypesHeader>{headerActions}</CustomTypesHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
@@ -94,23 +90,6 @@ export function CustomTypes() {
           </div>
         </div>
       </div>
-
-      <CustomTypeDrawer
-        isOpen={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          setEditingType(null);
-        }}
-        clientPortalId={websiteId || ''}
-        customType={editingType}
-        onCreate={() => {
-          refetch();
-        }}
-        onUpdate={() => {
-          refetch();
-          setEditingType(null);
-        }}
-      />
     </PageContainer>
   );
 }

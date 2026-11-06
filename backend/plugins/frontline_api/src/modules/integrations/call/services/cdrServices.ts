@@ -1,5 +1,11 @@
 import { IModels } from '~/connectionResolvers';
 import { sendTRPCMessage, graphqlPubsub } from 'erxes-api-shared/utils';
+import {
+  integrationForQueue,
+  queueFromActionType,
+  rehomeCallRecords,
+  resolveQueueIntegration,
+} from '@/integrations/call/services/queueRouting';
 import { debugCall } from '@/integrations/call/debuggers';
 import {
   determinePrimaryPhone,
@@ -76,7 +82,7 @@ export const receiveCdr = async (
   verifiedIntegration?: any,
 ) => {
   debugCall(`Request to get post data with: ${JSON.stringify(params)}`);
-  const integration =
+  const matched =
     verifiedIntegration ||
     (await models.CallIntegrations.findOne({
       $or: [
@@ -84,7 +90,22 @@ export const receiveCdr = async (
         { dstTrunk: params.dst_trunk_name },
       ],
     }));
-  if (!integration) return;
+  if (!matched) return;
+
+  const queueOwner = await resolveQueueIntegration(
+    models,
+    matched,
+    queueFromActionType(params.action_type),
+  );
+  const integration = queueOwner || matched;
+  if (queueOwner && params.uniqueid) {
+    await rehomeCallRecords(
+      models,
+      { uniqueid: params.uniqueid, linkedid: params.linkedid },
+      queueOwner.inboxId,
+      queueOwner.phone,
+    );
+  }
 
   if (params.uniqueid) {
     const lockKey = `${subdomain}:call:session:${params.uniqueid}`;
@@ -126,6 +147,9 @@ const processCdrLocked = async (
   integration: any,
 ) => {
   const inboxId = integration.inboxId;
+  const queueRouted = Boolean(
+    integrationForQueue([integration], queueFromActionType(params.action_type)),
+  );
 
   const primaryPhone = determinePrimaryPhone(params);
 
@@ -158,7 +182,7 @@ const processCdrLocked = async (
   const ownerForConversation = isAnsweredLeg ? operatorPhone : undefined;
   const assignedUserId = isAnsweredLeg ? operatorUserId : undefined;
   const answeredInboxId =
-    isAnsweredLeg && operatorMatch
+    isAnsweredLeg && operatorMatch && !queueRouted
       ? operatorMatch.integration.inboxId
       : undefined;
 
@@ -245,7 +269,9 @@ const processCdrLocked = async (
     updatedAt: new Date(),
     owner: ownerForConversation,
     userId: assignedUserId,
-    integrationId: answeredInboxId || (conversationId ? undefined : inboxId),
+    integrationId: queueRouted
+      ? inboxId
+      : answeredInboxId || (conversationId ? undefined : inboxId),
   };
   if (customer) {
     payload.customerId = customer?.erxesApiId;
