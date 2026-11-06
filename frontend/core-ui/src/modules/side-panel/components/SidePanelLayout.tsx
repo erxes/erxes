@@ -290,10 +290,17 @@ const SidePanelSavedRecord = ({
   const access =
     coreViews && !hasActionPermission('contactsUpdate') ? 'read' : 'write';
   // Types core has no views for may be drawn by the plugin owning them.
-  const { pluginName, hasProperties } = useRecordPanelPlugin(
-    record.contentType,
-  );
+  const {
+    pluginName,
+    i18nNamespace,
+    hasProperties,
+    tabs: pluginTabs,
+  } = useRecordPanelPlugin(record.contentType);
   const panelPluginName = coreViews ? null : pluginName;
+  const { t: pluginT } = useTranslation(
+    (panelPluginName && i18nNamespace) || undefined,
+    { useSuspense: false },
+  );
   const expanded = usePanelExpanded();
   const { title, avatar, state, email, website, customer, company } =
     useRecordHeading(record, panelPluginName);
@@ -337,6 +344,12 @@ const SidePanelSavedRecord = ({
     record,
     views,
     pluginName: panelPluginName,
+    pluginTabs: pluginTabs.map((pluginTab) => ({
+      ...pluginTab,
+      label: pluginTab.labelKey
+        ? pluginT(pluginTab.labelKey, { defaultValue: pluginTab.label })
+        : pluginTab.label,
+    })),
     overview,
     access,
     noteRef: activityRef,
