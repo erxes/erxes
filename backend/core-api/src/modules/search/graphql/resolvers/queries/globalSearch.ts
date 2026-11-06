@@ -116,10 +116,19 @@ const buildCustomerSearchFilter = (
   };
 };
 
-type TDataSource = {
-  count: () => Promise<number>;
-  fetch: (skip: number, limit: number) => Promise<TGlobalSearchItem[]>;
+type TSearchPage = {
+  list: TGlobalSearchItem[];
+  totalCount: number;
 };
+
+type TDataSource =
+  | {
+      queryPage: (skip: number, limit: number) => Promise<TSearchPage>;
+    }
+  | {
+      count: () => Promise<number>;
+      fetch: (skip: number, limit: number) => Promise<TGlobalSearchItem[]>;
+    };
 
 const decodeOffsets = (cursor?: string): number[] => {
   if (!cursor) return [];
@@ -200,12 +209,22 @@ const paginateDataSources = async (
     offsets.push(0);
   }
 
-  const [batches, counts] = await Promise.all([
-    Promise.all(
-      sources.map((source, index) => source.fetch(offsets[index], limit)),
-    ),
-    Promise.all(sources.map((source) => source.count())),
-  ]);
+  const pages = await Promise.all(
+    sources.map(async (source, index): Promise<TSearchPage> => {
+      if ('queryPage' in source) {
+        return source.queryPage(offsets[index], limit);
+      }
+
+      const [list, totalCount] = await Promise.all([
+        source.fetch(offsets[index], limit),
+        source.count(),
+      ]);
+
+      return { list, totalCount };
+    }),
+  );
+  const batches = pages.map(({ list }) => list);
+  const counts = pages.map(({ totalCount }) => totalCount);
   const totalCount = counts.reduce((sum, count) => sum + count, 0);
 
   const sortDirection = params.orderBy?.createdAt === 1 ? 1 : -1;
@@ -285,15 +304,48 @@ export const globalSearchQueries = {
 
     const contactsSources: TDataSource[] = [
       {
-        count: () => models.Customers.countDocuments(customerQuery),
-        fetch: async (skip, limit) => {
-          const docs = await models.Customers.find(customerQuery)
-            .sort({ createdAt: sortDirection, _id: sortDirection })
-            .skip(skip)
-            .limit(limit)
-            .lean();
+        queryPage: async (skip, limit) => {
+          // The legacy fallback can scan most customers. Share that scan between
+          // the exact total and the page instead of evaluating the filter twice.
+          const [page] = await models.Customers.aggregate<{
+            list: Array<
+              Pick<
+                ICustomerDocument,
+                | '_id'
+                | 'createdAt'
+                | 'firstName'
+                | 'lastName'
+                | 'primaryEmail'
+                | 'primaryPhone'
+              >
+            >;
+            counts: Array<{ total: number }>;
+          }>([
+            { $match: customerQuery },
+            {
+              $project: {
+                _id: 1,
+                createdAt: 1,
+                firstName: 1,
+                lastName: 1,
+                primaryEmail: 1,
+                primaryPhone: 1,
+              },
+            },
+            {
+              $facet: {
+                list: [
+                  { $sort: { createdAt: sortDirection, _id: sortDirection } },
+                  { $skip: skip },
+                  { $limit: limit },
+                ],
+                counts: [{ $count: 'total' }],
+              },
+            },
+          ]);
+          const docs = page?.list ?? [];
 
-          return docs.map((doc) => {
+          const list = docs.map((doc) => {
             const name =
               [doc.firstName, doc.lastName].filter(Boolean).join(' ') ||
               doc.primaryEmail ||
@@ -317,6 +369,8 @@ export const globalSearchQueries = {
               ]),
             };
           });
+
+          return { list, totalCount: page?.counts[0]?.total ?? 0 };
         },
       },
       {
