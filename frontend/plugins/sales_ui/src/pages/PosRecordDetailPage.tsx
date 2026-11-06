@@ -81,7 +81,7 @@ const PosPageBreadcrumb = ({
         )}
         <Separator.Inline />
         <Breadcrumb.Item className="min-w-0">
-          <Breadcrumb.Page className="flex min-w-0 px-2 text-sm">
+          <Breadcrumb.Page className="block min-w-0 max-w-md truncate px-2 text-sm">
             {title}
           </Breadcrumb.Page>
         </Breadcrumb.Item>
