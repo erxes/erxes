@@ -1,9 +1,10 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -20,11 +21,8 @@ import {
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import {
-  dealProductsDraftAtomFamily,
-  onLocalChangeAtom,
-  productRowActionsAtom,
-} from '../../productTableAtom';
+import { dealProductsDraftAtomFamily } from '@/deals/cards/components/detail/product/productTableAtom';
+import { ProductListHandlersContext } from '@/deals/cards/components/detail/product/productListHandlers';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
@@ -125,8 +123,6 @@ export const ProductsList = ({
       return acc;
     }, {}),
   );
-  const setOnLocalChange = useSetAtom(onLocalChangeAtom);
-  const setProductRowActions = useSetAtom(productRowActionsAtom);
 
   const [filters, setFilters] = useState<ProductFilterState>({});
 
@@ -310,24 +306,17 @@ export const ProductsList = ({
     sortByStableProductOrder,
   });
 
-  useEffect(() => {
-    setOnLocalChange(() => updateLocalProduct);
-    return () => setOnLocalChange(null);
-  }, [setOnLocalChange, updateLocalProduct]);
-
-  useEffect(() => {
-    setProductRowActions({
-      onEdit: openProductEditSheet,
-      onDuplicate: duplicateProduct,
-      onDelete: deleteProduct,
-    });
-    return () => setProductRowActions(null);
-  }, [
-    setProductRowActions,
-    openProductEditSheet,
-    duplicateProduct,
-    deleteProduct,
-  ]);
+  const listHandlers = useMemo(
+    () => ({
+      onLocalChange: updateLocalProduct,
+      rowActions: {
+        onEdit: openProductEditSheet,
+        onDuplicate: duplicateProduct,
+        onDelete: deleteProduct,
+      },
+    }),
+    [updateLocalProduct, openProductEditSheet, duplicateProduct, deleteProduct],
+  );
 
   const hasProductFilters = Object.values(filters).some((value) =>
     Array.isArray(value) ? value.length > 0 : Boolean(value),
@@ -417,32 +406,34 @@ export const ProductsList = ({
   );
 
   return (
-    <div ref={containerRef} className="flex h-full min-h-0 flex-col">
-      {showExpandedView ? (
-        <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
-          <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
-            <Dialog.Header className="sr-only">
-              <Dialog.Title>Products</Dialog.Title>
-              <Dialog.Description>
-                Expanded product management view
-              </Dialog.Description>
-            </Dialog.Header>
-            {productWorkspace}
-          </Dialog.Content>
-        </Dialog>
-      ) : (
-        productWorkspace
-      )}
+    <ProductListHandlersContext.Provider value={listHandlers}>
+      <div ref={containerRef} className="flex h-full min-h-0 flex-col">
+        {showExpandedView ? (
+          <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
+            <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
+              <Dialog.Header className="sr-only">
+                <Dialog.Title>Products</Dialog.Title>
+                <Dialog.Description>
+                  Expanded product management view
+                </Dialog.Description>
+              </Dialog.Header>
+              {productWorkspace}
+            </Dialog.Content>
+          </Dialog>
+        ) : (
+          productWorkspace
+        )}
 
-      <ProductEditSheet
-        productData={editingProduct}
-        open={Boolean(editingProduct)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingProduct(null);
-          }
-        }}
-      />
-    </div>
+        <ProductEditSheet
+          productData={editingProduct}
+          open={Boolean(editingProduct)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingProduct(null);
+            }
+          }}
+        />
+      </div>
+    </ProductListHandlersContext.Provider>
   );
 };

@@ -1,12 +1,11 @@
-import { onLocalChangeAtom } from '../productTableAtom';
-import { useAtomValue } from 'jotai';
+import { useProductLocalChange } from '@/deals/cards/components/detail/product/productListHandlers';
 import { useDealsEditProductData } from './mutations/useDealsEditProductData';
 import { ProductDataWithDiscountInfos } from '../utils/discountInfos';
 import { normalizeProductUom, syncProductUomInfo } from '../utils/productUom';
 
 export const useUpdateProductRecord = () => {
   const { editDealsProductData } = useDealsEditProductData();
-  const onLocalChange = useAtomValue(onLocalChangeAtom);
+  const onLocalChange = useProductLocalChange();
 
   const updateRecord = (
     product: ProductDataWithDiscountInfos,

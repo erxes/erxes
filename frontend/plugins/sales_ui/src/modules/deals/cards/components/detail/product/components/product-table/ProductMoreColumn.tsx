@@ -3,11 +3,10 @@ import { Cell, ColumnDef } from '@tanstack/react-table';
 import { Combobox, Command, Popover, RecordTable, useConfirm } from 'erxes-ui';
 
 import { IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
-import { productRowActionsAtom } from '@/deals/cards/components/detail/product/productTableAtom';
+import { useProductRowActions } from '@/deals/cards/components/detail/product/productListHandlers';
 
 export const ProductMoreMenu = ({
   productData,
@@ -18,7 +17,7 @@ export const ProductMoreMenu = ({
   const { confirm } = useConfirm();
   const { t } = useTranslation('sales');
   const [open, setOpen] = useState(false);
-  const actions = useAtomValue(productRowActionsAtom);
+  const actions = useProductRowActions();
 
   const runAction = (action: () => void) => {
     setOpen(false);
