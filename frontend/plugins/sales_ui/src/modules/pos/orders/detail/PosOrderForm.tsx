@@ -40,7 +40,7 @@ export const PosOrderForm = ({
   }, [summary, paidAmounts]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="grid gap-3 @3xl/record-panel:grid-cols-2 @3xl/record-panel:gap-x-6">
       {paymentTypes.map((paymentType) => {
         const paymentOption = options.find((opt) => opt.value === paymentType);
         const label = paymentOption?.label || paymentType;

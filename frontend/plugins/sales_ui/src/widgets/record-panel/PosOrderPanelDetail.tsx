@@ -111,7 +111,10 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
 
   return (
     <Form {...methods}>
-      <form onSubmit={onSubmit} className="flex flex-col gap-3">
+      <form
+        onSubmit={onSubmit}
+        className="flex flex-col gap-3 @3xl/record-panel:col-span-2"
+      >
         {isLocked && (
           <Alert variant="warning">
             <IconLock />
@@ -135,7 +138,11 @@ const PosOrderPayments = ({ order }: { order: TPosOrder }) => {
           paidAmounts={order.paidAmounts}
           disabled={isLocked}
         />
-        <Button type="submit" disabled={saving || isLocked}>
+        <Button
+          type="submit"
+          disabled={saving || isLocked}
+          className="@3xl/record-panel:self-end"
+        >
           {t('save-payments-change')}
         </Button>
       </form>

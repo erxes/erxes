@@ -17,7 +17,7 @@ import {
 } from '~/widgets/record-panel/PosOrderPanelDetail';
 import { PosPanelActivity } from '~/widgets/record-panel/PosPanelShared';
 
-const PosOrderPanelTitle = ({ orderId }: { orderId: string }) => {
+export const PosOrderPanelTitle = ({ orderId }: { orderId: string }) => {
   const { t } = useTranslation('sales');
   const { posOrder, loading } = usePosOrderQuery(orderId);
 

@@ -10,6 +10,8 @@ import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
 import {
   POS_COVER_CONTENT_TYPE,
   POS_ORDER_CONTENT_TYPE,
+  getPosCoverDetailPath,
+  getPosOrderDetailPath,
 } from '@/pos/constants/posPanel';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
@@ -61,6 +63,7 @@ export const CONFIG: IUIConfig = {
       {
         contentType: POS_ORDER_CONTENT_TYPE,
         properties: false,
+        detailPath: getPosOrderDetailPath,
         tabs: [
           {
             value: 'payments',
@@ -71,7 +74,11 @@ export const CONFIG: IUIConfig = {
           },
         ],
       },
-      { contentType: POS_COVER_CONTENT_TYPE, properties: false },
+      {
+        contentType: POS_COVER_CONTENT_TYPE,
+        properties: false,
+        detailPath: getPosCoverDetailPath,
+      },
     ],
     relationWidgets: [
       {
