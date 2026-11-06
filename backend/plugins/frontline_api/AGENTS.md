@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -379,6 +379,14 @@
   integration attaches to the caller's personal channel regardless of kind.
 - Receives Facebook and Instagram webhooks over Express and turns them into
   customers, conversations, comment conversations, and post conversations.
+- `POST /instagram` verifies `x-hub-signature-256` / `x-hub-signature` with
+  `INSTAGRAM_APP_SECRET` (`src/modules/integrations/instagram/webhookSignature.ts`).
+  Meta signs the bytes it sent (compact JSON, non-ASCII as `\uXXXX`, `/` as
+  `\/`, `object` before `entry`); a relay that parses and re-serializes the
+  body changes those bytes, so the check also tries that Meta encoding rebuilt
+  from the parsed body, in both the received and the Meta key order. Every
+  candidate is still an HMAC under the app secret; a wrong secret, a tampered
+  body, or a missing header answers `401`.
 - Instagram DMs select only `instagram-messenger` integrations; comments select
   `instagram-post`. Sender profile fields are optional, as in Facebook: keep the
   Instagram user ID and use the comment author username when profile lookup is

@@ -327,7 +327,7 @@ const ModulePanelHeader = ({
   ...props
 }: ComponentProps<typeof Sheet.Header>) => (
   <Sheet.Header
-    className={cn('h-12! gap-2 px-3! [&_h2]:text-sm', className)}
+    className={cn('box-content gap-2 px-3! [&_h2]:text-sm', className)}
     {...props}
   >
     <ModulePanelBack />

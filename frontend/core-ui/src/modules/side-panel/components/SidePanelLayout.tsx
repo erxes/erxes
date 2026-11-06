@@ -357,7 +357,7 @@ const SidePanelSavedRecord = ({
     <RecordSidePanel.Layout
       header={
         <RecordSidePanel.Header
-          className={expanded ? 'h-10 bg-background px-3' : undefined}
+          className={expanded ? 'bg-background px-3' : undefined}
           avatar={contactType ? undefined : avatar}
           title={
             contactType && expanded ? (
@@ -543,8 +543,8 @@ export const SidePanelRecord = (
 };
 
 /**
- * The app-wide side panel: a full-height column right of every app. What it
- * shows is its own route, kept in the `panel` query param
+ * The app-wide side panel: a column below the top bar, right of every app. What
+ * it shows is its own route, kept in the `panel` query param
  * (`?panel=/detail/customer/<id>`), so it can be linked and reloaded.
  */
 export const SidePanelLayout = () => {
