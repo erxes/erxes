@@ -49,7 +49,7 @@ export const MemberDetail = ({
   onClose,
 }: {
   onBack?: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -58,10 +58,6 @@ export const MemberDetail = ({
   const { error, userDetail, loading } = useUserDetail();
   const { hasActionPermission } = usePermissionCheck();
   const currentUser = useAtomValue(currentUserState);
-
-  const handleClose = () => {
-    onClose();
-  };
 
   const renderHeading = () => {
     if (!userDetail) {
@@ -224,7 +220,7 @@ export const MemberDetail = ({
         title={expanded ? <MemberPanelBreadcrumb title={title} /> : title}
         actions={userDetail && <MemberPanelActions user={userDetail} />}
         onBack={onBack}
-        onClose={handleClose}
+        onClose={onClose}
       />
       {renderBody()}
     </>

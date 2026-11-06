@@ -39,7 +39,10 @@ import { CustomerPanelProperties } from '@/side-panel/components/details/Custome
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
-import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
+import {
+  TeamMembersPath,
+  USER_CONTENT_TYPE,
+} from '@/settings/team-member/constants/teamMemberRoutes';
 import {
   ICompany,
   ICustomerDetail,
@@ -584,7 +587,7 @@ export const SidePanelLayout = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
-  // Expanding leads to the record's own page; without one, it cannot expand.
+  // Records with detail routes expand into their own pages.
   const getRecordPage = () => {
     if (!record || record.contentId === NEW_RECORD_ID) return null;
 
@@ -594,6 +597,12 @@ export const SidePanelLayout = () => {
         record.contentId,
         pathname,
       );
+    }
+
+    if (record.contentType === USER_CONTENT_TYPE) {
+      return `${TeamMembersPath.Index}${
+        TeamMembersPath.TeamMembers
+      }/${encodeURIComponent(record.contentId)}`;
     }
 
     return detailPath
