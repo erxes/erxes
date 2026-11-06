@@ -165,6 +165,36 @@ const checkCouponInput = z.object({
     .transform((value) => (value === undefined ? undefined : Number(value))),
 });
 
+const totalsByIdsInput = z.object({ ids: z.array(z.string()).max(1000) });
+
+const isTimeZone = (value: string) => {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: value });
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const filterIdsInput = totalsByIdsInput.extend({
+  kind: z
+    .enum(['earned', 'spent', 'refunded', 'recalculated', 'other'])
+    .optional(),
+  period: z
+    .object({
+      interval: z.enum(['day', 'week', 'month']),
+      timezone: z.string().refine(isTimeZone, 'Unknown time zone'),
+      key: z.string(),
+    })
+    .optional(),
+});
+
+const timelineByIdsInput = totalsByIdsInput.extend({
+  interval: z.enum(['day', 'week', 'month']),
+  timezone: z.string().refine(isTimeZone, 'Unknown time zone'),
+});
+
 const scoreCampaignInput = z.object({
   _id: z.string(),
 });
@@ -488,11 +518,16 @@ export const appRouter = t.router({
         ctx.models.ScoreCampaigns.checkSpend(input),
       ),
 
-    spend: t.procedure
-      .input(spendInput)
-      .mutation(async ({ ctx, input }) =>
-        ctx.models.ScoreCampaigns.spend(input),
-      ),
+    spend: t.procedure.input(spendInput).mutation(async ({ ctx, input }) => {
+      const log = await ctx.models.ScoreCampaigns.spend(input);
+
+      return log
+        ? {
+            ...log.toObject(),
+            scoreLogIds: await ctx.models.ScoreLogs.writtenWith(log),
+          }
+        : null;
+    }),
 
     earn: t.procedure.input(earnInput).mutation(async ({ ctx, input }) => {
       const skips: TScoreSkip[] = [];
@@ -500,8 +535,37 @@ export const appRouter = t.router({
         skips.push(...found),
       );
 
-      return { changeScore: Number(log?.changeScore) || 0, skips };
+      return {
+        changeScore: Number(log?.changeScore) || 0,
+        skips,
+        scoreLogId: log?._id,
+        // A correction writes a reversal too; the source links both.
+        scoreLogIds: log ? await ctx.models.ScoreLogs.writtenWith(log) : [],
+      };
     }),
+
+    totalsByIds: t.procedure
+      .input(totalsByIdsInput)
+      .query(async ({ ctx, input }) =>
+        ctx.models.ScoreLogs.getTotalsByIds(input.ids),
+      ),
+
+    filterIds: t.procedure.input(filterIdsInput).query(async ({ ctx, input }) =>
+      ctx.models.ScoreLogs.filterIds(input.ids, {
+        kind: input.kind,
+        period: input.period,
+      }),
+    ),
+
+    timelineByIds: t.procedure
+      .input(timelineByIdsInput)
+      .query(async ({ ctx, input }) =>
+        ctx.models.ScoreLogs.getTimelineByIds(
+          input.ids,
+          input.interval,
+          input.timezone,
+        ),
+      ),
 
     earnPreview: t.procedure
       .input(earnPreviewInput)

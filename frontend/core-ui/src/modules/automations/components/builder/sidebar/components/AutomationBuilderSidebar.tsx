@@ -3,12 +3,17 @@ import { AutomationBuilderPrimarySidebar } from '@/automations/components/builde
 import { AutomationBuilderSidebarDock } from '@/automations/components/builder/sidebar/components/AutomationBuilderSidebarDock';
 import { useAutomationBuilderSecondaryPanels } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSecondaryPanels';
 import { useAutomationBuilderSidebarHooks } from '@/automations/components/builder/sidebar/hooks/useAutomationBuilderSidebarHooks';
+import {
+  useAutomationVariableDragFeedback,
+  VARIABLE_DROP_FEEDBACK_CLASS,
+} from '@/automations/components/builder/sidebar/hooks/useAutomationVariableDragFeedback';
 import { useAutomation } from '@/automations/context/AutomationProvider';
 import {
   AutomationNodeType,
   AutomationsHotKeyScope,
 } from '@/automations/types';
 import {
+  cn,
   Sheet,
   useIsMobile,
   usePreviousHotkeyScope,
@@ -35,6 +40,7 @@ export const AutomationBuilderSidebar = () => {
     toggleSideBarOpen,
   } = useAutomationBuilderSidebarHooks();
   const { activePanel, closePanel } = useAutomationBuilderSecondaryPanels();
+  useAutomationVariableDragFeedback();
 
   useEffect(() => {
     if (!isOpenSideBar && awaitingToConnectNodeId) {
@@ -86,7 +92,11 @@ export const AutomationBuilderSidebar = () => {
         >
           <Sheet.View
             side="right"
-            className="max-w-none bg-sidebar p-0 sm:max-w-2xl"
+            data-variable-drop-scope
+            className={cn(
+              'max-w-none bg-sidebar p-0 sm:max-w-2xl',
+              VARIABLE_DROP_FEEDBACK_CLASS,
+            )}
           >
             <Sheet.Title className="sr-only">
               {t('sidebar-automation-configuration')}
@@ -127,7 +137,11 @@ export const AutomationBuilderSidebar = () => {
       <AnimatePresence>
         <div
           key="sidebar"
-          className="flex h-full min-h-0 max-w-full shrink-0 flex-row overflow-hidden"
+          data-variable-drop-scope
+          className={cn(
+            'flex h-full min-h-0 max-w-full shrink-0 flex-row overflow-hidden',
+            VARIABLE_DROP_FEEDBACK_CLASS,
+          )}
         >
           {activePanel && canShowSecondarySidebar ? (
             <AutomationBuilderSecondarySidebar panel={activePanel} />

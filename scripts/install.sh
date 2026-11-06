@@ -10,8 +10,7 @@ payment|3310|Payment methods, invoices and transactions
 accounting|3308|Accounts, journals, transactions and reports
 loyalty|3309|Scores, vouchers, coupons and pricing
 tourism|3311|Tours, itineraries and bookings
-mongolian|3313|eBarimt and other Mongolia-specific integrations
-insurance|33010|Insurance products and contracts'
+mongolian|3313|eBarimt and other Mongolia-specific integrations'
 
 DEFAULT_PLUGINS='sales,frontline,operation'
 INSTALL_COMMAND='curl -fsSL https://raw.githubusercontent.com/erxes/erxes/main/scripts/install.sh | bash'

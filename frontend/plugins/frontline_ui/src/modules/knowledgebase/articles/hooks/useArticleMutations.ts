@@ -1,6 +1,8 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { isDefined } from 'erxes-ui';
 import { useState } from 'react';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
+import { useKbCloseRemovedRecord } from '@/knowledgebase/shared/hooks/useKbCloseRemovedRecord';
 import { useTranslation } from 'react-i18next';
 import {
   ADD_ARTICLE,
@@ -13,13 +15,57 @@ import {
   CATEGORIES,
   TOPICS,
 } from '@/knowledgebase/graphql/queries';
-import { IArticle, IArticleDoc } from '@/knowledgebase/types';
+import { IArticle, IArticleDetail, IArticleDoc } from '@/knowledgebase/types';
 import { toKbAttachment } from '@/knowledgebase/utils/toKbAttachment';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
+import type { FieldNamesMarkedBoolean } from 'react-hook-form';
+import type { KnowledgeBaseArticleDoc } from '~/gql/graphql';
 
 const ARTICLE_QUERIES = [ARTICLES, CATEGORIES, TOPICS];
 
+const hasDirtyFields = (value: unknown): boolean =>
+  value === true ||
+  (value !== null &&
+    typeof value === 'object' &&
+    Object.values(value).some(hasDirtyFields));
+
+const articleEditDoc = (
+  doc: IArticleDoc,
+  current: IArticleDetail,
+  dirtyFields: Partial<FieldNamesMarkedBoolean<IArticleDoc>>,
+): KnowledgeBaseArticleDoc => {
+  const changed = <K extends keyof IArticleDoc>(key: K) =>
+    hasDirtyFields(dirtyFields[key]) ? { [key]: doc[key] ?? null } : {};
+  const status = dirtyFields.status ? doc.status : current.status || 'draft';
+  const scheduleChanged = dirtyFields.scheduledDate || dirtyFields.status;
+  let schedule: Pick<KnowledgeBaseArticleDoc, 'scheduledDate'> = {};
+  if (status === 'scheduled') {
+    schedule = {
+      scheduledDate: scheduleChanged
+        ? doc.scheduledDate
+        : current.scheduledDate,
+    };
+  } else if (scheduleChanged) {
+    schedule = { scheduledDate: null };
+  }
+  return {
+    title: dirtyFields.title ? doc.title : current.title || '',
+    content: dirtyFields.content ? doc.content : current.content || '<p></p>',
+    status,
+    ...changed('summary'),
+    ...changed('isPrivate'),
+    ...changed('reactionChoices'),
+    ...changed('topicId'),
+    ...changed('categoryId'),
+    ...changed('image'),
+    ...changed('attachments'),
+    ...changed('pdfAttachment'),
+    ...schedule,
+  };
+};
+
 export const useSaveArticle = () => {
+  const client = useApolloClient();
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
@@ -35,19 +81,38 @@ export const useSaveArticle = () => {
     awaitRefetchQueries: true,
   });
 
-  const saveArticle = (doc: IArticleDoc, articleId?: string) =>
-    run(
+  const saveArticle = async (
+    doc: IArticleDoc,
+    articleId?: string,
+    dirtyFields?: Partial<FieldNamesMarkedBoolean<IArticleDoc>>,
+  ): Promise<string | null> => {
+    let savedId = articleId ?? null;
+    const saved = await run(
       async () => {
         if (articleId) {
-          await editArticle({ variables: { _id: articleId, doc } });
+          let editDoc: KnowledgeBaseArticleDoc = doc;
+          if (dirtyFields) {
+            const { data } = await client.query({
+              query: ARTICLE_DETAIL,
+              variables: { _id: articleId },
+              fetchPolicy: 'network-only',
+            });
+            const current = data?.knowledgeBaseArticleDetail;
+            if (!current) throw new Error(t('kb-article-not-found'));
+            editDoc = articleEditDoc(doc, current, dirtyFields);
+          }
+          await editArticle({ variables: { _id: articleId, doc: editDoc } });
         } else {
-          await addArticle({ variables: { doc } });
+          const { data } = await addArticle({ variables: { doc } });
+          savedId = data?.knowledgeBaseArticlesAdd?._id ?? null;
         }
       },
       articleId
         ? t('kb-article-saved', 'Article saved')
         : t('kb-article-created', 'Article created'),
     );
+    return saved ? savedId : null;
+  };
 
   return { saveArticle, loading: adding || editing };
 };
@@ -170,7 +235,7 @@ export const useDuplicateArticle = (topicId: string) => {
     awaitRefetchQueries: true,
   });
 
-  const duplicateArticle = (article: IArticle) =>
+  const duplicateArticle = (article: Pick<IArticle, '_id'>) =>
     run(async () => {
       const detail = await fetchDetail(article._id);
 
@@ -208,6 +273,9 @@ export const useDuplicateArticle = (topicId: string) => {
 
 export const useRemoveArticles = () => {
   const client = useApolloClient();
+  const closeRemovedRecord = useKbCloseRemovedRecord(
+    KB_RECORD_CONTENT_TYPES.article,
+  );
   const [removeArticle, { loading }] = useMutation(REMOVE_ARTICLE);
 
   const removeArticles = async (ids: string[]) => {
@@ -216,6 +284,7 @@ export const useRemoveArticles = () => {
         removeArticle({
           variables: { _id },
           update: (cache) => {
+            closeRemovedRecord(_id);
             cache.evict({
               id: cache.identify({ __typename: 'KnowledgeBaseArticle', _id }),
             });

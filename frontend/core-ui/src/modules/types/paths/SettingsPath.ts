@@ -5,6 +5,7 @@ export enum SettingsPath {
   Profile = 'profile',
   ChangePassword = 'change-password',
   TwoFactor = 'two-factor',
+  MyActivity = 'my-activity',
   Notification = 'notification',
   NotificationCatchAll = 'notification/*',
   // Experience = 'experience',
