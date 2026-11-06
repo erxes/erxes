@@ -25,7 +25,11 @@ type Props = {
   setValue: UseFormSetValue<TourFormValues>;
 };
 
-const toShortLabel = (label: string) => label.replace(/\s*\(.*\)\s*$/, '');
+const toShortLabel = (label: string) => {
+  const hintStart = label.indexOf('(');
+
+  return hintStart === -1 ? label : label.slice(0, hintStart).trimEnd();
+};
 
 const getErrorMessage = (
   errors: FieldErrors<TourFormValues>,

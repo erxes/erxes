@@ -423,11 +423,21 @@ const TourPanelInfoSection = ({
 
 export type TTourPanelSection = 'all' | 'detail' | 'pricing' | 'media';
 
-interface ITourPanelFieldsProps {
+interface ITourPanelStateProps {
   state: TTourPanelFormState;
+}
+
+interface ITourPanelGeneralFieldsProps extends ITourPanelStateProps {
   branchId?: string;
   editorKey?: number;
+}
+
+interface ITourPanelPricingFieldsProps extends ITourPanelStateProps {
   titled?: boolean;
+}
+
+interface ITourPanelMediaFieldsProps extends ITourPanelPricingFieldsProps {
+  editorKey?: number;
 }
 
 const useSuffixedLabel = (labelSuffix: string) => {
@@ -445,7 +455,7 @@ const TourPanelGeneralFields = ({
   state,
   branchId,
   editorKey = 0,
-}: ITourPanelFieldsProps) => {
+}: ITourPanelGeneralFieldsProps) => {
   const { t } = useTranslation('tourism');
   const { form, language, customTypes } = state;
   const { control } = form;
@@ -575,7 +585,7 @@ const TourPanelGeneralFields = ({
   );
 };
 
-const TourPanelScheduleFields = ({ state }: ITourPanelFieldsProps) => {
+const TourPanelScheduleFields = ({ state }: ITourPanelStateProps) => {
   const { t } = useTranslation('tourism');
   const { form } = state;
   const { control } = form;
@@ -623,7 +633,7 @@ const TourPanelScheduleFields = ({ state }: ITourPanelFieldsProps) => {
 const TourPanelPricingFields = ({
   state,
   titled = true,
-}: ITourPanelFieldsProps) => {
+}: ITourPanelPricingFieldsProps) => {
   const { t } = useTranslation('tourism');
   const { form, language } = state;
   const { control } = form;
@@ -647,7 +657,7 @@ const TourPanelMediaFields = ({
   state,
   editorKey = 0,
   titled = true,
-}: ITourPanelFieldsProps) => {
+}: ITourPanelMediaFieldsProps) => {
   const { t } = useTranslation('tourism');
   const { form, language } = state;
   const { control } = form;
@@ -674,9 +684,9 @@ export const TourPanelFormFields = ({
   branchId,
   editorKey = 0,
   section = 'all',
-}: ITourPanelFieldsProps & { section?: TTourPanelSection }) => {
+}: ITourPanelGeneralFieldsProps & { section?: TTourPanelSection }) => {
   const { allLanguages, selectedLang, setSelectedLang } = state.language;
-  const fieldsProps = { state, branchId, editorKey, titled: section === 'all' };
+  const titled = section === 'all';
   const shows = (target: Exclude<TTourPanelSection, 'all'>) =>
     section === 'all' || section === target;
 
@@ -689,12 +699,24 @@ export const TourPanelFormFields = ({
       />
       {shows('detail') && (
         <>
-          <TourPanelGeneralFields {...fieldsProps} />
-          <TourPanelScheduleFields {...fieldsProps} />
+          <TourPanelGeneralFields
+            state={state}
+            branchId={branchId}
+            editorKey={editorKey}
+          />
+          <TourPanelScheduleFields state={state} />
         </>
       )}
-      {shows('pricing') && <TourPanelPricingFields {...fieldsProps} />}
-      {shows('media') && <TourPanelMediaFields {...fieldsProps} />}
+      {shows('pricing') && (
+        <TourPanelPricingFields state={state} titled={titled} />
+      )}
+      {shows('media') && (
+        <TourPanelMediaFields
+          state={state}
+          editorKey={editorKey}
+          titled={titled}
+        />
+      )}
     </>
   );
 };
