@@ -12,11 +12,49 @@ export type IInvSplitDetailInfo =
       ratio: number;
     };
 
+export interface ITrFollowInfos extends Record<string, unknown> {
+  currencyDiffAccountId?: string;
+
+  moveInAccountId?: string;
+  moveInBranchId?: string;
+  moveInDepartmentId?: string;
+
+  saleTransactionId?: string;
+  saleOutAccountId?: string;
+  saleCostAccountId?: string;
+
+  accumulatedDepreciationAccountId?: string;
+  depreciationExpenseAccountId?: string;
+  revaluationReserveAccountId?: string;
+  deferredTaxAssetAccountId?: string;
+  deferredTaxLiabilityAccountId?: string;
+  incomeTaxExpenseAccountId?: string;
+  ownerId?: string;
+  responsibleUserId?: string;
+  fixedAssetAccountId?: string;
+  lossAccountId?: string;
+
+  branchCode?: string;
+  departmentCode?: string;
+  moveInAccountCode?: string;
+  moveInBranchCode?: string;
+  moveInDepartmentCode?: string;
+  accumulatedDepreciationAccountCode?: string;
+  saleOutAccountCode?: string;
+  saleCostAccountCode?: string;
+
+  invSplitDetails?: {
+    detailId?: string;
+    productId?: string;
+    ratio?: number;
+  }[];
+}
+
 export interface ITrDetailFollowInfos extends Record<string, unknown> {
+  branchCode?: string;
+  departmentCode?: string;
   preDeprecation?: number;
   salvageValue?: number;
-  fixedAssetTotalCount?: number;
-  fixedAssetTotalAmount?: number;
   depreciationStartDate?: Date;
   currencyDiffAccountId?: string;
   moveInBranchId?: string;
@@ -71,7 +109,7 @@ export interface ITransaction {
   journal: string;
   ptrStatus?: string;
 
-  followInfos?: any;
+  followInfos?: ITrFollowInfos;
   originId?: string;
   originType?: string;
   originSubId?: string;

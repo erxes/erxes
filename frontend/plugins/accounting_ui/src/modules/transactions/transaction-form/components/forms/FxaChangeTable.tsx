@@ -3,7 +3,8 @@ import { useFieldArray, useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { IconPlus } from '@tabler/icons-react';
 import { Button, ScrollArea, Table, toast } from 'erxes-ui';
-import { SelectFixedAssetsBulk } from '@/settings/fixed-assets/components/SelectFixedAssetsBulk';
+import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
+import { TFixedAssetChoice } from '@/settings/fixed-assets/components/chooser/types';
 import { useFixedAssetAccountConfigs } from '@/settings/fixed-assets/account-config/hooks/useFixedAssetAccountConfigs';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { ITransactionGroupForm } from '@/transactions/transaction-form/types/JournalForms';
@@ -31,6 +32,7 @@ export const FxaChangeTable = ({
   capital: boolean;
 }) => {
   const { t } = useTranslation('accounting');
+  const date = useWatch({ control: form.control, name: 'date' });
   const trDoc = useWatch({ control: form.control, name: `trDocs.${index}` });
   const { append, remove } = useFieldArray({
     control: form.control,
@@ -102,22 +104,58 @@ export const FxaChangeTable = ({
       ? fxaCapitalDetailDefaultValues(detail)
       : fxaJustifyDetailDefaultValues(detail);
   };
-  const addAssets = (assets: { _id: string; accountId?: string }[]) => {
+  const addAssets = (choices: TFixedAssetChoice[]) => {
     const selected = new Set(details.map((detail) => detail.fixedAssetId));
-    const fresh = assets.filter((asset) => !selected.has(asset._id));
-    const newDetails = fresh.map((asset) =>
-      makeDetail(
-        asset._id,
+    if (
+      choices.some(
+        (choice) =>
+          !choice.asset._id ||
+          selected.has(choice.asset._id) ||
+          choices.filter((other) => other.asset._id === choice.asset._id)
+            .length > 1,
+      )
+    ) {
+      toast({ title: t('fxa-asset-already-selected'), variant: 'destructive' });
+      return false;
+    }
+    const clearBranch =
+      !capital &&
+      choices.some((choice) => choice.location?.branchId === '') &&
+      Boolean(trDoc.branchId);
+    const clearDepartment =
+      !capital &&
+      choices.some((choice) => choice.location?.departmentId === '') &&
+      Boolean(trDoc.departmentId);
+    const newDetails = choices.map((choice) => ({
+      ...makeDetail(
+        choice.asset._id || '',
         capital
-          ? asset.accountId || ''
-          : depreciationAccounts.get(asset.accountId || '') || '',
+          ? choice.asset.accountId || ''
+          : depreciationAccounts.get(choice.asset.accountId || '') || '',
       ),
-    );
-    if (newDetails.length)
-      form.setValue(`trDocs.${index}.details`, [
-        ...details.filter((detail) => detail.fixedAssetId),
-        ...newDetails,
-      ]);
+      ...(choice.location
+        ? {
+            branchId: choice.location.branchId,
+            departmentId: choice.location.departmentId,
+          }
+        : {}),
+    }));
+    form.setValue(`trDocs.${index}.details`, [
+      ...details
+        .filter((detail) => detail.fixedAssetId)
+        .map((detail) => ({
+          ...detail,
+          ...(clearBranch
+            ? { branchId: detail.branchId || trDoc.branchId || '' }
+            : {}),
+          ...(clearDepartment
+            ? { departmentId: detail.departmentId || trDoc.departmentId || '' }
+            : {}),
+        })),
+      ...newDetails,
+    ]);
+    if (clearBranch) form.setValue(`trDocs.${index}.branchId`, '');
+    if (clearDepartment) form.setValue(`trDocs.${index}.departmentId`, '');
   };
   return (
     <div className="space-y-5">
@@ -194,7 +232,7 @@ export const FxaChangeTable = ({
                   onValuationChange={onValuationChange}
                   depreciationAccounts={depreciationAccounts}
                   onRemove={() => remove(indices)}
-                  onAssetChange={(assetId, accountId) => {
+                  onAssetChange={(assetId, accountId, location) => {
                     if (
                       details.some(
                         (item, i) =>
@@ -207,11 +245,22 @@ export const FxaChangeTable = ({
                         title: t('fxa-asset-already-selected'),
                         variant: 'destructive',
                       });
-                      return;
+                      return false;
                     }
+                    const clearBranch =
+                      location?.branchId === '' && Boolean(trDoc.branchId);
+                    const clearDepartment =
+                      location?.departmentId === '' &&
+                      Boolean(trDoc.departmentId);
                     const replacement = {
                       ...makeDetail(assetId, accountId),
                       _id: detail._id,
+                      ...(location
+                        ? {
+                            branchId: location.branchId,
+                            departmentId: location.departmentId,
+                          }
+                        : {}),
                     };
                     form.setValue(
                       `trDocs.${index}.details`,
@@ -221,9 +270,32 @@ export const FxaChangeTable = ({
                             i === detailIndex || !indices.includes(i),
                         )
                         .map((item) =>
-                          item._id === detail._id ? replacement : item,
+                          item._id === detail._id
+                            ? replacement
+                            : {
+                                ...item,
+                                ...(clearBranch
+                                  ? {
+                                      branchId:
+                                        item.branchId || trDoc.branchId || '',
+                                    }
+                                  : {}),
+                                ...(clearDepartment
+                                  ? {
+                                      departmentId:
+                                        item.departmentId ||
+                                        trDoc.departmentId ||
+                                        '',
+                                    }
+                                  : {}),
+                              },
                         ),
                     );
+                    if (clearBranch)
+                      form.setValue(`trDocs.${index}.branchId`, '');
+                    if (clearDepartment)
+                      form.setValue(`trDocs.${index}.departmentId`, '');
+                    return true;
                   }}
                 />
               );
@@ -251,15 +323,21 @@ export const FxaChangeTable = ({
           <IconPlus className="size-4" />
           {t('new-row')}
         </Button>
-        <SelectFixedAssetsBulk
-          fixedAssetIds={[]}
-          onSelect={(_ids, assets) => addAssets(assets)}
+        <FixedAssetChooser
+          journal={trDoc.journal}
+          date={date}
+          branchId={trDoc.branchId}
+          departmentId={trDoc.departmentId}
+          excludeTransactionId={trDoc._id}
+          allLocations={capital}
+          multiple
+          onChoose={addAssets}
         >
           <Button type="button" variant="secondary">
             <IconPlus className="size-4" />
             {t('add-multiple-assets')}
           </Button>
-        </SelectFixedAssetsBulk>
+        </FixedAssetChooser>
       </div>
     </div>
   );

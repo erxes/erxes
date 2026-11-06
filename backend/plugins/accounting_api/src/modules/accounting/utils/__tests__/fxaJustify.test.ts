@@ -31,6 +31,16 @@ const fixture = ({
       findOne: jest.fn(() => query(closed ? { _id: 'calculation' } : null)),
     },
     FixedAssets: {
+      find: jest.fn(() =>
+        query([
+          {
+            _id: 'asset',
+            code: 'asset',
+            name: 'Asset',
+            categoryId: 'category',
+          },
+        ]),
+      ),
       findOne: jest.fn(() =>
         query({
           _id: 'asset',
@@ -55,7 +65,33 @@ const fixture = ({
       findOne: jest.fn(() =>
         query(duplicate ? { _id: 'other-correction' } : null),
       ),
-      find: jest.fn(() => query([])),
+      find: jest.fn(
+        (selector: { journal?: { $in: string[] }; date?: { $lt: Date } }) =>
+          query(
+            selector.journal?.$in.includes(JOURNALS.FXA_INCOME) &&
+              new Date(acquired) < (selector.date?.$lt || new Date())
+              ? [
+                  {
+                    _id: 'income',
+                    date: new Date(acquired),
+                    journal: JOURNALS.FXA_INCOME,
+                    details: [
+                      {
+                        accountId: 'asset-account',
+                        fixedAssetId: 'asset',
+                        count: 1,
+                        amount: 100,
+                        followInfos: {
+                          depreciationMethod: 'straightLine',
+                          annualDepreciationRate: 12,
+                        },
+                      },
+                    ],
+                  },
+                ]
+              : [],
+          ),
+      ),
     },
   };
   const doc: ITransaction = {
@@ -110,7 +146,7 @@ test('a rule-only save preserves the master and snapshots prior effective rules'
       },
     },
   });
-  expect(rawModels.FixedAssets.findOne).toHaveBeenCalled();
+  expect(rawModels.FixedAssets.find).toHaveBeenCalled();
   expect(createOrUpdateTr).toHaveBeenCalledTimes(1);
 });
 

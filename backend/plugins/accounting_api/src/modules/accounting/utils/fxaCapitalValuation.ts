@@ -1,3 +1,4 @@
+import { getFxaLedgerAssets } from './fxaLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
 import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
@@ -36,7 +37,9 @@ export const getFxaCapitalValuation = async (
   const atDate = fxaCapitalDate(date);
   const endDate = new Date(atDate);
   endDate.setDate(endDate.getDate() + 1);
-  const asset = await models.FixedAssets.findOne({ _id: fixedAssetId }).lean();
+  const asset = (
+    await getFxaLedgerAssets(models, date, [fixedAssetId], excludeTransactionId)
+  )[0];
   if (
     !asset?.acquisitionDate ||
     fxaCapitalDate(asset.acquisitionDate) > atDate ||

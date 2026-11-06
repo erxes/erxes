@@ -41,12 +41,19 @@ export const transactionDetailFollowInfoSchema = z
     depreciationBase: undefed(z.number().finite().nonnegative()),
     capitalizationType: undefed(z.enum(['improvement', 'revaluation'])),
     depreciationMethod: undefed(z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)),
-    annualDepreciationRate: undefed(z.number().finite().positive().max(100)),
+    annualDepreciationRate: undefed(z.number().finite().nonnegative().max(100)),
     depreciationStartDate: undefed(
       z.string().refine((value) => Number.isFinite(Date.parse(value))),
     ),
     preDeprecation: undefed(z.number().nonnegative()),
-    salvageValue: undefed(z.number()),
+    salvageValue: undefed(z.number().finite().nonnegative()),
+    taxDepreciationMethod: undefed(
+      z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES),
+    ),
+    taxAnnualDepreciationRate: undefed(
+      z.number().finite().nonnegative().max(100),
+    ),
+    taxSalvageValue: undefed(z.number().finite().nonnegative()),
   })
   .passthrough();
 
@@ -636,18 +643,34 @@ export const transactionFxaSaleSchema = z
 export const transactionFxaCapitalSchema = z.object({
   ...baseTransactionSchema.shape,
   journal: z.literal(TrJournalEnum.FXA_CAPITAL),
-  details: z.array(baseTrDetailSchema.extend({
-    fixedAssetId: z.string().min(1),
-    count: z.literal(0),
-    followInfos: transactionDetailFollowInfoSchema.extend({
-      originalCost: z.number().finite().positive(),
-      annualDepreciationRate: z.number().finite().positive().max(100),
-      capitalizationType: z.enum(['improvement', 'revaluation']),
-      preDeprecation: undefed(z.number().finite().nonnegative()),
-      salvageValue: undefed(z.number().finite().nonnegative()),
-    }).refine((info) => (info.preDeprecation ?? 0) + (info.salvageValue ?? 0) <= info.originalCost,
-      () => ({ path: ['preDeprecation'], message: getI18n().t('Accumulated depreciation and residual value cannot exceed cost', { ns: 'accounting' }) })),
-  })).min(1),
+  details: z
+    .array(
+      baseTrDetailSchema.extend({
+        fixedAssetId: z.string().min(1),
+        count: z.literal(0),
+        followInfos: transactionDetailFollowInfoSchema
+          .extend({
+            originalCost: z.number().finite().positive(),
+            annualDepreciationRate: z.number().finite().positive().max(100),
+            capitalizationType: z.enum(['improvement', 'revaluation']),
+            preDeprecation: undefed(z.number().finite().nonnegative()),
+            salvageValue: undefed(z.number().finite().nonnegative()),
+          })
+          .refine(
+            (info) =>
+              (info.preDeprecation ?? 0) + (info.salvageValue ?? 0) <=
+              info.originalCost,
+            () => ({
+              path: ['preDeprecation'],
+              message: getI18n().t(
+                'Accumulated depreciation and residual value cannot exceed cost',
+                { ns: 'accounting' },
+              ),
+            }),
+          ),
+      }),
+    )
+    .min(1),
 });
 
 export const transactionFxaJustifySchema = z.object({
@@ -660,6 +683,9 @@ export const transactionFxaJustifySchema = z.object({
           fixedAssetId: z.string().min(1),
           count: z.literal(0),
           followInfos: transactionDetailFollowInfoSchema.extend({
+            annualDepreciationRate: undefed(
+              z.number().finite().positive().max(100),
+            ),
             depreciationMethod: undefed(
               z
                 .enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)

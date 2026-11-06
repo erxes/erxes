@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { SelectFixedAssetsBulk } from '@/settings/fixed-assets/components/SelectFixedAssetsBulk';
-import { IFixedAsset } from '@/settings/fixed-assets/types/FixedAsset';
+import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
+import { applyFxaChoice } from '@/transactions/transaction-form/components/helpers/applyFxaChoice';
 import { IconPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
@@ -10,9 +10,6 @@ import {
   TTrDoc,
 } from '../../../types/JournalForms';
 import { getFxaDetailDefaultValues } from '../../helpers/fxaHelpers';
-
-const getAvailableCount = (fixedAsset: IFixedAsset) =>
-  fixedAsset.currentCount ?? fixedAsset.count ?? 0;
 
 export const AddFixedAssetRow = ({
   append,
@@ -28,24 +25,23 @@ export const AddFixedAssetRow = ({
     control: form.control,
     name: `trDocs.${journalIndex}`,
   }) as TTrDoc;
+  const date = useWatch({ control: form.control, name: 'date' });
   const details = (trDoc?.details || []) as TFxaDetail[];
   const lastDetail = details[details.length - 1];
 
-  const getDetailDefaultValues = (fixedAsset?: IFixedAsset) => {
-    const availableCount = fixedAsset ? getAvailableCount(fixedAsset) : 0;
-    const count = fixedAsset ? Math.min(1, availableCount) : 0;
-
-    return getFxaDetailDefaultValues({
+  const getDetailDefaultValues = () =>
+    getFxaDetailDefaultValues({
       ...lastDetail,
-      fixedAssetId: fixedAsset?._id || '',
-      fixedAssetCategoryId: fixedAsset?.categoryId || '',
+      fixedAssetId: '',
+      fixedAssetCategoryId: '',
+      fixedAssetCode: '',
+      fixedAssetName: '',
       branchId: trDoc.branchId || '',
       departmentId: trDoc.departmentId || '',
-      count,
+      count: 0,
       unitPrice: 0,
       amount: 0,
     });
-  };
 
   return (
     <>
@@ -58,19 +54,31 @@ export const AddFixedAssetRow = ({
         <IconPlus />
         {t('new-row')}
       </Button>
-      <SelectFixedAssetsBulk
-        fixedAssetIds={[]}
-        onSelect={(_fixedAssetIds, fixedAssets) =>
-          append(
-            fixedAssets.map((fixedAsset) => getDetailDefaultValues(fixedAsset)),
-          )
-        }
+      <FixedAssetChooser
+        journal={trDoc.journal}
+        date={date}
+        branchId={trDoc.branchId}
+        departmentId={trDoc.departmentId}
+        excludeTransactionId={trDoc._id}
+        multiple
+        onChoose={(choices) => {
+          const selected = choices.filter(
+            (choice) => choice.asset._id && choice.location,
+          );
+          const offset = form.getValues(
+            `trDocs.${journalIndex}.details`,
+          ).length;
+          append(selected.map(() => getDetailDefaultValues()));
+          selected.forEach((choice, i) =>
+            applyFxaChoice(form, journalIndex, offset + i, choice),
+          );
+        }}
       >
         <Button type="button" variant="secondary" className="bg-border">
           <IconPlus />
           {t('add-multiple-assets')}
         </Button>
-      </SelectFixedAssetsBulk>
+      </FixedAssetChooser>
     </>
   );
 };

@@ -58,18 +58,16 @@ export const AccountsTrJournalCommand = ({
         focusOnMount={focusOnMount}
       />
       <Command.List>
-        {Object.values(TrJournalEnum)
-          .filter((journal) => journal !== TrJournalEnum.FXA_CAPITAL_BALANCE)
-          .map((trJournal) => (
-            <Command.Item
-              key={trJournal}
-              value={trJournal}
-              onSelect={() => onSelect?.(trJournal)}
-            >
-              {t(TR_JOURNAL_LABELS[trJournal] || '')}
-              <Combobox.Check checked={selected === trJournal} />
-            </Command.Item>
-          ))}
+        {Object.values(TrJournalEnum).map((trJournal) => (
+          <Command.Item
+            key={trJournal}
+            value={trJournal}
+            onSelect={() => onSelect?.(trJournal)}
+          >
+            {t(TR_JOURNAL_LABELS[trJournal] || '')}
+            <Combobox.Check checked={selected === trJournal} />
+          </Command.Item>
+        ))}
       </Command.List>
     </Command>
   );

@@ -45,8 +45,6 @@ export enum TrJournalEnum {
   FXA_MOVE_IN = 'fxaMoveIn',
   FXA_SALE = 'fxaSale',
   FXA_CAPITAL = 'fxaCapital',
-  // Read compatibility for saved automatic counterparts; not offered for new entries.
-  FXA_CAPITAL_BALANCE = 'fxaCapitalBalance',
   FXA_JUSTIFY = 'fxaJustify',
 }
 
@@ -75,7 +73,6 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'sales-return-cost-of-goods-sold',
 
   [TrJournalEnum.FXA_CAPITAL]: 'fixed-asset-capitalization',
-  [TrJournalEnum.FXA_CAPITAL_BALANCE]: 'fixed-asset-capitalization-counterpart',
   [TrJournalEnum.FXA_JUSTIFY]: 'fixed-asset-correction',
   [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
   [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',

@@ -29,6 +29,8 @@ export const FxaChangeNumberField = ({
   usefulYears = false,
 }: IFxaChangeFieldProps & {
   rule:
+    | 'taxAnnualDepreciationRate'
+    | 'taxSalvageValue'
     | 'originalCost'
     | 'preDeprecation'
     | 'salvageValue'
@@ -102,15 +104,25 @@ export const FxaChangeMethodField = ({
   index,
   detailIndex,
   capital,
-}: IFxaChangeFieldProps & { capital: boolean }) => {
+  tax = false,
+  income = false,
+}: IFxaChangeFieldProps & {
+  capital: boolean;
+  tax?: boolean;
+  income?: boolean;
+}) => {
   const { t } = useTranslation('accounting');
   return (
     <Form.Field
       control={form.control}
-      name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationMethod`}
+      name={`trDocs.${index}.details.${detailIndex}.followInfos.${
+        tax ? 'taxDepreciationMethod' : 'depreciationMethod'
+      }`}
       render={({ field }) => (
         <Form.Item>
-          <Form.Label>{t('depreciation-method')}</Form.Label>
+          <Form.Label>
+            {t(tax ? 'tax-depreciation-method' : 'depreciation-method')}
+          </Form.Label>
           <Select
             value={field.value || (capital ? 'straightLine' : 'unchanged')}
             onValueChange={(value) =>
@@ -129,7 +141,7 @@ export const FxaChangeMethodField = ({
                 </Select.Item>
               )}
               {FIXED_ASSET_DEPRECIATION_METHODS.filter(
-                (method) => method.value !== 'manual',
+                (method) => income || method.value !== 'manual',
               ).map((method) => (
                 <Select.Item key={method.value} value={method.value}>
                   {t(method.label)}

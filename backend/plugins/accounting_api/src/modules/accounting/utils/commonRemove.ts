@@ -6,10 +6,6 @@ import { TR_FOLLOW_TYPES } from '../@types/constants';
 import { removeFxaIncomeDetails } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
-import {
-  getUniqueFxaOwnerRecordIds,
-  rebuildFixedAssetCurrentCounts,
-} from './fixedAssets';
 import { removeInvJustify } from './invJustify';
 import { validateFxaJustifyRemove } from './fxaJustify';
 import { removeFxaCapital, validateFxaCapitalRemove } from './fxaCapital';
@@ -234,16 +230,6 @@ async function handleFxaOut(
   await removeFollowTransactions(models, transaction._id, [
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }
 
 async function handleFxaMove(
@@ -259,16 +245,6 @@ async function handleFxaMove(
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
     TR_FOLLOW_TYPES.FXA_DEP_IN,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }
 
 async function handleFxaSale(
@@ -284,14 +260,4 @@ async function handleFxaSale(
     TR_FOLLOW_TYPES.FXA_DEP_OUT,
     TR_FOLLOW_TYPES.FXA_SALE_COST,
   ]);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 }

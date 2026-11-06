@@ -55,18 +55,22 @@ const fixture = () => {
     capital,
     entry(JOURNALS.FXA_DEP_IN, '2026-02-01', 20, 0, 'capital-parent'),
   ];
+  entries[0].details[0].followInfos = {
+    depreciationMethod: 'straightLine',
+    annualDepreciationRate: 10,
+  };
   const selectors: Record<string, unknown>[] = [];
   const raw = {
     FixedAssets: {
-      findOne: () =>
-        query({
-          _id: 'asset',
-          accountId: 'asset-account',
-          originalCost: 100,
-          annualDepreciationRate: 10,
-          depreciationMethod: 'straightLine',
-          acquisitionDate: new Date('2026-01-01'),
-        }),
+      find: () =>
+        query([
+          {
+            _id: 'asset',
+            code: 'asset',
+            name: 'Asset',
+            categoryId: 'category',
+          },
+        ]),
     },
     Configs: {
       getConfigs: async () => [

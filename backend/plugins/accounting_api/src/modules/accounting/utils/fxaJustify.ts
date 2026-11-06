@@ -1,5 +1,5 @@
 import { IModels } from '~/connectionResolvers';
-import { IFixedAssetDocument } from '@/fixedAssets/@types/fixedAsset';
+import { getFxaLedgerAssets, IFxaLedgerAsset } from './fxaLedger';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '@/fixedAssets/@types/constants';
 import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
 import {
@@ -117,7 +117,7 @@ export const getFxaCorrections = async (
 
 export const getFxaRulesAtDate = (
   asset: Pick<
-    IFixedAssetDocument,
+    IFxaLedgerAsset,
     | '_id'
     | 'originalCost'
     | 'depreciationMethod'
@@ -229,9 +229,9 @@ export const validateFxaJustifySave = async (
     throw new Error('Select each fixed asset once per correction.');
   }
   for (const detail of doc.details) {
-    const asset = await models.FixedAssets.findOne({
-      _id: detail.fixedAssetId,
-    }).lean();
+    const asset = (
+      await getFxaLedgerAssets(models, doc.date, [detail.fixedAssetId || ''])
+    )[0];
     if (
       !asset ||
       !asset.acquisitionDate ||
@@ -349,9 +349,9 @@ export const saveFxaJustify = async (
   const corrections = await getFxaCorrections(models, endDate, oldTr?._id);
   const details: ITransaction['details'] = [];
   for (const detail of doc.details) {
-    const asset = await models.FixedAssets.findOne({
-      _id: detail.fixedAssetId,
-    }).lean();
+    const asset = (
+      await getFxaLedgerAssets(models, doc.date, [detail.fixedAssetId || ''])
+    )[0];
     if (!asset) throw new Error('Fixed asset not found.');
     details.push({
       ...detail,

@@ -17,8 +17,6 @@ import {
   cleanFxaFollowTr,
   getFxaDisposalSummaries,
   getFxaMoveFollowInfos,
-  getUniqueFxaOwnerRecordIds,
-  rebuildFixedAssetCurrentCounts,
   removeFxaOwnerRecordsByTransaction,
   syncFxaOwnerRecordMovements,
   TFxaDisposalSummary,
@@ -315,15 +313,4 @@ export const syncFxaMoveInstances = async (
     transaction,
     userId,
   });
-
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    getUniqueFxaOwnerRecordIds(
-      (transaction.details || [])
-        .map((detail) => detail.fixedAssetId)
-        .filter((fixedAssetId): fixedAssetId is string =>
-          Boolean(fixedAssetId),
-        ),
-    ),
-  );
 };

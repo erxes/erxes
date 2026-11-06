@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -23,6 +23,9 @@
 - Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
+
+- Fixed asset income keeps category/code/name acquisition entry; its row sheet edits frozen book/tax depreciation rules and optional custodian allocations. Settings fixed asset forms edit identity metadata only; financial values are derived API projections.
+- Non-income asset rows and bulk-add actions use `settings/fixed-assets/components/chooser/FixedAssetChooser`. It has exactly two levels: assets and branch/department locations, with search/category/location/member filters, pagination and loading/error/empty states. Existing row/header location supplies initial filters. Clicking an asset group adds its matching location choices, while leaf rows select one location. Custodians and serial allocations are managed through the transaction detail’s existing more-menu sheet, not as chooser rows or columns. Selected rows are excluded from available results and collect in a separate lower section; clicking them removes the pending choice. Selections survive filter/page changes. Branch and department have separate columns rendered by the public `BranchBadge`/`DepartmentBadge` in plain-text mode (id detail lookup), and asset labels stay compact on one line. Operational row choosers support multiple choices and insert one detail per choice; capitalization and correction keep one choice per asset. Choosing a location fills row branch/department and clamps quantity. Sale keeps its entered price and revenue account. Capitalization selects the asset across every location.
 
 - The fixed asset add menu offers `Капиталжуулалт / Дахин үнэлгээ` (`fxaCapital`) for multiple assets per journal. `FxaChangeTable.tsx` and its rows load dated valuations, show prior unit cost/depreciation and quantity, capture improvement/revaluation type, new unit cost, unit accumulated depreciation (including zero), residual value, automatic method and new useful years, and preview only cost/depreciation entries in TBalance. There is no counterpart-account field or source `capitalAccountId`; accountants add ordinary transaction tabs to close the combined remaining difference. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
 
@@ -224,6 +227,9 @@
 
 ## Local Invariants
 
+- Keep financial fields out of fixed asset master mutation inputs and settings forms. Income detail `followInfos` owns frozen book/tax method, annual rate, residual and depreciation start date. Apply category defaults on explicit category selection only, preserving saved snapshots on load/refetch.
+- Chooser unassigned-location selection must materialize sibling inherited locations before clearing header defaults, so other rows keep their location. Preserve explicit zero depreciation for unchanged sources, clear stale overrides when asset/location changes, and never infer a location for unlinked owner records.
+
 - TBalance groups detail rows contiguously by `ptrId` in first-seen pointer order, preserving within-group order. `hasChangedPtrId` adds a visual divider between groups without inserting a Business transaction/group-summary row. Debit/credit summaries belong beside the transaction form Save action.
 - TBalance and journal records share the detail-column ids `item-details`, `unitPrice-details`, and `count-details` (matching their accessor keys). Their consumers filter the entire group with `column.id?.includes('details')`: TBalance and record lists show the group for `inv`/`fxa` journals; Closing adjustment's linked-transaction table always excludes it. Item and numeric cells support `productId` or `fixedAssetId`. TBalance uses the `item` heading (EN Item / MN Зүйл); journal records use `product-asset` (EN Product / Asset / MN Бараа/Хөрөнгө).
 - TBalance location resolution (`getTBalanceLocation`) stays beside its cell consumers in `TBalanceTableColumns.tsx`; no separate location utility module is needed. Location labels follow detail ids (explicit empty means unassigned), use matching enrichment only, and delegate missing branch/department objects to public `BranchesInline` / `DepartmentsInline` components instead of issuing cell-specific lookups; never copy one location label onto another capitalization allocation.
@@ -231,11 +237,11 @@
 - Capitalization and correction use the shared `FxaChangeTable` with single/bulk asset addition and row-local `RecordTable.MoreButton` sheets. Cost/amount and useful-life/rate inputs stay in the table; method, residual value, capitalization type/target depreciation and correction account/start date live in each row sheet. Capitalization shows one editable row per asset while preserving its location-expanded saved details; previews, lookup initialization and row deletion stay asset-scoped. Blank correction rules remain unchanged and explicit zero is preserved. Mixed cost-increase/decrease rows show a localized message and require separate journal tabs.
 - Capitalization preview arithmetic lives in `transaction-form/components/forms/hooks/fxaCapitalPreview.ts`; `useFxaCapitalPreview` only synchronizes the memoized result with form/follow state. New rows, bulk rows, asset replacement and journal initialization reuse `fxaCapitalDetailDefaultValues` / `fxaJustifyDetailDefaultValues` from `transaction-form/contants/defaultValues.tsx`, preserving explicit zero and blank correction patches.
 
-- Fixed asset capitalization and correction are infrequent journals and stay last in the fixed asset add-menu and receipt-filter group. Record filters and enum-driven journal selectors place capitalization/correction entries after ordinary fixed asset journals and omit the legacy automatic counterpart type.
+- Fixed asset capitalization and correction are infrequent journals and stay last in the fixed asset add-menu and receipt-filter group. Record filters and enum-driven journal selectors place capitalization/correction entries after ordinary fixed asset journals with no separate automatic balancing journal.
 
 - Fixed asset capitalization/correction journal labels use English-based keys in `TR_JOURNAL_LABELS` and `TR_JOURNAL_GROUPS`, shared by add menus, navigation, tabs, lists and balance previews. Their form labels, placeholders, side options, help and validation messages use the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`.
 
-- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. The API validates asset/depreciation accounts. Source-level counterpart information is not consumed by the capital form and is discarded on save. Legacy automatic counterpart journals remain readable only for saved history and never appear in add/filter options.
+- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. The API validates asset/depreciation accounts. Source-level counterpart information is not consumed by the capital form and is discarded on save. Journal enums and labels include no separate automatic balancing type.
 - Correction copy describes backdating to the erroneous reporting period followed by clearing/recalculation; capitalization copy describes the actual renovation/revaluation date and a renewed depreciation schedule.
 
 - Keep fixed asset correction inputs in the shared `transactions/transaction-form/components/forms/FxaChangeTable.tsx`, `FxaChangeRow.tsx` and `FxaChangeFields.tsx`, with quantity zero and patches in detail `followInfos`. Do not fill optional rule patches from master data on mount/refetch; the backend applies dated history. Credit means accumulated depreciation increase and debit means decrease.
@@ -407,6 +413,8 @@
 - Journal report output never prints a placeholder organization name; when no company name is configured, the organization line stays blank.
 
 ## Validation
+
+- Smoke scenario: filter the asset chooser by branch, department and member, select a location, and verify row autofill and available-count limit. Click an asset group to select multiple locations, verify selected rows disappear from available results, change filters/pages without losing the selection, and click a selected row to return it. Apply multiple choices from an existing detail and verify distinct ids, location quantities, sibling order; manage custodian allocations from the detail’s more-menu sheet. Verify no custodian rows appear in the chooser and department codes/titles resolve by id. Verify sale prices survive selection, capitalization still covers every active location, and income rule snapshots survive save/reopen and later category edits.
 
 - Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged, add an ordinary main transaction to balance TBalance across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward revaluation, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
 

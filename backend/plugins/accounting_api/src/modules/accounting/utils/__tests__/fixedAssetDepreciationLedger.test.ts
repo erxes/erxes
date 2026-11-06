@@ -52,6 +52,18 @@ const setup = ({
   acquisitionDate?: string;
   snapshotHasAsset?: boolean;
 }) => {
+  for (const transaction of transactions) {
+    if (transaction.journal !== JOURNALS.FXA_INCOME) continue;
+    for (const detail of transaction.details) {
+      detail.accountId = 'asset-account';
+      detail.followInfos = {
+        depreciationMethod: method,
+        annualDepreciationRate: 12,
+        salvageValue,
+        depreciationStartDate: new Date(acquisitionDate),
+      };
+    }
+  }
   let savedDetails: IAdjustFxaDetail[] = [];
   const selectors: Record<string, unknown>[] = [];
   const beforeAdjust = {
@@ -59,6 +71,44 @@ const setup = ({
     date: new Date('2026-01-01'),
     status: ADJ_FXA_STATUSES.PUBLISH,
   };
+  if (priorDepreciation !== undefined && snapshotHasAsset) {
+    const existingPosted = transactions
+      .filter(
+        (transaction) =>
+          transaction.date <= beforeAdjust.date &&
+          [
+            JOURNALS.FXA_DEP,
+            JOURNALS.FXA_DEP_IN,
+            JOURNALS.FXA_DEP_OUT,
+            JOURNALS.FXA_JUSTIFY,
+          ].includes(transaction.journal),
+      )
+      .reduce(
+        (sum, transaction) =>
+          sum +
+          transaction.details
+            .filter((detail) => detail.accountId === 'dep-account')
+            .reduce(
+              (total, detail) =>
+                total +
+                detail.amount * (transaction.side === TR_SIDES.CREDIT ? 1 : -1),
+              0,
+            ),
+        0,
+      );
+    const delta = priorDepreciation - existingPosted;
+    if (delta) {
+      const posted = entry(
+        JOURNALS.FXA_DEP,
+        '2026-01-01',
+        Math.abs(delta),
+        delta > 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT,
+        0,
+      );
+      posted.contentId = 'previous';
+      transactions.push(posted);
+    }
+  }
   const models = {
     Configs: {
       getConfigs: async () => [
@@ -73,13 +123,9 @@ const setup = ({
         query([
           {
             _id: 'asset-a',
-            accountId: 'asset-account',
-            originalCost: 100,
-            annualDepreciationRate: 12,
-            salvageValue,
-            depreciationMethod: method,
-            acquisitionDate: new Date(acquisitionDate),
-            depreciationStartDate: new Date(acquisitionDate),
+            code: 'asset',
+            name: 'Asset',
+            categoryId: 'category',
           },
         ]),
     },
@@ -126,18 +172,11 @@ const setup = ({
       ) => doc,
     },
     AdjustFxaDetails: {
-      find: () =>
-        query(
-          priorDepreciation === undefined || !snapshotHasAsset
-            ? []
-            : [
-                {
-                  fixedAssetId: 'asset-a',
-                  closingAccumulatedDepreciation: priorDepreciation,
-                  closingBookValue: 100 - priorDepreciation,
-                },
-              ],
-        ),
+      find: () => {
+        throw new Error(
+          'Adjustment result caches must not supply financial input.',
+        );
+      },
       replaceAdjustFxaDetails: async ({
         details,
       }: {
@@ -205,7 +244,7 @@ test('opening depreciation caps a straight-line day at salvage value', async () 
   expect(detail.closingBookValue).toBeCloseTo(80, 8);
 });
 
-test('uses the previous snapshot once and applies subsequent credit/debit entries by day', async () => {
+test('uses previous posted depreciation once and applies subsequent credit/debit entries by day', async () => {
   const expense = entry(JOURNALS.FXA_DEP, '2026-01-02', 10, TR_SIDES.DEBIT);
   expense.details[0].accountId = 'expense-account';
   const own = entry(JOURNALS.FXA_DEP, '2026-01-02', 70);
@@ -315,7 +354,7 @@ test('a new asset missing from the previous snapshot retains opening entries on 
   expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
 });
 
-test('a fully depreciated snapshot does not restart historical depreciation', async () => {
+test('a fully depreciated ledger does not restart historical depreciation', async () => {
   const fixture = setup({
     priorDepreciation: 100,
     transactions: [
@@ -345,7 +384,13 @@ test('inactive and future depreciation entries do not affect the period', async 
 });
 
 test('a mid-period correction changes rates only from its effective date', async () => {
-  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-03', 0, TR_SIDES.CREDIT, 0);
+  const correction = entry(
+    JOURNALS.FXA_JUSTIFY,
+    '2026-01-03',
+    0,
+    TR_SIDES.CREDIT,
+    0,
+  );
   correction.details[0].followInfos = { annualDepreciationRate: 24 };
   const fixture = setup({
     transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
@@ -356,33 +401,70 @@ test('a mid-period correction changes rates only from its effective date', async
 });
 
 test('a correction uses the new method and a ledger delta without resetting accumulated depreciation', async () => {
-  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-02', 5, TR_SIDES.CREDIT, 0);
-  correction.details[0].followInfos = { depreciationMethod: 'decliningBalance', annualDepreciationRate: 20 };
+  const correction = entry(
+    JOURNALS.FXA_JUSTIFY,
+    '2026-01-02',
+    5,
+    TR_SIDES.CREDIT,
+    0,
+  );
+  correction.details[0].followInfos = {
+    depreciationMethod: 'decliningBalance',
+    annualDepreciationRate: 20,
+  };
   const fixture = setup({
     priorDepreciation: 20,
     transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
   });
   const [detail] = await fixture.run();
-  expect(detail.depreciationAmount).toBeCloseTo(75 * 0.2 / 365, 8);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(25 + 75 * 0.2 / 365, 8);
+  expect(detail.depreciationAmount).toBeCloseTo((75 * 0.2) / 365, 8);
+  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(
+    25 + (75 * 0.2) / 365,
+    8,
+  );
 });
 
 test('draft and future correction rules never affect historical depreciation', async () => {
-  const draft = entry(JOURNALS.FXA_JUSTIFY, '2026-01-02', 5, TR_SIDES.CREDIT, 0);
+  const draft = entry(
+    JOURNALS.FXA_JUSTIFY,
+    '2026-01-02',
+    5,
+    TR_SIDES.CREDIT,
+    0,
+  );
   draft.status = TR_STATUSES.DRAFT;
   draft.details[0].followInfos = { annualDepreciationRate: 90 };
-  const future = entry(JOURNALS.FXA_JUSTIFY, '2026-01-04', 5, TR_SIDES.CREDIT, 0);
+  const future = entry(
+    JOURNALS.FXA_JUSTIFY,
+    '2026-01-04',
+    5,
+    TR_SIDES.CREDIT,
+    0,
+  );
   future.details[0].followInfos = { annualDepreciationRate: 80 };
   const fixture = setup({
-    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), draft, future],
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
+      draft,
+      future,
+    ],
   });
   const [detail] = await fixture.run('2026-01-03');
   expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
 });
 
 test('a later period keeps correction rules from before its opening snapshot', async () => {
-  const correction = entry(JOURNALS.FXA_JUSTIFY, '2026-01-01', 0, TR_SIDES.CREDIT, 0);
-  correction.details[0].followInfos = { annualDepreciationRate: 24, salvageValue: 0 };
+  const correction = entry(
+    JOURNALS.FXA_JUSTIFY,
+    '2026-01-01',
+    0,
+    TR_SIDES.CREDIT,
+    0,
+  );
+  correction.details[0].followInfos = {
+    annualDepreciationRate: 24,
+    salvageValue: 0,
+  };
   const fixture = setup({
     priorDepreciation: 20,
     transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
@@ -393,9 +475,22 @@ test('a later period keeps correction rules from before its opening snapshot', a
 });
 
 test('capitalized cost only affects depreciation and closing cost from the capitalization day', async () => {
-  const capital = entry(JOURNALS.FXA_CAPITAL, '2026-01-03', 100, TR_SIDES.DEBIT, 0);
-  capital.details[0].followInfos = { originalCost: 200, annualDepreciationRate: 12, depreciationBase: 200, depreciationStartDate: new Date('2026-01-03') };
-  const fixture = setup({ transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), capital] });
+  const capital = entry(
+    JOURNALS.FXA_CAPITAL,
+    '2026-01-03',
+    100,
+    TR_SIDES.DEBIT,
+    0,
+  );
+  capital.details[0].followInfos = {
+    originalCost: 200,
+    annualDepreciationRate: 12,
+    depreciationBase: 200,
+    depreciationStartDate: new Date('2026-01-03'),
+  };
+  const fixture = setup({
+    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), capital],
+  });
   const [before] = await fixture.run('2026-01-02');
   expect(before.originalCost).toBe(100);
   expect(before.depreciationAmount).toBeCloseTo(2 / 31, 8);
@@ -406,13 +501,33 @@ test('capitalized cost only affects depreciation and closing cost from the capit
 });
 
 test('renewal depreciates the new net base over the new life while retaining posted depreciation', async () => {
-  const capital = entry(JOURNALS.FXA_CAPITAL, '2026-01-02', 100, TR_SIDES.DEBIT, 0);
-  capital.details[0].followInfos = { originalCost: 200, annualDepreciationRate: 20, depreciationBase: 150, depreciationStartDate: new Date('2026-01-02') };
-  const fixture = setup({ priorDepreciation: 40, transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), capital,
-    entry(JOURNALS.FXA_DEP_IN, '2026-01-02', 10)] });
+  const capital = entry(
+    JOURNALS.FXA_CAPITAL,
+    '2026-01-02',
+    100,
+    TR_SIDES.DEBIT,
+    0,
+  );
+  capital.details[0].followInfos = {
+    originalCost: 200,
+    annualDepreciationRate: 20,
+    depreciationBase: 150,
+    depreciationStartDate: new Date('2026-01-02'),
+  };
+  const fixture = setup({
+    priorDepreciation: 40,
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
+      capital,
+      entry(JOURNALS.FXA_DEP_IN, '2026-01-02', 10),
+    ],
+  });
   const [detail] = await fixture.run();
-  expect(detail.depreciationAmount).toBeCloseTo((150 * 0.2 / 12) / 31, 8);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(50 + (150 * 0.2 / 12) / 31, 8);
+  expect(detail.depreciationAmount).toBeCloseTo((150 * 0.2) / 12 / 31, 8);
+  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(
+    50 + (150 * 0.2) / 12 / 31,
+    8,
+  );
   expect(detail.originalCost).toBe(200);
 });
 

@@ -251,7 +251,7 @@ test('every generated journal and origin type is accepted by the transaction sch
   );
 });
 
-test('editing removes obsolete depreciation and legacy automatic counterparts', async () => {
+test('editing removes obsolete depreciation follows', async () => {
   const { models, raw } = fixture();
   jest.mocked(createOrUpdateTr).mockImplementation(
     async (_models, _user, doc, old) =>
@@ -263,15 +263,7 @@ test('editing removes obsolete depreciation and legacy automatic counterparts', 
       } as ITransactionDocument),
   );
   const first = await saveFxaCapital('tenant', models, 'user', document());
-  const legacyCounterpart = {
-    ...first.otherTrs[0],
-    _id: 'legacy-counterpart',
-    journal: JOURNALS.FXA_CAPITAL_BALANCE,
-    originType: 'fxaCapitalBalanceCt',
-  };
-  raw.Transactions.find.mockReturnValue(
-    query([...first.otherTrs, legacyCounterpart]),
-  );
+  raw.Transactions.find.mockReturnValue(query(first.otherTrs));
   const changed = {
     ...first.mainTr,
     details: first.mainTr.details.map((row) => ({
@@ -291,7 +283,7 @@ test('editing removes obsolete depreciation and legacy automatic counterparts', 
     second.otherTrs.some((row) => row.journal === JOURNALS.FXA_DEP_OUT),
   ).toBe(true);
   expect(raw.Transactions.deleteMany).toHaveBeenCalledWith({
-    _id: { $in: ['fxaCapitalDepIn', 'legacy-counterpart'] },
+    _id: { $in: ['fxaCapitalDepIn'] },
   });
 });
 
@@ -459,4 +451,33 @@ test('batch edits preserve depreciation row ids by asset and location', async ()
       'details.fixedAssetId': { $in: ['asset', 'second'] },
     }),
   );
+});
+
+test.each(['fixedAsset', 'fxaFollow'])(
+  'capitalization accepts the configured depreciation account in %s',
+  async (journal) => {
+    const { models, raw } = fixture();
+    raw.Accounts.find.mockReturnValue(
+      query([
+        { _id: 'asset-account', journal: 'fixedAsset' },
+        { _id: 'dep-account', journal },
+      ]),
+    );
+    await expect(
+      validateFxaCapitalSave('tenant', models, 'user', document()),
+    ).resolves.toBeUndefined();
+  },
+);
+
+test('capitalization still rejects an unrelated main depreciation account', async () => {
+  const { models, raw } = fixture();
+  raw.Accounts.find.mockReturnValue(
+    query([
+      { _id: 'asset-account', journal: 'fixedAsset' },
+      { _id: 'dep-account', journal: 'main' },
+    ]),
+  );
+  await expect(
+    validateFxaCapitalSave('tenant', models, 'user', document()),
+  ).rejects.toThrow('journal accounts');
 });

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,8 @@ import { ITrDetail } from '@/transactions/types/Transaction';
 import { ITransactionGroupForm } from '@/transactions/transaction-form/types/JournalForms';
 import { AccountField } from '@/transactions/transaction-form/components/GeneralFormFields';
 import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
+import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
+import { TChooserLocation } from '@/settings/fixed-assets/components/chooser/types';
 import { TFxaCapitalValuation } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 import {
   FxaChangeMethodField,
@@ -43,7 +45,11 @@ export const FxaChangeRow = ({
   detailIndex: number;
   detail: ITrDetail;
   capital: boolean;
-  onAssetChange: (assetId: string, accountId: string) => void;
+  onAssetChange: (
+    assetId: string,
+    accountId: string,
+    location?: TChooserLocation,
+  ) => boolean;
   onRemove: () => void;
   onValuationChange: (
     assetId: string,
@@ -55,7 +61,6 @@ export const FxaChangeRow = ({
   const date = useWatch({ control: form.control, name: 'date' });
   const trDoc = useWatch({ control: form.control, name: `trDocs.${index}` });
   const assetId = detail.fixedAssetId || '';
-  const accountRef = useRef('');
   const [pendingAsset, setPendingAsset] = useState(
     capital && !detail.followInfos?.originalCost ? assetId : '',
   );
@@ -245,21 +250,26 @@ export const FxaChangeRow = ({
           name={`trDocs.${index}.details.${detailIndex}.fixedAssetId`}
           render={({ field }) => (
             <Form.Item>
-              <SelectFixedAsset.InlineCell
-                scope={`trDocs.${index}.details.${detailIndex}.fixedAssetId`}
+              <FixedAssetChooser
+                journal={trDoc?.journal || ''}
+                date={date}
                 value={field.value || ''}
-                onCallback={(asset) => {
-                  accountRef.current = asset.accountId || '';
-                }}
-                onValueChange={(value) => {
-                  if (typeof value !== 'string') return;
-                  onAssetChange(
-                    value,
-                    capital
-                      ? accountRef.current
-                      : depreciationAccounts.get(accountRef.current) || '',
-                  );
-                  if (capital) setPendingAsset(value);
+                branchId={detail.branchId || trDoc?.branchId || ''}
+                departmentId={detail.departmentId || trDoc?.departmentId || ''}
+                excludeTransactionId={trDoc?._id}
+                allLocations={capital}
+                onChoose={(choices) => {
+                  const choice = choices[0];
+                  if (!choice?.asset._id) return false;
+                  const accountId = capital
+                    ? choice.asset.accountId || ''
+                    : depreciationAccounts.get(choice.asset.accountId || '') ||
+                      '';
+                  if (
+                    !onAssetChange(choice.asset._id, accountId, choice.location)
+                  )
+                    return false;
+                  if (capital) setPendingAsset(choice.asset._id);
                 }}
               />
               <Form.Message />

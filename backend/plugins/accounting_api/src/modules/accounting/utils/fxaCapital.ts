@@ -20,13 +20,7 @@ import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { createOrUpdateTr } from './utils';
 
 const MONEY_EPSILON = 0.005;
-const FOLLOW_TYPES = [
-  'fxaCapitalDepIn',
-  'fxaCapitalDepOut',
-  // Older saved automatic counterparts are removed when their source is edited.
-  'fxaCapitalBalanceDt',
-  'fxaCapitalBalanceCt',
-];
+const FOLLOW_TYPES = ['fxaCapitalDepIn', 'fxaCapitalDepOut'];
 
 const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 10000) / 10000;
@@ -295,7 +289,9 @@ const prepareCapital = async (
     );
     if (
       assetAccount?.journal !== ACCOUNT_JOURNALS.FIXED_ASSET ||
-      depAccount?.journal !== ACCOUNT_JOURNALS.FXA_FOLLOW
+      ![ACCOUNT_JOURNALS.FXA_FOLLOW, ACCOUNT_JOURNALS.FIXED_ASSET].includes(
+        depAccount?.journal || '',
+      )
     ) {
       throw new Error(
         'Use fixed asset and accumulated depreciation journal accounts.',

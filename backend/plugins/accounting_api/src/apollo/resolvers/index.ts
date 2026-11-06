@@ -1,3 +1,4 @@
+import { accountingFixedAssetChooser } from '@/fixedAssets/utils/chooser';
 import { apolloCustomScalars } from 'erxes-api-shared/utils';
 import Account from '@/accounting/graphql/resolvers/customResolvers/account';
 import AccountPermission from '@/accounting/graphql/resolvers/customResolvers/accountPermission';
@@ -123,6 +124,7 @@ const resolvers: any = {
     ...QueriesJob,
     ...jobExecutionQueries,
     ...QueriesFixedAssets,
+    accountingFixedAssetChooser,
   },
 };
 

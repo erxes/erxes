@@ -9,7 +9,10 @@ import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
 import { TR_SIDES } from '../@types/constants';
 import { commonRemoveValidation } from './commonRemove';
-import { syncFxaIncomeDetails } from './fxaIncome';
+import {
+  syncFxaIncomeDetails,
+  validateFxaIncomeAcquisition,
+} from './fxaIncome';
 import { createFxaDisposalFollowTrs, syncFxaDisposalInstances } from './fxaOut';
 import {
   createFxaMoveDepreciationFollowTrs,
@@ -19,7 +22,6 @@ import {
 import {
   prepareFxaDisposalTransaction,
   prepareFxaOwnerRecordTransaction,
-  rebuildFixedAssetCurrentCounts,
 } from './fixedAssets';
 import { applyActiveInventoryCosts } from './inventoryCosts';
 import { saveInvJustify } from './invJustify';
@@ -381,10 +383,11 @@ async function handleInvSaleReturn(
 async function validateFxaIncomeSave(
   subdomain: string,
   models: IModels,
-  _userId: string,
+  userId: string,
   doc: ITransaction,
   oldTr?: ITransactionDocument,
 ): Promise<void> {
+  await validateFxaIncomeAcquisition(models, userId, doc);
   if (!oldTr) return;
   const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
   if (removedDetailIds.length) {
@@ -474,12 +477,6 @@ async function handleFxaMove(
     transaction,
   );
   const moveInTr = await createFxaMoveInFollowTr(models, userId, transaction);
-  await rebuildFixedAssetCurrentCounts(
-    models,
-    (transaction.details || [])
-      .map((detail) => detail.fixedAssetId)
-      .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
-  );
 
   return { mainTr: transaction, otherTrs: [...depreciationTrs, moveInTr] };
 }

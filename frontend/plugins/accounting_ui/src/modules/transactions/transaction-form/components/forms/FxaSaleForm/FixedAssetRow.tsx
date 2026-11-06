@@ -1,8 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import {
-  SelectFixedAsset,
-  TSelectedFixedAsset,
-} from '@/settings/fixed-assets/components/SelectFixedAsset';
+import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
+import { applyFxaChoices } from '@/transactions/transaction-form/components/helpers/applyFxaChoice';
 import { useFixedAssetLocationRemainder } from '@/settings/fixed-assets/hooks/useFixedAssetLocationRemainder';
 import {
   Checkbox,
@@ -32,7 +29,6 @@ export const FixedAssetRow = ({
   journalIndex: number;
   detailIndex: number;
 }) => {
-  const { t } = useTranslation('accounting');
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -62,43 +58,6 @@ export const FixedAssetRow = ({
     fixedAssetLocationRemainder?.remainder === undefined
       ? undefined
       : Math.max(0, fixedAssetLocationRemainder.remainder);
-
-  const handleFixedAssetChange = (fixedAssetId: string | string[]) => {
-    const nextFixedAssetId = Array.isArray(fixedAssetId)
-      ? fixedAssetId[0] || ''
-      : fixedAssetId || '';
-
-    if (nextFixedAssetId !== detail.fixedAssetId) {
-      form.setValue(
-        `trDocs.${journalIndex}.details.${detailIndex}.followInfos.preDeprecation`,
-        undefined,
-        { shouldDirty: true },
-      );
-    }
-    form.setValue(
-      `trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`,
-      nextFixedAssetId,
-    );
-  };
-
-  const handleFixedAssetCallback = (fixedAsset: TSelectedFixedAsset) => {
-    const count = detail.count || 1;
-
-    form.setValue(
-      `trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCategoryId`,
-      fixedAsset.categoryId || '',
-    );
-    form.setValue(
-      `trDocs.${journalIndex}.details.${detailIndex}.branchId`,
-      detail.branchId || trDoc.branchId || '',
-    );
-    form.setValue(
-      `trDocs.${journalIndex}.details.${detailIndex}.departmentId`,
-      detail.departmentId || trDoc.departmentId || '',
-    );
-    form.setValue(`trDocs.${journalIndex}.details.${detailIndex}.count`, count);
-    setAmount(count, detail.unitPrice);
-  };
 
   const setAmount = (count?: number, unitPrice?: number) => {
     form.setValue(
@@ -146,13 +105,17 @@ export const FixedAssetRow = ({
             control={form.control}
             name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetId`}
             render={({ field }) => (
-              <SelectFixedAsset.FormItem
-                mode="single"
+              <FixedAssetChooser
+                journal={trDoc.journal}
+                date={date}
+                multiple
                 value={field.value || ''}
-                onValueChange={handleFixedAssetChange}
-                onCallback={handleFixedAssetCallback}
-                placeholder={t('fixed-asset')}
-                className="h-8 min-w-60"
+                branchId={branchId}
+                departmentId={departmentId}
+                excludeTransactionId={trDoc._id}
+                onChoose={(choices) => {
+                  applyFxaChoices(form, journalIndex, detailIndex, choices);
+                }}
               />
             )}
           />

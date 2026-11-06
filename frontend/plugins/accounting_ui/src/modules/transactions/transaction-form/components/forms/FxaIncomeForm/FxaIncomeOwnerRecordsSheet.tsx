@@ -1,3 +1,7 @@
+import {
+  FxaChangeMethodField,
+  FxaChangeNumberField,
+} from '@/transactions/transaction-form/components/forms/FxaChangeFields';
 import { useTranslation } from 'react-i18next';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import {
@@ -194,6 +198,64 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         <Sheet.Content className="p-4 overflow-auto">
           {detail && (
             <div className="grid grid-cols-2 gap-4 mb-4">
+              <FxaChangeMethodField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                capital
+                income
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="annualDepreciationRate"
+                label="useful-life-in-years"
+                usefulYears
+              />
+              <FxaChangeMethodField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                capital
+                income
+                tax
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="taxAnnualDepreciationRate"
+                label="tax-useful-life"
+                usefulYears
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="taxSalvageValue"
+                label="tax-residual-value"
+              />
+              <Form.Field
+                control={form.control}
+                name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.depreciationStartDate`}
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>{t('depreciation-start-date')}</Form.Label>
+                    <Form.Control>
+                      <Input
+                        type="date"
+                        value={field.value?.slice(0, 10) || ''}
+                        onChange={(event) =>
+                          field.onChange(event.target.value || undefined)
+                        }
+                      />
+                    </Form.Control>
+                    <Form.Message />
+                  </Form.Item>
+                )}
+              />
+
               <Form.Field
                 control={form.control}
                 name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.salvageValue`}

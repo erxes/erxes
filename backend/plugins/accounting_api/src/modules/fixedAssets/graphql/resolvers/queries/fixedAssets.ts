@@ -1,6 +1,10 @@
+import { getFxaLedgerAssets } from '@/accounting/utils/fxaLedger';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
-import { getFxaCorrections, getFxaRulesAtDate } from '@/accounting/utils/fxaJustify';
+import {
+  getFxaCorrections,
+  getFxaRulesAtDate,
+} from '@/accounting/utils/fxaJustify';
 import { getFxaCapitalValuation } from '@/accounting/utils/fxaCapitalValuation';
 import { assertTransactionJournalPermission } from '@/accounting/utils/transactionPermissions';
 import {
@@ -224,8 +228,8 @@ const buildFxaOwnerRecordFilter = async (
             params.fixedAssetId
               ? fixedAssetId === params.fixedAssetId
               : params.fixedAssetIds?.length
-                ? params.fixedAssetIds.includes(fixedAssetId)
-                : true,
+              ? params.fixedAssetIds.includes(fixedAssetId)
+              : true,
           ),
         }
       : { $in: fixedAssetIds };
@@ -400,35 +404,76 @@ const fixedAssets = {
       .sort({ code: 1 })
       .limit(limit || 30)
       .lean();
-    if (!date) return assets;
+    const atDate = date || new Date();
     if (!user?._id) throw new Error('Authentication required.');
-    const endDate = getEndOfDay(date);
+    const ledgerAssets = await getFxaLedgerAssets(
+      models,
+      atDate,
+      assets.map((asset) => asset._id),
+      excludeTransactionId,
+    );
+    const endDate = getEndOfDay(atDate);
     endDate.setMilliseconds(endDate.getMilliseconds() + 1);
-    const changes = await getFxaCorrections(models, endDate, excludeTransactionId);
-    return Promise.all(assets.map(async (asset) => {
-      const rules = getFxaRulesAtDate(asset, changes, getEndOfDay(date));
-      if (!changes.some((change) => change.fixedAssetId === asset._id && change.rules.originalCost !== undefined)) {
-        return { ...asset, ...rules };
-      }
-      const valuation = await getFxaCapitalValuation(models, asset._id, date, excludeTransactionId, user);
-      return {
-        ...asset, ...rules,
-        originalCost: valuation.originalCost,
-        currentCount: valuation.count,
-        accumulatedDepreciation: valuation.preDeprecation * valuation.count,
-        bookValue: (valuation.originalCost - valuation.preDeprecation) * valuation.count,
-      };
-    }));
+    const changes = await getFxaCorrections(
+      models,
+      endDate,
+      excludeTransactionId,
+    );
+    return Promise.all(
+      ledgerAssets.map(async (asset) => {
+        const rules = getFxaRulesAtDate(asset, changes, getEndOfDay(atDate));
+        if (
+          !changes.some(
+            (change) =>
+              change.fixedAssetId === asset._id &&
+              change.rules.originalCost !== undefined,
+          )
+        ) {
+          return { ...asset, ...rules };
+        }
+        const valuation = await getFxaCapitalValuation(
+          models,
+          asset._id,
+          atDate,
+          excludeTransactionId,
+          user,
+        );
+        return {
+          ...asset,
+          ...rules,
+          originalCost: valuation.originalCost,
+          currentCount: valuation.count,
+          accumulatedDepreciation: valuation.preDeprecation * valuation.count,
+          bookValue:
+            (valuation.originalCost - valuation.preDeprecation) *
+            valuation.count,
+        };
+      }),
+    );
   },
 
   fixedAssetCapitalValuation: async (
     _root: undefined,
-    { fixedAssetId, date, excludeTransactionId }: { fixedAssetId: string; date: Date; excludeTransactionId?: string },
+    {
+      fixedAssetId,
+      date,
+      excludeTransactionId,
+    }: { fixedAssetId: string; date: Date; excludeTransactionId?: string },
     context: IContext,
   ) => {
     if (!context.user?._id) throw new Error('Authentication required.');
-    await assertTransactionJournalPermission(context, JOURNALS.FXA_CAPITAL, 'read');
-    return getFxaCapitalValuation(context.models, fixedAssetId, date, excludeTransactionId, context.user);
+    await assertTransactionJournalPermission(
+      context,
+      JOURNALS.FXA_CAPITAL,
+      'read',
+    );
+    return getFxaCapitalValuation(
+      context.models,
+      fixedAssetId,
+      date,
+      excludeTransactionId,
+      context.user,
+    );
   },
 
   fixedAssetDetail: async (
@@ -436,7 +481,10 @@ const fixedAssets = {
     { _id }: { _id: string },
     { models }: IContext,
   ) => {
-    return models.FixedAssets.findOne({ _id }).lean();
+    return (
+      (await getFxaLedgerAssets(models, new Date(), [_id]))[0] ||
+      models.FixedAssets.findOne({ _id }).lean()
+    );
   },
 
   fixedAssetLocationRemainder: async (
