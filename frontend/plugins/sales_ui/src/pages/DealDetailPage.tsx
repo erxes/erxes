@@ -1,4 +1,6 @@
 import {
+  IconAlignLeft,
+  IconChecklist,
   IconHistory,
   IconHierarchy2,
   IconId,
@@ -28,11 +30,14 @@ import { DealActivityTab } from '@/deals/cards/components/detail/DealActivityTab
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealIdProvider } from '@/deals/context/DealIdContext';
 import { DealPanelActions } from '~/widgets/record-panel/DealPanelActions';
-import { DealPanelDetail } from '~/widgets/record-panel/DealPanelDetail';
+import {
+  DealPageChecklists,
+  DealPageDescription,
+  DealPageFields,
+} from '~/widgets/record-panel/DealPanelDetail';
 import {
   DealPanelProductsTab,
   DealPanelProperties,
-  DealPanelTitle,
 } from '~/widgets/record-panel/RecordPanel';
 import {
   DealPanelError,
@@ -41,6 +46,8 @@ import {
 
 const DETAIL_TAB = 'detail';
 const PRODUCTS_TAB = 'products';
+const DESCRIPTION_TAB = 'description';
+const CHECKLIST_TAB = 'checklist';
 const PROPERTIES_TAB = 'properties';
 const ACTIVITY_TAB = 'activity';
 const DEAL_CONTENT_TYPE = 'sales:deal';
@@ -83,7 +90,7 @@ const DealPageBreadcrumb = ({ dealId }: { dealId: string }) => {
           <>
             <Separator.Inline />
             <Breadcrumb.Item className="min-w-0">
-              <Breadcrumb.Page className="min-w-0 px-2 text-sm">
+              <Breadcrumb.Page className="flex min-w-0 px-2 text-sm">
                 <TextOverflowTooltip value={deal.name || t('untitled')} />
               </Breadcrumb.Page>
             </Breadcrumb.Item>
@@ -104,12 +111,13 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
       key={dealId}
       value={tab ?? PRODUCTS_TAB}
       onValueChange={setTab}
-      visibleCount={3}
+      visibleCount={5}
       overviewTab={DETAIL_TAB}
       expandedDefaultTab={PRODUCTS_TAB}
       overviewHeader={
-        <div className="min-w-0 flex-1 truncate text-sm">
-          <DealPanelTitle dealId={dealId} subscribe={false} />
+        <div className="flex min-w-0 flex-1 items-center gap-1.5 text-sm">
+          <IconId className="size-4 shrink-0" />
+          <span className="truncate">{t('detail')}</span>
         </div>
       }
       tabs={[
@@ -117,17 +125,25 @@ const DealPageTabs = ({ dealId }: { dealId: string }) => {
           value: DETAIL_TAB,
           label: t('detail'),
           icon: IconId,
-          content: (
-            <div className="@container/record-panel flex min-h-0 flex-1 flex-col">
-              <DealPanelDetail dealId={dealId} />
-            </div>
-          ),
+          content: <DealPageFields dealId={dealId} />,
         },
         {
           value: PRODUCTS_TAB,
           label: tSales('products'),
           icon: IconPackage,
           content: <DealPanelProductsTab dealId={dealId} compact={false} />,
+        },
+        {
+          value: DESCRIPTION_TAB,
+          label: tSales('description'),
+          icon: IconAlignLeft,
+          content: <DealPageDescription dealId={dealId} />,
+        },
+        {
+          value: CHECKLIST_TAB,
+          label: tSales('checklist'),
+          icon: IconChecklist,
+          content: <DealPageChecklists dealId={dealId} />,
         },
         {
           value: PROPERTIES_TAB,
@@ -218,7 +234,7 @@ export const DealDetailPage = () => {
                 <DealPageBreadcrumb dealId={dealId} />
               </PageHeader.Start>
               <PageHeader.End>
-                <DealPanelActions dealId={dealId} />
+                <DealPanelActions dealId={dealId} expanded />
               </PageHeader.End>
             </PageHeader>
             <DealPageBody dealId={dealId} />

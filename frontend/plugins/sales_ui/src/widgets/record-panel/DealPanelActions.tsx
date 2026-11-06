@@ -1,13 +1,22 @@
 import { DealsActions } from '@/deals/actionBar/components/DealsActions';
-import { MoveDealSubmenu } from '@/deals/actionBar/components/MoveDealDropdown';
+import {
+  MoveDealDropdown,
+  MoveDealSubmenu,
+} from '@/deals/actionBar/components/MoveDealDropdown';
 import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { IconSettings } from '@tabler/icons-react';
-import { DropdownMenu } from 'erxes-ui';
+import { Button, DropdownMenu } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-export const DealPanelActions = ({ dealId }: { dealId: string }) => {
+export const DealPanelActions = ({
+  dealId,
+  expanded = false,
+}: {
+  dealId: string;
+  expanded?: boolean;
+}) => {
   const { t } = useTranslation('sales');
   const { deal } = useDealDetail(
     { variables: { _id: dealId }, fetchPolicy: 'cache-first' },
@@ -28,6 +37,30 @@ export const DealPanelActions = ({ dealId }: { dealId: string }) => {
           tab: 'productConfig',
         }).toString()}`
       : undefined;
+
+  if (expanded) {
+    return (
+      <DealsProvider>
+        <div className="flex items-center gap-1 [&_button]:h-7 [&_button]:text-xs">
+          {productConfigUrl && (
+            <Button
+              variant="outline"
+              size="icon"
+              className="size-7"
+              title={t('product-config')}
+              aria-label={t('product-config')}
+              asChild
+            >
+              <Link to={productConfigUrl}>
+                <IconSettings className="size-4" />
+              </Link>
+            </Button>
+          )}
+          <MoveDealDropdown deal={deal} />
+        </div>
+      </DealsProvider>
+    );
+  }
 
   return (
     <DealsProvider>
