@@ -2,6 +2,7 @@ import { AutomationBotIntegrationContent } from '@/automations/components/settin
 import { AutomationBotIntegrationDetailHeader } from '@/automations/components/settings/components/bots/components/AutomationBotIntegrationDetailHeader';
 import { useAutomationBotIntegrationDetail } from '@/automations/components/settings/components/bots/hooks/useAutomationBots';
 import { IconRobotFace } from '@tabler/icons-react';
+import { Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 type Props = {
@@ -10,8 +11,12 @@ type Props = {
 
 export const AutomationBotDetailSettings = ({ botType }: Props) => {
   const { t } = useTranslation('automations');
-  const { botIntegrationConstant, totalCount, loading, error } =
+  const { botIntegrationConstant, loading, error } =
     useAutomationBotIntegrationDetail(botType);
+
+  if (loading) {
+    return <Spinner />;
+  }
 
   if (error || !botIntegrationConstant) {
     return (

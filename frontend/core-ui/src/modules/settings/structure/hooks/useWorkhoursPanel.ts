@@ -19,6 +19,7 @@ export const useWorkhoursPanel = (
     useQueryState<string>('workingHoursId');
   const { form } = useWorkhoursForm();
   const pagePanel = usePagePanel({
+    expandable: false,
     name,
     identity: workingHoursId || 'new',
     open: Boolean(workingHoursId),

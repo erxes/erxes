@@ -5,7 +5,12 @@ import { createPagePanelPortal as createPortal } from '@/side-panel/hooks/usePag
 import { useTranslation } from 'react-i18next';
 import { Button, DatePicker, Form, Input, Separator, Switch } from 'erxes-ui';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import { IHoliday, IWorkhoursForm } from '@/settings/structure/types/workhours';
+import {
+  IHoliday,
+  IWorkDay,
+  IWorkhoursForm,
+  WorkDay,
+} from '@/settings/structure/types/workhours';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Can } from 'ui-modules';
 import { useBranchById } from 'ui-modules/modules/structure/hooks/useBranchById';
@@ -29,9 +34,10 @@ export const BranchWorkingHoursSheet = () => {
   });
   const { branchesEdit, loading } = useBranchInlineEdit();
   const onSubmit = (values: IWorkhoursForm) => {
-    const { holidays, ...days } = values || {};
-    const activeDays: Record<string, any> = {};
-    Object.entries(days).forEach(([day, data]) => {
+    const { holidays } = values;
+    const activeDays: Partial<Record<WorkDay, IWorkDay>> = {};
+    Object.values(WorkDay).forEach((day) => {
+      const data = values[day];
       if (data && !data.inactive) {
         activeDays[day] = {
           startFrom: data.startFrom,
@@ -60,13 +66,14 @@ export const BranchWorkingHoursSheet = () => {
   };
   useEffect(() => {
     if (branchDetail) {
-      const initialValues = branchDetail.workhours ?? {};
+      const initialValues: Partial<Record<WorkDay, IWorkDay>> =
+        branchDetail.workhours ?? {};
       const mergedValues = Object.fromEntries(
-        Object.entries(workingHours).map(([day, defaults]) => [
+        Object.values(WorkDay).map((day) => [
           day,
           {
-            ...(defaults || {}),
-            ...((initialValues as Record<string, any>)[day] || {}),
+            ...workingHours[day],
+            ...initialValues[day],
           },
         ]),
       ) as IWorkhoursForm;
@@ -118,7 +125,7 @@ const HolidaysSection = () => {
     });
   return (
     <div className="flex flex-col gap-3 py-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-col">
           <span className="font-semibold">{t('custom-holidays')}</span>
           <span className="text-sm text-accent-foreground">
@@ -184,7 +191,7 @@ const HolidayRow = ({
         isInactive ? 'opacity-60' : ''
       }`}
     >
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Form.Field
           control={form.control}
           name={`holidays.${index}.inactive`}
@@ -203,7 +210,7 @@ const HolidayRow = ({
           control={form.control}
           name={`holidays.${index}.name`}
           render={({ field }) => (
-            <Form.Item className="flex-1">
+            <Form.Item className="min-w-0 flex-1">
               <Form.Control>
                 <Input
                   className="w-full"
@@ -214,7 +221,7 @@ const HolidayRow = ({
             </Form.Item>
           )}
         />
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="order-1 flex w-full min-w-0 flex-wrap items-center gap-2">
           <DatePicker
             className="w-36"
             mode="single"
@@ -254,7 +261,7 @@ const HolidayRow = ({
         </Button>
       </div>
 
-      <div className="flex items-center gap-3 pl-11">
+      <div className="flex flex-wrap items-center gap-3">
         <Switch
           checked={hasWorkHours}
           onCheckedChange={toggleWorkHours}
@@ -264,7 +271,7 @@ const HolidayRow = ({
           {t('working-hours-label')}
         </span>
         {hasWorkHours && (
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             <WorkTimeField name={`holidays.${index}.startFrom`} />
             <span className="font-medium text-sm text-accent-foreground">
               {t('to')}

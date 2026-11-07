@@ -20,6 +20,7 @@ export const AiAgentDetailSheetShell = ({
   children: (close: () => void) => ReactNode;
 }) => {
   const entry = usePagePanel({
+    expandable: false,
     maxWidth: 1000,
     defaultWidth: 720,
     name: 'automations/settings/agents/AiAgentDetailSheetShell',

@@ -32,6 +32,7 @@ export const UnitEdit = () => {
     methods: { reset, handleSubmit },
   } = useUnitForm();
   const pagePanel = usePagePanel({
+    expandable: false,
     identity: id || 'new',
     name: 'settings/structure/units/UnitEdit',
     open: !!id,

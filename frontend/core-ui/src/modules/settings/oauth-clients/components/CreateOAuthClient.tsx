@@ -69,6 +69,7 @@ export const CreateOAuthClient = () => {
     });
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'settings/oauth-clients/CreateOAuthClient',
     open: open,
     onOpenChange: setOpen,

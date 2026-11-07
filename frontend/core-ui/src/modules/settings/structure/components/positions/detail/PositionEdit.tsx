@@ -32,6 +32,7 @@ export const PositionEdit = () => {
     methods: { reset, handleSubmit },
   } = usePositionForm();
   const pagePanel = usePagePanel({
+    expandable: false,
     identity: id || 'new',
     name: 'settings/structure/positions/PositionEdit',
     open: !!id,

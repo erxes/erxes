@@ -32,6 +32,7 @@ export const DepartmentEdit = () => {
     methods: { reset, handleSubmit },
   } = useDepartmentForm();
   const pagePanel = usePagePanel({
+    expandable: false,
     identity: id || 'new',
     name: 'settings/structure/departments/DepartmentEdit',
     open: !!id,

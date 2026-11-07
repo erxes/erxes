@@ -46,6 +46,7 @@ export const CreateBranch = () => {
   );
   useScopedHotkeys(`esc`, () => closeSheet(), BranchHotKeyScope.BranchAddSheet);
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'branchesManage',
     name: 'settings/structure/branches/CreateBranch',
     onOpenChange: (open) => (open ? openSheet() : closeSheet()),

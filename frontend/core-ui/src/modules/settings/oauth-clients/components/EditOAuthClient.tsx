@@ -129,6 +129,7 @@ export const EditOAuthClient = () => {
     });
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'settings/oauth-clients/EditOAuthClient',
     requiredPermission: 'appsManage',
     open: !!clientId,

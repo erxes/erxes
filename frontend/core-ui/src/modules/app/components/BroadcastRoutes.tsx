@@ -7,11 +7,18 @@ const BroadcastIndexPage = lazy(() =>
   })),
 );
 
+const BroadcastDetailPage = lazy(() =>
+  import('~/pages/broadcast/BroadcastDetailPage').then((module) => ({
+    default: module.BroadcastDetailPage,
+  })),
+);
+
 export const BroadcastRoutes = () => {
   return (
     <Suspense fallback={<></>}>
       <Routes>
         <Route path="/" element={<BroadcastIndexPage />} />
+        <Route path="/:messageId" element={<BroadcastDetailPage />} />
       </Routes>
     </Suspense>
   );

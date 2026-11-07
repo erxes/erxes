@@ -89,6 +89,7 @@ export const EmailDeliveryDetailSheet = () => {
   });
   const [deliveryId, setDeliveryId] = useQueryState<string>('deliveryId');
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'settings/email-deliveries/EmailDeliveryDetailSheet',
     open: !!deliveryId,
     onOpenChange: (open) => !open && deliveryId && setDeliveryId(null),

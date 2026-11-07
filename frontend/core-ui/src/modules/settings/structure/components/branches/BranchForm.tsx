@@ -12,7 +12,11 @@ import {
 } from '../StructureFormFields';
 import { BranchLocationField } from './location/BranchLocationField';
 
-export const BranchForm = () => {
+export const BranchForm = ({
+  showLocation = true,
+}: {
+  showLocation?: boolean;
+}) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control, formState } = useFormContext<TBranchForm>();
   const [linksOpen, setLinksOpen] = useState(false);
@@ -22,7 +26,7 @@ export const BranchForm = () => {
   const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
-    <div className="grid grid-cols-2 gap-2">
+    <div className="grid grid-cols-2 gap-x-4 gap-y-4">
       <TitleField control={control} />
       <CodeField control={control} />
       <Form.Field
@@ -129,7 +133,7 @@ export const BranchForm = () => {
           <LinkFields />
         </Collapsible.Content>
       </Collapsible>
-      <BranchLocationField />
+      {showLocation && <BranchLocationField />}
       {wasDeleted && <DeletedStatusField control={control} />}
     </div>
   );

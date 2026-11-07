@@ -16,7 +16,7 @@ export const AutomationBotIntegrationDetailHeader = ({
     useAutomationBotTotalCount(totalCountQueryName);
 
   return (
-    <div className="w-96">
+    <div className="w-full">
       <div className="flex gap-2">
         <div
           className={cn(

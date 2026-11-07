@@ -1,4 +1,7 @@
-import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  PagePanelStatus,
+  PanelEmptyState,
+} from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanelContext,
@@ -10,21 +13,25 @@ import {
   IconChartBar,
   IconBolt,
 } from '@tabler/icons-react';
-import { Button, ScrollArea, useQueryState, cn } from 'erxes-ui';
-import { useState } from 'react';
+import { Button, ScrollArea, useQueryState, Spinner } from 'erxes-ui';
+import { type MutableRefObject, useRef, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Can,
   SegmentForm,
   SegmentOverview,
-  SegmentUnsavedBadge,
   useSegmentDetail,
   RecordSidePanel,
+  type TSegmentForm,
 } from 'ui-modules';
 import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
 import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
+import { SegmentDetailHeader } from '@/segments/components/SegmentDetailHeader';
+import { SegmentPageDraft } from '@/segments/components/SegmentPageDraft';
 type Props = {
   onRefresh: () => void;
+  page?: boolean;
 };
 const SegmentDetailBody = ({
   contentType,
@@ -32,12 +39,16 @@ const SegmentDetailBody = ({
   onRefresh,
   onCreated,
   onOpenExisting,
+  draft,
+  initialDraft,
 }: {
   contentType: string;
   segmentId: string;
   onRefresh: () => void;
-  onCreated: () => void;
+  onCreated: (id: string) => void;
   onOpenExisting: (id: string) => void;
+  draft: MutableRefObject<(() => TSegmentForm) | null>;
+  initialDraft?: TSegmentForm;
 }) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { segment, refetch } = useSegmentDetail(segmentId);
@@ -55,13 +66,18 @@ const SegmentDetailBody = ({
     icon: IconCode,
     content: (
       <div className="flex min-h-0 flex-1 flex-col overflow-auto">
-        <SegmentForm
-          contentType={contentType}
-          segmentId={segmentId}
-          callback={onRefresh}
-          onCreateSuccess={onCreated}
-          onOpenExisting={onOpenExisting}
-        />
+        <SegmentForm.Root contentType={contentType} segmentId={segmentId}>
+          <SegmentForm.Wrapper>
+            <SegmentPageDraft draft={draft} initialDraft={initialDraft} />
+            <SegmentForm.Header />
+            <SegmentForm.Content className="px-5 pb-4" />
+            <SegmentForm.Footer
+              callback={onRefresh}
+              onCreateSuccess={onCreated}
+              onOpenExisting={onOpenExisting}
+            />
+          </SegmentForm.Wrapper>
+        </SegmentForm.Root>
       </div>
     ),
   };
@@ -101,13 +117,9 @@ const SegmentDetailBody = ({
     : tabs[0].value;
   return (
     <>
-      <RecordSidePanel.Header
-        title={title}
-        {...pagePanel.headerProps}
-        actions={<SegmentUnsavedBadge />}
-      />
+      <SegmentDetailHeader title={title} />
       <RecordSidePanel.Layout
-        expanded={pagePanel.expanded}
+        expanded={pagePanel.expanded && Boolean(segmentId)}
         tabs={tabs}
         value={value}
         onValueChange={setSelectedTab}
@@ -115,19 +127,46 @@ const SegmentDetailBody = ({
     </>
   );
 };
-export function SegmentDetail({ onRefresh }: Props) {
-  const [contentType] = useQueryState<string>('contentType');
-  const [segmentId, setOpen] = useQueryState<string>('segmentId');
+export function SegmentDetail({ onRefresh, page = false }: Props) {
+  const [queryType] = useQueryState<string>('contentType');
+  const [queryId, setOpen] = useQueryState<string>('segmentId');
+  const { id } = useParams<{ id: string }>();
+  const segmentId = page ? (id === 'new' ? '' : id) : queryId;
+  const { segment, segmentLoading } = useSegmentDetail(segmentId || undefined);
+  const contentType = queryType || segment?.contentType;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const state: { segmentDraft?: TSegmentForm } | null = location.state;
+  const draft = useRef<(() => TSegmentForm) | null>(null);
+  const search = contentType ? `?${new URLSearchParams({ contentType })}` : '';
+  const openPage = (recordId: string) =>
+    navigate(`/segments/${encodeURIComponent(recordId)}${search}`);
   const [isCreatingNew, setIsCreatingNew] = useState(false);
   const { t } = useTranslation('segment');
   const pagePanel = usePagePanel({
     requiredPermission: segmentId ? undefined : 'segmentsManage',
     maxWidth: 1100,
     defaultWidth: 800,
+    page,
+    onExpand: () => {
+      const params = new URLSearchParams({ contentType: contentType || '' });
+      if (draft.current) params.set('tab', 'definition');
+      navigate(
+        `/segments/${encodeURIComponent(segmentId || 'new')}?${params}`,
+        {
+          state: { segmentDraft: draft.current?.() },
+        },
+      );
+    },
     name: 'segments/SegmentDetail',
-    open: Boolean(contentType) && (!!segmentId || isCreatingNew),
+    open: page || (Boolean(contentType) && (!!segmentId || isCreatingNew)),
     onOpenChange: (open) => {
+      if (page) {
+        if (!open) navigate(`/segments${search}`);
+        return;
+      }
       if (open) {
+        setIsCreatingNew(!segmentId);
         return;
       }
       setOpen(null);
@@ -136,31 +175,47 @@ export function SegmentDetail({ onRefresh }: Props) {
     identity: segmentId || 'new',
   });
   if (!contentType) {
-    return null;
+    if (!page) return null;
+    return segmentLoading ? (
+      <Spinner />
+    ) : (
+      <PanelEmptyState
+        title={t('not-found', 'Segment not found')}
+        action={
+          <Button variant="outline" onClick={() => navigate('/segments')}>
+            {t('segments')}
+          </Button>
+        }
+      />
+    );
   }
   return (
     <>
-      <Can action="segmentsManage">
-        <Button onClick={() => setIsCreatingNew(true)}>
-          <IconPlus /> {t('create-segment')}
-        </Button>
-      </Can>
+      {!page && (
+        <Can action="segmentsManage">
+          <Button onClick={() => setIsCreatingNew(true)}>
+            <IconPlus /> {t('create-segment')}
+          </Button>
+        </Can>
+      )}
 
       {createPortal(
-        <div
-          className={cn(
-            'flex min-h-0 flex-1 flex-col overflow-hidden bg-background',
-            segmentId ? 'lg:max-w-6xl' : 'lg:max-w-5xl',
-            'relative! inset-auto! h-full! w-full! min-w-0! max-w-none! rounded-none! shadow-none!',
-          )}
-        >
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
           {pagePanel.permissionsLoaded && pagePanel.allowed ? (
             <SegmentDetailBody
               contentType={contentType}
               segmentId={segmentId || ''}
               onRefresh={onRefresh}
-              onCreated={() => setIsCreatingNew(false)}
+              draft={draft}
+              initialDraft={page ? state?.segmentDraft : undefined}
+              onCreated={(id) =>
+                page ? openPage(id) : setIsCreatingNew(false)
+              }
               onOpenExisting={(id) => {
+                if (page) {
+                  openPage(id);
+                  return;
+                }
                 setIsCreatingNew(false);
                 setOpen(id);
               }}

@@ -88,6 +88,7 @@ export const CreateClientPortalSheet = () => {
     });
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'clientPortalManage',
     name: 'client-portal/ClientPortalAddSheet',
     open: _open,

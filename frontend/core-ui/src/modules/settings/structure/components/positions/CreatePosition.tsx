@@ -55,6 +55,7 @@ export const CreatePosition = () => {
     PositionHotKeyScope.PositionAddSheet,
   );
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'positionsManage',
     name: 'settings/structure/positions/CreatePosition',
     onOpenChange: (open) => (open ? onOpen() : onClose()),

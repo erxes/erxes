@@ -31,9 +31,9 @@ export const WorkhoursFormContent = ({
   permission: 'branchesManage' | 'departmentsManage';
 }) => (
   <Form {...form}>
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+    <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-background">
       <RecordSidePanel.Header title={title} {...navigation} />
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto px-5 [&>*]:shrink-0">
         {Object.keys(workingHours).map((day, index) => (
           <Fragment key={day}>
             {index !== 0 && <Separator />}

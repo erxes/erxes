@@ -18,13 +18,13 @@ export const BroadcastTabStatisticContent = ({
   const { stats, config, provider } = useBroadcastDetailStatistics(message);
 
   return (
-    <div className="w-full px-8 py-5 space-y-5">
-      <div className="space-x-8">
-        <span className="text-muted-foreground inline-flex gap-2">
+    <div className="@container mx-auto w-full max-w-6xl px-5 py-5 space-y-5">
+      <div className="flex flex-wrap gap-x-8 gap-y-2">
+        <span className="text-muted-foreground inline-flex flex-wrap gap-2">
           {t('stat.has-run')}
           <strong className="text-primary">{message.runCount}</strong>
         </span>
-        <span className="text-muted-foreground inline-flex gap-2">
+        <span className="text-muted-foreground inline-flex flex-wrap gap-2">
           {t('stat.last-run')}
           <strong className="text-primary">
             {message.lastRunAt
@@ -64,15 +64,15 @@ const BroadcastStatisticGrid = ({
   );
 
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 @min-[32rem]:grid-cols-2 @min-[52rem]:grid-cols-3">
       {shown.map(([key, { titleKey, descriptionKey, icon: Icon }]) => (
-        <div key={key} className="flex flex-col border rounded-md p-5">
+        <div key={key} className="flex min-w-0 flex-col border rounded-md p-5">
           <div className="mb-3">
-            <div className="inline-flex items-center gap-2 text-primary">
-              <Icon className="h-4 w-4" />
+            <div className="inline-flex items-start gap-2 text-primary">
+              <Icon className="mt-0.5 h-4 w-4 shrink-0" />
               <span className="font-medium">{t(titleKey)}</span>
             </div>
-            <div className="mt-1 flex justify-between items-center">
+            <div className="mt-1 flex flex-wrap justify-between items-center gap-2">
               <span className="text-2xl text-primary font-semibold">
                 {stats[key] || 0}
               </span>
@@ -81,7 +81,7 @@ const BroadcastStatisticGrid = ({
               </Badge>
             </div>
           </div>
-          <p className="mt-auto text-justify text-muted-foreground">
+          <p className="mt-auto text-left text-sm leading-relaxed text-muted-foreground">
             {t(descriptionKey, { provider })}
           </p>
         </div>

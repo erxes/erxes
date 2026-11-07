@@ -51,6 +51,7 @@ export const CreateDepartment = () => {
     DepartmentHotKeyScope.DepartmentAddSheet,
   );
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'departmentsManage',
     name: 'settings/structure/departments/CreateDepartment',
     onOpenChange: (open) => (open ? openSheet() : closeSheet()),

@@ -51,6 +51,7 @@ export const DepartmentMembersSheet = ({
   });
   const members: IUser[] = data?.departmentDetail?.users || [];
   const pagePanel = usePagePanel({
+    expandable: false,
     name: `settings/department-members/${departmentId}`,
     open: open,
     onOpenChange: setOpen,

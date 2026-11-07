@@ -13,6 +13,7 @@ export function LogDetailSheet() {
   });
   const [logId, setLogId] = useQueryState<string>('logId');
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'logs/LogDetailSheet',
     open: !!logId,
     onOpenChange: (open) => !open && logId && setLogId(null),

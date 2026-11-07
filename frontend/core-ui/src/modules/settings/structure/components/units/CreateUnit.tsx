@@ -49,6 +49,7 @@ export const CreateUnit = () => {
   );
   useScopedHotkeys(`esc`, () => onClose(), UnitHotKeyScope.UnitAddSheet);
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'unitsManage',
     name: 'settings/structure/units/CreateUnit',
     onOpenChange: (open) => (open ? onOpen() : onClose()),
