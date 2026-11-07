@@ -9,14 +9,25 @@ import type { ICPUser } from '@/contacts/client-portal-users/types/cpUser';
 import { CPUserSetPasswordDialog } from './CPUserSetPasswordDialog';
 
 /** Preserves the active record and filtered list when a CP-user deletion completes. */
-export const CPUserPanelActions = ({ user }: { user: ICPUser }) => {
+export const CPUserPanelActions = ({
+  user,
+  onDeleted,
+}: {
+  user: ICPUser;
+  onDeleted?: () => void;
+}) => {
   const { t } = useTranslation('contact');
   const { confirm } = useConfirm();
   const panel = useSidePanel();
   const currentPanel = useRef(panel);
+  const afterDelete = useRef(onDeleted);
   useLayoutEffect(() => {
     currentPanel.current = panel;
-  }, [panel]);
+    afterDelete.current = onDeleted;
+    return () => {
+      afterDelete.current = undefined;
+    };
+  }, [panel, onDeleted]);
   const [open, setOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [remove, { loading }] = useMutation(CP_USERS_REMOVE, {
@@ -35,6 +46,9 @@ export const CPUserPanelActions = ({ user }: { user: ICPUser }) => {
           contentId: user._id,
         }),
       );
+      if (currentPanel.current.record?.contentId === user._id) {
+        afterDelete.current?.();
+      }
       toast({
         title: t('success', 'Success'),
         description: t('clientPortalUser.delete.success', 'User deleted'),

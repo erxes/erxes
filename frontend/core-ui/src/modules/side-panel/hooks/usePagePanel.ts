@@ -36,13 +36,14 @@ export interface PagePanelOptions {
   onOpenChange?: (open: boolean) => void;
   maxWidth?: number;
   defaultWidth?: number;
+  expandable?: boolean;
   requiredPermission?: string;
 }
 export interface PagePanelNavigation {
   onClose: () => void;
   onBack?: () => void;
   expanded: boolean;
-  onExpand: () => void;
+  onExpand?: () => void;
 }
 
 export interface PagePanelEntry extends PagePanelNavigation {
@@ -74,6 +75,7 @@ export const usePagePanel = ({
   onOpenChange,
   maxWidth,
   defaultWidth,
+  expandable = true,
   requiredPermission,
 }: PagePanelOptions): PagePanelEntry => {
   const panel = useSidePanel();
@@ -159,7 +161,7 @@ export const usePagePanel = ({
     previousRoute.current = panel.path;
     previous.current = { open, path };
     if (before?.open && !open) {
-      actions.current.leave();
+      actions.current.panel.dismissPath(before.path);
       return;
     }
     if (
@@ -201,6 +203,7 @@ export const usePagePanel = ({
       },
       maxWidth,
       defaultWidth,
+      expandable,
     };
     setEntries((entries) => ({ ...entries, [path]: entry }));
     return () =>
@@ -210,7 +213,15 @@ export const usePagePanel = ({
           Object.entries(entries).filter(([key]) => key !== path),
         );
       });
-  }, [retained, path, setEntries, maxWidth, defaultWidth, isCurrent]);
+  }, [
+    retained,
+    path,
+    setEntries,
+    maxWidth,
+    defaultWidth,
+    expandable,
+    isCurrent,
+  ]);
 
   const onClose = useCallback(() => {
     if (actions.current.path === path && !isCurrent()) return;
@@ -223,8 +234,10 @@ export const usePagePanel = ({
     const headerProps: PagePanelNavigation = {
       onClose,
       onBack: panel.canGoBack ? panel.back : undefined,
-      expanded: Boolean(expanded),
-      onExpand: () => setExpanded(expanded ? null : true, { replace: true }),
+      expanded: expandable && Boolean(expanded),
+      onExpand: expandable
+        ? () => setExpanded(expanded ? null : true, { replace: true })
+        : undefined,
     };
     return {
       ...headerProps,
@@ -251,6 +264,7 @@ export const usePagePanel = ({
     panel.back,
     targets,
     expanded,
+    expandable,
     setExpanded,
   ]);
   return contextValue;

@@ -28,6 +28,7 @@ export const PropertyEdit = () => {
   const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'properties/PropertyEdit',
     open: true,
     onOpenChange: handleClose,

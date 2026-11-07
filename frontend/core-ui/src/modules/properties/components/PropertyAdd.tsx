@@ -26,6 +26,7 @@ export const AddProperty = () => {
   const navigate = useNavigate();
   const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'properties/PropertyAdd',
     open: true,
     onOpenChange: handleClose,

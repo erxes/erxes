@@ -25,6 +25,7 @@ export const SystemFieldsLayoutSheet = ({
   onClose: () => void;
 }) => {
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'properties/SystemFieldsLayoutSheet',
     open: open,
     onOpenChange: (next) => !next && onClose(),

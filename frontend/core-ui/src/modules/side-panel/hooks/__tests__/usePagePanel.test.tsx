@@ -6,7 +6,10 @@ import {
 } from '@/side-panel/hooks/usePagePanel';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
-import { modulePanelTargetsState } from '../../states/modulePanelState';
+import {
+  modulePanelEntriesState,
+  modulePanelTargetsState,
+} from '../../states/modulePanelState';
 import { sidePanelHistoryState, SidePanelRecordPathContext } from 'ui-modules';
 import { useContext } from 'react';
 
@@ -182,6 +185,39 @@ it('opens a URL-selected editor and releases only its own registration', () => {
   expect(onOpenChange).toHaveBeenCalledWith(true);
   expect(mockNavigation.dismissPath).not.toHaveBeenCalled();
   view.unmount();
+});
+
+it('disables both header expansion and host expansion for a restricted editor', () => {
+  const store = createStore();
+  const Owner = () => {
+    const entry = usePagePanel({
+      name: 'templates/detail',
+      open: true,
+      expandable: false,
+    });
+    return (
+      <output aria-label="Expansion">
+        {String(Boolean(entry.headerProps.onExpand))}
+      </output>
+    );
+  };
+  render(
+    <Provider store={store}>
+      <Owner />
+    </Provider>,
+  );
+  expect(screen.getByLabelText('Expansion').textContent).toBe('false');
+  expect(
+    store.get(modulePanelEntriesState)['/module/templates%2Fdetail'].expandable,
+  ).toBe(false);
+});
+
+it('dismisses the previous route when clearing the record id closes its editor', () => {
+  const view = render(<Editor name="products/categories/one" />);
+  view.rerender(<Editor name="products/categories/detail" open={false} />);
+  expect(mockNavigation.dismissPath).toHaveBeenCalledWith(
+    '/module/products%2Fcategories%2Fone',
+  );
 });
 
 jest.mock('erxes-ui', () => ({

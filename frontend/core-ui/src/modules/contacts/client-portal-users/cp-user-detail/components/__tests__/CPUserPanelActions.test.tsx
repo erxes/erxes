@@ -19,6 +19,7 @@ let mockPanel = {
   close: mockClose,
   canGoBack: true,
   dismissPath: jest.fn(),
+  record: { contentType: 'core:cpUser', contentId: 'cp-1' },
 };
 
 jest.mock('react-i18next', () => ({
@@ -152,4 +153,64 @@ it('refreshes the active filtered list and dismisses only the deleted route afte
   expect(previousDismiss).not.toHaveBeenCalled();
   expect(mockBack).not.toHaveBeenCalled();
   expect(mockClose).not.toHaveBeenCalled();
+});
+
+it('does not navigate away from a new page when deletion finishes after unmount', async () => {
+  mockPanel.dismissPath.mockClear();
+  const onDeleted = jest.fn();
+  const Page = ({ showUser }: { showUser: boolean }) => {
+    const { loading } = useQuery(GET_CLIENT_PORTAL_USERS, {
+      variables: { filter },
+    });
+    if (loading) return <p>Loading</p>;
+    return showUser ? (
+      <CPUserPanelActions
+        user={{
+          _id: user._id,
+          clientPortalId: user.clientPortalId,
+          isVerified: false,
+          isPhoneVerified: false,
+          isEmailVerified: false,
+        }}
+        onDeleted={onDeleted}
+      />
+    ) : (
+      <p>Another page</p>
+    );
+  };
+  const wrapper = ({ children }: React.PropsWithChildren) => (
+    <MockedProvider
+      addTypename={false}
+      mocks={[
+        {
+          request: { query: GET_CLIENT_PORTAL_USERS, variables: { filter } },
+          result: {
+            data: { getClientPortalUsers: { list: [user], totalCount: 1 } },
+          },
+        },
+        {
+          request: { query: CP_USERS_REMOVE, variables: { ids: [user._id] } },
+          delay: 30,
+          result: { data: { cpUsersRemove: 'success' } },
+        },
+        {
+          request: { query: GET_CLIENT_PORTAL_USERS, variables: { filter } },
+          result: {
+            data: { getClientPortalUsers: { list: [], totalCount: 0 } },
+          },
+        },
+      ]}
+    >
+      {children}
+    </MockedProvider>
+  );
+  const view = render(<Page showUser />, { wrapper });
+  await screen.findByRole('button', { name: 'Delete' });
+  await act(async () =>
+    fireEvent.click(screen.getByRole('button', { name: 'Delete' })),
+  );
+  view.rerender(<Page showUser={false} />);
+  await waitFor(() => expect(mockPanel.dismissPath).toHaveBeenCalled());
+  expect(onDeleted).not.toHaveBeenCalled();
+  expect(screen.getByText('Another page')).toBeTruthy();
 });

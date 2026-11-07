@@ -31,9 +31,9 @@ jest.mock('../CPUserDetailNotifications', () => ({
 jest.mock('@/contacts/client-portal-users/components/AddCPUserForm', () => ({
   AddCPUserForm: () => null,
 }));
-jest.mock('@/side-panel/components/details/ContactPanelBreadcrumb', () => ({
-  ContactPanelBreadcrumb: ({ title }: { title: ReactNode }) => (
-    <span>{title}</span>
+jest.mock('@/side-panel/components/details/ContactDetailHeader', () => ({
+  ContactDetailHeader: ({ title }: { title: ReactNode }) => (
+    <header>{title}</header>
   ),
 }));
 jest.mock('@/side-panel/components/details/ContactPanelActions', () => ({

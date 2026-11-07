@@ -22,6 +22,7 @@ export const TemplateCategoryDetailSheet = () => {
     setCategoryId(newCategoryId);
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'templates/category/TemplateCategoryDetailSheet',
     open: !!categoryId,
     onOpenChange: (isOpen) => {

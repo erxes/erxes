@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
-import { useAtom } from 'jotai';
+import {
+  ProductEditorPanel,
+  ProductEditorHeader,
+} from '@/products/components/ProductEditorPanel';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { IconLoader2 } from '@tabler/icons-react';
 import {
   Button,
-  cn,
   Sheet,
   ScrollArea,
   Form,
@@ -17,7 +19,6 @@ import {
   type ProductAttachmentItem,
   toProductAttachmentItem,
 } from 'ui-modules';
-import { renderingCategoryDetailAtom } from '../../states/ProductCategory';
 import { CategoryHotKeyScope } from '../../types/CategoryHotKeyScope';
 import { CategoriesUpdateCoreFields } from './CategoryUpdateCoreFields';
 import { useProductCategoriesEdit } from '../hooks/useUpdateCategory';
@@ -33,9 +34,16 @@ export const CategoryDetailSheet = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'product-category',
   });
-  const [activeTab] = useAtom(renderingCategoryDetailAtom);
   const setHotkeyScope = useSetHotkeyScope();
   const [categoryId, setCategoryId] = useQueryState<string>('category_id');
+  const selection = useMemo(() => ({ categoryId }), [categoryId]);
+  const currentSelection = useRef<typeof selection | null>(selection);
+  useLayoutEffect(() => {
+    currentSelection.current = selection;
+    return () => {
+      currentSelection.current = null;
+    };
+  }, [selection]);
   const [attachment, setAttachment] = useState<ProductAttachmentItem | null>(
     null,
   );
@@ -82,7 +90,7 @@ export const CategoryDetailSheet = () => {
   };
 
   async function onSubmit(data: ProductFormValues) {
-    const cleanData: Record<string, any> = {};
+    const cleanData: Record<string, unknown> = {};
     Object.entries(data).forEach(([key, value]) => {
       if (value) cleanData[key] = value;
     });
@@ -96,7 +104,7 @@ export const CategoryDetailSheet = () => {
           _id: categoryId,
           ...cleanData,
         },
-        onError: (e: { message: any }) => {
+        onError: (e: { message: string }) => {
           toast({
             title: t('error'),
             description: e.message,
@@ -108,6 +116,7 @@ export const CategoryDetailSheet = () => {
             title: t('category-updated'),
             variant: 'success',
           });
+          if (currentSelection.current !== selection) return;
           form.reset();
           setOpen(null);
         },
@@ -116,84 +125,34 @@ export const CategoryDetailSheet = () => {
     );
   }
 
-  if (loading) {
-    return (
-      <Sheet
-        open={!!categoryId}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setOpen(null);
-            setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
-          }
-        }}
-      >
-        <Sheet.View
-          className={cn(
-            'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-            !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
-          )}
-        >
-          <div className="flex flex-1 min-h-[200px] items-center justify-center p-5 text-muted-foreground">
-            <IconLoader2 className="w-4 h-4 animate-spin" />
+  return (
+    <ProductEditorPanel
+      name={`categories/${categoryId || 'detail'}`}
+      open={Boolean(categoryId)}
+      onOpenChange={(isOpen) => !isOpen && setOpen(null)}
+      requiredPermission="productCategoriesManage"
+    >
+      {loading ? (
+        <>
+          <ProductEditorHeader title={t('edit-category')} />
+          <div className="flex flex-1 items-center justify-center p-5 text-muted-foreground">
+            <IconLoader2 className="size-4 animate-spin" />
           </div>
-        </Sheet.View>
-      </Sheet>
-    );
-  }
-
-  if (error) {
-    return (
-      <Sheet
-        open={!!categoryId}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setOpen(null);
-            setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
-          }
-        }}
-      >
-        <Sheet.View
-          className={cn(
-            'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-            !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
-          )}
-        >
+        </>
+      ) : error || !categoryDetail ? (
+        <>
+          <ProductEditorHeader title={t('edit-category')} />
           <div className="p-5 text-sm text-destructive">
             {error?.message || t('failed-to-load-category')}
           </div>
-        </Sheet.View>
-      </Sheet>
-    );
-  }
-
-  return (
-    <Sheet
-      open={!!categoryId}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setOpen(null);
-          setHotkeyScope(CategoryHotKeyScope.CategoriesPage);
-        }
-      }}
-    >
-      <Sheet.View
-        className={cn(
-          'p-0 md:max-w-screen-[520px] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none',
-          !!activeTab && 'md:w-[calc(100vw-(--spacing(4)))]',
-        )}
-      >
+        </>
+      ) : (
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex overflow-hidden flex-col h-full"
           >
-            <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b">
-              <Sheet.Title>{t('edit-category')}</Sheet.Title>
-              <Sheet.Close />
-              <Sheet.Description className="sr-only">
-                {t('edit-category-details')}
-              </Sheet.Description>
-            </Sheet.Header>
+            <ProductEditorHeader title={t('edit-category')} />
 
             <Sheet.Content className="overflow-hidden flex-auto">
               <ScrollArea className="h-full">
@@ -226,7 +185,7 @@ export const CategoryDetailSheet = () => {
             </Sheet.Footer>
           </form>
         </Form>
-      </Sheet.View>
-    </Sheet>
+      )}
+    </ProductEditorPanel>
   );
 };

@@ -19,6 +19,7 @@ export const TemplateDetailSheet = () => {
   );
   const handleClose = () => setTemplateId(null);
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'templates/detail',
     open: !!templateId,
     onOpenChange: (isOpen) => {

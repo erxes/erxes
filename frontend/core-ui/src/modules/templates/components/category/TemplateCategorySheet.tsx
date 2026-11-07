@@ -27,6 +27,7 @@ export const TemplateCategorySheet = ({
   });
   const [open, setOpen] = useState<boolean>(false);
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'templates/category/TemplateCategorySheet',
     open: open,
     onOpenChange: setOpen,

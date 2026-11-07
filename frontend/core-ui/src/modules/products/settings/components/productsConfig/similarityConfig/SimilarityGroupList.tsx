@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { InfoCard, Skeleton } from 'erxes-ui';
+import { Button, InfoCard, ScrollArea, Skeleton } from 'erxes-ui';
+import {
+  ProductEditorPanel,
+  ProductEditorHeader,
+} from '@/products/components/ProductEditorPanel';
+import { Can } from 'ui-modules';
 import { SimilarityGroupItem } from './SimilarityGroupItem';
 import { ISimilarityGroupConfig, ISimilarityGroupMap } from './types';
 import { IconStack2 } from '@tabler/icons-react';
@@ -25,58 +30,93 @@ export const SimilarityGroupList = ({
   onDelete,
 }: SimilarityGroupListProps) => {
   const { t } = useTranslation('product', { keyPrefix: 'similarity-config' });
-  const [openKey, setOpenKey] = useState<string | null>(null);
+  const [selected, setSelected] = useState<{
+    key: string;
+    config: ISimilarityGroupConfig;
+  } | null>(null);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    if (newlyAddedKey) {
-      setOpenKey(newlyAddedKey);
+    if (newlyAddedKey && groupsMap[newlyAddedKey]) {
+      setSelected({ key: newlyAddedKey, config: groupsMap[newlyAddedKey] });
+      setOpen(true);
     }
+    // A new draft is selected once, when its key is first assigned.
   }, [newlyAddedKey]);
 
-  if (configsLoading) {
-    return (
-      <InfoCard
-        title={t('similarity-groups', 'Similarity Groups')}
-        className="h-full"
-      >
-        <InfoCard.Content className="space-y-0">
-          <Skeleton className="w-full h-12" />
-          <Skeleton className="w-full h-12" />
-          <Skeleton className="w-full h-12" />
-        </InfoCard.Content>
-      </InfoCard>
-    );
-  }
+  useEffect(() => {
+    if (selected && !groupsMap[selected.key] && !configsLoading) {
+      setOpen(false);
+    }
+  }, [groupsMap, selected, configsLoading]);
 
   const entries = Object.entries(groupsMap);
-
-  if (entries.length === 0) {
-    return <EmptyStateRow />;
-  }
-
   return (
-    <InfoCard
-      title={t('similarity-groups', 'Similarity Groups')}
-      className="h-full min-h-0"
-    >
-      <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
-        {entries.map(([codeGroupKey, config]) => (
-          <SimilarityGroupItem
-            key={codeGroupKey}
-            codeGroupKey={codeGroupKey}
-            config={config}
-            isOpen={openKey === codeGroupKey}
-            onToggle={() =>
-              setOpenKey((prev) =>
-                prev === codeGroupKey ? null : codeGroupKey,
-              )
-            }
-            onSave={onSave}
-            onDelete={onDelete}
-          />
-        ))}
-      </InfoCard.Content>
-    </InfoCard>
+    <>
+      {configsLoading ? (
+        <InfoCard
+          title={t('similarity-groups', 'Similarity Groups')}
+          className="h-full"
+        >
+          <InfoCard.Content className="space-y-0">
+            <Skeleton className="w-full h-12" />
+            <Skeleton className="w-full h-12" />
+            <Skeleton className="w-full h-12" />
+          </InfoCard.Content>
+        </InfoCard>
+      ) : !entries.length ? (
+        <EmptyStateRow />
+      ) : (
+        <InfoCard
+          title={t('similarity-groups', 'Similarity Groups')}
+          className="h-full min-h-0"
+        >
+          <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
+            {entries.map(([key, config]) => (
+              <div key={key} className="border-b">
+                <Can action="productsConfigsManage">
+                  <Button
+                    variant="ghost"
+                    className="h-auto w-full justify-start px-4 py-3"
+                    onClick={() => {
+                      setSelected({ key, config });
+                      setOpen(true);
+                    }}
+                  >
+                    {config.title ||
+                      t('new-similarity-group', 'New similarity group')}
+                  </Button>
+                </Can>
+              </div>
+            ))}
+          </InfoCard.Content>
+        </InfoCard>
+      )}
+      <ProductEditorPanel
+        name={`similarity-groups/${selected?.key || 'detail'}`}
+        open={open}
+        onOpenChange={setOpen}
+        requiredPermission="productsConfigsManage"
+      >
+        <ProductEditorHeader
+          title={
+            selected?.config.title ||
+            t('new-similarity-group', 'New similarity group')
+          }
+        />
+        <ScrollArea className="min-h-0 flex-1">
+          {selected && (
+            <SimilarityGroupItem
+              key={selected.key}
+              codeGroupKey={selected.key}
+              config={selected.config}
+              onSave={onSave}
+              onDelete={onDelete}
+            />
+          )}
+        </ScrollArea>
+      </ProductEditorPanel>
+    </>
   );
 };
 

@@ -11,7 +11,7 @@ export const ContactDetailHeader = ({
   title,
   actions,
 }: {
-  contentType: 'core:customer' | 'core:company';
+  contentType: 'core:customer' | 'core:company' | 'core:cpUser';
   title: ReactNode;
   actions?: ReactNode;
 }) => {
@@ -19,7 +19,10 @@ export const ContactDetailHeader = ({
   const { pathname } = useLocation();
   let listLabel = t('customers', 'Customers');
   let favoriteIcon = 'IconUser';
-  if (contentType === 'core:company') {
+  if (contentType === 'core:cpUser') {
+    listLabel = t('client-portal-users', 'Client Portal Users');
+    favoriteIcon = 'IconUserCircle';
+  } else if (contentType === 'core:company') {
     listLabel = t('companies', 'Companies');
     favoriteIcon = 'IconBuilding';
   } else if (

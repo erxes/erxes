@@ -630,7 +630,22 @@ export const SidePanelLayout = () => {
       'core:cpUser',
       USER_CONTENT_TYPE,
     ].includes(record.contentType);
-  const expandable = Boolean(recordPage || coreRecord || moduleEntry);
+  const coreDraft =
+    record?.contentType.startsWith('core:') &&
+    record.contentId === NEW_RECORD_ID;
+  const expandable =
+    !coreDraft &&
+    Boolean(
+      recordPage ||
+        coreRecord ||
+        (moduleEntry && moduleEntry.expandable !== false),
+    );
+
+  useEffect(() => {
+    if (open && expanded && !expandable && (record || moduleEntry)) {
+      setExpanded(null, { replace: true });
+    }
+  }, [open, expanded, expandable, record, moduleEntry, setExpanded]);
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {

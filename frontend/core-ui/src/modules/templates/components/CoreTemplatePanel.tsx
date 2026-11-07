@@ -26,6 +26,7 @@ export const CoreTemplatePanel = ({
   }, [panel]);
   const name = `templates/new/${contentType}/${contentId}`;
   const pagePanel = usePagePanel({
+    expandable: false,
     name: name,
     open: open,
     onOpenChange: onOpenChange,

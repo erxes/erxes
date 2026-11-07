@@ -58,6 +58,7 @@ export const AddPropertyGroup = () => {
     });
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     requiredPermission: 'fieldGroupsManage',
     name: 'properties/PropertyGroupAdd',
     onOpenChange: setOpen,
