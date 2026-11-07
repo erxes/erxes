@@ -1,26 +1,25 @@
+import {
+  CashPaymentRow,
+  MobilePaidRow,
+  MobilePaymentRow,
+  PaymentQrDialog,
+  PaymentTotals,
+  PaymentTypeRow,
+  parsePaymentConfig,
+} from '@/deals/cards/components/detail/product/components/ProductPaymentRows';
+import {
+  type PayInfo,
+  selectPaymentTypesForRender,
+  updatePayInfoForScore,
+} from '@/deals/cards/components/detail/product/utils/updatePayInfoForScore';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { IDealDetail, IPaymentsData } from '@/deals/types/deals';
 import { readDealPayment } from '@/deals/utils/dealJson';
 import type { PaymentConfigItem } from '@/payments';
 import { useMutation } from '@apollo/client';
+import { IconDeviceFloppy } from '@tabler/icons-react';
+import { Button, useToast } from 'erxes-ui';
 import {
-  IconCircleCheck,
-  IconDeviceFloppy,
-  IconKey,
-  IconLock,
-} from '@tabler/icons-react';
-import {
-  Button,
-  CurrencyCode,
-  CurrencyField,
-  Dialog,
-  Input,
-  Sheet,
-  useToast,
-} from 'erxes-ui';
-import {
-  type ChangeEvent,
-  type KeyboardEvent,
   type MouseEvent,
   useCallback,
   useEffect,
@@ -30,20 +29,6 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { gql } from '~/gql';
-import {
-  type PayInfo,
-  selectPaymentTypesForRender,
-  updatePayInfoForScore,
-} from '../utils/updatePayInfoForScore';
-import { DealPointPaymentLimit } from './DealPointPaymentLimit';
-
-type PaymentConfig = {
-  require?: string;
-  skipEbarimt?: boolean;
-  mustCustomer?: boolean;
-  notSplit?: boolean;
-  preTax?: boolean;
-};
 
 const EMPTY_PAYMENT_TYPES: PaymentConfigItem[] = [];
 
@@ -52,51 +37,6 @@ const GENERATE_INVOICE_URL = gql(`
     generateInvoiceUrl(input: $input)
   }
 `);
-
-const parsePaymentConfig = (config: unknown): PaymentConfig => {
-  if (!config) {
-    return {};
-  }
-
-  let parsedConfig: unknown = config;
-
-  if (typeof config === 'string') {
-    try {
-      parsedConfig = JSON.parse(config) as unknown;
-    } catch {
-      return {};
-    }
-  }
-
-  if (typeof parsedConfig !== 'object' || parsedConfig === null) {
-    return {};
-  }
-
-  const configRecord = parsedConfig as Record<string, unknown>;
-
-  return {
-    require:
-      typeof configRecord.require === 'string'
-        ? configRecord.require
-        : undefined,
-    skipEbarimt:
-      typeof configRecord.skipEbarimt === 'boolean'
-        ? configRecord.skipEbarimt
-        : undefined,
-    mustCustomer:
-      typeof configRecord.mustCustomer === 'boolean'
-        ? configRecord.mustCustomer
-        : undefined,
-    notSplit:
-      typeof configRecord.notSplit === 'boolean'
-        ? configRecord.notSplit
-        : undefined,
-    preTax:
-      typeof configRecord.preTax === 'boolean'
-        ? configRecord.preTax
-        : undefined,
-  };
-};
 
 export const ProductsPayment = ({
   deal,
@@ -148,7 +88,7 @@ export const ProductsPayment = ({
 
   const defaultCurrency = Object.keys(total)[0] || 'MNT';
   const paidMobileAmount = Number(deal.mobileAmount || 0);
-  const hasMobilePayments = !!deal.pipeline?.paymentIds?.length;
+  const hasMobilePayments = Boolean(deal.pipeline?.paymentIds?.length);
 
   const paidAmounts = useMemo(() => {
     const paid: { [currency: string]: number } = {};
@@ -390,7 +330,7 @@ export const ProductsPayment = ({
 
     if (qrModal.password && customer?._id === qrModal.password) {
       const payInfo = payInfoByType[typeName];
-      const availableAmount = payInfo?.unavailable ? 0 : payInfo?.limit ?? 0;
+      const availableAmount = payInfo?.unavailable ? 0 : (payInfo?.limit ?? 0);
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
@@ -421,42 +361,6 @@ export const ProductsPayment = ({
         description: t('qr-code-mismatch'),
       });
     }
-  };
-
-  const formatNumber = (value: number | string) => {
-    if (value === '' || value === null || value === undefined) return '';
-    const num =
-      typeof value === 'number' ? value : Number(value.replace(/,/g, ''));
-
-    if (isNaN(num)) return '';
-    return num.toLocaleString();
-  };
-
-  const parseNumber = (value: string) => Number(value.replace(/,/g, '')) || 0;
-
-  const renderAmount = (amount: number, currency: string) => {
-    if (amount < 0) {
-      return (
-        <span className="text-destructive">
-          {amount.toLocaleString()} {currency}
-        </span>
-      );
-    }
-    return (
-      <span>
-        {amount.toLocaleString()} {currency}
-      </span>
-    );
-  };
-
-  const renderTotals = (amounts: { [currency: string]: number }) => {
-    const entries = Object.entries(amounts).filter(([, val]) => val !== 0);
-    if (entries.length === 0) {
-      return <span>0 {defaultCurrency}</span>;
-    }
-    return entries.map(([currency, amount]) => (
-      <div key={currency}>{renderAmount(amount, currency)}</div>
-    ));
   };
 
   const handleSave = async () => {
@@ -492,284 +396,62 @@ export const ProductsPayment = ({
   );
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col pb-4">
-      <div className="grid grid-cols-2 border-y bg-muted/15">
-        <div className="flex flex-col items-center px-4 py-5">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t('total')}
-          </span>
-          <div className="mt-1 text-lg font-semibold tabular-nums">
-            {renderTotals(total)}
-          </div>
-        </div>
-        <div className="flex flex-col items-center border-l px-4 py-5">
-          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t('change')}
-          </span>
-          <div
-            className={`mt-1 flex text-lg font-semibold tabular-nums ${
-              Object.values(changeAmounts).some((amount) => amount > 0)
-                ? 'text-success'
-                : Object.values(changeAmounts).some((amount) => amount < 0)
-                ? 'text-destructive'
-                : ''
-            }`}
-          >
-            {Object.values(changeAmounts).some((amount) => amount > 0) && '+'}
-            {renderTotals(changeAmounts)}
-          </div>
-        </div>
-      </div>
+    <div className="@container mx-auto flex w-full max-w-3xl flex-col pb-4">
+      <PaymentTotals
+        total={total}
+        changeAmounts={changeAmounts}
+        defaultCurrency={defaultCurrency}
+      />
       <div className="w-full divide-y border-b">
-        <div className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            {t('cash')}
-          </p>
-          <div className="flex items-center">
-            <Input
-              type="text"
-              inputMode="numeric"
-              value={formatNumber(
-                readDealPayment(paymentsData, 'cash')?.amount ?? '',
-              )}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                updatePayment('cash', 'amount', parseNumber(e.target.value))
-              }
-              onClick={() => fillRemainingIfEmpty('cash')}
-              className="font-medium tabular-nums"
-              placeholder={t('type-amount')}
-            />
-          </div>
-          <div className="flex items-center">
-            <CurrencyField.SelectCurrency
-              value={
-                (readDealPayment(paymentsData, 'cash')
-                  ?.currency as CurrencyCode) ||
-                (defaultCurrency as CurrencyCode)
-              }
-              onChange={(val: string) => updatePayment('cash', 'currency', val)}
-              variant="ghost"
-              className="w-full justify-end"
-            />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => fillRemaining('cash')}
-            >
-              <IconCircleCheck className="w-5 h-5" />
-            </Button>
-          </div>
-        </div>
+        <CashPaymentRow
+          paymentsData={paymentsData}
+          defaultCurrency={defaultCurrency}
+          updatePayment={updatePayment}
+          fillRemaining={fillRemaining}
+          fillRemainingIfEmpty={fillRemainingIfEmpty}
+        />
         {hasMobilePayments && (
-          <div className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t('mobile')}
-            </p>
-            <div className="flex items-center">
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={formatNumber(mobileAmount || '')}
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  updateMobileAmount(parseNumber(e.target.value))
-                }
-                onClick={fillMobileRemainingIfEmpty}
-                className="font-medium tabular-nums"
-                placeholder={t('type-amount')}
-              />
-            </div>
-            <div className="flex items-center justify-end">
-              <Sheet open={invoiceSheetOpen} onOpenChange={setInvoiceSheetOpen}>
-                <Sheet.Trigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleCreateMobileInvoice}
-                    disabled={generatingInvoice}
-                  >
-                    QPay
-                  </Button>
-                </Sheet.Trigger>
-                <Sheet.View className="p-0 sm:max-w-xl">
-                  <Sheet.Header className="border-b">
-                    <Sheet.Title>{t('qpay-payment')}</Sheet.Title>
-                    <Sheet.Close />
-                  </Sheet.Header>
-                  <Sheet.Content className="flex flex-col gap-3 p-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">
-                        {t('amount')}
-                      </span>
-                      <span className="font-medium">
-                        {formatNumber(mobileAmount || mobileRemainingAmount)}{' '}
-                        {defaultCurrency}
-                      </span>
-                    </div>
-                    {generatingInvoice && (
-                      <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
-                        {t('generating-payment')}
-                      </div>
-                    )}
-                    {!generatingInvoice && invoiceUrl && (
-                      <>
-                        <Input
-                          readOnly
-                          value={invoiceUrl}
-                          className="font-mono text-xs"
-                        />
-                        <iframe
-                          title="QPay payment"
-                          src={invoiceUrl}
-                          className="h-[70vh] w-full rounded-md border"
-                        />
-                      </>
-                    )}
-                    {!generatingInvoice && !invoiceUrl && (
-                      <div className="flex h-96 items-center justify-center rounded-md border text-sm text-muted-foreground">
-                        {t('payment-response')}
-                      </div>
-                    )}
-                  </Sheet.Content>
-                </Sheet.View>
-              </Sheet>
-              <Button variant="ghost" size="icon" onClick={fillMobileRemaining}>
-                <IconCircleCheck className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
+          <MobilePaymentRow
+            amount={mobileAmount}
+            remainingAmount={mobileRemainingAmount}
+            currency={defaultCurrency}
+            onAmountChange={updateMobileAmount}
+            onFill={fillMobileRemaining}
+            onFillIfEmpty={fillMobileRemainingIfEmpty}
+            invoiceOpen={invoiceSheetOpen}
+            onInvoiceOpenChange={setInvoiceSheetOpen}
+            onCreateInvoice={handleCreateMobileInvoice}
+            generatingInvoice={generatingInvoice}
+            invoiceUrl={invoiceUrl}
+          />
         )}
         {(deal.mobileAmounts || []).map((mobilePayment, index) => (
-          <div
+          <MobilePaidRow
             key={mobilePayment._id || index}
-            className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center"
-          >
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-              {t('mobile-paid')}
-            </p>
-            <div className="flex items-center">
-              <Input
-                readOnly
-                value={formatNumber(mobilePayment.amount || 0)}
-                className="font-medium tabular-nums"
-              />
-            </div>
-            <div className="flex items-center justify-end text-sm text-muted-foreground">
-              {mobilePayment._id}
-            </div>
-          </div>
+            amount={mobilePayment.amount || 0}
+            paymentId={mobilePayment._id}
+          />
         ))}
         {paymentTypes
           .filter((paymentType) => paymentType.type !== 'mobile')
-          .map((paymentType) => {
-            const typeName = paymentType.type;
-            const paymentConfig = parsePaymentConfig(paymentType.config);
-            const isQr = paymentConfig?.require?.toLowerCase() === 'qrcode';
-            const hasInitialAmount = getInitialPaymentAmount(typeName) > 0;
-            const payInfo = payInfoByType[typeName] || {
-              hasPopup: false,
-              validQr: false,
-            };
-            const showQrUnlockInput = isQr && !payInfo.validQr;
-            const paysWithPoints = !!paymentType.scoreCampaignId;
-            // Locked until loyalty says how much the customer may pay.
-            const pointsLocked =
-              paysWithPoints && payInfo.unavailable !== false;
-            return (
-              <div
-                key={paymentType.type}
-                className="grid gap-3 py-3 sm:grid-cols-[minmax(8rem,1fr)_minmax(10rem,1fr)_minmax(8rem,1fr)] sm:items-center"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {paymentType.type}
-                    {isQr &&
-                      (payInfo.validQr ? (
-                        <IconKey size={14} className="text-success" />
-                      ) : (
-                        <IconLock size={14} className="text-muted-foreground" />
-                      ))}
-                  </span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  {showQrUnlockInput ? (
-                    <Input
-                      readOnly
-                      disabled={pointsLocked}
-                      className="cursor-pointer font-medium tabular-nums text-muted-foreground"
-                      placeholder={t('read-qrcode')}
-                      onClick={() => openQrModal(paymentType)}
-                      value={
-                        hasInitialAmount
-                          ? formatNumber(
-                              readDealPayment(paymentsData, typeName)?.amount ??
-                                '',
-                            )
-                          : ''
-                      }
-                    />
-                  ) : (
-                    <Input
-                      type="text"
-                      inputMode="numeric"
-                      value={formatNumber(
-                        readDealPayment(paymentsData, typeName)?.amount ?? '',
-                      )}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                        const val = parseNumber(e.target.value);
-                        const max = payInfo.maxVal;
-                        updatePayment(
-                          typeName,
-                          'amount',
-                          max === undefined ? val : Math.min(val, max),
-                        );
-                      }}
-                      onClick={() =>
-                        fillRemainingIfEmpty(typeName, payInfo.maxVal)
-                      }
-                      disabled={pointsLocked}
-                      className="font-medium tabular-nums"
-                      placeholder={t('type-amount')}
-                    />
-                  )}
-                  {paysWithPoints && (
-                    <DealPointPaymentLimit
-                      paymentType={paymentType}
-                      customerId={pointsCustomer?._id ?? undefined}
-                      dealId={deal._id}
-                      totalAmount={total[defaultCurrency] || 0}
-                      onLimit={handlePointLimit}
-                    />
-                  )}
-                </div>
-                <div className="flex items-center">
-                  <CurrencyField.SelectCurrency
-                    value={
-                      (readDealPayment(paymentsData, typeName)
-                        ?.currency as CurrencyCode) ||
-                      (defaultCurrency as CurrencyCode)
-                    }
-                    onChange={(val: string) =>
-                      updatePayment(typeName, 'currency', val)
-                    }
-                    variant="ghost"
-                    className="w-full justify-end"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    disabled={pointsLocked}
-                    onClick={() =>
-                      showQrUnlockInput
-                        ? openQrModal(paymentType)
-                        : fillRemaining(typeName, payInfo.maxVal)
-                    }
-                  >
-                    <IconCircleCheck className="w-5 h-5" />
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
+          .map((paymentType) => (
+            <PaymentTypeRow
+              key={paymentType.type}
+              paymentType={paymentType}
+              payInfo={payInfoByType[paymentType.type]}
+              hasInitialAmount={getInitialPaymentAmount(paymentType.type) > 0}
+              paymentsData={paymentsData}
+              defaultCurrency={defaultCurrency}
+              dealId={deal._id}
+              customerId={pointsCustomer?._id ?? undefined}
+              totalAmount={total[defaultCurrency] || 0}
+              onOpenQr={openQrModal}
+              onPointLimit={handlePointLimit}
+              updatePayment={updatePayment}
+              fillRemaining={fillRemaining}
+              fillRemainingIfEmpty={fillRemainingIfEmpty}
+            />
+          ))}
       </div>
 
       <div className="sticky bottom-0 mt-4 flex items-center justify-end border-t bg-background/95 py-3 backdrop-blur supports-backdrop-filter:bg-background/85">
@@ -779,39 +461,15 @@ export const ProductsPayment = ({
         </Button>
       </div>
 
-      <Dialog
+      <PaymentQrDialog
         open={qrModal.open}
-        onOpenChange={(open: boolean) => {
-          if (!open) handleQrDismiss();
-        }}
-      >
-        <Dialog.Content className="max-w-sm">
-          <Dialog.Header className="gap-1">
-            <Dialog.Title>{t('read-qrcode')}</Dialog.Title>
-            <Dialog.Description>
-              {t('enter-customer-qrcode-to-loyalty-score')}
-            </Dialog.Description>
-          </Dialog.Header>
-          <Input
-            type="password"
-            value={qrModal.password}
-            onChange={(e: ChangeEvent<HTMLInputElement>) =>
-              setQrModal((prev) => ({ ...prev, password: e.target.value }))
-            }
-            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
-              e.key === 'Enter' && handleQrConfirm()
-            }
-            placeholder={t('enter-customer-qr-code')}
-            autoFocus
-          />
-          <Dialog.Footer>
-            <Button variant="outline" onClick={handleQrDismiss}>
-              {t('cancel')}
-            </Button>
-            <Button onClick={handleQrConfirm}>{t('confirm')}</Button>
-          </Dialog.Footer>
-        </Dialog.Content>
-      </Dialog>
+        password={qrModal.password}
+        onPasswordChange={(password) =>
+          setQrModal((prev) => ({ ...prev, password }))
+        }
+        onDismiss={handleQrDismiss}
+        onConfirm={handleQrConfirm}
+      />
     </div>
   );
 };

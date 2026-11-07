@@ -9,6 +9,7 @@ import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { toast } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
+import { useDealIdOverride } from '@/deals/context/DealIdContext';
 
 export function useDealsRemove(
   options?: MutationHookOptions<
@@ -17,12 +18,27 @@ export function useDealsRemove(
   >,
 ) {
   const { t } = useTranslation('sales');
-  const [_id] = useAtom(dealDetailSheetState);
+  const [activeDealId] = useAtom(dealDetailSheetState);
+  const _id = useDealIdOverride() || activeDealId;
 
   const [removeDeals, { loading, error }] = useMutation(REMOVE_DEALS, {
     ...options,
     variables: _id ? { ...options?.variables, _id } : options?.variables,
     awaitRefetchQueries: true,
+    update: (cache, result, context) => {
+      if (result.data?.dealsRemove) {
+        cache.modify({
+          id: 'ROOT_QUERY',
+          fields: {
+            deals: (existing, { DELETE, storeFieldName }) =>
+              /"(customerId|companyId)":/.test(storeFieldName)
+                ? DELETE
+                : existing,
+          },
+        });
+      }
+      options?.update?.(cache, result, context);
+    },
     onCompleted: (...args) => {
       toast({
         title: t('deal-removed'),

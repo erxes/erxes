@@ -1,12 +1,19 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useAtom, useAtomValue, useStore } from 'jotai';
+import {
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { currentUserState } from 'ui-modules';
 
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
 import { useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { DEAL_TOAST_OPTIONS } from '@/deals/constants/toast';
-import { Dialog } from 'erxes-ui';
+import { Dialog, ScrollArea } from 'erxes-ui';
 import { useDealProductActions } from '../../hooks/useDealProductActions';
 import { useProductCalculations } from '../../hooks/useProductCalculations';
 import {
@@ -15,16 +22,24 @@ import {
   useVatPercent,
 } from '../../hooks/useProductsListState';
 import {
-  onLocalChangeAtom,
-  productRowActionsAtom,
-} from '../../productTableAtom';
+  dealProductsDraftAtomFamily,
+  dealProductsDraftRevisionAtomFamily,
+} from '@/deals/cards/components/detail/product/productTableAtom';
+import { ProductListHandlersContext } from '@/deals/cards/components/detail/product/productListHandlers';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
+import {
+  applyProductsDraftPatches,
+  getProductsDraftPatches,
+  keepServerDraftPatches,
+} from '@/deals/cards/components/detail/product/utils/productsDraft';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
 import { ProductsListHeader } from './ProductsListHeader';
+
+const COMPACT_MAX_WIDTH = 768;
 
 export const ProductsList = ({
   products,
@@ -33,6 +48,7 @@ export const ProductsList = ({
   pipelineId,
   refetch,
   tickUsed,
+  compact = false,
 }: {
   products: DealProduct[];
   productsData: DealProductData[];
@@ -40,14 +56,68 @@ export const ProductsList = ({
   pipelineId?: string;
   refetch: () => void;
   tickUsed: boolean;
+  compact?: boolean;
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isNarrow, setIsNarrow] = useState(compact);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!compact || !container) return undefined;
+    const observer = new ResizeObserver(([entry]) =>
+      setIsNarrow(entry.contentRect.width < COMPACT_MAX_WIDTH),
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [compact]);
+
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
-  const [localProductsData, setLocalProductsData] =
-    useState<DealProductData[]>(productsData);
+  const [productsDraft, setProductsDraft] = useAtom(
+    dealProductsDraftAtomFamily(dealId),
+  );
+  const [restoredDraftPatches] = useState(() =>
+    keepServerDraftPatches(productsDraft, productsData),
+  );
+  const [localProductsData, setLocalProductsData] = useState<DealProductData[]>(
+    () => applyProductsDraftPatches(productsData, restoredDraftPatches),
+  );
   const pendingProductPatchesRef = useRef<
     Record<string, Partial<DealProductData>>
-  >({});
+  >({ ...restoredDraftPatches });
+  const draftPatchesRef = useRef<Record<string, Partial<DealProductData>>>({
+    ...restoredDraftPatches,
+  });
+  const hasUnsavedEditsRef = useRef(
+    Object.keys(restoredDraftPatches).length > 0,
+  );
+  const store = useStore();
+  const draftRevisionAtom = dealProductsDraftRevisionAtomFamily(dealId);
+  const savedRevisionRef = useRef<number | null>(null);
+  const editLocalProductsData = useCallback(
+    (update: SetStateAction<DealProductData[]>) => {
+      hasUnsavedEditsRef.current = true;
+      store.set(draftRevisionAtom, (revision) => revision + 1);
+      setLocalProductsData((prev) => {
+        const next = typeof update === 'function' ? update(prev) : update;
+        const patches = getProductsDraftPatches(next, prev);
+
+        Object.entries(patches).forEach(([id, patch]) => {
+          pendingProductPatchesRef.current[id] = {
+            ...pendingProductPatchesRef.current[id],
+            ...patch,
+          };
+          draftPatchesRef.current[id] = {
+            ...draftPatchesRef.current[id],
+            ...patch,
+          };
+        });
+
+        return next;
+      });
+    },
+    [store, draftRevisionAtom],
+  );
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
   );
@@ -57,8 +127,6 @@ export const ProductsList = ({
       return acc;
     }, {}),
   );
-  const setOnLocalChange = useSetAtom(onLocalChangeAtom);
-  const setProductRowActions = useSetAtom(productRowActionsAtom);
 
   const [filters, setFilters] = useState<ProductFilterState>({});
 
@@ -71,9 +139,20 @@ export const ProductsList = ({
     updateTotal,
     calculatePerProductAmount,
   } = useProductCalculations(localProductsData);
-  const { editDeals } = useDealsEdit(undefined, {
-    toastOptions: DEAL_TOAST_OPTIONS,
-  });
+  const { editDeals, loading: saving } = useDealsEdit(
+    {
+      onCompleted: () => {
+        if (store.get(draftRevisionAtom) !== savedRevisionRef.current) {
+          return;
+        }
+
+        hasUnsavedEditsRef.current = false;
+        draftPatchesRef.current = {};
+        setProductsDraft(null);
+      },
+    },
+    { toastOptions: DEAL_TOAST_OPTIONS },
+  );
   const [showAdvancedView, setShowAdvancedView] = useState(false);
   const [showTaxView, setShowTaxView] = useState(false);
   const [showExpandedView, setShowExpandedView] = useState(false);
@@ -159,7 +238,7 @@ export const ProductsList = ({
     applyVat,
   } = useVatPercent({
     localProductsData,
-    setLocalProductsData,
+    setLocalProductsData: editLocalProductsData,
     updateTotal,
     calculatePerProductAmount,
   });
@@ -193,10 +272,22 @@ export const ProductsList = ({
         );
 
         affectedProductData.forEach((productData) => {
-          pendingProductPatchesRef.current[String(productData._id)] = {
-            ...pendingProductPatchesRef.current[String(productData._id)],
+          const rowId = String(productData._id);
+          pendingProductPatchesRef.current[rowId] = {
+            ...pendingProductPatchesRef.current[rowId],
             ...patch,
           };
+
+          const draftPatch = draftPatchesRef.current[rowId];
+
+          if (draftPatch) {
+            draftPatchesRef.current[rowId] = {
+              ...draftPatch,
+              ...Object.fromEntries(
+                Object.entries(patch).filter(([key]) => key in draftPatch),
+              ),
+            };
+          }
         });
 
         const affectedIds = new Set(
@@ -215,6 +306,19 @@ export const ProductsList = ({
     [updateTotal],
   );
 
+  useEffect(() => {
+    if (hasUnsavedEditsRef.current) {
+      setProductsDraft({ ...draftPatchesRef.current });
+    }
+  }, [localProductsData, setProductsDraft]);
+
+  useEffect(() => {
+    if (productsDraft === null) {
+      hasUnsavedEditsRef.current = false;
+      draftPatchesRef.current = {};
+    }
+  }, [productsDraft]);
+
   useSyncLocalProductsData({
     productsData,
     defaultCurrency,
@@ -225,56 +329,80 @@ export const ProductsList = ({
     sortByStableProductOrder,
   });
 
-  useEffect(() => {
-    setOnLocalChange(() => updateLocalProduct);
-    return () => setOnLocalChange(null);
-  }, [setOnLocalChange, updateLocalProduct]);
-
-  useEffect(() => {
-    setProductRowActions({
-      onEdit: openProductEditSheet,
-      onDuplicate: duplicateProduct,
-      onDelete: deleteProduct,
-    });
-    return () => setProductRowActions(null);
-  }, [
-    setProductRowActions,
-    openProductEditSheet,
-    duplicateProduct,
-    deleteProduct,
-  ]);
+  const listHandlers = useMemo(
+    () => ({
+      onLocalChange: updateLocalProduct,
+      rowActions: {
+        onEdit: openProductEditSheet,
+        onDuplicate: duplicateProduct,
+        onDelete: deleteProduct,
+      },
+    }),
+    [updateLocalProduct, openProductEditSheet, duplicateProduct, deleteProduct],
+  );
 
   const hasProductFilters = Object.values(filters).some((value) =>
     Array.isArray(value) ? value.length > 0 : Boolean(value),
   );
 
+  const cardsLayout = compact && isNarrow && !showExpandedView;
+  const [expandedProductIds, setExpandedProductIds] = useState<string[]>([]);
+  const toggleExpandedProduct = (productDataId: string) =>
+    setExpandedProductIds((ids) =>
+      ids.includes(productDataId)
+        ? ids.filter((id) => id !== productDataId)
+        : [...ids, productDataId],
+    );
+
+  const productsHeader = (
+    <ProductsListHeader
+      filters={filters}
+      onFiltersChange={setFilters}
+      vatPercent={vatPercent}
+      vatPercentDraft={vatPercentDraft}
+      onVatPercentChange={onVatPercentChange}
+      onVatPercentBlur={onVatPercentBlur}
+      onApplyVat={applyVat}
+      showAdvancedView={showAdvancedView}
+      onShowAdvancedViewChange={setShowAdvancedView}
+      showTaxView={showTaxView}
+      onShowTaxViewChange={setShowTaxView}
+      showExpandedView={showExpandedView}
+      onShowExpandedViewChange={setShowExpandedView}
+      compact={cardsLayout}
+    />
+  );
+
+  const productsTable = (
+    <ProductsRecordTable
+      products={productRecords}
+      refetch={refetch}
+      showAdvancedView={showAdvancedView}
+      showTaxView={showTaxView}
+      hasProductFilters={hasProductFilters}
+      layout={cardsLayout ? 'cards' : 'table'}
+      expandedIds={expandedProductIds}
+      onToggleExpanded={toggleExpandedProduct}
+      onExpandedChange={setExpandedProductIds}
+    />
+  );
+
   const productWorkspace = (
     <>
-      <ProductsListHeader
-        filters={filters}
-        onFiltersChange={setFilters}
-        vatPercent={vatPercent}
-        vatPercentDraft={vatPercentDraft}
-        onVatPercentChange={onVatPercentChange}
-        onVatPercentBlur={onVatPercentBlur}
-        onApplyVat={applyVat}
-        showAdvancedView={showAdvancedView}
-        onShowAdvancedViewChange={setShowAdvancedView}
-        showTaxView={showTaxView}
-        onShowTaxViewChange={setShowTaxView}
-        showExpandedView={showExpandedView}
-        onShowExpandedViewChange={setShowExpandedView}
-      />
-
-      <div className="min-h-0 flex-1 py-4">
-        <ProductsRecordTable
-          products={productRecords}
-          refetch={refetch}
-          showAdvancedView={showAdvancedView}
-          showTaxView={showTaxView}
-          hasProductFilters={hasProductFilters}
-        />
-      </div>
+      {cardsLayout ? (
+        <ScrollArea
+          className="min-h-0 flex-1"
+          viewportClassName="[&>div]:block!"
+        >
+          {productsHeader}
+          <div className="py-4">{productsTable}</div>
+        </ScrollArea>
+      ) : (
+        <>
+          {productsHeader}
+          <div className="min-h-0 flex-1 py-4">{productsTable}</div>
+        </>
+      )}
 
       <ProductFooter
         productsCount={localProductsData.length}
@@ -287,41 +415,48 @@ export const ProductsList = ({
         showTaxView={showTaxView}
         productsData={localProductsData}
         pipelineId={pipelineId}
-        onChangeProductsData={setLocalProductsData}
+        onChangeProductsData={editLocalProductsData}
         updateTotal={updateTotal}
         onAddProducts={addProducts}
-        onSave={handleSave}
+        onSave={() => {
+          savedRevisionRef.current = store.get(draftRevisionAtom);
+          handleSave();
+        }}
+        saving={saving}
+        hasUnsavedChanges={Boolean(productsDraft)}
       />
     </>
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
-      {showExpandedView ? (
-        <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
-          <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
-            <Dialog.Header className="sr-only">
-              <Dialog.Title>Products</Dialog.Title>
-              <Dialog.Description>
-                Expanded product management view
-              </Dialog.Description>
-            </Dialog.Header>
-            {productWorkspace}
-          </Dialog.Content>
-        </Dialog>
-      ) : (
-        productWorkspace
-      )}
+    <ProductListHandlersContext.Provider value={listHandlers}>
+      <div ref={containerRef} className="flex h-full min-h-0 flex-col">
+        {showExpandedView ? (
+          <Dialog open={showExpandedView} onOpenChange={setShowExpandedView}>
+            <Dialog.Content className="flex h-[calc(100dvh-2rem)] w-[calc(100vw-2rem)] max-w-none flex-col gap-0 overflow-hidden p-4">
+              <Dialog.Header className="sr-only">
+                <Dialog.Title>Products</Dialog.Title>
+                <Dialog.Description>
+                  Expanded product management view
+                </Dialog.Description>
+              </Dialog.Header>
+              {productWorkspace}
+            </Dialog.Content>
+          </Dialog>
+        ) : (
+          productWorkspace
+        )}
 
-      <ProductEditSheet
-        productData={editingProduct}
-        open={Boolean(editingProduct)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setEditingProduct(null);
-          }
-        }}
-      />
-    </div>
+        <ProductEditSheet
+          productData={editingProduct}
+          open={Boolean(editingProduct)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setEditingProduct(null);
+            }
+          }}
+        />
+      </div>
+    </ProductListHandlersContext.Provider>
   );
 };

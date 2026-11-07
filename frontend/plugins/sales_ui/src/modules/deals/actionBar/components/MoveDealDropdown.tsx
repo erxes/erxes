@@ -6,15 +6,15 @@ import { useDealsContext } from '@/deals/context/DealContext';
 import { IconLayoutBoard } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { DealSelect } from 'ui-modules';
-import { IDeal } from '../../types/deals';
+import { IDeal } from '@/deals/types/deals';
+
+type TMovableDeal = Pick<IDeal, '_id' | 'boardId' | 'pipeline' | 'stageId'>;
 
 interface MoveDealDropdownProps {
-  deal: Pick<IDeal, '_id' | 'boardId' | 'pipeline' | 'stageId'>;
+  deal: TMovableDeal;
 }
 
-export const MoveDealDropdown = memo(function MoveDealDropdown({
-  deal,
-}: MoveDealDropdownProps) {
+const useMoveDeal = (deal: TMovableDeal) => {
   const { editDeals } = useDealsContext();
   const [open, setOpen] = useState(false);
   const [isMoving, setIsMoving] = useState(false);
@@ -44,6 +44,33 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
     }
   };
 
+  return { open, setOpen, isMoving, handleMove };
+};
+
+const MoveDealSelect = ({
+  deal,
+  isMoving,
+  onMove,
+}: {
+  deal: TMovableDeal;
+  isMoving: boolean;
+  onMove: (boardId: string, pipelineId: string, stageId: string) => void;
+}) => (
+  <DealSelect
+    boardId={deal.boardId ?? undefined}
+    pipelineId={deal.pipeline?._id}
+    stageId={deal.stageId ?? undefined}
+    onMove={onMove}
+    moveLoading={isMoving}
+  />
+);
+
+export const MoveDealDropdown = memo(function MoveDealDropdown({
+  deal,
+}: MoveDealDropdownProps) {
+  const { open, setOpen, isMoving, handleMove } = useMoveDeal(deal);
+  const { t } = useTranslation('sales');
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenu.Trigger asChild>
@@ -57,14 +84,27 @@ export const MoveDealDropdown = memo(function MoveDealDropdown({
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content className="w-62 py-2">
-        <DealSelect
-          boardId={deal.boardId ?? undefined}
-          pipelineId={deal.pipeline?._id}
-          stageId={deal.stageId ?? undefined}
-          onMove={handleMove}
-          moveLoading={isMoving}
-        />
+        <MoveDealSelect deal={deal} isMoving={isMoving} onMove={handleMove} />
       </DropdownMenu.Content>
     </DropdownMenu>
   );
 });
+
+export const MoveDealSubmenu = ({ deal }: MoveDealDropdownProps) => {
+  const { open, setOpen, isMoving, handleMove } = useMoveDeal(deal);
+  const { t } = useTranslation('sales');
+
+  return (
+    <DropdownMenu.Sub open={open} onOpenChange={setOpen}>
+      <DropdownMenu.SubTrigger disabled={isMoving}>
+        <IconLayoutBoard />
+        {t('move-deal')}
+      </DropdownMenu.SubTrigger>
+      <DropdownMenu.Portal>
+        <DropdownMenu.SubContent className="w-62 py-2">
+          <MoveDealSelect deal={deal} isMoving={isMoving} onMove={handleMove} />
+        </DropdownMenu.SubContent>
+      </DropdownMenu.Portal>
+    </DropdownMenu.Sub>
+  );
+};

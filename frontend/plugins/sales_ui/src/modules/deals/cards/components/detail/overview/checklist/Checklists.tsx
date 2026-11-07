@@ -8,10 +8,12 @@ export const Checklists = ({
   stageId,
   dealId,
   newChecklistId,
+  compact,
 }: Readonly<{
   stageId?: string;
   dealId?: string;
   newChecklistId?: string;
+  compact?: boolean;
 }>) => {
   const { t } = useTranslation('sales');
   const { checklists, loading, error } = useChecklists({
@@ -60,6 +62,7 @@ export const Checklists = ({
               item={checklist}
               stageId={stageId}
               focusNewItem={checklist._id === newChecklistId}
+              compact={compact}
             />
           ))}
         </div>

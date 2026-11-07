@@ -1,5 +1,8 @@
-import { Button, Filter, Input, Label, Switch } from 'erxes-ui';
-import { FilterButton, ProductFilterBar } from '../FilterButton';
+import { Button, cn, Filter, Input, Label, Switch } from 'erxes-ui';
+import {
+  FilterButton,
+  ProductFilterBar,
+} from '@/deals/cards/components/detail/product/components/FilterButton';
 
 import {
   IconArrowsMaximize,
@@ -7,6 +10,7 @@ import {
   IconSearch,
 } from '@tabler/icons-react';
 import { ProductFilterState } from '@/deals/actionBar/types/actionBarTypes';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface ProductsListHeaderProps {
@@ -23,7 +27,201 @@ interface ProductsListHeaderProps {
   onShowTaxViewChange: (value: boolean) => void;
   showExpandedView: boolean;
   onShowExpandedViewChange: (value: boolean) => void;
+  compact?: boolean;
 }
+
+type TViewTogglesProps = Pick<
+  ProductsListHeaderProps,
+  | 'showAdvancedView'
+  | 'onShowAdvancedViewChange'
+  | 'showTaxView'
+  | 'onShowTaxViewChange'
+  | 'showExpandedView'
+  | 'onShowExpandedViewChange'
+> & { compact: boolean };
+
+const ProductViewToggles = ({
+  showAdvancedView,
+  onShowAdvancedViewChange,
+  showTaxView,
+  onShowTaxViewChange,
+  showExpandedView,
+  onShowExpandedViewChange,
+  compact,
+}: TViewTogglesProps) => {
+  const { t } = useTranslation('sales');
+  const ExpandedViewIcon = showExpandedView
+    ? IconArrowsMinimize
+    : IconArrowsMaximize;
+
+  return (
+    <>
+      <div className="flex h-9 items-center gap-2">
+        <Switch
+          id="product-advanced-view"
+          checked={showAdvancedView}
+          onCheckedChange={onShowAdvancedViewChange}
+        />
+        <Label
+          htmlFor="product-advanced-view"
+          className="whitespace-nowrap text-xs font-medium"
+        >
+          {t('advanced-view')}
+        </Label>
+      </div>
+      <div className="flex h-9 items-center gap-2">
+        <Switch
+          id="product-tax-view"
+          checked={showTaxView}
+          onCheckedChange={onShowTaxViewChange}
+        />
+        <Label
+          htmlFor="product-tax-view"
+          className="whitespace-nowrap text-xs font-medium"
+        >
+          {t('tax-view')}
+        </Label>
+      </div>
+      <div
+        className={cn(
+          'flex h-9 items-center gap-2',
+          !compact && 'rounded-md border px-2',
+        )}
+      >
+        <Switch
+          id="product-expanded-view"
+          checked={showExpandedView}
+          onCheckedChange={onShowExpandedViewChange}
+        />
+        <ExpandedViewIcon
+          size={16}
+          className="shrink-0 text-muted-foreground"
+        />
+        <Label
+          htmlFor="product-expanded-view"
+          className="whitespace-nowrap text-xs font-medium"
+        >
+          {t('expand-view')}
+        </Label>
+      </div>
+    </>
+  );
+};
+
+const ProductSearchInput = ({
+  filters,
+  onFiltersChange,
+}: Pick<ProductsListHeaderProps, 'filters' | 'onFiltersChange'>) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <div className="relative w-full max-w-2xl flex-1">
+      <IconSearch
+        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+        size={16}
+      />
+      <Input
+        placeholder={t('search')}
+        className="w-full pl-9"
+        value={filters.productSearch || ''}
+        onChange={(event) =>
+          onFiltersChange({
+            ...filters,
+            productSearch: event.target.value,
+          })
+        }
+      />
+    </div>
+  );
+};
+
+const ProductVatControls = ({
+  filters,
+  onFiltersChange,
+  vatPercent,
+  vatPercentDraft,
+  onVatPercentChange,
+  onVatPercentBlur,
+  onApplyVat,
+  compact,
+}: Pick<
+  ProductsListHeaderProps,
+  | 'filters'
+  | 'onFiltersChange'
+  | 'vatPercent'
+  | 'vatPercentDraft'
+  | 'onVatPercentChange'
+  | 'onVatPercentBlur'
+  | 'onApplyVat'
+> & { compact: boolean }) => {
+  const { t } = useTranslation('sales');
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <div
+        className={cn(
+          'flex items-center gap-2',
+          compact && 'w-full [&>button]:shrink-0',
+        )}
+      >
+        {compact && (
+          <FilterButton filters={filters} onFilterChange={onFiltersChange} />
+        )}
+        <Label
+          htmlFor="product-vat-percent"
+          className={cn(
+            'whitespace-nowrap text-xs font-medium text-muted-foreground',
+            compact && 'ml-auto',
+          )}
+        >
+          {t('vat-percent')}
+        </Label>
+        <Input
+          id="product-vat-percent"
+          type="number"
+          min={0}
+          max={100}
+          step="any"
+          className={cn(
+            'px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none',
+            compact ? 'h-7 w-16 text-right' : 'h-9 w-20',
+          )}
+          value={vatPercentDraft ?? vatPercent}
+          onChange={(event) => onVatPercentChange(event.target.value)}
+          onBlur={onVatPercentBlur}
+        />
+        <Button
+          type="button"
+          variant={compact ? 'secondary' : 'outline'}
+          size="sm"
+          className={compact ? 'h-7' : 'h-9'}
+          onClick={onApplyVat}
+        >
+          {t('apply')}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const CompactFilterRows = ({
+  filters,
+  onFiltersChange,
+  viewToggles,
+}: Pick<ProductsListHeaderProps, 'filters' | 'onFiltersChange'> & {
+  viewToggles: ReactNode;
+}) => (
+  <>
+    <div className="mt-2 flex flex-wrap gap-2 empty:hidden">
+      <ProductFilterBar filters={filters} onChange={onFiltersChange} />
+    </div>
+    <div className="@container mt-1">
+      <div className="grid grid-cols-1 gap-x-3 @md:grid-cols-3">
+        {viewToggles}
+      </div>
+    </div>
+  </>
+);
 
 export const ProductsListHeader = ({
   filters,
@@ -39,113 +237,61 @@ export const ProductsListHeader = ({
   onShowTaxViewChange,
   showExpandedView,
   onShowExpandedViewChange,
+  compact = false,
 }: ProductsListHeaderProps) => {
-  const { t } = useTranslation('sales');
-  const ExpandedViewIcon = showExpandedView
-    ? IconArrowsMinimize
-    : IconArrowsMaximize;
+  const viewToggles = (
+    <ProductViewToggles
+      showAdvancedView={showAdvancedView}
+      onShowAdvancedViewChange={onShowAdvancedViewChange}
+      showTaxView={showTaxView}
+      onShowTaxViewChange={onShowTaxViewChange}
+      showExpandedView={showExpandedView}
+      onShowExpandedViewChange={onShowExpandedViewChange}
+      compact={compact}
+    />
+  );
 
   return (
     <Filter id="product-filter">
       <div className="shrink-0 border-b pb-4">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-          <div className="relative w-full max-w-2xl flex-1">
-            <IconSearch
-              className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-              size={16}
-            />
-            <Input
-              placeholder={t('search')}
-              className="w-full pl-9"
-              value={filters.productSearch || ''}
-              onChange={(event) =>
-                onFiltersChange({
-                  ...filters,
-                  productSearch: event.target.value,
-                })
-              }
-            />
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-2">
-              <Label
-                htmlFor="product-vat-percent"
-                className="whitespace-nowrap text-xs font-medium text-muted-foreground"
-              >
-                {t('vat-percent')}
-              </Label>
-              <Input
-                id="product-vat-percent"
-                type="number"
-                min={0}
-                max={100}
-                step="any"
-                className="h-9 w-20 px-2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                value={vatPercentDraft ?? vatPercent}
-                onChange={(event) => onVatPercentChange(event.target.value)}
-                onBlur={onVatPercentBlur}
-              />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-9"
-                onClick={onApplyVat}
-              >
-                {t('apply-vat')}
-              </Button>
-            </div>
-          </div>
+        <div
+          className={cn(
+            'flex flex-col gap-3',
+            !compact && 'xl:flex-row xl:items-center',
+          )}
+        >
+          <ProductSearchInput
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+          />
+          <ProductVatControls
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            vatPercent={vatPercent}
+            vatPercentDraft={vatPercentDraft}
+            onVatPercentChange={onVatPercentChange}
+            onVatPercentBlur={onVatPercentBlur}
+            onApplyVat={onApplyVat}
+            compact={compact}
+          />
         </div>
 
-        <div className="mt-2 flex min-h-9 items-center gap-2 overflow-x-auto">
-          <FilterButton filters={filters} onFilterChange={onFiltersChange} />
-          <ProductFilterBar filters={filters} onChange={onFiltersChange} />{' '}
-          <div className="flex h-9 items-center gap-2">
-            <Switch
-              id="product-advanced-view"
-              checked={showAdvancedView}
-              onCheckedChange={onShowAdvancedViewChange}
-            />
-            <Label
-              htmlFor="product-advanced-view"
-              className="whitespace-nowrap text-xs font-medium"
-            >
-              {t('advanced-view')}
-            </Label>
+        {compact ? (
+          <CompactFilterRows
+            filters={filters}
+            onFiltersChange={onFiltersChange}
+            viewToggles={viewToggles}
+          />
+        ) : (
+          <div className="mt-2 flex min-h-9 items-center gap-2 overflow-x-auto">
+            <FilterButton filters={filters} onFilterChange={onFiltersChange} />
+            <ProductFilterBar
+              filters={filters}
+              onChange={onFiltersChange}
+            />{' '}
+            {viewToggles}
           </div>
-          <div className="flex h-9 items-center gap-2">
-            <Switch
-              id="product-tax-view"
-              checked={showTaxView}
-              onCheckedChange={onShowTaxViewChange}
-            />
-            <Label
-              htmlFor="product-tax-view"
-              className="whitespace-nowrap text-xs font-medium"
-            >
-              {t('tax-view', 'Tax view')}
-            </Label>
-          </div>
-          <div className="flex h-9 items-center gap-2 rounded-md border px-2">
-            <Switch
-              id="product-expanded-view"
-              checked={showExpandedView}
-              onCheckedChange={onShowExpandedViewChange}
-            />
-            <ExpandedViewIcon
-              size={16}
-              className="shrink-0 text-muted-foreground"
-            />
-            <Label
-              htmlFor="product-expanded-view"
-              className="whitespace-nowrap text-xs font-medium"
-            >
-              {t('expand-view', 'Expand view')}
-            </Label>
-          </div>
-        </div>
+        )}
       </div>
     </Filter>
   );

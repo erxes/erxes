@@ -1,11 +1,6 @@
 import { Cell, ColumnDef } from '@tanstack/react-table';
-import {
-  Combobox,
-  Command,
-  Popover,
-  RecordTable,
-  useQueryState,
-} from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
+import { useSidePanel } from 'ui-modules';
 import {
   IconArchive,
   IconArrowBack,
@@ -15,8 +10,6 @@ import {
 import { useDealsCopy, useDealsEdit } from '@/deals/cards/hooks/useDeals';
 
 import { IDeal } from '@/deals/types/deals';
-import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
-import { useSetAtom } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
@@ -27,8 +20,7 @@ export const DealsMoreColumnCell = ({
 }) => {
   const { _id, status } = cell.row.original;
   const { t } = useTranslation('sales');
-  const setActiveDealId = useSetAtom(dealDetailSheetState);
-  const [, setSalesItemId] = useQueryState<string>('salesItemId');
+  const { openRecord } = useSidePanel();
   const { editDeals } = useDealsEdit();
   const { copyDeals, loading: copyLoading } = useDealsCopy();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -41,8 +33,7 @@ export const DealsMoreColumnCell = ({
   };
 
   const onEdit = () => {
-    setSalesItemId(_id);
-    setActiveDealId(_id);
+    openRecord({ contentType: 'sales:deal', contentId: _id });
   };
 
   const onCopy = () => {

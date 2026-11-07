@@ -4,6 +4,7 @@ import {
   IconChartBar,
   IconCoins,
   IconMedal,
+  IconPackage,
   IconReceipt,
   IconSandbox,
   IconTable,
@@ -131,6 +132,20 @@ export const CONFIG: IUIConfig = {
     ],
     // A customer's / company's deals on their overview (`./contactWidget`).
     contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
+    recordPanels: [
+      {
+        contentType: 'sales:deal',
+        detailPath: (dealId: string) => `/sales/deals/${dealId}`,
+        tabs: [
+          {
+            value: 'products',
+            label: 'Products',
+            labelKey: 'products',
+            icon: IconPackage,
+          },
+        ],
+      },
+    ],
     relationWidgets: [
       {
         name: 'deals',
