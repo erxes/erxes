@@ -68,7 +68,7 @@ export const CreateBrand = () => {
   }, [createParam, setHotkeyScopeAndMemorizePreviousScope]);
   useScopedHotkeys(`c`, () => onOpen(), BrandsHotKeyScope.BrandsSettingsPage);
   useScopedHotkeys(`esc`, () => onClose(), BrandsHotKeyScope.BrandsCreateSheet);
-  const submitHandler: SubmitHandler<TBrandsForm> = async (data) => {
+  const submitHandler: SubmitHandler<TBrandsForm> = (data) => {
     brandsAdd({
       variables: data,
       onCompleted: () => {

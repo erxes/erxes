@@ -1,3 +1,4 @@
+import { usePropertyFormFeedback } from '@/properties/hooks/usePropertyFormFeedback';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
@@ -5,11 +6,8 @@ import {
 } from '@/side-panel/hooks/usePagePanel';
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { useNavigate, useParams } from 'react-router';
-import { toast } from 'erxes-ui';
 import { useFieldDetail } from '@/properties/hooks/useFieldDetail';
 import { useEditProperty } from '@/properties/hooks/useEditProperty';
-import { useSetAtom } from 'jotai';
-import { needsToRefreshState } from '@/properties/states/needsToRefresh';
 import { useTranslation } from 'react-i18next';
 import { PropertyForm, RecordSidePanel, IPropertyForm } from 'ui-modules';
 export const PropertyEdit = () => {
@@ -17,9 +15,6 @@ export const PropertyEdit = () => {
     keyPrefix: 'properties',
   });
   const { basePath: propertiesBasePath } = usePropertiesScope();
-  const { t } = useTranslation('settings', {
-    keyPrefix: 'properties',
-  });
   const { id, type } = useParams<{
     groupId: string;
     id: string;
@@ -29,10 +24,20 @@ export const PropertyEdit = () => {
     id: id || '',
   });
   const { editProperty, loading: editPropertyLoading } = useEditProperty();
-  const setNeedsToRefresh = useSetAtom(needsToRefreshState);
   const navigate = useNavigate();
   const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
   const [fieldType, ...relationType] = fieldDetail?.type?.split(':') || [];
+  const pagePanel = usePagePanel({
+    name: 'properties/PropertyEdit',
+    open: true,
+    onOpenChange: handleClose,
+    identity: id || 'new',
+  });
+  const feedback = usePropertyFormFeedback({
+    mode: 'edit',
+    isCurrent: pagePanel.isCurrent,
+    onClose: handleClose,
+  });
   const handleSubmit = (data: IPropertyForm) => {
     editProperty({
       variables: {
@@ -40,30 +45,10 @@ export const PropertyEdit = () => {
         contentType: type,
         ...data,
       },
-      onCompleted: () => {
-        if (!pagePanel.isCurrent()) return;
-        toast({
-          title: t('property-updated', 'Property updated'),
-          variant: 'success',
-        });
-        setNeedsToRefresh(true);
-        handleClose();
-      },
-      onError: (error) => {
-        toast({
-          title: t('error', 'Error'),
-          variant: 'destructive',
-          description: error.message,
-        });
-      },
+      ...feedback,
     });
   };
-  const pagePanel = usePagePanel({
-    name: 'properties/PropertyEdit',
-    open: true,
-    onOpenChange: handleClose,
-    identity: id || 'new',
-  });
+
   return createPortal(
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
       {pagePanel.permissionsLoaded &&

@@ -1,11 +1,13 @@
 import { type UseFormReturn } from 'react-hook-form';
 import { RecordSidePanel } from 'ui-modules';
 import { type PagePanelNavigation } from '@/side-panel/hooks/usePagePanel';
-import { type IWorkhoursForm } from '@/settings/structure/types/workhours';
+import {
+  type IWorkhoursForm,
+  type WorkDay,
+} from '@/settings/structure/types/workhours';
 import { Fragment, type ReactNode } from 'react';
 import { Form, Separator } from 'erxes-ui';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import { type WorkDay } from '@/settings/structure/types/workhours';
 import { WeekDayRow } from './WeekDayRow';
 import { StructureFormActions } from '../StructureFormActions';
 

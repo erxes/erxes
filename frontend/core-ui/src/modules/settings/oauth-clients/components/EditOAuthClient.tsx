@@ -96,7 +96,7 @@ export const EditOAuthClient = () => {
     setEditingOAuthClient(null);
     setClientId(null);
   };
-  const submitHandler: SubmitHandler<TOAuthClientsForm> = async (data) => {
+  const submitHandler: SubmitHandler<TOAuthClientsForm> = (data) => {
     if (!editingOAuthClient) return;
     oauthClientAppsEdit({
       variables: {

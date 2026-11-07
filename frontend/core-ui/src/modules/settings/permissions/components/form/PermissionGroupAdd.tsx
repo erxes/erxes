@@ -28,7 +28,7 @@ export const PermissionGroupAdd = ({
   });
   const [open, setOpen] = useState<boolean>(false);
   const { addPermissionGroup, loading } = useAddPermissionGroup();
-  const onSubmit = async (data: IPermissionGroupSchema) => {
+  const onSubmit = (data: IPermissionGroupSchema) => {
     if (loading) return;
     addPermissionGroup({
       variables: {

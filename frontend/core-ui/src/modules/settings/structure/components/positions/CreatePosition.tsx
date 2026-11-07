@@ -68,7 +68,7 @@ export const CreatePosition = () => {
       setOpen(false);
     },
   });
-  const submitHandler: SubmitHandler<TPositionForm> = async (data) => {
+  const submitHandler: SubmitHandler<TPositionForm> = (data) => {
     handleAdd({
       variables: data,
       ...feedback,

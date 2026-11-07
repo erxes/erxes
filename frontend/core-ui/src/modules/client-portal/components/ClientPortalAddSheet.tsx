@@ -73,7 +73,7 @@ export const CreateClientPortalSheet = () => {
     () => onClose(),
     ClientPortalHotKeyScope.ClientPortalAddSheet,
   );
-  const submitHandler: SubmitHandler<TClientPortalAddForm> = async (data) => {
+  const submitHandler: SubmitHandler<TClientPortalAddForm> = (data) => {
     clientPortalAdd({
       variables: data,
       onCompleted: (data) => {

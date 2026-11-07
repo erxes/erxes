@@ -62,7 +62,7 @@ export const CreateUnit = () => {
       setOpen(false);
     },
   });
-  const submitHandler: SubmitHandler<TUnitForm> = async (data) => {
+  const submitHandler: SubmitHandler<TUnitForm> = (data) => {
     handleAdd({
       variables: data,
       ...feedback,

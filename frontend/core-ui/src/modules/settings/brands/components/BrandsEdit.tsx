@@ -44,7 +44,7 @@ export const BrandsEdit = () => {
       return newSearchParams;
     });
   };
-  const submitHandler: SubmitHandler<TBrandsForm> = async (data) => {
+  const submitHandler: SubmitHandler<TBrandsForm> = (data) => {
     handleEdit(
       {
         variables: {

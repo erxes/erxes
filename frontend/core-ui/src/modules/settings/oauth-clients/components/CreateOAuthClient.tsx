@@ -37,7 +37,7 @@ export const CreateOAuthClient = () => {
     clientId?: string;
     secret?: string;
   } | null>(null);
-  const submitHandler: SubmitHandler<TOAuthClientsForm> = async (data) => {
+  const submitHandler: SubmitHandler<TOAuthClientsForm> = (data) => {
     oauthClientAppsAdd({
       variables: {
         ...data,
