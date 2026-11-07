@@ -14,13 +14,11 @@ import {
   PAGE_ENTER_KEYFRAMES,
   useEnterAnimation,
 } from '@/navigation/hooks/useEnterAnimation';
-import { CSSProperties, useRef } from 'react';
-import { useAtomValue } from 'jotai';
-import {
-  appearanceLayoutState,
-  NOTCH_COLORS,
-  notchColorState,
-} from '@/app/states/appearanceState';
+import { useRef } from 'react';
+import { resolveFrameStyle } from '@/app/constants/appearance';
+import { FrameBackdrop } from '@/app/components/FrameBackdrop';
+import { GlobalSidebar } from '@/global-sidebar/components/GlobalSidebar';
+import { useAppearanceValue } from '@/app/hooks/useAppearance';
 import { Outlet, useLocation } from 'react-router';
 import { WelcomeNotificationEffect } from '@/app/effect-components/WelcomeNotificationEffect';
 import { SupportAccessBanner } from '@/settings/support-access/components/SupportAccessBanner';
@@ -71,49 +69,51 @@ const AppWorkspace = () => {
 
 export const DefaultLayout = () => {
   const [inPreview] = useQueryState<boolean>('inPreview');
-  const layout = useAtomValue(appearanceLayoutState);
-  const notchColor = useAtomValue(notchColorState);
-  const isNotch = layout === 'notch';
+  const { layout, frameColor } = useAppearanceValue();
+  const isSidebar = layout === 'sidebar';
+  const isFramed = layout !== 'default';
+  const frame = isFramed ? resolveFrameStyle(frameColor) : null;
 
   if (inPreview) {
     return <Outlet />;
   }
 
-  // Core draws no sidebar; the provider only backs Sidebar.* parts used on
-  // pages without an AppLayout (apps nest their own provider). The side
-  // panel sits below the top bar, beside the workspace. The notch layout puts
-  // the top bar on a colored frame; top bar parts style it via group/layout.
+  // Core draws no app sidebar; the provider only backs Sidebar.* parts used
+  // on pages without an AppLayout (apps nest their own provider). The side
+  // panel sits beside the workspace. Framed layouts (notch, sidebar) put core
+  // navigation on a colored frame, styled via group/layout, and inset the app
+  // as a card.
   return (
     <RecordViewContext.Provider value={SidePanelRecord}>
       <Sidebar.Provider
-        className={cn(
-          'group/layout h-svh w-screen overflow-hidden',
-          isNotch && 'bg-(--notch-frame)',
-        )}
-        data-notch={isNotch}
-        style={
-          isNotch
-            ? ({ '--notch-frame': NOTCH_COLORS[notchColor] } as CSSProperties)
-            : undefined
-        }
+        className="group/layout relative h-svh w-screen overflow-hidden"
+        data-framed={isFramed}
         sidebarKeyboardShortcut={false}
       >
+        {frame && <FrameBackdrop frame={frame} />}
         <SkipToMainContent />
         <GlobalSearch />
         <WelcomeNotificationEffect />
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          {!isNotch && <SupportAccessBanner />}
-          <CoreTab />
+        <div
+          className={cn(
+            'relative flex min-w-0 flex-1 overflow-hidden',
+            !isSidebar && 'flex-col',
+          )}
+        >
+          {!isFramed && <SupportAccessBanner />}
+          <CoreTab orientation={isSidebar ? 'vertical' : 'horizontal'} />
           <div
             className={cn(
               'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden',
-              isNotch && 'mx-2 mb-2 rounded-md bg-background shadow-sm',
+              isFramed && 'mb-2 mr-2 rounded-md bg-background shadow-sm',
+              isFramed && (isSidebar ? 'mt-2' : 'ml-2'),
             )}
           >
-            {isNotch && <SupportAccessBanner />}
+            {isFramed && <SupportAccessBanner />}
             <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
               <AppWorkspace />
               <SidePanelLayout />
+              <GlobalSidebar />
             </div>
           </div>
         </div>

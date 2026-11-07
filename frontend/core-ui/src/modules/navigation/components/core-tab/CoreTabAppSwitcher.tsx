@@ -17,7 +17,10 @@ import { CSS } from '@dnd-kit/utilities';
 import { Button, Popover, ScrollArea, cn } from 'erxes-ui';
 import { IconApps, IconGridDots, IconGripVertical } from '@tabler/icons-react';
 
-import { CoreTabTooltip } from '@/navigation/components/core-tab/CoreTabTooltip';
+import {
+  CoreTabTooltip,
+  useCoreTabSide,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
 import { CoreTabFavoritesSection } from '@/navigation/components/core-tab/CoreTabFavorites';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { navigationActivityOrderState } from '@/navigation/states/navigationActivityOrderState';
@@ -155,6 +158,7 @@ export const CoreTabAppSwitcher = ({
   onSelect: (activity: INavigationActivity) => void;
 }>) => {
   const [open, setOpen] = useState(false);
+  const side = useCoreTabSide();
   const [order, setOrder] = useAtom(navigationActivityOrderState);
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
   const { promoted, rest } = splitPromotedNavigationActivities(
@@ -201,7 +205,7 @@ export const CoreTabAppSwitcher = ({
       <Popover.Content
         align="start"
         className="flex max-h-[var(--radix-popover-content-available-height)] w-80 flex-col overflow-hidden rounded-xl border-border/60 p-1.5 shadow-lg"
-        side="bottom"
+        side={side}
         sideOffset={8}
       >
         <ScrollArea

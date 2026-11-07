@@ -76,6 +76,18 @@ jest.mock(
   }),
   { virtual: true },
 );
+jest.mock(
+  '@/global-sidebar/components/GlobalSidebar',
+  () => ({ GlobalSidebar: () => <aside data-testid="global-sidebar" /> }),
+  { virtual: true },
+);
+jest.mock(
+  '@/app/hooks/useAppearance',
+  () => ({
+    useAppearanceValue: () => ({ layout: 'default', frameColor: 'indigo' }),
+  }),
+  { virtual: true },
+);
 // Only the record-view context is used; loading the whole ui-modules barrel
 // would build every shared GraphQL document against the erxes-ui stub above.
 jest.mock('ui-modules', () => {
@@ -95,6 +107,8 @@ it('keeps the side panel below the top bar, beside the workspace, outside the an
   expect(workspaceRow?.contains(navigation)).toBe(false);
   expect(workspaceRow?.contains(screen.getByTestId('workspace'))).toBe(true);
   expect(workspaceRow?.className.split(' ')).not.toContain('flex-col');
+  // The global sidebar is the right-most column, after the record panel.
+  expect(panel.nextElementSibling).toBe(screen.getByTestId('global-sidebar'));
   expect(
     screen
       .getByTestId('workspace')

@@ -12,7 +12,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import { ReactNode, useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
 import { ContactPanelPermission } from '@/side-panel/components/ContactPanelPermission';
 import {
@@ -384,8 +383,8 @@ const SidePanelSavedRecord = ({
     selectedTab && tabs.some((entry) => entry.value === selectedTab)
       ? selectedTab
       : views
-        ? DETAIL_TAB
-        : ACTIVITY_TAB;
+      ? DETAIL_TAB
+      : ACTIVITY_TAB;
   const contactActions = contactType && (
     <ContactPanelActions
       contentType={contactType}
@@ -637,6 +636,7 @@ export const SidePanelLayout = () => {
     <>
       {/* Links saved while records still expanded in place. */}
       {recordPage && expanded && <Navigate to={recordPage} replace />}
+      {/* `/chat` is handed to the global sidebar; never render it here. */}
       {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
         <RecordSidePanel
           key="record"
@@ -645,8 +645,8 @@ export const SidePanelLayout = () => {
           onExpandedChange={() => recordPage && navigate(recordPage)}
           width={
             moduleEntry && path
-              ? (moduleWidths[path] ??
-                Math.max(width, moduleEntry.defaultWidth || 0))
+              ? moduleWidths[path] ??
+                Math.max(width, moduleEntry.defaultWidth || 0)
               : width
           }
           maxWidth={moduleEntry?.maxWidth}
@@ -663,7 +663,6 @@ export const SidePanelLayout = () => {
           {renderRoute()}
         </RecordSidePanel>
       )}
-      <AssistantPanel />
     </>
   );
 };

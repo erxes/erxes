@@ -20,6 +20,7 @@ import {
   ILink,
   IPropertyField,
   IUser,
+  IUserAppearance,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
@@ -35,6 +36,19 @@ import {
 } from '../../meta/activity-log';
 
 const SALT_WORK_FACTOR = 10;
+
+// Must match the core-ui appearance options.
+const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_FRAME_COLORS = [
+  'indigo',
+  'graphite',
+  'forest',
+  'plum',
+  'erxes',
+  'new-year',
+  'march-8',
+  'seasonal',
+];
 
 const exactPattern = (value: string) =>
   new RegExp(`^${escapeRegExp(value)}$`, 'i');
@@ -122,6 +136,10 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     isAllowed: boolean,
   ): Promise<IUserDocument>;
+  configAppearance(
+    _id: string,
+    appearance: IUserAppearance,
+  ): Promise<IUserDocument | null>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
@@ -681,6 +699,26 @@ export const loadUserClass = (
       await models.Users.updateOne(
         { _id },
         { $set: { getNotificationByEmail: isAllowed } },
+      );
+
+      return models.Users.findOne({ _id });
+    }
+
+    public static async configAppearance(
+      _id: string,
+      { layout, frameColor }: IUserAppearance,
+    ) {
+      if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
+        throw new Error(`Unknown appearance layout: ${layout}`);
+      }
+
+      if (frameColor && !USER_APPEARANCE_FRAME_COLORS.includes(frameColor)) {
+        throw new Error(`Unknown appearance frame color: ${frameColor}`);
+      }
+
+      await models.Users.updateOne(
+        { _id },
+        { $set: { appearance: { layout, frameColor } } },
       );
 
       return models.Users.findOne({ _id });

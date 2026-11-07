@@ -1,14 +1,16 @@
 import { Avatar, Button, DropdownMenu, cn, readImage } from 'erxes-ui';
 
 import { AppPath } from '@/types/paths/AppPath';
-import { CoreTabTooltip } from '@/navigation/components/core-tab/CoreTabTooltip';
+import {
+  CoreTabTooltip,
+  useCoreTabSide,
+} from '@/navigation/components/core-tab/CoreTabTooltip';
 import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { IconChevronRight } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { SelectLanguages } from '@/navigation/components/footer/SelectLanguages';
 import { SettingsPath } from '@/types/paths/SettingsPath';
 import { ThemeSelector } from '@/navigation/components/footer/ThemeSelector';
-import { AppearanceSelector } from '@/navigation/components/footer/AppearanceSelector';
 import { User } from '@/navigation/components/footer/User';
 import { currentUserState } from 'ui-modules';
 import { useAtomValue } from 'jotai';
@@ -20,6 +22,7 @@ export const CoreTabUserMenu = () => {
   const { handleLogout } = useAuth();
   const { t: organizationT } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
+  const side = useCoreTabSide();
   const userDetails = currentUser?.details;
   const userName = userDetails?.fullName || sidebarT('profile');
 
@@ -48,7 +51,7 @@ export const CoreTabUserMenu = () => {
       <DropdownMenu.Content
         align="end"
         className="w-56 min-w-56! space-y-1 p-1.5"
-        side="bottom"
+        side={side}
         sideOffset={8}
       >
         <DropdownMenu.Item asChild className="p-2">
@@ -59,7 +62,6 @@ export const CoreTabUserMenu = () => {
         </DropdownMenu.Item>
         <DropdownMenu.Separator />
         <ThemeSelector />
-        <AppearanceSelector />
         <SelectLanguages />
         <DropdownMenu.Separator />
         <DropdownMenu.Item
