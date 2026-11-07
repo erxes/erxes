@@ -14,6 +14,8 @@ import {
   Tooltip,
 } from 'erxes-ui/components';
 import { cn } from 'erxes-ui/lib';
+import { useMediaQuery } from 'erxes-ui/hooks';
+import { useTranslation } from 'react-i18next';
 import React, {
   createContext,
   forwardRef,
@@ -43,9 +45,13 @@ export const useFocusSheet = () => {
 export const useOptionalFocusSheet = () => useContext(FocusSheetContext);
 
 const FocusSheetRoot = ({ ...props }: React.ComponentProps<typeof Sheet>) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const isNarrow = useMediaQuery('(max-width: 639px)');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(!isNarrow);
   const [hasSidebar, setHasSidebar] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<string | null>(null);
+  useEffect(() => {
+    setIsSidebarOpen(!isNarrow);
+  }, [isNarrow]);
   return (
     <FocusSheetContext.Provider
       value={{
@@ -106,10 +112,11 @@ const FocusSheetContent = ({
   className,
   ...props
 }: React.ComponentProps<typeof Sheet.Content>) => {
+  // Radix's table wrapper otherwise imposes its contents' minimum width.
   return (
     <Sheet.Content
       className={cn(
-        'flex border-b-0 rounded-b-none overflow-y-hidden',
+        'flex min-h-0 min-w-0 flex-col lg:flex-row border-b-0 rounded-b-none overflow-y-hidden [&>div]:min-w-0 [&>div]:min-h-0 [&_[data-radix-scroll-area-viewport]>div]:block!',
         className,
       )}
       {...props}
@@ -132,7 +139,10 @@ const FocusSheetSideBar = ({
   return (
     <Sidebar
       collapsible="none"
-      className={cn('flex-none w-64 border-r', className)}
+      className={cn(
+        'flex-none h-auto w-full max-h-40 overflow-y-auto border-b lg:h-full lg:max-h-none lg:w-64 lg:border-b-0 lg:border-r',
+        className,
+      )}
       {...props}
     />
   );
@@ -141,10 +151,17 @@ FocusSheetSideBar.displayName = 'FocusSheetSideBar';
 
 const FocusSheetSidebarTrigger = () => {
   const { isSidebarOpen, setIsSidebarOpen } = useFocusSheet();
+  const { t } = useTranslation();
   return (
     <Button
       variant="ghost"
       size="icon"
+      aria-label={
+        isSidebarOpen
+          ? t('hide-navigation', 'Hide navigation')
+          : t('show-navigation', 'Show navigation')
+      }
+      aria-expanded={isSidebarOpen}
       onClick={() => setIsSidebarOpen(!isSidebarOpen)}
     >
       {isSidebarOpen ? (
@@ -165,7 +182,10 @@ const FocusSheetSideTabs = forwardRef<
   return (
     <Tabs
       ref={ref}
-      className={cn('flex', className)}
+      className={cn(
+        'flex min-h-0 min-w-0 shrink-0 max-lg:flex-col-reverse max-lg:max-h-1/2',
+        className,
+      )}
       orientation="horizontal"
       value={activeSideTab || undefined}
       {...props}
@@ -189,7 +209,7 @@ const FocusSheetSideContent = forwardRef<
     <Tabs.Content
       ref={ref}
       className={cn(
-        'data-[state=active]:border-l data-[state=active]:min-w-80 w-full transition-all data-[state=active]:flex flex-col overflow-hidden bg-sidebar',
+        'lg:data-[state=active]:border-l lg:data-[state=active]:min-w-80 min-w-0 w-full max-lg:w-full! max-lg:max-w-full! max-lg:flex-1 max-lg:min-h-0 transition-all data-[state=active]:flex flex-col overflow-hidden bg-sidebar',
         className,
       )}
       {...props}
@@ -240,7 +260,7 @@ const FocusSheetSideTabsList = forwardRef<
     <Tabs.List
       ref={ref}
       className={cn(
-        'w-12 flex-none border-l bg-sidebar h-full py-3 flex flex-col items-center justify-start gap-3 border-b-0',
+        'w-full lg:w-12 flex-none border-t lg:border-t-0 lg:border-l bg-sidebar h-12 lg:h-full py-1 lg:py-3 flex flex-row lg:flex-col items-center justify-start gap-3 border-b-0',
         className,
       )}
       {...props}
