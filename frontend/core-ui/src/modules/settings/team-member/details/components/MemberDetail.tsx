@@ -5,6 +5,7 @@ import { MemberDetailEmptyState } from '@/settings/team-member/details/component
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
 import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
+import { MemberPanelAvatar } from '@/settings/team-member/details/components/MemberPanelAvatar';
 import {
   MemberPanelDetail,
   MemberPanelName,
@@ -83,6 +84,13 @@ export const MemberDetail = ({
       userDetail.email ||
       t('member-detail');
 
+    const picture = (
+      <Avatar size="lg" className="size-7 flex-none">
+        <Avatar.Image src={readImage(avatar || '')} />
+        <Avatar.Fallback>{title.charAt(0)}</Avatar.Fallback>
+      </Avatar>
+    );
+
     return {
       breadcrumbTitle: title,
       title: currentUser?.isOwner ? (
@@ -90,11 +98,10 @@ export const MemberDetail = ({
       ) : (
         title
       ),
-      avatar: (
-        <Avatar size="lg" className="size-7 flex-none">
-          <Avatar.Image src={readImage(avatar || '')} />
-          <Avatar.Fallback>{title.charAt(0)}</Avatar.Fallback>
-        </Avatar>
+      avatar: currentUser?.isOwner ? (
+        <MemberPanelAvatar user={userDetail}>{picture}</MemberPanelAvatar>
+      ) : (
+        picture
       ),
     };
   };

@@ -63,13 +63,14 @@ export const CustomersMerge = ({
         });
       },
       onCompleted: () => {
-        if (session !== mergeSession.current) return;
-        const mergePath = getModulePanelPath(CUSTOMERS_MERGE_PANEL);
-        if (currentPanel.current.path === mergePath) {
-          currentPanel.current.dismissPath(mergePath);
-        }
         table.resetRowSelection(true);
-        setSheetOpen(false);
+        if (session === mergeSession.current) {
+          const mergePath = getModulePanelPath(CUSTOMERS_MERGE_PANEL);
+          if (currentPanel.current.path === mergePath) {
+            currentPanel.current.dismissPath(mergePath);
+          }
+          setSheetOpen(false);
+        }
         toast({
           title: t('success-title'),
           variant: 'success',

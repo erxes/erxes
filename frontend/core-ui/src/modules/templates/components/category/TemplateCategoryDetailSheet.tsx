@@ -36,29 +36,26 @@ export const TemplateCategoryDetailSheet = () => {
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
       {pagePanel.permissionsLoaded && pagePanel.allowed ? (
         <>
+          <RecordSidePanel.Header
+            title={<>{t('edit-category')}</>}
+            {...pagePanel.headerProps}
+          />
           {loading ? (
             <div className="flex flex-1 justify-center items-center p-5 min-h-[200px] text-muted-foreground">
               <IconLoader2 className="w-4 h-4 animate-spin" />
             </div>
           ) : (
-            <>
-              <RecordSidePanel.Header
-                title={<>{t('edit-category')}</>}
-                {...pagePanel.headerProps}
-              />
-
-              <TemplateCategoryForm
-                category={categoryDetail}
-                onCompleted={() => {
-                  toast({
-                    title: t('update-success'),
-                    variant: 'success',
-                  });
-                  setOpen(null);
-                }}
-                onClose={() => setOpen(null)}
-              />
-            </>
+            <TemplateCategoryForm
+              category={categoryDetail}
+              onCompleted={() => {
+                toast({
+                  title: t('update-success'),
+                  variant: 'success',
+                });
+                setOpen(null);
+              }}
+              onClose={() => setOpen(null)}
+            />
           )}
         </>
       ) : (

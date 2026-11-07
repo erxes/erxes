@@ -51,9 +51,9 @@ export const SimilarityGroupList = ({
   }, [groupsMap, selected, configsLoading]);
 
   const entries = Object.entries(groupsMap);
-  return (
-    <>
-      {configsLoading ? (
+  const renderList = () => {
+    if (configsLoading) {
+      return (
         <InfoCard
           title={t('similarity-groups', 'Similarity Groups')}
           className="h-full"
@@ -64,34 +64,42 @@ export const SimilarityGroupList = ({
             <Skeleton className="w-full h-12" />
           </InfoCard.Content>
         </InfoCard>
-      ) : !entries.length ? (
-        <EmptyStateRow />
-      ) : (
-        <InfoCard
-          title={t('similarity-groups', 'Similarity Groups')}
-          className="h-full min-h-0"
-        >
-          <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
-            {entries.map(([key, config]) => (
-              <div key={key} className="border-b">
-                <Can action="productsConfigsManage">
-                  <Button
-                    variant="ghost"
-                    className="h-auto w-full justify-start px-4 py-3"
-                    onClick={() => {
-                      setSelected({ key, config });
-                      setOpen(true);
-                    }}
-                  >
-                    {config.title ||
-                      t('new-similarity-group', 'New similarity group')}
-                  </Button>
-                </Can>
-              </div>
-            ))}
-          </InfoCard.Content>
-        </InfoCard>
-      )}
+      );
+    }
+    if (!entries.length) {
+      return <EmptyStateRow />;
+    }
+    return (
+      <InfoCard
+        title={t('similarity-groups', 'Similarity Groups')}
+        className="h-full min-h-0"
+      >
+        <InfoCard.Content className="overflow-y-auto flex-1 min-h-0">
+          {entries.map(([key, config]) => (
+            <div key={key} className="border-b">
+              <Can action="productsConfigsManage">
+                <Button
+                  variant="ghost"
+                  className="h-auto w-full justify-start px-4 py-3"
+                  onClick={() => {
+                    setSelected({ key, config });
+                    setOpen(true);
+                  }}
+                >
+                  {config.title ||
+                    t('new-similarity-group', 'New similarity group')}
+                </Button>
+              </Can>
+            </div>
+          ))}
+        </InfoCard.Content>
+      </InfoCard>
+    );
+  };
+
+  return (
+    <>
+      {renderList()}
       <ProductEditorPanel
         name={`similarity-groups/${selected?.key || 'detail'}`}
         open={open}

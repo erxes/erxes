@@ -125,6 +125,69 @@ export const CategoryDetailSheet = () => {
     );
   }
 
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <>
+          <ProductEditorHeader title={t('edit-category')} />
+          <div className="flex flex-1 items-center justify-center p-5 text-muted-foreground">
+            <IconLoader2 className="size-4 animate-spin" />
+          </div>
+        </>
+      );
+    }
+    if (error || !categoryDetail) {
+      return (
+        <>
+          <ProductEditorHeader title={t('edit-category')} />
+          <div className="p-5 text-sm text-destructive">
+            {error?.message || t('failed-to-load-category')}
+          </div>
+        </>
+      );
+    }
+    return (
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex overflow-hidden flex-col h-full"
+        >
+          <ProductEditorHeader title={t('edit-category')} />
+
+          <Sheet.Content className="overflow-hidden flex-auto">
+            <ScrollArea className="h-full">
+              <div className="p-5">
+                <CategoriesUpdateCoreFields
+                  form={form}
+                  categoryDetail={categoryDetail}
+                />
+                <CategoryUpdateMoreFields
+                  form={form}
+                  categoryDetail={categoryDetail}
+                  attachment={attachment}
+                  onAttachmentChange={setAttachment}
+                />
+              </div>
+            </ScrollArea>
+          </Sheet.Content>
+
+          <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(null)}
+            >
+              {t('cancel')}
+            </Button>
+            <Button type="submit" disabled={editLoading}>
+              {editLoading ? t('saving') : t('save')}
+            </Button>
+          </Sheet.Footer>
+        </form>
+      </Form>
+    );
+  };
+
   return (
     <ProductEditorPanel
       name={`categories/${categoryId || 'detail'}`}
@@ -132,60 +195,7 @@ export const CategoryDetailSheet = () => {
       onOpenChange={(isOpen) => !isOpen && setOpen(null)}
       requiredPermission="productCategoriesManage"
     >
-      {loading ? (
-        <>
-          <ProductEditorHeader title={t('edit-category')} />
-          <div className="flex flex-1 items-center justify-center p-5 text-muted-foreground">
-            <IconLoader2 className="size-4 animate-spin" />
-          </div>
-        </>
-      ) : error || !categoryDetail ? (
-        <>
-          <ProductEditorHeader title={t('edit-category')} />
-          <div className="p-5 text-sm text-destructive">
-            {error?.message || t('failed-to-load-category')}
-          </div>
-        </>
-      ) : (
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex overflow-hidden flex-col h-full"
-          >
-            <ProductEditorHeader title={t('edit-category')} />
-
-            <Sheet.Content className="overflow-hidden flex-auto">
-              <ScrollArea className="h-full">
-                <div className="p-5">
-                  <CategoriesUpdateCoreFields
-                    form={form}
-                    categoryDetail={categoryDetail}
-                  />
-                  <CategoryUpdateMoreFields
-                    form={form}
-                    categoryDetail={categoryDetail}
-                    attachment={attachment}
-                    onAttachmentChange={setAttachment}
-                  />
-                </div>
-              </ScrollArea>
-            </Sheet.Content>
-
-            <Sheet.Footer className="flex justify-end shrink-0 p-2.5 gap-1 bg-muted">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setOpen(null)}
-              >
-                {t('cancel')}
-              </Button>
-              <Button type="submit" disabled={editLoading}>
-                {editLoading ? t('saving') : t('save')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      )}
+      {renderContent()}
     </ProductEditorPanel>
   );
 };
