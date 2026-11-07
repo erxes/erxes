@@ -1,5 +1,5 @@
 import { QueryHookOptions, useQuery } from '@apollo/client';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ACTIVITY_LOGS } from '../graphql/queries';
 import { TActivityLog } from '../types';
 import { ACTIVITY_LOG_INSERTED } from '../graphql/subscriptions';
@@ -106,6 +106,7 @@ export const useActivityLogs = (
   const { data, loading, error, refetch, subscribeToMore, fetchMore } =
     useQuery<ActivityLogsQueryData>(ACTIVITY_LOGS, {
       ...options,
+      notifyOnNetworkStatusChange: true,
       fetchPolicy: options?.fetchPolicy ?? 'cache-and-network',
       nextFetchPolicy: options?.nextFetchPolicy ?? 'cache-first',
       variables: {
@@ -125,6 +126,9 @@ export const useActivityLogs = (
 
   const inFlightCursorRef = useRef<string | null>(null);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
+  const failedCursorsRef = useRef<Set<string>>(new Set());
+  const queryGenerationRef = useRef(0);
+  const [fetchMoreError, setFetchMoreError] = useState<Error>();
 
   useEffect(() => {
     if (!targetId) {
@@ -195,8 +199,15 @@ export const useActivityLogs = (
   ]);
 
   useEffect(() => {
+    queryGenerationRef.current += 1;
     inFlightCursorRef.current = null;
     fetchedCursorsRef.current.clear();
+    failedCursorsRef.current.clear();
+    setFetchMoreError(undefined);
+
+    return () => {
+      queryGenerationRef.current += 1;
+    };
   }, [
     targetId,
     action,
@@ -218,8 +229,10 @@ export const useActivityLogs = (
 
   const handleFetchMore = ({
     direction,
+    retry = false,
   }: {
     direction: EnumCursorDirection;
+    retry?: boolean;
   }) => {
     if (!validateFetchMore({ direction, pageInfo })) {
       return;
@@ -234,14 +247,21 @@ export const useActivityLogs = (
       return;
     }
 
+    if (retry) {
+      failedCursorsRef.current.delete(cursor);
+    }
+
     if (
       inFlightCursorRef.current === cursor ||
-      fetchedCursorsRef.current.has(cursor)
+      fetchedCursorsRef.current.has(cursor) ||
+      failedCursorsRef.current.has(cursor)
     ) {
       return;
     }
 
     inFlightCursorRef.current = cursor;
+    const queryGeneration = queryGenerationRef.current;
+    setFetchMoreError(undefined);
 
     void fetchMore({
       variables: {
@@ -256,7 +276,12 @@ export const useActivityLogs = (
         direction,
       },
       updateQuery: (prev, { fetchMoreResult }) => {
-        if (!fetchMoreResult) return prev;
+        if (
+          !fetchMoreResult ||
+          queryGeneration !== queryGenerationRef.current
+        ) {
+          return prev;
+        }
 
         const mergedActivityLogs = mergeCursorData({
           direction,
@@ -273,11 +298,24 @@ export const useActivityLogs = (
       },
     })
       .then(() => {
-        fetchedCursorsRef.current.add(cursor);
+        if (queryGeneration === queryGenerationRef.current) {
+          fetchedCursorsRef.current.add(cursor);
+        }
       })
-      .catch(() => undefined)
+      .catch((cause: unknown) => {
+        if (queryGeneration !== queryGenerationRef.current) return;
+        failedCursorsRef.current.add(cursor);
+        setFetchMoreError(
+          cause instanceof Error
+            ? cause
+            : new Error('Could not load more activity logs.'),
+        );
+      })
       .finally(() => {
-        if (inFlightCursorRef.current === cursor) {
+        if (
+          queryGeneration === queryGenerationRef.current &&
+          inFlightCursorRef.current === cursor
+        ) {
           inFlightCursorRef.current = null;
         }
       });
@@ -289,6 +327,7 @@ export const useActivityLogs = (
     pageInfo,
     loading,
     error,
+    fetchMoreError,
     refetch,
     handleFetchMore,
     hasNextPage: pageInfo.hasNextPage,

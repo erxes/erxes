@@ -8,8 +8,12 @@ interface ActivityLogContextType {
   loading: boolean;
   variant?: 'forward' | 'backward';
   error?: Error;
+  fetchMoreError?: Error;
   customActivities?: ActivityLogCustomActivity[];
-  handleFetchMore?: (params: { direction: EnumCursorDirection }) => void;
+  handleFetchMore?: (params: {
+    direction: EnumCursorDirection;
+    retry?: boolean;
+  }) => void;
   hasNextPage?: boolean;
   hasPreviousPage?: boolean;
   totalCount?: number;
@@ -30,6 +34,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
   loading,
   variant = 'forward',
   error,
+  fetchMoreError,
   customActivities,
   handleFetchMore,
   hasNextPage,
@@ -46,6 +51,7 @@ export const ActivityLogProvider: React.FC<ActivityLogProviderProps> = ({
         loading,
         variant,
         error,
+        fetchMoreError,
         customActivities,
         handleFetchMore,
         hasNextPage,
