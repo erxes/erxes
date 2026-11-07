@@ -232,6 +232,13 @@ export const queries = `
 `;
 
 export const mutations = `
+  usersEditProfilePatch(
+    username: String,
+    email: String,
+    details: UserDetails,
+    links: JSON,
+    positionIds: [String!]
+  ): User
   usersResetMemberPassword(_id: String!, newPassword: String!): User
   usersEditProfile(
     username: String!,
