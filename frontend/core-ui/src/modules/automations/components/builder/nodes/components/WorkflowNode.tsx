@@ -1,3 +1,11 @@
+import { NodeData, WorkflowNodeData } from '@/automations/types';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { useNodeDropDownActions } from '@/automations/components/builder/nodes/hooks/useNodeDropDownActions';
 import { NodeEditMetaDataForm } from '@/automations/components/builder/nodes/components/NodeEditMetaDataForm';
 import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
@@ -12,7 +20,6 @@ import {
   WorkflowNodeProvider,
 } from '@/automations/context/WorkflowNodeProvider';
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import { NodeData, WorkflowNodeData } from '@/automations/types';
 import { useConvertSelectionToWorkflow } from '@/automations/components/builder/hooks/useConvertSelectionToWorkflow';
 import { useWorkflowTemplates } from '@/automations/components/builder/hooks/useWorkflowTemplates';
 import {
@@ -24,7 +31,7 @@ import {
   IconTemplate,
   IconTrash,
 } from '@tabler/icons-react';
-import { Handle, Node, NodeProps, Position } from '@xyflow/react';
+import { Handle, Position, Node, NodeProps } from '@xyflow/react';
 import {
   AlertDialog,
   Button,
@@ -33,11 +40,9 @@ import {
   Dialog,
   DropdownMenu,
   IconComponent,
-  Sheet,
 } from 'erxes-ui';
 import { memo, useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-
 const WorkflowNodeContent = ({
   data,
   selected,
@@ -60,12 +65,10 @@ const WorkflowNodeContent = ({
   const hasMemberActions = !!(workflows || []).find(
     (workflow) => workflow.id === id,
   )?.actions?.length;
-
   const handleUnconvertAndRemove = useCallback(() => {
     unconvertWorkflow(id);
     setOpenRemoveAlert(false);
   }, [unconvertWorkflow, id, setOpenRemoveAlert]);
-
   return (
     <NodeFrame
       label={t('workflow-label')}
@@ -197,31 +200,36 @@ const WorkflowNodeContent = ({
     </NodeFrame>
   );
 };
-
 const WorkflowMemberSummary = () => {
   const { t } = useTranslation('automations');
   const { memberCount, entryLabel } = useWorkflowNodeContext();
-
   if (!memberCount) {
     return null;
   }
-
   return (
     <p className="mt-1 text-xs text-muted-foreground">
-      {t('workflow-member-actions', { count: memberCount })}
-      {entryLabel ? ` · ${t('workflow-entry', { label: entryLabel })}` : ''}
+      {t('workflow-member-actions', {
+        count: memberCount,
+      })}
+      {entryLabel
+        ? ` · ${t('workflow-entry', {
+            label: entryLabel,
+          })}`
+        : ''}
     </p>
   );
 };
-
 const WorkflowSelectedNodes = ({
   automationId,
   config = {},
   flowDirection,
-}: any) => {
+}: {
+  automationId: string;
+  config?: { selectedActionIds?: string[] };
+  flowDirection?: NonNullable<WorkflowNodeData['flowDirection']>;
+}) => {
   const { selectedActionIds = [] } = config || {};
   const isVertical = flowDirection === 'vertical';
-
   return selectedActionIds.map((selectedActionId: string) => {
     return (
       <Card
@@ -248,43 +256,62 @@ const WorkflowSelectedNodes = ({
     );
   });
 };
-
 const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
   const { t } = useTranslation('automations');
+  const { workflowId } = useWorkflowNodeContext();
   const [open, setOpen] = useState(false);
+  const pagePanel = usePagePanel({
+    maxWidth: 1200,
+    defaultWidth: 900,
+    name: `automations/workflow/${workflowId}`,
+    open: open,
+    onOpenChange: setOpen,
+  });
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
         <Button
           variant="ghost"
           size="icon"
           aria-label={t('open-workflow', 'Open workflow')}
+          onClick={pagePanel.onOpen}
         >
           <IconArrowsMaximize className="size-4" />
         </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0 md:w-[calc(80vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-        <Sheet.Header className="h-auto py-2">
-          <div>
-            <Sheet.Title>{t('workflow-label')}</Sheet.Title>
-            <Sheet.Description>
-              {t('workflow-select-action-description')}
-            </Sheet.Description>
-          </div>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content>
-          {open && <WorkflowActionMapper id={data.automationId} />}
-        </Sheet.Content>
-      </Sheet.View>
-    </Sheet>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <div>
+                      <span>{t('workflow-label')}</span>
+                      <p>{t('workflow-select-action-description')}</p>
+                    </div>
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}
+                >
+                  {open && <WorkflowActionMapper id={data.automationId} />}
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };
-
-const WorkflowNode = (props: NodeProps<Node<NodeData & WorkflowNodeData>>) => (
+const WorkflowNodeView = (
+  props: NodeProps<Node<NodeData & WorkflowNodeData>>,
+) => (
   <WorkflowNodeProvider workflowId={props.id}>
     <WorkflowNodeContent {...props} />
   </WorkflowNodeProvider>
 );
-
-export default memo(WorkflowNode);
+export const WorkflowNode = memo(WorkflowNodeView);

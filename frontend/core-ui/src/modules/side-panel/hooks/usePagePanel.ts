@@ -1,8 +1,8 @@
-import { useQueryState } from 'erxes-ui';
 import { createPortal } from 'react-dom';
 import {
   type ReactNode,
   type ReactPortal,
+  type ReactElement,
   createContext,
   createElement,
   useCallback,
@@ -37,6 +37,8 @@ export interface PagePanelOptions {
   maxWidth?: number;
   defaultWidth?: number;
   expandable?: boolean;
+  onExpand?: () => void;
+  page?: boolean;
   requiredPermission?: string;
 }
 export interface PagePanelNavigation {
@@ -56,6 +58,7 @@ export interface PagePanelEntry extends PagePanelNavigation {
   onOpen: () => void;
   isCurrent: () => boolean;
   target: HTMLElement | null;
+  page: boolean;
 }
 export const PagePanelContext = createContext<PagePanelEntry | null>(null);
 
@@ -75,11 +78,12 @@ export const usePagePanel = ({
   onOpenChange,
   maxWidth,
   defaultWidth,
-  expandable = true,
+  onExpand,
+  expandable = Boolean(onExpand),
+  page = false,
   requiredPermission,
 }: PagePanelOptions): PagePanelEntry => {
   const panel = useSidePanel();
-  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const permissionsLoaded = !requiredPermission || isLoaded;
   const allowed =
@@ -132,9 +136,12 @@ export const usePagePanel = ({
   };
   /** Connects module open state with shared panel navigation. */
   const changeOpen = (next: boolean) => {
-    if (!next) leave();
+    if (!next && !page) leave();
     changeLocalOpen(next);
-    if (next) panel.openPath(path, { stack: Boolean(parent) || inRecord });
+    if (next && !page)
+      panel.openPath(path, {
+        stack: Boolean(parent && !parent.page) || inRecord,
+      });
   };
   const actions = useRef({
     panel,
@@ -142,7 +149,8 @@ export const usePagePanel = ({
     changeOpen,
     leave,
     path,
-    stack: Boolean(parent) || inRecord,
+    stack: Boolean(parent && !parent.page) || inRecord,
+    onExpand,
   });
   useLayoutEffect(() => {
     actions.current = {
@@ -151,11 +159,15 @@ export const usePagePanel = ({
       changeOpen,
       leave,
       path,
-      stack: Boolean(parent) || inRecord,
+      stack: Boolean(parent && !parent.page) || inRecord,
+      onExpand,
     };
   });
+  const canExpand = !page && expandable && Boolean(onExpand);
+  const expand = useCallback(() => actions.current.onExpand?.(), []);
 
   useEffect(() => {
+    if (page) return;
     const before = previous.current;
     const routeChanged = previousRoute.current !== panel.path;
     previousRoute.current = panel.path;
@@ -189,11 +201,13 @@ export const usePagePanel = ({
     ) {
       actions.current.changeLocalOpen(true);
     }
-  }, [open, path, panel.path, history]);
+  }, [open, path, panel.path, history, page]);
 
-  const retained = open || panel.path === path || history.includes(path);
+  const retained = page
+    ? open
+    : open || panel.path === path || history.includes(path);
   useEffect(() => {
-    if (!retained) return undefined;
+    if (!retained || page) return undefined;
     const entry = {
       onClose: () => {
         if (actions.current.path === path && !isCurrent()) return;
@@ -203,7 +217,8 @@ export const usePagePanel = ({
       },
       maxWidth,
       defaultWidth,
-      expandable,
+      expandable: canExpand,
+      onExpand: canExpand ? expand : undefined,
     };
     setEntries((entries) => ({ ...entries, [path]: entry }));
     return () =>
@@ -219,25 +234,25 @@ export const usePagePanel = ({
     setEntries,
     maxWidth,
     defaultWidth,
-    expandable,
+    canExpand,
+    expand,
+    page,
     isCurrent,
   ]);
 
   const onClose = useCallback(() => {
     if (actions.current.path === path && !isCurrent()) return;
-    actions.current.panel.dismissPath(path);
+    if (!page) actions.current.panel.dismissPath(path);
     if (actions.current.path === path) actions.current.changeLocalOpen(false);
-  }, [path, isCurrent]);
+  }, [path, isCurrent, page]);
   const onOpen = useCallback(() => actions.current.changeOpen(true), []);
   const targets = useAtomValue(modulePanelTargetsState);
   const contextValue = useMemo(() => {
     const headerProps: PagePanelNavigation = {
       onClose,
-      onBack: panel.canGoBack ? panel.back : undefined,
-      expanded: expandable && Boolean(expanded),
-      onExpand: expandable
-        ? () => setExpanded(expanded ? null : true, { replace: true })
-        : undefined,
+      onBack: !page && panel.canGoBack ? panel.back : undefined,
+      expanded: page,
+      onExpand: canExpand ? expand : undefined,
     };
     return {
       ...headerProps,
@@ -250,6 +265,7 @@ export const usePagePanel = ({
       onOpen,
       isCurrent,
       target: targets[path] || null,
+      page,
     };
   }, [
     path,
@@ -263,9 +279,9 @@ export const usePagePanel = ({
     panel.canGoBack,
     panel.back,
     targets,
-    expanded,
-    expandable,
-    setExpanded,
+    canExpand,
+    expand,
+    page,
   ]);
   return contextValue;
 };
@@ -274,8 +290,8 @@ export const usePagePanel = ({
 export const createPagePanelPortal = (
   children: ReactNode,
   entry: PagePanelEntry,
-): ReactPortal | null => {
-  if (!entry.open || !entry.target) return null;
+): ReactPortal | ReactElement | null => {
+  if (!entry.open) return null;
   const content = createElement(
     PagePanelContext.Provider,
     { value: entry },
@@ -285,6 +301,8 @@ export const createPagePanelPortal = (
       children,
     ),
   );
+  if (entry.page) return content;
+  if (!entry.target) return null;
   // React DOM resolves its own React types at this external-library boundary.
   return createPortal(
     content as Parameters<typeof createPortal>[0],

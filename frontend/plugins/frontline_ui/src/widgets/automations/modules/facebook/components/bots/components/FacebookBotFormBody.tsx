@@ -25,12 +25,14 @@ export const FacebookBotFormBody = ({
 
   return (
     <FbBotFormProvider facebookMessengerBot={facebookMessengerBot} page={page}>
-      <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
-          <AutomationFbBotFormContent isPageFixed />
-        </div>
-        <div className="min-w-0 flex-1 border-t lg:border-l lg:border-t-0">
-          <FacebookBotSimulator />
+      <div className="@container/bot-form flex min-h-0 flex-1 flex-col overflow-y-auto">
+        <div className="flex min-h-full flex-col @min-[900px]/bot-form:flex-row">
+          <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <AutomationFbBotFormContent isPageFixed />
+          </div>
+          <div className="min-w-0 flex-1 border-t @min-[900px]/bot-form:border-l @min-[900px]/bot-form:border-t-0">
+            <FacebookBotSimulator />
+          </div>
         </div>
       </div>
     </FbBotFormProvider>
