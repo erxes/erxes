@@ -126,6 +126,7 @@ export const useActivityLogs = (
 
   const inFlightCursorRef = useRef<string | null>(null);
   const fetchedCursorsRef = useRef<Set<string>>(new Set());
+  const failedCursorsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (!targetId) {
@@ -198,6 +199,7 @@ export const useActivityLogs = (
   useEffect(() => {
     inFlightCursorRef.current = null;
     fetchedCursorsRef.current.clear();
+    failedCursorsRef.current.clear();
   }, [
     targetId,
     action,
@@ -237,7 +239,8 @@ export const useActivityLogs = (
 
     if (
       inFlightCursorRef.current === cursor ||
-      fetchedCursorsRef.current.has(cursor)
+      fetchedCursorsRef.current.has(cursor) ||
+      failedCursorsRef.current.has(cursor)
     ) {
       return;
     }
@@ -276,7 +279,9 @@ export const useActivityLogs = (
       .then(() => {
         fetchedCursorsRef.current.add(cursor);
       })
-      .catch(() => undefined)
+      .catch(() => {
+        failedCursorsRef.current.add(cursor);
+      })
       .finally(() => {
         if (inFlightCursorRef.current === cursor) {
           inFlightCursorRef.current = null;

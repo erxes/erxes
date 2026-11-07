@@ -67,21 +67,20 @@ export const ActivityLogList = ({
   }
 
   const fetchMoreIndicator = canFetchMore && !reachedLimit && (
-    <div
+    <output
       ref={fetchMoreRef}
       className="w-full min-h-1 flex flex-col gap-4"
-      role={loading ? 'status' : undefined}
       aria-label={loading ? 'Loading more activity logs' : undefined}
     >
       {loading &&
-        [...Array(4)].map((_, index) => (
+        Array.from({ length: 4 }, (_, index) => (
           <div key={index} className="flex gap-2 items-center">
             <Skeleton className="size-6 rounded-full" />
             <Skeleton className="w-1/2 h-3" />
             <Skeleton className="w-20 ml-auto h-3" />
           </div>
         ))}
-    </div>
+    </output>
   );
 
   return (
