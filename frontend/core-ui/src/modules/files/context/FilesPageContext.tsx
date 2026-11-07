@@ -3,7 +3,6 @@ import { useQuery } from '@apollo/client';
 import {
   createContext,
   Dispatch,
-  ReactNode,
   SetStateAction,
   useContext,
   useMemo,
@@ -11,29 +10,37 @@ import {
   useState,
   useRef,
   useCallback,
+  ReactNode,
 } from 'react';
 import { TFilesItem, useFilesSelection } from '@/files/hooks/useFilesSelection';
 import {
   FILES_BY_IDS,
   IFile,
   IFilesFolder,
-  TFilesSpace,
   useFilesBrowser,
+  TFilesSpace,
 } from 'ui-modules';
-
 export type TFilesNameDialog =
-  | { mode: 'create-folder' }
-  | { mode: 'rename-folder'; folder: IFilesFolder }
-  | { mode: 'rename-file'; file: IFile };
-
-export type TFilesAccessTarget = { itemType: 'folder' | 'file'; _id: string };
-
+  | {
+      mode: 'create-folder';
+    }
+  | {
+      mode: 'rename-folder';
+      folder: IFilesFolder;
+    }
+  | {
+      mode: 'rename-file';
+      file: IFile;
+    };
+export type TFilesAccessTarget = {
+  itemType: 'folder' | 'file';
+  _id: string;
+};
 export type TFilesMoveTarget = {
   fileIds: string[];
   folderIds: string[];
   label: string;
 };
-
 type TFilesPageContext = {
   space: TFilesSpace;
   browser: ReturnType<typeof useFilesBrowser>;
@@ -57,9 +64,7 @@ type TFilesPageContext = {
   accessTarget: TFilesAccessTarget | null;
   setAccessTarget: (target: TFilesAccessTarget | null) => void;
 };
-
 const FilesPageContext = createContext<TFilesPageContext | null>(null);
-
 export const FilesPageProvider = ({
   space,
   children,
@@ -69,7 +74,11 @@ export const FilesPageProvider = ({
 }) => {
   const [folderId, setFolderId] = useQueryState<string>('folderId');
   const [searchValue, setSearchValue] = useState('');
-  const browser = useFilesBrowser({ space, folderId, searchValue });
+  const browser = useFilesBrowser({
+    space,
+    folderId,
+    searchValue,
+  });
   const [nameDialog, setNameDialog] = useState<TFilesNameDialog | null>(null);
   const [moveTarget, setMoveTarget] = useState<TFilesMoveTarget | null>(null);
   const [previewId, setPreviewId] = useQueryState<string>('previewFileId');
@@ -78,8 +87,12 @@ export const FilesPageProvider = ({
     data: previewData,
     loading: previewLoading,
     error: previewError,
-  } = useQuery<{ filesByIds: IFile[] }>(FILES_BY_IDS, {
-    variables: { _ids: previewId ? [previewId] : [] },
+  } = useQuery<{
+    filesByIds: IFile[];
+  }>(FILES_BY_IDS, {
+    variables: {
+      _ids: previewId ? [previewId] : [],
+    },
     skip: !previewId,
   });
   const previewFile =
@@ -106,8 +119,14 @@ export const FilesPageProvider = ({
   const [bulkShareOpen, setBulkShareOpen] = useState(false);
   const visible = useMemo<TFilesItem[]>(
     () => [
-      ...browser.folders.map((item) => ({ itemType: 'folder' as const, item })),
-      ...browser.files.map((item) => ({ itemType: 'file' as const, item })),
+      ...browser.folders.map((item) => ({
+        itemType: 'folder' as const,
+        item,
+      })),
+      ...browser.files.map((item) => ({
+        itemType: 'file' as const,
+        item,
+      })),
     ],
     [browser.folders, browser.files],
   );
@@ -118,12 +137,10 @@ export const FilesPageProvider = ({
   const [accessTarget, setAccessTarget] = useState<TFilesAccessTarget | null>(
     null,
   );
-
   const openFolder = (id?: string) => {
     setSearchValue('');
     setFolderId(id || null);
   };
-
   return (
     <FilesPageContext.Provider
       value={{
@@ -154,13 +171,10 @@ export const FilesPageProvider = ({
     </FilesPageContext.Provider>
   );
 };
-
 export const useFilesPage = () => {
   const context = useContext(FilesPageContext);
-
   if (!context) {
     throw new Error('useFilesPage must be used inside FilesPageProvider');
   }
-
   return context;
 };

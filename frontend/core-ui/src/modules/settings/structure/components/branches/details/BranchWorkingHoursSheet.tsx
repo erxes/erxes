@@ -1,60 +1,36 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { useWorkhoursPanel } from '@/settings/structure/hooks/useWorkhoursPanel';
+import { WorkhoursFormContent } from '@/settings/structure/components/workhours/WorkhoursFormContent';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { createPagePanelPortal as createPortal } from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  Separator,
-  Switch,
-  useQueryState,
-} from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
+import { Button, DatePicker, Form, Input, Separator, Switch } from 'erxes-ui';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import {
-  IHoliday,
-  IWorkhoursForm,
-  WorkDay,
-} from '@/settings/structure/types/workhours';
-import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
+import { IHoliday, IWorkhoursForm } from '@/settings/structure/types/workhours';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Can } from 'ui-modules';
 import { useBranchById } from 'ui-modules/modules/structure/hooks/useBranchById';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useBranchInlineEdit } from '@/settings/structure/hooks/useBranchActions';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
-import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
 import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
-
 export const BranchWorkingHoursSheet = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const [workingHoursId] = useQueryState('workingHoursId');
-  const [searchParams, setSearchParams] = useSearchParams();
-  const { form } = useWorkhoursForm();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
+  const { workingHoursId, form, pagePanel, close } = useWorkhoursPanel(
+    'settings/structure/branches/BranchWorkingHoursSheet',
+  );
   const { branchDetail } = useBranchById({
     variables: {
       id: workingHoursId,
     },
     skip: !workingHoursId,
   });
-
   const { branchesEdit, loading } = useBranchInlineEdit();
-
-  const setOpen = (newId: string | null) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (newId) {
-      newSearchParams.set('workingHoursId', newId);
-    } else {
-      newSearchParams.delete('workingHoursId');
-    }
-    setSearchParams(newSearchParams);
-  };
-
   const onSubmit = (values: IWorkhoursForm) => {
     const { holidays, ...days } = values || {};
     const activeDays: Record<string, any> = {};
-
     Object.entries(days).forEach(([day, data]) => {
       if (data && !data.inactive) {
         activeDays[day] = {
@@ -66,13 +42,10 @@ export const BranchWorkingHoursSheet = () => {
         };
       }
     });
-
     const payload = Object.keys(activeDays).length ? activeDays : null;
-
     const holidaysPayload = (holidays ?? []).filter(
       (holiday) => holiday?.name || holiday?.startDate || holiday?.endDate,
     );
-
     branchesEdit(
       {
         variables: {
@@ -85,11 +58,9 @@ export const BranchWorkingHoursSheet = () => {
       ['code', 'workhours', 'holidays'],
     );
   };
-
   useEffect(() => {
     if (branchDetail) {
       const initialValues = branchDetail.workhours ?? {};
-
       const mergedValues = Object.fromEntries(
         Object.entries(workingHours).map(([day, defaults]) => [
           day,
@@ -106,66 +77,35 @@ export const BranchWorkingHoursSheet = () => {
     }
   }, [branchDetail, form]);
 
-  return (
-    <Form {...form}>
-      <CoreModulePanel
-        name={'settings/structure/branches/BranchWorkingHoursSheet'}
-        open={!!workingHoursId}
-        onOpenChange={(isOpen) => {
-          if (!isOpen) {
-            setOpen(null);
-          }
-        }}
+  return createPortal(
+    pagePanel.permissionsLoaded && pagePanel.allowed ? (
+      <WorkhoursFormContent
+        title={t('setup-branch-working-hours')}
+        form={form}
+        navigation={pagePanel.headerProps}
+        onCancel={close}
+        onSave={form.handleSubmit(onSubmit)}
+        saving={loading}
+        permission="branchesManage"
       >
-        <CoreModulePanel.View className="p-0 md:max-w-5xl">
-          <div className="flex flex-col gap-0 size-full">
-            <CoreModulePanel.Header>
-              <CoreModulePanel.Title>
-                {t('setup-branch-working-hours')}
-              </CoreModulePanel.Title>
-              <CoreModulePanel.Close />
-            </CoreModulePanel.Header>
-            <CoreModulePanel.Content className="flex-1 min-h-0 overflow-y-auto flex flex-col px-5">
-              {Object.entries(workingHours).map(([day], index) => {
-                return (
-                  <Fragment key={day}>
-                    {index !== 0 && <Separator />}
-                    <WeekDayRow weekDay={day as WorkDay} />
-                  </Fragment>
-                );
-              })}
-              <Separator />
-              <HolidaysSection />
-            </CoreModulePanel.Content>
-            <CoreModulePanel.Footer className="flex justify-end items-center gap-3">
-              <Button variant={'secondary'} onClick={() => setOpen(null)}>
-                {t('cancel')}
-              </Button>
-              <Can action="branchesManage">
-                <Button
-                  disabled={loading}
-                  type="button"
-                  onClick={form.handleSubmit(onSubmit)}
-                >
-                  {t('save')}
-                </Button>
-              </Can>
-            </CoreModulePanel.Footer>
-          </div>
-        </CoreModulePanel.View>
-      </CoreModulePanel>
-    </Form>
+        <Separator />
+        <HolidaysSection />
+      </WorkhoursFormContent>
+    ) : (
+      <PagePanelStatus entry={pagePanel} />
+    ),
+    pagePanel,
   );
 };
-
 const HolidaysSection = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
   const form = useFormContext<IWorkhoursForm>();
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'holidays',
   });
-
   const addHoliday = () =>
     append({
       _id: nanoid(),
@@ -176,7 +116,6 @@ const HolidaysSection = () => {
       startFrom: '',
       endTo: '',
     });
-
   return (
     <div className="flex flex-col gap-3 py-4">
       <div className="flex items-center justify-between">
@@ -211,7 +150,6 @@ const HolidaysSection = () => {
     </div>
   );
 };
-
 const HolidayRow = ({
   index,
   onRemove,
@@ -219,7 +157,9 @@ const HolidayRow = ({
   index: number;
   onRemove: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
   const form = useFormContext<IWorkhoursForm>();
   const isInactive = form.watch(`holidays.${index}.inactive`) as boolean;
   const startDate = form.watch(`holidays.${index}.startDate`);
@@ -227,7 +167,6 @@ const HolidayRow = ({
   const startFrom = form.watch(`holidays.${index}.startFrom`);
   const endTo = form.watch(`holidays.${index}.endTo`);
   const [hasWorkHours, setHasWorkHours] = useState(Boolean(startFrom || endTo));
-
   const toggleWorkHours = (checked: boolean) => {
     setHasWorkHours(checked);
     if (checked) {
@@ -239,7 +178,6 @@ const HolidayRow = ({
       form.setValue(`holidays.${index}.endTo`, '');
     }
   };
-
   return (
     <div
       className={`flex flex-col gap-3 rounded-md border p-3 ${

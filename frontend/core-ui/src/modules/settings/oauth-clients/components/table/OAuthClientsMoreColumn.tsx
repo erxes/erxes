@@ -1,5 +1,6 @@
-import { useTranslation } from 'react-i18next';
+import { IOAuthClientApp } from '../../types';
 import { Cell } from '@tanstack/react-table';
+import { useTranslation } from 'react-i18next';
 import {
   Popover,
   Command,
@@ -12,17 +13,17 @@ import {
 import { IconEdit, IconLock, IconTrash } from '@tabler/icons-react';
 import { useSetAtom } from 'jotai';
 import { Can } from 'ui-modules';
-import { IOAuthClientApp } from '../../types';
 import { editingOAuthClientAtom } from '../../state';
 import { useOAuthClientsRemove } from '../../hooks/useOAuthClientsRemove';
 import { useOAuthClientsRevoke } from '../../hooks/useOAuthClientsRevoke';
-
 export const OAuthClientsMoreColumnCell = ({
   cell,
 }: {
   cell: Cell<IOAuthClientApp, unknown>;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'oauth-clients' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'oauth-clients',
+  });
   const { _id, name, status } = cell.row.original;
   const { confirm } = useConfirm();
   const { toast } = useToast();
@@ -30,13 +31,18 @@ export const OAuthClientsMoreColumnCell = ({
   const { oauthClientAppsRevoke } = useOAuthClientsRevoke();
   const setEditingOAuthClient = useSetAtom(editingOAuthClientAtom);
   const [, setClientId] = useQueryState<string>('oauthClientId');
-
   const handleDelete = () => {
     confirm({
-      message: t('confirm-delete-client', { name }),
+      message: t('confirm-delete-client', {
+        name,
+      }),
     }).then(async () => {
       try {
-        await oauthClientAppsRemove({ variables: { _id } });
+        await oauthClientAppsRemove({
+          variables: {
+            _id,
+          },
+        });
       } catch (e: unknown) {
         toast({
           title: t('error'),
@@ -46,13 +52,18 @@ export const OAuthClientsMoreColumnCell = ({
       }
     });
   };
-
   const handleRevoke = () => {
     confirm({
-      message: t('confirm-revoke-client', { name }),
+      message: t('confirm-revoke-client', {
+        name,
+      }),
     }).then(async () => {
       try {
-        await oauthClientAppsRevoke({ variables: { _id } });
+        await oauthClientAppsRevoke({
+          variables: {
+            _id,
+          },
+        });
         toast({
           variant: 'success',
           title: t('client-revoked'),
@@ -66,7 +77,6 @@ export const OAuthClientsMoreColumnCell = ({
       }
     });
   };
-
   return (
     <Popover>
       <Can action="appsManage">
@@ -100,7 +110,6 @@ export const OAuthClientsMoreColumnCell = ({
     </Popover>
   );
 };
-
 export const oauthClientsMoreColumn = {
   id: 'more',
   cell: OAuthClientsMoreColumnCell,

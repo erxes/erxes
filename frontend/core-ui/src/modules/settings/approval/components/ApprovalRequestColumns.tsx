@@ -1,3 +1,4 @@
+import { ColumnDef } from '@tanstack/react-table';
 import { TFunction } from 'i18next';
 import {
   IconCalendarTime,
@@ -7,7 +8,6 @@ import {
   IconUser,
   IconUsers,
 } from '@tabler/icons-react';
-import { ColumnDef } from '@tanstack/react-table';
 import {
   Badge,
   Button,
@@ -16,12 +16,11 @@ import {
   RelativeDateDisplay,
   TextOverflowTooltip,
 } from 'erxes-ui';
-import { ApprovalRequest, useSidePanel } from 'ui-modules';
+import { useSidePanel, ApprovalRequest } from 'ui-modules';
 import {
   APPROVAL_REQUEST_STATUS_META,
   getApprovalRequestUserName,
 } from '@/settings/approval/components/approvalRequestUtils';
-
 const ApprovalRequestDetailsCell = ({
   id,
   t,
@@ -37,7 +36,10 @@ const ApprovalRequestDetailsCell = ({
         size="icon"
         className="size-7"
         onClick={() =>
-          openRecord({ contentType: 'core:approvalRequest', contentId: id })
+          openRecord({
+            contentType: 'core:approvalRequest',
+            contentId: id,
+          })
         }
       >
         <IconEye className="size-4" />
@@ -46,7 +48,6 @@ const ApprovalRequestDetailsCell = ({
     </RecordTableInlineCell>
   );
 };
-
 export const approvalRequestColumns = ({
   t,
 }: {
@@ -71,7 +72,6 @@ export const approvalRequestColumns = ({
     cell: ({ row }) => {
       const status = row.original.status;
       const { icon: Icon, variant } = APPROVAL_REQUEST_STATUS_META[status];
-
       return (
         <RecordTableInlineCell>
           <Badge
@@ -95,7 +95,6 @@ export const approvalRequestColumns = ({
     cell: ({ row }) => {
       const { content, contentType } = row.original;
       const label = content?.label || contentType;
-
       return (
         <RecordTableInlineCell className="min-w-0 gap-2">
           <IconLock className="size-4 shrink-0 text-muted-foreground" />
@@ -149,7 +148,6 @@ export const approvalRequestColumns = ({
       const approverNames = (row.original.requiredApprovers || [])
         .map(getApprovalRequestUserName)
         .filter((name) => name !== '-');
-
       return (
         <RecordTableInlineCell className="min-w-0">
           <TextOverflowTooltip

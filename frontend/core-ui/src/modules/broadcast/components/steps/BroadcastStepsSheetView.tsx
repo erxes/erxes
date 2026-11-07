@@ -1,28 +1,26 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { cn } from 'erxes-ui';
+import { IBroadcastMethodEnum } from '../../types';
 import { ReactNode } from 'react';
-import { IBroadcastMethodEnum } from '@/broadcast/types';
-
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 /** The sheet a campaign is written in, whether it is new or being edited. */
 export const BroadcastStepsSheetView = ({
-  method,
   children,
 }: {
   method?: IBroadcastMethodEnum | null;
   children: ReactNode;
-}) => (
-  <CoreModulePanel.View
-    className={cn(
-      'sm:max-w-7xl',
-      // The workflow canvas is the campaign's content, so it gets the room a
-      // form-based method does not need. Overridden at the same breakpoint as
-      // the sheet's own `md:w-3/4`, which a plain `w-*` class would lose to.
-      method === IBroadcastMethodEnum.WORKFLOW &&
-        'sm:max-w-none md:w-[calc(100vw-1rem)]',
-    )}
-    // Escape would throw away a campaign half written.
-    onEscapeKeyDown={(event) => event.preventDefault()}
-  >
-    {children}
-  </CoreModulePanel.View>
-);
+}) => {
+  const pagePanel = usePagePanelContext();
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>{children}</>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
+  );
+};

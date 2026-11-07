@@ -1,12 +1,20 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@apollo/client';
-import { Spinner, Table } from 'erxes-ui';
-
+import { Spinner, Table, cn } from 'erxes-ui';
 import { GET_DEPARTMENT_MEMBERS } from '@/settings/structure/graphql';
 import { useState } from 'react';
-import { IUser, MembersInline } from 'ui-modules';
-
+import {
+  MembersInline,
+  RecordSidePanel,
+  SidePanelRecordPathContext,
+  IUser,
+} from 'ui-modules';
 const MemberRow = ({ member }: { member: IUser }) => {
   return (
     <Table.Row className="shadow-xs group">
@@ -24,7 +32,6 @@ const MemberRow = ({ member }: { member: IUser }) => {
     </Table.Row>
   );
 };
-
 export const DepartmentMembersSheet = ({
   departmentId,
   count,
@@ -32,72 +39,112 @@ export const DepartmentMembersSheet = ({
   departmentId: string;
   count: number;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
   const [open, setOpen] = useState(false);
-
   const { data, loading, error } = useQuery(GET_DEPARTMENT_MEMBERS, {
-    variables: { id: departmentId },
+    variables: {
+      id: departmentId,
+    },
     skip: !open,
   });
-
   const members: IUser[] = data?.departmentDetail?.users || [];
-
+  const pagePanel = usePagePanel({
+    name: `settings/department-members/${departmentId}`,
+    open: open,
+    onOpenChange: setOpen,
+    identity: departmentId || 'new',
+  });
   return (
-    <CoreModulePanel
-      name={`settings/department-members/${departmentId}`}
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <CoreModulePanel.Trigger asChild>
-        <button className="w-full h-full font-medium text-sm hover:underline">
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <button
+          className="w-full h-full font-medium text-sm hover:underline"
+          onClick={pagePanel.onOpen}
+        >
           {count}
         </button>
-      </CoreModulePanel.Trigger>
-      <CoreModulePanel.View className="flex flex-col w-80">
-        <CoreModulePanel.Header>
-          <CoreModulePanel.Title>
-            {data?.departmentDetail?.title || t('department')}
-          </CoreModulePanel.Title>
-        </CoreModulePanel.Header>
-        <CoreModulePanel.Content className="flex-1 px-4 py-4 overflow-y-auto styled-scroll">
-          {loading ? (
-            <div className="flex justify-center py-8">
-              <Spinner />
-            </div>
-          ) : error ? (
-            <p className="px-2 py-4 text-destructive text-sm">
-              {t('failed-to-load-members')}
-            </p>
-          ) : members.length === 0 ? (
-            <div className="flex flex-col justify-center items-center py-16 text-center">
-              <p className="font-medium text-muted-foreground">
-                {t('no-members')}
-              </p>
-              <p className="mt-1 text-muted-foreground/70 text-sm">
-                {t('no-team-members-in-department')}
-              </p>
-            </div>
-          ) : (
-            <div className="bg-sidebar pr-2 pb-2 pl-1 border border-sidebar border-t-4 border-l-4 rounded-lg">
-              <Table>
-                <Table.Header>
-                  <Table.Row>
-                    <Table.Head className="pl-2 w-auto">
-                      {t('member')}
-                    </Table.Head>
-                    <Table.Head className="w-8" />
-                  </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {members.map((member) => (
-                    <MemberRow key={member._id} member={member} />
-                  ))}
-                </Table.Body>
-              </Table>
-            </div>
-          )}
-        </CoreModulePanel.Content>
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <>{data?.departmentDetail?.title || t('department')}</>
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn(
+                    'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                    'flex-1 px-4 py-4 overflow-y-auto styled-scroll',
+                  )}
+                >
+                  <DepartmentMembersList
+                    loading={loading}
+                    error={!!error}
+                    members={members}
+                  />
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
+  );
+};
+
+const DepartmentMembersList = ({
+  loading,
+  error,
+  members,
+}: {
+  loading: boolean;
+  error: boolean;
+  members: IUser[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  if (loading)
+    return (
+      <div className="flex justify-center py-8">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return (
+      <p className="px-2 py-4 text-destructive text-sm">
+        {t('failed-to-load-members')}
+      </p>
+    );
+  if (members.length === 0)
+    return (
+      <div className="flex flex-col justify-center items-center py-16 text-center">
+        <p className="font-medium text-muted-foreground">{t('no-members')}</p>
+        <p className="mt-1 text-muted-foreground/70 text-sm">
+          {t('no-team-members-in-department')}
+        </p>
+      </div>
+    );
+  return (
+    <div className="bg-sidebar pr-2 pb-2 pl-1 border border-sidebar border-t-4 border-l-4 rounded-lg">
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head className="pl-2 w-auto">{t('member')}</Table.Head>
+            <Table.Head className="w-8" />
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {members.map((member) => (
+            <MemberRow key={member._id} member={member} />
+          ))}
+        </Table.Body>
+      </Table>
+    </div>
   );
 };

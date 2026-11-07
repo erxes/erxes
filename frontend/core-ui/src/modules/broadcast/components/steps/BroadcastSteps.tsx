@@ -1,40 +1,38 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { Resizable } from 'erxes-ui';
+import { TBroadcastStepsOptions } from '../../hooks/useBroadcastStepsState';
+import { RecordSidePanel } from 'ui-modules';
+import { usePagePanelContext } from '@/side-panel/hooks/usePagePanel';
+import { Resizable, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   BroadcastStepsProvider,
   useBroadcastSteps,
 } from '@/broadcast/context/BroadcastStepsContext';
-import { TBroadcastStepsOptions } from '@/broadcast/hooks/useBroadcastStepsState';
 import { BroadcastPreview } from '@/broadcast/components/BroadcastPreview';
 import { BroadcastScheduleField } from '@/broadcast/components/steps/BroadcastScheduleField';
 import { BroadcastStepActions } from '@/broadcast/components/steps/BroadcastStepActions';
 import { BroadcastStepContent } from '@/broadcast/components/steps/BroadcastStepContent';
-
 export const BroadcastSteps = (options: TBroadcastStepsOptions) => (
   <BroadcastStepsProvider {...options}>
     <BroadcastStepsHeader />
     <BroadcastStepsLayout />
   </BroadcastStepsProvider>
 );
-
 const BroadcastStepsHeader = () => {
   const { t } = useTranslation('broadcasts');
   const { messageId } = useBroadcastSteps();
-
+  const pagePanel = usePagePanelContext();
   return (
-    <CoreModulePanel.Header>
-      <CoreModulePanel.Title>
-        {t(messageId ? 'steps.edit-title' : 'steps.new-title')}
-      </CoreModulePanel.Title>
-      <div className="ml-auto mr-2 flex items-center gap-2">
-        <BroadcastScheduleField />
-      </div>
-      <CoreModulePanel.Close />
-    </CoreModulePanel.Header>
+    <RecordSidePanel.Header
+      title={<>{t(messageId ? 'steps.edit-title' : 'steps.new-title')}</>}
+      {...pagePanel.headerProps}
+      actions={
+        <div className="ml-auto mr-2 flex items-center gap-2">
+          <BroadcastScheduleField />
+        </div>
+      }
+    />
   );
 };
-
 const BroadcastStepsLayout = () => {
   const { method, isWorkflow } = useBroadcastSteps();
 
@@ -52,9 +50,14 @@ const BroadcastStepsLayout = () => {
         defaultSize={isWorkflow ? 26 : 40}
         minSize={isWorkflow ? 20 : 35}
       >
-        <CoreModulePanel.Content className="grow overflow-hidden flex flex-col">
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 flex-col overflow-y-auto',
+            'grow overflow-hidden flex flex-col',
+          )}
+        >
           <BroadcastStepContent />
-        </CoreModulePanel.Content>
+        </div>
         <BroadcastStepActions />
       </Resizable.Panel>
 

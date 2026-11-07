@@ -1,3 +1,4 @@
+import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { memberCustomActivities } from '@/settings/team-member/details/components/MemberActivityRows';
 import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
@@ -21,14 +22,7 @@ import {
   IconLink,
   IconShieldLock,
 } from '@tabler/icons-react';
-import {
-  Avatar,
-  readImage,
-  ScrollArea,
-  Skeleton,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Avatar, readImage, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
 import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
@@ -38,6 +32,8 @@ import {
   IRecordSidePanelTab,
   RecordSidePanel,
   usePermissionCheck,
+  useSidePanel,
+  usePanelExpanded,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'overview';
@@ -53,19 +49,15 @@ export const MemberDetail = ({
   onClose,
 }: {
   onBack?: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { tab: selectedTab, setTab: setSelectedTab } = useSidePanel();
+  const expanded = usePanelExpanded();
   const { error, userDetail, loading } = useUserDetail();
   const { hasActionPermission } = usePermissionCheck();
   const currentUser = useAtomValue(currentUserState);
-
-  const handleClose = () => {
-    setSelectedTab(null);
-    onClose();
-  };
 
   const renderHeading = () => {
     if (!userDetail) {
@@ -203,15 +195,17 @@ export const MemberDetail = ({
     ];
 
     const activeTab = tabs.some((tab) => tab.value === selectedTab)
-      ? (selectedTab as string)
+      ? selectedTab
       : DETAIL_TAB;
 
     return (
-      <RecordSidePanel.Tabs
+      <RecordSidePanel.Layout
         tabs={tabs}
         value={activeTab}
         onValueChange={setSelectedTab}
         visibleCount={tabs.length}
+        overviewTab={DETAIL_TAB}
+        expandedDefaultTab="activity"
       />
     );
   };
@@ -221,11 +215,12 @@ export const MemberDetail = ({
   return (
     <>
       <RecordSidePanel.Header
+        className={expanded ? 'h-10 bg-background px-3' : undefined}
         avatar={avatar}
-        title={title}
+        title={expanded ? <MemberPanelBreadcrumb title={title} /> : title}
         actions={userDetail && <MemberPanelActions user={userDetail} />}
         onBack={onBack}
-        onClose={handleClose}
+        onClose={onClose}
       />
       {renderBody()}
     </>

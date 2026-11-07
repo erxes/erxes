@@ -2,13 +2,18 @@ import {
   IconExternalLink,
   IconMessage,
   IconNote,
-  IconDotsVertical,
   IconPrinter,
 } from '@tabler/icons-react';
-import { Button, DropdownMenu } from 'erxes-ui';
+import { Button } from 'erxes-ui';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PrintDocument, SendEmailButton, usePermissionCheck } from 'ui-modules';
+import {
+  PrintDocument,
+  SendEmailButton,
+  usePanelExpanded,
+  usePermissionCheck,
+} from 'ui-modules';
+import { ContactPanelRecordActions } from '@/side-panel/components/details/ContactPanelRecordActions';
 
 // Panel widths, in px, that the actions need beside the record's title in the
 // header row: below these they collapse into a menu and an icon.
@@ -87,8 +92,9 @@ export const ContactPanelActions = ({
   const [printOpen, setPrintOpen] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
   const [panelWidth, setPanelWidth] = useState(0);
-  const compact = panelWidth < ACTIONS_WIDTH;
-  const emailIconOnly = panelWidth < SEND_EMAIL_LABEL_WIDTH;
+  const expanded = usePanelExpanded();
+  const compact = !expanded && panelWidth < ACTIONS_WIDTH;
+  const emailIconOnly = !expanded && panelWidth < SEND_EMAIL_LABEL_WIDTH;
   const canMessage =
     Boolean(onMessage) && hasActionPermission('conversationMessageAdd');
   const canNote = hasActionPermission('internalNotesManage');
@@ -138,7 +144,7 @@ export const ContactPanelActions = ({
   return (
     <section
       ref={containerRef}
-      className="flex shrink-0 items-center gap-1"
+      className="flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1"
       aria-label={t('contact-actions', 'Contact actions')}
     >
       {email && (
@@ -154,50 +160,37 @@ export const ContactPanelActions = ({
           }}
         />
       )}
-      {actions.length > 0 &&
-        (compact ? (
-          <DropdownMenu>
-            <DropdownMenu.Trigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                aria-label={t('actions', 'Actions')}
-              >
-                <IconDotsVertical className="size-4" aria-hidden="true" />
-              </Button>
-            </DropdownMenu.Trigger>
-            <DropdownMenu.Content
-              align="end"
-              onCloseAutoFocus={(event) => {
-                if (printOpen) event.preventDefault();
-              }}
-            >
-              {actions.map(
-                ({ key, label, icon: Icon, onClick, iconClassName }) => (
-                  <DropdownMenu.Item key={key} onSelect={onClick}>
-                    <Icon className={iconClassName} aria-hidden="true" />
-                    {label}
-                  </DropdownMenu.Item>
-                ),
-              )}
-            </DropdownMenu.Content>
-          </DropdownMenu>
-        ) : (
-          actions.map(({ key, label, icon: Icon, onClick }) => (
-            <Button
-              key={key}
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={onClick}
-            >
-              <Icon className="size-4" aria-hidden="true" />
-              {label}
-            </Button>
-          ))
+      {!compact &&
+        actions.map(({ key, label, icon: Icon, onClick }) => (
+          <Button
+            key={key}
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onClick}
+          >
+            <Icon className="size-4" aria-hidden="true" />
+            {label}
+          </Button>
         ))}
+      <ContactPanelRecordActions
+        contentType={contentType}
+        contentId={contentId}
+        includePrint={false}
+        preventCloseAutoFocus={printOpen}
+        quickActions={
+          compact
+            ? actions.map(
+                ({ key, label, icon: Icon, onClick, iconClassName }) => ({
+                  key,
+                  label,
+                  icon: <Icon className={iconClassName} aria-hidden="true" />,
+                  onSelect: onClick,
+                }),
+              )
+            : undefined
+        }
+      />
       {canPrint && (
         <PrintDocument
           items={[{ _id: contentId }]}

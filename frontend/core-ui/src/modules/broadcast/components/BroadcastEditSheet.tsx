@@ -1,15 +1,20 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  usePagePanelContext,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { IBroadcastMethodEnum } from '@/broadcast/types';
+import { SidePanelRecordPathContext } from 'ui-modules';
 import { useAutomationDetail } from '@/automations/hooks/useAutomationDetail';
 import { BroadcastSteps } from '@/broadcast/components/steps/BroadcastSteps';
 import { useBroadcastMessage } from '@/broadcast/hooks/useBroadcastMessage';
-import { IBroadcastMethodEnum } from '@/broadcast/types';
 import { messageToFormValues } from '@/broadcast/utils/messageToFormValues';
 import { BroadcastStepsSheetView } from '@/broadcast/components/steps/BroadcastStepsSheetView';
-import { Skeleton, useMultiQueryState } from 'erxes-ui';
+import { useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BroadcastErrorState } from '@/broadcast/components/list/BroadcastStates';
-
 type TBroadcastEditQueryParams = {
   editMessageId: string;
   method: IBroadcastMethodEnum;
@@ -25,30 +30,34 @@ type TBroadcastEditQueryParams = {
 export const BroadcastEditSheet = () => {
   const [{ editMessageId, method }, setQueryParams] =
     useMultiQueryState<TBroadcastEditQueryParams>(['editMessageId', 'method']);
-
   const handleClose = () =>
-    setQueryParams({ editMessageId: null, method: null });
-
+    setQueryParams({
+      editMessageId: null,
+      method: null,
+    });
+  const pagePanel = usePagePanel({
+    maxWidth: 1200,
+    defaultWidth: 900,
+    name: 'broadcast/BroadcastEditSheet',
+    open: !!editMessageId,
+    onOpenChange: (open) => !open && handleClose(),
+    identity: editMessageId || 'new',
+  });
   return (
-    <CoreModulePanel
-      maxWidth={1200}
-      defaultWidth={900}
-      name={'broadcast/BroadcastEditSheet'}
-      open={!!editMessageId}
-      onOpenChange={(open) => !open && handleClose()}
-    >
-      <BroadcastStepsSheetView method={method}>
-        {editMessageId && (
-          <BroadcastEditSheetContent
-            messageId={editMessageId}
-            onClose={handleClose}
-          />
-        )}
-      </BroadcastStepsSheetView>
-    </CoreModulePanel>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <BroadcastStepsSheetView method={method}>
+          {editMessageId && (
+            <BroadcastEditSheetContent
+              messageId={editMessageId}
+              onClose={handleClose}
+            />
+          )}
+        </BroadcastStepsSheetView>
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };
-
 const BroadcastEditSheetContent = ({
   messageId,
   onClose,
@@ -56,9 +65,12 @@ const BroadcastEditSheetContent = ({
   messageId: string;
   onClose: () => void;
 }) => {
+  const entry = usePagePanelContext();
   const { t } = useTranslation('broadcasts');
   const { message, loading, error, refetch } = useBroadcastMessage({
-    variables: { _id: messageId },
+    variables: {
+      _id: messageId,
+    },
   });
 
   // A workflow campaign keeps its flow on the automation it owns, not on the
@@ -66,7 +78,6 @@ const BroadcastEditSheetContent = ({
   const { automation, loading: loadingAutomation } = useAutomationDetail(
     message?.workflowAutomationId,
   );
-
   const initialValues = useMemo(
     () =>
       messageToFormValues(message, {
@@ -80,20 +91,29 @@ const BroadcastEditSheetContent = ({
   // the steps must not be rendered before the flow is there to seed it with.
   const isMissingFlow = !!message?.workflowAutomationId && !automation;
 
-  // Without these a campaign that failed to load, or no longer exists, left
-  // the sheet on its skeleton for good.
-  if (error) {
-    return <BroadcastErrorState error={error} onRetry={() => refetch()} />;
-  }
-
-  if (!loading && !message?._id) {
-    return <BroadcastErrorState error={new Error(t('error.not-found'))} />;
-  }
-
-  if (loading || loadingAutomation || isMissingFlow) {
-    return <Skeleton className="m-4 h-[calc(100%-2rem)] w-[calc(100%-2rem)]" />;
-  }
-
+  if (error)
+    return (
+      <PagePanelStatus
+        entry={entry}
+        error
+        errorState={
+          <BroadcastErrorState error={error} onRetry={() => refetch()} />
+        }
+      />
+    );
+  if (!loading && !message?._id)
+    return (
+      <PagePanelStatus
+        entry={entry}
+        notFoundState={
+          <BroadcastErrorState error={new Error(t('error.not-found'))} />
+        }
+      />
+    );
+  if (!loading && !loadingAutomation && isMissingFlow)
+    return <PagePanelStatus entry={entry} error />;
+  if (loading || loadingAutomation || isMissingFlow)
+    return <PagePanelStatus entry={entry} loading />;
   return (
     <BroadcastSteps
       messageId={messageId}

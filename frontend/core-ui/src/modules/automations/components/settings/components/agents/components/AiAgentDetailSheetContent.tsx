@@ -1,4 +1,3 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import { AutomationAiAgentDetail } from '@/automations/components/settings/components/agents/components/AutomationAiAgentDetail';
 import { AiAgentDetailSheetShell } from '@/automations/components/settings/components/agents/components/detail/AiAgentDetailSheetShell';
 import { useAiAgentDetail } from '@/automations/components/settings/components/agents/hooks/useAiAgentDetail';
@@ -26,7 +25,6 @@ export const AiAgentDetailSheetContent = ({
   const isEdit = Boolean(agentId);
   // The editor swaps in its own close so unsaved changes can be confirmed.
   const requestCloseRef = useRef<(() => void) | null>(null);
-
   const {
     state: lockState,
     loading: lockLoading,
@@ -37,7 +35,9 @@ export const AiAgentDetailSheetContent = ({
       contentId: agentId || '',
       action: 'view',
     },
-    { skip: !isEdit },
+    {
+      skip: !isEdit,
+    },
   );
   const isLockedOut = !!lockState?.locked && !lockState.hasAccess;
   const { detail, loading, handleSave } = useAiAgentDetail({
@@ -45,25 +45,19 @@ export const AiAgentDetailSheetContent = ({
     skip: isEdit && (lockLoading || !lockState || isLockedOut),
     onCreated,
   });
-
-  const renderContent = () => {
+  const renderContent = (close: () => void) => {
     if (lockLoading || (isEdit && loading && !detail)) {
       return (
         <>
-          <CoreModulePanel.Title className="sr-only">
-            Loading agent
-          </CoreModulePanel.Title>
+          <span className="sr-only">Loading agent</span>
           <Spinner />
         </>
       );
     }
-
     if (isLockedOut && lockState) {
       return (
         <>
-          <CoreModulePanel.Title className="sr-only">
-            Agent is locked
-          </CoreModulePanel.Title>
+          <span className="sr-only">Agent is locked</span>
           <ApprovalLockScreen
             state={lockState}
             onRequestCompleted={() => refetchLockState()}
@@ -71,24 +65,25 @@ export const AiAgentDetailSheetContent = ({
         </>
       );
     }
-
     return (
       <AutomationAiAgentDetail
         key={agentId}
         detail={detail}
         handleSave={handleSave}
-        onClose={onClose}
+        onClose={close}
         requestCloseRef={requestCloseRef}
         persistStepInUrl={persistStepInUrl}
       />
     );
   };
-
   return (
     <AiAgentDetailSheetShell
-      onRequestClose={() => (requestCloseRef.current || onClose)()}
+      title={detail?.name || (isEdit ? 'Agent' : 'New agent')}
+      identity={agentId || 'new'}
+      onClose={onClose}
+      onRequestClose={(close) => (requestCloseRef.current || close)()}
     >
-      {renderContent()}
+      {renderContent}
     </AiAgentDetailSheetShell>
   );
 };

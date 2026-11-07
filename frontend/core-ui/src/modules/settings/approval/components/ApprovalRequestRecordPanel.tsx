@@ -1,4 +1,5 @@
 import { SETTINGS_APPROVAL_REQUESTS } from '@/settings/approval/graphql/approvalRequests';
+import { PanelEmptyState } from '@/side-panel/components/PagePanelStatus';
 import { useApolloClient, useQuery } from '@apollo/client';
 import {
   Badge,
@@ -6,7 +7,6 @@ import {
   RelativeDateDisplay,
   Separator,
   Spinner,
-  Empty,
 } from 'erxes-ui';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,6 +16,7 @@ import {
   type IUser,
   type IRecordViewProps,
   RecordSidePanel,
+  PanelField,
 } from 'ui-modules';
 import { CORE_APPROVAL_REQUEST_PANEL } from '@/settings/approval/graphql/approvalRequestPanel';
 import { ApprovalContentTarget } from '@/approval/components/ApprovalContentTarget';
@@ -44,12 +45,9 @@ const DetailField = ({
   label: string;
   children: ReactNode;
 }) => (
-  <div className="space-y-1">
-    <div className="text-xs font-medium uppercase text-muted-foreground">
-      {label}
-    </div>
-    <div className="text-sm text-foreground">{children}</div>
-  </div>
+  <PanelField label={label} cell={false}>
+    {children}
+  </PanelField>
 );
 
 export const ApprovalRequestRecordPanel = ({
@@ -81,17 +79,13 @@ export const ApprovalRequestRecordPanel = ({
     return (
       <>
         {header}
-        <Empty>
-          <Empty.Header>
-            <Empty.Title>
-              {t('request-unavailable', 'Request unavailable')}
-            </Empty.Title>
-            <Empty.Description>{error?.message}</Empty.Description>
-          </Empty.Header>
-          <Empty.Content>
+        <PanelEmptyState
+          title={t('request-unavailable', 'Request unavailable')}
+          description={error?.message}
+          action={
             <Button onClick={() => refetch()}>{t('retry', 'Retry')}</Button>
-          </Empty.Content>
-        </Empty>
+          }
+        />
       </>
     );
   const targetLabel = request.content?.label || request.contentType;
@@ -107,8 +101,8 @@ export const ApprovalRequestRecordPanel = ({
   return (
     <>
       {header}
-      <div className="min-h-0 overflow-y-auto p-5">
-        <div className="space-y-5">
+      <div className="min-h-0 flex-1 overflow-y-auto p-3">
+        <div className="space-y-3">
           <div className="rounded-md border p-3">
             <div className="min-w-0">
               <ApprovalContentTarget
@@ -122,7 +116,7 @@ export const ApprovalRequestRecordPanel = ({
             </div>
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1">
             <DetailField label={t('status')}>
               <Badge variant="secondary">{t(`status-${request.status}`)}</Badge>
             </DetailField>

@@ -1,5 +1,11 @@
+import { RecordSidePanel } from 'ui-modules';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  usePagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
 import {
   AutomationExecutionBackButton,
   AutomationExecutionDetailTabs,
@@ -11,7 +17,6 @@ import { useAutomationHistoryView } from '@/automations/components/builder/histo
 import { IconEye } from '@tabler/icons-react';
 import { cn, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
 export const AutomationHistoryDetail = ({
   executionId,
 }: {
@@ -33,7 +38,6 @@ export const AutomationHistoryDetail = ({
     </RecordTableInlineCell>
   );
 };
-
 export const AutomationHistoryPanel = ({
   automationId,
 }: {
@@ -41,50 +45,60 @@ export const AutomationHistoryPanel = ({
 }) => {
   const { isSplitView, selectedExecutionId, selectExecution } =
     useAutomationHistoryView();
-  return (
-    <CoreModulePanel
-      name={AUTOMATION_HISTORY_PANEL}
-      open={!!selectedExecutionId && !isSplitView}
-      onOpenChange={(open) => !open && !isSplitView && selectExecution(null)}
-      maxWidth={1100}
-      defaultWidth={720}
-    >
-      <CoreModulePanel.View className="p-0" notFound={!selectedExecutionId}>
-        {selectedExecutionId && (
-          <AutomationHistoryDetailProvider
-            key={selectedExecutionId}
-            executionId={selectedExecutionId}
-          >
-            <AutomationHistorySheetContent isOpen automationId={automationId} />
-          </AutomationHistoryDetailProvider>
-        )}
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+  const pagePanel = usePagePanel({
+    name: AUTOMATION_HISTORY_PANEL,
+    open: !!selectedExecutionId && !isSplitView,
+    onOpenChange: (open) => !open && !isSplitView && selectExecution(null),
+    maxWidth: 1100,
+    defaultWidth: 720,
+    identity: selectedExecutionId || 'new',
+  });
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !!selectedExecutionId ? (
+        <>
+          {selectedExecutionId && (
+            <AutomationHistoryDetailProvider
+              key={selectedExecutionId}
+              executionId={selectedExecutionId}
+            >
+              <AutomationHistorySheetContent
+                isOpen
+                automationId={automationId}
+              />
+            </AutomationHistoryDetailProvider>
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
-
 const AutomationHistorySheetHeader = () => {
   const { t } = useTranslation('automations');
   const title = useAutomationExecutionDetailTitle();
-
+  const pagePanel = usePagePanelContext();
   return (
-    <CoreModulePanel.Header className="h-auto py-2">
-      <div className="flex min-w-0 items-center gap-2">
-        <AutomationExecutionBackButton />
-        <div>
-          <div className="flex items-center gap-2">
-            <CoreModulePanel.Title>{title}</CoreModulePanel.Title>
+    <RecordSidePanel.Header
+      title={
+        <div className="flex min-w-0 items-center gap-2">
+          <AutomationExecutionBackButton />
+          <div>
+            <div className="flex items-center gap-2">
+              <span>{title}</span>
+            </div>
+            <p>{t('history-sheet-description')}</p>
           </div>
-          <CoreModulePanel.Description>
-            {t('history-sheet-description')}
-          </CoreModulePanel.Description>
         </div>
-      </div>
-      <CoreModulePanel.Close />
-    </CoreModulePanel.Header>
+      }
+      {...pagePanel.headerProps}
+    />
   );
 };
-
 export const AutomationHistorySheetContent = ({
   isOpen,
   automationId,
@@ -98,9 +112,9 @@ export const AutomationHistorySheetContent = ({
   return (
     <AutomationExecutionDetailProvider automationId={automationId}>
       <AutomationHistorySheetHeader />
-      <CoreModulePanel.Content>
+      <div className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}>
         <AutomationExecutionDetailTabs />
-      </CoreModulePanel.Content>
+      </div>
     </AutomationExecutionDetailProvider>
   );
 };

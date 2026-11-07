@@ -1,15 +1,16 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { Button } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBroadcastSteps } from '@/broadcast/context/BroadcastStepsContext';
-
 export const BroadcastStepActions = () => {
   const { t } = useTranslation('broadcasts');
   const { isFirstStep, isLastStep, isScheduled, goPrevious, goNext, finish } =
     useBroadcastSteps();
-
   return (
-    <CoreModulePanel.Footer>
+    <div
+      className={cn(
+        'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+      )}
+    >
       <Button onClick={goPrevious} variant="secondary">
         {t(isFirstStep ? 'steps.cancel' : 'steps.previous')}
       </Button>
@@ -25,6 +26,6 @@ export const BroadcastStepActions = () => {
       ) : (
         <Button onClick={goNext}>{t('steps.next')}</Button>
       )}
-    </CoreModulePanel.Footer>
+    </div>
   );
 };

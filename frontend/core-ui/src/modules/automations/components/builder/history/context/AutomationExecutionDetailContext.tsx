@@ -1,16 +1,14 @@
+import { IAutomationHistory } from 'ui-modules';
 import { useAutomationHistoryDetail } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import { GET_AUTOMATION_EXECUTION_DETAIL } from '@/automations/components/builder/history/graphql/automationExecutionQueries';
 import { ApolloError, useQuery } from '@apollo/client';
 import { createContext, useContext } from 'react';
-import { IAutomationHistory } from 'ui-modules';
-
 type TAutomationExecutionDetailContext = {
   executionDetail?: IAutomationHistory;
   loading: boolean;
   error?: ApolloError;
   refetch: () => void;
 };
-
 const AutomationExecutionDetailContext =
   createContext<TAutomationExecutionDetailContext | null>(null);
 
@@ -29,9 +27,10 @@ export const AutomationExecutionDetailProvider = ({
   const { data, loading, error, refetch } = useQuery<{
     getAutomationExecutionDetail: IAutomationHistory;
   }>(GET_AUTOMATION_EXECUTION_DETAIL, {
-    variables: { executionId },
+    variables: {
+      executionId,
+    },
   });
-
   const executionDetail = data?.getAutomationExecutionDetail;
   // Workflow children can belong to another automation; only the selected
   // root execution must belong to the automation whose history is open.
@@ -46,7 +45,6 @@ export const AutomationExecutionDetailProvider = ({
         errorMessage: 'This execution does not belong to this automation.',
       })
     : error;
-
   return (
     <AutomationExecutionDetailContext.Provider
       value={{
@@ -63,7 +61,6 @@ export const AutomationExecutionDetailProvider = ({
     </AutomationExecutionDetailContext.Provider>
   );
 };
-
 export const useAutomationExecutionDetail = () => {
   const context = useContext(AutomationExecutionDetailContext);
   if (!context) {

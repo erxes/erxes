@@ -1,9 +1,13 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { RecordSidePanel } from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+} from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useEmailDeliveryDetail } from '@/settings/email-deliveries/hooks/useEmailDeliveries';
-import { Skeleton, useQueryState } from 'erxes-ui';
+import { Skeleton, useQueryState, cn } from 'erxes-ui';
 import dayjs from 'dayjs';
-
 const Row = ({ label, value }: { label: string; value?: string }) =>
   value ? (
     <div className="grid grid-cols-3 gap-3 py-1.5 text-sm">
@@ -11,11 +15,11 @@ const Row = ({ label, value }: { label: string; value?: string }) =>
       <span className="col-span-2 break-words">{value}</span>
     </div>
   ) : null;
-
 const EmailDeliveryDetail = ({ id }: { id: string }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'email-deliveries',
+  });
   const { detail, loading } = useEmailDeliveryDetail(id);
-
   if (loading) {
     return (
       <div className="flex flex-col gap-2 p-4">
@@ -25,17 +29,13 @@ const EmailDeliveryDetail = ({ id }: { id: string }) => {
       </div>
     );
   }
-
   if (!detail) {
     return <p className="p-4 text-muted-foreground">{t('not-found')}</p>;
   }
-
   const date = (value?: string) =>
     value ? dayjs(value).format('YYYY-MM-DD HH:mm:ss') : undefined;
-
   const list = (values?: string[]) =>
     values?.length ? values.join(', ') : undefined;
-
   return (
     <div className="divide-y p-4">
       <div>
@@ -83,26 +83,37 @@ const EmailDeliveryDetail = ({ id }: { id: string }) => {
     </div>
   );
 };
-
 export const EmailDeliveryDetailSheet = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'email-deliveries' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'email-deliveries',
+  });
   const [deliveryId, setDeliveryId] = useQueryState<string>('deliveryId');
-
-  return (
-    <CoreModulePanel
-      name={'settings/email-deliveries/EmailDeliveryDetailSheet'}
-      open={!!deliveryId}
-      onOpenChange={(open) => !open && deliveryId && setDeliveryId(null)}
-    >
-      <CoreModulePanel.View className="sm:max-w-2xl flex flex-col gap-0">
-        <CoreModulePanel.Header>
-          <CoreModulePanel.Title>{t('email-delivery')}</CoreModulePanel.Title>
-          <CoreModulePanel.Close />
-        </CoreModulePanel.Header>
-        <CoreModulePanel.Content className="flex-1 min-h-0 overflow-auto">
-          {deliveryId && <EmailDeliveryDetail id={deliveryId} />}
-        </CoreModulePanel.Content>
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+  const pagePanel = usePagePanel({
+    name: 'settings/email-deliveries/EmailDeliveryDetailSheet',
+    open: !!deliveryId,
+    onOpenChange: (open) => !open && deliveryId && setDeliveryId(null),
+  });
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          <RecordSidePanel.Header
+            title={<>{t('email-delivery')}</>}
+            {...pagePanel.headerProps}
+          />
+          <div
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-y-auto',
+              'flex-1 min-h-0 overflow-auto',
+            )}
+          >
+            {deliveryId && <EmailDeliveryDetail id={deliveryId} />}
+          </div>
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
