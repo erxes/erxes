@@ -12,6 +12,7 @@ import {
   INVOICE_CALLBACK_QUEUE,
   sendInvoiceCallback,
 } from '~/modules/payment/services/invoiceCallbackQueue';
+import { backfillInvoicePaymentKinds } from '~/modules/payment/services/invoicePaymentKinds';
 import { notifyPaidInvoice } from '~/modules/payment/services/paidInvoiceNotify';
 
 const SERVICE = 'payment';
@@ -81,6 +82,16 @@ const retryPendingNotifications = async (
 
 export const checkPendingInvoicesForSubdomain = async (subdomain: string) => {
   const models = await generateModels(subdomain);
+
+  try {
+    const backfilled = await backfillInvoicePaymentKinds(models);
+
+    if (backfilled) {
+      log(`${subdomain}: payment kinds backfilled on ${backfilled} invoices`);
+    }
+  } catch (e) {
+    logError(`${subdomain}: payment kinds backfill failed: ${e.message}`);
+  }
 
   const renotified = await retryPendingNotifications(models, subdomain);
 
@@ -208,6 +219,10 @@ export const initPendingInvoicesWorker = async () => {
     { pattern: SCHEDULE_PATTERN, tz: 'UTC' },
     { name: SCHEDULER_QUEUE },
   );
+
+  // one run right away so a fresh start (e.g. the paymentKinds backfill after
+  // a deploy) does not wait for the next scheduled tick
+  await schedulerQueue.add(SCHEDULER_QUEUE, {});
 
   createMQWorkerWithListeners(
     SERVICE,
