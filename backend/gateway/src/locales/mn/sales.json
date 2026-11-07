@@ -1104,5 +1104,21 @@
   "loyalty-insight-by-assignee": "Хариуцагчаар олгосон оноо",
   "loyalty-insight-by-branch": "Салбараар олгосон оноо",
   "loyalty-insight-top-earners": "Хамгийн их оноо авсан харилцагч",
-  "loyalty-insight-top-spenders": "Хамгийн их оноо зарцуулсан харилцагч"
+  "loyalty-insight-top-spenders": "Хамгийн их оноо зарцуулсан харилцагч",
+  "dashboard-loyalty-kpis": "Loyalty оноо",
+  "dashboard-loyalty-kpis-description": "Deal-ээр олгосон, зарцуулсан, буцаасан оноо, цэвэр дүн, зарцуулалт ба буцаалтын хувь",
+  "dashboard-loyalty-flow-description": "Deal-ээр олгосон, зарцуулсан, буцаасан оноо өдөр, долоо хоног, сараар",
+  "dashboard-loyalty-running-net-description": "Deal-үүдийн хуримтлагдсан цэвэр оноо хугацаагаар",
+  "dashboard-loyalty-by-pipeline-description": "Pipeline тус бүрийн олгосон, зарцуулсан, буцаасан, цэвэр оноо",
+  "dashboard-loyalty-top-deals-description": "Хамгийн их оноо олгосон арван deal",
+  "dashboard-loyalty-top-earners-description": "Deal-ээр хамгийн их оноо авсан харилцагчид",
+  "dashboard-loyalty-top-spenders-description": "Deal-ээр хамгийн их оноо зарцуулсан харилцагчид",
+  "dashboard-loyalty-all-boards": "Бүх board",
+  "dashboard-loyalty-scope-hint": "Хоосон үлдээвэл таны харах эрхтэй бүх pipeline-ийг нэгтгэнэ",
+  "dashboard-loyalty-period": "Хугацаа",
+  "dashboard-loyalty-save": "Widget хадгалах",
+  "dashboard-loyalty-disabled": "Оноо харахын тулд loyalty plugin-ийг идэвхжүүлнэ үү",
+  "dashboard-loyalty-empty": "Эдгээр pipeline-д оноо хөдлөөгүй байна",
+  "dashboard-loyalty-open": "Нээх",
+  "dashboard-widget-unknown": "Энэ widget боломжгүй болсон байна"
 }

@@ -12,3 +12,17 @@ export const CMS_CUSTOM_POST_TYPES = gql`
     }
   }
 `;
+
+export const CMS_CUSTOM_POST_TYPE_DETAIL = gql`
+  query CmsCustomPostTypeDetail($_id: String) {
+    cmsCustomPostType(_id: $_id) {
+      _id
+      clientPortalId
+      code
+      label
+      pluralLabel
+      description
+      createdAt
+    }
+  }
+`;

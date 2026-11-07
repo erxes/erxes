@@ -24,6 +24,8 @@ import {
 } from './ItineraryFormFields';
 import { TourFieldLanguageSwitch } from '@/tms/branch-detail/dashboard/_components/TourFieldLanguageSwitch';
 import { useCreateItinerary } from '../hooks/useCreateItinerary';
+import { TMS_ITINERARY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 import { useItineraryLanguage } from '../hooks/useItineraryLanguage';
 import {
   buildEmptyTranslations,
@@ -80,6 +82,7 @@ export const ItineraryCreateSheet = ({
 
   const { toast } = useToast();
   const { createItinerary, loading } = useCreateItinerary();
+  const { openDetail } = useTourismPanel(TMS_ITINERARY_CONTENT_TYPE);
 
   const isControlled = typeof open === 'boolean';
   const sheetOpen = isControlled ? open : internalOpen;
@@ -263,7 +266,7 @@ export const ItineraryCreateSheet = ({
     );
 
     try {
-      await createItinerary({
+      const result = await createItinerary({
         variables: {
           branchId,
           language: primaryLanguage || undefined,
@@ -292,6 +295,12 @@ export const ItineraryCreateSheet = ({
       form.reset();
       setSelectedLang(primaryLanguage);
       handleOpenChange(false);
+
+      const createdId = result.data?.bmsItineraryAdd?._id;
+
+      if (createdId) {
+        openDetail(createdId);
+      }
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : t('failed-to-create-itinerary');
@@ -364,7 +373,7 @@ export const ItineraryCreateSheet = ({
                   />
                 </Tabs.Content>
 
-                <Tabs.Content value="info" className="p-3 overflow-y-auto">
+                <Tabs.Content value="info" className="p-3 overflow-y-auto styled-scroll">
                   <div key={selectedLang} className="w-full space-y-4">
                     <div className="flex items-end gap-4">
                       <div className="w-[20%]">

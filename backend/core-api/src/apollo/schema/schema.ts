@@ -59,6 +59,12 @@ import {
 } from '~/modules/organization/settings/graphql/favorites/schemas';
 
 import {
+  mutations as DashboardLayoutMutations,
+  queries as DashboardLayoutQueries,
+  types as DashboardLayoutTypes,
+} from '~/modules/organization/settings/graphql/dashboardLayouts/schemas';
+
+import {
   mutations as AppMutations,
   queries as AppQueries,
   types as AppTypes,
@@ -287,6 +293,7 @@ export const types = `
     ${ConformityTypes}
     ${RelationTypes}
     ${FavoritesTypes}
+    ${DashboardLayoutTypes}
     ${PermissionTypes}
     ${ApprovalTypes}
     ${FilesTypes}
@@ -336,6 +343,7 @@ export const queries = `
     ${SegmentQueries}
     ${RelationQueries}
     ${FavoritesQueries}
+    ${DashboardLayoutQueries}
     ${PermissionQueries}
     ${ApprovalQueries}
     ${FilesQueries}
@@ -384,6 +392,7 @@ export const mutations = `
     ${ConformityMutations}
     ${RelationMutations}
     ${FavoritesMutations}
+    ${DashboardLayoutMutations}
     ${PermissionMutations}
     ${ApprovalMutations}
     ${FilesMutations}

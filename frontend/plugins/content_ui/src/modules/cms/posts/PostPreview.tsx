@@ -4,11 +4,11 @@ import { REACT_APP_API_URL } from 'erxes-ui/utils';
 import { readImage } from 'erxes-ui/utils/core';
 import { UseFormReturn, FieldValues } from 'react-hook-form';
 import { CmsPostEditor } from './components/CmsPostEditor';
+import { PostWritingStats } from './components/PostWritingStats';
 
 interface PostPreviewProps {
   form: UseFormReturn<FieldValues>;
   selectedLanguage: string;
-  defaultLanguage: string;
   fullPost: { _id?: string } | null | undefined;
   handleEditorChange: (value: string) => void;
 }
@@ -16,7 +16,6 @@ interface PostPreviewProps {
 export const PostPreview = ({
   form,
   selectedLanguage,
-  defaultLanguage,
   fullPost,
   handleEditorChange,
 }: PostPreviewProps) => {
@@ -29,17 +28,10 @@ export const PostPreview = ({
           name="content"
           render={() => (
             <Form.Item>
-              <Form.Label>
-                {t('content')}
-                {selectedLanguage !== defaultLanguage && (
-                  <span className="ml-2 text-xs text-blue-600">
-                    ({selectedLanguage})
-                  </span>
-                )}
-              </Form.Label>
+              <Form.Label className="sr-only">{t('content')}</Form.Label>
               <Form.Control>
                 <CmsPostEditor
-                  className="h-[calc(100vh-200px)] border text-justify"
+                  className="h-[calc(100vh-220px)] rounded-lg border text-justify"
                   key={`editor-${selectedLanguage}-${fullPost?._id || 'new'}`}
                   initialContent={form.getValues('content') || ''}
                   onChange={handleEditorChange}
@@ -63,6 +55,7 @@ export const PostPreview = ({
             </Form.Item>
           )}
         />
+        <PostWritingStats form={form} />
       </Form>
     </div>
   );

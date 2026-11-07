@@ -4,39 +4,23 @@ import { useSetAtom } from 'jotai';
 import { useEffect } from 'react';
 import { dealTotalCountAtom } from '@/deals/states/dealsTotalCountState';
 import { useSearchParams } from 'react-router-dom';
+import { SalesDealScoreLogInsightsQueryVariables } from '~/gql/graphql';
 import { SALES_DEAL_SCORE_LOG_INSIGHTS } from '../graphql/dealScoreLogsQueries';
 import { scopeVariables, TDealScoreLogScope } from './useDealScoreLogs';
 import { groupLine, rankedRows, summarize } from '@/loyalty-points/summary';
 
-/** Loyalty's sums for the deals the page's filters match. */
-export const useDealScoreLogInsights = (scope: TDealScoreLogScope) => {
-  const [pipelineId] = useQueryState<string | null>('pipelineId');
-  const [searchParams] = useSearchParams();
-
+/** Loyalty's sums for the deals the given filters match. */
+export const useDealScoreLogInsightsQuery = (
+  variables: SalesDealScoreLogInsightsQueryVariables,
+  skip = false,
+) => {
   const { data, previousData, loading, error, refetch } = useQuery(
     SALES_DEAL_SCORE_LOG_INSIGHTS,
-    {
-      variables: {
-        ...scopeVariables(scope, searchParams, pipelineId),
-        stageId: searchParams.get('stageId'),
-      },
-      skip: scope === 'pipeline' && !pipelineId,
-      fetchPolicy: 'cache-and-network',
-    },
+    { variables, skip, fetchPolicy: 'cache-and-network' },
   );
 
   // A new filter keeps the last figures until the new ones arrive.
   const insights = (data || previousData)?.salesDealScoreLogInsights;
-  const setCount = useSetAtom(dealTotalCountAtom);
-  const entryCount =
-    data && !error ? data.salesDealScoreLogInsights?.entryCount : null;
-
-  // The count beside the filter reads the movements the sums cover.
-  useEffect(() => {
-    setCount(entryCount ?? null);
-  }, [entryCount, setCount]);
-
-  useEffect(() => () => setCount(null), [setCount]);
   const pipelines = (insights?.byPipeline || []).map((line) =>
     groupLine({
       ...line,
@@ -57,6 +41,8 @@ export const useDealScoreLogInsights = (scope: TDealScoreLogScope) => {
     loading: loading && !insights,
     error,
     refetch,
+    entryCount:
+      data && !error ? data.salesDealScoreLogInsights?.entryCount : null,
     summary: summarize(insights),
     dealCount: insights?.dealCount ?? 0,
     pipelines,
@@ -66,4 +52,28 @@ export const useDealScoreLogInsights = (scope: TDealScoreLogScope) => {
     earners: rankedRows(insights?.topEarners, 'earned'),
     spenders: rankedRows(insights?.topSpenders, 'spent'),
   };
+};
+
+/** Loyalty's sums for the deals the page's filters match. */
+export const useDealScoreLogInsights = (scope: TDealScoreLogScope) => {
+  const [pipelineId] = useQueryState<string | null>('pipelineId');
+  const [searchParams] = useSearchParams();
+
+  const { entryCount, ...insights } = useDealScoreLogInsightsQuery(
+    {
+      ...scopeVariables(scope, searchParams, pipelineId),
+      stageId: searchParams.get('stageId'),
+    },
+    scope === 'pipeline' && !pipelineId,
+  );
+  const setCount = useSetAtom(dealTotalCountAtom);
+
+  // The count beside the filter reads the movements the sums cover.
+  useEffect(() => {
+    setCount(entryCount ?? null);
+  }, [entryCount, setCount]);
+
+  useEffect(() => () => setCount(null), [setCount]);
+
+  return insights;
 };

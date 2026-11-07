@@ -8,6 +8,8 @@ import {
   StyleFontField,
   StyleHtmlField,
   StyleImageField,
+  type TCaptureHelpCenterImage,
+  type THelpCenterImageField,
 } from '@/helpcenter/components/help-center-drawer/HelpCenterStyleFields';
 import {
   EMPTY_HELP_CENTER_FORM,
@@ -24,9 +26,13 @@ import {
 export function HelpCenterAppearanceTab({
   form,
   t,
+  captureImageUpdate,
+  invalidateImageUpdate,
 }: Readonly<{
   form: UseFormReturn<IHelpCenterConfigInput>;
   t: TFunction;
+  captureImageUpdate?: TCaptureHelpCenterImage;
+  invalidateImageUpdate?: (name: THelpCenterImageField) => void;
 }>) {
   const control = form.control;
 
@@ -40,9 +46,11 @@ export function HelpCenterAppearanceTab({
         )}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3">
             <StyleImageField
               control={control}
+              captureImageUpdate={captureImageUpdate}
+              invalidateImageUpdate={invalidateImageUpdate}
               name="styles.mainLogo"
               label={t('kb-main-logo', 'Main logo')}
               description={t(
@@ -52,6 +60,8 @@ export function HelpCenterAppearanceTab({
             />
             <StyleImageField
               control={control}
+              captureImageUpdate={captureImageUpdate}
+              invalidateImageUpdate={invalidateImageUpdate}
               name="styles.favicon"
               label={t('kb-favicon', 'Favicon')}
               description={t(
@@ -65,7 +75,7 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-main-colors', 'Main colors')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             {HELP_CENTER_MAIN_COLOR_FIELDS.map((field) => (
               <StyleColorField
                 key={field.name}
@@ -80,7 +90,7 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-fonts-and-color', 'Fonts and color')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             <StyleFontField
               control={control}
               name="styles.baseFont"
@@ -107,7 +117,7 @@ export function HelpCenterAppearanceTab({
 
       <InfoCard title={t('kb-form-elements-color', 'Form elements color')}>
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-3">
             {HELP_CENTER_FORM_COLOR_FIELDS.map((field) => (
               <StyleColorField
                 key={field.name}
@@ -128,7 +138,7 @@ export function HelpCenterAppearanceTab({
         )}
       >
         <InfoCard.Content>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-3">
             <TopicColorField
               control={control}
               name="color"
@@ -137,6 +147,16 @@ export function HelpCenterAppearanceTab({
             />
             <TopicBackgroundImageField
               control={control}
+              invalidateChange={
+                invalidateImageUpdate
+                  ? () => invalidateImageUpdate('backgroundImage')
+                  : undefined
+              }
+              captureChange={
+                captureImageUpdate
+                  ? () => captureImageUpdate('backgroundImage')
+                  : undefined
+              }
               name="backgroundImage"
               t={t}
             />
@@ -164,7 +184,12 @@ export function HelpCenterAppearanceTab({
         )}
       >
         <InfoCard.Content>
-          <HelpCenterFooterFields form={form} t={t} />
+          <HelpCenterFooterFields
+            form={form}
+            t={t}
+            captureImageUpdate={captureImageUpdate}
+            invalidateImageUpdate={invalidateImageUpdate}
+          />
         </InfoCard.Content>
       </InfoCard>
 

@@ -18,6 +18,8 @@ import { isDefined } from 'erxes-ui';
 import { IFormDetail } from '../types/formTypes';
 import { groupFieldsIntoSteps } from '../utils/groupFieldsIntoSteps';
 
+export const formEditingFieldDirtyAtom = atom(false);
+
 export const formSetupStepAtom = formDraftAtom<number>(
   FORM_STORAGE_KEYS.STEP,
   1,

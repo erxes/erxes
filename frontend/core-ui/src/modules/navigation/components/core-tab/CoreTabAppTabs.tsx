@@ -93,7 +93,9 @@ const CoreTabAppTab = ({
           data-active={active}
           className={cn(
             'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
+            'group-data-[notch=true]/layout:text-primary-foreground/80 group-data-[notch=true]/layout:hover:bg-primary-foreground/15 group-data-[notch=true]/layout:hover:text-primary-foreground',
             'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
+            'group-data-[notch=true]/layout:data-[active=true]:border-transparent group-data-[notch=true]/layout:data-[active=true]:bg-background group-data-[notch=true]/layout:data-[active=true]:text-foreground',
             isDragging && 'z-10 opacity-60',
           )}
           style={{ transform: CSS.Transform.toString(transform), transition }}
@@ -116,15 +118,15 @@ const CoreTabAppTab = ({
           <span className="relative size-4 shrink-0">
             <Icon
               className={cn(
-                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0',
-                active && 'text-primary',
+                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0 group-data-[notch=true]/layout:text-current',
+                active && 'text-primary group-data-[notch=true]/layout:text-primary',
                 isDragging && 'opacity-0',
               )}
             />
             <IconGripVertical
               aria-hidden
               className={cn(
-                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100',
+                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100 group-data-[notch=true]/layout:text-current',
                 isDragging && 'opacity-100',
               )}
             />
@@ -140,7 +142,9 @@ const CoreTabAppTab = ({
             aria-label={closeLabel}
             className={cn(
               'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-hover/tab:opacity-100 group-focus-within/tab:opacity-100',
-              active && 'opacity-100',
+              'group-data-[notch=true]/layout:text-current group-data-[notch=true]/layout:hover:bg-primary-foreground/15',
+              active &&
+                'opacity-100 group-data-[notch=true]/layout:text-muted-foreground group-data-[notch=true]/layout:hover:bg-accent group-data-[notch=true]/layout:hover:text-foreground',
             )}
             size="icon"
             title={closeLabel}
