@@ -1,11 +1,10 @@
-import { Can, PrintDocument, RecordSidePanel } from 'ui-modules';
+import { RecordSidePanel } from 'ui-modules';
 import {
   IconActivity,
   IconChartBar,
   IconEye,
   IconUsers,
 } from '@tabler/icons-react';
-import { campaignActions } from '../../utils/campaignActions';
 import { Skeleton, useQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBroadcastDetail } from '../../context/BroadcastDetailContext';
@@ -77,13 +76,6 @@ export const BroadcastDetail = () => {
         icon,
         content: (
           <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-auto">
-            {!campaignActions(message).locked && (
-              <Can action="documentsRead">
-                <div className="flex flex-none flex-wrap items-center gap-2 px-5 pt-4 pb-2">
-                  <PrintDocument items={[]} contentType="core:broadcast" />
-                </div>
-              </Can>
-            )}
             <Content message={message} />
           </div>
         ),

@@ -15,6 +15,17 @@ import { useMultiQueryState } from 'erxes-ui';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BroadcastErrorState } from '@/broadcast/components/list/BroadcastStates';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import type { IBroadcastFormData } from '@/broadcast/hooks/useBroadcastForm';
+import { broadcastPageSearch } from '@/broadcast/utils/broadcastPageSearch';
+
+type BroadcastEditPageState = {
+  broadcastDraft?: {
+    messageId: string;
+    values: IBroadcastFormData;
+    step: number;
+  };
+};
 type TBroadcastEditQueryParams = {
   editMessageId: string;
   method: IBroadcastMethodEnum;
@@ -27,21 +38,51 @@ type TBroadcastEditQueryParams = {
  * the flow — or only the copy — would leave the rest unreachable. Live
  * campaigns never get here: what they are sending is already out.
  */
-export const BroadcastEditSheet = () => {
-  const [{ editMessageId, method }, setQueryParams] =
+export const BroadcastEditSheet = ({ page = false }: { page?: boolean }) => {
+  const [{ editMessageId: queryId, method }, setQueryParams] =
     useMultiQueryState<TBroadcastEditQueryParams>(['editMessageId', 'method']);
-  const handleClose = () =>
+  const { messageId: routeId } = useParams<{ messageId: string }>();
+  const editMessageId = page ? routeId : queryId;
+  const navigate = useNavigate();
+  const { search } = useLocation();
+  const handleClose = () => {
+    if (page) {
+      navigate(
+        `/broadcasts/${encodeURIComponent(
+          editMessageId || '',
+        )}${broadcastPageSearch(search)}`,
+      );
+      return;
+    }
     setQueryParams({
       editMessageId: null,
       method: null,
     });
+  };
+  const openPage = (values?: IBroadcastFormData, step = 0) => {
+    if (!editMessageId) return;
+    navigate(
+      `/broadcasts/${encodeURIComponent(
+        editMessageId,
+      )}/edit${broadcastPageSearch(search)}`,
+      {
+        state: {
+          broadcastDraft: values
+            ? { messageId: editMessageId, values, step }
+            : undefined,
+        },
+      },
+    );
+  };
   const pagePanel = usePagePanel({
+    page,
     maxWidth: 1200,
     defaultWidth: 900,
     name: 'broadcast/BroadcastEditSheet',
     open: !!editMessageId,
     onOpenChange: (open) => !open && handleClose(),
     identity: editMessageId || 'new',
+    onExpand: page ? undefined : () => openPage(),
   });
   return (
     <PagePanelContext.Provider value={pagePanel}>
@@ -51,6 +92,7 @@ export const BroadcastEditSheet = () => {
             <BroadcastEditSheetContent
               messageId={editMessageId}
               onClose={handleClose}
+              onExpand={page ? undefined : openPage}
             />
           )}
         </BroadcastStepsSheetView>
@@ -61,12 +103,20 @@ export const BroadcastEditSheet = () => {
 const BroadcastEditSheetContent = ({
   messageId,
   onClose,
+  onExpand,
 }: {
   messageId: string;
   onClose: () => void;
+  onExpand?: (values: IBroadcastFormData, step: number) => void;
 }) => {
   const entry = usePagePanelContext();
   const { t } = useTranslation('broadcasts');
+  const location = useLocation();
+  const state: BroadcastEditPageState | null = location.state;
+  const draft =
+    entry.page && state?.broadcastDraft?.messageId === messageId
+      ? state.broadcastDraft
+      : undefined;
   const { message, loading, error, refetch } = useBroadcastMessage({
     variables: {
       _id: messageId,
@@ -80,11 +130,12 @@ const BroadcastEditSheetContent = ({
   );
   const initialValues = useMemo(
     () =>
+      draft?.values ??
       messageToFormValues(message, {
         actions: automation?.actions,
         entryActionId: automation?.triggers?.[0]?.actionId,
       }),
-    [message, automation],
+    [message, automation, draft],
   );
 
   // The flow editor seeds its own form once, from the value it mounts with, so
@@ -119,6 +170,8 @@ const BroadcastEditSheetContent = ({
       messageId={messageId}
       initialValues={initialValues}
       onClose={onClose}
+      onExpand={onExpand}
+      initialStep={draft?.step}
     />
   );
 };

@@ -12,6 +12,11 @@ const BroadcastDetailPage = lazy(() =>
     default: module.BroadcastDetailPage,
   })),
 );
+const BroadcastEditPage = lazy(() =>
+  import('~/pages/broadcast/BroadcastEditPage').then((module) => ({
+    default: module.BroadcastEditPage,
+  })),
+);
 
 export const BroadcastRoutes = () => {
   return (
@@ -19,6 +24,7 @@ export const BroadcastRoutes = () => {
       <Routes>
         <Route path="/" element={<BroadcastIndexPage />} />
         <Route path="/:messageId" element={<BroadcastDetailPage />} />
+        <Route path="/:messageId/edit" element={<BroadcastEditPage />} />
       </Routes>
     </Suspense>
   );

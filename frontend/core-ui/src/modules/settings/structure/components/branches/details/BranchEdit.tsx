@@ -12,7 +12,7 @@ import { useBranchDetailsById } from '@/settings/structure/hooks/useBranchDetail
 import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
 import { IconGitBranch } from '@tabler/icons-react';
 import { useQueryState, Form, cn, Breadcrumb, Button } from 'erxes-ui';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
 import { BranchLocationField } from '@/settings/structure/components/branches/location/BranchLocationField';
@@ -52,6 +52,7 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
     methods,
     methods: { reset, handleSubmit },
   } = useBranchForm();
+  const hydratedId = useRef<string>();
   const pagePanel = usePagePanel({
     page,
     identity: id || 'new',
@@ -61,7 +62,10 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
       ? undefined
       : () =>
           navigate(`/settings/structures/branches/${id}`, {
-            state: { branchId: id, branchDraft: methods.getValues() },
+            state:
+              hydratedId.current === id
+                ? { branchId: id, branchDraft: methods.getValues() }
+                : undefined,
           }),
     onOpenChange: (isOpen) => {
       if (!isOpen) {
@@ -87,13 +91,14 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
     });
   };
   useEffect(() => {
-    if (branchDetail) {
+    if (id && branchDetail && branchDetail._id === id) {
       const { __typename, _id, ...rest } = branchDetail;
       void __typename;
       void _id;
       reset({ ...rest, ...draft });
+      hydratedId.current = id;
     }
-  }, [branchDetail, draft, reset]);
+  }, [branchDetail, draft, reset, id]);
 
   return createPortal(
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
@@ -115,7 +120,7 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
                       <Breadcrumb.Item>
                         <Button variant="ghost" asChild>
                           <Link to="/settings/structures/branches">
-                            {t('branches')}
+                            {t('branches', 'Branches')}
                           </Link>
                         </Button>
                       </Breadcrumb.Item>
@@ -142,27 +147,34 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
             <div
               className={cn(
                 'min-h-0 flex-1 overflow-y-auto',
-                page ? 'bg-muted/20 px-4 py-6 sm:px-6' : 'px-5 py-4',
+                page ? 'p-4' : 'px-5 py-4',
               )}
             >
               {page ? (
-                <div className="mx-auto grid w-full max-w-3xl items-start gap-6 @min-[960px]/record-panel:max-w-6xl @min-[960px]/record-panel:grid-cols-[minmax(0,1fr)_24rem]">
-                  <div className="min-w-0 rounded-lg border bg-background p-5 sm:p-6">
-                    <BranchForm showLocation={false} />
+                <div className="grid w-full items-start gap-x-6 gap-y-4 @min-[960px]/record-panel:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
+                  <div className="min-w-0 space-y-3">
+                    <BranchForm showLocation={false} compact />
+                    <StructureFormActions
+                      onCancel={close}
+                      saving={isLoading}
+                      permission="branchesManage"
+                    />
                   </div>
-                  <div className="min-w-0 rounded-lg border bg-background p-5 sm:p-6">
-                    <BranchLocationField />
+                  <div className="min-w-0 border-t pt-4 @min-[960px]/record-panel:border-l @min-[960px]/record-panel:border-t-0 @min-[960px]/record-panel:pl-6 @min-[960px]/record-panel:pt-0">
+                    <BranchLocationField mapClassName="h-[clamp(22rem,50vh,36rem)]" />
                   </div>
                 </div>
               ) : (
                 <BranchForm />
               )}
             </div>
-            <StructureFormActions
-              onCancel={close}
-              saving={isLoading}
-              permission="branchesManage"
-            />
+            {!page && (
+              <StructureFormActions
+                onCancel={close}
+                saving={isLoading}
+                permission="branchesManage"
+              />
+            )}
           </form>
         </Form>
       ) : (

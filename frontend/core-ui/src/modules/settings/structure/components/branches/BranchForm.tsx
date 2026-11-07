@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useId, useState } from 'react';
 import { TBranchForm } from '../../types/branch';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
-import { Collapsible, Form, Input, PhoneInput, Textarea } from 'erxes-ui';
+import { Collapsible, Form, Input, PhoneInput, Textarea, cn } from 'erxes-ui';
 import { SelectBranches, SelectMember } from 'ui-modules';
 import { IconChevronDown } from '@tabler/icons-react';
 import {
@@ -14,8 +14,10 @@ import { BranchLocationField } from './location/BranchLocationField';
 
 export const BranchForm = ({
   showLocation = true,
+  compact = false,
 }: {
   showLocation?: boolean;
+  compact?: boolean;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'structure' });
   const { control, formState } = useFormContext<TBranchForm>();
@@ -26,7 +28,7 @@ export const BranchForm = ({
   const wasDeleted = formState.defaultValues?.status === 'deleted';
 
   return (
-    <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+    <div className={cn('grid grid-cols-2 gap-4', compact && 'gap-x-3 gap-y-4')}>
       <TitleField control={control} />
       <CodeField control={control} />
       <Form.Field
@@ -125,7 +127,12 @@ export const BranchForm = ({
         open={linksOpen}
         onOpenChange={setLinksOpen}
       >
-        <Collapsible.Trigger className="flex items-center justify-between w-full py-3">
+        <Collapsible.Trigger
+          className={cn(
+            'flex items-center justify-between w-full py-3',
+            compact && 'py-2',
+          )}
+        >
           <Form.Label>{t('links')}</Form.Label>
           <IconChevronDown size={16} className="text-accent-foreground" />
         </Collapsible.Trigger>
