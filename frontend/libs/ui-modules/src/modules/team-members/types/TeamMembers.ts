@@ -10,6 +10,10 @@ export interface IUser {
   isOnboarded: boolean;
   hasPassword?: boolean | null;
   passwordManagedBy?: string | null;
+  appearance?: {
+    layout?: string | null;
+    frameColor?: string | null;
+  } | null;
   details?: {
     firstName?: string;
     lastName?: string;

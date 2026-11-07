@@ -1,4 +1,9 @@
-import { IconAlignLeft, IconCalendarPlus, IconHash } from '@tabler/icons-react';
+import {
+  IconAlignLeft,
+  IconCalendarPlus,
+  IconCreditCard,
+  IconHash,
+} from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/table-core';
 import {
   Badge,
@@ -9,6 +14,7 @@ import {
 import {
   InvoiceAmountCell,
   InvoiceDescriptionCell,
+  InvoicePaymentMethodCell,
   InvoiceStatusCell,
 } from '~/modules/payment/components/InvoiceInlineCells';
 import { InvoiceMoreColumnCell } from '~/modules/payment/components/InvoiceMoreColumn';
@@ -78,6 +84,21 @@ export const invoicesColumns = (
       <RecordTable.InlineHead label={t('status')} icon={IconHash} />
     ),
     cell: ({ cell }) => <InvoiceStatusCell invoice={cell.row.original} />,
+  },
+  {
+    id: 'paymentMethod',
+    accessorFn: (invoice) =>
+      (invoice.transactions || []).map((tr) => tr.paymentKind).join(','),
+    header: () => (
+      <RecordTable.InlineHead
+        label={t('payment-method-label')}
+        icon={IconCreditCard}
+      />
+    ),
+    cell: ({ cell }) => (
+      <InvoicePaymentMethodCell invoice={cell.row.original} />
+    ),
+    size: 200,
   },
   {
     id: 'createdAt',
