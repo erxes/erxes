@@ -6,7 +6,7 @@ import {
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
 import { ResetPasswordDialog } from '@/settings/team-member/details/components/ResetPasswordDialog';
 import { PageContainer, useQueryState } from 'erxes-ui';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   ISidePanelNavigator,
@@ -27,17 +27,22 @@ export const TeamMemberDetailPage = () => {
     () => ({ contentType: USER_CONTENT_TYPE, contentId: id }),
     [id],
   );
-  const backToList = () =>
-    navigate(`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`);
-  const navigator: ISidePanelNavigator = {
-    record,
-    tab: tab ?? '',
-    setTab,
-    openRecord,
-    back: backToList,
-    canGoBack: false,
-    close: backToList,
-  };
+  const backToList = useCallback(
+    () => navigate(`${TeamMembersPath.Index}${TeamMembersPath.TeamMembers}`),
+    [navigate],
+  );
+  const navigator = useMemo<ISidePanelNavigator>(
+    () => ({
+      record,
+      tab: tab ?? '',
+      setTab,
+      openRecord,
+      back: backToList,
+      canGoBack: false,
+      close: backToList,
+    }),
+    [record, tab, setTab, openRecord, backToList],
+  );
 
   return (
     <PageContainer className="min-w-0 flex-1">

@@ -12,10 +12,17 @@ const SheetTrigger = React.forwardRef<
 >(({ ...props }, ref) => <SheetPrimitive.Trigger ref={ref} {...props} />);
 SheetTrigger.displayName = SheetPrimitive.Trigger.displayName;
 
+const SheetHeaderActionsContext = React.createContext<React.ReactNode>(null);
+
 const SheetRoot = ({
+  headerActions = null,
   ...props
-}: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root>) => (
-  <SheetPrimitive.Root {...props} />
+}: React.ComponentPropsWithoutRef<typeof SheetPrimitive.Root> & {
+  headerActions?: React.ReactNode;
+}) => (
+  <SheetHeaderActionsContext.Provider value={headerActions}>
+    <SheetPrimitive.Root {...props} />
+  </SheetHeaderActionsContext.Provider>
 );
 SheetRoot.displayName = SheetPrimitive.Root.displayName;
 
@@ -114,16 +121,39 @@ SheetClose.displayName = SheetPrimitive.Close.displayName;
 
 const SheetHeader = ({
   className,
+  children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
-  <div
-    className={cn(
-      'flex px-5 h-10 items-center bg-background border-b flex-none',
-      className,
-    )}
-    {...props}
-  />
-);
+}: React.HTMLAttributes<HTMLDivElement>) => {
+  const actions = React.useContext(SheetHeaderActionsContext);
+  const items = React.Children.toArray(children);
+  const close = actions
+    ? items.find(
+        (child) => React.isValidElement(child) && child.type === SheetClose,
+      )
+    : undefined;
+
+  return (
+    <div
+      className={cn(
+        'flex px-5 h-10 items-center bg-background border-b flex-none',
+        className,
+      )}
+      {...props}
+    >
+      {actions ? (
+        <>
+          {items.filter((child) => child !== close)}
+          <div className="ml-auto flex shrink-0 items-center gap-1 [&>button]:ml-0">
+            {actions}
+            {close}
+          </div>
+        </>
+      ) : (
+        children
+      )}
+    </div>
+  );
+};
 SheetHeader.displayName = 'SheetHeader';
 
 const SheetContent = ({

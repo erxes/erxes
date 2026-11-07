@@ -36,6 +36,62 @@ const Panel = ({ maxWidth }: { maxWidth?: number }) => {
   );
 };
 
+it('collapses a page-owned portal header using its controlled expansion state', () => {
+  const toggle = jest.fn();
+  render(<RecordSidePanel.Header title="Editor" expanded onExpand={toggle} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(toggle).toHaveBeenCalledTimes(1);
+});
+
+it('expands only the active entry when earlier headers are retained', () => {
+  const hidden = jest.fn();
+  const active = jest.fn();
+  render(
+    <RecordSidePanel>
+      <div hidden>
+        <RecordSidePanel.Header title="Earlier" onExpand={hidden} />
+      </div>
+      <RecordSidePanel.Header title="Current" onExpand={active} />
+    </RecordSidePanel>,
+  );
+  fireEvent.keyDown(document, { key: 'Enter', ctrlKey: true, shiftKey: true });
+  expect(active).toHaveBeenCalledTimes(1);
+  expect(hidden).not.toHaveBeenCalled();
+});
+
+it('splits the overview in an expanded portal layout without a host context', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  render(
+    <RecordSidePanel.Layout
+      expanded
+      value="detail"
+      onValueChange={jest.fn()}
+      tabs={[
+        {
+          value: 'detail',
+          label: 'Details',
+          icon: IconId,
+          content: <input aria-label="Draft overview" defaultValue="Keep" />,
+        },
+        {
+          value: 'activity',
+          label: 'Activity',
+          icon: IconId,
+          content: <p>Recent events</p>,
+        },
+      ]}
+    />,
+  );
+  expect(screen.queryByRole('tab', { name: 'Details' })).toBeNull();
+  expect(
+    screen.getByRole('tab', { name: 'Activity' }).getAttribute('aria-selected'),
+  ).toBe('true');
+  expect(screen.getByLabelText('Draft overview')).toBeTruthy();
+  expect(screen.getByText('Recent events')).toBeTruthy();
+});
+
 let frames: Map<number, FrameRequestCallback>;
 let nextFrame = 0;
 beforeEach(() => {

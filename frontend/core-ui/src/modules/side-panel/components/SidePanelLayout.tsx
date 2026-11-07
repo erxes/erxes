@@ -10,7 +10,7 @@ import {
 import { IconLayoutSidebarRight } from '@tabler/icons-react';
 import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { lazy, ReactNode, Suspense, useState, useRef, useEffect } from 'react';
+import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
@@ -45,27 +45,28 @@ import {
   USER_CONTENT_TYPE,
 } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
-  ICompany,
-  ICustomerDetail,
   NEW_RECORD_ID,
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
   SIDE_PANEL_ROOT_PATH,
   sidePanelWidthState,
-  TRelationEntity,
   usePanelExpanded,
   useCompanyDetail,
   useCustomerDetail,
   usePermissionCheck,
   useSidePanel,
+  ICompany,
+  ICustomerDetail,
+  TRelationEntity,
 } from 'ui-modules';
-
 const DETAIL_TAB = 'detail';
 const ACTIVITY_TAB = 'activity';
 const CPUserRecordPanel = lazy(() =>
   import(
     '@/contacts/client-portal-users/cp-user-detail/components/CPUserRecordPanel'
-  ).then((module) => ({ default: module.CPUserRecordPanel })),
+  ).then((module) => ({
+    default: module.CPUserRecordPanel,
+  })),
 );
 
 // The record's own views, for the types core knows how to show.
@@ -76,14 +77,12 @@ const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
-
   if (contentType === 'core:company') {
     return {
       detail: <CompanyPanelDetail companyId={contentId} />,
       properties: <CompanyPanelProperties companyId={contentId} />,
     };
   }
-
   return null;
 };
 
@@ -142,18 +141,21 @@ const useRecordHeading = (
   company?: ICompany;
   state?: 'error' | 'not-found';
 } => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   // A record just created has no name yet.
   const untitled = t('untitled', 'Untitled');
   const isCustomer = contentType === 'core:customer';
   const isCompany = contentType === 'core:company';
-
   const {
     customerDetail,
     loading: customerLoading,
     error: customerError,
   } = useCustomerDetail({
-    variables: { _id: contentId },
+    variables: {
+      _id: contentId,
+    },
     skip: !isCustomer,
   });
   const {
@@ -161,10 +163,14 @@ const useRecordHeading = (
     loading: companyLoading,
     error: companyError,
   } = useCompanyDetail(
-    { variables: { _id: contentId }, skip: !isCompany },
+    {
+      variables: {
+        _id: contentId,
+      },
+      skip: !isCompany,
+    },
     true,
   );
-
   if (isCustomer && customerDetail) {
     const { firstName, lastName, primaryEmail, primaryPhone, avatar } =
       customerDetail;
@@ -173,7 +179,6 @@ const useRecordHeading = (
       primaryEmail ||
       primaryPhone ||
       untitled;
-
     return {
       title,
       avatar: <RecordAvatar src={avatar} name={title} />,
@@ -181,12 +186,9 @@ const useRecordHeading = (
       customer: customerDetail,
     };
   }
-
   if (isCompany && companyDetail) {
     const { primaryName, avatar } = companyDetail;
-
     const title = primaryName || untitled;
-
     return {
       title,
       avatar: <RecordAvatar src={avatar} name={title} />,
@@ -195,11 +197,9 @@ const useRecordHeading = (
       company: companyDetail,
     };
   }
-
   const isContact = isCustomer || isCompany;
   const loading = isCustomer ? customerLoading : companyLoading;
   const error = isCustomer ? customerError : companyError;
-
   if (isContact && loading) {
     // Still loading: placeholders, never the raw content type.
     return {
@@ -207,7 +207,6 @@ const useRecordHeading = (
       avatar: <Skeleton className="size-7 flex-none rounded-full" />,
     };
   }
-
   if (isContact) {
     return {
       title: error
@@ -232,8 +231,10 @@ const useRecordHeading = (
       avatar: undefined,
     };
   }
-
-  return { title: getContentTypeLabel(contentType), avatar: undefined };
+  return {
+    title: getContentTypeLabel(contentType),
+    avatar: undefined,
+  };
 };
 
 /** Explains empty and failed records without mounting their editors. */
@@ -265,8 +266,9 @@ const SidePanelEmpty = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   return (
     <>
       <RecordSidePanel.Header
@@ -293,7 +295,9 @@ const SidePanelSavedRecord = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   const coreViews = getRecordViews(record);
   const { hasActionPermission } = usePermissionCheck();
   const access =
@@ -370,7 +374,6 @@ const SidePanelSavedRecord = ({
       activity: t('activity', 'Activity'),
     },
   });
-
   if (state) {
     return (
       <SidePanelEmpty
@@ -421,7 +424,6 @@ const SidePanelSavedRecord = ({
       }}
     />
   );
-
   return (
     <>
       {contactType && expanded ? (
@@ -488,11 +490,12 @@ const SidePanelDraft = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   const { pluginName, hasDraftTitle } = useRecordPanelPlugin(
     record.contentType,
   );
-
   const { hasActionPermission } = usePermissionCheck();
   /** Selects the authorized contact or plugin draft editor. */
   const renderDraft = () => {
@@ -505,11 +508,9 @@ const SidePanelDraft = ({
     if (record.contentType === 'core:customer') {
       return <CustomerPanelNew />;
     }
-
     if (record.contentType === 'core:company') {
       return <CompanyPanelNew />;
     }
-
     return (
       pluginName && (
         <PluginRecordPanel
@@ -521,7 +522,6 @@ const SidePanelDraft = ({
       )
     );
   };
-
   return (
     <>
       <RecordSidePanel.Header
@@ -575,7 +575,6 @@ export const SidePanelRecord = (
   if (props.record.contentType === USER_CONTENT_TYPE) {
     return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
   }
-
   return props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
@@ -589,12 +588,14 @@ export const SidePanelRecord = (
  * (`?panel=/detail/customer/<id>`), so it can be linked and reloaded.
  */
 export const SidePanelLayout = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   const { open, path, history, record, close, canGoBack, back } =
     useSidePanel();
   const onBack = canGoBack ? back : undefined;
   const [width, setWidth] = useAtom(sidePanelWidthState);
-  const [expanded] = useQueryState<boolean>('panelExpanded');
+  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
@@ -604,7 +605,6 @@ export const SidePanelLayout = () => {
   // Records with detail routes expand into their own pages.
   const getRecordPage = () => {
     if (!record || record.contentId === NEW_RECORD_ID) return null;
-
     if (isContactContentType(record.contentType)) {
       return getContactDetailPath(
         record.contentType,
@@ -612,18 +612,25 @@ export const SidePanelLayout = () => {
         pathname,
       );
     }
-
     if (record.contentType === USER_CONTENT_TYPE) {
       return `${TeamMembersPath.Index}${
         TeamMembersPath.TeamMembers
       }/${encodeURIComponent(record.contentId)}`;
     }
-
     return detailPath
       ? detailPath(encodeURIComponent(record.contentId), pathname)
       : null;
   };
   const recordPage = getRecordPage();
+  const coreRecord =
+    record &&
+    [
+      'core:customer',
+      'core:company',
+      'core:cpUser',
+      USER_CONTENT_TYPE,
+    ].includes(record.contentType);
+  const expandable = Boolean(recordPage || coreRecord || moduleEntry);
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {
@@ -638,7 +645,6 @@ export const SidePanelLayout = () => {
         />
       );
     }
-
     if (path === SIDE_PANEL_ROOT_PATH) {
       return (
         <SidePanelEmpty
@@ -651,7 +657,6 @@ export const SidePanelLayout = () => {
         />
       );
     }
-
     return (
       <SidePanelEmpty
         title={t('not-found-title', 'Nothing here')}
@@ -663,7 +668,6 @@ export const SidePanelLayout = () => {
       />
     );
   };
-
   return (
     <>
       {/* Links saved while records still expanded in place. */}
@@ -671,9 +675,17 @@ export const SidePanelLayout = () => {
       {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
         <RecordSidePanel
           key="record"
-          expanded={false}
-          expandable={Boolean(recordPage)}
-          onExpandedChange={() => recordPage && navigate(recordPage)}
+          expanded={expandable && Boolean(expanded)}
+          expandable={expandable}
+          onExpandedChange={(nextExpanded) => {
+            if (recordPage) {
+              navigate(recordPage);
+            } else {
+              setExpanded(nextExpanded || null, {
+                replace: true,
+              });
+            }
+          }}
           width={
             moduleEntry && path
               ? moduleWidths[path] ??

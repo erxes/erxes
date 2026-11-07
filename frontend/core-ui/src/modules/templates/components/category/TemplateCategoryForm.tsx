@@ -1,34 +1,33 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { usePagePanelContext } from '@/side-panel/hooks/usePagePanel';
+import { TemplateCategory } from '@/templates/types/TemplateCategory';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-
 import { useTemplateCategoryAdd } from '@/templates/hooks/useTemplateCategoryAdd';
 import { useTemplateCategoryEdit } from '@/templates/hooks/useTemplateCategoryEdit';
-import { TemplateCategory } from '@/templates/types/TemplateCategory';
-import { Button, Form, Input } from 'erxes-ui';
+import { Button, Form, Input, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   code: z.string().min(1, 'Code is required'),
   parentId: z.string().optional(),
 });
-
 interface TemplateCategoryFormProps {
   category?: TemplateCategory;
   parentId?: string;
-  onCompleted?: (data: any) => void;
+  onCompleted?: (data: unknown) => void;
   onClose?: () => void;
 }
-
 export const TemplateCategoryForm = ({
   category,
   parentId,
   onCompleted,
   onClose,
 }: TemplateCategoryFormProps) => {
-  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
+  const pagePanel = usePagePanelContext();
+  const { t } = useTranslation('templates', {
+    keyPrefix: 'template-category',
+  });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -37,11 +36,9 @@ export const TemplateCategoryForm = ({
       parentId: category?.parentId || parentId || '',
     },
   });
-
   const { templateCategoryAdd, loading: addLoading } = useTemplateCategoryAdd();
   const { templateCategoryEdit, loading: editLoading } =
     useTemplateCategoryEdit();
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (category) {
       templateCategoryEdit({
@@ -50,6 +47,7 @@ export const TemplateCategoryForm = ({
           ...values,
         },
         onCompleted: (data) => {
+          if (!pagePanel.isCurrent()) return;
           form.reset();
           if (onClose) {
             onClose();
@@ -68,6 +66,7 @@ export const TemplateCategoryForm = ({
       templateCategoryAdd({
         variables: values,
         onCompleted: (data) => {
+          if (!pagePanel.isCurrent()) return;
           form.reset();
           if (onClose) {
             onClose();
@@ -84,14 +83,18 @@ export const TemplateCategoryForm = ({
       });
     }
   };
-
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col h-full overflow-hidden"
       >
-        <CoreModulePanel.Content className="flex-auto overflow-hidden">
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 flex-col overflow-y-auto',
+            'flex-auto overflow-hidden',
+          )}
+        >
           <div className="flex flex-col gap-4 p-5">
             <Form.Field
               control={form.control}
@@ -123,19 +126,23 @@ export const TemplateCategoryForm = ({
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>Parent Category</Form.Label>
-
-                  <SelectTemplateCategory
+                   <SelectTemplateCategory
                     value={field.value}
                     onValueChange={field.onChange}
                   />
                   <Form.Message />
                 </Form.Item>
               )}
-            /> */}
+             /> */}
           </div>
-        </CoreModulePanel.Content>
+        </div>
 
-        <CoreModulePanel.Footer className="flex justify-end gap-1 bg-muted p-2.5 shrink-0">
+        <div
+          className={cn(
+            'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+            'flex justify-end gap-1 bg-muted p-2.5 shrink-0',
+          )}
+        >
           <Button
             type="button"
             variant="ghost"
@@ -156,7 +163,7 @@ export const TemplateCategoryForm = ({
               ? t('update-category')
               : t('create-category')}
           </Button>
-        </CoreModulePanel.Footer>
+        </div>
       </form>
     </Form>
   );
