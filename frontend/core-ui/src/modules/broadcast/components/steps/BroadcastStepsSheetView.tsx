@@ -13,16 +13,14 @@ export const BroadcastStepsSheetView = ({
   children: ReactNode;
 }) => {
   const pagePanel = usePagePanelContext();
-  return pagePanel.open && pagePanel.target
-    ? createPortal(
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-            <>{children}</>
-          ) : (
-            <PagePanelStatus entry={pagePanel} />
-          )}
-        </div>,
-        pagePanel.target,
-      )
-    : null;
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>{children}</>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
+  );
 };

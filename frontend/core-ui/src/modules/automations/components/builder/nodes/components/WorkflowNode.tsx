@@ -226,7 +226,7 @@ const WorkflowSelectedNodes = ({
 }: {
   automationId: string;
   config?: { selectedActionIds?: string[] };
-  flowDirection?: WorkflowNodeData['flowDirection'];
+  flowDirection?: NonNullable<WorkflowNodeData['flowDirection']>;
 }) => {
   const { selectedActionIds = [] } = config || {};
   const isVertical = flowDirection === 'vertical';
@@ -278,40 +278,31 @@ const WorkflowActionSelectorSheet = ({ data }: { data: WorkflowNodeData }) => {
         >
           <IconArrowsMaximize className="size-4" />
         </Button>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={
-                        <>
-                          <div>
-                            <span>{t('workflow-label')}</span>
-                            <p>{t('workflow-select-action-description')}</p>
-                          </div>
-                        </>
-                      }
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                      )}
-                    >
-                      {open && <WorkflowActionMapper id={data.automationId} />}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <div>
+                      <span>{t('workflow-label')}</span>
+                      <p>{t('workflow-select-action-description')}</p>
                     </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}
+                >
+                  {open && <WorkflowActionMapper id={data.automationId} />}
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

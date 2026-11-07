@@ -2,7 +2,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { AutomationBuilderSecondarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderSecondarySidebar';
 import { AutomationBuilderPrimarySidebar } from '@/automations/components/builder/sidebar/components/AutomationBuilderPrimarySidebar';
@@ -14,10 +13,7 @@ import {
   VARIABLE_DROP_FEEDBACK_CLASS,
 } from '@/automations/components/builder/sidebar/hooks/useAutomationVariableDragFeedback';
 import { useAutomation } from '@/automations/context/AutomationProvider';
-import {
-  AutomationNodeType,
-  AutomationsHotKeyScope,
-} from '@/automations/types';
+import { AutomationsHotKeyScope } from '@/automations/types';
 import {
   cn,
   useIsMobile,
@@ -27,10 +23,7 @@ import {
 } from 'erxes-ui';
 import { AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
-import {
-  AutomationVariableInsertionProvider,
-  SidePanelRecordPathContext,
-} from 'ui-modules';
+import { AutomationVariableInsertionProvider } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 export const AutomationBuilderSidebar = () => {
   const { t } = useTranslation('automations');
@@ -45,6 +38,8 @@ export const AutomationBuilderSidebar = () => {
     handleBack,
     handleClose,
     toggleSideBarOpen,
+    canShowSecondarySidebar,
+    sidebarWidthClasses,
   } = useAutomationBuilderSidebarHooks();
   const { activePanel, closePanel } = useAutomationBuilderSecondaryPanels();
   useAutomationVariableDragFeedback();
@@ -65,17 +60,6 @@ export const AutomationBuilderSidebar = () => {
   };
   useScopedHotkeys(`mod+g`, () => onOpen(), AutomationsHotKeyScope.Builder);
   useScopedHotkeys(`mod+esc`, () => onClose(), AutomationsHotKeyScope.Builder);
-  const hasSegmentFormContent =
-    activeNode?.nodeType === AutomationNodeType.Trigger &&
-    !activeNode?.isCustom;
-  const isEditingNode =
-    !!activeNode &&
-    (activeNode.nodeType === AutomationNodeType.Action ||
-      activeNode.nodeType === AutomationNodeType.Workflow);
-  const canShowSecondarySidebar = isEditingNode;
-  const sidebarWidthClasses = hasSegmentFormContent
-    ? 'w-screen max-w-full sm:w-fit sm:min-w-md sm:max-w-[min(56rem,calc(100vw-1rem))]'
-    : 'w-screen max-w-full sm:w-fit sm:min-w-[28rem] sm:max-w-[min(42rem,calc(100vw-1rem))]';
   const pagePanel = usePagePanel({
     name: 'automations/builder/sidebar/AutomationBuilderSidebar',
     identity: activeNode?.id || 'library',
@@ -94,55 +78,49 @@ export const AutomationBuilderSidebar = () => {
   if (isMobile) {
     return (
       <AutomationVariableInsertionProvider>
-        <PagePanelContext.Provider value={pagePanel}>
-          <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-            {pagePanel.open && pagePanel.target
-              ? createPortal(
-                  <div
-                    data-variable-drop-scope
-                    className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar"
-                  >
-                    {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                      <>
-                        <span className="sr-only">
-                          {t('sidebar-automation-configuration')}
-                        </span>
-                        <p className="sr-only">
-                          {t('sidebar-configure-selected-node')}
-                        </p>
+        {createPortal(
+          <div
+            data-variable-drop-scope
+            className="flex min-h-0 flex-1 flex-col overflow-hidden bg-sidebar"
+          >
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <span className="sr-only">
+                  {t('sidebar-automation-configuration')}
+                </span>
+                <p className="sr-only">
+                  {t('sidebar-configure-selected-node')}
+                </p>
 
-                        <div className="relative min-h-0 flex-1 overflow-hidden">
-                          <div className="absolute inset-0">
-                            <AutomationBuilderPrimarySidebar
-                              activeNode={activeNode}
-                              panelEntry={pagePanel}
-                              showPanelToggles={canShowSecondarySidebar}
-                              className="w-full border-l-0"
-                              handleBack={handleBack}
-                              handleClose={handleClose}
-                            />
-                          </div>
+                <div className="relative min-h-0 flex-1 overflow-hidden">
+                  <div className="absolute inset-0">
+                    <AutomationBuilderPrimarySidebar
+                      activeNode={activeNode}
+                      panelEntry={pagePanel}
+                      showPanelToggles={canShowSecondarySidebar}
+                      className="w-full border-l-0"
+                      handleBack={handleBack}
+                      handleClose={handleClose}
+                    />
+                  </div>
 
-                          {activePanel && canShowSecondarySidebar ? (
-                            <div className="absolute inset-x-0 bottom-0 z-20 h-1/3 min-h-72 animate-in overflow-hidden rounded-t-xl border-t bg-sidebar shadow-xl slide-in-from-bottom-4 mx-2">
-                              <AutomationBuilderSecondarySidebar
-                                panel={activePanel}
-                                className="h-full w-full border-l-0"
-                                handleClose={closePanel}
-                              />
-                            </div>
-                          ) : null}
-                        </div>
-                      </>
-                    ) : (
-                      <PagePanelStatus entry={pagePanel} />
-                    )}
-                  </div>,
-                  pagePanel.target,
-                )
-              : null}
-          </SidePanelRecordPathContext.Provider>
-        </PagePanelContext.Provider>
+                  {activePanel && canShowSecondarySidebar ? (
+                    <div className="absolute inset-x-0 bottom-0 z-20 h-1/3 min-h-72 animate-in overflow-hidden rounded-t-xl border-t bg-sidebar shadow-xl slide-in-from-bottom-4 mx-2">
+                      <AutomationBuilderSecondarySidebar
+                        panel={activePanel}
+                        className="h-full w-full border-l-0"
+                        handleClose={closePanel}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </AutomationVariableInsertionProvider>
     );
   }

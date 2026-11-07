@@ -59,41 +59,39 @@ export const MergeSheet = ({
             {t('action-merge')}
           </Button>
         </MergeTooltip>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <MergeSheetHeader />
-                    {notice && (
-                      <Alert variant="warning" className="mx-6 mt-4 w-auto">
-                        <IconAlertTriangle />
-                        <Alert.Description>{notice}</Alert.Description>
-                      </Alert>
-                    )}
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                        'min-h-0 overflow-y-auto',
-                      )}
-                    >
-                      <div className={cn('w-full', className)}>{children}</div>
-                    </div>
-                    {!disabled && (
-                      <MergeSheetFooter
-                        saveLabel={saveLabel}
-                        onDiscard={onDiscard}
-                        onSave={onSave}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <MergeSheetHeader />
+                {notice && (
+                  <Alert variant="warning" className="mx-6 mt-4 w-auto">
+                    <IconAlertTriangle />
+                    <Alert.Description>{notice}</Alert.Description>
+                  </Alert>
                 )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+                <div
+                  className={cn(
+                    'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                    'min-h-0 overflow-y-auto',
+                  )}
+                >
+                  <div className={cn('w-full', className)}>{children}</div>
+                </div>
+                {!disabled && (
+                  <MergeSheetFooter
+                    saveLabel={saveLabel}
+                    onDiscard={onDiscard}
+                    onSave={onSave}
+                  />
+                )}
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );
@@ -103,10 +101,7 @@ const MergeSheetHeader = () => {
   return (
     <RecordSidePanel.Header
       title={<>Merge Customers</>}
-      onBack={pagePanel.onBack}
-      onClose={pagePanel.onClose}
-      expanded={pagePanel.expanded}
-      onExpand={pagePanel.onExpand}
+      {...pagePanel.headerProps}
     />
   );
 };

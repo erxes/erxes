@@ -39,22 +39,22 @@ export const CompaniesMergeProvider = ({
   companyIds: string[];
   children: ReactNode;
 }) => {
-  const [open, setLocalOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [snapshot, setSnapshot] = useState<string[]>([]);
   const session = useRef(0);
-  const setOpen = useCallback(
+  const handleOpenChange = useCallback(
     (next: boolean) => {
       if (next && !open) {
         session.current += 1;
         setSnapshot([...companyIds]);
       }
-      setLocalOpen(next);
+      setOpen(next);
     },
     [companyIds, open],
   );
   const ownerSession = session.current;
   const close = useCallback(() => {
-    if (session.current === ownerSession) setLocalOpen(false);
+    if (session.current === ownerSession) setOpen(false);
   }, [ownerSession]);
   const idsKey = (open ? snapshot : companyIds).join(',');
   const ids = useMemo(() => (idsKey ? idsKey.split(',') : []), [idsKey]);
@@ -71,7 +71,7 @@ export const CompaniesMergeProvider = ({
   const value = useMemo<ICompaniesMergeContext>(
     () => ({
       open,
-      setOpen,
+      setOpen: handleOpenChange,
       loading,
       ready: Boolean(companies),
       companyNames,
@@ -83,7 +83,7 @@ export const CompaniesMergeProvider = ({
     }),
     [
       open,
-      setOpen,
+      handleOpenChange,
       loading,
       companies,
       companyNames,

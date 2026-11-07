@@ -65,72 +65,86 @@ export const DepartmentMembersSheet = ({
         >
           {count}
         </button>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={
-                        <>{data?.departmentDetail?.title || t('department')}</>
-                      }
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                        'flex-1 px-4 py-4 overflow-y-auto styled-scroll',
-                      )}
-                    >
-                      {loading ? (
-                        <div className="flex justify-center py-8">
-                          <Spinner />
-                        </div>
-                      ) : error ? (
-                        <p className="px-2 py-4 text-destructive text-sm">
-                          {t('failed-to-load-members')}
-                        </p>
-                      ) : members.length === 0 ? (
-                        <div className="flex flex-col justify-center items-center py-16 text-center">
-                          <p className="font-medium text-muted-foreground">
-                            {t('no-members')}
-                          </p>
-                          <p className="mt-1 text-muted-foreground/70 text-sm">
-                            {t('no-team-members-in-department')}
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="bg-sidebar pr-2 pb-2 pl-1 border border-sidebar border-t-4 border-l-4 rounded-lg">
-                          <Table>
-                            <Table.Header>
-                              <Table.Row>
-                                <Table.Head className="pl-2 w-auto">
-                                  {t('member')}
-                                </Table.Head>
-                                <Table.Head className="w-8" />
-                              </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                              {members.map((member) => (
-                                <MemberRow key={member._id} member={member} />
-                              ))}
-                            </Table.Body>
-                          </Table>
-                        </div>
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <>{data?.departmentDetail?.title || t('department')}</>
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn(
+                    'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                    'flex-1 px-4 py-4 overflow-y-auto styled-scroll',
+                  )}
+                >
+                  <DepartmentMembersList
+                    loading={loading}
+                    error={!!error}
+                    members={members}
+                  />
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
+  );
+};
+
+const DepartmentMembersList = ({
+  loading,
+  error,
+  members,
+}: {
+  loading: boolean;
+  error: boolean;
+  members: IUser[];
+}) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  if (loading)
+    return (
+      <div className="flex justify-center py-8">
+        <Spinner />
+      </div>
+    );
+  if (error)
+    return (
+      <p className="px-2 py-4 text-destructive text-sm">
+        {t('failed-to-load-members')}
+      </p>
+    );
+  if (members.length === 0)
+    return (
+      <div className="flex flex-col justify-center items-center py-16 text-center">
+        <p className="font-medium text-muted-foreground">{t('no-members')}</p>
+        <p className="mt-1 text-muted-foreground/70 text-sm">
+          {t('no-team-members-in-department')}
+        </p>
+      </div>
+    );
+  return (
+    <div className="bg-sidebar pr-2 pb-2 pl-1 border border-sidebar border-t-4 border-l-4 rounded-lg">
+      <Table>
+        <Table.Header>
+          <Table.Row>
+            <Table.Head className="pl-2 w-auto">{t('member')}</Table.Head>
+            <Table.Head className="w-8" />
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {members.map((member) => (
+            <MemberRow key={member._id} member={member} />
+          ))}
+        </Table.Body>
+      </Table>
+    </div>
   );
 };

@@ -1,4 +1,7 @@
-import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
+import {
+  IPermissionGroupSchema,
+  permissionGroupToInput,
+} from '@/settings/permissions/schemas/permissionGroup';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
 import {
@@ -25,34 +28,29 @@ export const PermissionGroupAdd = ({
   });
   const [open, setOpen] = useState<boolean>(false);
   const { addPermissionGroup, loading } = useAddPermissionGroup();
-  const onSubmit = useCallback(
-    async (data: IPermissionGroupSchema) => {
-      if (loading) return;
-      addPermissionGroup({
-        variables: {
-          name: data.name.trim(),
-          description: data.description?.trim() || null,
-          permissions: data.permissions,
-        },
-        onCompleted: () => {
-          if (!pagePanel.isCurrent()) return;
-          toast({
-            title: t('group-added'),
-            variant: 'success',
-          });
-          setOpen(false);
-        },
-        onError: (error) => {
-          toast({
-            title: t('error-adding-group'),
-            variant: 'destructive',
-            description: error.message,
-          });
-        },
-      });
-    },
-    [loading, addPermissionGroup, t],
-  );
+  const onSubmit = async (data: IPermissionGroupSchema) => {
+    if (loading) return;
+    addPermissionGroup({
+      variables: {
+        ...permissionGroupToInput(data),
+      },
+      onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
+        toast({
+          title: t('group-added'),
+          variant: 'success',
+        });
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast({
+          title: t('error-adding-group'),
+          variant: 'destructive',
+          description: error.message,
+        });
+      },
+    });
+  };
   const onCancel = useCallback(() => {
     setOpen(false);
   }, []);
@@ -73,44 +71,37 @@ export const PermissionGroupAdd = ({
             {text || t('add-custom-group')}
           </Button>
         )}
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={
-                        defaultValues?.name
-                          ? t('edit-group')
-                          : t('add-custom-group')
-                      }
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                      )}
-                    >
-                      <PermissionGroupForm
-                        key={defaultValues?.name ?? 'new'}
-                        defaultValues={defaultValues}
-                        onSubmit={onSubmit}
-                        isSubmitting={loading}
-                        onCancel={onCancel}
-                        mode="add"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    defaultValues?.name
+                      ? t('edit-group')
+                      : t('add-custom-group')
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}
+                >
+                  <PermissionGroupForm
+                    key={defaultValues?.name ?? 'new'}
+                    defaultValues={defaultValues}
+                    onSubmit={onSubmit}
+                    isSubmitting={loading}
+                    onCancel={onCancel}
+                    mode="add"
+                  />
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

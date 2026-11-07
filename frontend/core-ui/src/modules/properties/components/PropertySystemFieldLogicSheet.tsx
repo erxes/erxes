@@ -4,7 +4,6 @@ import {
   createPagePanelPortal as createPortal,
   usePagePanelContext,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { Button, Spinner, toast, cn } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -14,7 +13,6 @@ import {
   IPropertyForm,
   PropertyFormLogicFields,
   RecordSidePanel,
-  SidePanelRecordPathContext,
 } from 'ui-modules';
 import { useEditPropertySystemField } from '@/properties/hooks/useEditPropertySystemField';
 const SystemFieldLogicForm = ({
@@ -52,10 +50,7 @@ const SystemFieldLogicForm = ({
     <form className="flex h-full w-full flex-col" onSubmit={handleSubmit}>
       <RecordSidePanel.Header
         title={<>{field.name}</>}
-        onBack={pagePanel.onBack}
-        onClose={pagePanel.onClose}
-        expanded={pagePanel.expanded}
-        onExpand={pagePanel.onExpand}
+        {...pagePanel.headerProps}
       />
       <div
         className={cn(
@@ -97,31 +92,23 @@ export const PropertySystemFieldLogicSheet = ({
     open: !!field,
     onOpenChange: (open) => !open && onClose(),
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    {field && (
-                      <SystemFieldLogicForm
-                        key={field.code}
-                        field={field}
-                        contentType={contentType}
-                        onClose={onClose}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          {field && (
+            <SystemFieldLogicForm
+              key={field.code}
+              field={field}
+              contentType={contentType}
+              onClose={onClose}
+            />
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };

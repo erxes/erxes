@@ -1,9 +1,8 @@
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
-import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import { RecordSidePanel } from 'ui-modules';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { EmailAddressesRecordTable } from '@/settings/email-addresses/components/EmailAddressesRecordTable';
 import { EmailDeliveriesRecordTable } from '@/settings/email-deliveries/components/EmailDeliveriesRecordTable';
@@ -19,7 +18,7 @@ export const TeamMemberActivityLogSheet = ({
   email: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}): JSX.Element => {
+}): JSX.Element | null => {
   const [, setDeliveryId] = useQueryState<string>('deliveryId');
   const { t } = useTranslation('settings', {
     keyPrefix: 'team-member',
@@ -32,70 +31,59 @@ export const TeamMemberActivityLogSheet = ({
       onOpenChange(nextOpen);
     },
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={<>{t('email-deliveries')}</>}
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          <RecordSidePanel.Header
+            title={<>{t('email-deliveries')}</>}
+            {...pagePanel.headerProps}
+          />
+          <div
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-y-auto',
+              'min-h-0 flex-1 overflow-auto',
+            )}
+          >
+            {open &&
+              (email.trim() ? (
+                <Tabs key={email} defaultValue="messages">
+                  <p className="px-4 pt-4 text-sm text-muted-foreground">
+                    {email}
+                  </p>
+                  <Tabs.List
+                    className="w-full justify-start px-4"
+                    aria-label="Email activity"
+                  >
+                    <Tabs.Trigger value="messages">
+                      {t('messages')}
+                    </Tabs.Trigger>
+                    <Tabs.Trigger value="addresses">
+                      {t('addresses')}
+                    </Tabs.Trigger>
+                  </Tabs.List>
+                  <Tabs.Content value="messages">
+                    <EmailDeliveriesRecordTable
+                      email={email.trim().toLowerCase()}
                     />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                        'min-h-0 flex-1 overflow-auto',
-                      )}
-                    >
-                      {open &&
-                        (email.trim() ? (
-                          <Tabs key={email} defaultValue="messages">
-                            <p className="px-4 pt-4 text-sm text-muted-foreground">
-                              {email}
-                            </p>
-                            <Tabs.List
-                              className="w-full justify-start px-4"
-                              aria-label="Email activity"
-                            >
-                              <Tabs.Trigger value="messages">
-                                {t('messages')}
-                              </Tabs.Trigger>
-                              <Tabs.Trigger value="addresses">
-                                {t('addresses')}
-                              </Tabs.Trigger>
-                            </Tabs.List>
-                            <Tabs.Content value="messages">
-                              <EmailDeliveriesRecordTable
-                                email={email.trim().toLowerCase()}
-                              />
-                            </Tabs.Content>
-                            <Tabs.Content value="addresses">
-                              <EmailAddressesRecordTable
-                                email={email.trim().toLowerCase()}
-                              />
-                            </Tabs.Content>
-                          </Tabs>
-                        ) : (
-                          <p className="p-4 text-muted-foreground">
-                            {t('no-email-address')}
-                          </p>
-                        ))}
-                    </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+                  </Tabs.Content>
+                  <Tabs.Content value="addresses">
+                    <EmailAddressesRecordTable
+                      email={email.trim().toLowerCase()}
+                    />
+                  </Tabs.Content>
+                </Tabs>
+              ) : (
+                <p className="p-4 text-muted-foreground">
+                  {t('no-email-address')}
+                </p>
+              ))}
+          </div>
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };

@@ -2,12 +2,13 @@
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
+  usePagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import { modulePanelTargetsState } from '../../states/modulePanelState';
-import { sidePanelHistoryState } from 'ui-modules';
+import { sidePanelHistoryState, SidePanelRecordPathContext } from 'ui-modules';
+import { useContext } from 'react';
 import { AiAgentDetailSheetShell } from '@/automations/components/settings/components/agents/components/detail/AiAgentDetailSheetShell';
 
 const mockNavigation = {
@@ -39,6 +40,16 @@ jest.mock('ui-modules', () => ({
   }),
 }));
 
+const PanelOwner = () => {
+  const entry = usePagePanelContext();
+  const path = useContext(SidePanelRecordPathContext);
+  return (
+    <output aria-label="Panel owner">
+      {entry.path} / {path}
+    </output>
+  );
+};
+
 const Editor = ({
   open = true,
   name = 'settings/test',
@@ -50,16 +61,17 @@ const Editor = ({
 }) => {
   const entry = usePagePanel({ name, open, onOpenChange });
   return (
-    <PagePanelContext.Provider value={entry}>
+    <>
       {entry.target &&
         createPortal(
           <>
+            <PanelOwner />
             <input aria-label="Draft" defaultValue="Unsaved" />
-            <button onClick={entry.onClose}>Close editor</button>
+            <button onClick={entry.headerProps.onClose}>Close editor</button>
           </>,
-          entry.target,
+          entry,
         )}
-    </PagePanelContext.Provider>
+    </>
   );
 };
 
@@ -78,6 +90,9 @@ it('dismisses its own entry after navigation to another record', () => {
     <Provider store={store}>
       <Editor onOpenChange={onOpenChange} />
     </Provider>,
+  );
+  expect(screen.getByLabelText('Panel owner').textContent).toBe(
+    '/module/settings%2Ftest / /module/settings%2Ftest',
   );
   const field = screen.getByLabelText('Draft');
   fireEvent.change(field, { target: { value: 'Edited draft' } });

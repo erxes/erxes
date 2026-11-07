@@ -41,37 +41,30 @@ export const TemplateCategorySheet = ({
             </Button>
           )}
         </Button>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={
-                        <>
-                          {category ? t('edit-category') : t('create-category')}
-                        </>
-                      }
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <>{category ? t('edit-category') : t('create-category')}</>
+                  }
+                  {...pagePanel.headerProps}
+                />
 
-                    <TemplateCategoryForm
-                      category={category}
-                      parentId={parentId}
-                      onCompleted={onCompleted}
-                      onClose={() => setOpen(false)}
-                    />
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+                <TemplateCategoryForm
+                  category={category}
+                  parentId={parentId}
+                  onCompleted={onCompleted}
+                  onClose={() => setOpen(false)}
+                />
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

@@ -2,16 +2,10 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useLayoutEffect, useRef } from 'react';
-import {
-  TemplateForm,
-  useSidePanel,
-  RecordSidePanel,
-  SidePanelRecordPathContext,
-} from 'ui-modules';
+import { TemplateForm, useSidePanel, RecordSidePanel } from 'ui-modules';
 import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
 export const CoreTemplatePanel = ({
   contentType,
@@ -36,40 +30,27 @@ export const CoreTemplatePanel = ({
     open: open,
     onOpenChange: onOpenChange,
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={<>{t('create-template', 'Create template')}</>}
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <TemplateForm
-                      contentType={contentType}
-                      contentId={contentId}
-                      onClose={() => {
-                        currentPanel.current.dismissPath(
-                          getModulePanelPath(name),
-                        );
-                        onOpenChange(false);
-                      }}
-                    />
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          <RecordSidePanel.Header
+            title={<>{t('create-template', 'Create template')}</>}
+            {...pagePanel.headerProps}
+          />
+          <TemplateForm
+            contentType={contentType}
+            contentId={contentId}
+            onClose={() => {
+              currentPanel.current.dismissPath(getModulePanelPath(name));
+              onOpenChange(false);
+            }}
+          />
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };

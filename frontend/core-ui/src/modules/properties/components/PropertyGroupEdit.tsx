@@ -2,7 +2,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { useConfirm } from 'erxes-ui';
 import { useFieldGroupEdit } from '@/properties/hooks/useFieldGroupEdit';
@@ -11,7 +10,6 @@ import { useGroupPanelSelection } from '@/properties/hooks/useGroupPanelSelectio
 import { useTranslation } from 'react-i18next';
 import {
   PropertyGroupForm,
-  SidePanelRecordPathContext,
   RecordSidePanel,
   IPropertyGroupForm,
 } from 'ui-modules';
@@ -64,58 +62,46 @@ export const PropertyGroupEditSheet = () => {
     onOpenChange: (open) => !open && close(),
     open: open,
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded &&
-                pagePanel.allowed &&
-                !groupLoading &&
-                !error &&
-                !(!groupLoading && !activePropertyGroup) ? (
-                  <>
-                    {activePropertyGroup && (
-                      <>
-                        <RecordSidePanel.Header
-                          title={panelT('edit-group', 'Edit Group')}
-                          onBack={pagePanel.onBack}
-                          onClose={pagePanel.onClose}
-                          expanded={pagePanel.expanded}
-                          onExpand={pagePanel.onExpand}
-                        />
-                        <PropertyGroupForm
-                          key={activePropertyGroup._id}
-                          onSubmit={submitHandler}
-                          loading={loading}
-                          defaultValues={{
-                            name: activePropertyGroup.name,
-                            code: activePropertyGroup.code,
-                            isMultiple:
-                              !!activePropertyGroup.configs?.isMultiple,
-                          }}
-                          onCancel={close}
-                          locked={!!activePropertyGroup.owner}
-                          isEdit
-                          contentType={activePropertyGroup.contentType}
-                          layout="record"
-                        />
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus
-                    entry={pagePanel}
-                    loading={groupLoading}
-                    error={!!error}
-                  />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !groupLoading &&
+      !error &&
+      !(!groupLoading && !activePropertyGroup) ? (
+        <>
+          {activePropertyGroup && (
+            <>
+              <RecordSidePanel.Header
+                title={panelT('edit-group', 'Edit Group')}
+                {...pagePanel.headerProps}
+              />
+              <PropertyGroupForm
+                key={activePropertyGroup._id}
+                onSubmit={submitHandler}
+                loading={loading}
+                defaultValues={{
+                  name: activePropertyGroup.name,
+                  code: activePropertyGroup.code,
+                  isMultiple: !!activePropertyGroup.configs?.isMultiple,
+                }}
+                onCancel={close}
+                locked={!!activePropertyGroup.owner}
+                isEdit
+                contentType={activePropertyGroup.contentType}
+                layout="record"
+              />
+            </>
+          )}
+        </>
+      ) : (
+        <PagePanelStatus
+          entry={pagePanel}
+          loading={groupLoading}
+          error={!!error}
+        />
+      )}
+    </div>,
+    pagePanel,
   );
 };

@@ -39,10 +39,7 @@ export const FilesPreviewPanel = () => {
           <FileTypeIcon mimeType={panel.file.mimeType} className="size-5" />
         }
         title={panel.file.name}
-        onBack={entry.onBack}
-        onClose={entry.onClose}
-        expanded={entry.expanded}
-        onExpand={entry.onExpand}
+        {...entry.headerProps}
         actions={
           <>
             {panel.publicLink && <FilesPublicLinkBadge labelled />}

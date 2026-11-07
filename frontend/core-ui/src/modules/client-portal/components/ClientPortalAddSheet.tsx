@@ -41,7 +41,7 @@ export const CreateClientPortalSheet = () => {
   const { clientPortalAdd, loading } = useCreateClientPortal();
   const {
     methods,
-    methods: { reset, handleSubmit },
+    methods: { handleSubmit },
   } = useClientPortalForm();
   const navigate = useNavigate();
   const [_open, _setOpen] = useState<boolean>(false);
@@ -73,23 +73,20 @@ export const CreateClientPortalSheet = () => {
     () => onClose(),
     ClientPortalHotKeyScope.ClientPortalAddSheet,
   );
-  const submitHandler: SubmitHandler<TClientPortalAddForm> = React.useCallback(
-    async (data) => {
-      clientPortalAdd({
-        variables: data,
-        onCompleted: (data) => {
-          if (!pagePanel.isCurrent()) return;
-          toast({
-            title: t('success-exclamation'),
-            variant: 'success',
-            description: t('client-portal-created'),
-          });
-          navigate(`${data.clientPortalAdd._id}`);
-        },
-      });
-    },
-    [clientPortalAdd, reset, onClose, navigate],
-  );
+  const submitHandler: SubmitHandler<TClientPortalAddForm> = async (data) => {
+    clientPortalAdd({
+      variables: data,
+      onCompleted: (data) => {
+        if (!pagePanel.isCurrent()) return;
+        toast({
+          title: t('success-exclamation'),
+          variant: 'success',
+          description: t('client-portal-created'),
+        });
+        navigate(`${data.clientPortalAdd._id}`);
+      },
+    });
+  };
   const pagePanel = usePagePanel({
     requiredPermission: 'clientPortalManage',
     name: 'client-portal/ClientPortalAddSheet',
@@ -106,58 +103,51 @@ export const CreateClientPortalSheet = () => {
             <Kbd>C</Kbd>
           </Button>
         </Can>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <Form {...methods}>
-                      <form
-                        className="flex flex-col gap-0 size-full"
-                        onSubmit={handleSubmit(submitHandler)}
-                      >
-                        <RecordSidePanel.Header
-                          title={<>{t('create-client-portal')}</>}
-                          onBack={pagePanel.onBack}
-                          onClose={pagePanel.onClose}
-                          expanded={pagePanel.expanded}
-                          onExpand={pagePanel.onExpand}
-                          avatar={<IconChessKnight />}
-                        />
-                        <div
-                          className={cn(
-                            'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                            'grow size-full flex flex-col px-5 py-4',
-                          )}
-                        >
-                          <ClientPortalCreateForm />
-                        </div>
-                        <div
-                          className={cn(
-                            'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
-                          )}
-                        >
-                          <Button
-                            variant={'secondary'}
-                            onClick={onClose}
-                            disabled={loading}
-                          >
-                            {t('cancel')}
-                          </Button>
-                          <Button type="submit">
-                            {loading ? <Spinner /> : t('create')}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <Form {...methods}>
+                <form
+                  className="flex flex-col gap-0 size-full"
+                  onSubmit={handleSubmit(submitHandler)}
+                >
+                  <RecordSidePanel.Header
+                    title={<>{t('create-client-portal')}</>}
+                    {...pagePanel.headerProps}
+                    avatar={<IconChessKnight />}
+                  />
+                  <div
+                    className={cn(
+                      'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                      'grow size-full flex flex-col px-5 py-4',
+                    )}
+                  >
+                    <ClientPortalCreateForm />
+                  </div>
+                  <div
+                    className={cn(
+                      'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+                    )}
+                  >
+                    <Button
+                      variant={'secondary'}
+                      onClick={onClose}
+                      disabled={loading}
+                    >
+                      {t('cancel')}
+                    </Button>
+                    <Button type="submit">
+                      {loading ? <Spinner /> : t('create')}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

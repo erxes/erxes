@@ -2,7 +2,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
   usePagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { Spinner } from 'erxes-ui';
@@ -12,7 +11,6 @@ import {
   isWideType,
   LayoutEditor,
   useSystemFieldsLayout,
-  SidePanelRecordPathContext,
   RecordSidePanel,
 } from 'ui-modules';
 import { usePropertySystemFields } from '@/properties/hooks/usePropertySystemFields';
@@ -31,28 +29,15 @@ export const SystemFieldsLayoutSheet = ({
     open: open,
     onOpenChange: (next) => !next && onClose(),
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <SystemFieldsLayoutEditor
-                      contentType={contentType}
-                      onClose={onClose}
-                    />
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <SystemFieldsLayoutEditor contentType={contentType} onClose={onClose} />
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
 const SystemFieldsLayoutEditor = ({
@@ -83,10 +68,7 @@ const SystemFieldsLayoutEditor = ({
           'basic-information',
           'Basic information',
         )}`}
-        onBack={pagePanel.onBack}
-        onClose={pagePanel.onClose}
-        expanded={pagePanel.expanded}
-        onExpand={pagePanel.onExpand}
+        {...pagePanel.headerProps}
       />
       <LayoutEditor
         title={`${t('layout', 'Layout')} — ${t(

@@ -2,7 +2,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { AutomationBuilderNodeMetaEditor } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeMetaEditor';
 import { AutomationBuilderNodeOutputVariables } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeOutputVariables';
@@ -15,7 +14,6 @@ import { IconComponent, Separator } from 'erxes-ui';
 import {
   AutomationVariableInsertionProvider,
   RecordSidePanel,
-  SidePanelRecordPathContext,
 } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 export const BroadcastNodeConfigSheet = () => {
@@ -29,74 +27,57 @@ export const BroadcastNodeConfigSheet = () => {
     open: !!activeNode,
     onOpenChange: (open) => !open && handleClose(),
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded &&
-                pagePanel.allowed &&
-                !!activeNode ? (
-                  <>
-                    {activeNode && (
-                      <AutomationVariableInsertionProvider>
-                        <div className="flex h-full min-h-0 flex-col">
-                          <RecordSidePanel.Header
-                            avatar={<IconComponent name={activeNode.icon} />}
-                            title={
-                              <AutomationBuilderNodeMetaEditor
-                                activeNode={activeNode}
-                              />
-                            }
-                            onBack={pagePanel.onBack}
-                            onClose={pagePanel.onClose}
-                            expanded={pagePanel.expanded}
-                            onExpand={pagePanel.onExpand}
-                          />
-                          <Separator />
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed && !!activeNode ? (
+        <>
+          {activeNode && (
+            <AutomationVariableInsertionProvider>
+              <div className="flex h-full min-h-0 flex-col">
+                <RecordSidePanel.Header
+                  avatar={<IconComponent name={activeNode.icon} />}
+                  title={
+                    <AutomationBuilderNodeMetaEditor activeNode={activeNode} />
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <Separator />
 
-                          <div className="flex min-h-0 min-w-0 flex-1 flex-row">
-                            {/* The width the widest built-in action form lays itself out
+                <div className="flex min-h-0 min-w-0 flex-1 flex-row">
+                  {/* The width the widest built-in action form lays itself out
                              at. It never grows past that, and shrinks (scrolling its
                              own content) when the viewport cannot give it that much. */}
-                            <div className="flex w-[650px] min-w-0 flex-col overflow-auto">
-                              <AutomationActionTargetSelector
-                                activeNode={activeNode}
-                              />
-                              <AutomationBuilderReadOnlyFieldset>
-                                <AutomationActionContentSidebar />
-                              </AutomationBuilderReadOnlyFieldset>
-                            </div>
+                  <div className="flex w-[650px] min-w-0 flex-col overflow-auto">
+                    <AutomationActionTargetSelector activeNode={activeNode} />
+                    <AutomationBuilderReadOnlyFieldset>
+                      <AutomationActionContentSidebar />
+                    </AutomationBuilderReadOnlyFieldset>
+                  </div>
 
-                            {/* Kept open rather than toggled: a variable is inserted into
+                  {/* Kept open rather than toggled: a variable is inserted into
                              whichever field was last focused, so the browser is only
                              useful while the form it feeds is on screen. */}
-                            <div className="flex w-72 shrink-0 flex-col border-l bg-sidebar">
-                              <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-2">
-                                <h3 className="text-sm font-semibold">
-                                  {t('workflow.variables')}
-                                </h3>
-                                <AutomationBuilderVariablesHelpPopover />
-                              </div>
-                              <Separator />
-                              <div className="min-h-0 flex-1 overflow-y-auto">
-                                <AutomationBuilderNodeOutputVariables />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </AutomationVariableInsertionProvider>
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+                  <div className="flex w-72 shrink-0 flex-col border-l bg-sidebar">
+                    <div className="flex shrink-0 items-center justify-between gap-2 px-4 py-2">
+                      <h3 className="text-sm font-semibold">
+                        {t('workflow.variables')}
+                      </h3>
+                      <AutomationBuilderVariablesHelpPopover />
+                    </div>
+                    <Separator />
+                    <div className="min-h-0 flex-1 overflow-y-auto">
+                      <AutomationBuilderNodeOutputVariables />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </AutomationVariableInsertionProvider>
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };

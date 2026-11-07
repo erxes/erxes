@@ -3,7 +3,6 @@ import {
   createPagePanelPortal as createPortal,
   usePagePanel,
   usePagePanelContext,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import {
   IconCalendarClock,
@@ -21,7 +20,6 @@ import {
   ApprovalRequestAccessButton,
   Can,
   RecordSidePanel,
-  SidePanelRecordPathContext,
 } from 'ui-modules';
 import { BROADCAST_APPROVAL_CONTENT_TYPE } from '@/broadcast/constants';
 import { useBroadcastCampaignActions } from '@/broadcast/hooks/useBroadcastCampaignActions';
@@ -42,35 +40,25 @@ export const BroadcastDetailSheet = () => {
     },
     identity: messageId || 'new',
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <BroadcastDetailProvider>
-                      <BroadcastDetailSheetHeader />
-                      <div
-                        className={cn(
-                          'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                          'overflow-y-auto',
-                        )}
-                      >
-                        <BroadcastDetail />
-                      </div>
-                    </BroadcastDetailProvider>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <BroadcastDetailProvider>
+          <BroadcastDetailSheetHeader />
+          <div
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-y-auto',
+              'overflow-y-auto',
+            )}
+          >
+            <BroadcastDetail />
+          </div>
+        </BroadcastDetailProvider>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
 const BroadcastDetailSheetHeader = () => {
@@ -101,10 +89,7 @@ const BroadcastDetailSheetHeader = () => {
     <RecordSidePanel.Header
       className="h-auto min-h-10 flex-wrap gap-y-1 py-1 [&>div]:max-w-full"
       title={<TextOverflowTooltip value={message?.title} />}
-      onBack={entry.onBack}
-      onClose={entry.onClose}
-      expanded={entry.expanded}
-      onExpand={entry.onExpand}
+      {...entry.headerProps}
       actions={
         <>
           <ApprovalLockedBadge state={lockState ?? undefined} />

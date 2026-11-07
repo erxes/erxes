@@ -77,36 +77,29 @@ export const AddPropertyGroup = () => {
             {t('add-group', 'Add Group')}
           </Button>
         </Can>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <>
-                      <RecordSidePanel.Header
-                        title={panelT('add-group', 'Add Group')}
-                        onBack={pagePanel.onBack}
-                        onClose={pagePanel.onClose}
-                        expanded={pagePanel.expanded}
-                        onExpand={pagePanel.onExpand}
-                      />
-                      <PropertyGroupForm
-                        onSubmit={submitHandler}
-                        loading={loading}
-                        defaultValues={form.getValues()}
-                        onCancel={() => setOpen(false)}
-                        contentType={type || ''}
-                        layout="record"
-                      />
-                    </>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={panelT('add-group', 'Add Group')}
+                  {...pagePanel.headerProps}
+                />
+                <PropertyGroupForm
+                  onSubmit={submitHandler}
+                  loading={loading}
+                  defaultValues={form.getValues()}
+                  onCancel={() => setOpen(false)}
+                  contentType={type || ''}
+                  layout="record"
+                />
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

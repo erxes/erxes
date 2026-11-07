@@ -1,10 +1,9 @@
 import { type ReactNode } from 'react';
-import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import { RecordSidePanel } from 'ui-modules';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 
 export const AiAgentDetailSheetShell = ({
@@ -31,30 +30,26 @@ export const AiAgentDetailSheetShell = ({
     },
   });
   return (
-    <PagePanelContext.Provider value={entry}>
-      <SidePanelRecordPathContext.Provider value={entry.path}>
-        {entry.open &&
-          entry.target &&
-          createPagePanelPortal(
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-              {entry.permissionsLoaded && entry.allowed ? (
-                <>
-                  <RecordSidePanel.Header
-                    title={title}
-                    onBack={entry.onBack}
-                    onClose={() => onRequestClose(entry.onClose)}
-                    expanded={entry.expanded}
-                    onExpand={entry.onExpand}
-                  />
-                  {children(entry.onClose)}
-                </>
-              ) : (
-                <PagePanelStatus entry={entry} />
-              )}
-            </div>,
-            entry.target,
-          )}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+    entry.open &&
+    entry.target &&
+    createPagePanelPortal(
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+        {entry.permissionsLoaded && entry.allowed ? (
+          <>
+            <RecordSidePanel.Header
+              title={title}
+              onBack={entry.onBack}
+              onClose={() => onRequestClose(entry.onClose)}
+              expanded={entry.expanded}
+              onExpand={entry.onExpand}
+            />
+            {children(entry.onClose)}
+          </>
+        ) : (
+          <PagePanelStatus entry={entry} />
+        )}
+      </div>,
+      entry,
+    )
   );
 };

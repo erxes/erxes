@@ -3,7 +3,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
   usePagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { Spinner } from 'erxes-ui';
@@ -13,7 +12,6 @@ import {
   buildGroupRows,
   LayoutEditor,
   useFields,
-  SidePanelRecordPathContext,
   RecordSidePanel,
 } from 'ui-modules';
 import { useGroupLayoutSave } from '@/properties/hooks/useGroupLayoutSave';
@@ -29,39 +27,23 @@ export const PropertyGroupLayoutSheet = () => {
     open: open,
     onOpenChange: (open) => !open && close(),
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded &&
-                pagePanel.allowed &&
-                !loading &&
-                !error &&
-                !(!loading && !group) ? (
-                  <>
-                    {group && (
-                      <GroupLayoutEditor
-                        key={group._id}
-                        group={group}
-                        onClose={close}
-                      />
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus
-                    entry={pagePanel}
-                    loading={loading}
-                    error={!!error}
-                  />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !loading &&
+      !error &&
+      !(!loading && !group) ? (
+        <>
+          {group && (
+            <GroupLayoutEditor key={group._id} group={group} onClose={close} />
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} loading={loading} error={!!error} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
 const GroupLayoutEditor = ({
@@ -90,10 +72,7 @@ const GroupLayoutEditor = ({
     <>
       <RecordSidePanel.Header
         title={`${t('layout', 'Layout')} — ${group.name}`}
-        onBack={pagePanel.onBack}
-        onClose={pagePanel.onClose}
-        expanded={pagePanel.expanded}
-        onExpand={pagePanel.onExpand}
+        {...pagePanel.headerProps}
       />
       <LayoutEditor
         title={`${t('layout', 'Layout')} — ${group.name}`}

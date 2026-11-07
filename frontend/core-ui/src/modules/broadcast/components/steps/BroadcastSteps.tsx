@@ -24,16 +24,11 @@ const BroadcastStepsHeader = () => {
   return (
     <RecordSidePanel.Header
       title={<>{t(messageId ? 'steps.edit-title' : 'steps.new-title')}</>}
-      onBack={pagePanel.onBack}
-      onClose={pagePanel.onClose}
-      expanded={pagePanel.expanded}
-      onExpand={pagePanel.onExpand}
+      {...pagePanel.headerProps}
       actions={
-        <>
-          <div className="ml-auto mr-2 flex items-center gap-2">
-            <BroadcastScheduleField />
-          </div>
-        </>
+        <div className="ml-auto mr-2 flex items-center gap-2">
+          <BroadcastScheduleField />
+        </div>
       }
     />
   );

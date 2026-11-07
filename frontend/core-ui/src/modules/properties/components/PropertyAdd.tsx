@@ -2,7 +2,6 @@ import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { toast } from 'erxes-ui';
@@ -13,7 +12,6 @@ import { needsToRefreshState } from '@/properties/states/needsToRefresh';
 import {
   PropertyForm,
   useAddProperty,
-  SidePanelRecordPathContext,
   RecordSidePanel,
   IPropertyForm,
 } from 'ui-modules';
@@ -62,53 +60,40 @@ export const AddProperty = () => {
     open: true,
     onOpenChange: handleClose,
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <>
-                      <RecordSidePanel.Header
-                        title={panelT('add-property', 'Add Property')}
-                        onBack={pagePanel.onBack}
-                        onClose={pagePanel.onClose}
-                        expanded={pagePanel.expanded}
-                        onExpand={pagePanel.onExpand}
-                      />
-                      <PropertyForm
-                        onSubmit={onSubmit}
-                        loading={loading}
-                        defaultValues={{
-                          icon: '123',
-                          name: '',
-                          type: type || '',
-                          groupId: groupId || '',
-                          isSearchable: false,
-                          isVisible: true,
-                          isVisibleToCreate: false,
-                          isRequired: false,
-                          isVisibleInCard: false,
-                          description: '',
-                          code: '',
-                          options: [],
-                        }}
-                        onCancel={handleClose}
-                        contentType={type || ''}
-                        layout="record"
-                      />
-                    </>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          <RecordSidePanel.Header
+            title={panelT('add-property', 'Add Property')}
+            {...pagePanel.headerProps}
+          />
+          <PropertyForm
+            onSubmit={onSubmit}
+            loading={loading}
+            defaultValues={{
+              icon: '123',
+              name: '',
+              type: type || '',
+              groupId: groupId || '',
+              isSearchable: false,
+              isVisible: true,
+              isVisibleToCreate: false,
+              isRequired: false,
+              isVisibleInCard: false,
+              description: '',
+              code: '',
+              options: [],
+            }}
+            onCancel={handleClose}
+            contentType={type || ''}
+            layout="record"
+          />
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };

@@ -1,5 +1,8 @@
 import { IPermissionGroup } from '@/settings/permissions/types';
-import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
+import {
+  IPermissionGroupSchema,
+  permissionGroupToInput,
+} from '@/settings/permissions/schemas/permissionGroup';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
 import {
@@ -10,7 +13,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useEditPermissionGroup } from '@/settings/permissions/hooks/useEditPermissionGroup';
 import { Button, toast, cn } from 'erxes-ui';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { PermissionGroupForm } from '@/settings/permissions/components/form/PermissionGroupForm';
 export const PermissionGroupEdit = ({
   group,
@@ -24,35 +27,30 @@ export const PermissionGroupEdit = ({
   });
   const [open, setOpen] = useState<boolean>(false);
   const { editPermissionGroup, loading } = useEditPermissionGroup();
-  const onSubmit = useCallback(
-    async (data: IPermissionGroupSchema) => {
-      if (loading) return;
-      editPermissionGroup({
-        variables: {
-          _id: group._id,
-          name: data.name.trim(),
-          description: data.description?.trim() || null,
-          permissions: data.permissions,
-        },
-        onCompleted: () => {
-          if (!pagePanel.isCurrent()) return;
-          toast({
-            title: t('group-updated'),
-            variant: 'success',
-          });
-          setOpen(false);
-        },
-        onError: (error) => {
-          toast({
-            title: t('error-updating-group'),
-            variant: 'destructive',
-            description: error.message,
-          });
-        },
-      });
-    },
-    [loading, editPermissionGroup, group._id, t],
-  );
+  const onSubmit = async (data: IPermissionGroupSchema) => {
+    if (loading) return;
+    editPermissionGroup({
+      variables: {
+        _id: group._id,
+        ...permissionGroupToInput(data),
+      },
+      onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
+        toast({
+          title: t('group-updated'),
+          variant: 'success',
+        });
+        setOpen(false);
+      },
+      onError: (error) => {
+        toast({
+          title: t('error-updating-group'),
+          variant: 'destructive',
+          description: error.message,
+        });
+      },
+    });
+  };
   const defaultValues: Partial<IPermissionGroupSchema> = {
     name: group.name,
     description: group.description || '',
@@ -75,40 +73,33 @@ export const PermissionGroupEdit = ({
             {t('edit')}
           </Button>
         )}
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={t('edit-permission-group')}
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                      )}
-                    >
-                      <PermissionGroupForm
-                        key={group._id}
-                        defaultValues={defaultValues}
-                        onSubmit={onSubmit}
-                        onCancel={() => setOpen(false)}
-                        isSubmitting={loading}
-                        mode="edit"
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={t('edit-permission-group')}
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}
+                >
+                  <PermissionGroupForm
+                    key={group._id}
+                    defaultValues={defaultValues}
+                    onSubmit={onSubmit}
+                    onCancel={() => setOpen(false)}
+                    isSubmitting={loading}
+                    mode="edit"
+                  />
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

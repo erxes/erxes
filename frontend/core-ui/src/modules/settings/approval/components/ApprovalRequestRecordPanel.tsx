@@ -1,3 +1,4 @@
+import { PanelEmptyState } from '@/side-panel/components/PagePanelStatus';
 import { useApolloClient, useQuery } from '@apollo/client';
 import {
   Badge,
@@ -5,7 +6,6 @@ import {
   RelativeDateDisplay,
   Separator,
   Spinner,
-  Empty,
 } from 'erxes-ui';
 import { type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,17 +78,13 @@ export const ApprovalRequestRecordPanel = ({
     return (
       <>
         {header}
-        <Empty>
-          <Empty.Header>
-            <Empty.Title>
-              {t('request-unavailable', 'Request unavailable')}
-            </Empty.Title>
-            <Empty.Description>{error?.message}</Empty.Description>
-          </Empty.Header>
-          <Empty.Content>
+        <PanelEmptyState
+          title={t('request-unavailable', 'Request unavailable')}
+          description={error?.message}
+          action={
             <Button onClick={() => refetch()}>{t('retry', 'Retry')}</Button>
-          </Empty.Content>
-        </Empty>
+          }
+        />
       </>
     );
   const targetLabel = request.content?.label || request.contentType;

@@ -1,9 +1,8 @@
-import { SidePanelRecordPathContext, RecordSidePanel } from 'ui-modules';
+import { RecordSidePanel } from 'ui-modules';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
   usePagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
@@ -54,37 +53,29 @@ export const AutomationHistoryPanel = ({
     defaultWidth: 720,
     identity: selectedExecutionId || 'new',
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded &&
-                pagePanel.allowed &&
-                !!selectedExecutionId ? (
-                  <>
-                    {selectedExecutionId && (
-                      <AutomationHistoryDetailProvider
-                        key={selectedExecutionId}
-                        executionId={selectedExecutionId}
-                      >
-                        <AutomationHistorySheetContent
-                          isOpen
-                          automationId={automationId}
-                        />
-                      </AutomationHistoryDetailProvider>
-                    )}
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !!selectedExecutionId ? (
+        <>
+          {selectedExecutionId && (
+            <AutomationHistoryDetailProvider
+              key={selectedExecutionId}
+              executionId={selectedExecutionId}
+            >
+              <AutomationHistorySheetContent
+                isOpen
+                automationId={automationId}
+              />
+            </AutomationHistoryDetailProvider>
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
 const AutomationHistorySheetHeader = () => {
@@ -94,22 +85,17 @@ const AutomationHistorySheetHeader = () => {
   return (
     <RecordSidePanel.Header
       title={
-        <>
-          <div className="flex min-w-0 items-center gap-2">
-            <AutomationExecutionBackButton />
-            <div>
-              <div className="flex items-center gap-2">
-                <span>{title}</span>
-              </div>
-              <p>{t('history-sheet-description')}</p>
+        <div className="flex min-w-0 items-center gap-2">
+          <AutomationExecutionBackButton />
+          <div>
+            <div className="flex items-center gap-2">
+              <span>{title}</span>
             </div>
+            <p>{t('history-sheet-description')}</p>
           </div>
-        </>
+        </div>
       }
-      onBack={pagePanel.onBack}
-      onClose={pagePanel.onClose}
-      expanded={pagePanel.expanded}
-      onExpand={pagePanel.onExpand}
+      {...pagePanel.headerProps}
     />
   );
 };

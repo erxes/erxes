@@ -30,49 +30,36 @@ export function IncomingWebhookPayloadSchemaSheet({ value, onChange }: Props) {
         >
           <IconCode className="size-4" /> {t('webhook-trigger-edit-schema')}
         </Button>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={
-                        <>
-                          <div>
-                            <span>
-                              {t('webhook-trigger-schema-builder-title')}
-                            </span>
-                            <p>
-                              {t('webhook-trigger-schema-builder-description')}
-                            </p>
-                          </div>
-                        </>
-                      }
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                      )}
-                    >
-                      <div className="p-4">
-                        <IncomingWebhookPayloadSchemaGenerator
-                          value={value}
-                          onChange={onChange}
-                        />
-                      </div>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={
+                    <div>
+                      <span>{t('webhook-trigger-schema-builder-title')}</span>
+                      <p>{t('webhook-trigger-schema-builder-description')}</p>
                     </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+                  }
+                  {...pagePanel.headerProps}
+                />
+                <div
+                  className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}
+                >
+                  <div className="p-4">
+                    <IncomingWebhookPayloadSchemaGenerator
+                      value={value}
+                      onChange={onChange}
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

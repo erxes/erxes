@@ -1,44 +1,26 @@
+import { useWorkhoursPanel } from '@/settings/structure/hooks/useWorkhoursPanel';
+import { WorkhoursFormContent } from '@/settings/structure/components/workhours/WorkhoursFormContent';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
-import {
-  createPagePanelPortal as createPortal,
-  usePagePanel,
-  PagePanelContext,
-} from '@/side-panel/hooks/usePagePanel';
+import { createPagePanelPortal as createPortal } from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
-import {
-  Button,
-  DatePicker,
-  Form,
-  Input,
-  Separator,
-  Switch,
-  useQueryState,
-  cn,
-} from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
+import { Button, DatePicker, Form, Input, Separator, Switch } from 'erxes-ui';
 import { workingHours } from '@/settings/structure/constants/work-days';
-import {
-  IHoliday,
-  IWorkhoursForm,
-  WorkDay,
-} from '@/settings/structure/types/workhours';
-import { useWorkhoursForm } from '@/settings/structure/hooks/useWorkhoursForm';
+import { IHoliday, IWorkhoursForm } from '@/settings/structure/types/workhours';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Can, RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import { Can } from 'ui-modules';
 import { useBranchById } from 'ui-modules/modules/structure/hooks/useBranchById';
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useBranchInlineEdit } from '@/settings/structure/hooks/useBranchActions';
 import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
-import { WeekDayRow } from '@/settings/structure/components/workhours/WeekDayRow';
 import { WorkTimeField } from '@/settings/structure/components/workhours/WorkTimeField';
 export const BranchWorkingHoursSheet = () => {
   const { t } = useTranslation('settings', {
     keyPrefix: 'structure',
   });
-  const [workingHoursId] = useQueryState<string>('workingHoursId');
-  const [, setSearchParams] = useSearchParams();
-  const { form } = useWorkhoursForm();
+  const { workingHoursId, form, pagePanel, close } = useWorkhoursPanel(
+    'settings/structure/branches/BranchWorkingHoursSheet',
+  );
   const { branchDetail } = useBranchById({
     variables: {
       id: workingHoursId,
@@ -46,17 +28,6 @@ export const BranchWorkingHoursSheet = () => {
     skip: !workingHoursId,
   });
   const { branchesEdit, loading } = useBranchInlineEdit();
-  const setOpen = (newId: string | null) => {
-    setSearchParams((currentParams) => {
-      const newSearchParams = new URLSearchParams(currentParams);
-      if (newId) {
-        newSearchParams.set('workingHoursId', newId);
-      } else {
-        newSearchParams.delete('workingHoursId');
-      }
-      return newSearchParams;
-    });
-  };
   const onSubmit = (values: IWorkhoursForm) => {
     const { holidays, ...days } = values || {};
     const activeDays: Record<string, any> = {};
@@ -105,84 +76,25 @@ export const BranchWorkingHoursSheet = () => {
       });
     }
   }, [branchDetail, form]);
-  const pagePanel = usePagePanel({
-    name: 'settings/structure/branches/BranchWorkingHoursSheet',
-    open: !!workingHoursId,
-    onOpenChange: (isOpen) => {
-      if (!isOpen) {
-        setOpen(null);
-      }
-    },
-    identity: workingHoursId || 'new',
-  });
-  return (
-    <Form {...form}>
-      <PagePanelContext.Provider value={pagePanel}>
-        <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-          {pagePanel.open && pagePanel.target
-            ? createPortal(
-                <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                  {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                    <>
-                      <div className="flex flex-col gap-0 size-full">
-                        <RecordSidePanel.Header
-                          title={<>{t('setup-branch-working-hours')}</>}
-                          onBack={pagePanel.onBack}
-                          onClose={pagePanel.onClose}
-                          expanded={pagePanel.expanded}
-                          onExpand={pagePanel.onExpand}
-                        />
-                        <div
-                          className={cn(
-                            'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                            'flex-1 min-h-0 overflow-y-auto flex flex-col px-5',
-                          )}
-                        >
-                          {Object.entries(workingHours).map(([day], index) => {
-                            return (
-                              <Fragment key={day}>
-                                {index !== 0 && <Separator />}
-                                <WeekDayRow weekDay={day as WorkDay} />
-                              </Fragment>
-                            );
-                          })}
-                          <Separator />
-                          <HolidaysSection />
-                        </div>
-                        <div
-                          className={cn(
-                            'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
-                            'flex justify-end items-center gap-3',
-                          )}
-                        >
-                          <Button
-                            variant={'secondary'}
-                            onClick={() => setOpen(null)}
-                          >
-                            {t('cancel')}
-                          </Button>
-                          <Can action="branchesManage">
-                            <Button
-                              disabled={loading}
-                              type="button"
-                              onClick={form.handleSubmit(onSubmit)}
-                            >
-                              {t('save')}
-                            </Button>
-                          </Can>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <PagePanelStatus entry={pagePanel} />
-                  )}
-                </div>,
-                pagePanel.target,
-              )
-            : null}
-        </SidePanelRecordPathContext.Provider>
-      </PagePanelContext.Provider>
-    </Form>
+
+  return createPortal(
+    pagePanel.permissionsLoaded && pagePanel.allowed ? (
+      <WorkhoursFormContent
+        title={t('setup-branch-working-hours')}
+        form={form}
+        navigation={pagePanel.headerProps}
+        onCancel={close}
+        onSave={form.handleSubmit(onSubmit)}
+        saving={loading}
+        permission="branchesManage"
+      >
+        <Separator />
+        <HolidaysSection />
+      </WorkhoursFormContent>
+    ) : (
+      <PagePanelStatus entry={pagePanel} />
+    ),
+    pagePanel,
   );
 };
 const HolidaysSection = () => {

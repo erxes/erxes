@@ -61,57 +61,52 @@ export const CompaniesMergeSheet = ({
             {t('action-merge')}
           </Button>
         </CompaniesMergeTooltip>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={<>{t('merge-title')}</>}
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <p className="sr-only">{t('merge-tooltip')}</p>
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                        'min-h-0 overflow-y-auto',
-                      )}
-                    >
-                      <div className={contentClassName}>{children}</div>
-                    </div>
-                    {showFooter && (
-                      <div
-                        className={cn(
-                          'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
-                          'flex justify-end p-5',
-                        )}
-                      >
-                        <Button
-                          variant="secondary"
-                          onClick={onDiscard}
-                          disabled={saving}
-                        >
-                          {t('action-discard')}
-                        </Button>
-                        <Button onClick={onSave} disabled={saveButtonDisabled}>
-                          {saving && (
-                            <Spinner containerClassName="inline-flex flex-none" />
-                          )}
-                          {t('action-save')}
-                        </Button>
-                      </div>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={<>{t('merge-title')}</>}
+                  {...pagePanel.headerProps}
+                />
+                <p className="sr-only">{t('merge-tooltip')}</p>
+                <div
+                  className={cn(
+                    'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                    'min-h-0 overflow-y-auto',
+                  )}
+                >
+                  <div className={contentClassName}>{children}</div>
+                </div>
+                {showFooter && (
+                  <div
+                    className={cn(
+                      'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+                      'flex justify-end p-5',
                     )}
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
+                  >
+                    <Button
+                      variant="secondary"
+                      onClick={onDiscard}
+                      disabled={saving}
+                    >
+                      {t('action-discard')}
+                    </Button>
+                    <Button onClick={onSave} disabled={saveButtonDisabled}>
+                      {saving && (
+                        <Spinner containerClassName="inline-flex flex-none" />
+                      )}
+                      {t('action-save')}
+                    </Button>
+                  </div>
                 )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
       </SidePanelRecordPathContext.Provider>
     </PagePanelContext.Provider>
   );

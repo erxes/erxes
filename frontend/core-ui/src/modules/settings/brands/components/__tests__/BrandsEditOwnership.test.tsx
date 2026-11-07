@@ -9,8 +9,11 @@ import {
 import { createStore, Provider } from 'jotai';
 import { MemoryRouter, useSearchParams } from 'react-router-dom';
 import { BrandsEdit } from '../BrandsEdit';
+import { CreateBrand } from '../CreateBrand';
 import { modulePanelTargetsState } from '@/side-panel/states/modulePanelState';
 
+const mockT = (key: string) => key;
+const mockToast = jest.fn();
 const mockPending: (() => void)[] = [];
 const mockEdit = jest.fn((options: { onCompleted: () => void }) => {
   mockPending.push(options.onCompleted);
@@ -24,7 +27,10 @@ jest.mock('react-router-dom', () => {
   return jest.requireActual('react-router-dom');
 });
 jest.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: mockT }),
+}));
+jest.mock('@/settings/brands/hooks/useBrandsAdd', () => ({
+  useBrandsAdd: () => ({ brandsAdd: mockEdit, loading: false }),
 }));
 jest.mock('@/settings/brands/hooks/useBrandsEdit', () => ({
   useBrandsEdit: () => ({ handleEdit: mockEdit, loading: false }),
@@ -57,7 +63,13 @@ jest.mock('erxes-ui', () => ({
   ),
   cn: (...classes: string[]) => classes.filter(Boolean).join(' '),
   Spinner: () => null,
-  useToast: () => ({ toast: jest.fn() }),
+  Kbd: ({ children }: { children: React.ReactNode }) => <span>{children}</span>,
+  useScopedHotkeys: () => undefined,
+  useSetHotkeyScope: () => () => undefined,
+  usePreviousHotkeyScope: () => ({
+    setHotkeyScopeAndMemorizePreviousScope: () => undefined,
+  }),
+  useToast: () => ({ toast: mockToast }),
   useQueryState: (key: string) => {
     const [params, setParams] = jest
       .requireActual<typeof import('react-router-dom')>('react-router-dom')
@@ -86,6 +98,19 @@ jest.mock('ui-modules', () => {
       isLoaded: true,
       hasActionPermission: () => true,
     }),
+    PanelFormLayout: ({
+      children,
+      saveLabel,
+      onCancel,
+    }: React.ComponentProps<typeof import('ui-modules').PanelFormLayout>) => (
+      <>
+        {children}
+        <button type="button" onClick={onCancel}>
+          cancel
+        </button>
+        <button type="submit">{saveLabel}</button>
+      </>
+    ),
     RecordSidePanel: {
       Header: ({ title }: { title: React.ReactNode }) => <h2>{title}</h2>,
     },
@@ -171,6 +196,39 @@ it('keeps the replacement brand URL and unsaved input when an earlier save finis
   expect((screen.getByLabelText('Brand name') as HTMLInputElement).value).toBe(
     'Unsaved B',
   );
+  view.unmount();
+  target.remove();
+});
+
+it('finishes a create submitted after opening and resets the next draft', async () => {
+  mockPending.length = 0;
+  const store = createStore();
+  const target = document.createElement('div');
+  document.body.append(target);
+  store.set(modulePanelTargetsState, {
+    '/module/settings%2Fbrands%2FCreateBrand': target,
+  });
+  const view = render(
+    <Provider store={store}>
+      <MemoryRouter>
+        <CreateBrand />
+      </MemoryRouter>
+    </Provider>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: /create-brand C/ }));
+  fireEvent.change(await screen.findByLabelText('Brand name'), {
+    target: { value: 'New brand' },
+  });
+  fireEvent.click(
+    screen.getByRole('button', { name: 'create-brand', exact: true }),
+  );
+  await waitFor(() => expect(mockPending).toHaveLength(1));
+  act(() => mockPending[0]());
+  expect(screen.queryByLabelText('Brand name')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: /create-brand C/ }));
+  expect(
+    ((await screen.findByLabelText('Brand name')) as HTMLInputElement).value,
+  ).toBe('');
   view.unmount();
   target.remove();
 });

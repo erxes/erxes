@@ -19,35 +19,42 @@ export const PagePanelStatus = ({
 }) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const waiting = !entry.permissionsLoaded || loading;
-  const title = waiting
-    ? t('loading', 'Loading…')
-    : !entry.allowed
-    ? t('access-denied', 'Access denied')
-    : error
-    ? t('error', 'Unable to load editor')
-    : t('not-found-title', 'Nothing here');
+  let title = t('not-found-title', 'Nothing here');
+  if (waiting) {
+    title = t('loading', 'Loading…');
+  } else if (!entry.allowed) {
+    title = t('access-denied', 'Access denied');
+  } else if (error) {
+    title = t('error', 'Unable to load editor');
+  }
   const content =
     !waiting && entry.allowed && (error ? errorState : notFoundState);
   return (
     <>
-      <RecordSidePanel.Header
-        title={title}
-        onBack={entry.onBack}
-        onClose={entry.onClose}
-        expanded={entry.expanded}
-        onExpand={entry.onExpand}
-      />
+      <RecordSidePanel.Header title={title} {...entry.headerProps} />
       {waiting ? (
         <Spinner containerClassName="py-12" />
       ) : (
-        content || (
-          <Empty>
-            <Empty.Header>
-              <Empty.Title>{title}</Empty.Title>
-            </Empty.Header>
-          </Empty>
-        )
+        content || <PanelEmptyState title={title} />
       )}
     </>
   );
 };
+
+export const PanelEmptyState = ({
+  title,
+  description,
+  action,
+}: {
+  title: ReactNode;
+  description?: ReactNode;
+  action?: ReactNode;
+}) => (
+  <Empty>
+    <Empty.Header>
+      <Empty.Title>{title}</Empty.Title>
+      {description && <Empty.Description>{description}</Empty.Description>}
+    </Empty.Header>
+    {action && <Empty.Content>{action}</Empty.Content>}
+  </Empty>
+);

@@ -1,26 +1,16 @@
+import { StructureCreateForm } from '@/settings/structure/components/StructureCreateForm';
+import { StructureCreateButton } from '@/settings/structure/components/StructureFormActions';
+import { useStructureFormFeedback } from '@/settings/structure/hooks/useStructureFormFeedback';
 import { SubmitHandler } from 'react-hook-form';
-import {
-  TBranchForm,
-  BranchHotKeyScope,
-} from '../../types/branch';
-import { ApolloError } from '@apollo/client';
+import { TBranchForm, BranchHotKeyScope } from '../../types/branch';
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
-import { IconGitBranch, IconPlus } from '@tabler/icons-react';
-import {
-  Button,
-  Form,
-  Kbd,
-  Spinner,
-  useScopedHotkeys,
-  useToast,
-  cn,
-} from 'erxes-ui';
+import { IconGitBranch } from '@tabler/icons-react';
+import { useScopedHotkeys } from 'erxes-ui';
 import { useEffect } from 'react';
 import { BranchForm } from '@/settings/structure/components/branches/BranchForm';
 import { useBranchForm } from '@/settings/structure/hooks/useBranchForm';
@@ -29,24 +19,15 @@ import {
   useBranchEdit,
 } from '@/settings/structure/hooks/useBranchActions';
 import { useBranchCreateSheet } from '@/settings/structure/hooks/useStructureCreateSheet';
-import {
-  Can,
-  usePermissionCheck,
-  RecordSidePanel,
-  SidePanelRecordPathContext,
-} from 'ui-modules';
+import { usePermissionCheck, RecordSidePanel } from 'ui-modules';
 export const CreateBranch = () => {
   const { t } = useTranslation('settings', {
     keyPrefix: 'structure',
   });
-  const {
-    methods,
-    methods: { handleSubmit },
-  } = useBranchForm();
+  const { methods } = useBranchForm();
   const { target, isOpen, openSheet, closeSheet } = useBranchCreateSheet();
   const { handleAdd, loading } = useBranchAdd();
   const { handleEdit } = useBranchEdit();
-  const { toast } = useToast();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canManageBranches = isLoaded && hasActionPermission('branchesManage');
   const presetParentId = target?.parentId;
@@ -64,12 +45,20 @@ export const CreateBranch = () => {
     BranchHotKeyScope.BranchSettingsPage,
   );
   useScopedHotkeys(`esc`, () => closeSheet(), BranchHotKeyScope.BranchAddSheet);
-  const showError = (error: ApolloError) =>
-    toast({
-      title: t('error'),
-      description: error.message,
-      variant: 'destructive',
-    });
+  const pagePanel = usePagePanel({
+    requiredPermission: 'branchesManage',
+    name: 'settings/structure/branches/CreateBranch',
+    onOpenChange: (open) => (open ? openSheet() : closeSheet()),
+    open: isOpen,
+  });
+  const feedback = useStructureFormFeedback({
+    isCurrent: pagePanel.isCurrent,
+    message: t('branch-created'),
+    onSuccess: () => {
+      methods.reset();
+      closeSheet();
+    },
+  });
   const submitHandler: SubmitHandler<TBranchForm> = (data) => {
     const insertBefore = target?.insertBefore;
     handleAdd({
@@ -84,88 +73,47 @@ export const CreateBranch = () => {
               code: insertBefore.code,
               parentId: branchesAdd._id,
             },
-            onError: showError,
+            onError: feedback.onError,
           });
         }
-        toast({
-          title: t('success'),
-          variant: 'success',
-          description: t('branch-created'),
-        });
-        methods.reset();
-        closeSheet();
+        feedback.onCompleted();
       },
-      onError: showError,
+      onError: feedback.onError,
     });
   };
-  const pagePanel = usePagePanel({
-    requiredPermission: 'branchesManage',
-    name: 'settings/structure/branches/CreateBranch',
-    onOpenChange: (open) => (open ? openSheet() : closeSheet()),
-    open: isOpen,
-  });
+
   return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        <Can action="branchesManage">
-          <Button onClick={pagePanel.onOpen}>
-            <IconPlus /> {t('create-branch')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Can>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <Form {...methods}>
-                      <form
-                        onSubmit={handleSubmit(submitHandler)}
-                        className=" flex flex-col gap-0 w-full h-full"
-                      >
-                        <RecordSidePanel.Header
-                          title={
-                            <>
-                              <IconGitBranch size={16} />
-                              {t('create-branch-title')}
-                            </>
-                          }
-                          onBack={pagePanel.onBack}
-                          onClose={pagePanel.onClose}
-                          expanded={pagePanel.expanded}
-                          onExpand={pagePanel.onExpand}
-                        />
-                        <div
-                          className={cn(
-                            'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                            'grow size-full h-auto flex flex-col px-5 py-4',
-                          )}
-                        >
-                          <BranchForm />
-                        </div>
-                        <div
-                          className={cn(
-                            'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
-                          )}
-                        >
-                          <Button variant={'ghost'} onClick={closeSheet}>
-                            {t('cancel')}
-                          </Button>
-                          <Button type="submit" disabled={loading}>
-                            {loading ? <Spinner /> : t('create')}
-                          </Button>
-                        </div>
-                      </form>
-                    </Form>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+    <>
+      <StructureCreateButton
+        permission="branchesManage"
+        onClick={pagePanel.onOpen}
+        label={t('create-branch')}
+      />
+      {createPortal(
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+            <StructureCreateForm
+              header={
+                <RecordSidePanel.Header
+                  avatar={<IconGitBranch size={16} />}
+                  title={t('create-branch-title')}
+                  {...pagePanel.headerProps}
+                />
+              }
+              methods={methods}
+              onSubmit={submitHandler}
+              onCancel={closeSheet}
+              saving={loading}
+              saveLabel={t('create')}
+            >
+              <BranchForm />
+            </StructureCreateForm>
+          ) : (
+            <PagePanelStatus entry={pagePanel} />
+          )}
+        </div>,
+        pagePanel,
+      )}
+    </>
   );
 };

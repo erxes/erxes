@@ -4,6 +4,7 @@ import {
   type ReactNode,
   type ReactPortal,
   createContext,
+  createElement,
   useCallback,
   useContext,
   useEffect,
@@ -15,6 +16,7 @@ import {
 import { useAtomValue, useSetAtom } from 'jotai';
 import {
   SidePanelDraftContext,
+  SidePanelRecordPathContext,
   sidePanelHistoryState,
   useSidePanel,
   usePermissionCheck,
@@ -36,19 +38,23 @@ export interface PagePanelOptions {
   defaultWidth?: number;
   requiredPermission?: string;
 }
-export interface PagePanelEntry {
+export interface PagePanelNavigation {
+  onClose: () => void;
+  onBack?: () => void;
+  expanded: boolean;
+  onExpand: () => void;
+}
+
+export interface PagePanelEntry extends PagePanelNavigation {
+  headerProps: PagePanelNavigation;
   path: string;
   name: string;
   open: boolean;
   allowed: boolean;
   permissionsLoaded: boolean;
-  onClose: () => void;
   onOpen: () => void;
   isCurrent: () => boolean;
-  onBack?: () => void;
   target: HTMLElement | null;
-  expanded: boolean;
-  onExpand: () => void;
 }
 export const PagePanelContext = createContext<PagePanelEntry | null>(null);
 
@@ -213,46 +219,61 @@ export const usePagePanel = ({
   }, [path, isCurrent]);
   const onOpen = useCallback(() => actions.current.changeOpen(true), []);
   const targets = useAtomValue(modulePanelTargetsState);
-  const contextValue = useMemo(
-    () => ({
+  const contextValue = useMemo(() => {
+    const headerProps: PagePanelNavigation = {
+      onClose,
+      onBack: panel.canGoBack ? panel.back : undefined,
+      expanded: Boolean(expanded),
+      onExpand: () => setExpanded(expanded ? null : true, { replace: true }),
+    };
+    return {
+      ...headerProps,
+      headerProps,
       path,
       name: qualifiedName,
       open: retained,
       allowed,
       permissionsLoaded,
-      onClose,
       onOpen,
       isCurrent,
-      onBack: panel.canGoBack ? panel.back : undefined,
       target: targets[path] || null,
-      expanded: Boolean(expanded),
-      onExpand: () => setExpanded(expanded ? null : true, { replace: true }),
-    }),
-    [
-      path,
-      qualifiedName,
-      retained,
-      allowed,
-      permissionsLoaded,
-      onClose,
-      onOpen,
-      isCurrent,
-      panel.canGoBack,
-      panel.back,
-      targets,
-      expanded,
-      setExpanded,
-    ],
-  );
+    };
+  }, [
+    path,
+    qualifiedName,
+    retained,
+    allowed,
+    permissionsLoaded,
+    onClose,
+    onOpen,
+    isCurrent,
+    panel.canGoBack,
+    panel.back,
+    targets,
+    expanded,
+    setExpanded,
+  ]);
   return contextValue;
 };
 
-/** React DOM resolves its own React types at this external-library boundary. */
+/** Bridges page-owned providers into the host target without adding panel UI. */
 export const createPagePanelPortal = (
   children: ReactNode,
-  target: Element,
-): ReactPortal =>
-  createPortal(
-    children as Parameters<typeof createPortal>[0],
-    target,
+  entry: PagePanelEntry,
+): ReactPortal | null => {
+  if (!entry.open || !entry.target) return null;
+  const content = createElement(
+    PagePanelContext.Provider,
+    { value: entry },
+    createElement(
+      SidePanelRecordPathContext.Provider,
+      { value: entry.path },
+      children,
+    ),
+  );
+  // React DOM resolves its own React types at this external-library boundary.
+  return createPortal(
+    content as Parameters<typeof createPortal>[0],
+    entry.target,
   ) as unknown as ReactPortal;
+};

@@ -3,7 +3,6 @@ import {
   createPagePanelPortal as createPortal,
   usePagePanelContext,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import {
   IconPlus,
@@ -21,7 +20,6 @@ import {
   SegmentUnsavedBadge,
   useSegmentDetail,
   RecordSidePanel,
-  SidePanelRecordPathContext,
 } from 'ui-modules';
 import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAutomationCreateButton';
 import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
@@ -105,10 +103,7 @@ const SegmentDetailBody = ({
     <>
       <RecordSidePanel.Header
         title={title}
-        onBack={pagePanel.onBack}
-        onClose={pagePanel.onClose}
-        expanded={pagePanel.expanded}
-        onExpand={pagePanel.onExpand}
+        {...pagePanel.headerProps}
         actions={<SegmentUnsavedBadge />}
       />
       <RecordSidePanel.Layout
@@ -151,39 +146,31 @@ export function SegmentDetail({ onRefresh }: Props) {
         </Button>
       </Can>
 
-      <PagePanelContext.Provider value={pagePanel}>
-        <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-          {pagePanel.open && pagePanel.target
-            ? createPortal(
-                <div
-                  className={cn(
-                    'flex min-h-0 flex-1 flex-col overflow-hidden bg-background',
-                    segmentId ? 'lg:max-w-6xl' : 'lg:max-w-5xl',
-                    'relative! inset-auto! h-full! w-full! min-w-0! max-w-none! rounded-none! shadow-none!',
-                  )}
-                >
-                  {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                    <>
-                      <SegmentDetailBody
-                        contentType={contentType}
-                        segmentId={segmentId || ''}
-                        onRefresh={onRefresh}
-                        onCreated={() => setIsCreatingNew(false)}
-                        onOpenExisting={(id) => {
-                          setIsCreatingNew(false);
-                          setOpen(id);
-                        }}
-                      />
-                    </>
-                  ) : (
-                    <PagePanelStatus entry={pagePanel} />
-                  )}
-                </div>,
-                pagePanel.target,
-              )
-            : null}
-        </SidePanelRecordPathContext.Provider>
-      </PagePanelContext.Provider>
+      {createPortal(
+        <div
+          className={cn(
+            'flex min-h-0 flex-1 flex-col overflow-hidden bg-background',
+            segmentId ? 'lg:max-w-6xl' : 'lg:max-w-5xl',
+            'relative! inset-auto! h-full! w-full! min-w-0! max-w-none! rounded-none! shadow-none!',
+          )}
+        >
+          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+            <SegmentDetailBody
+              contentType={contentType}
+              segmentId={segmentId || ''}
+              onRefresh={onRefresh}
+              onCreated={() => setIsCreatingNew(false)}
+              onOpenExisting={(id) => {
+                setIsCreatingNew(false);
+                setOpen(id);
+              }}
+            />
+          ) : (
+            <PagePanelStatus entry={pagePanel} />
+          )}
+        </div>,
+        pagePanel,
+      )}
     </>
   );
 }

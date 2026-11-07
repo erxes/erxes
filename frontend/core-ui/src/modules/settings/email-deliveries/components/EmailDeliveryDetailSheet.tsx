@@ -1,9 +1,8 @@
 import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
-import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import { RecordSidePanel } from 'ui-modules';
 import {
   createPagePanelPortal as createPortal,
   usePagePanel,
-  PagePanelContext,
 } from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useEmailDeliveryDetail } from '@/settings/email-deliveries/hooks/useEmailDeliveries';
@@ -94,38 +93,27 @@ export const EmailDeliveryDetailSheet = () => {
     open: !!deliveryId,
     onOpenChange: (open) => !open && deliveryId && setDeliveryId(null),
   });
-  return (
-    <PagePanelContext.Provider value={pagePanel}>
-      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
-        {pagePanel.open && pagePanel.target
-          ? createPortal(
-              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
-                  <>
-                    <RecordSidePanel.Header
-                      title={<>{t('email-delivery')}</>}
-                      onBack={pagePanel.onBack}
-                      onClose={pagePanel.onClose}
-                      expanded={pagePanel.expanded}
-                      onExpand={pagePanel.onExpand}
-                    />
-                    <div
-                      className={cn(
-                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
-                        'flex-1 min-h-0 overflow-auto',
-                      )}
-                    >
-                      {deliveryId && <EmailDeliveryDetail id={deliveryId} />}
-                    </div>
-                  </>
-                ) : (
-                  <PagePanelStatus entry={pagePanel} />
-                )}
-              </div>,
-              pagePanel.target,
-            )
-          : null}
-      </SidePanelRecordPathContext.Provider>
-    </PagePanelContext.Provider>
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+        <>
+          <RecordSidePanel.Header
+            title={<>{t('email-delivery')}</>}
+            {...pagePanel.headerProps}
+          />
+          <div
+            className={cn(
+              'flex min-h-0 flex-1 flex-col overflow-y-auto',
+              'flex-1 min-h-0 overflow-auto',
+            )}
+          >
+            {deliveryId && <EmailDeliveryDetail id={deliveryId} />}
+          </div>
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
   );
 };
