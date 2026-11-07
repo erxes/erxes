@@ -1,6 +1,7 @@
 import { IconActivity } from '@tabler/icons-react';
 import { Empty, EnumCursorDirection, Skeleton } from 'erxes-ui';
 import { useInView } from 'react-intersection-observer';
+import { useEffect } from 'react';
 import { useActivityLog } from '../context/ActivityLogProvider';
 import { ActivityLogLoading } from './ActivityLogLoading';
 import { ActivityLogRow } from './ActivityLogRow';
@@ -24,25 +25,26 @@ export const ActivityLogList = ({
   const reachedLimit = limit !== undefined && activityLogs.length >= limit;
   const canFetchMore = variant === 'backward' ? hasPreviousPage : hasNextPage;
 
-  const { ref: fetchMoreRef } = useInView({
+  const { ref: fetchMoreRef, inView } = useInView({
     threshold: 0.1,
-    onChange: (inView) => {
-      if (
-        inView &&
-        canFetchMore &&
-        handleFetchMore &&
-        !loading &&
-        !reachedLimit
-      ) {
-        handleFetchMore({
-          direction:
-            variant === 'backward'
-              ? EnumCursorDirection.BACKWARD
-              : EnumCursorDirection.FORWARD,
-        });
-      }
-    },
   });
+
+  useEffect(() => {
+    if (
+      inView &&
+      canFetchMore &&
+      handleFetchMore &&
+      !loading &&
+      !reachedLimit
+    ) {
+      handleFetchMore({
+        direction:
+          variant === 'backward'
+            ? EnumCursorDirection.BACKWARD
+            : EnumCursorDirection.FORWARD,
+      });
+    }
+  }, [inView, canFetchMore, handleFetchMore, loading, reachedLimit, variant]);
 
   if (loading && (!activityLogs || activityLogs.length === 0)) {
     return <ActivityLogLoading />;
@@ -64,19 +66,27 @@ export const ActivityLogList = ({
     );
   }
 
+  const fetchMoreIndicator = canFetchMore && !reachedLimit && (
+    <div
+      ref={fetchMoreRef}
+      className="w-full min-h-1 flex flex-col gap-4"
+      role={loading ? 'status' : undefined}
+      aria-label={loading ? 'Loading more activity logs' : undefined}
+    >
+      {loading &&
+        [...Array(4)].map((_, index) => (
+          <div key={index} className="flex gap-2 items-center">
+            <Skeleton className="size-6 rounded-full" />
+            <Skeleton className="w-1/2 h-3" />
+            <Skeleton className="w-20 ml-auto h-3" />
+          </div>
+        ))}
+    </div>
+  );
+
   return (
     <div className="w-full flex flex-col">
-      {variant === 'backward' && canFetchMore && !loading && !reachedLimit && (
-        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
-          {[...Array(4)].map((_, index) => (
-            <div key={index} className="flex gap-2 items-center">
-              <Skeleton className="size-6 rounded-full" />
-              <Skeleton className="w-1/2 h-3" />
-              <Skeleton className="w-20 ml-auto h-3" />
-            </div>
-          ))}
-        </div>
-      )}
+      {variant === 'backward' && fetchMoreIndicator}
       {activityLogs.map((activity, index) => (
         <ActivityLogRow
           key={activity._id}
@@ -85,17 +95,7 @@ export const ActivityLogList = ({
           showExactDate={showExactDate}
         />
       ))}
-      {variant === 'forward' && canFetchMore && !loading && !reachedLimit && (
-        <div ref={fetchMoreRef} className="w-full flex flex-col gap-4">
-          {[...Array(4)].map((_, index) => (
-            <div key={index} className="flex gap-2 items-center">
-              <Skeleton className="size-6 rounded-full" />
-              <Skeleton className="w-1/2 h-3" />
-              <Skeleton className="w-20 ml-auto h-3" />
-            </div>
-          ))}
-        </div>
-      )}
+      {variant === 'forward' && fetchMoreIndicator}
     </div>
   );
 };
