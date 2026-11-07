@@ -1,10 +1,16 @@
+import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { useTranslation } from 'react-i18next';
 import { useAddPermissionGroup } from '@/settings/permissions/hooks/useAddPermissionGroup';
-import { IPermissionGroupSchema } from '@/settings/permissions/schemas/permissionGroup';
-import { Button, FocusSheet, Sheet, toast } from 'erxes-ui';
-import React, { useCallback, useState } from 'react';
-import { PermissionGroupForm } from './PermissionGroupForm';
-
+import { Button, toast, cn } from 'erxes-ui';
+import { useCallback, useState } from 'react';
+import { PermissionGroupForm } from '@/settings/permissions/components/form/PermissionGroupForm';
 export const PermissionGroupAdd = ({
   text,
   defaultValues,
@@ -14,11 +20,11 @@ export const PermissionGroupAdd = ({
   defaultValues?: Partial<IPermissionGroupSchema>;
   trigger?: React.ReactNode;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'permissions' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'permissions',
+  });
   const [open, setOpen] = useState<boolean>(false);
-
   const { addPermissionGroup, loading } = useAddPermissionGroup();
-
   const onSubmit = useCallback(
     async (data: IPermissionGroupSchema) => {
       if (loading) return;
@@ -29,7 +35,11 @@ export const PermissionGroupAdd = ({
           permissions: data.permissions,
         },
         onCompleted: () => {
-          toast({ title: t('group-added'), variant: 'success' });
+          if (!pagePanel.isCurrent()) return;
+          toast({
+            title: t('group-added'),
+            variant: 'success',
+          });
           setOpen(false);
         },
         onError: (error) => {
@@ -43,35 +53,65 @@ export const PermissionGroupAdd = ({
     },
     [loading, addPermissionGroup, t],
   );
-
   const onCancel = useCallback(() => {
     setOpen(false);
   }, []);
-
+  const pagePanel = usePagePanel({
+    name: 'settings/permissions/form/PermissionGroupAdd',
+    open: open,
+    onOpenChange: setOpen,
+  });
   return (
-    <FocusSheet open={open} onOpenChange={setOpen}>
-      {trigger ? (
-        <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
-      ) : (
-        <Sheet.Trigger asChild>
-          <Button variant="secondary">{text || t('add-custom-group')}</Button>
-        </Sheet.Trigger>
-      )}
-      <FocusSheet.View>
-        <FocusSheet.Header
-          title={defaultValues?.name ? t('edit-group') : t('add-custom-group')}
-        />
-        <FocusSheet.Content>
-          <PermissionGroupForm
-            key={defaultValues?.name ?? 'new'}
-            defaultValues={defaultValues}
-            onSubmit={onSubmit}
-            isSubmitting={loading}
-            onCancel={onCancel}
-            mode="add"
-          />
-        </FocusSheet.Content>
-      </FocusSheet.View>
-    </FocusSheet>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {trigger ? (
+          <Button asChild onClick={pagePanel.onOpen}>
+            {trigger}
+          </Button>
+        ) : (
+          <Button variant="secondary" onClick={pagePanel.onOpen}>
+            {text || t('add-custom-group')}
+          </Button>
+        )}
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+                  <>
+                    <RecordSidePanel.Header
+                      title={
+                        defaultValues?.name
+                          ? t('edit-group')
+                          : t('add-custom-group')
+                      }
+                      onBack={pagePanel.onBack}
+                      onClose={pagePanel.onClose}
+                      expanded={pagePanel.expanded}
+                      onExpand={pagePanel.onExpand}
+                    />
+                    <div
+                      className={cn(
+                        'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                      )}
+                    >
+                      <PermissionGroupForm
+                        key={defaultValues?.name ?? 'new'}
+                        defaultValues={defaultValues}
+                        onSubmit={onSubmit}
+                        isSubmitting={loading}
+                        onCancel={onCancel}
+                        mode="add"
+                      />
+                    </div>
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

@@ -8,7 +8,7 @@ import {
 } from '@/side-panel/states/modulePanelState';
 
 /** Registers a live portal target for a retained module editor. */
-export const CoreModulePanelSlot = ({
+export const PagePanelTarget = ({
   path,
   onClose,
 }: {

@@ -1,11 +1,22 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { Button, Spinner, toast } from 'erxes-ui';
+import { IPropertySystemField } from '@/properties/types/Properties';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanelContext,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { Button, Spinner, toast, cn } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Can, IPropertyForm, PropertyFormLogicFields } from 'ui-modules';
+import {
+  Can,
+  IPropertyForm,
+  PropertyFormLogicFields,
+  RecordSidePanel,
+  SidePanelRecordPathContext,
+} from 'ui-modules';
 import { useEditPropertySystemField } from '@/properties/hooks/useEditPropertySystemField';
-import { IPropertySystemField } from '@/properties/types/Properties';
-
 const SystemFieldLogicForm = ({
   field,
   contentType,
@@ -15,17 +26,19 @@ const SystemFieldLogicForm = ({
   contentType: string;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const { editSystemField, loading } = useEditPropertySystemField(contentType);
   const form = useForm<IPropertyForm>({
-    defaultValues: { logics: field.logics },
+    defaultValues: {
+      logics: field.logics,
+    },
   });
-
   const handleSubmit = form.handleSubmit(async ({ logics }) => {
     const result = await editSystemField(field.code, {
       logics: (logics || []).filter((rule) => rule.field),
     });
-
     if (result.data) {
       toast({
         title: t('property-updated', 'Property updated'),
@@ -34,25 +47,29 @@ const SystemFieldLogicForm = ({
       onClose();
     }
   });
-
+  const pagePanel = usePagePanelContext();
   return (
     <form className="flex h-full w-full flex-col" onSubmit={handleSubmit}>
-      <CoreModulePanel.Header>
-        <CoreModulePanel.Title className="text-lg text-foreground">
-          {field.name}
-        </CoreModulePanel.Title>
-        <CoreModulePanel.Description className="sr-only">
-          {t(
-            'logic-description',
-            'Create rules to show or hide this element depending on the values of other properties.',
-          )}
-        </CoreModulePanel.Description>
-        <CoreModulePanel.Close />
-      </CoreModulePanel.Header>
-      <CoreModulePanel.Content className="overflow-y-auto px-5 py-4">
+      <RecordSidePanel.Header
+        title={<>{field.name}</>}
+        onBack={pagePanel.onBack}
+        onClose={pagePanel.onClose}
+        expanded={pagePanel.expanded}
+        onExpand={pagePanel.onExpand}
+      />
+      <div
+        className={cn(
+          'flex min-h-0 flex-1 flex-col overflow-y-auto',
+          'overflow-y-auto px-5 py-4',
+        )}
+      >
         <PropertyFormLogicFields form={form} contentType={contentType} />
-      </CoreModulePanel.Content>
-      <CoreModulePanel.Footer>
+      </div>
+      <div
+        className={cn(
+          'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+        )}
+      >
         <Button type="button" variant="ghost" onClick={onClose}>
           {t('cancel', 'Cancel')}
         </Button>
@@ -62,11 +79,10 @@ const SystemFieldLogicForm = ({
             {t('update-property', 'Update Property')}
           </Button>
         </Can>
-      </CoreModulePanel.Footer>
+      </div>
     </form>
   );
 };
-
 export const PropertySystemFieldLogicSheet = ({
   field,
   contentType,
@@ -75,21 +91,37 @@ export const PropertySystemFieldLogicSheet = ({
   field: IPropertySystemField | null;
   contentType: string;
   onClose: () => void;
-}) => (
-  <CoreModulePanel
-    name={'properties/PropertySystemFieldLogicSheet'}
-    open={!!field}
-    onOpenChange={(open) => !open && onClose()}
-  >
-    <CoreModulePanel.View className="p-0">
-      {field && (
-        <SystemFieldLogicForm
-          key={field.code}
-          field={field}
-          contentType={contentType}
-          onClose={onClose}
-        />
-      )}
-    </CoreModulePanel.View>
-  </CoreModulePanel>
-);
+}) => {
+  const pagePanel = usePagePanel({
+    name: 'properties/PropertySystemFieldLogicSheet',
+    open: !!field,
+    onOpenChange: (open) => !open && onClose(),
+  });
+  return (
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+                  <>
+                    {field && (
+                      <SystemFieldLogicForm
+                        key={field.code}
+                        field={field}
+                        contentType={contentType}
+                        onClose={onClose}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
+  );
+};

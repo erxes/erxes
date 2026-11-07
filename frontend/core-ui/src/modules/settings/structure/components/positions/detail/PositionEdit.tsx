@@ -1,44 +1,48 @@
-import { useTranslation } from 'react-i18next';
-import { Button, Form, Sheet, Spinner, useToast } from 'erxes-ui';
-import React, { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { TPositionForm } from '@/settings/structure/types/position';
 import { SubmitHandler } from 'react-hook-form';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { useTranslation } from 'react-i18next';
+import { Button, Form, Spinner, useToast, cn } from 'erxes-ui';
+import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { IconBriefcase } from '@tabler/icons-react';
 import { usePositionDetailsById } from '@/settings/structure/hooks/usePositionDetailsById';
 import { usePositionEdit } from '@/settings/structure/hooks/usePositionActions';
 import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
-import { TPositionForm } from '@/settings/structure/types/position';
-import { PositionForm } from '../PositionForm';
-import { Can } from 'ui-modules';
-
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
+import { Can, RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
 export const PositionEdit = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
   const [searchParams, setSearchParams] = useSearchParams();
-
   const id = searchParams.get('position_id');
-
   const { positionDetail, loading } = usePositionDetailsById({
     variables: {
       id,
     },
   });
-
   const { handleEdit, loading: isLoading } = usePositionEdit();
-
   const {
     methods,
     methods: { reset, handleSubmit },
   } = usePositionForm();
   const { toast } = useToast();
-
   const setOpen = (newPositionId: string | null) => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    if (newPositionId) {
-      newSearchParams.set('position_id', newPositionId);
-    } else {
-      newSearchParams.delete('position_id');
-    }
-    setSearchParams(newSearchParams);
+    setSearchParams((currentParams) => {
+      const newSearchParams = new URLSearchParams(currentParams);
+      if (newPositionId) {
+        newSearchParams.set('position_id', newPositionId);
+      } else {
+        newSearchParams.delete('position_id');
+      }
+      return newSearchParams;
+    });
   };
   const submitHandler: SubmitHandler<TPositionForm> = (data) => {
     handleEdit({
@@ -47,6 +51,7 @@ export const PositionEdit = () => {
         id,
       },
       onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
         toast({
           title: t('success'),
           variant: 'success',
@@ -63,7 +68,6 @@ export const PositionEdit = () => {
         }),
     });
   };
-
   useEffect(() => {
     if (positionDetail) {
       const { __typename, _id, ...rest } = positionDetail;
@@ -72,45 +76,77 @@ export const PositionEdit = () => {
       reset(rest);
     }
   }, [positionDetail, reset]);
-
+  const pagePanel = usePagePanel({
+    identity: id || 'new',
+    name: 'settings/structure/positions/PositionEdit',
+    open: !!id,
+    onOpenChange: (isOpen) => {
+      if (!isOpen) {
+        setOpen(null);
+      }
+    },
+  });
   return (
-    <Sheet
-      open={!!id}
-      onOpenChange={(isOpen) => {
-        if (!isOpen) {
-          setOpen(null);
-        }
-      }}
-    >
-      <Sheet.View className="p-0">
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
-          >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                <IconBriefcase size={16} />
-                {positionDetail?.title || ''}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
-              <PositionForm loading={loading} />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(null)}>
-                {t('cancel')}
-              </Button>
-              <Can action="positionsManage">
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Spinner /> : t('save')}
-                </Button>
-              </Can>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+                  <>
+                    <Form {...methods}>
+                      <form
+                        onSubmit={handleSubmit(submitHandler)}
+                        className=" flex flex-col gap-0 w-full h-full"
+                      >
+                        <RecordSidePanel.Header
+                          title={
+                            <>
+                              <IconBriefcase size={16} />
+                              {positionDetail?.title || ''}
+                            </>
+                          }
+                          onBack={pagePanel.onBack}
+                          onClose={pagePanel.onClose}
+                          expanded={pagePanel.expanded}
+                          onExpand={pagePanel.onExpand}
+                        />
+                        <div
+                          className={cn(
+                            'flex min-h-0 flex-1 flex-col overflow-y-auto',
+                            'grow size-full h-auto flex flex-col px-5 py-4',
+                          )}
+                        >
+                          <PositionForm loading={loading} />
+                        </div>
+                        <div
+                          className={cn(
+                            'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+                          )}
+                        >
+                          <Button
+                            variant={'ghost'}
+                            onClick={() => setOpen(null)}
+                          >
+                            {t('cancel')}
+                          </Button>
+                          <Can action="positionsManage">
+                            <Button type="submit" disabled={isLoading}>
+                              {isLoading ? <Spinner /> : t('save')}
+                            </Button>
+                          </Can>
+                        </div>
+                      </form>
+                    </Form>
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

@@ -1,17 +1,20 @@
 import { useAutomationRunLabels } from '@/automations/hooks/useAutomationRunLabels';
 import { automationRecentRunsAtomFamily } from '@/automations/states/automationRecentRunsState';
-import { automationHistorySelectedExecutionState } from '@/automations/states/automationState';
-import { AutomationBuilderTabsType } from '@/automations/types';
+import { automationHistoryViewModeState } from '@/automations/states/automationState';
+import { getModulePanelPath } from '@/side-panel/states/modulePanelState';
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
+import {
+  AutomationBuilderTabsType,
+  AutomationHistoryViewMode,
+} from '@/automations/types';
 import { getAutomationRunHealth } from '@/automations/utils/automationRunHealth';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const useAutomationRecentRunsStrip = (automationId: string) => {
   const runs = useAtomValue(automationRecentRunsAtomFamily(automationId));
-  const setSelectedExecution = useSetAtom(
-    automationHistorySelectedExecutionState,
-  );
+  const viewMode = useAtomValue(automationHistoryViewModeState);
   const navigate = useNavigate();
   const labels = useAutomationRunLabels();
 
@@ -21,10 +24,13 @@ export const useAutomationRecentRunsStrip = (automationId: string) => {
   const timeline = useMemo(() => [...(runs || [])].reverse(), [runs]);
 
   const openRun = (executionId: string) => {
-    setSelectedExecution({ automationId, executionId });
-    navigate(
-      `/automations/edit/${automationId}?activeTab=${AutomationBuilderTabsType.History}`,
-    );
+    const params = new URLSearchParams({
+      activeTab: AutomationBuilderTabsType.History,
+      executionId,
+    });
+    if (viewMode !== AutomationHistoryViewMode.Split)
+      params.set('panel', getModulePanelPath(AUTOMATION_HISTORY_PANEL));
+    navigate(`/automations/edit/${encodeURIComponent(automationId)}?${params}`);
   };
 
   return {

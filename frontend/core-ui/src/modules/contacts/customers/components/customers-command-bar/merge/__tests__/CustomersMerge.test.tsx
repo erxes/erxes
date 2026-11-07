@@ -11,6 +11,7 @@ const mergePath =
 let mockPanel = { path: mergePath, dismissPath: mockDismissPath };
 let mockComplete: () => void;
 let mockAutoComplete = true;
+let mockSubmittedIds: string[] = [];
 
 jest.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -42,7 +43,14 @@ jest.mock(
   '@/contacts/customers/hooks/useMergeCustomers',
   () => ({
     useMergeCustomers: () => ({
-      mergeCustomers: ({ onCompleted }: { onCompleted: () => void }) => {
+      mergeCustomers: ({
+        onCompleted,
+        variables,
+      }: {
+        onCompleted: () => void;
+        variables: { customerIds: string[] };
+      }) => {
+        mockSubmittedIds = variables.customerIds;
         mockComplete = onCompleted;
         if (mockAutoComplete) onCompleted();
       },
@@ -56,8 +64,13 @@ jest.mock('../MergeSheet', () => ({
   MergeSheet: ({
     children,
     onSave,
-  }: PropsWithChildren<{ onSave: () => void }>) => (
+    onOpenChange,
+  }: PropsWithChildren<{
+    onSave: () => void;
+    onOpenChange?: (open: boolean) => void;
+  }>) => (
     <div>
+      <button onClick={() => onOpenChange?.(true)}>Open merge</button>
       {children}
       <button onClick={onSave}>Save</button>
     </div>
@@ -72,6 +85,20 @@ beforeEach(() => {
   jest.clearAllMocks();
   mockAutoComplete = true;
   mockPanel = { path: mergePath, dismissPath: mockDismissPath };
+});
+
+it('merges the pair captured on open after the underlying table selection changes', () => {
+  const first = [
+    { _id: 'a', firstName: 'A' },
+    { _id: 'b', firstName: 'B' },
+  ];
+  const view = render(<CustomersMerge customers={first} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Open merge' }));
+  view.rerender(
+    <CustomersMerge customers={[{ _id: 'c', firstName: 'C' }]} disabled />,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+  expect(mockSubmittedIds).toEqual(['a', 'b']);
 });
 
 it('closes the editor and clears table selection after refetch removes the selected rows', () => {

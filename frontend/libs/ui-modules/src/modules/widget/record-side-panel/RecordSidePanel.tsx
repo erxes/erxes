@@ -298,13 +298,14 @@ const RecordSidePanelHeader = ({
   actions,
   onBack,
   onExpand,
+  expanded: controlledExpanded,
   onClose,
 }: RecordSidePanelHeaderProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const expansion = useContext(PanelExpansionContext);
   const expandButtonRef = useRef<HTMLButtonElement>(null);
   const expand = onExpand ?? expansion?.toggle;
-  const expanded = !onExpand && expansion?.expanded;
+  const expanded = controlledExpanded ?? (!onExpand && expansion?.expanded);
   const expandLabel = expanded
     ? t('collapse', 'Collapse record')
     : t('expand', 'Expand record');
@@ -337,6 +338,7 @@ const RecordSidePanelHeader = ({
       const panels = document.querySelectorAll('[data-record-side-panel]');
       if (
         !button ||
+        button.closest('[hidden], [inert]') ||
         button.closest('[data-record-side-panel]') !==
           panels[panels.length - 1] ||
         document.querySelector(
@@ -425,6 +427,7 @@ const TAB_FALLBACK_WIDTH = 104;
 
 /** Keeps visited contact editors mounted and moves overflowing tabs into the More menu. */
 const RecordSidePanelTabs = ({
+  expanded: controlledExpanded,
   tabs,
   value,
   onValueChange,
@@ -434,7 +437,8 @@ const RecordSidePanelTabs = ({
   expandedDefaultTab,
 }: RecordSidePanelTabsProps) => {
   const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const expanded = useContext(PanelExpansionContext)?.expanded ?? false;
+  const contextExpanded = useContext(PanelExpansionContext)?.expanded ?? false;
+  const expanded = controlledExpanded ?? contextExpanded;
   const splitOverview = expanded && Boolean(overviewTab);
   const navigationTabs = splitOverview
     ? tabs.filter((tab) => tab.value !== overviewTab)

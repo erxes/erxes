@@ -41,12 +41,16 @@ export type RecordSidePanelHeaderProps = {
   // The record's own actions (e.g. a "more" menu), before expand and close.
   actions?: ReactNode;
   onExpand?: () => void;
+  // Page-owned portals can supply expansion without inheriting the host context.
+  expanded?: boolean;
   // Without it there is no close button: a record's own page has nothing to
   // close back to.
   onClose?: () => void;
 };
 
 export type RecordSidePanelTabsProps = {
+  // Page-owned portals explicitly share the host expansion state.
+  expanded?: boolean;
   tabs: IRecordSidePanelTab[];
   value: string;
   onValueChange: (value: string) => void;

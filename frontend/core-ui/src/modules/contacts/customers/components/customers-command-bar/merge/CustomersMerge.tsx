@@ -32,7 +32,12 @@ const getCustomerMergeName = (customer?: ICustomer) => {
   );
 };
 
-export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
+export const CustomersMerge = ({
+  disabled = false,
+  customers: selectedCustomers,
+}: MergeProps) => {
+  const [customers, setCustomers] = useState(selectedCustomers);
+  const mergeSession = useRef(0);
   const { toast } = useToast();
   const { table } = RecordTable.useRecordTable();
   const panel = useSidePanel();
@@ -44,6 +49,7 @@ export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
   const { mergeCustomers } = useMergeCustomers();
   const handleSave = () => {
+    const session = mergeSession.current;
     mergeCustomers({
       variables: {
         customerIds: customers.map((customer) => customer._id),
@@ -57,6 +63,7 @@ export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
         });
       },
       onCompleted: () => {
+        if (session !== mergeSession.current) return;
         const mergePath = getModulePanelPath(CUSTOMERS_MERGE_PANEL);
         if (currentPanel.current.path === mergePath) {
           currentPanel.current.dismissPath(mergePath);
@@ -262,12 +269,22 @@ export const CustomersMerge = ({ disabled = false, customers }: MergeProps) => {
       setValue({ ...value, [key]: newValue });
     }
   };
-  if (disabled) return <MergeSheet disabled />;
+  useEffect(() => {
+    if (!sheetOpen) setCustomers(selectedCustomers);
+  }, [selectedCustomers, sheetOpen]);
+  const changeOpen = (next: boolean) => {
+    if (next && !sheetOpen) {
+      mergeSession.current += 1;
+      setCustomers([...selectedCustomers]);
+    }
+    setSheetOpen(next);
+  };
+  if (disabled && !sheetOpen) return <MergeSheet disabled />;
   return (
     <MergeSheet
       className="p-6 flex gap-2 items-start"
       open={sheetOpen}
-      onOpenChange={setSheetOpen}
+      onOpenChange={changeOpen}
       notice={t('merge-notice', {
         first: getCustomerMergeName(customers[0]),
         second: getCustomerMergeName(customers[1]),

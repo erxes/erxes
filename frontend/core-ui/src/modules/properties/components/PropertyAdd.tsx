@@ -1,15 +1,30 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { usePropertiesScope } from '@/properties/context/PropertiesScopeContext';
 import { toast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router';
 import { useSetAtom } from 'jotai';
 import { needsToRefreshState } from '@/properties/states/needsToRefresh';
-import { IPropertyForm, PropertyForm, useAddProperty } from 'ui-modules';
-
+import {
+  PropertyForm,
+  useAddProperty,
+  SidePanelRecordPathContext,
+  RecordSidePanel,
+  IPropertyForm,
+} from 'ui-modules';
 export const AddProperty = () => {
+  const { t: panelT } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const { basePath: propertiesBasePath } = usePropertiesScope();
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const { groupId, type } = useParams<{
     groupId: string;
     type: string;
@@ -17,9 +32,7 @@ export const AddProperty = () => {
   const { addProperty, loading } = useAddProperty();
   const setNeedsToRefresh = useSetAtom(needsToRefreshState);
   const navigate = useNavigate();
-
   const handleClose = () => navigate(`${propertiesBasePath}/${type}`);
-
   const onSubmit = (data: IPropertyForm) => {
     addProperty({
       variables: {
@@ -27,6 +40,7 @@ export const AddProperty = () => {
         contentType: type,
       },
       onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
         toast({
           title: t('property-added', 'Property added'),
           variant: 'success',
@@ -43,40 +57,58 @@ export const AddProperty = () => {
       },
     });
   };
-
+  const pagePanel = usePagePanel({
+    name: 'properties/PropertyAdd',
+    open: true,
+    onOpenChange: handleClose,
+  });
   return (
-    <CoreModulePanel
-      name={'properties/PropertyAdd'}
-      open
-      onOpenChange={handleClose}
-    >
-      <CoreModulePanel.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <PropertyForm
-          onSubmit={onSubmit}
-          loading={loading}
-          defaultValues={{
-            icon: '123',
-            name: '',
-            type: type || '',
-            groupId: groupId || '',
-            isSearchable: false,
-            isVisible: true,
-            isVisibleToCreate: false,
-            isRequired: false,
-            isVisibleInCard: false,
-            description: '',
-            code: '',
-            options: [],
-          }}
-          onCancel={handleClose}
-          contentType={type || ''}
-        />
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+                  <>
+                    <>
+                      <RecordSidePanel.Header
+                        title={panelT('add-property', 'Add Property')}
+                        onBack={pagePanel.onBack}
+                        onClose={pagePanel.onClose}
+                        expanded={pagePanel.expanded}
+                        onExpand={pagePanel.onExpand}
+                      />
+                      <PropertyForm
+                        onSubmit={onSubmit}
+                        loading={loading}
+                        defaultValues={{
+                          icon: '123',
+                          name: '',
+                          type: type || '',
+                          groupId: groupId || '',
+                          isSearchable: false,
+                          isVisible: true,
+                          isVisibleToCreate: false,
+                          isRequired: false,
+                          isVisibleInCard: false,
+                          description: '',
+                          code: '',
+                          options: [],
+                        }}
+                        onCancel={handleClose}
+                        contentType={type || ''}
+                        layout="record"
+                      />
+                    </>
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

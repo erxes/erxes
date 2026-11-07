@@ -1,12 +1,16 @@
-import { CoreModulePanel } from '@/side-panel/components/CoreModulePanel';
-import { useState } from 'react';
-
 import { TemplateCategory } from '@/templates/types/TemplateCategory';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { useState } from 'react';
 import { IconFolderPlus } from '@tabler/icons-react';
 import { Button } from 'erxes-ui';
 import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
 import { useTranslation } from 'react-i18next';
-
 export const TemplateCategorySheet = ({
   children,
   category,
@@ -18,37 +22,57 @@ export const TemplateCategorySheet = ({
   parentId?: string;
   onCompleted?: (data: any) => void;
 }) => {
-  const { t } = useTranslation('templates', { keyPrefix: 'template-category' });
+  const { t } = useTranslation('templates', {
+    keyPrefix: 'template-category',
+  });
   const [open, setOpen] = useState<boolean>(false);
-
+  const pagePanel = usePagePanel({
+    name: 'templates/category/TemplateCategorySheet',
+    open: open,
+    onOpenChange: setOpen,
+  });
   return (
-    <CoreModulePanel
-      name={'templates/category/TemplateCategorySheet'}
-      open={open}
-      onOpenChange={setOpen}
-    >
-      <CoreModulePanel.Trigger asChild>
-        {children || (
-          <Button variant="secondary" className="text-primary">
-            <IconFolderPlus /> {t('category')}
-          </Button>
-        )}
-      </CoreModulePanel.Trigger>
-      <CoreModulePanel.View className="w-[50%] md:w-[50%] lg:w-[50%]">
-        <CoreModulePanel.Header>
-          <CoreModulePanel.Title>
-            {category ? t('edit-category') : t('create-category')}
-          </CoreModulePanel.Title>
-          <CoreModulePanel.Close />
-        </CoreModulePanel.Header>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <Button asChild onClick={pagePanel.onOpen}>
+          {children || (
+            <Button variant="secondary" className="text-primary">
+              <IconFolderPlus /> {t('category')}
+            </Button>
+          )}
+        </Button>
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+                  <>
+                    <RecordSidePanel.Header
+                      title={
+                        <>
+                          {category ? t('edit-category') : t('create-category')}
+                        </>
+                      }
+                      onBack={pagePanel.onBack}
+                      onClose={pagePanel.onClose}
+                      expanded={pagePanel.expanded}
+                      onExpand={pagePanel.onExpand}
+                    />
 
-        <TemplateCategoryForm
-          category={category}
-          parentId={parentId}
-          onCompleted={onCompleted}
-          onClose={() => setOpen(false)}
-        />
-      </CoreModulePanel.View>
-    </CoreModulePanel>
+                    <TemplateCategoryForm
+                      category={category}
+                      parentId={parentId}
+                      onCompleted={onCompleted}
+                      onClose={() => setOpen(false)}
+                    />
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

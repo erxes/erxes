@@ -1,49 +1,79 @@
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import { RecordSidePanel, SidePanelRecordPathContext } from 'ui-modules';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
 import { AutomationBuilderNodeOutputVariables } from '@/automations/components/builder/sidebar/components/AutomationBuilderNodeOutputVariables';
 import { useAutomationConditionalEditorSheet } from '@/automations/components/builder/sidebar/hooks/useAutomationConditionalEditorSheet';
-import { Button, Sheet } from 'erxes-ui';
+import { Button, cn } from 'erxes-ui';
 import { AutomationConditionalRulesEditor } from '@/automations/components/builder/sidebar/components/content/action/conditional/AutomationConditionalRulesEditor';
-
 export const AutomationConditionalEditorSheet = () => {
   const { isOpen, editor, draft, setDraft, apply, cancel, onOpenChange } =
     useAutomationConditionalEditorSheet();
-
+  const pagePanel = usePagePanel({
+    maxWidth: 1000,
+    defaultWidth: 720,
+    name: 'automations/builder/sidebar/content/action/conditional/AutomationConditionalEditorSheet',
+    open: isOpen,
+    onOpenChange: onOpenChange,
+  });
   return (
-    <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <Sheet.View
-        side="right"
-        className="flex w-screen max-w-none flex-col p-0 sm:max-w-[min(72rem,calc(100vw-2rem))]"
-      >
-        <Sheet.Header className="h-auto flex-col items-start gap-1 py-4">
-          <Sheet.Title>{editor?.label}</Sheet.Title>
-          <Sheet.Description>
-            Rows are checked top to bottom; the first match sets the value.
-          </Sheet.Description>
-        </Sheet.Header>
-        <div className="grid min-h-0 flex-1 grid-cols-[18rem_minmax(0,1fr)]">
-          <div className="min-h-0 overflow-auto border-r bg-sidebar">
-            <AutomationBuilderNodeOutputVariables />
-          </div>
-          <div className="min-h-0 overflow-auto bg-background p-5">
-            {editor && draft && (
-              <AutomationConditionalRulesEditor
-                conditional={draft}
-                onChange={setDraft}
-                form={editor.form}
-                names={editor.names}
-                render={editor.render}
-              />
-            )}
-          </div>
-        </div>
-        <Sheet.Footer className="border-t px-5 py-3">
-          <Button type="button" variant="outline" onClick={cancel}>
-            Cancel
-          </Button>
-          <Button type="button" onClick={apply}>
-            Apply
-          </Button>
-        </Sheet.Footer>
-      </Sheet.View>
-    </Sheet>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        {pagePanel.open && pagePanel.target
+          ? createPortal(
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+                {pagePanel.permissionsLoaded &&
+                pagePanel.allowed &&
+                !(!editor || !draft) ? (
+                  <>
+                    <RecordSidePanel.Header
+                      title={<>{editor?.label}</>}
+                      onBack={pagePanel.onBack}
+                      onClose={pagePanel.onClose}
+                      expanded={pagePanel.expanded}
+                      onExpand={pagePanel.onExpand}
+                    />
+                    <div className="grid min-h-0 flex-1 grid-cols-[18rem_minmax(0,1fr)]">
+                      <div className="min-h-0 overflow-auto border-r bg-sidebar">
+                        <AutomationBuilderNodeOutputVariables />
+                      </div>
+                      <div className="min-h-0 overflow-auto bg-background p-5">
+                        {editor && draft && (
+                          <AutomationConditionalRulesEditor
+                            conditional={draft}
+                            onChange={setDraft}
+                            form={editor.form}
+                            names={editor.names}
+                            render={editor.render}
+                          />
+                        )}
+                      </div>
+                    </div>
+                    <div
+                      className={cn(
+                        'flex shrink-0 items-center justify-end gap-1 border-t bg-background p-2',
+                        'border-t px-5 py-3',
+                      )}
+                    >
+                      <Button type="button" variant="outline" onClick={cancel}>
+                        Cancel
+                      </Button>
+                      <Button type="button" onClick={apply}>
+                        Apply
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <PagePanelStatus entry={pagePanel} />
+                )}
+              </div>,
+              pagePanel.target,
+            )
+          : null}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

@@ -4,6 +4,7 @@ import {
   useCallback,
   useMemo,
   useState,
+  useRef,
 } from 'react';
 import {
   MergeChoice,
@@ -38,13 +39,25 @@ export const CompaniesMergeProvider = ({
   companyIds: string[];
   children: ReactNode;
 }) => {
-  // The command bar passes a fresh array every render; keep one per selection
-  // so memoized values below don't recompute (and reset picks) each render.
-  const companyIdsKey = companyIds.join(',');
-  const ids = useMemo(() => companyIdsKey.split(','), [companyIdsKey]);
-
-  const [open, setOpen] = useState(false);
-  const close = useCallback(() => setOpen(false), []);
+  const [open, setLocalOpen] = useState(false);
+  const [snapshot, setSnapshot] = useState<string[]>([]);
+  const session = useRef(0);
+  const setOpen = useCallback(
+    (next: boolean) => {
+      if (next && !open) {
+        session.current += 1;
+        setSnapshot([...companyIds]);
+      }
+      setLocalOpen(next);
+    },
+    [companyIds, open],
+  );
+  const ownerSession = session.current;
+  const close = useCallback(() => {
+    if (session.current === ownerSession) setLocalOpen(false);
+  }, [ownerSession]);
+  const idsKey = (open ? snapshot : companyIds).join(',');
+  const ids = useMemo(() => (idsKey ? idsKey.split(',') : []), [idsKey]);
 
   const { companies, loading } = useCompaniesForMerge(ids, open);
   const { companyNames, conflicts, results, selectChoice, getCompanyFields } =
@@ -70,6 +83,7 @@ export const CompaniesMergeProvider = ({
     }),
     [
       open,
+      setOpen,
       loading,
       companies,
       companyNames,
