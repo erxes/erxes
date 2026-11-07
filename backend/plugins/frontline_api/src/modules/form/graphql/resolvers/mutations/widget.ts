@@ -1,4 +1,4 @@
-import { ICustomField, Resolver } from 'erxes-api-shared/core-types';
+import { ICustomer, ICustomField, Resolver } from 'erxes-api-shared/core-types';
 import { markResolvers, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { nanoid } from 'nanoid';
 import {
@@ -9,6 +9,8 @@ import { IContext, IModels } from '~/connectionResolvers';
 import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
+import { pConversationClientMessageInserted } from '~/modules/inbox/graphql/resolvers/mutations/widget';
+import { debugError } from '~/modules/inbox/utils';
 import { sendFormSubmittedTrigger } from '~/modules/form/meta/automation/workers';
 // helpers
 
@@ -359,46 +361,35 @@ export const widgetFormMutation: Record<
         }
       }
 
-      let customerQry: any = args.cachedCustomerId
-        ? { _id: args.cachedCustomerId }
-        : null;
+      const { saveAsCustomer, clearCacheAfterSave } = form.leadData || {};
+      const customerQueries: Record<string, string>[] = [];
 
-      const { saveAsCustomer } = form.leadData || {};
-
-      if (saveAsCustomer) {
-        if (args.cachedCustomerId) {
-          customerQry = { _id: args.cachedCustomerId };
-        } else if (customerDoc.email) {
-          customerQry = { customerPrimaryEmail: customerDoc.email };
-        } else if (customerDoc.phone) {
-          customerQry = { customerPrimaryPhone: customerDoc.phone };
-        } else {
-          customerQry = null;
-        }
+      if (args.cachedCustomerId && !clearCacheAfterSave) {
+        customerQueries.push({ _id: args.cachedCustomerId });
       }
 
-      if (form.leadData?.clearCacheAfterSave) {
+      if (saveAsCustomer || clearCacheAfterSave) {
         if (customerDoc.email) {
-          customerQry = { customerPrimaryEmail: customerDoc.email };
-        } else if (customerDoc.phone) {
-          customerQry = { customerPrimaryPhone: customerDoc.phone };
-        } else {
-          customerQry = null;
+          customerQueries.push({ customerPrimaryEmail: customerDoc.email });
+        }
+        if (customerDoc.phone) {
+          customerQueries.push({ customerPrimaryPhone: customerDoc.phone });
         }
       }
 
-      let customer: any = null;
+      let customer: (ICustomer & { _id: string }) | null = null;
 
-      if (customerQry) {
+      for (const query of customerQueries) {
         customer = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'query',
           module: 'customers',
           action: 'findOne',
-          input: { query: customerQry },
+          input: { query },
           defaultValue: null,
         });
+        if (customer) break;
       }
       if (!customer) {
         customer = await sendTRPCMessage({
@@ -458,7 +449,7 @@ export const widgetFormMutation: Record<
           doc.state = 'customer';
         }
 
-        const updatedCustomer = await sendTRPCMessage({
+        const updatedCustomer: typeof customer | null = await sendTRPCMessage({
           subdomain,
           pluginName: 'core',
           method: 'mutation',
@@ -473,13 +464,16 @@ export const widgetFormMutation: Record<
         customer = updatedCustomer || customer;
       }
 
-      const { conversation } = await createConversationAndMessage(models, {
-        customerId: customer._id,
-        integrationId: integration?._id,
-        content: form.title,
-        formWidgetData: submissions,
-        status: 'new',
-      });
+      const { conversation, message } = await createConversationAndMessage(
+        models,
+        {
+          customerId: customer._id,
+          integrationId: integration?._id,
+          content: form.title,
+          formWidgetData: submissions,
+          status: 'new',
+        },
+      );
       const conversationId = conversation?._id || '';
 
       const submissionGroupId = await saveFormSubmissions(
@@ -492,6 +486,14 @@ export const widgetFormMutation: Record<
         },
         guard,
       );
+
+      try {
+        await pConversationClientMessageInserted(subdomain, message);
+      } catch {
+        debugError(
+          `Failed to publish form submission ${submissionGroupId} to inbox`,
+        );
+      }
 
       sendFormSubmittedTrigger(subdomain, {
         _id: submissionGroupId,
