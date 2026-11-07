@@ -1,13 +1,13 @@
 import { useAutomationBotTotalCount } from '@/automations/components/settings/components/bots/hooks/useAutomationBots';
 import { IAutomationBot } from '@/automations/components/settings/components/bots/types/automationBots';
-import { cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
+import { Badge, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
 export const AutomationBotIntegrationDetailHeader = ({
   botIntegrationConstant,
-}: {
+}: Readonly<{
   botIntegrationConstant: IAutomationBot;
-}) => {
+}>) => {
   const { t } = useTranslation('automations');
   const { name, label, logo, pluginName, totalCountQueryName } =
     botIntegrationConstant || {};
@@ -16,27 +16,29 @@ export const AutomationBotIntegrationDetailHeader = ({
     useAutomationBotTotalCount(totalCountQueryName);
 
   return (
-    <div className="w-full">
-      <div className="flex gap-2">
-        <div
-          className={cn(
-            'size-8 rounded overflow-hidden shadow-sm bg-background',
-          )}
-        >
+    <div className="flex min-w-0 items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="size-10 shrink-0 overflow-hidden rounded-lg border bg-background">
           <img
             src={getPluginAssetsUrl(pluginName, logo)}
             alt={name}
             className="w-full h-full object-contain p-1"
           />
         </div>
-        <h6 className="font-semibold text-sm self-center">{label}</h6>
-        <div className="text-xs text-muted-foreground font-mono ml-auto">
-          {loading ? <Spinner /> : totalCount}
+        <div className="min-w-0 space-y-1">
+          <h2 className="truncate text-base font-semibold">{label}</h2>
+          <p className="text-sm text-muted-foreground">
+            {t('settings-bots-connect-manage', { label })}
+          </p>
         </div>
       </div>
-      <div className="text-sm text-muted-foreground font-medium py-2">
-        {t('settings-bots-connect-manage', { label })}
-      </div>
+      <Badge variant="secondary" className="shrink-0 font-normal">
+        {loading ? (
+          <Spinner className="size-3" containerClassName="inline-flex" />
+        ) : (
+          `${totalCount} ${t('settings-bots')}`
+        )}
+      </Badge>
     </div>
   );
 };

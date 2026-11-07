@@ -37,8 +37,7 @@ export const TemplateCategoryDetailSheet = () => {
       pagePanel.allowed &&
       !loading &&
       !error &&
-      categoryDetail &&
-      categoryDetail._id === categoryId ? (
+      categoryDetail?._id === categoryId ? (
         <>
           <RecordSidePanel.Header
             title={<>{t('edit-category')}</>}

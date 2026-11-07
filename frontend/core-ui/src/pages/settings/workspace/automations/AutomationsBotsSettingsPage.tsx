@@ -1,14 +1,13 @@
 import { AutomationsBotsSettings } from '@/automations/components/settings/components/bots/components/AutomationsBotsSettings';
 import { Suspense } from 'react';
-import { Outlet } from 'react-router';
+import { Spinner } from 'erxes-ui';
+import { useOutlet } from 'react-router';
 
 export const AutomationsBotsSettingsPage = () => {
+  const outlet = useOutlet();
   return (
-    <>
-      <AutomationsBotsSettings />
-      <Suspense>
-        <Outlet />
-      </Suspense>
-    </>
+    <Suspense fallback={<Spinner />}>
+      {outlet || <AutomationsBotsSettings />}
+    </Suspense>
   );
 };
