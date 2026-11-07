@@ -96,3 +96,15 @@ export const GET_BOARD_LOGS = gql(`
     salesBoardLogs(action: $action, content: $content, contentId: $contentId)
   }
 `);
+
+export const GET_BOARD_DEAL_COUNTS = gql(`
+  query SalesBoardDealCounts {
+    salesBoards {
+      _id
+      pipelines {
+        _id
+        itemsTotalCount
+      }
+    }
+  }
+`);
