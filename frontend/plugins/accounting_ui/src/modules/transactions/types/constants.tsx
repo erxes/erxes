@@ -8,7 +8,6 @@ import {
 import type { Icon } from '@tabler/icons-react';
 
 export const ACC_TRS__PER_PAGE = 30;
-export const RECEIPTS_STRUCTURE_PAGE_SIZE = 100;
 
 export enum TrJournalEnum {
   MAIN = 'main',

@@ -1,7 +1,6 @@
 import { ContactPanelRelationField } from '@/side-panel/components/details/ContactPanelRelationField';
 import {
   IconBell,
-  IconBuilding,
   IconBuildingFactory,
   IconForms,
   IconHash,
@@ -37,14 +36,12 @@ import {
   PanelField,
   PanelFieldTrigger,
 } from 'ui-modules';
-import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 
 const SCOPE = 'side-panel-company';
 
 type TPanelCompany = TCompany & { isSubscribed?: string };
 
-type TTextCode =
-  'primaryName' | 'code' | 'website' | 'location' | 'businessType';
+type TTextCode = 'code' | 'website' | 'location' | 'businessType';
 
 /** Edits one company text field using the existing inline mutation flow. */
 const CompanyTextField = ({
@@ -100,19 +97,6 @@ const CompanyFields = () => {
 
   return (
     <div className="flex flex-col gap-0.5 p-3">
-      <PanelAvatarField
-        value={company.avatar || ''}
-        onSave={(avatar) =>
-          companiesEdit({ variables: { _id: company._id, avatar } })
-        }
-      />
-      <PanelField icon={IconBuilding} label={t('field.primaryName', 'Name')}>
-        <CompanyTextField
-          company={company}
-          code="primaryName"
-          placeholder={t('field.primaryName', 'Name')}
-        />
-      </PanelField>
       <PanelField
         icon={IconTag}
         label={t('tags', 'Tags')}

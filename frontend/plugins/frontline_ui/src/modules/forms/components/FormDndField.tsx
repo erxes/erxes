@@ -1,4 +1,6 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
+import { useAtomValue } from 'jotai';
+import { formEditingFieldDirtyAtom } from '../states/formSetupStates';
 import { useSortable } from '@dnd-kit/sortable';
 import { useFormDnd } from './FormDndProvider';
 import { useMountStatus } from '../hooks/useMountStatus';
@@ -28,13 +30,98 @@ import {
   IconWorld,
 } from '@tabler/icons-react';
 import { FORM_FIELD_TYPES, GroupedFields } from '../constants/formFieldTypes';
-import React, { useEffect, useRef, useState } from 'react';
-import { FormFieldDetail, FormFieldDetailSheet } from './FormFieldDetail';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { FormFieldDetail } from './FormFieldDetail';
+import { SettingsLocalPanel } from '@/settings/components/SettingsLocalPanel';
 import { FORM_GROUP_LABELS } from '../constants/formGroupLabels';
 import { useTranslation } from 'react-i18next';
 
 const DRAG_DISTANCE = 10;
 
+/** Displays the icon associated with a form field's type. */
+export const FormDndFieldIcon = ({ type }: { type: string }) => {
+  switch (type) {
+    case 'number':
+      return <IconNumbers />;
+    case 'boolean':
+      return <IconCheck />;
+    case 'date':
+      return <IconCalendarEvent />;
+    case 'select':
+      return <IconChevronDown />;
+    case 'select:countries':
+      return <IconWorld />;
+    case 'textarea':
+      return <IconTextScan2 />;
+    case 'radio':
+      return <IconListCheck />;
+    case 'check':
+      return <IconListDetails />;
+    case 'file':
+      return <IconPaperclip />;
+    case 'core:customer:avatar':
+      return <IconUserCircle />;
+    case 'core:customer:email':
+      return <IconAt />;
+    case 'core:customer:phone':
+      return <IconPhoneSpark />;
+    case 'core:customer:sex':
+      return <IconGenderBigender />;
+    case 'core:customer:birthDate':
+      return <IconCalendarEvent />;
+    default:
+      return <IconTextSize />;
+  }
+};
+
+/** Offers edit and remove actions for a field in the form builder. */
+export const FieldContextMenu = ({
+  fieldId,
+  stepId,
+  setOpen,
+}: {
+  fieldId: UniqueIdentifier;
+  stepId: UniqueIdentifier;
+  setOpen: (open: boolean) => void;
+}) => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
+  const [_open, _setOpen] = React.useState<boolean>(false);
+  const { handleDeleteField } = useFormDnd();
+  /** Removes this field from its owning form step. */
+  const handleRemoveField = () => {
+    handleDeleteField(stepId, fieldId);
+  };
+
+  return (
+    <DropdownMenu open={_open} onOpenChange={_setOpen}>
+      <DropdownMenu.Trigger asChild>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="ml-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <IconDots />
+        </Button>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content onClick={(e) => e.stopPropagation()}>
+        <DropdownMenu.Item onClick={() => setOpen(true)}>
+          <IconEdit />
+          {t('edit-attributes', 'Edit attributes')}
+        </DropdownMenu.Item>
+        <DropdownMenu.Item
+          onClick={handleRemoveField}
+          className="text-destructive"
+        >
+          <IconTrash />
+          {t('remove-field', 'Remove Field')}
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  );
+};
+
+/** Renders a sortable field and its local settings editor. */
 export const FormDndField = ({
   field,
   step,
@@ -42,7 +129,7 @@ export const FormDndField = ({
   field: UniqueIdentifier;
   step: UniqueIdentifier;
 }) => {
-  const [open, setOpen] = useState(false);
+  const dirtyField = useAtomValue(formEditingFieldDirtyAtom);
   const pointerDownAt = useRef<{ x: number; y: number } | null>(null);
   const {
     attributes,
@@ -54,8 +141,23 @@ export const FormDndField = ({
     transition,
   } = useSortable({
     id: field,
+    disabled: dirtyField,
   });
-  const { getFieldValue, newFieldId, clearNewFieldId } = useFormDnd();
+  const {
+    getFieldValue,
+    newFieldId,
+    clearNewFieldId,
+    editingFieldId,
+    setEditingFieldId,
+  } = useFormDnd();
+  const open = editingFieldId === field;
+  const setOpen = useCallback(
+    (nextOpen: boolean) => {
+      if (nextOpen) setEditingFieldId(field);
+      else setEditingFieldId((current) => (current === field ? null : current));
+    },
+    [field, setEditingFieldId],
+  );
   const fieldData = getFieldValue(step, field);
   const mounted = useMountStatus();
 
@@ -63,11 +165,15 @@ export const FormDndField = ({
     if (newFieldId !== field) return;
 
     setOpen(true);
-    clearNewFieldId();
-  }, [newFieldId, field, clearNewFieldId]);
+  }, [newFieldId, field, setOpen]);
+
+  useEffect(() => {
+    if (newFieldId === field && open) clearNewFieldId();
+  }, [newFieldId, field, open, clearNewFieldId]);
 
   const mountedWhileDragging = isDragging && !mounted;
 
+  /** Opens the field editor unless the pointer gesture was a drag. */
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const start = pointerDownAt.current;
     pointerDownAt.current = null;
@@ -80,6 +186,7 @@ export const FormDndField = ({
     setOpen(true);
   };
 
+  /** Keeps Enter from activating the editor during a keyboard drag. */
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key !== 'Enter') return;
     if (isDragging) {
@@ -89,6 +196,7 @@ export const FormDndField = ({
     e.stopPropagation();
   };
 
+  /** Prevents a drag-ending Space key from activating the field button. */
   const handleKeyUp = (e: React.KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === ' ') e.preventDefault();
   };
@@ -133,53 +241,19 @@ export const FormDndField = ({
         </button>
         <FieldContextMenu fieldId={field} stepId={step} setOpen={setOpen} />
       </div>
-      <FormFieldDetailSheet open={open} onOpenChange={setOpen}>
+      <SettingsLocalPanel open={open} onOpenChange={setOpen}>
         <FormFieldDetail
           fieldData={fieldData}
           fieldId={field}
           stepId={step}
           handleClose={() => setOpen(false)}
         />
-      </FormFieldDetailSheet>
+      </SettingsLocalPanel>
     </>
   );
 };
 
-export const FormDndFieldIcon = ({ type }: { type: string }) => {
-  switch (type) {
-    case 'number':
-      return <IconNumbers />;
-    case 'boolean':
-      return <IconCheck />;
-    case 'date':
-      return <IconCalendarEvent />;
-    case 'select':
-      return <IconChevronDown />;
-    case 'select:countries':
-      return <IconWorld />;
-    case 'textarea':
-      return <IconTextScan2 />;
-    case 'radio':
-      return <IconListCheck />;
-    case 'check':
-      return <IconListDetails />;
-    case 'file':
-      return <IconPaperclip />;
-    case 'core:customer:avatar':
-      return <IconUserCircle />;
-    case 'core:customer:email':
-      return <IconAt />;
-    case 'core:customer:phone':
-      return <IconPhoneSpark />;
-    case 'core:customer:sex':
-      return <IconGenderBigender />;
-    case 'core:customer:birthDate':
-      return <IconCalendarEvent />;
-    default:
-      return <IconTextSize />;
-  }
-};
-
+/** Adds a basic or customer field to the selected form step. */
 export const AddField = ({ step }: { step: UniqueIdentifier }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
   const { handleAddField } = useFormDnd();
@@ -270,51 +344,6 @@ export const AddField = ({ step }: { step: UniqueIdentifier }) => {
             ))}
           </>
         )}
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-};
-
-export const FieldContextMenu = ({
-  fieldId,
-  stepId,
-  setOpen,
-}: {
-  fieldId: UniqueIdentifier;
-  stepId: UniqueIdentifier;
-  setOpen: (open: boolean) => void;
-}) => {
-  const { t } = useTranslation('frontline', { keyPrefix: 'modules.forms' });
-  const [_open, _setOpen] = React.useState<boolean>(false);
-  const { handleDeleteField } = useFormDnd();
-  const handleRemoveField = () => {
-    handleDeleteField(stepId, fieldId);
-  };
-
-  return (
-    <DropdownMenu open={_open} onOpenChange={_setOpen}>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="ml-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <IconDots />
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content onClick={(e) => e.stopPropagation()}>
-        <DropdownMenu.Item onClick={() => setOpen(true)}>
-          <IconEdit />
-          {t('edit-attributes', 'Edit attributes')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onClick={handleRemoveField}
-          className="text-destructive"
-        >
-          <IconTrash />
-          {t('remove-field', 'Remove Field')}
-        </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
   );

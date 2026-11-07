@@ -10,11 +10,12 @@ import { useBranchDetailPage } from '@/tms/branch-detail/hooks/useBranchDetailPa
 import { useActiveLang } from '@/tms/branch-detail/hooks/useActiveLang';
 import { LANGUAGES } from '@/tms/constants/languages';
 
-import { TourCreateSheet } from '@/tms/branch-detail/dashboard/tours/_components/TourCreateSheet';
+import { TourCreateButton } from '@/tms/branch-detail/dashboard/tours/_components/TourPanel';
 import { ItineraryCreateSheet } from '@/tms/branch-detail/dashboard/itinerary';
-import { ElementCreateSheet } from '@/tms/branch-detail/dashboard/elements';
-import { AmenityCreateSheet } from '@/tms/branch-detail/dashboard/amenities';
-import { CategoryCreateSheet } from '@/tms/branch-detail/dashboard/category';
+import { ElementCreateButton } from '@/tms/branch-detail/dashboard/elements';
+import { AmenityCreateButton } from '@/tms/branch-detail/dashboard/amenities';
+import { CategoryCreateButton } from '@/tms/branch-detail/dashboard/category';
+import { CustomFieldsCreateButtons } from '@/tms/branch-detail/dashboard/pages/CustomFieldsPage';
 
 type ActiveTab =
   | 'tour'
@@ -81,13 +82,7 @@ export const BranchDetailIndexPage = () => {
     if (!branchId) return null;
 
     if (activeTab === 'tour') {
-      return (
-        <TourCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
-      );
+      return <TourCreateButton branchId={branchId} />;
     }
     if (activeTab === 'itinerary') {
       return (
@@ -99,31 +94,16 @@ export const BranchDetailIndexPage = () => {
       );
     }
     if (activeTab === 'elements') {
-      return (
-        <ElementCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
-      );
+      return <ElementCreateButton branchId={branchId} />;
     }
     if (activeTab === 'amenities') {
-      return (
-        <AmenityCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
-      );
+      return <AmenityCreateButton branchId={branchId} />;
     }
     if (activeTab === 'category') {
-      return (
-        <CategoryCreateSheet
-          branchId={branchId}
-          branchLanguages={selectedBranch?.languages}
-          mainLanguage={selectedBranch?.language}
-        />
-      );
+      return <CategoryCreateButton branchId={branchId} />;
+    }
+    if (activeTab === 'customFields') {
+      return <CustomFieldsCreateButtons branchId={branchId} />;
     }
 
     return null;

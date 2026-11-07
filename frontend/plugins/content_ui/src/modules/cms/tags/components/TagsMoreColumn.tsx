@@ -125,5 +125,5 @@ export const tagMoreColumn = (
       onRefetch={onRefetch}
     />
   ),
-  size: 20,
+  size: 33,
 });

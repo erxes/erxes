@@ -16,19 +16,20 @@ import { Weekday } from '@/integrations/erxes-messenger/types/Weekday';
 import { atom } from 'jotai';
 import { processLinks } from '@/integrations/erxes-messenger/utils/emStateUtils';
 import { z } from 'zod';
+import type { getMessengerDraftValues } from '../hooks/useMessengerDraft';
 
-/**
- * Atom that generates the messenger creation payload
- */
-export const erxesMessengerSetupValuesAtom = atom((get) => {
-  const appearance = get(erxesMessengerSetupAppearanceAtom);
-  const greeting = get(erxesMessengerSetupGreetingAtom);
-  const intro = get(erxesMessengerSetupIntroAtom);
-  const hours = get(erxesMessengerSetupHoursAtom);
-  const settings = get(erxesMessengerSetupSettingsAtom);
+export const getMessengerVariables = (
+  config: z.infer<typeof EM_CONFIG_SCHEMA>,
+  {
+    appearance,
+    greeting,
+    intro,
+    hours,
+    settings,
+  }: ReturnType<typeof getMessengerDraftValues>,
+) => {
   const { links, externalLinks } = processLinks(greeting?.links);
-
-  return (config: z.infer<typeof EM_CONFIG_SCHEMA>) => ({
+  return {
     createVariables: {
       name: config?.name,
       channelId: config?.channelId,
@@ -77,7 +78,7 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
         requireAuth: settings?.requireAuth ?? false,
         showChat: settings?.showChat ?? true,
         showLauncher: settings?.showLauncher ?? true,
-        hideWhenOffline: false,
+        hideWhenOffline: hours?.hideMessengerDuringOfflineHours ?? false,
         forceLogoutWhenResolve: settings?.forceLogoutWhenResolve ?? false,
         showVideoCallRequest: settings?.showVideoCallRequest ?? false,
         links,
@@ -99,5 +100,18 @@ export const erxesMessengerSetupValuesAtom = atom((get) => {
       navigationVariant: appearance?.navigationVariant || 'pill',
       isSupportInAppView: settings?.isSupportInAppView ?? false,
     },
-  });
+  };
+};
+
+export const erxesMessengerSetupValuesAtom = atom((get) => {
+  const values = {
+    appearance: get(erxesMessengerSetupAppearanceAtom),
+    greeting: get(erxesMessengerSetupGreetingAtom),
+    intro: get(erxesMessengerSetupIntroAtom),
+    hours: get(erxesMessengerSetupHoursAtom),
+    settings: get(erxesMessengerSetupSettingsAtom),
+    config: null,
+  };
+  return (config: z.infer<typeof EM_CONFIG_SCHEMA>) =>
+    getMessengerVariables(config, values);
 });

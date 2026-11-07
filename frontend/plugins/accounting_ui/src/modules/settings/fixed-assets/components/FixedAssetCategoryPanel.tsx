@@ -5,7 +5,8 @@ import { PanelField } from 'ui-modules';
 import { SettingsPanelRemoveAction } from '@/settings/components/panel/SettingsPanelActions';
 import {
   SettingsPanelDescriptionField,
-  SettingsPanelNameCodeFields,
+  SettingsPanelCodeField,
+  SettingsPanelTitleField,
   SettingsPanelNumberField,
   SettingsPanelSelect,
 } from '@/settings/components/panel/SettingsPanelFields';
@@ -158,17 +159,12 @@ const DepreciationPanelFields = ({
   );
 };
 
-const FixedAssetCategoryPanelDetail = ({
-  contentId,
-}: ISettingsPanelViewProps) => {
-  const { t } = useTranslation('accounting');
-  const { fixedAssetCategoryDetail: category, loading } =
-    useFixedAssetCategoryDetail(contentId);
+const useSaveFixedAssetCategory = (contentId: string) => {
   const { editFixedAssetCategory } = useFixedAssetCategoryEdit();
   const mergePendingChanges =
     useSettingsPanelPendingChanges<TFixedAssetCategoryPanelChange>(contentId);
 
-  const save = (
+  return (
     current: IFixedAssetCategory,
     changes: TFixedAssetCategoryPanelChange,
   ) =>
@@ -190,16 +186,41 @@ const FixedAssetCategoryPanelDetail = ({
         ...mergePendingChanges(current, changes),
       },
     });
+};
+
+const FixedAssetCategoryPanelTitle = ({
+  contentId,
+}: ISettingsPanelViewProps) => {
+  const { fixedAssetCategoryDetail: category, loading } =
+    useFixedAssetCategoryDetail(contentId);
+  const save = useSaveFixedAssetCategory(contentId);
+
+  return (
+    <SettingsPanelTitleField
+      scope={SCOPE}
+      loading={loading}
+      value={category ? category.name || '' : undefined}
+      onSave={(name) => category && save(category, { name })}
+    />
+  );
+};
+
+const FixedAssetCategoryPanelDetail = ({
+  contentId,
+}: ISettingsPanelViewProps) => {
+  const { t } = useTranslation('accounting');
+  const { fixedAssetCategoryDetail: category, loading } =
+    useFixedAssetCategoryDetail(contentId);
+  const save = useSaveFixedAssetCategory(contentId);
 
   return (
     <SettingsPanelDetailLayout loading={loading} hasRecord={!!category}>
       {category && (
         <>
-          <SettingsPanelNameCodeFields
+          <SettingsPanelCodeField
             scope={SCOPE}
-            name={category.name}
             code={category.code}
-            onSave={(fields) => save(category, fields)}
+            onSave={(code) => save(category, { code })}
           />
           <PanelField label={t('parent-category')}>
             <SelectFixedAssetCategory
@@ -237,6 +258,7 @@ const FixedAssetCategoryPanelDetail = ({
 export const FIXED_ASSET_CATEGORY_PANEL: ISettingsPanelViews = {
   addLabel: 'add-fixed-asset-category',
   editLabel: 'edit-fixed-asset-category',
+  Title: FixedAssetCategoryPanelTitle,
   New: FixedAssetCategoryPanelNew,
   Actions: FixedAssetCategoryPanelActions,
   Detail: FixedAssetCategoryPanelDetail,

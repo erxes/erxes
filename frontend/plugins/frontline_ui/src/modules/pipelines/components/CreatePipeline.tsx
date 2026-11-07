@@ -1,162 +1,152 @@
+import { usePanelFormDraft } from '@/shared/hooks/usePanelFormDraft';
+import { pipelineCreatePanelDraftsState } from '@/pipelines/states/pipelineStates';
 import { IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Form,
   Kbd,
-  Sheet,
-  Spinner,
   usePreviousHotkeyScope,
   useScopedHotkeys,
-  useSetHotkeyScope,
   useToast,
 } from 'erxes-ui';
 import { usePipelineAdd } from '@/pipelines/hooks/useAddPipeline';
-import { useAtom } from 'jotai';
-import React, { useEffect } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { CREATE_PIPELINE_FORM_SCHEMA } from '@/settings/schema/pipeline';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TCreatePipelineForm } from '@/pipelines/types';
 import { PipelineHotkeyScope } from '@/pipelines/types/PipelineHotkeyScope';
-import { createPipelineSheetState } from '@/pipelines/states/pipelineStates';
 import { CreatePipelineForm } from './CreatePipelineForm';
-import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useSidePanel } from 'ui-modules';
+import { PIPELINE_CONTENT_TYPE } from '@/settings/constants/recordPanels';
+import { useSettingsParams } from '@/settings/contexts/SettingsPanelContext';
+import { SettingsPanelFooter } from '@/settings/components/SettingsPanelForm';
+import { getPipelineDraftId } from '@/pipelines/constants/pipelineTabs';
+import { useEffect } from 'react';
 
-const CreatePipelineSheetForm = ({
+/** Creates a pipeline within the selected channel's settings panel. */
+export const CreatePipelinePanelForm = ({
   channelId,
-  onClose,
 }: {
   channelId: string;
-  onClose: () => void;
 }) => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { close, openRecord } = useSidePanel();
   const { addPipeline, loading } = usePipelineAdd();
-
+  const {
+    setHotkeyScopeAndMemorizePreviousScope,
+    goBackToPreviousHotkeyScope,
+  } = usePreviousHotkeyScope();
+  useEffect(() => {
+    setHotkeyScopeAndMemorizePreviousScope(
+      PipelineHotkeyScope.PipelineAddSheet,
+    );
+    return goBackToPreviousHotkeyScope;
+  }, [setHotkeyScopeAndMemorizePreviousScope, goBackToPreviousHotkeyScope]);
+  useScopedHotkeys('esc', close, PipelineHotkeyScope.PipelineAddSheet);
+  const values: TCreatePipelineForm = { name: '', description: '', channelId };
   const form = useForm<TCreatePipelineForm>({
     resolver: zodResolver(CREATE_PIPELINE_FORM_SCHEMA),
-    defaultValues: {
-      name: '',
-      description: '',
-      channelId,
-    },
+    defaultValues: values,
   });
 
-  const submitHandler: SubmitHandler<TCreatePipelineForm> = React.useCallback(
-    (data) => {
-      addPipeline({
-        variables: { ...data, channelId },
-        onCompleted: (response) => {
-          form.reset();
-          onClose();
-          toast({ title: t('success', 'Success!') });
-          if (response.createPipeline) {
-            navigate(
-              `/frontline/settings/channels/${channelId}/pipelines/${response.createPipeline._id}`,
-            );
-          }
-        },
-        onError: (error) =>
-          toast({
-            title: t('error', 'Error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
-    },
-    [addPipeline, channelId, form, navigate, onClose, t, toast],
-  );
+  const {
+    clearDraft,
+    markSaved,
+    isActive,
+    captureUpdate,
+    beginSave,
+    endSave,
+    saving,
+  } = usePanelFormDraft({
+    form,
+    recordKey: getPipelineDraftId(channelId),
+    values,
+    draftsState: pipelineCreatePanelDraftsState,
+    isNew: true,
+  });
+  const cancel = () => {
+    clearDraft();
+    close();
+  };
+
+  /** Saves the pipeline and replaces its draft panel with the saved record. */
+  const submit = (data: TCreatePipelineForm) => {
+    const saveId = beginSave();
+    if (saveId === undefined) return undefined;
+    const completeDraft = captureUpdate();
+    return addPipeline({
+      variables: { ...data, channelId },
+      onCompleted: ({ createPipeline }) => {
+        endSave(saveId);
+        toast({ title: t('success', 'Success!') });
+        completeDraft(() => values);
+        markSaved(values);
+        if (!isActive()) return;
+        if (!createPipeline) {
+          close();
+          return;
+        }
+        openRecord(
+          { contentType: PIPELINE_CONTENT_TYPE, contentId: createPipeline._id },
+          { replace: true },
+        );
+      },
+      onError: (error) => {
+        completeDraft((latest) => latest);
+        endSave(saveId);
+        toast({
+          title: t('error', 'Error'),
+          description: error.message,
+          variant: 'destructive',
+        });
+      },
+    });
+  };
 
   return (
     <Form {...form}>
       <form
-        className="flex flex-col gap-0 size-full"
-        onSubmit={form.handleSubmit(submitHandler)}
+        className="flex min-h-0 flex-1 flex-col"
+        onSubmit={form.handleSubmit(submit)}
       >
-        <Sheet.Header>
-          <Sheet.Title>{t('add-pipeline', 'Add pipeline')}</Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="grow size-full flex flex-col px-5 py-4">
+        <div className="flex-1 overflow-auto p-3">
           <CreatePipelineForm form={form} />
-        </Sheet.Content>
-        <Sheet.Footer>
-          <Button
-            disabled={loading}
-            onClick={onClose}
-            type="button"
-            variant="secondary"
-          >
-            {t('cancel', 'Cancel')}
-          </Button>
-          <Button disabled={loading} type="submit">
-            {loading ? <Spinner /> : t('create', 'Create')}
-          </Button>
-        </Sheet.Footer>
+        </div>
+        <SettingsPanelFooter
+          onCancel={cancel}
+          cancelLabel={t('cancel', 'Cancel')}
+          submitLabel={t('create', 'Create')}
+          loading={loading || saving}
+        />
       </form>
     </Form>
   );
 };
 
+/** Provides the pipeline create button and its scoped shortcut. */
 export const CreatePipeline = () => {
   const { t } = useTranslation('frontline', { keyPrefix: 'modules.pipelines' });
-  const { id: channelId } = useParams<{ id: string }>();
-
-  const [open, setOpen] = useAtom(createPipelineSheetState);
-  const setHotkeyScope = useSetHotkeyScope();
-  const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
-
-  useEffect(() => {
-    if (open) {
-      setHotkeyScopeAndMemorizePreviousScope(
-        PipelineHotkeyScope.PipelineAddSheet,
-      );
-      return;
-    }
-
-    setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-  }, [open, setHotkeyScope, setHotkeyScopeAndMemorizePreviousScope]);
-
-  useScopedHotkeys(
-    'c',
-    () => setOpen(true),
-    PipelineHotkeyScope.PipelineSettingsPage,
-  );
-  useScopedHotkeys(
-    'esc',
-    () => setOpen(false),
-    PipelineHotkeyScope.PipelineAddSheet,
-  );
-
-  // The effect above cannot carry this: its cleanup runs on every `open`
-  // change, so closing there would stop the sheet from ever opening.
-  useEffect(
-    () => () => {
-      setOpen(false);
-      setHotkeyScope(PipelineHotkeyScope.PipelineSettingsPage);
-    },
-    [setHotkeyScope, setOpen],
-  );
+  const { id: channelId } = useSettingsParams();
+  const { openRecord } = useSidePanel();
+  /** Opens a pipeline draft scoped to the current settings channel. */
+  const open = () => {
+    if (!channelId) return;
+    openRecord({
+      contentType: PIPELINE_CONTENT_TYPE,
+      contentId: getPipelineDraftId(channelId),
+    });
+  };
+  useScopedHotkeys('c', open, PipelineHotkeyScope.PipelineSettingsPage);
 
   if (!channelId) return null;
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
-      <Sheet.Trigger asChild>
-        <Button>
-          <IconPlus />
-          {t('create-pipeline', 'Create pipeline')}
-          <Kbd>C</Kbd>
-        </Button>
-      </Sheet.Trigger>
-      <Sheet.View className="p-0">
-        <CreatePipelineSheetForm
-          channelId={channelId}
-          onClose={() => setOpen(false)}
-        />
-      </Sheet.View>
-    </Sheet>
+    <Button onClick={open}>
+      <IconPlus />
+      {t('create-pipeline', 'Create pipeline')}
+      <Kbd>C</Kbd>
+    </Button>
   );
 };

@@ -218,6 +218,20 @@ export type TAutomationStatsCount = {
   count: number;
 };
 
+export type TAutomationRecentRun = {
+  _id: string;
+  status?: string;
+  createdAt?: string;
+  errorCode?: string;
+  failedActionId?: string;
+  failedActionType?: string;
+};
+
+export type TAutomationRecentRuns = {
+  automationId: string;
+  runs: TAutomationRecentRun[];
+};
+
 export type TAutomationStatsBucket = {
   date: string;
   total: number;

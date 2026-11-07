@@ -1,3 +1,4 @@
+import { SETTINGS_APPROVAL_REQUESTS } from '@/settings/approval/graphql/approvalRequests';
 import { useApolloClient, useQuery } from '@apollo/client';
 import {
   Badge,
@@ -100,6 +101,7 @@ export const ApprovalRequestRecordPanel = ({
     .filter((name) => name !== '-');
   const onCompleted = () => {
     client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'approvalRequests' });
+    client.refetchQueries({ include: [SETTINGS_APPROVAL_REQUESTS] });
     refetch();
   };
   return (

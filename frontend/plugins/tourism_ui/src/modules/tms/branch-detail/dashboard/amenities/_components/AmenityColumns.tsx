@@ -12,18 +12,33 @@ import {
   Badge,
   RelativeDateDisplay,
 } from 'erxes-ui';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
+import { TMS_AMENITY_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
 import { getAmenityIconOption } from '../constants/amenityIcons';
 import { IAmenity } from '../types/amenity';
-import { AmenityEditSheet } from './AmenityEditSheet';
 import { amenityMoreColumn } from './AmenityMoreCell';
+
+const AmenityNameCell = ({ amenity }: { amenity: IAmenity }) => {
+  const { openDetail } = useTourismPanel(TMS_AMENITY_CONTENT_TYPE);
+
+  return (
+    <RecordTableInlineCell>
+      <Badge
+        variant="secondary"
+        className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
+        onClick={() => openDetail(amenity._id)}
+      >
+        <TextOverflowTooltip value={amenity.name || '-'} />
+      </Badge>
+    </RecordTableInlineCell>
+  );
+};
 
 export const amenityColumns = (
   branchId?: string,
-  branchLanguages?: string[],
-  mainLanguage?: string,
   t: (key: string) => string = (k) => k,
 ): ColumnDef<IAmenity>[] => [
-  amenityMoreColumn(branchId, branchLanguages, mainLanguage),
+  amenityMoreColumn(branchId),
   RecordTable.checkboxColumn as ColumnDef<IAmenity>,
   {
     id: 'icon',
@@ -56,26 +71,7 @@ export const amenityColumns = (
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead icon={IconLabel} label={t('name')} />,
-    cell: ({ cell, row }: { cell: any; row: any }) => {
-      const amenity = row.original as IAmenity;
-      return (
-        <RecordTableInlineCell>
-          <AmenityEditSheet
-            amenity={amenity}
-            showTrigger={false}
-            branchLanguages={branchLanguages}
-            mainLanguage={mainLanguage}
-          >
-            <Badge
-              variant="secondary"
-              className="px-2 py-1 font-medium cursor-pointer hover:bg-accent"
-            >
-              <TextOverflowTooltip value={(cell.getValue() as string) || '-'} />
-            </Badge>
-          </AmenityEditSheet>
-        </RecordTableInlineCell>
-      );
-    },
+    cell: ({ row }) => <AmenityNameCell amenity={row.original} />,
     size: 300,
   },
   {

@@ -25,6 +25,7 @@ const config: ModuleFederationConfig = {
     './relationSettingsWidget':
       './src/widgets/relationSettings/RelationSettingsWidget.tsx',
     './recordPickerWidget': './src/widgets/recordPicker/RecordPickerWidget.tsx',
+    './dashboardWidget': './src/widgets/dashboard/DashboardWidgets.tsx',
   },
 
   shared: (libraryName, defaultConfig) => {

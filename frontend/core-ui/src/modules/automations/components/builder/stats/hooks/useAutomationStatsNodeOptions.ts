@@ -1,10 +1,10 @@
+import { useAutomationStatsNodes } from '@/automations/components/builder/stats/context/AutomationStatsNodesContext';
 import { useAutomationStatsNodeLabel } from '@/automations/components/builder/stats/hooks/useAutomationStatsNodeLabel';
-import { useAutomationNodes } from '@/automations/hooks/useAutomationNodes';
 import { useMemo } from 'react';
 
 // Every action on the canvas, workflow members included, as a filter option
 export const useAutomationStatsNodeOptions = () => {
-  const { actions, workflows } = useAutomationNodes();
+  const { actions, workflows } = useAutomationStatsNodes();
   const getNodeLabel = useAutomationStatsNodeLabel();
 
   return useMemo(

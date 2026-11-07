@@ -24,3 +24,20 @@ export const CMS_CUSTOM_FIELD_GROUPS = gql`
     }
   }
 `;
+
+export const CMS_CUSTOM_FIELD_GROUP_DETAIL = gql`
+  query CmsCustomFieldGroupDetail($_id: String) {
+    cmsCustomFieldGroup(_id: $_id) {
+      _id
+      label
+      code
+      order
+      clientPortalId
+      customPostTypeIds
+      enabledPageIds
+      enabledCategoryIds
+      enabledPostIds
+      fields
+    }
+  }
+`;

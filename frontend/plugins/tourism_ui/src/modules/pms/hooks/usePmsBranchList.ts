@@ -28,8 +28,7 @@ export function usePmsBranchList({
         sortField,
         sortDirection,
       },
-      fetchPolicy: 'network-only',
-      notifyOnNetworkStatusChange: true,
+      fetchPolicy: 'cache-and-network',
     },
   );
 
