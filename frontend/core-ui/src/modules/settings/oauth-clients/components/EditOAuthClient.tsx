@@ -106,11 +106,6 @@ export const EditOAuthClient = () => {
           data.type === 'confidential' ? data.accessTokenLifetime : undefined,
       },
       onCompleted: ({ oauthClientAppsEdit: oauthClientApp }) => {
-        if (!pagePanel.isCurrent()) return;
-        toast({
-          variant: 'success',
-          title: t('client-updated'),
-        });
         if (oauthClientApp?.generatedSecret) {
           setRevealedSecret({
             clientName: oauthClientApp.name,
@@ -118,6 +113,11 @@ export const EditOAuthClient = () => {
             secret: oauthClientApp.generatedSecret,
           });
         }
+        if (!pagePanel.isCurrent()) return;
+        toast({
+          variant: 'success',
+          title: t('client-updated'),
+        });
         onClose();
       },
       onError: (error) =>

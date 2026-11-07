@@ -26,7 +26,8 @@ export const AutomationBotDetailSettingsPage = () => {
       params.delete('panel');
       params.delete('panelExpanded');
       const query = params.toString();
-      navigate(`${AutomationSettingsPath.Bots}${query ? `?${query}` : ''}`);
+      const search = query ? `?${query}` : '';
+      navigate(`${AutomationSettingsPath.Bots}${search}`);
     },
   });
 

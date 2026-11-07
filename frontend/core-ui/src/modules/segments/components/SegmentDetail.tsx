@@ -29,10 +29,10 @@ import { SegmentAutomationCreateButton } from '@/segments/components/SegmentAuto
 import { SegmentAutomations } from '@/segments/components/SegmentAutomations';
 import { SegmentDetailHeader } from '@/segments/components/SegmentDetailHeader';
 import { SegmentPageDraft } from '@/segments/components/SegmentPageDraft';
-type Props = {
+type Props = Readonly<{
   onRefresh: () => void;
   page?: boolean;
-};
+}>;
 const SegmentDetailBody = ({
   contentType,
   segmentId,
@@ -51,12 +51,16 @@ const SegmentDetailBody = ({
   initialDraft?: TSegmentForm;
 }) => {
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
-  const { segment, refetch } = useSegmentDetail(segmentId);
+  const { segment, segmentLoading, unavailable, refetch } =
+    useSegmentDetail(segmentId);
   const { t } = useTranslation('segment');
   const { t: detailT } = useTranslation('segment', {
     keyPrefix: 'detail',
   });
   const pagePanel = usePagePanelContext();
+  if (segmentLoading || unavailable) {
+    return <PagePanelStatus entry={pagePanel} loading={segmentLoading} />;
+  }
   const title = segmentId
     ? segment?.name || `${t('edit')} ${t('a-segment')}`
     : `${t('create')} ${t('a-segment')}`;
@@ -131,7 +135,8 @@ export function SegmentDetail({ onRefresh, page = false }: Props) {
   const [queryType] = useQueryState<string>('contentType');
   const [queryId, setOpen] = useQueryState<string>('segmentId');
   const { id } = useParams<{ id: string }>();
-  const segmentId = page ? (id === 'new' ? '' : id) : queryId;
+  const pageSegmentId = id === 'new' ? '' : id;
+  const segmentId = page ? pageSegmentId : queryId;
   const { segment, segmentLoading } = useSegmentDetail(segmentId || undefined);
   const contentType = queryType || segment?.contentType;
   const navigate = useNavigate();
@@ -150,7 +155,9 @@ export function SegmentDetail({ onRefresh, page = false }: Props) {
     page,
     onExpand: () => {
       const params = new URLSearchParams({ contentType: contentType || '' });
-      if (draft.current) params.set('tab', 'definition');
+      const tab = new URLSearchParams(location.search).get('tab');
+      if (tab) params.set('tab', tab);
+      else if (draft.current) params.set('tab', 'definition');
       navigate(
         `/segments/${encodeURIComponent(segmentId || 'new')}?${params}`,
         {

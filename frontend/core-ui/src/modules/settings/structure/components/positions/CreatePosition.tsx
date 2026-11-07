@@ -66,7 +66,7 @@ export const CreatePosition = () => {
     message: t('position-created'),
     onSuccess: () => {
       methods.reset();
-      setOpen(false);
+      onClose();
     },
   });
   const submitHandler: SubmitHandler<TPositionForm> = (data) => {
@@ -96,7 +96,7 @@ export const CreatePosition = () => {
               }
               methods={methods}
               onSubmit={submitHandler}
-              onCancel={() => setOpen(false)}
+              onCancel={onClose}
               saving={loading}
               saveLabel={t('create')}
             >

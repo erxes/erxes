@@ -45,7 +45,6 @@ export const CreateOAuthClient = () => {
           data.type === 'confidential' ? data.accessTokenLifetime : undefined,
       },
       onCompleted: ({ oauthClientAppsAdd: oauthClientApp }) => {
-        if (!pagePanel.isCurrent()) return;
         toast({
           variant: 'success',
           title: t('client-created'),
@@ -57,6 +56,7 @@ export const CreateOAuthClient = () => {
             secret: oauthClientApp.generatedSecret,
           });
         }
+        if (!pagePanel.isCurrent()) return;
         reset();
         setOpen(false);
       },

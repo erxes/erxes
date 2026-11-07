@@ -6,7 +6,9 @@ import { NavLink, useLocation } from 'react-router-dom';
 export const TemplatesContextNavigation = () => {
   const { t } = useTranslation('templates', { keyPrefix: 'template' });
   const { pathname } = useLocation();
-  const isCategoryPage = pathname.startsWith('/templates/categories');
+  const isCategoryPage =
+    pathname === '/templates/categories' ||
+    pathname.startsWith('/templates/categories/');
 
   return (
     <NavigationMenuGroup name={t('templates')}>

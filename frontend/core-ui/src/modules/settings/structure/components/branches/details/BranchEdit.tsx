@@ -38,10 +38,9 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
     page && navigationState && navigationState.branchId === id
       ? navigationState.branchDraft
       : undefined;
-  const close = () => {
-    if (page) navigate('/settings/structures/branches');
-    else setOpen(null);
-  };
+  const closePage = () => navigate('/settings/structures/branches');
+  const closePanel = () => setOpen(null);
+  const close = page ? closePage : closePanel;
   const { branchDetail, loading, error } = useBranchDetailsById({
     variables: {
       id,
@@ -100,86 +99,91 @@ export const BranchEdit = ({ page = false }: { page?: boolean }) => {
     }
   }, [branchDetail, draft, reset, id]);
 
+  if (!pagePanel.permissionsLoaded || !pagePanel.allowed || !branchDetail) {
+    return createPortal(
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+        <PagePanelStatus entry={pagePanel} loading={loading} error={!!error} />
+      </div>,
+      pagePanel,
+    );
+  }
+
   return createPortal(
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-      {pagePanel.permissionsLoaded && pagePanel.allowed && branchDetail ? (
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className="flex min-h-0 w-full flex-1 flex-col"
+      <Form {...methods}>
+        <form
+          onSubmit={handleSubmit(submitHandler)}
+          className="flex min-h-0 w-full flex-1 flex-col"
+        >
+          {page ? (
+            <PageHeader>
+              <PageHeader.Start className="min-w-0 flex-1 pr-0">
+                <Breadcrumb>
+                  <Breadcrumb.List className="flex-nowrap gap-1">
+                    <Breadcrumb.Item>
+                      <StructureSettingsBreadcrumb />
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item>
+                      <Button variant="ghost" asChild>
+                        <Link to="/settings/structures/branches">
+                          {t('branches', 'Branches')}
+                        </Link>
+                      </Button>
+                    </Breadcrumb.Item>
+                    <Breadcrumb.Separator />
+                    <Breadcrumb.Item className="min-w-0">
+                      <Breadcrumb.Page
+                        className="truncate px-3"
+                        title={branchDetail.title}
+                      >
+                        {branchDetail.title}
+                      </Breadcrumb.Page>
+                    </Breadcrumb.Item>
+                  </Breadcrumb.List>
+                </Breadcrumb>
+              </PageHeader.Start>
+            </PageHeader>
+          ) : (
+            <RecordSidePanel.Header
+              avatar={<IconGitBranch size={16} />}
+              title={branchDetail?.title || ''}
+              {...pagePanel.headerProps}
+            />
+          )}
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto',
+              page ? 'p-4' : 'px-5 py-4',
+            )}
           >
             {page ? (
-              <PageHeader>
-                <PageHeader.Start className="min-w-0 flex-1 pr-0">
-                  <Breadcrumb>
-                    <Breadcrumb.List className="flex-nowrap gap-1">
-                      <Breadcrumb.Item>
-                        <StructureSettingsBreadcrumb />
-                      </Breadcrumb.Item>
-                      <Breadcrumb.Separator />
-                      <Breadcrumb.Item>
-                        <Button variant="ghost" asChild>
-                          <Link to="/settings/structures/branches">
-                            {t('branches', 'Branches')}
-                          </Link>
-                        </Button>
-                      </Breadcrumb.Item>
-                      <Breadcrumb.Separator />
-                      <Breadcrumb.Item className="min-w-0">
-                        <Breadcrumb.Page
-                          className="truncate px-3"
-                          title={branchDetail.title}
-                        >
-                          {branchDetail.title}
-                        </Breadcrumb.Page>
-                      </Breadcrumb.Item>
-                    </Breadcrumb.List>
-                  </Breadcrumb>
-                </PageHeader.Start>
-              </PageHeader>
-            ) : (
-              <RecordSidePanel.Header
-                avatar={<IconGitBranch size={16} />}
-                title={branchDetail?.title || ''}
-                {...pagePanel.headerProps}
-              />
-            )}
-            <div
-              className={cn(
-                'min-h-0 flex-1 overflow-y-auto',
-                page ? 'p-4' : 'px-5 py-4',
-              )}
-            >
-              {page ? (
-                <div className="grid w-full items-start gap-x-6 gap-y-4 @min-[960px]/record-panel:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
-                  <div className="min-w-0 space-y-3">
-                    <BranchForm showLocation={false} compact />
-                    <StructureFormActions
-                      onCancel={close}
-                      saving={isLoading}
-                      permission="branchesManage"
-                    />
-                  </div>
-                  <div className="min-w-0 border-t pt-4 @min-[960px]/record-panel:border-l @min-[960px]/record-panel:border-t-0 @min-[960px]/record-panel:pl-6 @min-[960px]/record-panel:pt-0">
-                    <BranchLocationField mapClassName="h-[clamp(22rem,50vh,36rem)]" />
-                  </div>
+              <div className="grid w-full items-start gap-x-6 gap-y-4 @min-[960px]/record-panel:grid-cols-[minmax(20rem,0.8fr)_minmax(0,1.2fr)]">
+                <div className="min-w-0 space-y-3">
+                  <BranchForm showLocation={false} compact />
+                  <StructureFormActions
+                    onCancel={close}
+                    saving={isLoading}
+                    permission="branchesManage"
+                  />
                 </div>
-              ) : (
-                <BranchForm />
-              )}
-            </div>
-            {!page && (
-              <StructureFormActions
-                onCancel={close}
-                saving={isLoading}
-                permission="branchesManage"
-              />
+                <div className="min-w-0 border-t pt-4 @min-[960px]/record-panel:border-l @min-[960px]/record-panel:border-t-0 @min-[960px]/record-panel:pl-6 @min-[960px]/record-panel:pt-0">
+                  <BranchLocationField mapClassName="h-[clamp(22rem,50vh,36rem)]" />
+                </div>
+              </div>
+            ) : (
+              <BranchForm />
             )}
-          </form>
-        </Form>
-      ) : (
-        <PagePanelStatus entry={pagePanel} loading={loading} error={!!error} />
-      )}
+          </div>
+          {!page && (
+            <StructureFormActions
+              onCancel={close}
+              saving={isLoading}
+              permission="branchesManage"
+            />
+          )}
+        </form>
+      </Form>
     </div>,
     pagePanel,
   );

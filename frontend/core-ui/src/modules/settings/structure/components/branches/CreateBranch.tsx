@@ -65,7 +65,6 @@ export const CreateBranch = () => {
     handleAdd({
       variables: data,
       onCompleted: ({ branchesAdd }) => {
-        if (!pagePanel.isCurrent()) return;
         if (insertBefore) {
           // The backend rebuilds `order` from the code, so it must be sent
           handleEdit({

@@ -60,7 +60,7 @@ export const CreateUnit = () => {
     message: t('unit-created'),
     onSuccess: () => {
       methods.reset();
-      setOpen(false);
+      onClose();
     },
   });
   const submitHandler: SubmitHandler<TUnitForm> = (data) => {
@@ -90,7 +90,7 @@ export const CreateUnit = () => {
               }
               methods={methods}
               onSubmit={submitHandler}
-              onCancel={() => setOpen(false)}
+              onCancel={onClose}
               saving={loading}
               saveLabel={t('create')}
             >

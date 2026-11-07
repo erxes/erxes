@@ -70,7 +70,6 @@ export const CreateDepartment = () => {
     handleAdd({
       variables: data,
       onCompleted: ({ departmentsAdd }) => {
-        if (!pagePanel.isCurrent()) return;
         if (insertBefore) {
           // The backend rebuilds `order` from the code, so it must be sent
           handleEdit({
