@@ -88,6 +88,7 @@ export const PropertySystemFieldLogicSheet = ({
   onClose: () => void;
 }) => {
   const pagePanel = usePagePanel({
+    expandable: false,
     name: 'properties/PropertySystemFieldLogicSheet',
     open: !!field,
     onOpenChange: (open) => !open && onClose(),

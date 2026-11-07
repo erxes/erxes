@@ -1,5 +1,7 @@
 import { IconMessageCircle } from '@tabler/icons-react';
-import { Button, cn } from 'erxes-ui';
+import { Button } from 'erxes-ui';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
+
 import { useAtomValue } from 'jotai';
 import { useCallback } from 'react';
 import { useHotkeys } from 'react-hotkeys-hook';
@@ -43,10 +45,7 @@ export const AssistantButton = () => {
         }
         aria-pressed={open}
         aria-keyshortcuts="Control+J Meta+J"
-        className={cn(
-          'relative size-7 shrink-0',
-          open && 'bg-primary/10 text-primary hover:bg-primary/15',
-        )}
+        className={coreTabIconClassName(open)}
         size="icon"
         type="button"
         variant="ghost"
@@ -56,7 +55,7 @@ export const AssistantButton = () => {
         {unread && !open && (
           <span
             aria-hidden="true"
-            className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-primary"
+            className="absolute right-0.5 top-0.5 size-1.5 rounded-full bg-primary group-data-[notch=true]/layout:bg-primary-foreground"
           />
         )}
       </Button>

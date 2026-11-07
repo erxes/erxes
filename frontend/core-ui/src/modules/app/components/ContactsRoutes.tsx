@@ -61,6 +61,10 @@ export const ContactsRoutes = () => {
           path={ContactsPath.ClientPortalUsers}
           element={<ClientPortalUsersIndexPage />}
         />
+        <Route
+          path={`${ContactsPath.ClientPortalUsers}/:id`}
+          element={<ContactDetailPage contentType="core:cpUser" />}
+        />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <ContactsPageEffect />

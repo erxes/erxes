@@ -1,7 +1,7 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
@@ -45,25 +45,19 @@ export const AddUomSheet = () => {
   );
 
   return (
-    <Sheet
-      onOpenChange={(open) => (open ? onOpen() : onClose())}
-      open={open}
-      modal
-    >
+    <>
       <Can action="uomsManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-uom')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
+        <Button onClick={onOpen}>
+          <IconPlus />
+          {t('add-uom')}
+          <Kbd>C</Kbd>
+        </Button>
       </Can>
-      <Sheet.View
-        className="p-0 sm:max-w-lg"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
+      <ProductEditorPanel
+        name="uoms/new"
+        open={open}
+        onOpenChange={(nextOpen) => (nextOpen ? onOpen() : onClose())}
+        requiredPermission="uomsManage"
       >
         <UomForm
           onOpenChange={(isOpen) => {
@@ -74,7 +68,7 @@ export const AddUomSheet = () => {
             }
           }}
         />
-      </Sheet.View>
-    </Sheet>
+      </ProductEditorPanel>
+    </>
   );
 };

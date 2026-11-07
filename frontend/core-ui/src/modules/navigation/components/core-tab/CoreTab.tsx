@@ -18,14 +18,9 @@ import { OrgLogoIcon } from '@/auth/components/Logo';
 import { currentOrganizationState } from 'ui-modules';
 import { AssistantButton } from '@/agent/components/AssistantButton';
 import { globalSearchOpenState } from '@/search/states/globalSearchState';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-
-const coreTabIconClassName = (active: boolean) =>
-  cn(
-    'relative size-7 shrink-0',
-    active && 'bg-primary/10 text-primary hover:bg-primary/15',
-  );
 
 /**
  * The only navigation core draws: a top bar of browser-like app tabs plus
@@ -80,11 +75,11 @@ export const CoreTab = () => {
 
   return (
     <Tooltip.Provider delayDuration={300}>
-      <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2">
+      <header className="flex h-12 shrink-0 items-center gap-1 border-b bg-sidebar px-2 group-data-[notch=true]/layout:border-b-0 group-data-[notch=true]/layout:bg-transparent group-data-[notch=true]/layout:text-primary-foreground">
         <CoreTabTooltip label={companyName}>
           <Button
             asChild
-            className="size-7 shrink-0 px-0"
+            className={cn(coreTabIconClassName(), 'px-0')}
             size="icon"
             variant="ghost"
           >
@@ -114,7 +109,7 @@ export const CoreTab = () => {
             <Button
               aria-keyshortcuts="Control+M Meta+M"
               aria-label={t('search')}
-              className="size-7 shrink-0 text-muted-foreground"
+              className={cn(coreTabIconClassName(), 'text-muted-foreground')}
               size="icon"
               type="button"
               variant="ghost"

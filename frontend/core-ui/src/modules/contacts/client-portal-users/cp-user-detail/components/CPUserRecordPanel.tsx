@@ -14,7 +14,7 @@ import {
   useSidePanel,
 } from 'ui-modules';
 import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
-import { ContactPanelBreadcrumb } from '@/side-panel/components/details/ContactPanelBreadcrumb';
+import { ContactDetailHeader } from '@/side-panel/components/details/ContactDetailHeader';
 import { AddCPUserForm } from '@/contacts/client-portal-users/components/AddCPUserForm';
 import { CPUserPanelIdContext } from '@/contacts/client-portal-users/contexts/CPUserPanelIdContext';
 import { useClientPortalUser } from '@/contacts/client-portal-users/hooks/useClientPortalUser';
@@ -31,6 +31,7 @@ export const CPUserRecordPanel = (props: IRecordViewProps) => (
 
 const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'clientPortalUser' });
+  const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
   const isNew = record.contentId === NEW_RECORD_ID;
   const { cpUser, loading, error, refetch } = useClientPortalUser({
     skip: isNew,
@@ -58,21 +59,27 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
     ) : (
       title
     );
-  const header = (
-    <RecordSidePanel.Header
-      className={expanded ? 'h-10 bg-background px-3' : undefined}
-      title={
-        !isNew && expanded ? (
-          <ContactPanelBreadcrumb contentType="core:cpUser" title={title} />
-        ) : (
-          editableTitle
-        )
-      }
-      actions={!isNew && cpUser && <CPUserPanelActions user={cpUser} />}
-      onBack={onBack}
-      onClose={onClose}
+  const actions = !isNew && cpUser && (
+    <CPUserPanelActions
+      user={cpUser}
+      onDeleted={expanded ? onClose : undefined}
     />
   );
+  const header =
+    !isNew && expanded ? (
+      <ContactDetailHeader
+        contentType="core:cpUser"
+        title={title}
+        actions={actions}
+      />
+    ) : (
+      <RecordSidePanel.Header
+        title={editableTitle}
+        actions={actions}
+        onBack={onBack}
+        onClose={onClose}
+      />
+    );
   const scroll = (content: ReactNode) => (
     <ScrollArea className="min-h-0 flex-1" viewportClassName="[&>div]:block!">
       {content}
@@ -87,7 +94,7 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
             onOpenChange={(open) => !open && (onBack || onClose)()}
           />
         ) : (
-          <div className="p-4">Access denied</div>
+          <div className="p-4">{panelT('access-denied', 'Access denied')}</div>
         )}
       </>
     );

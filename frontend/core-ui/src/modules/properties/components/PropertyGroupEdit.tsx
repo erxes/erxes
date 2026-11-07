@@ -57,6 +57,7 @@ export const PropertyGroupEditSheet = () => {
     }).then(save);
   };
   const pagePanel = usePagePanel({
+    expandable: false,
     identity: activePropertyGroup?._id || 'new',
     name: 'properties/PropertyGroupEdit',
     onOpenChange: (open) => !open && close(),

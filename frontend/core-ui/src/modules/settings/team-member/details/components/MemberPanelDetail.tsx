@@ -1,4 +1,3 @@
-import { PanelAvatarField } from '@/side-panel/components/details/PanelAvatarField';
 import {
   IconAlignLeft,
   IconAt,
@@ -6,7 +5,6 @@ import {
   IconCalendarPlus,
   IconMail,
   IconPhone,
-  IconPhoto,
   IconStar,
   IconUser,
   type Icon,
@@ -18,7 +16,6 @@ import {
 } from '@/settings/team-member/hooks/useUserEdit';
 import { format } from 'date-fns';
 import {
-  Avatar,
   cn,
   DatePicker,
   formatPhoneNumber,
@@ -26,18 +23,15 @@ import {
   FullNameValue,
   PhoneInput,
   Popover,
-  readImage,
   RecordTableInlineCell,
   ScrollArea,
   Textarea,
   TextField,
   toast,
 } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  currentUserState,
   PANEL_TEXT_FIELD_CLASS_NAME,
   PanelField,
   PanelFieldTrigger,
@@ -269,11 +263,7 @@ const MemberDescriptionField = ({
 
 export const MemberPanelDetail = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
-  const { t: nameT } = useTranslation('contact', {
-    keyPrefix: 'customer.add',
-  });
   const { userDetail } = useUserDetail();
-  const currentUser = useAtomValue(currentUserState);
   const { usersEdit } = useUserEdit();
   const editDetails = useUserObjectEdit(
     userDetail?._id || '',
@@ -286,32 +276,10 @@ export const MemberPanelDetail = () => {
   }
 
   const { _id, details, email, username, score } = userDetail;
-  const canEditProfile = !!currentUser?.isOwner;
 
   return (
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="flex flex-col gap-2 p-3">
-        {canEditProfile ? (
-          <PanelAvatarField
-            value={details?.avatar || ''}
-            onSave={(avatar) => editDetails({ avatar })}
-          />
-        ) : (
-          <PanelField
-            icon={IconPhoto}
-            label={nameT('avatar', 'Avatar')}
-            cell={false}
-          >
-            <div className="px-2 py-1">
-              <Avatar size="lg" className="size-10">
-                <Avatar.Image src={readImage(details?.avatar || '')} />
-                <Avatar.Fallback>
-                  {(details?.firstName || email || '').charAt(0)}
-                </Avatar.Fallback>
-              </Avatar>
-            </div>
-          </PanelField>
-        )}
         <PanelField icon={IconUser} label={t('short-name')}>
           <MemberPanelTextField
             icon={IconUser}

@@ -22,6 +22,7 @@ export const PropertyGroupLayoutSheet = () => {
     'layoutGroupCode',
   );
   const pagePanel = usePagePanel({
+    expandable: false,
     identity: group?._id || 'new',
     name: 'properties/PropertyGroupLayoutSheet',
     open: open,

@@ -22,6 +22,7 @@ import { CoreTabFavoritesSection } from '@/navigation/components/core-tab/CoreTa
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { navigationActivityOrderState } from '@/navigation/states/navigationActivityOrderState';
 import { moveAppTab } from '@/navigation/utils/appTabs';
+import { coreTabIconClassName } from '@/navigation/utils/coreTabClassName';
 import { sortNavigationActivitiesByOrder } from '@/navigation/utils/navigationActivityOrder';
 import { splitPromotedNavigationActivities } from '@/navigation/utils/promotedNavigationActivities';
 import { useAtom } from 'jotai';
@@ -188,7 +189,7 @@ export const CoreTabAppSwitcher = ({
         <Popover.Trigger asChild>
           <Button
             aria-label={t('open-plugin')}
-            className="size-7 shrink-0"
+            className={coreTabIconClassName(open)}
             size="icon"
             type="button"
             variant="ghost"

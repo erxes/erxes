@@ -90,7 +90,8 @@ it('keeps the side panel below the top bar, beside the workspace, outside the an
   const panel = screen.getByTestId('relation-panel');
   const workspaceRow = panel.parentElement;
   expect(column?.parentElement).toBe(layout);
-  expect(workspaceRow?.parentElement).toBe(column);
+  // The row sits in the app card (inset in the notch layout).
+  expect(workspaceRow?.parentElement?.parentElement).toBe(column);
   expect(workspaceRow?.contains(navigation)).toBe(false);
   expect(workspaceRow?.contains(screen.getByTestId('workspace'))).toBe(true);
   expect(workspaceRow?.className.split(' ')).not.toContain('flex-col');
