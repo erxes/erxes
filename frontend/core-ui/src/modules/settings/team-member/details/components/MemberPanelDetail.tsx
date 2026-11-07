@@ -57,7 +57,8 @@ export const MemberPanelName = ({ userId }: { userId: string }) => {
 
   return (
     <FullNameField
-      scope={`${SCOPE}.name`}
+      key={userId}
+      scope={`${SCOPE}.${userId}.name`}
       firstName={firstName}
       lastName={lastName}
       onValueChange={(nextFirstName, nextLastName) => {

@@ -1,3 +1,5 @@
+import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
+import { CPUserPanelName } from './CPUserPanelName';
 import { IconBell, IconHistory, IconId } from '@tabler/icons-react';
 import { Button, Empty, ScrollArea, Spinner } from 'erxes-ui';
 import { useContext, useMemo, type ReactNode } from 'react';
@@ -50,6 +52,12 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
       cpUser?.email ||
       cpUser?.username ||
       t('detail.title', 'Client portal user');
+  const editableTitle =
+    !isNew && cpUser ? (
+      <CPUserPanelName user={cpUser} fallbackTitle={title} />
+    ) : (
+      title
+    );
   const header = (
     <RecordSidePanel.Header
       className={expanded ? 'h-10 bg-background px-3' : undefined}
@@ -57,7 +65,7 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
         !isNew && expanded ? (
           <ContactPanelBreadcrumb contentType="core:cpUser" title={title} />
         ) : (
-          title
+          editableTitle
         )
       }
       actions={!isNew && cpUser && <CPUserPanelActions user={cpUser} />}
@@ -111,7 +119,7 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
     <PanelRecordContext.Provider value={panelView}>
       <RecordSidePanel.Layout
         header={header}
-        profile={<CPUserPanelProfile />}
+        overviewHeader={<ContactPanelIdentity title={editableTitle} />}
         value={tab}
         onValueChange={setTab}
         tabs={[
@@ -119,7 +127,12 @@ const CPUserPanelBody = ({ record, onBack, onClose }: IRecordViewProps) => {
             value: 'overview',
             label: t('detail.overview', 'Details'),
             icon: IconId,
-            content: scroll(<CPUserDetailFields />),
+            content: scroll(
+              <>
+                <CPUserPanelProfile />
+                <CPUserDetailFields />
+              </>,
+            ),
           },
           {
             value: 'activity',
