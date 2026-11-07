@@ -1,3 +1,4 @@
+import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
 import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { memberCustomActivities } from '@/settings/team-member/details/components/MemberActivityRows';
 import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
@@ -61,8 +62,14 @@ export const MemberDetail = ({
 
   const renderHeading = () => {
     if (!userDetail) {
+      const title = loading ? (
+        <Skeleton className="h-4 w-32" />
+      ) : (
+        t('member-detail')
+      );
       return {
-        title: loading ? <Skeleton className="h-4 w-32" /> : t('member-detail'),
+        title,
+        breadcrumbTitle: title,
         avatar: loading ? (
           <Skeleton className="size-7 flex-none rounded-full" />
         ) : undefined,
@@ -77,6 +84,7 @@ export const MemberDetail = ({
       t('member-detail');
 
     return {
+      breadcrumbTitle: title,
       title: currentUser?.isOwner ? (
         <MemberPanelName userId={userDetail._id} />
       ) : (
@@ -90,6 +98,8 @@ export const MemberDetail = ({
       ),
     };
   };
+
+  const { title, avatar, breadcrumbTitle } = renderHeading();
 
   const renderBody = () => {
     if (loading && !userDetail) {
@@ -205,19 +215,20 @@ export const MemberDetail = ({
         onValueChange={setSelectedTab}
         visibleCount={tabs.length}
         overviewTab={DETAIL_TAB}
+        overviewHeader={<ContactPanelIdentity title={title} avatar={avatar} />}
         expandedDefaultTab="activity"
       />
     );
   };
 
-  const { title, avatar } = renderHeading();
-
   return (
     <>
       <RecordSidePanel.Header
         className={expanded ? 'h-10 bg-background px-3' : undefined}
-        avatar={avatar}
-        title={expanded ? <MemberPanelBreadcrumb title={title} /> : title}
+        avatar={expanded ? undefined : avatar}
+        title={
+          expanded ? <MemberPanelBreadcrumb title={breadcrumbTitle} /> : title
+        }
         actions={userDetail && <MemberPanelActions user={userDetail} />}
         onBack={onBack}
         onClose={onClose}

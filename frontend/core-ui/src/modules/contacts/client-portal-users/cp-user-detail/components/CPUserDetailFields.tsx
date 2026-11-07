@@ -62,8 +62,6 @@ export const CPUserDetailFields = () => {
     );
   }
   const textFields = [
-    ['firstName', 'First name', IconUser],
-    ['lastName', 'Last name', IconUser],
     ['email', 'Email', IconMail],
     ['phone', 'Phone', IconPhone],
     ['username', 'Username', IconAt],
