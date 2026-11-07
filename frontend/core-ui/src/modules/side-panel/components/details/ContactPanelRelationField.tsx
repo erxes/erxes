@@ -1,8 +1,7 @@
-import { IconBuilding, IconUser } from '@tabler/icons-react';
+import { ContactDetailSection } from './ContactDetailSection';
 import { Button, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
-  PanelField,
   useManageRelations,
   usePermissionCheck,
   useRelations,
@@ -11,7 +10,7 @@ import { ContactRelationInput } from './ContactRelationInput';
 
 type TContactType = 'core:customer' | 'core:company';
 
-/** Edits reciprocal contact links in the detail rows, preserving multiple links. */
+/** Edits reciprocal contact links in their own section, preserving multiple links. */
 export const ContactPanelRelationField = ({
   contentType,
   contentId,
@@ -28,7 +27,9 @@ export const ContactPanelRelationField = ({
   const variables = { contentType, contentId, relatedContentType };
   const { relatedIds, loading, error, refetch } = useRelations({ variables });
   const label =
-    kind === 'company' ? t('company', 'Company') : t('customer', 'Customer');
+    kind === 'company'
+      ? t('companies', 'Companies')
+      : t('customers', 'Customers');
   const canEdit = hasActionPermission('contactsUpdate');
   const handleChange = (relatedContentIds: string[]) => {
     manageRelations({ ...variables, relatedContentIds }).catch(() => undefined);
@@ -61,12 +62,5 @@ export const ContactPanelRelationField = ({
   }
   if (loading)
     content = <Spinner containerClassName="h-7 justify-start px-2" size="sm" />;
-  return (
-    <PanelField
-      icon={kind === 'company' ? IconBuilding : IconUser}
-      label={label}
-    >
-      {content}
-    </PanelField>
-  );
+  return <ContactDetailSection title={label}>{content}</ContactDetailSection>;
 };
