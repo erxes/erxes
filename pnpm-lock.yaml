@@ -1165,9 +1165,6 @@ importers:
       graphql-tag:
         specifier: ^2.12.6
         version: 2.12.6(graphql@16.10.0)
-      mongodb:
-        specifier: ^6.18.0
-        version: 6.18.0(socks@2.8.7)
       underscore:
         specifier: ^1.13.7
         version: 1.13.7
