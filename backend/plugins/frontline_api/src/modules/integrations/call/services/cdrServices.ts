@@ -33,6 +33,7 @@ interface ICdrLegTimeParams {
   userfield?: string;
   start?: string;
   end?: string;
+  session?: string;
 }
 
 interface IConversationPayload {
@@ -53,6 +54,7 @@ const findOverlappingLeg = async (
   params: ICdrLegTimeParams,
   primaryPhone: string,
   inboxId: string,
+  peerInboxIds: string[],
 ) => {
   if (!primaryPhone || !belongsToInboundCall(params)) return null;
 
@@ -66,10 +68,23 @@ const findOverlappingLeg = async (
     ? FOLLOWME_OVERLAP_BUFFER_MS
     : LEG_OVERLAP_BUFFER_MS;
 
+  const otherInboxIds = peerInboxIds.filter((peerId) => peerId !== inboxId);
+  const sameCallOnPeer =
+    params.session && otherInboxIds.length
+      ? [
+          {
+            inboxIntegrationId: { $in: otherInboxIds },
+            session: params.session,
+          },
+        ]
+      : [];
+
   return models.CallCdrs.findOne({
-    $or: [{ src: primaryPhone }, { dst: primaryPhone }],
+    $and: [
+      { $or: [{ src: primaryPhone }, { dst: primaryPhone }] },
+      { $or: [{ inboxIntegrationId: inboxId }, ...sameCallOnPeer] },
+    ],
     conversationId: { $exists: true, $ne: '' },
-    inboxIntegrationId: inboxId,
     start: { $lte: new Date(legEnd.getTime() + bufferMs) },
     end: { $gte: new Date(legStart.getTime() - bufferMs) },
   }).sort({ start: -1 });
@@ -159,6 +174,7 @@ const processCdrLocked = async (
   });
 
   const peers = await findPeerIntegrations(models, integration);
+  const peerInboxIds = peers.map((peer) => peer.inboxId);
   const { match: operatorMatch, extension: operatorExtension } =
     matchCdrOperator(peers, params);
   const operatorUserId = operatorMatch?.operator.userId;
@@ -217,7 +233,7 @@ const processCdrLocked = async (
     const existingCdr = await models.CallCdrs.findOne({
       uniqueid: { $in: cdrUniqueids },
       conversationId: { $exists: true, $ne: '' },
-      inboxIntegrationId: inboxId,
+      inboxIntegrationId: { $in: peerInboxIds },
     }).sort({ createdAt: 1 });
 
     if (existingCdr?.conversationId) {
@@ -234,6 +250,7 @@ const processCdrLocked = async (
       params,
       primaryPhone,
       inboxId,
+      peerInboxIds,
     );
 
     if (overlappingCdr?.conversationId) {
@@ -248,6 +265,7 @@ const processCdrLocked = async (
   if (!conversationId && belongsToInboundCall(params)) {
     const siblingSession = await models.CallSessions.findSibling({
       inboxIntegrationId: inboxId,
+      peerInboxIds,
       customerPhone: primaryPhone,
       excludeUniqueid: params.uniqueid,
     });
