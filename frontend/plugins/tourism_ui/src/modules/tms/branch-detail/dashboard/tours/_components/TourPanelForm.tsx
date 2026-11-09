@@ -51,6 +51,8 @@ import {
   TourPricingOptionsField,
 } from './TourFormFields';
 import { SelectTourCategory } from './SelectTourCategory';
+import { TMS_TOUR_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 const TOUR_STATUS_OPTIONS = [
   { value: 'draft', label: 'Draft' },
@@ -216,6 +218,7 @@ export const useTourPanelForm = ({
     resolver: zodResolver(TourCreateFormSchema),
     defaultValues: buildTourFormDefaults(isNew),
   });
+  useTourismDraftValues(TMS_TOUR_CONTENT_TYPE, form, isNew);
 
   useFieldArray({ control: form.control, name: 'translations' });
 

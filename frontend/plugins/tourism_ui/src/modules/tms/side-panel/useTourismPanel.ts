@@ -1,16 +1,25 @@
 import { useCallback, useMemo } from 'react';
+import { useSetAtom } from 'jotai';
 import { matchPath, useLocation } from 'react-router-dom';
-import { IOpenRecordOptions, useSidePanel, useSidePanelDraft } from 'ui-modules';
+import {
+  IOpenRecordOptions,
+  useSidePanel,
+  useSidePanelDraft,
+} from 'ui-modules';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { ITourismPanelDraftDefaults } from '@/tms/side-panel/tourismPanelTypes';
+import { tourismDraftValuesState } from '@/tms/side-panel/useTourismDraftValues';
 
 export const useTourismPanel = (contentType: string) => {
   const { openNewRecord, openRecord, close, back, canGoBack } = useSidePanel();
+  const setDraftValues = useSetAtom(tourismDraftValuesState);
 
   const openDraft = useCallback(
-    (defaults: ITourismPanelDraftDefaults = {}) =>
-      openNewRecord(contentType, defaults),
-    [openNewRecord, contentType],
+    (defaults: ITourismPanelDraftDefaults = {}) => {
+      setDraftValues((previous) => ({ ...previous, [contentType]: undefined }));
+      openNewRecord(contentType, defaults);
+    },
+    [openNewRecord, contentType, setDraftValues],
   );
 
   const openDetail = useCallback(

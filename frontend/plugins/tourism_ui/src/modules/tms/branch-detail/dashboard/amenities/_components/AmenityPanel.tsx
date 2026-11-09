@@ -35,6 +35,7 @@ import {
   sanitizeAmenityTranslations,
 } from '../utils/translationHelpers';
 import { AmenityIconField, AmenityNameField } from './AmenityFormFields';
+import { useTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 interface AmenityPanelFormProps {
   amenity?: IAmenity;
@@ -87,6 +88,7 @@ const AmenityPanelForm = ({
           translations: buildEmptyAmenityTranslations(translationLanguages),
         },
   });
+  useTourismDraftValues(TMS_AMENITY_CONTENT_TYPE, form, !amenity);
 
   useFieldArray({
     control: form.control,
