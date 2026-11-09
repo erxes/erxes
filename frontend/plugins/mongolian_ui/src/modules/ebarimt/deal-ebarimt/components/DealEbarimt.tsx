@@ -184,7 +184,7 @@ export const DealEbarimt = ({ contentId }: { contentId: string }) => {
                   variant="ghost"
                   size="icon"
                   aria-label={t('print-receipt')}
-                  disabled={!putResponse.id}
+                  disabled={!putResponse.id || !isActive(putResponse)}
                   onClick={() => handlePrint([putResponse])}
                 >
                   <IconPrinter />

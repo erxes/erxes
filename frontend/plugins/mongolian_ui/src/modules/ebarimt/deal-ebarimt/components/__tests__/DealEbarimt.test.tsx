@@ -165,6 +165,11 @@ describe('DealEbarimt', () => {
     ).toBeTruthy();
     expect(screen.getByText('ebarimt-responses-count:2')).toBeTruthy();
     expect(screen.getByText('inactive')).toBeTruthy();
+    const [activePrint, inactivePrint] = screen.getAllByLabelText(
+      'print-receipt',
+    ) as HTMLButtonElement[];
+    expect(activePrint.disabled).toBe(false);
+    expect(inactivePrint.disabled).toBe(true);
     expect(screen.getAllByText('110,000.00')).toHaveLength(2);
 
     fireEvent.click(screen.getByText('print-receipt'));
@@ -199,6 +204,40 @@ describe('DealEbarimt', () => {
       }),
     );
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:receipt');
+  });
+
+  it('prints markup typed into a product name as plain text', async () => {
+    window.open = jest.fn(() => ({} as Window));
+
+    renderWidget([
+      timezoneMock,
+      putResponsesMock([
+        putResponse({
+          customerName: '<b>Бат</b>',
+          qrData: "x'</script><script>alert(1)</script>",
+          receipts: [
+            {
+              items: [
+                {
+                  name: '<img src=x onerror=alert(1)>',
+                  qty: 1,
+                  unitPrice: 110000,
+                  totalAmount: 110000,
+                },
+              ],
+            },
+          ],
+        }),
+      ]),
+    ]);
+
+    fireEvent.click(await screen.findByText('print-receipt'));
+
+    const html = await readReceipt(createObjectURL.mock.calls[0][0]);
+    expect(html).toContain('&lt;img src=x onerror=alert(1)&gt;');
+    expect(html).toContain('Нэр: &lt;b&gt;Бат&lt;/b&gt;');
+    expect(html).not.toContain('<img src=x');
+    expect(html).not.toContain('</script><script>alert(1)');
   });
 
   it('shows the failed receipt message and keeps it out of the print', async () => {
