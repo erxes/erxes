@@ -6,7 +6,7 @@
 - **Project:** `mongolian_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/mongolian_api`
-- **Last synchronized:** `2026-11-03`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -77,6 +77,9 @@
 - Other plugin-owned collections include `mongolian_configs`, `putresponses`, `ebarimt_product_rules`, `ebarimt_product_groups`, `syncerkhet_synclogs`, `msdynamics_synclogs`, and `msdynamics_customer_relation`.
 
 ## Local Invariants
+
+- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
+  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - Deal contacts for ebarimt, erkhet and product places come from `getDealContactIds` (`modules/ebarimt/utils/dealContacts.ts`): the deal's own `customerId` / `companyId` (a list of at most one); given only the deal id, the deal is read from sales `deal.findOne`. No relations are read.
 - eBarimt bill-type mappings accept `regNoField` / `companyNameField` and legacy `regNo` / `companyName` keys; `basic` mappings read deal fields and other mappings read `propertiesData`. An explicit B2C selection takes precedence over the linked company.

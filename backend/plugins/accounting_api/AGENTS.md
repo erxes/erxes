@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -159,6 +159,9 @@
 - Fixed asset owner records generated from transactions must assign a per-fixed-asset fallback sequence when the source row omits one so legacy databases with a unique `fixedAssetId + sequence` index do not reject multiple unsequenced owner rows.
 
 ## Local Invariants
+
+- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
+  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - Adjustment subscription channels are tenant-scoped as `accountingAdjust{Inventory|FixedAsset|FundRate|DebtRate}Changed:${subdomain}:${adjustId}`; `src/apollo/subscription.ts` reads `subdomain` from the subscription context and every publisher must use the same shape. Inventory `modifierWrapper(subdomain, models, adjust, modifier)` publishes the document saved by `updateAdjustInventory`, never the stale object a run started with.
 - Mongoose `loadClass` model classes made only of statics carry a `// skipcq: JS-0327` directive, as other plugins do; inventory costing aggregation filters are typed `FilterQuery<ITransactionDocument>` with `PipelineStage[]` stages instead of `any`.

@@ -180,6 +180,9 @@
 
 ## Local Invariants
 
+- Development `rspack.config.ts` watch ignores `__tests__` directories and
+  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
+
 - Settings config tables (eBarimt and product places) show an empty list with
   the shared `SettingsEmptyState` (`src/modules/shared/components`, built on
   the `erxes-ui` `Empty` state) and no add button inside the table; the add

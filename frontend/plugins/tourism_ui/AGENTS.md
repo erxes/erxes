@@ -6,7 +6,7 @@
 - **Project:** `tourism_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/tourism_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -71,6 +71,9 @@
 - Static assets are owned under `src/assets`.
 
 ## Local Invariants
+
+- Development `rspack.config.ts` watch ignores `__tests__` directories and
+  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - The plugin owns its whole app sidebar. `src/modules/main/Main.tsx` (the `./tourism`
 - A saved tour is edited through `TourPanelEditForm` with a `section`: Detail shows general information, content, duration, dates and crew; the `pricing` tab shows pricing options; the `media` tab shows thumbnail, images, attachments and the info sections. Every section loads the whole tour and saves the whole form, and a validation error on a field hidden in another section shows a toast with its message. New tours keep every section in one form (`section="all"`). Dates and crew use the panel row layout too: `TourDateSchedulingField` renders flexible/group switches and date pickers as `PanelFormRow`s (switch labels drop their parenthetical hint, kept as the `title`), and `TourGuidesField` lists crew as role · member · remove rows with a ghost add button, without cards or uppercase labels.

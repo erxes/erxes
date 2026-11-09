@@ -6,7 +6,7 @@
 - **Project:** `posclient_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/posclient_api`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -200,6 +200,9 @@
 - Worker startup removes the legacy `posclient-hourly-sync-remainder` scheduler from `posclient-sync-remainder` and cleans failed jobs from both remainder queues. Scheduler and tenant jobs are removed on completion or terminal failure. A job with missing, non-string, or blank tenant data completes with `{ skipped: true, reason: 'missing-subdomain' }` before model access; its warning includes job ID, name, and repeat key. Valid tenant sync errors still propagate. Queue metadata remains while the queues are in use.
 
 ## Local Invariants
+
+- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
+  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - POS pricing sends an order's `createdAt` as loyalty `pricing.checkPricing.date`.
   Order edits use the stored creation date, never a client replacement;

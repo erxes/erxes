@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -89,6 +89,9 @@
   transactions, payment methods.
 
 ## Local Invariants
+
+- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
+  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - The plugin sends no email of its own; paid-invoice notifications are the
   owning plugin's job via the `callback` worker job.

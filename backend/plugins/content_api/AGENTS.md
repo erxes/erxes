@@ -6,7 +6,7 @@
 - **Project:** `content_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/content_api`
-- **Last synchronized:** `2026-11-02`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -63,6 +63,9 @@
 - `webs.texts` is a Mixed field: string values or nested objects. Older webs may lack it.
 
 ## Local Invariants
+
+- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
+  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - A site's default language comes from `getCmsDefaultLanguage` in `src/modules/cms/utils/common.ts`: the stored `language`, then the first entry of `languages`. Base document fields hold that language and `Translations` hold the others, so mutations and language permissions must all use it. `content_ui` resolves it the same way.
 - When `language` is unset the default is only implied, and older data can hold a row in it. Reads apply a saved row and otherwise use the base fields (`shouldSkipTranslation`). Edits go through `getCmsSaveLanguages`, which writes to that row when one exists and skips any `translations` entry for the saved language, so a save is never masked. Language-filtered reads filter only on an explicit default. Keep all of this scoped to sites with no `language`: on an explicit site a row in the default is stale and stays ignored.
