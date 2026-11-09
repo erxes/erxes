@@ -1557,6 +1557,14 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   carry visitors' emails, phones and custom data.
   `cpWidgetsSaveLead` delegates to `widgetsSaveLead` for the same validation,
   guarded persistence and customer mapping, with its own client-portal wrapper.
+- `widgetsSaveLead` matches the cached customer first unless `clearCacheAfterSave`
+  is enabled. With `saveAsCustomer` or `clearCacheAfterSave`, a missing match falls
+  through to email, then phone, using core's supported selectors before creating
+  a customer. A valid earlier match keeps priority; lead-only forms without
+  cache clearing do not match by contact details.
+- Successful form submissions publish the existing inbox message event after
+  answers commit, so channel members see the registration without refreshing.
+  Publication failure must not turn a saved registration into a failed submit.
 - The widget API has no endpoint that sends email to caller-chosen recipients
   or with caller-chosen content (`widgetsSendEmail` was removed as an open
   relay). Any widget email goes to the session's own customer with server-side
@@ -1796,6 +1804,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Validation
 
+- Submit a customer-saving form with an existing phone and a different email,
+  then with a stale cached customer ID. Both must reuse the matching customer
+  and save the answers plus an inbox conversation under the form's integration.
+  An open inbox updates without refreshing; rejected submissions publish no inbox event.
 - `pnpm nx test frontline_api` (`src/meta/__tests__/builderConfigContract.test.ts`: action schemas accept every config in the neighbouring `builderActionConfigs.json`, which the builder wrote)
 - `pnpm nx test frontline_api` (`src/meta/__tests__/automationConfigSchemas.test.ts`)
 - `pnpm nx test frontline_api` (`src/modules/inbox/services/__tests__/storeDispatchedMessage.test.ts`: content priority, Facebook delivery trimming, forwarded snapshot on the first Instagram part only, ordered multipart storage and publish)
