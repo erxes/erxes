@@ -36,6 +36,9 @@ export const TOURISM_NEW_RECORD_TYPES = new Set([
   TMS_CUSTOM_FIELD_CONTENT_TYPE,
 ]);
 
+export const getTourismRouteBranchId = (pathname: string) =>
+  TMS_BRANCH_PAGE.exec(pathname)?.[1] ?? '';
+
 export const toTourismContentType = (recordType: string) =>
   `${TOURISM_CONTENT_TYPE_PREFIX}${recordType}`;
 

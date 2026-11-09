@@ -8,7 +8,15 @@ import {
   useTourismDraftValues,
 } from '../useTourismDraftValues';
 
+let mockPathname = '';
+
+jest.mock('react-router-dom', () => ({
+  useLocation: () => ({ pathname: mockPathname }),
+}));
+
 const CONTENT_TYPE = 'tourism:tmsTour';
+const BRANCH_ID = 'branch-a';
+const SAVED_ENTRY = { branchId: BRANCH_ID, values: { name: 'Saved' } };
 
 interface IDraftValues {
   name: string;
@@ -21,9 +29,10 @@ const createWrapper =
   ({ children }: { children: ReactNode }) =>
     <Provider store={store}>{children}</Provider>;
 
-const renderDraftForm = (store: TStore, isNew = true) =>
+const renderDraftForm = (store: TStore, isNew = true, branchId = BRANCH_ID) =>
   renderHook(
     () => {
+      mockPathname = `/tourism/tms/branches/${branchId}/records/tmsTour/new`;
       const form = useForm<IDraftValues>({ defaultValues: { name: '' } });
       useTourismDraftValues(CONTENT_TYPE, form, isNew);
       return form;
@@ -32,16 +41,25 @@ const renderDraftForm = (store: TStore, isNew = true) =>
   );
 
 describe('useTourismDraftValues', () => {
-  it('restores saved values into a new form', () => {
+  it('restores saved values into a new form of the same branch', () => {
     const store = createStore();
-    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: { name: 'Saved' } });
+    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
     const { result } = renderDraftForm(store);
 
     expect(result.current.getValues('name')).toBe('Saved');
   });
 
-  it('keeps typed values for the content type', () => {
+  it('does not restore values saved in another branch', () => {
+    const store = createStore();
+    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
+
+    const { result } = renderDraftForm(store, true, 'branch-b');
+
+    expect(result.current.getValues('name')).toBe('');
+  });
+
+  it('keeps typed values with their branch', () => {
     const store = createStore();
     const { result } = renderDraftForm(store);
 
@@ -50,13 +68,14 @@ describe('useTourismDraftValues', () => {
     });
 
     expect(store.get(tourismDraftValuesState)[CONTENT_TYPE]).toEqual({
-      name: 'Typed',
+      branchId: BRANCH_ID,
+      values: { name: 'Typed' },
     });
   });
 
   it('does not restore values after they are cleared', () => {
     const store = createStore();
-    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: { name: 'Saved' } });
+    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
     const { result: clear } = renderHook(() => useClearTourismDraftValues(), {
       wrapper: createWrapper(store),
@@ -73,10 +92,18 @@ describe('useTourismDraftValues', () => {
 
   it('leaves saved records untouched', () => {
     const store = createStore();
-    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: { name: 'Saved' } });
+    store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
     const { result } = renderDraftForm(store, false);
 
     expect(result.current.getValues('name')).toBe('');
+
+    act(() => {
+      result.current.setValue('name', 'Edited');
+    });
+
+    expect(store.get(tourismDraftValuesState)[CONTENT_TYPE]).toEqual(
+      SAVED_ENTRY,
+    );
   });
 });

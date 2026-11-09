@@ -1,8 +1,17 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
+import { useLocation } from 'react-router-dom';
 import { atom, useSetAtom, useStore } from 'jotai';
+import { getTourismRouteBranchId } from '@/tms/side-panel/tourismRecordPage';
 
-export const tourismDraftValuesState = atom<Record<string, unknown>>({});
+interface ITourismDraftEntry {
+  branchId: string;
+  values: unknown;
+}
+
+export const tourismDraftValuesState = atom<Record<string, ITourismDraftEntry>>(
+  {},
+);
 
 export const useClearTourismDraftValues = () => {
   const setDraftValues = useSetAtom(tourismDraftValuesState);
@@ -27,6 +36,8 @@ export const useTourismDraftValues = <T extends FieldValues>(
 ) => {
   const store = useStore();
   const setDraftValues = useSetAtom(tourismDraftValuesState);
+  const { pathname } = useLocation();
+  const branchId = getTourismRouteBranchId(pathname);
   const restored = useRef(false);
 
   useEffect(() => {
@@ -35,18 +46,21 @@ export const useTourismDraftValues = <T extends FieldValues>(
     restored.current = true;
     const saved = store.get(tourismDraftValuesState)[contentType];
 
-    if (saved) {
-      form.reset(saved as T);
+    if (saved?.values && saved.branchId === branchId) {
+      form.reset(saved.values as T);
     }
-  }, [isNew, contentType, form, store]);
+  }, [isNew, contentType, branchId, form, store]);
 
   useEffect(() => {
     if (!isNew) return undefined;
 
     const subscription = form.watch((values) =>
-      setDraftValues((previous) => ({ ...previous, [contentType]: values })),
+      setDraftValues((previous) => ({
+        ...previous,
+        [contentType]: { branchId, values },
+      })),
     );
 
     return () => subscription.unsubscribe();
-  }, [isNew, contentType, form, setDraftValues]);
+  }, [isNew, contentType, branchId, form, setDraftValues]);
 };
