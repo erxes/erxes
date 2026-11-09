@@ -1,26 +1,18 @@
 /** @jest-environment jsdom */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { createStore, Provider } from 'jotai';
 import type { PropsWithChildren } from 'react';
+import { agentPanelModeState } from '@/agent/states/agentPanelStates';
+import { globalSidebarToolState } from '@/global-sidebar/states/globalSidebarState';
 import { AssistantPanel } from '../AssistantPanel';
 
-let mockPath: string | null = null;
 let mockAllowed = true;
 let mockMounts = 0;
-const mockClose = jest.fn();
 jest.mock('ui-modules', () => {
-  const { atom } = jest.requireActual<typeof import('jotai')>('jotai');
   return {
-    SIDE_PANEL_CHAT_PATH: '/chat',
-    sidePanelWidthState: atom(400),
     usePermissionCheck: () => ({
       isLoaded: true,
       hasActionPermission: () => mockAllowed,
-    }),
-    useSidePanel: () => ({
-      path: mockPath,
-      open: !!mockPath,
-      close: mockClose,
     }),
     RecordSidePanel: ({
       children,
@@ -94,26 +86,20 @@ jest.mock('../SidePanelChat', () => {
 beforeEach(() => {
   localStorage.clear();
   window.innerWidth = 1600;
-  mockPath = null;
   mockAllowed = true;
   mockMounts = 0;
-  mockClose.mockClear();
 });
 
-it('opens as Lens, switches to Companion without remounting, and preserves the draft while hidden', async () => {
+it('opens from the global sidebar as Lens, switches to Companion without remounting, and preserves the draft while hidden', async () => {
   const store = createStore();
-  const { rerender } = render(
+  store.set(agentPanelModeState, 'lens');
+  render(
     <Provider store={store}>
       <AssistantPanel />
     </Provider>,
   );
   expect(screen.queryByTestId('panel')).toBeNull();
-  mockPath = '/chat';
-  rerender(
-    <Provider store={store}>
-      <AssistantPanel />
-    </Provider>,
-  );
+  act(() => store.set(globalSidebarToolState, 'assistant'));
   await screen.findByTestId('chat');
   expect(screen.getByTestId('chat').getAttribute('data-mode')).toBe('lens');
   expect(screen.getByTestId('panel').style.width).toBe('440px');
@@ -125,16 +111,11 @@ it('opens as Lens, switches to Companion without remounting, and preserves the d
   expect(screen.getByTestId('chat').getAttribute('data-mode')).toBe(
     'companion',
   );
-  expect(screen.getByTestId('panel').style.width).toBe('400px');
+  expect(screen.getByTestId('panel').style.width).toBe('440px');
   expect(localStorage.getItem('agent:panel-mode')).toBe('"companion"');
   fireEvent.click(screen.getByRole('button', { name: 'Resize panel' }));
   expect(screen.getByTestId('panel').style.width).toBe('1000px');
-  mockPath = null;
-  rerender(
-    <Provider store={store}>
-      <AssistantPanel />
-    </Provider>,
-  );
+  act(() => store.set(globalSidebarToolState, null));
   expect(
     screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
   ).toBe('true');
@@ -142,21 +123,7 @@ it('opens as Lens, switches to Companion without remounting, and preserves the d
     true,
   );
   expect(screen.getByTestId('chat').getAttribute('data-active')).toBe('false');
-  mockPath = '/detail/customer/c1';
-  rerender(
-    <Provider store={store}>
-      <AssistantPanel />
-    </Provider>,
-  );
-  expect(
-    screen.getByTestId('panel').parentElement?.getAttribute('aria-hidden'),
-  ).toBe('true');
-  mockPath = '/chat';
-  rerender(
-    <Provider store={store}>
-      <AssistantPanel />
-    </Provider>,
-  );
+  act(() => store.set(globalSidebarToolState, 'assistant'));
   expect((screen.getByRole('textbox') as HTMLInputElement).value).toBe(
     'Keep this draft',
   );
@@ -176,12 +143,12 @@ it('opens as Lens, switches to Companion without remounting, and preserves the d
   );
   expect(mockMounts).toBe(1);
   fireEvent.click(screen.getByRole('button', { name: 'Close assistant' }));
-  expect(mockClose).toHaveBeenCalledTimes(1);
+  expect(store.get(globalSidebarToolState)).toBeNull();
 });
 
 it('reserves space for the page in Companion and restores the preferred width', async () => {
   localStorage.setItem('agent:panel-mode', '"companion"');
-  mockPath = '/chat';
+  localStorage.setItem('erxes:global-sidebar-tool', '"assistant"');
   render(<AssistantPanel />);
   await screen.findByTestId('chat');
   fireEvent.click(screen.getByRole('button', { name: 'Resize panel' }));
@@ -195,7 +162,7 @@ it('reserves space for the page in Companion and restores the preferred width', 
 });
 
 it('never mounts chat without permission', () => {
-  mockPath = '/chat';
+  localStorage.setItem('erxes:global-sidebar-tool', '"assistant"');
   mockAllowed = false;
   render(<AssistantPanel />);
   expect(screen.queryByTestId('panel')).toBeNull();

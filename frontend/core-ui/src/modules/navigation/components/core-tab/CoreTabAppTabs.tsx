@@ -10,11 +10,13 @@ import {
 import {
   restrictToHorizontalAxis,
   restrictToParentElement,
+  restrictToVerticalAxis,
 } from '@dnd-kit/modifiers';
 import {
   SortableContext,
   horizontalListSortingStrategy,
   useSortable,
+  verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import {
   IconApps,
@@ -27,11 +29,13 @@ import { useCallback, useEffect, useRef } from 'react';
 
 import { CSS } from '@dnd-kit/utilities';
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
+import type { CoreTabOrientation } from '@/navigation/components/core-tab/CoreTab';
 import { useTranslation } from 'react-i18next';
 
 const CoreTabAppTab = ({
   activity,
   active,
+  vertical,
   canCloseOthers,
   canCloseToRight,
   onClose,
@@ -41,6 +45,7 @@ const CoreTabAppTab = ({
 }: Readonly<{
   activity: INavigationActivity;
   active: boolean;
+  vertical: boolean;
   canCloseOthers: boolean;
   canCloseToRight: boolean;
   onClose: () => void;
@@ -92,10 +97,12 @@ const CoreTabAppTab = ({
           }
           data-active={active}
           className={cn(
-            'group/tab flex h-7 min-w-24 max-w-48 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
-            'group-data-[notch=true]/layout:text-primary-foreground/80 group-data-[notch=true]/layout:hover:bg-primary-foreground/15 group-data-[notch=true]/layout:hover:text-primary-foreground',
+            'group/tab flex h-7 shrink-0 cursor-default items-center gap-1.5 rounded-md border border-transparent pr-1 pl-2.5 text-sm font-medium text-muted-foreground transition-[background-color,border-color,box-shadow,color,opacity] select-none hover:bg-accent/70 hover:text-foreground',
+            'dark:group-data-[framed=true]/layout:text-primary-foreground/80 dark:group-data-[framed=true]/layout:hover:bg-primary-foreground/15 dark:group-data-[framed=true]/layout:hover:text-primary-foreground',
             'data-[active=true]:border-border data-[active=true]:bg-background data-[active=true]:text-foreground data-[active=true]:shadow-xs',
-            'group-data-[notch=true]/layout:data-[active=true]:border-transparent group-data-[notch=true]/layout:data-[active=true]:bg-background group-data-[notch=true]/layout:data-[active=true]:text-foreground',
+            'group-data-[framed=true]/layout:data-[active=true]:border-transparent group-data-[framed=true]/layout:data-[active=true]:bg-background group-data-[framed=true]/layout:data-[active=true]:text-foreground',
+            // The vertical rail shows icons only; the label is in the title.
+            vertical ? 'size-8 justify-center px-0' : 'min-w-24 max-w-48',
             isDragging && 'z-10 opacity-60',
           )}
           style={{ transform: CSS.Transform.toString(transform), transition }}
@@ -118,33 +125,37 @@ const CoreTabAppTab = ({
           <span className="relative size-4 shrink-0">
             <Icon
               className={cn(
-                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0 group-data-[notch=true]/layout:text-current',
-                active && 'text-primary group-data-[notch=true]/layout:text-primary',
+                'size-4 text-muted-foreground transition-opacity group-hover/tab:opacity-0 dark:group-data-[framed=true]/layout:text-current',
+                active &&
+                  'text-primary dark:group-data-[framed=true]/layout:text-primary',
                 isDragging && 'opacity-0',
               )}
             />
             <IconGripVertical
               aria-hidden
               className={cn(
-                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100 group-data-[notch=true]/layout:text-current',
+                'absolute inset-0 size-4 text-muted-foreground opacity-0 transition-opacity group-hover/tab:opacity-100 dark:group-data-[framed=true]/layout:text-current',
                 isDragging && 'opacity-100',
               )}
             />
           </span>
-          <span className="min-w-0 flex-1 truncate">{activity.label}</span>
-          {activity.platformMismatch && (
+          {!vertical && (
+            <span className="min-w-0 flex-1 truncate">{activity.label}</span>
+          )}
+          {!vertical && activity.platformMismatch && (
             <span
               aria-label={activity.platformMismatch}
               className="size-1.5 shrink-0 rounded-full bg-amber-500"
             />
           )}
           <Button
+            hidden={vertical}
             aria-label={closeLabel}
             className={cn(
               'size-5 shrink-0 rounded text-muted-foreground opacity-0 transition-[background-color,opacity] hover:bg-accent hover:text-foreground group-hover/tab:opacity-100 group-focus-within/tab:opacity-100',
-              'group-data-[notch=true]/layout:text-current group-data-[notch=true]/layout:hover:bg-primary-foreground/15',
+              'dark:group-data-[framed=true]/layout:text-current dark:group-data-[framed=true]/layout:hover:bg-primary-foreground/15',
               active &&
-                'opacity-100 group-data-[notch=true]/layout:text-muted-foreground group-data-[notch=true]/layout:hover:bg-accent group-data-[notch=true]/layout:hover:text-foreground',
+                'opacity-100 dark:group-data-[framed=true]/layout:text-muted-foreground dark:group-data-[framed=true]/layout:hover:bg-accent dark:group-data-[framed=true]/layout:hover:text-foreground',
             )}
             size="icon"
             title={closeLabel}
@@ -171,7 +182,9 @@ const CoreTabAppTab = ({
         </ContextMenu.Item>
         <ContextMenu.Item disabled={!canCloseToRight} onSelect={onCloseToRight}>
           <IconArrowBarToRight />
-          {t('close-tabs-to-right', 'Close tabs to the right')}
+          {vertical
+            ? t('close-tabs-below', 'Close tabs below')
+            : t('close-tabs-to-right', 'Close tabs to the right')}
         </ContextMenu.Item>
       </ContextMenu.Content>
     </ContextMenu>
@@ -181,6 +194,7 @@ const CoreTabAppTab = ({
 /** Browser-like app tabs: click to switch, × or middle click to close, drag to reorder. */
 export const CoreTabAppTabs = ({
   activeTabId,
+  orientation = 'horizontal',
   tabs,
   onClose,
   onCloseOthers,
@@ -189,6 +203,7 @@ export const CoreTabAppTabs = ({
   onSelect,
 }: Readonly<{
   activeTabId?: string;
+  orientation?: CoreTabOrientation;
   tabs: INavigationActivity[];
   onClose: (tabId: string) => void;
   onCloseOthers: (tabId: string) => void;
@@ -197,6 +212,7 @@ export const CoreTabAppTabs = ({
   onSelect: (tabId: string) => void;
 }>) => {
   const { t } = useTranslation('common', { keyPrefix: 'navigation' });
+  const vertical = orientation === 'vertical';
   const sensors = useSensors(
     useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
     useSensor(TouchSensor, {
@@ -219,24 +235,36 @@ export const CoreTabAppTabs = ({
     <DndContext
       autoScroll={false}
       collisionDetection={closestCenter}
-      modifiers={[restrictToHorizontalAxis, restrictToParentElement]}
+      modifiers={[
+        vertical ? restrictToVerticalAxis : restrictToHorizontalAxis,
+        restrictToParentElement,
+      ]}
       sensors={sensors}
       onDragEnd={handleDragEnd}
     >
       <div
         role="tablist"
         aria-label={t('plugins')}
-        className="hide-scroll flex min-w-0 flex-1 items-center gap-1 overflow-x-auto"
+        aria-orientation={orientation}
+        className={cn(
+          'hide-scroll flex min-w-0 flex-1 items-center gap-1',
+          vertical ? 'min-h-0 flex-col overflow-y-auto' : 'overflow-x-auto',
+        )}
       >
         <SortableContext
           items={tabs.map((tab) => tab.id)}
-          strategy={horizontalListSortingStrategy}
+          strategy={
+            vertical
+              ? verticalListSortingStrategy
+              : horizontalListSortingStrategy
+          }
         >
           {tabs.map((tab, index) => (
             <CoreTabAppTab
               key={tab.id}
               activity={tab}
               active={tab.id === activeTabId}
+              vertical={vertical}
               canCloseOthers={tabs.length > 1}
               canCloseToRight={index < tabs.length - 1}
               onClose={() => onClose(tab.id)}

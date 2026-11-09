@@ -13,7 +13,6 @@ import { useAtom, useAtomValue } from 'jotai';
 import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { AssistantPanel } from '@/side-panel/components/chat/AssistantPanel';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
 import { ContactPanelPermission } from '@/side-panel/components/ContactPanelPermission';
 import {
@@ -709,6 +708,7 @@ export const SidePanelLayout = () => {
     <>
       {/* Links saved while records still expanded in place. */}
       {recordPage && expanded && <Navigate to={recordPage} replace />}
+      {/* `/chat` is handed to the global sidebar; never render it here. */}
       {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
         <RecordSidePanel
           key="record"
@@ -741,7 +741,6 @@ export const SidePanelLayout = () => {
           {renderRoute()}
         </RecordSidePanel>
       )}
-      <AssistantPanel />
     </>
   );
 };

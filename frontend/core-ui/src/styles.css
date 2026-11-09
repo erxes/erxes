@@ -594,3 +594,101 @@
   from { opacity: 0; transform: translateY(4px) scale(0.96); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
+
+/* Framed layouts: seasonal frame motion, only in the frame, never for reduced motion. */
+.frame-fill {
+  background: var(--frame-light);
+}
+.dark .frame-fill {
+  background: var(--frame-dark);
+}
+.frame-glow {
+  position: absolute;
+  width: 45vmax;
+  height: 45vmax;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.4;
+  will-change: transform;
+}
+.frame-glow-violet {
+  top: -15vmax;
+  left: -15vmax;
+  background: oklch(0.55 0.25 295);
+}
+.frame-glow-cyan {
+  bottom: -20vmax;
+  left: -10vmax;
+  background: oklch(0.6 0.15 220);
+}
+.frame-glow-pink {
+  top: 20vh;
+  right: -20vmax;
+  background: oklch(0.55 0.22 340);
+}
+.frame-particle {
+  display: none;
+  position: absolute;
+  top: -12px;
+  width: var(--particle-size);
+  height: var(--particle-size);
+}
+.frame-snow {
+  border-radius: 9999px;
+  background: oklch(0.72 0.07 240 / 0.8);
+}
+.frame-petal {
+  border-radius: 80% 0 80% 0;
+  background: oklch(0.7 0.15 355 / 0.75);
+}
+.dark .frame-glow {
+  opacity: 0.75;
+}
+.dark .frame-snow {
+  background: rgb(255 255 255 / 0.75);
+  box-shadow: 0 0 4px rgb(255 255 255 / 0.5);
+}
+.dark .frame-petal {
+  background: oklch(0.82 0.1 355 / 0.8);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .frame-glow-violet {
+    animation: frame-drift-a 14s ease-in-out infinite alternate;
+  }
+  .frame-glow-cyan {
+    animation: frame-drift-b 18s ease-in-out infinite alternate;
+  }
+  .frame-glow-pink {
+    animation: frame-drift-c 16s ease-in-out infinite alternate;
+  }
+  .frame-particle {
+    display: block;
+    animation-name: frame-fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  .frame-petal {
+    animation-name: frame-petal-fall;
+  }
+}
+@keyframes frame-drift-a {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(70vw, 60vh, 0); }
+}
+@keyframes frame-drift-b {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(60vw, -70vh, 0); }
+}
+@keyframes frame-drift-c {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-70vw, 30vh, 0); }
+}
+@keyframes frame-fall {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(24px, 105vh, 0); }
+}
+@keyframes frame-petal-fall {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(-18px, 52vh, 0) rotate(160deg); }
+  to { transform: translate3d(14px, 105vh, 0) rotate(320deg); }
+}

@@ -33,6 +33,12 @@ const SettingsMyActivity = lazy(() =>
   })),
 );
 
+const SettingsAppearance = lazy(() =>
+  import('~/pages/settings/account/AppearancePage').then((module) => ({
+    default: module.SettingsAppearancePage,
+  })),
+);
+
 const SettingsChangePassword = lazy(() =>
   import('~/pages/settings/account/ChangePasswordPage').then((module) => ({
     default: module.ChangePasswordPage,
@@ -119,11 +125,11 @@ const BrandsSettingsRoutes = lazy(() =>
 );
 
 const AutomationSettingsRoutes = lazy(() =>
-  import('@/automations/components/settings/components/AutomationSettingsRoutes').then(
-    (module) => ({
-      default: module.AutomationSettingsRoutes,
-    }),
-  ),
+  import(
+    '@/automations/components/settings/components/AutomationSettingsRoutes'
+  ).then((module) => ({
+    default: module.AutomationSettingsRoutes,
+  })),
 );
 
 const PropertiesSettingsRoutes = lazy(() =>
@@ -196,6 +202,10 @@ export function SettingsRoutes() {
         <Route
           path={SettingsPath.MyActivity}
           element={<SettingsMyActivity />}
+        />
+        <Route
+          path={SettingsPath.Appearance}
+          element={<SettingsAppearance />}
         />
         <Route
           path={SettingsPath.NotificationCatchAll}

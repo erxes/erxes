@@ -3,6 +3,7 @@ import {
   IEmailSignature,
   ILink,
   IUser,
+  IUserAppearance,
   Resolver,
 } from 'erxes-api-shared/core-types';
 import {
@@ -443,6 +444,14 @@ export const userMutations: Record<string, Resolver<any, any, IContext>> = {
     { user, models }: IContext,
   ) {
     return models.Users.configGetNotificationByEmail(user._id, isAllowed);
+  },
+
+  async usersConfigAppearance(
+    _parent: undefined,
+    appearance: IUserAppearance,
+    { user, models }: IContext,
+  ) {
+    return models.Users.configAppearance(user._id, appearance);
   },
 
   async usersSetChatStatus(
