@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -292,10 +292,17 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `dealsEdit` (no core relation). The board card's customer / company chips
   save the same way (the latest pick replaces the one before). The add form
   and the detail rail use one customer and one company too.
-- The deal sheet's right rail (ui-modules `RelationWidgetSideTabs`, given the deal's customers / companies) holds only
-  Customers and Companies icons; each opens the side panel's view of the
+- The deal sheet's right rail (`DealSideWidgets` →
+  ui-modules `RelationWidgetSideTabs`, given the deal's customers / companies)
+  holds Customers and Companies icons; each opens the side panel's view of the
   deal's contacts inside the sheet (`EmbeddedRecordPanel`), where their other
-  records are. No relation widgets are listed beside a deal.
+  records are. After them come, as `extraTabs`, only the relation widgets
+  registered with `contentTypes` containing `sales:deal` (accounting
+  `transactions`, mongolian `ebarimt`), rendered through
+  `useRelationWidgetTabs` with `contentType: 'sales:deal'` and the deal's
+  `_id`, so they read records linked to the deal itself. Widgets without
+  `contentTypes` (contact-linked, e.g. tickets, deals) are not listed beside a
+  deal.
 - Deal detail header shows a `⋯` actions menu (`DealsActions`
   `variant="menu"`) with watch/unwatch, duplicate, print (shared
   `PrintDocument` sheet), archive/unarchive, and remove for archived deals.
@@ -762,6 +769,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 - Deal mutations send no `sourceConversationIds`; a deal is linked to a conversation only through its customer (`customerId`), which the conversation rail's Deals tab lists by.
 
 ## Validation
+
+- `pnpm nx test sales_ui` (jsdom Jest with `~/*` and `@/*` mappers; `DealSideWidgets` rail scenarios)
+- Deal rail smoke: open a deal synced to accounting and issued an eBarimt; the
+  rail lists Customers, Companies, Transactions and eBarimt, and the
+  Transactions / eBarimt tabs show only that deal's records.
 
 - POS product filters smoke: add/edit/clear all six group filter selections, save and reopen; verify persistence, immediate list refresh, tag descendants, and OR/global-exclusion behavior after sync.
 

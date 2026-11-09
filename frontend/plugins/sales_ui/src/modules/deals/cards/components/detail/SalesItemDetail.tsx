@@ -11,7 +11,6 @@ import {
   useFocusSheet,
   useQueryState,
 } from 'erxes-ui';
-import { RelationWidgetSideTabs } from 'ui-modules';
 import { DealActivityTab } from './DealActivityTab';
 
 import { Overview } from '@/deals/cards/components/detail/overview/Overview';
@@ -25,6 +24,7 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { DealPipelineProperties } from './DealPipelineProperties';
+import { DealSideWidgets } from '@/deals/cards/components/detail/DealSideWidgets';
 import { SalesItemSidebar } from './SalesItemSidebar';
 
 const SalesItemDetailView = () => {
@@ -89,9 +89,10 @@ const SalesItemDetailView = () => {
                 </Tabs>
               </div>
             </div>
-            <RelationWidgetSideTabs
-              customerId={deal?.customers?.[0]?._id}
-              companyId={deal?.companies?.[0]?._id}
+            <DealSideWidgets
+              dealId={deal._id}
+              customerId={deal.customers?.[0]?._id}
+              companyId={deal.companies?.[0]?._id}
             />
           </FocusSheet.Content>
         </>
