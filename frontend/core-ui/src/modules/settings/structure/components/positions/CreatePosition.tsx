@@ -1,50 +1,46 @@
-import { useTranslation } from 'react-i18next';
-import { IconBriefcase, IconPlus } from '@tabler/icons-react';
+import { StructureCreateForm } from '@/settings/structure/components/StructureCreateForm';
+import { StructureCreateButton } from '@/settings/structure/components/StructureFormActions';
+import { useStructureFormFeedback } from '@/settings/structure/hooks/useStructureFormFeedback';
+import { TPositionForm, PositionHotKeyScope } from '../../types/position';
+import { SubmitHandler } from 'react-hook-form';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
 import {
-  Button,
-  Form,
-  Kbd,
-  Sheet,
-  Spinner,
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+} from '@/side-panel/hooks/usePagePanel';
+import { useTranslation } from 'react-i18next';
+import { IconBriefcase } from '@tabler/icons-react';
+import {
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
-  useToast,
 } from 'erxes-ui';
 import React, { useState } from 'react';
-import { SubmitHandler } from 'react-hook-form';
-import { usePositionForm } from '../../hooks/usePositionForm';
-import { usePositionAdd } from '../../hooks/usePositionActions';
-import { PositionHotKeyScope, TPositionForm } from '../../types/position';
-import { PositionForm } from './PositionForm';
-import { Can, usePermissionCheck } from 'ui-modules';
-
+import { usePositionForm } from '@/settings/structure/hooks/usePositionForm';
+import { usePositionAdd } from '@/settings/structure/hooks/usePositionActions';
+import { PositionForm } from '@/settings/structure/components/positions/PositionForm';
+import { usePermissionCheck, RecordSidePanel } from 'ui-modules';
 export const CreatePosition = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'structure' });
-  const {
-    methods,
-    methods: { handleSubmit },
-  } = usePositionForm();
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'structure',
+  });
+  const { methods } = usePositionForm();
   const [open, setOpen] = useState<boolean>(false);
   const { handleAdd, loading } = usePositionAdd();
-  const { toast } = useToast();
   const setHotkeyScope = useSetHotkeyScope();
   const { setHotkeyScopeAndMemorizePreviousScope } = usePreviousHotkeyScope();
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canManagePositions = isLoaded && hasActionPermission('positionsManage');
-
   const onOpen = () => {
     setOpen(true);
     setHotkeyScopeAndMemorizePreviousScope(
       PositionHotKeyScope.PositionAddSheet,
     );
   };
-
   const onClose = () => {
     setHotkeyScope(PositionHotKeyScope.PositionSettingsPage);
     setOpen(false);
   };
-
   useScopedHotkeys(
     `c`,
     () => {
@@ -58,72 +54,60 @@ export const CreatePosition = () => {
     () => onClose(),
     PositionHotKeyScope.PositionAddSheet,
   );
-
-  const submitHandler: SubmitHandler<TPositionForm> = React.useCallback(
-    async (data) => {
-      handleAdd({
-        variables: data,
-        onCompleted: () => {
-          toast({
-            title: t('success'),
-            variant: 'success',
-            description: t('position-created'),
-          });
-          methods.reset();
-          setOpen(false);
-        },
-        onError: (error) =>
-          toast({
-            title: t('error'),
-            description: error.message,
-            variant: 'destructive',
-          }),
-      });
+  const pagePanel = usePagePanel({
+    expandable: false,
+    requiredPermission: 'positionsManage',
+    name: 'settings/structure/positions/CreatePosition',
+    onOpenChange: (open) => (open ? onOpen() : onClose()),
+    open: open,
+  });
+  const feedback = useStructureFormFeedback({
+    isCurrent: pagePanel.isCurrent,
+    message: t('position-created'),
+    onSuccess: () => {
+      methods.reset();
+      onClose();
     },
-    [handleAdd],
-  );
+  });
+  const submitHandler: SubmitHandler<TPositionForm> = (data) => {
+    handleAdd({
+      variables: data,
+      ...feedback,
+    });
+  };
+
   return (
-    <Sheet onOpenChange={(open) => (open ? onOpen() : onClose())} open={open}>
-      <Can action="positionsManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus /> {t('create-position')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
-      </Can>
-      <Sheet.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <Form {...methods}>
-          <form
-            onSubmit={handleSubmit(submitHandler)}
-            className=" flex flex-col gap-0 w-full h-full"
-          >
-            <Sheet.Header>
-              <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-                <IconBriefcase size={16} />
-                {t('create-position-title')}
-              </Sheet.Title>
-              <Sheet.Close />
-            </Sheet.Header>
-            <Sheet.Content className="grow size-full h-auto flex flex-col px-5 py-4">
+    <>
+      <StructureCreateButton
+        permission="positionsManage"
+        onClick={pagePanel.onOpen}
+        label={t('create-position')}
+      />
+      {createPortal(
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+          {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+            <StructureCreateForm
+              header={
+                <RecordSidePanel.Header
+                  avatar={<IconBriefcase size={16} />}
+                  title={t('create-position-title')}
+                  {...pagePanel.headerProps}
+                />
+              }
+              methods={methods}
+              onSubmit={submitHandler}
+              onCancel={onClose}
+              saving={loading}
+              saveLabel={t('create')}
+            >
               <PositionForm />
-            </Sheet.Content>
-            <Sheet.Footer>
-              <Button variant={'ghost'} onClick={() => setOpen(false)}>
-                {t('cancel')}
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? <Spinner /> : t('create')}
-              </Button>
-            </Sheet.Footer>
-          </form>
-        </Form>
-      </Sheet.View>
-    </Sheet>
+            </StructureCreateForm>
+          ) : (
+            <PagePanelStatus entry={pagePanel} />
+          )}
+        </div>,
+        pagePanel,
+      )}
+    </>
   );
 };

@@ -23,6 +23,7 @@ interface MergeSheetProps extends Omit<PagePanelOptions, 'name'> {
   className?: string;
   notice?: string;
   saveLabel?: string;
+  saving?: boolean;
   onDiscard?: () => void;
   onSave?: () => void;
 }
@@ -32,6 +33,7 @@ export const MergeSheet = ({
   className,
   notice,
   saveLabel,
+  saving = false,
   onDiscard = noop,
   onSave = noop,
   ...props
@@ -80,6 +82,7 @@ export const MergeSheet = ({
                 </div>
                 {!disabled && (
                   <MergeSheetFooter
+                    saving={saving}
                     saveLabel={saveLabel}
                     onDiscard={onDiscard}
                     onSave={onSave}
@@ -107,11 +110,13 @@ const MergeSheetHeader = () => {
 };
 interface MergeSheetFooterProps {
   saveLabel?: string;
+  saving: boolean;
   onDiscard: () => void;
   onSave: () => void;
 }
 const MergeSheetFooter = ({
   saveLabel,
+  saving,
   onDiscard,
   onSave,
 }: MergeSheetFooterProps) => {
@@ -126,6 +131,7 @@ const MergeSheetFooter = ({
       )}
     >
       <Button
+        disabled={saving}
         onClick={() => {
           onDiscard();
         }}
@@ -134,6 +140,7 @@ const MergeSheetFooter = ({
         {t('action-discard')}
       </Button>
       <Button
+        disabled={saving}
         onClick={() => {
           onSave();
         }}

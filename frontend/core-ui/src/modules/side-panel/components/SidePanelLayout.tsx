@@ -60,6 +60,13 @@ import {
 } from 'ui-modules';
 const DETAIL_TAB = 'detail';
 const ACTIVITY_TAB = 'activity';
+const ApprovalRequestRecordPanel = lazy(() =>
+  import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
+    (module) => ({
+      default: module.ApprovalRequestRecordPanel,
+    }),
+  ),
+);
 const CPUserRecordPanel = lazy(() =>
   import(
     '@/contacts/client-portal-users/cp-user-detail/components/CPUserRecordPanel'
@@ -584,6 +591,13 @@ export const SidePanelRecord = (
         <CPUserRecordPanel {...props} />
       </Suspense>
     );
+  if (props.record.contentType === 'core:approvalRequest') {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <ApprovalRequestRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.record.contentType === USER_CONTENT_TYPE) {
     return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
   }
@@ -634,14 +648,6 @@ export const SidePanelLayout = () => {
       : null;
   };
   const recordPage = getRecordPage();
-  const coreRecord =
-    record &&
-    [
-      'core:customer',
-      'core:company',
-      'core:cpUser',
-      USER_CONTENT_TYPE,
-    ].includes(record.contentType);
   const coreDraft =
     record?.contentType.startsWith('core:') &&
     record.contentId === NEW_RECORD_ID;
@@ -649,11 +655,14 @@ export const SidePanelLayout = () => {
     !coreDraft &&
     Boolean(
       recordPage ||
-        coreRecord ||
-        (moduleEntry && moduleEntry.expandable !== false),
+        (moduleEntry?.expandable && moduleEntry.onExpand),
     );
 
   useEffect(() => {
+    if (open && expanded && moduleEntry?.onExpand) {
+      moduleEntry.onExpand();
+      return;
+    }
     if (open && expanded && !expandable && (record || moduleEntry)) {
       setExpanded(null, { replace: true });
     }
@@ -703,15 +712,13 @@ export const SidePanelLayout = () => {
       {open && path !== SIDE_PANEL_CHAT_PATH && !(recordPage && expanded) && (
         <RecordSidePanel
           key="record"
-          expanded={expandable && Boolean(expanded)}
+          expanded={false}
           expandable={expandable}
-          onExpandedChange={(nextExpanded) => {
+          onExpandedChange={() => {
             if (recordPage) {
               navigate(recordPage);
             } else {
-              setExpanded(nextExpanded || null, {
-                replace: true,
-              });
+              moduleEntry?.onExpand?.();
             }
           }}
           width={

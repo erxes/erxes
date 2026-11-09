@@ -1,7 +1,7 @@
 import { Badge, cn } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { useBroadcastSteps } from '../../context/BroadcastStepsContext';
-import { BROADCAST_STEPS } from './broadcastStepConfig';
+import { BROADCAST_CONFIG_STEP, BROADCAST_STEPS } from './broadcastStepConfig';
 
 export const BroadcastStepContent = () => {
   const { t } = useTranslation('broadcasts');
@@ -13,17 +13,21 @@ export const BroadcastStepContent = () => {
   } = BROADCAST_STEPS[step];
 
   return (
-    // The step is what scrolls; the sheet's own footer stays put.
-    <div className="p-5 flex flex-col gap-5 h-full overflow-y-auto">
-      <div className="flex flex-col gap-3">
+    <div
+      className={cn(
+        'flex min-h-0 min-w-0 flex-1 flex-col gap-5 p-5',
+        step === BROADCAST_CONFIG_STEP ? 'overflow-y-auto' : 'overflow-hidden',
+      )}
+    >
+      <div className="flex min-w-0 shrink-0 flex-col gap-3">
         <div className="flex items-center gap-2">
-          <Badge className="rounded-xl text-xs font-mono">
+          <Badge className="shrink-0 rounded-xl text-xs font-mono">
             {t('steps.count', {
               step: step + 1,
               total: BROADCAST_STEPS.length,
             })}
           </Badge>
-          <h2 className="text-primary font-semibold text-base">
+          <h2 className="min-w-0 text-primary font-semibold text-base">
             {t(titleKey)}
           </h2>
         </div>

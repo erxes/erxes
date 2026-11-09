@@ -5,7 +5,6 @@ import {
   usePagePanel,
 } from '@/side-panel/hooks/usePagePanel';
 import { useTemplateCategoryDetail } from '@/templates/hooks/useTemplateCategoryDetail';
-import { IconLoader2 } from '@tabler/icons-react';
 import { useQueryState, useToast } from 'erxes-ui';
 import { TemplateCategoryForm } from '@/templates/components/category/TemplateCategoryForm';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +14,7 @@ export const TemplateCategoryDetailSheet = () => {
   });
   const [categoryId, setCategoryId] = useQueryState<string>('categoryId');
   const { toast } = useToast();
-  const { categoryDetail, loading } = useTemplateCategoryDetail(
+  const { categoryDetail, loading, error } = useTemplateCategoryDetail(
     categoryId || undefined,
   );
   const setOpen = (newCategoryId: string | null) => {
@@ -34,32 +33,30 @@ export const TemplateCategoryDetailSheet = () => {
   });
   return createPortal(
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
-      {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !loading &&
+      !error &&
+      categoryDetail?._id === categoryId ? (
         <>
           <RecordSidePanel.Header
             title={<>{t('edit-category')}</>}
             {...pagePanel.headerProps}
           />
-          {loading ? (
-            <div className="flex flex-1 justify-center items-center p-5 min-h-[200px] text-muted-foreground">
-              <IconLoader2 className="w-4 h-4 animate-spin" />
-            </div>
-          ) : (
-            <TemplateCategoryForm
-              category={categoryDetail}
-              onCompleted={() => {
-                toast({
-                  title: t('update-success'),
-                  variant: 'success',
-                });
-                setOpen(null);
-              }}
-              onClose={() => setOpen(null)}
-            />
-          )}
+          <TemplateCategoryForm
+            category={categoryDetail}
+            onCompleted={() => {
+              toast({
+                title: t('update-success'),
+                variant: 'success',
+              });
+              setOpen(null);
+            }}
+            onClose={() => setOpen(null)}
+          />
         </>
       ) : (
-        <PagePanelStatus entry={pagePanel} />
+        <PagePanelStatus entry={pagePanel} loading={loading} error={!!error} />
       )}
     </div>,
     pagePanel,

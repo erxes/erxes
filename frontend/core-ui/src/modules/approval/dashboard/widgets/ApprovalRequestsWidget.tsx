@@ -4,7 +4,6 @@ import {
 } from '@/approval/dashboard/approvalDashboardConfig';
 import { useApprovalDashboardRequests } from '@/approval/dashboard/hooks/useApprovalDashboardRequests';
 import { TDashboardWidgetProps } from '@/home/dashboard/types/dashboardTypes';
-import { ApprovalRequestDetailSheet } from '@/settings/approval/components/ApprovalRequestDetailSheet';
 import {
   APPROVAL_REQUEST_STATUS_META,
   getApprovalRequestUserName,
@@ -20,58 +19,58 @@ import {
   DashboardWidgetEmptyState,
   DashboardWidgetListSkeleton,
   usePermissionCheck,
+  useSidePanel,
 } from 'ui-modules';
 
 const ApprovalRequestRow = ({
   request,
   isDecided,
-  onCompleted,
 }: {
   request: ApprovalRequest;
   isDecided: boolean;
-  onCompleted: () => void;
 }) => {
   const { t } = useTranslation('approval');
+  const { openRecord } = useSidePanel();
   const { t: tHome } = useTranslation('common', { keyPrefix: 'home.widgets' });
   const { icon: StatusIcon, variant } =
     APPROVAL_REQUEST_STATUS_META[request.status];
 
   return (
-    <ApprovalRequestDetailSheet
-      request={request}
-      onCompleted={onCompleted}
-      t={t}
+    <button
+      type="button"
+      onClick={() =>
+        openRecord({
+          contentType: 'core:approvalRequest',
+          contentId: request._id,
+        })
+      }
+      className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-accent"
     >
-      <button
-        type="button"
-        className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left hover:bg-accent"
-      >
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-sm font-medium">
-            {request.content?.label || request.contentType}
-          </div>
-          <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
-            <span className="truncate">
-              {getApprovalRequestUserName(request.requester)}
-            </span>
-            <span>·</span>
-            <span className="shrink-0">
-              <RelativeDateDisplay.Value value={request.createdAt} />
-            </span>
-          </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-medium">
+          {request.content?.label || request.contentType}
         </div>
-        {isDecided ? (
-          <Badge variant="secondary" className="shrink-0">
-            {tHome('approvals-decided')}
-          </Badge>
-        ) : (
-          <Badge variant={variant} className="shrink-0">
-            <StatusIcon className="size-3.5" />
-            {t(`status-${request.status}`)}
-          </Badge>
-        )}
-      </button>
-    </ApprovalRequestDetailSheet>
+        <div className="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+          <span className="truncate">
+            {getApprovalRequestUserName(request.requester)}
+          </span>
+          <span>·</span>
+          <span className="shrink-0">
+            <RelativeDateDisplay.Value value={request.createdAt} />
+          </span>
+        </div>
+      </div>
+      {isDecided ? (
+        <Badge variant="secondary" className="shrink-0">
+          {tHome('approvals-decided')}
+        </Badge>
+      ) : (
+        <Badge variant={variant} className="shrink-0">
+          <StatusIcon className="size-3.5" />
+          {t(`status-${request.status}`)}
+        </Badge>
+      )}
+    </button>
   );
 };
 
@@ -83,8 +82,9 @@ export const ApprovalRequestsWidget = ({ config }: TDashboardWidgetProps) => {
   const { scope } = parsed.success
     ? parsed.data
     : APPROVAL_REQUESTS_DEFAULT_CONFIG;
-  const { list, loading, error, refetch, userId } =
-    useApprovalDashboardRequests({ scope });
+  const { list, loading, error, userId } = useApprovalDashboardRequests({
+    scope,
+  });
 
   // Approvers act from here even without the settings page
   const canOpenSettings = isLoaded && hasModulePermission('approval');
@@ -120,7 +120,6 @@ export const ApprovalRequestsWidget = ({ config }: TDashboardWidgetProps) => {
               scope === 'toDecide' &&
               request.decisions.some((decision) => decision.userId === userId)
             }
-            onCompleted={() => refetch()}
           />
         ))}
       </div>

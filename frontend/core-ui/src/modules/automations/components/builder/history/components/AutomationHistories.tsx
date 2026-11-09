@@ -14,7 +14,9 @@ import { AutomationHistoriesRecordTableFilter } from '@/automations/components/b
 import { AutomationHistorySplitPanel } from '@/automations/components/builder/history/components/AutomationHistorySplitPanel';
 import { AutomationHistoryViewModeToggle } from '@/automations/components/builder/history/components/AutomationHistoryViewOptions';
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
+import { AutomationHistoryPanel } from '@/automations/components/builder/history/components/AutomationHistoryDetail';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { AutomationErrorEmptyState } from '@/automations/components/common/AutomationErrorEmptyState';
 
 type AutomationHistoriesTableProps = Omit<
@@ -102,6 +104,8 @@ export const AutomationHistories = ({
   const { refetch, error, ...tableProps } =
     useAutomationHistories(automationId);
   const { loading, totalCount } = tableProps;
+  const { id: routeId } = useParams();
+  const historyAutomationId = automationId ?? routeId;
   const { isSplitView, isVerticalSplit, splitDirection, selectedExecutionId } =
     useAutomationHistoryView();
   const { t } = useTranslation('automations');
@@ -122,6 +126,7 @@ export const AutomationHistories = ({
         </Button>
         <AutomationHistoryViewModeToggle />
       </PageSubHeader>
+      <AutomationHistoryPanel automationId={historyAutomationId} />
       {error ? (
         <AutomationErrorEmptyState
           title={t('history-load-error')}
@@ -148,7 +153,10 @@ export const AutomationHistories = ({
             defaultSize={isVerticalSplit ? 45 : 40}
             className="flex flex-col min-h-0"
           >
-            <AutomationHistorySplitPanel executionId={selectedExecutionId} />
+            <AutomationHistorySplitPanel
+              executionId={selectedExecutionId}
+              automationId={historyAutomationId}
+            />
           </Resizable.Panel>
         </Resizable.PanelGroup>
       ) : (

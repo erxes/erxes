@@ -47,8 +47,9 @@ export const CustomersMerge = ({
   }, [panel]);
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const [sheetOpen, setSheetOpen] = useState<boolean>(false);
-  const { mergeCustomers } = useMergeCustomers();
+  const { mergeCustomers, loading } = useMergeCustomers();
   const handleSave = () => {
+    if (loading) return;
     const session = mergeSession.current;
     mergeCustomers({
       variables: {
@@ -285,6 +286,7 @@ export const CustomersMerge = ({
     <MergeSheet
       className="p-6 flex gap-2 items-start"
       open={sheetOpen}
+      saving={loading}
       onOpenChange={changeOpen}
       notice={t('merge-notice', {
         first: getCustomerMergeName(customers[0]),
