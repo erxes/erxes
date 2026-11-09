@@ -9,6 +9,7 @@ import {
 } from '@/deals/cards/components/detail/product/components/ProductPaymentRows';
 import {
   dealPaymentsDraftAtomFamily,
+  dealPaymentsDraftRevisionAtomFamily,
   dealProductsDraftAtomFamily,
 } from '@/deals/cards/components/detail/product/productTableAtom';
 import {
@@ -27,7 +28,7 @@ import type { PaymentConfigItem } from '@/payments';
 import { useMutation } from '@apollo/client';
 import { IconAlertCircle, IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, useToast } from 'erxes-ui';
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useStore } from 'jotai';
 import {
   type MouseEvent,
   useCallback,
@@ -64,9 +65,9 @@ export const ProductsPayment = ({
     paymentsDraft || initialPaymentsData || deal.paymentsData || {},
   );
   const hasPaymentEditsRef = useRef(Boolean(paymentsDraft));
-  const paymentsDataRef = useRef(paymentsData);
-  const savedPaymentsDataRef = useRef<IPaymentsData | null>(null);
-  paymentsDataRef.current = paymentsData;
+  const store = useStore();
+  const paymentsRevisionAtom = dealPaymentsDraftRevisionAtomFamily(deal._id);
+  const savedPaymentsRevisionRef = useRef<number | null>(null);
   const [mobileAmount, setMobileAmount] = useState<number>(0);
   const [payInfoByType, setPayInfoByType] = useState<Record<string, PayInfo>>(
     {},
@@ -82,7 +83,9 @@ export const ProductsPayment = ({
   const { editDeals, loading: saving } = useDealsEdit({
     fetchPolicy: 'no-cache',
     onCompleted: () => {
-      if (savedPaymentsDataRef.current !== paymentsDataRef.current) {
+      if (
+        store.get(paymentsRevisionAtom) !== savedPaymentsRevisionRef.current
+      ) {
         return;
       }
 
@@ -106,6 +109,12 @@ export const ProductsPayment = ({
       setPaymentsDraft(paymentsData);
     }
   }, [paymentsData, setPaymentsDraft]);
+
+  useEffect(() => {
+    if (paymentsDraft === null) {
+      hasPaymentEditsRef.current = false;
+    }
+  }, [paymentsDraft]);
 
   const productsDraftPatches = useMemo(
     () => keepServerDraftPatches(productsDraft, deal.productsData || []),
@@ -175,6 +184,7 @@ export const ProductsPayment = ({
   const updatePayment = useCallback(
     (type: string, field: 'amount' | 'currency', value: number | string) => {
       hasPaymentEditsRef.current = true;
+      store.set(paymentsRevisionAtom, (revision) => revision + 1);
       setPaymentsData((prev: IPaymentsData) => {
         const updated = {
           ...prev,
@@ -191,7 +201,7 @@ export const ProductsPayment = ({
         return updated;
       });
     },
-    [defaultCurrency, onChangePaymentsData],
+    [defaultCurrency, onChangePaymentsData, store, paymentsRevisionAtom],
   );
 
   const fillRemaining = useCallback(
@@ -407,7 +417,7 @@ export const ProductsPayment = ({
 
   const handleSave = async () => {
     const processId = localStorage.getItem('processId') || '';
-    savedPaymentsDataRef.current = paymentsData;
+    savedPaymentsRevisionRef.current = store.get(paymentsRevisionAtom);
 
     try {
       await editDeals({

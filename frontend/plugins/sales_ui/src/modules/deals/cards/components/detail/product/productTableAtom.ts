@@ -16,8 +16,14 @@ export const dealPaymentsDraftAtomFamily = atomFamily<
   PrimitiveAtom<IPaymentsData | null>
 >(() => atom<IPaymentsData | null>(null));
 
+export const dealPaymentsDraftRevisionAtomFamily = atomFamily<
+  string,
+  PrimitiveAtom<number>
+>(() => atom(0));
+
 export const removeDealProductsDraft = (dealId: string) => {
   dealProductsDraftAtomFamily.remove(dealId);
   dealProductsDraftRevisionAtomFamily.remove(dealId);
   dealPaymentsDraftAtomFamily.remove(dealId);
+  dealPaymentsDraftRevisionAtomFamily.remove(dealId);
 };
