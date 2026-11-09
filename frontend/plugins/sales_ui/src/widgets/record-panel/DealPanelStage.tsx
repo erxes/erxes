@@ -1,6 +1,4 @@
-import { useMoveDealStage } from '@/deals/cards/hooks/useDeals';
-import { useOptimisticField } from '@/deals/components/deal-selects/hooks/useOptimisticField';
-import { useStages } from '@/deals/stage/hooks/useStages';
+import { useDealStageMove } from '@/deals/components/deal-selects/hooks/useDealStageMove';
 import { IDealDetail } from '@/deals/types/deals';
 import { IconProgress } from '@tabler/icons-react';
 import { cn, Tooltip } from 'erxes-ui';
@@ -11,22 +9,7 @@ import { DealPanelStageCell } from '~/widgets/record-panel/DealPanelCells';
 
 export const DealPanelStage = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
-  const { moveDealStage } = useMoveDealStage();
-  const pipelineId =
-    deal.stage?.pipelineId || deal.pipelineId || deal.pipeline?._id || '';
-  const { stages } = useStages({
-    variables: { pipelineId },
-    skip: !pipelineId,
-  });
-  const stage = useOptimisticField({
-    value: deal.stageId || '',
-    resetKey: deal._id,
-    onCommit: (stageId, previousStageId) =>
-      moveDealStage({
-        deal: { ...deal, stageId: previousStageId },
-        stageId,
-      }),
-  });
+  const { pipelineId, stages, stage } = useDealStageMove(deal);
 
   const sorted = useMemo(
     () => [...stages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),

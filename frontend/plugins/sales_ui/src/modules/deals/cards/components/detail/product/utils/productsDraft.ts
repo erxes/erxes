@@ -37,20 +37,52 @@ export const getProductsDraftPatches = (
 
 export type ProductsDraftPatches = Record<string, ProductDataPatch>;
 
+export type ProductsDraftBase = Pick<DealProductData, 'quantity' | 'unitPrice'>;
+
+export type ProductsDraft = Record<
+  string,
+  { patch: ProductDataPatch; base: ProductsDraftBase }
+>;
+
+const DRAFT_BASE_TOLERANCE = 0.0001;
+
+const isSameDraftBaseValue = (a?: number | null, b?: number | null) =>
+  Math.abs((a ?? 0) - (b ?? 0)) < DRAFT_BASE_TOLERANCE;
+
+export const getProductsDraftBase = (
+  productData: DealProductData,
+): ProductsDraftBase => ({
+  quantity: productData.quantity,
+  unitPrice: productData.unitPrice,
+});
+
 export const keepServerDraftPatches = (
-  patches: ProductsDraftPatches | null,
+  draft: ProductsDraft | null,
   serverProductsData: DealProductData[],
 ): ProductsDraftPatches => {
-  if (!patches) {
+  if (!draft) {
     return {};
   }
 
-  const serverIds = new Set(
-    serverProductsData.map((productData) => String(productData._id)),
+  const serverById = new Map(
+    serverProductsData.map((productData) => [
+      String(productData._id),
+      productData,
+    ]),
   );
 
   return Object.fromEntries(
-    Object.entries(patches).filter(([id]) => serverIds.has(id)),
+    Object.entries(draft)
+      .filter(([id, { base }]) => {
+        const serverRow = serverById.get(id);
+
+        return (
+          Boolean(serverRow) &&
+          isSameDraftBaseValue(serverRow?.quantity, base.quantity) &&
+          isSameDraftBaseValue(serverRow?.unitPrice, base.unitPrice)
+        );
+      })
+      .map(([id, { patch }]) => [id, patch]),
   );
 };
 

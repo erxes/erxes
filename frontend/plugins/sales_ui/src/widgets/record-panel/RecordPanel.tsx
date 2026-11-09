@@ -41,13 +41,17 @@ export const DealPanelTitle = ({
   subscribe?: boolean;
 }) => {
   const { t } = useTranslation('sales');
-  const { deal, loading } = useDealDetail(
+  const { deal, loading, error } = useDealDetail(
     { variables: { _id: dealId } },
     { subscribe },
   );
 
   if (loading && !deal) {
     return <Skeleton className="h-4 w-32" />;
+  }
+
+  if (error && !deal) {
+    return <span className="text-destructive">{t('failed-to-load-deal')}</span>;
   }
 
   return deal?.name || t('untitled');

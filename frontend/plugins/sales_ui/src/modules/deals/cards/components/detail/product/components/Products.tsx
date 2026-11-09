@@ -34,6 +34,7 @@ export const Products = ({
         <Tabs.Content value="product" className="mt-4 min-h-0 flex-1">
           <DealVoucherRow deal={deal} />
           <ProductsList
+            key={deal._id}
             products={deal.products}
             productsData={deal.productsData}
             dealId={deal._id}

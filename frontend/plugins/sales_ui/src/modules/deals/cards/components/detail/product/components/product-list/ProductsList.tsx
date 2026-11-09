@@ -31,8 +31,10 @@ import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
 import {
   applyProductsDraftPatches,
+  getProductsDraftBase,
   getProductsDraftPatches,
   keepServerDraftPatches,
+  ProductsDraftBase,
 } from '@/deals/cards/components/detail/product/utils/productsDraft';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductEditSheet } from '../ProductEditSheet';
@@ -88,9 +90,21 @@ export const ProductsList = ({
   const draftPatchesRef = useRef<Record<string, Partial<DealProductData>>>({
     ...restoredDraftPatches,
   });
+  const draftBasesRef = useRef<Record<string, ProductsDraftBase>>(
+    Object.fromEntries(
+      Object.keys(restoredDraftPatches).flatMap((id) => {
+        const base = productsDraft?.[id]?.base;
+        return base ? [[id, base]] : [];
+      }),
+    ),
+  );
   const hasUnsavedEditsRef = useRef(
     Object.keys(restoredDraftPatches).length > 0,
   );
+  const [hasDiscardedDraft] = useState(
+    () => Boolean(productsDraft) && !hasUnsavedEditsRef.current,
+  );
+  const savedPatchesRef = useRef<Record<string, Partial<DealProductData>>>({});
   const store = useStore();
   const draftRevisionAtom = dealProductsDraftRevisionAtomFamily(dealId);
   const savedRevisionRef = useRef<number | null>(null);
@@ -101,8 +115,17 @@ export const ProductsList = ({
       setLocalProductsData((prev) => {
         const next = typeof update === 'function' ? update(prev) : update;
         const patches = getProductsDraftPatches(next, prev);
+        const prevById = new Map(
+          prev.map((productData) => [String(productData._id), productData]),
+        );
 
         Object.entries(patches).forEach(([id, patch]) => {
+          const prevRow = prevById.get(id);
+
+          if (!draftBasesRef.current[id] && prevRow) {
+            draftBasesRef.current[id] = getProductsDraftBase(prevRow);
+          }
+
           pendingProductPatchesRef.current[id] = {
             ...pendingProductPatchesRef.current[id],
             ...patch,
@@ -142,13 +165,22 @@ export const ProductsList = ({
   const { editDeals, loading: saving } = useDealsEdit(
     {
       onCompleted: () => {
+        Object.entries(savedPatchesRef.current).forEach(([id, patch]) => {
+          if (pendingProductPatchesRef.current[id] === patch) {
+            delete pendingProductPatchesRef.current[id];
+          }
+        });
+        savedPatchesRef.current = {};
+
         if (store.get(draftRevisionAtom) !== savedRevisionRef.current) {
           return;
         }
 
         hasUnsavedEditsRef.current = false;
         draftPatchesRef.current = {};
+        draftBasesRef.current = {};
         setProductsDraft(null);
+        dealProductsDraftAtomFamily.remove(dealId);
       },
     },
     { toastOptions: DEAL_TOAST_OPTIONS },
@@ -281,6 +313,17 @@ export const ProductsList = ({
           const draftPatch = draftPatchesRef.current[rowId];
 
           if (draftPatch) {
+            const draftBase = draftBasesRef.current[rowId];
+
+            if (draftBase) {
+              draftBasesRef.current[rowId] = {
+                quantity:
+                  'quantity' in patch ? patch.quantity : draftBase.quantity,
+                unitPrice:
+                  'unitPrice' in patch ? patch.unitPrice : draftBase.unitPrice,
+              };
+            }
+
             draftPatchesRef.current[rowId] = {
               ...draftPatch,
               ...Object.fromEntries(
@@ -308,14 +351,28 @@ export const ProductsList = ({
 
   useEffect(() => {
     if (hasUnsavedEditsRef.current) {
-      setProductsDraft({ ...draftPatchesRef.current });
+      setProductsDraft(
+        Object.fromEntries(
+          Object.entries(draftPatchesRef.current).flatMap(([id, patch]) => {
+            const base = draftBasesRef.current[id];
+            return base ? [[id, { patch, base }]] : [];
+          }),
+        ),
+      );
     }
   }, [localProductsData, setProductsDraft]);
+
+  useEffect(() => {
+    if (hasDiscardedDraft) {
+      setProductsDraft(null);
+    }
+  }, [hasDiscardedDraft, setProductsDraft]);
 
   useEffect(() => {
     if (productsDraft === null) {
       hasUnsavedEditsRef.current = false;
       draftPatchesRef.current = {};
+      draftBasesRef.current = {};
     }
   }, [productsDraft]);
 
@@ -420,10 +477,11 @@ export const ProductsList = ({
         onAddProducts={addProducts}
         onSave={() => {
           savedRevisionRef.current = store.get(draftRevisionAtom);
+          savedPatchesRef.current = { ...pendingProductPatchesRef.current };
           handleSave();
         }}
         saving={saving}
-        hasUnsavedChanges={Boolean(productsDraft)}
+        hasUnsavedChanges={Object.keys(productsDraft ?? {}).length > 0}
       />
     </>
   );
