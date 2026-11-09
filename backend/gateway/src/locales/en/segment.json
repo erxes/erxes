@@ -90,7 +90,12 @@
     "broadcast-create": "Send nightly broadcast",
     "automation-kind": "Automation",
     "broadcast-kind": "Broadcast",
-    "broadcast-kind-nightly": "Nightly broadcast"
+    "broadcast-kind-nightly": "Nightly broadcast",
+    "property-group": {
+      "dataExtensions": "Data Extensions",
+      "fields": "Fields",
+      "properties": "Custom properties"
+    }
   },
   "filter": {
     "segments": "Segments",

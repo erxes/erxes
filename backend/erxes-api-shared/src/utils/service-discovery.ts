@@ -8,6 +8,7 @@ import {
 import { getEnv } from './utils';
 import { IOrganizationCharge } from '../core-types';
 import { sendWorkerQueue } from './mq-worker';
+import { clearCachedPermissionMaps } from './permission-cache';
 
 dotenv.config();
 
@@ -184,6 +185,11 @@ export const joinErxesGateway = async ({
     ? JSON.parse(existingConfigJson)
     : {};
 
+  const permissionsChanged =
+    meta?.permissions !== undefined &&
+    JSON.stringify(meta.permissions) !==
+      JSON.stringify(existingConfig?.meta?.permissions);
+
   await redis.set(
     keyForConfig(name),
 
@@ -199,6 +205,18 @@ export const joinErxesGateway = async ({
       uiEntry,
     }),
   );
+
+  // Cached permission maps were built from the old definitions (an upgrade
+  // that adds actions to a default group would otherwise keep refusing them
+  // until each user's groups change); they rebuild on the next request.
+  // Runs in the background so a large shared Redis never holds up startup.
+  if (permissionsChanged) {
+    clearCachedPermissionMaps().catch((error) =>
+      console.error(
+        `Could not clear cached permission maps: ${error?.message || error}`,
+      ),
+    );
+  }
 
   const address =
     LOAD_BALANCER_ADDRESS ||

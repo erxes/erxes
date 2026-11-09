@@ -463,9 +463,10 @@ export const ordersEdit = async (
 
   await cleanOrderItems(doc._id, doc.items, models);
 
+  // The stored start, never the client's, is the order's created moment.
   const preparedDoc = await prepareOrderDoc(
     subdomain,
-    doc,
+    { ...doc, createdAt: order.createdAt },
     config,
     models,
     posUser,

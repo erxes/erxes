@@ -12,6 +12,7 @@ interface PricingOptionSelectProps<TValue extends string> {
   placeholder: string;
   onValueChange: (value: TValue) => void;
   triggerClassName?: string;
+  disabledValues?: ReadonlyArray<TValue>;
 }
 
 export const PricingOptionSelect = <TValue extends string>({
@@ -20,6 +21,7 @@ export const PricingOptionSelect = <TValue extends string>({
   placeholder,
   onValueChange,
   triggerClassName,
+  disabledValues = [],
 }: PricingOptionSelectProps<TValue>) => {
   const { t } = useTranslation('loyalty');
 
@@ -40,7 +42,11 @@ export const PricingOptionSelect = <TValue extends string>({
       </Select.Trigger>
       <Select.Content>
         {options.map((option) => (
-          <Select.Item key={option.value} value={option.value}>
+          <Select.Item
+            key={option.value}
+            value={option.value}
+            disabled={disabledValues.includes(option.value)}
+          >
             {t(option.label)}
           </Select.Item>
         ))}

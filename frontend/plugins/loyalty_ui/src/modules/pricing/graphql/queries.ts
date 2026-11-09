@@ -202,21 +202,17 @@ export const PRICING_PLAN_DETAIL = gql`
         priceAdjustFactor
       }
       isRepeatEnabled
-      repeatRules {
+      activeWindows {
         type
-        dayStartValue
-        dayEndValue
-        weekValue {
-          label
-          value
-        }
-        monthValue {
-          label
-          value
-        }
-        yearStartValue
-        yearEndValue
+        startTime
+        endTime
+        weekDays
+        monthDays
+        fromMonthDay
+        toMonthDay
       }
+      closedDates
+      scheduleMoment
       createdAt
       createdBy
       createdUser {
@@ -294,6 +290,37 @@ export const PRICING_PRODUCT_CONDITIONS = gql`
       _id
       code
       name
+    }
+  }
+`;
+
+export const PRICING_PLAN_SCHEDULE_CHECK = gql`
+  query PricingPlanScheduleCheck(
+    $activeWindows: [PricingActiveWindowInput]
+    $closedDates: [String]
+    $scheduleMoment: String
+    $checkoutAt: String!
+    $orderCreatedAt: String
+  ) {
+    pricingPlanScheduleCheck(
+      activeWindows: $activeWindows
+      closedDates: $closedDates
+      scheduleMoment: $scheduleMoment
+      checkoutAt: $checkoutAt
+      orderCreatedAt: $orderCreatedAt
+    ) {
+      active
+      matchedMoment
+      timeZone
+      window {
+        type
+        startTime
+        endTime
+        weekDays
+        monthDays
+        fromMonthDay
+        toMonthDay
+      }
     }
   }
 `;
