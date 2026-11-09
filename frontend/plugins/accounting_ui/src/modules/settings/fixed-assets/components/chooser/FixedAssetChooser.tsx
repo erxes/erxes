@@ -105,7 +105,8 @@ export const FixedAssetChooserBody = ({
   });
   const result = data?.accountingFixedAssetChooser;
   const assetScoped =
-    Boolean(props.allLocations) || props.journal === TrJournalEnum.FXA_JUSTIFY;
+    Boolean(props.allLocations) ||
+    props.journal === TrJournalEnum.FXA_REVALUATION;
   const visibleItems = useMemo(
     () =>
       availableFxaChooserItems(result?.items || [], selections, assetScoped),

@@ -647,6 +647,18 @@ export const validateFxaIncomeAcquisition = async (
   userId: string,
   transaction: ITransaction,
 ): Promise<void> => {
+  for (const detail of transaction.details || []) {
+    for (const field of [
+      'revaluationLoss',
+      'revaluationReserve',
+    ] as const) {
+      const value = detail.followInfos?.[field];
+      if (value !== undefined && (!Number.isFinite(value) || value < 0))
+        throw new Error(
+          'Opening revaluation balances must be nonnegative finite amounts.',
+        );
+    }
+  }
   if ((transaction.details || []).some((detail) => (detail.count || 0) > 0)) {
     await prepareFxaIncomeAcquisition(models, userId, transaction);
   }

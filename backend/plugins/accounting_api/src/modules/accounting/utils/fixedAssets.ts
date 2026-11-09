@@ -1,3 +1,4 @@
+import { applyFxaDisposalRevaluation } from './fxaRevaluationState';
 import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -567,11 +568,13 @@ export const prepareFxaDisposalTransaction = async (
   models: IModels,
   doc: ITransaction,
   options: { updateDetails?: boolean } = {},
-) =>
-  prepareFxaOwnerRecordTransaction(models, doc, {
+) => {
+  const prepared = await prepareFxaOwnerRecordTransaction(models, doc, {
     updateDetails: options.updateDetails,
     validateDisposalAccounts: true,
   });
+  return applyFxaDisposalRevaluation(models, prepared);
+};
 
 export const cleanFxaFollowTr = async (
   models: IModels,

@@ -288,6 +288,20 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
                   </Form.Item>
                 )}
               />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="revaluationLoss"
+                label="fxa-revaluation-loss-balance"
+              />
+              <FxaChangeNumberField
+                form={form}
+                index={journalIndex}
+                detailIndex={detailIndex}
+                rule="revaluationReserve"
+                label="fxa-revaluation-reserve-balance"
+              />
             </div>
           )}
           <Table>

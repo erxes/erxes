@@ -80,6 +80,7 @@ const fixture = () => {
         },
       ],
     },
+    AdjustFxaDetails: { find: () => query([]) },
     AdjustFixedAssets: {
       findOne: () => query({ date: new Date('2026-01-31') }),
     },

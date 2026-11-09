@@ -83,10 +83,10 @@ export const TRANSACTION_PERMISSION_ACTIONS: Record<
     manage: 'manageFxaCapitalTransactions',
     remove: 'removeFxaCapitalTransactions',
   },
-  [JOURNALS.FXA_JUSTIFY]: {
-    read: 'readFxaJustifyTransactions',
-    manage: 'manageFxaJustifyTransactions',
-    remove: 'removeFxaJustifyTransactions',
+  [JOURNALS.FXA_REVALUATION]: {
+    read: 'readFxaRevaluationTransactions',
+    manage: 'manageFxaRevaluationTransactions',
+    remove: 'removeFxaRevaluationTransactions',
   },
   [JOURNALS.FXA_INCOME]: {
     read: 'readFxaIncomeTransactions',

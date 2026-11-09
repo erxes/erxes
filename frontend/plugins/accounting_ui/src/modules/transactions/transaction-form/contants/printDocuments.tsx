@@ -34,7 +34,7 @@ export const PRINT_DOCUMENTS = {
   [TrJournalEnum.INV_SALE_RETURN_COST]: '',
 
   [TrJournalEnum.FXA_CAPITAL]: TransactionDocument,
-  [TrJournalEnum.FXA_JUSTIFY]: TransactionDocument,
+  [TrJournalEnum.FXA_REVALUATION]: TransactionDocument,
   [TrJournalEnum.FXA_INCOME]: '',
   [TrJournalEnum.FXA_OUT]: '',
   [TrJournalEnum.FXA_MOVE]: '',

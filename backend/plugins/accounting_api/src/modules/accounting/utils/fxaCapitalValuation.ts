@@ -7,7 +7,8 @@ import {
   TR_INVENTORY_STATUS_TYPES,
   TR_SIDES,
 } from '../@types/constants';
-import { getFxaCorrections, getFxaRulesAtDate } from './fxaJustify';
+import { getFxaCorrections, getFxaRulesAtDate } from './fxaRules';
+import { getFxaRevaluationState } from './fxaRevaluationState';
 import { checkPermissionTrs } from './trPermissions';
 
 export const fxaCapitalDate = (value: Date): Date => {
@@ -104,12 +105,9 @@ export const getFxaCapitalValuation = async (
       locations.set(key, location);
       if (
         detail.accountId === depreciationAccountId &&
-        [
-          JOURNALS.FXA_DEP,
-          JOURNALS.FXA_DEP_IN,
-          JOURNALS.FXA_DEP_OUT,
-          JOURNALS.FXA_JUSTIFY,
-        ].includes(transaction.journal)
+        [JOURNALS.FXA_DEP, JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT].includes(
+          transaction.journal,
+        )
       ) {
         accumulated +=
           detail.amount * (transaction.side === TR_SIDES.CREDIT ? 1 : -1);
@@ -146,13 +144,26 @@ export const getFxaCapitalValuation = async (
       previous &&
         fxaCapitalDate(previous.date).getTime() === previousDay.getTime(),
     );
+  const revaluation = await getFxaRevaluationState(
+    models,
+    fixedAssetId,
+    atDate,
+    excludeTransactionId,
+  );
   return {
+    revaluationLoss: revaluation.loss,
+    revaluationReserve: revaluation.reserve,
     fixedAssetId,
     accountId: asset.accountId,
     depreciationAccountId,
     count,
     originalCost: rules.originalCost ?? asset.originalCost ?? 0,
     preDeprecation: count > 0 ? accumulated / count : 0,
+    taxDepreciationMethod:
+      rules.taxDepreciationMethod || asset.taxDepreciationMethod,
+    taxAnnualDepreciationRate:
+      rules.taxAnnualDepreciationRate ?? asset.taxAnnualDepreciationRate,
+    taxSalvageValue: rules.taxSalvageValue ?? asset.taxSalvageValue,
     annualDepreciationRate: rules.annualDepreciationRate || 0,
     depreciationMethod: rules.depreciationMethod || 'straightLine',
     salvageValue: rules.salvageValue || 0,

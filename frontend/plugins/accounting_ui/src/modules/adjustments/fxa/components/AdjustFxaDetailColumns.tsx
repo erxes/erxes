@@ -75,6 +75,26 @@ export const adjustFxaDetailColumns = (
     cell: ({ row }) => <AccountCell detail={row.original} />,
     size: 240,
   },
+  ...(
+    [
+      'openingRevaluationLoss',
+      'openingRevaluationReserve',
+      'closingRevaluationLoss',
+      'closingRevaluationReserve',
+    ] as const
+  ).map(
+    (field): ColumnDef<IAdjustFxaDetail> => ({
+      id: field,
+      accessorKey: field,
+      header: () => (
+        <RecordTable.InlineHead
+          icon={IconCashBanknote}
+          label={t(`fxa-${field}`)}
+        />
+      ),
+      cell: ({ row }) => <NumberCell value={row.original[field]} />,
+    }),
+  ),
   {
     id: 'originalCost',
     header: () => (

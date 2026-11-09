@@ -383,6 +383,8 @@ const OMIT_DETAIL_FOLLOW_INFO_KEYS = [
   'inventoryCode',
   'invLocationCode',
   'fxaLocationCode',
+  'fixedAssetTotalCount',
+  'fixedAssetTotalAmount',
 ];
 
 // Хуучин migration payload-оос ирсэн audit-only key-үүдийг хадгалахгүй.

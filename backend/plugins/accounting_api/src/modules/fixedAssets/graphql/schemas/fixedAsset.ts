@@ -34,6 +34,11 @@ export const types = `
     count: Float!
     originalCost: Float!
     preDeprecation: Float!
+    revaluationLoss: Float!
+    revaluationReserve: Float!
+    taxDepreciationMethod: String
+    taxAnnualDepreciationRate: Float
+    taxSalvageValue: Float
     annualDepreciationRate: Float!
     depreciationMethod: String!
     salvageValue: Float!
@@ -88,7 +93,7 @@ export const queries = `
 
   fixedAssets(searchValue: String, ids: [String], categoryId: String, status: String, limit: Int, date: Date, excludeTransactionId: String): [FixedAsset]
   fixedAssetDetail(_id: String!): FixedAsset
-  fixedAssetCapitalValuation(fixedAssetId: String!, date: Date!, excludeTransactionId: String): FixedAssetCapitalValuation!
+  fixedAssetCapitalValuation(fixedAssetId: String!, date: Date!, excludeTransactionId: String, journal: String): FixedAssetCapitalValuation!
   fixedAssetLocationRemainder(fixedAssetId: String!, branchId: String, departmentId: String, date: Date, excludeTransactionId: String): FixedAssetLocationRemainder
   fixedAssetLocationRemainders(searchValue: String, fixedAssetId: String, categoryId: String, branchId: String, departmentId: String, date: Date, limit: Int): [FixedAssetLocationRemainder]
 `;

@@ -17,7 +17,8 @@ import {
   getFxaCorrections,
   getFxaRulesAtDate,
   TFxaCorrection,
-} from './fxaJustify';
+} from './fxaRules';
+import { getFxaRevaluationState } from './fxaRevaluationState';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -378,7 +379,7 @@ const getUncompletedFixedAssetTransaction = async (
     journal: {
       $in: [
         ...FXA_MOVEMENT_JOURNALS,
-        JOURNALS.FXA_JUSTIFY,
+        JOURNALS.FXA_REVALUATION,
         JOURNALS.FXA_CAPITAL,
       ],
     },
@@ -441,12 +442,7 @@ const getDepreciationMovements = async (
   );
   const transactions = await models.Transactions.find({
     journal: {
-      $in: [
-        JOURNALS.FXA_DEP,
-        JOURNALS.FXA_DEP_IN,
-        JOURNALS.FXA_DEP_OUT,
-        JOURNALS.FXA_JUSTIFY,
-      ],
+      $in: [JOURNALS.FXA_DEP, JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT],
     },
     status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
     date: {
@@ -461,12 +457,9 @@ const getDepreciationMovements = async (
 
   for (const transaction of transactions) {
     if (
-      ![
-        JOURNALS.FXA_DEP,
-        JOURNALS.FXA_DEP_IN,
-        JOURNALS.FXA_DEP_OUT,
-        JOURNALS.FXA_JUSTIFY,
-      ].includes(transaction.journal)
+      ![JOURNALS.FXA_DEP, JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT].includes(
+        transaction.journal,
+      )
     ) {
       continue;
     }
@@ -480,9 +473,7 @@ const getDepreciationMovements = async (
       if (
         !detail.fixedAssetId ||
         !sign ||
-        ([JOURNALS.FXA_DEP, JOURNALS.FXA_JUSTIFY].includes(
-          transaction.journal,
-        ) &&
+        (transaction.journal === JOURNALS.FXA_DEP &&
           !depreciationAccounts.has(detail.accountId))
       ) {
         continue;
@@ -1081,6 +1072,28 @@ export const runAdjustFixedAsset = async (
       corrections,
     });
 
+    const openingRevaluation = await getFxaRevaluationState(
+      models,
+      fixedAsset._id,
+      addDays(startDate, -1),
+    );
+    const closingRevaluation = await getFxaRevaluationState(
+      models,
+      fixedAsset._id,
+      endDate,
+    );
+    const closingCounts = getAssetLocationCountsAtDate(
+      fixedAsset._id,
+      movements,
+      endDate,
+    );
+    const openingCounts = getAssetLocationCountsAtDate(
+      fixedAsset._id,
+      movements,
+      addDays(startDate, -1),
+    );
+    const totalClosingCount = getTotalCount(closingCounts);
+    const totalOpeningCount = getTotalCount(openingCounts);
     for (const [locationKey, result] of resultByLocationKey) {
       const accountId = fixedAsset.accountId;
       const snapshot = splitLocationKey(locationKey);
@@ -1101,6 +1114,25 @@ export const runAdjustFixedAsset = async (
         accountId,
         branchId: snapshot.branchId,
         departmentId: snapshot.departmentId,
+        count: closingCounts.get(locationKey) || 0,
+        openingRevaluationLoss: totalOpeningCount
+          ? (openingRevaluation.loss * (openingCounts.get(locationKey) || 0)) /
+            totalOpeningCount
+          : 0,
+        openingRevaluationReserve: totalOpeningCount
+          ? (openingRevaluation.reserve *
+              (openingCounts.get(locationKey) || 0)) /
+            totalOpeningCount
+          : 0,
+        closingRevaluationLoss: totalClosingCount
+          ? (closingRevaluation.loss * (closingCounts.get(locationKey) || 0)) /
+            totalClosingCount
+          : 0,
+        closingRevaluationReserve: totalClosingCount
+          ? (closingRevaluation.reserve *
+              (closingCounts.get(locationKey) || 0)) /
+            totalClosingCount
+          : 0,
         originalCost: result.originalCost,
         salvageValue: result.salvageValue,
         openingBookValue: result.openingBookValue,
@@ -1167,7 +1199,14 @@ export const createAdjustFixedAssetTransaction = async ({
   }).lean();
 
   if (!details.length) {
-    throw new Error('No depreciation details to create transaction.');
+    if (adjust.status !== ADJ_FXA_STATUSES.PROCESS || adjust.error)
+      throw new Error(
+        'Calculate depreciation and resolve errors before closing.',
+      );
+    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+      status: ADJ_FXA_STATUSES.COMPLETE,
+      modifiedBy: userId,
+    });
   }
 
   const accountConfigs = await getAccountConfigs(models);

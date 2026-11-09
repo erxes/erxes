@@ -3,7 +3,11 @@ import type { ITransaction } from '../../@types/transaction';
 import type { IAdjustFxaDetail } from '../../@types/adjustFixedAsset';
 import { ADJ_FXA_STATUSES } from '../../@types/adjustFixedAsset';
 import { JOURNALS, TR_SIDES, TR_STATUSES } from '../../@types/constants';
-import { runAdjustFixedAsset } from '../adjustFixedAssets';
+import {
+  runAdjustFixedAsset,
+  createAdjustFixedAssetTransaction,
+} from '../adjustFixedAssets';
+import { allocateFxaRevaluation } from '../fxaRevaluationState';
 
 const query = <T>(value: T) => ({
   sort() {
@@ -57,6 +61,7 @@ const setup = ({
     for (const detail of transaction.details) {
       detail.accountId = 'asset-account';
       detail.followInfos = {
+        ...detail.followInfos,
         depreciationMethod: method,
         annualDepreciationRate: 12,
         salvageValue,
@@ -80,7 +85,7 @@ const setup = ({
             JOURNALS.FXA_DEP,
             JOURNALS.FXA_DEP_IN,
             JOURNALS.FXA_DEP_OUT,
-            JOURNALS.FXA_JUSTIFY,
+            JOURNALS.FXA_CAPITAL,
           ].includes(transaction.journal),
       )
       .reduce(
@@ -172,11 +177,7 @@ const setup = ({
       ) => doc,
     },
     AdjustFxaDetails: {
-      find: () => {
-        throw new Error(
-          'Adjustment result caches must not supply financial input.',
-        );
-      },
+      find: () => query([]),
       replaceAdjustFxaDetails: async ({
         details,
       }: {
@@ -385,7 +386,7 @@ test('inactive and future depreciation entries do not affect the period', async 
 
 test('a mid-period correction changes rates only from its effective date', async () => {
   const correction = entry(
-    JOURNALS.FXA_JUSTIFY,
+    JOURNALS.FXA_CAPITAL,
     '2026-01-03',
     0,
     TR_SIDES.CREDIT,
@@ -402,7 +403,7 @@ test('a mid-period correction changes rates only from its effective date', async
 
 test('a correction uses the new method and a ledger delta without resetting accumulated depreciation', async () => {
   const correction = entry(
-    JOURNALS.FXA_JUSTIFY,
+    JOURNALS.FXA_CAPITAL,
     '2026-01-02',
     5,
     TR_SIDES.CREDIT,
@@ -414,7 +415,11 @@ test('a correction uses the new method and a ledger delta without resetting accu
   };
   const fixture = setup({
     priorDepreciation: 20,
-    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
+      correction,
+      entry(JOURNALS.FXA_DEP_IN, '2026-01-02', 5, TR_SIDES.CREDIT, 0),
+    ],
   });
   const [detail] = await fixture.run();
   expect(detail.depreciationAmount).toBeCloseTo((75 * 0.2) / 365, 8);
@@ -426,7 +431,7 @@ test('a correction uses the new method and a ledger delta without resetting accu
 
 test('draft and future correction rules never affect historical depreciation', async () => {
   const draft = entry(
-    JOURNALS.FXA_JUSTIFY,
+    JOURNALS.FXA_CAPITAL,
     '2026-01-02',
     5,
     TR_SIDES.CREDIT,
@@ -435,7 +440,7 @@ test('draft and future correction rules never affect historical depreciation', a
   draft.status = TR_STATUSES.DRAFT;
   draft.details[0].followInfos = { annualDepreciationRate: 90 };
   const future = entry(
-    JOURNALS.FXA_JUSTIFY,
+    JOURNALS.FXA_CAPITAL,
     '2026-01-04',
     5,
     TR_SIDES.CREDIT,
@@ -455,7 +460,7 @@ test('draft and future correction rules never affect historical depreciation', a
 
 test('a later period keeps correction rules from before its opening snapshot', async () => {
   const correction = entry(
-    JOURNALS.FXA_JUSTIFY,
+    JOURNALS.FXA_CAPITAL,
     '2026-01-01',
     0,
     TR_SIDES.CREDIT,
@@ -467,7 +472,11 @@ test('a later period keeps correction rules from before its opening snapshot', a
   };
   const fixture = setup({
     priorDepreciation: 20,
-    transactions: [entry(JOURNALS.FXA_INCOME, '2026-01-01', 100), correction],
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
+      correction,
+      entry(JOURNALS.FXA_DEP_IN, '2026-01-02', 5, TR_SIDES.CREDIT, 0),
+    ],
   });
   const [detail] = await fixture.run();
   expect(detail.preDeprecation).toBe(20);
@@ -543,4 +552,97 @@ test('a fully disposed asset absent from the last snapshot stays absent in later
     ],
   });
   expect(await fixture.run()).toEqual([]);
+});
+
+test('depreciation snapshots carry opening history and period revaluations per active location', async () => {
+  const incomeA = entry(
+    JOURNALS.FXA_INCOME,
+    '2026-01-01',
+    200,
+    TR_SIDES.DEBIT,
+    2,
+    'a',
+  );
+  const incomeB = entry(
+    JOURNALS.FXA_INCOME,
+    '2026-01-01',
+    100,
+    TR_SIDES.DEBIT,
+    1,
+    'b',
+  );
+  for (const income of [incomeA, incomeB])
+    income.details[0].followInfos = { revaluationLoss: 5 * (income.details[0].count || 0) };
+  const revalue = entry(
+    JOURNALS.FXA_REVALUATION,
+    '2026-01-02',
+    0,
+    TR_SIDES.DEBIT,
+    0,
+  );
+  revalue.details = [
+    {
+      fixedAssetId: 'asset-a',
+      accountId: 'asset-account',
+      count: 0,
+      branchId: 'a',
+      amount: 12,
+      followInfos: {
+        originalCost: 106,
+        annualDepreciationRate: 12,
+        ...allocateFxaRevaluation(12, 10, 0),
+      },
+    },
+    {
+      fixedAssetId: 'asset-a',
+      accountId: 'asset-account',
+      count: 0,
+      branchId: 'b',
+      amount: 6,
+      followInfos: {
+        originalCost: 106,
+        annualDepreciationRate: 12,
+        ...allocateFxaRevaluation(6, 5, 0),
+      },
+    },
+  ];
+  const fixture = setup({ transactions: [incomeA, incomeB, revalue] });
+  const rows = await fixture.run('2026-01-02');
+  expect(rows.find((row) => row.branchId === 'a')).toMatchObject({
+    count: 2,
+    closingRevaluationLoss: 0,
+    closingRevaluationReserve: 2,
+  });
+  expect(rows.find((row) => row.branchId === 'b')).toMatchObject({
+    count: 1,
+    closingRevaluationLoss: 0,
+    closingRevaluationReserve: 1,
+  });
+  expect(
+    rows.reduce((sum, row) => sum + (row.closingRevaluationReserve || 0), 0),
+  ).toBe(3);
+});
+
+test('a zero-depreciation period closes its snapshots without creating a zero journal', async () => {
+  const update = jest.fn(
+    async (_id: string, value: Record<string, unknown>) => value,
+  );
+  const create = jest.fn();
+  const models = {
+    AdjustFxaDetails: { find: () => query([]) },
+    AdjustFixedAssets: { updateAdjustFixedAsset: update },
+    Transactions: { createPTransaction: create },
+  };
+  const result = await createAdjustFixedAssetTransaction({
+    models: models as unknown as IModels,
+    userId: 'user',
+    expenseAccountId: 'expense',
+    adjust: {
+      _id: 'zero-period',
+      date: new Date('2026-01-31'),
+      status: ADJ_FXA_STATUSES.PROCESS,
+    } as Parameters<typeof createAdjustFixedAssetTransaction>[0]['adjust'],
+  });
+  expect(result).toMatchObject({ status: ADJ_FXA_STATUSES.COMPLETE });
+  expect(create).not.toHaveBeenCalled();
 });

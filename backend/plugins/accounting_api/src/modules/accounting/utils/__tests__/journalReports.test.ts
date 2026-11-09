@@ -44,6 +44,7 @@ describe('journal report filters', () => {
     expect(journals).toEqual(
       expect.arrayContaining([
         JOURNALS.FXA_CAPITAL,
+        JOURNALS.FXA_REVALUATION,
         JOURNALS.FXA_DEP_IN,
         JOURNALS.FXA_DEP_OUT,
       ]),

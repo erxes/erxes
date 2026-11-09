@@ -44,7 +44,7 @@ export enum TrJournalEnum {
   FXA_MOVE_IN = 'fxaMoveIn',
   FXA_SALE = 'fxaSale',
   FXA_CAPITAL = 'fxaCapital',
-  FXA_JUSTIFY = 'fxaJustify',
+  FXA_REVALUATION = 'fxaRevaluation',
 }
 
 export const TR_JOURNAL_LABELS = {
@@ -72,7 +72,7 @@ export const TR_JOURNAL_LABELS = {
   [TrJournalEnum.INV_SALE_RETURN_COST]: 'sales-return-cost-of-goods-sold',
 
   [TrJournalEnum.FXA_CAPITAL]: 'fixed-asset-capitalization',
-  [TrJournalEnum.FXA_JUSTIFY]: 'fixed-asset-correction',
+  [TrJournalEnum.FXA_REVALUATION]: 'fixed-asset-revaluation',
   [TrJournalEnum.FXA_INCOME]: 'fixed-asset-acquisition',
   [TrJournalEnum.FXA_OUT]: 'fixed-asset-disposal',
   [TrJournalEnum.FXA_DEP]: 'fixed-asset-depreciation',
@@ -153,8 +153,14 @@ export const TR_JOURNAL_GROUPS: TrJournalGroup[] = [
       { journal: TrJournalEnum.FXA_OUT, label: 'disposal' },
       { journal: TrJournalEnum.FXA_MOVE, label: 'movement' },
       { journal: TrJournalEnum.FXA_SALE, label: 'sale' },
-      { journal: TrJournalEnum.FXA_CAPITAL, label: 'fixed-asset-capitalization' },
-      { journal: TrJournalEnum.FXA_JUSTIFY, label: 'fixed-asset-correction' },
+      {
+        journal: TrJournalEnum.FXA_CAPITAL,
+        label: 'fixed-asset-capitalization',
+      },
+      {
+        journal: TrJournalEnum.FXA_REVALUATION,
+        label: 'fixed-asset-revaluation',
+      },
     ],
   },
 ];
@@ -221,7 +227,7 @@ export const TR_RECORD_JOURNAL_GROUPS: TrRecordJournalGroup[] = [
       TrJournalEnum.FXA_SALE_OUT,
       TrJournalEnum.FXA_SALE_COST,
       TrJournalEnum.FXA_CAPITAL,
-      TrJournalEnum.FXA_JUSTIFY,
+      TrJournalEnum.FXA_REVALUATION,
     ],
   },
 ];

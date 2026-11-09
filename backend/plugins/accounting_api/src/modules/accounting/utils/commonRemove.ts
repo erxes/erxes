@@ -7,7 +7,6 @@ import { removeFxaIncomeDetails } from './fxaIncome';
 import { removeFxaDisposalInstances } from './fxaOut';
 import { removeFxaMoveInstances } from './fxaMove';
 import { removeInvJustify } from './invJustify';
-import { validateFxaJustifyRemove } from './fxaJustify';
 import { removeFxaCapital, validateFxaCapitalRemove } from './fxaCapital';
 import { isInvSplitFollow, removeInvSplitFollowTrs } from './invSplit';
 
@@ -67,7 +66,7 @@ export const commonRemoveValidation = async (
 ): Promise<void> => {
   const validators: Record<string, TJournalRemoveHandler> = {
     fxaCapital: validateFxaCapitalRemove,
-    fxaJustify: validateFxaJustifyRemove,
+    fxaRevaluation: validateFxaCapitalRemove,
     fxaIncome: validateFxaIncomeRemove,
   };
   const validator = validators[transaction.journal];
@@ -93,6 +92,7 @@ function getJournalHandler(journal: string) {
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
     fxaCapital: removeFxaCapital,
+    fxaRevaluation: removeFxaCapital,
     fxaIncome: handleFxaIncome,
     fxaOut: handleFxaOut,
     fxaMove: handleFxaMove,

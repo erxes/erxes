@@ -14,7 +14,7 @@ import { checkPermissionTrs } from '@/accounting/utils/trPermissions';
 import {
   getFxaCorrections,
   getFxaRulesAtDate,
-} from '@/accounting/utils/fxaJustify';
+} from '@/accounting/utils/fxaRules';
 import {
   buildFixedAssetLocationRemainderRows,
   getFixedAssetRemainderExclusionFilter,
@@ -44,7 +44,7 @@ const movementJournals = [
   JOURNALS.FXA_DEP,
   JOURNALS.FXA_DEP_IN,
   JOURNALS.FXA_DEP_OUT,
-  JOURNALS.FXA_JUSTIFY,
+  JOURNALS.FXA_REVALUATION,
   JOURNALS.FXA_CAPITAL,
 ];
 const chooserJournals = [
@@ -52,7 +52,7 @@ const chooserJournals = [
   JOURNALS.FXA_MOVE,
   JOURNALS.FXA_SALE,
   JOURNALS.FXA_CAPITAL,
-  JOURNALS.FXA_JUSTIFY,
+  JOURNALS.FXA_REVALUATION,
 ];
 
 export const buildChooserOwnerBalances = (

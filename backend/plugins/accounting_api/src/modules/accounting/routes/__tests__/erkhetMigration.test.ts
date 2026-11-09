@@ -3,6 +3,7 @@
 import { JOURNALS } from '../../@types/constants';
 import {
   getErkhetTransactionCodeMapForTest,
+  normalizeErkhetBatchDocsForTest,
   normalizeOpeningFixedAssetBalances,
   resolveErkhetInvIncomeExpensesForTest,
   resolveErkhetInvSplitInfoForTest,
@@ -398,5 +399,78 @@ describe('Erkhet migration fixed asset owner records', () => {
       },
       expect.any(Object),
     );
+  });
+});
+
+describe('Erkhet acquisition detail snapshots', () => {
+  it('keeps financial inputs in details while stripping obsolete master cache hints', async () => {
+    const query = <T>(rows: T[]) => ({ lean: async () => rows });
+    const fixedAssetLookup = jest.fn();
+    const raw = {
+      Accounts: { find: () => query([{ _id: 'asset-account', code: '2001' }]) },
+      FixedAssetCategories: {
+        find: () => query([{ _id: 'category-id', code: 'COMPUTER' }]),
+      },
+      FixedAssets: { find: fixedAssetLookup },
+    };
+    const [doc] = await normalizeErkhetBatchDocsForTest(
+      'test',
+      raw as unknown as IModels,
+      {
+        externalPtrId: 'income-1',
+        trDocs: [
+          {
+            journal: JOURNALS.FXA_INCOME,
+            date: new Date('2025-12-31'),
+            details: [
+              {
+                accountId: '2001',
+                fixedAssetCategoryId: 'COMPUTER',
+                fixedAssetCode: 'PC-001',
+                fixedAssetName: 'Computer',
+                count: 2,
+                unitPrice: 100,
+                amount: 200,
+                followInfos: {
+                  depreciationMethod: 'straightLine',
+                  annualDepreciationRate: 12,
+                  salvageValue: 0,
+                  depreciationStartDate: new Date('2020-01-01'),
+                  preDeprecation: 20,
+                  revaluationLoss: 0,
+                  revaluationReserve: 0,
+                  fixedAssetTotalCount: 999,
+                  fixedAssetTotalAmount: 999999,
+                },
+              },
+            ],
+          },
+        ],
+      },
+      'user',
+      true,
+    );
+    expect(doc.details[0]).toMatchObject({
+      accountId: 'asset-account',
+      fixedAssetCategoryId: 'category-id',
+      fixedAssetCode: 'PC-001',
+      count: 2,
+      unitPrice: 100,
+      amount: 200,
+      followInfos: {
+        annualDepreciationRate: 12,
+        salvageValue: 0,
+        preDeprecation: 20,
+        revaluationLoss: 0,
+        revaluationReserve: 0,
+      },
+    });
+    expect(doc.details[0].followInfos).not.toHaveProperty(
+      'fixedAssetTotalCount',
+    );
+    expect(doc.details[0].followInfos).not.toHaveProperty(
+      'fixedAssetTotalAmount',
+    );
+    expect(fixedAssetLookup).not.toHaveBeenCalled();
   });
 });

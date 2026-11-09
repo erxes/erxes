@@ -37,15 +37,16 @@ export const transactionDetailFollowInfoSchema = z
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
-    originalCost: undefed(z.number().finite().positive()),
+    originalCost: undefed(z.number().finite().nonnegative()),
     depreciationBase: undefed(z.number().finite().nonnegative()),
-    capitalizationType: undefed(z.enum(['improvement', 'revaluation'])),
     depreciationMethod: undefed(z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)),
     annualDepreciationRate: undefed(z.number().finite().nonnegative().max(100)),
     depreciationStartDate: undefed(
       z.string().refine((value) => Number.isFinite(Date.parse(value))),
     ),
     preDeprecation: undefed(z.number().nonnegative()),
+    revaluationLoss: undefed(z.number().finite()),
+    revaluationReserve: undefed(z.number().finite()),
     salvageValue: undefed(z.number().finite().nonnegative()),
     taxDepreciationMethod: undefed(
       z.enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES),
@@ -469,7 +470,10 @@ export const fxaIncomeDetailSchema = z
         }),
       }),
     ),
-    followInfos: undefed(transactionDetailFollowInfoSchema),
+    followInfos: undefed(transactionDetailFollowInfoSchema.extend({
+      revaluationLoss: undefed(z.number().finite().nonnegative()),
+      revaluationReserve: undefed(z.number().finite().nonnegative()),
+    })),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });
@@ -479,10 +483,6 @@ export const fxaFollowInfosSchema = z.object({
   depreciationExpenseAccountId: undefed(z.string()),
   saleOutAccountId: undefed(z.string()),
   saleCostAccountId: undefed(z.string()),
-  revaluationReserveAccountId: undefed(z.string()),
-  deferredTaxAssetAccountId: undefed(z.string()),
-  deferredTaxLiabilityAccountId: undefed(z.string()),
-  incomeTaxExpenseAccountId: undefed(z.string()),
   moveInBranchId: undefed(z.string()),
   moveInDepartmentId: undefed(z.string()),
   ownerId: undefed(z.string()),
@@ -650,9 +650,8 @@ export const transactionFxaCapitalSchema = z.object({
         count: z.literal(0),
         followInfos: transactionDetailFollowInfoSchema
           .extend({
-            originalCost: z.number().finite().positive(),
+            originalCost: z.number().finite().nonnegative(),
             annualDepreciationRate: z.number().finite().positive().max(100),
-            capitalizationType: z.enum(['improvement', 'revaluation']),
             preDeprecation: undefed(z.number().finite().nonnegative()),
             salvageValue: undefed(z.number().finite().nonnegative()),
           })
@@ -673,45 +672,10 @@ export const transactionFxaCapitalSchema = z.object({
     .min(1),
 });
 
-export const transactionFxaJustifySchema = z.object({
-  ...baseTransactionSchema.shape,
-  journal: z.literal(TrJournalEnum.FXA_JUSTIFY),
-  details: z
-    .array(
-      baseTrDetailSchema
-        .extend({
-          fixedAssetId: z.string().min(1),
-          count: z.literal(0),
-          followInfos: transactionDetailFollowInfoSchema.extend({
-            annualDepreciationRate: undefed(
-              z.number().finite().positive().max(100),
-            ),
-            depreciationMethod: undefed(
-              z
-                .enum(FIXED_ASSET_DEPRECIATION_METHOD_VALUES)
-                .refine((value): boolean => value !== 'manual'),
-            ),
-            salvageValue: undefed(z.number().finite().nonnegative()),
-          }),
-        })
-        .refine(
-          (detail) =>
-            detail.amount > 0 ||
-            detail.followInfos.depreciationMethod !== undefined ||
-            detail.followInfos.annualDepreciationRate !== undefined ||
-            detail.followInfos.salvageValue !== undefined ||
-            detail.followInfos.depreciationStartDate !== undefined,
-          () => ({
-            path: ['amount'],
-            message: getI18n().t(
-              'Enter a correction amount or a depreciation rule change',
-              { ns: 'accounting' },
-            ),
-          }),
-        ),
-    )
-    .min(1),
-});
+export const transactionFxaRevaluationSchema =
+  transactionFxaCapitalSchema.extend({
+    journal: z.literal(TrJournalEnum.FXA_REVALUATION),
+  });
 // #endregion Fixed assets
 
 // #region core
@@ -731,7 +695,7 @@ export const trDocSchema = z
     transactionInvSaleReturnSchema,
 
     transactionFxaCapitalSchema,
-    transactionFxaJustifySchema,
+    transactionFxaRevaluationSchema,
     transactionFxaIncomeSchema,
     transactionFxaOutSchema,
     transactionFxaMoveSchema,

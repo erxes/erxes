@@ -87,6 +87,11 @@ query accountingAdjustFxaDetails($_id: String!, $page: Int, $perPage: Int, $sort
     accountId
     branchId
     departmentId
+    count
+    openingRevaluationLoss
+    openingRevaluationReserve
+    closingRevaluationLoss
+    closingRevaluationReserve
     originalCost
     salvageValue
     openingBookValue

@@ -24,6 +24,11 @@ export interface IAdjustFxaDetail {
   branchId?: string;
   departmentId?: string;
 
+  count?: number;
+  openingRevaluationLoss?: number;
+  openingRevaluationReserve?: number;
+  closingRevaluationLoss?: number;
+  closingRevaluationReserve?: number;
   originalCost: number;
   salvageValue?: number;
   openingBookValue?: number;

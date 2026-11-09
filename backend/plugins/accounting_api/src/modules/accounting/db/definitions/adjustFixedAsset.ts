@@ -40,6 +40,11 @@ export const adjustFxaDetailSchema = new Schema({
     label: 'Department',
     index: true,
   },
+  count: { type: Number, optional: true },
+  openingRevaluationLoss: { type: Number, optional: true },
+  openingRevaluationReserve: { type: Number, optional: true },
+  closingRevaluationLoss: { type: Number, optional: true },
+  closingRevaluationReserve: { type: Number, optional: true },
   originalCost: { type: Number, label: 'Original cost' },
   salvageValue: { type: Number, optional: true, label: 'Salvage value' },
   openingBookValue: {

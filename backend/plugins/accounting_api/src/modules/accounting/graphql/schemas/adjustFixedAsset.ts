@@ -25,6 +25,11 @@ export const types = `
     branchId: String
     departmentId: String
 
+    count: Float
+    openingRevaluationLoss: Float
+    openingRevaluationReserve: Float
+    closingRevaluationLoss: Float
+    closingRevaluationReserve: Float
     originalCost: Float
     salvageValue: Float
     openingBookValue: Float

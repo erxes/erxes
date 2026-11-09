@@ -53,15 +53,7 @@ export const fxaCapitalDetailDefaultValues = (detail: ITrDetail = {}) => ({
     ...detail.followInfos,
     originalCost: detail.followInfos?.originalCost ?? 0,
     annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
-    capitalizationType: detail.followInfos?.capitalizationType || 'improvement',
   },
-});
-
-export const fxaJustifyDetailDefaultValues = (detail: ITrDetail = {}) => ({
-  ...trDetailWrapper(detail),
-  count: 0 as const,
-  unitPrice: 0,
-  followInfos: detail.followInfos || {},
 });
 
 const getInventoryDetailFollowInfos = (
@@ -424,11 +416,6 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
       doc?.followInfos?.saleCostAccountId ||
       doc?.followInfos?.lossAccountId ||
       '',
-    revaluationReserveAccountId: doc?.followInfos?.revaluationReserveAccountId,
-    deferredTaxAssetAccountId: doc?.followInfos?.deferredTaxAssetAccountId,
-    deferredTaxLiabilityAccountId:
-      doc?.followInfos?.deferredTaxLiabilityAccountId,
-    incomeTaxExpenseAccountId: doc?.followInfos?.incomeTaxExpenseAccountId,
     moveInBranchId: doc?.followInfos?.moveInBranchId ?? '',
     moveInDepartmentId: doc?.followInfos?.moveInDepartmentId,
     ownerId: doc?.followInfos?.ownerId || doc?.followInfos?.responsibleUserId,
@@ -609,13 +596,14 @@ export function JOURNALS_BY_JOURNAL(
       };
       break;
 
-    case TrJournalEnum.FXA_JUSTIFY:
+    case TrJournalEnum.FXA_REVALUATION:
       result = {
         ...trDataWrapper(doc),
-        journal: TrJournalEnum.FXA_JUSTIFY,
-        side: doc.side || TR_SIDES.CREDIT,
+        journal: TrJournalEnum.FXA_REVALUATION,
+        side: doc.side || TR_SIDES.DEBIT,
+        followInfos: undefined,
         details: (doc.details?.length ? doc.details : [{}]).map(
-          fxaJustifyDetailDefaultValues,
+          fxaCapitalDetailDefaultValues,
         ),
       };
       break;

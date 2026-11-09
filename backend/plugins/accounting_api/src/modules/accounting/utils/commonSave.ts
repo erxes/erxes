@@ -7,7 +7,7 @@ import InvSaleOutCostTrs from './invSale';
 import { createOrUpdateTr, syncProductsInventory } from './utils';
 import InvMoveInTrs from './invMove';
 import InvSaleReturnOutCostTrs from './invSaleReturn';
-import { TR_SIDES } from '../@types/constants';
+import { JOURNALS, TR_SIDES } from '../@types/constants';
 import { commonRemoveValidation } from './commonRemove';
 import {
   syncFxaIncomeDetails,
@@ -25,8 +25,8 @@ import {
 } from './fixedAssets';
 import { applyActiveInventoryCosts } from './inventoryCosts';
 import { saveInvJustify } from './invJustify';
-import { saveFxaJustify, validateFxaJustifySave } from './fxaJustify';
 import { saveFxaCapital, validateFxaCapitalSave } from './fxaCapital';
+import { assertCorrectionDateOpen } from './fxaRules';
 import {
   normalizeInvSplitTransaction,
   syncInvSplitFollowTrs,
@@ -54,7 +54,7 @@ export const commonSaveValidation = async (
     ) => Promise<void>
   > = {
     fxaCapital: validateFxaCapitalSave,
-    fxaJustify: validateFxaJustifySave,
+    fxaRevaluation: validateFxaCapitalSave,
     fxaIncome: validateFxaIncomeSave,
   };
   const validator = validators[doc.journal];
@@ -122,7 +122,7 @@ function getJournalHandler(journal: string) {
     invSale: handleInvSale,
     invSaleReturn: handleInvSaleReturn,
     fxaCapital: saveFxaCapital,
-    fxaJustify: saveFxaJustify,
+    fxaRevaluation: saveFxaCapital,
     fxaIncome: handleFxaIncome,
     fxaOut: handleFxaOut,
     fxaMove: handleFxaMove,
@@ -389,6 +389,30 @@ async function validateFxaIncomeSave(
 ): Promise<void> {
   await validateFxaIncomeAcquisition(models, userId, doc);
   if (!oldTr) return;
+  const openingHistoryChanged = doc.details.some((detail) => {
+    const previous = oldTr.details.find((row) => row._id === detail._id);
+    return (
+      previous &&
+      (['revaluationLoss', 'revaluationReserve'] as const).some(
+        (field) =>
+          (previous.followInfos?.[field] || 0) !==
+          (detail.followInfos?.[field] || 0),
+      )
+    );
+  });
+  if (openingHistoryChanged) {
+    await assertCorrectionDateOpen(models, oldTr.date);
+    const laterValuation = await models.Transactions.findOne({
+      journal: { $in: [JOURNALS.FXA_CAPITAL, JOURNALS.FXA_REVALUATION] },
+      'details.fixedAssetId': {
+        $in: oldTr.details.map((detail) => detail.fixedAssetId).filter(Boolean),
+      },
+    }).lean();
+    if (laterValuation)
+      throw new Error(
+        'Remove dependent asset changes before editing opening revaluation history.',
+      );
+  }
   const removedDetailIds = getRemovedFxaDetailIds(oldTr, doc);
   if (removedDetailIds.length) {
     await commonRemoveValidation(subdomain, models, oldTr, undefined, {

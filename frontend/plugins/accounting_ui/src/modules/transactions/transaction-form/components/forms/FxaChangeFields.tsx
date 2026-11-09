@@ -29,6 +29,8 @@ export const FxaChangeNumberField = ({
   usefulYears = false,
 }: IFxaChangeFieldProps & {
   rule:
+    | 'revaluationLoss'
+    | 'revaluationReserve'
     | 'taxAnnualDepreciationRate'
     | 'taxSalvageValue'
     | 'originalCost'

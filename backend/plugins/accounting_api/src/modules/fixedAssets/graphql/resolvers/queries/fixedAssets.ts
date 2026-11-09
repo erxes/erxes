@@ -4,7 +4,7 @@ import { IContext } from '~/connectionResolvers';
 import {
   getFxaCorrections,
   getFxaRulesAtDate,
-} from '@/accounting/utils/fxaJustify';
+} from '@/accounting/utils/fxaRules';
 import { getFxaCapitalValuation } from '@/accounting/utils/fxaCapitalValuation';
 import { assertTransactionJournalPermission } from '@/accounting/utils/transactionPermissions';
 import {
@@ -458,15 +458,19 @@ const fixedAssets = {
       fixedAssetId,
       date,
       excludeTransactionId,
-    }: { fixedAssetId: string; date: Date; excludeTransactionId?: string },
+      journal = JOURNALS.FXA_CAPITAL,
+    }: {
+      fixedAssetId: string;
+      date: Date;
+      excludeTransactionId?: string;
+      journal?: string;
+    },
     context: IContext,
   ) => {
+    if (![JOURNALS.FXA_CAPITAL, JOURNALS.FXA_REVALUATION].includes(journal))
+      throw new Error('Unsupported fixed asset valuation journal.');
     if (!context.user?._id) throw new Error('Authentication required.');
-    await assertTransactionJournalPermission(
-      context,
-      JOURNALS.FXA_CAPITAL,
-      'read',
-    );
+    await assertTransactionJournalPermission(context, journal, 'read');
     return getFxaCapitalValuation(
       context.models,
       fixedAssetId,

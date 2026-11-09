@@ -8,19 +8,40 @@ export type TFxaCapitalValuation = ResultOf<
   typeof FXA_CAPITAL_VALUATION
 >['fixedAssetCapitalValuation'];
 
+export const allocateRevaluationPreview = (
+  change: number,
+  openingLoss: number,
+  openingReserve: number,
+) => {
+  const money = (value: number) => Math.round(value * 10000) / 10000;
+  const increase = money(Math.max(change, 0));
+  const decrease = money(Math.max(-change, 0));
+  const lossRecovery = money(Math.min(increase, openingLoss));
+  const reserveUsed = money(Math.min(decrease, openingReserve));
+  return {
+    revaluationLoss: money(decrease - reserveUsed - lossRecovery),
+    revaluationReserve: money(increase - lossRecovery - reserveUsed),
+  };
+};
+
 const buildFxaCapitalAssetPreview = (
   trDoc: TTrDoc,
   valuation: TFxaCapitalValuation,
 ) => {
-  if (trDoc.journal !== TrJournalEnum.FXA_CAPITAL) return undefined;
+  if (
+    trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
+    trDoc.journal !== TrJournalEnum.FXA_REVALUATION
+  )
+    return undefined;
   const info = trDoc.details[0]?.followInfos;
   if (
     !info ||
     !valuation.count ||
     !Number.isFinite(info.originalCost) ||
-    info.originalCost <= 0
+    info.originalCost < 0
   )
     return undefined;
+  const revaluation = trDoc.journal === TrJournalEnum.FXA_REVALUATION;
   const sourceDetails: ITrDetail[] = trDoc.details;
   const costDelta = info.originalCost - valuation.originalCost;
   const depreciationDelta =
@@ -60,12 +81,27 @@ const buildFxaCapitalAssetPreview = (
     count: 0 as const,
     unitPrice: 0,
     amount: round(costDelta * location.count),
-    followInfos: info,
+    followInfos: {
+      ...info,
+      revaluationLoss: undefined,
+      revaluationReserve: undefined,
+      ...(revaluation
+        ? {
+            ...allocateRevaluationPreview(
+              (costDelta - depreciationDelta) * location.count,
+              ((valuation.revaluationLoss || 0) * location.count) /
+                valuation.count,
+              ((valuation.revaluationReserve || 0) * location.count) /
+                valuation.count,
+            ),
+          }
+        : {}),
+    },
   }));
   const decreasesDepreciation = depreciationDelta < 0;
   const originType = decreasesDepreciation
-    ? 'fxaCapitalDepOut'
-    : 'fxaCapitalDepIn';
+    ? TrJournalEnum.FXA_DEP_OUT
+    : TrJournalEnum.FXA_DEP_IN;
   const followDetails = valuation.locations
     .map((location, index) => ({
       _id: `${trDoc._id}-${originType}-${valuation.fixedAssetId}-${index}`,
@@ -115,7 +151,11 @@ export const buildFxaCapitalPreview = (
   trDoc: TTrDoc,
   valuationInput: TFxaCapitalValuation | TFxaCapitalValuation[],
 ) => {
-  if (trDoc.journal !== TrJournalEnum.FXA_CAPITAL) return undefined;
+  if (
+    trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
+    trDoc.journal !== TrJournalEnum.FXA_REVALUATION
+  )
+    return undefined;
   const valuations = Array.isArray(valuationInput)
     ? valuationInput
     : [valuationInput];
@@ -162,4 +202,45 @@ export const buildFxaCapitalPreview = (
     side: [...sides][0] || TR_SIDES.DEBIT,
     mixedDirections: sides.size > 1,
   };
+};
+
+// Replace only this source journal's generated depreciation follows.
+export const mergeFxaDepreciationFollows = (
+  previous: ITransaction[],
+  follows: ITransaction[],
+  originId: string,
+): ITransaction[] => {
+  const remaining = previous.filter(
+    (row) =>
+      row.originId !== originId ||
+      (row.originType !== TrJournalEnum.FXA_DEP_IN &&
+        row.originType !== TrJournalEnum.FXA_DEP_OUT),
+  );
+  const next = [
+    ...remaining,
+    ...follows.map((row) => {
+      const saved = previous.find(
+        (old) => old.originId === originId && old.originType === row.originType,
+      );
+      return {
+        ...saved,
+        ...row,
+        _id: saved?._id || row._id,
+        details: row.details.map((detail) => {
+          const savedDetail = saved?.details.find(
+            (old) =>
+              old.fixedAssetId === detail.fixedAssetId &&
+              (old.branchId || '') === (detail.branchId || '') &&
+              (old.departmentId || '') === (detail.departmentId || ''),
+          );
+          return {
+            ...savedDetail,
+            ...detail,
+            _id: savedDetail?._id || detail._id,
+          };
+        }),
+      };
+    }),
+  ];
+  return JSON.stringify(previous) === JSON.stringify(next) ? previous : next;
 };

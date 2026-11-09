@@ -3,6 +3,7 @@ import {
   ACCOUNT_JOURNALS,
   JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
+  TR_FOLLOW_TYPES,
   TR_SIDES,
 } from '../@types/constants';
 import {
@@ -10,7 +11,7 @@ import {
   ITransactionDocument,
   ITrDetail,
 } from '../@types/transaction';
-import { assertCorrectionDateOpen, readFxaCapitalRules } from './fxaJustify';
+import { assertCorrectionDateOpen, readFxaCapitalRules } from './fxaRules';
 import {
   fxaCapitalDate,
   getFxaCapitalValuation,
@@ -18,9 +19,10 @@ import {
 } from './fxaCapitalValuation';
 import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { createOrUpdateTr } from './utils';
+import { allocateFxaRevaluation } from './fxaRevaluationState';
 
 const MONEY_EPSILON = 0.005;
-const FOLLOW_TYPES = ['fxaCapitalDepIn', 'fxaCapitalDepOut'];
+const FOLLOW_TYPES = [TR_FOLLOW_TYPES.FXA_DEP_IN, TR_FOLLOW_TYPES.FXA_DEP_OUT];
 
 const roundMoney = (amount: number): number =>
   Math.round((amount + Number.EPSILON) * 10000) / 10000;
@@ -32,14 +34,8 @@ const buildFxaCapitalAssetDocuments = (
   const input = doc.details[0];
   const info = input.followInfos || {};
   const rules = readFxaCapitalRules(info);
-  if (
-    !rules.originalCost ||
-    !rules.annualDepreciationRate ||
-    !['improvement', 'revaluation'].includes(String(info.capitalizationType))
-  ) {
-    throw new Error(
-      'Enter capitalization type, new unit cost and useful life.',
-    );
+  if (rules.originalCost === undefined || !rules.annualDepreciationRate) {
+    throw new Error('Enter new unit cost and remaining useful life.');
   }
   const targetDepreciation = info.preDeprecation ?? valuation.preDeprecation;
   const salvageValue = rules.salvageValue ?? valuation.salvageValue;
@@ -57,6 +53,7 @@ const buildFxaCapitalAssetDocuments = (
   const depreciationDelta = targetDepreciation - valuation.preDeprecation;
   const side = costDelta < 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
   const date = fxaCapitalDate(doc.date);
+  const revaluation = doc.journal === JOURNALS.FXA_REVALUATION;
   const usedDetailIds = new Set<string>();
   const locationDetails = valuation.locations.map(
     (location, index): ITrDetail => {
@@ -86,20 +83,23 @@ const buildFxaCapitalAssetDocuments = (
           depreciationMethod:
             rules.depreciationMethod || valuation.depreciationMethod,
           salvageValue,
-          depreciationStartDate: date,
+          depreciationStartDate: rules.depreciationStartDate || date,
           depreciationBase: Math.max(
             targetCost - targetDepreciation - salvageValue,
             0,
           ),
           preDeprecation: targetDepreciation,
-          capitalizationType: info.capitalizationType,
-          previousDepreciationRules: {
-            originalCost: valuation.originalCost,
-            preDeprecation: valuation.preDeprecation,
-            annualDepreciationRate: valuation.annualDepreciationRate,
-            depreciationMethod: valuation.depreciationMethod,
-            salvageValue: valuation.salvageValue,
-          },
+          ...(revaluation
+            ? {
+                ...allocateFxaRevaluation(
+                  (costDelta - depreciationDelta) * location.count,
+                  ((valuation.revaluationLoss || 0) * location.count) /
+                    valuation.count,
+                  ((valuation.revaluationReserve || 0) * location.count) /
+                    valuation.count,
+                ),
+              }
+            : {}),
         },
       };
     },
@@ -132,8 +132,8 @@ const buildFxaCapitalAssetDocuments = (
             ? JOURNALS.FXA_DEP_OUT
             : JOURNALS.FXA_DEP_IN,
           originType: decreasesDepreciation
-            ? 'fxaCapitalDepOut'
-            : 'fxaCapitalDepIn',
+            ? TR_FOLLOW_TYPES.FXA_DEP_OUT
+            : TR_FOLLOW_TYPES.FXA_DEP_IN,
           originId: doc._id,
           ptrId: doc.ptrId,
           parentId: doc.parentId,
@@ -212,7 +212,7 @@ const findLaterCapitalDependency = (
     journal: {
       $in: [
         JOURNALS.FXA_CAPITAL,
-        JOURNALS.FXA_JUSTIFY,
+        JOURNALS.FXA_REVALUATION,
         JOURNALS.FXA_OUT,
         JOURNALS.FXA_MOVE,
         JOURNALS.FXA_SALE,

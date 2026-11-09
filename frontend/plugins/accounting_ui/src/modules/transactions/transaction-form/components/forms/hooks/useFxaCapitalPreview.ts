@@ -8,6 +8,7 @@ import {
 import { TrJournalEnum } from '@/transactions/types/constants';
 import {
   buildFxaCapitalPreview,
+  mergeFxaDepreciationFollows,
   TFxaCapitalValuation,
 } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 
@@ -29,7 +30,12 @@ export const useFxaCapitalPreview = ({
     [trDoc, valuation],
   );
   useEffect(() => {
-    if (!trDoc || trDoc.journal !== TrJournalEnum.FXA_CAPITAL) return;
+    if (
+      !trDoc ||
+      (trDoc.journal !== TrJournalEnum.FXA_CAPITAL &&
+        trDoc.journal !== TrJournalEnum.FXA_REVALUATION)
+    )
+      return;
     if (preview && !preview.mixedDirections) {
       if (JSON.stringify(trDoc.details) !== JSON.stringify(preview.details)) {
         form.setValue(`trDocs.${index}.details`, preview.details);
@@ -37,45 +43,13 @@ export const useFxaCapitalPreview = ({
       if (trDoc.side !== preview.side)
         form.setValue(`trDocs.${index}.side`, preview.side);
     }
-    setFollows((previous) => {
-      const remaining = previous.filter(
-        (row) =>
-          !(
-            row.originId === trDoc._id &&
-            row.originType?.startsWith('fxaCapital')
-          ),
-      );
-      const follows = (
-        preview?.mixedDirections ? [] : preview?.follows || []
-      ).map((row) => {
-        const saved = previous.find(
-          (old) =>
-            old.originId === trDoc._id && old.originType === row.originType,
-        );
-        return {
-          ...saved,
-          ...row,
-          _id: saved?._id || row._id,
-          details: row.details.map((detail) => {
-            const savedDetail = saved?.details.find(
-              (old) =>
-                old.fixedAssetId === detail.fixedAssetId &&
-                (old.branchId || '') === (detail.branchId || '') &&
-                (old.departmentId || '') === (detail.departmentId || ''),
-            );
-            return {
-              ...savedDetail,
-              ...detail,
-              _id: savedDetail?._id || detail._id,
-            };
-          }),
-        };
-      });
-      const next = [...remaining, ...follows];
-      return JSON.stringify(previous) === JSON.stringify(next)
-        ? previous
-        : next;
-    });
+    setFollows((previous) =>
+      mergeFxaDepreciationFollows(
+        previous,
+        preview?.mixedDirections ? [] : preview?.follows || [],
+        trDoc._id,
+      ),
+    );
   }, [form, index, preview, setFollows, trDoc]);
   return preview?.mixedDirections || false;
 };

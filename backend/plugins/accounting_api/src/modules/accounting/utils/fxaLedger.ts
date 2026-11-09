@@ -179,7 +179,7 @@ export const getFxaLedgerAssets = async (
         JOURNALS.FXA_SALE,
         JOURNALS.FXA_SALE_OUT,
         JOURNALS.FXA_CAPITAL,
-        JOURNALS.FXA_JUSTIFY,
+        JOURNALS.FXA_REVALUATION,
         JOURNALS.FXA_DEP,
         JOURNALS.FXA_DEP_IN,
         JOURNALS.FXA_DEP_OUT,

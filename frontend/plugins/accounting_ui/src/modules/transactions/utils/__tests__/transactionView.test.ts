@@ -286,29 +286,67 @@ test('an explicitly disabled detail split takes precedence over legacy root meta
 });
 
 test('correction rules and explicit zero residual value survive reopening', () => {
-  const view = transaction(TrJournalEnum.FXA_JUSTIFY, {
-    details: [{
-      _id: 'detail-1', accountId: 'dep-account', fixedAssetId: 'asset-1', amount: 5, count: 0,
-      followInfos: { depreciationMethod: 'decliningBalance', annualDepreciationRate: 20, salvageValue: 0, depreciationStartDate: '2026-02-01' },
-    }],
+  const view = transaction(TrJournalEnum.FXA_REVALUATION, {
+    details: [
+      {
+        _id: 'detail-1',
+        accountId: 'dep-account',
+        fixedAssetId: 'asset-1',
+        amount: 5,
+        count: 0,
+        followInfos: {
+          depreciationMethod: 'decliningBalance',
+          annualDepreciationRate: 20,
+          salvageValue: 0,
+          depreciationStartDate: '2026-02-01',
+        },
+      },
+    ],
   });
-  const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_JUSTIFY, view);
-  expect(draft.journal).toBe(TrJournalEnum.FXA_JUSTIFY);
-  expect(draft.details[0]).toMatchObject({ amount: 5, count: 0,
-    followInfos: { depreciationMethod: 'decliningBalance', annualDepreciationRate: 20, salvageValue: 0, depreciationStartDate: '2026-02-01' },
+  const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_REVALUATION, view);
+  expect(draft.journal).toBe(TrJournalEnum.FXA_REVALUATION);
+  expect(draft.details[0]).toMatchObject({
+    amount: 5,
+    count: 0,
+    followInfos: {
+      depreciationMethod: 'decliningBalance',
+      annualDepreciationRate: 20,
+      salvageValue: 0,
+      depreciationStartDate: '2026-02-01',
+    },
   });
 });
 
 test('capitalization reopening preserves asset rules and discards obsolete counterpart settings', () => {
   const view = transaction(TrJournalEnum.FXA_CAPITAL, {
     followInfos: { capitalAccountId: 'reserve-account' },
-    details: [{ _id: 'detail', fixedAssetId: 'asset', accountId: 'asset-account', amount: 100, count: 0,
-      followInfos: { originalCost: 200, annualDepreciationRate: 20, preDeprecation: 0, salvageValue: 0,
-        depreciationBase: 200, capitalizationType: 'revaluation', depreciationStartDate: '2026-02-01' } }],
+    details: [
+      {
+        _id: 'detail',
+        fixedAssetId: 'asset',
+        accountId: 'asset-account',
+        amount: 100,
+        count: 0,
+        followInfos: {
+          originalCost: 200,
+          annualDepreciationRate: 20,
+          preDeprecation: 0,
+          salvageValue: 0,
+          depreciationBase: 200,
+          depreciationStartDate: '2026-02-01',
+        },
+      },
+    ],
   });
   const draft = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_CAPITAL, view);
   expect(draft.followInfos).toBeUndefined();
-  expect(draft.details[0]).toMatchObject({ count: 0, amount: 100, followInfos: {
-    originalCost: 200, preDeprecation: 0, depreciationBase: 200, capitalizationType: 'revaluation',
-  } });
+  expect(draft.details[0]).toMatchObject({
+    count: 0,
+    amount: 100,
+    followInfos: {
+      originalCost: 200,
+      preDeprecation: 0,
+      depreciationBase: 200,
+    },
+  });
 });

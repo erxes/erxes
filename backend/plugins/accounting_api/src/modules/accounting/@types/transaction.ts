@@ -25,10 +25,6 @@ export interface ITrFollowInfos extends Record<string, unknown> {
 
   accumulatedDepreciationAccountId?: string;
   depreciationExpenseAccountId?: string;
-  revaluationReserveAccountId?: string;
-  deferredTaxAssetAccountId?: string;
-  deferredTaxLiabilityAccountId?: string;
-  incomeTaxExpenseAccountId?: string;
   ownerId?: string;
   responsibleUserId?: string;
   fixedAssetAccountId?: string;
@@ -54,6 +50,8 @@ export interface ITrDetailFollowInfos extends Record<string, unknown> {
   branchCode?: string;
   departmentCode?: string;
   preDeprecation?: number;
+  revaluationLoss?: number;
+  revaluationReserve?: number;
   salvageValue?: number;
   depreciationStartDate?: Date;
   currencyDiffAccountId?: string;
@@ -184,7 +182,8 @@ export interface ITransactionCounter {
 }
 
 export interface ITransactionCounterDocument
-  extends ITransactionCounter, Document {
+  extends ITransactionCounter,
+    Document {
   _id: string;
 }
 

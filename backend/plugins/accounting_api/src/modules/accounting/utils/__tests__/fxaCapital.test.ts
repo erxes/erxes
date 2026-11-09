@@ -29,6 +29,11 @@ jest.mock('../fxaCapitalValuation', () => ({
 }));
 
 const valuation: TFxaCapitalValuation = {
+  revaluationLoss: 0,
+  revaluationReserve: 0,
+  taxDepreciationMethod: 'straightLine',
+  taxAnnualDepreciationRate: 20,
+  taxSalvageValue: 0,
   fixedAssetId: 'asset',
   accountId: 'asset-account',
   depreciationAccountId: 'dep-account',
@@ -62,7 +67,6 @@ const document = (): ITransaction => ({
         originalCost: 150,
         annualDepreciationRate: 20,
         preDeprecation: 40,
-        capitalizationType: 'improvement',
       },
     },
   ],
@@ -107,7 +111,6 @@ test('renovation writes only asset and depreciation entries for an accountant to
     originalCost: 150,
     preDeprecation: 40,
     depreciationBase: 110,
-    previousDepreciationRules: { originalCost: 100, preDeprecation: 30 },
   });
   expect(
     follows
@@ -128,7 +131,6 @@ test('downward revaluation with zero depreciation leaves its net difference for 
     originalCost: 80,
     annualDepreciationRate: 25,
     preDeprecation: 0,
-    capitalizationType: 'revaluation',
   };
   const { main, follows } = buildFxaCapitalDocuments(doc, valuation);
   expect(main.side).toBe(TR_SIDES.CREDIT);
@@ -153,7 +155,6 @@ test('rule-only renewal requires no financial follow rows', () => {
     originalCost: 100,
     preDeprecation: 30,
     annualDepreciationRate: 20,
-    capitalizationType: 'improvement',
   };
   const result = buildFxaCapitalDocuments(doc, valuation);
   expect(result.main.details.every((row) => row.amount === 0)).toBe(true);
@@ -167,7 +168,6 @@ test('new accumulated depreciation and residual value cannot exceed the new cost
     annualDepreciationRate: 20,
     preDeprecation: 45,
     salvageValue: 10,
-    capitalizationType: 'revaluation',
   };
   expect(() => buildFxaCapitalDocuments(doc, valuation)).toThrow(
     'cannot exceed',
@@ -283,7 +283,7 @@ test('editing removes obsolete depreciation follows', async () => {
     second.otherTrs.some((row) => row.journal === JOURNALS.FXA_DEP_OUT),
   ).toBe(true);
   expect(raw.Transactions.deleteMany).toHaveBeenCalledWith({
-    _id: { $in: ['fxaCapitalDepIn'] },
+    _id: { $in: ['fxaDepIn'] },
   });
 });
 
@@ -296,7 +296,6 @@ test('ordinary roots can close the combined difference of several capitalization
     originalCost: 80,
     preDeprecation: 0,
     annualDepreciationRate: 25,
-    capitalizationType: 'revaluation',
   };
   const second = buildFxaCapitalDocuments(other, {
     ...valuation,

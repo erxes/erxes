@@ -201,7 +201,7 @@ test.each([
     location: undefined,
   },
   {
-    journal: TrJournalEnum.FXA_JUSTIFY,
+    journal: TrJournalEnum.FXA_REVALUATION,
     allLocations: false,
     location: item.locations[0],
   },

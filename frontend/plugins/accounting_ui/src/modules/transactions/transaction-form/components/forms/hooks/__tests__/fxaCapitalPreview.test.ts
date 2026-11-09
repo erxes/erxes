@@ -1,5 +1,7 @@
 import {
   buildFxaCapitalPreview,
+  mergeFxaDepreciationFollows,
+  allocateRevaluationPreview,
   TFxaCapitalValuation,
 } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 import { JOURNALS_BY_JOURNAL } from '@/transactions/transaction-form/contants/defaultValues';
@@ -16,6 +18,11 @@ jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }), {
 });
 
 const valuation: TFxaCapitalValuation = {
+  revaluationLoss: 0,
+  revaluationReserve: 0,
+  taxDepreciationMethod: 'straightLine',
+  taxAnnualDepreciationRate: 20,
+  taxSalvageValue: 0,
   fixedAssetId: 'asset',
   accountId: 'asset-account',
   depreciationAccountId: 'dep-account',
@@ -48,7 +55,6 @@ const journal = () =>
           preDeprecation: 40,
           annualDepreciationRate: getRateFromUsefulLife(5),
           depreciationMethod: 'straightLine',
-          capitalizationType: 'improvement',
           salvageValue: 0,
         },
       },
@@ -200,3 +206,116 @@ test('location allocation never reuses another branch label and carries known la
   expect(preview?.follows[0].details[1].branchId).toBe('b');
   expect(preview?.follows[0].details[1].branch).toBeUndefined();
 });
+
+test.each([
+  [-5, 6, 0, 1],
+  [-5, 4, 1, 0],
+  [5, -6, 1, 0],
+  [5, -4, 0, 1],
+])(
+  'revaluation preview keeps nonnegative loss/reserve after %s then %s',
+  (first, second, loss, reserve) => {
+    const opening = allocateRevaluationPreview(first, 0, 0);
+    expect(
+      allocateRevaluationPreview(
+        second,
+        opening.revaluationLoss,
+        opening.revaluationReserve,
+      ),
+    ).toMatchObject({
+      revaluationLoss: Number(loss) - opening.revaluationLoss,
+      revaluationReserve: Number(reserve) - opening.revaluationReserve,
+    });
+  },
+);
+
+test('revaluation previews split recovery by location while capital does not record reserve movements', () => {
+  const doc = JOURNALS_BY_JOURNAL(TrJournalEnum.FXA_REVALUATION, {
+    _id: 'revaluation',
+    details: [
+      {
+        _id: 'first',
+        fixedAssetId: 'asset',
+        accountId: 'asset-account',
+        amount: 0,
+        count: 0,
+        followInfos: {
+          originalCost: 120,
+          annualDepreciationRate: 20,
+          preDeprecation: 40,
+        },
+      },
+    ],
+  });
+  const result = buildFxaCapitalPreview(doc, {
+    ...valuation,
+    revaluationLoss: 15,
+  });
+  expect(
+    result?.details.map((detail) => ({
+      revaluationLoss: detail.followInfos?.revaluationLoss,
+      revaluationReserve: detail.followInfos?.revaluationReserve,
+    })),
+  ).toEqual([
+    { revaluationLoss: -10, revaluationReserve: 10 },
+    { revaluationLoss: -5, revaluationReserve: 5 },
+  ]);
+  expect(result?.follows[0].originType).toBe('fxaDepIn');
+});
+
+test.each([TrJournalEnum.FXA_CAPITAL, TrJournalEnum.FXA_REVALUATION])(
+  '%s replaces its saved depreciation preview without duplicates and retains saved row ids',
+  (kind) => {
+    const doc = { ...journal(), journal: kind };
+    const preview = buildFxaCapitalPreview(doc, valuation);
+    if (!preview) throw new Error('Missing preview');
+    const saved = {
+      ...preview.follows[0],
+      _id: 'saved-follow',
+      details: preview.follows[0].details.map((detail, index) => ({
+        ...detail,
+        _id: `saved-detail-${index}`,
+      })),
+    };
+    const unrelated = {
+      ...saved,
+      _id: 'another-follow',
+      originId: 'another-source',
+    };
+    const merged = mergeFxaDepreciationFollows(
+      [saved, unrelated],
+      preview.follows,
+      doc._id,
+    );
+    expect(merged).toHaveLength(2);
+    expect(merged[0]).toBe(unrelated);
+    expect(merged[1]._id).toBe('saved-follow');
+    expect(merged[1].details.map((detail) => detail._id)).toEqual([
+      'saved-detail-0',
+      'saved-detail-1',
+    ]);
+    expect(mergeFxaDepreciationFollows(merged, preview.follows, doc._id)).toBe(
+      merged,
+    );
+  },
+);
+
+test.each([TrJournalEnum.FXA_CAPITAL, TrJournalEnum.FXA_REVALUATION])(
+  '%s removes stale shared depreciation follows on direction reversal and zero change',
+  (kind) => {
+    const doc = { ...journal(), journal: kind };
+    const original = buildFxaCapitalPreview(doc, valuation);
+    if (!original) throw new Error('Missing preview');
+    doc.details[0].followInfos.preDeprecation = 0;
+    const reversed = buildFxaCapitalPreview(doc, valuation);
+    if (!reversed) throw new Error('Missing reversed preview');
+    const merged = mergeFxaDepreciationFollows(
+      original.follows,
+      reversed.follows,
+      doc._id,
+    );
+    expect(merged).toHaveLength(1);
+    expect(merged[0].originType).toBe(TrJournalEnum.FXA_DEP_OUT);
+    expect(mergeFxaDepreciationFollows(merged, [], doc._id)).toEqual([]);
+  },
+);
