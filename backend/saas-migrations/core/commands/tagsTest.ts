@@ -9,7 +9,10 @@ import {
   Document,
   MongoClient,
 } from 'mongodb';
-import { findOrganization } from '../../findOrganization';
+import {
+  findOrganization,
+  findSourceOrganization,
+} from '../../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -96,8 +99,9 @@ async function resolveOrgDbName(
   coreDb: Db,
   coreDbName: string,
   subdomain: string,
+  find: typeof findOrganization = findOrganization,
 ): Promise<string> {
-  const org = await findOrganization(coreDb, subdomain);
+  const org = await find(coreDb, subdomain);
 
   if (!org) {
     throw new Error(
@@ -456,6 +460,7 @@ const command = async () => {
       coreDb,
       coreDbName,
       SOURCE_SUBDOMAIN,
+      findSourceOrganization,
     );
     const targetDbName = await resolveOrgDbName(
       coreDb,
