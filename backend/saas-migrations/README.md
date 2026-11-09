@@ -99,6 +99,23 @@ TARGET_SUBDOMAIN=<subdomain> npx tsx backend/saas-migrations/core/commands/migra
 npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
 ```
 
+## Deal dates stored as 1970-01-01
+
+`sales/commands/epochDealDates.ts` unsets deal `startDate` / `closeDate` values
+equal to exactly `1970-01-01T00:00:00.000Z` (carried over from 2.x), so those
+fields read as unset; a deal whose `closeDate` was unset this way then matches
+the "no close date" filter. Every other date is left untouched, and a date
+stored as a string or an array holding that value is not matched; it is safe
+to run again. It only counts unless `DRY_RUN=0` (or `false`) is set, so a run
+without `DRY_RUN` is a dry run too. It picks databases like the command above:
+
+```bash
+# SaaS, one organization (CORE_MONGO_URL || MONGO_URL = core database)
+TARGET_SUBDOMAIN=<subdomain> DRY_RUN=1 npx tsx backend/saas-migrations/sales/commands/epochDealDates.ts
+TARGET_SUBDOMAIN=<subdomain> DRY_RUN=0 npx tsx backend/saas-migrations/sales/commands/epochDealDates.ts
+# SaaS, every organization / self-hosted: ALL_ORGS=true / MONGO_URL = the erxes database
+```
+
 ## Knowledge Base to CMS
 
 The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts
