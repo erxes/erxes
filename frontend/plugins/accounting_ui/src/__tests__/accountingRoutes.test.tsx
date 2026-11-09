@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AccountingEntry from '@/AccountingMain';
 import { MainNavigation } from '@/MainNavigation';
@@ -141,12 +141,30 @@ jest.mock('@/settings/components/AccountSettingsBreadcrumb', () => ({
 jest.mock('@/settings/components/AccountingTopbar', () => ({
   AccountingTopbar: () => null,
 }));
+const ListPage = ({ title }: { title: string }) => {
+  const { search } = jest
+    .requireActual<typeof import('react-router-dom')>('react-router-dom')
+    .useLocation();
+  return (
+    <>
+      <h2>{title}</h2>
+      <output aria-label="list filters">{search}</output>
+    </>
+  );
+};
+
 jest.mock('~/pages/TransactionListPage', () => ({
-  TransactionListPage: () => <h2>Transactions list</h2>,
+  TransactionListPage: () => <ListPage title="Transactions list" />,
 }));
 jest.mock('~/pages/TrRecordListPage', () => ({
-  TrRecordListPage: () => <h2>Journal entries list</h2>,
+  TrRecordListPage: () => <ListPage title="Journal entries list" />,
 }));
+jest.mock(
+  '@/transactions/transaction-form/components/TransactionsGroupForm',
+  () => ({
+    TransactionsGroupForm: () => <h2>Transaction detail</h2>,
+  }),
+);
 jest.mock('~/pages/JournalReports', () => ({
   JournalReports: () => <h2>Journal reports</h2>,
 }));
@@ -218,6 +236,114 @@ describe('accounting routes', () => {
       screen.queryByRole('link', { name: 'Incomplete transactions' }),
     ).toBeNull();
   });
+
+  it.each([
+    {
+      list: '/accounting/main?branchId=branch-1&journal=bank&page=2',
+      back: 'Transactions',
+      landing: 'Transactions list',
+    },
+    {
+      list: '/accounting/records?journal=cash&accountId=acc-1101',
+      back: 'Journal entries',
+      landing: 'Journal entries list',
+    },
+  ])(
+    'goes back from a transaction detail to the filtered $landing',
+    async ({ list, back, landing }) => {
+      renderAccountingAt(
+        `/accounting/transaction/edit?parentId=parent-7&trId=tr-7&returnTo=${encodeURIComponent(
+          list,
+        )}`,
+      );
+
+      await screen.findByText('Transaction detail');
+      const header = within(screen.getByRole('main'));
+      expect(
+        header.getByRole('link', { name: back }).getAttribute('href'),
+      ).toBe(list);
+
+      fireEvent.click(header.getByRole('link', { name: 'Back' }));
+
+      expect(await screen.findByText(landing)).toBeTruthy();
+      expect(screen.getByLabelText('list filters').textContent).toBe(
+        `?${list.split('?')[1]}`,
+      );
+    },
+  );
+
+  it('goes back to the filtered list opened from the accounting home address', async () => {
+    renderAccountingAt(
+      `/accounting/transaction/edit?parentId=parent-7&returnTo=${encodeURIComponent(
+        '/accounting?branchId=branch-1&journal=cash',
+      )}`,
+    );
+
+    await screen.findByText('Transaction detail');
+    fireEvent.click(
+      within(screen.getByRole('main')).getByRole('link', { name: 'Back' }),
+    );
+
+    expect(await screen.findByText('Transactions list')).toBeTruthy();
+    expect(screen.getByLabelText('list filters').textContent).toBe(
+      '?branchId=branch-1&journal=cash',
+    );
+  });
+
+  it('goes back from a new voucher form to the filtered Journal entries list', async () => {
+    renderAccountingAt(
+      `/accounting/transaction/create?defaultJournal=cash&returnTo=${encodeURIComponent(
+        '/accounting/records?journal=cash',
+      )}`,
+    );
+
+    await screen.findByText('Transaction detail');
+    const header = within(screen.getByRole('main'));
+    expect(
+      header
+        .getByRole('link', { name: 'Journal entries' })
+        .getAttribute('href'),
+    ).toBe('/accounting/records?journal=cash');
+
+    fireEvent.click(header.getByRole('link', { name: 'Back' }));
+
+    expect(await screen.findByText('Journal entries list')).toBeTruthy();
+    expect(screen.getByLabelText('list filters').textContent).toBe(
+      '?journal=cash',
+    );
+  });
+
+  it.each([
+    ['without a remembered list', '/accounting/transaction/edit?parentId=p-1'],
+    [
+      'with an outside address as the return target',
+      `/accounting/transaction/edit?parentId=p-1&returnTo=${encodeURIComponent(
+        'https://evil.example/accounting/main?branchId=b-1',
+      )}`,
+    ],
+    [
+      'with another accounting page as the return target',
+      `/accounting/transaction/edit?parentId=p-1&returnTo=${encodeURIComponent(
+        '/accounting/settings/config',
+      )}`,
+    ],
+  ])(
+    'goes back to the unfiltered transactions list %s',
+    async (_case, path) => {
+      renderAccountingAt(path);
+
+      await screen.findByText('Transaction detail');
+      const header = within(screen.getByRole('main'));
+      expect(
+        header.getByRole('link', { name: 'Transactions' }).getAttribute('href'),
+      ).toBe('/accounting/main');
+
+      fireEvent.click(header.getByRole('link', { name: 'Back' }));
+
+      expect(await screen.findByText('Transactions list')).toBeTruthy();
+      expect(screen.getByLabelText('list filters').textContent).toBe('');
+    },
+  );
 
   it.each(sidebarHrefs())(
     'opens a real screen from sidebar link %s',

@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import { LegacyAgentRedirect } from '../components/LegacyAgentRedirect';
 import { agentSidePanelThreadRequestState } from '../states/agentPanelStates';
+import { globalSidebarToolState } from '@/global-sidebar/states/globalSidebarState';
 
 jest.mock('react-router-dom', () => {
   const { TextEncoder } = jest.requireActual<typeof import('util')>('util');
@@ -21,11 +22,6 @@ jest.mock('react-router-dom', () => {
     'react-router-dom',
   );
 });
-
-jest.mock('ui-modules', () => ({
-  SIDE_PANEL_CHAT_PATH: '/chat',
-  SIDE_PANEL_QUERY_KEY: 'panel',
-}));
 
 const Workspace = () => {
   const location = useLocation();
@@ -59,9 +55,10 @@ const openBookmark = (path: string) => {
   return store;
 };
 
-it('replaces old thread bookmarks with the workspace Assistant route and requests the same thread', () => {
+it('replaces old thread bookmarks with the workspace, opens Assistant and requests the same thread', () => {
   const store = openBookmark('/assistant/thread-1');
-  expect(screen.getByText('/?panel=%2Fchat')).toBeTruthy();
+  expect(screen.getByText('/')).toBeTruthy();
+  expect(store.get(globalSidebarToolState)).toBe('assistant');
   expect(store.get(agentSidePanelThreadRequestState)).toBe('thread-1');
   fireEvent.click(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByText('/contacts/customers')).toBeTruthy();
@@ -73,6 +70,7 @@ it.each([
   '/assistant/invalid/nested/path',
 ])('opens Assistant without a thread for %s', (path) => {
   const store = openBookmark(path);
-  expect(screen.getByText('/?panel=%2Fchat')).toBeTruthy();
+  expect(screen.getByText('/')).toBeTruthy();
+  expect(store.get(globalSidebarToolState)).toBe('assistant');
   expect(store.get(agentSidePanelThreadRequestState)).toBeNull();
 });

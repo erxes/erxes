@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -25,6 +25,11 @@
 
 ## Current Capabilities
 
+- Deals and POS orders export to CSV through the shared `ui-modules`
+  `Export` button: the deals action bar exports the current pipeline, stage
+  and URL filters (`DealsExport`), the deals list command bar exports the
+  selected rows, and the POS orders page exports the current order filters.
+  Buttons render only with `dealsExportManage` / `posOrdersExportManage`.
 - Pipeline Product config edits include products, include product tags, and exclude product tags; create/edit and detail documents carry all three arrays. Category, tag and explicit-product includes form a union; all exclusions override that union, even explicit products. Category/tag descendants are included by Core. Pipeline categories now scope products as well as prioritizing them. Pipeline edits evict `productsMain` and `productsTotalCount` so cached deal choosers reload the changed scope.
 
 - Pipeline and POS product filters share a two-column layout. Collapsed, category and More occupy one row. Expanded, rows pair category/exclude category, include tag/exclude tag, and include products/exclude products; the collapse button follows the grid. Hidden fields retain their saved values.
@@ -119,7 +124,13 @@
   `modules/loyalty-points` (`summary.ts`, `useScoreLogsByIds`,
   `ScoreLogsTable` cells, columns and view, `LoyaltyInsightsView`,
   `LoyaltyTimelineView`, `scoreLogActions`, `ScoreLogActionHelp`); a source
-  only maps its own GraphQL answers and record columns.
+  only maps its own GraphQL answers and record columns. The views compose
+  section components shared with the home dashboard widgets:
+  `LoyaltyInsightSections` (`LoyaltyKpiTiles`, `LoyaltyGroupTable`,
+  `LoyaltyRankedRows`, `LoyaltyPanel`) and `LoyaltyTimelineSections`
+  (`LoyaltyIntervalToggle`, `LoyaltyFlowChart`, `LoyaltyRunningNetChart`).
+  A section drills only under a `LoyaltyDrillProvider`; without one its
+  figures, rows and bars are plain (not clickable).
   The Sales Pipeline module menu has "Loyalty points" above Boards, set
   apart from the plugin menu above it by a `Sidebar.Separator`
   (`SalesSubNavigation`, loyalty only) opening `/sales/deals/loyalty`
@@ -185,6 +196,29 @@
   (`PosEarnTierField`, `Pos.earnTier` JSON `{accountTypeId, bands,
 onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both come from the `posDetail` query (`graphql/queries.ts` `posCommonFields`), which the tab loads and saves back; a field missing there is saved as empty. The POS
   Automations tab is listed last, beside the Loyalty tab.
+- Home dashboard widgets (`widgets.dashboardWidgets`, remote
+  `./dashboardWidget` → `src/widgets/dashboard/DashboardWidgets.tsx`, export
+  `DashboardWidget`, switching on `module`): the deals Loyalty points
+  sections as seven tiles — `loyaltyKpis` (earned, spent, refunded, net,
+  spend/refund rate, deals, customers), `loyaltyFlow` (points moved per
+  period), `loyaltyRunningNet`, `loyaltyByPipeline`, `loyaltyTopDeals`,
+  `loyaltyTopEarners`, `loyaltyTopSpenders`. All are `configurable`: the
+  config form (`SalesLoyaltyConfigForm`, React Hook Form + Zod
+  `salesLoyaltyWidgetConfigSchema`) stores
+  `{ boardId?, pipelineIds, interval }`; no board sums every pipeline the viewer may see, and the
+  Period (Day / Week / Month) field shows only for the two timeline tiles.
+  View mode reads `useDealScoreLogInsightsQuery` /
+  `useDealScoreLogTimelineQuery` (the page hooks wrap these with URL
+  filters and the record count) inside `SalesLoyaltyWidgetCard`
+  (`DashboardWidgetCard` with an Open link to `/sales/deals/loyalty`,
+  loyalty-off, loading, error-with-retry and empty states). Tiles with the
+  same pipelines share one cached query. Each entry sets `preview` (erxes-ui
+  `TDashboardWidgetPreview`) for the catalog schematic: KPIs `kpi`, flow
+  `bar`, running net `area`, by pipeline `table`, the three rankings
+  `progress`. Labels and descriptions are
+  `sales` namespace keys (`dashboard-loyalty-*`, reused `loyalty-insight-*`).
+  The insights contract has no score log date range, so only the timeline
+  tiles take a period; the others always cover all time.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
@@ -290,9 +324,12 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 | Registration        | `frontend/plugins/sales_ui/src/config.tsx`                                                           | Sales routes, navigation, and remote registration                                                                          |
 | Dev server          | `frontend/plugins/sales_ui/rspack.config.ts`                                                         | Module Federation development serving and watch ignore rules                                                               |
 | Pipeline editor     | `frontend/plugins/sales_ui/src/modules/deals/pipelines`                                              | Pipeline form, stages, product config, and property selection                                                              |
+| Export buttons      | `src/modules/deals/actionBar/components/DealsExport.tsx`, `src/pages/OrdersPage.tsx`                 | Start `sales:sales.deals` and `sales:pos.posOrders` exports with the page filters                                          |
 | Deal detail         | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail`                                | Deal overview, properties, activity, products, and payments                                                                |
 | Product management  | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product`                        | Deal product table, filters, expanded view, row actions, footer totals, and save                                           |
 | Product discounts   | `frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/discountInfos.ts` | Reconciles advanced-view row/footer discount edits into `hand` discount metadata                                           |
+| Dashboard widgets   | `frontend/plugins/sales_ui/src/widgets/dashboard`                                                    | `./dashboardWidget` remote: loyalty points tiles, their config form and states                                             |
+| Loyalty sections    | `frontend/plugins/sales_ui/src/modules/loyalty-points/components`                                    | Insight/timeline sections shared by the Loyalty points pages and the dashboard widgets                                     |
 | Deal vouchers       | `frontend/plugins/sales_ui/src/modules/deals/loyaltyVouchers`                                        | Voucher and coupon line on a deal's Products tab, saved with the products                                                  |
 | POS permission form | `frontend/plugins/sales_ui/src/modules/pos/components/permission`                                    | Manages admin and cashier POS permission controls                                                                          |
 | POS customer form   | `frontend/plugins/sales_ui/src/modules/pos/components/customerCreate`                                | POS customer registration settings and layout sheet                                                                        |
@@ -304,6 +341,8 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ### Provides
 
+- Starts core `exportStart` jobs for entity types `sales:sales.deals` and
+  `sales:pos.posOrders` (served by `sales_api`) through `ui-modules` `Export`.
 - `widgets.contactWidgets: [{ name: 'deals' }]` with `./contactWidget` (`src/widgets/contact/ContactWidgets.tsx`): the Deals section of a customer's / company's side panel overview (ui-modules `ContactWidgetSection`): the contact's deals from `deals(customerId | companyId)` (`salesContactDeals`), rows opening the deal on its board in a new tab, `+` opening `AddDealSheet` with `contacts` (`customerId` / `companyId`), which prefill the form's Customers / Companies saved on the deal by `dealsAdd`; `AddCardForm` evicts the cached `deals` lists so contact sections read again.
 - Deal trigger forms' optional stage fields (`SalesTriggerStageField`) pass
   `autoSelectFirst={false}`: `SelectStage` otherwise picks the first stage and
@@ -312,6 +351,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `emptyLabel`) lists "Any POS" first; choosing it clears `posId` so the
   trigger matches every POS (single-mode `SelectPos` otherwise cannot be
   unselected).
+- `widgets.dashboardWidgets` (seven `loyalty*` modules, all `configurable`)
+  with `./dashboardWidget` (`src/widgets/dashboard/DashboardWidgets.tsx`,
+  named export `DashboardWidget`, which core's remote resolver finds by
+  name), taking ui-modules `IDashboardWidgetProps`.
 - Sales routes and Module Federation UI entries registered by `src/config.tsx`.
 - Product table view state through local React state only; no backend contract
   changes are required for expanded product management.
@@ -325,7 +368,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `contentType: 'sales:deal'` and, for the POS customer form,
   `contentType: 'core:customer'`.
 - `ui-modules` `LayoutEditor` and `PropertyAddSheet` for the POS customer form.
-- `erxes-ui` and `ui-modules` public React components.
+- `erxes-ui` and `ui-modules` public React components, including
+  `DashboardWidgetCard`, `DashboardWidgetEmptyState`,
+  `DashboardWidgetListSkeleton`, `IDashboardWidgetProps` and
+  `TDashboardWidgetConfig`.
 
 ## Data and State
 
@@ -351,6 +397,16 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- Dashboard widget `module` names (`SALES_DASHBOARD_MODULES`) are stored in
+  users' saved layouts as `sales:<module>`: renaming one orphans placed tiles.
+  Keep them aligned with the `config.tsx` entries; an unknown module renders
+  "This widget is no longer available". A stored config that no longer parses
+  reads as every pipeline, by week.
+
+- Export filters are the list query variables without paging or sorting
+  (`getDealsQueryVariables` plus `pipelineId` / `stageId`; `useOrdersVariables`
+  minus `perPage` / `page`), so an export matches what the page lists. With
+  selected rows the export sends `ids` and no filters.
 - RecordTable sets `leading-0`: a cell's text goes straight into the cell's
   flex span; a wrapping element (a tooltip trigger, a link) needs
   `leading-normal` and no `overflow-hidden`, or it renders with no height.
@@ -706,6 +762,11 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   `pipelineId` added to the URL; filter by two boards, then one pipeline and
   a stage; click a board in the sidebar and verify it opens the deals page.
   As a user outside a private pipeline, verify its deals are not listed.
+- Dashboard widgets smoke scenario: with loyalty enabled, on Home add each
+  Loyalty tile, pick a board and two pipelines (and a period for the
+  timeline tiles), save, and verify the figures match the Loyalty points page
+  filtered the same way; edit a tile's settings and verify it reloads; with
+  loyalty disabled verify the tiles show the loyalty-off state.
 - Points view smoke scenario: with loyalty enabled, move a deal with a
   customer into an earning stage, open Display → Points and verify the
   earned row; filter by stage and assignee, scroll to load more, open a

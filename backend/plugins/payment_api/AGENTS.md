@@ -6,7 +6,7 @@
 - **Project:** `payment_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/payment_api`
-- **Last synchronized:** `2026-10-28`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -37,6 +37,11 @@
 - Marks invoices paid from either a gateway callback or the
   `invoicesCheck`/`cpInvoicesCheck` GraphQL mutations; each of those sites
   enqueues the host-plugin `callback` job inline.
+- Filters `invoices` / `cpInvoices` / `invoicesTotalCount` by `kind` with an indexed match on the
+  invoice's `paymentKinds` field (`buildKindQuery` in `graphql/resolvers/queries/invoices.ts`).
+- Keeps `Invoice.paymentKinds` (distinct `paymentKind` of the invoice's own transactions) in sync
+  through `services/invoicePaymentKinds.ts`, and backfills invoices missing the field in batches
+  from the per-org pending-invoice job.
 - Declares the plugin permission config (`invoice` module with
   `paymentInvoiceView` / `paymentInvoiceEdit`, plus the `payment:admin` and
   `payment:viewer` default groups) and enforces `paymentInvoiceEdit` on the
@@ -98,6 +103,22 @@
 - Because this plugin now declares permissions, core lists `payment` in
   `pluginsWithPermissions`. Non-owner users need `payment:admin`,
   `payment:viewer`, or an equivalent custom group to see payment surfaces at all.
+- The invoice `kind` filter matches an invoice only when a transaction of that `paymentKind`
+  exists for it (any status). Methods merely offered via `paymentIds` must not match, or the
+  filtered list shows invoices paid with other methods; `payment_ui`'s Payment Method column
+  relies on this rule.
+- The kind filter reads `Invoice.paymentKinds`, never a `distinct` over transactions: an unbounded
+  id list can exceed MongoDB's 16 MB result limit. Every path that creates or deletes transactions
+  (`createTransaction`, `cancelTransaction`, `removeTransactions`) must call
+  `markInvoicePaymentKindsStale` **before** the change and `syncMarkedInvoicePaymentKinds` after
+  it. The mark (unset field + version bump) is what makes recovery durable: if the sync fails,
+  the backfill recomputes the invoice. The sync in `createTransaction` runs after the gateway
+  try/catch so a sync failure never deletes a created transaction.
+- `paymentKinds` writes go only through `syncInvoicePaymentKinds`, which serializes concurrent
+  syncs with a compare-and-set on `paymentKindsVersion` (read the version, aggregate, write only
+  if unchanged, retry otherwise). Never `$set` `paymentKinds` directly: an unguarded write can
+  replace a newer snapshot with an older one. A sync that keeps losing unsets the field so the
+  backfill recomputes it.
 - In the widget, `kind === 'pocket'` must render `PocketForm`, not the shared
   `QrPayment`: `QrPayment`'s mobile branch shows bank-app `urls`, which Pocket
   does not return, so Pocket users on mobile would see neither a QR nor a way to

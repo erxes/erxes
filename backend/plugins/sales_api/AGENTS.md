@@ -92,6 +92,15 @@
 - Declares the filterable `sales:sales.deals` segment fields and resolves a
   batch of them through the `evaluateFields` segment producer. The `tagIds`
   lookup asks for `sales:deal` tags plus workspace tags (`query.variables`).
+- Registers three core import-export export types in `main.ts`:
+  `sales:sales.deals` (`dealsExportManage`), `sales:pos.posOrders`
+  (`posOrdersExportManage`) and `sales:pos.posItems` (`posItemsExportManage`).
+  Deals export one row per deal (board/pipeline/stage, labels, tags, contacts,
+  users, branches, departments, products summary, amounts, payments) plus one
+  column per live `sales:deal` property; a property group already stored as
+  rows on deals becomes numbered columns (`toPropertyRowColumnKey`, at most 20).
+  POS orders export one row per order (POS name, cashier, customer by
+  `customerType`, items summary, amounts, payment types, converted deal).
 
 ## Architecture
 
@@ -107,6 +116,7 @@
 | Relation measures          | `src/modules/sales/meta/segments/evaluate/relations.ts`   | Fold a relation into deals for a batch, over a core-resolved edge table or a stored join.            |
 | Stage-derived filters      | `src/modules/sales/meta/segments/evaluate/stageFilter.ts` | Rewrite pipeline, board and probability conditions into the stage ids they name.                     |
 | Documents                  | `src/modules/sales/documents`                             | Generate sales document content and amount mappings.                                                 |
+| Export                     | `src/meta/export`, `src/modules/{sales,pos}/meta/export`  | Route export collections, build export headers and rows, and resolve core names per batch.           |
 | POS and ecommerce          | `src/modules/pos`, `src/modules/ecommerce`                | Provide sales-owned POS and ecommerce behavior.                                                      |
 | Benchmark data             | `scripts/benchmarks/seed-deals.js`                        | Seed resumable, deterministic high-volume deal data directly through mongosh.                        |
 
@@ -286,6 +296,9 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 
 ### Provides
 
+- Import-export `getExportHeaders` / `getExportData` producers for module
+  `sales` (collection `deals`) and module `pos` (collections `posOrders`,
+  `posItems`).
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (sales declares `sales:deal` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - Internal `pos.cancelOrder({_id, posToken, userId?})` tRPC mutation returns
   `{cancelled: true}` after cancelling the POS order; it is not agent-callable.
@@ -352,6 +365,13 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 
 ## Local Invariants
 
+- Export handlers read the inner payload through `unwrapExportPayload`: the
+  module producer passes `data`, not the `{ subdomain, data }` envelope the
+  shared types describe. Deal and POS order rows always carry `_id` and are
+  read in `_id` order, because the export worker pages with the last `_id`
+  (or an index into `ids`). Filters reuse the list filters
+  (`generateFilter`, `generateFilterPosQuery`) with no user, since export jobs
+  run without one; user-dependent filters therefore narrow, never widen.
 - A deal list not scoped to one `pipelineId` must keep to
   `visibleDealsScope`: `generateFilter` applies a pipeline's "own deals only"
   rule only for a single `pipelineId`.
