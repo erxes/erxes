@@ -1,22 +1,20 @@
+import { POS_COVER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import { RecordTableInlineCell, TextOverflowTooltip } from 'erxes-ui';
-import { useSearchParams } from 'react-router-dom';
+import { useSidePanel } from 'ui-modules';
 
 interface ClickablePosNameProps {
   value: string;
-  row: any;
+  coverId?: string;
 }
 
-export const ClickablePosName = ({ value, row }: ClickablePosNameProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+export const ClickablePosName = ({ value, coverId }: ClickablePosNameProps) => {
+  const { openRecord } = useSidePanel();
 
   const handleClick = () => {
-    const coverId = row.original._id;
     if (!coverId) {
       return;
     }
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.set('pos_cover_id', coverId);
-    setSearchParams(newSearchParams);
+    openRecord({ contentType: POS_COVER_CONTENT_TYPE, contentId: coverId });
   };
 
   return (

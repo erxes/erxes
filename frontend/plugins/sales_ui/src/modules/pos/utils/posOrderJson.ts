@@ -5,7 +5,6 @@ import type {
   PosOrderRecordsQuery,
   PosOrdersQuery,
   SalesPosOrderDetailQuery,
-  SalesPosItemDetailQuery,
   QueryQuery,
 } from '~/gql/graphql';
 import { isDefined } from 'erxes-ui';
@@ -16,6 +15,7 @@ const numeric = z.union([z.number(), z.string()]).nullish();
 const category = z.object({ code: text, name: text }).passthrough().nullish();
 export const posOrderItemSchema = z
   .object({
+    _id: text,
     productName: text,
     productCode: text,
     productCategory: category,
@@ -99,10 +99,34 @@ export const toPosItemRow = (
   paidAmounts: parsePosPaidAmounts(order.paidAmounts),
 });
 
+export const toPosItemOrderId = ({
+  _id,
+  items,
+}: Pick<ReturnType<typeof toPosItemRow>, '_id' | 'items'>) => {
+  const suffix = items?._id ? `_${items._id}` : '';
+
+  return suffix && _id.endsWith(suffix) ? _id.slice(0, -suffix.length) : _id;
+};
+
+export const getPosItemRowIdSplits = (rowId: string) => {
+  const splits: { orderId: string; itemId: string }[] = [];
+
+  for (
+    let index = rowId.indexOf('_', 1);
+    index > 0 && index < rowId.length - 1;
+    index = rowId.indexOf('_', index + 1)
+  ) {
+    splits.push({
+      orderId: rowId.slice(0, index),
+      itemId: rowId.slice(index + 1),
+    });
+  }
+
+  return splits;
+};
+
 export const toPosOrderDetail = <
-  T extends
-    | NonNullable<SalesPosOrderDetailQuery['posOrderDetail']>
-    | NonNullable<SalesPosItemDetailQuery['posOrderDetail']>,
+  T extends NonNullable<SalesPosOrderDetailQuery['posOrderDetail']>,
 >(
   order: T,
 ) => ({
