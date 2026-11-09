@@ -1,20 +1,24 @@
-import { ProductAddSheet } from '@/products/components/ProductAddSheet';
+import { ProductAddButton } from '@/products/components/ProductAddButton';
 import { ProductsFilter } from '@/products/components/ProductsFilter';
 import { ProductsHeader } from '@/products/components/ProductsHeader';
 import { ProductsRecordTable } from '@/products/components/ProductsRecordTable';
-import { ProductDetailSheet } from '@/products/product-detail/components/ProductDetailSheet';
 import { PageContainer, PageSubHeader } from 'erxes-ui';
 import { ProductSidebar } from '@/products/components/ProductSidebar';
 import { useProducts } from '@/products/hooks/useProducts';
 import { Can, Export, Import } from 'ui-modules';
+import { RecordDetailLink } from '@/side-panel/components/RecordDetailLink';
+import {
+  PRODUCT_CONTENT_TYPE,
+  PRODUCT_QUERY_KEY,
+} from '@/products/constants/productQueryKey';
 
 export const ProductsIndexPage = () => {
   return (
     <PageContainer className="flex-row">
       <ProductSidebar />
-      <div className="flex min-w-0 flex-auto flex-col overflow-hidden">
+      <div className="@container/products flex min-w-0 flex-auto flex-col overflow-hidden">
         <ProductsHeader>
-          <ProductAddSheet />
+          <ProductAddButton />
         </ProductsHeader>
         <div className="flex overflow-hidden flex-col flex-auto w-full">
           <ProductsIndexPageContent />
@@ -57,7 +61,10 @@ const ProductsIndexPageContent = () => {
           <ProductsRecordTable />
         </div>
       </div>
-      <ProductDetailSheet />
+      <RecordDetailLink
+        queryKey={PRODUCT_QUERY_KEY}
+        contentType={PRODUCT_CONTENT_TYPE}
+      />
     </>
   );
 };

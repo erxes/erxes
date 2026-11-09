@@ -1,29 +1,18 @@
-import {
-  RecordTable,
-  Combobox,
-  Popover,
-  Command,
-  useQueryState,
-} from 'erxes-ui';
+import { RecordTable, Combobox, Popover, Command } from 'erxes-ui';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
-import { useSetAtom } from 'jotai';
-import { Can, IProduct } from 'ui-modules';
-import { renderingProductDetailAtom } from '../states/productDetailStates';
-import { PRODUCT_QUERY_KEY } from '@/products/constants/productQueryKey';
+import { Can, IProduct, useSidePanel } from 'ui-modules';
+import { PRODUCT_CONTENT_TYPE } from '@/products/constants/productQueryKey';
 import { ProductsDelete } from './product-command-bar/delete/productDelete';
 import { useTranslation } from 'react-i18next';
 
 export const ProductMoreColumn = (props: CellContext<IProduct, unknown>) => {
   const { t } = useTranslation('product');
   const product = props.row.original;
-  const [, setProductId] = useQueryState<string>(PRODUCT_QUERY_KEY);
-  const setRenderingProductDetail = useSetAtom(renderingProductDetailAtom);
+  const { openRecord } = useSidePanel();
 
-  const handleEdit = () => {
-    setProductId(product._id);
-    setRenderingProductDetail(false);
-  };
+  const handleEdit = () =>
+    openRecord({ contentType: PRODUCT_CONTENT_TYPE, contentId: product._id });
 
   return (
     <Popover>

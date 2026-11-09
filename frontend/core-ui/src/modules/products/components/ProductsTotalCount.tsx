@@ -11,7 +11,15 @@ export const ProductsTotalCount = () => {
       {isUndefinedOrNull(totalCount) ? (
         <Skeleton className="w-20 h-4 inline-block mt-1.5" />
       ) : (
-        `${totalCount} ${t('records-found')}`
+        // Just the number while the list is narrow, so it stays beside the
+        // filter instead of wrapping under it.
+        <span title={`${totalCount} ${t('records-found')}`}>
+          {totalCount}
+          <span className="hidden @lg/products:inline">
+            {' '}
+            {t('records-found')}
+          </span>
+        </span>
       )}
     </div>
   );

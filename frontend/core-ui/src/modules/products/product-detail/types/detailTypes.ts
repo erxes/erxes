@@ -60,6 +60,7 @@ export interface ProductDetail {
   vendorId?: string;
   conditionCodes?: string[];
   scopeBrandIds?: string[];
+  tagIds?: string[];
   currency?: string;
   duration?: number;
   durationType?:

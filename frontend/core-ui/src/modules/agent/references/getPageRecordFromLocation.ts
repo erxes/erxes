@@ -1,3 +1,4 @@
+import { ProductsPath } from '@/types/paths/ProductsPath';
 import type { TAgentReferenceType } from './parseAgentReferences';
 
 export interface IAgentPageRecord {
@@ -62,6 +63,14 @@ const LOCATION_RECORD_MATCHERS: {
 // A contact's own page carries its id in the path.
 const CONTACT_PAGE = /^\/contacts\/(customers|leads|companies)\/([^/]+)/;
 
+// So does a product's, beside the product settings pages that share the path.
+const PRODUCT_PAGE = /^\/settings\/products\/([^/]+)\/?$/;
+const PRODUCT_SETTINGS_PAGES = new Set(
+  Object.values(ProductsPath)
+    .filter((path) => path.startsWith(`${ProductsPath.Products}/`))
+    .map((path) => path.slice(ProductsPath.Products.length + 1)),
+);
+
 export const getPageRecordFromLocation = (
   pathname: string,
   search: string,
@@ -73,6 +82,12 @@ export const getPageRecordFromLocation = (
       type: contactPage[1] === 'companies' ? 'company' : 'customer',
       id: contactPage[2],
     };
+  }
+
+  const productPage = PRODUCT_PAGE.exec(pathname);
+
+  if (productPage && !PRODUCT_SETTINGS_PAGES.has(productPage[1])) {
+    return { type: 'product', id: productPage[1] };
   }
 
   const params = new URLSearchParams(search);

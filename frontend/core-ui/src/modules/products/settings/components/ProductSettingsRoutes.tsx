@@ -8,6 +8,12 @@ const ProductsIndexPage = lazy(() =>
   })),
 );
 
+const ProductDetailPage = lazy(() =>
+  import('~/pages/products/ProductDetailPage').then((module) => ({
+    default: module.ProductDetailPage,
+  })),
+);
+
 const ProductsCategoryPage = lazy(() =>
   import('~/pages/products/ProductCategoryPage').then((module) => ({
     default: module.ProductCategoryPage,
@@ -89,6 +95,7 @@ export const ProductsSettingRoutes = () => {
         <Route path="product-rule" element={<ProductsProductRulePage />} />
         <Route path="conditions" element={<ProductsConditionsPage />} />
         <Route path="packages" element={<ProductsPackagePage />} />
+        <Route path=":id" element={<ProductDetailPage />} />
       </Routes>
       <ProductsPageEffect />
     </Suspense>
