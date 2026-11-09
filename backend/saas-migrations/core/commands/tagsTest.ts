@@ -9,6 +9,7 @@ import {
   Document,
   MongoClient,
 } from 'mongodb';
+import { findOrganization } from '../../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -96,9 +97,7 @@ async function resolveOrgDbName(
   coreDbName: string,
   subdomain: string,
 ): Promise<string> {
-  const org = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain }, { projection: { _id: 1 } });
+  const org = await findOrganization(coreDb, subdomain);
 
   if (!org) {
     throw new Error(
