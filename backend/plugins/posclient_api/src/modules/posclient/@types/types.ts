@@ -1,3 +1,4 @@
+import type { IPricingReason } from '~/modules/posclient/utils/discountInfos';
 import {
   IUserDocument,
   IAttachment,
@@ -48,6 +49,7 @@ export interface IOrderItemInput {
     title?: string;
     amount?: number;
     percent?: number;
+    reasons?: IPricingReason[];
   }>;
   bonusCount?: number;
   bonusVoucherId?: string;

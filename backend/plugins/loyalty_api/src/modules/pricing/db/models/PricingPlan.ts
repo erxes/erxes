@@ -8,6 +8,11 @@ import {
   PricingPlanPriority,
 } from '@/pricing/@types/pricingPlan';
 import {
+  IActiveWindow,
+  SCHEDULE_MOMENTS,
+  ScheduleMoment,
+} from '@/pricing/@types/schedule';
+import {
   PRICE_ADJUST_TYPES,
   PRIORITY_TYPES,
   RULE_DISCOUNT_TYPES,
@@ -126,6 +131,96 @@ const cleanConditionRules = (
   });
 };
 
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+const MONTH_DAY = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+const isMonthDay = (value?: string): value is string =>
+  !!value &&
+  MONTH_DAY.test(value) &&
+  Number(value.slice(3)) <= DAYS_IN_MONTH[Number(value.slice(0, 2)) - 1];
+
+const uniqueSorted = (values: number[] = []) =>
+  [...new Set(values.map(Number))].sort((a, b) => a - b);
+
+const outOfRange = (values: number[], min: number, max: number) =>
+  values.some(
+    (value) => !Number.isInteger(value) || value < min || value > max,
+  );
+
+// updatePlan writes through the raw collection, so the schema never checks
+// these. A window keeps only the fields its type reads.
+const cleanActiveWindow = (window: IActiveWindow): IActiveWindow => {
+  const { type, startTime, endTime } = window;
+
+  if (!TIME.test(startTime) || !(TIME.test(endTime) || endTime === '24:00')) {
+    throw new Error('Window times must be HH:mm');
+  }
+
+  if (startTime === endTime) {
+    throw new Error('A window cannot start and end at the same time');
+  }
+
+  switch (type) {
+    case 'daily':
+      return { type, startTime, endTime };
+    case 'weekly': {
+      const weekDays = uniqueSorted(window.weekDays);
+
+      if (!weekDays.length || outOfRange(weekDays, 0, 6)) {
+        throw new Error('A weekly window needs week days 0 (Sunday) to 6');
+      }
+
+      return { type, startTime, endTime, weekDays };
+    }
+    case 'monthly': {
+      const monthDays = uniqueSorted(window.monthDays);
+
+      if (!monthDays.length || outOfRange(monthDays, 1, 31)) {
+        throw new Error('A monthly window needs days of the month 1 to 31');
+      }
+
+      return { type, startTime, endTime, monthDays };
+    }
+    case 'yearly': {
+      const { fromMonthDay, toMonthDay } = window;
+
+      if (!isMonthDay(fromMonthDay) || !isMonthDay(toMonthDay)) {
+        throw new Error('A yearly window needs MM-DD start and end days');
+      }
+
+      return { type, startTime, endTime, fromMonthDay, toMonthDay };
+    }
+    default:
+      throw new Error(`Unknown window type "${type}"`);
+  }
+};
+
+const cleanClosedDates = (dates: string[]): string[] => {
+  if (dates.some((date) => !DATE.test(date))) {
+    throw new Error('Closed dates must be YYYY-MM-DD');
+  }
+
+  return [...new Set(dates)].sort();
+};
+
+const assertScheduleMoment = (moment?: ScheduleMoment) => {
+  if (
+    moment !== undefined &&
+    !(SCHEDULE_MOMENTS as readonly string[]).includes(moment)
+  ) {
+    throw new Error(`Unknown schedule moment "${moment}"`);
+  }
+};
+
+// Public and base prices are written ahead of time, so they cannot follow a clock.
+const assertScheduleFitsPriority = (plan: Partial<IPricingPlan>) => {
+  if (plan.isRepeatEnabled && plan.priority) {
+    throw new Error('A scheduled plan cannot have a priority');
+  }
+};
+
 const normalizePlanDoc = (
   doc: Partial<IPricingPlan>,
   options: { defaultPriority?: boolean } = {},
@@ -142,7 +237,15 @@ const normalizePlanDoc = (
     ...(doc.conditionRules
       ? { conditionRules: cleanConditionRules(doc.conditionRules) }
       : {}),
+    ...(doc.activeWindows
+      ? { activeWindows: doc.activeWindows.map(cleanActiveWindow) }
+      : {}),
+    ...(doc.closedDates
+      ? { closedDates: cleanClosedDates(doc.closedDates) }
+      : {}),
   };
+
+  assertScheduleMoment(normalizedDoc.scheduleMoment);
 
   if (
     priority === PRIORITY_TYPES.POS_BASE ||
@@ -196,8 +299,12 @@ export const loadPricingPlanClass = (models: IModels) => {
      * @returns Created plan document
      */
     public static async createPlan(doc: IPricingPlan, userId: string) {
+      const normalizedDoc = normalizePlanDoc(doc, { defaultPriority: true });
+
+      assertScheduleFitsPriority(normalizedDoc);
+
       return models.PricingPlans.create({
-        ...normalizePlanDoc(doc, { defaultPriority: true }),
+        ...normalizedDoc,
         // createdAt: new Date(),
         createdBy: userId,
         // updatedAt: new Date(),
@@ -227,6 +334,12 @@ export const loadPricingPlanClass = (models: IModels) => {
       if (!result) throw new Error(`Can't find plan`);
       if (doc._id) delete doc._id;
       const normalizedDoc = normalizePlanDoc(doc);
+
+      assertScheduleFitsPriority({
+        ...(result as Partial<IPricingPlan>),
+        ...normalizedDoc,
+      });
+
       const unsetDates: Record<string, string> = {};
 
       if (normalizedDoc.isStartDateEnabled === false) {

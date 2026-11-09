@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-08`
 
 ## Scope
 
@@ -33,7 +33,8 @@
 - Renders pricing list/detail/create/edit UI under `src/modules/pricing` and
   `src/pages/pricing`.
 - Pricing detail forms edit general targeting, options, participants, price,
-  quantity, repeat, expiry, and rules sections.
+  quantity, schedule, expiry, and rules sections.
+- The Options card's Schedule section (`edit-pricing/components/schedule/ScheduleSection.tsx`, editor state in `useScheduleEditor`, row words in `useScheduleWindowLabel`) lists the plan's windows by type, adds and edits them in `ScheduleWindowSheet` (form + zod in `useScheduleWindowForm`, `utils/schedule.ts`): repeats every day, week (days with Weekdays / Weekend shortcuts), month (days 1–31) or year (month/day range via `ScheduleMonthDayPicker`, may cross the new year), start and end time or All day saved as `00:00`–`24:00`, "+1 day" when a window runs past midnight. It draws daily and weekly windows on a week grid (`ScheduleWeekGrid`), keeps closed dates (`ScheduleClosedDates`), picks when the discount is checked (`ScheduleMomentSelect`: at checkout, when the order was created, either; each with an example) and checks the unsaved schedule at an order-created and a checkout time (`ScheduleCheck` / `useScheduleCheck`, query `PricingPlanScheduleCheck`), saying which moment matched which window and the organization's time zone. Saving writes `activeWindows`, `closedDates`, `scheduleMoment` and `isRepeatEnabled` (any window) through `pricingPlanEdit`; a backend refusal shows its own message. A plan with a priority cannot add windows, and a scheduled plan offers only the None priority on the General tab.
 - Pricing general edit forms allow selected start and end dates to be cleared.
 - The Rules card has a Conditions tab (`edit-pricing/components/conditions/ConditionRulesInfo.tsx`, list state in `usePricingConditionRules`): a list like the quantity rules, one row per core condition (by code, names from core `productConditions` via `pricingProductConditions`; a code with no condition shows as removed and still saves), edited in `ConditionRuleSheet` (form + zod in `useConditionRuleForm`: condition, discount type default / subtraction / percentage / bonus, value or bonus product, price adjust type without `truncate`, factor), saved as the plan's `conditionRules` through `pricingPlanEdit`; codes must be unique per plan. `FixedPricingTable` has no condition columns. Deleted products (`productStatus: 'deleted'`) stay listed there but read-only, marked "Not available".
 - Pricing priority selection includes none, public, POS base, and scoped base pricing; POS-base and scoped-base plans hide participant targeting.
@@ -195,6 +196,13 @@
 - Account types smoke scenario: create an account type, bind it to a new score campaign,
   archive it, and confirm the campaign still opens while the selector hides the
   archived account type for other campaigns.
+- Pricing schedule smoke: on Options, add an every-week Mon–Fri 18:00–21:00
+  window and an every-week Friday 22:00–02:00 window; the grid shows
+  Saturday's 00–02 spill. Check order 20:50 / checkout 21:10 on a Friday: "At
+  checkout" says not discounted, "When the order was created" says discounted.
+  Add an every-year 12/15 → 1/15 window; its row says it crosses the new year.
+  Save, reload, and everything stays. On a plan with a priority, Add window is
+  disabled.
 - Pricing detail smoke scenario: open a pricing plan, go to Options, choose a
   board and pipeline, reopen each selector, choose `none`, save, and confirm the
   saved plan no longer has those board/pipeline constraints.
@@ -202,6 +210,11 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-11-08` — Pricing schedule windows
+
+- **Summary:** The Options card's Repeat rules gave way to a Schedule: windows that repeat every day, week, month or year, past midnight or all day, closed dates, a week grid, a choice of when the discount is checked and a check of the unsaved schedule at two times.
+- **Affected areas:** `modules/pricing/edit-pricing/components/schedule/**`, `modules/pricing/hooks/{useScheduleEditor,useScheduleWindowForm,useScheduleWindowLabel,useScheduleCheck}.ts`, `modules/pricing/utils/schedule.ts`, `modules/pricing/edit-pricing/components/options/OptionsInfo.tsx`, `modules/pricing/edit-pricing/components/general/{GeneralFormFields,GeneralInfo}.tsx`, `modules/pricing/components/{PricingOptionSelect,PricingPrioritySelect}.tsx`, `modules/pricing/{types,graphql/queries}.ts` (removed `edit-pricing/components/repeat/**`); `schedule-*`, `weekday-short-*`, `priority-blocked-by-schedule` translations.
 
 ### `2026-10-14` — Issued vouchers: list, detail and actions
 
@@ -254,9 +267,3 @@
 - **Summary:** The Wallets page tells when the next period run is, what it will do and how the last runs went.
 - **Affected areas:** `settings/account-type/{components/LoyaltyPeriodRunPanel.tsx,hooks/useLoyaltyPeriodRunStatus.ts,graphql/loyaltyAccountTypeQueries.ts,hooks/useLoyaltyAccountTypeMutations.ts}`, `pages/loyalties-config/LoyaltyAccountTypePage.tsx`; `period-run-*` translations.
 - **Contracts changed:** Consumes GraphQL `loyaltyPeriodRunStatus`.
-
-### `2026-09-30` — Loyalty settings pages in the settings menu
-
-- **Summary:** Wallets, Score, Voucher, Lottery, Spin, Donate, Assignment and Coupon moved from the inner config sidebar into the platform settings menu; the "Configs" item and the unused duplicate `components/LoyaltySettings.tsx` are gone.
-- **Affected areas:** `src/LoyaltySettingsNavigation.tsx`, `modules/loyalties/settings/{constants/settingRoutes.ts,components/LoyaltyLayout.tsx,components/LoyaltyBreadcrumb.tsx}`; `LoyaltySidebar.tsx` removed.
-- **Contracts changed:** None (routes unchanged).

@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -52,6 +52,8 @@
 - Every actual tier change goes through `setAccountTier`, which writes a `loyalty_tier_logs` line (`LoyaltyTierLogs.record`: account, owner, wallet, from/to, direction, `createdBy`, `createdVia`, `targetId`/`targetType`/`targetName`, the name the record's own plugin gave it) and, when it has an actor (`createdBy` or `createdVia.actorId`), a `loyalty.tier.change` activity on the owner and on the target record. Callers say who moved it through `via`: the Set tier action passes the execution's `createdVia`, `loyaltyAccountSetTier` the user, period resets the wallet run (`walletRunVia`), `score.applyPurchaseTier` its `actorId` and target (with `targetName`). `loyaltyTierLogs(accountId?, targetId?, accountTypeId?, limit?)` lists one account's changes, or those one record made, newest first (one of the two required; at most 100; `scoreLogView`); `LoyaltyTierLog.accountType` and `owner` are resolved.
 - tRPC `score.applyPurchaseTier({ ownerType, ownerId, accountTypeId, bands, onlyUpgrade?, totalAmount, targetId?, targetType?, actorId? })` is the selling side's built-in "This purchase" tier: the same `tierForPurchase` + `applyOwnerTier` the Set tier action uses, returning `{changed, from, to}` or `{changed: false, skip}`. It keeps no target and is never refunded; a repeat with a smaller amount moves the tier down unless `onlyUpgrade`.
 - Pricing plan updates remove persisted start and end dates when their enabled flags are disabled.
+- Pricing plan schedules (`isRepeatEnabled` + `activeWindows` + `closedDates` + `scheduleMoment`) apply when any window holds on the organization's wall clock (`loyaltyTimeZone`, core `TIMEZONE`; `utils/schedule.ts`). A window has one `type`: `daily`, `weekly` (`weekDays` 0 = Sunday … 6), `monthly` (`monthDays` 1–31) or `yearly` (`fromMonthDay`–`toMonthDay` `'MM-DD'`, wrapping the new year when the start is later), plus `'HH:mm'` `startTime`/`endTime`, ends exclusive; an end earlier than the start runs past midnight and `'24:00'` ends the day. Days and closed dates are read on the day a window starts. `scheduleMoment` picks the purchase moment checked: `checkout` (default; `checkPricing`'s `date`), `orderCreated` (`orderCreatedAt`, or checkout when absent) or `either`. Saving keeps only the fields a window's type reads and refuses a schedule on a plan with a priority (public and base prices are written ahead of time). `pricingPlanScheduleCheck(activeWindows, closedDates, scheduleMoment, checkoutAt, orderCreatedAt?)` answers for an unsaved schedule at wall-clock `'YYYY-MM-DDTHH:mm'` times with `active`, `matchedMoment`, `window` and `timeZone` (`pricingPlanView`). The old `repeatRules` are no longer read; `commands/migratePricingSchedule.ts` turns them into one window per plan.
+- `checkPricing` results carry `reasons [{planId, planName, kind: discount|bonus, value, posBase?, window?, matchedMoment?}]` per line: the plan whose discount stands (POS base plans add up, of the others only the best one stays, bundle shares scale its value) and, for a scheduled plan, the window and moment that matched (`scheduleMatchAt`). Callers that read only `value`/`bonusProducts` are unaffected. tRPC `pricing.scheduleStatus({productIds, branchId, departmentId, customerType?, customerId?, checkout?, orderCreatedAt?})` (`utils/scheduleStatus.ts`) lists the active scheduled plans that would price those products for that buyer, each with `active`, `matchedMoment`, `window`, `endsAt` (open window closes), `startsAt` (next start, searched at most 400 days ahead) and `endedAt` (a window that closed earlier that day) from `scheduleTimesAt`, whose wall-clock times become instants through the zone's offset.
 - Pricing plan lists honor `page` and `perPage`, with deterministic `_id`
   tie-breaking after the requested or default sort field.
 - Public and base pricing plans write scoped product discount metadata to core products; public entries use `base: null`, while base entries use `base: true` and may be scoped by branch, department, and pipeline.
@@ -131,7 +133,8 @@
   (Date or ISO timestamp) and GraphQL `pricingCheckDiscount` (Date). One
   evaluation timestamp, defaulted to now only inside `checkPricing` (adapters
   pass optional `date` through), drives plan start/end filters
-  and repeat rules. Product expiry always compares with the current time;
+  and the schedule's checkout moment; optional `orderCreatedAt` (tRPC and
+  GraphQL) is the schedule's order moment. Product expiry always compares with the current time;
   missing manufacturing dates in the tRPC adapter also default to now.
 
 - Quantity pricing bonuses of type `every` award exactly
@@ -183,9 +186,18 @@
 ## Validation
 
 - `pnpm nx test loyalty_api --testPathPattern 'pricingDate|saleQuantityInput' --runInBand`
-- Pricing date smoke: a past timestamp selects that date's plan window and repeat
+- Pricing date smoke: a past timestamp selects that date's plan window and
   schedule; product expiry still compares with now. Omitting the timestamp
-  evaluates plan dates and repeat rules at now as well.
+  evaluates plan dates and the schedule at now as well.
+
+- `pnpm nx test loyalty_api --testPathPattern schedule`
+- Schedule smoke: a weekday 18:00–21:00 window holds at 18:00 and 20:59 but not
+  21:00; a Friday 22:00–02:00 window holds at 01:00 Saturday; a yearly 12-15 →
+  01-15 window holds on 10 January; with `orderCreated`, an order opened at
+  20:50 and checked out at 21:10 keeps the discount, with `checkout` it does not.
+- Migration: after build, `MONGO_URL=... LOYALTY_TIME_ZONE=Asia/Ulaanbaatar node dist/src/commands/migratePricingSchedule.js`;
+  it lists combined day rules left out, unusable day values, plans left without
+  a window and scheduled plans that still have a priority.
 
 - `pnpm nx test loyalty_api --testPathPattern quantityBonus --runInBand`
 - Pricing bonus smoke: for every three A, award one free B; two A gives none,
@@ -206,6 +218,18 @@
 ## Recent Changes
 
 <!-- Newest first. Keep at most 10 entries. -->
+
+### `2026-11-09` — Why a line is or is not discounted
+
+- **Summary:** Pricing says which plan priced each line and, for scheduled plans, which window and moment matched; a new status call tells the selling side when a scheduled plan's window closes or next opens.
+- **Affected areas:** `modules/pricing/utils/{index,schedule,scheduleStatus}.ts` (+ `__tests__/{schedule,scheduleStatus,pricingDate}.test.ts`), `trpc/init-trpc.ts`.
+- **Contracts changed:** `checkPricing` lines add `reasons`; new tRPC `pricing.scheduleStatus`.
+
+### `2026-11-08` — Pricing schedules as typed windows
+
+- **Summary:** Plan schedules are windows of one type each (daily, weekly, monthly, yearly), any of which applies, read on the organization's wall clock, past midnight when needed, with closed dates and a choice of the purchase moment checked. Old repeat rules had to hold together, so several week days never matched, overnight ranges never matched, "every year" compared fixed dates, and times were read in the server's zone.
+- **Affected areas:** `modules/pricing/utils/schedule.ts` (+ `__tests__/schedule.test.ts`, `__tests__/pricingDate.test.ts`), `modules/pricing/utils/{index,rule,publicDiscounts}.ts`, `modules/pricing/db/models/PricingPlan.ts`, `modules/pricing/{@types/schedule,@types/pricingPlan,db/definitions/activeWindow,db/definitions/pricingPlan}.ts`, `modules/pricing/graphql/{schemas,resolvers/queries}/pricingPlan.ts`, `trpc/init-trpc.ts`, `commands/migratePricingSchedule.ts`.
+- **Contracts changed:** `PricingPlan.activeWindows`, `closedDates`, `scheduleMoment` (and inputs); `checkPricing` / `pricingCheckDiscount` take `orderCreatedAt`; new query `pricingPlanScheduleCheck`; public discount conditions carry `schedule {windows, closedDates, moment}` instead of `hour`/`weekDay`/`monthDay`/`yearDate`.
 
 ### `2026-11-05` — Recalculated purchases never edit an entry
 
@@ -254,15 +278,3 @@
 - **Summary:** Every tier change is kept in `loyalty_tier_logs` with who or what moved it and shown on the owner's timeline; new score campaigns default to active instead of draft.
 - **Affected areas:** `modules/score/{@types/tierLog.ts,db/definitions/tierLog.ts,db/models/TierLog.ts (+ test),services/accountTier.ts,services/purchaseTier.ts,services/accountReset.ts,graphql/schemas/account.ts,graphql/resolvers/queries/account.ts,graphql/resolvers/mutations/account.ts,db/definitions/scoreCampaign.ts}`, `meta/automations/score/producers.ts`, `trpc/init-trpc.ts`, `connectionResolvers.ts`.
 - **Contracts changed:** GraphQL `loyaltyTierLogs` (`LoyaltyTierLog`, by account or target); collection `loyalty_tier_logs`; activity `loyalty.tier.change`; tRPC `score.applyPurchaseTier` takes `targetId`, `targetType`, `actorId`; `ScoreCampaign.status` defaults to `active`.
-
-### `2026-10-09` — Purchase tier for the selling side
-
-- **Summary:** The Set tier action's band and owner logic moved into `services/purchaseTier.ts`, and sales/POS call it directly through `score.applyPurchaseTier` instead of an automation.
-- **Affected areas:** `modules/score/services/purchaseTier.ts`, `meta/automations/score/producers.ts`, `trpc/init-trpc.ts`.
-- **Contracts changed:** tRPC `score.applyPurchaseTier`.
-
-### `2026-10-08` — Earn called by the selling side
-
-- **Summary:** Sales and POS restate a purchase with `score.earn` on every save in an earning stage or paid sync; loyalty keeps one standing entry per campaign and target.
-- **Affected areas:** `trpc/init-trpc.ts`.
-- **Contracts changed:** tRPC `score.earn`.
