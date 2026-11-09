@@ -1,5 +1,6 @@
 import type { ApolloCache } from '@apollo/client';
 import {
+  IconAlignLeft,
   IconCircleCheck,
   IconFlag,
   IconUser,
@@ -30,10 +31,20 @@ import { useGetTask } from '@/task/hooks/useGetTask';
 import { useTaskOptionalFields } from '@/task/hooks/useTaskOptionalFields';
 import { useUpdateTask } from '@/task/hooks/useUpdateTask';
 import { ITaskDetail } from '@/task/types';
-import { RecordTableInlineCell, ScrollArea, Spinner } from 'erxes-ui';
+import {
+  cn,
+  RecordTableInlineCell,
+  ScrollArea,
+  Spinner,
+  TextField,
+} from 'erxes-ui';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PanelField, TagsSelect } from 'ui-modules';
+import {
+  PANEL_TEXT_FIELD_CLASS_NAME,
+  PanelField,
+  TagsSelect,
+} from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
 import { RecordTagsValue } from './RecordTagsValue';
 
@@ -70,6 +81,22 @@ const TaskFields = ({ task }: { task: ITaskDetail }) => {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
+      <PanelField icon={IconAlignLeft} label={t('name', 'Name')}>
+        <TextField
+          data-panel-inline
+          scope={`${SCOPE}.${_id}.detail.name`}
+          value={task.name || ''}
+          placeholder={t('task-name')}
+          className={cn(
+            PANEL_TEXT_FIELD_CLASS_NAME,
+            'h-auto min-h-7 py-1',
+            '[&_.truncate]:whitespace-normal [&_.truncate]:wrap-anywhere',
+          )}
+          onSave={(name) =>
+            name.trim() && updateTask({ variables: { _id, name } })
+          }
+        />
+      </PanelField>
       <PanelField icon={IconCircleCheck} label={t('status')}>
         <SelectStatusTask
           variant="table"
