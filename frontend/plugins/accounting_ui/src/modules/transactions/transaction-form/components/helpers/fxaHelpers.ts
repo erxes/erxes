@@ -10,12 +10,16 @@ export const getFxaDetailDefaultValues = (
   detail?: Partial<TFxaDetail>,
 ): TFxaDetail => ({
   ...detail,
+  followInfos: {
+    ...detail?.followInfos,
+    fixedAssetCategoryId: detail?.followInfos?.fixedAssetCategoryId || '',
+    fixedAssetCode: detail?.followInfos?.fixedAssetCode || '',
+    fixedAssetName: detail?.followInfos?.fixedAssetName || '',
+  },
   _id: getTempId(),
   accountId: detail?.accountId || '',
   fixedAssetId: detail?.fixedAssetId || '',
-  fixedAssetCategoryId: detail?.fixedAssetCategoryId || '',
-  fixedAssetCode: detail?.fixedAssetCode || '',
-  fixedAssetName: detail?.fixedAssetName || '',
+
   count: detail?.count ?? 0,
   unitPrice: detail?.unitPrice ?? 0,
   amount: detail?.amount ?? 0,

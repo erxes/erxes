@@ -29,8 +29,9 @@ describe('Erkhet migration fixed asset openings', () => {
             accountId: 'asset-account',
             amount: 350000,
             fixedAssetId: 'asset-a',
-            fixedAssetCategoryId: 'cat-a',
+
             followInfos: {
+              fixedAssetCategoryId: 'cat-a',
               accountCode: '200301',
               branchCode: '2000',
               preDeprecation: 233333.33333333334,
@@ -425,13 +426,14 @@ describe('Erkhet acquisition detail snapshots', () => {
             details: [
               {
                 accountId: '2001',
-                fixedAssetCategoryId: 'COMPUTER',
-                fixedAssetCode: 'PC-001',
-                fixedAssetName: 'Computer',
+
                 count: 2,
                 unitPrice: 100,
                 amount: 200,
                 followInfos: {
+                  fixedAssetCategoryId: 'COMPUTER',
+                  fixedAssetCode: 'PC-001',
+                  fixedAssetName: 'Computer',
                   depreciationMethod: 'straightLine',
                   annualDepreciationRate: 12,
                   salvageValue: 0,
@@ -452,12 +454,13 @@ describe('Erkhet acquisition detail snapshots', () => {
     );
     expect(doc.details[0]).toMatchObject({
       accountId: 'asset-account',
-      fixedAssetCategoryId: 'category-id',
-      fixedAssetCode: 'PC-001',
+
       count: 2,
       unitPrice: 100,
       amount: 200,
       followInfos: {
+        fixedAssetCategoryId: 'category-id',
+        fixedAssetCode: 'PC-001',
         annualDepreciationRate: 12,
         salvageValue: 0,
         preDeprecation: 20,
@@ -471,6 +474,12 @@ describe('Erkhet acquisition detail snapshots', () => {
     expect(doc.details[0].followInfos).not.toHaveProperty(
       'fixedAssetTotalAmount',
     );
+    for (const key of [
+      'fixedAssetCategoryId',
+      'fixedAssetCode',
+      'fixedAssetName',
+    ])
+      expect(doc.details[0]).not.toHaveProperty(key);
     expect(fixedAssetLookup).not.toHaveBeenCalled();
   });
 });

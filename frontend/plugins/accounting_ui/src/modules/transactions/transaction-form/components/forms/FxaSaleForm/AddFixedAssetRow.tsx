@@ -32,10 +32,14 @@ export const AddFixedAssetRow = ({
   const getDetailDefaultValues = () =>
     getFxaDetailDefaultValues({
       ...lastDetail,
+      followInfos: {
+        ...lastDetail?.followInfos,
+        fixedAssetCategoryId: '',
+        fixedAssetCode: '',
+        fixedAssetName: '',
+      },
       fixedAssetId: '',
-      fixedAssetCategoryId: '',
-      fixedAssetCode: '',
-      fixedAssetName: '',
+
       branchId: trDoc.branchId || '',
       departmentId: trDoc.departmentId || '',
       count: 0,

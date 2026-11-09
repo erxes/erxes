@@ -47,6 +47,10 @@ export interface ITrFollowInfos extends Record<string, unknown> {
 }
 
 export interface ITrDetailFollowInfos extends Record<string, unknown> {
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
+
   branchCode?: string;
   departmentCode?: string;
   preDeprecation?: number;
@@ -87,9 +91,6 @@ export interface ITrDetail {
   weight?: number;
 
   fixedAssetId?: string;
-  fixedAssetCategoryId?: string;
-  fixedAssetCode?: string;
-  fixedAssetName?: string;
 }
 
 export interface ITransaction {

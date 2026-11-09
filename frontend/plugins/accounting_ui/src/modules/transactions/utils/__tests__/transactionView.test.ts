@@ -145,12 +145,15 @@ test('fixed asset income initializes pre-depreciation from detail follow info', 
           _id: 'detail-1',
           accountId: 'asset-account',
           amount: 300,
-          fixedAssetCategoryId: 'category-1',
-          fixedAssetCode: 'asset-1',
-          fixedAssetName: 'Asset 1',
+
           count: 3,
           unitPrice: 100,
-          followInfos: { preDeprecation: 20 },
+          followInfos: {
+            fixedAssetCategoryId: 'category-1',
+            fixedAssetCode: 'asset-1',
+            fixedAssetName: 'Asset 1',
+            preDeprecation: 20,
+          },
         },
       ],
     }),
@@ -165,12 +168,15 @@ test('fixed asset income ignores financial values supplied in root metadata', ()
     transaction(TrJournalEnum.FXA_INCOME, {
       details: [
         {
+          followInfos: {
+            fixedAssetCategoryId: 'category-1',
+            fixedAssetCode: 'asset-1',
+            fixedAssetName: 'Asset 1',
+          },
           _id: 'detail-1',
           accountId: 'asset-account',
           amount: 300,
-          fixedAssetCategoryId: 'category-1',
-          fixedAssetCode: 'asset-1',
-          fixedAssetName: 'Asset 1',
+
           count: 3,
           unitPrice: 100,
         },
@@ -213,13 +219,17 @@ test.each([
           {
             _id: 'detail-1',
             accountId: 'asset-account',
-            fixedAssetCategoryId: 'category-1',
-            fixedAssetCode: 'asset-1',
-            fixedAssetName: 'Asset',
+
             amount: 300,
             count: 3,
             unitPrice: 100,
-            followInfos: { ...detailInfo, custom: 'preserve' },
+            followInfos: {
+              fixedAssetCategoryId: 'category-1',
+              fixedAssetCode: 'asset-1',
+              fixedAssetName: 'Asset',
+              ...detailInfo,
+              custom: 'preserve',
+            },
           },
         ],
         followInfos: {
@@ -234,7 +244,16 @@ test.each([
       }),
     );
     const savedDetail = fxaIncomeDetailSchema.parse(draft.details[0]);
+    for (const key of [
+      'fixedAssetCategoryId',
+      'fixedAssetCode',
+      'fixedAssetName',
+    ])
+      expect(savedDetail).not.toHaveProperty(key);
     expect(savedDetail.followInfos).toEqual({
+      fixedAssetCategoryId: 'category-1',
+      fixedAssetCode: 'asset-1',
+      fixedAssetName: 'Asset',
       ...expected,
       custom: 'preserve',
     });
@@ -350,3 +369,28 @@ test('capitalization reopening preserves asset rules and discards obsolete count
     },
   });
 });
+
+test.each(['fixedAssetCategoryId', 'fixedAssetCode', 'fixedAssetName'])(
+  'income validation requires nested acquisition %s',
+  (key) => {
+    const detail = {
+      _id: 'detail',
+      accountId: 'account',
+      amount: 100,
+      count: 1,
+      unitPrice: 100,
+      followInfos: Object.fromEntries(
+        Object.entries({
+          fixedAssetCategoryId: 'category',
+          fixedAssetCode: 'PC',
+          fixedAssetName: 'Computer',
+        }).filter(([field]) => field !== key),
+      ),
+    };
+    expect(fxaIncomeDetailSchema.safeParse(detail).success).toBe(false);
+    expect(
+      fxaIncomeDetailSchema.safeParse({ ...detail, followInfos: undefined })
+        .success,
+    ).toBe(false);
+  },
+);

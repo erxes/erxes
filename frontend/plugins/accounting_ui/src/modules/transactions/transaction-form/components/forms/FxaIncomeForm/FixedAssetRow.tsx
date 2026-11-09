@@ -41,11 +41,7 @@ export const FixedAssetRow = ({
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
-  }) as TFxaDetail & {
-    fixedAssetCategoryId?: string;
-    fixedAssetCode?: string;
-    fixedAssetName?: string;
-  };
+  }) as TFxaDetail;
   const trDoc = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}`,
@@ -210,7 +206,7 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCategoryId`}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCategoryId`}
             render={({ field }) => (
               <SelectFixedAssetCategory
                 selected={field.value || ''}
@@ -254,10 +250,10 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCode`}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCode`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetCode`}
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetCode`}
                 closeOnEnter
               >
                 <Form.Control>
@@ -286,10 +282,10 @@ export const FixedAssetRow = ({
         <Table.Cell>
           <Form.Field
             control={form.control}
-            name={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetName`}
+            name={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetName`}
             render={({ field }) => (
               <PopoverScoped
-                scope={`trDocs.${journalIndex}.details.${detailIndex}.fixedAssetName`}
+                scope={`trDocs.${journalIndex}.details.${detailIndex}.followInfos.fixedAssetName`}
                 closeOnEnter
               >
                 <Form.Control>

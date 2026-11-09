@@ -34,6 +34,9 @@ const accountSchema = z.object({
 
 export const transactionDetailFollowInfoSchema = z
   .object({
+    fixedAssetCategoryId: undefed(z.string()),
+    fixedAssetCode: undefed(z.string()),
+    fixedAssetName: undefed(z.string()),
     currencyDiffAccountId: undefed(z.string()),
     moveInBranchId: undefed(z.string()),
     moveInDepartmentId: undefed(z.string()),
@@ -87,9 +90,6 @@ export const baseTrDetailSchema = z.object({
 
   productId: undefed(z.string()),
   fixedAssetId: undefed(z.string()),
-  fixedAssetCategoryId: undefed(z.string()),
-  fixedAssetCode: undefed(z.string()),
-  fixedAssetName: undefed(z.string()),
   count: undefed(z.number()),
   unitPrice: undefed(z.number()),
   weight: undefed(z.number().min(0)),
@@ -443,37 +443,38 @@ export const fxaIncomeDetailSchema = z
     ...baseTrDetailSchema.shape,
   })
   .extend({
-    fixedAssetCategoryId: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset category', {
-          ns: 'accounting',
-          nsSeparator: false,
+    followInfos: transactionDetailFollowInfoSchema.extend({
+      fixedAssetCategoryId: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset category', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    fixedAssetCode: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset code', {
-          ns: 'accounting',
-          nsSeparator: false,
+      ),
+      fixedAssetCode: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset code', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    fixedAssetName: z.string().refine(
-      (val) => val?.length,
-      () => ({
-        message: getI18n().t('Must fill fixed asset name', {
-          ns: 'accounting',
-          nsSeparator: false,
+      ),
+      fixedAssetName: z.string().refine(
+        (val) => val?.length,
+        () => ({
+          message: getI18n().t('Must fill fixed asset name', {
+            ns: 'accounting',
+            nsSeparator: false,
+          }),
         }),
-      }),
-    ),
-    followInfos: undefed(transactionDetailFollowInfoSchema.extend({
+      ),
+
       revaluationLoss: undefed(z.number().finite().nonnegative()),
       revaluationReserve: undefed(z.number().finite().nonnegative()),
-    })),
+    }),
     count: z.number().gt(0),
     unitPrice: z.number().min(0),
   });

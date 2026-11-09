@@ -104,7 +104,10 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
   );
   const detailCount = Math.max(0, Math.trunc(detail?.count || 0));
   const remainingCount = Math.max(0, detailCount - ownerCount);
-  const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
+  const title = [
+    detail?.followInfos?.fixedAssetCode,
+    detail?.followInfos?.fixedAssetName,
+  ]
     .filter(Boolean)
     .join(' - ');
   const addButtonTip =
@@ -137,8 +140,11 @@ export const FxaIncomeDetailOwnerRecordsSheet = ({
         tempId: `${detail._id}-${getTempId()}`,
         transactionDetailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
-        code: detail.fixedAssetCode
-          ? `${detail.fixedAssetCode}_${String(sequence).padStart(3, '0')}`
+        code: detail.followInfos?.fixedAssetCode
+          ? `${detail.followInfos?.fixedAssetCode}_${String(sequence).padStart(
+              3,
+              '0',
+            )}`
           : '',
         sequence,
         count: remainingCount,

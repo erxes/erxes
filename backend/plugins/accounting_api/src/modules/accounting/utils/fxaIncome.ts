@@ -62,7 +62,7 @@ const getCategoryIds = (transaction: ITransaction) =>
   Array.from(
     new Set(
       (transaction.details || [])
-        .map((detail) => detail.fixedAssetCategoryId)
+        .map((detail) => detail.followInfos?.fixedAssetCategoryId)
         .filter((categoryId): categoryId is string => Boolean(categoryId)),
     ),
   );
@@ -71,7 +71,7 @@ const getFixedAssetCodes = (transaction: ITransaction) =>
   Array.from(
     new Set(
       (transaction.details || [])
-        .map((detail) => detail.fixedAssetCode)
+        .map((detail) => detail.followInfos?.fixedAssetCode)
         .filter((code): code is string => Boolean(code)),
     ),
   );
@@ -179,10 +179,10 @@ const buildFixedAssetDoc = ({
     throw new Error('Select a valid acquisition depreciation start date.');
   }
   return {
-    code: detail.fixedAssetCode || '',
-    name: detail.fixedAssetName || '',
+    code: detail.followInfos?.fixedAssetCode || '',
+    name: detail.followInfos?.fixedAssetName || '',
     description: transaction.description || '',
-    categoryId: detail.fixedAssetCategoryId || '',
+    categoryId: detail.followInfos?.fixedAssetCategoryId || '',
     status: 'active',
     transactionId: transaction._id,
     transactionDetailId: getDetailId(detail),
@@ -198,15 +198,15 @@ const validateIncomeDetails = (transaction: ITransaction) => {
       continue;
     }
 
-    if (!detail.fixedAssetCategoryId && !detail.fixedAssetId) {
+    if (!detail.followInfos?.fixedAssetCategoryId && !detail.fixedAssetId) {
       throw new Error('Fixed asset category is required.');
     }
 
-    if (!detail.fixedAssetId && !detail.fixedAssetCode) {
+    if (!detail.fixedAssetId && !detail.followInfos?.fixedAssetCode) {
       throw new Error('Fixed asset code is required.');
     }
 
-    if (!detail.fixedAssetId && !detail.fixedAssetName) {
+    if (!detail.fixedAssetId && !detail.followInfos?.fixedAssetName) {
       throw new Error('Fixed asset name is required.');
     }
   }
@@ -594,7 +594,9 @@ const prepareFxaIncomeAcquisition = async (
     (transaction.details || []).map((detail) => [
       getDetailId(detail),
       buildFixedAssetDoc({
-        category: categoriesById.get(detail.fixedAssetCategoryId || ''),
+        category: categoriesById.get(
+          detail.followInfos?.fixedAssetCategoryId || '',
+        ),
         date,
         detail,
         transaction,
@@ -634,7 +636,7 @@ const prepareFxaIncomeAcquisition = async (
           })),
       ),
     ...(transaction.details || []).map((detail) => ({
-      key: detail.fixedAssetCode || '',
+      key: detail.followInfos?.fixedAssetCode || '',
       date,
       detail,
     })),
@@ -648,10 +650,7 @@ export const validateFxaIncomeAcquisition = async (
   transaction: ITransaction,
 ): Promise<void> => {
   for (const detail of transaction.details || []) {
-    for (const field of [
-      'revaluationLoss',
-      'revaluationReserve',
-    ] as const) {
+    for (const field of ['revaluationLoss', 'revaluationReserve'] as const) {
       const value = detail.followInfos?.[field];
       if (value !== undefined && (!Number.isFinite(value) || value < 0))
         throw new Error(
@@ -707,7 +706,7 @@ export const syncFxaIncomeDetails = async (
       continue;
     }
 
-    const fixedAssetCode = detail.fixedAssetCode || '';
+    const fixedAssetCode = detail.followInfos?.fixedAssetCode || '';
     const existing =
       existingByDetailId.get(detailId) || existingByCode.get(fixedAssetCode);
     const doc = incomeDocs.get(detailId);

@@ -423,29 +423,19 @@ const FXA_FOLLOW_INFOS_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
 };
 
 const fxaDetailsDefaultValues = (doc?: Partial<ITransaction>) =>
-  doc?.details?.length
-    ? doc.details.map((det) => ({
-        ...trDetailWrapper(det),
-        fixedAssetId: det.fixedAssetId || '',
-        fixedAssetCategoryId: det.fixedAssetCategoryId || '',
-        fixedAssetCode: det.fixedAssetCode || '',
-        fixedAssetName: det.fixedAssetName || '',
-        count: det.count ?? 0,
-        unitPrice: det.unitPrice ?? 0,
-        amount: det.amount ?? 0,
-      }))
-    : [
-        {
-          ...trDetailWrapper(),
-          fixedAssetId: '',
-          fixedAssetCategoryId: '',
-          fixedAssetCode: '',
-          fixedAssetName: '',
-          count: 0,
-          unitPrice: 0,
-          amount: 0,
-        },
-      ];
+  (doc?.details?.length ? doc.details : [{}]).map((detail) => ({
+    ...trDetailWrapper(detail),
+    fixedAssetId: detail.fixedAssetId || '',
+    followInfos: {
+      ...detail.followInfos,
+      fixedAssetCategoryId: detail.followInfos?.fixedAssetCategoryId || '',
+      fixedAssetCode: detail.followInfos?.fixedAssetCode || '',
+      fixedAssetName: detail.followInfos?.fixedAssetName || '',
+    },
+    count: detail.count ?? 0,
+    unitPrice: detail.unitPrice ?? 0,
+    amount: detail.amount ?? 0,
+  }));
 
 const FXA_EXTRA_DATA_DEFAULT_VALUES = (doc?: Partial<ITransaction>) => {
   const extraData = { ...doc?.extraData };

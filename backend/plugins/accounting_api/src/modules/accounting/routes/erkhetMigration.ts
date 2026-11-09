@@ -257,9 +257,9 @@ const getCodeMap = (docs: ITransaction[]) => {
       if (detail.fixedAssetId) {
         fixedAssetCodes.push(normalizeSourceCode(detail.fixedAssetId));
       }
-      if (detail.fixedAssetCategoryId) {
+      if (detail.followInfos?.fixedAssetCategoryId) {
         fixedAssetCategoryCodes.push(
-          normalizeSourceCode(detail.fixedAssetCategoryId),
+          normalizeSourceCode(detail.followInfos?.fixedAssetCategoryId),
         );
       }
       if (detail.branchId) {
@@ -787,7 +787,7 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
   const departmentCode = normalizeSourceCode(detail.departmentId);
   const fixedAssetCode = normalizeSourceCode(detail.fixedAssetId);
   const fixedAssetCategoryCode = normalizeSourceCode(
-    detail.fixedAssetCategoryId,
+    detail.followInfos?.fixedAssetCategoryId,
   );
   const currencyDiffAccountCode = normalizeSourceCode(
     detail.followInfos?.currencyDiffAccountId,
@@ -832,12 +832,6 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
     fixedAssetId: fixedAssetCode
       ? maps.fixedAssetsByCode[fixedAssetCode] || detail.fixedAssetId
       : detail.fixedAssetId,
-    fixedAssetCategoryId: fixedAssetCategoryCode
-      ? maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode] ||
-        detail.fixedAssetCategoryId
-      : detail.fixedAssetCategoryId,
-    fixedAssetCode: normalizeSourceCode(detail.fixedAssetCode),
-    fixedAssetName: normalizeSourceCode(detail.fixedAssetName),
     branchId: branchCode
       ? maps.branchesByCode[branchCode] || detail.branchId
       : detail.branchId,
@@ -849,6 +843,10 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       : detail.departmentId,
     followInfos: {
       ...cleanDetailFollowInfos(detail.followInfos),
+      fixedAssetCategoryId: fixedAssetCategoryCode
+        ? maps.fixedAssetCategoriesByCode[fixedAssetCategoryCode]
+        : detail.followInfos?.fixedAssetCategoryId,
+      fixedAssetName: normalizeSourceCode(detail.followInfos?.fixedAssetName),
       currencyDiffAccountId: currencyDiffAccountCode
         ? maps.accountsByCode[currencyDiffAccountCode]
         : detail.followInfos?.currencyDiffAccountId,
@@ -857,7 +855,9 @@ const resolveDetail = (detail: ITrDetail, maps: TReferenceMaps) => {
       branchCode,
       productCode,
       departmentCode,
-      fixedAssetCode,
+      fixedAssetCode:
+        normalizeSourceCode(detail.followInfos?.fixedAssetCode) ||
+        fixedAssetCode,
       fixedAssetCategoryCode,
       currencyDiffAccountCode,
     },
@@ -1355,7 +1355,12 @@ const normalizeBatchDocs = async (
   userId: string,
   dryRun: boolean,
 ) => {
-  const maps = await fetchReferenceMaps(subdomain, models, batch.trDocs, dryRun);
+  const maps = await fetchReferenceMaps(
+    subdomain,
+    models,
+    batch.trDocs,
+    dryRun,
+  );
   const contactByCode: Record<string, TContactResolution> = {};
 
   // Нэг batch дотор ижил customer олон transaction дээр давтагддаг тул

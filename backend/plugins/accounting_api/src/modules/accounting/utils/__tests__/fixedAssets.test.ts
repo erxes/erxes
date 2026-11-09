@@ -77,13 +77,14 @@ const makeIncomeTransaction = (overrides: Record<string, unknown> = {}) => ({
     {
       _id: 'detail-income',
       accountId: 'asset-account',
-      fixedAssetCategoryId: 'cat-a',
-      fixedAssetCode: 'DELL-001',
-      fixedAssetName: 'Dell laptop',
+
       count: 3,
       unitPrice: 500,
       amount: 1500,
       followInfos: {
+        fixedAssetCategoryId: 'cat-a',
+        fixedAssetCode: 'DELL-001',
+        fixedAssetName: 'Dell laptop',
         salvageValue: 50,
         preDeprecation: 20,
       },
@@ -261,13 +262,14 @@ describe('fixed asset income', () => {
         {
           _id: 'detail-income',
           accountId: 'asset-account',
-          fixedAssetCategoryId: 'cat-a',
-          fixedAssetCode: 'DELL-001',
-          fixedAssetName: 'Dell laptop',
+
           count: 3,
           unitPrice: 500,
           amount: 1500,
           followInfos: {
+            fixedAssetCategoryId: 'cat-a',
+            fixedAssetCode: 'DELL-001',
+            fixedAssetName: 'Dell laptop',
             salvageValue: 50,
             preDeprecation: 20,
           },
@@ -341,6 +343,7 @@ describe('fixed asset income', () => {
           {
             ...transaction.details[0],
             followInfos: {
+              ...transaction.details[0].followInfos,
               salvageValue: detailValue,
               preDeprecation: detailDepreciation,
             },
@@ -376,28 +379,32 @@ describe('fixed asset income', () => {
         {
           _id: 'detail-branch-a',
           accountId: 'asset-account',
-          fixedAssetCategoryId: 'cat-a',
-          fixedAssetCode: 'DELL-001',
-          fixedAssetName: 'Dell laptop',
+
           branchId: 'branch-a',
           departmentId: 'dept-a',
           count: 3,
           unitPrice: 500,
           amount: 1500,
-          followInfos: {},
+          followInfos: {
+            fixedAssetCategoryId: 'cat-a',
+            fixedAssetCode: 'DELL-001',
+            fixedAssetName: 'Dell laptop',
+          },
         },
         {
           _id: 'detail-branch-b',
           accountId: 'asset-account',
-          fixedAssetCategoryId: 'cat-a',
-          fixedAssetCode: 'DELL-001',
-          fixedAssetName: 'Dell laptop',
+
           branchId: 'branch-b',
           departmentId: 'dept-b',
           count: 2,
           unitPrice: 500,
           amount: 1000,
-          followInfos: {},
+          followInfos: {
+            fixedAssetCategoryId: 'cat-a',
+            fixedAssetCode: 'DELL-001',
+            fixedAssetName: 'Dell laptop',
+          },
         },
       ],
       followInfos: {
@@ -427,11 +434,14 @@ describe('fixed asset income', () => {
     const transaction = makeIncomeTransaction({
       details: [
         {
+          followInfos: {
+            fixedAssetCategoryId: 'cat-a',
+            fixedAssetCode: 'DELL-001',
+            fixedAssetName: 'Dell laptop',
+          },
           _id: 'detail-income',
           accountId: 'asset-account',
-          fixedAssetCategoryId: 'cat-a',
-          fixedAssetCode: 'DELL-001',
-          fixedAssetName: 'Dell laptop',
+
           count: 10,
           unitPrice: 500,
           amount: 5000,
@@ -1830,6 +1840,7 @@ describe('Erkhet opening adjustment description', () => {
       amount: 0,
       unitPrice: 0,
       followInfos: {
+        ...transaction.details[0].followInfos,
         preDeprecation: 0,
       },
     };
@@ -1869,6 +1880,7 @@ describe('Erkhet opening adjustment description', () => {
       unitPrice: 100,
       amount: 100,
       followInfos: {
+        ...transaction.details[0].followInfos,
         preDeprecation: 0,
       },
     };

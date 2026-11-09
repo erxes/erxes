@@ -43,9 +43,7 @@ export const applyFxaChoice = (
       ? {
           ...detail,
           fixedAssetId: assetId,
-          fixedAssetCategoryId: choice.asset.categoryId || '',
-          fixedAssetCode: choice.asset.code || '',
-          fixedAssetName: choice.asset.name || '',
+
           accountId:
             doc.journal === TrJournalEnum.FXA_SALE
               ? detail.accountId
@@ -59,6 +57,9 @@ export const applyFxaChoice = (
           amount: count * unitPrice,
           followInfos: {
             ...detail.followInfos,
+            fixedAssetCategoryId: choice.asset.categoryId || '',
+            fixedAssetCode: choice.asset.code || '',
+            fixedAssetName: choice.asset.name || '',
             ...(changed ? { preDeprecation: undefined } : {}),
           },
         }
@@ -120,9 +121,7 @@ export const applyFxaChoices = (
     getFxaDetailDefaultValues({
       ...template,
       fixedAssetId: '',
-      fixedAssetCode: '',
-      fixedAssetName: '',
-      fixedAssetCategoryId: '',
+
       accountId:
         doc.journal === TrJournalEnum.FXA_SALE
           ? template.accountId
@@ -131,7 +130,13 @@ export const applyFxaChoices = (
       departmentId: choice.location?.departmentId || '',
       count: 1,
       amount: 0,
-      followInfos: { ...template.followInfos, preDeprecation: undefined },
+      followInfos: {
+        ...template.followInfos,
+        fixedAssetCode: '',
+        fixedAssetName: '',
+        fixedAssetCategoryId: '',
+        preDeprecation: undefined,
+      },
     }),
   );
   if (additional.length)

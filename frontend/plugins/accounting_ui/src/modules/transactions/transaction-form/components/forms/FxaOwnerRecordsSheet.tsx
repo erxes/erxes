@@ -84,7 +84,10 @@ export const FxaOwnerRecordsSheet = ({
   const activeRecords = (data?.fxaOwnerRecords || []).filter(
     (record) => getRecordCurrentCount(record) > 0,
   );
-  const title = [detail?.fixedAssetCode, detail?.fixedAssetName]
+  const title = [
+    detail?.followInfos?.fixedAssetCode,
+    detail?.followInfos?.fixedAssetName,
+  ]
     .filter(Boolean)
     .join(' - ');
   const isWithinLimit = selectedCount <= detailCount;

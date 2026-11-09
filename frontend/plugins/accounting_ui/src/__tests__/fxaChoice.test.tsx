@@ -74,13 +74,12 @@ test('selection fills the exact location and custodian, limits count and clears 
   act(() => applyFxaChoice(result.current, 0, 0, choice));
   expect(result.current.getValues('trDocs.0.details.0')).toMatchObject({
     fixedAssetId: 'new-asset',
-    fixedAssetCode: 'PC',
     branchId: 'chosen-branch',
     departmentId: 'chosen-department',
     count: 1,
     unitPrice: 100,
     amount: 100,
-    followInfos: { preDeprecation: undefined },
+    followInfos: { fixedAssetCode: 'PC', preDeprecation: undefined },
   });
   expect(
     result.current.getValues('trDocs.0.extraData.fxaOwnerRecords'),
@@ -174,7 +173,7 @@ test.each([TrJournalEnum.FXA_OUT, TrJournalEnum.FXA_SALE])(
           : 'asset-account',
       unitPrice: journal === TrJournalEnum.FXA_SALE ? 700 : 100,
       amount: journal === TrJournalEnum.FXA_SALE ? 700 : 100,
-      followInfos: { preDeprecation: undefined },
+      followInfos: { fixedAssetCode: 'PC', preDeprecation: undefined },
     });
     expect(details[1]._id).not.toBe('detail');
     expect(details[1]._id).not.toBe('sibling');
