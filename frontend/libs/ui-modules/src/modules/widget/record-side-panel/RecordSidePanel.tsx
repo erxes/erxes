@@ -217,7 +217,9 @@ const RecordSidePanelResizeHandle = ({
           const nextWidth = widths[event.key];
           if (nextWidth === undefined) return;
           event.preventDefault();
-          onWidthChange(clampWidth(nextWidth, maxWidth, minWidth));
+          const clampedWidth = clampWidth(nextWidth, maxWidth, minWidth);
+          // At a limit nothing moves; a wider stored width stays the user's.
+          if (clampedWidth !== width) onWidthChange(clampedWidth);
         }}
       >
         <span className="relative z-10 h-10 w-1 rounded-full bg-border transition-colors group-hover:bg-primary/60 group-focus-visible:bg-primary group-data-[resizing=true]:bg-primary" />
@@ -525,11 +527,18 @@ const RecordSidePanelTabs = ({
     overviewMaxWidth,
     RECORD_OVERVIEW_WIDTH.min,
   );
-  // Paints the column while dragging; the stored width commits on release.
+  const overviewMaxWidthRef = useRef(overviewMaxWidth);
+  overviewMaxWidthRef.current = overviewMaxWidth;
+  // Paints the column while dragging, within the page's current limit even
+  // if it changes mid-drag; the stored width commits on release.
   const paintOverviewWidth = useCallback((width: number) => {
     tabsRootRef.current?.style.setProperty(
       '--record-overview-width',
-      `${width}px`,
+      `${clampWidth(
+        width,
+        overviewMaxWidthRef.current,
+        RECORD_OVERVIEW_WIDTH.min,
+      )}px`,
     );
   }, []);
   const tabWidths = useRef(new Map<string, number>());

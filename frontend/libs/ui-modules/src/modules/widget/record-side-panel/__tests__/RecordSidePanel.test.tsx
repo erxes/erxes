@@ -597,6 +597,7 @@ const renderRecordPage = () => {
   const layout = grip.closest('[role="tabpanel"]')?.parentElement;
   return {
     grip,
+    layout,
     columnWidth: () =>
       layout?.style.getPropertyValue('--record-overview-width'),
   };
@@ -622,30 +623,35 @@ it('resizes the overview column of a record page from its right edge', () => {
 });
 
 it('limits the overview column by the page width, keeping room for the tabs', () => {
-  // The tab bar observes its own width too; every observer hears the page.
-  const observers: ResizeObserverCallback[] = [];
+  // Only observers watching the page itself hear its width.
+  const observed = new Map<ResizeObserverCallback, Element[]>();
   Object.defineProperty(window, 'ResizeObserver', {
     configurable: true,
     value: class {
+      private readonly targets: Element[] = [];
       constructor(callback: ResizeObserverCallback) {
-        observers.push(callback);
+        observed.set(callback, this.targets);
       }
-      observe = jest.fn();
+      observe(target: Element) {
+        this.targets.push(target);
+      }
       unobserve = jest.fn();
       disconnect = jest.fn();
     },
   });
-  const pageWidth = (width: number) =>
-    act(() =>
-      observers.forEach((callback) =>
-        callback(
-          [{ contentRect: { width } } as ResizeObserverEntry],
-          {} as ResizeObserver,
-        ),
-      ),
-    );
   try {
-    const { grip, columnWidth } = renderRecordPage();
+    const { grip, layout, columnWidth } = renderRecordPage();
+    const pageWidth = (width: number) =>
+      act(() =>
+        observed.forEach((targets, callback) => {
+          if (layout && targets.includes(layout)) {
+            callback(
+              [{ contentRect: { width } } as ResizeObserverEntry],
+              {} as ResizeObserver,
+            );
+          }
+        }),
+      );
     pageWidth(1000);
     expect(grip.getAttribute('aria-valuemax')).toBe('640');
     fireEvent.keyDown(grip, { key: 'End' });
@@ -653,11 +659,21 @@ it('limits the overview column by the page width, keeping room for the tabs', ()
     pageWidth(800);
     expect(grip.getAttribute('aria-valuemax')).toBe('440');
     expect(columnWidth()).toBe('440px');
+    // Pressing outwards at the limit keeps the wider stored width.
+    fireEvent.keyDown(grip, { key: 'ArrowRight' });
     expect(localStorage.getItem('erxes:recordOverviewWidth')).toBe('640');
     pageWidth(500);
     expect(columnWidth()).toBe('288px');
     pageWidth(1200);
     expect(columnWidth()).toBe('640px');
+    // A page narrowed mid-drag ends the drag within its new limit.
+    pointer(grip, 'pointerdown', 0);
+    pointer(document, 'pointermove', 200);
+    paint();
+    expect(columnWidth()).toBe('840px');
+    pageWidth(800);
+    expect(columnWidth()).toBe('440px');
+    expect(document.body.style.cursor).toBe('');
   } finally {
     Reflect.deleteProperty(window, 'ResizeObserver');
   }
