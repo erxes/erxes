@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
-import { IconPlus } from '@tabler/icons-react';
+import { IconHierarchy2, IconPlus } from '@tabler/icons-react';
 import { nanoid } from 'nanoid';
 import { FieldErrors } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Button, Form, ScrollArea, useToast } from 'erxes-ui';
 import { PanelFormLayout, PanelFormRow } from 'ui-modules';
-import { TourismPanelRecordState } from '@/tms/side-panel/TourismPanelLayout';
+import { TourismPanelFormBlock } from '@/tms/side-panel/TourismPanelForm';
+import {
+  TourismPanelEmpty,
+  TourismPanelRecordState,
+} from '@/tms/side-panel/TourismPanelLayout';
 import { TourismPanelRemoveAction } from '@/tms/side-panel/TourismPanelRemoveAction';
 import {
   ITourismPanelViewProps,
@@ -30,7 +34,11 @@ import {
 } from '../utils/customFields';
 import { normalizePricingOptionsForApi } from '../utils/pricingOptions';
 import { sanitizeTourTranslations } from '../utils/translationHelpers';
-import { TourCustomFieldInput } from './TourCustomFieldInput';
+import {
+  TOUR_CUSTOM_FIELD_BLOCK_TYPES,
+  TOUR_CUSTOM_FIELD_ICONS,
+  TourCustomFieldInput,
+} from './TourCustomFieldInput';
 import { TourCustomersPanel } from './TourCustomersPanel';
 import { TourOrdersPanel } from './TourOrdersPanel';
 import {
@@ -458,6 +466,9 @@ const TourPanelProperties = ({ contentId }: ITourismPanelViewProps) => {
     tourId: contentId,
   });
   const [values, setValues] = useState<TourCustomFieldData[]>([]);
+  const visibleGroups = fieldGroups.filter((group) =>
+    (group.fields ?? []).some((field) => field._id || field.code),
+  );
 
   useEffect(() => {
     setValues(toCustomFieldEntries(tourDetail?.customFieldsData));
@@ -472,7 +483,7 @@ const TourPanelProperties = ({ contentId }: ITourismPanelViewProps) => {
       { field: fieldId, value },
     ]);
 
-  const missingRequired = fieldGroups
+  const missingRequired = visibleGroups
     .flatMap((group) => group.fields ?? [])
     .find((field) => {
       const fieldId = field._id || field.code;
@@ -528,11 +539,12 @@ const TourPanelProperties = ({ contentId }: ITourismPanelViewProps) => {
     );
   }
 
-  if (!fieldGroups.length) {
+  if (!visibleGroups.length) {
     return (
-      <div className="flex flex-1 items-center justify-center p-6 text-sm text-muted-foreground">
-        {t('no-custom-field-groups-yet')}
-      </div>
+      <TourismPanelEmpty
+        icon={IconHierarchy2}
+        title={t('no-custom-field-groups-yet')}
+      />
     );
   }
 
@@ -551,7 +563,7 @@ const TourPanelProperties = ({ contentId }: ITourismPanelViewProps) => {
         saving={saving}
         saveLabel={t('save')}
       >
-        {fieldGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <TourPanelSection key={group._id} title={group.label}>
             {(group.fields ?? []).map((field) => {
               const fieldId = field._id || field.code;
@@ -560,17 +572,32 @@ const TourPanelProperties = ({ contentId }: ITourismPanelViewProps) => {
                 return null;
               }
 
-              return (
+              const input = (
+                <TourCustomFieldInput
+                  field={{ ...field, _id: fieldId }}
+                  value={getValue(fieldId)}
+                  onChange={(value) => setValue(fieldId, value)}
+                />
+              );
+              const icon = TOUR_CUSTOM_FIELD_ICONS[field.type];
+
+              return TOUR_CUSTOM_FIELD_BLOCK_TYPES.has(field.type) ? (
+                <TourismPanelFormBlock
+                  key={fieldId}
+                  label={field.label}
+                  icon={icon}
+                  required={field.isRequired}
+                >
+                  {input}
+                </TourismPanelFormBlock>
+              ) : (
                 <PanelFormRow
                   key={fieldId}
                   label={field.label}
+                  icon={icon}
                   required={field.isRequired}
                 >
-                  <TourCustomFieldInput
-                    field={{ ...field, _id: fieldId }}
-                    value={getValue(fieldId)}
-                    onChange={(value) => setValue(fieldId, value)}
-                  />
+                  {input}
                 </PanelFormRow>
               );
             })}

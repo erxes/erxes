@@ -1,9 +1,13 @@
 'use client';
 
-import { Button, Card, Separator, Spinner, Tooltip } from 'erxes-ui';
+import { Button, Card, Separator, Tooltip } from 'erxes-ui';
 import { IconMail, IconPhone, IconUser, IconUsers } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import {
+  TourismPanelEmpty,
+  TourismPanelLoading,
+} from '@/tms/side-panel/TourismPanelLayout';
 import { CustomersInline } from 'ui-modules';
 import { useTourCustomers } from '../hooks/useTourOrders';
 
@@ -13,24 +17,16 @@ export const TourCustomersPanel = ({ tourId }: { tourId: string }) => {
   const { customerIds, customers, loading, refetch } = useTourCustomers(tourId);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner />
-      </div>
-    );
+    return <TourismPanelLoading />;
   }
 
   if (!customerIds.length) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 px-4 text-center">
-        <IconUsers className="w-8 h-8 text-muted-foreground" />
-
-        <h3 className="text-base font-semibold">{t('no-customers-yet')}</h3>
-
-        <p className="max-w-xs text-sm text-muted-foreground">
-          {t('no-customers-yet-desc')}
-        </p>
-      </div>
+      <TourismPanelEmpty
+        icon={IconUsers}
+        title={t('no-customers-yet')}
+        description={t('no-customers-yet-desc')}
+      />
     );
   }
 

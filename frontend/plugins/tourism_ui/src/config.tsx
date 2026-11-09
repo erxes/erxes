@@ -7,8 +7,10 @@ import {
   TOURISM_PANEL_TABS,
 } from '@/tms/side-panel/tourismPanelTypes';
 import {
+  TOURISM_NEW_RECORD_TYPES,
   TOURISM_RECORD_SECTIONS,
   getTourismRecordDetailPath,
+  getTourismRecordNewPath,
 } from '@/tms/side-panel/tourismRecordPage';
 
 export const CONFIG: IUIConfig = {
@@ -40,6 +42,9 @@ export const CONFIG: IUIConfig = {
       draftTitle: true,
       ...(TOURISM_RECORD_SECTIONS[contentType] && {
         detailPath: getTourismRecordDetailPath(contentType),
+      }),
+      ...(TOURISM_NEW_RECORD_TYPES.has(contentType) && {
+        newPath: getTourismRecordNewPath(contentType),
       }),
       ...(TOURISM_PANEL_TABS[contentType] && {
         tabs: TOURISM_PANEL_TABS[contentType],

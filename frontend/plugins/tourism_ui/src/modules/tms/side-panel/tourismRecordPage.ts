@@ -26,6 +26,16 @@ export const TOURISM_RECORD_SECTIONS: Record<string, string> = {
   [TMS_CUSTOM_FIELD_CONTENT_TYPE]: 'customFields',
 };
 
+export const TOURISM_NEW_RECORD_TYPES = new Set([
+  TMS_TOUR_CONTENT_TYPE,
+  TMS_ELEMENT_CONTENT_TYPE,
+  TMS_AMENITY_CONTENT_TYPE,
+  TMS_CATEGORY_CONTENT_TYPE,
+  TMS_TOUR_TYPE_CONTENT_TYPE,
+  TMS_FIELD_GROUP_CONTENT_TYPE,
+  TMS_CUSTOM_FIELD_CONTENT_TYPE,
+]);
+
 export const toTourismContentType = (recordType: string) =>
   `${TOURISM_CONTENT_TYPE_PREFIX}${recordType}`;
 
@@ -44,6 +54,16 @@ export const getTourismRecordDetailPath =
 
     return branchId
       ? `/tourism/tms/branches/${branchId}/records/${recordType}/${recordId}`
+      : '/tourism/tms';
+  };
+
+export const getTourismRecordNewPath =
+  (contentType: string) => (pathname: string) => {
+    const branchId = TMS_BRANCH_PAGE.exec(pathname)?.[1];
+    const recordType = contentType.slice(TOURISM_CONTENT_TYPE_PREFIX.length);
+
+    return branchId
+      ? `/tourism/tms/branches/${branchId}/records/${recordType}/new`
       : '/tourism/tms';
   };
 
