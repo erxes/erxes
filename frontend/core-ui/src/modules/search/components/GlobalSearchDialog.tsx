@@ -102,7 +102,7 @@ const getResultsState = (
   const waitingForContent =
     contentSearchReady && contentLoading && contentScopeActive;
   const needsMoreCharacters = !contentSearchReady && inContentEmptyScope;
-  const showFailure = contentFailure && inContentEmptyScope;
+  const showFailure = contentFailure && contentScopeActive;
   const showEmpty =
     visibleItemCount === 0 &&
     !waitingForContent &&

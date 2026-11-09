@@ -9,6 +9,7 @@ import { AutomationSettingsPath } from '@/types/paths/AutomationPath';
 import { Card, cn, getPluginAssetsUrl, Spinner } from 'erxes-ui';
 import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { AutomationBotsHeader } from './AutomationBotsHeader';
 
 const BotCard = ({
   name,
@@ -68,16 +69,19 @@ export const AutomationsBotsSettings = () => {
   const { automationBotsConstants, isEmpty, loading } = useAutomationBots();
 
   return (
-    <AutomationSettingsPageShell
-      title={t('settings-bots-title')}
-      description={t('settings-bots-description')}
-    >
-      {isEmpty && <AutomationBotsEmptyState />}
-      {!isEmpty && (
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          <BotsList bots={automationBotsConstants} loading={loading} />
-        </div>
-      )}
-    </AutomationSettingsPageShell>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <AutomationBotsHeader />
+      <AutomationSettingsPageShell
+        title={t('settings-bots-title')}
+        description={t('settings-bots-description')}
+      >
+        {isEmpty && <AutomationBotsEmptyState />}
+        {!isEmpty && (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+            <BotsList bots={automationBotsConstants} loading={loading} />
+          </div>
+        )}
+      </AutomationSettingsPageShell>
+    </div>
   );
 };

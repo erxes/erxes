@@ -1,18 +1,3 @@
-import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
-import {
-  NodeContentComponentProps,
-  WaitEventFormComponentProps,
-} from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
-import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
-import {
-  TAutomationBuilderActions,
-  TAutomationBuilderForm,
-  TAutomationBuilderTriggers,
-  TAutomationBuilderWorkflows,
-} from '@/automations/utils/automationFormDefinitions';
-import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
-import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
-import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
 import {
   IAutomationHistory,
   IAutomationHistoryAction,
@@ -24,7 +9,20 @@ import {
   TAutomationActionProps,
   TAutomationTrigger,
 } from 'ui-modules';
-
+import { Edge, EdgeProps, Node, ReactFlowInstance } from '@xyflow/react';
+import { TAutomationFlowDirection } from '@/automations/constants/flowDirection';
+import { TAutomationEdgeType } from '@/automations/constants/edgeTypes';
+import {
+  TAutomationBuilderActions,
+  TAutomationBuilderTriggers,
+  TAutomationBuilderWorkflows,
+} from '@/automations/utils/automationFormDefinitions';
+import {
+  NodeContentComponentProps,
+  WaitEventFormComponentProps,
+} from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
+import { TBuiltInTemplate } from '@/automations/utils/builtInTemplates';
+import { STATUSES_BADGE_VARIABLES } from '@/automations/constants';
 export interface AutomationConstants {
   triggersConst: IAutomationsTriggerConfigConstants[];
   triggerTypesConst: string[];
@@ -32,7 +30,10 @@ export interface AutomationConstants {
   findObjectTargetsConst: Array<{
     value: string;
     label: string;
-    lookupFields: Array<{ value: string; label: string }>;
+    lookupFields: Array<{
+      value: string;
+      label: string;
+    }>;
     output?: {
       variables?: Array<{
         key: string;
@@ -54,7 +55,6 @@ export interface AutomationConstants {
 export interface ConstantsQueryResponse {
   automationConstants: AutomationConstants;
 }
-
 export type NodeData<TConfig = any> = {
   id: string;
   nodeIndex: number;
@@ -84,7 +84,6 @@ export type NodeData<TConfig = any> = {
   readOnly?: boolean;
   actionSnapshot?: TAutomationAction;
 };
-
 export type WorkflowNodeData = {
   automationId: string;
   config: any;
@@ -94,13 +93,14 @@ export type WorkflowNodeData = {
   icon?: string;
   flowDirection?: TAutomationFlowDirection;
 };
-
 export type TAutomationUser = {
   _id?: string;
   email?: string;
-  details?: { fullName?: string; avatar?: string };
+  details?: {
+    fullName?: string;
+    avatar?: string;
+  };
 };
-
 export interface IAutomationDoc {
   name: string;
   status: string;
@@ -126,20 +126,20 @@ export interface IAutomationDoc {
   duplicatedFrom?: string;
   duplicatedFromName?: string;
 }
-
 export interface IAutomationNote {
   id: string;
   content: string;
-  position?: { x: number; y: number };
+  position?: {
+    x: number;
+    y: number;
+  };
   width?: number;
   height?: number;
   color?: string;
 }
-
 export interface IAutomation extends IAutomationDoc {
   _id: string;
 }
-
 export type AutomationDropHandlerParams = {
   event: React.DragEvent<HTMLDivElement>;
   reactFlowInstance: ReactFlowInstance<Node<NodeData>, Edge<EdgeProps>> | null;
@@ -149,7 +149,6 @@ export type AutomationDropHandlerParams = {
   getNodes: () => Node<NodeData>[];
   flowDirection?: TAutomationFlowDirection;
 };
-
 export type TDraggingNode = {
   nodeType: AutomationNodeType;
   type: string;
@@ -161,7 +160,6 @@ export type TDraggingNode = {
 };
 export type StatusBadgeValue =
   (typeof STATUSES_BADGE_VARIABLES)[keyof typeof STATUSES_BADGE_VARIABLES];
-
 export enum AutomationsHotKeyScope {
   AutomationsPage = 'automations-page',
   AutomationCreatePage = 'automation-create-page',
@@ -173,51 +171,42 @@ export enum AutomationsHotKeyScope {
   RecordTableFilter = 'automation-record-table-filter',
   TemplatesFilter = 'automation-templates-filter',
 }
-
 export enum AutomationsPath {
   Index = '/automations',
   Detail = '/edit/:id',
   Create = '/create',
 }
-
 export enum AutomationNodeType {
   Trigger = 'trigger',
   Action = 'action',
   Workflow = 'workflow',
 }
-
 export enum AutomationNodesType {
   Triggers = 'triggers',
   Actions = 'actions',
   Workflows = 'workflows',
 }
-
 export enum AutomationBuilderTabsType {
   Builder = 'builder',
   History = 'history',
   Stats = 'stats',
 }
-
 export enum AutomationSecondaryPanel {
   Variables = 'variables',
   ErrorPolicy = 'errorPolicy',
 }
-
 export enum AutomationHistoryViewMode {
-  Sheet = 'sheet',
+  Panel = 'panel',
   Split = 'split',
 }
-
 export enum AutomationHistorySplitDirection {
   Vertical = 'vertical',
   Horizontal = 'horizontal',
 }
-
 export type TAutomationStatsCount = {
   key: string;
   count: number;
 };
-
 export type TAutomationRecentRun = {
   _id: string;
   status?: string;
@@ -226,12 +215,10 @@ export type TAutomationRecentRun = {
   failedActionId?: string;
   failedActionType?: string;
 };
-
 export type TAutomationRecentRuns = {
   automationId: string;
   runs: TAutomationRecentRun[];
 };
-
 export type TAutomationStatsBucket = {
   date: string;
   total: number;
@@ -239,7 +226,6 @@ export type TAutomationStatsBucket = {
   error: number;
   waiting: number;
 };
-
 export type TAutomationStatsNode = {
   actionId: string;
   actionType?: string;
@@ -251,7 +237,6 @@ export type TAutomationStatsNode = {
   maxDurationMs?: number;
   errorCodes: TAutomationStatsCount[];
 };
-
 export type TAutomationStatsErrorMessage = {
   message: string;
   errorCode: string;
@@ -259,7 +244,6 @@ export type TAutomationStatsErrorMessage = {
   count: number;
   lastAt?: string;
 };
-
 export type TAutomationStats = {
   total: number;
   byStatus: TAutomationStatsCount[];
@@ -268,7 +252,6 @@ export type TAutomationStats = {
   nodes: TAutomationStatsNode[];
   errorMessages: TAutomationStatsErrorMessage[];
 };
-
 export type TAutomationTraceBucket = {
   start: string;
   total: number;
@@ -276,14 +259,12 @@ export type TAutomationTraceBucket = {
   error: number;
   waiting: number;
 };
-
 export type TAutomationLatencyBucket = {
   start: string;
   count: number;
   p50Ms?: number;
   p95Ms?: number;
 };
-
 export type TAutomationActivity = {
   bucketMs: number;
   traces: TAutomationTraceBucket[];
@@ -291,7 +272,6 @@ export type TAutomationActivity = {
   p50Ms?: number;
   p95Ms?: number;
 };
-
 export type AutomationTriggerSidebarCoreFormProps = {
   formRef: React.RefObject<{
     submit: () => void;
@@ -299,7 +279,6 @@ export type AutomationTriggerSidebarCoreFormProps = {
   activeNode: NodeData;
   handleSave: (config: any) => void;
 };
-
 export type CoreActionSidebarFormProps = {
   formRef: React.RefObject<{
     submit: () => void;
@@ -340,7 +319,6 @@ export interface TriggerComponentConfig extends BaseComponentConfig {
 interface WorkflowComponentConfig extends BaseComponentConfig {
   sidebar?: LazyAutomationComponent<TAutomationActionProps>;
 }
-
 interface TAutomationNodeTypeComponentConfig {
   [AutomationNodeType.Action]: ActionComponentConfig;
   [AutomationNodeType.Trigger]: TriggerComponentConfig;
@@ -353,7 +331,6 @@ export type AutomationComponentMap<
 > = {
   [key: string]: TAutomationNodeTypeComponentConfig[N];
 };
-
 export interface ConnectionInfo {
   source: string;
   target: string;
@@ -370,7 +347,6 @@ export interface ConnectionInfo {
   sourceIndex: number;
   targetIndex: number;
 }
-
 export type TAutomationRecordTableColumnDefData = {
   order: string;
   hasChildren: boolean;

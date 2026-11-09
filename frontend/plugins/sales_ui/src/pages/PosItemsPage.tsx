@@ -4,11 +4,20 @@ import { useParams } from 'react-router-dom';
 import { PosBreadcrumb } from '@/pos/pos/breadcumb/PosBreadcrumb';
 import { PosItemsRecordTable } from '@/pos/pos-items/components/PosItemsRecordTable';
 import { PosItemsFilter } from '@/pos/pos-items/components/PosItemsFilter';
-import { PosItemDetailSheet } from '@/pos/pos-items/detail/PosItemDetailSheet';
 import { usePosItemsList } from '~/modules/pos/pos-items/hooks/UsePosItemsList';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
+import { useResolvePosItemOrderId } from '@/pos/pos-items/hooks/useResolvePosItemOrderId';
 
 export const PosItemsPage = () => {
   const { posId } = useParams();
+  const resolvePosItemOrderId = useResolvePosItemOrderId();
+
+  useOpenPosPanelFromQuery(
+    'pos_order_id',
+    POS_ORDER_CONTENT_TYPE,
+    resolvePosItemOrderId,
+  );
   const { variables } = usePosItemsList();
   const getFilters = () => {
     const { ...filters } = variables || {};
@@ -47,7 +56,6 @@ export const PosItemsPage = () => {
           <PosItemsRecordTable posId={posId} />
         </div>
       </div>
-      <PosItemDetailSheet />
     </>
   );
 };

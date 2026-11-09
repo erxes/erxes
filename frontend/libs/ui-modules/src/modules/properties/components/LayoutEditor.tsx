@@ -1,6 +1,5 @@
 import {
   closestCenter,
-  CollisionDetection,
   DndContext,
   DragOverlay,
   MeasuringStrategy,
@@ -9,6 +8,7 @@ import {
   rectIntersection,
   useSensor,
   useSensors,
+  CollisionDetection,
 } from '@dnd-kit/core';
 import {
   rectSortingStrategy,
@@ -27,10 +27,10 @@ import { Button, cn, Sheet } from 'erxes-ui';
 import { createContext, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  ILayoutRow,
   isRowId,
   rowId,
   useLayoutEditor,
+  ILayoutRow,
 } from '../hooks/useLayoutEditor';
 
 // A dragged row only ever lands among rows.
@@ -45,37 +45,34 @@ const collisionDetection: CollisionDetection = (args) => {
       ),
     });
   }
-
   const hits = pointerWithin(args);
   const chips = hits.filter(({ id }) => !isRowId(String(id)));
-
   if (chips.length) {
     return chips;
   }
-
   return hits.length ? hits : rectIntersection(args);
 };
 
 // Rows resize as chips move between them, so measure them every frame.
-const MEASURING = { droppable: { strategy: MeasuringStrategy.Always } };
-
+const MEASURING = {
+  droppable: {
+    strategy: MeasuringStrategy.Always,
+  },
+};
 export interface ILayoutAsideApi {
   placedIds: Set<string>;
   placeItem: (id: string) => void;
   unplaceItem: (id: string) => void;
 }
-
 const ChipRenderContext = createContext<
   ((item: ILayoutItem) => React.ReactNode) | undefined
 >(undefined);
-
 export interface ILayoutItem {
   id: string;
   name: string;
   // Off where records show, but kept placed for when it is turned back on.
   dimmed?: boolean;
 }
-
 export const LayoutEditor = ({
   title,
   items,
@@ -83,6 +80,7 @@ export const LayoutEditor = ({
   saving,
   onSave,
   onClose,
+  layout = 'sheet',
   header,
   footer,
   renderChip,
@@ -94,6 +92,7 @@ export const LayoutEditor = ({
   saving: boolean;
   onSave: (layout: string[][] | null) => void;
   onClose: () => void;
+  layout?: 'sheet' | 'record';
   // Shown above and below the rows, e.g. the fixed parts of the real form.
   header?: React.ReactNode;
   footer?: React.ReactNode;
@@ -102,7 +101,9 @@ export const LayoutEditor = ({
   // A side panel that can place and unplace fields; replaces the pool.
   aside?: (api: ILayoutAsideApi) => React.ReactNode;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const {
     rows,
     activeId,
@@ -116,9 +117,16 @@ export const LayoutEditor = ({
     unplaceItem,
     saveLayout,
     resetLayout,
-  } = useLayoutEditor({ initialRows, onSave });
+  } = useLayoutEditor({
+    initialRows,
+    onSave,
+  });
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 4,
+      },
+    }),
   );
   const itemById = new Map(items.map((item) => [item.id, item]));
   const activeRow =
@@ -128,20 +136,23 @@ export const LayoutEditor = ({
   const activeItem =
     activeId && !activeRow ? itemById.get(activeId) : undefined;
   const placedIds = new Set(rows.flatMap((row) => row.ids));
-
+  const Content = layout === 'record' ? 'div' : Sheet.Content;
+  const Footer = layout === 'record' ? 'div' : Sheet.Footer;
   return (
     <>
-      <Sheet.Header>
-        <Sheet.Title>{title}</Sheet.Title>
-        <Sheet.Description className="sr-only">
-          {t(
-            'layout-description',
-            'Drag fields between rows. Fields in a row share its width, up to 4.',
-          )}
-        </Sheet.Description>
-        <Sheet.Close />
-      </Sheet.Header>
-      <Sheet.Content
+      {layout === 'sheet' && (
+        <Sheet.Header>
+          <Sheet.Title>{title}</Sheet.Title>
+          <Sheet.Description className="sr-only">
+            {t(
+              'layout-description',
+              'Drag fields between rows. Fields in a row share its width, up to 4.',
+            )}
+          </Sheet.Description>
+          <Sheet.Close />
+        </Sheet.Header>
+      )}
+      <Content
         className={cn(
           aside
             ? 'flex min-h-0 p-0'
@@ -219,11 +230,21 @@ export const LayoutEditor = ({
         </ChipRenderContext.Provider>
         {aside && (
           <div className="flex w-80 shrink-0 flex-col overflow-y-auto border-l">
-            {aside({ placedIds, placeItem, unplaceItem })}
+            {aside({
+              placedIds,
+              placeItem,
+              unplaceItem,
+            })}
           </div>
         )}
-      </Sheet.Content>
-      <Sheet.Footer>
+      </Content>
+      <Footer
+        className={
+          layout === 'record'
+            ? 'flex shrink-0 justify-end gap-1 border-t p-2'
+            : undefined
+        }
+      >
         <Button
           variant="ghost"
           className="mr-auto"
@@ -232,17 +253,16 @@ export const LayoutEditor = ({
         >
           {t('reset-layout', 'Reset')}
         </Button>
-        <Button variant="ghost" onClick={onClose}>
+        <Button type="button" variant="ghost" onClick={onClose}>
           {t('cancel', 'Cancel')}
         </Button>
         <Button disabled={saving} onClick={saveLayout}>
           {t('save', 'Save')}
         </Button>
-      </Sheet.Footer>
+      </Footer>
     </>
   );
 };
-
 const RowBody = ({
   children,
   className,
@@ -275,7 +295,9 @@ const LayoutRow = ({
   onUnplace?: (id: string) => void;
   showLock?: boolean;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const {
     attributes,
     listeners,
@@ -286,14 +308,18 @@ const LayoutRow = ({
     isDragging,
     isOver,
     active,
-  } = useSortable({ id: rowId(row.key) });
+  } = useSortable({
+    id: rowId(row.key),
+  });
   const chipOver = isOver && !!active && !isRowId(String(active.id));
-
   return (
     <SortableContext items={row.ids} strategy={rectSortingStrategy}>
       <div
         ref={setNodeRef}
-        style={{ transform: CSS.Translate.toString(transform), transition }}
+        style={{
+          transform: CSS.Translate.toString(transform),
+          transition,
+        }}
         className={cn(
           'flex min-h-11 items-center gap-2 rounded-md border border-dashed p-1.5',
           chipOver && 'border-primary',
@@ -337,7 +363,6 @@ const LayoutRow = ({
     </SortableContext>
   );
 };
-
 const ChipBody = ({
   item,
   label,
@@ -353,9 +378,10 @@ const ChipBody = ({
   className?: string;
   onUnplace?: () => void;
 }) => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
   const renderChip = useContext(ChipRenderContext);
-
   return (
     <div
       className={cn(
@@ -423,12 +449,16 @@ const LayoutChip = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
-
+  } = useSortable({
+    id,
+  });
   return (
     <div
       ref={setNodeRef}
-      style={{ transform: CSS.Translate.toString(transform), transition }}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        transition,
+      }}
       className={cn('flex min-w-0 flex-1', isDragging && 'opacity-40')}
       {...attributes}
       {...listeners}

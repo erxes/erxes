@@ -17,20 +17,33 @@ export type TBroadcastStepsOptions = {
   /** Set when an existing campaign is edited through the same steps. */
   messageId?: string;
   initialValues?: Partial<IBroadcastFormData>;
+  initialStep?: number;
+  onExpand?: (values: IBroadcastFormData, step: number) => void;
   onClose: () => void;
 };
 
 export const useBroadcastStepsState = ({
   messageId,
   initialValues,
+  initialStep = 0,
+  onExpand,
   onClose,
 }: TBroadcastStepsOptions) => {
-  const [method] = useQueryState<IBroadcastMethodEnum>('method');
+  const [queryMethod] = useQueryState<IBroadcastMethodEnum>('method');
+  const method = Object.values(IBroadcastMethodEnum).find(
+    (value) => value === (initialValues?.method ?? queryMethod),
+  );
   const { t } = useTranslation('broadcasts');
   const { toast } = useToast();
   const { form } = useBroadcastForm(initialValues);
   const { submit } = useBroadcastSubmit({ messageId, method });
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() =>
+    Number.isInteger(initialStep) &&
+    initialStep >= 0 &&
+    initialStep < BROADCAST_STEPS.length
+      ? initialStep
+      : 0,
+  );
 
   // The header decides what finishing does: a moment picked there turns the
   // send into a schedule, so there is never a choice to make at the bottom.
@@ -101,5 +114,6 @@ export const useBroadcastStepsState = ({
     goPrevious,
     goNext,
     finish,
+    expand: onExpand ? () => onExpand(form.getValues(), step) : undefined,
   };
 };

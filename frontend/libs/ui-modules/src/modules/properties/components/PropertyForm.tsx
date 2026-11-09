@@ -41,6 +41,7 @@ export const PropertyForm = ({
   disableType,
   locked,
   onCancel,
+  layout = 'sheet',
   contentType,
   fieldId,
 }: {
@@ -52,6 +53,7 @@ export const PropertyForm = ({
   // Featured fields: a plugin owns them, so only presentation can change.
   locked?: boolean;
   onCancel: () => void;
+  layout?: 'sheet' | 'record';
   contentType: string;
   fieldId?: string;
 }) => {
@@ -91,26 +93,37 @@ export const PropertyForm = ({
     onSubmit(sendData);
   };
 
+  const Content = layout === 'record' ? 'div' : Sheet.Content;
+  const Footer = layout === 'record' ? 'div' : Sheet.Footer;
+
   return (
     <Form {...form}>
       <form
         className="w-full h-full flex flex-col gap-0"
         onSubmit={form.handleSubmit(handleSubmit)}
       >
-        <Sheet.Header>
-          <Sheet.Title className="text-lg text-foreground flex items-center gap-1">
-            {isEdit
-              ? t('edit-property', 'Edit Property')
-              : t('add-property', 'Add Property')}
-          </Sheet.Title>
-          <Sheet.Description className="sr-only">
-            {isEdit
-              ? t('edit-property-description', 'Edit this property')
-              : t('add-property-description', 'Add a new property')}
-          </Sheet.Description>
-          <Sheet.Close />
-        </Sheet.Header>
-        <Sheet.Content className="overflow-y-auto">
+        {layout === 'sheet' && (
+          <Sheet.Header>
+            <Sheet.Title className="text-base text-foreground flex items-center gap-1">
+              {isEdit
+                ? t('edit-property', 'Edit Property')
+                : t('add-property', 'Add Property')}
+            </Sheet.Title>
+            <Sheet.Description className="sr-only">
+              {isEdit
+                ? t('edit-property-description', 'Edit this property')
+                : t('add-property-description', 'Add a new property')}
+            </Sheet.Description>
+            <Sheet.Close />
+          </Sheet.Header>
+        )}
+        <Content
+          className={
+            layout === 'record'
+              ? 'min-h-0 flex-1 overflow-y-auto'
+              : 'overflow-y-auto'
+          }
+        >
           <ScrollArea className="flex-auto">
             <div className="flex flex-col px-5 py-4 gap-5">
               {locked && (
@@ -276,9 +289,15 @@ export const PropertyForm = ({
               )}
             </div>
           </ScrollArea>
-        </Sheet.Content>
-        <Sheet.Footer>
-          <Button variant="ghost" onClick={onCancel}>
+        </Content>
+        <Footer
+          className={
+            layout === 'record'
+              ? 'flex shrink-0 justify-end gap-1 border-t p-2'
+              : undefined
+          }
+        >
+          <Button type="button" variant="ghost" onClick={onCancel}>
             {t('cancel', 'Cancel')}
           </Button>
           <Can action="fieldsManage">
@@ -295,7 +314,7 @@ export const PropertyForm = ({
                 : t('add-property', 'Add Property')}
             </Button>
           </Can>
-        </Sheet.Footer>
+        </Footer>
       </form>
     </Form>
   );

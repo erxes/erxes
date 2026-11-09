@@ -8,7 +8,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useProductConditions } from '@/products/settings/hooks/useProductConditions';
 import { conditionMoreColumn } from './ConditionMoreColumn';
-import { ConditionSheet } from './ConditionSheet';
+import { ConditionNameColumn } from './ConditionNameColumn';
 import { IProductCondition } from './types';
 
 const columns: ColumnDef<IProductCondition>[] = [
@@ -28,11 +28,7 @@ const columns: ColumnDef<IProductCondition>[] = [
     id: 'name',
     accessorKey: 'name',
     header: () => <RecordTable.InlineHead label="Name" />,
-    cell: ({ row }) => (
-      <RecordTableInlineCell>
-        <TextOverflowTooltip value={row.original.name} />
-      </RecordTableInlineCell>
-    ),
+    cell: ConditionNameColumn,
     size: 220,
   },
   {
@@ -80,13 +76,16 @@ export const ConditionRecordTable = () => {
             'The states a product can be sold in, e.g. Dented or Display unit.',
           )}
         </p>
-        <ConditionSheet />
       </div>
     );
   }
 
   return (
-    <RecordTable.Provider columns={columns} data={conditions} className="h-full">
+    <RecordTable.Provider
+      columns={columns}
+      data={conditions}
+      className="h-full"
+    >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header />

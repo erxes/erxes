@@ -133,7 +133,6 @@ export const CustomersCommandBar = () => {
             <CustomersMerge
               customers={selectedRows.map((row) => row.original)}
               disabled={selectedRows.length !== 2}
-              rows={selectedRows}
             />
           </>
         </Can>

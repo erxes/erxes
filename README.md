@@ -216,6 +216,11 @@ pnpm create-plugin
 # Enable your plugin in .env
 ENABLED_PLUGINS=operation,sales,frontline,inventory
 
+# Optional: enabled plugins with no GraphQL API (REST over /pl:<name> only,
+# started without `graphql` in startPlugin). The gateway leaves them out of the
+# supergraph and does not wait for their /graphql on startup.
+# ENABLED_PLUGINS_NO_GRAPHQL=hr
+
 # Start developing
 pnpm nx serve inventory_api
 pnpm nx serve inventory_ui

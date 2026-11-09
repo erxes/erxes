@@ -1,3 +1,4 @@
+import { ProductEditorHeader } from '@/products/components/ProductEditorPanel';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, Form, Input, Sheet, Textarea, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
@@ -140,16 +141,10 @@ export const BundleRuleForm = ({
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex overflow-hidden flex-col h-full"
       >
-        <Sheet.Header className="flex-row gap-3 items-center p-5 space-y-0 border-b">
-          <Sheet.Title>
-            {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </Sheet.Title>
-          <Sheet.Close />
-          <Sheet.Description className="sr-only">
-            {bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
-          </Sheet.Description>
-        </Sheet.Header>
-        <Sheet.Content className="overflow-hidden flex-auto">
+        <ProductEditorHeader
+          title={bundleRule ? t('edit-bundle-rule') : t('add-bundle-rule')}
+        />
+        <Sheet.Content className="min-h-0 overflow-y-auto flex-auto">
           <div className="flex flex-col gap-4 p-5 w-full">
             <Form.Field
               control={form.control}
@@ -259,8 +254,8 @@ export const BundleRuleForm = ({
                 ? t('updating')
                 : t('creating')
               : bundleRule
-                ? t('update')
-                : t('create')}
+              ? t('update')
+              : t('create')}
           </Button>
         </Sheet.Footer>
       </form>

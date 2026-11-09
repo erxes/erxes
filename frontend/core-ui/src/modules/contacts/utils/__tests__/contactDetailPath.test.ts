@@ -12,6 +12,7 @@ jest.mock(
       Customers: '/customers',
       Leads: '/leads',
       Companies: '/companies',
+      ClientPortalUsers: '/client-portal-users',
     },
   }),
   { virtual: true },
@@ -25,9 +26,9 @@ describe('contact detail paths', () => {
   });
 
   it('opens a customer under customers from any other page', () => {
-    expect(getContactDetailPath('core:customer', 'a1', '/operation/tasks')).toBe(
-      '/contacts/customers/a1',
-    );
+    expect(
+      getContactDetailPath('core:customer', 'a1', '/operation/tasks'),
+    ).toBe('/contacts/customers/a1');
   });
 
   it('keeps a customer opened among leads under leads', () => {
@@ -48,6 +49,13 @@ describe('contact detail paths', () => {
   it('opens a company under companies', () => {
     expect(getContactDetailPath('core:company', 'c/1', '/contacts/leads')).toBe(
       '/contacts/companies/c%2F1',
+    );
+  });
+
+  it('opens a client portal user on its contact page from any module', () => {
+    expect(isContactContentType('core:cpUser')).toBe(true);
+    expect(getContactDetailPath('core:cpUser', 'cp/1', '/products')).toBe(
+      '/contacts/client-portal-users/cp%2F1',
     );
   });
 });
