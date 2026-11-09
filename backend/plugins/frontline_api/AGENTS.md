@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -1503,6 +1503,25 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   answering operator's integration never overrides it, and the call's sessions,
   CDR legs and conversation are moved to the queue owner as soon as the queue
   is known (`queueRouting.ts`). A leg without a queue keeps the trunk match.
+- A call leg is tied to its call across the whole peer group, never only
+  inside the integration it was posted under: a leg without a queue lands on
+  whichever peer the bridge posted it under, and a follow-me leg carries its
+  own `uniqueid` and no `linkedid`. `receiveCdr` therefore looks for the
+  call's conversation in CDR legs of every peer that share the PBX `session`
+  id, and both `receiveCdr` and `/call/event` accept a sibling session on
+  another peer while that session is still `ringing` or `active`
+  (`CallSessions.findSibling({ peerInboxIds })`). An ended session on another
+  peer never matches, so a redial to a different branch opens its own
+  conversation. Joining a call never rewrites the conversation's
+  `integrationId`; only the queue owner or the answering operator does.
+- `callHistories` / `callHistoriesTotalCount` leave out a call the operator
+  only rang on when another extension answered it: a call is the operator's
+  missed call only when nobody answered. The check reads the call's other CDR
+  legs by `uniqueid` (human-answered: `ANSWERED`, `billsec > 0`, `Queue` or
+  `Dial`, not `VM`, `dstchannelExt` not the operator's own) and runs after the
+  status, type and search filters, and never for the `connected` filter. A
+  follow-me leg answers under its own `uniqueid`, so it does not clear the
+  queue legs of the same call.
 
 - Removing a Facebook integration keeps its page's bot, marked `broken` with its config intact. `facebookCreateIntegration` reconnects such a bot through `FacebookBots.reconnectByPageId` (new token and account, then `repair`, which re-syncs and verifies the profile); a failed reconnect is logged on the bot and never undoes the integration.
 - `FacebookBots.connectBotPageMessenger` sends `persistent_menu` only when the bot has a menu item of its own (Get Started is then prepended), and deletes `persistent_menu` and `ice_breakers` from `/me/messenger_profile` when they are empty — a field left out of the POST keeps its old value on Facebook. `greeting` is not in the DELETE whitelist (Graph error #100), so it is never sent there. `get_started` is always sent. `buildExpectedPersistentMenus` follows the same rule, so an empty menu checks as healthy.
@@ -1812,6 +1831,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   Telegram `src/**/*.spec.ts` suites (`jest.config.ts`, `tsconfig.spec.json`).
   Both suffixes are excluded from `tsconfig.build.json`; prefer `.test.ts` for
   new tests. Set `TELEGRAM_MONGO_TESTS=1` to include the isolated local Mongo suite.
+- Call: `CALL_MONGO_TESTS=1 npx jest --config backend/plugins/frontline_api/jest.config.ts backend/plugins/frontline_api/src/modules/integrations/call/__tests__/peerLegs.mongo.spec.ts`
+  replays a call whose legs are posted under different peer integrations
+  against a throwaway local database. Smoke: with several call integrations
+  on one trunk, call a queue whose failover is an extension with follow-me and
+  confirm one conversation, on the queue's integration. The same flag runs
+  `callHistories.mongo.spec.ts`: ring two operators, let one answer, and the
+  other's history must not list the call.
 - Instagram: connect Post before Messenger for the same account and confirm each
   event reaches its own inbox. A new sender with an unavailable profile must
   still be linked to a Core customer; failed Repair must not report success.

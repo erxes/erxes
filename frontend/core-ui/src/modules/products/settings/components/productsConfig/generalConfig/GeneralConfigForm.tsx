@@ -6,14 +6,15 @@ import {
   Skeleton,
   useToast,
 } from 'erxes-ui';
-import { SelectUOM } from 'ui-modules';
+import { Can, SelectUOM } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { useProductsConfigs } from '@/products/settings/hooks/useProductsConfigs';
 import { useProductsConfigsUpdate } from '@/products/settings/hooks/useProductsConfigsUpdate';
 import { IconCheck } from '@tabler/icons-react';
 
-export const GeneralConfigForm = () => {
+export const GeneralConfigForm = ({ onEdit }: { onEdit?: () => void }) => {
+  const requireUomId = useId();
   const { t } = useTranslation('product', {
     keyPrefix: 'general-config-form',
   });
@@ -86,14 +87,15 @@ export const GeneralConfigForm = () => {
         <InfoCard.Content>
           <div className="flex gap-2 items-center">
             <Checkbox
-              id="isRequireUOM"
+              disabled={Boolean(onEdit)}
+              id={requireUomId}
               checked={isRequireUOM}
               onCheckedChange={(checked) =>
                 setIsRequireUOM(checked === true || checked === 'indeterminate')
               }
             />
 
-            <Label htmlFor="isRequireUOM" className="cursor-pointer">
+            <Label htmlFor={requireUomId} className="cursor-pointer">
               {t('is-required-uom')}
             </Label>
           </div>
@@ -101,17 +103,27 @@ export const GeneralConfigForm = () => {
           {isRequireUOM && (
             <div className="space-y-2">
               <Label>{t('default-uom')}</Label>
-              <SelectUOM value={defaultUom} onValueChange={setDefaultUom} />
+              {onEdit ? (
+                <div className="text-sm">{defaultUom || '—'}</div>
+              ) : (
+                <SelectUOM value={defaultUom} onValueChange={setDefaultUom} />
+              )}
             </div>
           )}
 
-          {hasChanges && (
-            <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={updating}>
-                <IconCheck />
-                {updating ? t('saving') : t('save')}
-              </Button>
-            </div>
+          {onEdit ? (
+            <Can action="productsConfigsManage">
+              <Button onClick={onEdit}>{t('edit', 'Edit')}</Button>
+            </Can>
+          ) : (
+            hasChanges && (
+              <div className="flex justify-end">
+                <Button onClick={handleSave} disabled={updating}>
+                  <IconCheck />
+                  {updating ? t('saving') : t('save')}
+                </Button>
+              </div>
+            )
           )}
         </InfoCard.Content>
       </InfoCard>

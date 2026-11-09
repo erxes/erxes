@@ -29,6 +29,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedContactPanelRecord';
 import {
+  DataExtensionCreateFields,
   buildCustomerSchema,
   CUSTOMER_FORM_DEFAULTS,
   CUSTOMER_SEX_OPTIONS,
@@ -293,6 +294,11 @@ export const CustomerPanelNew = () => {
               />
             </div>
           )}
+          <DataExtensionCreateFields
+            recordType={state === 'lead' ? 'core:lead' : 'core:customer'}
+            layout="stack"
+            className="mt-3"
+          />
         </PanelFormLayout>
       </form>
     </Form>

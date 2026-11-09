@@ -275,7 +275,12 @@ export type AutomationRemoteEntryProps =
   | AutomationExecutionActionResultProps
   | AutomationCustomWaitEventFormProps
   | AutomationAiKnowledgeSourceSelectorProps
-  | { componentType: 'automationBotsContent' };
+  | {
+      componentType: 'automationBotsContent';
+      /** Lets the host place plugin-owned bot actions in its page header. */
+      renderHeader?: (actions: React.ReactNode) => React.ReactNode;
+      listHeader?: React.ReactNode;
+    };
 
 export type AutomationRemoteEntryComponentType =
   AutomationRemoteEntryProps['componentType'];

@@ -3,6 +3,7 @@ export * from './approval';
 export * from './brands';
 export * from './client-portal';
 export * from './contacts';
+export * from './data-extensions';
 export * from './documents';
 export * from './files';
 export * from './favorites';

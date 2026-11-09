@@ -1,19 +1,28 @@
 import { ContactsPath } from '@/types/paths/ContactsPath';
 
-export type TContactContentType = 'core:customer' | 'core:company';
+export type TContactContentType =
+  | 'core:customer'
+  | 'core:company'
+  | 'core:cpUser';
 
-const CONTACT_CONTENT_TYPES: string[] = ['core:customer', 'core:company'];
+const CONTACT_CONTENT_TYPES = new Set([
+  'core:customer',
+  'core:company',
+  'core:cpUser',
+]);
 
 export const isContactContentType = (
   contentType: string,
-): contentType is TContactContentType =>
-  CONTACT_CONTENT_TYPES.includes(contentType);
+): contentType is TContactContentType => CONTACT_CONTENT_TYPES.has(contentType);
 
 /** The list a contact belongs to; a customer opened among leads stays there. */
 export const getContactListPath = (
   contentType: TContactContentType,
   pathname: string,
 ) => {
+  if (contentType === 'core:cpUser') {
+    return `${ContactsPath.Index}${ContactsPath.ClientPortalUsers}`;
+  }
   if (contentType === 'core:company') {
     return `${ContactsPath.Index}${ContactsPath.Companies}`;
   }
@@ -31,4 +40,6 @@ export const getContactDetailPath = (
   contentId: string,
   pathname: string,
 ) =>
-  `${getContactListPath(contentType, pathname)}/${encodeURIComponent(contentId)}`;
+  `${getContactListPath(contentType, pathname)}/${encodeURIComponent(
+    contentId,
+  )}`;

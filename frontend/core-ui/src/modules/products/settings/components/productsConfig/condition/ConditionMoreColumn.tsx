@@ -1,6 +1,7 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
-import { Combobox, Command, Popover, RecordTable, Sheet } from 'erxes-ui';
+import { Combobox, Command, Popover, RecordTable } from 'erxes-ui';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Can } from 'ui-modules';
@@ -42,16 +43,19 @@ const ConditionMoreColumn = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <Sheet open={editOpen} onOpenChange={setEditOpen} modal>
-        <Sheet.View className="p-0 sm:max-w-lg">
-          {editOpen && (
-            <ConditionForm
-              condition={row.original}
-              onDone={() => setEditOpen(false)}
-            />
-          )}
-        </Sheet.View>
-      </Sheet>
+      <ProductEditorPanel
+        name={`conditions/${row.original._id}/actions`}
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        requiredPermission="productsConfigsManage"
+      >
+        {editOpen && (
+          <ConditionForm
+            condition={row.original}
+            onDone={() => setEditOpen(false)}
+          />
+        )}
+      </ProductEditorPanel>
     </>
   );
 };

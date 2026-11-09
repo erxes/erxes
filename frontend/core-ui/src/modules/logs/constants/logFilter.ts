@@ -111,6 +111,10 @@ export const LOGS_COMMON_FILTER_FIELD_NAMES = [
   'contentTypeOperator',
   'docIdOperator',
   'logId',
+  // Panel navigation belongs to the UI, not the logged payload.
+  'panel',
+  'panelHistory',
+  'panelExpanded',
 ];
 
 export const formatLogContentTypeSegmentLabel = (value?: string | null) => {

@@ -145,7 +145,9 @@ const POS_ORDER_OUTPUT: TAutomationRuntimeOutputDefinition<TPosOrderAutomationTa
           .join(', '),
       link: ({ source }) =>
         source.posId && source._id
-          ? `/sales/pos/${source.posId}/orders?pos_order_id=${source._id}`
+          ? `/sales/pos/${source.posId}/orders?${new URLSearchParams({
+              panel: `/detail/sales:pos.orders/${source._id}`,
+            }).toString()}`
           : '',
       onlinePaymentUrl: ({ subdomain, source }) =>
         resolvePosOrderPaymentUrl({ source, subdomain }),

@@ -18,6 +18,7 @@ const config: ModuleFederationConfig = {
     './config': './src/config.tsx',
     './mongolian': './src/modules/MongolianMain.tsx',
     './widgets': './src/widgets/Widgets.tsx',
+    './relationWidget': './src/widgets/relation/RelationWidget.tsx',
     './floatingWidget': './src/widgets/FloatingWidget.tsx',
   },
 

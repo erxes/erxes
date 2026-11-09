@@ -1,15 +1,23 @@
 import { buildRecordPanelTabs } from '@/side-panel/components/recordPanelTabs';
 import { ContactDetailHeader } from '@/side-panel/components/details/ContactDetailHeader';
+import { ContactPanelDescription } from '@/side-panel/components/details/ContactPanelDescription';
 import { useContactPanelOverview } from '@/side-panel/hooks/useContactPanelOverview';
 import { useRecordRelationTabs } from '@/side-panel/hooks/useRecordRelationTabs';
 import {
   getContactDetailPath,
   isContactContentType,
 } from '@/contacts/utils/contactDetailPath';
-import { IconLayoutSidebarRight } from '@tabler/icons-react';
-import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
+import { IconLayoutSidebarRight, IconVariable } from '@tabler/icons-react';
+import {
+  Avatar,
+  Empty,
+  readImage,
+  ScrollArea,
+  Skeleton,
+  useQueryState,
+} from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
-import { ReactNode, useState, useRef, useEffect } from 'react';
+import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { SidePanelRecordStack } from '@/side-panel/components/SidePanelRecordStack';
@@ -27,6 +35,7 @@ import { CompanyPanelDetail } from '@/side-panel/components/details/CompanyPanel
 import { CompanyPanelProperties } from '@/side-panel/components/details/CompanyPanelProperties';
 import { CompanyPanelNew } from '@/side-panel/components/details/CompanyPanelNew';
 import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPanelDetail';
+import { DataExtensionsDetailSection } from '@/side-panel/components/details/DataExtensionsDetailSection';
 import { CompanyPanelName } from '@/side-panel/components/details/CompanyPanelName';
 import { CustomerPanelName } from '@/side-panel/components/details/CustomerPanelName';
 import {
@@ -38,42 +47,71 @@ import { CustomerPanelProperties } from '@/side-panel/components/details/Custome
 import { PluginRecordPanel } from '@/side-panel/components/PluginRecordPanel';
 import { useRecordPanelPlugin } from '@/side-panel/hooks/useRecordPanelPlugin';
 import { MemberDetail } from '@/settings/team-member/details/components/MemberDetail';
-import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
-  ICompany,
-  ICustomerDetail,
+  TeamMembersPath,
+  USER_CONTENT_TYPE,
+} from '@/settings/team-member/constants/teamMemberRoutes';
+import {
+  DataExtensionRecordFields,
+  IRecordSidePanelTab,
   NEW_RECORD_ID,
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
   SIDE_PANEL_ROOT_PATH,
   sidePanelWidthState,
-  TRelationEntity,
   usePanelExpanded,
   useCompanyDetail,
   useCustomerDetail,
+  useDataExtensionRecordName,
+  useDataExtensionRecordTypes,
   usePermissionCheck,
   useSidePanel,
+  ICompany,
+  ICustomerDetail,
+  TRelationEntity,
 } from 'ui-modules';
-
 const DETAIL_TAB = 'detail';
+const DATA_EXTENSIONS_TAB = 'data-extensions';
 const ACTIVITY_TAB = 'activity';
+const ApprovalRequestRecordPanel = lazy(() =>
+  import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
+    (module) => ({
+      default: module.ApprovalRequestRecordPanel,
+    }),
+  ),
+);
+const CPUserRecordPanel = lazy(() =>
+  import(
+    '@/contacts/client-portal-users/cp-user-detail/components/CPUserRecordPanel'
+  ).then((module) => ({
+    default: module.CPUserRecordPanel,
+  })),
+);
 
-// The record's own views, for the types core knows how to show.
-const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
+// The record's own views, for the types core knows how to show. `extra`
+// is drawn under the record's own fields in the Detail tab.
+const getRecordViews = (
+  { contentType, contentId }: TRelationEntity,
+  extra?: ReactNode,
+) => {
   if (contentType === 'core:customer') {
     return {
-      detail: <CustomerPanelDetail customerId={contentId} />,
+      detail: (
+        <CustomerPanelDetail customerId={contentId}>
+          {extra}
+        </CustomerPanelDetail>
+      ),
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
-
   if (contentType === 'core:company') {
     return {
-      detail: <CompanyPanelDetail companyId={contentId} />,
+      detail: (
+        <CompanyPanelDetail companyId={contentId}>{extra}</CompanyPanelDetail>
+      ),
       properties: <CompanyPanelProperties companyId={contentId} />,
     };
   }
-
   return null;
 };
 
@@ -132,18 +170,21 @@ const useRecordHeading = (
   company?: ICompany;
   state?: 'error' | 'not-found';
 } => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   // A record just created has no name yet.
   const untitled = t('untitled', 'Untitled');
   const isCustomer = contentType === 'core:customer';
   const isCompany = contentType === 'core:company';
-
   const {
     customerDetail,
     loading: customerLoading,
     error: customerError,
   } = useCustomerDetail({
-    variables: { _id: contentId },
+    variables: {
+      _id: contentId,
+    },
     skip: !isCustomer,
   });
   const {
@@ -151,10 +192,23 @@ const useRecordHeading = (
     loading: companyLoading,
     error: companyError,
   } = useCompanyDetail(
-    { variables: { _id: contentId }, skip: !isCompany },
+    {
+      variables: {
+        _id: contentId,
+      },
+      skip: !isCompany,
+    },
     true,
   );
-
+  // A custom object's record, opened from a link: titled by its name.
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const customType = contentType.startsWith('custom:')
+    ? recordTypes.find((recordType) => recordType.recordType === contentType)
+    : undefined;
+  const { name: customName } = useDataExtensionRecordName(
+    customType,
+    contentId,
+  );
   if (isCustomer && customerDetail) {
     const { firstName, lastName, primaryEmail, primaryPhone, avatar } =
       customerDetail;
@@ -163,7 +217,6 @@ const useRecordHeading = (
       primaryEmail ||
       primaryPhone ||
       untitled;
-
     return {
       title,
       avatar: <RecordAvatar src={avatar} name={title} />,
@@ -171,12 +224,9 @@ const useRecordHeading = (
       customer: customerDetail,
     };
   }
-
   if (isCompany && companyDetail) {
     const { primaryName, avatar } = companyDetail;
-
     const title = primaryName || untitled;
-
     return {
       title,
       avatar: <RecordAvatar src={avatar} name={title} />,
@@ -185,11 +235,9 @@ const useRecordHeading = (
       company: companyDetail,
     };
   }
-
   const isContact = isCustomer || isCompany;
   const loading = isCustomer ? customerLoading : companyLoading;
   const error = isCustomer ? customerError : companyError;
-
   if (isContact && loading) {
     // Still loading: placeholders, never the raw content type.
     return {
@@ -197,7 +245,6 @@ const useRecordHeading = (
       avatar: <Skeleton className="size-7 flex-none rounded-full" />,
     };
   }
-
   if (isContact) {
     return {
       title: error
@@ -222,8 +269,16 @@ const useRecordHeading = (
       avatar: undefined,
     };
   }
-
-  return { title: getContentTypeLabel(contentType), avatar: undefined };
+  if (customType) {
+    return {
+      title: customName || <Skeleton className="h-4 w-32" />,
+      avatar: undefined,
+    };
+  }
+  return {
+    title: getContentTypeLabel(contentType),
+    avatar: undefined,
+  };
 };
 
 /** Explains empty and failed records without mounting their editors. */
@@ -255,8 +310,9 @@ const SidePanelEmpty = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   return (
     <>
       <RecordSidePanel.Header
@@ -283,8 +339,25 @@ const SidePanelSavedRecord = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const coreViews = getRecordViews(record);
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
+  // Data Extension fields of any record type registered for this content
+  // type, the same for core and plugin records: a group of the Detail tab.
+  const { t: tDataExtensions } = useTranslation('dataExtensions');
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const hasDataExtensions = recordTypes.some(
+    (recordType) =>
+      recordType.fieldCount &&
+      recordType.contentTypes.includes(record.contentType),
+  );
+  const extensionSection = hasDataExtensions ? (
+    <DataExtensionsDetailSection
+      contentType={record.contentType}
+      recordId={record.contentId}
+    />
+  ) : null;
+  const coreViews = getRecordViews(record, extensionSection);
   const { hasActionPermission } = usePermissionCheck();
   const access =
     coreViews && !hasActionPermission('contactsUpdate') ? 'read' : 'write';
@@ -317,8 +390,26 @@ const SidePanelSavedRecord = ({
       <CompanyPanelAvatar company={company}>{avatar}</CompanyPanelAvatar>
     );
   }
+  const pluginViews = coreViews
+    ? null
+    : getPluginRecordViews(record, panelPluginName, hasProperties);
+  // A plugin draws its own detail; the custom fields follow it.
   const views =
-    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+    coreViews ||
+    (pluginViews && extensionSection
+      ? {
+          ...pluginViews,
+          detail: (
+            <ScrollArea
+              className="flex-1 min-h-0"
+              viewportClassName="[&>div]:block!"
+            >
+              {pluginViews.detail}
+              {extensionSection}
+            </ScrollArea>
+          ),
+        }
+      : pluginViews);
   const relationTabs = useRecordRelationTabs({
     record,
     access,
@@ -339,9 +430,44 @@ const SidePanelSavedRecord = ({
     );
     return () => cancelAnimationFrame(frame);
   }, [noteFocusRequest]);
-  const tabs = buildRecordPanelTabs({
+  // A record without a Detail tab keeps its custom fields in a tab.
+  const dataExtensionsTabs: IRecordSidePanelTab[] =
+    hasDataExtensions && !views
+      ? [
+          {
+            value: DATA_EXTENSIONS_TAB,
+            label: tDataExtensions('section.title'),
+            icon: IconVariable,
+            content: (
+              <div className="flex flex-col flex-1 min-h-0">
+                <ScrollArea className="flex-1 min-h-0">
+                  <DataExtensionRecordFields
+                    contentType={record.contentType}
+                    recordId={record.contentId}
+                    hideRecordTypeLabels
+                    className="p-4"
+                  />
+                </ScrollArea>
+              </div>
+            ),
+          },
+        ]
+      : [];
+  const recordTabs = buildRecordPanelTabs({
     record,
-    views,
+    views: views && {
+      ...views,
+      description: contactType && (
+        <ContactPanelDescription
+          contentType={contactType}
+          contentId={record.contentId}
+          value={customer?.description || company?.description || ''}
+          loading={!customer && !company}
+          readonly={!canEdit}
+        />
+      ),
+    },
+    expanded,
     pluginName: panelPluginName,
     pluginTabs: pluginTabs.map((pluginTab) => ({
       ...pluginTab,
@@ -355,12 +481,13 @@ const SidePanelSavedRecord = ({
     labels: {
       detail: t('detail', 'Detail'),
       properties: t('properties', 'Properties'),
-      messages: t('messages', 'Messages'),
+      description: t('description', 'Description'),
+      messages: t('conversations', 'Conversations'),
       relations: t('relations', 'Relations'),
       activity: t('activity', 'Activity'),
     },
   });
-
+  const tabs = [...dataExtensionsTabs, ...recordTabs];
   if (state) {
     return (
       <SidePanelEmpty
@@ -384,6 +511,8 @@ const SidePanelSavedRecord = ({
       ? selectedTab
       : views
       ? DETAIL_TAB
+      : hasDataExtensions
+      ? DATA_EXTENSIONS_TAB
       : ACTIVITY_TAB;
   const contactActions = contactType && (
     <ContactPanelActions
@@ -391,8 +520,18 @@ const SidePanelSavedRecord = ({
       contentId={record.contentId}
       email={email}
       onMessage={
-        tabs.some((entry) => entry.value === 'messages')
-          ? () => setTab('messages')
+        overview.allEntries.some(
+          (entry) => entry.key === 'frontline.conversation',
+        )
+          ? () => {
+              setTab(
+                tabs.find(
+                  (entry) =>
+                    entry.value === 'messages' ||
+                    entry.value === 'module:frontline.conversation',
+                )?.value || 'relations',
+              );
+            }
           : undefined
       }
       onNote={() => {
@@ -401,7 +540,6 @@ const SidePanelSavedRecord = ({
       }}
     />
   );
-
   return (
     <>
       {contactType && expanded ? (
@@ -436,7 +574,7 @@ const SidePanelSavedRecord = ({
           onClose={onClose}
         />
       )}
-      <RecordSidePanel.Tabs
+      <RecordSidePanel.Layout
         tabs={tabs}
         value={tab}
         onValueChange={setTab}
@@ -468,11 +606,12 @@ const SidePanelDraft = ({
   onBack?: () => void;
   onClose: () => void;
 }) => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   const { pluginName, hasDraftTitle } = useRecordPanelPlugin(
     record.contentType,
   );
-
   const { hasActionPermission } = usePermissionCheck();
   /** Selects the authorized contact or plugin draft editor. */
   const renderDraft = () => {
@@ -485,11 +624,9 @@ const SidePanelDraft = ({
     if (record.contentType === 'core:customer') {
       return <CustomerPanelNew />;
     }
-
     if (record.contentType === 'core:company') {
       return <CompanyPanelNew />;
     }
-
     return (
       pluginName && (
         <PluginRecordPanel
@@ -501,7 +638,6 @@ const SidePanelDraft = ({
       )
     );
   };
-
   return (
     <>
       <RecordSidePanel.Header
@@ -546,10 +682,22 @@ export const SidePanelRecord = (
       </ContactPanelPermission>
     );
   }
+  if (props.record.contentType === 'core:cpUser')
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <CPUserRecordPanel {...props} />
+      </Suspense>
+    );
+  if (props.record.contentType === 'core:approvalRequest') {
+    return (
+      <Suspense fallback={<Skeleton className="m-3 h-32" />}>
+        <ApprovalRequestRecordPanel {...props} />
+      </Suspense>
+    );
+  }
   if (props.record.contentType === USER_CONTENT_TYPE) {
     return <MemberDetail onBack={props.onBack} onClose={props.onClose} />;
   }
-
   return props.record.contentId === NEW_RECORD_ID ? (
     <SidePanelDraft {...props} />
   ) : (
@@ -563,22 +711,23 @@ export const SidePanelRecord = (
  * (`?panel=/detail/customer/<id>`), so it can be linked and reloaded.
  */
 export const SidePanelLayout = () => {
-  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
+  const { t } = useTranslation('common', {
+    keyPrefix: 'side-panel',
+  });
   const { open, path, history, record, close, canGoBack, back } =
     useSidePanel();
   const onBack = canGoBack ? back : undefined;
   const [width, setWidth] = useAtom(sidePanelWidthState);
-  const [expanded] = useQueryState<boolean>('panelExpanded');
+  const [expanded, setExpanded] = useQueryState<boolean>('panelExpanded');
   const [moduleWidths, setModuleWidths] = useState<Record<string, number>>({});
   const moduleEntries = useAtomValue(modulePanelEntriesState);
   const moduleEntry = path ? moduleEntries[path] : undefined;
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { detailPath } = useRecordPanelPlugin(record?.contentType ?? '');
-  // Expanding leads to the record's own page; without one, it cannot expand.
+  // Records with detail routes expand into their own pages.
   const getRecordPage = () => {
     if (!record || record.contentId === NEW_RECORD_ID) return null;
-
     if (isContactContentType(record.contentType)) {
       return getContactDetailPath(
         record.contentType,
@@ -586,12 +735,35 @@ export const SidePanelLayout = () => {
         pathname,
       );
     }
-
+    if (record.contentType === USER_CONTENT_TYPE) {
+      return `${TeamMembersPath.Index}${
+        TeamMembersPath.TeamMembers
+      }/${encodeURIComponent(record.contentId)}`;
+    }
     return detailPath
       ? detailPath(encodeURIComponent(record.contentId), pathname)
       : null;
   };
   const recordPage = getRecordPage();
+  const coreDraft =
+    record?.contentType.startsWith('core:') &&
+    record.contentId === NEW_RECORD_ID;
+  const expandable =
+    !coreDraft &&
+    Boolean(
+      recordPage ||
+        (moduleEntry?.expandable && moduleEntry.onExpand),
+    );
+
+  useEffect(() => {
+    if (open && expanded && moduleEntry?.onExpand) {
+      moduleEntry.onExpand();
+      return;
+    }
+    if (open && expanded && !expandable && (record || moduleEntry)) {
+      setExpanded(null, { replace: true });
+    }
+  }, [open, expanded, expandable, record, moduleEntry, setExpanded]);
 
   /** Selects a retained record stack or a recoverable empty state. */
   const renderRoute = () => {
@@ -606,7 +778,6 @@ export const SidePanelLayout = () => {
         />
       );
     }
-
     if (path === SIDE_PANEL_ROOT_PATH) {
       return (
         <SidePanelEmpty
@@ -619,7 +790,6 @@ export const SidePanelLayout = () => {
         />
       );
     }
-
     return (
       <SidePanelEmpty
         title={t('not-found-title', 'Nothing here')}
@@ -631,7 +801,6 @@ export const SidePanelLayout = () => {
       />
     );
   };
-
   return (
     <>
       {/* Links saved while records still expanded in place. */}
@@ -641,8 +810,14 @@ export const SidePanelLayout = () => {
         <RecordSidePanel
           key="record"
           expanded={false}
-          expandable={Boolean(recordPage)}
-          onExpandedChange={() => recordPage && navigate(recordPage)}
+          expandable={expandable}
+          onExpandedChange={() => {
+            if (recordPage) {
+              navigate(recordPage);
+            } else {
+              moduleEntry?.onExpand?.();
+            }
+          }}
           width={
             moduleEntry && path
               ? moduleWidths[path] ??

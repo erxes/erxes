@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -152,7 +152,7 @@
 
 - Module Federation exposes defined in `module-federation.config.ts`.
 - Accounting routes exposed through `src/modules/AccountingMain.tsx` and navigation registered from `src/config.tsx`.
-- Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`.
+- Accounting relation widget exports from `src/widgets/relation/RelationWidgets.tsx`: `transactions` is registered with `contentTypes: ['sales:deal']`, so it appears only on a deal's rail and lists `accTransactionsByContent(contentType: 'sales:deal', contentId: <deal _id>)` (`RELATED_TRANSACTIONS_QUERY`), the vouchers deal sync writes; it is never resolved through the deal's customer or company.
 - `widgets.recordPanels` entries for every `SETTINGS_PANEL_CONTENT_TYPES`, `FXA_OWNER_RECORD_PANEL_CONTENT_TYPES` and `ADJUSTMENT_PANEL_CONTENT_TYPES` value plus `accounting:safeRemainder` with `properties: false`, `draftTitle: true`, and the `./recordPanel` expose; core routes `?panel=/detail/<contentType>/<id|new>` to it. The expose has only the named `RecordPanel` export (no default export); the host resolver picks it by the PascalCase module name.
 - Export actions for `accounting:account.transactions` on `/accounting/main` and `/accounting/records`.
 
@@ -396,6 +396,7 @@
 - `pnpm nx run accounting_ui:codegen --skip-nx-cache`
 - `pnpm nx lint accounting_ui` (inferred from the workspace ESLint plugin).
 - `pnpm nx test accounting_ui`
+- Smoke scenario: open a deal whose stage synced it to accounting; its rail's Transactions tab lists the deal's vouchers with accounts and debit/credit, each linking to `/accounting/transaction/edit?parentId=…`; a deal never synced shows `no-transactions`; a customer's side panel lists no Transactions widget.
 - `pnpm nx build accounting_ui`
 - `pnpm exec tsc -p frontend/plugins/accounting_ui/tsconfig.app.json --noEmit --pretty false`
 - Smoke scenario: on Settings → Fixed asset categories and the fund rate, debt rate, closing, inventory cost, fixed asset adjustment and inventory count lists, Add opens the side panel with the same fields as the former sheet, Save behaves as before (navigating to the detail page where the hook does), and fund/debt detail Edit and closing/category more-menu Edit open the panel with saved values.

@@ -129,6 +129,7 @@ export const CONFIG: IUIConfig = {
       {
         name: 'transactions',
         icon: IconReceipt,
+        contentTypes: ['sales:deal'],
       },
     ],
     recordPanels: [

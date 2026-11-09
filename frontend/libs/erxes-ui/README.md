@@ -32,6 +32,12 @@ application if you want to generate additional utility classes of your own.
 Override CSS variables such as `--primary` to customize the default theme. Add
 the `dark` class to a parent element to select the dark theme.
 
+The stylesheet also sets the page defaults erxes apps share (`src/base.css`):
+the default light and dark theme, theme border colour on every element, page
+background and text colour, and heading sizes. A standalone app that is not
+hosted by core-ui only needs this stylesheet, plus `@erxes/ui/fonts.css` to load
+Inter and Roboto Mono (core-ui loads them from its `index.html`).
+
 `@erxes/ui/theme.css` remains available for applications that already compile
 Tailwind and supply their own design tokens. The compiled stylesheet is also
 exported as `@erxes/ui/styles.css` and `@erxes/ui/style.css`.
@@ -49,8 +55,8 @@ pnpm --dir frontend/libs/erxes-ui/dist pack
 ```
 
 The build writes a standalone `dist/package.json`, JavaScript entries, type
-declarations, and compiled CSS. The existing `theme.css` contract and the host's
-default tokens are reused when compiling styles. The publish workflow packs this
+declarations, and compiled CSS. The existing `theme.css` contract and the default
+tokens in `src/base.css` (also imported by core-ui) are compiled into it. The publish workflow packs this
 directory and applies the shared platform version. Workspace consumers continue
 to resolve the original source exports.
 

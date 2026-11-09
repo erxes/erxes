@@ -4,7 +4,8 @@ import { IModels } from '~/connectionResolvers';
 import { ITemplateCategory, ITemplateCategoryDocument } from '../../@types';
 import { templateCategorySchema } from '../definitions/category';
 
-export interface ITemplateCategoryModal extends Model<ITemplateCategoryDocument> {
+export interface ITemplateCategoryModal
+  extends Model<ITemplateCategoryDocument> {
   getTemplateCategory(_id: string): Promise<ITemplateCategoryDocument>;
   createTemplateCategory(
     category: ITemplateCategory,
@@ -81,7 +82,10 @@ export const loadTemplateCategoryClass = (models: IModels) => {
           throw new Error('The "/" character is not allowed in the code');
         }
 
-        const category = await models.TemplateCategory.findOne({ code }).lean();
+        const category = await models.TemplateCategory.findOne({
+          code,
+          ...(_id ? { _id: { $ne: _id } } : {}),
+        }).lean();
 
         if (category) {
           throw new Error('Code must be unique');
