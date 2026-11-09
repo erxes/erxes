@@ -27,6 +27,7 @@ import {
   Tabs,
   TextOverflowTooltip,
   Tooltip,
+  useConfirm,
 } from 'erxes-ui';
 import { useCallback, useMemo, useState } from 'react';
 import {
@@ -55,6 +56,7 @@ import {
 import { useAdjustClosingPublish } from '../hooks/useAdjustClosingPublish';
 import { useAdjustClosingEntryRemove } from '../hooks/useAdjustClosingRemove';
 import { useAdjustClosingCancel } from '../hooks/useAdjustClosingCancel';
+import { notifyMutationResult } from '@/utils/graphqlMutation';
 import { useAdjustClosingEdit } from '../hooks/useAdjustClosingEdit';
 
 interface AdjustClosingDetailProps {
@@ -278,6 +280,7 @@ const ClosingActionButtons = ({
   onDelete,
   onPublish,
   onRun,
+  removeLoading,
   runLoading,
   status,
 }: {
@@ -288,6 +291,7 @@ const ClosingActionButtons = ({
   onDelete: () => void;
   onPublish: () => void;
   onRun: () => void;
+  removeLoading: boolean;
   runLoading: boolean;
   status?: string;
 }) => {
@@ -313,8 +317,9 @@ const ClosingActionButtons = ({
             variant="secondary"
             className="text-destructive"
             onClick={onDelete}
+            disabled={removeLoading}
           >
-            <IconTrashX />
+            {removeLoading ? <Spinner /> : <IconTrashX />}
             {t('delete')}
           </Button>
         </>
@@ -355,6 +360,7 @@ const ClosingActionButtons = ({
 
 export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const { adjustClosingDetail, loading } = useAdjustClosingDetail({
     variables: { _id: id ?? '' },
     skip: !id,
@@ -379,7 +385,8 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   } = useAdjustClosingRun(id ?? '');
   const { publishAdjust } = useAdjustClosingPublish(id ?? '');
   const { cancelAdjust } = useAdjustClosingCancel(id ?? '');
-  const { removeAdjust } = useAdjustClosingEntryRemove();
+  const { removeAdjust, loading: removeLoading } =
+    useAdjustClosingEntryRemove();
 
   const closingDetails = useMemo(
     () => adjustClosingDetail?.details ?? [],
@@ -459,8 +466,16 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const handlePublish = () => publishAdjust();
   const handleCancel = () => cancelAdjust();
   const handleDelete = () => {
-    if (id) {
-      removeAdjust(id);
+    if (id && !removeLoading) {
+      void confirm({
+        message: t('Are you sure you want to delete this adjustment?'),
+      }).then(() =>
+        removeAdjust(id, {
+          onError: (error) => notifyMutationResult(false, error.message),
+          onCompleted: () =>
+            notifyMutationResult(true, t('Adjustment deleted successfully')),
+        }),
+      );
     }
   };
 
@@ -528,6 +543,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
               onCalculate={handleCalculate}
               onCancel={handleCancel}
               onDelete={handleDelete}
+              removeLoading={removeLoading}
               onPublish={handlePublish}
               onRun={handleRun}
               runLoading={runLoading}

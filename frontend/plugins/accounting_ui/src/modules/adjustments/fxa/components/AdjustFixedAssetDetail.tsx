@@ -23,6 +23,7 @@ import {
   Spinner,
   Tabs,
   Tooltip,
+  useConfirm,
   useQueryState,
 } from 'erxes-ui';
 import { useState } from 'react';
@@ -42,6 +43,7 @@ import { adjustFxaDetailColumns } from '@/adjustments/fxa/components/AdjustFxaDe
 
 export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const [id] = useQueryState<string>('id');
   const { adjustFixedAsset, loading, error } = useAdjustFixedAssetDetail({
     variables: { _id: id ?? '' },
@@ -158,7 +160,13 @@ export const AdjustFixedAssetDetail = () => {
             <Button
               variant="secondary"
               className="text-destructive"
-              onClick={() => removeAdjustFixedAsset()}
+              onClick={() => {
+                void confirm({
+                  message: t(
+                    'Are you sure you want to delete this adjustment?',
+                  ),
+                }).then(() => removeAdjustFixedAsset());
+              }}
               disabled={busy}
             >
               {removeLoading ? <Spinner /> : <IconTrashX />}

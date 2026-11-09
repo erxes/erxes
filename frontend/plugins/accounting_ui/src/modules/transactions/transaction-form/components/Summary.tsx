@@ -12,6 +12,8 @@ import {
   CurrencyCode,
   CurrencyFormatedDisplay,
   fixNum,
+  Spinner,
+  Tooltip,
   useConfirm,
   useQueryState,
 } from 'erxes-ui';
@@ -57,9 +59,11 @@ const DRAFTED_STATUSES =
 export const Summary = ({
   errorMessage,
   form,
+  saving,
 }: {
   errorMessage?: string;
   form: ITransactionGroupForm;
+  saving?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const [showMore, setShowMore] = useState(false);
@@ -70,7 +74,7 @@ export const Summary = ({
   const followTrDocs = useAtomValue(followTrDocsState);
   const [parentId] = useQueryState<string>('parentId');
 
-  const { removeTransactions } = useTransactionsRemove();
+  const { removeTransactions, loading: removing } = useTransactionsRemove();
   const { confirm } = useConfirm();
 
   const [sumDebit, sumCredit] = sumDtAndCt(trDocs as TTrDoc[], followTrDocs);
@@ -80,6 +84,31 @@ export const Summary = ({
   );
   const isDraftedStatus = DRAFTED_STATUSES.includes(status || '');
   const SubmitIcon = isDraftedStatus ? IconFilePencil : IconGavel;
+
+  const saveDisabledReason =
+    errorMessage ||
+    (hasHiddenTransaction
+      ? t(
+          'unable-to-save-because-some-transactions-cannot-be-viewed-with-your-current-permissions',
+        )
+      : undefined);
+
+  const saveButton = (
+    <Button
+      type="submit"
+      variant={isDraftedStatus ? 'secondary' : 'default'}
+      className={isDraftedStatus ? 'text-warning' : undefined}
+      disabled={!!saveDisabledReason || saving}
+      title={
+        isDraftedStatus && !saveDisabledReason
+          ? t('save-with-draft-status')
+          : undefined
+      }
+    >
+      {saving ? <Spinner /> : <SubmitIcon />}
+      {t('save')}
+    </Button>
+  );
 
   const handleDelete = () =>
     confirm({
@@ -186,32 +215,25 @@ export const Summary = ({
           </>
         )}
       </div>
-      <Button
-        type="submit"
-        variant={isDraftedStatus ? 'secondary' : 'default'}
-        className={isDraftedStatus ? 'text-warning' : undefined}
-        disabled={hasHiddenTransaction || !!errorMessage}
-        title={
-          errorMessage ||
-          (hasHiddenTransaction
-            ? t(
-                'unable-to-save-because-some-transactions-cannot-be-viewed-with-your-current-permissions',
-              )
-            : isDraftedStatus
-              ? t('save-with-draft-status')
-              : undefined)
-        }
-      >
-        <SubmitIcon />
-        {t('save')}
-      </Button>
+      {saveDisabledReason ? (
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <span>{saveButton}</span>
+          </Tooltip.Trigger>
+          <Tooltip.Content side="bottom" className="max-w-64">
+            {saveDisabledReason}
+          </Tooltip.Content>
+        </Tooltip>
+      ) : (
+        saveButton
+      )}
       <Button
         variant="secondary"
         className="text-destructive"
-        disabled={!!errorMessage}
+        disabled={!!errorMessage || removing}
         onClick={handleDelete}
       >
-        <IconTrashX />
+        {removing ? <Spinner /> : <IconTrashX />}
         {t('delete')}
       </Button>
       <TrRightSidebar />

@@ -1,4 +1,9 @@
-import { IconAccessPoint, IconCrane, IconTrashX } from '@tabler/icons-react';
+import {
+  IconAccessPoint,
+  IconCrane,
+  IconScale,
+  IconTrashX,
+} from '@tabler/icons-react';
 import { Button, PageSubHeader, Spinner, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import dayjs from 'dayjs';
@@ -152,6 +157,7 @@ export const SafeRemainderDetail = () => {
       <AccountingHeader
         returnLink="/accounting/inventories/safe-remainders"
         returnText={t('Safe Remainders')}
+        icon={IconScale}
         skipSettings
         leftChildren={
           <span className="font-semibold">{t('inventory-census-detail')}</span>

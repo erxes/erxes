@@ -14,6 +14,7 @@ import {
   CurrencyCode,
   CurrencyFormatedDisplay,
   fixNum,
+  formatAmount,
   Popover,
   RecordTable,
   RecordTableInlineCell,
@@ -83,6 +84,21 @@ const DebitCell = ({ row }: { row: Row<ITrRecord> }) => (
 const CreditCell = ({ row }: { row: Row<ITrRecord> }) => (
   <SideAmountCell row={row} cellSide={TR_SIDES.CREDIT} />
 );
+
+const CountItemCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITrRecord>;
+  value: number;
+}) => {
+  const { details } = row.original;
+  if (!details?.productId && !details?.fixedAssetId) {
+    return undefined;
+  }
+
+  return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
+};
 
 const AmountItemCell = ({
   row,
@@ -335,7 +351,7 @@ export const trRecordColumns = (
     ),
     accessorKey: 'count-details',
     cell: ({ row }) => (
-      <AmountItemCell row={row} value={row.original?.details?.count ?? 0} />
+      <CountItemCell row={row} value={row.original?.details?.count ?? 0} />
     ),
   },
   {

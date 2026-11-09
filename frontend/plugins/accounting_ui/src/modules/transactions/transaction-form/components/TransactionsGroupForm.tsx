@@ -219,8 +219,8 @@ export const TransactionsGroupForm = () => {
   const setActiveJournal = useSetAtom(activeJournalState);
   const setFollowTrDocs = useSetAtom(followTrDocsState);
 
-  const { createTransaction } = useTransactionsCreate();
-  const { updateTransaction } = useTransactionsUpdate();
+  const { createTransaction, loading: createLoading } = useTransactionsCreate();
+  const { updateTransaction, loading: updateLoading } = useTransactionsUpdate();
 
   const onSubmit = (data: TAddTransactionGroup) => {
     if (error) {
@@ -321,7 +321,11 @@ export const TransactionsGroupForm = () => {
             {parentId ? t('edit-transaction') : t('create-transaction')}
           </h3>
           <div className="">
-            <Summary errorMessage={error?.message} form={form} />
+            <Summary
+              errorMessage={error?.message}
+              form={form}
+              saving={createLoading || updateLoading}
+            />
           </div>
         </div>
         <FormFields form={form} currentUserId={currentUser._id} />

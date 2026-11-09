@@ -6,15 +6,14 @@ import dayjs from 'dayjs';
 import {
   CurrencyCode,
   CurrencyFormatedDisplay,
-  Input,
-  PopoverScoped,
   RecordTable,
   RecordTableInlineCell,
   fixNum,
+  formatAmount,
   Skeleton,
 } from 'erxes-ui';
 import { useSetAtom } from 'jotai';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ProductsInline, BranchesInline, DepartmentsInline } from 'ui-modules';
 import { useFixedAssetDetail } from '@/settings/fixed-assets/hooks/useFixedAssetDetail';
 import { AccountsInline } from '~/modules/settings/account/components/AccountsInline';
@@ -40,46 +39,9 @@ export const getTBalanceLocation = (
   return { id, location };
 };
 
-// Create named components for cell renderers to fix React Hook usage
-const NumberCell = ({ getValue, row }: any) => {
-  const [number, setNumber] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`tbalance-${_id}-number`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content>
-        <Input
-          value={number}
-          onChange={(e) => setNumber(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
-
-const DescriptionCell = ({ getValue, row }: any) => {
-  const [description, setDescription] = useState(getValue() as string);
-  const { _id } = row.original;
-
-  return (
-    <PopoverScoped scope={`tbalance-${_id}-description`}>
-      <RecordTableInlineCell.Trigger>
-        {getValue() as string}
-      </RecordTableInlineCell.Trigger>
-      <RecordTableInlineCell.Content className="w-80">
-        <Input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full"
-        />
-      </RecordTableInlineCell.Content>
-    </PopoverScoped>
-  );
-};
+const TextCell = ({ value }: { value?: string }) => (
+  <RecordTableInlineCell>{value}</RecordTableInlineCell>
+);
 
 const AmountCell = ({ value }: { value: number }) => {
   return (
@@ -116,6 +78,21 @@ const AmountProdCell = ({
       />
     </RecordTableInlineCell>
   );
+};
+
+const CountProdCell = ({
+  row,
+  value,
+}: {
+  row: Row<ITBalanceTransaction>;
+  value: number;
+}) => {
+  const { detail } = row.original;
+  if (!detail.productId && !detail.fixedAssetId) {
+    return null;
+  }
+
+  return <RecordTableInlineCell>{formatAmount(value)}</RecordTableInlineCell>;
 };
 
 const DebitCell = ({ row }: any) => {
@@ -251,7 +228,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('number')} />
     ),
     accessorKey: 'number',
-    cell: ({ getValue, row }) => <NumberCell getValue={getValue} row={row} />,
+    cell: ({ getValue }) => <TextCell value={getValue() as string} />,
   },
   {
     id: 'date',
@@ -302,7 +279,7 @@ export const tbalanceColumns = (
     ),
     accessorKey: 'count-details',
     cell: ({ row }) => (
-      <AmountProdCell row={row} value={row.original?.detail?.count ?? 0} />
+      <CountProdCell row={row} value={row.original?.detail?.count ?? 0} />
     ),
   },
   {
@@ -327,9 +304,7 @@ export const tbalanceColumns = (
       <RecordTable.InlineHead icon={IconFile} label={t('description')} />
     ),
     accessorKey: 'description',
-    cell: ({ getValue, row }) => (
-      <DescriptionCell getValue={getValue} row={row} />
-    ),
+    cell: ({ getValue }) => <TextCell value={getValue() as string} />,
     size: 300,
   },
 ];

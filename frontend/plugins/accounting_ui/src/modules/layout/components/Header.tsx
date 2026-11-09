@@ -1,4 +1,4 @@
-import { IconArrowsRightLeft } from '@tabler/icons-react';
+import { IconArrowsRightLeft, TablerIcon } from '@tabler/icons-react';
 import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ export const AccountingHeader = ({
   favoriteBreadcrumb,
   returnLink,
   returnText,
+  icon: Icon = IconArrowsRightLeft,
   skipSettings,
 }: {
   children?: React.ReactNode;
@@ -17,6 +18,7 @@ export const AccountingHeader = ({
   favoriteBreadcrumb?: string[];
   returnLink?: string;
   returnText?: string;
+  icon?: TablerIcon;
   skipSettings?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
@@ -33,7 +35,7 @@ export const AccountingHeader = ({
             <Breadcrumb.Item>
               <Button variant="ghost" asChild>
                 <Link to={to}>
-                  <IconArrowsRightLeft />
+                  <Icon />
                   {returnText || t('transactions')}
                 </Link>
               </Button>
@@ -44,7 +46,7 @@ export const AccountingHeader = ({
         <Separator.Inline />
         <PageHeader.FavoriteToggleButton
           breadcrumb={breadcrumb}
-          icon="IconArrowsRightLeft"
+          icon={Icon.displayName}
         />
       </PageHeader.Start>
       <PageHeader.End>{children}</PageHeader.End>

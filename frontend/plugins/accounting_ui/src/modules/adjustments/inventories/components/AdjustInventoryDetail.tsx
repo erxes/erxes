@@ -23,6 +23,7 @@ import {
   RecordTable,
   Spinner,
   Tooltip,
+  useConfirm,
   useQueryState,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +48,7 @@ const toValidDate = (value?: Date | string | null) => {
 
 export const AdjustInventoryDetail = () => {
   const { t } = useTranslation('accounting');
+  const { confirm } = useConfirm();
   const [id] = useQueryState<string>('id');
 
   const { adjustInventory, loading } = useAdjustInventoryDetail({
@@ -93,7 +95,9 @@ export const AdjustInventoryDetail = () => {
   };
 
   const handleDelete = () => {
-    removeAdjust();
+    void confirm({
+      message: t('Are you sure you want to delete this adjustment?'),
+    }).then(() => removeAdjust());
   };
 
   const checkedAt = toValidDate(adjustInventory?.checkedAt);
