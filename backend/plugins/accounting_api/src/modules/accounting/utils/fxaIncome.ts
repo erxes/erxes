@@ -176,7 +176,7 @@ const buildFixedAssetDoc = ({
       new Date(detail.followInfos.depreciationStartDate || date).getTime(),
     )
   ) {
-    throw new Error('Select a valid acquisition depreciation start date.');
+    throw new TypeError('Select a valid acquisition depreciation start date.');
   }
   return {
     code: detail.followInfos?.fixedAssetCode || '',

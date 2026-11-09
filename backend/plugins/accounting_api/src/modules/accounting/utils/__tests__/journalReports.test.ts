@@ -25,6 +25,10 @@ describe('resolveErkhetReportJournals', () => {
 });
 
 describe('journal report filters', () => {
+  beforeEach(() => {
+    mockSendTRPCMessage.mockReset();
+  });
+
   it('keeps manually balanced main entries outside the fixed asset report', async () => {
     const aggregateMock = jest.fn().mockResolvedValue([]);
     const models = {
@@ -50,10 +54,6 @@ describe('journal report filters', () => {
       ]),
     );
     expect(journals).not.toContain(JOURNALS.MAIN);
-  });
-
-  beforeEach(() => {
-    mockSendTRPCMessage.mockReset();
   });
 
   it('keeps product category product ids when merging inventory detail filters', async () => {

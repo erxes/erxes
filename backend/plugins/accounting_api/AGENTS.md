@@ -240,7 +240,7 @@
 
 - Both job lists accept optional `hasLabor` and `hasOverhead` booleans combined with other filters. Presence means the corresponding cost array has a first element; false matches empty or missing arrays, not a zero amount.
 
-- Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks use `TypeError` with actionable messages.
+- Tax row filter builders are synchronous; resolver barrels re-export named resolver objects directly while retaining their public aliases. Import payload type checks and invalid fixed asset acquisition start dates use `TypeError` with actionable messages.
 
 - Lookup ids and destructive id lists must be required in SDL when the resolver needs them; `graphql/validateRequired.ts` rejects blank ids and empty destructive batches. `accountsEdit` relies on its required SDL id and `getAccount` not-found check before update rather than duplicating single-id validation.
 - Preserve the deprecated `accOddTransactions` query's legacy null response until a separately approved API removal.
