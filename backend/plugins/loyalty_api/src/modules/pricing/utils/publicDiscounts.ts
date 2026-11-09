@@ -4,6 +4,7 @@ import { IPricingPlanDocument } from '@/pricing/@types/pricingPlan';
 import { IPriceRule } from '@/pricing/@types/priceRule';
 import { IQuantityRule } from '@/pricing/@types/quantityRule';
 import { IExpiryRule } from '@/pricing/@types/expiryRule';
+import { IActiveWindow, ScheduleMoment } from '@/pricing/@types/schedule';
 import {
   fetchSegmentIds,
   getChildCategories,
@@ -21,6 +22,11 @@ type DiscountConditionValue =
   | {
       start?: string | number;
       end?: string | number;
+    }
+  | {
+      windows: IActiveWindow[];
+      closedDates: string[];
+      moment: ScheduleMoment;
     };
 
 type DiscountConditions = Record<string, DiscountConditionValue>;
@@ -410,36 +416,12 @@ const getPlanConditions = (plan: IPricingPlanDocument): DiscountConditions => {
     });
   }
 
-  for (const rule of plan.repeatRules || []) {
-    if (rule.type === 'everyDay') {
-      addCondition(conditions, 'hour', {
-        start: rule.dayStartValue?.getHours(),
-        end: rule.dayEndValue?.getHours(),
-      });
-    }
-
-    if (rule.type === 'everyWeek') {
-      addCondition(
-        conditions,
-        'weekDay',
-        (rule.weekValue || []).map((value) => Number(value.value)),
-      );
-    }
-
-    if (rule.type === 'everyMonth') {
-      addCondition(
-        conditions,
-        'monthDay',
-        (rule.monthValue || []).map((value) => Number(value.value)),
-      );
-    }
-
-    if (rule.type === 'everyYear') {
-      addCondition(conditions, 'yearDate', {
-        start: rule.yearStartValue?.toISOString(),
-        end: rule.yearEndValue?.toISOString(),
-      });
-    }
+  if (plan.isRepeatEnabled) {
+    addCondition(conditions, 'schedule', {
+      windows: plan.activeWindows || [],
+      closedDates: plan.closedDates || [],
+      moment: plan.scheduleMoment || 'checkout',
+    });
   }
 
   return conditions;

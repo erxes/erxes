@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-05`
+- **Last synchronized:** `2026-11-08`
 
 ## Scope
 
@@ -238,6 +238,7 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   paid order's voucher is used through `confirmLoyalties` (target `pos` + order
   id, the same pair posclient held it under; a repeat sync changes nothing).
 - A deal save prices `checkPricing` first, then `checkLoyalties`, so loyalty discounts sit on the priced amount; `checkLoyalties` keeps the bonus lines pricing just laid down.
+- Deal pricing sends the deal's `createdAt` as loyalty `pricing.checkPricing.orderCreatedAt` and no `date`: checkout is the save, and the plan's `scheduleMoment` decides which of the two its schedule reads. A new deal has no `createdAt` yet and counts as starting now.
 - A deal's voucher and coupon (`extraData.voucherId` / `couponCode`) are used
   only where the deal earns: `syncDealPoints` calls loyalty `confirmLoyalties`
   (target `sales` + deal id) after the customer check, and a refund stage calls
@@ -749,6 +750,12 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 
 <!-- Newest first. Keep at most 10 entries. -->
 
+### `2026-11-08` — Deal creation time for pricing schedules
+
+- **Summary:** Deal pricing passes the deal's creation time to loyalty, so a pricing plan scheduled by when the order was created reads it.
+- **Affected areas:** `modules/sales/graphql/resolvers/mutations/loyaltyUtils.ts`.
+- **Contracts changed:** consumes loyalty `pricing.checkPricing.orderCreatedAt`.
+
 ### `2026-11-05` — POS orders link their loyalty entries
 
 - **Summary:** POS orders keep `scoreLogIds` from loyalty's spend, earn and refund answers; `salesPosScoreLogs`, `salesPosScoreLogInsights` and `salesPosScoreLogTimeline` list and sum them across POSes. Deal and POS sums share `scoreLogSums.ts`.
@@ -805,9 +812,3 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - **Summary:** A deal's point payment is checked with loyalty before the deal is saved (created, edited or moved) and no longer fails silently; copies drop point payments; stages carry a `refundPoints` setting (unset = `Lost` refunds), leaving a refunding stage spends again, and removed deals are refunded.
 - **Affected areas:** `modules/sales/utils/dealPoints.ts`, `graphql/resolvers/mutations/{utils,loyaltyUtils}.ts`, `db/models/Deals.ts`, stage type, schema and GraphQL.
 - **Contracts changed:** `SalesStage.refundPoints`; deal creation, edits, moves and removals may now fail with loyalty's error.
-
-### `2026-09-29` — Purchases handed to loyalty
-
-- **Summary:** Deal and POS triggers declare a purchase for loyalty's Adjust score action; point payments and refunds go to loyalty's `score.spend` / `score.refund` instead of `consumeTargetChange`.
-- **Affected areas:** `src/modules/{sales,pos}/meta/automations/{purchase,constants}.ts`, `salesRefernceCustomResolvers.ts`, `mutations/{loyaltyUtils,utils}.ts`, `pos/utils.ts`, `pos/graphql/resolvers/mutations/orders.ts`.
-- **Contracts changed:** Deal and POS trigger outputs `paidAmount`, `purchaseItems`; trigger `actionInputs`.
