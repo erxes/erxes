@@ -183,9 +183,11 @@ export const useAppTabs = () => {
   const go = useCallback(
     (
       path: string,
-      activityId?: string,
-      closedIds?: string[],
-      options?: NavigateOptions,
+      {
+        activityId,
+        closedIds,
+        ...options
+      }: NavigateOptions & { activityId?: string; closedIds?: string[] } = {},
     ) => {
       const deferredIds = [
         ...new Set([
@@ -211,9 +213,10 @@ export const useAppTabs = () => {
     (activity: INavigationActivity) =>
       go(
         lastLocations[activity.id] || toHomePath(activity),
-        activity.id,
-        undefined,
-        { state: { appResumePath: toHomePath(activity) } },
+        {
+          activityId: activity.id,
+          state: { appResumePath: toHomePath(activity) },
+        },
       ),
     [go, lastLocations],
   );
@@ -277,7 +280,7 @@ export const useAppTabs = () => {
   /** Open (or switch to) an app; re-selecting the open app goes home. */
   const selectActivity = (activity: INavigationActivity) => {
     if (activity.id === getTargetActivityId()) {
-      go(toHomePath(activity), activity.id);
+      go(toHomePath(activity), { activityId: activity.id });
       return;
     }
 
@@ -323,11 +326,14 @@ export const useAppTabs = () => {
     if (fallback) {
       go(
         lastLocations[fallback.id] || toHomePath(fallback),
-        fallback.id,
-        deferredClosedIds,
+        {
+          activityId: fallback.id,
+          closedIds: deferredClosedIds,
+          state: { appResumePath: toHomePath(fallback) },
+        },
       );
     } else {
-      go(AppPath.Index, undefined, deferredClosedIds);
+      go(AppPath.Index, { closedIds: deferredClosedIds });
     }
   };
 
