@@ -56,39 +56,18 @@ function emitDeclarations() {
 }
 
 async function buildStyles() {
-  const theme = await readFile(join(sourceRoot, 'theme.css'), 'utf8');
-  const variables = new Set(
-    [...theme.matchAll(/var\((--[\w-]+)/g)].map((match) => match[1]),
-  );
-  variables.add('--input');
-  variables.add('--spacing');
-
-  const hostPath = resolve(packageRoot, '../../core-ui/src/styles.css');
-  const host = postcss.parse(await readFile(hostPath, 'utf8'), {
-    from: hostPath,
-  });
-  const defaults = postcss.atRule({ name: 'layer', params: 'base' });
-  host.walkRules((rule) => {
-    if (![':root', '.dark'].includes(rule.selector)) return;
-    const tokens = postcss.rule({ selector: rule.selector });
-    rule.walkDecls((declaration) => {
-      if (variables.has(declaration.prop)) tokens.append(declaration.clone());
-    });
-    if (tokens.nodes.length) defaults.append(tokens);
-  });
-
-  if (!defaults.toString().includes('--primary:')) {
-    throw new Error('The core-ui default theme is missing.');
-  }
   const from = join(sourceRoot, 'styles.css');
-  const styles = postcss.parse(await readFile(from, 'utf8'), { from });
-  styles.append(defaults);
+  // styles.css imports base.css, which holds the default theme and page defaults
   const result = await postcss([tailwindcss({ optimize: true })]).process(
-    styles,
+    await readFile(from, 'utf8'),
     { from, to: join(outputRoot, 'styles.css'), map: false },
   );
+  if (!result.css.includes('--primary:')) {
+    throw new Error('The default erxes theme (base.css) is missing.');
+  }
   await writeFile(join(outputRoot, 'styles.css'), result.css);
   await copyFile(join(sourceRoot, 'theme.css'), join(outputRoot, 'theme.css'));
+  await copyFile(join(sourceRoot, 'fonts.css'), join(outputRoot, 'fonts.css'));
 }
 
 export async function buildPackage() {
@@ -141,6 +120,7 @@ export async function buildPackage() {
     './styles.css': './styles.css',
     './style.css': './styles.css',
     './theme.css': './theme.css',
+    './fonts.css': './fonts.css',
     './package.json': './package.json',
     './*': { types: './*.d.ts', default: './*.js' },
   };
