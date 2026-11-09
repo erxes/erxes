@@ -9,14 +9,19 @@ import {
 } from '../useTourismDraftValues';
 
 let mockPathname = '';
+let mockDraft: Record<string, unknown> = {};
 
 jest.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: mockPathname }),
 }));
 
+jest.mock('ui-modules', () => ({
+  useSidePanelDraft: () => mockDraft,
+}));
+
 const CONTENT_TYPE = 'tourism:tmsTour';
 const BRANCH_ID = 'branch-a';
-const SAVED_ENTRY = { branchId: BRANCH_ID, values: { name: 'Saved' } };
+const SAVED_ENTRY = { scope: `${BRANCH_ID}||`, values: { name: 'Saved' } };
 
 interface IDraftValues {
   name: string;
@@ -29,10 +34,22 @@ const createWrapper =
   ({ children }: { children: ReactNode }) =>
     <Provider store={store}>{children}</Provider>;
 
-const renderDraftForm = (store: TStore, isNew = true, branchId = BRANCH_ID) =>
+const renderDraftForm = (
+  store: TStore,
+  {
+    isNew = true,
+    branchId = BRANCH_ID,
+    draft = {},
+  }: {
+    isNew?: boolean;
+    branchId?: string;
+    draft?: Record<string, unknown>;
+  } = {},
+) =>
   renderHook(
     () => {
       mockPathname = `/tourism/tms/branches/${branchId}/records/tmsTour/new`;
+      mockDraft = draft;
       const form = useForm<IDraftValues>({ defaultValues: { name: '' } });
       useTourismDraftValues(CONTENT_TYPE, form, isNew);
       return form;
@@ -41,7 +58,7 @@ const renderDraftForm = (store: TStore, isNew = true, branchId = BRANCH_ID) =>
   );
 
 describe('useTourismDraftValues', () => {
-  it('restores saved values into a new form of the same branch', () => {
+  it('restores saved values into a new form of the same draft', () => {
     const store = createStore();
     store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
@@ -54,21 +71,36 @@ describe('useTourismDraftValues', () => {
     const store = createStore();
     store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
-    const { result } = renderDraftForm(store, true, 'branch-b');
+    const { result } = renderDraftForm(store, { branchId: 'branch-b' });
 
     expect(result.current.getValues('name')).toBe('');
   });
 
-  it('keeps typed values with their branch', () => {
+  it('does not restore values saved for another group', () => {
     const store = createStore();
-    const { result } = renderDraftForm(store);
+    store.set(tourismDraftValuesState, {
+      [CONTENT_TYPE]: { scope: `${BRANCH_ID}|group-a|`, values: { name: 'A' } },
+    });
+
+    const { result } = renderDraftForm(store, {
+      draft: { groupId: 'group-b' },
+    });
+
+    expect(result.current.getValues('name')).toBe('');
+  });
+
+  it('keeps typed values with their draft scope', () => {
+    const store = createStore();
+    const { result } = renderDraftForm(store, {
+      draft: { groupId: 'group-a' },
+    });
 
     act(() => {
       result.current.setValue('name', 'Typed');
     });
 
     expect(store.get(tourismDraftValuesState)[CONTENT_TYPE]).toEqual({
-      branchId: BRANCH_ID,
+      scope: `${BRANCH_ID}|group-a|`,
       values: { name: 'Typed' },
     });
   });
@@ -94,7 +126,7 @@ describe('useTourismDraftValues', () => {
     const store = createStore();
     store.set(tourismDraftValuesState, { [CONTENT_TYPE]: SAVED_ENTRY });
 
-    const { result } = renderDraftForm(store, false);
+    const { result } = renderDraftForm(store, { isNew: false });
 
     expect(result.current.getValues('name')).toBe('');
 

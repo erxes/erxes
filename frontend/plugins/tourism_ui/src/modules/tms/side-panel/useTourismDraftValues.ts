@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef } from 'react';
 import { FieldValues, UseFormReturn } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { atom, useSetAtom, useStore } from 'jotai';
+import { useSidePanelDraft } from 'ui-modules';
+import type { ITourismPanelDraftDefaults } from '@/tms/side-panel/tourismPanelTypes';
 import { getTourismRouteBranchId } from '@/tms/side-panel/tourismRecordPage';
 
 interface ITourismDraftEntry {
-  branchId: string;
+  scope: string;
   values: unknown;
 }
 
@@ -37,7 +39,12 @@ export const useTourismDraftValues = <T extends FieldValues>(
   const store = useStore();
   const setDraftValues = useSetAtom(tourismDraftValuesState);
   const { pathname } = useLocation();
-  const branchId = getTourismRouteBranchId(pathname);
+  const draft = useSidePanelDraft<ITourismPanelDraftDefaults>(contentType);
+  const scope = [
+    getTourismRouteBranchId(pathname),
+    draft.groupId ?? '',
+    draft.parentId ?? '',
+  ].join('|');
   const restored = useRef(false);
 
   useEffect(() => {
@@ -46,10 +53,10 @@ export const useTourismDraftValues = <T extends FieldValues>(
     restored.current = true;
     const saved = store.get(tourismDraftValuesState)[contentType];
 
-    if (saved?.values && saved.branchId === branchId) {
+    if (saved?.values && saved.scope === scope) {
       form.reset(saved.values as T);
     }
-  }, [isNew, contentType, branchId, form, store]);
+  }, [isNew, contentType, scope, form, store]);
 
   useEffect(() => {
     if (!isNew) return undefined;
@@ -57,10 +64,10 @@ export const useTourismDraftValues = <T extends FieldValues>(
     const subscription = form.watch((values) =>
       setDraftValues((previous) => ({
         ...previous,
-        [contentType]: { branchId, values },
+        [contentType]: { scope, values },
       })),
     );
 
     return () => subscription.unsubscribe();
-  }, [isNew, contentType, branchId, form, setDraftValues]);
+  }, [isNew, contentType, scope, form, setDraftValues]);
 };
