@@ -4,6 +4,7 @@ export interface IModulePanelEntry {
   onClose: () => void;
   maxWidth?: number;
   defaultWidth?: number;
+  expandable?: boolean;
 }
 
 export const modulePanelEntriesState = atom<Record<string, IModulePanelEntry>>(

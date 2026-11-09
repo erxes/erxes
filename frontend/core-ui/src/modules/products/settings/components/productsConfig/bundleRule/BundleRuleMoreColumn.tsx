@@ -1,3 +1,4 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { useTranslation } from 'react-i18next';
 import {
   RecordTable,
@@ -6,7 +7,6 @@ import {
   Command,
   useConfirm,
   useToast,
-  Sheet,
 } from 'erxes-ui';
 import { CellContext, ColumnDef } from '@tanstack/react-table';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
@@ -77,14 +77,14 @@ export const BundleRuleMoreColumn = (
         </Combobox.Content>
       </Popover>
 
-      <Sheet open={isEditOpen} onOpenChange={setIsEditOpen} modal>
-        <Sheet.View className="p-0 sm:max-w-lg">
-          <BundleRuleForm
-            bundleRule={bundleRule}
-            onOpenChange={setIsEditOpen}
-          />
-        </Sheet.View>
-      </Sheet>
+      <ProductEditorPanel
+        name={`bundle-rules/${bundleRule._id}/actions`}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        requiredPermission="bundleRulesManage"
+      >
+        <BundleRuleForm bundleRule={bundleRule} onOpenChange={setIsEditOpen} />
+      </ProductEditorPanel>
     </>
   );
 };

@@ -1,7 +1,7 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
 } from 'erxes-ui';
@@ -43,25 +43,19 @@ export const ProductRuleSheet = () => {
   );
 
   return (
-    <Sheet
-      onOpenChange={(isOpen) => (isOpen ? onOpen() : onClose())}
-      open={open}
-      modal
-    >
+    <>
       <Can action="productRulesManage">
-        <Sheet.Trigger asChild>
-          <Button className="whitespace-nowrap shrink-0">
-            <IconPlus />
-            {t('add-product-rule')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
+        <Button onClick={onOpen} className="whitespace-nowrap shrink-0">
+          <IconPlus />
+          {t('add-product-rule')}
+          <Kbd>C</Kbd>
+        </Button>
       </Can>
-      <Sheet.View
-        className="p-0 sm:max-w-lg"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
+      <ProductEditorPanel
+        name="product-rules/new"
+        open={open}
+        onOpenChange={(nextOpen) => (nextOpen ? onOpen() : onClose())}
+        requiredPermission="productRulesManage"
       >
         <ProductRuleForm
           onOpenChange={(isOpen) => {
@@ -72,7 +66,7 @@ export const ProductRuleSheet = () => {
             }
           }}
         />
-      </Sheet.View>
-    </Sheet>
+      </ProductEditorPanel>
+    </>
   );
 };

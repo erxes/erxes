@@ -1,4 +1,3 @@
-import { CPUserAddSheetHeader } from './CPUserAddSheet';
 import {
   cpUserAddFormSchema,
   CPUserAddFormType,
@@ -8,18 +7,10 @@ import { useClientPortals } from '@/client-portal/hooks/useClientPortals';
 import { ApolloError, useMutation } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { ControllerRenderProps } from 'react-hook-form';
-import {
-  Button,
-  Form,
-  Input,
-  ScrollArea,
-  Select,
-  Sheet,
-  useQueryState,
-  useToast,
-} from 'erxes-ui';
+import { Button, Form, Input, ScrollArea, Select, useToast } from 'erxes-ui';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCreatedPanelRecord } from '@/side-panel/hooks/useCreatedPanelRecord';
 
 export function AddCPUserForm({
   onOpenChange,
@@ -27,7 +18,9 @@ export function AddCPUserForm({
   onOpenChange?: (open: boolean) => void;
 }) {
   const { clientPortals, loading: loadingPortals } = useClientPortals();
-  const [cpUsersAdd, { loading: submitting }] = useMutation(CP_USERS_ADD, {
+  const [cpUsersAdd, { loading: submitting }] = useMutation<{
+    cpUsersAdd: { _id: string };
+  }>(CP_USERS_ADD, {
     refetchQueries: ['getClientPortalUsers'],
   });
   const form = useForm<CPUserAddFormType>({
@@ -44,7 +37,7 @@ export function AddCPUserForm({
     },
   });
   const { toast } = useToast();
-  const [, setCpUserId] = useQueryState<string>('cpUserId');
+  const onCreated = useCreatedPanelRecord('core:cpUser');
   const { t } = useTranslation('contact');
 
   const onSubmit = (data: CPUserAddFormType) => {
@@ -68,9 +61,8 @@ export function AddCPUserForm({
       },
       onCompleted: (result) => {
         form.reset();
-        onOpenChange?.(false);
         const id = result?.cpUsersAdd?._id;
-        if (id) setCpUserId(id);
+        if (id) onCreated(id);
         toast({
           title: t('success', { defaultValue: 'Success' }),
           variant: 'success',
@@ -86,12 +78,11 @@ export function AddCPUserForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col h-full"
+        className="flex min-h-0 flex-1 flex-col"
       >
-        <CPUserAddSheetHeader />
-        <Sheet.Content>
-          <ScrollArea className="flex-auto">
-            <div className="p-5 space-y-4">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <ScrollArea className="min-h-0 flex-1">
+            <div className="p-3 space-y-3">
               <Form.Field
                 control={form.control}
                 name="clientPortalId"
@@ -121,11 +112,13 @@ export function AddCPUserForm({
                           />
                         </Select.Trigger>
                         <Select.Content>
-                          {(clientPortals || []).map((portal) => (
-                            <Select.Item key={portal._id} value={portal._id!}>
-                              {portal.name || portal._id}
-                            </Select.Item>
-                          ))}
+                          {(clientPortals || []).map((portal) =>
+                            portal._id ? (
+                              <Select.Item key={portal._id} value={portal._id}>
+                                {portal.name || portal._id}
+                              </Select.Item>
+                            ) : null,
+                          )}
                         </Select.Content>
                       </Select>
                     </Form.Control>
@@ -281,8 +274,8 @@ export function AddCPUserForm({
               />
             </div>
           </ScrollArea>
-        </Sheet.Content>
-        <Sheet.Footer className="flex justify-end shrink-0 gap-1 px-5">
+        </div>
+        <div className="flex shrink-0 justify-end gap-1 border-t p-2">
           <Button
             type="button"
             variant="ghost"
@@ -298,7 +291,7 @@ export function AddCPUserForm({
           >
             {t('save', { defaultValue: 'Save' })}
           </Button>
-        </Sheet.Footer>
+        </div>
       </form>
     </Form>
   );

@@ -1,3 +1,4 @@
+import { ProductEditorHeader } from '@/products/components/ProductEditorPanel';
 import { IconAlertTriangle } from '@tabler/icons-react';
 import { Alert, Button, Form, Input, Sheet, Textarea } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
@@ -20,14 +21,13 @@ export const ConditionForm = ({
   return (
     <Form {...form}>
       <form onSubmit={submit} className="flex flex-col h-full">
-        <Sheet.Header>
-          <Sheet.Title>
-            {condition
+        <ProductEditorHeader
+          title={
+            condition
               ? t('edit-condition', 'Edit condition')
-              : t('add-condition', 'Add condition')}
-          </Sheet.Title>
-          <Sheet.Close />
-        </Sheet.Header>
+              : t('add-condition', 'Add condition')
+          }
+        />
         <Sheet.Content className="flex flex-col gap-4 p-5 overflow-y-auto">
           <Form.Field
             control={form.control}
@@ -36,7 +36,10 @@ export const ConditionForm = ({
               <Form.Item>
                 <Form.Label>{t('code', 'Code')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('condition-code', 'e.g. DENTED')} />
+                  <Input
+                    {...field}
+                    placeholder={t('condition-code', 'e.g. DENTED')}
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
@@ -64,7 +67,10 @@ export const ConditionForm = ({
               <Form.Item>
                 <Form.Label>{t('name', 'Name')}</Form.Label>
                 <Form.Control>
-                  <Input {...field} placeholder={t('condition-name', 'e.g. Dented')} />
+                  <Input
+                    {...field}
+                    placeholder={t('condition-name', 'e.g. Dented')}
+                  />
                 </Form.Control>
                 <Form.Message />
               </Form.Item>
