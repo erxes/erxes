@@ -1,8 +1,9 @@
 import { IconPlus } from '@tabler/icons-react';
-import { Button, cn, Sheet, useQueryState } from 'erxes-ui';
-import { useAtomValue } from 'jotai';
+import { Button, useQueryState } from 'erxes-ui';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AutomationBotPanel } from '~/widgets/automations/components/AutomationBotsPage';
 import { AutomationBotForm } from '~/widgets/automations/modules/facebook/components/bots/components/AutomationBotForm';
 import { isOpenFacebookBotSecondarySheet } from '~/widgets/automations/modules/facebook/components/bots/states/facebookBotStates';
 
@@ -11,43 +12,31 @@ export const AutomationBotSheetForm = () => {
   const [facebookBotId, setFacebookBotId] =
     useQueryState<string>('facebookBotId');
   const [isOpen, setOpen] = useState(false);
-  const isOpenSecondarySheet = useAtomValue(isOpenFacebookBotSecondarySheet);
-
+  const isOpenSecondary = useAtomValue(isOpenFacebookBotSecondarySheet);
+  const setOpenSecondary = useSetAtom(isOpenFacebookBotSecondarySheet);
   useEffect(() => {
-    if (facebookBotId) {
-      setOpen(true);
-    }
-  }, [facebookBotId]);
-
+    if (facebookBotId) setOpen(true);
+  }, [facebookBotId, setOpen]);
+  const close = () => {
+    setOpenSecondary(false);
+    setFacebookBotId(null);
+    setOpen(false);
+  };
   return (
-    <div>
-      <Sheet
-        open={isOpen}
-        onOpenChange={(open) => {
-          if (isOpen && !open) {
-            setFacebookBotId(null);
-          }
-          setOpen(open);
-        }}
-      >
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-bot', 'Add Bot')}
-          </Button>
-        </Sheet.Trigger>
-        <Sheet.View
-          className={cn(
-            'transition-all duration-300 ease-in-out sm:max-w-none w-[calc(100vw-1rem)] md:w-[92vw]',
-            {
-              'sm:max-w-lg md:w-3/4 h-[calc(100dvh-4rem)] inset-y-8':
-                isOpenSecondarySheet,
-            },
-          )}
-        >
-          {isOpen && <AutomationBotForm facebookBotId={facebookBotId} />}
-        </Sheet.View>
-      </Sheet>
-    </div>
+    <>
+      <Button disabled={isOpen} onClick={() => setOpen(true)}>
+        <IconPlus />
+        {t('add-bot', 'Add Bot')}
+      </Button>
+      {isOpen && (
+        <AutomationBotPanel hidden={isOpenSecondary} onClose={close}>
+          <AutomationBotForm
+            key={facebookBotId || 'new'}
+            facebookBotId={facebookBotId}
+            onClose={close}
+          />
+        </AutomationBotPanel>
+      )}
+    </>
   );
 };

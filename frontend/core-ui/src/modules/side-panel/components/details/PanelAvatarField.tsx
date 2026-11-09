@@ -1,4 +1,5 @@
 import { Button, Popover, Upload } from 'erxes-ui';
+import { IconPhoto } from '@tabler/icons-react';
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PanelField } from 'ui-modules';
@@ -47,7 +48,7 @@ export const PanelAvatarField = (props: TPanelAvatarProps) => {
   const { t } = useTranslation('contact', { keyPrefix: 'customer.add' });
 
   return (
-    <PanelField label={t('avatar', 'Avatar')} cell={false}>
+    <PanelField icon={IconPhoto} label={t('avatar', 'Avatar')} cell={false}>
       <PanelAvatarUpload {...props} />
     </PanelField>
   );

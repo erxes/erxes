@@ -30,8 +30,8 @@ export const generateOtherPaymentColumns = (
     .filter((a) => !['count', 'cashAmount', 'mobileAmount'].includes(a))
     .sort((a, b) => a.localeCompare(b));
 
-  return otherPayTitles.map((title: string, index) => ({
-    id: `${title}_${index}`,
+  return otherPayTitles.map((title: string) => ({
+    id: `payment_${title}`,
     header: () => (
       <RecordTable.InlineHead
         icon={IconClock}

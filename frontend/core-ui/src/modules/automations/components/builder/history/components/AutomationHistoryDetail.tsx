@@ -1,3 +1,11 @@
+import { RecordSidePanel } from 'ui-modules';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  usePagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { AUTOMATION_HISTORY_PANEL } from '@/automations/components/builder/history/historyPanel';
 import {
   AutomationExecutionBackButton,
   AutomationExecutionDetailTabs,
@@ -7,94 +15,106 @@ import { AutomationExecutionDetailProvider } from '@/automations/components/buil
 import { AutomationHistoryDetailProvider } from '@/automations/components/builder/history/context/AutomationHistoryDetailContext';
 import { useAutomationHistoryView } from '@/automations/components/builder/history/hooks/useAutomationHistoryView';
 import { IconEye } from '@tabler/icons-react';
-import { cn, RecordTable, RecordTableInlineCell, Sheet } from 'erxes-ui';
+import { cn, RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-
 export const AutomationHistoryDetail = ({
   executionId,
 }: {
   executionId: string;
 }) => {
   const { t } = useTranslation('automations');
-  const { isSplitView, selectedExecutionId, selectExecution } =
-    useAutomationHistoryView();
-  const isOpen = selectedExecutionId === executionId;
-
-  const trigger = (
-    <RecordTable.MoreButton
-      className="w-full h-full"
-      aria-label={t('history-show-execution-detail')}
-    >
-      <IconEye className={cn(isOpen && 'text-primary')} />
-    </RecordTable.MoreButton>
-  );
-
-  if (isSplitView) {
-    return (
-      <RecordTableInlineCell className="p-0">
-        <span
-          className="flex size-full"
-          onClick={() => selectExecution(executionId)}
-        >
-          {trigger}
-        </span>
-      </RecordTableInlineCell>
-    );
-  }
-
+  const { selectedExecutionId, selectExecution } = useAutomationHistoryView();
   return (
-    <AutomationHistoryDetailProvider executionId={executionId}>
-      <RecordTableInlineCell className="p-0">
-        <Sheet
-          open={isOpen}
-          onOpenChange={(open) => selectExecution(open ? executionId : null)}
-        >
-          <Sheet.Trigger asChild>{trigger}</Sheet.Trigger>
-          <Sheet.View className="p-0 md:w-[calc(100vw-theme(spacing.4))] flex flex-col gap-0 transition-all duration-100 ease-out overflow-hidden flex-none sm:max-w-screen-2xl">
-            <AutomationHistorySheetContent isOpen={isOpen} />
-          </Sheet.View>
-        </Sheet>
-      </RecordTableInlineCell>
-    </AutomationHistoryDetailProvider>
+    <RecordTableInlineCell className="p-0">
+      <RecordTable.MoreButton
+        className="w-full h-full"
+        aria-label={t('history-show-execution-detail')}
+        onClick={() => selectExecution(executionId)}
+      >
+        <IconEye
+          className={cn(selectedExecutionId === executionId && 'text-primary')}
+        />
+      </RecordTable.MoreButton>
+    </RecordTableInlineCell>
   );
 };
-
+export const AutomationHistoryPanel = ({
+  automationId,
+}: {
+  automationId?: string;
+}) => {
+  const { isSplitView, selectedExecutionId, selectExecution } =
+    useAutomationHistoryView();
+  const pagePanel = usePagePanel({
+    name: AUTOMATION_HISTORY_PANEL,
+    open: !!selectedExecutionId && !isSplitView,
+    onOpenChange: (open) => !open && !isSplitView && selectExecution(null),
+    maxWidth: 1100,
+    defaultWidth: 720,
+    identity: selectedExecutionId || 'new',
+  });
+  return createPortal(
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+      {pagePanel.permissionsLoaded &&
+      pagePanel.allowed &&
+      !!selectedExecutionId ? (
+        <>
+          {selectedExecutionId && (
+            <AutomationHistoryDetailProvider
+              key={selectedExecutionId}
+              executionId={selectedExecutionId}
+            >
+              <AutomationHistorySheetContent
+                isOpen
+                automationId={automationId}
+              />
+            </AutomationHistoryDetailProvider>
+          )}
+        </>
+      ) : (
+        <PagePanelStatus entry={pagePanel} />
+      )}
+    </div>,
+    pagePanel,
+  );
+};
 const AutomationHistorySheetHeader = () => {
   const { t } = useTranslation('automations');
   const title = useAutomationExecutionDetailTitle();
-
+  const pagePanel = usePagePanelContext();
   return (
-    <Sheet.Header className="h-auto py-2">
-      <div className="flex min-w-0 items-center gap-2">
-        <AutomationExecutionBackButton />
-        <div>
-          <div className="flex items-center gap-2">
-            <Sheet.Title>{title}</Sheet.Title>
+    <RecordSidePanel.Header
+      title={
+        <div className="flex min-w-0 items-center gap-2">
+          <AutomationExecutionBackButton />
+          <div>
+            <div className="flex items-center gap-2">
+              <span>{title}</span>
+            </div>
+            <p>{t('history-sheet-description')}</p>
           </div>
-          <Sheet.Description>
-            {t('history-sheet-description')}
-          </Sheet.Description>
         </div>
-      </div>
-      <Sheet.Close />
-    </Sheet.Header>
+      }
+      {...pagePanel.headerProps}
+    />
   );
 };
-
 export const AutomationHistorySheetContent = ({
   isOpen,
+  automationId,
 }: {
   isOpen: boolean;
+  automationId?: string;
 }) => {
   if (!isOpen) {
     return null;
   }
   return (
-    <AutomationExecutionDetailProvider>
+    <AutomationExecutionDetailProvider automationId={automationId}>
       <AutomationHistorySheetHeader />
-      <Sheet.Content>
+      <div className={cn('flex min-h-0 flex-1 flex-col overflow-y-auto')}>
         <AutomationExecutionDetailTabs />
-      </Sheet.Content>
+      </div>
     </AutomationExecutionDetailProvider>
   );
 };

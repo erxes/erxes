@@ -1,9 +1,10 @@
+import { ProductEditorPanel } from '@/products/components/ProductEditorPanel';
 import { CellContext } from '@tanstack/react-table';
 import {
   RecordTableInlineCell,
   TextOverflowTooltip,
   Badge,
-  Sheet,
+  Button,
 } from 'erxes-ui';
 import { IProductRule } from './types';
 import { useState } from 'react';
@@ -18,21 +19,30 @@ const ProductRuleNameColumnCell = (
 
   return (
     <RecordTableInlineCell>
-      <Sheet open={open} onOpenChange={setOpen} modal>
-        <Can action="productRulesManage">
-          <Sheet.Trigger asChild>
-            <Badge variant="secondary" className="cursor-pointer">
-              <TextOverflowTooltip value={props.getValue() as string} />
-            </Badge>
-          </Sheet.Trigger>
-        </Can>
-        <Sheet.View className="p-0 sm:max-w-lg">
-          <ProductRuleForm
-            productRule={productRule}
-            onOpenChange={(isOpen) => setOpen(isOpen)}
-          />
-        </Sheet.View>
-      </Sheet>
+      <Can action="productRulesManage">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-auto p-0"
+          onClick={() => setOpen(true)}
+        >
+          <Badge variant="secondary" className="cursor-pointer">
+            <TextOverflowTooltip value={props.getValue() as string} />
+          </Badge>
+        </Button>
+      </Can>
+      <ProductEditorPanel
+        name={`product-rules/${productRule._id}`}
+        open={open}
+        onOpenChange={setOpen}
+        requiredPermission="productRulesManage"
+      >
+        <ProductRuleForm
+          productRule={productRule}
+          onOpenChange={(isOpen) => setOpen(isOpen)}
+        />
+      </ProductEditorPanel>
     </RecordTableInlineCell>
   );
 };

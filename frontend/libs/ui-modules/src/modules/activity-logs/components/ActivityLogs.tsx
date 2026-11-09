@@ -49,6 +49,7 @@ const ActivityLogsRoot = ({
     activityLogs,
     loading,
     error,
+    fetchMoreError,
     handleFetchMore,
     hasNextPage,
     hasPreviousPage,
@@ -84,6 +85,7 @@ const ActivityLogsRoot = ({
       loading={loading}
       variant={variant}
       error={error}
+      fetchMoreError={fetchMoreError}
       customActivities={customActivities}
       handleFetchMore={handleFetchMore}
       hasNextPage={hasNextPage}

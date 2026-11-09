@@ -4,7 +4,6 @@ import { RecordTable } from 'erxes-ui';
 import { useProductRules } from '@/products/settings/hooks/useProductRules';
 import { productRuleColumns } from './productRuleColumns';
 import { ProductRuleCommandBar } from './ProductRuleCommandBar';
-import { ProductRuleSheet } from './ProductRuleSheet';
 
 export const ProductRuleRecordTable = () => {
   const { productRules, loading } = useProductRules();
@@ -48,7 +47,6 @@ function EmptyStateRow() {
         {t('empty-title')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
-      <ProductRuleSheet />
     </div>
   );
 }
