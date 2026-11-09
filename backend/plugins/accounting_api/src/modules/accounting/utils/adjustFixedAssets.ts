@@ -772,9 +772,11 @@ const validateFxaAdjustmentByDay = async ({
   userId: string;
   corrections: TFxaCorrection[];
 }): Promise<TDailyValidationResult> => {
-  let currentDate = beginDate;
-
-  while (currentDate <= endDate) {
+  // Validate and publish progress one day at a time, stopping at the first error.
+  const validateDay = async (
+    currentDate: Date,
+  ): Promise<TDailyValidationResult> => {
+    if (currentDate > endDate) return {};
     const nextDate = addDays(currentDate, 1);
     const uncompletedTr = await getUncompletedFixedAssetTransaction(
       models,
@@ -829,10 +831,10 @@ const validateFxaAdjustmentByDay = async ({
       modifiedBy: userId,
     });
 
-    currentDate = nextDate;
-  }
+    return validateDay(nextDate);
+  };
 
-  return {};
+  return validateDay(beginDate);
 };
 
 export const checkValidFixedAssetDate = async (
@@ -1029,124 +1031,125 @@ export const runAdjustFixedAsset = async (
     });
   }
 
-  for (const fixedAsset of fixedAssets) {
-    const depreciationEndDate = endDate;
-    const scheduleStartDate = getPureDate(
-      fixedAsset.depreciationStartDate ||
-        fixedAsset.acquisitionDate ||
-        beginDate,
-    );
-    const acquisitionDate = getPureDate(
-      fixedAsset.acquisitionDate || beginDate,
-    );
-    const startDate =
-      beforeAdjust && beginDate > acquisitionDate ? beginDate : acquisitionDate;
-
-    if (startDate > depreciationEndDate) {
-      continue;
-    }
-
-    let periodDate = beginDate;
-    let periodActiveCount = 0;
-
-    while (periodDate <= depreciationEndDate) {
-      periodActiveCount += getTotalCount(
-        getAssetLocationCountsAtDate(fixedAsset._id, movements, periodDate),
+  const calculatedDetails = await Promise.all(
+    fixedAssets.map(async (fixedAsset) => {
+      const assetDetails: IAdjustFxaDetail[] = [];
+      const depreciationEndDate = endDate;
+      const scheduleStartDate = getPureDate(
+        fixedAsset.depreciationStartDate ||
+          fixedAsset.acquisitionDate ||
+          beginDate,
       );
-      periodDate = addDays(periodDate, 1);
-    }
+      const acquisitionDate = getPureDate(
+        fixedAsset.acquisitionDate || beginDate,
+      );
+      const startDate =
+        beforeAdjust && beginDate > acquisitionDate
+          ? beginDate
+          : acquisitionDate;
 
-    if (periodActiveCount <= 0) {
-      continue;
-    }
+      if (startDate > depreciationEndDate) return assetDetails;
 
-    const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
-    const resultByLocationKey = calculateFixedAssetDepreciationByDay({
-      beginDate: startDate,
-      depreciationMethod,
-      endDate: depreciationEndDate,
-      fixedAsset,
-      movements,
-      depreciationMovements,
-      scheduleStartDate,
-      corrections,
-    });
+      let periodDate = beginDate;
+      let periodActiveCount = 0;
 
-    const openingRevaluation = await getFxaRevaluationState(
-      models,
-      fixedAsset._id,
-      addDays(startDate, -1),
-    );
-    const closingRevaluation = await getFxaRevaluationState(
-      models,
-      fixedAsset._id,
-      endDate,
-    );
-    const closingCounts = getAssetLocationCountsAtDate(
-      fixedAsset._id,
-      movements,
-      endDate,
-    );
-    const openingCounts = getAssetLocationCountsAtDate(
-      fixedAsset._id,
-      movements,
-      addDays(startDate, -1),
-    );
-    const totalClosingCount = getTotalCount(closingCounts);
-    const totalOpeningCount = getTotalCount(openingCounts);
-    for (const [locationKey, result] of resultByLocationKey) {
-      const accountId = fixedAsset.accountId;
-      const snapshot = splitLocationKey(locationKey);
-
-      if (
-        !result ||
-        (result.originalCost <= 0 &&
-          result.depreciationAmount <= 0 &&
-          !result.error)
-      ) {
-        continue;
+      while (periodDate <= depreciationEndDate) {
+        periodActiveCount += getTotalCount(
+          getAssetLocationCountsAtDate(fixedAsset._id, movements, periodDate),
+        );
+        periodDate = addDays(periodDate, 1);
       }
 
-      details.push({
-        adjustId: adjust._id,
-        fixedAssetId: fixedAsset._id,
-        categoryId: fixedAsset.categoryId,
-        accountId,
-        branchId: snapshot.branchId,
-        departmentId: snapshot.departmentId,
-        count: closingCounts.get(locationKey) || 0,
-        openingRevaluationLoss: totalOpeningCount
-          ? (openingRevaluation.loss * (openingCounts.get(locationKey) || 0)) /
-            totalOpeningCount
-          : 0,
-        openingRevaluationReserve: totalOpeningCount
-          ? (openingRevaluation.reserve *
-              (openingCounts.get(locationKey) || 0)) /
-            totalOpeningCount
-          : 0,
-        closingRevaluationLoss: totalClosingCount
-          ? (closingRevaluation.loss * (closingCounts.get(locationKey) || 0)) /
-            totalClosingCount
-          : 0,
-        closingRevaluationReserve: totalClosingCount
-          ? (closingRevaluation.reserve *
-              (closingCounts.get(locationKey) || 0)) /
-            totalClosingCount
-          : 0,
-        originalCost: result.originalCost,
-        salvageValue: result.salvageValue,
-        openingBookValue: result.openingBookValue,
-        preDeprecation: result.preDeprecation,
-        depreciationAmount: result.depreciationAmount,
-        bookDepreciationAmount: result.depreciationAmount,
-        closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
-        closingBookValue: result.closingBookValue,
-        error:
-          result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
-        warning: result.warning,
+      if (periodActiveCount <= 0) return assetDetails;
+
+      const depreciationMethod =
+        fixedAsset.depreciationMethod || 'straightLine';
+      const resultByLocationKey = calculateFixedAssetDepreciationByDay({
+        beginDate: startDate,
+        depreciationMethod,
+        endDate: depreciationEndDate,
+        fixedAsset,
+        movements,
+        depreciationMovements,
+        scheduleStartDate,
+        corrections,
       });
-    }
-  }
+
+      const [openingRevaluation, closingRevaluation] = await Promise.all([
+        getFxaRevaluationState(models, fixedAsset._id, addDays(startDate, -1)),
+        getFxaRevaluationState(models, fixedAsset._id, endDate),
+      ]);
+      const closingCounts = getAssetLocationCountsAtDate(
+        fixedAsset._id,
+        movements,
+        endDate,
+      );
+      const openingCounts = getAssetLocationCountsAtDate(
+        fixedAsset._id,
+        movements,
+        addDays(startDate, -1),
+      );
+      const totalClosingCount = getTotalCount(closingCounts);
+      const totalOpeningCount = getTotalCount(openingCounts);
+      for (const [locationKey, result] of resultByLocationKey) {
+        const accountId = fixedAsset.accountId;
+        const snapshot = splitLocationKey(locationKey);
+
+        if (
+          !result ||
+          (result.originalCost <= 0 &&
+            result.depreciationAmount <= 0 &&
+            !result.error)
+        ) {
+          continue;
+        }
+
+        assetDetails.push({
+          adjustId: adjust._id,
+          fixedAssetId: fixedAsset._id,
+          categoryId: fixedAsset.categoryId,
+          accountId,
+          branchId: snapshot.branchId,
+          departmentId: snapshot.departmentId,
+          count: closingCounts.get(locationKey) || 0,
+          openingRevaluationLoss: totalOpeningCount
+            ? (openingRevaluation.loss *
+                (openingCounts.get(locationKey) || 0)) /
+              totalOpeningCount
+            : 0,
+          openingRevaluationReserve: totalOpeningCount
+            ? (openingRevaluation.reserve *
+                (openingCounts.get(locationKey) || 0)) /
+              totalOpeningCount
+            : 0,
+          closingRevaluationLoss: totalClosingCount
+            ? (closingRevaluation.loss *
+                (closingCounts.get(locationKey) || 0)) /
+              totalClosingCount
+            : 0,
+          closingRevaluationReserve: totalClosingCount
+            ? (closingRevaluation.reserve *
+                (closingCounts.get(locationKey) || 0)) /
+              totalClosingCount
+            : 0,
+          originalCost: result.originalCost,
+          salvageValue: result.salvageValue,
+          openingBookValue: result.openingBookValue,
+          preDeprecation: result.preDeprecation,
+          depreciationAmount: result.depreciationAmount,
+          bookDepreciationAmount: result.depreciationAmount,
+          closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
+          closingBookValue: result.closingBookValue,
+          error:
+            result.error ||
+            (!accountId ? 'Fixed asset account is missing.' : ''),
+          warning: result.warning,
+        });
+      }
+      return assetDetails;
+    }),
+  );
+  details.push(...calculatedDetails.flat());
 
   await models.AdjustFxaDetails.replaceAdjustFxaDetails({
     adjustId: adjust._id,

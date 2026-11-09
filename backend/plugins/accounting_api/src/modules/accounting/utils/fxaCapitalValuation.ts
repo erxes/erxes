@@ -51,15 +51,15 @@ export const getFxaCapitalValuation = async (
   const excluded = excludeTransactionId
     ? await models.Transactions.findOne({ _id: excludeTransactionId }).lean()
     : undefined;
+  let exclusion: Record<string, unknown> = {};
+  if (excluded?.parentId) exclusion = { parentId: { $ne: excluded.parentId } };
+  else if (excludeTransactionId)
+    exclusion = { _id: { $ne: excludeTransactionId } };
   const transactions = await models.Transactions.find({
     'details.fixedAssetId': fixedAssetId,
     date: { $lt: endDate },
     status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-    ...(excluded?.parentId
-      ? { parentId: { $ne: excluded.parentId } }
-      : excludeTransactionId
-      ? { _id: { $ne: excludeTransactionId } }
-      : {}),
+    ...exclusion,
   }).lean();
   if (
     user &&

@@ -37,9 +37,9 @@ export type TFxaRevaluationState = {
 export const sumFxaRevaluationBalances = (
   fixedAssetId: string,
   transactions: Pick<ITransaction, 'journal' | 'date' | 'details'>[],
-  opening: TFxaRevaluationState = { count: 0, loss: 0, reserve: 0 },
+  opening?: TFxaRevaluationState,
 ): TFxaRevaluationState => {
-  const state = { ...opening };
+  const state = { count: 0, loss: 0, reserve: 0, ...opening };
   for (const transaction of transactions) {
     const details = transaction.details.filter(
       (detail) => detail.fixedAssetId === fixedAssetId,
@@ -134,19 +134,21 @@ export const applyFxaDisposalRevaluation = async (
   models: IModels,
   doc: ITransaction,
 ): Promise<ITransaction> => {
-  const states = new Map<string, TFxaRevaluationState>();
-  for (const detail of doc.details) {
-    if (detail.fixedAssetId && !states.has(detail.fixedAssetId))
-      states.set(
-        detail.fixedAssetId,
-        await getFxaRevaluationState(
-          models,
-          detail.fixedAssetId,
-          doc.date,
-          doc._id,
-        ),
-      );
-  }
+  const ids = [
+    ...new Set(doc.details.map((detail) => detail.fixedAssetId)),
+  ].filter((id): id is string => Boolean(id));
+  const states = new Map(
+    await Promise.all(
+      ids.map(
+        async (id) =>
+          [
+            id,
+            await getFxaRevaluationState(models, id, doc.date, doc._id),
+          ] as const,
+      ),
+    ),
+  );
+
   return {
     ...doc,
     details: doc.details.map((detail) => {

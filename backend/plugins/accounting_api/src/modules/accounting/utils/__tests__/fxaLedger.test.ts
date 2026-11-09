@@ -157,3 +157,16 @@ test('one acquisition may split locations but cannot silently mix a different co
     ]),
   ).toThrow('separate asset code');
 });
+
+// Malformed JSON metadata must never become the literal method "[object Object]".
+test('ledger falls back to straight-line methods for non-string acquisition metadata', () => {
+  const income = entry(JOURNALS.FXA_INCOME, 1, 100);
+  income.details[0].followInfos = {
+    ...income.details[0].followInfos,
+    depreciationMethod: {},
+    taxDepreciationMethod: {},
+  };
+  const [result] = buildFxaLedgerAssets([asset], [income]);
+  expect(result.depreciationMethod).toBe('straightLine');
+  expect(result.taxDepreciationMethod).toBe('straightLine');
+});

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-10`
 
 ## Scope
 
@@ -240,6 +240,7 @@
 - TBalance location resolution (`getTBalanceLocation`) stays beside its cell consumers in `TBalanceTableColumns.tsx`; no separate location utility module is needed. Location labels follow detail ids (explicit empty means unassigned), use matching enrichment only, and delegate missing branch/department objects to public `BranchesInline` / `DepartmentsInline` components instead of issuing cell-specific lookups; never copy one location label onto another capitalization allocation.
 - Capitalization/revaluation tables use fixed-width `w-8 p-0` action columns and 32px square actions. Editable asset/number cells reuse `SelectFixedAsset.InlineCell` and `PopoverScoped` / `RecordTableInlineCell`; normal form inputs belong inside the cell popover or detail sheet, not as inset bordered controls in table rows.
 - Capitalization and revaluation use the shared `FxaChangeTable` with single/bulk asset addition and row-local `RecordTable.MoreButton` sheets. Cost/amount and useful-life/rate inputs stay in the table; method, residual value, target accumulated depreciation, start date and tax rules live in each row sheet. Capitalization shows one editable row per asset while preserving its location-expanded saved details; previews, lookup initialization and row deletion stay asset-scoped. Blank optional rules retain the effective values and explicit zero is preserved. Mixed cost-increase/decrease rows show a localized message and require separate journal tabs.
+- FXA chooser and TBalance location cells keep branch/department fallback decisions explicit; numeric row fields preserve blank as undefined and useful-year conversion. Valuation map state uses the paired `valuationMap`/`setValuationMap` names.
 - Capitalization preview arithmetic lives in `transaction-form/components/forms/hooks/fxaCapitalPreview.ts`; `useFxaCapitalPreview` only synchronizes the memoized result with form/follow state. `mergeFxaDepreciationFollows` replaces only the current originId’s shared `fxaDepIn`/`fxaDepOut` follows, preserving saved transaction/detail ids and clearing obsolete directions or zero previews; journal-prefix matching is invalid for shared follow types. New rows, bulk rows, asset replacement and journal initialization reuse `fxaCapitalDetailDefaultValues` from `transaction-form/contants/defaultValues.tsx`, preserving explicit zero and the existing metadata snapshot.
 
 - Fixed asset capitalization and revaluation are infrequent journals and stay last in the fixed asset add-menu and receipt-filter group. Record filters and enum-driven journal selectors place capitalization/revaluation entries after ordinary fixed asset journals with no separate automatic balancing journal.

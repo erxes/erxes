@@ -56,14 +56,15 @@ export const assertFxaAcquisitionConsistency = (
   }
 };
 
-export const fxaMovementSign = (journal: string) =>
-  journal === JOURNALS.FXA_INCOME || journal === JOURNALS.FXA_MOVE_IN
-    ? 1
-    : journal === JOURNALS.FXA_OUT ||
-      journal === JOURNALS.FXA_MOVE ||
-      journal === JOURNALS.FXA_SALE
-    ? -1
-    : 0;
+export const fxaMovementSign = (journal: string): number => {
+  if (journal === JOURNALS.FXA_INCOME || journal === JOURNALS.FXA_MOVE_IN)
+    return 1;
+  if (
+    [JOURNALS.FXA_OUT, JOURNALS.FXA_MOVE, JOURNALS.FXA_SALE].includes(journal)
+  )
+    return -1;
+  return 0;
+};
 
 export const buildFxaLedgerAssets = (
   assets: (IFixedAsset & { _id: string })[],
@@ -137,12 +138,17 @@ export const buildFxaLedgerAssets = (
         depreciationStartDate: info.depreciationStartDate
           ? new Date(info.depreciationStartDate)
           : date,
-        depreciationMethod: String(info.depreciationMethod || 'straightLine'),
+        depreciationMethod:
+          typeof info.depreciationMethod === 'string' && info.depreciationMethod
+            ? info.depreciationMethod
+            : 'straightLine',
         annualDepreciationRate: Number(info.annualDepreciationRate || 0),
         salvageValue: Number(info.salvageValue || 0),
-        taxDepreciationMethod: String(
-          info.taxDepreciationMethod || 'straightLine',
-        ),
+        taxDepreciationMethod:
+          typeof info.taxDepreciationMethod === 'string' &&
+          info.taxDepreciationMethod
+            ? info.taxDepreciationMethod
+            : 'straightLine',
         taxAnnualDepreciationRate: Number(info.taxAnnualDepreciationRate || 0),
         taxSalvageValue: Number(info.taxSalvageValue || 0),
       },
@@ -168,6 +174,10 @@ export const getFxaLedgerAssets = async (
   const endDate = new Date(date);
   endDate.setHours(0, 0, 0, 0);
   endDate.setDate(endDate.getDate() + 1);
+  let exclusion: Record<string, unknown> = {};
+  if (excluded?.parentId) exclusion = { parentId: { $ne: excluded.parentId } };
+  else if (excludeTransactionId)
+    exclusion = { _id: { $ne: excludeTransactionId } };
   const transactions = await models.Transactions.find({
     'details.fixedAssetId': { $in: assets.map((asset) => asset._id) },
     journal: {
@@ -187,11 +197,7 @@ export const getFxaLedgerAssets = async (
     },
     status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
     date: { $lt: endDate },
-    ...(excluded?.parentId
-      ? { parentId: { $ne: excluded.parentId } }
-      : excludeTransactionId
-      ? { _id: { $ne: excludeTransactionId } }
-      : {}),
+    ...exclusion,
   }).lean();
   const configs = await models.Configs.getConfigs('FIXEDASSET_ACCOUNTS');
   const depreciationAccounts = new Map<string, string>();

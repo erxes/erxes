@@ -96,13 +96,11 @@ export const FxaChangeRow = ({
   }, [assetId, detailIndex, form, index, pendingAsset, valuation]);
   const fieldProps = { form, index, detailIndex };
   const title = revaluation ? 'fxa-revaluation-details' : 'fxa-capital-details';
-  const message =
-    error?.message ||
-    (valuation && !valuation.ready
-      ? t('fxa-capital-needs-depreciation')
-      : valuation && valuation.count <= 0
-      ? t('fxa-capital-no-quantity')
-      : '');
+  let message = error?.message || '';
+  if (!message && valuation) {
+    if (!valuation.ready) message = t('fxa-capital-needs-depreciation');
+    else if (valuation.count <= 0) message = t('fxa-capital-no-quantity');
+  }
   const allocation =
     trDoc?.journal === TrJournalEnum.FXA_REVALUATION
       ? trDoc.details

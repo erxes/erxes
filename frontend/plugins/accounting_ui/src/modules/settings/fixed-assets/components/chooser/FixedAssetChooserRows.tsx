@@ -36,35 +36,26 @@ const AssetName = ({ choice }: { choice: TFixedAssetChoice }) => (
 
 const ChoiceLocationCells = ({ choice }: { choice: TFixedAssetChoice }) => {
   const { t } = useTranslation('accounting');
+  const branch = choice.location?.branchId ? (
+    <BranchBadge branchId={choice.location.branchId} renderAsPlainText />
+  ) : (
+    t('fxa-chooser-unassigned-branch')
+  );
+  const department = choice.location?.departmentId ? (
+    <DepartmentBadge
+      departmentId={choice.location.departmentId}
+      renderAsPlainText
+    />
+  ) : (
+    t('fxa-chooser-unassigned-department')
+  );
   return (
     <>
       <Table.Cell className="px-2 py-1 text-xs">
-        {choice.location ? (
-          choice.location.branchId ? (
-            <BranchBadge
-              branchId={choice.location.branchId}
-              renderAsPlainText
-            />
-          ) : (
-            t('fxa-chooser-unassigned-branch')
-          )
-        ) : (
-          t('fxa-chooser-all-locations')
-        )}
+        {choice.location ? branch : t('fxa-chooser-all-locations')}
       </Table.Cell>
       <Table.Cell className="px-2 py-1 text-xs">
-        {choice.location ? (
-          choice.location.departmentId ? (
-            <DepartmentBadge
-              departmentId={choice.location.departmentId}
-              renderAsPlainText
-            />
-          ) : (
-            t('fxa-chooser-unassigned-department')
-          )
-        ) : (
-          '-'
-        )}
+        {choice.location ? department : '-'}
       </Table.Cell>
       <Table.Cell className="px-2 py-1 text-right text-xs tabular-nums">
         {choice.location?.remainder.toLocaleString() ?? '-'}

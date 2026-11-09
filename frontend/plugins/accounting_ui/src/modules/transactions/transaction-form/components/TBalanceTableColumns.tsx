@@ -134,32 +134,22 @@ const CreditCell = ({ row }: any) => {
 
 const BranchCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   const { id, location } = getTBalanceLocation(row.original, 'branch');
-  return (
-    <RecordTableInlineCell>
-      {!id ? (
-        '-'
-      ) : location ? (
-        [location.code, location.title].filter(Boolean).join(' - ') || '-'
-      ) : (
-        <BranchesInline branchIds={[id]} placeholder="-" />
-      )}
-    </RecordTableInlineCell>
+  const content = location ? (
+    [location.code, location.title].filter(Boolean).join(' - ') || '-'
+  ) : (
+    <BranchesInline branchIds={[id]} placeholder="-" />
   );
+  return <RecordTableInlineCell>{id ? content : '-'}</RecordTableInlineCell>;
 };
 
 const DepartmentCell = ({ row }: { row: Row<ITBalanceTransaction> }) => {
   const { id, location } = getTBalanceLocation(row.original, 'department');
-  return (
-    <RecordTableInlineCell>
-      {!id ? (
-        '-'
-      ) : location ? (
-        [location.code, location.title].filter(Boolean).join(' - ') || '-'
-      ) : (
-        <DepartmentsInline departmentIds={[id]} placeholder="-" />
-      )}
-    </RecordTableInlineCell>
+  const content = location ? (
+    [location.code, location.title].filter(Boolean).join(' - ') || '-'
+  ) : (
+    <DepartmentsInline departmentIds={[id]} placeholder="-" />
   );
+  return <RecordTableInlineCell>{id ? content : '-'}</RecordTableInlineCell>;
 };
 
 const DateCell = ({ getValue }: any) => {

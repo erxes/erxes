@@ -362,7 +362,9 @@ export const saveFxaCapital = async (
   });
   const mainTr = await createOrUpdateTr(models, userId, documents.main, oldTr);
   const otherTrs: ITransactionDocument[] = [];
-  for (const follow of documents.follows) {
+  // These writes share one workflow; keep their existing posting order.
+  await documents.follows.reduce(async (previousSave, follow) => {
+    await previousSave;
     const previous = existing.find(
       (row) => row.originType === follow.originType,
     );
@@ -387,7 +389,7 @@ export const saveFxaCapital = async (
       previous,
     );
     otherTrs.push(saved);
-  }
+  }, Promise.resolve());
   const keepIds = new Set(otherTrs.map((row) => row._id));
   const removeIds = existing
     .filter((row) => !keepIds.has(row._id))

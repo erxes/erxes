@@ -361,65 +361,68 @@ export const syncFxaOwnerRecordMovements = async ({
     (transaction.details || []).map((detail) => [getDetailId(detail), detail]),
   );
   const sourceRecords = await getSourceOwnerRecords(models, inputs);
-  const records: ReturnType<typeof buildOwnerRecordDoc>[] = [];
+  const recordsByInput = await Promise.all(
+    inputs.map(async (input) => {
+      const records: ReturnType<typeof buildOwnerRecordDoc>[] = [];
+      const resolvedInput = getSourceInput(input, sourceRecords);
+      const detail = input.transactionDetailId
+        ? detailById.get(input.transactionDetailId)
+        : undefined;
+      const count = normalizeCount(input.count);
+      const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
+      const sourceOwnerId =
+        resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
+      const ownerId = resolvedInput.ownerId || sourceOwnerId;
 
-  for (const input of inputs) {
-    const resolvedInput = getSourceInput(input, sourceRecords);
-    const detail = input.transactionDetailId
-      ? detailById.get(input.transactionDetailId)
-      : undefined;
-    const count = normalizeCount(input.count);
-    const fixedAssetId = resolvedInput.fixedAssetId || detail?.fixedAssetId;
-    const sourceOwnerId =
-      resolvedInput.sourceOwnerId || resolvedInput.ownerId || '';
-    const ownerId = resolvedInput.ownerId || sourceOwnerId;
+      if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
+        return records;
+      }
 
-    if (!detail || !fixedAssetId || !sourceOwnerId || count <= 0) {
-      continue;
-    }
-
-    const balance = await getOwnerRecordBalance({
-      fixedAssetId,
-      models,
-      ownerId: sourceOwnerId,
-    });
-
-    if (balance < count) {
-      throw new Error('Selected owner record does not have enough count');
-    }
-
-    records.push(
-      buildOwnerRecordDoc({
-        action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
-        count,
-        detailId: getDetailId(detail),
+      const balance = await getOwnerRecordBalance({
         fixedAssetId,
-        input: {
-          ...resolvedInput,
-          ownerId: sourceOwnerId,
-        },
-        transaction,
-        userId,
-      }),
-    );
+        models,
+        ownerId: sourceOwnerId,
+      });
 
-    if (eventType === FXA_LOG_EVENT_TYPES.MOVE) {
+      if (balance < count) {
+        throw new Error('Selected owner record does not have enough count');
+      }
+
       records.push(
         buildOwnerRecordDoc({
-          action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+          action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
           count,
           detailId: getDetailId(detail),
           fixedAssetId,
           input: {
             ...resolvedInput,
-            ownerId,
+            ownerId: sourceOwnerId,
           },
           transaction,
           userId,
         }),
       );
-    }
-  }
+
+      if (eventType === FXA_LOG_EVENT_TYPES.MOVE) {
+        records.push(
+          buildOwnerRecordDoc({
+            action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+            count,
+            detailId: getDetailId(detail),
+            fixedAssetId,
+            input: {
+              ...resolvedInput,
+              ownerId,
+            },
+            transaction,
+            userId,
+          }),
+        );
+      }
+      return records;
+    }),
+  );
+  const records = recordsByInput.flat();
 
   if (records.length) {
     await models.FxaOwnerRecords.insertMany(
@@ -437,21 +440,22 @@ export const getFxaDisposalSummaries = async (
       .map((detail) => detail.fixedAssetId)
       .filter((fixedAssetId): fixedAssetId is string => Boolean(fixedAssetId)),
   );
-  const valuations = new Map<
-    string,
-    Awaited<ReturnType<typeof getFxaCapitalValuation>>
-  >();
-  for (const id of fixedAssetIds) {
-    valuations.set(
-      id,
-      await getFxaCapitalValuation(
-        models,
-        id,
-        transaction.date,
-        transaction._id,
+  const valuations = new Map(
+    await Promise.all(
+      fixedAssetIds.map(
+        async (id) =>
+          [
+            id,
+            await getFxaCapitalValuation(
+              models,
+              id,
+              transaction.date,
+              transaction._id,
+            ),
+          ] as const,
       ),
-    );
-  }
+    ),
+  );
 
   return (transaction.details || [])
     .map((detail) => {

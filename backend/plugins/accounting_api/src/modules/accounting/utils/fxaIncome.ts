@@ -141,7 +141,7 @@ const buildFixedAssetDoc = ({
       typeof method !== 'string' ||
       !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(method)
     ) {
-      throw new Error('Select a valid acquisition depreciation method.');
+      throw new TypeError('Select a valid acquisition depreciation method.');
     }
   }
   for (const rate of [
@@ -154,7 +154,7 @@ const buildFixedAssetDoc = ({
       rate < 0 ||
       rate > 100
     ) {
-      throw new Error(
+      throw new TypeError(
         'Acquisition annual depreciation rate must be between zero and 100.',
       );
     }
@@ -168,7 +168,7 @@ const buildFixedAssetDoc = ({
       !Number.isFinite(residual) ||
       residual < 0
     ) {
-      throw new Error('Acquisition residual value must be nonnegative.');
+      throw new TypeError('Acquisition residual value must be nonnegative.');
     }
   }
   if (

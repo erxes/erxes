@@ -62,15 +62,16 @@ export const FxaChangeNumberField = ({
             }
             step="any"
             value={value ?? ''}
-            onChange={(event) =>
-              field.onChange(
-                event.target.value === ''
-                  ? undefined
-                  : usefulYears
-                  ? getRateFromUsefulLife(Number(event.target.value))
-                  : Number(event.target.value),
-              )
-            }
+            onChange={(event) => {
+              const entered = event.target.value;
+              let nextValue: number | undefined;
+              if (entered !== '') {
+                nextValue = usefulYears
+                  ? getRateFromUsefulLife(Number(entered))
+                  : Number(entered);
+              }
+              field.onChange(nextValue);
+            }}
           />
         );
         return (

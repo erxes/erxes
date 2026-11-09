@@ -6,7 +6,7 @@
 - **Project:** `accounting_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/accounting_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-10`
 
 ## Scope
 
@@ -299,7 +299,7 @@
 - Fixed asset disposal, sale, and move owner-record selections are optional, and selected counts are capped by the detail count instead of being required to exhaust it; saving removes prior owner-record rows for that transaction and writes fresh `handedOver` rows, while move writes a matching `received` row for the owner so owner balance remains net neutral.
 - Fixed asset disposal, sale, and move quantities must come from transaction details; branch and department belong to each detail and mixed locations require multiple details.
 - Fixed asset move source details must be paired with generated `fxaMoveIn` destination details, and any accumulated depreciation must be paired as source debit plus destination credit follow transactions so period/location reporting is derived from transaction history, not owner records; move destinations may be branch-only, department-only, or branch plus department.
-- Fixed asset depreciation must be calculated once per fixed asset acquisition cost base and allocated across branch/department locations by active quantity for each day.
+- Fixed asset depreciation must be calculated once per fixed asset acquisition cost base and allocated across branch/department locations by active quantity for each day. Independent per-asset valuation and revaluation reads run concurrently and adjustment rows preserve asset/location order. Daily validation and progress publication remain sequential and stop at the first invalid day. Capital follow writes retain sequential posting order before stale follows are deleted. Ledger depreciation method metadata must be a nonempty string; malformed JSON values use the straight-line fallback instead of object stringification.
 - Fixed asset adjustment derives opening accumulated depreciation from every earlier business-active depreciation ledger credit/debit and calculates only the period after the previous completed adjustment date. Previous `adjust_fxa_details` amounts are outputs, never monetary input. Income opening entries are included; expense accounts and the current adjustment's own postings are excluded. Disposal/movement debit entries remove depreciation exactly once, without quantity-based reduction. Inconsistent daily posted balances produce an actionable detail error.
 - Straight-line fixed asset depreciation must use annual depreciation percentage as the source of truth: annual rate / 12 gives monthly depreciation, and each day receives that month's daily prorated amount.
 - Fixed asset disposal and sale summaries use dated business-active transaction details for cost and posted depreciation, excluding the edited parent. Adjustment cache rows never supply disposal balances.

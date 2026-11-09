@@ -27,12 +27,12 @@ export const FxaChangeTable = ({
     control: form.control,
     name: `trDocs.${index}.details`,
   });
-  const [valuationMap, setValuations] = useState<
+  const [valuationMap, setValuationMap] = useState<
     Record<string, TFxaCapitalValuation | undefined>
   >({});
   const onValuationChange = useCallback(
     (assetId: string, value?: TFxaCapitalValuation) => {
-      setValuations((previous) =>
+      setValuationMap((previous) =>
         previous[assetId] === value
           ? previous
           : { ...previous, [assetId]: value },

@@ -32,7 +32,7 @@ export const readFxaCapitalRules = (
       !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(info.depreciationMethod) ||
       info.depreciationMethod === FIXED_ASSET_DEPRECIATION_METHODS.MANUAL
     ) {
-      throw new Error('Choose a supported automatic depreciation method.');
+      throw new TypeError('Choose a supported automatic depreciation method.');
     }
     rules.depreciationMethod = info.depreciationMethod;
   }
@@ -53,7 +53,7 @@ export const readFxaCapitalRules = (
         field === 'taxAnnualDepreciationRate') &&
         value > 100)
     ) {
-      throw new Error(`Invalid fixed asset correction ${field}.`);
+      throw new TypeError(`Invalid fixed asset correction ${field}.`);
     }
     rules[field] = value;
   }
@@ -62,24 +62,24 @@ export const readFxaCapitalRules = (
       typeof info.taxDepreciationMethod !== 'string' ||
       !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(info.taxDepreciationMethod)
     )
-      throw new Error('Choose a supported tax depreciation method.');
+      throw new TypeError('Choose a supported tax depreciation method.');
     rules.taxDepreciationMethod = info.taxDepreciationMethod;
   }
   if (info.depreciationStartDate !== undefined) {
     const value = info.depreciationStartDate;
     if (!(value instanceof Date) && typeof value !== 'string') {
-      throw new Error('Invalid depreciation start date.');
+      throw new TypeError('Invalid depreciation start date.');
     }
     const date = new Date(value);
     if (!Number.isFinite(date.getTime()))
-      throw new Error('Invalid depreciation start date.');
+      throw new TypeError('Invalid depreciation start date.');
     rules.depreciationStartDate = date;
   }
   for (const field of ['originalCost', 'depreciationBase'] as const) {
     const value = info[field];
     if (value === undefined) continue;
     if (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
-      throw new Error(`Invalid capitalization ${field}.`);
+      throw new TypeError(`Invalid capitalization ${field}.`);
     rules[field] = value;
   }
   return rules;

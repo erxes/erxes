@@ -47,13 +47,13 @@ const movementJournals = [
   JOURNALS.FXA_REVALUATION,
   JOURNALS.FXA_CAPITAL,
 ];
-const chooserJournals = [
+const chooserJournals = new Set<string>([
   JOURNALS.FXA_OUT,
   JOURNALS.FXA_MOVE,
   JOURNALS.FXA_SALE,
   JOURNALS.FXA_CAPITAL,
   JOURNALS.FXA_REVALUATION,
-];
+]);
 
 export const buildChooserOwnerBalances = (
   transactions: TChooserTransaction[],
@@ -109,18 +109,16 @@ export const buildChooserOwnerBalances = (
         ? destinationDetail.departmentId || destination?.departmentId || ''
         : undefined;
     }
+    let sign = 0;
+    if (record.action === 'received') sign = 1;
+    else if (record.action === 'handedOver') sign = -1;
     deltas.push({
       fixedAssetId: record.fixedAssetId,
       branchId,
       departmentId,
       ownerId: record.ownerId,
       code: record.code || '',
-      count:
-        (record.action === 'received'
-          ? 1
-          : record.action === 'handedOver'
-          ? -1
-          : 0) * Math.max(0, Math.trunc(record.count || 0)),
+      count: sign * Math.max(0, Math.trunc(record.count || 0)),
     });
   }
   const identity = (value: TChooserOwner) =>
@@ -170,7 +168,7 @@ export const accountingFixedAssetChooser = async (
 ) => {
   const { models, user } = context;
   if (!user?._id) throw new Error('Authentication required.');
-  if (!chooserJournals.includes(params.journal))
+  if (!chooserJournals.has(params.journal))
     throw new Error('Unsupported fixed asset chooser journal.');
   if (!params.date || !Number.isFinite(new Date(params.date).getTime()))
     throw new Error('Select a valid transaction date.');
@@ -300,11 +298,11 @@ export const accountingFixedAssetChooser = async (
           location.owners.some((owner) => owner.ownerId === params.ownerId) ||
           unknownOwners.some((owner) => owner.ownerId === params.ownerId)),
     );
-    const assetLocations = !matchingLocations.length
-      ? []
-      : params.journal === JOURNALS.FXA_CAPITAL
-      ? allAssetLocations
-      : matchingLocations;
+    if (!matchingLocations.length) return [];
+    const assetLocations =
+      params.journal === JOURNALS.FXA_CAPITAL
+        ? allAssetLocations
+        : matchingLocations;
     if (!assetLocations.length) return [];
     return [
       {
