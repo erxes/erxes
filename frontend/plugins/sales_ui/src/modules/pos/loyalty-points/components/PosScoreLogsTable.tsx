@@ -7,8 +7,8 @@ import {
 import { ColumnDef } from '@tanstack/table-core';
 import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import { BranchesInline } from 'ui-modules';
+import { BranchesInline, useSidePanel } from 'ui-modules';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
 import {
   Cell,
   OpenableCell,
@@ -19,14 +19,10 @@ import { TPosScoreLogRow, usePosScoreLogs } from '../hooks/usePosScoreLogs';
 
 const OrderCell = ({ row }: { row: TPosScoreLogRow }) => {
   const { t } = useTranslation('sales');
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { openRecord } = useSidePanel();
 
-  // The order sheet opens on this key wherever it is mounted.
   const open = () => {
-    const next = new URLSearchParams(searchParams);
-
-    next.set('pos_order_id', row.orderId);
-    setSearchParams(next);
+    openRecord({ contentType: POS_ORDER_CONTENT_TYPE, contentId: row.orderId });
   };
 
   return (

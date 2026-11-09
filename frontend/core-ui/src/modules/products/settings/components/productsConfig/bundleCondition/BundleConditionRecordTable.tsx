@@ -5,7 +5,6 @@ import { useBundleConditions } from '@/products/settings/hooks/useBundleConditio
 import { useBundleConditionsVariables } from '@/products/settings/hooks/useBundleConditionsVariables';
 import { bundleConditionColumns } from './bundleConditionColumns';
 import { BundleConditionCommandBar } from './BundleConditionCommandBar';
-import { BundleConditionSheet } from './BundleConditionSheet';
 
 export const BundleConditionRecordTable = () => {
   const variables = useBundleConditionsVariables();
@@ -46,7 +45,6 @@ function EmptyStateRow() {
         {t('empty-title')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
-      <BundleConditionSheet />
     </div>
   );
 }

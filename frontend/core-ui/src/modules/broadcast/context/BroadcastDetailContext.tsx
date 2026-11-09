@@ -28,10 +28,13 @@ export const useBroadcastDetail = () => {
  */
 export const BroadcastDetailProvider = ({
   children,
+  messageId: suppliedMessageId,
 }: {
   children: ReactNode;
+  messageId?: string;
 }) => {
-  const [messageId] = useQueryState<string>('messageId');
+  const [queryMessageId] = useQueryState<string>('messageId');
+  const messageId = suppliedMessageId || queryMessageId;
   const detail = useBroadcastMessage({
     variables: { _id: messageId },
     skip: !messageId,

@@ -10,11 +10,13 @@ import { IconDotsVertical } from '@tabler/icons-react';
 import { Button, Combobox, Command, Popover, useQueryState } from 'erxes-ui';
 import { useState } from 'react';
 import { useLocation } from 'react-router';
-import { Can, PrintDocument } from 'ui-modules';
+import { useTranslation } from 'react-i18next';
+import { Can, PrintDocument, useSidePanel } from 'ui-modules';
 
 export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { pathname } = useLocation();
-  const [, setSelectedTab] = useQueryState<string>('tab');
+  const { setTab: setSelectedTab } = useSidePanel();
   const [resetId] = useQueryState<string>('reset_password_id');
   const [menuOpen, setMenuOpen] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
@@ -28,12 +30,24 @@ export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
       <Can actions={TEAM_MEMBER_ACTION_PERMISSIONS}>
         <Popover open={menuOpen} onOpenChange={setMenuOpen}>
           <Popover.Trigger asChild>
-            <Button variant="ghost" size="icon" className="size-7">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              aria-label={t('actions', 'Actions')}
+              title={t('actions', 'Actions')}
+            >
               <IconDotsVertical className="size-4" />
             </Button>
           </Popover.Trigger>
-          <Combobox.Content align="end">
-            <Command shouldFilter={false}>
+          <Combobox.Content
+            align="end"
+            className="min-w-[280px] p-0"
+            onCloseAutoFocus={(event) => {
+              if (printOpen || activityLogOpen) event.preventDefault();
+            }}
+          >
+            <Command>
               <TeamMemberActionItems
                 user={user}
                 onPrint={() => setPrintOpen(true)}
@@ -54,6 +68,7 @@ export const MemberPanelActions = ({ user }: { user: IUserDetail }) => {
       />
       <Can action="broadcastUpdate">
         <TeamMemberActivityLogSheet
+          memberId={user._id}
           email={user.email}
           open={activityLogOpen}
           onOpenChange={setActivityLogOpen}

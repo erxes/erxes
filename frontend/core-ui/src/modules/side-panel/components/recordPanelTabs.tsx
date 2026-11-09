@@ -1,4 +1,5 @@
 import {
+  IconAlignLeft,
   IconHierarchy2,
   IconHistory,
   IconId,
@@ -44,7 +45,7 @@ const PinnedModuleTab = ({
 }) => {
   const [folded, setFolded] = useState(false);
   const overview = useMemo(
-    () => ({ folded, setFolded, access }),
+    () => ({ folded, setFolded, access, standalone: true }),
     [folded, setFolded, access],
   );
   return entry.kind === 'section' ? (
@@ -70,14 +71,24 @@ const PinnedModuleTab = ({
 
 interface IRecordPanelTabsOptions {
   record: TRelationEntity;
-  views: { detail: ReactNode; properties: ReactNode } | null;
+  views: {
+    detail: ReactNode;
+    properties: ReactNode;
+    description?: ReactNode;
+  } | null;
+  expanded: boolean;
   pluginName: string | null;
   pluginTabs: TRecordPanelPluginTab[];
   overview: IContactPanelOverview;
   access: 'read' | 'write';
   noteRef: RefObject<HTMLDivElement>;
   labels: Record<
-    'detail' | 'properties' | 'messages' | 'relations' | 'activity',
+    | 'detail'
+    | 'properties'
+    | 'description'
+    | 'messages'
+    | 'relations'
+    | 'activity',
     string
   >;
 }
@@ -86,6 +97,7 @@ interface IRecordPanelTabsOptions {
 export const buildRecordPanelTabs = ({
   record,
   views,
+  expanded,
   pluginName,
   pluginTabs,
   overview,
@@ -106,7 +118,7 @@ export const buildRecordPanelTabs = ({
   } = overview;
   const conversationEntry =
     contactType === 'core:customer'
-      ? allEntries.find((entry) => entry.key === 'frontline.conversation')
+      ? pinned.find((entry) => entry.key === 'frontline.conversation')
       : undefined;
   const pinnedTabs: IRecordSidePanelTab[] = contactType
     ? pinned
@@ -163,6 +175,16 @@ export const buildRecordPanelTabs = ({
                   label: labels.properties,
                   icon: IconHierarchy2,
                   content: views.properties,
+                },
+              ]
+            : []),
+          ...(expanded && views.description
+            ? [
+                {
+                  value: 'description',
+                  label: labels.description,
+                  icon: IconAlignLeft,
+                  content: views.description,
                 },
               ]
             : []),

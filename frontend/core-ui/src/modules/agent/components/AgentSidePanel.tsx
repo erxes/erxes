@@ -8,7 +8,6 @@ import { Button, toast } from 'erxes-ui';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SIDE_PANEL_CHAT_PATH, SIDE_PANEL_QUERY_KEY } from 'ui-modules';
 import { useTranslation } from 'react-i18next';
 
 import {
@@ -167,15 +166,7 @@ export const AgentSidePanel = ({
             )}
           </Button>
           <Button variant="ghost" size="icon" className="size-7" asChild>
-            <Link
-              to={{
-                pathname: '/settings/agent',
-                search: new URLSearchParams({
-                  [SIDE_PANEL_QUERY_KEY]: SIDE_PANEL_CHAT_PATH,
-                }).toString(),
-              }}
-              aria-label={t('settings', 'Settings')}
-            >
+            <Link to="/settings/agent" aria-label={t('settings', 'Settings')}>
               <IconSettings className="size-4" />
             </Link>
           </Button>

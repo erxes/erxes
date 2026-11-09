@@ -2,14 +2,18 @@ import {
   Badge,
   Input,
   Popover,
+  REACT_APP_API_URL,
   RecordTableInlineCell,
   Spinner,
   Textarea,
   TextOverflowTooltip,
+  Tooltip,
 } from 'erxes-ui';
+import { IconCheck } from '@tabler/icons-react';
 import { useState } from 'react';
 import { usePermissionCheck } from 'ui-modules';
 import { SelectInvoiceStatus } from '~/modules/payment/components/InvoiceStatusFilter';
+import { PAYMENT_KINDS } from '~/modules/payment/constants';
 import { useInvoiceEdit } from '~/modules/payment/hooks/useInvoiceEdit';
 import { IInvoice } from '~/modules/payment/types/Payment';
 
@@ -122,6 +126,112 @@ export const InvoiceAmountCell = ({ invoice }: { invoice: IInvoice }) => {
     </Popover>
   );
 };
+
+const getPaymentKindName = (kind: string): string =>
+  Object.entries(PAYMENT_KINDS).find(([key]) => key === kind)?.[1].name || kind;
+
+/**
+ * Every payment method attempted on an invoice, newest first, flagged `paid`
+ * when a paid transaction used it. Matches the backend kind filter, which
+ * matches invoices by any transaction of that kind.
+ */
+export const getInvoicePaymentMethods = (
+  invoice: IInvoice,
+): { kind: string; paid: boolean }[] => {
+  const transactions = [...(invoice?.transactions || [])]
+    .filter((tr) => tr?.paymentKind)
+    .sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+  const methods = new Map<string, boolean>();
+
+  for (const tr of transactions) {
+    methods.set(
+      tr.paymentKind,
+      methods.get(tr.paymentKind) === true || tr.status === 'paid',
+    );
+  }
+
+  return Array.from(methods, ([kind, paid]) => ({ kind, paid })).sort(
+    (a, b) => Number(b.paid) - Number(a.paid),
+  );
+};
+
+const PaymentMethodLogo = ({ kind }: { kind: string }) => {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return null;
+  }
+
+  return (
+    <img
+      className="size-4 flex-none rounded-sm object-contain"
+      src={`${REACT_APP_API_URL}/pl:payment/static/images/payments/${kind}.png`}
+      alt=""
+      onError={() => setFailed(true)}
+    />
+  );
+};
+
+const PaymentMethodBadge = ({ kind, paid }: { kind: string; paid: boolean }) => (
+  <Badge variant={paid ? 'success' : 'secondary'} className="min-w-0 pl-1">
+    <PaymentMethodLogo kind={kind} />
+    <span className="truncate">{getPaymentKindName(kind)}</span>
+    {paid && <IconCheck className="size-3 flex-none" />}
+  </Badge>
+);
+
+/**
+ * One chip for the main method (paid first, else the latest attempt) and a
+ * `+N` chip whose tooltip lists the other attempted methods.
+ */
+export const InvoicePaymentMethodBadges = ({
+  invoice,
+}: {
+  invoice: IInvoice;
+}) => {
+  const [main, ...rest] = getInvoicePaymentMethods(invoice);
+
+  if (!main) {
+    return <span className="text-muted-foreground">-</span>;
+  }
+
+  return (
+    <div className="flex min-w-0 items-center gap-1 overflow-hidden">
+      <PaymentMethodBadge kind={main.kind} paid={main.paid} />
+      {rest.length > 0 && (
+        <Tooltip>
+          <Tooltip.Trigger asChild>
+            <Badge variant="secondary" className="flex-none">
+              +{rest.length}
+            </Badge>
+          </Tooltip.Trigger>
+          <Tooltip.Content className="flex flex-col gap-1">
+            {rest.map(({ kind, paid }) => (
+              <span key={kind} className="flex items-center gap-1.5">
+                <PaymentMethodLogo kind={kind} />
+                {getPaymentKindName(kind)}
+                {paid && <IconCheck className="size-3" />}
+              </span>
+            ))}
+          </Tooltip.Content>
+        </Tooltip>
+      )}
+    </div>
+  );
+};
+
+export const InvoicePaymentMethodCell = ({
+  invoice,
+}: {
+  invoice: IInvoice;
+}) => (
+  <RecordTableInlineCell>
+    <InvoicePaymentMethodBadges invoice={invoice} />
+  </RecordTableInlineCell>
+);
 
 const InvoiceStatusBadge = ({ status }: { status: string }) => (
   <Badge variant={status === 'paid' ? 'success' : 'destructive'}>

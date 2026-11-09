@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 import { OperationVariables, useQuery } from '@apollo/client';
 import { queries } from '@/settings/team-member/graphql';
 import { IUserDetailsType, IUserDetail } from '@/settings/team-member/types';
@@ -7,11 +9,15 @@ import { USER_CONTENT_TYPE } from '@/settings/team-member/constants/teamMemberRo
 import { useSidePanel } from 'ui-modules';
 
 interface IUseUserDetailResponseData {
-  userDetail: IUserDetail & { details: IUserDetailsType & { __typename?: string } };
+  userDetail: IUserDetail & {
+    details: IUserDetailsType & { __typename?: string };
+  };
 }
 
 export const useUserDetail = (options?: OperationVariables) => {
-  const { record } = useSidePanel();
+  const { record: activeRecord } = useSidePanel();
+  const retainedRecord = useContext(PanelRecordContext);
+  const record = retainedRecord || activeRecord;
   const _id =
     record?.contentType === USER_CONTENT_TYPE ? record.contentId : null;
   const setRendering = useSetAtom(renderingTeamMemberDetailAtom);

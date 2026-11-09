@@ -5,7 +5,8 @@ import { OrderRecordTable } from '../modules/pos/orders/components/OrderRecordTa
 import { PosBreadcrumb } from '../modules/pos/pos/breadcumb/PosBreadcrumb';
 import { PosOrderFilter } from '../modules/pos/orders/components/PosOrderFilter';
 import { PosOrderSideWidget } from '../modules/pos/orders/detail/PosOrderSideWidget';
-import { PosOrderSheet } from '~/modules/pos/orders/components/PosOrderSheet';
+import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useOpenPosPanelFromQuery } from '@/pos/hooks/useOpenPosPanelFromQuery';
 import { useOrdersVariables } from '@/pos/orders/hooks/UseOrderList';
 
 export const OrdersPage = () => {
@@ -19,6 +20,8 @@ export const OrdersPage = () => {
     delete filters.page;
     return filters;
   };
+
+  useOpenPosPanelFromQuery('pos_order_id', POS_ORDER_CONTENT_TYPE);
 
   return (
     <>
@@ -39,7 +42,6 @@ export const OrdersPage = () => {
       <div className="flex overflow-hidden w-full h-full">
         <div className="flex flex-col overflow-hidden w-full h-full">
           <PageSubHeader>
-            <PosOrderSheet />
             <PosOrderFilter />
             <Can action="posOrdersExportManage">
               <Export

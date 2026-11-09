@@ -3,6 +3,7 @@ import {
   IconChartAreaLine,
   IconChartBar,
   IconCoins,
+  IconCreditCard,
   IconMedal,
   IconPackage,
   IconReceipt,
@@ -14,6 +15,12 @@ import {
 import { Suspense, lazy } from 'react';
 
 import { IUIConfig, TPropertyInputProps } from 'erxes-ui';
+import {
+  POS_COVER_CONTENT_TYPE,
+  POS_ORDER_CONTENT_TYPE,
+  getPosCoverDetailPath,
+  getPosOrderDetailPath,
+} from '@/pos/constants/posPanel';
 import { SEARCH_PROVIDERS } from '~/searchProviders';
 
 const DealStagePropertyInput = lazy(() =>
@@ -131,7 +138,10 @@ export const CONFIG: IUIConfig = {
       },
     ],
     // A customer's / company's deals on their overview (`./contactWidget`).
-    contactWidgets: [{ name: 'deals', label: 'Deals', icon: IconSandbox }],
+    contactWidgets: [
+      { name: 'deals', label: 'Deals', icon: IconSandbox },
+      { name: 'posOrders', label: 'POS orders', icon: IconReceipt },
+    ],
     recordPanels: [
       {
         contentType: 'sales:deal',
@@ -144,6 +154,25 @@ export const CONFIG: IUIConfig = {
             icon: IconPackage,
           },
         ],
+      },
+      {
+        contentType: POS_ORDER_CONTENT_TYPE,
+        properties: false,
+        detailPath: getPosOrderDetailPath,
+        tabs: [
+          {
+            value: 'payments',
+            label: 'Payments',
+            labelKey: 'payments',
+            icon: IconCreditCard,
+            after: 'detail',
+          },
+        ],
+      },
+      {
+        contentType: POS_COVER_CONTENT_TYPE,
+        properties: false,
+        detailPath: getPosCoverDetailPath,
       },
     ],
     relationWidgets: [

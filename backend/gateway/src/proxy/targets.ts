@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 
-import { getPlugin, getPlugins } from 'erxes-api-shared/utils';
+import { getGraphqlPlugins, getPlugin } from 'erxes-api-shared/utils';
 import retry from '../util/retry';
 import fetch from 'node-fetch';
 
@@ -94,7 +94,9 @@ async function retryEnsureGraphqlEndpointIsUp(target: ErxesProxyTarget) {
 
 export async function retryGetProxyTargets(): Promise<ErxesProxyTarget[]> {
   try {
-    const serviceNames = await getPlugins();
+    // Plugins in ENABLED_PLUGINS_NO_GRAPHQL are not waited for here; their
+    // `/pl:<name>` proxy resolves the address on each request.
+    const serviceNames = await getGraphqlPlugins();
 
     const proxyTargets: ErxesProxyTarget[] = await Promise.all(
       serviceNames.map(retryGetProxyTarget),

@@ -30,8 +30,6 @@ jest.mock('ui-modules', () => {
   return {
     pluginsConfigState: atom(null),
     usePermissionCheck: jest.fn(),
-    SIDE_PANEL_CHAT_PATH: '/chat',
-    SIDE_PANEL_QUERY_KEY: 'panel',
   };
 });
 
@@ -150,17 +148,14 @@ describe('AgentReferenceChip', () => {
     expect(screen.queryByRole('button', { name: /big order/i })).not.toBeNull();
   });
 
-  it('keeps Assistant open when following a reference from the panel', async () => {
+  it('navigates plainly; Assistant stays open in the global sidebar', async () => {
     hasModulePermission.mockReturnValue(true);
-    mockLocation = {
-      pathname: '/contacts/customers',
-      search: '?panel=%2Fchat',
-    };
     renderChip({ type: 'customer', id: 'c1', label: 'Jane' });
     fireEvent.click(screen.getByRole('button', { name: /jane/i }));
     await waitFor(() => expect(mockNavigate).toHaveBeenCalled());
-    const destination = mockNavigate.mock.calls[0][0] as { search: string };
-    expect(new URLSearchParams(destination.search).get('panel')).toBe('/chat');
+    const destination = mockNavigate.mock.calls[0][0];
+    expect(typeof destination).toBe('string');
+    expect(destination).not.toContain('panel=');
   });
 
   it('opens the builder of an automation the assistant saved', async () => {

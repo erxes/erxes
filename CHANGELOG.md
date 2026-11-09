@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.15](https://github.com/erxes/erxes/compare/3.4.14...3.4.15) (2026-11-07)
+
+
+### Features
+
+* add appearance settings and notch layout support ([16a2289](https://github.com/erxes/erxes/commit/16a22899f3368a917bc6e1178fb990a1890a94a9))
+* add appearance settings page and integrate framed layouts ([66c6410](https://github.com/erxes/erxes/commit/66c64103d76c40d682a9dd174142d36d4b35a1f7))
+* **invoice/payment:** filter payment kinds in filter invoice and show payment methods ([#10393](https://github.com/erxes/erxes/issues/10393)) ([bfbfdbb](https://github.com/erxes/erxes/commit/bfbfdbb5a05c79fa8d1d1c8379027d44a8522f33))
+
 ## [3.4.14](https://github.com/erxes/erxes/compare/3.4.13...3.4.14) (2026-11-06)
 
 
