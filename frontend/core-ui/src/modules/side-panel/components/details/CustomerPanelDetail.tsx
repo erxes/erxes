@@ -30,7 +30,7 @@ import {
   Switch,
   TextField,
 } from 'erxes-ui';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   CustomerEmails,
@@ -200,7 +200,14 @@ const CustomerSubscribedField = ({
 };
 
 // The customer's fields as record table cells: click a value to edit it.
-export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
+export const CustomerPanelDetail = ({
+  customerId,
+  children,
+}: {
+  customerId: string;
+  /** Sections drawn under the customer's own fields, such as custom fields. */
+  children?: ReactNode;
+}) => {
   const expanded = usePanelExpanded();
   const { t } = useTranslation('contact', { keyPrefix: 'customer' });
   const { t: sectionT } = useTranslation('common', { keyPrefix: 'side-panel' });
@@ -344,6 +351,7 @@ export const CustomerPanelDetail = ({ customerId }: { customerId: string }) => {
           contentId={customer._id}
         />
       </div>
+      {children}
     </ScrollArea>
   );
 };

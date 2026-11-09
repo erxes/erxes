@@ -19,6 +19,7 @@ import {
   Sheet,
   useBlockEditor,
 } from 'erxes-ui';
+import { DataExtensionCreateFields } from 'ui-modules';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -272,6 +273,10 @@ export const AddProjectForm = ({
               )}
             />
           </div>
+          <DataExtensionCreateFields
+            recordType="operation:project"
+            className="mt-4"
+          />
           <Separator className="my-4" />
           <div className="flex-1 overflow-y-auto">
             <BlockEditor

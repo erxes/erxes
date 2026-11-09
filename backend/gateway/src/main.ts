@@ -19,6 +19,8 @@ import { csrfMiddleware } from '~/middlewares/csrfMiddleware';
 import userMiddleware from '~/middlewares/userMiddleware';
 import { initMQWorkers } from '~/mq/workers/workers';
 import {
+  applyDataExtensionsProxy,
+  refuseDataExtensionsPluginProxy,
   applyProxiesCoreless,
   applyProxyToCore,
   proxyReq,
@@ -189,6 +191,8 @@ app.get('/locales/:lng/:file', async (req, res) => {
   return res.json(locale);
 });
 
+refuseDataExtensionsPluginProxy(app);
+
 app.use('/pl:serviceName', async (req, res) => {
   try {
     const serviceName: string = req.params.serviceName.replace(':', '');
@@ -248,6 +252,7 @@ async function start() {
 
     // Apply the initial proxy middleware
     applyGraphqlLimiters(app);
+    applyDataExtensionsProxy(app, global.currentTargets);
     applyProxiesCoreless(app);
     applyProxyToCore(app, global.currentTargets);
 

@@ -23,6 +23,7 @@ import {
   useFields,
   useSidePanel,
   useSidePanelDraft,
+  DataExtensionCreateFields,
 } from 'ui-modules';
 import { z } from 'zod';
 
@@ -295,6 +296,11 @@ const DealPanelNewForm = ({ draft }: { draft: Partial<TDealDraft> }) => {
               {t('configure-properties-in-settings')}
             </span>
           </button>
+          <DataExtensionCreateFields
+            recordType="sales:deal"
+            layout="stack"
+            className="mt-4"
+          />
         </PanelFormLayout>
       </form>
     </Form>

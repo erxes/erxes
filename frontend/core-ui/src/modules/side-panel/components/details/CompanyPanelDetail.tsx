@@ -25,7 +25,7 @@ import {
   TextField,
 } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { useId } from 'react';
+import { ReactNode, useId } from 'react';
 import {
   CompanyEmails,
   CompanyPhones,
@@ -267,12 +267,20 @@ const CompanyFields = () => {
 };
 
 // The company's fields as record table cells: click a value to edit it.
-export const CompanyPanelDetail = ({ companyId }: { companyId: string }) => (
+export const CompanyPanelDetail = ({
+  companyId,
+  children,
+}: {
+  companyId: string;
+  /** Sections drawn under the company's own fields, such as custom fields. */
+  children?: ReactNode;
+}) => (
   <ContactDetailIdProvider value={companyId}>
     {/* Radix sizes its content as a table, which lets wide values push past
         the panel; a block lets each value shrink and truncate instead. */}
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <CompanyFields />
+      {children}
     </ScrollArea>
   </ContactDetailIdProvider>
 );

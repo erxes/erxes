@@ -7,8 +7,15 @@ import {
   getContactDetailPath,
   isContactContentType,
 } from '@/contacts/utils/contactDetailPath';
-import { IconLayoutSidebarRight } from '@tabler/icons-react';
-import { Avatar, Empty, readImage, Skeleton, useQueryState } from 'erxes-ui';
+import { IconLayoutSidebarRight, IconVariable } from '@tabler/icons-react';
+import {
+  Avatar,
+  Empty,
+  readImage,
+  ScrollArea,
+  Skeleton,
+  useQueryState,
+} from 'erxes-ui';
 import { useAtom, useAtomValue } from 'jotai';
 import { lazy, Suspense, useState, useRef, useEffect, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +35,7 @@ import { CompanyPanelDetail } from '@/side-panel/components/details/CompanyPanel
 import { CompanyPanelProperties } from '@/side-panel/components/details/CompanyPanelProperties';
 import { CompanyPanelNew } from '@/side-panel/components/details/CompanyPanelNew';
 import { CustomerPanelDetail } from '@/side-panel/components/details/CustomerPanelDetail';
+import { DataExtensionsDetailSection } from '@/side-panel/components/details/DataExtensionsDetailSection';
 import { CompanyPanelName } from '@/side-panel/components/details/CompanyPanelName';
 import { CustomerPanelName } from '@/side-panel/components/details/CustomerPanelName';
 import {
@@ -44,6 +52,8 @@ import {
   USER_CONTENT_TYPE,
 } from '@/settings/team-member/constants/teamMemberRoutes';
 import {
+  DataExtensionRecordFields,
+  IRecordSidePanelTab,
   NEW_RECORD_ID,
   RecordSidePanel,
   SIDE_PANEL_CHAT_PATH,
@@ -52,6 +62,8 @@ import {
   usePanelExpanded,
   useCompanyDetail,
   useCustomerDetail,
+  useDataExtensionRecordName,
+  useDataExtensionRecordTypes,
   usePermissionCheck,
   useSidePanel,
   ICompany,
@@ -59,6 +71,7 @@ import {
   TRelationEntity,
 } from 'ui-modules';
 const DETAIL_TAB = 'detail';
+const DATA_EXTENSIONS_TAB = 'data-extensions';
 const ACTIVITY_TAB = 'activity';
 const ApprovalRequestRecordPanel = lazy(() =>
   import('@/settings/approval/components/ApprovalRequestRecordPanel').then(
@@ -75,17 +88,27 @@ const CPUserRecordPanel = lazy(() =>
   })),
 );
 
-// The record's own views, for the types core knows how to show.
-const getRecordViews = ({ contentType, contentId }: TRelationEntity) => {
+// The record's own views, for the types core knows how to show. `extra`
+// is drawn under the record's own fields in the Detail tab.
+const getRecordViews = (
+  { contentType, contentId }: TRelationEntity,
+  extra?: ReactNode,
+) => {
   if (contentType === 'core:customer') {
     return {
-      detail: <CustomerPanelDetail customerId={contentId} />,
+      detail: (
+        <CustomerPanelDetail customerId={contentId}>
+          {extra}
+        </CustomerPanelDetail>
+      ),
       properties: <CustomerPanelProperties customerId={contentId} />,
     };
   }
   if (contentType === 'core:company') {
     return {
-      detail: <CompanyPanelDetail companyId={contentId} />,
+      detail: (
+        <CompanyPanelDetail companyId={contentId}>{extra}</CompanyPanelDetail>
+      ),
       properties: <CompanyPanelProperties companyId={contentId} />,
     };
   }
@@ -177,6 +200,15 @@ const useRecordHeading = (
     },
     true,
   );
+  // A custom object's record, opened from a link: titled by its name.
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const customType = contentType.startsWith('custom:')
+    ? recordTypes.find((recordType) => recordType.recordType === contentType)
+    : undefined;
+  const { name: customName } = useDataExtensionRecordName(
+    customType,
+    contentId,
+  );
   if (isCustomer && customerDetail) {
     const { firstName, lastName, primaryEmail, primaryPhone, avatar } =
       customerDetail;
@@ -234,6 +266,12 @@ const useRecordHeading = (
           quiet
         />
       ),
+      avatar: undefined,
+    };
+  }
+  if (customType) {
+    return {
+      title: customName || <Skeleton className="h-4 w-32" />,
       avatar: undefined,
     };
   }
@@ -304,7 +342,22 @@ const SidePanelSavedRecord = ({
   const { t } = useTranslation('common', {
     keyPrefix: 'side-panel',
   });
-  const coreViews = getRecordViews(record);
+  // Data Extension fields of any record type registered for this content
+  // type, the same for core and plugin records: a group of the Detail tab.
+  const { t: tDataExtensions } = useTranslation('dataExtensions');
+  const { recordTypes } = useDataExtensionRecordTypes();
+  const hasDataExtensions = recordTypes.some(
+    (recordType) =>
+      recordType.fieldCount &&
+      recordType.contentTypes.includes(record.contentType),
+  );
+  const extensionSection = hasDataExtensions ? (
+    <DataExtensionsDetailSection
+      contentType={record.contentType}
+      recordId={record.contentId}
+    />
+  ) : null;
+  const coreViews = getRecordViews(record, extensionSection);
   const { hasActionPermission } = usePermissionCheck();
   const access =
     coreViews && !hasActionPermission('contactsUpdate') ? 'read' : 'write';
@@ -337,8 +390,26 @@ const SidePanelSavedRecord = ({
       <CompanyPanelAvatar company={company}>{avatar}</CompanyPanelAvatar>
     );
   }
+  const pluginViews = coreViews
+    ? null
+    : getPluginRecordViews(record, panelPluginName, hasProperties);
+  // A plugin draws its own detail; the custom fields follow it.
   const views =
-    coreViews || getPluginRecordViews(record, panelPluginName, hasProperties);
+    coreViews ||
+    (pluginViews && extensionSection
+      ? {
+          ...pluginViews,
+          detail: (
+            <ScrollArea
+              className="flex-1 min-h-0"
+              viewportClassName="[&>div]:block!"
+            >
+              {pluginViews.detail}
+              {extensionSection}
+            </ScrollArea>
+          ),
+        }
+      : pluginViews);
   const relationTabs = useRecordRelationTabs({
     record,
     access,
@@ -359,7 +430,30 @@ const SidePanelSavedRecord = ({
     );
     return () => cancelAnimationFrame(frame);
   }, [noteFocusRequest]);
-  const tabs = buildRecordPanelTabs({
+  // A record without a Detail tab keeps its custom fields in a tab.
+  const dataExtensionsTabs: IRecordSidePanelTab[] =
+    hasDataExtensions && !views
+      ? [
+          {
+            value: DATA_EXTENSIONS_TAB,
+            label: tDataExtensions('section.title'),
+            icon: IconVariable,
+            content: (
+              <div className="flex flex-col flex-1 min-h-0">
+                <ScrollArea className="flex-1 min-h-0">
+                  <DataExtensionRecordFields
+                    contentType={record.contentType}
+                    recordId={record.contentId}
+                    hideRecordTypeLabels
+                    className="p-4"
+                  />
+                </ScrollArea>
+              </div>
+            ),
+          },
+        ]
+      : [];
+  const recordTabs = buildRecordPanelTabs({
     record,
     views: views && {
       ...views,
@@ -393,6 +487,7 @@ const SidePanelSavedRecord = ({
       activity: t('activity', 'Activity'),
     },
   });
+  const tabs = [...dataExtensionsTabs, ...recordTabs];
   if (state) {
     return (
       <SidePanelEmpty
@@ -416,6 +511,8 @@ const SidePanelSavedRecord = ({
       ? selectedTab
       : views
       ? DETAIL_TAB
+      : hasDataExtensions
+      ? DATA_EXTENSIONS_TAB
       : ACTIVITY_TAB;
   const contactActions = contactType && (
     <ContactPanelActions

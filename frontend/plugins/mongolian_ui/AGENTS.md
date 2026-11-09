@@ -6,7 +6,7 @@
 - **Project:** `mongolian_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/mongolian_ui`
-- **Last synchronized:** `2026-11-04`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -79,6 +79,17 @@
   sales pipeline.
 - Prints deal eBarimt responses in a popup receipt template that supports
   configured `headerText`, `footerText`, and optional receipt logo images.
+- Shows a deal's eBarimt on the deal sheet rail: relation widget `ebarimt`
+  (`contentTypes: ['sales:deal']`, `./relationWidget` →
+  `src/widgets/relation/RelationWidget.tsx` → `DealEbarimt` in
+  `src/modules/ebarimt/deal-ebarimt`) lists `putResponses(contentType: "deal",
+  contentId)` (`mongolianDealPutResponses`, latest 20) with ДДТД, bill type,
+  receipt date in the organization `TIMEZONE`, status (success, inactive for
+  `state: 'inactive'`, error with its message) and amount / VAT / city tax.
+  The header Print receipt button prints every active receipt with an id and
+  each row's printer icon prints that receipt, directly through
+  `printEbarimtResponses` (the same popup receipt as the floating widget);
+  a blocked pop-up shows an `allow-popups-to-print` toast.
 - Uses `erxes-ui`, `ui-modules`, Apollo Client, Jotai, React Router, React Hook
   Form, Zod, and `react-i18next` following plugin-local patterns.
 - Put response list dates interpret timezone-less receipt timestamps (`yyyy-MM-dd HH:mm:ss`) as UTC and format them in the organization’s `TIMEZONE` (UTC when unset) as `yyyy-MM-dd HH:mm:ss`. Explicit timezone offsets are preserved when parsing. The table reads `TIMEZONE` through core `configsGetValue`. Missing or invalid receipt dates fall back to `createdAt`, formatted normally in browser local time, then `-`. This conversion is display-only; stored receipt values remain unchanged, and dates are not shown relatively.
@@ -94,21 +105,25 @@
 | Main routes        | `frontend/plugins/mongolian_ui/src/modules/MongolianMain.tsx`              | Route tree mounted under `/mongolian`.                             |
 | Settings routes    | `frontend/plugins/mongolian_ui/src/modules/MongolianSettings.tsx`          | Settings route tree mounted by the plugin's own `settings/*` route.            |
 | eBarimt            | `frontend/plugins/mongolian_ui/src/modules/ebarimt`                        | eBarimt put responses, filters, tables, and settings UI.           |
-| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML for deal eBarimt responses.                     |
+| eBarimt print      | `frontend/plugins/mongolian_ui/src/modules/ebarimt/responded`              | Popup receipt HTML and `printEbarimtResponses` for deal eBarimt responses. |
+| Deal eBarimt       | `frontend/plugins/mongolian_ui/src/modules/ebarimt/deal-ebarimt`           | A deal's put responses on its rail, with direct receipt print.     |
 | Erkhet sync        | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync`                    | Erkhet checking, sync, and settings UI.                            |
 | Product remainders | `frontend/plugins/mongolian_ui/src/modules/erkhet-sync/product-remainders` | Provides the Module Federation product chooser remainder provider. |
 | MS Dynamic         | `frontend/plugins/mongolian_ui/src/modules/msdynamic`                      | MS Dynamic checking, sync history, and settings UI.                |
 | Product places     | `frontend/plugins/mongolian_ui/src/modules/productplaces`                  | Product place settings and UI.                                     |
 | Exchange rates     | `frontend/plugins/mongolian_ui/src/modules/exchangeRates`                  | Exchange rate list and related UI.                                 |
 | Pages              | `frontend/plugins/mongolian_ui/src/pages`                                  | Route-level page composition.                                      |
-| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only.                                        |
+| Widgets            | `frontend/plugins/mongolian_ui/src/widgets`                                | Plugin widget exports only (`relation/RelationWidget.tsx` named `RelationWidget`). |
 
 ## Contracts
 
 ### Provides
 
 - Module Federation exposes: `./config`, `./mongolian`,
-  `./widgets`, and `./floatingWidget`.
+  `./widgets`, `./relationWidget`, and `./floatingWidget`.
+- `widgets.relationWidgets: [{ name: 'ebarimt', contentTypes: ['sales:deal'] }]`:
+  the deal's eBarimt tab, read by the deal's own `_id`, never through its
+  customer or company.
 - Frontend routes mounted by `./mongolian`, including
   `/mongolian/put-response/*`, `/mongolian/sync-erkhet/*`, and
   `/mongolian/msdynamic/*`.
@@ -219,8 +234,12 @@
 - `pnpm exec eslint frontend/plugins/mongolian_ui/src`
 - `pnpm exec eslint frontend/plugins/mongolian_ui/src/modules/productplaces frontend/plugins/mongolian_ui/src/pages/productplaces`
 - `pnpm nx build mongolian_ui`
-- No `test` target is currently defined in `project.json`; add and document one
-  before introducing tested behavior.
+- `pnpm nx test mongolian_ui` (inferred Jest target; `jest.config.ts` runs
+  jsdom with `~/*` and `@/*` mappers).
+- Deal eBarimt smoke scenario: open a deal whose stage issued an eBarimt; the
+  rail's eBarimt tab lists its receipts, Print receipt opens the receipt popup
+  with ДДТД, date, lottery and items and starts printing; a deal without
+  receipts shows `no-deal-ebarimt`.
 - Product places smoke scenario: configure split/place/print settings for a
   sales stage, move a deal with products into that stage, and verify the
   floating widget prints branch, department, product, customer, header, and

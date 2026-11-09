@@ -1,3 +1,4 @@
+import { applyDataExtensionsNamespace } from 'erxes-api-shared/core-modules';
 import { Schema } from 'mongoose';
 import { mongooseStringRandomId, schemaWrapper } from 'erxes-api-shared/utils';
 import { attachmentSchema } from 'erxes-api-shared/core-modules';
@@ -100,3 +101,5 @@ export const ticketSchema = schemaWrapper(
 ticketSchema.index({ assigneeId: 1 }, { sparse: true });
 ticketSchema.index({ assignedMembers: 1 }, { sparse: true });
 
+// Data Extension values are written only through the owner contract.
+applyDataExtensionsNamespace(ticketSchema);

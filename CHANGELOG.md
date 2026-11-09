@@ -1,3 +1,29 @@
+
+
+## [3.4.16](https://github.com/erxes/erxes/compare/3.4.15...3.4.16) (2026-11-09)
+
+
+### Bug Fixes
+
+* **frontline:** preserve unrelated ticket properties ([#10044](https://github.com/erxes/erxes/issues/10044)) ([#10044](https://github.com/erxes/erxes/issues/10044)) ([9540000](https://github.com/erxes/erxes/commit/9540000fbd917b4ca57060401458afcb95c496e1))
+* global search query concurrency and outage feedback ([#10364](https://github.com/erxes/erxes/issues/10364)) ([4d21830](https://github.com/erxes/erxes/commit/4d21830b8b4cfa89296d12f0c7c6e8d5c6f09ade))
+* keep ticket and deal details usable on narrow screens ([#10363](https://github.com/erxes/erxes/issues/10363)) ([61409dc](https://github.com/erxes/erxes/commit/61409dc994df51358a1a52c59fc36c9ad5bd0752))
+* make member inline cache policy explicit ([#10069](https://github.com/erxes/erxes/issues/10069)) ([f54c018](https://github.com/erxes/erxes/commit/f54c018d83383ad24d407844cb2854c34b35aea3))
+* make plugin tabs navigable from the keyboard ([#10365](https://github.com/erxes/erxes/issues/10365)) ([4506299](https://github.com/erxes/erxes/commit/450629938cbbca30ebd6d7a0a19364daf540cd50))
+* preserve profile edits across concurrent saves ([#10362](https://github.com/erxes/erxes/issues/10362)) ([ff40f0c](https://github.com/erxes/erxes/commit/ff40f0cb029682c22779f0ed177c528018adc9f2))
+* reset My Inbox body scroll between notifications ([#10329](https://github.com/erxes/erxes/issues/10329)) ([42ec436](https://github.com/erxes/erxes/commit/42ec4360ad36131489a7a85474cc213bdd0fd8ce))
+* resolve infinite activity loading ([#10395](https://github.com/erxes/erxes/issues/10395)) ([4022bc6](https://github.com/erxes/erxes/commit/4022bc61f613d3804eaae8683c932d2863a69482))
+* **sales:** restore deal transactions and add deal eBarimt widget with print ([#10408](https://github.com/erxes/erxes/issues/10408)) ([d453cb5](https://github.com/erxes/erxes/commit/d453cb5406293aa28246898314bc6326eafac1ba))
+
+
+### Features
+
+* add rest api options in plugin ([#10397](https://github.com/erxes/erxes/issues/10397)) ([9466031](https://github.com/erxes/erxes/commit/946603194c56a1d3717b3139cfb159fd1d2bb78e))
+* **data-extensions:** custom fields, custom objects and a per-tenant GraphQL API ([#10410](https://github.com/erxes/erxes/issues/10410)) ([9561998](https://github.com/erxes/erxes/commit/95619989bcc4b6a2d013b3f1774d6e3e37356366))
+* migrate remaining editors to panels ([#10043](https://github.com/erxes/erxes/issues/10043)) ([bce9c4c](https://github.com/erxes/erxes/commit/bce9c4cf310c5668cc6beffe591378fd79aa567b))
+* refine contact, property, and team member panels ([#10042](https://github.com/erxes/erxes/issues/10042)) ([3f0bfcf](https://github.com/erxes/erxes/commit/3f0bfcf38a924ea764867bae8308e0452000ce8b))
+* **sales:** open POS orders and covers in the side panel. ([#10072](https://github.com/erxes/erxes/issues/10072)) ([edacd77](https://github.com/erxes/erxes/commit/edacd77a12be3169384108a27ab7bd49b56297a6))
+
 # Changelog
 
 ## [3.4.15](https://github.com/erxes/erxes/compare/3.4.14...3.4.15) (2026-11-07)
