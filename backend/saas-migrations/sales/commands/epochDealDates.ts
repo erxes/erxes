@@ -8,6 +8,8 @@ const {
   CORE_MONGO_URL,
   MONGO_URL = 'mongodb://127.0.0.1:27017/erxes?directConnection=true',
   DRY_RUN,
+  ALL_ORGS,
+  TARGET_SUBDOMAIN,
 } = process.env;
 
 const isDryRun = DRY_RUN !== '0' && DRY_RUN !== 'false';
@@ -58,6 +60,10 @@ const migrateDb = async (db: Db) => {
 };
 
 const command = async () => {
+  if (ALL_ORGS === 'true' && TARGET_SUBDOMAIN) {
+    throw new Error('Set either ALL_ORGS or TARGET_SUBDOMAIN, not both');
+  }
+
   await client.connect();
 
   console.log(
