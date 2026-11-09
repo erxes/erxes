@@ -91,7 +91,7 @@ const SalesItemDetailView = () => {
                     className="h-full overflow-y-auto p-6 data-[state=inactive]:hidden"
                   >
                     <div className="h-full min-h-[32rem]">
-                      <Products deal={deal} refetch={refetch} />
+                      <Products key={deal._id} deal={deal} refetch={refetch} />
                     </div>
                   </Tabs.Content>
                 </Tabs>
