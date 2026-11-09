@@ -36,6 +36,62 @@ const Panel = ({ maxWidth }: { maxWidth?: number }) => {
   );
 };
 
+it('collapses a page-owned portal header using its controlled expansion state', () => {
+  const toggle = jest.fn();
+  render(<RecordSidePanel.Header title="Editor" expanded onExpand={toggle} />);
+  fireEvent.click(screen.getByRole('button', { name: 'Collapse record' }));
+  expect(toggle).toHaveBeenCalledTimes(1);
+});
+
+it('expands only the active entry when earlier headers are retained', () => {
+  const hidden = jest.fn();
+  const active = jest.fn();
+  render(
+    <RecordSidePanel>
+      <div hidden>
+        <RecordSidePanel.Header title="Earlier" onExpand={hidden} />
+      </div>
+      <RecordSidePanel.Header title="Current" onExpand={active} />
+    </RecordSidePanel>,
+  );
+  fireEvent.keyDown(document, { key: 'Enter', ctrlKey: true, shiftKey: true });
+  expect(active).toHaveBeenCalledTimes(1);
+  expect(hidden).not.toHaveBeenCalled();
+});
+
+it('splits the overview in an expanded portal layout without a host context', () => {
+  const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+    '@tabler/icons-react',
+  );
+  render(
+    <RecordSidePanel.Layout
+      expanded
+      value="detail"
+      onValueChange={jest.fn()}
+      tabs={[
+        {
+          value: 'detail',
+          label: 'Details',
+          icon: IconId,
+          content: <input aria-label="Draft overview" defaultValue="Keep" />,
+        },
+        {
+          value: 'activity',
+          label: 'Activity',
+          icon: IconId,
+          content: <p>Recent events</p>,
+        },
+      ]}
+    />,
+  );
+  expect(screen.queryByRole('tab', { name: 'Details' })).toBeNull();
+  expect(
+    screen.getByRole('tab', { name: 'Activity' }).getAttribute('aria-selected'),
+  ).toBe('true');
+  expect(screen.getByLabelText('Draft overview')).toBeTruthy();
+  expect(screen.getByText('Recent events')).toBeTruthy();
+});
+
 let frames: Map<number, FrameRequestCallback>;
 let nextFrame = 0;
 beforeEach(() => {
@@ -340,6 +396,99 @@ it('exposes every tab vertically in fullscreen and keeps the active editor mount
   expect(screen.getByRole('textbox')).toBe(draft);
 });
 
+it('slides in only when opening as a panel, not as a page', () => {
+  const { unmount } = render(<RecordSidePanel>Panel</RecordSidePanel>);
+  expect(screen.getByRole('complementary').className).toContain(
+    'slide-in-from-right-8',
+  );
+  unmount();
+
+  render(
+    <RecordSidePanel expanded expandedMode="page">
+      Page
+    </RecordSidePanel>,
+  );
+  expect(screen.getByRole('complementary').className).not.toContain(
+    'slide-in-from-right-8',
+  );
+});
+
+it('draws no expand button when the panel cannot expand', () => {
+  render(
+    <RecordSidePanel expandable={false}>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+    </RecordSidePanel>,
+  );
+
+  expect(screen.queryByRole('button', { name: 'Expand record' })).toBeNull();
+});
+
+it('draws no collapse or close button on a record page', () => {
+  render(
+    <RecordSidePanel expanded expandedMode="page" expandable={false}>
+      <RecordSidePanel.Header title="Task" />
+    </RecordSidePanel>,
+  );
+
+  expect(screen.queryByRole('button', { name: 'Collapse record' })).toBeNull();
+  expect(screen.queryByTitle('Close')).toBeNull();
+});
+
+it('leads elsewhere instead of expanding when given a change handler and a fixed state', () => {
+  const onExpandedChange = jest.fn();
+  render(
+    <RecordSidePanel expanded={false} onExpandedChange={onExpandedChange}>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+    </RecordSidePanel>,
+  );
+
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+
+  expect(onExpandedChange).toHaveBeenCalledWith(true);
+  expect(screen.getByRole('complementary').hasAttribute('data-expanded')).toBe(
+    false,
+  );
+});
+
+it('shows the overview header only when expanded, without remounting the overview', () => {
+  render(
+    <RecordSidePanel>
+      <RecordSidePanel.Header title="Task" onClose={jest.fn()} />
+      <RecordSidePanel.Tabs
+        tabs={[
+          {
+            value: 'detail',
+            label: 'Detail',
+            icon: () => null,
+            content: <input aria-label="Name" />,
+          },
+          {
+            value: 'activity',
+            label: 'Activity',
+            icon: () => null,
+            content: 'Log',
+          },
+        ]}
+        value="detail"
+        onValueChange={jest.fn()}
+        overviewTab="detail"
+        overviewHeader="Identity"
+        expandedDefaultTab="activity"
+      />
+    </RecordSidePanel>,
+  );
+  const draft = screen.getByRole('textbox', { name: 'Name' });
+  expect(screen.queryByText('Identity')).toBeNull();
+
+  fireEvent.click(screen.getByRole('button', { name: 'Expand record' }));
+
+  expect(screen.getByText('Identity')).toBeTruthy();
+  expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+    'horizontal',
+  );
+  expect(screen.getByRole('textbox', { name: 'Name' })).toBe(draft);
+});
+
 it.each([false, true])(
   'respects reduced motion when toggling (%s)',
   (reducedMotion) => {
@@ -363,5 +512,60 @@ it.each([false, true])(
       HTMLElement.prototype.animate = originalAnimate;
       window.matchMedia = originalMatchMedia;
     }
+  },
+);
+
+it.each(['detail', 'overview'])(
+  'uses the customer split layout for a record with a %s tab',
+  (detailTab) => {
+    const { IconId } = jest.requireActual<typeof import('@tabler/icons-react')>(
+      '@tabler/icons-react',
+    );
+    render(
+      <RecordSidePanel expanded expandedMode="page">
+        <RecordSidePanel.Layout
+          header={<RecordSidePanel.Header title="Record" onClose={jest.fn()} />}
+          profile={<h2>Record profile</h2>}
+          value={detailTab}
+          onValueChange={jest.fn()}
+          tabs={[
+            {
+              value: detailTab,
+              label: 'Details',
+              icon: IconId,
+              content: (
+                <input aria-label="Record field" defaultValue="Unsaved" />
+              ),
+            },
+            {
+              value: 'activity',
+              label: 'Activity',
+              icon: IconId,
+              content: 'Record history',
+            },
+          ]}
+        />
+      </RecordSidePanel>,
+    );
+    expect(screen.getByRole('tablist').getAttribute('aria-orientation')).toBe(
+      'horizontal',
+    );
+    expect(screen.queryByRole('tab', { name: 'Details' })).toBeNull();
+    expect(
+      screen
+        .getByRole('tab', { name: 'Activity' })
+        .getAttribute('aria-selected'),
+    ).toBe('true');
+    expect(
+      screen
+        .getByRole('textbox', { name: 'Record field' })
+        .closest('[role="tabpanel"]')?.className,
+    ).toContain('md:row-span-2');
+    expect(
+      screen
+        .getByText('Record profile')
+        .compareDocumentPosition(screen.getByRole('tablist')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   },
 );

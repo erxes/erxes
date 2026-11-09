@@ -1,16 +1,25 @@
 import { useApolloClient, useMutation } from '@apollo/client';
 import { useTranslation } from 'react-i18next';
+import { KB_RECORD_CONTENT_TYPES } from '@/knowledgebase/constants';
+import { useKbCloseRemovedRecord } from '@/knowledgebase/shared/hooks/useKbCloseRemovedRecord';
 import {
   ADD_TOPIC,
   EDIT_TOPIC,
   REMOVE_TOPIC,
 } from '@/knowledgebase/graphql/mutations';
-import { TOPICS, TOPIC_OPTIONS } from '@/knowledgebase/graphql/queries';
+import {
+  TOPICS,
+  TOPIC_OPTIONS,
+  TOPIC_DETAIL,
+} from '@/knowledgebase/graphql/queries';
 import { ITopicDoc } from '@/knowledgebase/types';
 import { useKbToast } from '@/knowledgebase/shared/hooks/useKbToast';
 import { withoutEmptyCode } from '@/knowledgebase/utils/withoutEmptyCode';
+import type { FieldNamesMarkedBoolean } from 'react-hook-form';
+import type { KnowledgeBaseTopicDoc } from '~/gql/graphql';
 
 export const useSaveTopic = () => {
+  const client = useApolloClient();
   const { t } = useTranslation('frontline', {
     keyPrefix: 'modules.knowledgebase',
   });
@@ -29,14 +38,41 @@ export const useSaveTopic = () => {
   });
 
   // Resolves to the saved topic's id, or null when saving failed.
-  const saveTopic = async (topicDoc: ITopicDoc, topicId?: string) => {
+  const saveTopic = async (
+    topicDoc: ITopicDoc,
+    topicId?: string,
+    dirtyFields?: Partial<FieldNamesMarkedBoolean<ITopicDoc>>,
+  ): Promise<string | null> => {
     let savedId: string | null = topicId ?? null;
 
     const saved = await run(
       async () => {
-        const doc = withoutEmptyCode(topicDoc);
+        let doc: KnowledgeBaseTopicDoc = withoutEmptyCode(topicDoc);
 
         if (topicId) {
+          if (dirtyFields) {
+            const { data } = await client.query({
+              query: TOPIC_DETAIL,
+              variables: { _id: topicId },
+              fetchPolicy: 'network-only',
+            });
+            const current = data?.knowledgeBaseTopicDetail;
+            if (!current) throw new Error(t('not-found', 'Record not found'));
+            const changed = <K extends keyof ITopicDoc>(key: K) =>
+              dirtyFields[key] ? { [key]: topicDoc[key] } : {};
+            doc = {
+              title: dirtyFields.title ? topicDoc.title : current.title || '',
+              ...changed('description'),
+              ...changed('brandId'),
+              ...changed('color'),
+              ...changed('backgroundImage'),
+              ...changed('languageCode'),
+              ...changed('notificationSegmentId'),
+              ...(dirtyFields.code && topicDoc.code?.trim()
+                ? { code: topicDoc.code.trim() }
+                : {}),
+            };
+          }
           await editTopic({ variables: { _id: topicId, doc } });
         } else {
           const { data } = await addTopic({ variables: { doc } });
@@ -56,6 +92,9 @@ export const useSaveTopic = () => {
 
 export const useRemoveTopics = () => {
   const client = useApolloClient();
+  const closeRemovedRecord = useKbCloseRemovedRecord(
+    KB_RECORD_CONTENT_TYPES.topic,
+  );
   const [removeTopic, { loading }] = useMutation(REMOVE_TOPIC);
 
   const removeTopics = async (ids: string[]) => {
@@ -64,6 +103,7 @@ export const useRemoveTopics = () => {
         removeTopic({
           variables: { _id },
           update: (cache) => {
+            closeRemovedRecord(_id);
             cache.evict({
               id: cache.identify({ __typename: 'KnowledgeBaseTopic', _id }),
             });

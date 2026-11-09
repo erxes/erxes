@@ -7,4 +7,5 @@ export interface IContactWidgetProps {
   module: string;
   contentType: 'core:customer' | 'core:company';
   contentId: string;
+  access?: 'read' | 'write';
 }

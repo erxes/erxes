@@ -19,6 +19,7 @@ interface PluginConfig {
   name: string;
   port: number;
   hasSubscriptions?: boolean;
+  hasGraphql?: boolean;
   meta?: any;
 }
 
@@ -36,6 +37,28 @@ export const getPlugins = async (): Promise<string[]> => {
     ) || [];
 
   return ['core', ...enabledServices, ...enabledApiPlugins];
+};
+
+const pluginList = (value?: string) =>
+  (value || '')
+    .split(',')
+    .map((plugin) => plugin.trim())
+    .filter(Boolean);
+
+/**
+ * Plugins (also listed in ENABLED_PLUGINS or ENABLED_PLUGINS_ONLY_API) that
+ * serve no GraphQL; they are reached only through `/pl:<name>`.
+ */
+export const getNoGraphqlPlugins = (): string[] =>
+  pluginList(process.env.ENABLED_PLUGINS_NO_GRAPHQL).filter(
+    (plugin) => plugin !== 'core',
+  );
+
+/** The plugins the gateway composes into the supergraph. */
+export const getGraphqlPlugins = async (): Promise<string[]> => {
+  const noGraphql = new Set(getNoGraphqlPlugins());
+
+  return (await getPlugins()).filter((plugin) => !noGraphql.has(plugin));
 };
 
 const ACTIVE_PLUGINS_KEY = 'erxes-active-plugins';
@@ -148,6 +171,7 @@ export const joinErxesGateway = async ({
   name,
   port,
   hasSubscriptions = false,
+  hasGraphql = true,
   meta,
 }: PluginConfig) => {
   const rawVersion = process.env.RELEASE_VERSION;
@@ -172,6 +196,7 @@ export const joinErxesGateway = async ({
     JSON.stringify({
       dbConnectionString: MONGO_URL,
       hasSubscriptions,
+      hasGraphql,
       meta: {
         ...existingConfig?.meta,
         ...meta,
@@ -199,7 +224,8 @@ export const joinErxesGateway = async ({
 
   await redis.set(`erxes-service-${name}`, address);
 
-  if (NODE_ENV === 'production') {
+  // Without GraphQL there is nothing for the gateway to recompose.
+  if (NODE_ENV === 'production' && hasGraphql) {
     try {
       const didAcquireUpdateLock = await redis.set(
         GATEWAY_ROUTER_UPDATE_LOCK_KEY,

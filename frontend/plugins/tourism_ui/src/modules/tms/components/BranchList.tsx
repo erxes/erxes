@@ -49,7 +49,7 @@ export const BranchList = () => {
     });
   };
 
-  if (loading)
+  if (loading && !list.length)
     return (
       <div className="flex justify-center items-center min-h-[calc(100vh)]">
         <Spinner />

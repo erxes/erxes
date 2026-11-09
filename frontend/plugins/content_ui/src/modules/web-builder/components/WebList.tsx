@@ -1,10 +1,12 @@
 import { IconLayoutGrid, IconList, IconWorldPlus } from '@tabler/icons-react';
 import { Spinner, ToggleGroup } from 'erxes-ui';
-import { useAtom, useSetAtom } from 'jotai';
+import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { EmptyState } from '../../cms/shared/EmptyState';
 import { useGetWebList } from '../hooks/useGetWebList';
-import { webDrawerState, webViewModeState } from '../states/webBuilderState';
+import { webViewModeState } from '../states/webBuilderState';
+import { CONTENT_WEB_CONTENT_TYPE } from '@/cms/shared/side-panel/contentPanelTypes';
+import { useContentPanel } from '@/cms/shared/side-panel/useContentPanel';
 import { WebCard } from './WebCard';
 import { WebListItem } from './WebListItem';
 
@@ -12,7 +14,7 @@ export const WebList = () => {
   const { t } = useTranslation('content');
   const [viewMode, setViewMode] = useAtom(webViewModeState);
   const { webs, loading } = useGetWebList();
-  const setDrawer = useSetAtom(webDrawerState);
+  const { openDraft } = useContentPanel(CONTENT_WEB_CONTENT_TYPE);
 
   if (loading) {
     return (
@@ -29,7 +31,7 @@ export const WebList = () => {
         title={t('no-web-projects-yet')}
         description={t('get-started-web-project')}
         actionLabel={t('new-web-project')}
-        onAction={() => setDrawer({ open: true, editingWeb: null })}
+        onAction={() => openDraft()}
       />
     );
   }
@@ -37,7 +39,9 @@ export const WebList = () => {
   return (
     <>
       <div className="flex justify-between items-center mb-6">
-        <div className="text-sm text-muted-foreground">{t('found-results', { count: webs.length })}</div>
+        <div className="text-sm text-muted-foreground">
+          {t('found-results', { count: webs.length })}
+        </div>
         <ToggleGroup
           type="single"
           value={viewMode}

@@ -3,20 +3,26 @@
 The `agent` module is the core-ui surface for the core-api `agents` backend
 (ported from the former private `erxes-agent` plugin UI). It provides:
 
-- Assistant chat lives only in the shared side panel. There is no standalone
-  chat or capabilities page. `LegacyAgentRedirect` replaces `/assistant/*`
-  links with `/?panel=/chat`; a thread id is forwarded through
+- Assistant chat lives only in the global sidebar (`modules/global-sidebar`),
+  the right-most column for workspace-wide tools. It is not a `?panel=` route:
+  the open tool is device-local state, so it stays open across pages and app
+  tabs and sits beside a record panel. There is no standalone chat or
+  capabilities page. `LegacyAgentRedirect` replaces `/assistant/*` links with
+  `/` and opens Assistant; old `?panel=/chat` links are handed over by
+  `GlobalSidebar`. A thread id is forwarded through
   `agentSidePanelThreadRequestState`. `/agent/*` is left to the Company Brain
   plugin (`agent_ui`). Settings stay at `/settings/agent/*`;
-- the top-bar `AssistantButton` (`CoreTab`) opens the shared `?panel=/chat`
-  route and owns the permission-gated `mod+j` shortcut and unread indicator.
+- the top-bar `AssistantButton` (`CoreTab`) toggles Assistant in the global
+  sidebar and owns the permission-gated `mod+j` shortcut and unread indicator.
+  Settings pages open it with `useGlobalSidebar().openTool('assistant')`.
   There is no floating agent tray. The button and shortcut are unavailable
   without `agentsChat`;
 - `side-panel/components/chat/AssistantPanel.tsx` lazy-loads our
   `AgentSidePanel` chat content through `SidePanelChat` inside the public
   `RecordSidePanel` shell. It is a full-height flex column beside the main
-  workspace, outside page animation: opening it shrinks the page, and it
-  shares the record panel's persisted width and resize handle. Assistant can
+  workspace and any record panel, outside page animation: opening it shrinks
+  the page. It has its own persisted width (`assistantPanelWidthState`) and
+  the shared resize handle. Assistant can
   resize from 320px up to 1,200px, leaving 320px for the workspace when space
   permits; record panels retain their 600px maximum. The left-edge grip also
   supports arrow keys (Shift for larger steps) and Home/End for width limits.
@@ -25,8 +31,8 @@ The `agent` module is the core-ui surface for the core-api `agents` backend
   only on release/cancel. Entrance animation never transitions drag width.
   Lost capture, missing primary button, blur, Escape and unmount all clean up
   the drag.
-  The shared panel displays either a record or Assistant. After first open,
-  the chat stays mounted but hidden while closed or showing a record, keeping
+  Records and Assistant are independent columns. After first open, the chat
+  stays mounted but hidden while closed, keeping
   drafts, streams and activity alive. The header uses browser-style session tabs,
   thread actions, Settings (keeps the panel open) and Close. `ChatInput`
   retains one visible line and remeasures when the
@@ -448,9 +454,10 @@ last assistant turn.
 ## State
 
 - `states/agentPanelStates.ts` — `agentSidePanelThreadRequestState`
-  (one-shot, plain `atom`) for old thread bookmarks. Panel open state
-  is the shared `panel` URL query, and width uses `sidePanelWidthState` from
-  `ui-modules`; old independent agent panel/tray state is no longer consumed.
+  (one-shot, plain `atom`) for old thread bookmarks, `agentPanelModeState`
+  (Lens or Companion, default Companion) and `assistantPanelWidthState`.
+  Open state is `globalSidebarToolState` (`modules/global-sidebar`), not the
+  `panel` URL query.
 - `states/agentActivityState.ts` — unread/working/awaiting activity from
   `useAgentActivity`, displayed by the top-bar Assistant button.
 - sessionStorage: `agents-selected-thread:<scope>`,

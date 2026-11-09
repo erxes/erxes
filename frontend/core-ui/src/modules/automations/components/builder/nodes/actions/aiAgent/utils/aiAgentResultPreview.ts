@@ -1,4 +1,4 @@
-import { stringifyAutomationHistoryValue } from '@/automations/components/builder/history/components/AutomationHistoryPopoverValue';
+import { getResultShapePreview } from '@/automations/utils/automationHistoryUtils/actionResultShape';
 import { TActionResultPreview } from '@/automations/components/builder/nodes/types/coreAutomationActionTypes';
 
 export const getAiAgentResultPreview: TActionResultPreview = (action) => {
@@ -15,8 +15,8 @@ export const getAiAgentResultPreview: TActionResultPreview = (action) => {
   }
 
   if (result.type === 'classification') {
-    return stringifyAutomationHistoryValue(result.attributes || {});
+    return getResultShapePreview(result.attributes);
   }
 
-  return stringifyAutomationHistoryValue(result);
+  return getResultShapePreview(result);
 };

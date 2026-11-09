@@ -60,6 +60,11 @@ import {
   IFavoritesModel,
   loadFavoritesClass,
 } from '@/organization/settings/db/models/Favorites';
+import { IDashboardLayoutDocument } from '@/organization/settings/db/definitions/dashboardLayouts';
+import {
+  IDashboardLayoutModel,
+  loadDashboardLayoutClass,
+} from '@/organization/settings/db/models/DashboardLayouts';
 import {
   IBranchDocument,
   IDepartmentDocument,
@@ -116,6 +121,7 @@ import {
   AiAgentDocument,
   aiAgentSchema,
   IActivityLogDocument,
+  IUserActivityDailyDocument,
   IAutomationDocument,
   getDataExtensionModels,
   IAutomationExecutionDocument,
@@ -398,6 +404,10 @@ import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
+import {
+  IUserActivitiesModel,
+  loadUserActivitiesClass,
+} from '@/logs/db/models/UserActivities';
 import { IAgentsConnectionsDocument } from '@/agents/@types/connection';
 import {
   IAgentsConnectionModel,
@@ -446,6 +456,7 @@ export interface IModels {
   Conformities: IConformityModel;
   Relations: IRelationModel;
   Favorites: IFavoritesModel;
+  DashboardLayouts: IDashboardLayoutModel;
   Documents: IDocumentModel;
   Automations: IAutomationModel;
   AutomationExecutions: IExecutionModel;
@@ -467,6 +478,7 @@ export interface IModels {
 
   AiAgents: IAiAgentModel;
   ActivityLogs: IActivityLogsModel;
+  UserActivities: IUserActivitiesModel;
   EngageMessages: IEngageMessageModel;
   Stats: IStatsModel;
   BroadcastTraces: IBroadcastTraceModel;
@@ -747,6 +759,11 @@ export const loadClasses = (
     'favorites',
     loadFavoritesClass(models),
   );
+
+  models.DashboardLayouts = db.model<
+    IDashboardLayoutDocument,
+    IDashboardLayoutModel
+  >('dashboard_layouts', loadDashboardLayoutClass(models));
 
   models.Documents = db.model<IDocumentDocument, IDocumentModel>(
     'documents',
@@ -1045,6 +1062,11 @@ export const loadClasses = (
     'logs',
     loadLogsClass(models),
   );
+
+  models.UserActivities = logDb.model<
+    IUserActivityDailyDocument,
+    IUserActivitiesModel
+  >('user_activity_daily', loadUserActivitiesClass(models));
 
   return models;
 };

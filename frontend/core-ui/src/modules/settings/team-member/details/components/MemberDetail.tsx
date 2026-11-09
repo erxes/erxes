@@ -1,14 +1,22 @@
+import { ContactPanelIdentity } from '@/side-panel/components/details/ContactPanelActions';
+import { MemberPanelBreadcrumb } from './MemberPanelBreadcrumb';
 import { memberCustomActivities } from '@/settings/team-member/details/components/MemberActivityRows';
 import { MemberDetailEmptyState } from '@/settings/team-member/details/components/MemberDetailEmptyState';
 import { MemberDetailErrorState } from '@/settings/team-member/details/components/MemberDetailErrorState';
 import { MemberLinks } from '@/settings/team-member/details/components/MemberLinks';
 import { MemberPanelActions } from '@/settings/team-member/details/components/MemberPanelActions';
-import { MemberPanelDetail } from '@/settings/team-member/details/components/MemberPanelDetail';
+import { MemberPanelAvatar } from '@/settings/team-member/details/components/MemberPanelAvatar';
+import {
+  MemberPanelDetail,
+  MemberPanelName,
+} from '@/settings/team-member/details/components/MemberPanelDetail';
 import { MembersPermissions } from '@/settings/team-member/details/components/MembersPermissions';
 import { useUserDetail } from '@/settings/team-member/hooks/useUserDetail';
 import { useUserCustomFieldEdit } from '@/settings/team-member/hooks/useUserEdit';
 import { MemberSessions } from '@/settings/team-member/sessions/components/MemberSessions';
+import { MemberActivityTime } from '@/settings/team-member/activity/components/MemberActivityTime';
 import {
+  IconActivity,
   IconDeviceDesktop,
   IconHierarchy2,
   IconHistory,
@@ -16,21 +24,18 @@ import {
   IconLink,
   IconShieldLock,
 } from '@tabler/icons-react';
-import {
-  Avatar,
-  readImage,
-  ScrollArea,
-  Skeleton,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { Avatar, readImage, ScrollArea, Skeleton, Spinner } from 'erxes-ui';
+import { useAtomValue } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import {
   ActivityLogs,
+  currentUserState,
   FieldsInDetail,
   IRecordSidePanelTab,
   RecordSidePanel,
   usePermissionCheck,
+  useSidePanel,
+  usePanelExpanded,
 } from 'ui-modules';
 
 const DETAIL_TAB = 'overview';
@@ -46,27 +51,26 @@ export const MemberDetail = ({
   onClose,
 }: {
   onBack?: () => void;
-  onClose: () => void;
+  onClose?: () => void;
 }) => {
   const { t } = useTranslation('settings', { keyPrefix: 'team-member' });
   const { t: panelT } = useTranslation('common', { keyPrefix: 'side-panel' });
-  const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
+  const { tab: selectedTab, setTab: setSelectedTab } = useSidePanel();
+  const expanded = usePanelExpanded();
   const { error, userDetail, loading } = useUserDetail();
   const { hasActionPermission } = usePermissionCheck();
-
-  const handleClose = () => {
-    setSelectedTab(null);
-    onClose();
-  };
+  const currentUser = useAtomValue(currentUserState);
 
   const renderHeading = () => {
     if (!userDetail) {
+      const title = loading ? (
+        <Skeleton className="h-4 w-32" />
+      ) : (
+        t('member-detail')
+      );
       return {
-        title: loading ? (
-          <Skeleton className="h-4 w-32" />
-        ) : (
-          t('member-detail')
-        ),
+        title,
+        breadcrumbTitle: title,
         avatar: loading ? (
           <Skeleton className="size-7 flex-none rounded-full" />
         ) : undefined,
@@ -80,16 +84,29 @@ export const MemberDetail = ({
       userDetail.email ||
       t('member-detail');
 
+    const picture = (
+      <Avatar size="lg" className="size-7 flex-none">
+        <Avatar.Image src={readImage(avatar || '')} />
+        <Avatar.Fallback>{title.charAt(0)}</Avatar.Fallback>
+      </Avatar>
+    );
+
     return {
-      title,
-      avatar: (
-        <Avatar size="lg" className="size-7 flex-none">
-          <Avatar.Image src={readImage(avatar || '')} />
-          <Avatar.Fallback>{title.charAt(0)}</Avatar.Fallback>
-        </Avatar>
+      breadcrumbTitle: title,
+      title: currentUser?.isOwner ? (
+        <MemberPanelName userId={userDetail._id} />
+      ) : (
+        title
+      ),
+      avatar: currentUser?.isOwner ? (
+        <MemberPanelAvatar user={userDetail}>{picture}</MemberPanelAvatar>
+      ) : (
+        picture
       ),
     };
   };
+
+  const { title, avatar, breadcrumbTitle } = renderHeading();
 
   const renderBody = () => {
     if (loading && !userDetail) {
@@ -161,6 +178,21 @@ export const MemberDetail = ({
             },
           ]
         : []),
+      ...(currentUser?._id === userDetail._id ||
+      hasActionPermission('teamMembersViewActivity')
+        ? [
+            {
+              value: 'active-time',
+              label: t('active-time', 'Active time'),
+              icon: IconActivity,
+              content: (
+                <MemberPanelScroll>
+                  <MemberActivityTime userId={userDetail._id} />
+                </MemberPanelScroll>
+              ),
+            },
+          ]
+        : []),
       {
         value: 'activity',
         label: panelT('activity', 'Activity'),
@@ -180,29 +212,33 @@ export const MemberDetail = ({
     ];
 
     const activeTab = tabs.some((tab) => tab.value === selectedTab)
-      ? (selectedTab as string)
+      ? selectedTab
       : DETAIL_TAB;
 
     return (
-      <RecordSidePanel.Tabs
+      <RecordSidePanel.Layout
         tabs={tabs}
         value={activeTab}
         onValueChange={setSelectedTab}
         visibleCount={tabs.length}
+        overviewTab={DETAIL_TAB}
+        overviewHeader={<ContactPanelIdentity title={title} avatar={avatar} />}
+        expandedDefaultTab="activity"
       />
     );
   };
 
-  const { title, avatar } = renderHeading();
-
   return (
     <>
       <RecordSidePanel.Header
-        avatar={avatar}
-        title={title}
+        className={expanded ? 'h-10 bg-background px-3' : undefined}
+        avatar={expanded ? undefined : avatar}
+        title={
+          expanded ? <MemberPanelBreadcrumb title={breadcrumbTitle} /> : title
+        }
         actions={userDetail && <MemberPanelActions user={userDetail} />}
         onBack={onBack}
-        onClose={handleClose}
+        onClose={onClose}
       />
       {renderBody()}
     </>

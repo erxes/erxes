@@ -30,6 +30,7 @@ export const NotificationDetail = () => {
   } else if (notification) {
     content = (
       <ScrollArea
+        key={notification._id}
         className="h-full overflow-hidden"
         viewportClassName="[&>div]:!block [&>div]:h-full"
       >

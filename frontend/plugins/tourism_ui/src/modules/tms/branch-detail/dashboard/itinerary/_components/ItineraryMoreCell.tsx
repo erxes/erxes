@@ -12,17 +12,17 @@ import {
 } from 'erxes-ui';
 import { IItinerary } from '../types/itinerary';
 import { useRemoveItineraries } from '../hooks/useRemoveItineraries';
-import { ItineraryDuplicateSheet } from './ItineraryDuplicateSheet';
+import { ItineraryEditSheet } from './ItineraryEditSheet';
+import { TMS_ITINERARY_DUPLICATE_CONTENT_TYPE } from '@/tms/side-panel/tourismPanelTypes';
+import { useTourismPanel } from '@/tms/side-panel/useTourismPanel';
 
 interface ItineraryMoreCellProps extends CellContext<IItinerary, unknown> {
-  onEditClick?: (itineraryId: string, branchId?: string) => void;
   branchId?: string;
   branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 export const ItineraryMoreColumn = ({
-  onEditClick,
   branchId,
   branchLanguages,
   mainLanguage,
@@ -33,14 +33,18 @@ export const ItineraryMoreColumn = ({
   const { confirm } = useConfirm();
   const { toast } = useToast();
   const { removeItineraries } = useRemoveItineraries();
-  const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+
+  const { openDetail: openDuplicate } = useTourismPanel(
+    TMS_ITINERARY_DUPLICATE_CONTENT_TYPE,
+  );
 
   const handleDuplicate = () => {
-    setDuplicateOpen(true);
+    openDuplicate(itinerary._id);
   };
 
   const handleEdit = () => {
-    onEditClick?.(itinerary._id, itinerary.branchId);
+    setEditOpen(true);
   };
 
   const handleDelete = () => {
@@ -91,20 +95,21 @@ export const ItineraryMoreColumn = ({
           </Command>
         </Combobox.Content>
       </Popover>
-      <ItineraryDuplicateSheet
-        itinerary={itinerary}
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-        open={duplicateOpen}
-        onOpenChange={setDuplicateOpen}
-      />
+      {editOpen && (
+        <ItineraryEditSheet
+          itineraryId={itinerary._id}
+          branchId={itinerary.branchId || branchId}
+          branchLanguages={branchLanguages}
+          mainLanguage={mainLanguage}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </>
   );
 };
 
 export const itineraryMoreColumn = (
-  onEditClick?: (itineraryId: string, branchId?: string) => void,
   branchId?: string,
   branchLanguages?: string[],
   mainLanguage?: string,
@@ -114,7 +119,6 @@ export const itineraryMoreColumn = (
   cell: (props) => (
     <ItineraryMoreColumn
       {...props}
-      onEditClick={onEditClick}
       branchId={branchId}
       branchLanguages={branchLanguages}
       mainLanguage={mainLanguage}

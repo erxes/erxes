@@ -1,5 +1,4 @@
 import {
-  IconAlignLeft,
   IconFlag,
   IconUsersGroup,
   IconUsers,
@@ -13,18 +12,9 @@ import { SelectPriority } from '@/operation/components/SelectPriority';
 import { TeamInline } from '@/team/components/TeamInline';
 import { useGetTriage } from '@/triage/hooks/useGetTriage';
 import { useUpdateTriage } from '@/triage/hooks/useUpdateTriage';
-import {
-  RecordTableInlineCell,
-  ScrollArea,
-  Spinner,
-  TextField,
-} from 'erxes-ui';
+import { RecordTableInlineCell, ScrollArea, Spinner } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import {
-  PANEL_TEXT_FIELD_CLASS_NAME,
-  PanelField,
-  TagsSelect,
-} from 'ui-modules';
+import { PanelField, TagsSelect } from 'ui-modules';
 import { RecordContactsField } from './RecordContactsField';
 import { RecordTagsValue } from './RecordTagsValue';
 
@@ -45,9 +35,8 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
     return null;
   }
 
-  const { _id, name, priority, teamId, description } = triage;
+  const { _id, priority, teamId, description } = triage;
   const update = (input: {
-    name?: string;
     priority?: number;
     description?: string;
     customerId?: string | null;
@@ -73,15 +62,6 @@ export const TriagePanelDetail = ({ triageId }: { triageId: string }) => {
     <ScrollArea className="flex-1 min-h-0" viewportClassName="[&>div]:block!">
       <div className="grid gap-5 p-3 @3xl/record-panel:grid-cols-[minmax(18rem,22rem)_minmax(0,1fr)] @3xl/record-panel:p-6">
         <div className="flex min-w-0 flex-col gap-1">
-          <PanelField icon={IconAlignLeft} label={t('name', 'Name')}>
-            <TextField
-              scope={`${SCOPE}.name`}
-              value={name || ''}
-              placeholder={t('triage-name')}
-              className={PANEL_TEXT_FIELD_CLASS_NAME}
-              onSave={(next) => update({ name: next })}
-            />
-          </PanelField>
           <PanelField icon={IconFlag} label={t('priority')}>
             <SelectPriority
               variant="table"

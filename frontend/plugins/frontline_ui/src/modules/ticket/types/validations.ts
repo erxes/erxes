@@ -3,6 +3,9 @@ import { z } from 'zod';
 export const addTicketSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
+  propertiesData: z.record(z.unknown()).optional(),
+  customerId: z.string().optional(),
+  companyId: z.string().optional(),
   channelId: z.string().min(1, 'Channel is required'),
   pipelineId: z.string().min(1, 'Pipeline is required'),
   statusId: z.string().min(1, 'Status is required'),

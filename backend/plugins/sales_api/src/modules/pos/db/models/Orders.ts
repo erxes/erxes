@@ -19,6 +19,7 @@ export interface IPosOrderModel extends Model<IPosOrderDocument> {
     selector: FilterQuery<IPosOrderDocument>,
     document: UpdateQuery<IPosOrderDocument>,
   ): Promise<IPosOrderDocument>;
+  addScoreLogs(_id: string, scoreLogIds: (string | undefined)[]): Promise<void>;
 }
 
 export const loadPosOrderClass = (
@@ -39,6 +40,9 @@ export const loadPosOrderClass = (
 
     public static async createOrUpdate(document: IPosOrderUpsertInput) {
       const { _id, ...doc } = document;
+
+      // The links to loyalty are sales' own; a synced order never sets them.
+      delete doc.scoreLogIds;
 
       const oldOrder = await models.PosOrders.findOne({ _id }).lean();
 
@@ -73,6 +77,24 @@ export const loadPosOrderClass = (
       }
 
       return { oldOrder: oldOrder || undefined, newOrder };
+    }
+
+    // Links the loyalty entries the order caused. Not an edit of the order:
+    // no event log, and the points stay in loyalty.
+    public static async addScoreLogs(
+      _id: string,
+      scoreLogIds: (string | undefined)[],
+    ) {
+      const ids = scoreLogIds.filter((id): id is string => !!id);
+
+      if (!ids.length) {
+        return;
+      }
+
+      await models.PosOrders.updateOne(
+        { _id },
+        { $addToSet: { scoreLogIds: { $each: ids } } },
+      );
     }
 
     public static async updateOrder(

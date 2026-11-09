@@ -34,6 +34,9 @@ jest.mock('erxes-api-shared/utils', () => ({
   sendTRPCMessage: jest.fn().mockResolvedValue([]),
 }));
 jest.mock('erxes-api-shared/core-modules', () => ({}));
+jest.mock('../modules/sales/utils/archiveGuard', () => ({
+  assertDealUpdatesAllowed: jest.fn().mockResolvedValue(undefined),
+}));
 jest.mock('../modules/pos/graphql/resolvers/mutations/utils', () => ({
   syncPosToClient: jest.fn(),
   syncProductGroupsToClient: jest.fn(),
@@ -611,6 +614,40 @@ describe('supported requests keep their behavior', () => {
       ['dealsProductsEdit'],
     ]);
     expectNoModelCalls();
+  });
+
+  it('requires delete permission before looking up product rows', async () => {
+    context.checkPermission
+      .mockResolvedValueOnce(undefined)
+      .mockRejectedValueOnce(new Error('Permission denied'));
+    const result = await run(
+      'mutation salesProductDeletePermission { dealsDeleteProductData(dealId: "deal", dataIds: ["row"]) }',
+    );
+    expect(result.errors?.[0].message).toBe('Permission denied');
+    expect(context.checkPermission.mock.calls).toEqual([
+      ['dealsEdit'],
+      ['dealsProductsDelete'],
+    ]);
+    expectNoModelCalls();
+  });
+
+  it('allows deletion without product-edit permission', async () => {
+    context.checkPermission.mockImplementation(async (action: string) => {
+      if (action === 'dealsProductsEdit') throw new Error('Permission denied');
+    });
+    const result = await run(
+      'mutation salesProductDeleteOnlyPermission { dealsDeleteProductData(dealId: "deal", dataIds: ["row"]) }',
+    );
+    expect(result.errors).toBeUndefined();
+    expect(context.checkPermission.mock.calls).toEqual([
+      ['dealsEdit'],
+      ['dealsProductsDelete'],
+    ]);
+    expect(context.models.Deals.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: 'deal' },
+      { $set: { productsData: [], totalAmount: 0 } },
+      { new: true },
+    );
   });
 
   it('keeps permission failures ahead of runtime validation', async () => {

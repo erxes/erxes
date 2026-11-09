@@ -23,6 +23,12 @@ export interface IScoreLog {
   breakdown?: IEarnBreakdownItem[];
   serviceName?: string;
   sourceScoreLogId?: string;
+  // On a reversal written by a correction: the entry that took the reversed
+  // one's place. A reversal without it is a real refund.
+  replacedByScoreLogId?: string;
+  // On an entry that replaced a recalculated one: when the first entry of
+  // that earning was made, so the lots it adds keep those dates.
+  lotDatesFrom?: Date;
   targetId?: string;
   // The record type of targetId, e.g. `sales:sales.deals`.
   targetType?: string;

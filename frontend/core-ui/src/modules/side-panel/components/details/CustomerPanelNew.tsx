@@ -1,3 +1,17 @@
+import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
+import {
+  IconAlignLeft,
+  IconBell,
+  IconBuilding,
+  IconCalendar,
+  IconGenderBigender,
+  IconHash,
+  IconMail,
+  IconPhone,
+  IconUser,
+  IconUserCircle,
+  type Icon,
+} from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -10,9 +24,10 @@ import {
   Switch,
   toast,
 } from 'erxes-ui';
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedContactPanelRecord';
 import {
   DataExtensionCreateFields,
   buildCustomerSchema,
@@ -37,6 +52,17 @@ type TTextCode =
   | 'primaryPhone'
   | 'code';
 
+const TEXT_FIELD_ICONS: Record<TTextCode, Icon> = {
+  firstName: IconUser,
+  middleName: IconUser,
+  lastName: IconUser,
+  primaryEmail: IconMail,
+  primaryPhone: IconPhone,
+  code: IconHash,
+};
+
+const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
+
 /**
  * A customer (or lead, `defaults.state`) not created yet, drawn like its
  * Detail tab: every field Settings shows, nothing saved until Save. The
@@ -48,7 +74,12 @@ export const CustomerPanelNew = () => {
   const { state } = useSidePanelDraft<{ state: 'customer' | 'lead' }>(
     'core:customer',
   );
-  const { openRecord, back, canGoBack, close } = useSidePanel();
+  const { back, canGoBack, close } = useSidePanel();
+  const [companyIds, setCompanyIds] = useState<string[]>([]);
+  const { onCreated, linking } = useCreatedContactPanelRecord(
+    'core:customer',
+    companyIds,
+  );
   const client = useApolloClient();
   const { customersAdd, loading } = useAddCustomer();
   const { rules, loading: rulesLoading } = useSystemFieldRules(
@@ -67,8 +98,10 @@ export const CustomerPanelNew = () => {
   });
   const { errors } = form.formState;
 
+  /** Returns to the previous record or closes a top-level unsaved draft. */
   const cancel = () => (canGoBack ? back() : close());
 
+  /** Creates the contact, invalidates its list, and replaces the draft after success. */
   const save = (values: ICustomerFormValues) =>
     customersAdd({
       variables: {
@@ -94,10 +127,7 @@ export const CustomerPanelNew = () => {
       onCompleted: ({ customersAdd: created }) => {
         // Customer lists read again, the new one included.
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'customers' });
-        openRecord(
-          { contentType: 'core:customer', contentId: created._id },
-          { replace: true },
-        );
+        onCreated(created._id);
       },
     });
 
@@ -105,19 +135,20 @@ export const CustomerPanelNew = () => {
     return <Spinner containerClassName="py-12" />;
   }
 
-  const textRow = (code: TTextCode, label: string, autoFocus = false) =>
+  /** Renders a registered text input with its field label and validation error. */
+  const textRow = (code: TTextCode, label: string) =>
     rules.isShown(code) && (
       <PanelFormRow
         key={code}
+        icon={TEXT_FIELD_ICONS[code]}
         label={label}
         required={rules.isRequired(code)}
         error={errors[code]?.message}
       >
         <Input
           {...form.register(code)}
-          autoFocus={autoFocus}
           placeholder={label}
-          className={PANEL_INPUT_CLASS_NAME}
+          className={INPUT_CLASS_NAME}
         />
       </PanelFormRow>
     );
@@ -125,30 +156,40 @@ export const CustomerPanelNew = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-1 min-h-0 flex-col"
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(save)}
       >
         <PanelFormLayout
           onCancel={cancel}
-          saving={loading}
+          saving={loading || linking}
           saveLabel={
             state === 'lead'
               ? addT('create-lead', 'Create lead')
               : addT('create', 'Create customer')
           }
         >
-          {textRow('firstName', addT('first-name', 'First name'), true)}
+          {textRow('firstName', addT('first-name', 'First name'))}
           {textRow('middleName', addT('middle-name', 'Middle name'))}
           {textRow('lastName', addT('last-name', 'Last name'))}
+          <PanelFormRow icon={IconBuilding} label={t('company', 'Company')}>
+            <ContactRelationInput
+              kind="company"
+              value={companyIds}
+              onValueChange={setCompanyIds}
+              scope="side-panel-customer-new.companies"
+              disabled={loading || linking}
+            />
+          </PanelFormRow>
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
           {rules.isShown('ownerId') && (
-            <PanelFormRow label={t('owner', 'Owner')}>
+            <PanelFormRow icon={IconUserCircle} label={t('owner', 'Owner')}>
               <Form.Field
                 control={form.control}
                 name="ownerId"
                 render={({ field }) => (
                   <SelectMember.FormItem
+                    placeholder={t('owner', 'Owner')}
                     value={field.value}
                     onValueChange={field.onChange}
                   />
@@ -158,7 +199,10 @@ export const CustomerPanelNew = () => {
           )}
           {textRow('code', addT('code', 'Code'))}
           {rules.isShown('sex') && (
-            <PanelFormRow label={addT('pronoun', 'Pronoun')}>
+            <PanelFormRow
+              icon={IconGenderBigender}
+              label={addT('pronoun', 'Pronoun')}
+            >
               <Form.Field
                 control={form.control}
                 name="sex"
@@ -167,8 +211,8 @@ export const CustomerPanelNew = () => {
                     value={String(field.value ?? 0)}
                     onValueChange={(value) => field.onChange(Number(value))}
                   >
-                    <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                      <Select.Value />
+                    <Select.Trigger className={INPUT_CLASS_NAME}>
+                      <Select.Value placeholder={addT('pronoun', 'Pronoun')} />
                     </Select.Trigger>
                     <Select.Content align="start">
                       {CUSTOMER_SEX_OPTIONS.map((option) => (
@@ -188,6 +232,7 @@ export const CustomerPanelNew = () => {
           )}
           {rules.isShown('birthDate') && (
             <PanelFormRow
+              icon={IconCalendar}
               label={addT('birth-date', 'Birth date')}
               required={rules.isRequired('birthDate')}
               error={errors.birthDate?.message}
@@ -197,6 +242,7 @@ export const CustomerPanelNew = () => {
                 name="birthDate"
                 render={({ field }) => (
                   <DatePicker
+                    placeholder="YYYY/MM/DD"
                     value={field.value ?? undefined}
                     defaultMonth={field.value ?? undefined}
                     onChange={(date) =>
@@ -208,7 +254,10 @@ export const CustomerPanelNew = () => {
             </PanelFormRow>
           )}
           {rules.isShown('isSubscribed') && (
-            <PanelFormRow label={addT('subscribed', 'Subscribed')}>
+            <PanelFormRow
+              icon={IconBell}
+              label={addT('subscribed', 'Subscribed')}
+            >
               <Form.Field
                 control={form.control}
                 name="isSubscribed"
@@ -228,7 +277,8 @@ export const CustomerPanelNew = () => {
           )}
           {rules.isShown('description') && (
             <div className="flex flex-col gap-1.5 pt-2">
-              <span className="text-xs font-medium text-accent-foreground">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+                <IconAlignLeft className="size-3.5" aria-hidden="true" />
                 {t('description', 'Description')}
               </span>
               <Form.Field

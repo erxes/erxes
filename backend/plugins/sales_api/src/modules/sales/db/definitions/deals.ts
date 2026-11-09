@@ -234,6 +234,12 @@ export const dealSchema = schemaWrapper(
         optional: true,
         label: 'Broker ID',
       },
+      scoreLogIds: {
+        type: [String],
+        optional: true,
+        index: true,
+        label: 'Loyalty score logs',
+      },
     },
     {
       timestamps: true,

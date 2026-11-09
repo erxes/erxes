@@ -12,6 +12,12 @@ export const invoiceSchema = schemaWrapper(
     phone: { type: String },
     email: { type: String },
     paymentIds: { type: [String] },
+    // distinct paymentKind of this invoice's transactions; kept in sync by
+    // syncInvoicePaymentKinds and used by the invoice kind filter. No default:
+    // a missing field is what marks an invoice for the backfill.
+    paymentKinds: { type: [String], default: undefined },
+    // bumped on every paymentKinds write; compare-and-set guard for syncs
+    paymentKindsVersion: { type: Number },
     redirectUri: { type: String },
 
     description: { type: String },
@@ -26,11 +32,21 @@ export const invoiceSchema = schemaWrapper(
     apiResponse: { type: Schema.Types.Mixed },
     callback: { type: String },
     warningText: { type: String },
+    // set together with the paid status; cleared once paid notifications
+    // are queued. The pending-invoice cron retries invoices still flagged.
+    notifyPending: { type: Boolean },
   }),
 );
 
 invoiceSchema.index({ invoiceNumber: 1 });
-
+invoiceSchema.index({ notifyPending: 1 }, { sparse: true });
+invoiceSchema.index({ paymentKinds: 1 });
+invoiceSchema.index({
+  contentType: 1,
+  contentTypeId: 1,
+  status: 1,
+  createdAt: -1,
+});
 invoiceSchema.pre<IInvoiceDocument>('save', async function (next) {
   try {
     if (!this.invoiceNumber) {

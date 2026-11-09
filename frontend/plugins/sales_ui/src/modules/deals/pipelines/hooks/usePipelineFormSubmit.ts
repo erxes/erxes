@@ -18,6 +18,9 @@ import type { TPipelineForm } from '@/deals/types/pipelines';
 const PIPELINE_FIELD_TABS: Record<string, string> = {
   stages: 'stages',
   initialCategoryIds: 'productConfig',
+  productIds: 'productConfig',
+  tagIds: 'productConfig',
+  excludeTagIds: 'productConfig',
   excludeCategoryIds: 'productConfig',
   excludeProductIds: 'productConfig',
   paymentIds: 'productConfig',

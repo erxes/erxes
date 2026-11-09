@@ -366,7 +366,7 @@ export const TourGroupAddSheet = ({
               )}
             </Sheet.Header>
 
-            <Sheet.Content className="flex-1 px-6 py-4 overflow-y-auto rounded-none">
+            <Sheet.Content className="styled-scroll flex-1 px-6 py-4 overflow-y-auto rounded-none">
               <div className="flex flex-col gap-4">
                 <Form.Field
                   key={fieldPaths.refNumber}

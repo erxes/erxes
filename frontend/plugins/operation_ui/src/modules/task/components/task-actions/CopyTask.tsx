@@ -1,6 +1,6 @@
 import { compactList } from '@/operation/utils/cursorList';
 import { ITask } from '@/task/types';
-import { Command, useToast } from 'erxes-ui';
+import { Button, Command, useToast } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import {
   IconChevronRight,
@@ -63,12 +63,51 @@ const COPY_OPTIONS = [
   { type: 'markdown' as const, label: 'Markdown format', icon: IconMarkdown },
 ];
 
+/** Copies a task's link from the top bar. */
+export const CopyTaskUrlButton = ({ task }: { task: ITask }) => {
+  const { t } = useTranslation('operation');
+  const { toast } = useToast();
+  const label = t('copy-url', 'Copy URL');
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(getTaskUrl(task));
+      toast({
+        title: t('copied'),
+        description: t('copied-to-clipboard', { label: 'URL' }),
+      });
+    } catch {
+      toast({
+        title: t('error'),
+        description: t('failed-to-copy'),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="size-7"
+      title={label}
+      aria-label={label}
+      onClick={copyUrl}
+    >
+      <IconLink className="size-4" />
+    </Button>
+  );
+};
+
 export const CopyTaskMenu = ({
   tasks,
   setOpen,
+  hideUrl = false,
 }: {
   tasks: ITask[];
   setOpen: (open: boolean) => void;
+  // The URL has its own button beside the menu.
+  hideUrl?: boolean;
 }) => {
   const { t } = useTranslation('operation');
   const { toast } = useToast();
@@ -186,12 +225,14 @@ export const CopyTaskMenu = ({
   return (
     <Command>
       <Command.List>
-        {COPY_OPTIONS.map(({ type, label, icon: Icon }) => (
-          <Command.Item key={type} onSelect={() => handleCopy(type)}>
-            <Icon className="size-4 mr-2" />
-            <span>{label}</span>
-          </Command.Item>
-        ))}
+        {COPY_OPTIONS.filter(({ type }) => !hideUrl || type !== 'url').map(
+          ({ type, label, icon: Icon }) => (
+            <Command.Item key={type} onSelect={() => handleCopy(type)}>
+              <Icon className="size-4 mr-2" />
+              <span>{label}</span>
+            </Command.Item>
+          ),
+        )}
       </Command.List>
     </Command>
   );
@@ -200,10 +241,12 @@ export const CopyTaskMenu = ({
 export const CopyTaskCommandBarItem = ({
   tasks,
   setOpen,
+  hideUrl,
 }: {
   tasks: ITask[];
   setOpen: (open: boolean) => void;
-}) => <CopyTaskMenu tasks={tasks} setOpen={setOpen} />;
+  hideUrl?: boolean;
+}) => <CopyTaskMenu tasks={tasks} setOpen={setOpen} hideUrl={hideUrl} />;
 
 export const CopyTaskTrigger = ({
   setCurrentContent,

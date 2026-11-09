@@ -15,7 +15,7 @@ export const TemplateCategoryHeader = () => {
   return (
     <PageHeader>
       <PageHeader.Start>
-        <TemplatesBreadcrumb />
+        <TemplatesBreadcrumb currentPage="categories" />
         <Separator.Inline />
         <PageHeader.FavoriteToggleButton
           breadcrumb={favoriteBreadcrumb}

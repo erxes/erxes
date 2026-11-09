@@ -1,3 +1,20 @@
+import { ContactRelationInput } from '@/side-panel/components/details/ContactRelationInput';
+import {
+  IconAlignLeft,
+  IconBriefcase,
+  IconBuilding,
+  IconBuildingFactory,
+  IconHash,
+  IconHierarchy,
+  IconMail,
+  IconMapPin,
+  IconPhone,
+  IconUser,
+  IconUserCircle,
+  IconUsers,
+  IconWorld,
+  type Icon,
+} from '@tabler/icons-react';
 import { useApolloClient } from '@apollo/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -9,13 +26,14 @@ import {
   Select,
   toast,
 } from 'erxes-ui';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useEffect, useState } from 'react';
+import { useForm, useFormContext } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useCreatedContactPanelRecord } from '@/side-panel/hooks/useCreatedContactPanelRecord';
 import { useDebounce } from 'use-debounce';
 import {
-  DataExtensionCreateFields,
   COMPANY_BUSINESS_TYPES,
+  DataExtensionCreateFields,
   DEFAULT_COMPANY_INDUSTRY_TYPES,
   PANEL_INPUT_CLASS_NAME,
   PanelFormLayout,
@@ -53,12 +71,49 @@ const companySchema = z
     size: z.string().optional(),
     description: z.string().optional(),
   })
-  .refine((data) => !!data.primaryName?.trim() || !!data.code?.trim(), {
+  .refine((data) => Boolean(data.primaryName?.trim() || data.code?.trim()), {
     message: 'Company name or code is required',
     path: ['primaryName'],
   });
 
 type TCompanyForm = z.infer<typeof companySchema>;
+type TCompanyTextField =
+  'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website';
+
+const TEXT_FIELD_ICONS: Record<TCompanyTextField, Icon> = {
+  primaryName: IconBuilding,
+  code: IconHash,
+  primaryEmail: IconMail,
+  primaryPhone: IconPhone,
+  website: IconWorld,
+};
+
+const INPUT_CLASS_NAME = `${PANEL_INPUT_CLASS_NAME} border border-input`;
+
+/** Edits the draft description using the surrounding company form context. */
+const CompanyDescriptionInput = () => {
+  const { control } = useFormContext<TCompanyForm>();
+  const { t } = useTranslation('contact', { keyPrefix: 'company' });
+  return (
+    <div className="flex flex-col gap-1.5 pt-2">
+      <span className="flex items-center gap-1.5 text-xs font-medium text-accent-foreground">
+        <IconAlignLeft className="size-3.5" aria-hidden="true" />
+        {t('description', 'Description')}
+      </span>
+      <Form.Field
+        control={control}
+        name="description"
+        render={({ field }) => (
+          <Editor
+            initialContent={field.value}
+            onChange={field.onChange}
+            scope="side-panel-company-new.description"
+          />
+        )}
+      />
+    </div>
+  );
+};
 
 /**
  * A company not created yet, drawn like its Detail tab: nothing saved until
@@ -67,7 +122,12 @@ type TCompanyForm = z.infer<typeof companySchema>;
  */
 export const CompanyPanelNew = () => {
   const { t } = useTranslation('contact', { keyPrefix: 'company' });
-  const { openRecord, back, canGoBack, close } = useSidePanel();
+  const { back, canGoBack, close } = useSidePanel();
+  const [customerIds, setCustomerIds] = useState<string[]>([]);
+  const { onCreated, linking } = useCreatedContactPanelRecord(
+    'core:company',
+    customerIds,
+  );
   const client = useApolloClient();
   const { companiesAdd, loading } = useAddCompany();
   const form = useForm<TCompanyForm>({
@@ -90,13 +150,23 @@ export const CompanyPanelNew = () => {
     form.setValue('primaryName', registeredName, { shouldValidate: true });
   }, [registeredName, form]);
 
+  /** Returns to the previous record or closes a top-level company draft. */
   const cancel = () => (canGoBack ? back() : close());
 
-  const save = ({ industry, size, primaryName, code, ...rest }: TCompanyForm) =>
+  /** Creates the company and replaces its draft panel after a successful mutation. */
+  const save = ({
+    industry,
+    size,
+    primaryName,
+    primaryEmail,
+    code,
+    ...rest
+  }: TCompanyForm) =>
     companiesAdd({
       variables: {
         ...rest,
         primaryName: primaryName?.trim() || undefined,
+        email: primaryEmail,
         code: code?.trim() || undefined,
         industry: industry?.map((option) => option.value),
         size: size ? Number(size) : undefined,
@@ -110,24 +180,21 @@ export const CompanyPanelNew = () => {
       onCompleted: ({ companiesAdd: created }) => {
         // Company lists read again, the new one included.
         client.cache.evict({ id: 'ROOT_QUERY', fieldName: 'companies' });
-        openRecord(
-          { contentType: 'core:company', contentId: created._id },
-          { replace: true },
-        );
+        onCreated(created._id);
       },
     });
 
-  const textRow = (
-    name: 'primaryName' | 'code' | 'primaryEmail' | 'primaryPhone' | 'website',
-    label: string,
-    autoFocus = false,
-  ) => (
-    <PanelFormRow label={label} error={errors[name]?.message}>
+  /** Renders a registered text input with its field label and validation error. */
+  const textRow = (name: TCompanyTextField, label: string) => (
+    <PanelFormRow
+      icon={TEXT_FIELD_ICONS[name]}
+      label={label}
+      error={errors[name]?.message}
+    >
       <Input
         {...form.register(name)}
-        autoFocus={autoFocus}
         placeholder={label}
-        className={PANEL_INPUT_CLASS_NAME}
+        className={INPUT_CLASS_NAME}
       />
     </PanelFormRow>
   );
@@ -135,31 +202,44 @@ export const CompanyPanelNew = () => {
   return (
     <Form {...form}>
       <form
-        className="flex flex-1 min-h-0 flex-col"
+        className="mx-auto flex w-full max-w-2xl flex-1 min-h-0 flex-col"
         onSubmit={form.handleSubmit(save)}
       >
         <PanelFormLayout
           onCancel={cancel}
-          saving={loading}
+          saving={loading || linking}
           saveLabel={t('add._', 'Add company')}
         >
-          {textRow('primaryName', t('field.primaryName', 'Name'), true)}
+          {textRow('primaryName', t('field.primaryName', 'Name'))}
           {textRow('code', t('code', 'Code'))}
+          <PanelFormRow icon={IconUser} label={t('customer', 'Customer')}>
+            <ContactRelationInput
+              kind="customer"
+              value={customerIds}
+              onValueChange={setCustomerIds}
+              scope="side-panel-company-new.customers"
+              disabled={loading || linking}
+            />
+          </PanelFormRow>
           {textRow('primaryEmail', t('email', 'Email'))}
           {textRow('primaryPhone', t('phone', 'Phone'))}
-          <PanelFormRow label={t('owner', 'Owner')}>
+          <PanelFormRow icon={IconUserCircle} label={t('owner', 'Owner')}>
             <Form.Field
               control={form.control}
               name="ownerId"
               render={({ field }) => (
                 <SelectMember.FormItem
+                  placeholder={t('owner', 'Owner')}
                   value={field.value}
                   onValueChange={field.onChange}
                 />
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('parent-company', 'Parent company')}>
+          <PanelFormRow
+            icon={IconHierarchy}
+            label={t('parent-company', 'Parent company')}
+          >
             <Form.Field
               control={form.control}
               name="parentCompanyId"
@@ -173,12 +253,17 @@ export const CompanyPanelNew = () => {
             />
           </PanelFormRow>
           {textRow('website', t('website', 'Website'))}
-          <PanelFormRow label={t('industries', 'Industries')}>
+          <PanelFormRow
+            icon={IconBuildingFactory}
+            label={t('industries', 'Industries')}
+          >
             <Form.Field
               control={form.control}
               name="industry"
               render={({ field }) => (
                 <MultipleSelector
+                  placeholder={t('industries', 'Industries')}
+                  hidePlaceholderWhenSelected
                   defaultOptions={INDUSTRY_OPTIONS}
                   value={field.value}
                   onChange={field.onChange}
@@ -187,7 +272,7 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('location', 'Location')}>
+          <PanelFormRow icon={IconMapPin} label={t('location', 'Location')}>
             <Form.Field
               control={form.control}
               name="location"
@@ -196,8 +281,8 @@ export const CompanyPanelNew = () => {
                   value={field.value || ''}
                   onValueChange={field.onChange}
                 >
-                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                    <Select.Value />
+                  <Select.Trigger className={INPUT_CLASS_NAME}>
+                    <Select.Value placeholder={t('location', 'Location')} />
                   </Select.Trigger>
                   <Select.Content>
                     {CountryPhoneCodes.map((country) => (
@@ -215,7 +300,10 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('business-type', 'Business type')}>
+          <PanelFormRow
+            icon={IconBriefcase}
+            label={t('business-type', 'Business type')}
+          >
             <Form.Field
               control={form.control}
               name="businessType"
@@ -224,8 +312,10 @@ export const CompanyPanelNew = () => {
                   value={field.value || ''}
                   onValueChange={field.onChange}
                 >
-                  <Select.Trigger className={PANEL_INPUT_CLASS_NAME}>
-                    <Select.Value />
+                  <Select.Trigger className={INPUT_CLASS_NAME}>
+                    <Select.Value
+                      placeholder={t('business-type', 'Business type')}
+                    />
                   </Select.Trigger>
                   <Select.Content>
                     {COMPANY_BUSINESS_TYPES.filter(Boolean).map((type) => (
@@ -238,30 +328,16 @@ export const CompanyPanelNew = () => {
               )}
             />
           </PanelFormRow>
-          <PanelFormRow label={t('size', 'Size')}>
+          <PanelFormRow icon={IconUsers} label={t('size', 'Size')}>
             <Input
               {...form.register('size')}
               type="number"
+              placeholder={t('size', 'Size')}
               min={0}
-              className={PANEL_INPUT_CLASS_NAME}
+              className={INPUT_CLASS_NAME}
             />
           </PanelFormRow>
-          <div className="flex flex-col gap-1.5 pt-2">
-            <span className="text-xs font-medium text-accent-foreground">
-              {t('description', 'Description')}
-            </span>
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Editor
-                  initialContent={field.value}
-                  onChange={field.onChange}
-                  scope="side-panel-company-new.description"
-                />
-              )}
-            />
-          </div>
+          <CompanyDescriptionInput />
           <DataExtensionCreateFields
             recordType="core:company"
             layout="stack"

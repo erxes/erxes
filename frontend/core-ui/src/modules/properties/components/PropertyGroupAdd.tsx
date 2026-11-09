@@ -1,6 +1,12 @@
-import { Button, Sheet } from 'erxes-ui';
+import { PagePanelStatus } from '@/side-panel/components/PagePanelStatus';
+import {
+  createPagePanelPortal as createPortal,
+  usePagePanel,
+  PagePanelContext,
+} from '@/side-panel/hooks/usePagePanel';
+import { Button } from 'erxes-ui';
 import { useState } from 'react';
-import { SubmitHandler, useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useParams, useLocation } from 'react-router-dom';
@@ -10,13 +16,20 @@ import {
   PropertyGroupForm,
   propertyGroupSchema,
   useAddPropertyGroup,
+  SidePanelRecordPathContext,
+  RecordSidePanel,
 } from 'ui-modules';
-
 export const AddPropertyGroup = () => {
-  const { t } = useTranslation('settings', { keyPrefix: 'properties' });
-  const { type } = useParams<{ type: string }>();
+  const { t: panelT } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
+  const { t } = useTranslation('settings', {
+    keyPrefix: 'properties',
+  });
+  const { type } = useParams<{
+    type: string;
+  }>();
   const location = useLocation();
-
   const { addPropertyGroup, loading } = useAddPropertyGroup(type || '');
   const form = useForm<IPropertyGroupForm>({
     resolver: zodResolver(propertyGroupSchema),
@@ -27,50 +40,68 @@ export const AddPropertyGroup = () => {
     },
   });
   const [open, setOpen] = useState<boolean>(false);
-
   const submitHandler: SubmitHandler<IPropertyGroupForm> = (data) => {
     addPropertyGroup({
       variables: {
         name: data.name,
         code: data.code,
         contentType: type,
-        configs: { isMultiple: data.isMultiple },
+        configs: {
+          isMultiple: data.isMultiple,
+        },
       },
       onCompleted: () => {
+        if (!pagePanel.isCurrent()) return;
         form.reset();
         setOpen(false);
       },
     });
   };
-
+  const pagePanel = usePagePanel({
+    expandable: false,
+    requiredPermission: 'fieldGroupsManage',
+    name: 'properties/PropertyGroupAdd',
+    onOpenChange: setOpen,
+    open: open,
+  });
   if (
     location.pathname.includes('add') ||
     location.pathname.split(type || '')[1]?.length > 2
   ) {
     return null;
   }
-
   return (
-    <Sheet onOpenChange={setOpen} open={open}>
-      <Can action="fieldGroupsManage">
-        <Sheet.Trigger asChild>
-          <Button variant="outline">{t('add-group', 'Add Group')}</Button>
-        </Sheet.Trigger>
-      </Can>
-      <Sheet.View
-        className="p-0"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
-      >
-        <PropertyGroupForm
-          onSubmit={submitHandler}
-          loading={loading}
-          defaultValues={form.getValues()}
-          onCancel={() => setOpen(false)}
-          contentType={type || ''}
-        />
-      </Sheet.View>
-    </Sheet>
+    <PagePanelContext.Provider value={pagePanel}>
+      <SidePanelRecordPathContext.Provider value={pagePanel.path}>
+        <Can action="fieldGroupsManage">
+          <Button variant="outline" onClick={pagePanel.onOpen}>
+            {t('add-group', 'Add Group')}
+          </Button>
+        </Can>
+        {createPortal(
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background">
+            {pagePanel.permissionsLoaded && pagePanel.allowed ? (
+              <>
+                <RecordSidePanel.Header
+                  title={panelT('add-group', 'Add Group')}
+                  {...pagePanel.headerProps}
+                />
+                <PropertyGroupForm
+                  onSubmit={submitHandler}
+                  loading={loading}
+                  defaultValues={form.getValues()}
+                  onCancel={() => setOpen(false)}
+                  contentType={type || ''}
+                  layout="record"
+                />
+              </>
+            ) : (
+              <PagePanelStatus entry={pagePanel} />
+            )}
+          </div>,
+          pagePanel,
+        )}
+      </SidePanelRecordPathContext.Provider>
+    </PagePanelContext.Provider>
   );
 };

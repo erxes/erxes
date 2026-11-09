@@ -31,7 +31,9 @@ const ActionResultCell = ({
 }: {
   action: AutomationHistoryActionTableRow;
 }) => {
+  const { t } = useTranslation('automations');
   const { selectedActionId, selectAction } = useAutomationExecutionSelection();
+  const preview = getActionResultPreview(action, t);
 
   return (
     <Button
@@ -42,8 +44,8 @@ const ActionResultCell = ({
         selectedActionId === action.actionId && 'bg-accent text-foreground',
       )}
     >
-      <span className="block w-full truncate">
-        {getActionResultPreview(action)}
+      <span className="block w-full truncate" title={preview}>
+        {preview}
       </span>
     </Button>
   );

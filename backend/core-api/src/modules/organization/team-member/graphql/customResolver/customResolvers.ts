@@ -1,4 +1,5 @@
 import { IUserDocument } from 'erxes-api-shared/core-types';
+import { redis, userActivityTrackingKey } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import { getSessionState } from '@/auth/session';
 
@@ -39,6 +40,27 @@ export default {
     { subdomain }: IContext,
   ) {
     return getSessionState(subdomain, user._id);
+  },
+
+  async activity(
+    user: IUserDocument,
+    { days = 7 }: { days?: number },
+    { models, subdomain, user: currentUser, checkPermission }: IContext,
+  ) {
+    if (!(await redis.exists(userActivityTrackingKey(subdomain)))) {
+      return null;
+    }
+
+    // Own activity is always visible; others' only with the permission
+    if (currentUser?._id !== user._id) {
+      try {
+        await checkPermission('teamMembersViewActivity');
+      } catch {
+        return null;
+      }
+    }
+
+    return models.UserActivities.getActivitySummary(user._id, days);
   },
 
   async status(user: IUserDocument) {

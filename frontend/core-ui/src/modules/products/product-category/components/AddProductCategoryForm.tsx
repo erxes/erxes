@@ -1,9 +1,12 @@
+import {
+  ProductEditorPanel,
+  ProductEditorHeader,
+} from '@/products/components/ProductEditorPanel';
 import { IconPlus } from '@tabler/icons-react';
 
 import {
   Button,
   Kbd,
-  Sheet,
   usePreviousHotkeyScope,
   useScopedHotkeys,
   useSetHotkeyScope,
@@ -54,29 +57,23 @@ export const ProductCategoryAddSheet = () => {
   );
 
   return (
-    <Sheet
-      onOpenChange={(open) => (open ? onOpen() : onClose())}
-      open={open}
-      modal
-    >
+    <>
       <Can action="productCategoriesManage">
-        <Sheet.Trigger asChild>
-          <Button>
-            <IconPlus />
-            {t('add-category')}
-            <Kbd>C</Kbd>
-          </Button>
-        </Sheet.Trigger>
+        <Button onClick={onOpen}>
+          <IconPlus />
+          {t('add-category')}
+          <Kbd>C</Kbd>
+        </Button>
       </Can>
-      <Sheet.View
-        className="p-0 sm:max-w-lg"
-        onEscapeKeyDown={(e) => {
-          e.preventDefault();
-        }}
+      <ProductEditorPanel
+        name="categories/new"
+        open={open}
+        onOpenChange={(nextOpen) => (nextOpen ? onOpen() : onClose())}
+        requiredPermission="productCategoriesManage"
       >
         <AddCategoryForm onOpenChange={setOpen} />
-      </Sheet.View>
-    </Sheet>
+      </ProductEditorPanel>
+    </>
   );
 };
 
@@ -84,9 +81,5 @@ export const CategoryAddSheetHeader = () => {
   const { t } = useTranslation('product', {
     keyPrefix: 'product-category',
   });
-  return (
-    <Sheet.Header className="gap-3 border-b">
-      <Sheet.Title>{t('create-category')}</Sheet.Title> <Sheet.Close />
-    </Sheet.Header>
-  );
+  return <ProductEditorHeader title={t('create-category')} />;
 };

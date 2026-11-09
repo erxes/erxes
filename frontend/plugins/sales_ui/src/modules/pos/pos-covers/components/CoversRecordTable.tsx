@@ -13,12 +13,20 @@ interface CoversRecordTableProps {
 
 export const CoversRecordTable = ({ posId }: CoversRecordTableProps) => {
   const { t } = useTranslation('sales');
-  const { coversList, handleFetchMore, loading, pageInfo } = useCoversList({
-    posId,
-  });
+  const { coversList, handleFetchMore, loading, error, pageInfo } =
+    useCoversList({
+      posId,
+    });
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
   const { sessionKey } = useIsPosCoverLeadSessionKey();
   const columns = useMemo(() => coverColumns(t), [t]);
+
+  if (error)
+    return (
+      <p role="alert" className="m-3 text-destructive">
+        {error.message}
+      </p>
+    );
 
   return (
     <RecordTable.Provider

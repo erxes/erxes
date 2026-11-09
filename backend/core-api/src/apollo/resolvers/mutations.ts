@@ -17,6 +17,7 @@ import { internalNoteMutations } from '@/internalNote/graphql/mutations';
 import { brandMutations } from '@/organization/brand/graphql/mutations';
 import { organizationConfigMutations } from '@/organization/settings/graphql/configs/mutations';
 import { favoriteMutations } from '@/organization/settings/graphql/favorites/mutations';
+import { dashboardLayoutMutations } from '@/organization/settings/graphql/dashboardLayouts/mutations';
 import { structureMutations } from '@/organization/structure/graphql/resolvers/mutations';
 import { userMutations } from '@/organization/team-member/graphql/mutations';
 import { permissionMutations } from '~/modules/permissions/graphql/resolvers/mutations/permission';
@@ -62,6 +63,7 @@ export const mutations = {
   ...conformityMutations,
   ...relationsMutations,
   ...favoriteMutations,
+  ...dashboardLayoutMutations,
   ...structureMutations,
   ...brandMutations,
   ...permissionMutations,

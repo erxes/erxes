@@ -1,7 +1,7 @@
 import { IconPuzzle } from '@tabler/icons-react';
 import { RecordTable, useMultiQueryState } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
-import { ElementCreateSheet } from './ElementCreateSheet';
+import { ElementCreateButton } from './ElementPanel';
 import { elementColumns } from './ElementColumns';
 import { useElements } from '../hooks/useElements';
 import { useElementCategories } from '../hooks/useElementCategories';
@@ -9,16 +9,15 @@ import { ELEMENTS_CURSOR_SESSION_KEY } from '../constants/elementCursorSessionKe
 import { ElementCommandBar } from './ElementCommandBar';
 import { useAtomValue } from 'jotai';
 import { activeLangAtom } from '@/tms/atoms/activeLangAtom';
+import { TOURISM_RECORD_TABLE_CLASS_NAME } from '@/tms/constants/recordTable';
 
 interface ElementRecordTableProps {
   branchId: string;
-  branchLanguages?: string[];
   mainLanguage?: string;
 }
 
 export const ElementRecordTable = ({
   branchId,
-  branchLanguages,
   mainLanguage,
 }: ElementRecordTableProps) => {
   const { t } = useTranslation('tourism');
@@ -43,26 +42,14 @@ export const ElementRecordTable = ({
   const { hasPreviousPage, hasNextPage } = pageInfo || {};
 
   if (!loading && (totalCount ?? 0) === 0) {
-    return (
-      <EmptyStateRow
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
-    );
+    return <EmptyStateRow branchId={branchId} />;
   }
 
   return (
     <RecordTable.Provider
-      columns={elementColumns(
-        getCategoryNamesByIds,
-        branchId,
-        branchLanguages,
-        mainLanguage,
-        t,
-      )}
+      columns={elementColumns(getCategoryNamesByIds, branchId, t)}
       data={elements || []}
-      className="h-full"
+      className={TOURISM_RECORD_TABLE_CLASS_NAME}
       stickyColumns={['more', 'checkbox', 'name']}
       tableId="tourism_elements_record_table"
     >
@@ -79,7 +66,9 @@ export const ElementRecordTable = ({
             <RecordTable.CursorBackwardSkeleton
               handleFetchMore={handleFetchMore}
             />
-            {loading && <RecordTable.RowSkeleton rows={30} />}
+            {loading && !elements?.length && (
+              <RecordTable.RowSkeleton rows={30} />
+            )}
             <RecordTable.RowList />
             <RecordTable.CursorForwardSkeleton
               handleFetchMore={handleFetchMore}
@@ -91,15 +80,7 @@ export const ElementRecordTable = ({
   );
 };
 
-function EmptyStateRow({
-  branchId,
-  branchLanguages,
-  mainLanguage,
-}: {
-  branchId: string;
-  branchLanguages?: string[];
-  mainLanguage?: string;
-}) {
+function EmptyStateRow({ branchId }: Readonly<{ branchId: string }>) {
   const { t } = useTranslation('tourism');
   return (
     <div className="flex flex-col items-center justify-center gap-3 p-6 w-full min-h-[80vh] text-center">
@@ -113,11 +94,7 @@ function EmptyStateRow({
         {t('no-elements-yet-desc')}
       </p>
 
-      <ElementCreateSheet
-        branchId={branchId}
-        branchLanguages={branchLanguages}
-        mainLanguage={mainLanguage}
-      />
+      <ElementCreateButton branchId={branchId} />
     </div>
   );
 }

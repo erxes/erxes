@@ -76,6 +76,10 @@ const GET_USERS_QUERY = gql`
         email
         status
         sessionState
+        activity(days: 7) {
+          activeMinutes
+          lastActiveAt
+        }
         isActive
         groupIds
         brandIds

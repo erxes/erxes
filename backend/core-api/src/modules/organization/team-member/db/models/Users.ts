@@ -20,11 +20,12 @@ import {
   ILink,
   IPropertyField,
   IUser,
+  IUserAppearance,
   IUserDocument,
   IUserMovementDocument,
 } from 'erxes-api-shared/core-types';
 import { escapeRegExp, redis } from 'erxes-api-shared/utils';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, PipelineStage } from 'mongoose';
 import { IModels } from '~/connectionResolvers';
 import { sendOnboardNotification } from '~/modules/notifications/utils';
 import {
@@ -33,8 +34,25 @@ import {
   generateUserUpdateActivityLogs,
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
+import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
 
 const SALT_WORK_FACTOR = 10;
+
+// Must match the core-ui appearance options.
+const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_FRAME_COLORS = [
+  'indigo',
+  'graphite',
+  'forest',
+  'plum',
+  'erxes',
+  'new-year',
+  'march-8',
+  'seasonal',
+];
+
+const exactPattern = (value: string) =>
+  new RegExp(`^${escapeRegExp(value)}$`, 'i');
 
 interface IEditProfile {
   username?: string;
@@ -108,7 +126,12 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     values: Record<string, unknown>,
   ): Promise<IUserDocument | null>;
-  editProfile(_id: string, doc: IEditProfile): Promise<IUserDocument>;
+  editProfile(
+    _id: string,
+    doc: IEditProfile,
+    pipeline?: PipelineStage[],
+  ): Promise<IUserDocument>;
+  patchProfile(_id: string, doc: IProfilePatch): Promise<IUserDocument>;
   generateUserCode(): Promise<string>;
   generateUserCodeField(): Promise<void>;
   configEmailSignatures(
@@ -119,6 +142,10 @@ export interface IUserModel extends Model<IUserDocument> {
     _id: string,
     isAllowed: boolean,
   ): Promise<IUserDocument>;
+  configAppearance(
+    _id: string,
+    appearance: IUserAppearance,
+  ): Promise<IUserDocument | null>;
   setUserActiveOrInactive(_id: string): Promise<IUserDocument>;
   generatePassword(password: string): Promise<string>;
   invite(params: IInviteParams): Promise<string>;
@@ -296,8 +323,12 @@ export const loadUserClass = (
       }
 
       // Checking if user has email
+      // Login matches either field, so an email may not be another member's username
       if (email) {
-        previousEntry = await models.Users.findUsers({ ...query, email });
+        previousEntry = await models.Users.findUsers({
+          ...query,
+          $or: [{ email }, { username: exactPattern(email) }],
+        });
 
         // Checking if duplicated
         if (previousEntry.length > 0) {
@@ -317,7 +348,10 @@ export const loadUserClass = (
 
       //Checking username
       if (username) {
-        previousEntry = await models.Users.findOne({ ...query, username });
+        previousEntry = await models.Users.findOne({
+          ...query,
+          $or: [{ username }, { email: exactPattern(username) }],
+        });
 
         // Checking if duplicated
         if (previousEntry) {
@@ -536,7 +570,9 @@ export const loadUserClass = (
       await models.Users.checkDuplication({ email });
 
       const usernameTaken = username
-        ? await models.Users.exists({ username })
+        ? await models.Users.exists({
+            $or: [{ username }, { email: exactPattern(username) }],
+          })
         : null;
 
       const user = await models.Users.create({
@@ -593,6 +629,18 @@ export const loadUserClass = (
     /*
      * Update user profile
      */
+    public static async patchProfile(_id: string, doc: IProfilePatch) {
+      const pipeline = buildProfilePatch(doc);
+      return models.Users.editProfile(
+        _id,
+        {
+          username: doc.username?.trim(),
+          email: doc.email?.trim().toLowerCase(),
+        },
+        pipeline,
+      );
+    }
+
     public static async editProfile(
       _id: string,
       {
@@ -603,10 +651,15 @@ export const loadUserClass = (
         employeeId,
         positionIds,
       }: IEditProfile,
+      pipeline?: PipelineStage[],
     ) {
       const user = await models.Users.getUser(_id);
 
       await this.assertEditable(_id);
+
+      if (pipeline && username) {
+        await this.checkDuplication({ username, idsToExclude: _id });
+      }
 
       // Checking duplicated email
       await this.checkDuplication({ email, idsToExclude: _id });
@@ -619,12 +672,20 @@ export const loadUserClass = (
         });
       }
 
-      await models.Users.updateOne(
-        { _id },
-        { $set: { username, email, details, links, employeeId, positionIds } },
-      );
-
-      const updatedUser = await models.Users.findOne({ _id });
+      let updatedUser: IUserDocument | null;
+      if (pipeline) {
+        updatedUser = await models.Users.findOneAndUpdate({ _id }, pipeline, {
+          new: true,
+        });
+      } else {
+        await models.Users.updateOne(
+          { _id },
+          {
+            $set: { username, email, details, links, employeeId, positionIds },
+          },
+        );
+        updatedUser = await models.Users.findOne({ _id });
+      }
       if (updatedUser) {
         sendDbEventLog({
           action: 'update',
@@ -669,6 +730,26 @@ export const loadUserClass = (
       await models.Users.updateOne(
         { _id },
         { $set: { getNotificationByEmail: isAllowed } },
+      );
+
+      return models.Users.findOne({ _id });
+    }
+
+    public static async configAppearance(
+      _id: string,
+      { layout, frameColor }: IUserAppearance,
+    ) {
+      if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
+        throw new Error(`Unknown appearance layout: ${layout}`);
+      }
+
+      if (frameColor && !USER_APPEARANCE_FRAME_COLORS.includes(frameColor)) {
+        throw new Error(`Unknown appearance frame color: ${frameColor}`);
+      }
+
+      await models.Users.updateOne(
+        { _id },
+        { $set: { appearance: { layout, frameColor } } },
       );
 
       return models.Users.findOne({ _id });
@@ -935,15 +1016,17 @@ export const loadUserClass = (
     }) {
       email = (email || '').toLowerCase().trim();
 
-      const loginPattern = new RegExp(`^${escapeRegExp(email)}$`, 'i');
+      const loginPattern = exactPattern(email);
 
-      const localUser = await models.Users.findOne({
-        $or: [
-          { email: { $regex: loginPattern } },
-          { username: { $regex: loginPattern } },
-        ],
-        isActive: true,
-      });
+      const findActive = (field: 'email' | 'username') =>
+        models.Users.findOne({
+          [field]: { $regex: loginPattern },
+          isActive: true,
+        });
+
+      // One identifier can be one member's email and another's username; the email wins
+      const localUser =
+        (await findActive('email')) || (await findActive('username'));
 
       const isDirectoryUser = localUser
         ? await this.isDirectoryUser(localUser._id)

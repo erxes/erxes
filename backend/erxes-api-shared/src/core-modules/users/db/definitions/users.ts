@@ -108,6 +108,11 @@ export const userSchema = schemaWrapper(
       type: [emailSignatureSchema],
       label: 'Email signatures',
     }),
+    appearance: mongooseField({
+      type: Object,
+      optional: true,
+      label: 'Appearance',
+    }),
     starredConversationIds: mongooseField({
       type: [String],
       label: 'Starred conversations',

@@ -437,6 +437,7 @@ const ConversationActionsDropdown = ({
 };
 
 export const ConversationHeader = () => {
+  const { t } = useTranslation('frontline', { keyPrefix: 'modules.inbox' });
   const { loading, _id } = useConversationContext();
   const [, setConversationId] = useQueryState<string>('conversationId');
   const view = useInboxLayout();
@@ -456,6 +457,7 @@ export const ConversationHeader = () => {
         <Button
           variant="secondary"
           size="icon"
+          aria-label={t('back-to-conversations', 'Back to conversations')}
           className="[&>svg]:size-4 text-foreground flex-none"
           onClick={() => setConversationId(null)}
         >

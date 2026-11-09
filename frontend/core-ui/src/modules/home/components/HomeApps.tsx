@@ -1,4 +1,4 @@
-import { HomeEmptyState, HomeSection } from '@/home/components/HomeSection';
+import { DashboardWidgetEmptyState, DashboardWidgetCard } from 'ui-modules';
 
 import { INavigationActivity } from '@/navigation/types/NavigationActivity';
 import { IconApps } from '@tabler/icons-react';
@@ -26,9 +26,9 @@ export const HomeApps = ({
   const apps = [...promoted, ...rest];
 
   return (
-    <HomeSection title={title}>
+    <DashboardWidgetCard title={title}>
       {apps.length === 0 ? (
-        <HomeEmptyState>{emptyLabel}</HomeEmptyState>
+        <DashboardWidgetEmptyState>{emptyLabel}</DashboardWidgetEmptyState>
       ) : (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {apps.map((app) => {
@@ -52,6 +52,6 @@ export const HomeApps = ({
           })}
         </div>
       )}
-    </HomeSection>
+    </DashboardWidgetCard>
   );
 };

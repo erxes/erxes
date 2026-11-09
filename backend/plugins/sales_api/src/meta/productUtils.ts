@@ -19,6 +19,9 @@ export const posSyncMutationNames = [
   'productCategoriesAdd',
   'productCategoriesEdit',
   'productCategoriesRemove',
+  'tagsTag',
+  'tagsEdit',
+  'tagsRemove',
   ...posConditionSyncMutationNames,
 ];
 
@@ -39,10 +42,6 @@ const createOrUpdateProductMutations = [
   'productsEdit',
   ...posConditionSyncMutationNames,
 ];
-const createOrUpdateProductCategoryMutations = [
-  'productCategoriesAdd',
-  'productCategoriesEdit',
-];
 
 type ProductSnapshot = {
   _id?: string;
@@ -55,9 +54,6 @@ type ProductCategorySnapshot = {
 };
 
 type ProductGroupSnapshot = {
-  categoryIds?: string[];
-  excludedCategoryIds?: string[];
-  excludedProductIds?: string[];
   categories?: ProductCategorySnapshot[];
 };
 
@@ -85,15 +81,8 @@ const getProductSyncAction = (mutationName: string) =>
   ['productsAdd', 'productsMerge'].includes(mutationName)
     ? 'create'
     : createOrUpdateProductMutations.includes(mutationName)
-      ? 'update'
-      : 'delete';
-
-const getProductCategorySyncAction = (mutationName: string) =>
-  mutationName === 'productCategoriesAdd'
-    ? 'create'
-    : createOrUpdateProductCategoryMutations.includes(mutationName)
-      ? 'update'
-      : 'delete';
+    ? 'update'
+    : 'delete';
 
 const getProductGroupPos = async (models: IModels) =>
   models.Pos.find({
@@ -106,38 +95,11 @@ const getProductGroupPos = async (models: IModels) =>
 const getRawProductGroups = async (models: IModels, posId: string) =>
   models.ProductGroups.find({ posId }).lean();
 
-const getProducts = async (subdomain: string, productIds: string[]) => {
-  const products = await sendTRPCMessage({
-    subdomain,
-    pluginName: 'core',
-    module: 'products',
-    action: 'find',
-    input: {
-      query: {
-        _id: { $in: productIds },
-      },
-      fields: {
-        _id: 1,
-        categoryId: 1,
-      },
-    },
-    defaultValue: [],
-  });
-
-  return Array.isArray(products) ? (products as ProductSnapshot[]) : [];
-};
-
 const getPosProductData = async (
   subdomain: string,
   models: IModels,
   pos: IPosDocument,
-) => {
-  const productGroups = await getProductsData(subdomain, models, pos);
-
-  return Array.isArray(productGroups)
-    ? (productGroups as ProductGroupSnapshot[])
-    : [];
-};
+): Promise<ProductGroupSnapshot[]> => getProductsData(subdomain, models, pos);
 
 const findProduct = (
   productGroups: ProductGroupSnapshot[],
@@ -156,109 +118,12 @@ const findProduct = (
   }
 };
 
-const isInProduct = (
-  productGroups: ProductGroupSnapshot[],
-  productId: string,
-) => !!findProduct(productGroups, productId);
-
-const isInProductGroup = async (
-  subdomain: string,
-  productGroups: ProductGroupSnapshot[],
-  product: ProductSnapshot,
-) => {
-  if (!product._id || !product.categoryId) {
-    return false;
-  }
-
-  for (const productGroup of productGroups) {
-    if ((productGroup.excludedProductIds || []).includes(product._id)) {
-      continue;
-    }
-
-    const includedCategoryIds = await getChildCategories(
-      subdomain,
-      productGroup.categoryIds || [],
-    );
-    const excludedCategoryIds = await getChildCategories(
-      subdomain,
-      productGroup.excludedCategoryIds || [],
-    );
-
-    if (
-      includedCategoryIds.includes(product.categoryId) &&
-      !excludedCategoryIds.includes(product.categoryId)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
 const getProductFromGroups = async (
   subdomain: string,
   models: IModels,
   pos: IPosDocument,
   productId: string,
 ) => findProduct(await getPosProductData(subdomain, models, pos), productId);
-
-const findProductCategory = (
-  productGroups: ProductGroupSnapshot[],
-  categoryId: string,
-) => {
-  for (const group of productGroups) {
-    const category = (group.categories || []).find(
-      (currentCategory) => currentCategory._id === categoryId,
-    );
-
-    if (category) {
-      const { products, ...categoryDoc } = category;
-      return categoryDoc;
-    }
-  }
-};
-
-const isInCategory = (
-  productGroups: ProductGroupSnapshot[],
-  categoryId: string,
-) => !!findProductCategory(productGroups, categoryId);
-
-const isInCategoryGroup = async (
-  subdomain: string,
-  productGroups: ProductGroupSnapshot[],
-  categoryId: string,
-) => {
-  for (const productGroup of productGroups) {
-    const includedCategoryIds = await getChildCategories(
-      subdomain,
-      productGroup.categoryIds || [],
-    );
-    const excludedCategoryIds = await getChildCategories(
-      subdomain,
-      productGroup.excludedCategoryIds || [],
-    );
-
-    if (
-      includedCategoryIds.includes(categoryId) &&
-      !excludedCategoryIds.includes(categoryId)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-const getProductCategoryFromGroups = async (
-  subdomain: string,
-  models: IModels,
-  pos: IPosDocument,
-  categoryId: string,
-) =>
-  findProductCategory(
-    await getPosProductData(subdomain, models, pos),
-    categoryId,
-  );
 
 const sendProductToPosClient = async ({
   subdomain,
@@ -272,11 +137,32 @@ const sendProductToPosClient = async ({
   mutationName: string;
   productId: string;
   product?: ProductSnapshot;
-}) =>
-  sendPosclientMessage({
+}) => {
+  if (product?.categoryId) {
+    const productCategory: ProductCategorySnapshot | null =
+      await sendTRPCMessage({
+        subdomain,
+        pluginName: 'core',
+        module: 'productCategories',
+        action: 'findOne',
+        input: { query: { _id: product.categoryId } },
+        throwOnError: true,
+      });
+    if (productCategory) {
+      await sendProductCategoryToPosClient({
+        subdomain,
+        pos,
+        mutationName: 'productCategoriesEdit',
+        categoryId: product.categoryId,
+        productCategory,
+      });
+    }
+  }
+  return sendPosclientMessage({
     subdomain,
     action: 'crudData',
     method: 'mutation',
+    throwOnError: true,
     input: {
       type: 'product',
       action: getProductSyncAction(mutationName),
@@ -285,6 +171,7 @@ const sendProductToPosClient = async ({
     },
     pos,
   });
+};
 
 const sendProductsRemoveToPosClient = async ({
   subdomain,
@@ -299,6 +186,7 @@ const sendProductsRemoveToPosClient = async ({
     subdomain,
     action: 'crudData',
     method: 'mutation',
+    throwOnError: true,
     input: {
       type: 'productsRemove',
       productIds,
@@ -323,9 +211,10 @@ const sendProductCategoryToPosClient = async ({
     subdomain,
     action: 'crudData',
     method: 'mutation',
+    throwOnError: true,
     input: {
       type: 'productCategory',
-      action: getProductCategorySyncAction(mutationName),
+      action: mutationName === 'productCategoriesAdd' ? 'create' : 'update',
       object: productCategory || { _id: categoryId },
       updatedDocument: productCategory,
     },
@@ -343,27 +232,14 @@ const syncProducts = async (
 
   if (mutationName === 'productsMerge') {
     const oldProductIds = stringArray(args.productIds);
-    const oldProducts = await getProducts(subdomain, oldProductIds);
     const newProductId = resultObject(result)._id;
 
     for (const pos of posList) {
-      const productGroups = await getRawProductGroups(models, pos._id);
-      const posProductIds: string[] = [];
-
-      for (const product of oldProducts) {
-        if (
-          product._id &&
-          (await isInProductGroup(subdomain, productGroups, product))
-        ) {
-          posProductIds.push(product._id);
-        }
-      }
-
-      if (posProductIds.length) {
+      if (oldProductIds.length) {
         await sendProductsRemoveToPosClient({
           subdomain,
           pos,
-          productIds: posProductIds,
+          productIds: oldProductIds,
         });
       }
 
@@ -392,30 +268,11 @@ const syncProducts = async (
 
   if (mutationName === 'productsRemove') {
     const productIds = stringArray(args.productIds);
-    const products = await getProducts(subdomain, productIds);
-
-    for (const pos of posList) {
-      const productGroups = await getRawProductGroups(models, pos._id);
-      const posProductIds: string[] = [];
-
-      for (const product of products) {
-        if (
-          product._id &&
-          (await isInProductGroup(subdomain, productGroups, product))
-        ) {
-          posProductIds.push(product._id);
-        }
-      }
-
-      if (posProductIds.length) {
-        await sendProductsRemoveToPosClient({
-          subdomain,
-          pos,
-          productIds: posProductIds,
-        });
+    if (productIds.length) {
+      for (const pos of posList) {
+        await sendProductsRemoveToPosClient({ subdomain, pos, productIds });
       }
     }
-
     return;
   }
 
@@ -441,63 +298,11 @@ const syncProducts = async (
         productId,
         product,
       });
-    }
-  }
-};
-
-const syncProductCategories = async (
-  subdomain: string,
-  models: IModels,
-  mutationName: string,
-  args: Record<string, unknown>,
-  result: unknown,
-) => {
-  const posList = await getProductGroupPos(models);
-
-  if (mutationName === 'productCategoriesRemove') {
-    const categoryId = isString(args._id) ? args._id : undefined;
-
-    if (!categoryId) {
-      return;
-    }
-
-    for (const pos of posList) {
-      const productGroups = await getRawProductGroups(models, pos._id);
-
-      if (await isInCategoryGroup(subdomain, productGroups, categoryId)) {
-        await sendProductCategoryToPosClient({
-          subdomain,
-          pos,
-          mutationName,
-          categoryId,
-        });
-      }
-    }
-
-    return;
-  }
-
-  const categoryId = getSingleId(args, result);
-
-  if (!categoryId) {
-    return;
-  }
-
-  for (const pos of posList) {
-    const productCategory = await getProductCategoryFromGroups(
-      subdomain,
-      models,
-      pos,
-      categoryId,
-    );
-
-    if (productCategory) {
-      await sendProductCategoryToPosClient({
+    } else {
+      await sendProductsRemoveToPosClient({
         subdomain,
         pos,
-        mutationName,
-        categoryId,
-        productCategory,
+        productIds: [productId],
       });
     }
   }
@@ -547,13 +352,39 @@ export const syncPosProductGroups = async (
   args: Record<string, unknown>,
   result: unknown,
 ) => {
-  if (posProductSyncMutationNames.includes(mutationName)) {
-    await syncProducts(subdomain, models, mutationName, args, result);
+  if (
+    [
+      'tagsTag',
+      'tagsEdit',
+      'tagsRemove',
+      ...posProductCategorySyncMutationNames,
+    ].includes(mutationName)
+  ) {
+    if (mutationName === 'tagsTag' && args.type !== 'core:product') return;
+    for (const pos of await getProductGroupPos(models)) {
+      const groups = await getRawProductGroups(models, pos._id);
+      if (
+        posProductCategorySyncMutationNames.includes(mutationName) ||
+        groups.some(
+          (group) => group.tagIds?.length || group.excludeTagIds?.length,
+        )
+      ) {
+        const productGroups = await getProductsData(subdomain, models, pos);
+        await sendPosclientMessage({
+          subdomain,
+          pos,
+          action: 'crudData',
+          method: 'mutation',
+          throwOnError: true,
+          input: { type: 'productGroups', token: pos.token, productGroups },
+        });
+      }
+    }
     return;
   }
 
-  if (posProductCategorySyncMutationNames.includes(mutationName)) {
-    await syncProductCategories(subdomain, models, mutationName, args, result);
+  if (posProductSyncMutationNames.includes(mutationName)) {
+    await syncProducts(subdomain, models, mutationName, args, result);
     return;
   }
 

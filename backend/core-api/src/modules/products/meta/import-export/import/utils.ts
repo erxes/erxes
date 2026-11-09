@@ -1,6 +1,37 @@
-import { resolveImportTagIds } from '~/meta/import-export/utils';
-import { IModels } from '~/connectionResolvers';
-import { PRODUCT_TYPES } from '@/products/constants';
+import { IProduct, ProductDurationType } from 'erxes-api-shared/core-types';
+import { splitImportTagNames } from '~/meta/import-export/utils';
+import { PRODUCT_DURATION_TYPES, PRODUCT_TYPES } from '@/products/constants';
+
+export type ProductImportRow = Partial<
+  Record<
+    | 'code'
+    | 'name'
+    | 'shortName'
+    | 'description'
+    | 'unitPrice'
+    | 'uom'
+    | 'categoryId'
+    | 'vendorCode'
+    | 'status'
+    | 'tags'
+    | 'type'
+    | 'barcodes'
+    | 'duration'
+    | 'durationType',
+    string
+  >
+>;
+
+const TEXT_FIELDS = [
+  'code',
+  'name',
+  'shortName',
+  'description',
+  'uom',
+  'categoryId',
+  'vendorCode',
+  'status',
+] as const;
 
 const ALLOWED_IMPORTED_PRODUCT_TYPES = [
   PRODUCT_TYPES.SERVICE,
@@ -29,35 +60,69 @@ const parseBarcodes = (value: unknown) => {
     .filter(Boolean);
 };
 
-export async function prepareProductDoc(models: IModels, row: any) {
-  const doc: any = { ...row };
+const parseNumber = (value: string, field: string) => {
+  const number = Number(value);
 
-  doc.createdAt = new Date();
-  doc.updatedAt = new Date();
-  doc.type = parseProductType(doc.type);
-
-  if (doc.barcodes !== undefined && doc.barcodes !== null) {
-    doc.barcodes = parseBarcodes(doc.barcodes);
+  if (Number.isNaN(number)) {
+    throw new Error(`${field} must be a number`);
   }
 
-  if (!doc.code) {
-    throw new Error('code is required');
+  return number;
+};
+
+const isDurationType = (value: string): value is ProductDurationType =>
+  PRODUCT_DURATION_TYPES.ALL.includes(value);
+
+/**
+ * Cell text to typed values only. Product rules (category, uom, vendor, code
+ * mask, duration) belong to the Products model. A field the row leaves out
+ * stays absent, so an update keeps the stored value.
+ */
+export const parseProductRow = (
+  row: ProductImportRow,
+  tagIdsByName: Map<string, string>,
+): Partial<IProduct> => {
+  const doc: Partial<IProduct> = {};
+
+  for (const field of TEXT_FIELDS) {
+    const value = row[field];
+
+    if (value !== undefined) {
+      doc[field] = value;
+    }
   }
 
-  if (
-    doc.unitPrice !== undefined &&
-    doc.unitPrice !== null &&
-    doc.unitPrice !== ''
-  ) {
-    doc.unitPrice = Number(doc.unitPrice);
-    if (Number.isNaN(doc.unitPrice))
-      throw new Error('unitPrice must be a number');
+  if (row.type !== undefined) {
+    doc.type = parseProductType(row.type);
   }
 
-  if (doc.tags) {
-    doc.tagIds = await resolveImportTagIds(models, 'core:product', doc.tags);
-    delete doc.tags;
+  if (row.barcodes !== undefined) {
+    doc.barcodes = parseBarcodes(row.barcodes);
+  }
+
+  if (row.unitPrice !== undefined) {
+    doc.unitPrice = parseNumber(row.unitPrice, 'unitPrice');
+  }
+
+  if (row.duration !== undefined) {
+    doc.duration = parseNumber(row.duration, 'duration');
+  }
+
+  if (row.durationType !== undefined) {
+    if (!isDurationType(row.durationType)) {
+      throw new Error(
+        `durationType must be one of: ${PRODUCT_DURATION_TYPES.ALL.join(', ')}`,
+      );
+    }
+
+    doc.durationType = row.durationType;
+  }
+
+  if (row.tags !== undefined) {
+    doc.tagIds = splitImportTagNames(row.tags).flatMap(
+      (name) => tagIdsByName.get(name) ?? [],
+    );
   }
 
   return doc;
-}
+};

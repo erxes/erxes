@@ -11,31 +11,16 @@ export interface IParam {
   contentTypeId?: string;
 }
 
-const buildKindQuery = async (kind: string, models: IContext['models']) => {
-  const [txInvoiceIds, pmIds] = await Promise.all([
-    models.Transactions.find({ paymentKind: kind }).distinct('invoiceId'),
-    models.PaymentMethods.find({ kind }).distinct('_id'),
-  ]);
+// An invoice matches a kind only when a transaction was made with that kind
+// (indexed `paymentKinds`). Methods merely offered (paymentIds) do not count.
+const buildKindQuery = (kind: string) => ({ paymentKinds: kind });
 
-  const conditions: any[] = [];
-  if (txInvoiceIds.length > 0) conditions.push({ _id: { $in: txInvoiceIds } });
-  if (pmIds.length > 0)
-    conditions.push({ paymentIds: { $in: pmIds.map(String) } });
-
-  if (conditions.length === 0) return { _id: { $in: [] } };
-  if (conditions.length === 1) return conditions[0];
-  return { $or: conditions };
-};
-
-const generateFilterQuery = async (
-  params: IParam,
-  models: IContext['models'],
-) => {
+const generateFilterQuery = (params: IParam) => {
   const query: any = {};
   const { searchValue, kind, status, contentType, contentTypeId } = params;
 
   if (kind) {
-    Object.assign(query, await buildKindQuery(kind, models));
+    Object.assign(query, buildKindQuery(kind));
   }
 
   if (status) {
@@ -44,17 +29,7 @@ const generateFilterQuery = async (
 
   if (searchValue) {
     const regex = new RegExp(escapeRegExp(searchValue), 'i');
-    const searchCondition = {
-      $or: [{ description: regex }, { invoiceNumber: regex }],
-    };
-    if (query.$or) {
-      // kind filter already set $or — wrap both in $and to avoid key collision
-      const kindOr = query.$or;
-      delete query.$or;
-      query.$and = [{ $or: kindOr }, searchCondition];
-    } else {
-      Object.assign(query, searchCondition);
-    }
+    query.$or = [{ description: regex }, { invoiceNumber: regex }];
   }
 
   if (contentType) {
@@ -74,7 +49,7 @@ const generateFilterQuery = async (
 
 const queries: Record<string, Resolver> = {
   async invoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = generateFilterQuery(params);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -86,7 +61,7 @@ const queries: Record<string, Resolver> = {
   },
 
   async cpInvoices(_root, params: any, { models }: IContext) {
-    const query = await generateFilterQuery(params, models);
+    const query = generateFilterQuery(params);
 
     const { list, pageInfo, totalCount } = await cursorPaginate({
       model: models.Invoices,
@@ -104,7 +79,7 @@ const queries: Record<string, Resolver> = {
       byStatus: { paid: 0, pending: 0, refunded: 0, failed: 0 },
     };
 
-    const qry = await generateFilterQuery(params, models);
+    const qry = generateFilterQuery(params);
 
     const count = async (query) => {
       return models.Invoices.find(query).countDocuments();
@@ -120,8 +95,8 @@ const queries: Record<string, Resolver> = {
         params.kind === kind
           ? qry
           : Object.keys(qry).length > 0
-          ? { $and: [await buildKindQuery(kind, models), qry] }
-          : await buildKindQuery(kind, models);
+          ? { $and: [buildKindQuery(kind), qry] }
+          : buildKindQuery(kind);
 
       counts.byKind[kind] = await count(kindFilter);
     }

@@ -87,6 +87,7 @@ export interface IAutomationHistoryAction {
     | 'standby'
     | 'dropped';
   skipReason?: string;
+  errorCode?: string;
   // Which try this row is; above 1 only when an error policy asked for another.
   attempt?: number;
   actionId: string;
@@ -274,7 +275,12 @@ export type AutomationRemoteEntryProps =
   | AutomationExecutionActionResultProps
   | AutomationCustomWaitEventFormProps
   | AutomationAiKnowledgeSourceSelectorProps
-  | { componentType: 'automationBotsContent' };
+  | {
+      componentType: 'automationBotsContent';
+      /** Lets the host place plugin-owned bot actions in its page header. */
+      renderHeader?: (actions: React.ReactNode) => React.ReactNode;
+      listHeader?: React.ReactNode;
+    };
 
 export type AutomationRemoteEntryComponentType =
   AutomationRemoteEntryProps['componentType'];
