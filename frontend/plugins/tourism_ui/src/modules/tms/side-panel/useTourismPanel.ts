@@ -1,5 +1,4 @@
 import { useCallback, useMemo } from 'react';
-import { useSetAtom } from 'jotai';
 import { matchPath, useLocation } from 'react-router-dom';
 import {
   IOpenRecordOptions,
@@ -8,32 +7,47 @@ import {
 } from 'ui-modules';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { ITourismPanelDraftDefaults } from '@/tms/side-panel/tourismPanelTypes';
-import { tourismDraftValuesState } from '@/tms/side-panel/useTourismDraftValues';
+import { useClearTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 export const useTourismPanel = (contentType: string) => {
   const { openNewRecord, openRecord, close, back, canGoBack } = useSidePanel();
-  const setDraftValues = useSetAtom(tourismDraftValuesState);
+  const clearDraftValues = useClearTourismDraftValues();
 
   const openDraft = useCallback(
     (defaults: ITourismPanelDraftDefaults = {}) => {
-      setDraftValues((previous) => ({ ...previous, [contentType]: undefined }));
+      clearDraftValues(contentType);
       openNewRecord(contentType, defaults);
     },
-    [openNewRecord, contentType, setDraftValues],
+    [openNewRecord, contentType, clearDraftValues],
   );
 
   const openDetail = useCallback(
-    (contentId: string, options?: IOpenRecordOptions) =>
-      openRecord({ contentType, contentId }, options),
-    [openRecord, contentType],
+    (contentId: string, options?: IOpenRecordOptions) => {
+      if (options?.replace) {
+        clearDraftValues(contentType);
+      }
+
+      openRecord({ contentType, contentId }, options);
+    },
+    [openRecord, contentType, clearDraftValues],
   );
 
-  const cancelDraft = useCallback(
-    () => (canGoBack ? back() : close()),
-    [canGoBack, back, close],
-  );
+  const cancelDraft = useCallback(() => {
+    clearDraftValues(contentType);
 
-  return { openDraft, openDetail, cancelDraft, closePanel: close };
+    if (canGoBack) {
+      back();
+    } else {
+      close();
+    }
+  }, [canGoBack, back, close, clearDraftValues, contentType]);
+
+  const closePanel = useCallback(() => {
+    clearDraftValues(contentType);
+    close();
+  }, [close, clearDraftValues, contentType]);
+
+  return { openDraft, openDetail, cancelDraft, closePanel };
 };
 
 const TMS_BRANCH_ROUTE = '/tourism/tms/branches/:branchId/*';

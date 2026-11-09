@@ -52,6 +52,8 @@ export const TOURISM_PANEL_FIELDS_CLASS_NAME = [
   '[&_[role=combobox]>svg:last-child]:opacity-0',
   '[&_[role=combobox]:hover>svg:last-child]:opacity-50',
   '[&_[role=combobox][data-state=open]>svg:last-child]:opacity-50',
+  '[&_[role=combobox]:focus-visible>svg:last-child]:opacity-50',
+  '[@media(hover:none)]:[&_[role=combobox]>svg:last-child]:opacity-50',
 ].join(' ');
 
 const FIELD_ICONS: Record<string, Icon> = {
