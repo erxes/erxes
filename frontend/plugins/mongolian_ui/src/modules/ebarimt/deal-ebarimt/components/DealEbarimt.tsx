@@ -159,62 +159,69 @@ export const DealEbarimt = ({ contentId }: { contentId: string }) => {
         </Button>
       }
     >
-      {putResponses.map((putResponse) => (
-        <div key={putResponse._id} className="rounded border bg-background p-3">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <div className="truncate text-sm font-medium">
-                {putResponse.id || putResponse.number || t('ebarimt')}
+      {putResponses.map((putResponse) => {
+        const status = getStatus(putResponse);
+
+        return (
+          <div
+            key={putResponse._id}
+            className="rounded border bg-background p-3"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-medium">
+                  {putResponse.id || putResponse.number || t('ebarimt')}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {[putResponse.type, getDisplayDate(putResponse, timeZone)]
+                    .filter(Boolean)
+                    .join(' | ')}
+                </div>
               </div>
-              <div className="text-xs text-muted-foreground">
-                {[putResponse.type, getDisplayDate(putResponse, timeZone)]
-                  .filter(Boolean)
-                  .join(' | ')}
+              <div className="flex flex-none items-center gap-1">
+                <Badge variant={status.variant}>{t(status.label)}</Badge>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label={t('print-receipt')}
+                  disabled={!putResponse.id}
+                  onClick={() => handlePrint([putResponse])}
+                >
+                  <IconPrinter />
+                </Button>
               </div>
             </div>
-            <div className="flex flex-none items-center gap-1">
-              <Badge variant={getStatus(putResponse).variant}>
-                {t(getStatus(putResponse).label)}
-              </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={t('print-receipt')}
-                disabled={!putResponse.id}
-                onClick={() => handlePrint([putResponse])}
-              >
-                <IconPrinter />
-              </Button>
+            {putResponse.status !== 'SUCCESS' && putResponse.message && (
+              <div className="mt-2 text-xs text-destructive">
+                {putResponse.message}
+              </div>
+            )}
+            <Separator className="my-2" />
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div>
+                <span className="text-muted-foreground">
+                  {t('total-amount')}
+                </span>
+                <div className="font-medium">
+                  {formatAmount(putResponse.totalAmount)}
+                </div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">{t('vat')}</span>
+                <div className="font-medium">
+                  {formatAmount(putResponse.totalVAT)}
+                </div>
+              </div>
+              <div>
+                <span className="text-muted-foreground">{t('city-tax')}</span>
+                <div className="font-medium">
+                  {formatAmount(putResponse.totalCityTax)}
+                </div>
+              </div>
             </div>
           </div>
-          {putResponse.status !== 'SUCCESS' && putResponse.message && (
-            <div className="mt-2 text-xs text-destructive">
-              {putResponse.message}
-            </div>
-          )}
-          <Separator className="my-2" />
-          <div className="grid grid-cols-3 gap-2 text-xs">
-            <div>
-              <span className="text-muted-foreground">{t('total-amount')}</span>
-              <div className="font-medium">
-                {formatAmount(putResponse.totalAmount)}
-              </div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">{t('vat')}</span>
-              <div className="font-medium">
-                {formatAmount(putResponse.totalVAT)}
-              </div>
-            </div>
-            <div>
-              <span className="text-muted-foreground">{t('city-tax')}</span>
-              <div className="font-medium">
-                {formatAmount(putResponse.totalCityTax)}
-              </div>
-            </div>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </RelationWidgetList>
   );
 };
