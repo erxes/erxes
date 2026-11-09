@@ -57,6 +57,8 @@ export const AUTOMATION_CORE_ACTIONS = {
   TRANSFORM: 'transform',
   SET_PROPERTY: 'setProperty',
   SEND_EMAIL: 'sendEmail',
+  SEND_NOTIFICATION: 'sendNotification',
+  APPROVAL: 'approval',
   OUTGOING_WEBHOOK: 'outgoingWebhook',
   MESSAGE_PRO: 'messagePro',
   WAIT_EVENT: 'waitEvent',
@@ -130,6 +132,8 @@ export const AUTOMATION_NON_DEFERRABLE_CORE_ACTIONS = [
   AUTOMATION_CORE_ACTIONS.IF,
   AUTOMATION_CORE_ACTIONS.SPLIT,
   AUTOMATION_CORE_ACTIONS.WAIT_EVENT,
+  // Pauses for people for hours or days; it owns its wait and its timeout.
+  AUTOMATION_CORE_ACTIONS.APPROVAL,
 ];
 
 /**

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-08`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -80,6 +80,20 @@
 - A deal an automation creates records `createdVia` — what produced it, which
   run, and for whom — and falls back to that actor as the deal's `userId` when
   the target does not name one.
+- Create deal accepts product lines: `items` (JSON text of
+  `{ productId, quantity | count, unitPrice? }`) or, when empty, `productIds`
+  (one of each). `action/dealProducts.ts` prices a line from the line or the
+  Core product, computes row `amount`, ticks the row and drops missing
+  products; `Deals.createDeal` fills currency and totals. `items` and
+  `productIds` are never stored as deal fields.
+- Create deal publishes its own output (`targetId`, `name`, `number`,
+  `totalAmount`, `onlinePaymentUrl`); deal triggers expose `onlinePaymentUrl`
+  too. `resolveDealPaymentUrl.ts` re-reads the deal and asks Payment's
+  `getOrCreateInvoiceUrl` for `totalAmount − mobileAmount` with the deal
+  pipeline's `paymentIds` and `contentType: 'sales:deal'`; it returns `''`
+  when nothing is owed or no online payment is configured. Paying lands in the
+  existing `sales:deal` payments callback (`mobileAmounts`). Pricing plans and
+  loyalty discounts are not applied to automation lines.
 
 - Runs as the sales federated GraphQL and tRPC plugin service.
 - Exposes deals, pipelines, boards, stages, labels, product/payment data, sales

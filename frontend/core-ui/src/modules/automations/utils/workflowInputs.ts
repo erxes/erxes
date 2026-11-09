@@ -9,6 +9,8 @@ export const BRANCH_CONFIG_KEYS = [
   'no',
   'isExists',
   'notExists',
+  'approved',
+  'rejected',
   // The error policy's pair, written per node rather than per action type.
   'onSuccessActionId',
   'onErrorActionId',

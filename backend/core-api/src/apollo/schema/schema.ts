@@ -156,6 +156,12 @@ import {
 } from '@/notificationTemplates/graphql/schema';
 
 import {
+  mutations as CurrencyRateMutations,
+  queries as CurrencyRateQueries,
+  types as CurrencyRateTypes,
+} from '@/currencyRates/graphql/schema';
+
+import {
   mutations as LogsMutations,
   queries as LogsQueries,
   types as LogsTypes,
@@ -316,6 +322,7 @@ export const types = `
     ${AutomationsTypes}
     ${EmailTemplateTypes}
     ${NotificationTemplateTypes}
+    ${CurrencyRateTypes}
     ${LogsTypes}
     ${NotificationsTypes}
     ${InternalNoteTypes}
@@ -367,6 +374,7 @@ export const queries = `
     ${AutomationsQueries}
     ${EmailTemplateQueries}
     ${NotificationTemplateQueries}
+    ${CurrencyRateQueries}
     ${BeforeResolverQueries}
     ${LogsQueries}
     ${NotificationsQueries}
@@ -417,6 +425,7 @@ export const mutations = `
     ${AutomationsMutations}
     ${EmailTemplateMutations}
     ${NotificationTemplateMutations}
+    ${CurrencyRateMutations}
     ${NotificationsMutations}
     ${InternalNoteMutations}
     ${PropertiesMutations}

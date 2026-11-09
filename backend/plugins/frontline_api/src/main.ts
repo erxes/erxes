@@ -6,6 +6,7 @@ import { startFacebookCommentOutboxWorker } from '@/integrations/facebook/commen
 import { startFacebookInputTimeoutWorker } from '@/integrations/facebook/meta/automation/messages/inputWait';
 import { startCustomDomainWorker } from '@/customdomain/worker';
 import { startScheduledPublishWorker } from '@/knowledgebase/utils/scheduledPublish';
+import { startTicketSlaWorker } from '@/ticket/utils/slaWorker';
 import {
   createCoreModuleProducerHandler,
   TImportExportProducers,
@@ -81,6 +82,7 @@ startPlugin({
     startFacebookInputTimeoutWorker();
     startCustomDomainWorker();
     startScheduledPublishWorker();
+    startTicketSlaWorker();
   },
 
   apolloServerContext: async (subdomain, context) => {

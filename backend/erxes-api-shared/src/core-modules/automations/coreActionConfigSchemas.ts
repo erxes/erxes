@@ -23,6 +23,14 @@ export const delayActionConfigSchema = z.object({
     'How long to wait, counted in `type` units: a number or its digits.',
   ),
   type: z.enum(['minute', 'hour', 'day', 'month', 'year']),
+  workingTime: described(
+    z.boolean(),
+    "Count only working hours (minutes, hours), or land on the next working moment (days and longer; 0 waits only for opening). Hours come from the record's branch, else branchId.",
+  ).optional(),
+  branchId: described(
+    z.string(),
+    '_id of the branch whose working hours apply when the record names none.',
+  ).optional(),
 });
 
 const isBlocksText = (value: string) => {
@@ -370,7 +378,42 @@ export const waitEventActionConfigSchema = z
     },
   );
 
+export const sendNotificationActionConfigSchema = z.object({
+  userIds: requiredText(
+    'Team member _ids notified, comma-separated, or a {{ }} variable, as text.',
+  ),
+  title: requiredText('Notification title; {{ }} placeholders allowed.'),
+  message: described(
+    z.string(),
+    'Notification body; {{ }} placeholders allowed.',
+  ).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+});
+
+export const APPROVAL_DEFAULT_TIMEOUT_HOURS = 72;
+export const APPROVAL_MAX_TIMEOUT_HOURS = 30 * 24;
+
+export const approvalActionConfigSchema = z.object({
+  approverIds: requiredText(
+    'Team member _ids who may approve, comma-separated, or a {{ }} variable, as text. The first decision wins.',
+  ),
+  summary: requiredText(
+    'What is asked to be approved; {{ }} placeholders allowed.',
+  ),
+  timeoutHours: described(
+    z.union([z.number(), z.string()]),
+    'Hours to wait for a decision; 72 when absent, at most 30 days. On timeout the flow takes rejected with decision expired.',
+  ).optional(),
+  approved: nextAction('when approved'),
+  rejected: nextAction('when rejected or expired'),
+});
+
+export type TApprovalActionConfig = z.infer<typeof approvalActionConfigSchema>;
+
 export type TDelayActionConfig = z.infer<typeof delayActionConfigSchema>;
+export type TSendNotificationActionConfig = z.infer<
+  typeof sendNotificationActionConfigSchema
+>;
 export type TSendEmailActionConfig = z.infer<
   typeof sendEmailActionConfigSchema
 >;

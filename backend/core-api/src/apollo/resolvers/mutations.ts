@@ -10,6 +10,7 @@ import { oauthClientAppMutations } from '@/auth/graphql/resolvers/oauthClientApp
 import { automationMutations } from '@/automations/graphql/resolvers/mutations';
 import { emailTemplateMutations } from '@/emailTemplates/graphql/resolvers';
 import { notificationTemplateMutations } from '@/notificationTemplates/graphql/resolvers';
+import { currencyRateMutations } from '@/currencyRates/graphql/resolvers';
 import conformityMutations from '@/conformities/graphql/mutations';
 import { contactMutations } from '@/contacts/graphql/resolvers/mutations';
 import { documentMutations } from '@/documents/graphql/mutations';
@@ -73,6 +74,7 @@ export const mutations = {
   ...automationMutations,
   ...emailTemplateMutations,
   ...notificationTemplateMutations,
+  ...currencyRateMutations,
   ...notificationMutations,
   ...internalNoteMutations,
   ...broadcastMutations,

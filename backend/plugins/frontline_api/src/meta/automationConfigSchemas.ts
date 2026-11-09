@@ -101,6 +101,17 @@ export const messengerMessageActionConfigSchema = z.object({
   optionalConnects: branchLinks,
 });
 
+export const handoffActionConfigSchema = z.object({
+  assignTo: described(
+    z.string(),
+    'Team member _ids assigned to the conversation, comma-separated, or a {{ }} variable, as text.',
+  ).optional(),
+  pauseMinutes: described(
+    z.union([z.number(), z.string()]),
+    'Minutes automated replies stay paused on the conversation; 30 when absent, at most a week.',
+  ).optional(),
+});
+
 export const socialMessageActionConfigSchema = z.object({
   botId: described(
     z.string(),

@@ -346,6 +346,10 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   show a warning and are stripped on the next save. "Add field" (gated by
   `fieldsManage`) opens the shared `ui-modules` `PropertyAddSheet` for
   `core:customer` and places the new property on the form, visible.
+- The Create deal action form (`CreateDealActionConfigForm`) adds `productIds`
+  (product suggestions) and `items` (JSON lines, attribute placeholders) like
+  the POS order form, reusing its `products` / `order-items` translations;
+  `salesActionConfigFormSchema` keeps both, so saving does not strip them.
 - POS and pipeline "Automations" tabs (`PosAutomations`, `PipelineAutomations`)
   share `modules/automations` (`SourceAutomations` / `useSourceAutomations`,
   query `SalesSourceAutomations`): they list the automations whose trigger runs

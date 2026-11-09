@@ -26,6 +26,7 @@ export const currentUser = gql`
       appearance {
         layout
         frameColor
+        navPosition
       }
       configs
       isOnboarded

@@ -98,6 +98,36 @@
 
 ## Current Capabilities
 
+- Automation action `frontline:inbox.handoffs.create` ("Hand off to a person",
+  `inbox/meta/automation/handoffAction.ts`): resolves the run's inbox
+  conversation (Messenger target, Facebook/Instagram provider conversation,
+  or conversation trigger) through `resolveInboxConversationId`, sets
+  `automatedReplyControl` to `handoff_requested` with reason `automation` and
+  `pausedUntil = now + pauseMinutes` (default 30, capped at a week), and
+  assigns `assignTo` users; skips with `no-conversation` otherwise.
+  `inbox/services/automatedReplyPause.ts` (`isAutomatedReplyPaused`) is the
+  pause check for the Messenger widget trigger and Instagram message trigger:
+  a pause ends at `pausedUntil`, or 30 minutes after `updatedAt` when unset
+  (an operator reply's `human_active`), and an ended pause is reset to
+  `active`/`timeout_expired`. Facebook keeps its idle-based check on the same
+  field (`handoffPauseMinutes`).
+- Ticket SLA per pipeline (`pipeline.slaPolicy`: `enabled`, one rule per
+  priority 0-4 with `firstResponseMinutes` / `resolutionMinutes`,
+  `warnBeforeMinutes`; normalized by `normalizeSlaPolicy` in
+  `ticket/utils/sla.ts`). `Ticket.syncSla` writes `ticket.sla` (due times,
+  marks, `<clock>WarnedAt` / `<clock>BreachedAt`) after create/update of
+  `SLA_INPUT_FIELDS`, widget ticket create and automation setProperty. Due
+  times count the ticket branch's working hours (`utils/slaCalendar.ts`), else
+  clock time; no pause. First response = a non-internal team note
+  (`Note.ts`) or an operator conversation reply, which marks every open ticket
+  of that customer (`utils/slaResponse.ts`); AI replies do not count.
+  Resolution is marked while the status is closing, cleared on reopen. Checks
+  are delayed jobs on queue `ticketSla` (`utils/slaQueue.ts`, job id carries
+  the due time; worker `utils/slaWorker.ts` also resyncs a pipeline after a
+  policy change). A tripped flag fires the custom trigger "Ticket SLA"
+  (`trigger/checkSlaTrigger.ts`, relation `sla`, events
+  `firstResponse`/`resolution` × `warning`/`breached`, re-enrollment on).
+  No SLA report exists.
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
   fallbacks. Long replies split into complete ordered text chunks, with caption

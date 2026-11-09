@@ -195,6 +195,11 @@ import {
   INotificationTemplateModel,
   loadNotificationTemplateClass,
 } from './modules/notificationTemplates/db/models/NotificationTemplates';
+import { ICurrencyRateDocument } from './modules/currencyRates/db/definitions/currencyRates';
+import {
+  ICurrencyRateModel,
+  loadCurrencyRateClass,
+} from './modules/currencyRates/db/models/CurrencyRates';
 import {
   IAutomationWorkflowTemplateDocument,
   IAutomationWorkflowTemplateModel,
@@ -462,6 +467,7 @@ export interface IModels {
   AutomationExecutions: IExecutionModel;
   EmailTemplates: IEmailTemplateModel;
   NotificationTemplates: INotificationTemplateModel;
+  CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
   Logs: ILogModel;
   Imports: IImportModel;
@@ -795,6 +801,11 @@ export const loadClasses = (
     INotificationTemplateDocument,
     INotificationTemplateModel
   >('notification_templates', loadNotificationTemplateClass(models));
+
+  models.CurrencyRates = db.model<ICurrencyRateDocument, ICurrencyRateModel>(
+    'currency_rates',
+    loadCurrencyRateClass(models),
+  );
 
   models.AutomationWorkflowTemplates = db.model<
     IAutomationWorkflowTemplateDocument,

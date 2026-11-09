@@ -5,6 +5,14 @@ export const GET_TICKET = gql(`
     getTicket(_id: $_id) {
       ...FrontlineTicketFields
       isSubscribed
+      sla {
+        firstResponseDueAt
+        resolutionDueAt
+        firstRespondedAt
+        resolvedAt
+        firstResponseBreachedAt
+        resolutionBreachedAt
+      }
       attachments {
         name
         url

@@ -15,3 +15,4 @@ export * from './sendAutomationMessage';
 export * from './segmentMembership';
 export * from './reEnrollment';
 export * from './conditionals';
+export * from './workingCalendar';

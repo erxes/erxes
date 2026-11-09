@@ -40,6 +40,7 @@ const SALT_WORK_FACTOR = 10;
 
 // Must match the core-ui appearance options.
 const USER_APPEARANCE_LAYOUTS = ['default', 'notch', 'sidebar'];
+const USER_APPEARANCE_NAV_POSITIONS = ['start', 'end'];
 const USER_APPEARANCE_FRAME_COLORS = [
   'indigo',
   'graphite',
@@ -737,7 +738,7 @@ export const loadUserClass = (
 
     public static async configAppearance(
       _id: string,
-      { layout, frameColor }: IUserAppearance,
+      { layout, frameColor, navPosition }: IUserAppearance,
     ) {
       if (!layout || !USER_APPEARANCE_LAYOUTS.includes(layout)) {
         throw new Error(`Unknown appearance layout: ${layout}`);
@@ -747,9 +748,16 @@ export const loadUserClass = (
         throw new Error(`Unknown appearance frame color: ${frameColor}`);
       }
 
+      if (
+        navPosition &&
+        !USER_APPEARANCE_NAV_POSITIONS.includes(navPosition)
+      ) {
+        throw new Error(`Unknown appearance nav position: ${navPosition}`);
+      }
+
       await models.Users.updateOne(
         { _id },
-        { $set: { appearance: { layout, frameColor } } },
+        { $set: { appearance: { layout, frameColor, navPosition } } },
       );
 
       return models.Users.findOne({ _id });

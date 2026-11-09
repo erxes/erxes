@@ -1,5 +1,6 @@
 import type { Job } from 'bullmq';
 import { executePrevActionWorker } from './executePrevAction';
+import { expireApprovalWorker } from './expireApproval';
 import { expireDeferredActionWorker } from './expireDeferred';
 import { retryActionWorker } from './retryAction';
 import { runDeferredCoreActionWorker } from './runDeferredCore';
@@ -18,6 +19,7 @@ type ActionName =
   | 'startWorkflow'
   | 'resumeParentExecution'
   | 'expireDeferred'
+  | 'expireApproval'
   | 'runDeferredCoreAction'
   | 'retryAction';
 
@@ -31,6 +33,7 @@ export const actionHandlerWorkers: Record<
   startWorkflow: startWorkflowWorker,
   resumeParentExecution: resumeParentExecutionWorker,
   expireDeferred: expireDeferredActionWorker,
+  expireApproval: expireApprovalWorker,
   runDeferredCoreAction: runDeferredCoreActionWorker,
   retryAction: retryActionWorker,
 };

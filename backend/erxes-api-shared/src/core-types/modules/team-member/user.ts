@@ -34,6 +34,9 @@ export interface IDetail {
 export interface IUserAppearance {
   layout?: string;
   frameColor?: string;
+  // Which edge of the frame the navigation sits on: start is top (notch) or
+  // left (sidebar), end is bottom or right.
+  navPosition?: string;
 }
 
 export interface IUser {

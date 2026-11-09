@@ -1,8 +1,10 @@
 import { Kbd, Tooltip } from 'erxes-ui';
 import { createContext, useContext } from 'react';
 
-// Which way top bar overlays open: down from the top bar, right of the sidebar.
-export const CoreTabSideContext = createContext<'bottom' | 'right'>('bottom');
+// Which way navigation overlays open: away from the frame edge the bar sits on.
+export type CoreTabSide = 'top' | 'bottom' | 'left' | 'right';
+
+export const CoreTabSideContext = createContext<CoreTabSide>('bottom');
 
 export const useCoreTabSide = () => useContext(CoreTabSideContext);
 

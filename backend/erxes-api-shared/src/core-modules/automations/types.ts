@@ -606,6 +606,8 @@ export type TAutomationExecutionDelay = {
   waitFor: number;
   timeUnit: 'minute' | 'hour' | 'day' | 'month' | 'year';
   startWaitingDate?: Date;
+  /** When set, the moment the wait ends; it wins over waitFor and timeUnit. */
+  performAt?: Date;
 };
 
 export type TAutomationExecutionCheckObject = {

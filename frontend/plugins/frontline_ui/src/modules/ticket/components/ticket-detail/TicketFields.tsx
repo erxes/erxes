@@ -1,4 +1,5 @@
 import { ActivityList } from '@/activity/components/ActivityList';
+import { TicketSlaStatus } from '@/ticket/components/ticket-detail/TicketSlaStatus';
 import { SelectAssigneeTicket } from '@/ticket/components/ticket-selects/SelectAssigneeTicket';
 import { SelectAssignedMembersTicket } from '@/ticket/components/ticket-selects/SelectAssignedMembersTicket';
 import { SelectBranchTicket } from '@/ticket/components/ticket-selects/SelectBranchTicket';
@@ -295,6 +296,7 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             disabled={!canEditTicket}
           />
         </div>
+        <TicketSlaStatus sla={ticket?.sla} />
         <DataExtensionRecordSection
           recordType="frontline:ticket"
           recordId={ticketId}

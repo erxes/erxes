@@ -36,13 +36,47 @@ exception to plugin isolation.
   a `{{ }}` variable, a `<< cond >>` token or a `[[ ]]` choice is filled at run
   time.
 - The engine's own contracts live in `coreActionConfigSchemas.ts` (if, split,
-  findObject, transform, setProperty, sendEmail, outgoingWebhook, messagePro,
-  delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
+  findObject, transform, setProperty, sendEmail, sendNotification,
+  approval, outgoingWebhook, messagePro, delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
   executor parses with. Executors in `services/automations` derive their config
   types from them, so a schema change is an executor change. Core attaches
   their tenant rules in `core-api/src/meta/automations/configValidators.ts`
   (sendEmail: the reply-to, or the From field while it is aligned, must be a
-  verified sender).
+  verified sender; sendNotification: named team members exist).
+- `sendNotification` ("Notify team members") creates in-app notifications
+  through core `notifications.create`: `kind: 'user'` from the run's
+  `createdVia.actorId` (the automation owner; changing who it comes from means
+  transferring ownership), `kind: 'system'` when the run has no actor. Each is
+  stamped with the run's `createdVia` (plus `runId`) and points at
+  `triggerType`/`targetId`. No email or push: it sets no notification `event`.
+  Notifications store `createdVia` with the `schemaWrapper` shape
+  (`core-modules/notifications/definitions/notifications.ts`).
+- `approval` ("Ask for approval") branches through folks `approved` /
+  `rejected` (config keys hold the next action ids; graph, canvas edges and
+  insert-on-edge list them). The engine creates a change request through core
+  `approval.createAutomationRequest` (type `core:automations.approvalStep`,
+  content `core:automations.executions`/executionId, payload executionId +
+  actionId, requester = `createdVia.actorId` or the owner, who may also
+  approve), parks the run as `waiting`, and arms an `expireApproval` job
+  (`timeoutHours`, default 72, max 720). Core's applier/rejecter call
+  automations `resolveApproval`; the timeout resolves `expired` and cancels the
+  request. `resolveApprovalAction` claims the waiting run atomically, writes
+  `decision`/`decidedBy`/`reason` on the step's result and continues on the
+  branch; a run whose automation is no longer active completes there. It is
+  non-deferrable and cannot sit inside an AI helper tool.
+- Approval change types may register `rejecters` beside `appliers`
+  (`TApprovalConfig`); core's reject and cancel mutations call the owning
+  plugin's `rejectChange` producer, best effort.
+- Working hours come from a branch (Settings → Structure: `workhours` per
+  weekday with lunch, `holidays` that close or shorten a period) in the
+  organization's `TIMEZONE`. `workingCalendar.ts` holds the pure math
+  (`nextWorkingMoment`, `addWorkingTime`, `isWorkingMoment`); a calendar with no
+  working day means plain clock time. In delay, `workingTime` counts only open
+  time for minutes and hours, lands days and longer on the next opening, and
+  0 waits for opening; the branch is the record's `branchId` / first
+  `branchIds`, else `branchId` in the config (`services/automations`
+  `executions/workingTime.ts`, also used when a paused automation re-arms
+  delays). The walk is bounded to 400 days; DST jumps are not modelled.
 
 ## Where schemas are enforced
 

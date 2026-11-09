@@ -35,6 +35,7 @@ const FORM_VALUE_OPTIONS = { shouldDirty: true, shouldTouch: true };
 const BRANCH_HANDLE_KEYS_BY_TYPE: Record<string, string[]> = {
   if: ['yes', 'no'],
   findObject: ['isExists', 'notExists'],
+  approval: ['approved', 'rejected'],
 };
 
 const getFreeBranchKey = (

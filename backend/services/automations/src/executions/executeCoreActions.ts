@@ -3,6 +3,8 @@ import { executeAiAgentAction } from './actions/executeAiAgentAction';
 import { executeDelayAction } from './actions/executeDelayAction';
 import { executeIfCondition } from './actions/executeIfCondition';
 import { executeMessageProAction } from './actions/executeMessageProAction';
+import { executeNotificationAction } from './actions/executeNotificationAction';
+import { executeApprovalAction } from './actions/executeApprovalAction';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
 import { executeSplitAction } from './actions/executeSplitAction';
 import { executeTransformAction } from './actions/executeTransformAction';
@@ -90,6 +92,12 @@ export const executeCoreActions = async (
     actionResponse = splitResponse?.result ?? splitResponse;
   }
 
+  if (actionType === AUTOMATION_CORE_ACTIONS.APPROVAL) {
+    actionResponse = await executeApprovalAction(subdomain, execution, action);
+
+    return { actionResponse, shouldBreak: true };
+  }
+
   if (actionType === AUTOMATION_CORE_ACTIONS.WAIT_EVENT) {
     actionResponse = await executeWaitEvent(subdomain, execution, action);
 
@@ -135,6 +143,14 @@ export const executeCoreActions = async (
       targetType,
       config: action.config,
       execution,
+    });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION) {
+    actionResponse = await executeNotificationAction({
+      subdomain,
+      execution,
+      action,
     });
   }
 

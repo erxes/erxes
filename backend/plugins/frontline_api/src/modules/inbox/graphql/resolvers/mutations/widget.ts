@@ -27,6 +27,7 @@ import {
 import { trackViewPageEvent } from '~/modules/inbox/events';
 import { debugError, fillSearchTextItem } from '~/modules/inbox/utils';
 import { withLiveTicketOptions } from '~/modules/ticket/utils/ticketConfig';
+import { isAutomatedReplyPaused } from '~/modules/inbox/services/automatedReplyPause';
 import { nanoid } from 'nanoid';
 import {
   assertOwnsConversation,
@@ -821,7 +822,8 @@ export const widgetMutations: Record<string, Resolver> = {
     if (
       botId &&
       !HAS_BOTENDPOINT_URL &&
-      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR
+      conversation.operatorStatus !== CONVERSATION_OPERATOR_STATUS.OPERATOR &&
+      !(await isAutomatedReplyPaused(models, conversation))
     ) {
       graphqlPubsub.publish(
         `conversationBotTypingStatus:${msg.conversationId}`,
@@ -1265,6 +1267,11 @@ export const widgetMutations: Record<string, Resolver> = {
         number: Date.now().toString(),
         createdBy: user?._id,
       });
+
+      await models.Ticket.syncSla(ticket._id, subdomain).catch((error) =>
+        console.error(`Ticket ${ticket._id} SLA sync failed:`, error),
+      );
+
       return ticket;
     } catch (e) {
       throw new Error(e.message);

@@ -66,6 +66,16 @@ export const SEND_EMAIL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ],
 };
 
+// Filled when the decision arrives; earlier steps cannot read it.
+export const APPROVAL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [
+    { key: 'decision', label: 'Decision (approved, rejected, expired)' },
+    { key: 'decidedBy', label: 'Decided by (user ID)' },
+    { key: 'reason', label: 'Reason' },
+    { key: 'summary', label: 'Summary' },
+  ],
+};
+
 export const OUTGOING_WEBHOOK_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition =
   {
     variables: [

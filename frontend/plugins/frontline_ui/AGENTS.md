@@ -88,6 +88,20 @@
 
 ## Current Capabilities
 
+- Inbox automation remote entry routes `frontline:inbox.handoffs.create` to
+  `HandoffActionForm` (assignees via user placeholders, pause minutes, blank =
+  30) and `HandoffActionConfig`; other inbox actions keep the Messenger message
+  form. New copy uses `t(key, default)` because frontline strings live in the
+  gateway locales.
+
+- Ticket SLA: pipeline settings tab `sla` (`pages/PipelineSlaPage.tsx`,
+  `pipelines/components/sla/PipelineSlaPolicy.tsx`, form in
+  `pipelines/hooks/usePipelineSlaForm.ts`) edits `slaPolicy` through
+  `updatePipeline`; ticket detail shows `TicketSlaStatus` (due, met, warned,
+  breached per clock, `hooks/useTicketSlaStatus.ts`). The ticket automation
+  remote entry routes the "Ticket SLA" trigger to `TicketSlaTriggerForm` /
+  `TicketSlaTriggerNodeContent` (clock and phase choices).
+
 - Home dashboard tiles: every report chart (conversation open/resolved/source/
   tag/responses/list, ticket status summary/date/source/tags/custom
   properties/list, Facebook activity/posts/bots) can be placed on the core home

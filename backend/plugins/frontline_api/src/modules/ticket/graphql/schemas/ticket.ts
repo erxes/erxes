@@ -15,6 +15,18 @@ export const types = `
     threshold: Int
   }
 
+  type TicketSla {
+    priority: Int
+    firstResponseDueAt: Date
+    resolutionDueAt: Date
+    firstRespondedAt: Date
+    resolvedAt: Date
+    firstResponseWarnedAt: Date
+    firstResponseBreachedAt: Date
+    resolutionWarnedAt: Date
+    resolutionBreachedAt: Date
+  }
+
   type Ticket {
     _id: String!
     name: String
@@ -49,6 +61,7 @@ export const types = `
     companyId: String
     customerFieldData: JSON
     sourceSurvey: TicketSourceSurvey
+    sla: TicketSla
   }
   type RemoveResponse {
     ok: Int!
