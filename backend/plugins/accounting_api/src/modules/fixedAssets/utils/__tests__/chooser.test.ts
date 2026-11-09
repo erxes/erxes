@@ -1,8 +1,5 @@
-import {
-  accountingFixedAssetChooser,
-  buildChooserOwnerBalances,
-  TChooserTransaction,
-} from '../chooser';
+import fixedAssetQueries from '@/fixedAssets/graphql/resolvers/queries/fixedAssets';
+import { buildChooserOwnerBalances, TChooserTransaction } from '../chooser';
 import { IContext } from '~/connectionResolvers';
 import { JOURNALS, TR_SIDES, TR_STATUSES } from '@/accounting/@types/constants';
 import { checkPermissionTrs } from '@/accounting/utils/trPermissions';
@@ -13,6 +10,8 @@ jest.mock('@/accounting/utils/transactionPermissions', () => ({
 jest.mock('@/accounting/utils/trPermissions', () => ({
   checkPermissionTrs: jest.fn(async (_models, rows) => rows),
 }));
+
+const { accountingFixedAssetChooser } = fixedAssetQueries;
 
 const row = (
   id: string,
