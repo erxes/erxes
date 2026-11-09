@@ -59,7 +59,7 @@ const formatText = (value: string) =>
   escapeHtml(value).replace(/\r?\n/g, '<br />');
 
 const toScriptString = (value: string) =>
-  JSON.stringify(value).replace(/</g, '\\u003c');
+  JSON.stringify(value).replace(/</g, String.raw`\u003c`);
 
 let totalDiscount = 0;
 
