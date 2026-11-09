@@ -2,6 +2,7 @@ import { QueryHookOptions, useQuery } from '@apollo/client';
 import {
   EnumCursorDirection,
   ICursorListResponse,
+  isUndefinedOrNull,
   mergeCursorData,
   parseDateRangeFromString,
   useMultiQueryState,
@@ -57,9 +58,9 @@ export const useCompanies = (
   const { list: companies, totalCount, pageInfo } = data?.companies || {};
 
   useEffect(() => {
-    if (!totalCount) return;
+    if (isUndefinedOrNull(totalCount)) return;
     setCompanyTotalCount(totalCount);
-  }, [totalCount]);
+  }, [totalCount, setCompanyTotalCount]);
 
   const handleFetchMore = ({
     direction,
