@@ -20,7 +20,7 @@ import { useDealDetail } from '@/deals/cards/hooks/useDeals';
 import { DealsProvider } from '@/deals/context/DealContext';
 import { dealDetailSheetState } from '@/deals/states/dealDetailSheetState';
 import { useSetAtom } from 'jotai';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDealCustomFieldEdit } from '../../hooks/useDealCustomFieldEdit';
 import { DealPipelineProperties } from './DealPipelineProperties';
@@ -31,6 +31,13 @@ const SalesItemDetailView = () => {
   const { isSidebarOpen } = useFocusSheet();
   const [selectedTab, setSelectedTab] = useQueryState<string>('tab');
   const { deal, loading, error, refetch } = useDealDetail();
+  const [productsVisitedId, setProductsVisitedId] = useState<string>();
+
+  useEffect(() => {
+    if (selectedTab === 'products' && deal?._id) {
+      setProductsVisitedId(deal._id);
+    }
+  }, [selectedTab, deal?._id]);
 
   return (
     <FocusSheet.View
@@ -80,7 +87,8 @@ const SalesItemDetailView = () => {
                   </Tabs.Content>
                   <Tabs.Content
                     value="products"
-                    className="h-full overflow-y-auto p-6"
+                    forceMount={productsVisitedId === deal._id || undefined}
+                    className="h-full overflow-y-auto p-6 data-[state=inactive]:hidden"
                   >
                     <div className="h-full min-h-[32rem]">
                       <Products deal={deal} refetch={refetch} />

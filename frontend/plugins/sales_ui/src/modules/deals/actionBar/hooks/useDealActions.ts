@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSidePanel } from 'ui-modules';
 import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
-import { removeDealProductsDraft } from '@/deals/cards/components/detail/product/productTableAtom';
 
 import {
   useDealsCopy,
@@ -133,8 +132,6 @@ export const useDealActions = ({
         );
       }),
     );
-
-    removedDealIds.forEach((id) => removeDealProductsDraft(id));
 
     if (activeDealId && removedDealIds.has(activeDealId)) {
       setActiveDealId(null);

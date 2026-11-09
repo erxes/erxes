@@ -24,7 +24,6 @@ import { useEffect, useMemo, useRef } from 'react';
 import { useDealIdOverride } from '@/deals/context/DealIdContext';
 import { useSidePanel } from 'ui-modules';
 import { leaveDeletedDealPanel } from '@/deals/utils/leaveDeletedDealPanel';
-import { removeDealProductsDraft } from '@/deals/cards/components/detail/product/productTableAtom';
 
 export const useDealDetail = (
   options?: QueryHookOptions<DealDetailQuery, DealDetailQueryVariables>,
@@ -99,8 +98,6 @@ export const useDealDetail = (
 
     const leaveDeletedDeal = () => {
       const panel = panelStateRef.current;
-
-      removeDealProductsDraft(finalId);
 
       if (activeDealId === finalId) {
         setActiveDealId(null);

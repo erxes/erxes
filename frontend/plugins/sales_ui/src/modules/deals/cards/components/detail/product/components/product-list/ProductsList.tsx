@@ -1,5 +1,5 @@
 import type { DealProduct, DealProductData } from '@/deals/utils/dealJson';
-import { useAtom, useAtomValue, useStore } from 'jotai';
+import { useAtomValue } from 'jotai';
 import {
   SetStateAction,
   useCallback,
@@ -21,21 +21,11 @@ import {
   useSyncLocalProductsData,
   useVatPercent,
 } from '../../hooks/useProductsListState';
-import {
-  dealProductsDraftAtomFamily,
-  dealProductsDraftRevisionAtomFamily,
-} from '@/deals/cards/components/detail/product/productTableAtom';
 import { ProductListHandlersContext } from '@/deals/cards/components/detail/product/productListHandlers';
 import { ProductDataWithDiscountInfos } from '../../utils/discountInfos';
 import { filterProducts } from '../../utils/filterProducts';
 import { normalizeProductUom } from '../../utils/productUom';
-import {
-  applyProductsDraftPatches,
-  getProductsDraftBase,
-  getProductsDraftPatches,
-  keepServerDraftPatches,
-  ProductsDraftBase,
-} from '@/deals/cards/components/detail/product/utils/productsDraft';
+import { getProductsDataPatches } from '@/deals/cards/components/detail/product/utils/productsDataPatches';
 import { ProductsRecordTable } from '../product-table/ProductRecordTable';
 import { ProductEditSheet } from '../ProductEditSheet';
 import { ProductFooter } from '../ProductFooter';
@@ -75,71 +65,35 @@ export const ProductsList = ({
 
   const currentUser = useAtomValue(currentUserState);
   const defaultCurrency = currentUser?.configs?.dealCurrency?.[0] || 'MNT';
-  const [productsDraft, setProductsDraft] = useAtom(
-    dealProductsDraftAtomFamily(dealId),
-  );
-  const [restoredDraftPatches] = useState(() =>
-    keepServerDraftPatches(productsDraft, productsData),
-  );
-  const [localProductsData, setLocalProductsData] = useState<DealProductData[]>(
-    () => applyProductsDraftPatches(productsData, restoredDraftPatches),
-  );
+  const [localProductsData, setLocalProductsData] =
+    useState<DealProductData[]>(productsData);
   const pendingProductPatchesRef = useRef<
     Record<string, Partial<DealProductData>>
-  >({ ...restoredDraftPatches });
-  const draftPatchesRef = useRef<Record<string, Partial<DealProductData>>>({
-    ...restoredDraftPatches,
-  });
-  const draftBasesRef = useRef<Record<string, ProductsDraftBase>>(
-    Object.fromEntries(
-      Object.keys(restoredDraftPatches).flatMap((id) => {
-        const base = productsDraft?.[id]?.base;
-        return base ? [[id, base]] : [];
-      }),
-    ),
-  );
-  const hasUnsavedEditsRef = useRef(
-    Object.keys(restoredDraftPatches).length > 0,
-  );
-  const [hasDiscardedDraft] = useState(
-    () => Boolean(productsDraft) && !hasUnsavedEditsRef.current,
-  );
+  >({});
   const savedPatchesRef = useRef<Record<string, Partial<DealProductData>>>({});
-  const store = useStore();
-  const draftRevisionAtom = dealProductsDraftRevisionAtomFamily(dealId);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const editRevisionRef = useRef(0);
   const savedRevisionRef = useRef<number | null>(null);
   const editLocalProductsData = useCallback(
     (update: SetStateAction<DealProductData[]>) => {
-      hasUnsavedEditsRef.current = true;
-      store.set(draftRevisionAtom, (revision) => revision + 1);
+      editRevisionRef.current += 1;
+      setHasUnsavedChanges(true);
       setLocalProductsData((prev) => {
         const next = typeof update === 'function' ? update(prev) : update;
-        const patches = getProductsDraftPatches(next, prev);
-        const prevById = new Map(
-          prev.map((productData) => [String(productData._id), productData]),
+
+        Object.entries(getProductsDataPatches(next, prev)).forEach(
+          ([id, patch]) => {
+            pendingProductPatchesRef.current[id] = {
+              ...pendingProductPatchesRef.current[id],
+              ...patch,
+            };
+          },
         );
-
-        Object.entries(patches).forEach(([id, patch]) => {
-          const prevRow = prevById.get(id);
-
-          if (!draftBasesRef.current[id] && prevRow) {
-            draftBasesRef.current[id] = getProductsDraftBase(prevRow);
-          }
-
-          pendingProductPatchesRef.current[id] = {
-            ...pendingProductPatchesRef.current[id],
-            ...patch,
-          };
-          draftPatchesRef.current[id] = {
-            ...draftPatchesRef.current[id],
-            ...patch,
-          };
-        });
 
         return next;
       });
     },
-    [store, draftRevisionAtom],
+    [],
   );
   const productOrderRef = useRef<Array<DealProductData['_id']>>(
     (productsData || []).map((data) => data._id),
@@ -172,15 +126,9 @@ export const ProductsList = ({
         });
         savedPatchesRef.current = {};
 
-        if (store.get(draftRevisionAtom) !== savedRevisionRef.current) {
-          return;
+        if (editRevisionRef.current === savedRevisionRef.current) {
+          setHasUnsavedChanges(false);
         }
-
-        hasUnsavedEditsRef.current = false;
-        draftPatchesRef.current = {};
-        draftBasesRef.current = {};
-        setProductsDraft(null);
-        dealProductsDraftAtomFamily.remove(dealId);
       },
     },
     { toastOptions: DEAL_TOAST_OPTIONS },
@@ -303,52 +251,13 @@ export const ProductsList = ({
                 options.syncProductId),
         );
 
-        let touchesDraft = false;
-
         affectedProductData.forEach((productData) => {
           const rowId = String(productData._id);
           pendingProductPatchesRef.current[rowId] = {
             ...pendingProductPatchesRef.current[rowId],
             ...patch,
           };
-
-          const draftPatch = draftPatchesRef.current[rowId];
-
-          if (draftPatch) {
-            const draftBase = draftBasesRef.current[rowId];
-
-            if (
-              Object.keys(patch).some(
-                (key) =>
-                  key in draftPatch ||
-                  key === 'quantity' ||
-                  key === 'unitPrice',
-              )
-            ) {
-              touchesDraft = true;
-            }
-
-            if (draftBase) {
-              draftBasesRef.current[rowId] = {
-                quantity:
-                  'quantity' in patch ? patch.quantity : draftBase.quantity,
-                unitPrice:
-                  'unitPrice' in patch ? patch.unitPrice : draftBase.unitPrice,
-              };
-            }
-
-            draftPatchesRef.current[rowId] = {
-              ...draftPatch,
-              ...Object.fromEntries(
-                Object.entries(patch).filter(([key]) => key in draftPatch),
-              ),
-            };
-          }
         });
-
-        if (touchesDraft) {
-          store.set(draftRevisionAtom, (revision) => revision + 1);
-        }
 
         const affectedIds = new Set(
           affectedProductData.map((productData) => productData._id),
@@ -363,35 +272,8 @@ export const ProductsList = ({
         return updated;
       });
     },
-    [updateTotal, store, draftRevisionAtom],
+    [updateTotal],
   );
-
-  useEffect(() => {
-    if (hasUnsavedEditsRef.current) {
-      setProductsDraft(
-        Object.fromEntries(
-          Object.entries(draftPatchesRef.current).flatMap(([id, patch]) => {
-            const base = draftBasesRef.current[id];
-            return base ? [[id, { patch, base }]] : [];
-          }),
-        ),
-      );
-    }
-  }, [localProductsData, setProductsDraft]);
-
-  useEffect(() => {
-    if (hasDiscardedDraft) {
-      setProductsDraft(null);
-    }
-  }, [hasDiscardedDraft, setProductsDraft]);
-
-  useEffect(() => {
-    if (productsDraft === null) {
-      hasUnsavedEditsRef.current = false;
-      draftPatchesRef.current = {};
-      draftBasesRef.current = {};
-    }
-  }, [productsDraft]);
 
   useSyncLocalProductsData({
     productsData,
@@ -493,12 +375,12 @@ export const ProductsList = ({
         updateTotal={updateTotal}
         onAddProducts={addProducts}
         onSave={() => {
-          savedRevisionRef.current = store.get(draftRevisionAtom);
+          savedRevisionRef.current = editRevisionRef.current;
           savedPatchesRef.current = { ...pendingProductPatchesRef.current };
           handleSave();
         }}
         saving={saving}
-        hasUnsavedChanges={Object.keys(productsDraft ?? {}).length > 0}
+        hasUnsavedChanges={hasUnsavedChanges}
       />
     </>
   );
