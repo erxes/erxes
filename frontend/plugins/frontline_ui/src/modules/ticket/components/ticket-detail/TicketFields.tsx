@@ -29,6 +29,7 @@ import {
 } from 'erxes-ui';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DataExtensionRecordSection } from 'ui-modules';
 import { useDebounce } from 'use-debounce';
 import { AttachmentProvider } from '@/ticket/components/attachments/AttachmentContext';
 import { TicketAttachments } from '@/ticket/components/attachments/TicketAttachments';
@@ -294,6 +295,10 @@ export const TicketFields = ({ ticket, titleAction }: TicketFieldsProps) => {
             disabled={!canEditTicket}
           />
         </div>
+        <DataExtensionRecordSection
+          recordType="frontline:ticket"
+          recordId={ticketId}
+        />
         <TicketAttachments
           id={ticketId}
           attachments={ticketAttachments}
