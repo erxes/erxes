@@ -6,7 +6,7 @@
 - **Project:** `loyalty_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/loyalty_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -126,9 +126,6 @@
   callers omit `perPage`.
 
 ## Local Invariants
-
-- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
-  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - Pricing checks accept optional `date` through tRPC `pricing.checkPricing`
   (Date or ISO timestamp) and GraphQL `pricingCheckDiscount` (Date). One

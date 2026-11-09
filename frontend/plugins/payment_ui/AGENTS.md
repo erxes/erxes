@@ -6,7 +6,7 @@
 - **Project:** `payment_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/payment_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-03`
 
 ## Scope
 
@@ -77,9 +77,6 @@
 - Forms use React Hook Form + Zod (`zodResolver`); the schema is selected by payment `kind`.
 
 ## Local Invariants
-
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - The settings sidebar starts with a sticky core-style "Exit settings" row
   (`Sidebar.Header` + `Sidebar.MenuButton` `Link`, `sidebar.exit-settings`) to the

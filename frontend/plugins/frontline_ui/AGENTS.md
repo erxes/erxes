@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -1322,9 +1322,6 @@ size, error, expiresAt }` for inbound files that never reached storage. `ticketC
   state and deliberately not persisted.
 
 ## Local Invariants
-
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - `FRONTLINE_DASHBOARD_WIDGETS` must list only keys of `reportComponents`,
   `ticketReportComponents` or `facebookReportComponents` in its `group`; a

@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-05`
 
 ## Scope
 
@@ -368,9 +368,6 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
   `POS_CUSTOMER_SYSTEM_FIELDS` and `property:<fieldId>` entries.
 
 ## Local Invariants
-
-- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
-  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - Export handlers read the inner payload through `unwrapExportPayload`: the
   module producer passes `data`, not the `{ subdomain, data }` envelope the

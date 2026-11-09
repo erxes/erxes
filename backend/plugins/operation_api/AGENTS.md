@@ -6,7 +6,7 @@
 - **Project:** `operation_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/operation_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-10-27`
 
 ## Scope
 
@@ -132,9 +132,6 @@ propertiesData? } })`
   GraphQL type does not expose it; import/export read it.
 
 ## Local Invariants
-
-- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
-  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - Triages keep `tagIds` from the task tag type (`operation:task`); there is no `triage` tag type. They are set through `operationAddTriage` / `operationUpdateTriage` (the `task.tag` tRPC procedure updates tasks only), and `operationConvertTriageToTask` copies them, with the customer and company, onto the task.
 - `getTasks` without `orderBy` pages through `taskCursorPaginateByStatus` (`modules/task/graphql/resolvers/utils.ts`): status type ascending like projects (in progress, todo, backlog, done, cancelled; untyped last), then the status's own `order`, its name, and newest `updatedAt`. Never order by hard-coded status names; teams rename and add statuses.

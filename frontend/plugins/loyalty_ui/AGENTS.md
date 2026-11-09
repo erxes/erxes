@@ -6,7 +6,7 @@
 - **Project:** `loyalty_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/loyalty_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -140,9 +140,6 @@
   `LoyaltyAccountTypeLegacyFieldCount`, and `GetScoreCampaigns`.
 
 ## Local Invariants
-
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - The plugin owns its whole app sidebar. `src/modules/loyalties/SubNavigations.tsx` (the `./loyalty`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="loyalty"`) with

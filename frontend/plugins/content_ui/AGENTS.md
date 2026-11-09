@@ -6,7 +6,7 @@
 - **Project:** `content_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/content_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -107,9 +107,6 @@
   React state owns component-local interactions.
 
 ## Local Invariants
-
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - The plugin owns its whole app sidebar. `src/modules/cms/Main.tsx` (the `./content`
   expose) wraps its routes in `erxes-ui` `AppLayout` (`id="content"`) with

@@ -456,9 +456,6 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
-
 - Dashboard widget `module` names (`SALES_DASHBOARD_MODULES`) are stored in
   users' saved layouts as `sales:<module>`: renaming one orphans placed tiles.
   Keep them aligned with the `config.tsx` entries; an unknown module renders

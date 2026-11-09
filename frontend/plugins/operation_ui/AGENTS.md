@@ -6,7 +6,7 @@
 - **Project:** `operation_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/operation_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -107,9 +107,6 @@
 - Task and project custom values are read from and submitted as `propertiesData` through their existing Apollo detail/update flows.
 
 ## Local Invariants
-
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
 
 - Task and triage names are edited only in the side panel's top bar (`title` view: erxes-ui `TextField`, empty names ignored), never in Detail; long names truncate there with a tooltip. Table-variant task statuses inherit their trigger's font size with normal weight; table-variant assignees use the shared `MembersInline` composition with a 20px (`size-5`) avatar, including draft form fields.
 - Tasks and projects listed for another record (overview sections, the `tasks` / `projects` relation widgets in `dense` mode) are one-line rows: `widgets/rows/TaskRow` (name and due date; falls back to the triage when the id is one; opens the task stacked in the side panel, a triage in a sheet) and `ProjectRow` (opens `/operation/projects/<id>/overview`). There are no widget cards.

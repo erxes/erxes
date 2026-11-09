@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-06`
 
 ## Scope
 
@@ -1496,9 +1496,6 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   tenant, integration and chat, with topic identity included where applicable.
 
 ## Local Invariants
-
-- `tsconfig.build.json` excludes `**/*spec.ts`, `**/*.test.ts`, and
-  `**/__tests__/**` from build file discovery; retain plugin-specific exclusions.
 
 - A call leg or CTI event that names a queue belongs to the peer call
   integration whose `queues` contains it, and only to that one: when several

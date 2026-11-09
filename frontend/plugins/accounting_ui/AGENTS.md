@@ -221,9 +221,6 @@
 
 ## Local Invariants
 
-- Development `rspack.config.ts` watch ignores `__tests__` directories and
-  `*.spec.*` / `*.test.*` files with TS, TSX, JS, or JSX extensions.
-
 - Keep `<Route path="*">` as the last route in `AccountingMain.tsx` and `AccountingSettings.tsx`, and add a sidebar link only for a route that renders a real screen; `src/__tests__/accountingRoutes.test.tsx` opens every `MainNavigation` link and fails on a not-found page.
 - Use `accountIsOutBalance`, never the top-level `isOutBalance`, for the transaction off-balance filter; the backend reads only the account-prefixed argument.
 - Never render a raw record id as visible text. Resolve names (`AccountsInline`, `SelectBranches.InlineCell`, `useStageDetail`, `POS_DETAIL`, job/transaction lookups) and fall back to `-` or a translated label such as `untitled-rule`; ids stay only in values, keys and URLs.
