@@ -4,16 +4,31 @@ import {
 } from '~/modules/ebarimt/responded/components/PerResponse';
 import { Response } from '~/modules/ebarimt/responded/components/Response';
 
-export const printEbarimtResponses = (responses: EbarimtResponse[]) => {
-  const printWindow = window.open('__', '_blank', 'width=800, height=800');
+const RECEIPT_URL_LIFETIME_MS = 60_000;
 
-  if (!printWindow?.document?.write) {
+export const printEbarimtResponses = (responses: EbarimtResponse[]) => {
+  const receiptUrl = URL.createObjectURL(
+    new Blob(
+      [
+        Response(
+          responses.map((response, index) => PerResponse(response, index)),
+        ),
+      ],
+      { type: 'text/html' },
+    ),
+  );
+  const printWindow = window.open(
+    receiptUrl,
+    '_blank',
+    'width=800, height=800',
+  );
+
+  if (!printWindow) {
+    URL.revokeObjectURL(receiptUrl);
     return false;
   }
 
-  printWindow.document.write(
-    Response(responses.map((response, index) => PerResponse(response, index))),
-  );
+  setTimeout(() => URL.revokeObjectURL(receiptUrl), RECEIPT_URL_LIFETIME_MS);
 
   return true;
 };

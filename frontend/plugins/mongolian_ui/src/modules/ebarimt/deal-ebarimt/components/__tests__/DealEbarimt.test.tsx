@@ -120,17 +120,33 @@ const renderWidget = (mocks: MockedResponse[]) =>
     </MockedProvider>,
   );
 
+const readReceipt = (blob: Blob) =>
+  new Promise<string>((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.readAsText(blob);
+  });
+
 describe('DealEbarimt', () => {
   const originalOpen = window.open;
+  const createObjectURL = jest.fn<string, [Blob]>(() => 'blob:receipt');
+  const revokeObjectURL = jest.fn();
+
+  beforeEach(() => {
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = revokeObjectURL;
+  });
 
   afterEach(() => {
     window.open = originalOpen;
+    createObjectURL.mockClear();
+    revokeObjectURL.mockClear();
     mockToast.mockReset();
   });
 
   it('lists the deal receipts and prints only the active ones in Ulaanbaatar time', async () => {
-    const write = jest.fn();
-    window.open = jest.fn(() => ({ document: { write } } as unknown as Window));
+    const printWindow = {} as Window;
+    window.open = jest.fn(() => printWindow);
 
     renderWidget([
       timezoneMock,
@@ -153,8 +169,13 @@ describe('DealEbarimt', () => {
 
     fireEvent.click(screen.getByText('print-receipt'));
 
-    expect(write).toHaveBeenCalledTimes(1);
-    const html: string = write.mock.calls[0][0];
+    expect(window.open).toHaveBeenCalledTimes(1);
+    expect(window.open).toHaveBeenCalledWith(
+      'blob:receipt',
+      '_blank',
+      'width=800, height=800',
+    );
+    const html = await readReceipt(createObjectURL.mock.calls[0][0]);
     expect(html).toContain('ДДТД: 000000038230012345678901234567890');
     expect(html).toContain('Огноо: 2026-11-03 18:32:06');
     expect(html).toContain('Сугалаа: AB 12345678');
@@ -177,6 +198,7 @@ describe('DealEbarimt', () => {
         variant: 'destructive',
       }),
     );
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:receipt');
   });
 
   it('shows the failed receipt message and keeps it out of the print', async () => {
