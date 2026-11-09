@@ -726,5 +726,9 @@
   "only-has-bill-id": "Зөвхөн нэхэмжлэлийн дугаартай",
   "only-has-return-bill-id": "Зөвхөн буцаах нэхэмжлэлийн дугаартай",
   "both": "Хоёулаа",
-  "both-not": "Хоёулаа байхгүй"
+  "both-not": "Хоёулаа байхгүй",
+  "print-receipt": "Баримт хэвлэх",
+  "ebarimt-responses-count": "Ебаримт ({{count}})",
+  "no-deal-ebarimt": "Энэ хэлцэлд ебаримт гараагүй байна",
+  "allow-popups-to-print": "Баримт хэвлэхийн тулд энэ сайтад pop-up цонх зөвшөөрнө үү"
 }

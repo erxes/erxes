@@ -11,7 +11,7 @@ interface Receipt {
   items?: ReceiptItem[];
 }
 
-interface EbarimtResponse {
+export interface EbarimtResponse {
   _id?: string;
   companyName?: string;
   consumerNo?: string;
@@ -188,10 +188,10 @@ export const PerResponse = (response: EbarimtResponse, counter: number) => {
           ${customize(response, 'footerText', '<p>Манайхаар үйлчлүүлсэн танд баярлалаа !!!</p>')}
 
           ${
-            response.description &&
+            (response.description &&
             `<div>
             ${response.description}
-          </div>`
+          </div>`) || ''
           }
         </div>
       `
