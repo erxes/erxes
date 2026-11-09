@@ -193,7 +193,7 @@ test('paidType without terminal results does not offer an empty terminal tooltip
 
 test('cover component keys are registered in both supported dictionaries', () => {
   for (const name of [
-    'CoversSheet',
+    '../../../../widgets/record-panel/PosCoverPanel',
     'CoverDescription',
     'CoverPaidType',
     'CoverTerminalResults',

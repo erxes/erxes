@@ -2,6 +2,7 @@ import { IconChevronRight } from '@tabler/icons-react';
 import { Button, cn, ScrollArea } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   ContactOverviewSectionContext,
   IContactOverviewSection,
@@ -117,6 +118,7 @@ export const ContactOverview = ({
   customize: React.ComponentProps<typeof ContactOverviewCustomize>;
   onUnavailable: (key: string) => void;
 }) => {
+  const { t } = useTranslation('common', { keyPrefix: 'side-panel' });
   const [foldedMap, setFoldedMap] = useAtom(contactOverviewFoldedState);
 
   /** Reads a saved section preference, falling back to the section default. */
@@ -135,7 +137,10 @@ export const ContactOverview = ({
   return (
     <div className="flex flex-1 min-h-0 flex-col">
       {customize.entries.length > 0 && (
-        <div className="flex h-9 flex-none items-center justify-end border-b px-2">
+        <div className="flex h-9 flex-none items-center justify-between gap-2 border-b px-3">
+          <h2 className="min-w-0 truncate text-xs font-medium text-muted-foreground">
+            {t('related-records', 'Related records')}
+          </h2>
           <ContactOverviewCustomize {...customize} />
         </div>
       )}

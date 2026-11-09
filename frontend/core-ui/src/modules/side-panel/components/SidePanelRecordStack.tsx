@@ -13,7 +13,7 @@ import {
   getModulePanelRecordView,
   isModulePanelPath,
 } from '@/side-panel/states/modulePanelState';
-import { CoreModulePanelSlot } from '@/side-panel/components/CoreModulePanelSlot';
+import { PagePanelTarget } from '@/side-panel/components/PagePanelTarget';
 import { PanelRecordContext } from '@/side-panel/contexts/PanelRecordContext';
 
 /** Retains one editor with its captured draft defaults and record context. */
@@ -112,7 +112,7 @@ export const SidePanelRecordStack = ({
                   : 'hidden'
               }
             >
-              <CoreModulePanelSlot path={entry} onClose={onClose} />
+              <PagePanelTarget path={entry} onClose={onClose} />
             </div>
           );
         }

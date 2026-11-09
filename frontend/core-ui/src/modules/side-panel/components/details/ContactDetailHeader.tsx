@@ -11,7 +11,7 @@ export const ContactDetailHeader = ({
   title,
   actions,
 }: {
-  contentType: 'core:customer' | 'core:company';
+  contentType: 'core:customer' | 'core:company' | 'core:cpUser';
   title: ReactNode;
   actions?: ReactNode;
 }) => {
@@ -19,7 +19,10 @@ export const ContactDetailHeader = ({
   const { pathname } = useLocation();
   let listLabel = t('customers', 'Customers');
   let favoriteIcon = 'IconUser';
-  if (contentType === 'core:company') {
+  if (contentType === 'core:cpUser') {
+    listLabel = t('client-portal-users', 'Client Portal Users');
+    favoriteIcon = 'IconUserCircle';
+  } else if (contentType === 'core:company') {
     listLabel = t('companies', 'Companies');
     favoriteIcon = 'IconBuilding';
   } else if (
@@ -30,8 +33,8 @@ export const ContactDetailHeader = ({
   }
 
   return (
-    <PageHeader>
-      <PageHeader.Start>
+    <PageHeader className="h-auto min-h-10 flex-wrap gap-x-3 gap-y-1 overflow-visible py-1">
+      <PageHeader.Start className="min-w-0 flex-1 basis-64 pr-0 [&_nav]:min-w-0 [&_ol]:flex-nowrap [&_li]:min-w-0 [&>div]:shrink-0">
         <ContactsBreadcrumb title={title} />
         {/* The path alone: the open tab must not make it another favorite. */}
         {typeof title === 'string' && (
@@ -42,7 +45,11 @@ export const ContactDetailHeader = ({
           />
         )}
       </PageHeader.Start>
-      {actions && <PageHeader.End>{actions}</PageHeader.End>}
+      {actions && (
+        <PageHeader.End className="ml-auto min-w-0 max-w-full">
+          {actions}
+        </PageHeader.End>
+      )}
     </PageHeader>
   );
 };

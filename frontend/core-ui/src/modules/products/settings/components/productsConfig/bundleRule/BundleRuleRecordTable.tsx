@@ -4,7 +4,6 @@ import { RecordTable } from 'erxes-ui';
 import { useBundleRules } from '@/products/settings/hooks/useBundleRules';
 import { bundleRuleColumns } from './bundleRuleColumns';
 import { BundleRuleCommandBar } from './BundleRuleCommandBar';
-import { BundleRuleSheet } from './BundleRuleSheet';
 
 export const BundleRuleRecordTable = () => {
   const { bundleRules, loading } = useBundleRules();
@@ -44,7 +43,6 @@ function EmptyStateRow() {
         {t('empty-title')}
       </h2>
       <p className="mb-4 text-md text-muted-foreground">{t('empty-hint')}</p>
-      <BundleRuleSheet />
     </div>
   );
 }

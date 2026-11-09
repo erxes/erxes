@@ -148,7 +148,7 @@ export const ContactRelationInput = ({
             disabled={disabled}
             aria-label={hasLinks ? editLabel : addLabel}
             className={cn(
-              'h-6 shrink-0 px-1.5 text-xs font-normal text-muted-foreground',
+              'h-6 shrink-0 gap-1.5 px-1 text-xs font-normal text-muted-foreground [&>svg]:size-3.5',
               hasLinks &&
                 !moreCount &&
                 'opacity-0 group-hover/relations:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100',
@@ -178,16 +178,18 @@ export const ContactRelationInput = ({
 
   return (
     <div className="group/relations flex min-h-7 min-w-0 items-center gap-1 px-1">
-      <div className="flex min-w-0 overflow-hidden">
-        {value.slice(0, 1).map((id) => (
-          <ContactRecordChip
-            key={id}
-            kind={kind}
-            id={id}
-            onOpen={() => openContact(id)}
-          />
-        ))}
-      </div>
+      {hasLinks && (
+        <div className="flex min-w-0 overflow-hidden">
+          {value.slice(0, 1).map((id) => (
+            <ContactRecordChip
+              key={id}
+              kind={kind}
+              id={id}
+              onOpen={() => openContact(id)}
+            />
+          ))}
+        </div>
+      )}
       {control}
     </div>
   );

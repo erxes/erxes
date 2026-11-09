@@ -164,9 +164,9 @@ const MemberInlineEffectComponent = ({
       _id: memberId,
     },
     skip,
+    fetchPolicy: 'cache-first',
   });
-  // userStatusChanged pushes activation changes, so the lookup can stay
-  // cache-first; re-fetching on every mount floods the gateway from tables.
+  // Keep the latest status event authoritative if an older lookup arrives late.
   const { data: statusChangedData } = useSubscription<{
     userStatusChanged?: IUser;
   }>(USER_STATUS_CHANGED, {

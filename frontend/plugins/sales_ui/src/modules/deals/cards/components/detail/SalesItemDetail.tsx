@@ -78,8 +78,13 @@ const SalesItemDetailView = () => {
                   <Tabs.Content value="activity" className="h-full">
                     <DealActivityTab dealId={deal?._id || ''} />
                   </Tabs.Content>
-                  <Tabs.Content value="products" className="h-full p-6">
-                    <Products deal={deal} refetch={refetch} />
+                  <Tabs.Content
+                    value="products"
+                    className="h-full overflow-y-auto p-6"
+                  >
+                    <div className="h-full min-h-[32rem]">
+                      <Products deal={deal} refetch={refetch} />
+                    </div>
                   </Tabs.Content>
                 </Tabs>
               </div>
