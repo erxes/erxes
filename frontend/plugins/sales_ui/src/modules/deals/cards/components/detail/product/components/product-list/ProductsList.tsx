@@ -303,6 +303,8 @@ export const ProductsList = ({
                 options.syncProductId),
         );
 
+        let touchesDraft = false;
+
         affectedProductData.forEach((productData) => {
           const rowId = String(productData._id);
           pendingProductPatchesRef.current[rowId] = {
@@ -314,6 +316,17 @@ export const ProductsList = ({
 
           if (draftPatch) {
             const draftBase = draftBasesRef.current[rowId];
+
+            if (
+              Object.keys(patch).some(
+                (key) =>
+                  key in draftPatch ||
+                  key === 'quantity' ||
+                  key === 'unitPrice',
+              )
+            ) {
+              touchesDraft = true;
+            }
 
             if (draftBase) {
               draftBasesRef.current[rowId] = {
@@ -333,6 +346,10 @@ export const ProductsList = ({
           }
         });
 
+        if (touchesDraft) {
+          store.set(draftRevisionAtom, (revision) => revision + 1);
+        }
+
         const affectedIds = new Set(
           affectedProductData.map((productData) => productData._id),
         );
@@ -346,7 +363,7 @@ export const ProductsList = ({
         return updated;
       });
     },
-    [updateTotal],
+    [updateTotal, store, draftRevisionAtom],
   );
 
   useEffect(() => {

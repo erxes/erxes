@@ -8,6 +8,14 @@ import {
   parsePaymentConfig,
 } from '@/deals/cards/components/detail/product/components/ProductPaymentRows';
 import {
+  dealPaymentsDraftAtomFamily,
+  dealProductsDraftAtomFamily,
+} from '@/deals/cards/components/detail/product/productTableAtom';
+import {
+  applyProductsDraftPatches,
+  keepServerDraftPatches,
+} from '@/deals/cards/components/detail/product/utils/productsDraft';
+import {
   type PayInfo,
   selectPaymentTypesForRender,
   updatePayInfoForScore,
@@ -17,8 +25,9 @@ import { IDealDetail, IPaymentsData } from '@/deals/types/deals';
 import { readDealPayment } from '@/deals/utils/dealJson';
 import type { PaymentConfigItem } from '@/payments';
 import { useMutation } from '@apollo/client';
-import { IconDeviceFloppy } from '@tabler/icons-react';
+import { IconAlertCircle, IconDeviceFloppy } from '@tabler/icons-react';
 import { Button, useToast } from 'erxes-ui';
+import { useAtom, useAtomValue } from 'jotai';
 import {
   type MouseEvent,
   useCallback,
@@ -47,9 +56,17 @@ export const ProductsPayment = ({
   paymentsData?: IPaymentsData;
   onChangePaymentsData?: (data: IPaymentsData) => void;
 }) => {
-  const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
-    initialPaymentsData || deal.paymentsData || {},
+  const [paymentsDraft, setPaymentsDraft] = useAtom(
+    dealPaymentsDraftAtomFamily(deal._id),
   );
+  const productsDraft = useAtomValue(dealProductsDraftAtomFamily(deal._id));
+  const [paymentsData, setPaymentsData] = useState<IPaymentsData>(
+    paymentsDraft || initialPaymentsData || deal.paymentsData || {},
+  );
+  const hasPaymentEditsRef = useRef(Boolean(paymentsDraft));
+  const paymentsDataRef = useRef(paymentsData);
+  const savedPaymentsDataRef = useRef<IPaymentsData | null>(null);
+  paymentsDataRef.current = paymentsData;
   const [mobileAmount, setMobileAmount] = useState<number>(0);
   const [payInfoByType, setPayInfoByType] = useState<Record<string, PayInfo>>(
     {},
@@ -64,6 +81,15 @@ export const ProductsPayment = ({
 
   const { editDeals, loading: saving } = useDealsEdit({
     fetchPolicy: 'no-cache',
+    onCompleted: () => {
+      if (savedPaymentsDataRef.current !== paymentsDataRef.current) {
+        return;
+      }
+
+      hasPaymentEditsRef.current = false;
+      setPaymentsDraft(null);
+      dealPaymentsDraftAtomFamily.remove(deal._id);
+    },
   });
   const [generateInvoiceUrl, { loading: generatingInvoice }] =
     useMutation(GENERATE_INVOICE_URL);
@@ -75,16 +101,31 @@ export const ProductsPayment = ({
     setInvoiceUrl('');
   }, [deal.mobileAmount]);
 
+  useEffect(() => {
+    if (hasPaymentEditsRef.current) {
+      setPaymentsDraft(paymentsData);
+    }
+  }, [paymentsData, setPaymentsDraft]);
+
+  const productsDraftPatches = useMemo(
+    () => keepServerDraftPatches(productsDraft, deal.productsData || []),
+    [productsDraft, deal.productsData],
+  );
+  const hasUnsavedProducts = Object.keys(productsDraftPatches).length > 0;
+
   const total = useMemo(() => {
     const amounts: { [currency: string]: number } = {};
-    (deal.productsData || []).forEach((data) => {
+    applyProductsDraftPatches(
+      deal.productsData || [],
+      productsDraftPatches,
+    ).forEach((data) => {
       if (data.currency && data.tickUsed) {
         amounts[data.currency] =
           (amounts[data.currency] || 0) + (data.amount || 0);
       }
     });
     return amounts;
-  }, [deal.productsData]);
+  }, [deal.productsData, productsDraftPatches]);
 
   const defaultCurrency = Object.keys(total)[0] || 'MNT';
   const paidMobileAmount = Number(deal.mobileAmount || 0);
@@ -133,6 +174,7 @@ export const ProductsPayment = ({
 
   const updatePayment = useCallback(
     (type: string, field: 'amount' | 'currency', value: number | string) => {
+      hasPaymentEditsRef.current = true;
       setPaymentsData((prev: IPaymentsData) => {
         const updated = {
           ...prev,
@@ -330,7 +372,7 @@ export const ProductsPayment = ({
 
     if (qrModal.password && customer?._id === qrModal.password) {
       const payInfo = payInfoByType[typeName];
-      const availableAmount = payInfo?.unavailable ? 0 : (payInfo?.limit ?? 0);
+      const availableAmount = payInfo?.unavailable ? 0 : payInfo?.limit ?? 0;
       setPayInfoByType((prev) => ({
         ...prev,
         [typeName]: {
@@ -365,6 +407,7 @@ export const ProductsPayment = ({
 
   const handleSave = async () => {
     const processId = localStorage.getItem('processId') || '';
+    savedPaymentsDataRef.current = paymentsData;
 
     try {
       await editDeals({
@@ -397,6 +440,12 @@ export const ProductsPayment = ({
 
   return (
     <div className="@container mx-auto flex w-full max-w-3xl flex-col pb-4">
+      {hasUnsavedProducts && (
+        <div className="mb-2 flex items-center gap-2 rounded-md border px-3 py-2 text-xs text-muted-foreground">
+          <IconAlertCircle className="size-4 shrink-0" />
+          {t('payments-include-unsaved-products')}
+        </div>
+      )}
       <PaymentTotals
         total={total}
         changeAmounts={changeAmounts}
@@ -454,7 +503,12 @@ export const ProductsPayment = ({
           ))}
       </div>
 
-      <div className="sticky bottom-0 mt-4 flex items-center justify-end border-t bg-background/95 py-3 backdrop-blur supports-backdrop-filter:bg-background/85">
+      <div className="sticky bottom-0 mt-4 flex items-center justify-end gap-3 border-t bg-background/95 py-3 backdrop-blur supports-backdrop-filter:bg-background/85">
+        {paymentsDraft && (
+          <span className="text-xs text-muted-foreground">
+            {t('unsaved-changes')}
+          </span>
+        )}
         <Button size="sm" onClick={handleSave} disabled={saving}>
           <IconDeviceFloppy className="size-4" />
           {saving ? t('saving') : t('save')}
