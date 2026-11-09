@@ -456,6 +456,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
 
 ## Local Invariants
 
+- The deals list `stage` column uses `SelectStage.InlineCell` with the row's own pipeline and `autoSelectFirst={false}`, and ignores auto selections. Never use the shared `StageSelect` there: it auto-selects the first stage when the deal's stage is not in the loaded list (archived deals, other pipelines) and its `onChange` would move the deal.
 - Dashboard widget `module` names (`SALES_DASHBOARD_MODULES`) are stored in
   users' saved layouts as `sales:<module>`: renaming one orphans placed tiles.
   Keep them aligned with the `config.tsx` entries; an unknown module renders
