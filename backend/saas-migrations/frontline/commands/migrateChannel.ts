@@ -1,5 +1,6 @@
 const { MongoClient } = require('mongodb');
 import * as dotenv from 'dotenv';
+import { findOrganization } from '../../findOrganization';
 dotenv.config();
 
 const MONGO_URL =
@@ -35,9 +36,7 @@ async function migrate() {
   const coreDbName = extractDbName(coreUrl);
   const coreDb = client.db(coreDbName);
 
-  const targetOrg = await coreDb
-    .collection('organizations')
-    .findOne({ subdomain: TARGET_SUBDOMAIN }, { projection: { _id: 1 } });
+  const targetOrg = await findOrganization(coreDb, TARGET_SUBDOMAIN);
 
   if (!targetOrg) {
     throw new Error(

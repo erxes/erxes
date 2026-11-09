@@ -70,6 +70,27 @@ tsx backend/saas-migrations/run.ts --org=belty,hipay core
 tsx backend/saas-migrations/run-commands.ts --org=belty propertiesData
 ```
 
+Either side of a pair (and either environment variable) may be the
+organization's `_id` instead of its subdomain, and the two can be mixed:
+
+```ts
+{ source: '66f1a2b3c4d5e6f7a8b9c0d1', target: 'esight' },
+```
+
+Scripts resolve the value through [`findOrganization.ts`](findOrganization.ts),
+which matches `organizations.subdomain` or `organizations._id` (string or
+ObjectId). It fails when the value is one organization's subdomain and a
+different organization's `_id`. `--org=` matches the value exactly as written
+in `ORG_PAIRS`.
+
+A source organization whose record was deleted from `organizations` can still
+be migrated by `_id`: when the value is a 24-character ObjectId and the
+`erxes_<_id>` database exists, the source → target scripts read that database
+and print a warning. The target must always be a registered organization.
+
+Two scripts outside the runners still take subdomains only:
+`content/knowledgebase` and `core/searchTokens/backfillCustomerSearchTokens.ts`.
+
 ## Single customer / company
 
 `core/commands/migrateRelationsToContactFields.ts` moves existing data to the
@@ -128,7 +149,8 @@ them in-process would tear the runner down after the first one.
 
 1. Drop a standalone `*.ts` script into the relevant domain folder (create the
    folder if needed). Follow the existing pattern: `dotenv.config()`, open a
-   connection, do the work, `process.exit()`.
+   connection, do the work, `process.exit()`. Look organizations up with
+   `findOrganization` so both subdomains and `_id`s work.
 2. If the owning plugin builds it, add the file to that plugin's
    `tsconfig.json` `include` array (see how `core-api` / `frontline_api` do it).
 
