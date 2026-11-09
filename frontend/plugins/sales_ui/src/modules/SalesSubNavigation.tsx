@@ -1,14 +1,7 @@
-import {
-  IconChevronRight,
-  IconCoins,
-  IconDotsVertical,
-  IconLink,
-  IconSettings,
-} from '@tabler/icons-react';
+import { IconChevronRight, IconCoins, IconPlus } from '@tabler/icons-react';
 import {
   Button,
   Collapsible,
-  DropdownMenu,
   NavigationMenuGroup,
   NavigationMenuLinkItem,
   Sidebar,
@@ -16,14 +9,22 @@ import {
   TextOverflowTooltip,
   cn,
   isDefined,
+  isUndefinedOrNull,
   useMultiQueryState,
   useQueryState,
-  useToast,
 } from 'erxes-ui';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import {
+  BoardCreateDialog,
+  BoardsNavigationActions,
+} from '@/deals/boards/components/BoardsNavigationActions';
+import { useBoardDealCounts } from '@/deals/boards/hooks/useBoardDealCounts';
+import { PipelineCreateSheet } from '@/deals/pipelines/components/PipelineCreateSheet';
+import { pipelineCreateBoardIdState } from '@/deals/states/pipelineCreateSheetState';
 import { IBoard } from '@/deals/types/boards';
 import { useBoardArchiveSubscription } from '@/deals/boards/hooks/useBoardArchiveSubscription';
+import { useSetAtom } from 'jotai';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useBoards } from '@/deals/boards/hooks/useBoards';
@@ -37,10 +38,11 @@ type TBoardSelection = {
 
 function LoadingSkeleton() {
   return (
-    <div className="space-y-4">
-      {[1, 2, 3].map((i) => (
-        <Skeleton key={i} className="w-full h-4" />
-      ))}
+    <div className="flex flex-col gap-1">
+      <Sidebar.MenuSkeleton className="h-7" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7 pl-6" />
+      <Sidebar.MenuSkeleton className="h-7" />
     </div>
   );
 }
@@ -48,13 +50,34 @@ function LoadingSkeleton() {
 // Elsewhere in the module (Loyalty points) a board opens the deals page.
 const DEALS_PATH = '/sales/deals';
 
+function DealCount({
+  count,
+  loading,
+}: Readonly<{ count?: number; loading: boolean }>) {
+  if (isUndefinedOrNull(count)) {
+    return loading ? (
+      <Skeleton className="size-4 shrink-0 rounded-full" />
+    ) : null;
+  }
+
+  return (
+    <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+      {count}
+    </span>
+  );
+}
+
 function BoardItem({
   board,
   onDealsPage,
-}: {
+  pipelineCounts,
+  countsLoading,
+}: Readonly<{
   board: IBoard;
   onDealsPage: boolean;
-}) {
+  pipelineCounts: Record<string, number>;
+  countsLoading: boolean;
+}>) {
   const { t } = useTranslation('sales');
   const navigate = useNavigate();
   const [{ boardId, pipelineId }, setBoardSelection] =
@@ -66,6 +89,7 @@ function BoardItem({
   );
 
   const [open, setOpen] = useState(isActive);
+  const setPipelineCreateBoardId = useSetAtom(pipelineCreateBoardIdState);
 
   // Board selection can arrive after mount (restored from localStorage), so
   // keep opening the active board instead of relying on defaultOpen alone.
@@ -123,123 +147,92 @@ function BoardItem({
       onOpenChange={setOpen}
     >
       <Sidebar.Group className="p-0">
-        <Collapsible.Trigger asChild>
-          <div className="w-full flex items-center justify-between">
+        <div
+          className={cn(
+            'group/board-row w-full flex items-center justify-between rounded-lg hover:bg-accent',
+            isActive && 'bg-foreground/5 hover:bg-foreground/5',
+          )}
+        >
+          <Button
+            variant="ghost"
+            className={cn(
+              'px-2 flex min-w-0 flex-1 justify-start rounded-lg hover:bg-transparent',
+              isActive && 'text-foreground',
+            )}
+            onClick={handleBoardClick}
+          >
+            <TextOverflowTooltip
+              className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
+              value={board.name}
+            />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-muted-foreground hover:bg-transparent hover:text-foreground opacity-0 group-hover/board-row:opacity-100 group-focus-within/board-row:opacity-100 focus-visible:opacity-100"
+            aria-label={t('add-pipeline')}
+            onClick={() => {
+              setOpen(true);
+              setPipelineCreateBoardId(board._id);
+            }}
+          >
+            <IconPlus className="size-4" />
+          </Button>
+          <Collapsible.Trigger asChild>
             <Button
               variant="ghost"
-              className={cn(
-                'px-2 flex min-w-0 flex-1 justify-start rounded-lg',
-                isActive &&
-                  'bg-foreground/5 text-foreground hover:bg-foreground/5',
-              )}
-              onClick={handleBoardClick}
+              className="shrink-0 size-6 p-0 hover:bg-transparent"
+              aria-label={board.name}
             >
-              <TextOverflowTooltip
-                className="font-sans font-semibold normal-case text-left flex-1 min-w-0"
-                value={board.name}
-              />
-              <span className="ml-auto flex shrink-0 text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
+              <span className="flex text-muted-foreground transition-transform duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] group-data-[state=open]/collapsible:rotate-90 motion-reduce:transition-none">
                 <IconChevronRight className="size-3.5!" />
               </span>
             </Button>
+          </Collapsible.Trigger>
+        </div>
+        <Collapsible.Content forceMount className="group/board-content">
+          <div className="grid transition-[grid-template-rows,opacity,visibility] duration-200 ease-out group-data-[state=closed]/board-content:invisible group-data-[state=closed]/board-content:grid-rows-[0fr] group-data-[state=closed]/board-content:opacity-0 group-data-[state=open]/board-content:grid-rows-[1fr] motion-reduce:transition-none">
+            <div className="min-h-0 overflow-hidden">
+              <div className="pt-1">
+                <Sidebar.GroupContent>
+                  <Sidebar.Menu>
+                    {pipelines.map((pipeline) => (
+                      <Sidebar.MenuItem key={pipeline._id}>
+                        <Sidebar.MenuButton
+                          className="pl-6 font-medium"
+                          isActive={isActive && pipelineId === pipeline._id}
+                          onClick={() => handlePipelineClick(pipeline._id)}
+                        >
+                          <TextOverflowTooltip
+                            className="flex-1 min-w-0"
+                            value={pipeline.name}
+                          />
+                          <DealCount
+                            count={pipelineCounts[pipeline._id]}
+                            loading={countsLoading}
+                          />
+                        </Sidebar.MenuButton>
+                      </Sidebar.MenuItem>
+                    ))}
+                    {!pipelines.length && (
+                      <Sidebar.MenuItem>
+                        <Sidebar.MenuButton className="pl-6" disabled>
+                          <span className="capitalize text-foreground">
+                            {t('no-pipelines')}
+                          </span>
+                        </Sidebar.MenuButton>
+                      </Sidebar.MenuItem>
+                    )}
+                  </Sidebar.Menu>
+                </Sidebar.GroupContent>
+              </div>
+            </div>
           </div>
-        </Collapsible.Trigger>
-        <Collapsible.Content className="pt-1">
-          <Sidebar.GroupContent>
-            <Sidebar.Menu>
-              {pipelines.map((pipeline) => (
-                <Sidebar.MenuItem key={pipeline._id}>
-                  <Sidebar.MenuButton
-                    className="pl-6 font-medium"
-                    isActive={isActive && pipelineId === pipeline._id}
-                    onClick={() => handlePipelineClick(pipeline._id)}
-                  >
-                    <TextOverflowTooltip
-                      className="flex-1 min-w-0"
-                      value={pipeline.name}
-                    />
-                  </Sidebar.MenuButton>
-                </Sidebar.MenuItem>
-              ))}
-              {!pipelines.length && (
-                <Sidebar.MenuItem>
-                  <Sidebar.MenuButton className="pl-6" disabled>
-                    <span className="capitalize text-foreground">
-                      {t('no-pipelines')}
-                    </span>
-                  </Sidebar.MenuButton>
-                </Sidebar.MenuItem>
-              )}
-            </Sidebar.Menu>
-          </Sidebar.GroupContent>
         </Collapsible.Content>
       </Sidebar.Group>
     </Collapsible>
   );
 }
-
-const ActionsMenu = () => {
-  const navigate = useNavigate();
-
-  const { toast } = useToast();
-
-  const { t } = useTranslation('sales');
-
-  const handleCopyLink = async () => {
-    const link = `${window.location.origin}/settings/deals`;
-
-    try {
-      await navigator.clipboard.writeText(link);
-      toast({
-        variant: 'default',
-        title: t('link-copied-to-clipboard'),
-      });
-    } catch (e) {
-      toast({
-        variant: 'destructive',
-        title: t('failed-to-copy-link'),
-        description: e as string,
-      });
-    }
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenu.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="invisible group-hover/trigger:visible absolute top-1/2 -translate-y-1/2 right-1 text-muted-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-          }}
-        >
-          <IconDotsVertical className="size-4" />
-        </Button>
-      </DropdownMenu.Trigger>
-      <DropdownMenu.Content side="right" align="start" className="w-60 min-w-0">
-        <DropdownMenu.Item
-          className="cursor-pointer"
-          onSelect={() => {
-            navigate(`/settings/deals`);
-          }}
-        >
-          <IconSettings className="size-4" />
-          {t('manage-board-pipelines')}
-        </DropdownMenu.Item>
-        <DropdownMenu.Item
-          onSelect={() => {
-            handleCopyLink();
-          }}
-          className="cursor-pointer"
-        >
-          <IconLink className="size-4" />
-          {t('copy-link')}
-        </DropdownMenu.Item>
-      </DropdownMenu.Content>
-    </DropdownMenu>
-  );
-};
 
 const DealsNavigation = ({ onDealsPage }: { onDealsPage: boolean }) => {
   useBoardArchiveSubscription();
@@ -249,6 +242,10 @@ const DealsNavigation = ({ onDealsPage }: { onDealsPage: boolean }) => {
     'pipelineId',
   );
   const { t } = useTranslation('sales');
+  const { byPipeline, loading: countsLoading } = useBoardDealCounts({
+    boards,
+    pipelineId,
+  });
 
   // Only the deals page is scoped to one board and pipeline.
   useEffect(() => {
@@ -291,21 +288,34 @@ const DealsNavigation = ({ onDealsPage }: { onDealsPage: boolean }) => {
   }, [boards, boardId, pipelineId, setPipelineId, onDealsPage]);
 
   return (
-    <NavigationMenuGroup name={t('boards')} actions={<ActionsMenu />}>
-      {loading ? (
-        <LoadingSkeleton />
-      ) : error ? (
-        <p className="p-2 text-sm text-destructive">{error.message}</p>
-      ) : !boards?.length ? (
-        <p className="p-2 text-sm text-muted-foreground">
-          {t('no-boards', 'No boards')}
-        </p>
-      ) : (
-        boards?.map((board) => (
-          <BoardItem key={board._id} board={board} onDealsPage={onDealsPage} />
-        ))
-      )}
-    </NavigationMenuGroup>
+    <>
+      <NavigationMenuGroup
+        name={t('boards')}
+        actions={<BoardsNavigationActions />}
+      >
+        {loading ? (
+          <LoadingSkeleton />
+        ) : error ? (
+          <p className="p-2 text-sm text-destructive">{error.message}</p>
+        ) : !boards?.length ? (
+          <p className="p-2 text-sm text-muted-foreground">
+            {t('no-boards', 'No boards')}
+          </p>
+        ) : (
+          boards.map((board) => (
+            <BoardItem
+              key={board._id}
+              board={board}
+              onDealsPage={onDealsPage}
+              pipelineCounts={byPipeline}
+              countsLoading={countsLoading}
+            />
+          ))
+        )}
+      </NavigationMenuGroup>
+      <BoardCreateDialog onDealsPage={onDealsPage} />
+      <PipelineCreateSheet />
+    </>
   );
 };
 

@@ -8,10 +8,11 @@ import {
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+import { AddDealButton } from '@/deals/components/AddDealButton';
 import { AddDealSheet } from '@/deals/components/AddDealSheet';
 import { CommonDealSearch } from '@/deals/components/commonSearch';
 import { DealsView } from '@/deals/actionBar/components/DealViewControl';
-import { IconSandbox, IconSettings } from '@tabler/icons-react';
+import { IconSandbox } from '@tabler/icons-react';
 import MainActionBar from '@/deals/actionBar/components/MainActionBar';
 import { PageHeader } from 'ui-modules';
 import { SalesBreadCrumb } from '@/deals/components/breadcrumb/SalesBreadCrumb';
@@ -23,16 +24,9 @@ export const SalesIndexPage = () => {
   const boardId = searchParams.get('boardId');
   const pipelineId = searchParams.get('pipelineId');
   const boardSearchParams = new URLSearchParams();
-  const settingsSearchParams = new URLSearchParams();
 
-  if (boardId) {
-    boardSearchParams.set('boardId', boardId);
-    settingsSearchParams.set('activeBoardId', boardId);
-  }
-  if (pipelineId) {
-    boardSearchParams.set('pipelineId', pipelineId);
-    settingsSearchParams.set('pipelineId', pipelineId);
-  }
+  if (boardId) boardSearchParams.set('boardId', boardId);
+  if (pipelineId) boardSearchParams.set('pipelineId', pipelineId);
 
   return (
     <div className="flex h-full overflow-hidden w-full">
@@ -58,14 +52,7 @@ export const SalesIndexPage = () => {
           </PageHeader.Start>
           <PageHeader.End>
             <CommonDealSearch />
-            <Button variant="ghost" asChild>
-              <Link
-                to={`/sales/settings/deals?${settingsSearchParams.toString()}`}
-              >
-                <IconSettings />
-                {t('go-to-settings', 'Go to Settings')}
-              </Link>
-            </Button>
+            <AddDealButton />
           </PageHeader.End>
           <AddDealSheet />
         </PageHeader>
