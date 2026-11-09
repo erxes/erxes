@@ -10,7 +10,7 @@ import {
   MongoClient,
   WriteError,
 } from 'mongodb';
-import { findOrganization } from '../findOrganization';
+import { findOrganization, findSourceOrganization } from '../findOrganization';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -321,7 +321,7 @@ async function main() {
 
     const coreDb = client.db(coreDbName);
 
-    const sourceOrg = await findOrganization(coreDb, SOURCE_SUBDOMAIN);
+    const sourceOrg = await findSourceOrganization(coreDb, SOURCE_SUBDOMAIN);
 
     if (!sourceOrg) {
       throw new Error(

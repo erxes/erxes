@@ -31,3 +31,37 @@ export const findOrganization = async (
 
   return bySubdomain || byId;
 };
+
+const databaseExists = async (coreDb: Db, name: string): Promise<boolean> => {
+  const { databases } = await coreDb
+    .admin()
+    .listDatabases({ nameOnly: true, filter: { name } });
+
+  return databases.some((database) => database.name === name);
+};
+
+export const findSourceOrganization = async (
+  coreDb: Db,
+  subdomainOrId: string | undefined,
+): Promise<Organization | null> => {
+  const organization = await findOrganization(coreDb, subdomainOrId);
+
+  if (organization || !subdomainOrId) {
+    return organization;
+  }
+
+  const databaseName = `erxes_${subdomainOrId}`;
+
+  if (
+    !OBJECT_ID_PATTERN.test(subdomainOrId) ||
+    !(await databaseExists(coreDb, databaseName))
+  ) {
+    return null;
+  }
+
+  console.warn(
+    `Organization "${subdomainOrId}" is not in ${coreDb.databaseName}.organizations; reading its existing database ${databaseName}.`,
+  );
+
+  return { _id: subdomainOrId };
+};
