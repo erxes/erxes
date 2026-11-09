@@ -7,6 +7,7 @@ import {
 } from 'ui-modules';
 import { useBranchDetail } from '@/tms/hooks/BranchDetail';
 import { ITourismPanelDraftDefaults } from '@/tms/side-panel/tourismPanelTypes';
+import { scopeTourismDraftDefaults } from '@/tms/side-panel/tourismRecordPage';
 import { useClearTourismDraftValues } from '@/tms/side-panel/useTourismDraftValues';
 
 export const useTourismPanel = (contentType: string) => {
@@ -81,8 +82,5 @@ export const useTourismPanelDraft = (contentType: string) => {
   const defaults = useSidePanelDraft<ITourismPanelDraftDefaults>(contentType);
   const routeBranchId = useTourismPanelRouteBranchId();
 
-  return {
-    ...defaults,
-    branchId: defaults.branchId || routeBranchId,
-  };
+  return scopeTourismDraftDefaults(defaults, routeBranchId);
 };
