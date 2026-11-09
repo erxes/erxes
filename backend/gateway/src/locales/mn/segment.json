@@ -90,7 +90,12 @@
     "broadcast-create": "Шөнө бүрийн broadcast",
     "automation-kind": "Automation",
     "broadcast-kind": "Broadcast",
-    "broadcast-kind-nightly": "Шөнийн broadcast"
+    "broadcast-kind-nightly": "Шөнийн broadcast",
+    "property-group": {
+      "dataExtensions": "Өгөгдлийн өргөтгөл",
+      "fields": "Талбарууд",
+      "properties": "Нэмэлт шинж чанар"
+    }
   },
   "filter": {
     "segments": "Сегмент",

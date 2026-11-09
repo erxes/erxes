@@ -16,7 +16,10 @@ import { IPutResponse } from '~/modules/ebarimt/put-response/types/PutResponseTy
 import { putResponseMoreColumn } from '~/modules/ebarimt/put-response/components/PutResponseMoreColumn';
 import { HeaderCell } from '~/modules/ebarimt/put-response/components/HeaderCell';
 
-const getDisplayDate = (putResponse: IPutResponse, timeZone: string): string => {
+export const getDisplayDate = (
+  putResponse: Pick<IPutResponse, 'date' | 'createdAt'>,
+  timeZone: string,
+): string => {
   if (putResponse.date) {
     // The receipt service returns UTC timestamps without a timezone suffix.
     const timestamp = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?$/.test(putResponse.date)

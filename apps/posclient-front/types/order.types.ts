@@ -1,3 +1,5 @@
+import type { PricingReason } from "@/lib/pricingReason"
+
 import { Customer, CustomerType } from "./customer.types"
 import { IProduct } from "./product.types"
 
@@ -17,6 +19,8 @@ export interface OrderItemInput {
     title?: string
     amount?: number
     percent?: number
+    // Pricing only: the plans behind the discount and why they applied.
+    reasons?: PricingReason[]
   }[]
   manufacturedDate?: string
   // Code of the product condition this unit is sold under, one of the product's codes.
