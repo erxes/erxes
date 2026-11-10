@@ -79,6 +79,12 @@ export const ProductsPayment = ({
   const { t } = useTranslation('sales');
 
   useEffect(() => {
+    if (!hasUnsavedPayments && !saving) {
+      setPaymentsData(initialPaymentsData || deal.paymentsData || {});
+    }
+  }, [deal.paymentsData, initialPaymentsData, hasUnsavedPayments, saving]);
+
+  useEffect(() => {
     setMobileAmount(0);
     setInvoiceUrl('');
   }, [deal.mobileAmount]);
