@@ -1185,56 +1185,74 @@ const fixInvTrs = async (
     },
   ];
 
-  const incomeAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_INCOME } },
-    ...commonAggregates,
-  ]);
+  const incomeAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_INCOME } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, { adjustId, aggregateTrs: incomeAggrs });
 
-  const moveOutAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
-    ...commonAggregates,
-  ]);
+  const moveOutAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_MOVE } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixMoveTrs(subdomain, models, { adjustId, moveAggrs: moveOutAggrs });
 
-  const outAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
-    ...commonAggregates,
-  ]);
+  const outAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_OUT } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixOutTrs(subdomain, models, { adjustId, outAggrs });
 
-  const justifyUpAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.DEBIT,
+  const justifyUpAggrs = await models.Transactions.aggregate(
+    [
+      {
+        $match: {
+          ...commonMatch,
+          journal: JOURNALS.INV_JUSTIFY,
+          side: TR_SIDES.DEBIT,
+        },
       },
-    },
-    ...commonAggregates,
-  ]);
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, { adjustId, aggregateTrs: justifyUpAggrs });
 
-  const justifyDownAggrs = await models.Transactions.aggregate([
-    {
-      $match: {
-        ...commonMatch,
-        journal: JOURNALS.INV_JUSTIFY,
-        side: TR_SIDES.CREDIT,
+  const justifyDownAggrs = await models.Transactions.aggregate(
+    [
+      {
+        $match: {
+          ...commonMatch,
+          journal: JOURNALS.INV_JUSTIFY,
+          side: TR_SIDES.CREDIT,
+        },
       },
-    },
-    ...commonAggregates,
-  ]);
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await calcTrs(models, {
     adjustId,
     aggregateTrs: justifyDownAggrs,
     multiplier: -1,
   });
 
-  const saleOutAggrs = await models.Transactions.aggregate([
-    { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
-    ...commonAggregates,
-  ]);
+  const saleOutAggrs = await models.Transactions.aggregate(
+    [
+      { $match: { ...commonMatch, journal: JOURNALS.INV_SALE_OUT } },
+      ...commonAggregates,
+    ],
+    { allowDiskUse: true },
+  );
   await fixSaleOutTrs(subdomain, models, { adjustId, saleOutAggrs });
 };
 
@@ -1336,6 +1354,7 @@ export const adjustRunning = async (
           bulkOps = [];
           const details = await models.AdjustInvDetails.find({ adjustId })
             .sort({ accountId: 1, branchId: 1, departmentId: 1, productId: 1 })
+            .allowDiskUse(true)
             .skip(step * per)
             .limit(per)
             .lean();

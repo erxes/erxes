@@ -175,6 +175,8 @@
 
 ## Local Invariants
 
+- Every accounting-owned model schema is registered through `withAccountingDiskUse` in `src/connectionResolvers.ts`. The plugin-local middleware enables disk use for sorted `find`/`findOne` queries and all aggregations (including shared pagination/report helpers); explicit per-operation options remain authoritative. Register future accounting schemas through the same helper before model compilation. Middleware registration is idempotent across tenants, does not change filters or ordering, and never sets global Mongoose/connection defaults. MongoDB stages that cannot spill (such as `$facet`) retain their own limits.
+
 - Inventory adjustment stock-shortage errors identify the product, account, branch/department, failing day, available quantity, required quantity and shortage. Resolve labels through tenant-scoped public lookups: display code plus name (the title field for branches/departments), or name alone when no code exists. Missing records or failed lookups show descriptive unknown-record labels, never raw ids; unassigned locations display as unassigned without a lookup. Never persist unresolved label placeholders.
 
 - `utils/fixedAssets.ts` owns shared empty-follow cleanup for disposal and movement handlers; journal-specific document construction stays in each handler.
