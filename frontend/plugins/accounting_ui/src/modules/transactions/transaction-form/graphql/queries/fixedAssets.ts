@@ -26,13 +26,14 @@ query AccountingFixedAssets($searchValue: String, $ids: [String], $limit: Int, $
 `);
 
 export const FXA_OWNER_RECORDS_QUERY = gql(`
-query AccountingFxaOwnerRecords($ids: [String], $fixedAssetIds: [String], $status: String, $transactionId: String, $balanceOnly: Boolean) {
+query AccountingFxaOwnerRecords($ids: [String], $fixedAssetIds: [String], $status: String, $transactionId: String, $balanceOnly: Boolean, $excludeTransactionId: String) {
   fxaOwnerRecords(
     ids: $ids
     fixedAssetIds: $fixedAssetIds
     status: $status
     transactionId: $transactionId
     balanceOnly: $balanceOnly
+    excludeTransactionId: $excludeTransactionId
   ) {
     _id
     fixedAssetId

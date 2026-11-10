@@ -552,6 +552,7 @@ export const fxaOwnerRecordInputSchema = z.object({
   sequence: undefed(z.number()),
   count: undefed(z.number()),
   ownerId: undefed(z.string()),
+  sourceOwnerId: undefed(z.string()),
 });
 
 export const fxaExtraDataSchema = z.object({

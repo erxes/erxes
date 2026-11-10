@@ -232,6 +232,10 @@
 
 ## Local Invariants
 
+- The movement owner sheet preserves sourceOwnerId and edits ownerId as the destination custodian; both survive Zod/JSON conversion. Out/sale keep source-only selection. Saved transactions exclude their own owner-record entries from available balances so repeated edits do not consume the same quantity twice.
+
+- The fixed asset internal movement (`fxaMove`) form does not render customer type or customer selectors; its header captures asset account, source location, assigned user, description and movement settings.
+
 - FXA snapshot columns render current numbers directly, without previous-to-current arrows; opening/closing book-value columns remain separate. The depreciation posting dialog starts with its adjustment header expenseAccountId, and preserves the user choice while open.
 
 - FXA adjustment detail headers use `shrink-0`, never `flex-auto`: the header must not consume the remaining page height or push its calculation/transaction tabs to the bottom. Tabs and tables share one horizontal margin.

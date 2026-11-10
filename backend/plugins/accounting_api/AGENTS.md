@@ -175,6 +175,8 @@
 
 ## Local Invariants
 
+- Owner-record list/count accept excludeTransactionId, including balanceOnly mode, to reconstruct custodian availability before the movement being edited. The filter is combined with any exact transactionId instead of replacing it.
+
 - FXA adjustment headers retain the last successfully posted expenseAccountId, including zero-depreciation completions; clear/cancel preserve it. New adjustments inherit the latest saved expense-account choice within the tenant.
 
 - FXA adjustment run clears its own previously posted journal parent groups and snapshots before recalculating. Clear/cancel uses account-write validation and grouped transaction removal; later completed periods and later asset changes block reversal. Cancel accepts complete/published and restores draft. Adjustment removal rejects linked journal rows until clear/cancel has removed them. Publication modification checks exclude its own generated journals. Failed calculation returns to process with an error instead of leaving running.

@@ -199,6 +199,7 @@ type TFxaOwnerRecordParams = {
   createdFrom?: Date;
   createdTo?: Date;
   transactionId?: string;
+  excludeTransactionId?: string;
   page?: number;
   perPage?: number;
   limit?: number;
@@ -267,6 +268,12 @@ const buildFxaOwnerRecordFilter = async (
 
   if (params.transactionId) {
     filter.transactionId = params.transactionId;
+  }
+  if (params.excludeTransactionId) {
+    filter.transactionId = {
+      ...(params.transactionId ? { $eq: params.transactionId } : {}),
+      $ne: params.excludeTransactionId,
+    };
   }
 
   return filter;

@@ -8,9 +8,7 @@ jest.mock(
   () => ({ fixNum: (value: number) => Math.round(value * 10000) / 10000 }),
   { virtual: true },
 );
-jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }), {
-  virtual: true,
-});
+jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }));
 
 describe('fixed asset disposal total depreciation metadata', () => {
   const detail = {

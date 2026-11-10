@@ -25,6 +25,7 @@ import {
 import {
   createFxaMoveDepreciationFollowTrs,
   createFxaMoveInFollowTr,
+  syncFxaMoveInstances,
 } from '../fxaMove';
 
 import { getFxaCapitalValuation } from '../fxaCapitalValuation';
@@ -1940,4 +1941,52 @@ test('saved income snapshots survive later category rule edits', async () => {
     expect(doc).not.toHaveProperty('annualDepreciationRate');
     expect(doc).not.toHaveProperty('currentCount');
   }
+});
+
+it('transfers owner quantity from the selected source to a different destination custodian', async () => {
+  const models = makeModels();
+  models.FxaOwnerRecords.find.mockReturnValue(
+    queryResult([
+      {
+        _id: 'income-owner',
+        fixedAssetId: 'asset-a',
+        ownerId: 'owner-a',
+        count: 5,
+        action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+        status: FXA_OWNER_RECORD_STATUSES.ACTIVE,
+      },
+    ]),
+  );
+  models.Transactions.find.mockReturnValue(queryResult([]));
+  await syncFxaMoveInstances(models as never, 'user', {
+    _id: 'move-owner',
+    journal: JOURNALS.FXA_MOVE,
+    date: new Date('2026-01-01'),
+    status: TR_STATUSES.COMPLETE,
+    details: [{ _id: 'row', fixedAssetId: 'asset-a', count: 2 }],
+    extraData: {
+      fxaOwnerRecords: [
+        {
+          transactionDetailId: 'row',
+          fxaOwnerRecordId: 'asset-a:owner-a',
+          fixedAssetId: 'asset-a',
+          count: 2,
+          sourceOwnerId: 'owner-a',
+          ownerId: 'owner-b',
+        },
+      ],
+    },
+  } as never);
+  expect(models.FxaOwnerRecords.insertMany).toHaveBeenCalledWith([
+    expect.objectContaining({
+      ownerId: 'owner-a',
+      action: FXA_OWNER_RECORD_ACTIONS.HANDED_OVER,
+      count: 2,
+    }),
+    expect.objectContaining({
+      ownerId: 'owner-b',
+      action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
+      count: 2,
+    }),
+  ]);
 });
