@@ -7,6 +7,7 @@ import { useDealDetail, useDealsEdit } from '@/deals/cards/hooks/useDeals';
 import { SelectLabels } from '@/deals/components/common/filters/SelectLabel';
 import { DateSelectDeal } from '@/deals/components/deal-selects/DateSelectDeal';
 import { DealContactsField } from '@/deals/components/deal-selects/DealContactsField';
+import { useDealBroker } from '@/deals/components/deal-selects/hooks/useDealBroker';
 import {
   areIdListsEqual,
   rejectOnMutationError,
@@ -62,21 +63,11 @@ import {
 
 const SCOPE = 'side-panel-deal';
 
-type BrokerType = NonNullable<IDealDetail['brokerType']> | '';
-
-interface BrokerSelection {
-  id: string;
-  type: BrokerType;
-}
-
 const toList = (value: string | string[]) =>
   Array.isArray(value) ? value : [value];
 
 const toSingle = (value: string | string[]) =>
   Array.isArray(value) ? value[0] || '' : value;
-
-const toBrokerType = (value: string): BrokerType =>
-  value === 'customer' || value === 'company' || value === 'user' ? value : '';
 
 const useListField = (
   deal: IDealDetail,
@@ -98,10 +89,8 @@ const useListField = (
 const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
   const { t } = useTranslation('sales');
   const { editDeals } = useDealsEdit();
-  const broker = useOptimisticField<BrokerSelection>({
-    value: { id: deal.brokerId || '', type: deal.brokerType || '' },
-    resetKey: deal._id,
-    isEqual: (left, right) => left.id === right.id && left.type === right.type,
+  const broker = useDealBroker({
+    deal,
     onCommit: (value) =>
       rejectOnMutationError(
         editDeals({
@@ -114,52 +103,46 @@ const DealPanelBroker = ({ deal }: { deal: IDealDetail }) => {
       ),
   });
   const setBrokerId = (value: string | string[]) =>
-    broker.setValue({ ...broker.value, id: toSingle(value) });
+    broker.setId(toSingle(value));
   const placeholder = t('select-broker');
 
   return (
     <>
       <PanelField icon={IconBriefcase} label={t('broker')}>
         <DealPanelOptionCell
-          value={broker.value.type || '_none'}
+          value={broker.type || '_none'}
           options={[
             { value: '_none', label: t('none') },
             { value: 'customer', label: t('customer') },
             { value: 'company', label: t('company') },
             { value: 'user', label: t('user') },
           ]}
-          onValueChange={(value) => {
-            const type = toBrokerType(value);
-
-            if (type === broker.value.type) return;
-
-            broker.setValue({ id: '', type });
-          }}
+          onValueChange={broker.setType}
         />
       </PanelField>
-      {broker.value.type === 'customer' && (
+      {broker.type === 'customer' && (
         <PanelField icon={IconUsers} label={t('customer')}>
           <DealPanelCustomerCell
-            value={broker.value.id}
+            value={broker.id}
             placeholder={placeholder}
             onValueChange={setBrokerId}
           />
         </PanelField>
       )}
-      {broker.value.type === 'company' && (
+      {broker.type === 'company' && (
         <PanelField icon={IconBuilding} label={t('company')}>
           <DealPanelCompanyCell
-            value={broker.value.id}
+            value={broker.id}
             placeholder={placeholder}
             onValueChange={setBrokerId}
           />
         </PanelField>
       )}
-      {broker.value.type === 'user' && (
+      {broker.type === 'user' && (
         <PanelField icon={IconUser} label={t('user')}>
           <DealPanelMemberCell
             mode="single"
-            value={broker.value.id}
+            value={broker.id}
             placeholder={placeholder}
             onValueChange={setBrokerId}
           />
