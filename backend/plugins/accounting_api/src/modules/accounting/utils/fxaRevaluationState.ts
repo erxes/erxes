@@ -1,5 +1,6 @@
 import { IModels } from '~/connectionResolvers';
-import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
+import { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
+import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { ITransaction, ITrDetailFollowInfos } from '../@types/transaction';
 import { JOURNALS, TR_INVENTORY_STATUS_TYPES } from '../@types/constants';
 
@@ -62,43 +63,57 @@ export const sumFxaRevaluationBalances = (
   };
 };
 
-export const getFxaRevaluationState = async (
+const getSnapshotOpening = (
+  rows: IAdjustFxaDetail[],
+): TFxaRevaluationState | undefined => {
+  // A partial snapshot cannot replace this asset's acquisition history.
+  if (
+    !rows.length ||
+    rows.some(
+      (row) =>
+        row.revaluationLoss === undefined ||
+        row.revaluationReserve === undefined ||
+        row.count === undefined,
+    )
+  )
+    return undefined;
+  return rows.reduce<TFxaRevaluationState>(
+    (sum, row) => ({
+      count: sum.count + (row.count || 0),
+      loss: sum.loss + (row.revaluationLoss || 0),
+      reserve: sum.reserve + (row.revaluationReserve || 0),
+    }),
+    { count: 0, loss: 0, reserve: 0 },
+  );
+};
+
+export const getFxaRevaluationStates = async (
   models: IModels,
-  fixedAssetId: string,
+  fixedAssetIds: string[],
   date: Date,
   excludeTransactionId?: string,
-): Promise<TFxaRevaluationState> => {
-  const prior = await models.AdjustFixedAssets.findOne({
-    date: { $lt: date },
-    status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
-  })
-    .sort({ date: -1 })
-    .lean();
+): Promise<Map<string, TFxaRevaluationState>> => {
+  const ids = [...new Set(fixedAssetIds)];
+  if (!ids.length) return new Map();
+  const prior = await getPreviousFxaAdjustment(models, date);
   const snapshots = prior
     ? await models.AdjustFxaDetails.find({
         adjustId: prior._id,
-        fixedAssetId,
+        fixedAssetId: { $in: ids },
       }).lean()
     : [];
-  // An absent asset row is not an opening balance of zero: sum acquisition history.
-  const hasSnapshot =
-    snapshots.length > 0 &&
-    snapshots.every(
-      (row) =>
-        row.closingRevaluationLoss !== undefined &&
-        row.closingRevaluationReserve !== undefined &&
-        row.count !== undefined,
-    );
-  const opening = hasSnapshot
-    ? snapshots.reduce<TFxaRevaluationState>(
-        (sum, row) => ({
-          count: sum.count + (row.count || 0),
-          loss: sum.loss + (row.closingRevaluationLoss || 0),
-          reserve: sum.reserve + (row.closingRevaluationReserve || 0),
-        }),
-        { count: 0, loss: 0, reserve: 0 },
-      )
-    : undefined;
+  const snapshotsByAsset = new Map<string, IAdjustFxaDetail[]>();
+  for (const row of snapshots) {
+    if (!row.fixedAssetId) continue;
+    const rows = snapshotsByAsset.get(row.fixedAssetId) || [];
+    rows.push(row);
+    snapshotsByAsset.set(row.fixedAssetId, rows);
+  }
+  const openings = new Map<string, TFxaRevaluationState>();
+  for (const id of ids) {
+    const opening = getSnapshotOpening(snapshotsByAsset.get(id) || []);
+    if (opening) openings.set(id, opening);
+  }
   const through = new Date(date);
   through.setHours(0, 0, 0, 0);
   through.setDate(through.getDate() + 1);
@@ -108,7 +123,7 @@ export const getFxaRevaluationState = async (
     afterSnapshot.setDate(afterSnapshot.getDate() + 1);
   }
   const transactions = await models.Transactions.find({
-    'details.fixedAssetId': fixedAssetId,
+    'details.fixedAssetId': { $in: ids },
     journal: {
       $in: [
         JOURNALS.FXA_INCOME,
@@ -121,12 +136,50 @@ export const getFxaRevaluationState = async (
     ...(excludeTransactionId ? { _id: { $ne: excludeTransactionId } } : {}),
     date: {
       $lt: through,
-      ...(hasSnapshot && afterSnapshot ? { $gte: afterSnapshot } : {}),
+      ...(openings.size === ids.length && afterSnapshot
+        ? { $gte: afterSnapshot }
+        : {}),
     },
   })
     .sort({ date: 1, createdAt: 1, _id: 1 })
     .lean();
-  return sumFxaRevaluationBalances(fixedAssetId, transactions, opening);
+  const transactionsByAsset = new Map<string, typeof transactions>(
+    ids.map((id) => [id, []]),
+  );
+  for (const transaction of transactions) {
+    const involvedIds = new Set(
+      transaction.details.map((detail) => detail.fixedAssetId),
+    );
+    for (const id of involvedIds)
+      if (id) transactionsByAsset.get(id)?.push(transaction);
+  }
+  return new Map(
+    ids.map((id) => {
+      const opening = openings.get(id);
+      const relevant = (transactionsByAsset.get(id) || []).filter(
+        (transaction) =>
+          !opening ||
+          !afterSnapshot ||
+          new Date(transaction.date) >= afterSnapshot,
+      );
+      return [id, sumFxaRevaluationBalances(id, relevant, opening)];
+    }),
+  );
+};
+
+export const getFxaRevaluationState = async (
+  models: IModels,
+  fixedAssetId: string,
+  date: Date,
+  excludeTransactionId?: string,
+): Promise<TFxaRevaluationState> => {
+  const states = await getFxaRevaluationStates(
+    models,
+    [fixedAssetId],
+    date,
+    excludeTransactionId,
+  );
+  return states.get(fixedAssetId) || { count: 0, loss: 0, reserve: 0 };
 };
 
 // Disposal removes its quantity's history through signed detail entries as well.
@@ -137,17 +190,7 @@ export const applyFxaDisposalRevaluation = async (
   const ids = [
     ...new Set(doc.details.map((detail) => detail.fixedAssetId)),
   ].filter((id): id is string => Boolean(id));
-  const states = new Map(
-    await Promise.all(
-      ids.map(
-        async (id) =>
-          [
-            id,
-            await getFxaRevaluationState(models, id, doc.date, doc._id),
-          ] as const,
-      ),
-    ),
-  );
+  const states = await getFxaRevaluationStates(models, ids, doc.date, doc._id);
 
   return {
     ...doc,

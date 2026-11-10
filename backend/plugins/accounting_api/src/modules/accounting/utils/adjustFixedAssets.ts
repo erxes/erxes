@@ -1,3 +1,4 @@
+import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
 import {
   ADJ_FXA_STATUSES,
@@ -12,13 +13,17 @@ import {
 } from '../@types/constants';
 import { ITransaction } from '../@types/transaction';
 import { FIXED_ASSET_DEPRECIATION_METHODS } from '~/modules/fixedAssets/@types/constants';
-import { getFxaLedgerAssets, IFxaLedgerAsset } from './fxaLedger';
+import {
+  getFxaLedgerAssets,
+  IFxaLedgerAsset,
+  fxaMovementSign,
+} from './fxaLedger';
 import {
   getFxaCorrections,
   getFxaRulesAtDate,
   TFxaCorrection,
 } from './fxaRules';
-import { getFxaRevaluationState } from './fxaRevaluationState';
+import { getFxaRevaluationStates } from './fxaRevaluationState';
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -48,10 +53,7 @@ type TFixedAssetLocationDepreciationRow = {
   depreciationAmount: number;
   originalCost: number;
   salvageValue: number;
-  openingBookValue: number;
-  preDeprecation: number;
-  closingAccumulatedDepreciation: number;
-  closingBookValue: number;
+  accumulatedDepreciation: number;
   error: string;
   warning: string;
 };
@@ -302,19 +304,6 @@ const calculateDepreciationByMethod = (
   }
 };
 
-const getPreviousAdjustment = async (
-  models: IModels,
-  adjust: IAdjustFixedAssetDocument,
-) => {
-  return models.AdjustFixedAssets.findOne({
-    _id: { $ne: adjust._id },
-    date: { $lt: getPureDate(adjust.date) },
-    status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
-  })
-    .sort({ date: -1 })
-    .lean();
-};
-
 const getIncompleteBeforeAdjustment = async (
   models: IModels,
   adjust: Pick<IAdjustFixedAssetDocument, '_id' | 'date'>,
@@ -337,20 +326,6 @@ const FXA_MOVEMENT_JOURNALS = [
   JOURNALS.FXA_MOVE,
   JOURNALS.FXA_MOVE_IN,
 ];
-
-const getFxaMovementSign = (journal?: string) => {
-  switch (journal) {
-    case JOURNALS.FXA_INCOME:
-    case JOURNALS.FXA_MOVE_IN:
-      return 1;
-    case JOURNALS.FXA_OUT:
-    case JOURNALS.FXA_SALE:
-    case JOURNALS.FXA_MOVE:
-      return -1;
-    default:
-      return 0;
-  }
-};
 
 const getFirstAcquisitionDate = async (models: IModels, endDate: Date) => {
   const firstTransaction = await models.Transactions.findOne({
@@ -402,7 +377,7 @@ const getFxaMovements = async (models: IModels, endDate: Date) => {
   const movements: TFixedAssetMovement[] = [];
 
   for (const transaction of transactions) {
-    const sign = getFxaMovementSign(transaction.journal);
+    const sign = fxaMovementSign(transaction.journal);
 
     if (!sign) {
       continue;
@@ -583,25 +558,14 @@ const calculateFixedAssetDepreciationByDay = ({
   scheduleStartDate: Date;
   corrections: TFxaCorrection[];
 }) => {
-  const openingRules = getFxaRulesAtDate(
-    fixedAsset,
-    corrections,
-    addDays(beginDate, -1),
-  );
   const closingRules = getFxaRulesAtDate(fixedAsset, corrections, endDate);
   const originalCost =
     closingRules.originalCost ?? fixedAsset.originalCost ?? 0;
-  const openingOriginalCost =
-    openingRules.originalCost ?? fixedAsset.originalCost ?? 0;
   const salvageValue = closingRules.salvageValue || 0;
   const openingCounts = getAssetLocationCountsAtDate(
     fixedAsset._id,
     movements,
     addDays(beginDate, -1),
-  );
-  const openingCount = getTotalCount(openingCounts);
-  const activeCount = getTotalCount(
-    getAssetLocationCountsAtDate(fixedAsset._id, movements, beginDate),
   );
   const depreciationByLocationKey = new Map<string, number>();
   const assetDepreciationMovements = depreciationMovements.filter(
@@ -710,25 +674,12 @@ const calculateFixedAssetDepreciationByDay = ({
 
   return locationKeys.reduce<Map<string, TFixedAssetLocationDepreciationRow>>(
     (map, locationKey) => {
-      const openingLocationCount = openingCounts.get(locationKey) || 0;
       const closingCount =
         getAssetLocationCountsAtDate(fixedAsset._id, movements, endDate).get(
           locationKey,
         ) || 0;
       const depreciationAmount =
         depreciationByLocationKey.get(locationKey) || 0;
-      const initialCount = openingCount || activeCount;
-      const initialLocationCount = openingCount
-        ? openingLocationCount
-        : getAssetLocationCountsAtDate(
-            fixedAsset._id,
-            movements,
-            beginDate,
-          ).get(locationKey) || 0;
-      const locationOpeningAccumulated =
-        initialCount > 0
-          ? (openingAccumulated * initialLocationCount) / initialCount
-          : 0;
       const closingAccumulated = perUnitAccumulated * closingCount;
       const closingOriginalCost = originalCost * closingCount;
       const closingSalvageValue = salvageValue * closingCount;
@@ -737,12 +688,7 @@ const calculateFixedAssetDepreciationByDay = ({
         depreciationAmount,
         originalCost: closingOriginalCost,
         salvageValue: closingSalvageValue,
-        openingBookValue:
-          openingOriginalCost * initialLocationCount -
-          locationOpeningAccumulated,
-        preDeprecation: locationOpeningAccumulated,
-        closingAccumulatedDepreciation: closingAccumulated,
-        closingBookValue: closingOriginalCost - closingAccumulated,
+        accumulatedDepreciation: closingAccumulated,
         error,
         warning,
       });
@@ -861,10 +807,7 @@ export const checkValidFixedAssetDate = async (
     throw new Error('An earlier fixed asset adjustment is not completed yet.');
   }
 
-  const beforeAdjust = await getPreviousAdjustment(
-    models,
-    adjust as IAdjustFixedAssetDocument,
-  );
+  const beforeAdjust = await getPreviousFxaAdjustment(models, date, adjust._id);
   const beginDate = beforeAdjust?.date
     ? addDays(getPureDate(beforeAdjust.date), 1)
     : await getFirstAcquisitionDate(models, date);
@@ -1031,124 +974,102 @@ export const runAdjustFixedAsset = async (
     });
   }
 
-  const calculatedDetails = await Promise.all(
-    fixedAssets.map(async (fixedAsset) => {
-      const assetDetails: IAdjustFxaDetail[] = [];
-      const depreciationEndDate = endDate;
-      const scheduleStartDate = getPureDate(
-        fixedAsset.depreciationStartDate ||
-          fixedAsset.acquisitionDate ||
-          beginDate,
-      );
-      const acquisitionDate = getPureDate(
-        fixedAsset.acquisitionDate || beginDate,
-      );
-      const startDate =
-        beforeAdjust && beginDate > acquisitionDate
-          ? beginDate
-          : acquisitionDate;
-
-      if (startDate > depreciationEndDate) return assetDetails;
-
-      let periodDate = beginDate;
-      let periodActiveCount = 0;
-
-      while (periodDate <= depreciationEndDate) {
-        periodActiveCount += getTotalCount(
-          getAssetLocationCountsAtDate(fixedAsset._id, movements, periodDate),
-        );
-        periodDate = addDays(periodDate, 1);
-      }
-
-      if (periodActiveCount <= 0) return assetDetails;
-
-      const depreciationMethod =
-        fixedAsset.depreciationMethod || 'straightLine';
-      const resultByLocationKey = calculateFixedAssetDepreciationByDay({
-        beginDate: startDate,
-        depreciationMethod,
-        endDate: depreciationEndDate,
-        fixedAsset,
-        movements,
-        depreciationMovements,
-        scheduleStartDate,
-        corrections,
-      });
-
-      const [openingRevaluation, closingRevaluation] = await Promise.all([
-        getFxaRevaluationState(models, fixedAsset._id, addDays(startDate, -1)),
-        getFxaRevaluationState(models, fixedAsset._id, endDate),
-      ]);
-      const closingCounts = getAssetLocationCountsAtDate(
-        fixedAsset._id,
-        movements,
-        endDate,
-      );
-      const openingCounts = getAssetLocationCountsAtDate(
-        fixedAsset._id,
-        movements,
-        addDays(startDate, -1),
-      );
-      const totalClosingCount = getTotalCount(closingCounts);
-      const totalOpeningCount = getTotalCount(openingCounts);
-      for (const [locationKey, result] of resultByLocationKey) {
-        const accountId = fixedAsset.accountId;
-        const snapshot = splitLocationKey(locationKey);
-
-        if (
-          !result ||
-          (result.originalCost <= 0 &&
-            result.depreciationAmount <= 0 &&
-            !result.error)
-        ) {
-          continue;
-        }
-
-        assetDetails.push({
-          adjustId: adjust._id,
-          fixedAssetId: fixedAsset._id,
-          categoryId: fixedAsset.categoryId,
-          accountId,
-          branchId: snapshot.branchId,
-          departmentId: snapshot.departmentId,
-          count: closingCounts.get(locationKey) || 0,
-          openingRevaluationLoss: totalOpeningCount
-            ? (openingRevaluation.loss *
-                (openingCounts.get(locationKey) || 0)) /
-              totalOpeningCount
-            : 0,
-          openingRevaluationReserve: totalOpeningCount
-            ? (openingRevaluation.reserve *
-                (openingCounts.get(locationKey) || 0)) /
-              totalOpeningCount
-            : 0,
-          closingRevaluationLoss: totalClosingCount
-            ? (closingRevaluation.loss *
-                (closingCounts.get(locationKey) || 0)) /
-              totalClosingCount
-            : 0,
-          closingRevaluationReserve: totalClosingCount
-            ? (closingRevaluation.reserve *
-                (closingCounts.get(locationKey) || 0)) /
-              totalClosingCount
-            : 0,
-          originalCost: result.originalCost,
-          salvageValue: result.salvageValue,
-          openingBookValue: result.openingBookValue,
-          preDeprecation: result.preDeprecation,
-          depreciationAmount: result.depreciationAmount,
-          bookDepreciationAmount: result.depreciationAmount,
-          closingAccumulatedDepreciation: result.closingAccumulatedDepreciation,
-          closingBookValue: result.closingBookValue,
-          error:
-            result.error ||
-            (!accountId ? 'Fixed asset account is missing.' : ''),
-          warning: result.warning,
-        });
-      }
-      return assetDetails;
-    }),
+  const revaluationStates = await getFxaRevaluationStates(
+    models,
+    fixedAssets.map((asset) => asset._id),
+    endDate,
   );
+  const calculatedDetails = fixedAssets.map((fixedAsset) => {
+    const assetDetails: IAdjustFxaDetail[] = [];
+    const depreciationEndDate = endDate;
+    const scheduleStartDate = getPureDate(
+      fixedAsset.depreciationStartDate ||
+        fixedAsset.acquisitionDate ||
+        beginDate,
+    );
+    const acquisitionDate = getPureDate(
+      fixedAsset.acquisitionDate || beginDate,
+    );
+    const startDate =
+      beforeAdjust && beginDate > acquisitionDate ? beginDate : acquisitionDate;
+
+    if (startDate > depreciationEndDate) return assetDetails;
+
+    let periodDate = beginDate;
+    let periodActiveCount = 0;
+
+    while (periodDate <= depreciationEndDate) {
+      periodActiveCount += getTotalCount(
+        getAssetLocationCountsAtDate(fixedAsset._id, movements, periodDate),
+      );
+      periodDate = addDays(periodDate, 1);
+    }
+
+    if (periodActiveCount <= 0) return assetDetails;
+
+    const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
+    const resultByLocationKey = calculateFixedAssetDepreciationByDay({
+      beginDate: startDate,
+      depreciationMethod,
+      endDate: depreciationEndDate,
+      fixedAsset,
+      movements,
+      depreciationMovements,
+      scheduleStartDate,
+      corrections,
+    });
+
+    const revaluation = revaluationStates.get(fixedAsset._id) || {
+      count: 0,
+      loss: 0,
+      reserve: 0,
+    };
+    const closingCounts = getAssetLocationCountsAtDate(
+      fixedAsset._id,
+      movements,
+      endDate,
+    );
+    const totalClosingCount = getTotalCount(closingCounts);
+    for (const [locationKey, result] of resultByLocationKey) {
+      const accountId = fixedAsset.accountId;
+      const snapshot = splitLocationKey(locationKey);
+
+      if (
+        !result ||
+        (result.originalCost <= 0 &&
+          result.depreciationAmount <= 0 &&
+          !result.error)
+      ) {
+        continue;
+      }
+
+      assetDetails.push({
+        adjustId: adjust._id,
+        fixedAssetId: fixedAsset._id,
+        categoryId: fixedAsset.categoryId,
+        accountId,
+        branchId: snapshot.branchId,
+        departmentId: snapshot.departmentId,
+        count: closingCounts.get(locationKey) || 0,
+        revaluationLoss: totalClosingCount
+          ? (revaluation.loss * (closingCounts.get(locationKey) || 0)) /
+            totalClosingCount
+          : 0,
+        revaluationReserve: totalClosingCount
+          ? (revaluation.reserve * (closingCounts.get(locationKey) || 0)) /
+            totalClosingCount
+          : 0,
+        originalCost: result.originalCost,
+        salvageValue: result.salvageValue,
+        depreciationAmount: result.depreciationAmount,
+        accumulatedDepreciation: result.accumulatedDepreciation,
+        error:
+          result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
+        warning: result.warning,
+      });
+    }
+    return assetDetails;
+  });
   details.push(...calculatedDetails.flat());
 
   await models.AdjustFxaDetails.replaceAdjustFxaDetails({
@@ -1198,7 +1119,7 @@ export const createAdjustFixedAssetTransaction = async ({
   const details = await models.AdjustFxaDetails.find({
     adjustId: adjust._id,
     error: { $in: [null, ''] },
-    bookDepreciationAmount: { $gt: 0 },
+    depreciationAmount: { $gt: 0 },
   }).lean();
 
   if (!details.length) {
@@ -1228,7 +1149,7 @@ export const createAdjustFixedAssetTransaction = async ({
       throw new Error('Accumulated depreciation account config is missing.');
     }
 
-    const amount = detail.bookDepreciationAmount || 0;
+    const amount = detail.depreciationAmount || 0;
 
     debitDetails.push({
       accountId: expenseAccountId,

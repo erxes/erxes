@@ -2,6 +2,7 @@ import {
   allocateFxaRevaluation,
   sumFxaRevaluationBalances,
   getFxaRevaluationState,
+  getFxaRevaluationStates,
   applyFxaDisposalRevaluation,
 } from '../fxaRevaluationState';
 import { buildFxaCapitalDocuments } from '../fxaCapital';
@@ -104,7 +105,12 @@ test('active adjustment snapshot supplies limits and only later events are repla
     AdjustFxaDetails: {
       find: () =>
         query([
-          { count: 1, closingRevaluationLoss: 5, closingRevaluationReserve: 0 },
+          {
+            fixedAssetId: 'asset',
+            count: 1,
+            revaluationLoss: 5,
+            revaluationReserve: 0,
+          },
         ]),
     },
     Transactions: {
@@ -224,4 +230,77 @@ test('partial disposal stores signed history deltas once and editing excludes it
     loss: 0,
     reserve: 10,
   });
+});
+
+test('batch valuation reads snapshots once and uses a per-asset cutoff for missing or partial snapshots', async () => {
+  const oldA = entry(JOURNALS.FXA_INCOME, '2026-01-01', 3, {
+    revaluationLoss: 100,
+  });
+  const oldB = entry(JOURNALS.FXA_INCOME, '2026-01-01', 2, {
+    revaluationLoss: 4,
+  });
+  oldB.details[0].fixedAssetId = 'b';
+  const oldC = entry(JOURNALS.FXA_INCOME, '2026-01-01', 1, {
+    revaluationLoss: 3,
+  });
+  oldC.details[0].fixedAssetId = 'c';
+  const change = entry(JOURNALS.FXA_REVALUATION, '2026-03-01', 0, {
+    revaluationLoss: -6,
+    revaluationReserve: 1,
+  });
+  const out = entry(JOURNALS.FXA_OUT, '2026-03-01', 1, { revaluationLoss: -2 });
+  out.details[0].fixedAssetId = 'b';
+  const findPrior = jest.fn(() =>
+    query({ _id: 'previous', date: new Date('2026-02-28') }),
+  );
+  const findSnapshots = jest.fn(() =>
+    query([
+      {
+        fixedAssetId: 'asset',
+        count: 2,
+        revaluationLoss: 5,
+        revaluationReserve: 0,
+      },
+      {
+        fixedAssetId: 'asset',
+        count: 1,
+        revaluationLoss: 1,
+        revaluationReserve: 1,
+      },
+      { fixedAssetId: 'c', revaluationLoss: 999, revaluationReserve: 999 },
+    ]),
+  );
+  const findTransactions = jest.fn(() =>
+    query([oldA, oldB, oldC, change, out]),
+  );
+  const models = {
+    AdjustFixedAssets: { findOne: findPrior },
+    AdjustFxaDetails: { find: findSnapshots },
+    Transactions: { find: findTransactions },
+  } as unknown as IModels;
+  const result = await getFxaRevaluationStates(
+    models,
+    ['asset', 'b', 'c', 'asset'],
+    new Date('2026-03-01'),
+  );
+  expect(result.get('asset')).toEqual({ count: 3, loss: 0, reserve: 2 });
+  expect(result.get('b')).toEqual({ count: 1, loss: 2, reserve: 0 });
+  expect(result.get('c')).toEqual({ count: 1, loss: 3, reserve: 0 });
+  expect(findPrior).toHaveBeenCalledTimes(1);
+  expect(findSnapshots).toHaveBeenCalledTimes(1);
+  expect(findTransactions).toHaveBeenCalledTimes(1);
+  expect(findSnapshots).toHaveBeenCalledWith({
+    adjustId: 'previous',
+    fixedAssetId: { $in: ['asset', 'b', 'c'] },
+  });
+  expect(findTransactions).toHaveBeenCalledWith(
+    expect.objectContaining({
+      date: { $lt: new Date(2026, 2, 2) },
+    }),
+  );
+});
+
+test('an empty asset batch does not read the database', async () => {
+  const result = await getFxaRevaluationStates({} as IModels, [], new Date());
+  expect(result.size).toBe(0);
 });

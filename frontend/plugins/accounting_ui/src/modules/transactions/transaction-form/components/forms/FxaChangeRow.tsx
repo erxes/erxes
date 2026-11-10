@@ -51,7 +51,7 @@ export const FxaChangeRow = ({
   const revaluation = trDoc?.journal === TrJournalEnum.FXA_REVALUATION;
   const assetId = detail.fixedAssetId || '';
   const [pendingAsset, setPendingAsset] = useState(
-    !detail.followInfos?.originalCost ? assetId : '',
+    detail.followInfos?.originalCost === undefined ? assetId : '',
   );
   const { data, loading, error } = useQuery(FXA_CAPITAL_VALUATION, {
     variables: {

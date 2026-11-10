@@ -225,10 +225,18 @@ test.each([
         : method === 'sumOfYearsDigits'
         ? 200 / 3001
         : (80 * 0.12 * (method === 'doubleDecliningBalance' ? 2 : 1)) / 365;
-    expect(detail.preDeprecation).toBe(20);
     expect(detail.depreciationAmount).toBeCloseTo(daily, 8);
-    expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + daily, 8);
-    expect(detail.closingBookValue).toBeCloseTo(80 - daily, 8);
+    for (const field of [
+      'openingBookValue',
+      'closingBookValue',
+      'preDeprecation',
+      'bookDepreciationAmount',
+    ])
+      expect(detail).not.toHaveProperty(field);
+    expect(detail.accumulatedDepreciation).toBeCloseTo(20 + daily, 8);
+    expect(
+      detail.originalCost - (detail.accumulatedDepreciation || 0),
+    ).toBeCloseTo(80 - daily, 8);
   },
 );
 
@@ -242,7 +250,9 @@ test('opening depreciation caps a straight-line day at salvage value', async () 
   });
   const [detail] = await fixture.run();
   expect(detail.depreciationAmount).toBeCloseTo(0.001, 8);
-  expect(detail.closingBookValue).toBeCloseTo(80, 8);
+  expect(
+    detail.originalCost - (detail.accumulatedDepreciation || 0),
+  ).toBeCloseTo(80, 8);
 });
 
 test('uses previous posted depreciation once and applies subsequent credit/debit entries by day', async () => {
@@ -262,8 +272,7 @@ test('uses previous posted depreciation once and applies subsequent credit/debit
     ],
   });
   const [detail] = await fixture.run('2026-01-03');
-  expect(detail.preDeprecation).toBe(20);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(25 + 2 / 31, 8);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(25 + 2 / 31, 8);
   expect(fixture.selectors).toContainEqual(
     expect.objectContaining({
       contentId: { $ne: 'adjust' },
@@ -283,7 +292,7 @@ test('a disposal debit removes the disposed unit depreciation exactly once', asy
   });
   const [detail] = await fixture.run('2026-01-03');
   expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + 2 / 31, 8);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(20 + 2 / 31, 8);
   expect(detail.originalCost).toBe(100);
 });
 
@@ -316,12 +325,11 @@ test('a full internal move does not duplicate closing depreciation at the old lo
   expect(
     details.find((detail) => detail.branchId === 'branch-a'),
   ).toMatchObject({
-    closingAccumulatedDepreciation: 0,
-    closingBookValue: 0,
+    accumulatedDepreciation: 0,
   });
   expect(
     details.reduce(
-      (sum, detail) => sum + (detail.closingAccumulatedDepreciation || 0),
+      (sum, detail) => sum + (detail.accumulatedDepreciation || 0),
       0,
     ),
   ).toBeCloseTo(20 + 2 / 31, 8);
@@ -351,8 +359,7 @@ test('a new asset missing from the previous snapshot retains opening entries on 
     ],
   });
   const [detail] = await fixture.run();
-  expect(detail.preDeprecation).toBe(20);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
 });
 
 test('a fully depreciated ledger does not restart historical depreciation', async () => {
@@ -364,9 +371,8 @@ test('a fully depreciated ledger does not restart historical depreciation', asyn
     ],
   });
   const [detail] = await fixture.run();
-  expect(detail.preDeprecation).toBe(100);
   expect(detail.depreciationAmount).toBe(0);
-  expect(detail.closingBookValue).toBe(0);
+  expect(detail.originalCost - (detail.accumulatedDepreciation || 0)).toBe(0);
 });
 
 test('inactive and future depreciation entries do not affect the period', async () => {
@@ -381,7 +387,7 @@ test('inactive and future depreciation entries do not affect the period', async 
     ],
   });
   const [detail] = await fixture.run();
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(20 + 1 / 31, 8);
 });
 
 test('a mid-period correction changes rates only from its effective date', async () => {
@@ -423,10 +429,7 @@ test('a correction uses the new method and a ledger delta without resetting accu
   });
   const [detail] = await fixture.run();
   expect(detail.depreciationAmount).toBeCloseTo((75 * 0.2) / 365, 8);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(
-    25 + (75 * 0.2) / 365,
-    8,
-  );
+  expect(detail.accumulatedDepreciation).toBeCloseTo(25 + (75 * 0.2) / 365, 8);
 });
 
 test('draft and future correction rules never affect historical depreciation', async () => {
@@ -479,7 +482,6 @@ test('a later period keeps correction rules from before its opening snapshot', a
     ],
   });
   const [detail] = await fixture.run();
-  expect(detail.preDeprecation).toBe(20);
   expect(detail.depreciationAmount).toBeCloseTo(2 / 31, 8);
 });
 
@@ -505,7 +507,7 @@ test('capitalized cost only affects depreciation and closing cost from the capit
   expect(before.depreciationAmount).toBeCloseTo(2 / 31, 8);
   const [after] = await fixture.run('2026-01-04');
   expect(after.originalCost).toBe(200);
-  expect(after.openingBookValue).toBe(100);
+  expect(after).not.toHaveProperty('openingBookValue');
   expect(after.depreciationAmount).toBeCloseTo(6 / 31, 8);
 });
 
@@ -533,7 +535,7 @@ test('renewal depreciates the new net base over the new life while retaining pos
   });
   const [detail] = await fixture.run();
   expect(detail.depreciationAmount).toBeCloseTo((150 * 0.2) / 12 / 31, 8);
-  expect(detail.closingAccumulatedDepreciation).toBeCloseTo(
+  expect(detail.accumulatedDepreciation).toBeCloseTo(
     50 + (150 * 0.2) / 12 / 31,
     8,
   );
@@ -572,7 +574,9 @@ test('depreciation snapshots carry opening history and period revaluations per a
     'b',
   );
   for (const income of [incomeA, incomeB])
-    income.details[0].followInfos = { revaluationLoss: 5 * (income.details[0].count || 0) };
+    income.details[0].followInfos = {
+      revaluationLoss: 5 * (income.details[0].count || 0),
+    };
   const revalue = entry(
     JOURNALS.FXA_REVALUATION,
     '2026-01-02',
@@ -610,16 +614,16 @@ test('depreciation snapshots carry opening history and period revaluations per a
   const rows = await fixture.run('2026-01-02');
   expect(rows.find((row) => row.branchId === 'a')).toMatchObject({
     count: 2,
-    closingRevaluationLoss: 0,
-    closingRevaluationReserve: 2,
+    revaluationLoss: 0,
+    revaluationReserve: 2,
   });
   expect(rows.find((row) => row.branchId === 'b')).toMatchObject({
     count: 1,
-    closingRevaluationLoss: 0,
-    closingRevaluationReserve: 1,
+    revaluationLoss: 0,
+    revaluationReserve: 1,
   });
   expect(
-    rows.reduce((sum, row) => sum + (row.closingRevaluationReserve || 0), 0),
+    rows.reduce((sum, row) => sum + (row.revaluationReserve || 0), 0),
   ).toBe(3);
 });
 

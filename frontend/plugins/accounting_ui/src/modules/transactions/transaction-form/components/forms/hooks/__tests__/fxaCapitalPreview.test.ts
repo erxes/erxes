@@ -4,7 +4,10 @@ import {
   allocateRevaluationPreview,
   TFxaCapitalValuation,
 } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
-import { JOURNALS_BY_JOURNAL } from '@/transactions/transaction-form/contants/defaultValues';
+import {
+  fxaCapitalDetailDefaultValues,
+  JOURNALS_BY_JOURNAL,
+} from '@/transactions/transaction-form/contants/defaultValues';
 import { transactionFxaCapitalSchema } from '@/transactions/transaction-form/contants/transactionSchema';
 import { TrJournalEnum } from '@/transactions/types/constants';
 import { getRateFromUsefulLife } from '@/settings/fixed-assets/utils/depreciationRate';
@@ -319,3 +322,43 @@ test.each([TrJournalEnum.FXA_CAPITAL, TrJournalEnum.FXA_REVALUATION])(
     expect(mergeFxaDepreciationFollows(merged, [], doc._id)).toEqual([]);
   },
 );
+
+test('new capitalization rows distinguish an uninitialized cost from an explicit zero', () => {
+  expect(
+    fxaCapitalDetailDefaultValues({ fixedAssetId: 'asset' }).followInfos
+      .originalCost,
+  ).toBeUndefined();
+  const saved = fxaCapitalDetailDefaultValues({
+    fixedAssetId: 'asset',
+    followInfos: { originalCost: 0 },
+  });
+  expect(saved.followInfos.originalCost).toBe(0);
+  expect(fxaCapitalDetailDefaultValues(saved).followInfos.originalCost).toBe(0);
+});
+
+test('capital detail validation requires a loaded cost while accepting an explicit zero target', () => {
+  const doc = journal();
+  const detail = doc.details[0];
+  const schema = transactionFxaCapitalSchema.shape.details.element;
+  const missing = {
+    ...detail,
+    followInfos: { ...detail.followInfos, originalCost: undefined },
+  };
+  const result = schema.safeParse(missing);
+  expect(result.success).toBe(false);
+  if (!result.success)
+    expect(result.error.issues).toContainEqual(
+      expect.objectContaining({ path: ['followInfos', 'originalCost'] }),
+    );
+  expect(
+    schema.safeParse({
+      ...missing,
+      followInfos: {
+        ...missing.followInfos,
+        originalCost: 0,
+        preDeprecation: 0,
+        salvageValue: 0,
+      },
+    }).success,
+  ).toBe(true);
+});

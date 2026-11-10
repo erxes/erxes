@@ -1,6 +1,10 @@
 import { buildChooserOwnerBalances } from '@/fixedAssets/utils/chooser';
 import { checkPermissionTrs } from '@/accounting/utils/trPermissions';
-import { getFxaLedgerAssets } from '@/accounting/utils/fxaLedger';
+import {
+  getFxaLedgerAssets,
+  fxaMovementSign,
+  getFxaTransactionExclusionFilter,
+} from '@/accounting/utils/fxaLedger';
 import { escapeRegExp } from 'erxes-api-shared/utils';
 import { IContext } from '~/connectionResolvers';
 import {
@@ -60,20 +64,6 @@ const FXA_MOVEMENT_JOURNALS = [
   JOURNALS.FXA_MOVE_IN,
 ];
 
-const getFxaMovementSign = (journal?: string) => {
-  switch (journal) {
-    case JOURNALS.FXA_INCOME:
-    case JOURNALS.FXA_MOVE_IN:
-      return 1;
-    case JOURNALS.FXA_OUT:
-    case JOURNALS.FXA_SALE:
-    case JOURNALS.FXA_MOVE:
-      return -1;
-    default:
-      return 0;
-  }
-};
-
 const normalizeLocationId = (value?: string) => value || '';
 
 const getEndOfDay = (value: Date) => {
@@ -112,21 +102,6 @@ type TFixedAssetMovementTransaction = {
   }[];
 };
 
-export const getFixedAssetRemainderExclusionFilter = (
-  transaction?: { _id?: string; parentId?: string } | null,
-  excludeTransactionId?: string,
-) => {
-  if (transaction?.parentId) {
-    return { parentId: { $ne: transaction.parentId } };
-  }
-
-  if (excludeTransactionId) {
-    return { _id: { $ne: excludeTransactionId } };
-  }
-
-  return {};
-};
-
 const getFxaLocationRemainderKey = ({
   branchId,
   departmentId,
@@ -156,7 +131,7 @@ export const buildFixedAssetLocationRemainderRows = ({
   const remainders = new Map<string, TFixedAssetLocationRemainderRow>();
 
   for (const transaction of transactions) {
-    const sign = getFxaMovementSign(transaction.journal);
+    const sign = fxaMovementSign(transaction.journal);
 
     if (!sign) {
       continue;
@@ -402,7 +377,7 @@ const fixedAssets = {
           { _id: 1, parentId: 1 },
         ).lean()
       : null;
-    const exclusion = getFixedAssetRemainderExclusionFilter(
+    const exclusion = getFxaTransactionExclusionFilter(
       excluded,
       params.excludeTransactionId,
     );
@@ -728,7 +703,7 @@ const fixedAssets = {
 
     Object.assign(
       filter,
-      getFixedAssetRemainderExclusionFilter(
+      getFxaTransactionExclusionFilter(
         excludedTransaction,
         excludeTransactionId,
       ),

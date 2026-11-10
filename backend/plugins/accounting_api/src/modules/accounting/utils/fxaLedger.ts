@@ -56,7 +56,17 @@ export const assertFxaAcquisitionConsistency = (
   }
 };
 
-export const fxaMovementSign = (journal: string): number => {
+export const getFxaTransactionExclusionFilter = (
+  transaction?: { _id?: string; parentId?: string } | null,
+  excludeTransactionId?: string,
+): Record<string, unknown> => {
+  if (transaction?.parentId) return { parentId: { $ne: transaction.parentId } };
+  if (excludeTransactionId) return { _id: { $ne: excludeTransactionId } };
+  return {};
+};
+
+export const fxaMovementSign = (journal?: string): number => {
+  if (!journal) return 0;
   if (journal === JOURNALS.FXA_INCOME || journal === JOURNALS.FXA_MOVE_IN)
     return 1;
   if (
@@ -174,10 +184,10 @@ export const getFxaLedgerAssets = async (
   const endDate = new Date(date);
   endDate.setHours(0, 0, 0, 0);
   endDate.setDate(endDate.getDate() + 1);
-  let exclusion: Record<string, unknown> = {};
-  if (excluded?.parentId) exclusion = { parentId: { $ne: excluded.parentId } };
-  else if (excludeTransactionId)
-    exclusion = { _id: { $ne: excludeTransactionId } };
+  const exclusion = getFxaTransactionExclusionFilter(
+    excluded,
+    excludeTransactionId,
+  );
   const transactions = await models.Transactions.find({
     'details.fixedAssetId': { $in: assets.map((asset) => asset._id) },
     journal: {

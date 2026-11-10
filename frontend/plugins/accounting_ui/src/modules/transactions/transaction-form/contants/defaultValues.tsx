@@ -51,7 +51,7 @@ export const fxaCapitalDetailDefaultValues = (detail: ITrDetail = {}) => ({
   count: 0 as const,
   followInfos: {
     ...detail.followInfos,
-    originalCost: detail.followInfos?.originalCost ?? 0,
+    originalCost: detail.followInfos?.originalCost,
     annualDepreciationRate: detail.followInfos?.annualDepreciationRate ?? 0,
   },
 });
@@ -575,21 +575,10 @@ export function JOURNALS_BY_JOURNAL(
       break;
 
     case TrJournalEnum.FXA_CAPITAL:
-      result = {
-        ...trDataWrapper(doc),
-        journal: TrJournalEnum.FXA_CAPITAL,
-        side: doc.side || TR_SIDES.DEBIT,
-        followInfos: undefined,
-        details: (doc.details?.length ? doc.details : [{}]).map(
-          fxaCapitalDetailDefaultValues,
-        ),
-      };
-      break;
-
     case TrJournalEnum.FXA_REVALUATION:
       result = {
         ...trDataWrapper(doc),
-        journal: TrJournalEnum.FXA_REVALUATION,
+        journal,
         side: doc.side || TR_SIDES.DEBIT,
         followInfos: undefined,
         details: (doc.details?.length ? doc.details : [{}]).map(

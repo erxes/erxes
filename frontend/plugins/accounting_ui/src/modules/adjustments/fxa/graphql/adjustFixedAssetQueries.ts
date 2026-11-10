@@ -88,18 +88,26 @@ query accountingAdjustFxaDetails($_id: String!, $page: Int, $perPage: Int, $sort
     branchId
     departmentId
     count
-    openingRevaluationLoss
-    openingRevaluationReserve
-    closingRevaluationLoss
-    closingRevaluationReserve
     originalCost
     salvageValue
-    openingBookValue
-    preDeprecation
+    accumulatedDepreciation
     depreciationAmount
-    bookDepreciationAmount
-    closingAccumulatedDepreciation
-    closingBookValue
+    revaluationLoss
+    revaluationReserve
+    previous {
+      _id
+      adjustId
+      fixedAssetId
+      branchId
+      departmentId
+      count
+      originalCost
+      salvageValue
+      accumulatedDepreciation
+      depreciationAmount
+      revaluationLoss
+      revaluationReserve
+    }
     transactionId
     transactionDetailId
     error

@@ -1,7 +1,11 @@
-import { getFxaLedgerAssets } from './fxaLedger';
+import {
+  getFxaLedgerAssets,
+  fxaMovementSign,
+  getFxaTransactionExclusionFilter,
+} from './fxaLedger';
 import { IUserDocument } from 'erxes-api-shared/core-types';
 import { IModels } from '~/connectionResolvers';
-import { ADJ_FXA_STATUSES } from '../@types/adjustFixedAsset';
+import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import {
   JOURNALS,
   TR_INVENTORY_STATUS_TYPES,
@@ -17,15 +21,6 @@ export const fxaCapitalDate = (value: Date): Date => {
     throw new Error('Invalid capitalization date.');
   date.setHours(0, 0, 0, 0);
   return date;
-};
-
-const quantitySign = (journal: string): number => {
-  if ([JOURNALS.FXA_INCOME, JOURNALS.FXA_MOVE_IN].includes(journal)) return 1;
-  if (
-    [JOURNALS.FXA_OUT, JOURNALS.FXA_SALE, JOURNALS.FXA_MOVE].includes(journal)
-  )
-    return -1;
-  return 0;
 };
 
 export const getFxaCapitalValuation = async (
@@ -51,10 +46,10 @@ export const getFxaCapitalValuation = async (
   const excluded = excludeTransactionId
     ? await models.Transactions.findOne({ _id: excludeTransactionId }).lean()
     : undefined;
-  let exclusion: Record<string, unknown> = {};
-  if (excluded?.parentId) exclusion = { parentId: { $ne: excluded.parentId } };
-  else if (excludeTransactionId)
-    exclusion = { _id: { $ne: excludeTransactionId } };
+  const exclusion = getFxaTransactionExclusionFilter(
+    excluded,
+    excludeTransactionId,
+  );
   const transactions = await models.Transactions.find({
     'details.fixedAssetId': fixedAssetId,
     date: { $lt: endDate },
@@ -101,7 +96,8 @@ export const getFxaCapitalValuation = async (
         departmentId,
         count: 0,
       };
-      location.count += quantitySign(transaction.journal) * (detail.count || 0);
+      location.count +=
+        fxaMovementSign(transaction.journal) * (detail.count || 0);
       locations.set(key, location);
       if (
         detail.accountId === depreciationAccountId &&
@@ -130,12 +126,7 @@ export const getFxaCapitalValuation = async (
     excludeTransactionId,
   );
   const rules = getFxaRulesAtDate(asset, corrections, atDate);
-  const previous = await models.AdjustFixedAssets.findOne({
-    date: { $lt: atDate },
-    status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
-  })
-    .sort({ date: -1 })
-    .lean();
+  const previous = await getPreviousFxaAdjustment(models, atDate);
   const previousDay = new Date(atDate);
   previousDay.setDate(previousDay.getDate() - 1);
   const ready =

@@ -37,6 +37,7 @@ const buildFxaCapitalAssetPreview = (
   if (
     !info ||
     !valuation.count ||
+    typeof info.originalCost !== 'number' ||
     !Number.isFinite(info.originalCost) ||
     info.originalCost < 0
   )

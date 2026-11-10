@@ -936,7 +936,7 @@ describe('fixed asset move follow transaction', () => {
         {
           adjustId: 'adjust-a',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 245000,
+          accumulatedDepreciation: 245000,
           closingBookValue: 105000,
         },
       ]),
@@ -1237,7 +1237,7 @@ describe('fixed asset move follow transaction', () => {
         {
           adjustId: 'adjust-a',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 245000,
+          accumulatedDepreciation: 245000,
           closingBookValue: 105000,
         },
       ]),
@@ -1399,7 +1399,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-a',
             departmentId: 'dept-a',
             originalCost: 2400,
-            preDeprecation: expect.any(Number),
+            accumulatedDepreciation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
           expect.objectContaining({
@@ -1407,7 +1407,7 @@ describe('fixed asset adjustment', () => {
             branchId: 'branch-b',
             departmentId: 'dept-b',
             originalCost: 2400,
-            preDeprecation: expect.any(Number),
+            accumulatedDepreciation: expect.any(Number),
             depreciationAmount: expect.any(Number),
           }),
         ]),
@@ -1573,7 +1573,7 @@ describe('fixed asset sale and disposal summaries', () => {
         {
           adjustId: 'adjust-a',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 200,
+          accumulatedDepreciation: 200,
           closingBookValue: 1800,
         },
       ]),
@@ -1627,13 +1627,13 @@ describe('fixed asset sale and disposal summaries', () => {
         {
           adjustId: 'adjust-future',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 800,
+          accumulatedDepreciation: 800,
           closingBookValue: 1200,
         },
         {
           adjustId: 'adjust-before',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 200,
+          accumulatedDepreciation: 200,
           closingBookValue: 1800,
         },
       ]),
@@ -1692,7 +1692,7 @@ describe('fixed asset sale and disposal summaries', () => {
         {
           adjustId: 'adjust-a',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 100,
+          accumulatedDepreciation: 100,
           closingBookValue: 900,
         },
       ]),
@@ -1786,7 +1786,7 @@ describe('fixed asset sale and disposal summaries', () => {
         {
           adjustId: 'adjust-a',
           fixedAssetId: 'asset-a',
-          closingAccumulatedDepreciation: 100,
+          accumulatedDepreciation: 100,
           closingBookValue: 900,
         },
       ]),

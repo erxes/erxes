@@ -540,10 +540,6 @@ export const fxaFollowExtrasSchema = z.object({
   accumulatedDepreciationAccount: undefed(z.object({ ...accountSchema.shape })),
   depreciationExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
   saleCostAccount: undefed(z.object({ ...accountSchema.shape })),
-  revaluationReserveAccount: undefed(z.object({ ...accountSchema.shape })),
-  deferredTaxAssetAccount: undefed(z.object({ ...accountSchema.shape })),
-  deferredTaxLiabilityAccount: undefed(z.object({ ...accountSchema.shape })),
-  incomeTaxExpenseAccount: undefed(z.object({ ...accountSchema.shape })),
 });
 
 export const fxaOwnerRecordInputSchema = z.object({
@@ -651,13 +647,19 @@ export const transactionFxaCapitalSchema = z.object({
         count: z.literal(0),
         followInfos: transactionDetailFollowInfoSchema
           .extend({
-            originalCost: z.number().finite().nonnegative(),
+            originalCost: undefed(z.number().finite().nonnegative()).refine(
+              (value): boolean => value !== undefined,
+              () => ({
+                message: getI18n().t('Required', { ns: 'accounting' }),
+              }),
+            ),
             annualDepreciationRate: z.number().finite().positive().max(100),
             preDeprecation: undefed(z.number().finite().nonnegative()),
             salvageValue: undefed(z.number().finite().nonnegative()),
           })
           .refine(
             (info) =>
+              info.originalCost === undefined ||
               (info.preDeprecation ?? 0) + (info.salvageValue ?? 0) <=
               info.originalCost,
             () => ({

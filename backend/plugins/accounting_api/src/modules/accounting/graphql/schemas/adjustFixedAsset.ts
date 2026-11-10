@@ -26,32 +26,13 @@ export const types = `
     departmentId: String
 
     count: Float
-    openingRevaluationLoss: Float
-    openingRevaluationReserve: Float
-    closingRevaluationLoss: Float
-    closingRevaluationReserve: Float
     originalCost: Float
     salvageValue: Float
-    openingBookValue: Float
-    preDeprecation: Float
+    accumulatedDepreciation: Float
     depreciationAmount: Float
-    bookDepreciationAmount: Float
-    closingAccumulatedDepreciation: Float
-    closingBookValue: Float
-
-    openingTaxBase: Float
-    openingTaxAccumulatedDepreciation: Float
-    taxDepreciationAmount: Float
-    closingTaxAccumulatedDepreciation: Float
-    closingTaxBase: Float
-
-    openingTemporaryDifference: Float
-    temporaryDifferenceAmount: Float
-    closingTemporaryDifference: Float
-    deferredTaxAmount: Float
-    deferredTaxType: String
-    deferredTaxTransactionId: String
-    deferredTaxTrDetailId: String
+    revaluationLoss: Float
+    revaluationReserve: Float
+    previous: AdjustFxaDetail
 
     transactionId: String
     transactionDetailId: String
