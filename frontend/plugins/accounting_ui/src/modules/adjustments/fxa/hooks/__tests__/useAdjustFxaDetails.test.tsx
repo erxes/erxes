@@ -75,6 +75,7 @@ const calculated = {
   modifiedBy: 'accountant-2',
   date: '2026-06-30T00:00:00.000Z',
   description: 'Q2 depreciation',
+  expenseAccountId: null,
   status: 'process',
   error: null,
   warning: null,

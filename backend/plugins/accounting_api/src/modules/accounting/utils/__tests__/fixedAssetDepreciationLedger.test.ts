@@ -647,7 +647,10 @@ test('a zero-depreciation period closes its snapshots without creating a zero jo
       status: ADJ_FXA_STATUSES.PROCESS,
     } as Parameters<typeof createAdjustFixedAssetTransaction>[0]['adjust'],
   });
-  expect(result).toMatchObject({ status: ADJ_FXA_STATUSES.COMPLETE });
+  expect(result).toMatchObject({
+    status: ADJ_FXA_STATUSES.COMPLETE,
+    expenseAccountId: 'expense',
+  });
   expect(create).not.toHaveBeenCalled();
 });
 

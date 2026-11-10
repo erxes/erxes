@@ -95,14 +95,26 @@ export const AdjustFixedAssets = {
       throw new Error('This fixed asset adjustment cannot be calculated.');
     }
 
+    const cleared = await clearAdjustFixedAsset(models, user._id, adjust);
     await models.AdjustFixedAssets.updateAdjustFixedAsset(adjustId, {
       status: ADJ_FXA_STATUSES.RUNNING,
       error: '',
       warning: '',
       modifiedBy: user._id,
     });
-
-    return runAdjustFixedAsset(models, user._id, adjust);
+    try {
+      return await runAdjustFixedAsset(models, user._id, cleared);
+    } catch (error) {
+      await models.AdjustFixedAssets.updateAdjustFixedAsset(adjustId, {
+        status: ADJ_FXA_STATUSES.PROCESS,
+        error:
+          error instanceof Error
+            ? error.message
+            : 'Depreciation calculation failed.',
+        modifiedBy: user._id,
+      });
+      throw error;
+    }
   },
 
   async adjustFixedAssetTransaction(

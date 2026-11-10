@@ -232,6 +232,12 @@
 
 ## Local Invariants
 
+- FXA snapshot columns render current numbers directly, without previous-to-current arrows; opening/closing book-value columns remain separate. The depreciation posting dialog starts with its adjustment header expenseAccountId, and preserves the user choice while open.
+
+- FXA adjustment detail headers use `shrink-0`, never `flex-auto`: the header must not consume the remaining page height or push its calculation/transaction tabs to the bottom. Tabs and tables share one horizontal margin.
+
+- FXA adjustment detail offers calculation and linked TBalance transaction tabs. Draft/process can run; deletion is shown only without linked journals; process without errors can post using an expense account; complete can rerun, cancel or publish; published can cancel. Cancel/clear refetch header and detail rows, and all mutation buttons share busy state. Zero-depreciation completed periods explain why no journal exists and remain cancellable.
+
 - Income detail sheets hide tax method, derived useful years, annual percentage and residual value behind a local “Татварын тооцоо” (`tax-calculation`) switch, initially off. The switch controls visibility only; mounted fields and their stored values remain intact when hidden.
 
 - Transaction detail sheets display useful years alongside the canonical annual depreciation percentage through `FxaChangeLifeFields`: book and tax on income, book on capital/revaluation. Both controls edit the same annual-rate field; years remain derived, with no second persisted value.

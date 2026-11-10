@@ -23,17 +23,8 @@ const TextCell = ({ value }: { value?: string }) => (
   <RecordTableInlineCell>{value || '-'}</RecordTableInlineCell>
 );
 
-const NumberCell = ({
-  value,
-  previous,
-}: {
-  value?: number;
-  previous?: number;
-}) => (
-  <RecordTableInlineCell>
-    {previous !== undefined && `${formatNumber(previous)} → `}
-    {formatNumber(value)}
-  </RecordTableInlineCell>
+const NumberCell = ({ value }: { value?: number }) => (
+  <RecordTableInlineCell>{formatNumber(value)}</RecordTableInlineCell>
 );
 
 const FixedAssetCell = ({ detail }: { detail: IAdjustFxaDetail }) => {
@@ -132,12 +123,7 @@ export const adjustFxaDetailColumns = (
       header: () => (
         <RecordTable.InlineHead icon={IconCashBanknote} label={t(label)} />
       ),
-      cell: ({ row }) => (
-        <NumberCell
-          value={row.original[field]}
-          previous={row.original.previous?.[field] ?? 0}
-        />
-      ),
+      cell: ({ row }) => <NumberCell value={row.original[field]} />,
     }),
   ),
   {

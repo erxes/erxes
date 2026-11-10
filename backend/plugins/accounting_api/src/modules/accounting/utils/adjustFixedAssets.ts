@@ -1,3 +1,4 @@
+import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
 import {
@@ -828,7 +829,10 @@ export const checkValidFixedAssetDate = async (
 export const clearAdjustFixedAsset = async (
   models: IModels,
   userId: string,
-  adjust: IAdjustFixedAssetDocument,
+  adjust: Pick<
+    IAdjustFixedAssetDocument,
+    '_id' | 'date' | 'status' | 'expenseAccountId'
+  >,
 ) => {
   if (
     ![
@@ -842,9 +846,63 @@ export const clearAdjustFixedAsset = async (
 
   const { beginDate } = await checkValidFixedAssetDate(models, adjust);
 
+  const transactions = await models.Transactions.find({
+    contentType: 'accounting:adjustFixedAsset',
+    contentId: adjust._id,
+  }).lean();
+  if (transactions.length) {
+    const fixedAssetIds = [
+      ...new Set(
+        transactions
+          .flatMap((tr) => tr.details.map((detail) => detail.fixedAssetId))
+          .filter(Boolean),
+      ),
+    ];
+    const laterChange = await models.Transactions.findOne({
+      date: { $gt: adjust.date },
+      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
+      journal: {
+        $in: [
+          JOURNALS.FXA_CAPITAL,
+          JOURNALS.FXA_REVALUATION,
+          JOURNALS.FXA_OUT,
+          JOURNALS.FXA_MOVE,
+          JOURNALS.FXA_SALE,
+        ],
+      },
+      'details.fixedAssetId': { $in: fixedAssetIds },
+    }).lean();
+    if (laterChange)
+      throw new Error(
+        'Undo later fixed asset changes before clearing depreciation.',
+      );
+    await assertCanWriteTransactionAccounts({
+      models,
+      userId,
+      docs: [],
+      oldTrs: transactions,
+    });
+    const parentIds = [
+      ...new Set(transactions.map((tr) => tr.parentId || tr._id)),
+    ];
+    await parentIds.reduce(async (previous, parentId) => {
+      await previous;
+      await models.Transactions.removePTransaction({ parentId });
+    }, Promise.resolve());
+  }
+
+  const expenseAccountId =
+    adjust.expenseAccountId ||
+    transactions.find(
+      (transaction) =>
+        transaction.journal === JOURNALS.FXA_DEP &&
+        transaction.side === TR_SIDES.DEBIT,
+    )?.details[0]?.accountId;
+
   await models.AdjustFxaDetails.deleteMany({ adjustId: adjust._id });
 
   return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+    ...(expenseAccountId ? { expenseAccountId } : {}),
     beginDate,
     successDate: undefined,
     checkedAt: undefined,
@@ -866,6 +924,9 @@ const getModifiedFixedAssetTransaction = async (
   return models.Transactions.findOne({
     date: { $gte: adjust.beginDate, $lte: adjust.successDate },
     'details.fixedAssetId': { $exists: true, $ne: '' },
+    $nor: [
+      { contentType: 'accounting:adjustFixedAsset', contentId: adjust._id },
+    ],
     $or: [
       {
         updatedAt: { $exists: false },
@@ -916,15 +977,18 @@ export const cancelAdjustFixedAsset = async (
   userId: string,
   adjust: IAdjustFixedAssetDocument,
 ) => {
-  if (adjust.status !== ADJ_FXA_STATUSES.PUBLISH) {
+  if (
+    ![ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH].includes(
+      adjust.status,
+    )
+  ) {
     throw new Error(
-      'This fixed asset adjustment cannot be cancelled before publishing.',
+      'Only completed or published fixed asset adjustments can be cancelled.',
     );
   }
-
-  return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
-    status: ADJ_FXA_STATUSES.DRAFT,
-    modifiedBy: userId,
+  return clearAdjustFixedAsset(models, userId, {
+    ...adjust,
+    status: ADJ_FXA_STATUSES.COMPLETE,
   });
 };
 
@@ -1130,6 +1194,7 @@ export const createAdjustFixedAssetTransaction = async ({
       );
     return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
       status: ADJ_FXA_STATUSES.COMPLETE,
+      expenseAccountId,
       modifiedBy: userId,
     });
   }
@@ -1220,6 +1285,7 @@ export const createAdjustFixedAssetTransaction = async ({
 
   return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
     status: ADJ_FXA_STATUSES.COMPLETE,
+    expenseAccountId,
     modifiedBy: userId,
   });
 };

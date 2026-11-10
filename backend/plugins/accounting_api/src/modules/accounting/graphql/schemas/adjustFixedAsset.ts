@@ -1,6 +1,7 @@
 export const types = `
   type AdjustFixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
+    expenseAccountId: String
     date: Date
     description: String
     status: String

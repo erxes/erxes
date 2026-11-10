@@ -175,6 +175,10 @@
 
 ## Local Invariants
 
+- FXA adjustment headers retain the last successfully posted expenseAccountId, including zero-depreciation completions; clear/cancel preserve it. New adjustments inherit the latest saved expense-account choice within the tenant.
+
+- FXA adjustment run clears its own previously posted journal parent groups and snapshots before recalculating. Clear/cancel uses account-write validation and grouped transaction removal; later completed periods and later asset changes block reversal. Cancel accepts complete/published and restores draft. Adjustment removal rejects linked journal rows until clear/cancel has removed them. Publication modification checks exclude its own generated journals. Failed calculation returns to process with an error instead of leaving running.
+
 - Financial fixed asset projections and adjustment acquisition inputs must come from income transaction details, never from FixedAssets cache fields or mutable category defaults. Keep category defaults and identity metadata separate from financial journal history. Acquisition identity fields `fixedAssetCategoryId`, `fixedAssetCode`, `fixedAssetName` live only in detail `followInfos`; `fixedAssetId` remains the detail root reference. Income save, imports, exports and Erkhet migration must consume that metadata contract. New income snapshots include method/rate/residual/start date and tax method/rate/residual; explicit zero is authoritative.
 - `accountingFixedAssetChooser` is defined and exported by `modules/fixedAssets/graphql/resolvers/queries/fixedAssets.ts` with the other asset queries; Apollo registers it through `QueriesFixedAssets`, never a direct utility import. `modules/fixedAssets/utils/chooser.ts` owns only pure owner-balance helpers and their types, without importing resolvers. The chooser resolves owner location only through linked transaction details and generated movement destinations. Direct owner transfers without financial location linkage must not be guessed into a branch/department.
 

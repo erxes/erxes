@@ -1,3 +1,4 @@
+import { ITrDetail } from '@/transactions/types/Transaction';
 import { useId } from 'react';
 import { Form, Input, InputNumber, Label } from 'erxes-ui';
 import { useWatch } from 'react-hook-form';
@@ -17,7 +18,7 @@ export const FxaDepreciationFields = ({
 }: IFxaChangeFieldProps & { valuation?: TFxaCapitalValuation }) => {
   const { t } = useTranslation('accounting');
   const fieldId = useId();
-  const details = useWatch({
+  const details: ITrDetail[] = useWatch({
     control: form.control,
     name: `trDocs.${index}.details`,
   });

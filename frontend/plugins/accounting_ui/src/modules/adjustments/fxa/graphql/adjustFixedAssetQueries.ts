@@ -27,6 +27,7 @@ query accountingAdjustFixedAssets($startDate: Date, $endDate: Date, $description
     modifiedBy
     date
     description
+    expenseAccountId
     status
     error
     warning
@@ -61,6 +62,7 @@ query accountingAdjustFixedAssetDetail($_id: String!) {
     modifiedBy
     date
     description
+    expenseAccountId
     status
     error
     warning

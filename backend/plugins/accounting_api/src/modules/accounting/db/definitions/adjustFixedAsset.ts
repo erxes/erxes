@@ -6,6 +6,11 @@ export const adjustFixedAssetSchema = new Schema({
   _id: mongooseStringRandomId,
   date: { type: Date, label: 'Date', index: true },
   description: { type: String, label: 'Description' },
+  expenseAccountId: {
+    type: String,
+    optional: true,
+    label: 'Depreciation expense account',
+  },
   status: {
     type: String,
     default: ADJ_FXA_STATUSES.DRAFT,
