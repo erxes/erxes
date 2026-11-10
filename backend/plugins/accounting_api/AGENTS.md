@@ -175,6 +175,8 @@
 
 ## Local Invariants
 
+- Inventory adjustment stock-shortage errors identify the product, account, branch/department, failing day, available quantity, required quantity and shortage. Resolve labels through tenant-scoped public lookups: display code plus name (the title field for branches/departments), or name alone when no code exists. Missing records or failed lookups show descriptive unknown-record labels, never raw ids; unassigned locations display as unassigned without a lookup. Never persist unresolved label placeholders.
+
 - `utils/fixedAssets.ts` owns shared empty-follow cleanup for disposal and movement handlers; journal-specific document construction stays in each handler.
 - `utils/fxaAccountConfigs.ts` owns the fixed-asset account-to-accumulated-depreciation-account map used by income opening entries, ledger projections, capitalization valuation and depreciation adjustments. Ignore malformed config values instead of casting JSON to a trusted shape.
 
