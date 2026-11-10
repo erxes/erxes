@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-10`
 
 ## Scope
 
@@ -269,7 +269,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   The insights contract has no score log date range, so only the timeline
   tiles take a period; the others always cover all time.
 - In a deal's Payments tab a payment type with a score campaign asks loyalty's `loyaltyScoreSpendLimit` (`DealPointPaymentLimit` / `useDealPointLimit`) and shows the customer's points and the most it may pay; the row stays disabled without a customer, while loading, or when loyalty blocks spending, and typed amounts are capped at the limit. There is no hand refund: refunds follow stages.
-- The deal Payments tab is `ProductsPayment` (`detail/product/components/ProductPayment.tsx`: state, totals, `dealsEdit` save, QPay invoice, QR unlock) drawing its rows from `ProductPaymentRows.tsx` (`PaymentTotals`, `CashPaymentRow`, `MobilePaymentRow` with the QPay sheet, `MobilePaidRow`, `PaymentTypeRow`, `PaymentQrDialog`, `parsePaymentConfig`); rows only render and call the handlers they are given. Typed payment amounts live in the component's state, as in other plugins: tab switches keep them because the Products / Payments sub-tabs, the deal sheet's Products tab (once visited per deal; the sheet keys `Products` by the deal id, so a `salesItemId` change never carries one deal's payments to another) and core's panel tabs stay mounted, while switching to another deal, closing the panel or deleting the deal drops them. The footer shows `unsaved-changes` after a payment edit, and a completed Save clears it only when no payment was edited after that Save began (a local edit revision). Cancelling the QR dialog or entering a wrong code resets an amount to 0 only when one was typed, so it never marks the payments unsaved. Totals and change use the deal's saved products.
+- The deal Payments tab is `ProductsPayment` (`detail/product/components/ProductPayment.tsx`: state, totals, `dealsEdit` save, QPay invoice, QR unlock) drawing its rows from `ProductPaymentRows.tsx` (`PaymentTotals`, `CashPaymentRow`, `MobilePaymentRow` with the QPay sheet, `MobilePaidRow`, `PaymentTypeRow`, `PaymentQrDialog`, `parsePaymentConfig`); rows only render and call the handlers they are given. Typed payment amounts live in the component's state, as in other plugins: tab switches keep them because the Products / Payments sub-tabs, the deal sheet's Products tab (once visited per deal; the sheet keys `Products` by the deal id, so a `salesItemId` change never carries one deal's payments to another) and core's panel tabs stay mounted, while switching to another deal, closing the panel or deleting the deal drops them. The footer shows `unsaved-changes` after a payment edit, and a completed Save clears it only when no payment was edited after that Save began (a local edit revision). While there is no unsaved payment edit and no save is running, the form re-reads `deal.paymentsData` (an effect in `ProductsPayment`), so a mounted form shows payments saved elsewhere, keeps amounts typed but not saved, and Save never writes an older copy back. Cancelling the QR dialog or entering a wrong code resets an amount to 0 only when one was typed, so it never marks the payments unsaved. Totals and change use the deal's saved products.
 - The deals filter bar filters by one customer and one company (`customerId` / `companyId` URL keys, single-select pickers), passed straight to `deals` / stage queries.
 - The deals filter bar filters by deal tags (`tagIds` URL key, multi-select `SelectTags` picker scoped to `sales:deal`), passed straight to the `deals` query.
 - Deal detail renders only the properties selected on the deal's pipeline;
@@ -283,7 +283,13 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   value and a chevron, e.g. `Broker | None ⌄`; the stage chip has no label.
   The broker entity selector that follows is
   labelled by its type (`Customer`, `Company`, `User`) with a `Select broker`
-  placeholder. Customers and Companies follow tags (`DealContactsField`:
+  placeholder. The sheet (`SalesFormFields`) and the panel (`DealPanelBroker`)
+  save the broker through `useDealBroker`
+  (`deals/components/deal-selects/hooks/useDealBroker.ts`): a picked type stays
+  local until a broker is picked, then type and broker are saved together;
+  `None` saves at once and clears both; clearing the selector clears both while
+  the chosen type stays on screen. A deal never keeps a type without a broker,
+  and changing the type never drops the saved broker. Customers and Companies follow tags (`DealContactsField`:
   ui-modules `ContactsRelationField` with `variant="chip"`); inside the
   deal sheet a linked contact opens in the sheet's own Customers / Companies
   rail tab (`onOpen` → `setActiveSideTab(RELATION_CONTACT_SIDE_TABS[kind])`,
@@ -841,6 +847,7 @@ onlyUpgrade}`, clearable to `null`; saving refuses a wallet without bands). Both
   development, editing a GraphQL document must trigger the codegen watcher.
 - `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealJson.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productUom.test.cjs`
 - `node --test frontend/plugins/sales_ui/src/modules/deals/utils/__tests__/dealReviewRegressions.test.cjs`
+- `node --test frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/utils/__tests__/productsDataPatches.test.cjs frontend/plugins/sales_ui/src/modules/deals/cards/components/detail/product/hooks/__tests__/useProductsListState.test.cjs`
 - Deals migration smoke: create/edit/watch a deal; move stages, edit labels and
   checklists, and add/edit/remove products. Verify immediate list/detail updates
   and subscription updates with no Apollo cache or missing-field warnings.
