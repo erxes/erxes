@@ -26,16 +26,6 @@ export const getFxaDetailDefaultValues = (
   checked: false,
 });
 
-export const getFxaCodeSequence = (code: string, assetCode: string) => {
-  const escapedAssetCode = assetCode.replace(
-    /[.*+?^${}()|[\]\\]/g,
-    String.raw`\$&`,
-  );
-  const match = new RegExp(String.raw`^${escapedAssetCode}_(\d+)$`).exec(code);
-
-  return match ? Number(match[1]) : 0;
-};
-
 export const getFxaOwnerRecordDisplayCode = (
   ownerRecord: TFxaCodeOwnerRecord,
   fixedAssetCode?: string,

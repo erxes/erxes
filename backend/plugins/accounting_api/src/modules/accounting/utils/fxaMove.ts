@@ -14,6 +14,7 @@ import {
 import { createOrUpdateTr } from './utils';
 import {
   cleanFxaFollowTr,
+  deleteEmptyFxaFollowTr,
   getFxaDisposalSummaries,
   getFxaMoveFollowInfos,
   removeFxaOwnerRecordsByTransaction,
@@ -117,17 +118,6 @@ export const createFxaMoveInFollowTr = async (
     },
     oldMoveInTr,
   );
-};
-
-const deleteEmptyFxaFollowTr = async (
-  models: IModels,
-  oldTr?: ITransactionDocument | null,
-) => {
-  if (!oldTr?._id) {
-    return;
-  }
-
-  await models.Transactions.deleteMany({ _id: oldTr._id });
 };
 
 const buildFxaMoveDepreciationDetails = ({

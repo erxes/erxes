@@ -1,3 +1,4 @@
+import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
@@ -26,13 +27,7 @@ import {
 } from './fxaRules';
 import { getFxaRevaluationStates } from './fxaRevaluationState';
 
-const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-type TFixedAssetAccountConfig = {
-  accountId?: string;
-  depreciationAccountId?: string;
-};
 
 type TDepreciationInput = {
   originalCost: number;
@@ -411,11 +406,9 @@ const getDepreciationMovements = async (
   adjustId: string,
   endDate: Date,
 ) => {
-  const accountConfigs = await getAccountConfigs(models);
+  const accountConfigs = await getFxaDepreciationAccounts(models);
   const depreciationAccounts = new Set(
-    Array.from(accountConfigs.values())
-      .map((config) => config.depreciationAccountId)
-      .filter((id): id is string => Boolean(id)),
+    Array.from(accountConfigs.values()).filter(Boolean),
   );
   const transactions = await models.Transactions.find({
     journal: {
@@ -1157,19 +1150,6 @@ export const runAdjustFixedAsset = async (
   });
 };
 
-const getAccountConfigs = async (models: IModels) => {
-  const configs = await models.Configs.getConfigs(FIXED_ASSET_ACCOUNTS_CODE);
-  const map = new Map<string, TFixedAssetAccountConfig>();
-
-  for (const config of configs) {
-    if (config.subId) {
-      map.set(config.subId, config.value as TFixedAssetAccountConfig);
-    }
-  }
-
-  return map;
-};
-
 export const createAdjustFixedAssetTransaction = async ({
   models,
   userId,
@@ -1199,7 +1179,7 @@ export const createAdjustFixedAssetTransaction = async ({
     });
   }
 
-  const accountConfigs = await getAccountConfigs(models);
+  const accountConfigs = await getFxaDepreciationAccounts(models);
   const creditDetails: ITransaction['details'] = [];
   const debitDetails: ITransaction['details'] = [];
 
@@ -1208,8 +1188,7 @@ export const createAdjustFixedAssetTransaction = async ({
       throw new Error('Fixed asset account is missing on depreciation detail.');
     }
 
-    const accountConfig = accountConfigs.get(detail.accountId);
-    const depreciationAccountId = accountConfig?.depreciationAccountId;
+    const depreciationAccountId = accountConfigs.get(detail.accountId);
 
     if (!depreciationAccountId) {
       throw new Error('Accumulated depreciation account config is missing.');

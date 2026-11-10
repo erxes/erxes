@@ -175,6 +175,9 @@
 
 ## Local Invariants
 
+- `utils/fixedAssets.ts` owns shared empty-follow cleanup for disposal and movement handlers; journal-specific document construction stays in each handler.
+- `utils/fxaAccountConfigs.ts` owns the fixed-asset account-to-accumulated-depreciation-account map used by income opening entries, ledger projections, capitalization valuation and depreciation adjustments. Ignore malformed config values instead of casting JSON to a trusted shape.
+
 - FXA out/sale/move source transactions normalize header branch/department to blank and use detail locations as authoritative. Disposal summaries carry each source location into every cost/depreciation follow detail; source depreciation transfers follow source detail locations and incoming depreciation follows the movement destination. Saved follow rows overwrite stale locations on recalculation. Summary-to-source matching prefers detail id so multiple rows of one asset keep their own location quantities.
 
 - Owner-record list/count accept excludeTransactionId, including balanceOnly mode, to reconstruct custodian availability before the movement being edited. The filter is combined with any exact transactionId instead of replacing it.

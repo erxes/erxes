@@ -16,9 +16,7 @@ jest.mock('react-i18next', () => ({
   getI18n: () => ({ t: (value: string) => value }),
 }));
 
-jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }), {
-  virtual: true,
-});
+jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }));
 
 const valuation: TFxaCapitalValuation = {
   revaluationLoss: 0,

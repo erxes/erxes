@@ -1,3 +1,4 @@
+import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import {
   getFxaLedgerAssets,
   fxaMovementSign,
@@ -64,17 +65,9 @@ export const getFxaCapitalValuation = async (
   ) {
     throw new Error('Permission denied for fixed asset valuation accounts.');
   }
-  const configs = await models.Configs.getConfigs('FIXEDASSET_ACCOUNTS');
-  const value: unknown = configs.find(
-    (config) => config.subId === asset.accountId,
-  )?.value;
+  const depreciationAccounts = await getFxaDepreciationAccounts(models);
   const depreciationAccountId =
-    value &&
-    typeof value === 'object' &&
-    'depreciationAccountId' in value &&
-    typeof value.depreciationAccountId === 'string'
-      ? value.depreciationAccountId
-      : '';
+    depreciationAccounts.get(asset.accountId || '') || '';
   if (!depreciationAccountId)
     throw new Error(
       'Configure the accumulated depreciation account for this asset.',

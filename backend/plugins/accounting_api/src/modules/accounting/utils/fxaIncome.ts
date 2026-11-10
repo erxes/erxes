@@ -1,3 +1,4 @@
+import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import { assertFxaAcquisitionConsistency } from './fxaLedger';
 import { nanoid } from 'nanoid';
 import { fixNum } from 'erxes-api-shared/utils';
@@ -32,25 +33,6 @@ import {
 import { createOrUpdateTr } from './utils';
 
 type TFixedAssetWithId = IFixedAsset & { _id: string };
-type TFixedAssetAccountConfig = {
-  accountId?: string;
-  depreciationAccountId?: string;
-};
-
-const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
-
-const getAccountConfigs = async (models: IModels) => {
-  const configs = await models.Configs.getConfigs(FIXED_ASSET_ACCOUNTS_CODE);
-  const map = new Map<string, TFixedAssetAccountConfig>();
-
-  for (const config of configs) {
-    if (config.subId) {
-      map.set(config.subId, config.value as TFixedAssetAccountConfig);
-    }
-  }
-
-  return map;
-};
 
 const getCategoryIds = (transaction: ITransaction) =>
   Array.from(
@@ -353,7 +335,7 @@ const syncOpeningAccumulatedDepreciation = async ({
   transaction: ITransactionDocument;
   userId: string;
 }) => {
-  const accountConfigs = await getAccountConfigs(models);
+  const accountConfigs = await getFxaDepreciationAccounts(models);
   const oldOpeningDepTr = await cleanFxaFollowTr(
     models,
     transaction._id,
@@ -373,9 +355,7 @@ const syncOpeningAccumulatedDepreciation = async ({
         return;
       }
 
-      const depreciationAccountId = accountConfigs.get(
-        detail.accountId || '',
-      )?.depreciationAccountId;
+      const depreciationAccountId = accountConfigs.get(detail.accountId || '');
 
       if (!depreciationAccountId) {
         throw new Error('Accumulated depreciation account config is missing.');

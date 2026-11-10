@@ -1,3 +1,4 @@
+import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
 import { IModels } from '~/connectionResolvers';
 import { IFixedAsset } from '@/fixedAssets/@types/fixedAsset';
 import { ITransaction, ITrDetail } from '@/accounting/@types/transaction';
@@ -209,19 +210,6 @@ export const getFxaLedgerAssets = async (
     date: { $lt: endDate },
     ...exclusion,
   }).lean();
-  const configs = await models.Configs.getConfigs('FIXEDASSET_ACCOUNTS');
-  const depreciationAccounts = new Map<string, string>();
-  for (const config of configs) {
-    const value: unknown = config.value;
-    if (
-      config.subId &&
-      value &&
-      typeof value === 'object' &&
-      'depreciationAccountId' in value &&
-      typeof value.depreciationAccountId === 'string'
-    ) {
-      depreciationAccounts.set(config.subId, value.depreciationAccountId);
-    }
-  }
+  const depreciationAccounts = await getFxaDepreciationAccounts(models);
   return buildFxaLedgerAssets(assets, transactions, depreciationAccounts);
 };

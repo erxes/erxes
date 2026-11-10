@@ -616,3 +616,14 @@ export const cleanFxaFollowTr = async (
 
   return current;
 };
+
+export const deleteEmptyFxaFollowTr = async (
+  models: IModels,
+  oldTr?: ITransactionDocument | null,
+) => {
+  if (!oldTr?._id) {
+    return;
+  }
+
+  await models.Transactions.deleteMany({ _id: oldTr._id });
+};

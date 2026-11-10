@@ -232,6 +232,8 @@
 
 ## Local Invariants
 
+- Out, move and sale journals retain separate form/table/row components so journal-specific behavior can evolve independently. `components/helpers/fxaHelpers.ts` supplies detail defaults and owner-record display codes; owner sequences come from persisted `sequence`, never by parsing display codes.
+
 - FXA out/sale/move forms omit source header branch/department selectors. Their choosers and remainder limits use detail locations, and bulk selection does not inherit a hidden header filter. Movement destination selectors remain available. Disposal previews copy each source detail location into all generated follow rows.
 
 - Fixed asset out forms derive the accumulated-depreciation account from the selected asset-account configuration, with no editable depreciation-account selector. They validate the configured account through `accountingAssignedAccounts` and show a form-level warning linking to fixed-assets/accounts-config when the mapping/account is unavailable. Config/account queries refresh on window focus so a settings change in another tab updates the form without reloading. Changing to an unconfigured account clears the previous hidden override.
@@ -443,6 +445,8 @@
 - Journal report output never prints a placeholder organization name; when no company name is configured, the organization line stays blank.
 
 ## Validation
+
+- FXA calculation unit tests mock the real workspace `ui-modules` module normally, without `{ virtual: true }`, to avoid loading unrelated shared UI/ESM dependencies.
 
 - Smoke scenario: filter the asset chooser by branch, department and member, select a location, and verify row autofill and available-count limit. Click an asset group to select multiple locations, verify selected rows disappear from available results, change filters/pages without losing the selection, and click a selected row to return it. Apply multiple choices from an existing detail and verify distinct ids, location quantities, sibling order; manage custodian allocations from the detail’s more-menu sheet. Verify no custodian rows appear in the chooser and department codes/titles resolve by id. Verify sale prices survive selection, capitalization still covers every active location, and income rule snapshots survive save/reopen and later category edits.
 
