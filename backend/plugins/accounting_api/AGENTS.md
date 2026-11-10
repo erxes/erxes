@@ -24,7 +24,7 @@
 
 ## Current Capabilities
 
-- Supports Erkhet migration. The shared Erkhet/Erxes migration contract and implementation notes live in the Erkhet repository at `application/core/companies/management/commands/migrateToErxes.md`.
+- Supports Erkhet reference and transaction migration. The shared Erkhet/Erxes migration contract and implementation notes live in the Erkhet repository at `application/core/companies/management/commands/migrateToErxes.md`.
 
 - `accountingFixedAssetChooser` lists acquired assets with positive quantities grouped by branch/department and optional custodian/serial allocations. Filters cover search, category, branch, department, member and business date; edits exclude the whole source parent. Source-journal permission and account visibility apply. Capitalization returns all active locations of matching assets; out/move/sale select a specific location. Unknown-location owner records remain informational.
 - Disposal, move and sale valuation reads posted transaction amounts and effective valuation/capital rules, never asset master balances. Completed/published adjustment rows provide period-end revaluation loss/reserve checkpoints and previous-state comparisons; financial cost and depreciation continue to derive from transaction details.

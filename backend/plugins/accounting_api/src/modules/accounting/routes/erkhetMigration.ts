@@ -1466,7 +1466,8 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
     const successRows: TMigrationSuccessRow[] = [];
     const errorRows: TMigrationErrorRow[] = [];
 
-    for (const batch of body.batches) {
+    await body.batches.reduce(async (previousBatch, batch) => {
+      await previousBatch;
       try {
         const result = await saveErkhetBatch({
           models,
@@ -1487,7 +1488,7 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
           error: getErrorMessage(e, 'Failed to import Erkhet transaction'),
         });
       }
-    }
+    }, Promise.resolve());
 
     return res.json({
       ok: !errorRows.length,
