@@ -92,3 +92,52 @@ describe('fixed asset disposal total depreciation metadata', () => {
     ).toBe(false);
   });
 });
+
+test('disposal previews carry distinct detail locations without a transaction header', () => {
+  const summaries = buildFxaDisposalPreviewSummaries(
+    [
+      {
+        _id: 'north',
+        accountId: 'asset-account',
+        unitPrice: 100,
+        amount: 100,
+        fixedAssetId: 'asset',
+        count: 1,
+        branchId: 'north',
+        departmentId: 'team',
+      },
+      {
+        _id: 'unassigned',
+        accountId: 'asset-account',
+        unitPrice: 100,
+        amount: 100,
+        fixedAssetId: 'asset',
+        count: 1,
+        branchId: '',
+        departmentId: '',
+      },
+    ],
+    [
+      {
+        _id: 'asset',
+        originalCost: 100,
+        currentCount: 2,
+        accumulatedDepreciation: 20,
+      },
+    ],
+  );
+  expect(summaries).toEqual([
+    expect.objectContaining({
+      detailId: 'north',
+      branchId: 'north',
+      departmentId: 'team',
+      accumulatedDepreciation: 10,
+    }),
+    expect.objectContaining({
+      detailId: 'unassigned',
+      branchId: '',
+      departmentId: '',
+      accumulatedDepreciation: 10,
+    }),
+  ]);
+});

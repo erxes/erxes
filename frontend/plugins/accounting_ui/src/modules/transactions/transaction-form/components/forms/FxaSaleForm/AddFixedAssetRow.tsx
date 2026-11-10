@@ -40,8 +40,8 @@ export const AddFixedAssetRow = ({
       },
       fixedAssetId: '',
 
-      branchId: trDoc.branchId || '',
-      departmentId: trDoc.departmentId || '',
+      branchId: '',
+      departmentId: '',
       count: 0,
       unitPrice: 0,
       amount: 0,
@@ -61,8 +61,6 @@ export const AddFixedAssetRow = ({
       <FixedAssetChooser
         journal={trDoc.journal}
         date={date}
-        branchId={trDoc.branchId}
-        departmentId={trDoc.departmentId}
         excludeTransactionId={trDoc._id}
         multiple
         onChoose={(choices) => {

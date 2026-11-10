@@ -46,6 +46,8 @@ export type TFxaDisposalFollowInfos = TFxaMoveFollowInfos &
   >;
 
 export type TFxaDisposalSummary = {
+  branchId?: string;
+  departmentId?: string;
   detailId?: string;
   fixedAssetId?: string;
   count: number;
@@ -480,6 +482,8 @@ export const getFxaDisposalSummaries = async (
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId ?? transaction.branchId ?? '',
+        departmentId: detail.departmentId ?? transaction.departmentId ?? '',
         count,
         originalCost,
         accumulatedDepreciation,
@@ -532,24 +536,34 @@ export const prepareFxaOwnerRecordTransaction = async (
     validateDisposalAccounts?: boolean;
   } = {},
 ) => {
-  const summaries = await getFxaDisposalSummaries(models, doc);
+  const source = {
+    ...doc,
+    branchId: '',
+    departmentId: '',
+    details: doc.details.map((detail) => ({
+      ...detail,
+      branchId: detail.branchId ?? '',
+      departmentId: detail.departmentId ?? '',
+    })),
+  };
+  const summaries = await getFxaDisposalSummaries(models, source);
 
   if (options.validateDisposalAccounts) {
-    validateFxaDisposalAccounts(doc, summaries);
+    validateFxaDisposalAccounts(source, summaries);
   }
 
   if (options.updateDetails === false) {
-    return doc;
+    return source;
   }
 
   return {
-    ...doc,
-    details: (doc.details || []).map((detail) => {
-      const summary = summaries.find(
-        (item) =>
-          item.detailId === detail._id ||
-          item.fixedAssetId === detail.fixedAssetId,
-      );
+    ...source,
+    details: source.details.map((detail) => {
+      const summary =
+        summaries.find((item) => item.detailId === detail._id) ||
+        summaries.find(
+          (item) => !item.detailId && item.fixedAssetId === detail.fixedAssetId,
+        );
 
       if (!summary) {
         return detail;

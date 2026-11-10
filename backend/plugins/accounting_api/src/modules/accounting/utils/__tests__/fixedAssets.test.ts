@@ -15,6 +15,7 @@ import {
 import {
   assignMissingFxaOwnerRecordSequences,
   getFxaDisposalSummaries,
+  prepareFxaOwnerRecordTransaction,
 } from '../fixedAssets';
 import { runAdjustFixedAsset } from '../adjustFixedAssets';
 import { removeFxaIncomeDetails, syncFxaIncomeDetails } from '../fxaIncome';
@@ -853,13 +854,13 @@ describe('fixed asset move follow transaction', () => {
         originId: 'move-a',
         originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
         side: TR_SIDES.DEBIT,
-        branchId: undefined,
+        branchId: '',
         departmentId: 'dept-call-center',
         details: [
           expect.objectContaining({
             originId: 'detail-move',
             originType: TR_FOLLOW_TYPES.FXA_MOVE_IN,
-            branchId: undefined,
+            branchId: '',
             departmentId: 'dept-call-center',
             amount: 100,
           }),
@@ -968,8 +969,8 @@ describe('fixed asset move follow transaction', () => {
         originType: TR_FOLLOW_TYPES.FXA_DEP_OUT,
         ptrId: 'ptr-move',
         side: TR_SIDES.DEBIT,
-        branchId: 'source-branch',
-        departmentId: 'source-dept',
+        branchId: '',
+        departmentId: '',
       }),
     );
     expect(depOutDoc).not.toHaveProperty('followInfos');
@@ -1115,7 +1116,7 @@ describe('fixed asset move follow transaction', () => {
           journal: JOURNALS.FXA_DEP_OUT,
           originId: 'move-a',
           side: TR_SIDES.DEBIT,
-          branchId: 'source-branch',
+          branchId: '',
           details: [
             expect.objectContaining({
               amount: 490000,
@@ -1594,6 +1595,8 @@ describe('fixed asset sale and disposal summaries', () => {
       {
         detailId: 'detail-sale',
         fixedAssetId: 'asset-a',
+        branchId: '',
+        departmentId: '',
         count: 2,
         originalCost: 1000,
         accumulatedDepreciation: 100,
@@ -1987,6 +1990,171 @@ it('transfers owner quantity from the selected source to a different destination
       ownerId: 'owner-b',
       action: FXA_OWNER_RECORD_ACTIONS.RECEIVED,
       count: 2,
+    }),
+  ]);
+});
+
+it.each([JOURNALS.FXA_OUT, JOURNALS.FXA_SALE])(
+  'all %s follow rows retain each source detail location, including unassigned locations',
+  async (journal) => {
+    const models = makeModels();
+    await createFxaDisposalFollowTrs(models as never, 'user', {
+      _id: 'source-locations',
+      journal,
+      status: TR_STATUSES.COMPLETE,
+      date: new Date('2026-02-01'),
+      branchId: 'obsolete-header',
+      departmentId: 'obsolete-header-department',
+      followInfos: {
+        saleOutAccountId: 'asset-account',
+        accumulatedDepreciationAccountId: 'acc-dep-account',
+        saleCostAccountId: 'loss-account',
+      },
+      details: [
+        {
+          _id: 'north',
+          fixedAssetId: 'asset-a',
+          count: 1,
+          branchId: 'north-branch',
+          departmentId: 'north-department',
+        },
+        {
+          _id: 'unassigned',
+          fixedAssetId: 'asset-a',
+          count: 2,
+          branchId: '',
+          departmentId: '',
+        },
+      ],
+    } as never);
+    const docs = models.Transactions.createTransaction.mock.calls.map(
+      ([doc]) => doc,
+    );
+    expect(docs).toHaveLength(journal === JOURNALS.FXA_SALE ? 3 : 1);
+    for (const doc of docs) {
+      expect(doc.details).toEqual([
+        expect.objectContaining({
+          originId: 'north',
+          branchId: 'north-branch',
+          departmentId: 'north-department',
+        }),
+        expect.objectContaining({
+          originId: 'unassigned',
+          branchId: '',
+          departmentId: '',
+        }),
+      ]);
+    }
+  },
+);
+
+it('movement depreciation leaves each source location and enters the selected destination', async () => {
+  const models = makeModels();
+  await createFxaMoveDepreciationFollowTrs(models as never, 'user', {
+    _id: 'move-locations',
+    journal: JOURNALS.FXA_MOVE,
+    status: TR_STATUSES.COMPLETE,
+    date: new Date('2026-02-01'),
+    branchId: 'obsolete-header',
+    followInfos: {
+      accumulatedDepreciationAccountId: 'acc-dep-account',
+      moveInDepartmentId: 'destination-team',
+    },
+    details: [
+      {
+        _id: 'one',
+        fixedAssetId: 'asset-a',
+        count: 1,
+        branchId: 'a',
+        departmentId: 'one-team',
+      },
+      {
+        _id: 'two',
+        fixedAssetId: 'asset-a',
+        count: 1,
+        branchId: 'b',
+        departmentId: '',
+      },
+    ],
+  } as never);
+  const docs = models.Transactions.createTransaction.mock.calls.map(
+    ([doc]) => doc,
+  );
+  expect(
+    docs.find((doc) => doc.journal === JOURNALS.FXA_DEP_OUT)?.details,
+  ).toEqual([
+    expect.objectContaining({ branchId: 'a', departmentId: 'one-team' }),
+    expect.objectContaining({ branchId: 'b', departmentId: '' }),
+  ]);
+  expect(
+    docs.find((doc) => doc.journal === JOURNALS.FXA_DEP_IN)?.details,
+  ).toEqual([
+    expect.objectContaining({ branchId: '', departmentId: 'destination-team' }),
+    expect.objectContaining({ branchId: '', departmentId: 'destination-team' }),
+  ]);
+});
+
+it('saving a source transaction uses chooser detail locations and clears obsolete header locations', async () => {
+  const models = makeModels();
+  const result = await prepareFxaOwnerRecordTransaction(models as never, {
+    _id: 'move',
+    journal: JOURNALS.FXA_MOVE,
+    date: new Date('2026-02-01'),
+    branchId: 'old-header',
+    departmentId: 'old-department',
+    details: [
+      {
+        fixedAssetId: 'asset-a',
+        count: 1,
+        amount: 500,
+        branchId: '',
+        departmentId: 'chosen-team',
+      },
+    ],
+  });
+  expect(result).toMatchObject({
+    branchId: '',
+    departmentId: '',
+    details: [
+      expect.objectContaining({ branchId: '', departmentId: 'chosen-team' }),
+    ],
+  });
+});
+
+it('preparing the same asset at different locations preserves each detail quantity', async () => {
+  const models = makeModels();
+  const result = await prepareFxaOwnerRecordTransaction(models as never, {
+    journal: JOURNALS.FXA_MOVE,
+    date: new Date('2026-02-01'),
+    details: [
+      {
+        _id: 'first',
+        fixedAssetId: 'asset-a',
+        count: 1,
+        amount: 500,
+        branchId: 'a',
+      },
+      {
+        _id: 'second',
+        fixedAssetId: 'asset-a',
+        count: 2,
+        amount: 1000,
+        branchId: 'b',
+      },
+    ],
+  });
+  expect(result.details).toEqual([
+    expect.objectContaining({
+      _id: 'first',
+      count: 1,
+      amount: 500,
+      branchId: 'a',
+    }),
+    expect.objectContaining({
+      _id: 'second',
+      count: 2,
+      amount: 1000,
+      branchId: 'b',
     }),
   ]);
 });

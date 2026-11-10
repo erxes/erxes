@@ -175,6 +175,8 @@
 
 ## Local Invariants
 
+- FXA out/sale/move source transactions normalize header branch/department to blank and use detail locations as authoritative. Disposal summaries carry each source location into every cost/depreciation follow detail; source depreciation transfers follow source detail locations and incoming depreciation follows the movement destination. Saved follow rows overwrite stale locations on recalculation. Summary-to-source matching prefers detail id so multiple rows of one asset keep their own location quantities.
+
 - Owner-record list/count accept excludeTransactionId, including balanceOnly mode, to reconstruct custodian availability before the movement being edited. The filter is combined with any exact transactionId instead of replacing it.
 
 - FXA adjustment headers retain the last successfully posted expenseAccountId, including zero-depreciation completions; clear/cancel preserve it. New adjustments inherit the latest saved expense-account choice within the tenant.

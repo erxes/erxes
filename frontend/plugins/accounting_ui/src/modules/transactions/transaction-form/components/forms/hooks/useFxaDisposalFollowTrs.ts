@@ -23,6 +23,8 @@ type TFxaDisposalInstance = {
 };
 
 type TFxaDisposalSummary = {
+  branchId?: string;
+  departmentId?: string;
   detailId?: string;
   fixedAssetId?: string;
   count: number;
@@ -61,6 +63,8 @@ export const buildFxaDisposalPreviewSummaries = (
       return {
         detailId: detail._id,
         fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId ?? '',
+        departmentId: detail.departmentId ?? '',
         count,
         originalCost,
         accumulatedDepreciation,
@@ -74,11 +78,11 @@ const buildMainDetails = (
   summaries: TFxaDisposalSummary[],
 ) =>
   details.map((detail) => {
-    const summary = summaries.find(
-      (item) =>
-        item.detailId === detail._id ||
-        item.fixedAssetId === detail.fixedAssetId,
-    );
+    const summary =
+      summaries.find((item) => item.detailId === detail._id) ||
+      summaries.find(
+        (item) => !item.detailId && item.fixedAssetId === detail.fixedAssetId,
+      );
 
     if (!summary) {
       return detail;
@@ -129,6 +133,8 @@ const buildFollowDetails = ({
           originId: summary.detailId,
           originType,
           fixedAssetId: summary.fixedAssetId,
+          branchId: summary.branchId,
+          departmentId: summary.departmentId,
           accountId: accountId || '',
           count: amountKey === 'accumulatedDepreciation' ? 0 : summary.count,
           unitPrice:
@@ -162,8 +168,8 @@ const buildFollowTr = ({
     parentId: trDoc.parentId,
     journal,
     side,
-    branchId: trDoc.branchId,
-    departmentId: trDoc.departmentId,
+    branchId: '',
+    departmentId: '',
     customerId: trDoc.customerId,
     customerType: trDoc.customerType,
     description: trDoc.description,

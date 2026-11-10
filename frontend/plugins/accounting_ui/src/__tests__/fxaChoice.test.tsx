@@ -107,7 +107,7 @@ test('sale selection preserves its revenue account and entered sale price', () =
   });
 });
 
-test('choosing an unassigned location materializes siblings before clearing the header defaults', () => {
+test('choosing an unassigned location keeps sibling locations independent of obsolete header defaults', () => {
   const { result } = setup();
   act(() =>
     applyFxaChoice(result.current, 0, 0, {
@@ -118,8 +118,8 @@ test('choosing an unassigned location materializes siblings before clearing the 
   expect(result.current.getValues('trDocs.0.branchId')).toBe('');
   expect(result.current.getValues('trDocs.0.departmentId')).toBe('');
   expect(result.current.getValues('trDocs.0.details.1')).toMatchObject({
-    branchId: 'header-branch',
-    departmentId: 'header-department',
+    branchId: '',
+    departmentId: '',
   });
 });
 

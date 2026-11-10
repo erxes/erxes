@@ -33,11 +33,11 @@ export const applyFxaChoice = (
       : choice.asset.originalCost || 0;
   const changed =
     detail.fixedAssetId !== assetId ||
-    (detail.branchId || doc.branchId || '') !== location.branchId ||
-    (detail.departmentId || doc.departmentId || '') !== location.departmentId;
+    (detail.branchId ?? '') !== location.branchId ||
+    (detail.departmentId ?? '') !== location.departmentId;
   const clearBranch = !location.branchId && Boolean(doc.branchId);
   const clearDepartment = !location.departmentId && Boolean(doc.departmentId);
-  // Materialize other rows' inherited locations before clearing a header default.
+  // Keep each row's own location when clearing an obsolete header default.
   const details = doc.details.map((row, index) =>
     index === detailIndex
       ? {
@@ -65,12 +65,8 @@ export const applyFxaChoice = (
         }
       : {
           ...row,
-          ...(clearBranch
-            ? { branchId: row.branchId || doc.branchId || '' }
-            : {}),
-          ...(clearDepartment
-            ? { departmentId: row.departmentId || doc.departmentId || '' }
-            : {}),
+          ...(clearBranch ? { branchId: row.branchId ?? '' } : {}),
+          ...(clearDepartment ? { departmentId: row.departmentId ?? '' } : {}),
         },
   );
   form.setValue(`trDocs.${journalIndex}.details`, details, {

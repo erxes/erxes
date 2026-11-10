@@ -42,8 +42,8 @@ export const FixedAssetRow = ({
     name: 'date',
   }) as Date | undefined;
   const showAdvancedView = useAtomValue(showAdvancedViewState);
-  const branchId = detail.branchId || trDoc.branchId || '';
-  const departmentId = detail.departmentId || trDoc.departmentId || '';
+  const branchId = detail.branchId ?? '';
+  const departmentId = detail.departmentId ?? '';
   const { fixedAssetLocationRemainder } = useFixedAssetLocationRemainder({
     variables: {
       fixedAssetId: detail.fixedAssetId,
