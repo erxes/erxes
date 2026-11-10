@@ -1,5 +1,9 @@
+import {
+  isErkhetOwnerOnly,
+  prepareErkhetOwnerTransfers,
+} from './erkhetOwnerTransfers';
 import { Request, Response } from 'express';
-import { fixNum, getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
+import { getSubdomain, sendTRPCMessage } from 'erxes-api-shared/utils';
 import { IModels, generateModels } from '~/connectionResolvers';
 import {
   FXA_OWNER_RECORD_ACTIONS,
@@ -9,6 +13,7 @@ import { JOURNALS } from '../@types/constants';
 import {
   IInvSplitDetailInfo,
   ITransaction,
+  ITransactionDocument,
   ITrDetail,
 } from '../@types/transaction';
 
@@ -915,13 +920,13 @@ const resolveFxaOwnerRecords = (
         ownerId: ownerRef
           ? maps.usersByRef[ownerRef]
           : responsibleUserRef
-            ? maps.usersByRef[responsibleUserRef]
-            : ownerRecord.ownerId || ownerRecord.responsibleUserId,
+          ? maps.usersByRef[responsibleUserRef]
+          : ownerRecord.ownerId || ownerRecord.responsibleUserId,
         sourceOwnerId: sourceOwnerRef
           ? maps.usersByRef[sourceOwnerRef]
           : sourceResponsibleUserRef
-            ? maps.usersByRef[sourceResponsibleUserRef]
-            : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
+          ? maps.usersByRef[sourceResponsibleUserRef]
+          : ownerRecord.sourceOwnerId || ownerRecord.sourceResponsibleUserId,
         sourceResponsibleUserId: sourceResponsibleUserRef
           ? maps.usersByRef[sourceResponsibleUserRef]
           : undefined,
@@ -996,8 +1001,8 @@ const resolveOwnerRecordSources = async (
             candidate.action === FXA_OWNER_RECORD_ACTIONS.RECEIVED
               ? 1
               : candidate.action === FXA_OWNER_RECORD_ACTIONS.HANDED_OVER
-                ? -1
-                : 0;
+              ? -1
+              : 0;
 
           result[candidateOwnerId] =
             (result[candidateOwnerId] || 0) +
@@ -1240,114 +1245,6 @@ const resolveTransactionCtaxRowId = (
   return ctaxRowId;
 };
 
-const getNumericFollowInfo = (
-  detail: ITrDetail,
-  key: string,
-): number | undefined => {
-  const value = detail.followInfos?.[key];
-  const numberValue =
-    typeof value === 'number'
-      ? value
-      : typeof value === 'string'
-        ? Number(value)
-        : NaN;
-
-  return Number.isFinite(numberValue) ? numberValue : undefined;
-};
-
-const getOpeningDepreciationTotal = (detail: ITrDetail) => {
-  const preDeprecation = getNumericFollowInfo(detail, 'preDeprecation');
-
-  if (!preDeprecation || preDeprecation <= 0) {
-    return 0;
-  }
-
-  return preDeprecation;
-};
-
-const getOpeningBalanceKey = (
-  contentId: string | undefined,
-  accountCode: string,
-  branchCode?: string,
-  departmentCode?: string,
-) =>
-  [
-    contentId || '',
-    normalizeSourceCode(accountCode),
-    normalizeSourceCode(branchCode),
-    normalizeSourceCode(departmentCode),
-  ].join(':');
-
-export const normalizeOpeningFixedAssetBalances = (
-  docs: ITransaction[],
-): ITransaction[] => {
-  const openingDepByKey = new Map<string, number>();
-
-  for (const doc of docs) {
-    if (doc.journal !== JOURNALS.FXA_INCOME) {
-      continue;
-    }
-
-    for (const detail of doc.details || []) {
-      const amount = getOpeningDepreciationTotal(detail);
-      const sourceAccountCode = detail.followInfos?.accountCode;
-      const accountCode = normalizeSourceCode(
-        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
-      );
-
-      if (!amount || !accountCode) {
-        continue;
-      }
-
-      const key = getOpeningBalanceKey(
-        doc.contentId,
-        accountCode,
-        detail.followInfos?.branchCode || doc.followInfos?.branchCode,
-        detail.followInfos?.departmentCode || doc.followInfos?.departmentCode,
-      );
-
-      openingDepByKey.set(key, (openingDepByKey.get(key) || 0) + amount);
-    }
-  }
-
-  if (!openingDepByKey.size) {
-    return docs;
-  }
-
-  return docs.map((doc) => {
-    const details = (doc.details || []).map((detail) => {
-      if (!detail.followInfos?.openingBalanceAccount) {
-        return detail;
-      }
-
-      const sourceAccountCode =
-        detail.followInfos?.sourceAccountCode ||
-        detail.followInfos?.accountCode;
-      const accountCode = normalizeSourceCode(
-        typeof sourceAccountCode === 'string' ? sourceAccountCode : undefined,
-      );
-      const key = getOpeningBalanceKey(
-        doc.contentId,
-        accountCode,
-        detail.followInfos?.branchCode || doc.followInfos?.branchCode,
-        detail.followInfos?.departmentCode || doc.followInfos?.departmentCode,
-      );
-      const openingDepreciation = openingDepByKey.get(key) || 0;
-
-      if (!openingDepreciation) {
-        return detail;
-      }
-
-      return {
-        ...detail,
-        amount: fixNum(Math.max(0, detail.amount - openingDepreciation)),
-      };
-    });
-
-    return { ...doc, details };
-  });
-};
-
 const normalizeBatchDocs = async (
   subdomain: string,
   models: IModels,
@@ -1440,22 +1337,23 @@ const normalizeBatchDocs = async (
         },
       };
 
-      resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
-        models,
-        resolvedDoc,
-        resolvedDoc.extraData.fxaOwnerRecords || [],
-      );
+      if (!isErkhetOwnerOnly(resolvedDoc))
+        resolvedDoc.extraData.fxaOwnerRecords = await resolveOwnerRecordSources(
+          models,
+          resolvedDoc,
+          resolvedDoc.extraData.fxaOwnerRecords || [],
+        );
 
       return resolvedDoc;
     }),
   );
 
-  return normalizeOpeningFixedAssetBalances(resolvedDocs);
+  return resolvedDocs;
 };
 
 export const normalizeErkhetBatchDocsForTest = normalizeBatchDocs;
 
-const saveBatch = async ({
+export const saveErkhetBatch = async ({
   models,
   batch,
   userId,
@@ -1472,15 +1370,18 @@ const saveBatch = async ({
 }) => {
   validateBatch(batch);
 
-  const trDocs = await normalizeBatchDocs(
+  const resolvedDocs = await normalizeBatchDocs(
     subdomain,
     models,
     batch,
     userId,
     dryRun,
   );
-  const lookupContentType = trDocs[0]?.contentType || ERKHET_CONTENT_TYPE;
-  const lookupContentId = trDocs[0]?.contentId || batch.externalPtrId;
+  const trDocs = resolvedDocs.filter((doc) => !isErkhetOwnerOnly(doc));
+  const ownerDocs = resolvedDocs.filter(isErkhetOwnerOnly);
+  const lookupDoc = trDocs[0] || resolvedDocs[0];
+  const lookupContentType = lookupDoc?.contentType || ERKHET_CONTENT_TYPE;
+  const lookupContentId = lookupDoc?.contentId || batch.externalPtrId;
   // Давтан ажиллуулахад ижил source баримт дахин үүсэхгүй байх гол түлхүүр.
   // sync_id/sync_type байвал deal/source content-оор, байхгүй бол externalPtrId-р update хийнэ.
   const oldTr = await models.Transactions.findOne({
@@ -1489,11 +1390,22 @@ const saveBatch = async ({
     $or: [{ originId: { $exists: false } }, { originId: '' }],
   }).lean();
 
+  if (!trDocs.length && oldTr)
+    throw new Error(
+      'Remove the previous financial workflow before importing owner-only movements.',
+    );
+
   if (dryRun) {
+    const ownerTransfers = await prepareErkhetOwnerTransfers(
+      models,
+      batch.externalPtrId,
+      ownerDocs,
+      userId,
+    );
     return {
       action: oldTr ? 'update' : 'create',
       parentId: oldTr?.parentId,
-      count: trDocs.length,
+      count: trDocs.length + ownerTransfers.count,
     };
   }
 
@@ -1502,22 +1414,37 @@ const saveBatch = async ({
       ? [{ ...trDocs[0], _id: oldTr.parentId }, ...trDocs.slice(1)]
       : trDocs;
 
-  const transactions = oldTr
-    ? await models.Transactions.updatePTransaction(
+  let transactions: ITransactionDocument[] = [];
+  if (trDocs.length) {
+    if (oldTr) {
+      transactions = await models.Transactions.updatePTransaction(
         oldTr.parentId,
         normalizedTrDocs,
         userId,
         { skipAccountPermission },
-      )
-    : await models.Transactions.createPTransaction(normalizedTrDocs, userId, {
-        skipAccountPermission,
-      });
+      );
+    } else {
+      transactions = await models.Transactions.createPTransaction(
+        normalizedTrDocs,
+        userId,
+        { skipAccountPermission },
+      );
+    }
+  }
+
+  const ownerTransfers = await prepareErkhetOwnerTransfers(
+    models,
+    batch.externalPtrId,
+    ownerDocs,
+    userId,
+  );
+  await ownerTransfers.save();
 
   return {
     action: oldTr ? 'updated' : 'created',
     parentId: transactions[0]?.parentId || oldTr?.parentId,
     ptrId: transactions[0]?.ptrId || oldTr?.ptrId,
-    count: transactions.length,
+    count: transactions.length + ownerTransfers.count,
   };
 };
 
@@ -1541,7 +1468,7 @@ export const importErkhetTransactions = async (req: Request, res: Response) => {
 
     for (const batch of body.batches) {
       try {
-        const result = await saveBatch({
+        const result = await saveErkhetBatch({
           models,
           batch,
           userId,

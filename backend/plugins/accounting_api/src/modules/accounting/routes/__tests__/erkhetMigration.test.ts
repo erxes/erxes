@@ -4,7 +4,6 @@ import { JOURNALS } from '../../@types/constants';
 import {
   getErkhetTransactionCodeMapForTest,
   normalizeErkhetBatchDocsForTest,
-  normalizeOpeningFixedAssetBalances,
   resolveErkhetInvIncomeExpensesForTest,
   resolveErkhetInvSplitInfoForTest,
   resolveErkhetFxaOwnerRecordSourcesForTest,
@@ -15,53 +14,76 @@ import {
 import { IModels } from '~/connectionResolvers';
 
 describe('Erkhet migration fixed asset openings', () => {
-  it('reduces opening balance main transaction by fixed asset accumulated depreciation', () => {
-    const docs = normalizeOpeningFixedAssetBalances([
-      {
-        _id: 'income-tr',
-        date: new Date('2025-12-31T00:00:00.000Z'),
-        journal: JOURNALS.FXA_INCOME,
-        contentId: 'opening-200301-1-asset-3',
-        followInfos: {},
-        details: [
-          {
-            _id: 'opening-detail-200301-asset-3',
-            accountId: 'asset-account',
-            amount: 350000,
-            fixedAssetId: 'asset-a',
-
-            followInfos: {
-              fixedAssetCategoryId: 'cat-a',
-              accountCode: '200301',
-              branchCode: '2000',
-              preDeprecation: 233333.33333333334,
+  it.each([80, 200])(
+    'preserves source balancing amount %s while resolving references',
+    async (amount) => {
+      const query = <T>(rows: T[]) => ({ lean: async () => rows });
+      const raw = {
+        Accounts: {
+          find: () =>
+            query([
+              { _id: 'asset-account', code: '2001' },
+              { _id: 'balance-account', code: '990909' },
+            ]),
+        },
+        FixedAssetCategories: {
+          find: () => query([{ _id: 'category', code: 'PC' }]),
+        },
+      };
+      const docs = await normalizeErkhetBatchDocsForTest(
+        'test',
+        raw as unknown as IModels,
+        {
+          externalPtrId: 'opening-asset',
+          trDocs: [
+            {
+              journal: JOURNALS.FXA_INCOME,
+              date: new Date('2025-12-31'),
+              details: [
+                {
+                  accountId: '2001',
+                  count: 2,
+                  unitPrice: 100,
+                  amount: 200,
+                  followInfos: {
+                    fixedAssetCategoryId: 'PC',
+                    fixedAssetCode: 'PC-001',
+                    fixedAssetName: 'Computer',
+                    preDeprecation: 120,
+                  },
+                },
+              ],
             },
-          },
-        ],
-      },
-      {
-        _id: 'balance-tr',
-        date: new Date('2025-12-31T00:00:00.000Z'),
-        journal: JOURNALS.MAIN,
-        contentId: 'opening-200301-1-asset-3',
-        followInfos: {},
-        details: [
-          {
-            accountId: 'opening-balance-account',
-            amount: 350000,
-            followInfos: {
-              sourceAccountCode: '200301',
-              openingBalanceAccount: true,
-              accountCode: '990909',
-              branchCode: '2000',
+            {
+              journal: JOURNALS.MAIN,
+              date: new Date('2025-12-31'),
+              details: [
+                {
+                  accountId: '990909',
+                  amount,
+                  followInfos: {
+                    openingBalanceAccount: true,
+                    sourceAccountCode: '2001',
+                  },
+                },
+              ],
             },
-          },
-        ],
-      },
-    ]);
-
-    expect(docs[1].details[0].amount).toBe(116666.6667);
-  });
+          ],
+        },
+        'user',
+        true,
+      );
+      expect(docs[0].details[0]).toMatchObject({
+        accountId: 'asset-account',
+        amount: 200,
+        followInfos: { preDeprecation: 120 },
+      });
+      expect(docs[1].details[0]).toMatchObject({
+        accountId: 'balance-account',
+        amount,
+      });
+    },
+  );
 });
 
 describe('Erkhet migration inventory sale follow accounts', () => {
