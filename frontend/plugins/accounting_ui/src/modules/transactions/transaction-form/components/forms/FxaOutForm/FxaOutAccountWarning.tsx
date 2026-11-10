@@ -72,13 +72,13 @@ export const FxaOutAccountWarning = ({
     return () => window.removeEventListener('focus', refresh);
   }, [accountId, refetch, refetchAccounts]);
 
-  const configuredAccount = accounts.find(
+  const hasConfiguredAccount = accounts.some(
     (account) =>
       account._id === depreciationAccountId &&
       account.status === AccountStatus.ACTIVE,
   );
   if (!accountId || loading || accountsLoading) return null;
-  if (!error && !accountsError && depreciationAccountId && configuredAccount)
+  if (!error && !accountsError && depreciationAccountId && hasConfiguredAccount)
     return null;
   return (
     <Alert variant="warning" className="mt-4">

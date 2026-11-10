@@ -474,9 +474,8 @@ export const getFxaDisposalSummaries = async (
         throw new Error('Fixed asset total depreciation must be nonnegative');
       }
       const accumulatedDepreciation = fixNum(
-        suppliedDepreciation === undefined
-          ? ((valuation?.preDeprecation || 0) * count) / (valuation?.count || 1)
-          : suppliedDepreciation,
+        suppliedDepreciation ??
+          ((valuation?.preDeprecation || 0) * count) / (valuation?.count || 1),
       );
 
       return {
