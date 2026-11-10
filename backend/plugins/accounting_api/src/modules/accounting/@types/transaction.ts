@@ -12,11 +12,52 @@ export type IInvSplitDetailInfo =
       ratio: number;
     };
 
+export interface ITrFollowInfos extends Record<string, unknown> {
+  currencyDiffAccountId?: string;
+
+  moveInAccountId?: string;
+  moveInBranchId?: string;
+  moveInDepartmentId?: string;
+
+  saleTransactionId?: string;
+  saleOutAccountId?: string;
+  saleCostAccountId?: string;
+
+  accumulatedDepreciationAccountId?: string;
+  depreciationExpenseAccountId?: string;
+  ownerId?: string;
+  responsibleUserId?: string;
+  fixedAssetAccountId?: string;
+  lossAccountId?: string;
+
+  branchCode?: string;
+  departmentCode?: string;
+  moveInAccountCode?: string;
+  moveInBranchCode?: string;
+  moveInDepartmentCode?: string;
+  accumulatedDepreciationAccountCode?: string;
+  saleOutAccountCode?: string;
+  saleCostAccountCode?: string;
+
+  invSplitDetails?: {
+    detailId?: string;
+    productId?: string;
+    ratio?: number;
+  }[];
+}
+
 export interface ITrDetailFollowInfos extends Record<string, unknown> {
+  fixedAssetCategoryId?: string;
+  fixedAssetCode?: string;
+  fixedAssetName?: string;
+
+  branchCode?: string;
+  departmentCode?: string;
+  /** Total accumulated depreciation for this detail, not per unit. */
   preDeprecation?: number;
+  revaluationLoss?: number;
+  revaluationReserve?: number;
   salvageValue?: number;
-  fixedAssetTotalCount?: number;
-  fixedAssetTotalAmount?: number;
   depreciationStartDate?: Date;
   currencyDiffAccountId?: string;
   moveInBranchId?: string;
@@ -51,9 +92,6 @@ export interface ITrDetail {
   weight?: number;
 
   fixedAssetId?: string;
-  fixedAssetCategoryId?: string;
-  fixedAssetCode?: string;
-  fixedAssetName?: string;
 }
 
 export interface ITransaction {
@@ -71,7 +109,7 @@ export interface ITransaction {
   journal: string;
   ptrStatus?: string;
 
-  followInfos?: any;
+  followInfos?: ITrFollowInfos;
   originId?: string;
   originType?: string;
   originSubId?: string;
@@ -146,7 +184,8 @@ export interface ITransactionCounter {
 }
 
 export interface ITransactionCounterDocument
-  extends ITransactionCounter, Document {
+  extends ITransactionCounter,
+    Document {
   _id: string;
 }
 

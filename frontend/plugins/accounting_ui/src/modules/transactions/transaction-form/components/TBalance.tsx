@@ -76,9 +76,19 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
       });
   });
 
+  const rowsByPointer = new Map<string | undefined, ITBalanceTransaction[]>();
+  for (const row of data) {
+    const group = rowsByPointer.get(row.ptrId);
+    if (group) group.push(row);
+    else rowsByPointer.set(row.ptrId, [row]);
+  }
+
   const columns = useMemo(() => {
-    if ((trDocs || []).some((tr) => tr.journal.includes('inv'))) {
-      return tbalanceColumns(t).filter((c) => !c.id?.includes('inv'));
+    const hasItemJournal = (trDocs || []).some(
+      (tr) => tr.journal.includes('inv') || tr.journal.includes('fxa'),
+    );
+    if (!hasItemJournal) {
+      return tbalanceColumns(t).filter((column) => !column.id?.includes('details'));
     }
     return tbalanceColumns(t);
   }, [trDocs, t]);
@@ -86,7 +96,7 @@ export const TBalance = ({ form }: { form: ITransactionGroupForm }) => {
   return (
     <RecordTable.Provider
       columns={columns}
-      data={data || []}
+      data={[...rowsByPointer.values()].flat()}
       stickyColumns={['more', 'account']}
       tableId="accounting_transaction_balance_record_table"
       className="m-3"

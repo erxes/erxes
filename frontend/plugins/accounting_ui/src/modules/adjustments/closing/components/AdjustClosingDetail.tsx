@@ -430,7 +430,7 @@ export const AdjustClosingDetail = ({ id }: AdjustClosingDetailProps) => {
   const transactionColumns = useMemo(
     () =>
       tbalanceColumns(t).filter(
-        (column) => column.id !== 'more' && !column.id?.includes('inv'),
+        (column) => column.id !== 'more' && !column.id?.includes('details'),
       ),
     [t],
   );

@@ -78,6 +78,21 @@ export const TRANSACTION_PERMISSION_ACTIONS: Record<
     manage: 'manageInvSaleReturnTransactions',
     remove: 'removeInvSaleReturnTransactions',
   },
+  [JOURNALS.FXA_DEP]: {
+    read: 'readAdjustFixedAssets',
+    manage: 'manageAdjustFixedAssets',
+    remove: 'removeAdjustFixedAssets',
+  },
+  [JOURNALS.FXA_CAPITAL]: {
+    read: 'readFxaCapitalTransactions',
+    manage: 'manageFxaCapitalTransactions',
+    remove: 'removeFxaCapitalTransactions',
+  },
+  [JOURNALS.FXA_REVALUATION]: {
+    read: 'readFxaRevaluationTransactions',
+    manage: 'manageFxaRevaluationTransactions',
+    remove: 'removeFxaRevaluationTransactions',
+  },
   [JOURNALS.FXA_INCOME]: {
     read: 'readFxaIncomeTransactions',
     manage: 'manageFxaIncomeTransactions',
@@ -101,6 +116,8 @@ export const TRANSACTION_PERMISSION_ACTIONS: Record<
 };
 
 const FOLLOW_JOURNALS_BY_SOURCE: Record<string, string[]> = {
+  [JOURNALS.FXA_CAPITAL]: [JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT],
+  [JOURNALS.FXA_REVALUATION]: [JOURNALS.FXA_DEP_IN, JOURNALS.FXA_DEP_OUT],
   [JOURNALS.CASH]: [JOURNALS.EXCHANGE_DIFF],
   [JOURNALS.BANK]: [JOURNALS.EXCHANGE_DIFF],
   [JOURNALS.RECEIVABLE]: [JOURNALS.EXCHANGE_DIFF],
@@ -111,7 +128,7 @@ const FOLLOW_JOURNALS_BY_SOURCE: Record<string, string[]> = {
     JOURNALS.INV_SALE_RETURN_OUT,
     JOURNALS.INV_SALE_RETURN_COST,
   ],
-  [JOURNALS.FXA_INCOME]: [JOURNALS.FXA_DEP, JOURNALS.FXA_DEP_IN],
+  [JOURNALS.FXA_INCOME]: [JOURNALS.FXA_DEP_IN],
   [JOURNALS.FXA_OUT]: [JOURNALS.FXA_DEP_OUT],
   [JOURNALS.FXA_MOVE]: [
     JOURNALS.FXA_MOVE_IN,

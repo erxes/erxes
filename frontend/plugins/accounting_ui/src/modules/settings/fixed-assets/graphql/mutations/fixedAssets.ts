@@ -48,19 +48,13 @@ mutation accountingFixedAssetCategoriesRemove($_id: String!) {
 `);
 
 export const FIXED_ASSETS_ADD = gql(`
-mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $depreciationMethod: String, $annualDepreciationRate: Float, $salvageValue: Float, $taxDepreciationMethod: String, $taxAnnualDepreciationRate: Float, $taxSalvageValue: Float, $propertiesData: JSON) {
+mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $propertiesData: JSON) {
   fixedAssetsAdd(
     code: $code
     name: $name
     categoryId: $categoryId
     description: $description
     status: $status
-    depreciationMethod: $depreciationMethod
-    annualDepreciationRate: $annualDepreciationRate
-    salvageValue: $salvageValue
-    taxDepreciationMethod: $taxDepreciationMethod
-    taxAnnualDepreciationRate: $taxAnnualDepreciationRate
-    taxSalvageValue: $taxSalvageValue
     propertiesData: $propertiesData
   ) {
     _id
@@ -69,7 +63,7 @@ mutation accountingFixedAssetsAdd($code: String!, $name: String!, $categoryId: S
 `);
 
 export const FIXED_ASSETS_EDIT = gql(`
-mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $depreciationMethod: String, $annualDepreciationRate: Float, $salvageValue: Float, $taxDepreciationMethod: String, $taxAnnualDepreciationRate: Float, $taxSalvageValue: Float, $propertiesData: JSON) {
+mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!, $categoryId: String!, $description: String, $status: String, $propertiesData: JSON) {
   fixedAssetsEdit(
     _id: $_id
     code: $code
@@ -77,12 +71,6 @@ mutation accountingFixedAssetsEdit($_id: String!, $code: String!, $name: String!
     categoryId: $categoryId
     description: $description
     status: $status
-    depreciationMethod: $depreciationMethod
-    annualDepreciationRate: $annualDepreciationRate
-    salvageValue: $salvageValue
-    taxDepreciationMethod: $taxDepreciationMethod
-    taxAnnualDepreciationRate: $taxAnnualDepreciationRate
-    taxSalvageValue: $taxSalvageValue
     propertiesData: $propertiesData
   ) {
     _id

@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -23,6 +23,13 @@
 - Other plugin UIs, routes, state, or implementation details.
 
 ## Current Capabilities
+
+- Fixed asset income keeps category/code/name acquisition entry in detail `followInfos.fixedAssetCategoryId`/`fixedAssetCode`/`fixedAssetName`; detail root keeps only the `fixedAssetId` reference, and income validation requires all three metadata fields. its row sheet edits frozen book/tax depreciation rules and optional custodian allocations. Settings fixed asset forms edit identity metadata only; financial values are derived API projections.
+- Non-income asset rows and bulk-add actions use `settings/fixed-assets/components/chooser/FixedAssetChooser`. It has exactly two levels: assets and branch/department locations, with search/category/location/member filters, pagination and loading/error/empty states. The detail location supplies initial row-chooser filters; hidden transaction header locations are not used. Clicking an asset group adds its matching location choices, while leaf rows select one location. Custodians and serial allocations are managed through the transaction detail’s existing more-menu sheet, not as chooser rows or columns. Selected rows are excluded from available results and collect in a separate lower section; clicking them removes the pending choice. Selections survive filter/page changes. Branch and department have separate columns rendered by the public `BranchBadge`/`DepartmentBadge` in plain-text mode (id detail lookup), and asset labels stay compact on one line. Operational row choosers support multiple choices and insert one detail per choice; capitalization and revaluation keep one choice per asset. Choosing a location fills row branch/department and clamps quantity. Sale keeps its entered price and revenue account. Capitalization selects the asset across every location.
+
+- The fixed asset add menu offers `Капиталжуулалт / Залруулга` (`fxaCapital`) for multiple assets per journal. `FxaChangeTable.tsx` and its rows load dated valuations, show prior unit cost/depreciation and quantity, capture new unit cost, total accumulated depreciation (including zero), with a derived editable unit helper, residual value, automatic method and new useful years, and preview only cost/depreciation entries in TBalance. There is no counterpart-account field or source `capitalAccountId`; accountants add ordinary transaction tabs to close the combined remaining difference. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
+
+- The fixed asset add-transaction menu includes `Дахин үнэлгээ` (`fxaRevaluation`), using `FxaChangeTable`/`FxaChangeRow` and the dated valuation preview shared with capitalization. `TransactionTabs` renders the table directly for both journals; no journal-specific wrapper components are needed. Both operate on all asset locations. Revaluation sheets show the prior loss/reserve limits and aggregate recovery, reserve usage, new loss and new reserve across that asset’s locations. Capitalization includes current-period corrections without valuation-limit allocation. There is no separate correction journal or subtype selector.
 
 - The inventory Recalculate balances form distinguishes blank (all locations), `_` (“Салбар сонгогдоогүй” / “Нэгж сонгогдоогүй”), and real ids. Blank defaults leave selectors unselected. Clicking the selected unassigned-location option again clears that dimension; no separate all-location option is rendered. Sentinel labels never query `_` as a real structure id. Selected-product scoping is preserved.
 
@@ -158,6 +165,8 @@
 
 ### Consumes
 
+- The generated `accountingFixedAssetCapitalValuation` operation drives capitalization; disposal previews pass date/current transaction exclusion to `AccountingFixedAssets` so subsequent disposal/movement/sale uses capitalized cost and accumulated depreciation.
+
 - `ui-modules` side panel API (`useSidePanel`, `useSidePanelDraft`, `IRecordPanelProps`, `PanelFormLayout`, `PanelFormRow`, `PANEL_INPUT_CLASS_NAME`, `ActivityLogs`) for settings record panels.
 - Production processes use `jobExecutions`, `jobExecutionSave`, `jobExecutionPost`, `jobExecutionUndo`, and `jobExecutionRemove` through generated GraphQL documents; mutations refetch the list before success completion.
 
@@ -190,6 +199,8 @@
 
 ## Data and State
 
+- Income’s existing detail sheet accepts total detail prior unrecovered revaluation loss and prior reserve in `followInfos.revaluationLoss`/`revaluationReserve`. These are history limits, not additional cost deductions. Capitalization/revaluation depreciation previews use the existing `fxaDepIn`/`fxaDepOut` journal and origin types, linked by source `originId`. Revaluation persists only these same two signed total-detail delta fields; preview derives recovery/new loss/reserve from their signs. State sums them once without multiplying by quantity. Adjustment rows expose one current snapshot plus a read-only `previous` snapshot from generated query types. Asset/account and public branch/department inline cells identify each comparison row. Numeric snapshot cells show previous → current values; book values are derived from cost minus accumulated depreciation. No opening/closing or duplicate book-depreciation fields are stored or selected.
+
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
 - Inventory income detail form state stores total line weight; product or count changes recalculate it from core product weight, while direct weight edits persist until either source changes.
@@ -220,6 +231,52 @@
 - Closing detail state is owned by Apollo queries/refetches; percent edits and calculate/run mutations refetch detail state immediately.
 
 ## Local Invariants
+
+- Out, move and sale journals retain separate form/table/row components so journal-specific behavior can evolve independently. `components/helpers/fxaHelpers.ts` supplies detail defaults and owner-record display codes; owner sequences come from persisted `sequence`, never by parsing display codes.
+
+- FXA out/sale/move forms omit source header branch/department selectors. Their choosers and remainder limits use detail locations, and bulk selection does not inherit a hidden header filter. Movement destination selectors remain available. Disposal previews copy each source detail location into all generated follow rows.
+
+- Fixed asset out forms derive the accumulated-depreciation account from the selected asset-account configuration, with no editable depreciation-account selector. They validate the configured account through `accountingAssignedAccounts`, using a boolean existence check for an active assigned account, and show a form-level warning linking to fixed-assets/accounts-config when the mapping/account is unavailable. Config/account queries refresh on window focus so a settings change in another tab updates the form without reloading. Changing to an unconfigured account clears the previous hidden override.
+
+- The movement owner sheet preserves sourceOwnerId and edits ownerId as the destination custodian; both survive Zod/JSON conversion. Out/sale keep source-only selection. Saved transactions exclude their own owner-record entries from available balances so repeated edits do not consume the same quantity twice.
+
+- The fixed asset internal movement (`fxaMove`) form does not render customer type or customer selectors; its header captures asset account, assigned user, description and destination settings; source location belongs to each detail.
+
+- FXA snapshot columns render current numbers directly, without previous-to-current arrows; opening/closing book-value columns remain separate. The depreciation posting dialog starts with its adjustment header expenseAccountId, and preserves the user choice while open.
+
+- FXA adjustment detail headers use `shrink-0`, never `flex-auto`: the header must not consume the remaining page height or push its calculation/transaction tabs to the bottom. Tabs and tables share one horizontal margin.
+
+- FXA adjustment detail offers calculation and linked TBalance transaction tabs. Draft/process can run; deletion is shown only without linked journals; process without errors can post using an expense account; complete can rerun, cancel or publish; published can cancel. Cancel/clear refetch header and detail rows, and all mutation buttons share busy state. Zero-depreciation completed periods explain why no journal exists and remain cancellable.
+
+- Income detail sheets hide tax method, derived useful years, annual percentage and residual value behind a local “Татварын тооцоо” (`tax-calculation`) switch, initially off. The switch controls visibility only; mounted fields and their stored values remain intact when hidden.
+
+- Transaction detail sheets display useful years alongside the canonical annual depreciation percentage through `FxaChangeLifeFields`: book and tax on income, book on capital/revaluation. Both controls edit the same annual-rate field; years remain derived, with no second persisted value.
+
+- The income detail sheet uses three columns: book method/life/residual, tax method/life/residual, unit depreciation/total depreciation/start date, then total loss/reserve. Quantity is emphasized in the header summary instead of a separate sheet input.
+
+- Depreciation helper edits update individual `details.<index>.followInfos.preDeprecation` fields, never replace the detail array: `useFieldArray` replacement remounts rows and closes their open sheets. Derived unit depreciation uses a native-change `Input` so masked-input initialization cannot round and rewrite the authoritative total.
+
+- `Form.Label`, `Form.Control`, and `Form.Message` require an enclosing `Form.Field`. Derived inputs without a registered field (such as unit depreciation in `FxaDepreciationFields`) use the public `Label` with an input id instead.
+
+- Keep financial fields out of fixed asset master mutation inputs and settings forms. Income detail `followInfos` owns frozen book/tax method, annual rate, residual and depreciation start date. Apply category defaults on explicit category selection only, preserving saved snapshots on load/refetch.
+- Chooser unassigned-location selection preserves each sibling’s own location and never fills it from obsolete transaction header defaults. Preserve explicit zero depreciation for unchanged sources, clear stale overrides when asset/location changes, and never infer a location for unlinked owner records.
+
+- TBalance groups detail rows contiguously by `ptrId` in first-seen pointer order, preserving within-group order. `hasChangedPtrId` adds a visual divider between groups without inserting a Business transaction/group-summary row. Debit/credit summaries belong beside the transaction form Save action.
+- TBalance and journal records share the detail-column ids `item-details`, `unitPrice-details`, and `count-details` (matching their accessor keys). Their consumers filter the entire group with `column.id?.includes('details')`: TBalance and record lists show the group for `inv`/`fxa` journals; Closing adjustment's linked-transaction table always excludes it. Item and numeric cells support `productId` or `fixedAssetId`. TBalance uses the `item` heading (EN Item / MN Зүйл); journal records use `product-asset` (EN Product / Asset / MN Бараа/Хөрөнгө).
+- TBalance location resolution (`getTBalanceLocation`) stays beside its cell consumers in `TBalanceTableColumns.tsx`; no separate location utility module is needed. Location labels follow detail ids (explicit empty means unassigned), use matching enrichment only, and delegate missing branch/department objects to public `BranchesInline` / `DepartmentsInline` components instead of issuing cell-specific lookups; never copy one location label onto another capitalization allocation.
+- Capitalization/revaluation tables use fixed-width `w-8 p-0` action columns and 32px square actions. Editable asset/number cells reuse `SelectFixedAsset.InlineCell` and `PopoverScoped` / `RecordTableInlineCell`; normal form inputs belong inside the cell popover or detail sheet, not as inset bordered controls in table rows.
+- Capitalization and revaluation use the shared `FxaChangeTable` with single/bulk asset addition and row-local `RecordTable.MoreButton` sheets. Cost/amount and useful-life/rate inputs stay in the table; method, residual value, target accumulated depreciation, start date and tax rules live in each row sheet. Capitalization shows one editable row per asset while preserving its location-expanded saved details; previews, lookup initialization and row deletion stay asset-scoped. Blank optional rules retain the effective values and explicit zero is preserved. Mixed cost-increase/decrease rows show a localized message and require separate journal tabs.
+- FXA chooser and TBalance location cells keep branch/department fallback decisions explicit; numeric row fields preserve blank as undefined and useful-year conversion. Valuation map state uses the paired `valuationMap`/`setValuationMap` names.
+- Capitalization preview arithmetic lives in `transaction-form/components/forms/hooks/fxaCapitalPreview.ts`; `useFxaCapitalPreview` only synchronizes the memoized result with form/follow state. `mergeFxaDepreciationFollows` replaces only the current originId’s shared `fxaDepIn`/`fxaDepOut` follows, preserving saved transaction/detail ids and clearing obsolete directions or zero previews; journal-prefix matching is invalid for shared follow types. An uninitialized new cost is undefined until the dated valuation initializes it; explicit zero is a saved target value and must survive mount/refetch. New rows, bulk rows, asset replacement and journal initialization reuse `fxaCapitalDetailDefaultValues` from `transaction-form/contants/defaultValues.tsx`, preserving explicit zero and the existing metadata snapshot.
+
+- Fixed asset capitalization and revaluation are infrequent journals and stay last in the fixed asset add-menu and receipt-filter group. Record filters and enum-driven journal selectors place capitalization/revaluation entries after ordinary fixed asset journals with no separate automatic balancing journal.
+
+- Fixed asset capitalization/correction journal labels use English-based keys in `TR_JOURNAL_LABELS` and `TR_JOURNAL_GROUPS`, shared by add menus, navigation, tabs, lists and balance previews. Their form labels, placeholders, side options, help and validation messages use the `accounting` namespace, with EN/MN resources in gateway `src/locales/{en,mn}/accounting.json`.
+
+- Capitalization uses `fixedAssetCapitalValuation` at the form date excluding the edited source workflow, never stale master cost. Amount, side and location allocation are derived, while user-entered target values survive refetch/date changes. Capital previews preserve saved source/follow row identities. The API validates asset/depreciation accounts. Source-level counterpart information is not consumed by the capital form and is discarded on save. Unused revaluation-reserve and deferred-tax counterpart objects do not belong to FXA `followExtras` either. Journal enums and labels include no separate automatic balancing type.
+- Capitalization includes current-period correction and improvement; revaluation is a separate journal. Both apply the entered rules from the event date and require prior-day depreciation without rewriting earlier reporting periods.
+
+- Keep fixed asset correction inputs in the shared `transactions/transaction-form/components/forms/FxaChangeTable.tsx`, `FxaChangeRow.tsx` and `FxaChangeFields.tsx`, with quantity zero and patches in detail `followInfos`. Do not fill optional rule patches from master data on mount/refetch; the backend applies dated history. Generated accumulated-depreciation follows use credit for an increase and debit for a decrease; the source cost side is calculated independently.
 
 - Keep `<Route path="*">` as the last route in `AccountingMain.tsx` and `AccountingSettings.tsx`, and add a sidebar link only for a route that renders a real screen; `src/__tests__/accountingRoutes.test.tsx` opens every `MainNavigation` link and fails on a not-found page.
 - Use `accountIsOutBalance`, never the top-level `isOutBalance`, for the transaction off-balance filter; the backend reads only the account-prefixed argument.
@@ -366,7 +423,7 @@
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
 - Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
 - Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
-- Fixed asset income, out, movement, and sale forms preserve nonnegative unit accumulated depreciation in `details[].followInfos.preDeprecation`, including explicit zero. Quantity edits leave the unit value unchanged; preview/backend follow amounts multiply it by count. Changing the selected disposal asset clears its old unit override, while mount/refetch does not rewrite it. Do not introduce a second detail depreciation field or root summary array.
+- Fixed asset detail `followInfos.preDeprecation` is authoritative total accumulated depreciation, including explicit zero; never multiply a supplied total by quantity. UI unit depreciation is derived as total/count; editing unit recomputes total, editing quantity preserves total. Capital/revaluation detail totals sum across active asset locations. Generated `fxaDep`, `fxaDepIn`, and `fxaDepOut` rows have count and unitPrice zero. Opening revaluationLoss/revaluationReserve are totals and mutually exclusive.
 - Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
 - Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.
@@ -388,6 +445,14 @@
 - Journal report output never prints a placeholder organization name; when no company name is configured, the organization line stays blank.
 
 ## Validation
+
+- FXA calculation unit tests mock the real workspace `ui-modules` module normally, without `{ virtual: true }`, to avoid loading unrelated shared UI/ESM dependencies.
+
+- Smoke scenario: filter the asset chooser by branch, department and member, select a location, and verify row autofill and available-count limit. Click an asset group to select multiple locations, verify selected rows disappear from available results, change filters/pages without losing the selection, and click a selected row to return it. Apply multiple choices from an existing detail and verify distinct ids, location quantities, sibling order; manage custodian allocations from the detail’s more-menu sheet. Verify no custodian rows appear in the chooser and department codes/titles resolve by id. Verify sale prices survive selection, capitalization still covers every active location, and income rule snapshots survive save/reopen and later category edits.
+
+- Smoke scenario: post depreciation through January 31, capitalize on February 1 using a new unit cost, zero/nonzero target accumulated depreciation and five useful years, verify quantity stays unchanged, add an ordinary main transaction to balance TBalance across asset locations, save/reopen, calculate February from the new net base, and verify January reports retain old cost. Test downward cost correction, later disposal cost, edit without duplicate follows, and undo dependent periods/events before deleting to restore the prior effective valuation.
+
+- Smoke scenario: add an income opening total-detail loss/reserve, post depreciation, then run revaluation sequences -5/+6, -5/+4, +5/-6 and +5/-4. Confirm recovery/reserve-use caps, resulting loss/reserve, multi-location totals, edit/reopen preview, next adjustment snapshots and current-period capital corrections without changing earlier reports.
 
 - Smoke scenario: in inventory Recalculate balances, leave both location filters blank for all locations, choose “Салбар сонгогдоогүй” with a department, a branch with “Нэгж сонгогдоогүй”, and both unassigned-location options; verify submitted ids contain `_` only for the chosen dimensions and the affected inventory rows refresh after success.
 
@@ -416,7 +481,7 @@
 - Smoke scenario: in inventory income and internal movement, verify only the source unit appears as a split-related table column, open each row's leading action sheet, enable "Задлах эсэх", select result products, enter ratios, verify result units appear in the sheet, confirm `TBalance` shows linked `invOut` and `invIncome` rows with unchanged total cost and converted count/unit price, then save, refetch, edit, disable one split, and verify follow rows update immediately.
 - Smoke scenario: in fixed asset income, out, move, and sale forms, enable "Дэлгэрэнгүй харагдац" and verify each detail row can store independent branch and department values.
 - Smoke scenario: in fixed asset income, enter category/code/name/count/unit cost, verify keyboard shortcuts can reach and edit code/name cells, open the detail owner sheet, verify it starts empty, confirm the owner-record add button shows the remaining quantity in red while positive and disables at zero, optionally add owner rows whose counts total the detail count, set residual value and `preDeprecation`, save, refetch, and verify the generated fixed asset plus optional owner records remain.
-- Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department default from the transaction header, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
+- Smoke scenario: in fixed asset out, move, and sale forms, select a fixed asset in a single row, verify branch/department come from the chosen asset location, change row branch/department and confirm the count limit refreshes from that location, open the owner-record sheet and select active owner balance rows below or equal to the detail count, open "Олон хөрөнгө нэмэх", filter by category, append multiple assets as separate details, verify out/move cost fields fill from the asset cost base, sale keeps user-entered sale price, and detail branch/department values persist from the detailed view.
 - Smoke scenario: open `/accounting/fixed-assets/owner-records`, verify the "Үндсэн хөрөнгө" navigation group appears, filter owner records by search, fixed asset, category, owner, action, status, and created date, then use Үүсгэх/Шилжүүлэх/Цуцлах actions to create direct owner-record ledger rows without leaving the page.
 - Smoke scenario: open `/accounting/fixed-assets/remainders`, verify the "Үлдэгдэл" navigation item appears without the fixed asset settings or direct internal-move shortcuts, filter by search, fixed asset, category, branch, department, and date, and confirm rows show positive fixed asset quantities grouped by branch and department.
 - Smoke scenario: generate every journal report with and without "Дэлгэрэнгүй", "Хоосон мөр харуулах", and "Гүйлгээний төрөл"; verify parent/footer totals remain correct, double-click a summary row to reopen the same report with all row hierarchy filters and detailed mode, then double-click a detailed transaction to open its edit screen.
