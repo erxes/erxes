@@ -31,7 +31,7 @@ const valuation: TFxaCapitalValuation = {
   depreciationAccountId: 'dep-account',
   count: 3,
   originalCost: 100,
-  preDeprecation: 30,
+  preDeprecation: 90,
   annualDepreciationRate: 10,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -55,7 +55,7 @@ const journal = () =>
         amount: 0,
         followInfos: {
           originalCost: 150,
-          preDeprecation: 40,
+          preDeprecation: 120,
           annualDepreciationRate: getRateFromUsefulLife(5),
           depreciationMethod: 'straightLine',
           salvageValue: 0,
@@ -103,7 +103,7 @@ test('zero accumulated depreciation is retained and produces a depreciation decr
   ).toEqual([60, 30]);
 });
 
-test('capitalization form rejects an impossible net book value before submission', () => {
+test('capitalization accepts a total above unit cost and leaves quantity-aware bounds to backend', () => {
   const doc = journal();
   if (doc.journal !== TrJournalEnum.FXA_CAPITAL)
     throw new Error('Invalid test journal');
@@ -116,7 +116,7 @@ test('capitalization form rejects an impossible net book value before submission
         preDeprecation: 160,
       },
     }).success,
-  ).toBe(false);
+  ).toBe(true);
 });
 
 test('new locations cannot reuse an existing location detail id', () => {
@@ -245,7 +245,7 @@ test('revaluation previews split recovery by location while capital does not rec
         followInfos: {
           originalCost: 120,
           annualDepreciationRate: 20,
-          preDeprecation: 40,
+          preDeprecation: 120,
         },
       },
     ],

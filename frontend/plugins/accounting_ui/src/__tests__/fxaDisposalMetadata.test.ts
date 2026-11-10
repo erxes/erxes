@@ -12,7 +12,7 @@ jest.mock('ui-modules', () => ({ CustomerType: { CUSTOMER: 'customer' } }), {
   virtual: true,
 });
 
-describe('fixed asset disposal unit depreciation metadata', () => {
+describe('fixed asset disposal total depreciation metadata', () => {
   const detail = {
     _id: 'detail-1',
     accountId: 'account-1',
@@ -28,7 +28,7 @@ describe('fixed asset disposal unit depreciation metadata', () => {
     TrJournalEnum.FXA_MOVE,
     TrJournalEnum.FXA_SALE,
   ])(
-    'preserves unit preDeprecation through %s defaults and validation',
+    'preserves total preDeprecation through %s defaults and validation',
     (journal) => {
       const doc = JOURNALS_BY_JOURNAL(journal, {
         _id: 'transaction-1',
@@ -42,7 +42,7 @@ describe('fixed asset disposal unit depreciation metadata', () => {
   );
 
   it.each([0, 1, 2, 3])(
-    'keeps unit metadata unchanged while previewing count %s',
+    'keeps total metadata unchanged while previewing count %s',
     (count) => {
       const parsed = { ...detail, count };
       const summaries = buildFxaDisposalPreviewSummaries(
@@ -59,8 +59,8 @@ describe('fixed asset disposal unit depreciation metadata', () => {
       );
       expect(parsed.followInfos.preDeprecation).toBe(20);
       if (count > 0) {
-        expect(summaries[0].accumulatedDepreciation).toBe(20 * count);
-        expect(summaries[0].bookValue).toBe(80 * count);
+        expect(summaries[0].accumulatedDepreciation).toBe(20);
+        expect(summaries[0].bookValue).toBe(100 * count - 20);
       } else {
         expect(summaries).toEqual([]);
       }

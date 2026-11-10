@@ -119,12 +119,12 @@ test('historical valuation excludes future capitalized cost and depreciation', a
   );
   expect(result).toMatchObject({
     originalCost: 100,
-    preDeprecation: 20,
+    preDeprecation: 40,
     count: 2,
   });
 });
 
-test('after capitalization valuation uses the effective cost and posted per-unit depreciation', async () => {
+test('after capitalization valuation uses the effective cost and posted total depreciation', async () => {
   const { models } = fixture();
   const result = await getFxaCapitalValuation(
     models,
@@ -133,7 +133,7 @@ test('after capitalization valuation uses the effective cost and posted per-unit
   );
   expect(result).toMatchObject({
     originalCost: 150,
-    preDeprecation: 30,
+    preDeprecation: 60,
     count: 2,
     ready: true,
     locations: [{ branchId: 'branch', departmentId: '', count: 2 }],
@@ -150,7 +150,7 @@ test('editing excludes the whole old capitalization workflow and restores its pr
   );
   expect(result).toMatchObject({
     originalCost: 100,
-    preDeprecation: 20,
+    preDeprecation: 40,
     count: 2,
   });
   expect(selectors).toContainEqual(
@@ -168,7 +168,7 @@ test('deleting the capital source and its follows restores the old effective rul
   );
   expect(result).toMatchObject({
     originalCost: 100,
-    preDeprecation: 20,
+    preDeprecation: 40,
     annualDepreciationRate: 10,
   });
 });

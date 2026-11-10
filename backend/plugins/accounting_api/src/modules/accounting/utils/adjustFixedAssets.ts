@@ -41,6 +41,7 @@ type TDepreciationInput = {
   startDate: Date;
   endDate: Date;
   scheduleStartDate?: Date;
+  /** Per-unit calculator input; callers normalize posted totals by active quantity. */
   preDeprecation?: number;
 };
 
@@ -1153,6 +1154,8 @@ export const createAdjustFixedAssetTransaction = async ({
 
     debitDetails.push({
       accountId: expenseAccountId,
+      count: 0,
+      unitPrice: 0,
       amount,
       branchId: detail.branchId,
       departmentId: detail.departmentId,
@@ -1160,6 +1163,8 @@ export const createAdjustFixedAssetTransaction = async ({
     });
     creditDetails.push({
       accountId: depreciationAccountId,
+      count: 0,
+      unitPrice: 0,
       amount,
       branchId: detail.branchId,
       departmentId: detail.departmentId,

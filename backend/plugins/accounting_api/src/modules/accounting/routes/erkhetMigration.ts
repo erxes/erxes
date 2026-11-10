@@ -1262,7 +1262,7 @@ const getOpeningDepreciationTotal = (detail: ITrDetail) => {
     return 0;
   }
 
-  return preDeprecation * Math.max(1, detail.count || 1);
+  return preDeprecation;
 };
 
 const getOpeningBalanceKey = (

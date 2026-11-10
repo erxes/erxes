@@ -1,3 +1,5 @@
+import { FxaDepreciationFields } from '@/transactions/transaction-form/components/forms/FxaDepreciationFields';
+import { getTotalFxaDepreciation } from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import { useEffect, useState } from 'react';
 import { useQuery } from '@apollo/client';
 import { useWatch } from 'react-hook-form';
@@ -21,6 +23,7 @@ import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/q
 import { FixedAssetChooser } from '@/settings/fixed-assets/components/chooser/FixedAssetChooser';
 import { TFxaCapitalValuation } from '@/transactions/transaction-form/components/forms/hooks/fxaCapitalPreview';
 import {
+  FxaChangeLifeFields,
   FxaChangeMethodField,
   FxaChangeNumberField,
 } from '@/transactions/transaction-form/components/forms/FxaChangeFields';
@@ -144,17 +147,14 @@ export const FxaChangeRow = ({
                 <SelectFixedAsset.Value />
               </SelectFixedAsset.Provider>
               <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                <FxaChangeNumberField
-                  {...fieldProps}
-                  rule="preDeprecation"
-                  label="fxa-new-unit-depreciation"
-                />
+                <FxaDepreciationFields {...fieldProps} valuation={valuation} />
                 <FxaChangeNumberField
                   {...fieldProps}
                   rule="salvageValue"
                   label="fxa-unit-salvage-value"
                 />
                 <FxaChangeMethodField {...fieldProps} capital />
+                <FxaChangeLifeFields {...fieldProps} />
                 <Form.Field
                   control={form.control}
                   name={`trDocs.${index}.details.${detailIndex}.followInfos.depreciationStartDate`}
@@ -182,13 +182,22 @@ export const FxaChangeRow = ({
                   <dt>{t('fxa-old-unit-cost')}</dt>
                   <dd>{valuation.originalCost.toLocaleString()}</dd>
                   <dt>{t('fxa-old-unit-depreciation')}</dt>
-                  <dd>{valuation.preDeprecation.toLocaleString()}</dd>
+                  <dd>
+                    {(valuation.count
+                      ? valuation.preDeprecation / valuation.count
+                      : 0
+                    ).toLocaleString()}
+                  </dd>
                   <dt>{t('fxa-new-unit-book-value')}</dt>
                   <dd>
                     {(
                       (detail.followInfos?.originalCost || 0) -
-                      (detail.followInfos?.preDeprecation ??
-                        valuation.preDeprecation)
+                      (getTotalFxaDepreciation(
+                        trDoc?.details.filter(
+                          (row) => row.fixedAssetId === assetId,
+                        ) || [],
+                      ) ?? valuation.preDeprecation) /
+                        (valuation.count || 1)
                     ).toLocaleString()}
                   </dd>
                   {revaluation && (

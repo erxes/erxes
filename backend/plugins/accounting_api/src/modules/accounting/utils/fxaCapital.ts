@@ -37,7 +37,27 @@ const buildFxaCapitalAssetDocuments = (
   if (rules.originalCost === undefined || !rules.annualDepreciationRate) {
     throw new Error('Enter new unit cost and remaining useful life.');
   }
-  const targetDepreciation = info.preDeprecation ?? valuation.preDeprecation;
+  const enteredDepreciation = doc.details.filter(
+    (detail) => detail.followInfos?.preDeprecation !== undefined,
+  );
+  const totalDepreciation = enteredDepreciation.length
+    ? enteredDepreciation.reduce(
+        (sum, detail) => sum + (detail.followInfos?.preDeprecation ?? 0),
+        0,
+      )
+    : valuation.preDeprecation;
+  if (
+    enteredDepreciation.some(
+      (detail) =>
+        !Number.isFinite(detail.followInfos?.preDeprecation) ||
+        (detail.followInfos?.preDeprecation ?? 0) < 0,
+    )
+  )
+    throw new Error(
+      'Total accumulated depreciation must be a nonnegative finite amount.',
+    );
+  const targetDepreciation = totalDepreciation / valuation.count;
+  let allocatedDepreciation = 0;
   const salvageValue = rules.salvageValue ?? valuation.salvageValue;
   if (
     !Number.isFinite(targetDepreciation) ||
@@ -50,7 +70,8 @@ const buildFxaCapitalAssetDocuments = (
   }
   const targetCost = rules.originalCost;
   const costDelta = targetCost - valuation.originalCost;
-  const depreciationDelta = targetDepreciation - valuation.preDeprecation;
+  const depreciationDelta =
+    targetDepreciation - valuation.preDeprecation / valuation.count;
   const side = costDelta < 0 ? TR_SIDES.CREDIT : TR_SIDES.DEBIT;
   const date = fxaCapitalDate(doc.date);
   const revaluation = doc.journal === JOURNALS.FXA_REVALUATION;
@@ -69,6 +90,12 @@ const buildFxaCapitalAssetDocuments = (
           ? candidateId
           : undefined;
       if (detailId) usedDetailIds.add(detailId);
+      const locationDepreciation = roundMoney(
+        index === valuation.locations.length - 1
+          ? totalDepreciation - allocatedDepreciation
+          : targetDepreciation * location.count,
+      );
+      allocatedDepreciation += locationDepreciation;
       return {
         _id: detailId,
         fixedAssetId: valuation.fixedAssetId,
@@ -88,7 +115,7 @@ const buildFxaCapitalAssetDocuments = (
             targetCost - targetDepreciation - salvageValue,
             0,
           ),
-          preDeprecation: targetDepreciation,
+          preDeprecation: locationDepreciation,
           ...(revaluation
             ? {
                 ...allocateFxaRevaluation(

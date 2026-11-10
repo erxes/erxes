@@ -140,7 +140,7 @@ const valuation: TFxaCapitalValuation = {
   depreciationAccountId: 'dep-account',
   count: 3,
   originalCost: 30,
-  preDeprecation: 8,
+  preDeprecation: 24,
   annualDepreciationRate: 20,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -161,7 +161,7 @@ const valuation: TFxaCapitalValuation = {
 test('revaluation allocation uses the net cost/depreciation change across locations', () => {
   const doc = entry(JOURNALS.FXA_REVALUATION, '2026-02-01', 0, {
     originalCost: 37,
-    preDeprecation: 9,
+    preDeprecation: 27,
     annualDepreciationRate: 20,
   });
   const { main, follows } = buildFxaCapitalDocuments(doc, valuation);
@@ -193,7 +193,9 @@ test.each(['revaluationLoss', 'revaluationReserve'] as const)(
     const doc = entry(JOURNALS.FXA_INCOME, '2026-01-01', 1, { [field]: -1 });
     await expect(
       validateFxaIncomeAcquisition({} as IModels, 'user', doc),
-    ).rejects.toThrow('Opening revaluation balances');
+    ).rejects.toThrow(
+      'Opening accumulated depreciation and revaluation balances',
+    );
   },
 );
 

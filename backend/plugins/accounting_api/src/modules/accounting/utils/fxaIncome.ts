@@ -39,12 +39,6 @@ type TFixedAssetAccountConfig = {
 
 const FIXED_ASSET_ACCOUNTS_CODE = 'FIXEDASSET_ACCOUNTS';
 
-const addDays = (date: Date, days: number) => {
-  const next = new Date(date);
-  next.setDate(next.getDate() + days);
-  return next;
-};
-
 const getAccountConfigs = async (models: IModels) => {
   const configs = await models.Configs.getConfigs(FIXED_ASSET_ACCOUNTS_CODE);
   const map = new Map<string, TFixedAssetAccountConfig>();
@@ -359,7 +353,6 @@ const syncOpeningAccumulatedDepreciation = async ({
   transaction: ITransactionDocument;
   userId: string;
 }) => {
-  const openingDate = addDays(date, -1);
   const accountConfigs = await getAccountConfigs(models);
   const oldOpeningDepTr = await cleanFxaFollowTr(
     models,
@@ -380,7 +373,6 @@ const syncOpeningAccumulatedDepreciation = async ({
         return;
       }
 
-      const count = Math.max(1, Math.trunc(input.count || detail.count || 1));
       const depreciationAccountId = accountConfigs.get(
         detail.accountId || '',
       )?.depreciationAccountId;
@@ -392,7 +384,7 @@ const syncOpeningAccumulatedDepreciation = async ({
       const oldDetail = oldOpeningDepTr?.details.find(
         (item) => item.originId === input.transactionDetailId,
       );
-      const amount = fixNum(preDeprecation * count);
+      const amount = fixNum(preDeprecation);
 
       return {
         ...oldDetail,
@@ -402,8 +394,8 @@ const syncOpeningAccumulatedDepreciation = async ({
         accountId: depreciationAccountId,
         branchId: detail.branchId || transaction.branchId,
         departmentId: detail.departmentId || transaction.departmentId,
-        count: 1,
-        unitPrice: amount,
+        count: 0,
+        unitPrice: 0,
         amount,
       } as ITrDetail;
     })
@@ -422,7 +414,7 @@ const syncOpeningAccumulatedDepreciation = async ({
     ptrId: transaction.ptrId || oldOpeningDepTr?.ptrId || nanoid(),
     parentId: transaction.parentId,
     number: transaction.number,
-    date: openingDate,
+    date,
     description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
     status: transaction.status,
     mentionOwnerId: transaction.mentionOwnerId,
@@ -650,13 +642,26 @@ export const validateFxaIncomeAcquisition = async (
   transaction: ITransaction,
 ): Promise<void> => {
   for (const detail of transaction.details || []) {
-    for (const field of ['revaluationLoss', 'revaluationReserve'] as const) {
+    for (const field of [
+      'preDeprecation',
+      'revaluationLoss',
+      'revaluationReserve',
+    ] as const) {
       const value = detail.followInfos?.[field];
       if (value !== undefined && (!Number.isFinite(value) || value < 0))
         throw new Error(
-          'Opening revaluation balances must be nonnegative finite amounts.',
+          'Opening accumulated depreciation and revaluation balances must be nonnegative finite totals.',
         );
     }
+    const info = detail.followInfos || {};
+    if ((info.revaluationLoss || 0) > 0 && (info.revaluationReserve || 0) > 0)
+      throw new Error('Enter either total revaluation loss or reserve.');
+    const count = Math.max(0, detail.count || 0);
+    const unitCost = detail.unitPrice ?? (count ? detail.amount / count : 0);
+    if ((info.preDeprecation || 0) > unitCost * count + 0.005)
+      throw new Error(
+        'Total accumulated depreciation cannot exceed acquisition cost.',
+      );
   }
   if ((transaction.details || []).some((detail) => (detail.count || 0) > 0)) {
     await prepareFxaIncomeAcquisition(models, userId, transaction);

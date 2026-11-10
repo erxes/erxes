@@ -215,7 +215,7 @@ test.each([
       method,
       transactions: [
         entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
-        entry(JOURNALS.FXA_DEP_IN, '2025-12-31', 20),
+        entry(JOURNALS.FXA_DEP_IN, '2026-01-01', 20),
       ],
     });
     const [detail] = await fixture.run('2026-01-01');
@@ -264,7 +264,7 @@ test('uses previous posted depreciation once and applies subsequent credit/debit
     priorDepreciation: 20,
     transactions: [
       entry(JOURNALS.FXA_INCOME, '2026-01-01', 100),
-      entry(JOURNALS.FXA_DEP_IN, '2025-12-31', 20),
+      entry(JOURNALS.FXA_DEP_IN, '2026-01-01', 20),
       entry(JOURNALS.FXA_DEP, '2026-01-02T15:00:00Z', 10),
       expense,
       own,
@@ -649,4 +649,18 @@ test('a zero-depreciation period closes its snapshots without creating a zero jo
   });
   expect(result).toMatchObject({ status: ADJ_FXA_STATUSES.COMPLETE });
   expect(create).not.toHaveBeenCalled();
+});
+
+test('adjustment carries a total depreciation amount once across multiple units', async () => {
+  const fixture = setup({
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 300, TR_SIDES.DEBIT, 3),
+      entry(JOURNALS.FXA_DEP_IN, '2026-01-01', 60, TR_SIDES.CREDIT, 0),
+    ],
+  });
+  const [detail] = await fixture.run('2026-01-01');
+  expect(detail.count).toBe(3);
+  expect(detail.originalCost).toBe(300);
+  expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(60 + 3 / 31, 8);
 });

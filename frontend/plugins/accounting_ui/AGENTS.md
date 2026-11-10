@@ -6,7 +6,7 @@
 - **Project:** `accounting_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/accounting_ui`
-- **Last synchronized:** `2026-11-10`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -27,7 +27,7 @@
 - Fixed asset income keeps category/code/name acquisition entry in detail `followInfos.fixedAssetCategoryId`/`fixedAssetCode`/`fixedAssetName`; detail root keeps only the `fixedAssetId` reference, and income validation requires all three metadata fields. its row sheet edits frozen book/tax depreciation rules and optional custodian allocations. Settings fixed asset forms edit identity metadata only; financial values are derived API projections.
 - Non-income asset rows and bulk-add actions use `settings/fixed-assets/components/chooser/FixedAssetChooser`. It has exactly two levels: assets and branch/department locations, with search/category/location/member filters, pagination and loading/error/empty states. Existing row/header location supplies initial filters. Clicking an asset group adds its matching location choices, while leaf rows select one location. Custodians and serial allocations are managed through the transaction detail’s existing more-menu sheet, not as chooser rows or columns. Selected rows are excluded from available results and collect in a separate lower section; clicking them removes the pending choice. Selections survive filter/page changes. Branch and department have separate columns rendered by the public `BranchBadge`/`DepartmentBadge` in plain-text mode (id detail lookup), and asset labels stay compact on one line. Operational row choosers support multiple choices and insert one detail per choice; capitalization and revaluation keep one choice per asset. Choosing a location fills row branch/department and clamps quantity. Sale keeps its entered price and revenue account. Capitalization selects the asset across every location.
 
-- The fixed asset add menu offers `Капиталжуулалт / Залруулга` (`fxaCapital`) for multiple assets per journal. `FxaChangeTable.tsx` and its rows load dated valuations, show prior unit cost/depreciation and quantity, capture new unit cost, unit accumulated depreciation (including zero), residual value, automatic method and new useful years, and preview only cost/depreciation entries in TBalance. There is no counterpart-account field or source `capitalAccountId`; accountants add ordinary transaction tabs to close the combined remaining difference. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
+- The fixed asset add menu offers `Капиталжуулалт / Залруулга` (`fxaCapital`) for multiple assets per journal. `FxaChangeTable.tsx` and its rows load dated valuations, show prior unit cost/depreciation and quantity, capture new unit cost, total accumulated depreciation (including zero), with a derived editable unit helper, residual value, automatic method and new useful years, and preview only cost/depreciation entries in TBalance. There is no counterpart-account field or source `capitalAccountId`; accountants add ordinary transaction tabs to close the combined remaining difference. Useful years convert to the canonical annual rate. Existing acquisition master data remains unchanged.
 
 - The fixed asset add-transaction menu includes `Дахин үнэлгээ` (`fxaRevaluation`), using `FxaChangeTable`/`FxaChangeRow` and the dated valuation preview shared with capitalization. `TransactionTabs` renders the table directly for both journals; no journal-specific wrapper components are needed. Both operate on all asset locations. Revaluation sheets show the prior loss/reserve limits and aggregate recovery, reserve usage, new loss and new reserve across that asset’s locations. Capitalization includes current-period corrections without valuation-limit allocation. There is no separate correction journal or subtype selector.
 
@@ -232,6 +232,16 @@
 
 ## Local Invariants
 
+- Income detail sheets hide tax method, derived useful years, annual percentage and residual value behind a local “Татварын тооцоо” (`tax-calculation`) switch, initially off. The switch controls visibility only; mounted fields and their stored values remain intact when hidden.
+
+- Transaction detail sheets display useful years alongside the canonical annual depreciation percentage through `FxaChangeLifeFields`: book and tax on income, book on capital/revaluation. Both controls edit the same annual-rate field; years remain derived, with no second persisted value.
+
+- The income detail sheet uses three columns: book method/life/residual, tax method/life/residual, unit depreciation/total depreciation/start date, then total loss/reserve. Quantity is emphasized in the header summary instead of a separate sheet input.
+
+- Depreciation helper edits update individual `details.<index>.followInfos.preDeprecation` fields, never replace the detail array: `useFieldArray` replacement remounts rows and closes their open sheets. Derived unit depreciation uses a native-change `Input` so masked-input initialization cannot round and rewrite the authoritative total.
+
+- `Form.Label`, `Form.Control`, and `Form.Message` require an enclosing `Form.Field`. Derived inputs without a registered field (such as unit depreciation in `FxaDepreciationFields`) use the public `Label` with an input id instead.
+
 - Keep financial fields out of fixed asset master mutation inputs and settings forms. Income detail `followInfos` owns frozen book/tax method, annual rate, residual and depreciation start date. Apply category defaults on explicit category selection only, preserving saved snapshots on load/refetch.
 - Chooser unassigned-location selection must materialize sibling inherited locations before clearing header defaults, so other rows keep their location. Preserve explicit zero depreciation for unchanged sources, clear stale overrides when asset/location changes, and never infer a location for unlinked owner records.
 
@@ -397,7 +407,7 @@
 - Fixed asset disposal, move, and sale row count limits must be driven by `fixedAssetLocationRemainder` using the row fixed asset, row branch/department, form date, and current transaction id exclusion.
 - Loading or refetching a fixed asset location remainder must not mutate an existing transaction detail count; apply the limit only when the user changes the count.
 - Fixed asset disposal preview hooks must never rebuild saved main or follow rows from master-data queries; tab and T-balance remounts must leave Mongo-backed amounts, counts, sides, and generated `fxaDepOut` rows unchanged.
-- Fixed asset income, out, movement, and sale forms preserve nonnegative unit accumulated depreciation in `details[].followInfos.preDeprecation`, including explicit zero. Quantity edits leave the unit value unchanged; preview/backend follow amounts multiply it by count. Changing the selected disposal asset clears its old unit override, while mount/refetch does not rewrite it. Do not introduce a second detail depreciation field or root summary array.
+- Fixed asset detail `followInfos.preDeprecation` is authoritative total accumulated depreciation, including explicit zero; never multiply a supplied total by quantity. UI unit depreciation is derived as total/count; editing unit recomputes total, editing quantity preserves total. Capital/revaluation detail totals sum across active asset locations. Generated `fxaDep`, `fxaDepIn`, and `fxaDepOut` rows have count and unitPrice zero. Opening revaluationLoss/revaluationReserve are totals and mutually exclusive.
 - Fixed asset disposal, move, and sale owner-record selection is optional per detail; when users select owner balance rows, the selected owner counts must not exceed the detail count and are saved through `extraData.fxaOwnerRecords` with `ownerId`.
 - Fixed asset navigation should show the operational owner-record list and fixed asset remainder page; fixed asset master data remains under settings and internal movement remains an add-transaction action.
 - Fixed asset category annual depreciation percentage is canonical in saved data; useful years are displayed and editable only as a derived helper rounded to two decimals.

@@ -619,10 +619,9 @@ const fixedAssets = {
           ...rules,
           originalCost: valuation.originalCost,
           currentCount: valuation.count,
-          accumulatedDepreciation: valuation.preDeprecation * valuation.count,
+          accumulatedDepreciation: valuation.preDeprecation,
           bookValue:
-            (valuation.originalCost - valuation.preDeprecation) *
-            valuation.count,
+            valuation.originalCost * valuation.count - valuation.preDeprecation,
         };
       }),
     );

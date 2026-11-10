@@ -39,7 +39,7 @@ const valuation: TFxaCapitalValuation = {
   depreciationAccountId: 'dep-account',
   count: 3,
   originalCost: 100,
-  preDeprecation: 30,
+  preDeprecation: 90,
   annualDepreciationRate: 10,
   depreciationMethod: 'straightLine',
   salvageValue: 0,
@@ -66,7 +66,7 @@ const document = (): ITransaction => ({
       followInfos: {
         originalCost: 150,
         annualDepreciationRate: 20,
-        preDeprecation: 40,
+        preDeprecation: 120,
       },
     },
   ],
@@ -109,7 +109,7 @@ test('renovation writes only asset and depreciation entries for an accountant to
   expect(main.details.every((row) => row.count === 0)).toBe(true);
   expect(main.details[0].followInfos).toMatchObject({
     originalCost: 150,
-    preDeprecation: 40,
+    preDeprecation: 80,
     depreciationBase: 110,
   });
   expect(
@@ -153,7 +153,7 @@ test('rule-only renewal requires no financial follow rows', () => {
   const doc = document();
   doc.details[0].followInfos = {
     originalCost: 100,
-    preDeprecation: 30,
+    preDeprecation: 90,
     annualDepreciationRate: 20,
   };
   const result = buildFxaCapitalDocuments(doc, valuation);
@@ -166,7 +166,7 @@ test('new accumulated depreciation and residual value cannot exceed the new cost
   doc.details[0].followInfos = {
     originalCost: 50,
     annualDepreciationRate: 20,
-    preDeprecation: 45,
+    preDeprecation: 135,
     salvageValue: 10,
   };
   expect(() => buildFxaCapitalDocuments(doc, valuation)).toThrow(
@@ -268,7 +268,10 @@ test('editing removes obsolete depreciation follows', async () => {
     ...first.mainTr,
     details: first.mainTr.details.map((row) => ({
       ...row,
-      followInfos: { ...row.followInfos, preDeprecation: 20 },
+      followInfos: {
+        ...row.followInfos,
+        preDeprecation: row.branchId === 'a' ? 40 : 20,
+      },
     })),
   };
   const second = await saveFxaCapital(
@@ -359,7 +362,7 @@ test('batch capitalization keeps independent asset rules and merges depreciation
   ]);
   doc.details[1].followInfos = {
     ...doc.details[1].followInfos,
-    preDeprecation: 40,
+    preDeprecation: 120,
   };
   const merged = buildFxaCapitalDocuments(doc, [valuation, second]);
   expect(merged.follows).toHaveLength(1);

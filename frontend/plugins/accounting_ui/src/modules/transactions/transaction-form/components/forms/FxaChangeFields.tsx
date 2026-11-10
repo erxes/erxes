@@ -42,6 +42,10 @@ export const FxaChangeNumberField = ({
   usefulYears?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
+  const fieldLabel =
+    rule === 'revaluationLoss' || rule === 'revaluationReserve'
+      ? `${t('total-amount')} ${t(label)}`
+      : t(label);
   return (
     <Form.Field
       control={form.control}
@@ -53,10 +57,12 @@ export const FxaChangeNumberField = ({
         const input = (
           <Input
             type="number"
-            aria-label={t(label)}
+            aria-label={fieldLabel}
             min={usefulYears ? 1 : 0}
             max={
-              rule === 'annualDepreciationRate' && !usefulYears
+              (rule === 'annualDepreciationRate' ||
+                rule === 'taxAnnualDepreciationRate') &&
+              !usefulYears
                 ? 100
                 : undefined
             }
@@ -71,19 +77,33 @@ export const FxaChangeNumberField = ({
                   : Number(entered);
               }
               field.onChange(nextValue);
+              if (
+                (nextValue || 0) > 0 &&
+                (rule === 'revaluationLoss' || rule === 'revaluationReserve')
+              ) {
+                const opposite =
+                  rule === 'revaluationLoss'
+                    ? 'revaluationReserve'
+                    : 'revaluationLoss';
+                form.setValue(
+                  `trDocs.${index}.details.${detailIndex}.followInfos.${opposite}`,
+                  0,
+                  { shouldDirty: true, shouldValidate: true },
+                );
+              }
             }}
           />
         );
         return (
           <Form.Item className={compact ? 'min-w-0' : 'min-w-32'}>
-            {!compact && <Form.Label>{t(label)}</Form.Label>}
+            {!compact && <Form.Label>{fieldLabel}</Form.Label>}
             {compact ? (
               <PopoverScoped
                 scope={`trDocs.${index}.details.${detailIndex}.followInfos.${rule}`}
                 closeOnEnter
               >
                 <Form.Control>
-                  <RecordTableInlineCell.Trigger aria-label={t(label)}>
+                  <RecordTableInlineCell.Trigger aria-label={fieldLabel}>
                     {value?.toLocaleString() ?? '-'}
                   </RecordTableInlineCell.Trigger>
                 </Form.Control>
@@ -101,6 +121,25 @@ export const FxaChangeNumberField = ({
     />
   );
 };
+
+export const FxaChangeLifeFields = ({
+  tax = false,
+  ...props
+}: IFxaChangeFieldProps & { tax?: boolean }) => (
+  <div className="grid grid-cols-2 gap-3">
+    <FxaChangeNumberField
+      {...props}
+      rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
+      label={tax ? 'tax-useful-life' : 'useful-life-in-years'}
+      usefulYears
+    />
+    <FxaChangeNumberField
+      {...props}
+      rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
+      label={tax ? 'annual-tax-depreciation-rate' : 'annual-depreciation-rate'}
+    />
+  </div>
+);
 
 export const FxaChangeMethodField = ({
   form,

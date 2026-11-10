@@ -1,3 +1,7 @@
+import {
+  allocateFxaDepreciation,
+  getTotalFxaDepreciation,
+} from '@/transactions/transaction-form/components/helpers/fxaDepreciation';
 import type { ResultOf } from '@graphql-typed-document-node/core';
 import { FXA_CAPITAL_VALUATION } from '@/transactions/transaction-form/graphql/queries/fxaCapitalValuation';
 import { TTrDoc } from '@/transactions/transaction-form/types/JournalForms';
@@ -46,8 +50,13 @@ const buildFxaCapitalAssetPreview = (
   const sourceDetails: ITrDetail[] = trDoc.details;
   const costDelta = info.originalCost - valuation.originalCost;
   const depreciationDelta =
-    (info.preDeprecation ?? valuation.preDeprecation) -
-    valuation.preDeprecation;
+    ((getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation) -
+      valuation.preDeprecation) /
+    valuation.count;
+  const locationDepreciation = allocateFxaDepreciation(
+    getTotalFxaDepreciation(trDoc.details) ?? valuation.preDeprecation,
+    valuation.locations.map((location) => location.count),
+  );
   const round = (amount: number) =>
     Math.round(Math.abs(amount) * 10000) / 10000;
   const hasSavedLocation = trDoc.details.some((row) =>
@@ -84,6 +93,7 @@ const buildFxaCapitalAssetPreview = (
     amount: round(costDelta * location.count),
     followInfos: {
       ...info,
+      preDeprecation: locationDepreciation[index],
       revaluationLoss: undefined,
       revaluationReserve: undefined,
       ...(revaluation

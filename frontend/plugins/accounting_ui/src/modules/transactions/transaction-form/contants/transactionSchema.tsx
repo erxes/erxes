@@ -645,31 +645,17 @@ export const transactionFxaCapitalSchema = z.object({
       baseTrDetailSchema.extend({
         fixedAssetId: z.string().min(1),
         count: z.literal(0),
-        followInfos: transactionDetailFollowInfoSchema
-          .extend({
-            originalCost: undefed(z.number().finite().nonnegative()).refine(
-              (value): boolean => value !== undefined,
-              () => ({
-                message: getI18n().t('Required', { ns: 'accounting' }),
-              }),
-            ),
-            annualDepreciationRate: z.number().finite().positive().max(100),
-            preDeprecation: undefed(z.number().finite().nonnegative()),
-            salvageValue: undefed(z.number().finite().nonnegative()),
-          })
-          .refine(
-            (info) =>
-              info.originalCost === undefined ||
-              (info.preDeprecation ?? 0) + (info.salvageValue ?? 0) <=
-              info.originalCost,
+        followInfos: transactionDetailFollowInfoSchema.extend({
+          originalCost: undefed(z.number().finite().nonnegative()).refine(
+            (value): boolean => value !== undefined,
             () => ({
-              path: ['preDeprecation'],
-              message: getI18n().t(
-                'Accumulated depreciation and residual value cannot exceed cost',
-                { ns: 'accounting' },
-              ),
+              message: getI18n().t('Required', { ns: 'accounting' }),
             }),
           ),
+          annualDepreciationRate: z.number().finite().positive().max(100),
+          preDeprecation: undefed(z.number().finite().nonnegative()),
+          salvageValue: undefed(z.number().finite().nonnegative()),
+        }),
       }),
     )
     .min(1),

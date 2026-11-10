@@ -39,7 +39,7 @@ beforeEach(() => {
     depreciationAccountId: 'acc-dep-account',
     count: 4,
     originalCost: 500,
-    preDeprecation: 50,
+    preDeprecation: 200,
     annualDepreciationRate: 12,
     depreciationMethod: 'straightLine',
     salvageValue: 0,
@@ -86,7 +86,7 @@ const makeIncomeTransaction = (overrides: Record<string, unknown> = {}) => ({
         fixedAssetCode: 'DELL-001',
         fixedAssetName: 'Dell laptop',
         salvageValue: 50,
-        preDeprecation: 20,
+        preDeprecation: 60,
       },
     },
   ],
@@ -271,7 +271,7 @@ describe('fixed asset income', () => {
             fixedAssetCode: 'DELL-001',
             fixedAssetName: 'Dell laptop',
             salvageValue: 50,
-            preDeprecation: 20,
+            preDeprecation: 60,
           },
         },
       ],
@@ -291,6 +291,7 @@ describe('fixed asset income', () => {
     expect(models.Transactions.createTransaction).toHaveBeenCalledWith(
       expect.objectContaining({
         journal: JOURNALS.FXA_DEP_IN,
+        date: transaction.date,
         originType: TR_FOLLOW_TYPES.FXA_DEP_IN,
         details: [
           expect.objectContaining({
@@ -354,7 +355,7 @@ describe('fixed asset income', () => {
             {
               transactionDetailId: 'detail-income',
               salvageValue: legacyValue,
-              preDeprecation: 20,
+              preDeprecation: 60,
             },
           ],
         },
@@ -1053,7 +1054,7 @@ describe('fixed asset move follow transaction', () => {
     );
   });
 
-  it('multiplies detail unit preDeprecation for internal move follows', async () => {
+  it('uses detail total preDeprecation for internal move follows', async () => {
     const models = makeModels();
     const transaction = {
       _id: 'move-a',
@@ -1073,7 +1074,7 @@ describe('fixed asset move follow transaction', () => {
       details: [
         {
           _id: 'detail-move',
-          followInfos: { preDeprecation: 245000 },
+          followInfos: { preDeprecation: 490000 },
           fixedAssetId: 'asset-a',
           accountId: 'asset-account',
           count: 2,
@@ -1117,7 +1118,7 @@ describe('fixed asset move follow transaction', () => {
           details: [
             expect.objectContaining({
               amount: 490000,
-              unitPrice: 245000,
+              unitPrice: 0,
               branchId: 'source-branch',
             }),
           ],
@@ -1130,7 +1131,7 @@ describe('fixed asset move follow transaction', () => {
           details: [
             expect.objectContaining({
               amount: 490000,
-              unitPrice: 245000,
+              unitPrice: 0,
               branchId: 'dest-branch',
             }),
           ],
@@ -1498,7 +1499,7 @@ describe('fixed asset adjustment', () => {
 
 describe('fixed asset sale and disposal summaries', () => {
   it.each([-1, NaN, Infinity])(
-    'rejects invalid unit preDeprecation %s',
+    'rejects invalid total preDeprecation %s',
     async (value) => {
       const models = makeModels();
       await expect(
@@ -1515,12 +1516,12 @@ describe('fixed asset sale and disposal summaries', () => {
             ],
           } as never,
         ),
-      ).rejects.toThrow('Fixed asset unit depreciation must be nonnegative');
+      ).rejects.toThrow('Fixed asset total depreciation must be nonnegative');
     },
   );
 
   it.each([0, 25])(
-    'uses explicit unit preDeprecation %s for each same-asset row',
+    'uses explicit total preDeprecation %s for each same-asset row',
     async (amount) => {
       const models = makeModels();
       models.FixedAssets.find.mockReturnValue(
@@ -1549,8 +1550,8 @@ describe('fixed asset sale and disposal summaries', () => {
         } as never,
       );
       expect(summaries.map((row) => row.accumulatedDepreciation)).toEqual([
-        amount * 2,
-        30,
+        amount,
+        10,
       ]);
     },
   );

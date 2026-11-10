@@ -149,7 +149,7 @@ export const getFxaCapitalValuation = async (
     depreciationAccountId,
     count,
     originalCost: rules.originalCost ?? asset.originalCost ?? 0,
-    preDeprecation: count > 0 ? accumulated / count : 0,
+    preDeprecation: accumulated,
     taxDepreciationMethod:
       rules.taxDepreciationMethod || asset.taxDepreciationMethod,
     taxAnnualDepreciationRate:

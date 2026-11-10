@@ -56,10 +56,11 @@ const buildFxaDisposalFollowDetails = ({
         originType,
         fixedAssetId: summary.fixedAssetId,
         accountId: accountId || '',
-        count: summary.count,
-        unitPrice: summary.count
-          ? fixNum(summary[amountKey] / summary.count)
-          : 0,
+        count: amountKey === 'accumulatedDepreciation' ? 0 : summary.count,
+        unitPrice:
+          amountKey !== 'accumulatedDepreciation' && summary.count
+            ? fixNum(summary[amountKey] / summary.count)
+            : 0,
         amount: summary[amountKey],
       } as ITrDetail;
     });

@@ -46,9 +46,9 @@ export const buildFxaDisposalPreviewSummaries = (
       const perUnitAccumulated = currentCount
         ? (fixedAsset?.accumulatedDepreciation || 0) / currentCount
         : 0;
-      const unitDepreciation =
-        detail.followInfos?.preDeprecation ?? perUnitAccumulated;
-      const accumulatedDepreciation = fixNum(unitDepreciation * count);
+      const accumulatedDepreciation = fixNum(
+        detail.followInfos?.preDeprecation ?? perUnitAccumulated * count,
+      );
       let bookValue = fixNum(
         fixedAsset?.bookValue
           ? (fixedAsset.bookValue / (currentCount || count || 1)) * count
@@ -130,10 +130,11 @@ const buildFollowDetails = ({
           originType,
           fixedAssetId: summary.fixedAssetId,
           accountId: accountId || '',
-          count: summary.count,
-          unitPrice: summary.count
-            ? fixNum(summary[amountKey] / summary.count)
-            : 0,
+          count: amountKey === 'accumulatedDepreciation' ? 0 : summary.count,
+          unitPrice:
+            amountKey !== 'accumulatedDepreciation' && summary.count
+              ? fixNum(summary[amountKey] / summary.count)
+              : 0,
           amount: summary[amountKey],
         } as ITrDetail),
     );
@@ -198,7 +199,12 @@ export const useFxaDisposalFollowTrs = ({
     [trDoc?.details],
   );
   const { data: queryData, loading } = useQuery(FIXED_ASSETS_QUERY, {
-    variables: { ids: fixedAssetIds, limit: fixedAssetIds.length, date, excludeTransactionId: trDoc?.parentId ? trDoc._id : undefined },
+    variables: {
+      ids: fixedAssetIds,
+      limit: fixedAssetIds.length,
+      date,
+      excludeTransactionId: trDoc?.parentId ? trDoc._id : undefined,
+    },
     skip: !fixedAssetIds.length,
   });
   const data = toGraphqlView(queryData);

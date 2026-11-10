@@ -1,5 +1,4 @@
 import { nanoid } from 'nanoid';
-import { fixNum } from 'erxes-api-shared/utils';
 import { IModels } from '~/connectionResolvers';
 import {
   JOURNALS,
@@ -161,10 +160,8 @@ const buildFxaMoveDepreciationDetails = ({
         accountId: accountId || '',
         branchId,
         departmentId,
-        count: summary.count,
-        unitPrice: summary.count
-          ? fixNum(summary.accumulatedDepreciation / summary.count)
-          : 0,
+        count: 0,
+        unitPrice: 0,
         amount: summary.accumulatedDepreciation,
       } as ITrDetail;
     });
