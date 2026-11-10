@@ -9,7 +9,6 @@
     "build": {
       "inputs": [
         "production",
-        "{workspaceRoot}/frontend/core-ui/src/styles.css",
         "{workspaceRoot}/pnpm-lock.yaml"
       ],
       "outputs": ["{projectRoot}/dist"]

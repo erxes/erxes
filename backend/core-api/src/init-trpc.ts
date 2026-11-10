@@ -24,6 +24,7 @@ import { permissionTrpcRouter } from './modules/permissions/trpc/permission';
 import { documentTrpcRouter } from '~/modules/documents/trpc/document';
 import { approvalTrpcRouter } from './modules/approval/trpc/approval';
 import { dataExtensionsTrpcRouter } from '~/modules/data-extensions/trpc/dataExtensions';
+import { organizationTrpcRouter } from '@/organization/identity/trpc';
 
 export type CoreTRPCContext = ITRPCContext<{
   models: IModels;
@@ -66,6 +67,7 @@ export const appRouter = t.mergeRouters(
   approvalTrpcRouter,
   documentTrpcRouter,
   dataExtensionsTrpcRouter,
+  organizationTrpcRouter,
 );
 
 export type AppRouter = typeof appRouter;

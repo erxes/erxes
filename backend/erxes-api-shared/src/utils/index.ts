@@ -26,3 +26,4 @@ export * from './editor';
 export * from './errorClassifier';
 export * from './sentry-init';
 export * from './email';
+export * from './erxes-oauth';

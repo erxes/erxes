@@ -118,6 +118,7 @@ const poscLoyaltyPreview = gql`
         percent
         unitPrice
         title
+        reasons
       }
       bonuses {
         productId
@@ -152,8 +153,33 @@ const poscLoyaltyEarnPreview = gql`
   }
 `
 
+const poscPricingSchedule = gql`
+  query poscPricingSchedule(
+    $productIds: [String!]!
+    $customerId: String
+    $orderId: String
+  ) {
+    poscPricingSchedule(
+      productIds: $productIds
+      customerId: $customerId
+      orderId: $orderId
+    ) {
+      planId
+      planName
+      scheduleMoment
+      active
+      matchedMoment
+      window
+      endsAt
+      startsAt
+      endedAt
+    }
+  }
+`
+
 const queries = {
   poscCouponCheck,
+  poscPricingSchedule,
   poscLoyaltyEarnPreview,
   poscLoyaltyPreview,
   poscCustomerDetail,

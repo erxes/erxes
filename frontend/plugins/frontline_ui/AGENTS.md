@@ -6,7 +6,7 @@
 - **Project:** `frontline_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/frontline_ui`
-- **Last synchronized:** `2026-11-06`
+- **Last synchronized:** `2026-11-09`
 
 ## Scope
 
@@ -291,6 +291,11 @@
 - The incoming-call popup reads `Incoming call to <integration name>`, naming
   the inbox integration `callAddCustomer` matched for the call's queue, not the
   integration's channel.
+- A ringing call that another operator answers is not a missed call for the
+  operators who only rang. `SipProvider` skips the `missed-call` toast when the
+  PBX cancels the ring with a `Reason` header saying the call was completed
+  elsewhere (`isCallCompletedElsewhere`), and the widget's call history lists
+  only what `callHistories` returns, which leaves those calls out.
 - Each call integration row's switch is independent: any number can be on at
   once and turning one on never turns another off. `Call from` in the dialpad
   lists exactly the integrations switched on, labelled by integration name
