@@ -10,6 +10,7 @@ import { getSocialLinkKey } from '~/modules/form/utils';
 import { ILink } from '~/modules/inbox/@types/integrations';
 import { createConversationAndMessage } from '~/modules/inbox/trpc/inbox';
 import { sendFormSubmittedTrigger } from '~/modules/form/meta/automation/workers';
+import { readFormLink, type TFormLink } from '~/modules/form/formLink';
 // helpers
 
 type SchemaLabel = {
@@ -111,18 +112,40 @@ function isCustomField(type: string): boolean {
   ].includes(type);
 }
 
+type TLeadSubmission = {
+  _id: string;
+  value?: unknown;
+  validation?: string;
+};
+
+const isDuplicateKeyError = (error: unknown) =>
+  (error as { code?: number })?.code === 11000;
+
 async function saveFormSubmissions(
   models: IModels,
-  { submissions, formId, customerId, conversationId },
+  {
+    submissions,
+    formId,
+    customerId,
+    conversationId,
+    link,
+  }: {
+    submissions: TLeadSubmission[];
+    formId: string;
+    customerId: string;
+    conversationId?: string;
+    link?: TFormLink | null;
+  },
   guard: FormSubmissionGuard,
 ) {
   const groupId = nanoid();
-  const submissionDocs = submissions.map((submission) => {
-    let value = submission.value || '';
+  const submissionDocs = submissions.map((submission, index) => {
+    let value: unknown = submission.value || '';
     if (submission.validation === 'number') value = Number(submission.value);
-    if (['datetime', 'date'].includes(submission.validation))
-      value = new Date(submission.value);
-    if (submission.validation === 'email') value = value.toLowerCase();
+    if (submission.validation === 'datetime' || submission.validation === 'date')
+      value = new Date(submission.value as string | number);
+    if (submission.validation === 'email' && typeof value === 'string')
+      value = value.toLowerCase();
 
     return {
       formFieldId: submission._id,
@@ -132,6 +155,9 @@ async function saveFormSubmissions(
       contentType: 'lead',
       conversationId: conversationId || undefined,
       groupId,
+      aboutRecord: link?.aboutRecord,
+      // One row carries the link: its unique index admits one answer per link.
+      linkId: index === 0 ? link?.linkId : undefined,
     };
   });
 
@@ -255,10 +281,26 @@ export const widgetFormMutation: Record<
       submissions: any;
       browserInfo: any;
       cachedCustomerId?: string;
+      linkToken?: string;
     },
     { models, subdomain }: IContext,
   ) {
     const { submissions, formId } = args;
+    const link = readFormLink(args.linkToken, formId);
+
+    if (args.linkToken && !link) {
+      return {
+        status: 'error',
+        errors: [{ code: 'linkInvalid', text: 'This link has expired or is invalid' }],
+      };
+    }
+
+    if (
+      link &&
+      (await models.FormSubmissions.exists({ linkId: link.linkId }))
+    ) {
+      return { status: 'alreadySubmitted' };
+    }
 
     return withFormSubmissionGuard(models, formId, async (guard) => {
       const form = await models.Forms.getForm(formId);
@@ -365,7 +407,10 @@ export const widgetFormMutation: Record<
 
       const { saveAsCustomer } = form.leadData || {};
 
-      if (saveAsCustomer) {
+      if (link?.customerId) {
+        // The link names who answers; the browser's guess does not count.
+        customerQry = { _id: link.customerId };
+      } else if (saveAsCustomer) {
         if (args.cachedCustomerId) {
           customerQry = { _id: args.cachedCustomerId };
         } else if (customerDoc.email) {
@@ -377,7 +422,7 @@ export const widgetFormMutation: Record<
         }
       }
 
-      if (form.leadData?.clearCacheAfterSave) {
+      if (form.leadData?.clearCacheAfterSave && !link?.customerId) {
         if (customerDoc.email) {
           customerQry = { customerPrimaryEmail: customerDoc.email };
         } else if (customerDoc.phone) {
@@ -482,16 +527,27 @@ export const widgetFormMutation: Record<
       });
       const conversationId = conversation?._id || '';
 
-      const submissionGroupId = await saveFormSubmissions(
-        models,
-        {
-          submissions,
-          formId,
-          customerId: customer._id,
-          conversationId,
-        },
-        guard,
-      );
+      let submissionGroupId: string;
+
+      try {
+        submissionGroupId = await saveFormSubmissions(
+          models,
+          {
+            submissions,
+            formId,
+            customerId: customer._id,
+            conversationId,
+            link,
+          },
+          guard,
+        );
+      } catch (error) {
+        if (link && isDuplicateKeyError(error)) {
+          return { status: 'alreadySubmitted' };
+        }
+
+        throw error;
+      }
 
       sendFormSubmittedTrigger(subdomain, {
         _id: submissionGroupId,
@@ -500,6 +556,8 @@ export const widgetFormMutation: Record<
         customerId: customer._id,
         conversationId: conversationId || null,
         fieldValues: submissionValues,
+        aboutRecordType: link?.aboutRecord?.type,
+        aboutRecordId: link?.aboutRecord?.id,
       });
 
       return {

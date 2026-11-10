@@ -76,6 +76,19 @@ export const APPROVAL_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
   ],
 };
 
+export const PICK_MEMBER_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition = {
+  variables: [
+    {
+      key: 'userId',
+      label: 'Picked team member',
+      exposure: 'reference',
+      referenceType: 'core:user',
+    },
+    { key: 'userIds', label: 'Available team members' },
+    { key: 'fallback', label: 'Picked the fallback member' },
+  ],
+};
+
 export const OUTGOING_WEBHOOK_ACTION_OUTPUT: TAutomationRuntimeOutputDefinition =
   {
     variables: [

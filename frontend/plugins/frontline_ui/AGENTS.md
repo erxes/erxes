@@ -94,6 +94,10 @@
   form. New copy uses `t(key, default)` because frontline strings live in the
   gateway locales.
 
+- Form automation remote entry routes `frontline:form.links.create` to
+  `CreateFormLinkActionForm` (form picker reusing `SelectTriggerForm`, days
+  valid, blank = 30) and `CreateFormLinkActionConfig`. Ticket detail shows
+  `TicketFormResponses` from `getTicket.formResponses` (hidden when empty).
 - Ticket SLA: pipeline settings tab `sla` (`pages/PipelineSlaPage.tsx`,
   `pipelines/components/sla/PipelineSlaPolicy.tsx`, form in
   `pipelines/hooks/usePipelineSlaForm.ts`) edits `slaPolicy` through

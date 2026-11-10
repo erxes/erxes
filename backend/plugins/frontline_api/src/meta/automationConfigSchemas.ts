@@ -112,6 +112,16 @@ export const handoffActionConfigSchema = z.object({
   ).optional(),
 });
 
+export const createFormLinkActionConfigSchema = z.object({
+  formId: requiredText(
+    '_id of the form the link opens; its answer is saved as about the run record and from its customer.',
+  ),
+  expiresInDays: described(
+    z.union([z.number(), z.string()]),
+    'Days the link accepts an answer; 30 when absent, at most 365.',
+  ).optional(),
+});
+
 export const socialMessageActionConfigSchema = z.object({
   botId: described(
     z.string(),

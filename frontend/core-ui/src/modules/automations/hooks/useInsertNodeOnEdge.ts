@@ -8,6 +8,11 @@ import {
 import { AutomationNodeType, NodeData } from '@/automations/types';
 import { generateNode } from '@/automations/utils/automationBuilderUtils/generateNodes';
 import {
+  hasWaitEventTimeout,
+  WAIT_EVENT_MET_KEY,
+  WAIT_EVENT_TIMED_OUT_KEY,
+} from '@/automations/utils/automationBuilderUtils/actionFolks';
+import {
   NODE_SPACING_X,
   NODE_SPACING_Y,
 } from '@/automations/utils/automationBuilderUtils/nodePosition';
@@ -37,6 +42,13 @@ const BRANCH_HANDLE_KEYS_BY_TYPE: Record<string, string[]> = {
   findObject: ['isExists', 'notExists'],
   approval: ['approved', 'rejected'],
 };
+
+// A wait event branches only once it has a timeout.
+const branchKeysOf = (node: Node<NodeData>) =>
+  BRANCH_HANDLE_KEYS_BY_TYPE[String(node.data.type)] ||
+  (hasWaitEventTimeout(String(node.data.type), node.data.config)
+    ? [WAIT_EVENT_MET_KEY, WAIT_EVENT_TIMED_OUT_KEY]
+    : undefined);
 
 const getFreeBranchKey = (
   node: Node<NodeData>,
@@ -128,8 +140,7 @@ export const useInsertNodeOnEdge = () => {
       }
 
       const [handleKey] = (edge.sourceHandle || 'right').split('-');
-      const branchKeys =
-        BRANCH_HANDLE_KEYS_BY_TYPE[String(sourceNode.data.type)];
+      const branchKeys = branchKeysOf(sourceNode);
 
       return branchKeys
         ? branchKeys.includes(handleKey)
@@ -210,8 +221,7 @@ export const useInsertNodeOnEdge = () => {
         chain.push(current);
         seen.add(current.id);
 
-        const branchKeys =
-          BRANCH_HANDLE_KEYS_BY_TYPE[String(current.data.type)];
+        const branchKeys = branchKeysOf(current);
 
         if (branchKeys) {
           return getFreeBranchKey(current, branchKeys, edges) ? chain : null;
@@ -407,7 +417,7 @@ export const useInsertNodeOnEdge = () => {
       }
 
       const tail = chain[chain.length - 1];
-      const tailBranchKeys = BRANCH_HANDLE_KEYS_BY_TYPE[String(tail.data.type)];
+      const tailBranchKeys = branchKeysOf(tail);
       // A branching tail routes through a named output, so the old target
       // takes the first one still free rather than a nextActionId.
       const tailBranchKey = tailBranchKeys

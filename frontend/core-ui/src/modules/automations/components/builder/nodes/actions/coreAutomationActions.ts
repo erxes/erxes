@@ -7,6 +7,7 @@ import ManagePropertiesComponents from '@/automations/components/builder/nodes/a
 import MessageProComponents from '@/automations/components/builder/nodes/actions/messagePro/components/MessagePro';
 import SendEmailComponents from '@/automations/components/builder/nodes/actions/sendEmail/components/SendEmail';
 import { SendNotificationComponents } from '@/automations/components/builder/nodes/actions/sendNotification/components/SendNotification';
+import { PickMemberComponents } from '@/automations/components/builder/nodes/actions/pickMember/components/PickMember';
 import TransformComponents from '@/automations/components/builder/nodes/actions/transform/components/Transform';
 import WaitEventComponents from '@/automations/components/builder/nodes/actions/waitEvent/components/WaitEvent';
 import WebhooksComponents from '@/automations/components/builder/nodes/actions/webhooks/Webhooks';
@@ -28,6 +29,7 @@ const coreActions: AutomationComponentMap<AutomationNodeType.Action> = {
   ...TransformComponents,
   ...SendEmailComponents,
   ...SendNotificationComponents,
+  ...PickMemberComponents,
   ...ApprovalComponents,
   ...MessageProComponents,
   ...WaitEventComponents,

@@ -111,6 +111,25 @@
   (an operator reply's `human_active`), and an ended pause is reset to
   `active`/`timeout_expired`. Facebook keeps its idle-based check on the same
   field (`handoffPauseMinutes`).
+- Automation action `frontline:form.links.create` ("Create form link",
+  `form/meta/automation/createFormLinkAction.ts`): signs a form link token
+  (`form/formLink.ts`, audience `erxes-form-link`, secret derived from
+  `JWT_TOKEN_SECRET`, `expiresInDays` default 30, max 365) carrying `linkId`,
+  `formId`, the target's `customerId` / first `customerIds`, and
+  `aboutRecord` = the trigger type without its relation (a ticket is
+  `frontline:tickets.tickets`) + target `_id`. Output `url`
+  (`${WIDGETS_DOMAIN}/live/<channelId>/<formId>?t=<token>`), `expiresAt`,
+  `formId`; skips `form-not-found` without a form channel. Sending the link
+  is left to message/email steps.
+- `widgetsSaveLead` / `cpWidgetsSaveLead` take `linkToken`: an invalid or
+  expired token returns `status: 'error'` (`linkInvalid`); a valid one sets
+  the customer from the token (browser `cachedCustomerId` ignored) and stamps
+  `aboutRecord` on every submission row and `linkId` on the first one (sparse
+  unique index), so a link takes one answer (`status: 'alreadySubmitted'`).
+  "Form submitted" output adds `aboutRecordType` / `aboutRecordId`.
+  Answers stay on submissions only; `Ticket.formResponses`
+  (`form/formResponses.ts`) groups rows by `groupId`, newest first. The live
+  form page in `apps/frontline-widgets` reads `?t=` and sends it.
 - Ticket SLA per pipeline (`pipeline.slaPolicy`: `enabled`, one rule per
   priority 0-4 with `firstResponseMinutes` / `resolutionMinutes`,
   `warnBeforeMinutes`; normalized by `normalizeSlaPolicy` in

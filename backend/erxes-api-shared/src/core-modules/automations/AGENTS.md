@@ -37,7 +37,7 @@ exception to plugin isolation.
   time.
 - The engine's own contracts live in `coreActionConfigSchemas.ts` (if, split,
   findObject, transform, setProperty, sendEmail, sendNotification,
-  approval, outgoingWebhook, messagePro, delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
+  approval, pickMember, outgoingWebhook, messagePro, delay, waitEvent) and `aiAgentActionConfigSchema.ts`, which the AI agent
   executor parses with. Executors in `services/automations` derive their config
   types from them, so a schema change is an executor change. Core attaches
   their tenant rules in `core-api/src/meta/automations/configValidators.ts`
@@ -67,6 +67,30 @@ exception to plugin isolation.
 - Approval change types may register `rejecters` beside `appliers`
   (`TApprovalConfig`); core's reject and cancel mutations call the owning
   plugin's `rejectChange` producer, best effort.
+- `pickMember` ("Pick a team member") assigns nothing: it outputs `userId`
+  (one available candidate), `userIds` (all available) and `fallback`, for
+  later steps' assign fields. Availability is core's
+  (`core-modules/users/availability.ts` `resolveMemberAvailability`, served by
+  core tRPC `users.availability`): a member's declaration
+  (`user.availability` status/until/reason, set by themselves or with
+  `teamMembersSetAvailability`; absent or past `until` = not declared) and
+  membership of the busy segment linked in config `TEAM_AVAILABILITY`
+  (`segmentId` of a `core:organization.users` segment, `precedence`
+  `segment` | `manual` when they disagree); neither speaking = available. A
+  removed segment counts as not linked. The engine drops inactive and
+  unavailable candidates, takes turns through an atomic counter per
+  automation and step (`automations_pick_turns`, `n % sorted ids`) or picks at
+  random, and gives `fallbackUserId` or skips `nobody-available`.
+- `waitEvent` may carry `timeout` (`value` + `unit` minutes/hours/days,
+  capped at 30 days by `readWaitEventTimeoutMinutes`; none waits until the
+  event). With a timeout the node has two exits in config, `met` and
+  `timedOut` (canvas folks, graph links, insert-on-edge), and no
+  `nextActionId`; turning it off hands `met` back as `nextActionId`. The
+  engine arms an `expireWait` job and both the event (segment resume and
+  waiting webhook) and the timeout first claim the run atomically
+  (`claimWaitEvent`: status `waiting` + `waitingActionId`), so only one resumes
+  it; the step's result gets `outcome: met | timedOut`. A timeout without a
+  `timedOut` link continues on `met` / the main path.
 - Working hours come from a branch (Settings → Structure: `workhours` per
   weekday with lunch, `holidays` that close or shorten a period) in the
   organization's `TIMEZONE`. `workingCalendar.ts` holds the pure math
@@ -128,7 +152,8 @@ without saving.
 - Every `{{ … }}` in a node config is stored as the builder writes it,
   `{{ key }}`, whoever authored it; every reader accepts any spacing, and a
   spacing-only difference is not a config change.
-- Branch links are `if` `config.yes/no`, findObject `config.isExists/notExists`
+- Branch links are `if` `config.yes/no`, findObject `config.isExists/notExists`,
+  approval `config.approved/rejected`, waitEvent `config.met/timedOut`
   and `config.optionalConnects[].actionId` (AI agent topics and tools, split
   options, message buttons). An action no trigger reaches is reported as
   `unreachable`; it refuses neither the save nor going live.

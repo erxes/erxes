@@ -177,6 +177,11 @@ export interface IUserModel extends Model<IUserDocument> {
   revokeSessions(_id: string, sessionId?: string): Promise<boolean>;
   findUsers(query: any, options?: any): Promise<IUserDocument[]>;
   setChatStatus(_id: string, status: string): Promise<IUserDocument>;
+  setAvailability(
+    _id: string,
+    doc: { status?: string | null; until?: Date | null; reason?: string | null },
+    setBy: string,
+  ): Promise<IUserDocument | null>;
 }
 
 export const loadUserClass = (
@@ -1231,6 +1236,64 @@ export const loadUserClass = (
           createActivityLog,
         );
       }
+      return updatedUser;
+    }
+
+    /**
+     * Declares whether a member takes new work. No status clears the
+     * declaration; an `until` in the past is refused, since it would mean
+     * nothing.
+     */
+    public static async setAvailability(
+      _id: string,
+      doc: { status?: string | null; until?: Date | null; reason?: string | null },
+      setBy: string,
+    ) {
+      const user = await models.Users.findOne({ _id });
+
+      if (!user) {
+        throw new Error('User not found');
+      }
+
+      const status = doc.status || undefined;
+
+      if (status && !['available', 'unavailable'].includes(status)) {
+        throw new Error('Availability must be available or unavailable');
+      }
+
+      const until = doc.until ? new Date(doc.until) : undefined;
+
+      if (until && (Number.isNaN(until.getTime()) || until <= new Date())) {
+        throw new Error('Until must be in the future');
+      }
+
+      const update = status
+        ? {
+            $set: {
+              availability: {
+                status,
+                until,
+                reason: doc.reason?.trim() || undefined,
+                setBy,
+                setAt: new Date(),
+              },
+            },
+          }
+        : { $unset: { availability: '' } };
+
+      await models.Users.updateOne({ _id }, update);
+
+      const updatedUser = await models.Users.findOne({ _id });
+
+      if (updatedUser) {
+        sendDbEventLog({
+          action: 'update',
+          docId: updatedUser._id,
+          currentDocument: updatedUser.toObject(),
+          prevDocument: user.toObject(),
+        });
+      }
+
       return updatedUser;
     }
   }

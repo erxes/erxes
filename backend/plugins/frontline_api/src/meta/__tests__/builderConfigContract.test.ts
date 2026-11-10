@@ -5,6 +5,7 @@ import {
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import {
+  createFormLinkActionConfigSchema,
   socialCommentActionConfigSchema,
   socialMessageActionConfigSchema,
   ticketCreateActionConfigSchema,
@@ -18,6 +19,7 @@ const schemas: Record<string, TAutomationConfigSchema> = {
   'frontline:tickets.tickets.create': ticketCreateActionConfigSchema,
   'frontline:facebook.messages.create': socialMessageActionConfigSchema,
   'frontline:facebook.comments.create': socialCommentActionConfigSchema,
+  'frontline:form.links.create': createFormLinkActionConfigSchema,
 };
 
 const builderConfigs: Record<string, unknown[]> = JSON.parse(

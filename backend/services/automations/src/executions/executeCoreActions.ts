@@ -5,6 +5,7 @@ import { executeIfCondition } from './actions/executeIfCondition';
 import { executeMessageProAction } from './actions/executeMessageProAction';
 import { executeNotificationAction } from './actions/executeNotificationAction';
 import { executeApprovalAction } from './actions/executeApprovalAction';
+import { executePickMemberAction } from './actions/executePickMemberAction';
 import { executeSetPropertyAction } from './actions/executeSetPropertyAction';
 import { executeSplitAction } from './actions/executeSplitAction';
 import { executeTransformAction } from './actions/executeTransformAction';
@@ -148,6 +149,14 @@ export const executeCoreActions = async (
 
   if (actionType === AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION) {
     actionResponse = await executeNotificationAction({
+      subdomain,
+      execution,
+      action,
+    });
+  }
+
+  if (actionType === AUTOMATION_CORE_ACTIONS.PICK_MEMBER) {
+    actionResponse = await executePickMemberAction({
       subdomain,
       execution,
       action,

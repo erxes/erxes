@@ -147,5 +147,13 @@ const validateTeamMemberIds =
 /** Notified team members exist. */
 export const validateSendNotificationConfig = validateTeamMemberIds('userIds');
 
+/** Candidates and the fallback member exist. */
+export const validatePickMemberConfig: TAutomationConfigValidator = async (
+  input,
+) => [
+  ...(await validateTeamMemberIds('candidateIds')(input)),
+  ...(await validateTeamMemberIds('fallbackUserId')(input)),
+];
+
 /** Approvers exist. */
 export const validateApprovalConfig = validateTeamMemberIds('approverIds');

@@ -59,6 +59,7 @@ export const AUTOMATION_CORE_ACTIONS = {
   SEND_EMAIL: 'sendEmail',
   SEND_NOTIFICATION: 'sendNotification',
   APPROVAL: 'approval',
+  PICK_MEMBER: 'pickMember',
   OUTGOING_WEBHOOK: 'outgoingWebhook',
   MESSAGE_PRO: 'messagePro',
   WAIT_EVENT: 'waitEvent',

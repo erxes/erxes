@@ -15,6 +15,7 @@ import {
   sendEmailActionConfigSchema,
   sendNotificationActionConfigSchema,
   approvalActionConfigSchema,
+  pickMemberActionConfigSchema,
   setPropertyActionConfigSchema,
   splitActionConfigSchema,
   transformActionConfigSchema,
@@ -24,6 +25,7 @@ import {
 import {
   AI_AGENT_ACTION_OUTPUT,
   APPROVAL_ACTION_OUTPUT,
+  PICK_MEMBER_ACTION_OUTPUT,
   FIND_OBJECT_ACTION_OUTPUT,
   MESSAGE_PRO_ACTION_OUTPUT,
   OUTGOING_WEBHOOK_ACTION_OUTPUT,
@@ -37,6 +39,7 @@ import {
   validateSendEmailSenders,
   validateSendNotificationConfig,
   validateApprovalConfig,
+  validatePickMemberConfig,
 } from './configValidators';
 import { CORE_PRODUCT_KNOWLEDGE_SOURCE_KEY } from '~/modules/products/meta/automations';
 import {
@@ -278,6 +281,17 @@ const CORE_AUTOMATION_CONSTANTS_SOURCE: AutomationConstants = {
       output: APPROVAL_ACTION_OUTPUT,
       configSchema: approvalActionConfigSchema,
       validateConfig: validateApprovalConfig,
+    },
+    {
+      type: AUTOMATION_CORE_ACTIONS.PICK_MEMBER,
+      icon: 'IconUserSearch',
+      label: 'Pick a team member',
+      description:
+        'Choose one available team member, taking turns or at random; use the result to assign',
+      group: CORE_ACTION_GROUPS.DATA_OPERATIONS,
+      output: PICK_MEMBER_ACTION_OUTPUT,
+      configSchema: pickMemberActionConfigSchema,
+      validateConfig: validatePickMemberConfig,
     },
     {
       type: AUTOMATION_CORE_ACTIONS.SEND_NOTIFICATION,

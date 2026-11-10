@@ -15,6 +15,22 @@ export const types = `
     threshold: Int
   }
 
+  type TicketFormAnswer {
+    fieldId: String
+    label: String
+    type: String
+    value: JSON
+  }
+
+  type TicketFormResponse {
+    _id: String!
+    formId: String
+    formTitle: String
+    customerId: String
+    submittedAt: Date
+    answers: [TicketFormAnswer]
+  }
+
   type TicketSla {
     priority: Int
     firstResponseDueAt: Date
@@ -62,6 +78,7 @@ export const types = `
     customerFieldData: JSON
     sourceSurvey: TicketSourceSurvey
     sla: TicketSla
+    formResponses: [TicketFormResponse]
   }
   type RemoveResponse {
     ok: Int!

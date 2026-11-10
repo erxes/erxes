@@ -46,6 +46,7 @@ export const automations = {
       ...ticketsAutomationContants.actions,
       ...discordConstants.actions,
       ...mailConstants.actions,
+      ...formAutomationConstants.actions,
     ],
     findObjectTargets: [...ticketsAutomationContants.findObjectTargets],
     triggers: [

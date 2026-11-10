@@ -368,6 +368,19 @@ export const waitEventActionConfigSchema = z
     targetTypeId: requiredText('id of the trigger or action waited on.'),
     segmentId: z.string().optional(),
     webhookConfig: z.record(z.string(), z.unknown()).optional(),
+    timeout: described(
+      z.object({
+        value: z.union([z.number(), z.string()]),
+        unit: z.enum(['minutes', 'hours', 'days']),
+      }),
+      'Longest wait, at most 30 days; then the step ends with outcome timedOut. No timeout waits until the event.',
+    ).optional(),
+    met: nextAction(
+      'when the event happens, on a node with a timeout; the node\'s nextActionId otherwise',
+    ),
+    timedOut: nextAction(
+      'when the wait times out; without it the flow continues on the main path',
+    ),
   })
   .refine(
     ({ targetType, segmentId }) =>
@@ -377,6 +390,28 @@ export const waitEventActionConfigSchema = z
       message: 'Required when waiting on a trigger or action',
     },
   );
+
+export const WAIT_EVENT_MAX_TIMEOUT_MINUTES = 30 * 24 * 60;
+
+const WAIT_EVENT_UNIT_MINUTES = { minutes: 1, hours: 60, days: 24 * 60 } as const;
+
+/** Minutes a wait may last, or undefined when it waits until the event. */
+export const readWaitEventTimeoutMinutes = (timeout: unknown) => {
+  if (!timeout || typeof timeout !== 'object') {
+    return undefined;
+  }
+
+  const { value, unit } = timeout as { value?: unknown; unit?: unknown };
+  const amount = Number(value);
+  const unitMinutes =
+    WAIT_EVENT_UNIT_MINUTES[unit as keyof typeof WAIT_EVENT_UNIT_MINUTES];
+
+  if (!unitMinutes || !Number.isFinite(amount) || amount <= 0) {
+    return undefined;
+  }
+
+  return Math.min(amount * unitMinutes, WAIT_EVENT_MAX_TIMEOUT_MINUTES);
+};
 
 export const sendNotificationActionConfigSchema = z.object({
   userIds: requiredText(
@@ -407,6 +442,22 @@ export const approvalActionConfigSchema = z.object({
   approved: nextAction('when approved'),
   rejected: nextAction('when rejected or expired'),
 });
+
+export const pickMemberActionConfigSchema = z.object({
+  candidateIds: requiredText(
+    'Team member _ids to choose from, comma-separated, or a {{ }} variable, as text. Inactive and unavailable members are left out.',
+  ),
+  method: described(
+    z.enum(['roundRobin', 'random']),
+    'How one member is chosen among the available: roundRobin (default) takes turns, random picks any.',
+  ).optional(),
+  fallbackUserId: described(
+    z.string(),
+    'Team member _id picked when nobody is available; the step skips when absent.',
+  ).optional(),
+});
+
+export type TPickMemberActionConfig = z.infer<typeof pickMemberActionConfigSchema>;
 
 export type TApprovalActionConfig = z.infer<typeof approvalActionConfigSchema>;
 
