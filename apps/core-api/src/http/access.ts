@@ -53,7 +53,7 @@ export const ACCESS = {
   'auth.signIns': MEMBER,
 
   'companies.list': needs('contacts.view'),
-  'companies.get': needs('contacts.view'),
+  'companies.get': { member: 'contacts.view', plugin: 'customers:read' },
   'companies.create': needs('contacts.create'),
   'companies.update': needs('contacts.edit'),
   'companies.remove': needs('contacts.delete'),
@@ -61,7 +61,8 @@ export const ACCESS = {
   'companies.tag': needs('contacts.edit'),
 
   'customers.list': needs('contacts.view'),
-  'customers.get': needs('contacts.view'),
+  'customers.get': { member: 'contacts.view', plugin: 'customers:read' },
+  'customers.findOrCreate': { member: 'contacts.create', plugin: 'customers:write' },
   'customers.create': needs('contacts.create'),
   'customers.update': needs('contacts.edit'),
   'customers.remove': needs('contacts.delete'),

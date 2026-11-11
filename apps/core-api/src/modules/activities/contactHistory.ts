@@ -1,7 +1,7 @@
 import type { ContentType } from '@erxes/core-db';
 import { type Db } from '@erxes/core-db';
 import type { Actor } from '~/http/auth';
-import { userCaller } from '~/http/auth';
+import { userCaller, type Caller } from '~/http/auth';
 import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { publishCoreEvents } from '~/modules/events/events.service';
@@ -127,8 +127,8 @@ const notifyNewOwner = async (tx: Db, actor: Actor, type: ContentType, row: Cont
   });
 };
 
-export const contactCreated = async (tx: Db, actor: Actor, type: ContentType, row: ContactRow) => {
-  const caller = userCaller(actor);
+export const contactCreated = async (tx: Db, actor: Actor | Caller, type: ContentType, row: ContactRow) => {
+  const caller = 'actorType' in actor ? actor : userCaller(actor);
 
   await recordActivity(tx, caller, { targetType: type, targetId: row.id, type: `${type}.created` });
   await publishCoreEvents(tx, caller, {
@@ -142,7 +142,8 @@ export const contactCreated = async (tx: Db, actor: Actor, type: ContentType, ro
     targetId: row.id,
     targetLabel: contactLabel(type, row),
   });
-  await notifyNewOwner(tx, actor, type, row, null);
+  // Created by a plugin: no owner was chosen, nobody to tell.
+  if (!('actorType' in actor)) await notifyNewOwner(tx, actor, type, row, null);
 };
 
 /** Field, custom field and tag changes between two versions of a record. */

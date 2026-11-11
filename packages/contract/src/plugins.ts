@@ -17,6 +17,8 @@ export const PluginName = z
  */
 export const PLUGIN_SCOPES = [
   'activities:write',
+  'customers:read',
+  'customers:write',
   'audit:write',
   'events:write',
   'files:read',

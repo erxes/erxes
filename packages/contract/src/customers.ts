@@ -127,6 +127,25 @@ export const customersContract = {
       }),
     )
     .output(cursorPageOf(Customer)),
+  findOrCreate: oc
+    .route({
+      method: 'POST',
+      path: '/customers/find-or-create',
+      summary:
+        'The customer with this email or phone, or a new one (members with contacts.create; plugins with customers:write). Safe to call twice at once',
+    })
+    .input(
+      z
+        .object({
+          primaryEmail: z.string().trim().email().max(254).optional(),
+          primaryPhone: z.string().trim().min(3).max(40).optional(),
+          firstName: z.string().trim().max(100).optional(),
+          lastName: z.string().trim().max(100).optional(),
+          state: z.enum(['lead', 'customer']).optional(),
+        })
+        .refine((value) => Boolean(value.primaryEmail || value.primaryPhone), 'an email or a phone is required'),
+    )
+    .output(z.object({ customer: Customer, created: z.boolean() })),
   get: oc
     .route({
       method: 'GET',

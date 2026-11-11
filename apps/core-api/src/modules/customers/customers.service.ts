@@ -1,7 +1,7 @@
 import type { CursorQuery, CustomerInput, CustomerSex } from '@erxes/core-contract';
 import { companies, customerCompanies, customers, Db, newId, users, withTransaction } from '@erxes/core-db';
 import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
-import { type Actor, requirePermission } from '~/http/auth';
+import { type Actor, requirePermission, type Caller } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { normalizeEmail, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
@@ -18,7 +18,7 @@ import {
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
-import { lockRows } from '~/lib/locks';
+import { lockKey, lockRows } from '~/lib/locks';
 
 type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
 type State = CustomerRow['state'];
@@ -524,4 +524,63 @@ export const unlinkCustomerCompany = async (client: Db, actor: Actor, id: string
   });
 
   return { ok: true as const };
+};
+
+/**
+ * The customer with this email or phone (also among their other emails and
+ * phones), or a new one. Calls for the same email or phone run one at a time,
+ * so two at once never make two customers.
+ */
+export const findOrCreateCustomer = async (
+  client: Db,
+  caller: Caller,
+  input: { primaryEmail?: string; primaryPhone?: string; firstName?: string; lastName?: string; state?: 'lead' | 'customer' },
+) => {
+  const email = input.primaryEmail ? normalizeEmail(input.primaryEmail) : null;
+  const phone = input.primaryPhone ? normalizePhone(input.primaryPhone) : null;
+
+  for (const key of [email && `email:${email}`, phone && `phone:${phone}`].filter(Boolean) as string[]) {
+    await lockKey(client, `customer:${caller.orgId}:${key}`);
+  }
+
+  const [found] = await client
+    .select({ id: customers.id })
+    .from(customers)
+    .where(
+      and(
+        eq(customers.orgId, caller.orgId),
+        or(
+          email ? or(eq(customers.primaryEmail, email), arrayContains(customers.emails, [email])) : undefined,
+          phone ? or(eq(customers.primaryPhone, phone), arrayContains(customers.phones, [phone])) : undefined,
+        ),
+      ),
+    )
+    .orderBy(sql`${customers.primaryEmail} = ${email ?? ''} DESC`)
+    .limit(1);
+
+  if (found) return { customer: toCustomerDto(await findCustomer(client, caller.orgId, found.id)), created: false };
+
+  const id = await client.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(customers)
+      .values({
+        id: newId(),
+        orgId: caller.orgId,
+        state: input.state ?? 'customer',
+        firstName: input.firstName ?? null,
+        lastName: input.lastName ?? null,
+        primaryEmail: email,
+        emails: email ? [email] : [],
+        primaryPhone: phone,
+        phones: phone ? [phone] : [],
+        createdBy: caller.actorType === 'user' ? caller.actorId : null,
+      })
+      .returning({ id: customers.id });
+
+    await contactCreated(tx, caller, 'customer', await findCustomer(tx, caller.orgId, row!.id));
+
+    return row!.id;
+  });
+
+  return { customer: toCustomerDto(await findCustomer(client, caller.orgId, id)), created: true };
 };

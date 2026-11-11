@@ -89,6 +89,7 @@ import {
 } from '~/modules/companies/companies.service';
 import {
   createCustomer,
+  findOrCreateCustomer,
   customerCompaniesOf,
   getCustomer,
   linkCustomerCompany,
@@ -412,7 +413,8 @@ export const coreRouter = pub.router({
   },
   customers: {
     list: authed.customers.list.handler(({ input, context }) => listCustomers(db(), context.actor, input)),
-    get: authed.customers.get.handler(({ input, context }) => getCustomer(db(), context.actor, input.id)),
+    get: anyone.customers.get.handler(({ input, context }) => getCustomer(db(), { orgId: context.caller.orgId } as Actor, input.id)),
+    findOrCreate: anyone.customers.findOrCreate.handler(({ input, context }) => findOrCreateCustomer(db(), context.caller, input)),
     create: authed.customers.create.handler(({ input, context }) => createCustomer(db(), context.actor, input)),
     update: authed.customers.update.handler(({ input: { id, ...changes }, context }) =>
       updateCustomer(db(), context.actor, id, changes),
@@ -434,7 +436,7 @@ export const coreRouter = pub.router({
   },
   companies: {
     list: authed.companies.list.handler(({ input, context }) => listCompanies(db(), context.actor, input)),
-    get: authed.companies.get.handler(({ input, context }) => getCompany(db(), context.actor, input.id)),
+    get: anyone.companies.get.handler(({ input, context }) => getCompany(db(), { orgId: context.caller.orgId } as Actor, input.id)),
     create: authed.companies.create.handler(({ input, context }) => createCompany(db(), context.actor, input)),
     update: authed.companies.update.handler(({ input: { id, ...changes }, context }) =>
       updateCompany(db(), context.actor, id, changes),
