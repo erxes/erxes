@@ -109,6 +109,14 @@ export const ProductFooter = ({
   const [discountAmountDraft, setDiscountAmountDraft] = useState<
     Record<string, string>
   >({});
+  const rowIdsKey = productsData.map((product) => product._id).join(',');
+  const [draftRowIdsKey, setDraftRowIdsKey] = useState(rowIdsKey);
+
+  if (draftRowIdsKey !== rowIdsKey) {
+    setDraftRowIdsKey(rowIdsKey);
+    setDiscountPercentDraft({});
+    setDiscountAmountDraft({});
+  }
 
   const parseDraftNumber = (value: string) => {
     const parsed = Number(value.replace(/,/g, ''));
