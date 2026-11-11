@@ -1,0 +1,114 @@
+import { EventEmitter } from 'node:events';
+import { Client } from 'pg';
+import { config } from '~/config';
+
+/** What a committed change announces (see migration 0008). */
+export type LiveSignal =
+  | { o: string; k: 'inbox'; u: string }
+  | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string };
+
+/**
+ * One LISTEN connection per API server, shared by every open stream:
+ * `signal` for each committed change, `events` when new events wait for the
+ * processor, `state` when the connection is up or lost, `resync` after a
+ * reconnect (notifications sent meanwhile were missed, so clients refetch).
+ */
+class LiveHub extends EventEmitter {
+  connected = false;
+  private client: Client | null = null;
+  private stopped = false;
+  private attempt = 0;
+
+  start(url: string | undefined = config.live.listenUrl) {
+    if (!url) {
+      console.log('[core] live updates: off (no listen connection; browsers poll)');
+      return;
+    }
+
+    this.stopped = false;
+    void this.connect(url);
+  }
+
+  private async connect(url: string) {
+    const client = new Client({
+      connectionString: url,
+      ssl: config.data.ssl ? { rejectUnauthorized: false } : undefined,
+      application_name: 'erxes-core-live',
+      keepAlive: true,
+    });
+
+    client.on('notification', (message) => {
+      if (message.channel === 'core_events') {
+        this.emit('events');
+        return;
+      }
+
+      try {
+        this.emit('signal', JSON.parse(message.payload ?? '') as LiveSignal);
+      } catch {
+        // Not ours.
+      }
+    });
+    client.on('error', (error) => {
+      console.error('[core] live updates: listen connection error', error.message);
+    });
+    client.on('end', () => {
+      if (this.client === client) this.lost(url);
+    });
+
+    try {
+      await client.connect();
+      await client.query('LISTEN core_live');
+      await client.query('LISTEN core_events');
+      this.client = client;
+
+      const reconnected = this.attempt > 0;
+
+      this.attempt = 0;
+      this.setConnected(true);
+      console.log('[core] live updates: listening');
+
+      if (reconnected) this.emit('resync');
+      // Events published while nobody listened.
+      this.emit('events');
+    } catch (error) {
+      console.error('[core] live updates: could not listen', (error as Error).message);
+      await client.end().catch(() => undefined);
+      this.lost(url);
+    }
+  }
+
+  private lost(url: string) {
+    this.client = null;
+    this.setConnected(false);
+
+    if (this.stopped) return;
+
+    // 1 s, 2 s, 4 s … up to 30 s, with jitter so servers don't reconnect in step.
+    const delay = Math.min(30_000, 1000 * 2 ** this.attempt) * (0.75 + Math.random() / 2);
+
+    this.attempt += 1;
+    setTimeout(() => void this.connect(url), delay).unref();
+  }
+
+  private setConnected(connected: boolean) {
+    if (this.connected !== connected) {
+      this.connected = connected;
+      this.emit('state', connected);
+    }
+  }
+
+  async stop() {
+    this.stopped = true;
+
+    const client = this.client;
+
+    this.client = null;
+    this.setConnected(false);
+    await client?.end().catch(() => undefined);
+  }
+}
+
+export const liveHub = new LiveHub();
+
+liveHub.setMaxListeners(0);

@@ -68,6 +68,34 @@ if (storageDriver !== 'local' && storageDriver !== 's3') {
   throw new Error('FILES_STORAGE must be "local" or "s3"');
 }
 
+/**
+ * Where to LISTEN for live updates: a connection that stays open (Postgres
+ * directly, or Supabase's session pooler on 5432). A transaction pooler
+ * (Supabase 6543, PgBouncer in transaction mode) can't deliver notifications,
+ * so for Supabase's the session pooler on the same host is used.
+ */
+const listenUrl = (dataUrl: string): string | undefined => {
+  const explicit = readSecret('DATA_LISTEN_URL');
+
+  if (explicit) {
+    return explicit === 'off' ? undefined : explicit;
+  }
+
+  try {
+    const url = new URL(dataUrl);
+
+    if (url.port === '6543') {
+      if (!url.hostname.endsWith('.pooler.supabase.com')) return undefined;
+
+      url.port = '5432';
+    }
+
+    return url.toString();
+  } catch {
+    return undefined;
+  }
+};
+
 export const config = {
   isProduction,
   port: readNumber('PORT', 3400),
@@ -80,6 +108,12 @@ export const config = {
     ssl: process.env.DATA_SSL === 'true',
     poolMax: readNumber('DATA_POOL_MAX', 10),
     statementTimeoutMs: readNumber('DATA_STATEMENT_TIMEOUT_MS', 15_000),
+  },
+  live: {
+    /** `DATA_LISTEN_URL` (or derived from DATA_URL); `off` turns live updates off. */
+    listenUrl: undefined as string | undefined,
+    /** Open streams a member may have at once (browsers share one across tabs). */
+    maxStreamsPerUser: readNumber('LIVE_MAX_STREAMS_PER_USER', 10),
   },
   setup: {
     /**
@@ -136,3 +170,5 @@ export const config = {
 if (config.files.driver === 's3' && !config.files.s3.bucket) {
   throw new Error('FILES_STORAGE=s3 needs S3_BUCKET');
 }
+
+config.live.listenUrl = listenUrl(config.data.url);

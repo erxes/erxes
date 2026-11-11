@@ -1,6 +1,7 @@
 import { activities, companies, customers, db, type Db, eventConsumers, events } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
+import { liveHub } from '~/modules/live/hub';
 import { notify } from '~/modules/notifications/notifications.service';
 
 type EventRow = typeof events.$inferSelect;
@@ -180,21 +181,58 @@ export const processEvents = async () => {
   return handled;
 };
 
-/** Polls the stream every second (no LISTEN/NOTIFY: core may sit behind a pooler). */
+/**
+ * Runs the consumers when new events are announced (LISTEN, instantly), with
+ * a slow safety poll; while the server can't listen it polls every second.
+ */
 export const startEventProcessor = () => {
-  let running = false;
-  const timer = setInterval(() => {
-    if (running) return;
+  let current: Promise<void> | null = null;
+  let again = false;
+  let stopped = false;
 
-    running = true;
-    processEvents()
+  const run = () => {
+    if (stopped) return;
+
+    if (current) {
+      again = true;
+      return;
+    }
+
+    current = processEvents()
+      .then(() => undefined)
       .catch((error: unknown) => console.error('[core] event processing failed', error))
       .finally(() => {
-        running = false;
+        current = null;
+
+        if (again) {
+          again = false;
+          run();
+        }
       });
+  };
+
+  let last = 0;
+  const timer = setInterval(() => {
+    const interval = liveHub.connected ? 30_000 : 1000;
+
+    if (Date.now() - last >= interval) {
+      last = Date.now();
+      run();
+    }
   }, 1000);
+  const onEvents = () => {
+    last = Date.now();
+    run();
+  };
 
   timer.unref();
+  liveHub.on('events', onEvents);
 
-  return () => clearInterval(timer);
+  /** Stops, after the run in progress (if any) finishes. */
+  return async () => {
+    stopped = true;
+    clearInterval(timer);
+    liveHub.off('events', onEvents);
+    await current;
+  };
 };

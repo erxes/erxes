@@ -57,6 +57,13 @@
       "when": 1794405342570,
       "tag": "0007_event_stream_notes_audit_chain",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1794411665570,
+      "tag": "0008_live_updates",
+      "breakpoints": true
     }
   ]
 }

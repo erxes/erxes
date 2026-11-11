@@ -2,20 +2,22 @@ import type { ActivityTarget } from '@erxes/core-contract';
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useToast } from 'erxes-ui';
 import { api, messageOf } from '~/lib/api';
+import { useLivePolling } from '~/lib/live';
 
 export const ACTIVITIES_KEY = ['activities'];
 
 export type TimelineKind = 'all' | 'notes' | 'changes' | 'plugins';
 
 /**
- * A customer's or company's timeline, newest first, 20 at a time; refreshes
- * every 30 seconds so teammates' notes and plugin events show up.
+ * A customer's or company's timeline, newest first, 20 at a time. Live
+ * updates refetch it when it changes; it polls only while they're paused.
  */
 export const useActivities = (
   targetType: ActivityTarget,
   targetId: string,
   { kind = 'all', includeRelated = false }: { kind?: TimelineKind; includeRelated?: boolean } = {},
 ) => {
+  const refetchInterval = useLivePolling();
   const query = useInfiniteQuery({
     queryKey: [...ACTIVITIES_KEY, targetType, targetId, { kind, includeRelated }],
     queryFn: ({ pageParam }) =>
@@ -31,7 +33,7 @@ export const useActivities = (
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
-    refetchInterval: 30_000,
+    refetchInterval,
   });
 
   return {

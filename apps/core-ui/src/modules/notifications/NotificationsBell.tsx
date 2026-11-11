@@ -1,6 +1,7 @@
 import { IconBell, IconChecks, IconInbox } from '@tabler/icons-react';
 import { Button, cn, Popover, ScrollArea, Tabs } from 'erxes-ui';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLiveMode } from '~/lib/live';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { coreTabIconClassName } from '~/modules/navigation/coreTabClassName';
@@ -22,6 +23,14 @@ export const NotificationsBell = () => {
   const list = useNotificationList({ source, unread: tab === 'unread', enabled: open });
   const { markRead } = useNotificationActions();
   const unreadHere = source ? (bySource[source] ?? 0) : count;
+  const mode = useLiveMode();
+
+  // "(3) erxes": the unread count in the browser tab, as Slack and Gmail do.
+  useEffect(() => {
+    const base = document.title.replace(/^\(\d+\+?\) /, '');
+
+    document.title = count ? `(${count > 99 ? '99+' : count}) ${base}` : base;
+  }, [count]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,6 +46,13 @@ export const NotificationsBell = () => {
             className={cn(coreTabIconClassName(open), 'relative')}
           >
             <IconBell className="size-4" />
+            {/* Changes aren't pushed right now (reconnecting, or the server can't listen): counts refresh every 30 s. */}
+            {mode === 'polling' && (
+              <span
+                className="absolute bottom-1 right-1 size-1.5 rounded-full bg-amber-500"
+                title={t('polling', 'Live updates paused; refreshing every 30 seconds')}
+              />
+            )}
             {count > 0 && (
               <span className="absolute top-1 right-1 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-destructive px-1 text-[9px] leading-none font-semibold text-destructive-foreground">
                 {count > 99 ? '99+' : count}

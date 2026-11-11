@@ -20,6 +20,11 @@ const admin = async (statement: string) => {
   }
 };
 
+let currentUrl = '';
+
+/** The throwaway database's address (after `useTestDatabase` set it up). */
+export const testDatabaseUrl = () => currentUrl;
+
 /** A throwaway database for this test file, migrated from packages/db/drizzle. */
 export const useTestDatabase = () => {
   const name = `core_test_${randomBytes(4).toString('hex')}`;
@@ -30,7 +35,8 @@ export const useTestDatabase = () => {
     const url = new URL(baseUrl);
     url.pathname = `/${name}`;
 
-    configureDb({ url: url.toString(), applicationName: 'erxes-core-test' });
+    currentUrl = url.toString();
+    configureDb({ url: currentUrl, applicationName: 'erxes-core-test' });
     await runMigrations();
   });
 

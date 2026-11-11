@@ -4,6 +4,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tansta
 import { useToast } from 'erxes-ui';
 import type { ComponentType } from 'react';
 import { api, messageOf } from '~/lib/api';
+import { useLivePolling } from '~/lib/live';
 import { pluginLabel } from '~/lib/members';
 import { OrgLogoIcon } from '~/modules/auth/components/Logo';
 import { usePlugins } from '~/modules/plugins/usePlugins';
@@ -19,10 +20,11 @@ export const CORE_INBOX = 'core';
  * and whenever the window regains focus.
  */
 export const useUnreadCounts = () => {
+  const refetchInterval = useLivePolling();
   const query = useQuery({
     queryKey: [...NOTIFICATIONS_KEY, 'unread-count'],
     queryFn: () => api.notifications.unreadCount({}),
-    refetchInterval: 30_000,
+    refetchInterval,
     refetchOnWindowFocus: true,
   });
 
@@ -37,6 +39,7 @@ export interface NotificationFilters {
 }
 
 export const useNotificationList = ({ source, unread, important, enabled = true }: NotificationFilters & { enabled?: boolean }) => {
+  const refetchInterval = useLivePolling();
   const query = useInfiniteQuery({
     queryKey: [...NOTIFICATIONS_KEY, 'list', { source: source ?? null, unread, important: Boolean(important) }],
     queryFn: ({ pageParam }) =>
@@ -52,7 +55,7 @@ export const useNotificationList = ({ source, unread, important, enabled = true 
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
     enabled,
-    refetchInterval: 30_000,
+    refetchInterval,
   });
 
   return {

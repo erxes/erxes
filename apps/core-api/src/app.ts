@@ -10,6 +10,7 @@ import { authenticate } from '~/http/auth';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
+import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
 import { coreApi, openApiDocument } from '~/rpc';
 
@@ -48,7 +49,7 @@ export const createApp = (): Express => {
   app.get('/core/v1/openapi.json', openApiDocument);
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
-  app.use('/core/v1', authenticate, downloadRouter, auditExportRouter, coreApi);
+  app.use('/core/v1', authenticate, streamRouter, downloadRouter, auditExportRouter, coreApi);
 
   app.use((_req, res) => {
     res.status(404).json(errorBody(404, 'NOT_FOUND', 'No such route'));

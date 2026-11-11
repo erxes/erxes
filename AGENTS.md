@@ -152,6 +152,16 @@ it is built.
 - Timeline notes: `customer.note` / `company.note` entries with @mentions
   (notify `core.note.mentioned`), attachments and pinning; the timeline filters
   by kind (notes, changes, plugins) and a company can include its customers'.
+- Live updates: committed changes `NOTIFY` (migration 0008 triggers on
+  notifications, activities, events); each API server holds one `LISTEN`
+  connection (`src/modules/live/hub.ts`; `DATA_LISTEN_URL`, derived for Supabase
+  as the session pooler on 5432) and serves `GET /core/v1/stream` (Server-Sent
+  Events: `hello { mode }`, `inbox`, `timeline { targets }`, `resync`, `bye`;
+  signals only, never data; coalesced, heartbeats, session re-checked, capped
+  per member). The event processor runs on `NOTIFY` (30 s safety poll; 1 s
+  without a listener). core-ui (`src/lib/live.ts`) keeps one stream per
+  browser (Web Locks leader + BroadcastChannel), reopens it with backoff,
+  refetches what changed, and polls only while the stream is down.
 - Profile (Settings › Account › Profile, `/settings/profile`): the member's own
   picture (core file service), names, contact details, about and links through
   `users.update` on themselves; `POST /auth/password` changes their password with

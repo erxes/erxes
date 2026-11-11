@@ -26,6 +26,7 @@
 | 21 | Audit log in core for core's own changes (`core_audit_logs`), written in the same transaction; plugins keep their own audit. | Agreed |
 | 22 | Event stream as a transactional outbox (`core_events`): published in the same transaction as the change, read in commit order by idempotent consumers (timeline, notifications; automations and webhooks next). | Agreed |
 | 23 | One audit log per organisation for core and plugins, append-only in the database and hash-chained for tamper evidence. | Agreed |
+| 24 | Live updates: Postgres LISTEN/NOTIFY to the API servers, Server-Sent Events to browsers (one per browser, shared by tabs), signals not data, polling only as a fallback. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
