@@ -1,7 +1,5 @@
-import { AddProjectForm } from '@/project/components/add-project/AddProjectForm';
+import { useCreateProjectRecord } from '@/project/hooks/useCreateProjectRecord';
 import { IconClipboard } from '@tabler/icons-react';
-import { Sheet } from 'erxes-ui';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { compactList } from '@/operation/utils/cursorList';
 import { GET_PROJECTS } from '@/project/graphql/queries/getProjects';
@@ -20,7 +18,7 @@ export const ProjectsContactSection = ({
   contentId,
 }: Omit<IContactWidgetProps, 'module'>) => {
   const { t } = useTranslation('operation');
-  const [createOpen, setCreateOpen] = useState(false);
+  const { openProjectDraft } = useCreateProjectRecord();
   const contacts =
     contentType === 'core:company'
       ? { companyId: contentId }
@@ -42,23 +40,11 @@ export const ProjectsContactSection = ({
       ids={[...projectsById.keys()]}
       loading={loading}
       createLabel={t('add-project', 'Add project')}
-      onCreate={() => setCreateOpen(true)}
+      onCreate={() => openProjectDraft(contacts, { stack: true })}
       renderItem={(projectId) => {
         const project = projectsById.get(projectId);
         return project ? <ProjectRow project={project} /> : null;
       }}
-    >
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <Sheet.View
-          className="sm:max-w-3xl w-full p-0"
-          onEscapeKeyDown={(event) => event.preventDefault()}
-        >
-          <AddProjectForm
-            onClose={() => setCreateOpen(false)}
-            contacts={contacts}
-          />
-        </Sheet.View>
-      </Sheet>
-    </ContactWidgetSection>
+    />
   );
 };

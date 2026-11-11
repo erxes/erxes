@@ -4,24 +4,10 @@ import { TaskBreadCrump } from '@/task/components/breadcrump/TaskBreadCrump';
 import { TaskDetailBreadCrump } from '@/task/components/breadcrump/TaskDetailBreadCrump';
 import { useGetTask } from '@/task/hooks/useGetTask';
 import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import {
-  IconAlignLeft,
-  IconHistory,
-  IconInfoCircle,
-  IconListDetails,
-} from '@tabler/icons-react';
-import {
-  Breadcrumb,
-  Button,
-  Empty,
-  PageContainer,
-  Separator,
-  Spinner,
-  useQueryState,
-} from 'erxes-ui';
+import { OperationRecordPage } from '@/operation/components/OperationRecordPage';
+import { Breadcrumb, Button, Separator } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { PageHeader, RecordSidePanel } from 'ui-modules';
 import { TaskPanelActions } from '~/widgets/record-panel/TaskPanelActions';
 import {
   TaskPanelActivity,
@@ -31,10 +17,6 @@ import {
   TaskPageDescription,
   TaskPageFields,
 } from '~/widgets/record-panel/TaskPanelDetail';
-
-const FIELDS_TAB = 'fields';
-const DESCRIPTION_TAB = 'description';
-const ACTIVITY_TAB = 'activity';
 
 /** Links back to the tasks of the project the page was opened from. */
 const TaskProjectCrumb = ({ link }: { link: string }) => {
@@ -85,87 +67,30 @@ const TaskPageBreadcrumb = () => {
   );
 };
 
-/** A task on its own page, laid out like a contact's: fields beside tabs. */
+/** A task on its own page, using the shared operation record layout. */
 export const TaskDetailPage = () => {
   const { t } = useTranslation('operation');
   const { taskId } = useParams<{ taskId: string }>();
-  const { task, loading } = useGetTask(taskId);
-  const [tab, setTab] = useQueryState<string>('tab');
+  const { task, loading, error, refetch } = useGetTask(taskId);
 
-  if (!taskId) {
-    return null;
-  }
-
-  const renderBody = () => {
-    if (loading && !task) {
-      return <Spinner containerClassName="py-12" />;
-    }
-
-    if (!task) {
-      return (
-        <div className="flex flex-1 items-center justify-center p-6">
-          <Empty>
-            <Empty.Header>
-              <Empty.Media variant="icon">
-                <IconInfoCircle />
-              </Empty.Media>
-              <Empty.Title>{t('task-not-found')}</Empty.Title>
-            </Empty.Header>
-          </Empty>
-        </div>
-      );
-    }
-
-    return (
-      <RecordSidePanel.Tabs
-        key={taskId}
-        value={tab ?? DESCRIPTION_TAB}
-        onValueChange={setTab}
-        visibleCount={2}
-        overviewTab={FIELDS_TAB}
-        expandedDefaultTab={DESCRIPTION_TAB}
-        overviewHeader={
-          <div className="min-w-0 flex-1 truncate text-sm">
-            <TaskPanelTitle taskId={taskId} />
-          </div>
-        }
-        tabs={[
-          {
-            value: FIELDS_TAB,
-            label: t('details', 'Details'),
-            icon: IconListDetails,
-            content: <TaskPageFields taskId={taskId} />,
-          },
-          {
-            value: DESCRIPTION_TAB,
-            label: t('description', 'Description'),
-            icon: IconAlignLeft,
-            content: <TaskPageDescription taskId={taskId} />,
-          },
-          {
-            value: ACTIVITY_TAB,
-            label: t('activity', 'Activity'),
-            icon: IconHistory,
-            content: <TaskPanelActivity taskId={taskId} />,
-          },
-        ]}
-      />
-    );
-  };
+  if (!taskId) return null;
 
   return (
-    <PageContainer>
-      <RecordSidePanel expanded expandedMode="page" expandable={false}>
-        <PageHeader>
-          <PageHeader.Start>
-            <TaskPageBreadcrumb />
-          </PageHeader.Start>
-          <PageHeader.End>
-            <TaskPanelActions taskId={taskId} />
-          </PageHeader.End>
-        </PageHeader>
-        {renderBody()}
-      </RecordSidePanel>
-    </PageContainer>
+    <OperationRecordPage
+      recordId={taskId}
+      breadcrumb={<TaskPageBreadcrumb />}
+      actions={<TaskPanelActions taskId={taskId} />}
+      title={<TaskPanelTitle taskId={taskId} />}
+      fields={<TaskPageFields taskId={taskId} />}
+      description={<TaskPageDescription taskId={taskId} />}
+      activity={<TaskPanelActivity taskId={taskId} />}
+      found={!!task}
+      loading={loading}
+      error={error}
+      notFoundLabel={t('task-not-found', 'Task not found')}
+      onRetry={() => {
+        void refetch().catch(() => undefined);
+      }}
+    />
   );
 };
