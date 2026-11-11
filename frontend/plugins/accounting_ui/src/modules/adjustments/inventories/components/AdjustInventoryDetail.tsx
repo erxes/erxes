@@ -19,7 +19,6 @@ import {
 import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
-  DatePicker,
   RecordTable,
   Spinner,
   Tooltip,
@@ -36,6 +35,7 @@ import { useAdjustInventoryRun } from '../hooks/useAdjustInventoryRun';
 import { useAdjustInventoryRunFinished } from '@/adjustments/inventories/hooks/useAdjustInventoryRunFinished';
 import { ADJ_INV_STATUSES, IAdjustInventory } from '../types/AdjustInventory';
 import { adjustDetailTableColumns } from './AdjustInventoryDetailColumns';
+import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 
 const toValidDate = (value?: Date | string | null) => {
   if (!value) {
@@ -67,10 +67,17 @@ export const AdjustInventoryDetail = () => {
     skip: !id,
   });
 
-  const { runAdjust } = useAdjustInventoryRun(id ?? '');
-  const { publishAdjust } = useAdjustInventoryPublish(id ?? '');
-  const { cancelAdjust } = useAdjustInventoryCancel(id ?? '');
-  const { removeAdjust } = useAdjustInventoryRemove(id ?? '');
+  const { runAdjust, loading: runLoading } = useAdjustInventoryRun(id ?? '');
+  const { publishAdjust, loading: publishLoading } = useAdjustInventoryPublish(
+    id ?? '',
+  );
+  const { cancelAdjust, loading: cancelLoading } = useAdjustInventoryCancel(
+    id ?? '',
+  );
+  const { removeAdjust, loading: removeLoading } = useAdjustInventoryRemove(
+    id ?? '',
+  );
+  const busy = runLoading || publishLoading || cancelLoading || removeLoading;
 
   useAdjustInventoryRunFinished(id, adjustInventory, refetchDetails);
 
@@ -109,16 +116,17 @@ export const AdjustInventoryDetail = () => {
       case ADJ_INV_STATUSES.PROCESS:
         return (
           <>
-            <Button onClick={handleRun}>
-              <IconCrane />
+            <Button onClick={handleRun} disabled={busy}>
+              {runLoading ? <Spinner /> : <IconCrane />}
               {t('run')}
             </Button>
             <Button
               variant="secondary"
               className="text-destructive"
               onClick={handleDelete}
+              disabled={busy}
             >
-              <IconTrashX />
+              {removeLoading ? <Spinner /> : <IconTrashX />}
               {t('delete')}
             </Button>
           </>
@@ -129,24 +137,22 @@ export const AdjustInventoryDetail = () => {
             variant="secondary"
             className="text-destructive"
             onClick={handleCancel}
+            disabled={busy}
           >
-            <IconTrashX />
+            {cancelLoading ? <Spinner /> : <IconTrashX />}
             {t('draft')}
           </Button>
         );
       case ADJ_INV_STATUSES.COMPLETE:
         return (
-          <Button onClick={handlePublish}>
-            <IconGavel />
+          <Button onClick={handlePublish} disabled={busy}>
+            {publishLoading ? <Spinner /> : <IconGavel />}
             {t('publish')}
           </Button>
         );
       case ADJ_INV_STATUSES.RUNNING:
         return (
-          <Button
-            // disabled={true}
-            onClick={handleRun}
-          >
+          <Button onClick={handleRun}>
             <IconStopwatch />
             {t('stop')}
           </Button>
@@ -169,9 +175,7 @@ export const AdjustInventoryDetail = () => {
         <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
-            <span className="text-primary font-bold">
-              {adjustInventory?.status ? t(adjustInventory.status) : ''}
-            </span>
+            <AdjustStatusBadge status={adjustInventory?.status} />
           </div>
           {adjustInventory?.error && (
             <span className="text-sm">
@@ -228,18 +232,20 @@ const StatusBar = ({
 
     if (isSameDay(day, current)) {
       if (status === ADJ_INV_STATUSES.RUNNING) {
-        return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
+        return <IconRotateClockwise2 className="w-5 h-5 text-info" />;
       }
       if (status === ADJ_INV_STATUSES.PROCESS) {
-        return <IconClockEdit className="w-5 h-5 text-orange-500" />;
+        return <IconClockEdit className="w-5 h-5 text-warning" />;
       }
-      return <IconBinoculars className="w-5 h-5 text-green-500" />;
+      return <IconBinoculars className="w-5 h-5 text-success" />;
     }
     if (isBefore(day, current)) {
-      return <IconCircleCheck className="w-5 h-5 text-green-500" />;
+      return <IconCircleCheck className="w-5 h-5 text-success" />;
     }
     if (isAfter(day, current)) {
-      return <IconHelpSquareRounded className="w-5 h-5 text-blue-400" />;
+      return (
+        <IconHelpSquareRounded className="w-5 h-5 text-muted-foreground" />
+      );
     }
     return undefined;
   };
@@ -247,14 +253,7 @@ const StatusBar = ({
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={start}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled={true}
-          />
-        </span>
+        <span className="font-medium">{format(start, 'yyyy-MM-dd')}</span>
         <span className="text-accent-foreground">{'->'}</span>
       </div>
       {days.map((day) => {
@@ -269,14 +268,7 @@ const StatusBar = ({
       })}
       <div className="flex items-center gap-2 text-sm">
         <span className="text-accent-foreground">{'->'}</span>
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={end}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled={true}
-          />
-        </span>
+        <span className="font-medium">{format(end, 'yyyy-MM-dd')}</span>
       </div>
     </div>
   );

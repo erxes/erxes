@@ -7,7 +7,9 @@ import {
   Form,
   InputNumber,
   RecordTable,
+  RecordTableInlineCell,
   Sheet,
+  Skeleton,
   Table,
   cn,
 } from 'erxes-ui';
@@ -42,6 +44,8 @@ type TFxaOwnerRecord = {
   ownerId?: string;
 };
 
+const SKELETON_ROW_KEYS = ['skeleton-1', 'skeleton-2', 'skeleton-3'];
+
 const getRecordCurrentCount = (record: TFxaOwnerRecord) =>
   Math.max(0, Math.trunc(record.count ?? 0));
 
@@ -68,6 +72,7 @@ export const FxaOwnerRecordsSheet = ({
     name: `trDocs.${journalIndex}`,
   });
   const isMove = trDoc.journal === TrJournalEnum.FXA_MOVE;
+  const columnCount = isMove ? 6 : 5;
   const detail = useWatch({
     control: form.control,
     name: `trDocs.${journalIndex}.details.${detailIndex}`,
@@ -206,20 +211,18 @@ export const FxaOwnerRecordsSheet = ({
         />
       </Sheet.Trigger>
       <Sheet.View className="p-0 flex flex-col gap-0 overflow-hidden flex-none md:max-w-5xl">
-        <Sheet.Header className="flex-row gap-3 items-center p-3 space-y-0 border-b h-auto py-2">
-          <div className="min-w-0">
-            <Sheet.Title>{title || t('select-asset-custodian')}</Sheet.Title>
-            <Sheet.Description
-              className={cn(!isWithinLimit && 'text-destructive')}
-            >
-              {t('maximum-quantity', { nsSeparator: false })} {detailCount}{' '}
-              {t('selected-label', { nsSeparator: false })} {selectedCount}{' '}
-              {t('available', { nsSeparator: false })} {remainingCount}
-            </Sheet.Description>
-          </div>
+        <Sheet.Header>
+          <Sheet.Title>{title || t('select-asset-custodian')}</Sheet.Title>
           <Sheet.Close />
         </Sheet.Header>
         <Sheet.Content className="p-4 overflow-auto">
+          <Sheet.Description
+            className={cn('mb-4', !isWithinLimit && 'text-destructive')}
+          >
+            {t('maximum-quantity', { nsSeparator: false })} {detailCount}{' '}
+            {t('selected-label', { nsSeparator: false })} {selectedCount}{' '}
+            {t('available', { nsSeparator: false })} {remainingCount}
+          </Sheet.Description>
           <Table>
             <Table.Header>
               <Table.Row>
@@ -260,8 +263,16 @@ export const FxaOwnerRecordsSheet = ({
                         />
                       </div>
                     </Table.Cell>
-                    <Table.Cell>{record.code || '-'}</Table.Cell>
-                    <Table.Cell>{availableCount}</Table.Cell>
+                    <Table.Cell>
+                      <RecordTableInlineCell>
+                        {record.code || '-'}
+                      </RecordTableInlineCell>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <RecordTableInlineCell>
+                        {availableCount}
+                      </RecordTableInlineCell>
+                    </Table.Cell>
                     <Table.Cell>
                       <InputNumber
                         value={selectedRecordCount}
@@ -320,15 +331,27 @@ export const FxaOwnerRecordsSheet = ({
                   </Table.Row>
                 );
               })}
-              {!activeRecords.length && (
+              {!activeRecords.length &&
+                loading &&
+                SKELETON_ROW_KEYS.map((rowKey) => (
+                  <Table.Row key={rowKey} className="h-cell">
+                    {Array.from(
+                      { length: columnCount },
+                      (_, colIndex) => `${rowKey}-${colIndex}`,
+                    ).map((cellKey) => (
+                      <Table.Cell key={cellKey} className="border-r-0 px-2">
+                        <Skeleton className="h-4 w-full min-w-4" />
+                      </Table.Cell>
+                    ))}
+                  </Table.Row>
+                ))}
+              {!activeRecords.length && !loading && (
                 <Table.Row>
                   <Table.Cell
-                    colSpan={isMove ? 6 : 5}
+                    colSpan={columnCount}
                     className="text-center text-muted-foreground"
                   >
-                    {loading
-                      ? t('loading')
-                      : t('no-active-asset-custodian-records-found')}
+                    {t('no-active-asset-custodian-records-found')}
                   </Table.Cell>
                 </Table.Row>
               )}

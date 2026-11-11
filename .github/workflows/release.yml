@@ -29,6 +29,7 @@ jobs:
           - erxes/erxes-next-loyalty_api
           - erxes/erxes-next-mongolian_api
           - erxes/erxes-next-posclient_api
+          - erxes/erxes-next-communication_api
           - erxes/erxes-next-dataextensions_api
           - erxes/erxes-next-logs
           - erxes/erxes-next-automations

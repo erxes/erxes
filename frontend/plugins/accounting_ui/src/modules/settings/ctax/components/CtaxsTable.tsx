@@ -47,6 +47,7 @@ export const CtaxMoreColumnCell = ({
           toast({
             title: t('success'),
             description: t('city-tax-row-deleted-successfully'),
+            variant: 'success',
           });
         },
       });
@@ -110,6 +111,7 @@ export const CtaxRowsTable = () => {
       handleFetchMore={handleFetchMore}
       Commandbar={CtaxRowsCommandbar}
       tableId="accounting_ctax_rows_record_table"
+      className="m-3"
     />
   );
 };

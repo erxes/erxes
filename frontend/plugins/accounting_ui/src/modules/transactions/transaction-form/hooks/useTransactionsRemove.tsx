@@ -44,6 +44,7 @@ export const useTransactionsRemove = (
         toast({
           title: t('success'),
           description: t('transactions-deleted-successfully'),
+          variant: 'success',
         });
       },
       refetchQueries: [

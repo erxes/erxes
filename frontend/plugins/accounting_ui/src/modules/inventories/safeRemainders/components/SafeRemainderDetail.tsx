@@ -4,7 +4,7 @@ import {
   IconScale,
   IconTrashX,
 } from '@tabler/icons-react';
-import { Button, PageSubHeader, Spinner, useQueryState } from 'erxes-ui';
+import { Badge, Button, PageSubHeader, Spinner, useQueryState } from 'erxes-ui';
 import { useAtom } from 'jotai';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
@@ -27,6 +27,15 @@ import {
 import { SafeRemainderDetailFilter } from './SafeRemainderDetailFilters';
 import { SafeRemainderDetailTabs } from './SafeRemainderDetailTabs';
 import { SafeRemainderImport } from './SafeRemainderImport';
+
+const SAFE_REMAINDER_STATUS_VARIANTS: Record<
+  string,
+  'secondary' | 'info' | 'success'
+> = {
+  [SAFE_REMAINDER_STATUSES.DRAFT]: 'secondary',
+  [SAFE_REMAINDER_STATUSES.DONE]: 'info',
+  [SAFE_REMAINDER_STATUSES.PUBLISHED]: 'success',
+};
 
 export const SafeRemainderDetail = () => {
   const { t } = useTranslation('accounting');
@@ -165,9 +174,16 @@ export const SafeRemainderDetail = () => {
       >
         <div className="flex items-center gap-2 text-sm mr-1">
           <span className="text-accent-foreground">{t('status')}:</span>
-          <span className="text-primary font-bold capitalize">
-            {safeRemainder?.status ? t(safeRemainder.status) : ''}
-          </span>
+          {safeRemainder?.status && (
+            <Badge
+              variant={
+                SAFE_REMAINDER_STATUS_VARIANTS[safeRemainder.status] ||
+                'secondary'
+              }
+            >
+              {t(safeRemainder.status)}
+            </Badge>
+          )}
         </div>
         {renderActions()}
       </AccountingHeader>

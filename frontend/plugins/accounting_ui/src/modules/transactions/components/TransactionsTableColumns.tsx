@@ -9,6 +9,7 @@ import {
 import { Cell, ColumnDef, Row } from '@tanstack/react-table';
 import dayjs from 'dayjs';
 import {
+  Badge,
   Combobox,
   Command,
   CurrencyCode,
@@ -47,7 +48,11 @@ const StatusCell = ({ row }: { row: Row<ITransaction> }) => {
 
   return (
     <RecordTableInlineCell>
-      {t(TR_STATUS_LABELS[status || ''] || '') || status}
+      {status && (
+        <Badge variant="secondary" className="font-medium">
+          {t(TR_STATUS_LABELS[status] || '') || status}
+        </Badge>
+      )}
     </RecordTableInlineCell>
   );
 };
@@ -132,20 +137,19 @@ const AccountCell = ({ row }: any) => {
   };
 
   return (
-    <RecordTableInlineCell
-      onClick={handleEditAccount}
-      className="cursor-pointer"
-    >
-      {codes.map((code, i) => {
-        const count = infoByCode[code];
-        const tot = count > 1 ? `(${count})` : '';
+    <RecordTableInlineCell>
+      <RecordTableInlineCell.Anchor onClick={handleEditAccount}>
+        {codes.map((code, i) => {
+          const count = infoByCode[code];
+          const tot = count > 1 ? `(${count})` : '';
 
-        if (i === 0) {
-          return `${code} - ${name0}${tot}`;
-        }
+          if (i === 0) {
+            return `${code} - ${name0}${tot}`;
+          }
 
-        return `, ${code}${tot}`;
-      })}
+          return `, ${code}${tot}`;
+        })}
+      </RecordTableInlineCell.Anchor>
     </RecordTableInlineCell>
   );
 };

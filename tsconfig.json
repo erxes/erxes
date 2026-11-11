@@ -29,6 +29,9 @@
       "path": "./backend/plugins/frontline_api/tsconfig.json"
     },
     {
+      "path": "./backend/plugins/communication_api/tsconfig.json"
+    },
+    {
       "path": "./backend/plugins/sales_api/tsconfig.json"
     },
     {
@@ -93,6 +96,6 @@
     },
     {
       "path": "./frontend/plugins/operation_ui/tsconfig.json"
-    },
+    }
   ]
 }

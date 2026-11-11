@@ -94,7 +94,7 @@ export const SideField = ({
           <Form.Label>{labelTxt ? t(labelTxt) : t('side')}</Form.Label>
           <Select value={field.value} onValueChange={field.onChange}>
             <Form.Control>
-              <Select.Trigger className="h-8">
+              <Select.Trigger>
                 <Select.Value />
               </Select.Trigger>
             </Form.Control>
@@ -106,6 +106,7 @@ export const SideField = ({
               ))}
             </Select.Content>
           </Select>
+          <Form.Message />
         </Form.Item>
       )}
     />
@@ -138,6 +139,7 @@ export const AmountField = ({
               }}
             />
           </Form.Control>
+          <Form.Message />
         </Form.Item>
       )}
     />

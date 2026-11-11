@@ -120,6 +120,49 @@ TARGET_SUBDOMAIN=<subdomain> npx tsx backend/saas-migrations/core/commands/migra
 npx tsx backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts
 ```
 
+## AppSumo organizations
+
+AppSumo customers (a redeemed `promo_codes` entry of type `appsumo` whose
+`usedBy` is their subdomain, or `plan: 'lifetime'`) were removed from
+`organizations` and live in `organizations_held`; their databases are still
+`erxes_<_id>`. `appsumo/migrateOrganization.ts` runs first for every pair and
+creates the target organization, so a pair is the held organization's `_id` (or
+subdomain) and the subdomain to create:
+
+```ts
+{ source: '5f8bcfc86c2488e0e6687c1d', target: '026000' },
+```
+
+```bash
+[APPSUMO_OWNER_ID=<user _id>] [APPSUMO_RUN_ID=<id>] tsx backend/saas-migrations/run.ts
+```
+
+The organization has the shape of a freshly provisioned next organization
+(`status: 'active'`, `isNext: true`, `onboardingDone: true`, `charge`, `saas`,
+`gp*`), keeps the held organization's name, and is stamped with
+`migration: { runId, source: 'appsumo-v1', sourceOrganizationId, … }`. The owner is `APPSUMO_OWNER_ID`, else the held
+organization's owner restored from `users_held` (or the active user with the
+same `_id` or email); the new organization is added to that user's
+`organizationIds`. Stripe is not touched (`billing.status: 'none'`,
+`gpStatus: 'new'`). An active `organization_plan_histories` record is added
+for `APPSUMO_BUNDLE_ID` / `APPSUMO_PRODUCT_ID` (defaults: the free bundle
+`68dd0283563460fd84f7c85b` / `68dd033b563460fd84f7c91a`, monthly, one month
+from now) unless the organization already has one. A target subdomain that already carries the same
+`migration.sourceOrganizationId` is reused; one that belongs to another
+organization stops the run before any data is copied. `DRY_RUN=true` only
+prints what would be created.
+
+## Frontline channel
+
+`frontline/commands/migrateChannel.ts` creates a team channel (named
+`DEFAULT_CHANNEL_NAME`, default `Support`) when the target has none, with the
+target's users as members and its owner as admin. `migrateForms.ts`,
+`migrateTickets.ts` and `migrateResponseTemplates.ts` then assign
+`STATIC_CHANNEL_ID` when it is set, otherwise the target's only team channel;
+with several team channels and no `STATIC_CHANNEL_ID` they stop instead of
+writing an empty `channelId`. Response templates whose `channelId` is empty
+from an earlier run are assigned again.
+
 ## Knowledge Base to CMS
 
 The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts

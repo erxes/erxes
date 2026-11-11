@@ -1,6 +1,7 @@
 const { MongoClient } = require('mongodb');
 import * as dotenv from 'dotenv';
 import { findOrganization } from '../../findOrganization';
+import { ensureDefaultChannel } from './_channel';
 dotenv.config();
 
 const MONGO_URL =
@@ -48,6 +49,8 @@ async function migrate() {
   console.log(`Target: ${TARGET_SUBDOMAIN} → ${targetDbName}`);
 
   db = client.db(targetDbName);
+
+  await ensureDefaultChannel(db);
 
   const Channel = db.collection('channels');
   const ChannelMembers = db.collection('channel_members');
