@@ -1,7 +1,6 @@
 import type { TFunction } from 'i18next';
 import { ColumnDef, Row } from '@tanstack/table-core';
-import { RecordTable, RecordTableInlineCell, Skeleton, Table } from 'erxes-ui';
-import { useMemo } from 'react';
+import { RecordTable, RecordTableInlineCell } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { IconRefreshOff } from '@tabler/icons-react';
 import { AccountingEmptyState } from '@/layout/components/AccountingEmptyState';
@@ -43,35 +42,6 @@ export const useSyncConfigValueUpdate = (config: IConfig) => {
   };
 };
 
-export const SyncInitialSkeleton = ({
-  rows = 20,
-  columns,
-}: {
-  rows?: number;
-  columns: ColumnDef<IConfig>[];
-}) => {
-  const rowKeys = useMemo(
-    () => Array.from({ length: rows }, () => crypto.randomUUID()),
-    [rows],
-  );
-  return (
-    <>
-      {rowKeys.map((rowKey) => (
-        <Table.Row key={rowKey} className="h-cell">
-          {columns.map((col, colIndex) => (
-            <Table.Cell
-              key={`${rowKey}-${col.id ?? colIndex}`}
-              className="border-r-0 px-2"
-            >
-              <Skeleton className="h-4 w-full min-w-4" />
-            </Table.Cell>
-          ))}
-        </Table.Row>
-      ))}
-    </>
-  );
-};
-
 export const SyncLinkCell = ({
   row,
   renderVal,
@@ -83,8 +53,14 @@ export const SyncLinkCell = ({
     getSyncConfigContentType(row.original.code),
   );
   return (
-    <RecordTableInlineCell onClick={() => openDetail(row.original._id)}>
-      {renderVal}
+    <RecordTableInlineCell>
+      {renderVal ? (
+        <RecordTableInlineCell.Anchor
+          onClick={() => openDetail(row.original._id)}
+        >
+          {renderVal}
+        </RecordTableInlineCell.Anchor>
+      ) : null}
     </RecordTableInlineCell>
   );
 };
@@ -141,16 +117,14 @@ export const SyncConfigTable = ({
       data={isInitialLoading ? [] : configs || []}
       stickyColumns={stickyColumns}
       tableId={tableId}
-      className="relative"
+      className="relative m-3"
     >
       <RecordTable.Scroll>
         <RecordTable>
           <RecordTable.Header showColumnSelector={showColumnSelector} />
           <RecordTable.Body>
             <RecordTable.RowList />
-            {isInitialLoading && (
-              <SyncInitialSkeleton rows={20} columns={columns} />
-            )}
+            {isInitialLoading && <RecordTable.RowSkeleton rows={20} />}
           </RecordTable.Body>
         </RecordTable>
       </RecordTable.Scroll>

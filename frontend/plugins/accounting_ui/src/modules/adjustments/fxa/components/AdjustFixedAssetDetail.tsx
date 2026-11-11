@@ -16,7 +16,6 @@ import { eachDayOfInterval, isAfter, isBefore, isSameDay } from 'date-fns';
 import { formatDate as format } from '@/utils/graphqlDate';
 import {
   Button,
-  DatePicker,
   Dialog,
   Form,
   RecordTable,
@@ -40,6 +39,7 @@ import {
   IAdjustFixedAsset,
 } from '@/adjustments/fxa/types/AdjustFixedAsset';
 import { adjustFxaDetailColumns } from '@/adjustments/fxa/components/AdjustFxaDetailColumns';
+import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 
 export const AdjustFixedAssetDetail = () => {
   const { t } = useTranslation('accounting');
@@ -106,7 +106,7 @@ export const AdjustFixedAssetDetail = () => {
         <div className="flex justify-end items-center col-span-2 xl:col-span-3 gap-6">
           <div className="flex items-center gap-2 text-sm">
             <span className="text-accent-foreground">{t('status')}:</span>
-            <span className="text-primary font-bold">{t(status)}</span>
+            <AdjustStatusBadge status={status} />
           </div>
           {adjustFixedAsset.error && (
             <span className="text-sm text-destructive">
@@ -323,18 +323,20 @@ const StatusBar = ({
   const renderIcon = (day: Date) => {
     if (isSameDay(day, current)) {
       if (status === ADJ_FXA_STATUSES.RUNNING) {
-        return <IconRotateClockwise2 className="w-5 h-5 text-yellow-500" />;
+        return <IconRotateClockwise2 className="w-5 h-5 text-info" />;
       }
       if (status === ADJ_FXA_STATUSES.PROCESS) {
-        return <IconClockEdit className="w-5 h-5 text-orange-500" />;
+        return <IconClockEdit className="w-5 h-5 text-warning" />;
       }
-      return <IconCircleCheck className="w-5 h-5 text-green-500" />;
+      return <IconCircleCheck className="w-5 h-5 text-success" />;
     }
     if (isBefore(day, current)) {
-      return <IconCircleCheck className="w-5 h-5 text-green-500" />;
+      return <IconCircleCheck className="w-5 h-5 text-success" />;
     }
     if (isAfter(day, current)) {
-      return <IconHelpSquareRounded className="w-5 h-5 text-blue-400" />;
+      return (
+        <IconHelpSquareRounded className="w-5 h-5 text-muted-foreground" />
+      );
     }
     return undefined;
   };
@@ -342,14 +344,7 @@ const StatusBar = ({
   return (
     <div className="flex flex-wrap items-center justify-start gap-2 max-w-full">
       <div className="flex items-center gap-2 text-sm">
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={new Date(start)}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled
-          />
-        </span>
+        <span className="font-medium">{format(start, 'yyyy-MM-dd')}</span>
         <span className="text-accent-foreground">{'->'}</span>
       </div>
       {days.map((day) => (
@@ -362,14 +357,7 @@ const StatusBar = ({
       ))}
       <div className="flex items-center gap-2 text-sm">
         <span className="text-accent-foreground">{'->'}</span>
-        <span className="text-primary font-bold">
-          <DatePicker
-            value={new Date(end)}
-            onChange={() => null}
-            className="h-8 flex w-full"
-            disabled
-          />
-        </span>
+        <span className="font-medium">{format(end, 'yyyy-MM-dd')}</span>
       </div>
     </div>
   );

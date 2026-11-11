@@ -9,9 +9,7 @@ export const AdjustDebtRatePage = () => {
   return (
     <AccountingLayout>
       <AdjustmentHeader defaultKind="debRate">
-        <div className="px-3">
-          <AddAdjustDebtRate />
-        </div>
+        <AddAdjustDebtRate />
       </AdjustmentHeader>
       <PageSubHeader>
         <TransactionsFilter />

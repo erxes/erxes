@@ -24,7 +24,7 @@ export const useAdjustFixedAssetActions = (adjustId: string) => {
     ],
     awaitRefetchQueries: true,
     onCompleted: () => {
-      toast({ title: t('success') });
+      toast({ title: t('success'), variant: 'success' });
     },
     onError: (error: Error) => {
       toast({
