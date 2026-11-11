@@ -395,7 +395,7 @@ const syncOpeningAccumulatedDepreciation = async ({
     parentId: transaction.parentId,
     number: transaction.number,
     date,
-    description: `Opening accumulated depreciation for fixed asset income ${transaction._id}`,
+    description: transaction.description,
     status: transaction.status,
     mentionOwnerId: transaction.mentionOwnerId,
     mentionUserIds: transaction.mentionUserIds,
@@ -624,6 +624,7 @@ export const validateFxaIncomeAcquisition = async (
   for (const detail of transaction.details || []) {
     for (const field of [
       'preDeprecation',
+      'taxPreDeprecation',
       'revaluationLoss',
       'revaluationReserve',
     ] as const) {
@@ -638,6 +639,10 @@ export const validateFxaIncomeAcquisition = async (
       throw new Error('Enter either total revaluation loss or reserve.');
     const count = Math.max(0, detail.count || 0);
     const unitCost = detail.unitPrice ?? (count ? detail.amount / count : 0);
+    if ((info.taxPreDeprecation || 0) > unitCost * count + 0.005)
+      throw new Error(
+        'Total opening tax depreciation cannot exceed acquisition cost.',
+      );
     if ((info.preDeprecation || 0) > unitCost * count + 0.005)
       throw new Error(
         'Total accumulated depreciation cannot exceed acquisition cost.',

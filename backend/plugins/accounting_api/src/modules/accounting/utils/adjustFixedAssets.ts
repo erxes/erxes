@@ -1,4 +1,5 @@
 import { getFxaDepreciationAccounts } from './fxaAccountConfigs';
+import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
 import { assertCanWriteTransactionAccounts } from './trPermissions';
 import { getPreviousFxaAdjustment } from './fxaAdjustmentState';
 import { IModels } from '~/connectionResolvers';
@@ -694,6 +695,100 @@ const calculateFixedAssetDepreciationByDay = ({
   );
 };
 
+export const calculateFxaTaxDepreciation = ({
+  fixedAsset,
+  beginDate,
+  endDate,
+  corrections,
+  movements,
+}: {
+  fixedAsset: IFxaLedgerAsset;
+  beginDate: Date;
+  endDate: Date;
+  corrections: TFxaCorrection[];
+  movements: TFixedAssetMovement[];
+}): Map<string, { amount: number; accumulated: number; error: string }> => {
+  const amounts = new Map<string, number>();
+  let accumulatedPerUnit = fixedAsset.taxOpeningDepreciation || 0;
+  let date = getPureDate(fixedAsset.acquisitionDate);
+  let error = '';
+  // Replay the tax schedule from acquisition. Book postings and book revaluations
+  // never become tax depreciation inputs; disposals remove their proportional base.
+  while (date <= endDate) {
+    const rules = getFxaRulesAtDate(fixedAsset, corrections, date);
+    const method =
+      rules.taxDepreciationMethod || fixedAsset.taxDepreciationMethod;
+    const rate =
+      rules.taxAnnualDepreciationRate ?? fixedAsset.taxAnnualDepreciationRate;
+    const salvage = rules.taxSalvageValue ?? fixedAsset.taxSalvageValue;
+    if (
+      !Number.isFinite(rate) ||
+      rate <= 0 ||
+      rate > 100 ||
+      !Number.isFinite(salvage) ||
+      salvage < 0 ||
+      salvage > fixedAsset.originalCost ||
+      !FIXED_ASSET_DEPRECIATION_METHODS.ALL.includes(method) ||
+      method === 'manual'
+    ) {
+      error = 'Valid automatic tax depreciation rules are required.';
+      break;
+    }
+    if (
+      !Number.isFinite(accumulatedPerUnit) ||
+      accumulatedPerUnit < 0 ||
+      accumulatedPerUnit > fixedAsset.originalCost
+    ) {
+      error =
+        'Opening tax depreciation must be between zero and acquisition cost.';
+      break;
+    }
+    const counts = getAssetLocationCountsAtDate(
+      fixedAsset._id,
+      movements,
+      date,
+    );
+    if (
+      getTotalCount(counts) > 0 &&
+      date >= getPureDate(fixedAsset.depreciationStartDate)
+    ) {
+      const result = calculateDepreciationByMethod(method, {
+        originalCost: fixedAsset.originalCost,
+        annualDepreciationRate: rate,
+        salvageValue: salvage,
+        startDate: date,
+        endDate: date,
+        scheduleStartDate: fixedAsset.depreciationStartDate,
+        preDeprecation: accumulatedPerUnit,
+      });
+      error = result.error;
+      accumulatedPerUnit = result.closingAccumulatedDepreciation;
+      if (date >= beginDate) {
+        for (const [key, count] of counts) {
+          if (count > 0)
+            amounts.set(key, (amounts.get(key) || 0) + result.amount * count);
+        }
+      }
+    }
+    date = addDays(date, 1);
+  }
+  const closing = getAssetLocationCountsAtDate(
+    fixedAsset._id,
+    movements,
+    endDate,
+  );
+  return new Map(
+    [...new Set([...closing.keys(), ...amounts.keys()])].map((key) => [
+      key,
+      {
+        amount: amounts.get(key) || 0,
+        accumulated: accumulatedPerUnit * Math.max(closing.get(key) || 0, 0),
+        error,
+      },
+    ]),
+  );
+};
+
 const validateFxaAdjustmentByDay = async ({
   adjustId,
   beginDate,
@@ -844,31 +939,6 @@ export const clearAdjustFixedAsset = async (
     contentId: adjust._id,
   }).lean();
   if (transactions.length) {
-    const fixedAssetIds = [
-      ...new Set(
-        transactions
-          .flatMap((tr) => tr.details.map((detail) => detail.fixedAssetId))
-          .filter(Boolean),
-      ),
-    ];
-    const laterChange = await models.Transactions.findOne({
-      date: { $gt: adjust.date },
-      status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
-      journal: {
-        $in: [
-          JOURNALS.FXA_CAPITAL,
-          JOURNALS.FXA_REVALUATION,
-          JOURNALS.FXA_OUT,
-          JOURNALS.FXA_MOVE,
-          JOURNALS.FXA_SALE,
-        ],
-      },
-      'details.fixedAssetId': { $in: fixedAssetIds },
-    }).lean();
-    if (laterChange)
-      throw new Error(
-        'Undo later fixed asset changes before clearing depreciation.',
-      );
     await assertCanWriteTransactionAccounts({
       models,
       userId,
@@ -1063,7 +1133,8 @@ export const runAdjustFixedAsset = async (
       periodDate = addDays(periodDate, 1);
     }
 
-    if (periodActiveCount <= 0) return assetDetails;
+    if (periodActiveCount <= 0 && adjust.taxRate === undefined)
+      return assetDetails;
 
     const depreciationMethod = fixedAsset.depreciationMethod || 'straightLine';
     const resultByLocationKey = calculateFixedAssetDepreciationByDay({
@@ -1077,6 +1148,23 @@ export const runAdjustFixedAsset = async (
       corrections,
     });
 
+    const taxResults =
+      adjust.taxRate === undefined
+        ? undefined
+        : periodActiveCount <= 0
+        ? new Map(
+            Array.from(resultByLocationKey.keys(), (key) => [
+              key,
+              { amount: 0, accumulated: 0, error: '' },
+            ]),
+          )
+        : calculateFxaTaxDepreciation({
+            fixedAsset,
+            beginDate: startDate,
+            endDate,
+            corrections,
+            movements,
+          });
     const revaluation = revaluationStates.get(fixedAsset._id) || {
       count: 0,
       loss: 0,
@@ -1096,12 +1184,26 @@ export const runAdjustFixedAsset = async (
         !result ||
         (result.originalCost <= 0 &&
           result.depreciationAmount <= 0 &&
-          !result.error)
+          !result.error &&
+          !taxResults)
       ) {
         continue;
       }
 
+      const tax = taxResults?.get(locationKey);
+      const temporaryDifference =
+        (tax?.accumulated || 0) - result.accumulatedDepreciation;
+      const deferredTax = (temporaryDifference * (adjust.taxRate || 0)) / 100;
       assetDetails.push({
+        ...(taxResults
+          ? {
+              taxDepreciationAmount: tax?.amount || 0,
+              taxAccumulatedDepreciation: tax?.accumulated || 0,
+              temporaryDifference,
+              deferredTaxAsset: Math.max(-deferredTax, 0),
+              deferredTaxLiability: Math.max(deferredTax, 0),
+            }
+          : {}),
         adjustId: adjust._id,
         fixedAssetId: fixedAsset._id,
         categoryId: fixedAsset.categoryId,
@@ -1122,7 +1224,9 @@ export const runAdjustFixedAsset = async (
         depreciationAmount: result.depreciationAmount,
         accumulatedDepreciation: result.accumulatedDepreciation,
         error:
-          result.error || (!accountId ? 'Fixed asset account is missing.' : ''),
+          result.error ||
+          tax?.error ||
+          (!accountId ? 'Fixed asset account is missing.' : ''),
         warning: result.warning,
       });
     }
@@ -1164,7 +1268,6 @@ export const createAdjustFixedAssetTransaction = async ({
   const details = await models.AdjustFxaDetails.find({
     adjustId: adjust._id,
     error: { $in: [null, ''] },
-    depreciationAmount: { $gt: 0 },
   }).lean();
 
   if (!details.length) {
@@ -1188,13 +1291,13 @@ export const createAdjustFixedAssetTransaction = async ({
       throw new Error('Fixed asset account is missing on depreciation detail.');
     }
 
+    const amount = detail.depreciationAmount || 0;
+    if (amount <= 0) continue;
     const depreciationAccountId = accountConfigs.get(detail.accountId);
 
     if (!depreciationAccountId) {
       throw new Error('Accumulated depreciation account config is missing.');
     }
-
-    const amount = detail.depreciationAmount || 0;
 
     debitDetails.push({
       accountId: expenseAccountId,
@@ -1216,29 +1319,44 @@ export const createAdjustFixedAssetTransaction = async ({
     });
   }
 
-  const trDocs: ITransaction[] = [
-    {
-      _id: details[0].transactionId,
-      date: adjust.date,
-      description: adjust.description,
-      journal: JOURNALS.FXA_DEP,
-      status: TR_STATUSES.COMPLETE,
-      side: TR_SIDES.DEBIT,
-      contentType: 'accounting:adjustFixedAsset',
-      contentId: adjust._id,
-      details: debitDetails,
-    },
-    {
-      date: adjust.date,
-      description: adjust.description,
-      journal: JOURNALS.FXA_DEP,
-      status: TR_STATUSES.COMPLETE,
-      side: TR_SIDES.CREDIT,
-      contentType: 'accounting:adjustFixedAsset',
-      contentId: adjust._id,
-      details: creditDetails,
-    },
-  ];
+  const trDocs: ITransaction[] = debitDetails.length
+    ? [
+        {
+          _id: details[0].transactionId,
+          date: adjust.date,
+          description: adjust.description,
+          journal: JOURNALS.FXA_DEP,
+          status: TR_STATUSES.COMPLETE,
+          side: TR_SIDES.DEBIT,
+          contentType: 'accounting:adjustFixedAsset',
+          contentId: adjust._id,
+          details: debitDetails,
+        },
+        {
+          date: adjust.date,
+          description: adjust.description,
+          journal: JOURNALS.FXA_DEP,
+          status: TR_STATUSES.COMPLETE,
+          side: TR_SIDES.CREDIT,
+          contentType: 'accounting:adjustFixedAsset',
+          contentId: adjust._id,
+          details: creditDetails,
+        },
+      ]
+    : [];
+
+  const taxDocs =
+    adjust.taxRate === undefined
+      ? []
+      : await getFxaDeferredTaxTransactions(models, adjust, details);
+  trDocs.push(...taxDocs);
+  if (!trDocs.length) {
+    return models.AdjustFixedAssets.updateAdjustFixedAsset(adjust._id, {
+      status: ADJ_FXA_STATUSES.COMPLETE,
+      expenseAccountId,
+      modifiedBy: userId,
+    });
+  }
 
   const existingTransactionId = details.find(
     (detail) => detail.transactionId,

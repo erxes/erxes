@@ -2,13 +2,14 @@ import { ITrDetail } from '@/transactions/types/Transaction';
 
 export const getTotalFxaDepreciation = (
   details: ITrDetail[],
+  rule: 'preDeprecation' | 'taxPreDeprecation' = 'preDeprecation',
 ): number | undefined => {
   const entered = details.filter(
-    (detail) => detail.followInfos?.preDeprecation !== undefined,
+    (detail) => detail.followInfos?.[rule] !== undefined,
   );
   return entered.length
     ? entered.reduce(
-        (sum, detail) => sum + (detail.followInfos?.preDeprecation ?? 0),
+        (sum, detail) => sum + (detail.followInfos?.[rule] ?? 0),
         0,
       )
     : undefined;

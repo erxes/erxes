@@ -24,6 +24,7 @@ export interface IFxaLedgerAsset extends IFixedAsset {
   taxDepreciationMethod: string;
   taxAnnualDepreciationRate: number;
   taxSalvageValue: number;
+  taxOpeningDepreciation?: number;
 }
 
 export const assertFxaAcquisitionConsistency = (
@@ -162,6 +163,13 @@ export const buildFxaLedgerAssets = (
             : 'straightLine',
         taxAnnualDepreciationRate: Number(info.taxAnnualDepreciationRate || 0),
         taxSalvageValue: Number(info.taxSalvageValue || 0),
+        taxOpeningDepreciation: count
+          ? incomes.reduce(
+              (sum, row) =>
+                sum + Number(row.detail.followInfos?.taxPreDeprecation ?? 0),
+              0,
+            ) / count
+          : 0,
       },
     ];
   });

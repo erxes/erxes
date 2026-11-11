@@ -80,7 +80,7 @@ export const AdjustFixedAssets = {
 
   async adjustFixedAssetRun(
     _root: undefined,
-    { adjustId }: { adjustId: string },
+    { adjustId, taxRate }: { adjustId: string; taxRate?: number },
     { models, user, checkPermission }: IContext,
   ) {
     await checkPermission('manageAdjustFixedAssets');
@@ -95,15 +95,30 @@ export const AdjustFixedAssets = {
       throw new Error('This fixed asset adjustment cannot be calculated.');
     }
 
-    const cleared = await clearAdjustFixedAsset(models, user._id, adjust);
-    await models.AdjustFixedAssets.updateAdjustFixedAsset(adjustId, {
-      status: ADJ_FXA_STATUSES.RUNNING,
-      error: '',
-      warning: '',
-      modifiedBy: user._id,
-    });
+    const effectiveTaxRate = taxRate === undefined ? adjust.taxRate : taxRate;
+    if (
+      effectiveTaxRate === undefined ||
+      !Number.isFinite(effectiveTaxRate) ||
+      effectiveTaxRate < 0 ||
+      effectiveTaxRate > 100
+    ) {
+      throw new Error(
+        'Enter an income tax rate between 0 and 100 before calculating depreciation.',
+      );
+    }
+    await clearAdjustFixedAsset(models, user._id, adjust);
+    const running = await models.AdjustFixedAssets.updateAdjustFixedAsset(
+      adjustId,
+      {
+        taxRate: effectiveTaxRate,
+        status: ADJ_FXA_STATUSES.RUNNING,
+        error: '',
+        warning: '',
+        modifiedBy: user._id,
+      },
+    );
     try {
-      return await runAdjustFixedAsset(models, user._id, cleared);
+      return await runAdjustFixedAsset(models, user._id, running);
     } catch (error) {
       await models.AdjustFixedAssets.updateAdjustFixedAsset(adjustId, {
         status: ADJ_FXA_STATUSES.PROCESS,

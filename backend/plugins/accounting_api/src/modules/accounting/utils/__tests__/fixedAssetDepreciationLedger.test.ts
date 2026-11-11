@@ -45,6 +45,9 @@ const setup = ({
   transactions,
   priorDepreciation,
   method = 'straightLine',
+  annualDepreciationRate = 12,
+  taxAnnualDepreciationRate,
+  taxRate,
   salvageValue = 0,
   acquisitionDate = '2026-01-01',
   snapshotHasAsset = true,
@@ -52,6 +55,9 @@ const setup = ({
   transactions: ITransaction[];
   priorDepreciation?: number;
   method?: string;
+  annualDepreciationRate?: number;
+  taxAnnualDepreciationRate?: number;
+  taxRate?: number;
   salvageValue?: number;
   acquisitionDate?: string;
   snapshotHasAsset?: boolean;
@@ -63,7 +69,8 @@ const setup = ({
       detail.followInfos = {
         ...detail.followInfos,
         depreciationMethod: method,
-        annualDepreciationRate: 12,
+        annualDepreciationRate,
+        taxAnnualDepreciationRate,
         salvageValue,
         depreciationStartDate: new Date(acquisitionDate),
       };
@@ -193,6 +200,7 @@ const setup = ({
       // The fixture implements only the model surface used by this calculation.
       await runAdjustFixedAsset(models as unknown as IModels, 'user', {
         _id: 'adjust',
+        taxRate,
         date: new Date(date),
         status: ADJ_FXA_STATUSES.DRAFT,
         createdAt: new Date(),
@@ -666,4 +674,24 @@ test('adjustment carries a total depreciation amount once across multiple units'
   expect(detail.originalCost).toBe(300);
   expect(detail.depreciationAmount).toBeCloseTo(3 / 31, 8);
   expect(detail.accumulatedDepreciation).toBeCloseTo(60 + 3 / 31, 8);
+});
+
+test('1000 book depreciation and 600 tax depreciation cache separately and produce a 40 deferred tax asset at 10 percent', async () => {
+  const fixture = setup({
+    annualDepreciationRate: 100,
+    taxAnnualDepreciationRate: 60,
+    taxRate: 10,
+    transactions: [
+      entry(JOURNALS.FXA_INCOME, '2026-01-01', 12000, TR_SIDES.DEBIT),
+    ],
+  });
+  const [detail] = await fixture.run('2026-01-31');
+  expect(detail.error).toBe('');
+  expect(detail.depreciationAmount).toBeCloseTo(1000);
+  expect(detail.accumulatedDepreciation).toBeCloseTo(1000);
+  expect(detail.taxDepreciationAmount).toBeCloseTo(600);
+  expect(detail.taxAccumulatedDepreciation).toBeCloseTo(600);
+  expect(detail.temporaryDifference).toBeCloseTo(-400);
+  expect(detail.deferredTaxAsset).toBeCloseTo(40);
+  expect(detail.deferredTaxLiability).toBe(0);
 });

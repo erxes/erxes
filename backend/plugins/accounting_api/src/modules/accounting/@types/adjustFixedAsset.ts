@@ -23,6 +23,11 @@ export interface IAdjustFxaDetail {
   salvageValue?: number;
   accumulatedDepreciation?: number;
   depreciationAmount?: number;
+  taxDepreciationAmount?: number;
+  taxAccumulatedDepreciation?: number;
+  temporaryDifference?: number;
+  deferredTaxAsset?: number;
+  deferredTaxLiability?: number;
   revaluationLoss?: number;
   revaluationReserve?: number;
 
@@ -43,6 +48,7 @@ export interface IAdjustFxaDetailDocument extends IAdjustFxaDetail, Document {
 
 export interface IAdjustFixedAsset extends ICommonAdjusting {
   expenseAccountId?: string;
+  taxRate?: number;
   date: Date;
   description: string;
   status: string;

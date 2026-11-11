@@ -104,15 +104,63 @@ test('zero-depreciation completed periods can be cancelled and calculated again'
   expect(raw.Transactions.removePTransaction).not.toHaveBeenCalled();
 });
 
-test('later completed periods block clearing before deleting anything', async () => {
-  const { models, raw } = fixture();
-  raw.AdjustFixedAssets.findOne.mockReturnValueOnce(query({ _id: 'later' }));
-  await expect(
-    clearAdjustFixedAsset(models, 'user', adjust(ADJ_FXA_STATUSES.COMPLETE)),
-  ).rejects.toThrow('later fixed asset adjustment');
-  expect(raw.Transactions.removePTransaction).not.toHaveBeenCalled();
-  expect(raw.AdjustFxaDetails.deleteMany).not.toHaveBeenCalled();
-});
+test.each([ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH])(
+  'later %s periods block clearing before deleting anything',
+  async (status) => {
+    const { models, raw } = fixture();
+    raw.AdjustFixedAssets.findOne.mockReturnValueOnce(query({ _id: 'later' }));
+    await expect(
+      clearAdjustFixedAsset(models, 'user', adjust(ADJ_FXA_STATUSES.COMPLETE)),
+    ).rejects.toThrow('later fixed asset adjustment');
+    expect(raw.AdjustFixedAssets.findOne).toHaveBeenCalledWith({
+      _id: { $ne: 'adjust' },
+      date: { $gte: new Date(new Date('2026-01-31').setHours(0, 0, 0, 0)) },
+      status: { $in: expect.arrayContaining([status]) },
+    });
+    expect(raw.Transactions.removePTransaction).not.toHaveBeenCalled();
+    expect(raw.AdjustFxaDetails.deleteMany).not.toHaveBeenCalled();
+  },
+);
+
+test.each([
+  JOURNALS.FXA_CAPITAL,
+  JOURNALS.FXA_REVALUATION,
+  JOURNALS.FXA_OUT,
+  JOURNALS.FXA_MOVE,
+  JOURNALS.FXA_SALE,
+])(
+  'November %s transactions do not prevent reopening January depreciation',
+  async (journal) => {
+    const { models, raw } = fixture();
+    raw.Transactions.findOne.mockImplementation(
+      (filter: Record<string, unknown>) =>
+        query(
+          filter.journal === JOURNALS.FXA_INCOME
+            ? { date: new Date('2026-01-01') }
+            : { date: new Date('2026-11-01'), journal },
+        ),
+    );
+    const result = await clearAdjustFixedAsset(
+      models,
+      'user',
+      adjust(ADJ_FXA_STATUSES.COMPLETE),
+    );
+    expect(result.status).toBe(ADJ_FXA_STATUSES.DRAFT);
+    expect(raw.Transactions.removePTransaction).toHaveBeenCalledWith({
+      parentId: 'parent',
+    });
+    expect(raw.Transactions.findOne).toHaveBeenCalledTimes(1);
+    expect(raw.Transactions.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({ journal: JOURNALS.FXA_INCOME }),
+    );
+    expect(raw.AdjustFixedAssets.findOne).toHaveBeenCalledWith(
+      expect.objectContaining({
+        date: { $gte: expect.any(Date) },
+        status: { $in: [ADJ_FXA_STATUSES.COMPLETE, ADJ_FXA_STATUSES.PUBLISH] },
+      }),
+    );
+  },
+);
 
 test('published calculations must use cancellation rather than bypassing publication with clear', async () => {
   const { models } = fixture();

@@ -58,7 +58,7 @@ test.each([false, true])(
       />,
     );
     const years = screen.getByLabelText(
-      tax ? 'tax-useful-life' : 'useful-life-in-years',
+      tax ? 'tax-useful-life-in-years' : 'useful-life-in-years',
     );
     const rate = screen.getByLabelText(
       tax ? 'annual-tax-depreciation-rate' : 'annual-depreciation-rate',

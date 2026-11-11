@@ -58,50 +58,71 @@ jest.mock('erxes-ui', () => {
   };
 });
 
-test('total is authoritative across unit edits, quantity changes and explicit zero', () => {
-  const { result } = renderHook(() =>
-    useForm<TAddTransactionGroup>({
-      defaultValues: {
-        trDocs: [
-          {
-            journal: TrJournalEnum.FXA_INCOME,
-            details: [
-              { _id: 'row', count: 3, followInfos: { preDeprecation: 15000 } },
-            ],
-          },
-        ],
-      },
-    }),
-  );
-  const array = renderHook(() =>
-    useFieldArray({
-      control: result.current.control,
-      name: 'trDocs.0.details',
-    }),
-  );
-  const rowId = array.result.current.fields[0].id;
-  render(
-    <FxaDepreciationFields form={result.current} index={0} detailIndex={0} />,
-  );
-  const unit = screen.getByLabelText('fxa-new-unit-depreciation');
-  const total = screen.getByLabelText(
-    'total-amount prior-accumulated-depreciation',
-  );
-  expect(unit).toHaveProperty('value', '5000');
-  fireEvent.change(unit, { target: { value: '6000' } });
-  expect(
-    result.current.getValues('trDocs.0.details.0.followInfos.preDeprecation'),
-  ).toBe(18000);
-  act(() => result.current.setValue('trDocs.0.details.0.count', 2));
-  expect(array.result.current.fields[0].id).toBe(rowId);
-  expect(unit).toHaveProperty('value', '9000');
-  expect(total).toHaveProperty('value', '18000');
-  fireEvent.change(total, { target: { value: '0' } });
-  expect(unit).toHaveProperty('value', '0');
-  expect(
-    result.current.getValues('trDocs.0.details.0.followInfos.preDeprecation'),
-  ).toBe(0);
-});
+test.each([false, true])(
+  'total is authoritative across unit edits, quantity changes and explicit zero (tax=%s)',
+  (tax) => {
+    const rule = tax ? 'taxPreDeprecation' : 'preDeprecation';
+    const otherRule = tax ? 'preDeprecation' : 'taxPreDeprecation';
+    const { result } = renderHook(() =>
+      useForm<TAddTransactionGroup>({
+        defaultValues: {
+          trDocs: [
+            {
+              journal: TrJournalEnum.FXA_INCOME,
+              details: [
+                {
+                  _id: 'row',
+                  count: 3,
+                  followInfos: { [rule]: 15000, [otherRule]: 900 },
+                },
+              ],
+            },
+          ],
+        },
+      }),
+    );
+    const array = renderHook(() =>
+      useFieldArray({
+        control: result.current.control,
+        name: 'trDocs.0.details',
+      }),
+    );
+    const rowId = array.result.current.fields[0].id;
+    render(
+      <FxaDepreciationFields
+        form={result.current}
+        index={0}
+        detailIndex={0}
+        tax={tax}
+      />,
+    );
+    const unit = screen.getByLabelText(
+      tax ? 'tax-unit-accumulated-depreciation' : 'fxa-new-unit-depreciation',
+    );
+    const total = screen.getByLabelText(
+      tax
+        ? 'tax-total-accumulated-depreciation'
+        : 'total-amount prior-accumulated-depreciation',
+    );
+    expect(unit).toHaveProperty('value', '5000');
+    fireEvent.change(unit, { target: { value: '6000' } });
+    expect(
+      result.current.getValues(`trDocs.0.details.0.followInfos.${rule}`),
+    ).toBe(18000);
+    act(() => result.current.setValue('trDocs.0.details.0.count', 2));
+    expect(array.result.current.fields[0].id).toBe(rowId);
+    expect(unit).toHaveProperty('value', '9000');
+    expect(total).toHaveProperty('value', '18000');
+    fireEvent.change(total, { target: { value: '0' } });
+    expect(unit).toHaveProperty('value', '0');
+    expect(
+      result.current.getValues(`trDocs.0.details.0.followInfos.${rule}`),
+    ).toBe(0);
+    expect(
+      result.current.getValues(`trDocs.0.details.0.followInfos.${otherRule}`),
+    ).toBe(900);
+  },
+);
 
 test('location totals retain the authoritative total after rounding', () => {
   expect(allocateFxaDepreciation(100, [1, 1, 1])).toEqual([

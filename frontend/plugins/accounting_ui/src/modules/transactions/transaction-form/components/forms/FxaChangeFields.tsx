@@ -1,3 +1,4 @@
+import { getFxaTaxLabel } from '@/adjustments/fxa/utils/fxaTaxLabels';
 import {
   Form,
   Input,
@@ -27,12 +28,14 @@ export const FxaChangeNumberField = ({
   label,
   compact = false,
   usefulYears = false,
+  labelOverride,
 }: IFxaChangeFieldProps & {
   rule:
     | 'revaluationLoss'
     | 'revaluationReserve'
     | 'taxAnnualDepreciationRate'
     | 'taxSalvageValue'
+    | 'taxPreDeprecation'
     | 'originalCost'
     | 'preDeprecation'
     | 'salvageValue'
@@ -40,12 +43,14 @@ export const FxaChangeNumberField = ({
   label: string;
   compact?: boolean;
   usefulYears?: boolean;
+  labelOverride?: string;
 }) => {
   const { t } = useTranslation('accounting');
   const fieldLabel =
-    rule === 'revaluationLoss' || rule === 'revaluationReserve'
+    labelOverride ??
+    (rule === 'revaluationLoss' || rule === 'revaluationReserve'
       ? `${t('total-amount')} ${t(label)}`
-      : t(label);
+      : getFxaTaxLabel(t, label));
   return (
     <Form.Field
       control={form.control}
@@ -124,13 +129,14 @@ export const FxaChangeNumberField = ({
 
 export const FxaChangeLifeFields = ({
   tax = false,
+  className = 'grid grid-cols-2 gap-3',
   ...props
-}: IFxaChangeFieldProps & { tax?: boolean }) => (
-  <div className="grid grid-cols-2 gap-3">
+}: IFxaChangeFieldProps & { tax?: boolean; className?: string }) => (
+  <div className={className}>
     <FxaChangeNumberField
       {...props}
       rule={tax ? 'taxAnnualDepreciationRate' : 'annualDepreciationRate'}
-      label={tax ? 'tax-useful-life' : 'useful-life-in-years'}
+      label={tax ? 'tax-useful-life-in-years' : 'useful-life-in-years'}
       usefulYears
     />
     <FxaChangeNumberField

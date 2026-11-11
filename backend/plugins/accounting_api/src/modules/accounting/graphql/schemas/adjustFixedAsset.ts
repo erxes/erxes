@@ -2,6 +2,7 @@ export const types = `
   type AdjustFixedAsset @key(fields: "_id") @cacheControl(maxAge: 3) {
     _id: String
     expenseAccountId: String
+    taxRate: Float
     date: Date
     description: String
     status: String
@@ -31,6 +32,11 @@ export const types = `
     salvageValue: Float
     accumulatedDepreciation: Float
     depreciationAmount: Float
+    taxDepreciationAmount: Float
+    taxAccumulatedDepreciation: Float
+    temporaryDifference: Float
+    deferredTaxAsset: Float
+    deferredTaxLiability: Float
     revaluationLoss: Float
     revaluationReserve: Float
     previous: AdjustFxaDetail
@@ -63,6 +69,7 @@ const adjustFixedAssetsQueryParams = `
 `;
 
 const adjustFixedAssetParams = `
+  taxRate: Float
   date: Date
   description: String
   beginDate: Date
@@ -96,6 +103,6 @@ export const mutations = `
   adjustFixedAssetCancel(adjustId: String!): AdjustFixedAsset
   adjustFixedAssetRemove(adjustId: String!): String
   adjustFixedAssetClear(adjustId: String!): AdjustFixedAsset
-  adjustFixedAssetRun(adjustId: String!): AdjustFixedAsset
+  adjustFixedAssetRun(adjustId: String!, taxRate: Float): AdjustFixedAsset
   adjustFixedAssetTransaction(adjustId: String!, expenseAccountId: String!): AdjustFixedAsset
 `;

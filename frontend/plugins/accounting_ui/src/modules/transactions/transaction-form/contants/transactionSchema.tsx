@@ -48,6 +48,7 @@ export const transactionDetailFollowInfoSchema = z
       z.string().refine((value) => Number.isFinite(Date.parse(value))),
     ),
     preDeprecation: undefed(z.number().nonnegative()),
+    taxPreDeprecation: undefed(z.number().finite().nonnegative()),
     revaluationLoss: undefed(z.number().finite()),
     revaluationReserve: undefed(z.number().finite()),
     salvageValue: undefed(z.number().finite().nonnegative()),

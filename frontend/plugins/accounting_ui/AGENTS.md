@@ -24,6 +24,8 @@
 
 ## Current Capabilities
 
+- Fixed asset adjustment creation requires an income-tax percentage (`taxRate`, 0–100) independently of asset depreciation percentages. Detail headers retain it through the scoped subscription. Calculation rows show period and accumulated tax depreciation, signed tax-minus-book accumulated depreciation difference, and deferred-tax asset/liability targets. Income’s tax calculation section accepts a total opening tax depreciation amount in `followInfos.taxPreDeprecation`. Tax labels without gateway resources use plugin-local EN/MN fallbacks in `adjustments/fxa/utils/fxaTaxLabels.ts`.
+
 - Fixed asset income keeps category/code/name acquisition entry in detail `followInfos.fixedAssetCategoryId`/`fixedAssetCode`/`fixedAssetName`; detail root keeps only the `fixedAssetId` reference, and income validation requires all three metadata fields. its row sheet edits frozen book/tax depreciation rules and optional custodian allocations. Settings fixed asset forms edit identity metadata only; financial values are derived API projections.
 - Non-income asset rows and bulk-add actions use `settings/fixed-assets/components/chooser/FixedAssetChooser`. It has exactly two levels: assets and branch/department locations, with search/category/location/member filters, pagination and loading/error/empty states. The detail location supplies initial row-chooser filters; hidden transaction header locations are not used. Clicking an asset group adds its matching location choices, while leaf rows select one location. Custodians and serial allocations are managed through the transaction detail’s existing more-menu sheet, not as chooser rows or columns. Selected rows are excluded from available results and collect in a separate lower section; clicking them removes the pending choice. Selections survive filter/page changes. Branch and department have separate columns rendered by the public `BranchBadge`/`DepartmentBadge` in plain-text mode (id detail lookup), and asset labels stay compact on one line. Operational row choosers support multiple choices and insert one detail per choice; capitalization and revaluation keep one choice per asset. Choosing a location fills row branch/department and clamps quantity. Sale keeps its entered price and revenue account. Capitalization selects the asset across every location.
 
@@ -199,7 +201,7 @@
 
 ## Data and State
 
-- Income’s existing detail sheet accepts total detail prior unrecovered revaluation loss and prior reserve in `followInfos.revaluationLoss`/`revaluationReserve`. These are history limits, not additional cost deductions. Capitalization/revaluation depreciation previews use the existing `fxaDepIn`/`fxaDepOut` journal and origin types, linked by source `originId`. Revaluation persists only these same two signed total-detail delta fields; preview derives recovery/new loss/reserve from their signs. State sums them once without multiplying by quantity. Adjustment rows expose one current snapshot plus a read-only `previous` snapshot from generated query types. Asset/account and public branch/department inline cells identify each comparison row. Numeric snapshot cells show previous → current values; book values are derived from cost minus accumulated depreciation. No opening/closing or duplicate book-depreciation fields are stored or selected.
+- Income’s existing detail sheet accepts total detail prior unrecovered revaluation loss and prior reserve in `followInfos.revaluationLoss`/`revaluationReserve`. These are history limits, not additional cost deductions. Capitalization/revaluation depreciation previews use the existing `fxaDepIn`/`fxaDepOut` journal and origin types, linked by source `originId`. Revaluation persists only these same two signed total-detail delta fields; preview derives recovery/new loss/reserve from their signs. State sums them once without multiplying by quantity. Adjustment rows expose one current snapshot plus a read-only `previous` snapshot from generated query types. Asset/account and public branch/department inline cells identify each comparison row. Numeric snapshot cells show previous → current values; book values are derived from cost minus accumulated depreciation. No opening/closing or duplicate book-depreciation fields are stored or selected. Tax-enabled adjustments select current and previous tax-depreciation and deferred-tax snapshot fields.
 
 - Apollo Client owns server state, mutation refreshes, subscriptions, and detail/list cache updates.
 - React Hook Form owns editable accounting transaction and adjustment form state.
@@ -232,6 +234,8 @@
 
 ## Local Invariants
 
+- FXA detail warns when a legacy adjustment has no income-tax rate and prevents posting that calculation. Run opens a validated tax-rate dialog when missing; configured periods offer a rate button that recalculates with an explicitly changed rate. The optional `taxRate` argument belongs to the existing run mutation and shares its refresh/toast flow. Published periods explain cancellation before rerun; never infer income-tax percentage from asset depreciation percentages or silently assume ten percent.
+
 - Transaction tax forms, Zod schemas, defaults, and mutation payloads use the API field names `isHandleVat` and `isHandleCtax` for manual tax amounts. Never introduce `handleVat`/`handleCtax` form fields: GraphQL rejects those keys and persisted manual-tax flags must survive edit initialization.
 
 - Out, move and sale journals retain separate form/table/row components so journal-specific behavior can evolve independently. `components/helpers/fxaHelpers.ts` supplies detail defaults and owner-record display codes; owner sequences come from persisted `sequence`, never by parsing display codes.
@@ -254,9 +258,9 @@
 
 - Transaction detail sheets display useful years alongside the canonical annual depreciation percentage through `FxaChangeLifeFields`: book and tax on income, book on capital/revaluation. Both controls edit the same annual-rate field; years remain derived, with no second persisted value.
 
-- The income detail sheet uses three columns: book method/life/residual, tax method/life/residual, unit depreciation/total depreciation/start date, then total loss/reserve. Quantity is emphasized in the header summary instead of a separate sheet input.
+- The income detail sheet uses three equal columns: book method/useful years/annual rate, then book unit accumulated depreciation/total accumulated depreciation/total residual value. When tax calculation is visible, the same two tax rows follow. Total unrecovered loss/total reserve/depreciation start date stay in the final row. Residual inputs display detail totals and divide by quantity when writing the existing per-unit book/tax salvage fields; accumulated depreciation totals remain authoritative, with unit helpers editing their corresponding book/tax totals. Quantity is emphasized in the header summary instead of a separate sheet input.
 
-- Depreciation helper edits update individual `details.<index>.followInfos.preDeprecation` fields, never replace the detail array: `useFieldArray` replacement remounts rows and closes their open sheets. Derived unit depreciation uses a native-change `Input` so masked-input initialization cannot round and rewrite the authoritative total.
+- Depreciation helper edits update individual `details.<index>.followInfos.preDeprecation` or `taxPreDeprecation` fields, never replace the detail array: `useFieldArray` replacement remounts rows and closes their open sheets. Derived unit depreciation uses a native-change `Input` so masked-input initialization cannot round and rewrite the authoritative total. Book and tax edits must not overwrite each other's totals.
 
 - `Form.Label`, `Form.Control`, and `Form.Message` require an enclosing `Form.Field`. Derived inputs without a registered field (such as unit depreciation in `FxaDepreciationFields`) use the public `Label` with an input id instead.
 
@@ -453,6 +457,8 @@
 - Journal report output never prints a placeholder organization name; when no company name is configured, the organization line stays blank.
 
 ## Validation
+
+- Tax smoke scenario: create an adjustment with a validated income-tax percentage, calculate assets with distinct book/tax rules, verify separate tax columns and tax journals in the linked TBalance, cancel/rerun without duplicates, and verify the rate remains visible after subscription refresh. Enter total opening tax depreciation on an income detail, save/reopen, and verify it survives alongside the book opening total.
 
 - FXA calculation unit tests mock the real workspace `ui-modules` module normally, without `{ virtual: true }`, to avoid loading unrelated shared UI/ESM dependencies.
 
