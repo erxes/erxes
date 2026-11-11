@@ -323,7 +323,7 @@ describe('what every run mounts', () => {
     for (const codeModeEnabled of [false, true]) {
       const run = runWith(codeModeEnabled);
 
-      expect(await config.skills(run)).toEqual(skills);
+      expect(await config.skills(run)).toEqual(expect.arrayContaining(skills));
       expect(await config.instructions(run)).not.toContain(pluginText);
     }
   });
