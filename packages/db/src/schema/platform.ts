@@ -8,6 +8,7 @@ import {
   index,
   integer,
   jsonb,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -294,3 +295,68 @@ export const eventConsumers = pgTable('event_consumers', {
   lastSeq: bigint({ mode: 'number' }).default(0).notNull(),
   updatedAt: updatedAt(),
 });
+
+export const EVENT_FAILURE_STATUSES = ['retrying', 'dead'] as const;
+export type EventFailureStatus = (typeof EVENT_FAILURE_STATUSES)[number];
+
+/**
+ * Events a consumer could not handle. The consumer's cursor moves on (one bad
+ * event never blocks the stream); the event is retried here with backoff and,
+ * after the last attempt, kept as `dead` until someone retries it by hand.
+ */
+export const eventFailures = pgTable(
+  'event_failures',
+  {
+    consumer: text().notNull(),
+    eventId: text().notNull(),
+    orgId: text().notNull(),
+    status: text({ enum: EVENT_FAILURE_STATUSES }).default('retrying').notNull(),
+    attempts: integer().default(1).notNull(),
+    lastError: text().notNull(),
+    /** When to try again; null once dead. */
+    nextAttemptAt: timestamptz(),
+    firstFailedAt: timestamptz().defaultNow().notNull(),
+    updatedAt: updatedAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.consumer, table.eventId], name: 'core_event_failures_pkey' }),
+    index('core_event_failures_due_idx').on(table.nextAttemptAt).where(sql`${table.status} = 'retrying'`),
+    index('core_event_failures_org_idx').on(table.orgId, table.updatedAt.desc()),
+    foreignKey({ columns: [table.eventId], foreignColumns: [events.id], name: 'core_event_failures_event_id_fkey' }).onDelete(
+      'cascade',
+    ),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_event_failures_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);
+
+/**
+ * Signed checkpoints of each organisation's audit chain: core signs the head
+ * (`chain_seq`, `hash`) with its signing key, which lives in server config and
+ * never in the database. Rewriting the chain (even consistently, by someone
+ * with full database access) no longer matches a signed checkpoint.
+ */
+export const auditCheckpoints = pgTable(
+  'audit_checkpoints',
+  {
+    orgId: text().notNull(),
+    chainSeq: bigint({ mode: 'number' }).notNull(),
+    hash: text().notNull(),
+    /** Signing key id (`kid` in the published JWKS). */
+    keyId: text().notNull(),
+    /** Compact JWS (ES256) of `{ org, seq, hash, iat }`. */
+    signature: text().notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.chainSeq], name: 'core_audit_checkpoints_pkey' }),
+    foreignKey({
+      columns: [table.orgId],
+      foreignColumns: [organizations.id],
+      name: 'core_audit_checkpoints_org_id_fkey',
+    }).onDelete('cascade'),
+  ],
+);

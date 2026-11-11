@@ -5,7 +5,9 @@ import { config } from '~/config';
 /** What a committed change announces (see migration 0008). */
 export type LiveSignal =
   | { o: string; k: 'inbox'; u: string }
-  | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string };
+  | { o: string; k: 'timeline'; t: 'customer' | 'company'; i: string }
+  /** Many records changed at once (merge, import): refetch everything. */
+  | { o: string; k: 'resync' };
 
 /**
  * One LISTEN connection per API server, shared by every open stream:

@@ -3,6 +3,7 @@ import {
   IconChevronLeft,
   IconCloudUpload,
   IconHierarchy2,
+  IconPlugConnected,
   IconShieldCheck,
   IconTag,
   IconUserCircle,
@@ -32,7 +33,12 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     // Who changed what: owners and admins only.
-    ...(user.role !== 'member' ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }] : []),
+    ...(user.role !== 'member'
+      ? [
+          { name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck },
+          { name: t('event-delivery', 'Event delivery'), path: 'event-delivery', icon: IconPlugConnected },
+        ]
+      : []),
   ];
 };
 

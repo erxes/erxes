@@ -6,6 +6,7 @@ import { config } from '~/config';
 import {
   type Actor,
   actorOf,
+  requireManager,
   callerOf,
   pluginCaller,
   pluginOf,
@@ -20,7 +21,14 @@ import {
   removeNote,
   updateNote,
 } from '~/modules/activities/activities.service';
-import { listEvents, publishPluginEvents } from '~/modules/events/events.service';
+import {
+  dismissEventFailures,
+  listEventFailures,
+  listEvents,
+  publishPluginEvents,
+  retryEventFailures,
+} from '~/modules/events/events.service';
+import { listCheckpoints } from '~/modules/audit/checkpoints';
 import {
   type AuditInput,
   auditSettings,
@@ -177,6 +185,11 @@ export const coreRouter = pub.router({
     list: authed.audit.list.handler(({ input, context }) => listAudit(db(), context.actor, input)),
     record: plugin.audit.record.handler(({ input, context }) => recordPluginAudit(db(), context.plugin, input.entries)),
     verify: authed.audit.verify.handler(({ context }) => verifyAudit(db(), context.actor)),
+    checkpoints: authed.audit.checkpoints.handler(({ input, context }) => {
+      requireManager(context.actor, 'Only owners and admins can read audit checkpoints');
+
+      return listCheckpoints(db(), context.actor.orgId, input);
+    }),
     settings: authed.audit.settings.handler(({ context }) => auditSettings(db(), context.actor.orgId)),
     updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
       updateAuditSettings(db(), context.actor, input),
@@ -185,6 +198,13 @@ export const coreRouter = pub.router({
   events: {
     publish: plugin.events.publish.handler(({ input, context }) => publishPluginEvents(db(), context.plugin, input.events)),
     list: authed.events.list.handler(({ input, context }) => listEvents(db(), context.actor, input)),
+    failures: authed.events.failures.handler(({ input, context }) => listEventFailures(db(), context.actor, input)),
+    retryFailures: authed.events.retryFailures.handler(({ input, context }) =>
+      retryEventFailures(db(), context.actor, input),
+    ),
+    dismissFailures: authed.events.dismissFailures.handler(({ input, context }) =>
+      dismissEventFailures(db(), context.actor, input),
+    ),
   },
   files: {
     createUpload: anyone.files.createUpload.handler(({ input, context }) => createUpload(db(), context.caller, input)),

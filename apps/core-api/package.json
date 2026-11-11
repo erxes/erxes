@@ -22,6 +22,7 @@
     "@orpc/zod": "1.16.2",
     "drizzle-orm": "0.45.4",
     "express": "^4.21.2",
+    "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "zod": "^3.25.76"
   },

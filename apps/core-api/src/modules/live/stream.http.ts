@@ -49,13 +49,14 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
   const send = (event: string, data: unknown = {}) => res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
   let inbox = false;
+  let resync = false;
   const timelines = new Map<string, { targetType: string; targetId: string }>();
   let flushTimer: NodeJS.Timeout | null = null;
 
   const flush = () => {
     flushTimer = null;
 
-    if (timelines.size > MAX_TIMELINES_PER_FLUSH) {
+    if (resync || timelines.size > MAX_TIMELINES_PER_FLUSH) {
       send('resync');
     } else {
       if (inbox) send('inbox');
@@ -63,13 +64,16 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
     }
 
     inbox = false;
+    resync = false;
     timelines.clear();
   };
 
   const onSignal = (signal: LiveSignal) => {
     if (signal.o !== actor.orgId) return;
 
-    if (signal.k === 'inbox') {
+    if (signal.k === 'resync') {
+      resync = true;
+    } else if (signal.k === 'inbox') {
       if (signal.u !== actor.userId) return;
 
       inbox = true;

@@ -1,7 +1,8 @@
-import type { CoreEvent, CursorQuery, EventInput } from '@erxes/core-contract';
-import { type Db, events, newId } from '@erxes/core-db';
-import { and, eq, like, sql } from 'drizzle-orm';
-import { type Actor, type Caller, type PluginCaller, requireManager } from '~/http/auth';
+import type { CoreEvent, CursorQuery, EventFailure, EventInput } from '@erxes/core-contract';
+import { type Db, eventConsumers, eventFailures, events, newId } from '@erxes/core-db';
+import { and, desc, eq, inArray, like, or, sql } from 'drizzle-orm';
+import { type Actor, type Caller, type PluginCaller, requireManager, userCaller } from '~/http/auth';
+import { recordAudit } from '~/modules/audit/audit.service';
 import { HttpError } from '~/http/errors';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
@@ -144,3 +145,145 @@ export const listEvents = async (
   return { ...page, data: page.data.map(toEventDto) };
 };
 
+
+// ─── Failed deliveries ──────────────────────────────────────────────────────
+
+export const listEventFailures = async (client: Db, actor: Actor, query: { status?: 'retrying' | 'dead' }) => {
+  requireManager(actor, 'Only owners and admins can see failed events');
+
+  const rows = await client
+    .select({ failure: eventFailures, event: events })
+    .from(eventFailures)
+    .innerJoin(events, eq(events.id, eventFailures.eventId))
+    .where(and(eq(eventFailures.orgId, actor.orgId), query.status ? eq(eventFailures.status, query.status) : undefined))
+    .orderBy(desc(eventFailures.updatedAt))
+    .limit(200);
+  const counts = await client
+    .select({ status: eventFailures.status, count: sql<number>`count(*)::int` })
+    .from(eventFailures)
+    .where(eq(eventFailures.orgId, actor.orgId))
+    .groupBy(eventFailures.status);
+
+  return {
+    data: rows.map(
+      ({ failure, event }): EventFailure => ({
+        consumer: failure.consumer,
+        status: failure.status,
+        attempts: failure.attempts,
+        lastError: failure.lastError,
+        nextAttemptAt: failure.nextAttemptAt?.toISOString() ?? null,
+        firstFailedAt: failure.firstFailedAt.toISOString(),
+        updatedAt: failure.updatedAt.toISOString(),
+        event: toEventDto(event),
+      }),
+    ),
+    counts: {
+      retrying: counts.find((row) => row.status === 'retrying')?.count ?? 0,
+      dead: counts.find((row) => row.status === 'dead')?.count ?? 0,
+    },
+  };
+};
+
+type FailureRef = { consumer: string; eventId: string };
+
+const refsWhere = (orgId: string, refs: FailureRef[]) =>
+  and(
+    eq(eventFailures.orgId, orgId),
+    or(...refs.map((ref) => and(eq(eventFailures.consumer, ref.consumer), eq(eventFailures.eventId, ref.eventId)))),
+  );
+
+/** Tries failed events again now (one more attempt each); wakes the processor. */
+export const retryEventFailures = async (client: Db, actor: Actor, input: { failures?: FailureRef[]; allDead?: boolean }) => {
+  requireManager(actor, 'Only owners and admins can retry failed events');
+
+  if (!input.failures?.length && !input.allDead) {
+    throw new HttpError(400, 'NOTHING_TO_RETRY', 'Name the failures to retry, or all dead ones');
+  }
+
+  return client.transaction(async (tx) => {
+    const retried = await tx
+      .update(eventFailures)
+      .set({ status: 'retrying', nextAttemptAt: sql`now()`, updatedAt: sql`now()` })
+      .where(
+        input.failures?.length
+          ? refsWhere(actor.orgId, input.failures)
+          : and(eq(eventFailures.orgId, actor.orgId), eq(eventFailures.status, 'dead')),
+      )
+      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+
+    if (retried.length) {
+      await recordAudit(tx, userCaller(actor), {
+        action: 'event.failures_retried',
+        targetType: 'event',
+        metadata: { count: retried.length, failures: retried.slice(0, 50) },
+      });
+      await tx.execute(sql`select pg_notify('core_events', '')`);
+    }
+
+    return { retried: retried.length };
+  });
+};
+
+/** Gives up on failed events: they won't be retried or shown again. */
+export const dismissEventFailures = async (client: Db, actor: Actor, input: { failures: FailureRef[] }) => {
+  requireManager(actor, 'Only owners and admins can dismiss failed events');
+
+  return client.transaction(async (tx) => {
+    const dismissed = await tx
+      .delete(eventFailures)
+      .where(refsWhere(actor.orgId, input.failures))
+      .returning({ eventId: eventFailures.eventId, consumer: eventFailures.consumer });
+
+    if (dismissed.length) {
+      await recordAudit(tx, userCaller(actor), {
+        action: 'event.failures_dismissed',
+        targetType: 'event',
+        metadata: { count: dismissed.length, failures: dismissed.slice(0, 50) },
+      });
+    }
+
+    return { dismissed: dismissed.length };
+  });
+};
+
+/**
+ * Removes events older than the retention period that every consumer has
+ * passed and none still has to retry. Consumers that never ran hold
+ * everything back.
+ */
+export const pruneEvents = async (client: Db, days: number, consumerNames: string[], batchSize = 5000) => {
+  if (!consumerNames.length) return 0;
+
+  const positions = await client
+    .select({ name: eventConsumers.name })
+    .from(eventConsumers)
+    .where(inArray(eventConsumers.name, consumerNames));
+
+  if (positions.length < consumerNames.length) return 0;
+
+  let removed = 0;
+
+  for (let round = 0; round < 100; round += 1) {
+    const result = await client.execute(sql`
+      delete from ${events} e
+      where e.id in (
+        select id from ${events} old
+        where old.created_at < now() - make_interval(days => ${days})
+          and not exists (
+            select 1 from ${eventConsumers} c
+            where c.name in (${sql.join(consumerNames.map((name) => sql`${name}`), sql`, `)})
+              and (old.tx_id, old.seq) > (c.last_tx_id, c.last_seq)
+          )
+          and not exists (select 1 from ${eventFailures} f where f.event_id = old.id)
+        limit ${batchSize}
+      )
+    `);
+    const count = result.rowCount ?? 0;
+
+    removed += count;
+
+    if (count < batchSize) break;
+  }
+
+  return removed;
+};

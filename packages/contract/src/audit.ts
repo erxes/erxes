@@ -94,6 +94,38 @@ export const auditContract = {
         checked: z.number().int(),
         /** The first entry (chain position) where the chain breaks. */
         brokenAt: z.number().int().nullable(),
+        /**
+         * Signed checkpoints (core's key, outside the database): they catch a
+         * chain rewritten consistently and entries removed from its end.
+         */
+        checkpoints: z.object({
+          checked: z.number().int(),
+          latestSeq: z.number().int().nullable(),
+          latestAt: z.string().datetime().nullable(),
+          /** The first checkpoint the log no longer matches. */
+          mismatchAt: z.number().int().nullable(),
+        }),
+      }),
+    ),
+  checkpoints: oc
+    .route({
+      method: 'GET',
+      path: '/audit/checkpoints',
+      summary:
+        'Signed checkpoints of the audit chain (JWS, ES256; keys at /core/v1/.well-known/jwks.json), to keep outside erxes (owners and admins)',
+    })
+    .input(z.object({ after: z.coerce.number().int().min(0).optional(), limit: z.coerce.number().int().min(1).max(1000).default(200) }))
+    .output(
+      z.object({
+        data: z.array(
+          z.object({
+            chainSeq: z.number().int(),
+            hash: z.string(),
+            keyId: z.string(),
+            signature: z.string(),
+            createdAt: z.string().datetime(),
+          }),
+        ),
       }),
     ),
   settings: oc

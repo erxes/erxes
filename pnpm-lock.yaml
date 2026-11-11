@@ -50,6 +50,9 @@ importers:
       express:
         specifier: ^4.21.2
         version: 4.22.3
+      jose:
+        specifier: ^5.9.6
+        version: 5.10.0
       jsonwebtoken:
         specifier: ^9.0.2
         version: 9.0.3
@@ -5317,6 +5320,9 @@ packages:
   jiti@2.7.0:
     resolution: {integrity: sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ==}
     hasBin: true
+
+  jose@5.10.0:
+    resolution: {integrity: sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg==}
 
   jotai@2.20.3:
     resolution: {integrity: sha512-N8L9FUbeGDP+0qNJw1FebOxt+5hk+jTOwUA2LlRE4C081jUcY6F1T/FSETp4DT2/INMtiSRZyNm2D+yZdzrSgA==}
@@ -12504,6 +12510,8 @@ snapshots:
   jiti@1.21.7: {}
 
   jiti@2.7.0: {}
+
+  jose@5.10.0: {}
 
   jotai@2.20.3(@babel/core@7.9.0)(@babel/template@7.29.7)(@types/react@18.3.1)(react@18.3.1):
     optionalDependencies:

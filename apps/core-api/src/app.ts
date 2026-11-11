@@ -12,6 +12,7 @@ import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
+import { publicJwks } from '~/lib/signing';
 import { coreApi, openApiDocument } from '~/rpc';
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
@@ -47,6 +48,12 @@ export const createApp = (): Express => {
   });
 
   app.get('/core/v1/openapi.json', openApiDocument);
+
+  // Core's public signing keys: plugins verify plugin tokens and auditors
+  // verify audit checkpoints with them.
+  app.get('/core/v1/.well-known/jwks.json', (_req, res) => {
+    res.set('Cache-Control', 'public, max-age=300').json(publicJwks());
+  });
 
   // Every /core/v1 route needs a signed-in member or a plugin key.
   app.use('/core/v1', authenticate, streamRouter, downloadRouter, auditExportRouter, coreApi);

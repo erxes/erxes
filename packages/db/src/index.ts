@@ -6,7 +6,10 @@ export {
   ACTIVITY_TARGETS,
   ACTOR_TYPES,
   activities,
+  auditCheckpoints,
   auditLogs,
+  EVENT_FAILURE_STATUSES,
+  eventFailures,
   eventConsumers,
   events,
   SUBJECT_TYPES,
@@ -31,4 +34,4 @@ export {
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ActorType, ContentType, CustomValue, OrganizationSettings } from './schema';
+export type { ActorType, EventFailureStatus, ContentType, CustomValue, OrganizationSettings } from './schema';

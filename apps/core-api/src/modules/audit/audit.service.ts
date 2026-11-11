@@ -8,6 +8,7 @@ import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { requestInfo } from '~/http/requestContext';
 import type { Changes } from '~/lib/changes';
 import { keysetPage } from '~/lib/keyset';
+import { findChainBreak, signAuditCheckpoints, verifyCheckpoints } from './checkpoints';
 
 type AuditRow = typeof auditLogs.$inferSelect;
 
@@ -207,27 +208,20 @@ export const recordPluginAudit = async (
 export const verifyAudit = async (client: Db, actor: Actor) => {
   requireManager(actor, 'Only owners and admins can check the audit log');
 
-  const result = await client.execute<{ checked: number; broken_at: number | null }>(sql`
-    with chain as (
-      select a.chain_seq,
-             a.hash,
-             a.prev_hash,
-             core_audit_entry_hash(a.prev_hash, a) as expected,
-             lag(a.hash) over (order by a.chain_seq) as previous_hash,
-             lag(a.chain_seq) over (order by a.chain_seq) as previous_seq
-      from core_audit_logs a
-      where a.org_id = ${actor.orgId} and a.chain_seq is not null
-    )
-    select count(*)::int as checked,
-           min(chain_seq) filter (
-             where hash is distinct from expected
-                or (previous_seq is not null and (prev_hash is distinct from previous_hash or chain_seq <> previous_seq + 1))
-           )::int as broken_at
-    from chain
-  `);
-  const row = result.rows[0] ?? { checked: 0, broken_at: null };
+  const chain = await findChainBreak(client, actor.orgId);
+  const checkpoints = await verifyCheckpoints(client, actor.orgId, chain.firstSeq);
 
-  return { ok: row.broken_at === null, checked: row.checked, brokenAt: row.broken_at };
+  // An intact log gets a fresh checkpoint now, not at the next scheduled one.
+  if (chain.brokenAt === null && checkpoints.mismatchAt === null) {
+    await signAuditCheckpoints(client, actor.orgId);
+  }
+
+  return {
+    ok: chain.brokenAt === null && checkpoints.mismatchAt === null,
+    checked: chain.checked,
+    brokenAt: chain.brokenAt,
+    checkpoints,
+  };
 };
 
 export const auditSettings = async (client: Db, orgId: string) => {

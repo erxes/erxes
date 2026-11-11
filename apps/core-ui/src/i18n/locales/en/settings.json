@@ -1274,5 +1274,27 @@
     "banner-owner-many": "{{count}} people from erxes support have access.",
     "manage": "Manage",
     "open": "Open support access"
+  },
+  "event-delivery": {
+    "title": "Event delivery",
+    "retry-all": "Retry all stopped",
+    "all": "All",
+    "retrying": "Retrying ({{count}})",
+    "dead": "Stopped ({{count}})",
+    "explain": "Failed events are retried after 1 min, 5 min, 30 min, 2 h and 12 h, then stop here.",
+    "empty": "Every event was delivered",
+    "empty-description": "Timelines and notifications handled every event from core and plugins.",
+    "attempts": "{{count}} attempts",
+    "first-failed": "first failed",
+    "next-attempt": "next attempt",
+    "retry": "Retry now",
+    "retried": "Retrying {{count}} events",
+    "failed": "Something went wrong"
+  },
+  "audit-log": {
+    "verify-checkpoint-mismatch": "The log no longer matches signed checkpoint #{{position}}: entries were rewritten or removed outside erxes.",
+    "verify-checkpoints": "{{count}} signed checkpoints checked. erxes signs the chain every 10 minutes with a key kept outside the database.",
+    "verify-no-checkpoints": "No signed checkpoint yet: erxes signs the chain every 10 minutes.",
+    "download-checkpoints": "Download signed checkpoints"
   }
 }

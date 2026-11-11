@@ -118,7 +118,36 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
   </div>
 );
 
-/** Re-checks the hash chain: has any entry been changed or removed? */
+/**
+ * Every signed checkpoint as JSON, to keep outside erxes: with the public keys
+ * (`/core/v1/.well-known/jwks.json`) anyone can later prove what the log held.
+ */
+const downloadCheckpoints = async () => {
+  const all: unknown[] = [];
+  let after: number | undefined;
+
+  for (;;) {
+    const page = await api.audit.checkpoints({ after, limit: 1000 });
+
+    all.push(...page.data);
+
+    if (page.data.length < 1000) break;
+
+    after = page.data[page.data.length - 1]!.chainSeq;
+  }
+
+  const blob = new Blob([JSON.stringify({ jwks: '/core/v1/.well-known/jwks.json', checkpoints: all }, null, 2)], {
+    type: 'application/json',
+  });
+  const link = document.createElement('a');
+
+  link.href = URL.createObjectURL(blob);
+  link.download = `audit-checkpoints-${new Date().toISOString().slice(0, 10)}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+};
+
+/** Re-checks the hash chain and the signed checkpoints: has any entry been changed or removed? */
 const IntegrityCheck = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const verify = useMutation({ mutationFn: () => api.audit.verify() });
@@ -135,25 +164,46 @@ const IntegrityCheck = () => {
       <Popover.Content align="end" className="w-80 text-sm">
         {verify.isPending || !result ? (
           <Spinner containerClassName="py-4" />
-        ) : result.ok ? (
-          <div className="flex gap-3">
-            <IconShieldCheck className="size-5 shrink-0 text-green-600" />
-            <p>
-              {t('verify-ok', {
-                count: result.checked,
-                defaultValue: `All ${result.checked} entries are intact: none was changed or removed.`,
-              })}
-            </p>
-          </div>
         ) : (
-          <div className="flex gap-3">
-            <IconShieldX className="size-5 shrink-0 text-destructive" />
-            <p>
-              {t('verify-broken', {
-                position: result.brokenAt,
-                defaultValue: `The chain breaks at entry #${result.brokenAt}: an entry was changed or removed outside erxes.`,
-              })}
+          <div className="space-y-3">
+            {result.ok ? (
+              <div className="flex gap-3">
+                <IconShieldCheck className="size-5 shrink-0 text-green-600" />
+                <p>
+                  {t('verify-ok', {
+                    count: result.checked,
+                    defaultValue: `All ${result.checked} entries are intact: none was changed or removed.`,
+                  })}
+                </p>
+              </div>
+            ) : (
+              <div className="flex gap-3">
+                <IconShieldX className="size-5 shrink-0 text-destructive" />
+                <p>
+                  {result.brokenAt !== null
+                    ? t('verify-broken', {
+                        position: result.brokenAt,
+                        defaultValue: `The chain breaks at entry #${result.brokenAt}: an entry was changed or removed outside erxes.`,
+                      })
+                    : t('verify-checkpoint-mismatch', {
+                        position: result.checkpoints.mismatchAt,
+                        defaultValue: `The log no longer matches signed checkpoint #${result.checkpoints.mismatchAt}: entries were rewritten or removed outside erxes.`,
+                      })}
+                </p>
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {result.checkpoints.latestAt
+                ? t('verify-checkpoints', {
+                    count: result.checkpoints.checked,
+                    defaultValue: `${result.checkpoints.checked} signed checkpoints checked. erxes signs the chain every 10 minutes with a key kept outside the database.`,
+                  })
+                : t('verify-no-checkpoints', 'No signed checkpoint yet: erxes signs the chain every 10 minutes.')}
             </p>
+            <Button variant="outline" size="sm" onClick={() => void downloadCheckpoints()}>
+              <IconDownload />
+              {t('download-checkpoints', 'Download signed checkpoints')}
+            </Button>
           </div>
         )}
       </Popover.Content>

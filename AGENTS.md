@@ -141,6 +141,20 @@ it is built.
   per consumer (`core_event_consumers`, `FOR UPDATE SKIP LOCKED`), polling every
   second: subject + summary → timeline entry (+ owner notification in the
   plugin's inbox); `notify` → notifications. Consumers must be idempotent.
+  A failing event doesn't block the stream: it goes to `core_event_failures`
+  and is retried after 1 min, 5 min, 30 min, 2 h, 12 h, then is `dead`
+  (Settings › Event delivery: retry or dismiss; `/events/failures`). Events are
+  pruned after `EVENTS_RETENTION_DAYS` once every consumer passed them and none
+  still retries them.
+- Signing keys (`src/lib/signing.ts`): one ES256 key (`CORE_SIGNING_KEY`, PEM;
+  development generates `data/keys/signing-key.pem`), public keys at
+  `/core/v1/.well-known/jwks.json` (kid = RFC 7638 thumbprint; rotate through
+  `CORE_SIGNING_KEYS_RETIRED`). Every token type has its own JOSE `typ`.
+- Audit checkpoints (`core_audit_checkpoints`, append-only): every 10 minutes
+  (and on `/audit/verify`) core checks the entries added since the last
+  checkpoint and signs the chain head. Verify checks signatures and that each
+  checkpoint's entry still has the signed hash — catching a consistently
+  rewritten chain and entries cut off its end. `/audit/checkpoints` exports them.
 - Audit log hardening: one log for core and plugins (`POST /audit`, or
   `core_record_audit()` in the plugin's transaction; `source` column); a
   per-organisation hash chain set by a trigger (`GET /audit/verify`);

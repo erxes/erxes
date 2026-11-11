@@ -136,6 +136,16 @@ export const config = {
      * names one (self-hosted single organisation, local development).
      */
     defaultSubdomain: process.env.DEFAULT_SUBDOMAIN?.trim().toLowerCase() || undefined,
+    /**
+     * Core's signing key (EC P-256, PKCS#8 PEM): plugin tokens and audit
+     * checkpoints, verified by anyone with the public keys at
+     * `/core/v1/.well-known/jwks.json`. Without it, development generates one
+     * and keeps it in `signingKeyFile`; production requires it.
+     */
+    signingKey: readSecret('CORE_SIGNING_KEY'),
+    signingKeyFile: process.env.CORE_SIGNING_KEY_DEV_FILE?.trim() || './data/keys/signing-key.pem',
+    /** Previous keys (PEM, public or private), still published so older signatures verify. */
+    retiredSigningKeys: readSecret('CORE_SIGNING_KEYS_RETIRED'),
   },
   /** Secret → plugin name. */
   pluginKeys: readPluginKeys(),
@@ -164,8 +174,14 @@ export const config = {
     auditDays: readNumber('AUDIT_RETENTION_DAYS', 365),
     /** Read notifications older than this are deleted. */
     readNotificationDays: readNumber('NOTIFICATIONS_RETENTION_DAYS', 90),
+    /** Events are kept this long once every consumer has handled them. */
+    eventDays: readNumber('EVENTS_RETENTION_DAYS', 30),
   },
 };
+
+if (isProduction && !config.auth.signingKey) {
+  throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');
+}
 
 if (config.files.driver === 's3' && !config.files.s3.bucket) {
   throw new Error('FILES_STORAGE=s3 needs S3_BUCKET');

@@ -217,7 +217,8 @@
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Дэмжлэгийн хандалт",
     "audit-log": "Аудитын бүртгэл",
-    "notifications": "Мэдэгдэл"
+    "notifications": "Мэдэгдэл",
+    "event-delivery": "Үйл явдлын хүргэлт"
   },
   "plugin": {
     "_": "Плагин",

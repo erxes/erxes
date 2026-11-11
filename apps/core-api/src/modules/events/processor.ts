@@ -1,4 +1,4 @@
-import { activities, companies, customers, db, type Db, eventConsumers, events } from '@erxes/core-db';
+import { activities, companies, customers, db, type Db, eventConsumers, eventFailures, events } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
@@ -106,13 +106,46 @@ const notifications: EventConsumer = {
 
 export const CONSUMERS: EventConsumer[] = [timeline, notifications];
 
+/** Waits before each retry; after the last one the event is dead. */
+export const RETRY_DELAYS_SECONDS = [60, 5 * 60, 30 * 60, 2 * 60 * 60, 12 * 60 * 60];
+export const MAX_ATTEMPTS = RETRY_DELAYS_SECONDS.length + 1;
+
+const describe = (error: unknown): string => {
+  const messages: string[] = [];
+  let current: unknown = error;
+
+  // Drizzle wraps database errors ("Failed query: …"); the cause says why.
+  for (let depth = 0; current && depth < 4; depth += 1) {
+    messages.push(current instanceof Error ? current.message : String(current));
+    current = current instanceof Error ? current.cause : undefined;
+  }
+
+  return messages.join(' — ').slice(0, 2000);
+};
+
+const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
+  try {
+    await tx.transaction((savepoint) => consumer.handle(savepoint, event));
+
+    return null;
+  } catch (error) {
+    return describe(error);
+  }
+};
+
+/** A failure's next state after `attempts` tries. */
+const afterAttempt = (attempts: number) =>
+  attempts >= MAX_ATTEMPTS
+    ? { status: 'dead' as const, nextAttemptAt: null }
+    : { status: 'retrying' as const, nextAttemptAt: sql`now() + make_interval(secs => ${RETRY_DELAYS_SECONDS[attempts - 1]!})` };
+
 /**
  * Runs one consumer over the next batch of events, in commit order. Only
  * finished transactions are read (`tx_id` below the oldest running one), so an
  * event committed late is never skipped. The consumer's row is locked
  * (`SKIP LOCKED`), so on several replicas one runs while the others move on.
  * The cursor and the consumer's writes commit together; an event that fails
- * is logged and passed over so it can't block the stream.
+ * goes to `core_event_failures` (retried with backoff) so it can't block the stream.
  */
 export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Promise<number> =>
   db().transaction(async (tx) => {
@@ -148,10 +181,14 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
     for (const { id } of batch.rows) {
       const event = byId.get(id)!;
 
-      try {
-        await tx.transaction((savepoint) => consumer.handle(savepoint, event));
-      } catch (error) {
-        console.error(`[core] ${consumer.name} could not handle event ${event.id} (${event.type})`, error);
+      const error = await handleOnce(tx, consumer, event);
+
+      if (error) {
+        console.error(`[core] ${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`);
+        await tx
+          .insert(eventFailures)
+          .values({ consumer: consumer.name, eventId: event.id, orgId: event.orgId, lastError: error, ...afterAttempt(1) })
+          .onConflictDoNothing();
       }
     }
 
@@ -164,9 +201,64 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
     return batch.rows.length;
   });
 
-/** Runs every consumer until the stream is caught up (tests, and each tick). */
+/**
+ * Retries a consumer's failed events that are due. Rows are locked
+ * (`SKIP LOCKED`), so replicas share the work; success removes the failure,
+ * another error schedules the next attempt or marks the event dead.
+ */
+export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Promise<number> =>
+  db().transaction(async (tx) => {
+    const due = await tx.execute<{ event_id: string; attempts: number }>(sql`
+      select event_id, attempts from ${eventFailures}
+      where consumer = ${consumer.name} and status = 'retrying' and next_attempt_at <= now()
+      order by next_attempt_at
+      limit ${batchSize}
+      for update skip locked
+    `);
+
+    if (!due.rows.length) return 0;
+
+    const rows = await tx
+      .select()
+      .from(events)
+      .where(sql`${events.id} in (${sql.join(due.rows.map((row) => sql`${row.event_id}`), sql`, `)})`);
+    const byId = new Map(rows.map((row) => [row.id, row]));
+
+    for (const failure of due.rows) {
+      const event = byId.get(failure.event_id);
+      const where = and(eq(eventFailures.consumer, consumer.name), eq(eventFailures.eventId, failure.event_id));
+      const error = event ? await handleOnce(tx, consumer, event) : null;
+
+      if (!error) {
+        await tx.delete(eventFailures).where(where);
+        continue;
+      }
+
+      const attempts = failure.attempts + 1;
+      const next = afterAttempt(attempts);
+
+      if (next.status === 'dead') {
+        console.error(`[core] ${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`);
+      }
+
+      await tx
+        .update(eventFailures)
+        .set({ attempts, lastError: error, ...next, updatedAt: sql`now()` })
+        .where(where);
+    }
+
+    return due.rows.length;
+  });
+
+/** Runs every consumer until the stream is caught up, then due retries (tests, and each tick). */
 export const processEvents = async () => {
   let handled = 0;
+
+  for (const consumer of CONSUMERS) {
+    for (let round = 0; round < 10; round += 1) {
+      if (!(await retryFailures(consumer))) break;
+    }
+  }
 
   for (const consumer of CONSUMERS) {
     for (let round = 0; round < 50; round += 1) {

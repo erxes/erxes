@@ -216,7 +216,8 @@
     "active-directory": "Active Directory (LDAP)",
     "support-access": "Support access",
     "audit-log": "Audit log",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "event-delivery": "Event delivery"
   },
   "plugin": {
     "_": "Plugin",

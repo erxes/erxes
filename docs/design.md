@@ -27,6 +27,7 @@
 | 22 | Event stream as a transactional outbox (`core_events`): published in the same transaction as the change, read in commit order by idempotent consumers (timeline, notifications; automations and webhooks next). | Agreed |
 | 23 | One audit log per organisation for core and plugins, append-only in the database and hash-chained for tamper evidence. | Agreed |
 | 24 | Live updates: Postgres LISTEN/NOTIFY to the API servers, Server-Sent Events to browsers (one per browser, shared by tabs), signals not data, polling only as a fallback. | Agreed |
+| 25 | Reliable delivery and provable audit: failed events retry with backoff then wait as dead letters (never block the stream); audit chain heads are signed (ES256, key outside the database, public JWKS) so whole-chain rewrites and tail truncation are detected; live signals are sent once per statement. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices

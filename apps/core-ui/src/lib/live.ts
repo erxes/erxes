@@ -27,7 +27,7 @@ type Wire = LiveMessage | { event: 'mode'; data: LiveMode } | { event: 'mode?' }
 const CHANNEL = 'erxes-live';
 const LOCK = 'erxes-live-leader';
 
-class LiveClient {
+export class LiveClient {
   private mode: LiveMode = 'connecting';
   private readonly modeListeners = new Set<() => void>();
   private readonly listeners = new Set<(message: LiveMessage) => void>();

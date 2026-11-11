@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { NotFoundPage } from '~/modules/app/NotFoundPage';
 import { AuditLogPage } from './audit-log/AuditLogPage';
+import { EventDeliveryPage } from './event-delivery/EventDeliveryPage';
 import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
@@ -19,6 +20,7 @@ export const SettingsRoutes = () => (
       <Route path="properties/*" element={<PropertiesSettingsRoutes />} />
       <Route path="file-upload" element={<FileUploadSettingsPage />} />
       <Route path="audit-log" element={<AuditLogPage />} />
+      <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />

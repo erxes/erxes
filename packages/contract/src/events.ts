@@ -50,6 +50,23 @@ export const CoreEvent = z.object({
 });
 export type CoreEvent = z.infer<typeof CoreEvent>;
 
+export const EventFailureStatus = z.enum(['retrying', 'dead']);
+
+/** An event a consumer (timeline, notifications, …) could not handle. */
+export const EventFailure = z.object({
+  consumer: z.string(),
+  status: EventFailureStatus,
+  attempts: z.number().int(),
+  lastError: z.string(),
+  nextAttemptAt: z.string().datetime().nullable(),
+  firstFailedAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  event: CoreEvent,
+});
+export type EventFailure = z.infer<typeof EventFailure>;
+
+const FailureRef = z.object({ consumer: z.string().trim().min(1).max(100), eventId: Id });
+
 /**
  * The event stream (transactional outbox). Plugins on core's database publish
  * with `SELECT core_publish_event(…)` inside their own transaction; others use
@@ -78,4 +95,25 @@ export const eventsContract = {
       }),
     )
     .output(cursorPageOf(CoreEvent)),
+  failures: oc
+    .route({
+      method: 'GET',
+      path: '/events/failures',
+      summary: 'Events that could not be handled: retrying with backoff, or dead after the last attempt (owners and admins)',
+    })
+    .input(z.object({ status: EventFailureStatus.optional() }))
+    .output(
+      z.object({
+        data: z.array(EventFailure),
+        counts: z.object({ retrying: z.number().int(), dead: z.number().int() }),
+      }),
+    ),
+  retryFailures: oc
+    .route({ method: 'POST', path: '/events/failures/retry', summary: 'Try failed events again now (owners and admins)' })
+    .input(z.object({ failures: z.array(FailureRef).min(1).max(200).optional(), allDead: z.boolean().optional() }))
+    .output(z.object({ retried: z.number().int() })),
+  dismissFailures: oc
+    .route({ method: 'POST', path: '/events/failures/dismiss', summary: 'Give up on failed events (owners and admins)' })
+    .input(z.object({ failures: z.array(FailureRef).min(1).max(200) }))
+    .output(z.object({ dismissed: z.number().int() })),
 };

@@ -2,11 +2,14 @@ import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { startMaintenance } from '~/lib/maintenance';
+import { loadSigningKeys } from '~/lib/signing';
 import { startEventProcessor } from '~/modules/events/processor';
 import { liveHub } from '~/modules/live/hub';
 
 const start = async () => {
   configureDb({ ...config.data, applicationName: 'erxes-core' });
+
+  loadSigningKeys();
 
   const applied = await runMigrations();
 
