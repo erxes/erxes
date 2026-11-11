@@ -2,6 +2,7 @@ import { activitiesContract } from './activities';
 import { auditContract } from './audit';
 import { authContract } from './auth';
 import { companiesContract } from './companies';
+import { eventsContract } from './events';
 import { customersContract } from './customers';
 import { fieldGroupsContract, fieldsContract } from './fields';
 import { filesContract } from './files';
@@ -22,6 +23,7 @@ export const coreContract = {
   auth: authContract,
   companies: companiesContract,
   customers: customersContract,
+  events: eventsContract,
   fieldGroups: fieldGroupsContract,
   fields: fieldsContract,
   files: filesContract,
@@ -37,6 +39,7 @@ export * from './auth';
 export * from './common';
 export * from './companies';
 export * from './customers';
+export * from './events';
 export * from './fields';
 export * from './files';
 export * from './notifications';

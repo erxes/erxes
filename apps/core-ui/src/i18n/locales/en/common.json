@@ -1068,6 +1068,9 @@
         "user": {
           "role_changed": "Your role was changed",
           "password_set": "An admin changed your password"
+        },
+        "note": {
+          "mentioned": "You were mentioned in a note"
         }
       }
     }

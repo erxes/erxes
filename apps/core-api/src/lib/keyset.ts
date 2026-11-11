@@ -10,6 +10,11 @@ export interface KeysetSource {
   createdAt: PgColumn;
   /** Rows the actor may see at all (the organisation); the cursor must be one of them. */
   scope: SQL;
+  /**
+   * Stop counting at this many (`totalCount` = cap, `totalCapped` true), so
+   * large logs page fast.
+   */
+  countCap?: number;
 }
 
 type Fetch<Row> = (where: SQL | undefined, orderBy: SQL[], limit: number) => Promise<Row[]>;
@@ -30,7 +35,7 @@ export const keysetPage = async <Row extends { id: string }>(
   filters: SQL | undefined,
   query: CursorQuery,
   fetch: Fetch<Row>,
-): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount: number }> => {
+): Promise<{ data: Row[]; pageInfo: PageInfo; totalCount: number; totalCapped: boolean }> => {
   const { table, id, createdAt, scope } = source;
   const where = and(scope, filters);
   const forward = query.direction === 'forward';
@@ -68,7 +73,13 @@ export const keysetPage = async <Row extends { id: string }>(
       forward ? [desc(createdAt), desc(id)] : [asc(createdAt), asc(id)],
       query.limit + 1,
     ),
-    client.select({ total: count() }).from(table).where(where),
+    source.countCap
+      ? client
+          .execute<{ total: number }>(
+            sql`select count(*)::int as total from (select 1 from ${table} where ${where ?? sql`true`} limit ${source.countCap + 1}) capped`,
+          )
+          .then((result) => result.rows)
+      : client.select({ total: count() }).from(table).where(where),
     cursor
       ? client.select({ id }).from(table).where(and(where, position(otherSide))).limit(1)
       : Promise.resolve([]),
@@ -89,6 +100,7 @@ export const keysetPage = async <Row extends { id: string }>(
       startCursor: page[0]?.id ?? null,
       endCursor: page[page.length - 1]?.id ?? null,
     },
-    totalCount: totals[0]?.total ?? 0,
+    totalCount: Math.min(totals[0]?.total ?? 0, source.countCap ?? Infinity),
+    totalCapped: source.countCap !== undefined && (totals[0]?.total ?? 0) > source.countCap,
   };
 };

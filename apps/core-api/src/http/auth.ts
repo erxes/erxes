@@ -238,6 +238,21 @@ export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller 
   return userCaller(actorOf(req));
 };
 
+/** Who a session cookie belongs to, if it is still valid (for sign-out). */
+export const sessionClaims = (req: Request): { userId: string; orgId: string } | null => {
+  const token = readCookies(req.headers.cookie)[SESSION_COOKIE];
+
+  if (!token) return null;
+
+  try {
+    const claims = verifyAccessToken(token);
+
+    return { userId: claims.sub, orgId: claims.org };
+  } catch {
+    return null;
+  }
+};
+
 export const actorOf = (req: { actor?: Actor; plugin?: PluginCaller }): Actor => {
   if (req.plugin) {
     throw new HttpError(403, 'MEMBERS_ONLY', 'Plugins cannot do this');

@@ -13,7 +13,8 @@ export default defineConfig({
       FILES_LOCAL_DIR: resolve(__dirname, '.test-files'),
       FILES_MAX_SIZE_MB: '5',
     },
-    testTimeout: 20_000,
+    // Generous: tests may run against a remote Postgres (each query is a round trip).
+    testTimeout: 60_000,
     hookTimeout: 60_000,
   },
 });

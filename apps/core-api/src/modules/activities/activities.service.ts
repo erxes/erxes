@@ -1,8 +1,9 @@
 import type { Activity, ActivityInput, ActivityTarget, CursorQuery } from '@erxes/core-contract';
-import { activities, companies, customers, type Db, newId } from '@erxes/core-db';
-import { and, eq, inArray, sql } from 'drizzle-orm';
-import { type Actor, type Caller, type PluginCaller, pluginCaller } from '~/http/auth';
+import { activities, companies, customerCompanies, customers, type Db, files, newId } from '@erxes/core-db';
+import { and, eq, inArray, isNotNull, like, ne, notLike, or, sql } from 'drizzle-orm';
+import { type Actor, type Caller, isManager, type PluginCaller, pluginCaller, userCaller } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
+import { unique } from '~/lib/contacts';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
 import { keysetPage } from '~/lib/keyset';
 import { notify } from '~/modules/notifications/notifications.service';
@@ -20,6 +21,8 @@ export const toActivityDto = (row: ActivityRow): Activity => ({
   entity: row.entityType && row.entityId ? { type: row.entityType, id: row.entityId } : null,
   link: row.link,
   actor: { type: row.actorType, id: row.actorId },
+  pinned: row.pinnedAt !== null,
+  editedAt: row.editedAt?.toISOString() ?? null,
   occurredAt: row.occurredAt.toISOString(),
 });
 
@@ -85,7 +88,7 @@ export const removeActivities = async (client: Db, orgId: string, targetType: Ac
     .where(and(eq(activities.orgId, orgId), eq(activities.targetType, targetType), inArray(activities.targetId, ids)));
 };
 
-const assertTarget = async (client: Db, orgId: string, targetType: ActivityTarget, targetId: string) => {
+export const assertTarget = async (client: Db, orgId: string, targetType: ActivityTarget, targetId: string) => {
   const table = targetType === 'customer' ? customers : companies;
   const [row] = await client
     .select({ id: table.id })
@@ -98,12 +101,45 @@ const assertTarget = async (client: Db, orgId: string, targetType: ActivityTarge
   }
 };
 
+const isNote = like(activities.type, '%.note');
+
 export const listActivities = async (
   client: Db,
   actor: Actor,
-  query: CursorQuery & { targetType: ActivityTarget; targetId: string; source?: string },
+  query: CursorQuery & {
+    targetType: ActivityTarget;
+    targetId: string;
+    source?: string;
+    kind?: 'all' | 'notes' | 'changes' | 'plugins';
+    pinned?: boolean;
+    includeRelated?: boolean;
+  },
 ) => {
   await assertTarget(client, actor.orgId, query.targetType, query.targetId);
+
+  const own = and(eq(activities.targetType, query.targetType), eq(activities.targetId, query.targetId));
+  // A company's timeline can include what happened with its customers.
+  const related =
+    query.includeRelated && query.targetType === 'company'
+      ? and(
+          eq(activities.targetType, 'customer'),
+          inArray(
+            activities.targetId,
+            client
+              .select({ id: customerCompanies.customerId })
+              .from(customerCompanies)
+              .where(and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.companyId, query.targetId))),
+          ),
+        )
+      : undefined;
+  const kindFilter =
+    query.kind === 'notes'
+      ? isNote
+      : query.kind === 'changes'
+        ? and(eq(activities.source, 'core'), notLike(activities.type, '%.note'))
+        : query.kind === 'plugins'
+          ? ne(activities.source, 'core')
+          : undefined;
 
   const page = await keysetPage(
     client,
@@ -112,13 +148,13 @@ export const listActivities = async (
       id: activities.id,
       // Timeline order is when it happened, which a plugin may backdate.
       createdAt: activities.occurredAt,
-      scope: and(
-        eq(activities.orgId, actor.orgId),
-        eq(activities.targetType, query.targetType),
-        eq(activities.targetId, query.targetId),
-      )!,
+      scope: and(eq(activities.orgId, actor.orgId), related ? or(own, related) : own)!,
     },
-    query.source ? eq(activities.source, query.source) : undefined,
+    and(
+      query.source ? eq(activities.source, query.source) : undefined,
+      kindFilter,
+      query.pinned ? isNotNull(activities.pinnedAt) : undefined,
+    ),
     query,
     (where, orderBy, limit) =>
       client
@@ -130,6 +166,154 @@ export const listActivities = async (
   );
 
   return { ...page, data: page.data.map(toActivityDto) };
+};
+
+// ─── Notes ──────────────────────────────────────────────────────────────────
+
+const recordLink = (targetType: ActivityTarget, targetId: string) =>
+  `/contacts/${targetType === 'customer' ? 'customers' : 'companies'}/${encodeURIComponent(targetId)}`;
+
+const snippet = (body: string) => (body.length > 140 ? `${body.slice(0, 140)}…` : body);
+
+/** 400 INVALID_FILE unless every file is a ready upload of the organisation. */
+const checkFiles = async (client: Db, orgId: string, fileIds: string[]) => {
+  const wanted = unique(fileIds);
+
+  if (!wanted.length) return wanted;
+
+  const found = await client
+    .select({ id: files.id })
+    .from(files)
+    .where(and(eq(files.orgId, orgId), eq(files.status, 'ready'), inArray(files.id, wanted)));
+
+  if (found.length !== wanted.length) {
+    throw new HttpError(400, 'INVALID_FILE', 'Attach files uploaded to this organisation');
+  }
+
+  return wanted;
+};
+
+/** Mentioned members hear about it (people already mentioned before an edit don't, again). */
+const notifyMentions = async (
+  tx: Db,
+  actor: Actor,
+  note: { id: string; targetType: ActivityTarget; targetId: string; body: string },
+  userIds: string[],
+) => {
+  const recipients = userIds.filter((id) => id !== actor.userId);
+
+  if (!recipients.length) return;
+
+  await notify(tx, userCaller(actor), {
+    userIds: recipients,
+    kind: 'core.note.mentioned',
+    title: 'You were mentioned in a note',
+    body: snippet(note.body),
+    link: recordLink(note.targetType, note.targetId),
+    entity: { type: note.targetType, id: note.targetId },
+    dedupeKey: `note:${note.id}:${recipients.join(',')}`,
+  });
+};
+
+const findNote = async (client: Db, orgId: string, id: string) => {
+  const [row] = await client
+    .select()
+    .from(activities)
+    .where(and(eq(activities.orgId, orgId), eq(activities.id, id), isNote))
+    .limit(1);
+
+  if (!row) {
+    throw notFound('Note');
+  }
+
+  return row;
+};
+
+export const addNote = async (
+  client: Db,
+  actor: Actor,
+  input: { targetType: ActivityTarget; targetId: string; body: string; mentions: string[]; fileIds: string[] },
+) => {
+  await assertTarget(client, actor.orgId, input.targetType, input.targetId);
+
+  const mentions = unique(input.mentions);
+
+  for (const userId of mentions) await assertMember(client, actor.orgId, userId);
+
+  const fileIds = await checkFiles(client, actor.orgId, input.fileIds);
+
+  return client.transaction(async (tx) => {
+    const [row] = await tx
+      .insert(activities)
+      .values({
+        id: newId(),
+        orgId: actor.orgId,
+        targetType: input.targetType,
+        targetId: input.targetId,
+        source: 'core',
+        type: `${input.targetType}.note`,
+        data: { body: input.body, mentions, fileIds },
+        actorType: 'user',
+        actorId: actor.userId,
+      })
+      .returning();
+
+    await notifyMentions(tx, actor, { ...input, id: row!.id }, mentions);
+
+    return toActivityDto(row!);
+  });
+};
+
+/** The author edits the text; anyone in the organisation pins or unpins. */
+export const updateNote = async (
+  client: Db,
+  actor: Actor,
+  id: string,
+  input: { body?: string; mentions?: string[]; fileIds?: string[]; pinned?: boolean },
+) => {
+  const note = await findNote(client, actor.orgId, id);
+  const editing = input.body !== undefined || input.mentions !== undefined || input.fileIds !== undefined;
+
+  if (editing && note.actorId !== actor.userId) {
+    throw new HttpError(403, 'NOT_AUTHOR', 'Only the author can edit a note');
+  }
+
+  const data = note.data as { body: string; mentions: string[]; fileIds: string[] };
+  const mentions = input.mentions === undefined ? data.mentions : unique(input.mentions);
+
+  for (const userId of mentions) await assertMember(client, actor.orgId, userId);
+
+  const fileIds = input.fileIds === undefined ? data.fileIds : await checkFiles(client, actor.orgId, input.fileIds);
+  const body = input.body ?? data.body;
+
+  return client.transaction(async (tx) => {
+    const [row] = await tx
+      .update(activities)
+      .set({
+        ...(editing ? { data: { body, mentions, fileIds }, editedAt: sql`now()` } : {}),
+        ...(input.pinned !== undefined ? { pinnedAt: input.pinned ? sql`now()` : null } : {}),
+      })
+      .where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)))
+      .returning();
+
+    const added = mentions.filter((userId) => !data.mentions.includes(userId));
+
+    await notifyMentions(tx, actor, { id, targetType: note.targetType, targetId: note.targetId, body }, added);
+
+    return toActivityDto(row!);
+  });
+};
+
+export const removeNote = async (client: Db, actor: Actor, id: string) => {
+  const note = await findNote(client, actor.orgId, id);
+
+  if (note.actorId !== actor.userId && !isManager(actor)) {
+    throw new HttpError(403, 'NOT_ALLOWED', 'Only the author or an owner or admin can delete a note');
+  }
+
+  await client.delete(activities).where(and(eq(activities.orgId, actor.orgId), eq(activities.id, id)));
+
+  return { ok: true as const };
 };
 
 /**

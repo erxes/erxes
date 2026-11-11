@@ -1,27 +1,40 @@
 import type { AuditEntry } from '@erxes/core-contract';
-import { IconChevronDown, IconChevronRight, IconShieldCheck } from '@tabler/icons-react';
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  IconChevronDown,
+  IconChevronRight,
+  IconDownload,
+  IconSearch,
+  IconShieldCheck,
+  IconShieldX,
+} from '@tabler/icons-react';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
   cn,
+  DropdownMenu,
   Empty,
+  Input,
   PageContainer,
   PageSubHeader,
+  Popover,
   RelativeDateDisplay,
   ScrollArea,
   Select,
   Spinner,
+  useToast,
 } from 'erxes-ui';
-import { Fragment, useState } from 'react';
+import { Fragment, useDeferredValue, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate } from 'react-router-dom';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { UserAvatar } from '~/components/UserAvatar';
-import { api } from '~/lib/api';
-import { actorLabel, useMembersById } from '~/lib/members';
+import { api, messageOf } from '~/lib/api';
+import { actorLabel, pluginLabel, useMembersById } from '~/lib/members';
 import { useSession } from '~/modules/auth/session';
+import { usePlugins } from '~/modules/plugins/usePlugins';
+import { auditSentence } from './auditSentence';
 
 /** Filter by area: an action prefix. */
 const AREAS = [
@@ -34,32 +47,10 @@ const AREAS = [
   { value: 'field*', label: 'Properties' },
   { value: 'file.', label: 'Files' },
   { value: 'settings.', label: 'Settings' },
+  { value: 'audit.', label: 'Audit log' },
 ] as const;
 
-/** `customer.updated` → "Customer updated"; core's own wording where it has one. */
-const ACTION_LABELS: Record<string, string> = {
-  'auth.signed_in': 'Signed in',
-  'auth.sign_in_failed': 'Failed sign-in',
-  'organization.created': 'Organisation created',
-  'user.invited': 'Invited a team member',
-  'user.updated': 'Updated a team member',
-  'user.role_changed': 'Changed a role',
-  'user.password_set': 'Set a password',
-  'user.disabled': 'Deactivated a team member',
-  'user.enabled': 'Reactivated a team member',
-  'settings.files_changed': 'Changed upload settings',
-};
-
-const actionLabel = (action: string) => {
-  if (ACTION_LABELS[action]) return ACTION_LABELS[action];
-
-  const [record = '', verb = ''] = action.split('.');
-  const text = `${record.replace(/_/g, ' ')} ${verb.replace(/_/g, ' ')}`.trim();
-
-  return text.charAt(0).toUpperCase() + text.slice(1);
-};
-
-const isWarning = (action: string) => /deleted|merged|failed|disabled|role_changed/.test(action);
+const isWarning = (action: string) => /deleted|merged|failed|disabled|role_changed|exported|password/.test(action);
 
 const formatValue = (value: unknown) => {
   if (value === null || value === undefined || value === '') return '—';
@@ -67,6 +58,37 @@ const formatValue = (value: unknown) => {
 
   return JSON.stringify(value);
 };
+
+/** `YYYY-MM-DD` (local) → the ISO instant that day starts, or the next day starts for `to`. */
+const dayBoundary = (day: string, end: boolean) => {
+  if (!day) return undefined;
+
+  const date = new Date(`${day}T00:00:00`);
+
+  if (end) date.setDate(date.getDate() + 1);
+
+  return date.toISOString();
+};
+
+interface Filters {
+  area: string;
+  actorId: string;
+  source: string;
+  from: string;
+  to: string;
+  ip: string;
+  q: string;
+}
+
+const queryOf = (filters: Filters) => ({
+  action: filters.area === 'all' ? undefined : filters.area,
+  actorId: filters.actorId === 'all' ? undefined : filters.actorId,
+  source: filters.source === 'all' ? undefined : filters.source,
+  from: dayBoundary(filters.from, false),
+  to: dayBoundary(filters.to, true),
+  ip: filters.ip.trim() || undefined,
+  q: filters.q.trim() || undefined,
+});
 
 const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
   <div className="space-y-2 bg-muted/40 px-12 py-3 text-xs">
@@ -89,44 +111,148 @@ const EntryDetails = ({ entry }: { entry: AuditEntry }) => (
       </pre>
     )}
     <p className="text-muted-foreground">
-      {[entry.ip && `IP ${entry.ip}`, entry.userAgent].filter(Boolean).join(' · ') || '—'}
+      <span className="font-mono">{entry.action}</span>
+      {[entry.ip && ` · IP ${entry.ip}`, entry.userAgent && ` · ${entry.userAgent}`].filter(Boolean).join('')}
       {entry.targetId && ` · ${entry.targetType} ${entry.targetId}`}
     </p>
   </div>
 );
 
-/** Settings › Audit log: who changed what (owners and admins). */
+/** Re-checks the hash chain: has any entry been changed or removed? */
+const IntegrityCheck = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
+  const verify = useMutation({ mutationFn: () => api.audit.verify() });
+  const result = verify.data;
+
+  return (
+    <Popover onOpenChange={(open) => open && verify.mutate()}>
+      <Popover.Trigger asChild>
+        <Button variant="ghost">
+          <IconShieldCheck />
+          {t('verify', 'Check integrity')}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content align="end" className="w-80 text-sm">
+        {verify.isPending || !result ? (
+          <Spinner containerClassName="py-4" />
+        ) : result.ok ? (
+          <div className="flex gap-3">
+            <IconShieldCheck className="size-5 shrink-0 text-green-600" />
+            <p>
+              {t('verify-ok', {
+                count: result.checked,
+                defaultValue: `All ${result.checked} entries are intact: none was changed or removed.`,
+              })}
+            </p>
+          </div>
+        ) : (
+          <div className="flex gap-3">
+            <IconShieldX className="size-5 shrink-0 text-destructive" />
+            <p>
+              {t('verify-broken', {
+                position: result.brokenAt,
+                defaultValue: `The chain breaks at entry #${result.brokenAt}: an entry was changed or removed outside erxes.`,
+              })}
+            </p>
+          </div>
+        )}
+      </Popover.Content>
+    </Popover>
+  );
+};
+
+/** How long entries are kept (owners). */
+const Retention = ({ isOwner }: { isOwner: boolean }) => {
+  const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
+  const client = useQueryClient();
+  const { toast } = useToast();
+  const { data } = useQuery({ queryKey: ['settings', 'audit'], queryFn: () => api.audit.settings() });
+  const [days, setDays] = useState('');
+  const save = useMutation({
+    mutationFn: () => api.audit.updateSettings({ retentionDays: Number(days) }),
+    onSuccess: (next) => {
+      client.setQueryData(['settings', 'audit'], next);
+      toast({ title: t('retention-saved', 'Retention saved') });
+    },
+    onError: (error) => toast({ variant: 'destructive', title: t('retention-failed', 'Could not save'), description: messageOf(error) }),
+  });
+
+  if (!data) return null;
+
+  return (
+    <Popover onOpenChange={(open) => open && setDays(String(data.retentionDays))}>
+      <Popover.Trigger asChild>
+        <Button variant="ghost" className="text-muted-foreground">
+          {t('kept-for', { days: data.retentionDays, defaultValue: `Kept ${data.retentionDays} days` })}
+        </Button>
+      </Popover.Trigger>
+      <Popover.Content align="end" className="w-72 space-y-3 text-sm">
+        <p>
+          {t('retention-description', {
+            max: data.maxRetentionDays,
+            defaultValue: `Older entries are deleted automatically. This server keeps them up to ${data.maxRetentionDays} days.`,
+          })}
+        </p>
+        {isOwner ? (
+          <div className="flex items-center gap-2">
+            <Input
+              type="number"
+              min={30}
+              max={data.maxRetentionDays}
+              value={days}
+              onChange={(event) => setDays(event.target.value)}
+              className="w-24"
+            />
+            <span className="text-muted-foreground">{t('days', 'days')}</span>
+            <Button
+              size="sm"
+              className="ml-auto"
+              disabled={save.isPending || Number(days) < 30 || Number(days) > data.maxRetentionDays}
+              onClick={() => save.mutate()}
+            >
+              {t('save', 'Save')}
+            </Button>
+          </div>
+        ) : (
+          <p className="text-muted-foreground">{t('owner-only', 'Only owners can change this.')}</p>
+        )}
+      </Popover.Content>
+    </Popover>
+  );
+};
+
+/** Settings › Audit log: who changed what, in core and every plugin (owners and admins). */
 export const AuditLogPage = () => {
   const { t } = useTranslation('settings', { keyPrefix: 'audit-log' });
   const { user } = useSession();
-  const [area, setArea] = useState<string>('all');
-  const [actorId, setActorId] = useState<string>('all');
+  const { plugins } = usePlugins();
+  const [filters, setFilters] = useState<Filters>({ area: 'all', actorId: 'all', source: 'all', from: '', to: '', ip: '', q: '' });
   const [open, setOpen] = useState<string | null>(null);
+  const deferred = useDeferredValue(filters);
   const canSee = user.role !== 'member';
+  const query = queryOf(deferred);
+  const set = (patch: Partial<Filters>) => setFilters((current) => ({ ...current, ...patch }));
 
-  const query = useInfiniteQuery({
-    queryKey: ['audit', { area, actorId }],
+  const list = useInfiniteQuery({
+    queryKey: ['audit', query],
     queryFn: ({ pageParam }) =>
-      api.audit.list({
-        limit: 50,
-        cursor: pageParam,
-        direction: 'forward',
-        cursorMode: 'exclusive',
-        action: area === 'all' ? undefined : area,
-        actorId: actorId === 'all' ? undefined : actorId,
-      }),
+      api.audit.list({ limit: 50, cursor: pageParam, direction: 'forward', cursorMode: 'exclusive', ...query }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (last) => (last.pageInfo.hasNextPage ? (last.pageInfo.endCursor ?? undefined) : undefined),
     enabled: canSee,
   });
-  const entries = query.data?.pages.flatMap((page) => page.data) ?? [];
-  const total = query.data?.pages[0]?.totalCount ?? 0;
+  const entries = list.data?.pages.flatMap((page) => page.data) ?? [];
+  const first = list.data?.pages[0];
   const members = useMembersById(entries.map((entry) => (entry.actor.type === 'user' ? entry.actor.id : null)));
-  const team = useQuery({
-    queryKey: ['users', 'audit-filter'],
-    queryFn: () => api.users.list({ limit: 100 }),
-    enabled: canSee,
-  });
+  const team = useQuery({ queryKey: ['users', 'audit-filter'], queryFn: () => api.users.list({ limit: 100 }), enabled: canSee });
+  const sources = ['core', ...new Set(plugins.map((plugin) => plugin.config.name.toLowerCase()))];
+  const exportUrl = (format: 'csv' | 'json') => {
+    const params = new URLSearchParams({ format });
+
+    Object.entries(query).forEach(([key, value]) => value && params.set(key, value));
+
+    return `/core/v1/audit/export?${params}`;
+  };
 
   if (!canSee) {
     return <Navigate to="/settings" replace />;
@@ -138,22 +264,64 @@ export const AuditLogPage = () => {
         <PageHeader.Start>
           <AppBreadcrumb items={[{ label: t('title', 'Audit log'), to: '/settings/audit-log', icon: IconShieldCheck }]} />
         </PageHeader.Start>
+        <PageHeader.End>
+          <Retention isOwner={user.role === 'owner'} />
+          <IntegrityCheck />
+          <DropdownMenu>
+            <DropdownMenu.Trigger asChild>
+              <Button variant="outline">
+                <IconDownload />
+                {t('export', 'Export')}
+              </Button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content align="end">
+              <DropdownMenu.Item asChild>
+                <a href={exportUrl('csv')}>{t('export-csv', 'CSV (spreadsheets)')}</a>
+              </DropdownMenu.Item>
+              <DropdownMenu.Item asChild>
+                <a href={exportUrl('json')}>{t('export-json', 'JSON (SIEM, scripts)')}</a>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu>
+        </PageHeader.End>
       </PageHeader>
-      <PageSubHeader className="items-center gap-2">
-        <Select value={area} onValueChange={setArea}>
-          <Select.Trigger className="h-7 w-44">
+      <PageSubHeader className="flex-wrap items-center gap-2">
+        <div className="relative">
+          <IconSearch className="absolute top-1.5 left-2 size-4 text-muted-foreground" />
+          <Input
+            value={filters.q}
+            onChange={(event) => set({ q: event.target.value })}
+            placeholder={t('search', 'Search actions and records')}
+            className="h-7 w-56 pl-7"
+          />
+        </div>
+        <Select value={filters.area} onValueChange={(area) => set({ area })}>
+          <Select.Trigger className="h-7 w-36">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
             {AREAS.map((item) => (
               <Select.Item key={item.value} value={item.value}>
-                {t(`areas.${item.value.replace(/[.*]/g, "")}`, item.label)}
+                {t(`areas.${item.value.replace(/[.*]/g, '')}`, item.label)}
               </Select.Item>
             ))}
           </Select.Content>
         </Select>
-        <Select value={actorId} onValueChange={setActorId}>
-          <Select.Trigger className="h-7 w-52">
+        <Select value={filters.source} onValueChange={(source) => set({ source })}>
+          <Select.Trigger className="h-7 w-32">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Content>
+            <Select.Item value="all">{t('all-sources', 'All sources')}</Select.Item>
+            {sources.map((source) => (
+              <Select.Item key={source} value={source}>
+                {source === 'core' ? 'erxes' : pluginLabel(source)}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select>
+        <Select value={filters.actorId} onValueChange={(actorId) => set({ actorId })}>
+          <Select.Trigger className="h-7 w-44">
             <Select.Value />
           </Select.Trigger>
           <Select.Content>
@@ -165,12 +333,20 @@ export const AuditLogPage = () => {
             ))}
           </Select.Content>
         </Select>
+        <Input type="date" value={filters.from} onChange={(event) => set({ from: event.target.value })} className="h-7 w-36" aria-label={t('from', 'From')} />
+        <span className="text-muted-foreground">–</span>
+        <Input type="date" value={filters.to} onChange={(event) => set({ to: event.target.value })} className="h-7 w-36" aria-label={t('to', 'To')} />
+        <Input value={filters.ip} onChange={(event) => set({ ip: event.target.value })} placeholder="IP" className="h-7 w-32" />
         <span className="ml-auto text-sm text-muted-foreground">
-          {t('count', { count: total, defaultValue: `${total} entries` })}
+          {first
+            ? first.totalCapped
+              ? t('count-capped', { count: first.totalCount, defaultValue: `${first.totalCount.toLocaleString()}+ entries` })
+              : t('count', { count: first.totalCount, defaultValue: `${first.totalCount} entries` })
+            : null}
         </span>
       </PageSubHeader>
       <ScrollArea className="flex-1">
-        {query.isPending ? (
+        {list.isPending ? (
           <Spinner containerClassName="py-12" />
         ) : !entries.length ? (
           <Empty className="py-12">
@@ -193,24 +369,20 @@ export const AuditLogPage = () => {
                   <th className="px-3 py-2 font-medium">{t('when', 'When')}</th>
                   <th className="px-3 py-2 font-medium">{t('who', 'Who')}</th>
                   <th className="px-3 py-2 font-medium">{t('what', 'What')}</th>
-                  <th className="px-3 py-2 font-medium">{t('target', 'Record')}</th>
+                  <th className="px-3 py-2 font-medium">IP</th>
                 </tr>
               </thead>
               <tbody>
                 {entries.map((entry) => {
                   const who = actorLabel(entry.actor, members, t('deleted-member', 'A removed member'));
-                  const expandable = Boolean(entry.changes || entry.metadata || entry.ip);
+                  const member = entry.actor.type === 'user' && entry.actor.id ? members.get(entry.actor.id) : undefined;
                   const expanded = open === entry.id;
 
                   return (
                     <Fragment key={entry.id}>
-                      <tr
-                        className={cn('border-b last:border-0', expandable && 'cursor-pointer hover:bg-accent/50')}
-                        onClick={() => expandable && setOpen(expanded ? null : entry.id)}
-                      >
+                      <tr className="cursor-pointer border-b last:border-0 hover:bg-accent/50" onClick={() => setOpen(expanded ? null : entry.id)}>
                         <td className="pl-3 text-muted-foreground">
-                          {expandable &&
-                            (expanded ? <IconChevronDown className="size-4" /> : <IconChevronRight className="size-4" />)}
+                          {expanded ? <IconChevronDown className="size-4" /> : <IconChevronRight className="size-4" />}
                         </td>
                         <td className="px-3 py-2 whitespace-nowrap text-muted-foreground">
                           <RelativeDateDisplay value={entry.createdAt} asChild>
@@ -221,16 +393,24 @@ export const AuditLogPage = () => {
                         </td>
                         <td className="px-3 py-2">
                           <span className="flex items-center gap-2">
-                            <UserAvatar name={who} className="size-5" />
+                            <UserAvatar name={who} src={member?.avatarUrl} className="size-5" />
                             <span className="truncate">{who}</span>
                           </span>
                         </td>
                         <td className="px-3 py-2">
-                          <Badge variant={isWarning(entry.action) ? 'destructive' : 'secondary'} className="font-normal">
-                            {t(`actions.${entry.action}`, actionLabel(entry.action))}
-                          </Badge>
+                          <span className="flex flex-wrap items-center gap-1.5">
+                            {isWarning(entry.action) && <span className="size-1.5 rounded-full bg-destructive" aria-hidden="true" />}
+                            <span className={cn(isWarning(entry.action) && 'font-medium')}>
+                              {auditSentence(entry)}
+                            </span>
+                            {entry.source !== 'core' && (
+                              <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                                {pluginLabel(entry.source)}
+                              </Badge>
+                            )}
+                          </span>
                         </td>
-                        <td className="max-w-xs truncate px-3 py-2">{entry.targetLabel ?? entry.targetId ?? '—'}</td>
+                        <td className="px-3 py-2 font-mono text-xs whitespace-nowrap text-muted-foreground">{entry.ip ?? '—'}</td>
                       </tr>
                       {expanded && (
                         <tr className="border-b">
@@ -244,10 +424,10 @@ export const AuditLogPage = () => {
                 })}
               </tbody>
             </table>
-            {query.hasNextPage && (
+            {list.hasNextPage && (
               <div className="flex justify-center border-t py-2">
-                <Button variant="ghost" size="sm" disabled={query.isFetchingNextPage} onClick={() => void query.fetchNextPage()}>
-                  {query.isFetchingNextPage ? <Spinner size="sm" /> : t('load-more', 'Load more')}
+                <Button variant="ghost" size="sm" disabled={list.isFetchingNextPage} onClick={() => void list.fetchNextPage()}>
+                  {list.isFetchingNextPage ? <Spinner size="sm" /> : t('load-more', 'Load more')}
                 </Button>
               </div>
             )}

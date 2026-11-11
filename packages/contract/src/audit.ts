@@ -16,6 +16,8 @@ export const AuditEntry = z.object({
   metadata: z.record(z.unknown()).nullable(),
   ip: z.string().nullable(),
   userAgent: z.string().nullable(),
+  /** `core` or the plugin that recorded it. */
+  source: z.string(),
   createdAt: z.string().datetime(),
 });
 export type AuditEntry = z.infer<typeof AuditEntry>;
@@ -33,7 +35,72 @@ export const auditContract = {
         targetId: Id.optional(),
         from: z.string().datetime().optional(),
         to: z.string().datetime().optional(),
+        /** `core` or a plugin. */
+        source: z.string().trim().max(40).optional(),
+        ip: z.string().trim().max(64).optional(),
+        /** Words in the action, record name or id. */
+        q: z.string().trim().max(100).optional(),
       }),
     )
-    .output(cursorPageOf(AuditEntry)),
+    .output(
+      cursorPageOf(AuditEntry).extend({
+        /** `totalCount` stopped counting at this many. */
+        totalCapped: z.boolean(),
+      }),
+    ),
+  record: oc
+    .route({
+      method: 'POST',
+      path: '/audit',
+      successStatus: 201,
+      summary:
+        'Record audit entries (plugins only, up to 100). Actions start with the plugin name. Plugins on core’s database can use `core_record_audit()` in their own transaction instead',
+    })
+    .input(
+      z.object({
+        entries: z
+          .array(
+            z.object({
+              action: z
+                .string()
+                .trim()
+                .max(100)
+                .regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/, 'dotted lower-case name'),
+              actorUserId: Id.optional(),
+              targetType: z.string().trim().max(64).optional(),
+              targetId: z.string().trim().max(64).optional(),
+              targetLabel: z.string().trim().max(300).optional(),
+              changes: z.record(z.tuple([z.unknown(), z.unknown()])).optional(),
+              metadata: z.record(z.unknown()).optional(),
+              /** The end user's address and browser, if the plugin knows them. */
+              ip: z.string().trim().max(64).optional(),
+              userAgent: z.string().trim().max(500).optional(),
+            }),
+          )
+          .min(1)
+          .max(100),
+      }),
+    )
+    .output(z.object({ recorded: z.number().int() })),
+  verify: oc
+    .route({
+      method: 'GET',
+      path: '/audit/verify',
+      summary: 'Check the audit log’s hash chain: has any entry been changed or removed? (owners and admins)',
+    })
+    .output(
+      z.object({
+        ok: z.boolean(),
+        checked: z.number().int(),
+        /** The first entry (chain position) where the chain breaks. */
+        brokenAt: z.number().int().nullable(),
+      }),
+    ),
+  settings: oc
+    .route({ method: 'GET', path: '/settings/audit', summary: 'How long the audit log keeps entries' })
+    .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
+  updateSettings: oc
+    .route({ method: 'PUT', path: '/settings/audit', summary: 'Change audit retention (owners)' })
+    .input(z.object({ retentionDays: z.number().int().min(30).max(3650) }))
+    .output(z.object({ retentionDays: z.number().int(), maxRetentionDays: z.number().int() })),
 };

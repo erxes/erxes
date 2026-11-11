@@ -24,6 +24,8 @@
 | 19 | Files: metadata in `core_files`, bytes in a storage driver (local or S3-compatible); two-step uploads through signed links so browsers upload straight to the bucket; storage keys live in server config, never in the database. | Agreed |
 | 20 | Notifications: one inbox per source (core and each plugin), gathered in core like Atlassian's inbox; plugins create them with a plugin key and a dedupe key; members mute kinds or whole plugins; security notices can't be muted. | Agreed |
 | 21 | Audit log in core for core's own changes (`core_audit_logs`), written in the same transaction; plugins keep their own audit. | Agreed |
+| 22 | Event stream as a transactional outbox (`core_events`): published in the same transaction as the change, read in commit order by idempotent consumers (timeline, notifications; automations and webhooks next). | Agreed |
+| 23 | One audit log per organisation for core and plugins, append-only in the database and hash-chained for tamper evidence. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
@@ -38,6 +40,7 @@
    consent, activity timeline (with events).
 5. SaaS sync: create/update `core_organizations` from the SaaS side.
 6. Files, notifications — **done**; payments next.
-7. Activity timeline and audit log — **done**; next: events (`core_events`,
-   publish in the same transaction), webhooks, plugin keys → registry OAuth clients.
+7. Activity timeline (notes, filters, rollup), audit log (plugins, hash chain,
+   export) and the event stream — **done**; next: webhooks from the stream,
+   plugin keys → registry OAuth clients, then the automation engine on events.
 8. Plugin registry (replaces `PUBLIC_PLUGINS`), then the automation engine.

@@ -79,6 +79,28 @@ export const signIn = async (
     );
   }
 
+  // An unknown email at a known organisation: worth seeing (guessing, typos).
+  if (!match && subdomain) {
+    const [organization] = await db()
+      .select({ id: organizations.id })
+      .from(organizations)
+      .where(sql`lower(${organizations.subdomain}) = ${subdomain}`)
+      .limit(1);
+
+    if (organization) {
+      await recordAudit(
+        db(),
+        { orgId: organization.id, actorType: "system", actorId: null },
+        {
+          action: "auth.sign_in_failed",
+          targetType: "user",
+          targetLabel: email,
+          metadata: { reason: "unknown email" },
+        }
+      );
+    }
+  }
+
   if (!match || !valid || match.user.status !== "active") {
     throw invalidCredentials();
   }

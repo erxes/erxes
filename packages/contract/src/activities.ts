@@ -42,9 +42,24 @@ export const Activity = z.object({
   entity: EntityRef.nullable(),
   link: z.string().nullable(),
   actor: ActorRef,
+  /** Notes only. */
+  pinned: z.boolean(),
+  editedAt: z.string().datetime().nullable(),
   occurredAt: z.string().datetime(),
 });
 export type Activity = z.infer<typeof Activity>;
+
+/** Notes are timeline entries of type `customer.note` / `company.note`; `data` = `{ body, mentions, fileIds }`. */
+export const NoteInput = z.object({
+  body: z.string().trim().min(1).max(10_000),
+  /** Team members mentioned with @: they are notified. */
+  mentions: z.array(Id).max(50).default([]),
+  /** Attached files (uploaded through `/files`). */
+  fileIds: z.array(Id).max(20).default([]),
+});
+
+/** Which entries a timeline shows. */
+export const TimelineKind = z.enum(['all', 'notes', 'changes', 'plugins']);
 
 export const ActivityInput = z.object({
   targetType: ActivityTarget,
@@ -74,9 +89,44 @@ export const activitiesContract = {
         targetType: ActivityTarget,
         targetId: Id,
         source: z.string().trim().max(40).optional(),
+        kind: TimelineKind.default('all'),
+        /** Pinned notes only. */
+        pinned: z
+          .enum(['true', 'false'])
+          .transform((value) => value === 'true')
+          .optional(),
+        /** A company's timeline with its customers' entries too. */
+        includeRelated: z
+          .enum(['true', 'false'])
+          .transform((value) => value === 'true')
+          .optional(),
       }),
     )
     .output(cursorPageOf(Activity)),
+  addNote: oc
+    .route({ method: 'POST', path: '/activities/notes', successStatus: 201, summary: 'Add a note to a timeline' })
+    .input(NoteInput.extend({ targetType: ActivityTarget, targetId: Id }))
+    .output(Activity),
+  updateNote: oc
+    .route({
+      method: 'PATCH',
+      path: '/activities/notes/{id}',
+      summary: 'Edit a note (its author) or pin / unpin it (any member)',
+    })
+    .input(
+      z.object({
+        id: Id,
+        body: NoteInput.shape.body.optional(),
+        mentions: z.array(Id).max(50).optional(),
+        fileIds: z.array(Id).max(20).optional(),
+        pinned: z.boolean().optional(),
+      }),
+    )
+    .output(Activity),
+  removeNote: oc
+    .route({ method: 'DELETE', path: '/activities/notes/{id}', summary: 'Delete a note (its author, owners and admins)' })
+    .input(z.object({ id: Id }))
+    .output(z.object({ ok: z.literal(true) })),
   create: oc
     .route({
       method: 'POST',

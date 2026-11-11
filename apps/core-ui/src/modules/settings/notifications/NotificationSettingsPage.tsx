@@ -18,6 +18,7 @@ const KIND_LABELS: Record<string, string> = {
   'core.company.deleted': 'A company I own is deleted',
   'core.user.role_changed': 'My role changes',
   'core.user.password_set': 'An admin sets my password',
+  'core.note.mentioned': 'Someone mentions me in a note',
 };
 
 const Row = ({

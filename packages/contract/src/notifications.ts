@@ -60,6 +60,7 @@ export const CORE_NOTIFICATION_KINDS = [
   'core.company.activity',
   'core.user.role_changed',
   'core.user.password_set',
+  'core.note.mentioned',
 ] as const;
 export type CoreNotificationKind = (typeof CORE_NOTIFICATION_KINDS)[number];
 

@@ -3,9 +3,33 @@ import { db, type Transaction, withTransaction } from '@erxes/core-db';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
-import { type Actor, actorOf, callerOf, pluginCaller, pluginOf, signAccessToken, userCaller } from '~/http/auth';
-import { createPluginActivity, listActivities } from '~/modules/activities/activities.service';
-import { type AuditInput, listAudit, recordAudit } from '~/modules/audit/audit.service';
+import {
+  type Actor,
+  actorOf,
+  callerOf,
+  pluginCaller,
+  pluginOf,
+  sessionClaims,
+  signAccessToken,
+  userCaller,
+} from '~/http/auth';
+import {
+  addNote,
+  createPluginActivity,
+  listActivities,
+  removeNote,
+  updateNote,
+} from '~/modules/activities/activities.service';
+import { listEvents, publishPluginEvents } from '~/modules/events/events.service';
+import {
+  type AuditInput,
+  auditSettings,
+  listAudit,
+  recordAudit,
+  recordPluginAudit,
+  updateAuditSettings,
+  verifyAudit,
+} from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
 import { changeOwnPassword, mySignIns } from '~/modules/auth/account.service';
 import { getSession, signIn } from '~/modules/auth/auth.service';
@@ -143,9 +167,24 @@ export const coreRouter = pub.router({
   activities: {
     list: authed.activities.list.handler(({ input, context }) => listActivities(db(), context.actor, input)),
     create: plugin.activities.create.handler(({ input, context }) => createPluginActivity(db(), context.plugin, input)),
+    addNote: authed.activities.addNote.handler(({ input, context }) => addNote(db(), context.actor, input)),
+    updateNote: authed.activities.updateNote.handler(({ input: { id, ...changes }, context }) =>
+      updateNote(db(), context.actor, id, changes),
+    ),
+    removeNote: authed.activities.removeNote.handler(({ input, context }) => removeNote(db(), context.actor, input.id)),
   },
   audit: {
     list: authed.audit.list.handler(({ input, context }) => listAudit(db(), context.actor, input)),
+    record: plugin.audit.record.handler(({ input, context }) => recordPluginAudit(db(), context.plugin, input.entries)),
+    verify: authed.audit.verify.handler(({ context }) => verifyAudit(db(), context.actor)),
+    settings: authed.audit.settings.handler(({ context }) => auditSettings(db(), context.actor.orgId)),
+    updateSettings: authed.audit.updateSettings.handler(({ input, context }) =>
+      updateAuditSettings(db(), context.actor, input),
+    ),
+  },
+  events: {
+    publish: plugin.events.publish.handler(({ input, context }) => publishPluginEvents(db(), context.plugin, input.events)),
+    list: authed.events.list.handler(({ input, context }) => listEvents(db(), context.actor, input)),
   },
   files: {
     createUpload: anyone.files.createUpload.handler(({ input, context }) => createUpload(db(), context.caller, input)),
@@ -193,7 +232,17 @@ export const coreRouter = pub.router({
 
       return session;
     }),
-    signOut: pub.auth.signOut.handler(({ context }) => {
+    signOut: pub.auth.signOut.handler(async ({ context }) => {
+      const session = sessionClaims(context.req);
+
+      if (session) {
+        await recordAudit(
+          db(),
+          { orgId: session.orgId, actorType: 'user', actorId: session.userId, source: 'core' },
+          { action: 'auth.signed_out', targetType: 'user', targetId: session.userId },
+        );
+      }
+
       context.res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions(context.req), maxAge: undefined });
 
       return { ok: true as const };

@@ -10,6 +10,10 @@ export interface OrganizationSettings {
     /** Allowed types: MIME types (`image/png`), wildcards (`image/*`) or extensions (`.pdf`). Empty: any. */
     allowedTypes?: string[];
   };
+  audit?: {
+    /** How long audit entries are kept; at most the deployment's AUDIT_RETENTION_DAYS. */
+    retentionDays?: number;
+  };
 }
 
 /** A tenant. `id` is permanent; `subdomain` may change (never reused). */

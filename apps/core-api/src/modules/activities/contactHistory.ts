@@ -4,6 +4,7 @@ import type { Actor } from '~/http/auth';
 import { userCaller } from '~/http/auth';
 import { type Changes, diffCustomFields, diffFields, mergeChanges } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
+import { publishCoreEvents } from '~/modules/events/events.service';
 import { notify } from '~/modules/notifications/notifications.service';
 import { moveActivities, recordActivity, removeActivities } from './activities.service';
 
@@ -130,6 +131,11 @@ export const contactCreated = async (tx: Db, actor: Actor, type: ContentType, ro
   const caller = userCaller(actor);
 
   await recordActivity(tx, caller, { targetType: type, targetId: row.id, type: `${type}.created` });
+  await publishCoreEvents(tx, caller, {
+    type: `core.${type}.created`,
+    subject: { type, id: row.id },
+    payload: { label: contactLabel(type, row), ownerId: row.ownerId },
+  });
   await recordAudit(tx, caller, {
     action: `${type}.created`,
     targetType: type,
@@ -171,6 +177,7 @@ export const contactUpdated = async (
     type: `${type}.updated`,
     data: { changes },
   });
+  await publishCoreEvents(tx, caller, { type: `core.${type}.updated`, subject: { type, id: after.id }, payload: { changes } });
   await recordAudit(tx, caller, {
     action: `${type}.updated`,
     targetType: type,
@@ -197,6 +204,15 @@ export const contactsRemoved = async (tx: Db, actor: Actor, type: ContentType, r
   const ids = rows.map((row) => (row as { id: string }).id);
 
   await removeActivities(tx, actor.orgId, type, ids);
+  await publishCoreEvents(
+    tx,
+    userCaller(actor),
+    rows.map((row) => ({
+      type: `core.${type}.deleted`,
+      subject: { type, id: (row as { id: string }).id },
+      payload: { label: contactLabel(type, row) },
+    })),
+  );
 
   for (const row of rows as (ContactRow & object)[]) {
     await notifyOwners(tx, actor, type, [row.ownerId], {
@@ -230,6 +246,7 @@ export const contactsMerged = async (
   const mergedIds = others.map((other) => (other as { id: string }).id);
 
   await moveActivities(tx, actor.orgId, type, mergedIds, keep.id);
+  await publishCoreEvents(tx, caller, { type: `core.${type}.merged`, subject: { type, id: keep.id }, payload: { mergedIds } });
   await recordActivity(tx, caller, {
     targetType: type,
     targetId: keep.id,
@@ -273,6 +290,11 @@ export const contactsTagged = async (
   });
 
   await recordActivity(tx, userCaller(actor), entries);
+  await publishCoreEvents(
+    tx,
+    userCaller(actor),
+    entries.map((entry) => ({ type: `core.${type}.tagged`, subject: { type, id: entry.targetId }, payload: entry.data })),
+  );
 };
 
 /** A customer–company link, on both timelines. */
@@ -284,6 +306,12 @@ export const contactsLinked = async (
   linked: boolean,
 ) => {
   const verb = linked ? 'linked' : 'unlinked';
+
+  await publishCoreEvents(tx, userCaller(actor), {
+    type: `core.customer.company_${verb}`,
+    subject: { type: 'customer', id: customerId },
+    payload: { customerId, companyId },
+  });
 
   await recordActivity(tx, userCaller(actor), [
     { targetType: 'customer', targetId: customerId, type: `customer.company_${verb}`, data: { companyId } },

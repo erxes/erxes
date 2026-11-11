@@ -132,6 +132,26 @@ it is built.
   transaction as the change (`recordAudit`); Settings › Audit log for owners
   and admins. Hourly cleanup prunes old entries, unfinished uploads and old
   read notifications (`src/lib/maintenance.ts`).
+- Event stream (`core_events`, transactional outbox): plugins on core's
+  database publish with `SELECT core_publish_event(org, plugin, type, payload,
+  subject_type, subject_id, summary, link, notify, dedupe_key, …)` inside their
+  own transaction; others use `POST /events`. Core publishes `core.*` events in
+  the same transaction as its changes. `src/modules/events/processor.ts` reads
+  in commit order (`tx_id`, `seq`; only finished transactions) with a cursor
+  per consumer (`core_event_consumers`, `FOR UPDATE SKIP LOCKED`), polling every
+  second: subject + summary → timeline entry (+ owner notification in the
+  plugin's inbox); `notify` → notifications. Consumers must be idempotent.
+- Audit log hardening: one log for core and plugins (`POST /audit`, or
+  `core_record_audit()` in the plugin's transaction; `source` column); a
+  per-organisation hash chain set by a trigger (`GET /audit/verify`);
+  append-only in the database (updates, deletes and TRUNCATE raise; only the
+  retention cleanup with `core.audit_prune` and organisation deletes remove
+  rows); per-organisation retention (owners, ≤ AUDIT_RETENTION_DAYS); filters
+  for dates, IP, source and text; counts capped at 10,000; CSV/JSON export
+  (`GET /audit/export`, audited, formulas defused).
+- Timeline notes: `customer.note` / `company.note` entries with @mentions
+  (notify `core.note.mentioned`), attachments and pinning; the timeline filters
+  by kind (notes, changes, plugins) and a company can include its customers'.
 - Profile (Settings › Account › Profile, `/settings/profile`): the member's own
   picture (core file service), names, contact details, about and links through
   `users.update` on themselves; `POST /auth/password` changes their password with

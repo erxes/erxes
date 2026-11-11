@@ -50,6 +50,13 @@
       "when": 1794402603128,
       "tag": "0006_notification_details_and_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1794405342570,
+      "tag": "0007_event_stream_notes_audit_chain",
+      "breakpoints": true
     }
   ]
 }

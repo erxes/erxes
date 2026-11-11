@@ -5,6 +5,7 @@ import { pipeline } from 'node:stream/promises';
 import { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
 import { callerOf } from '~/http/auth';
+import { recordAudit } from '~/modules/audit/audit.service';
 import { downloadUrlOf, readyFile } from './files.service';
 import { contentDisposition, localPath, readGrant } from './storage';
 
@@ -103,7 +104,18 @@ downloadRouter.get('/files/:id/download', (req: Request, res: Response, next) =>
 
   readyFile(db(), caller.orgId, req.params.id ?? '')
     .then(async (row) => {
-      const url = await downloadUrlOf(row, req.query.download === '1');
+      const saving = req.query.download === '1';
+      const url = await downloadUrlOf(row, saving);
+
+      // Saving a copy is audited; showing a picture inline (avatars, previews) is not.
+      if (saving) {
+        await recordAudit(db(), caller, {
+          action: 'file.downloaded',
+          targetType: 'file',
+          targetId: row.id,
+          targetLabel: row.name,
+        });
+      }
 
       res.setHeader('Cache-Control', 'private, no-store');
       res.redirect(302, url);

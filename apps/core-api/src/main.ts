@@ -2,6 +2,7 @@ import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { createApp } from '~/app';
 import { config } from '~/config';
 import { startMaintenance } from '~/lib/maintenance';
+import { startEventProcessor } from '~/modules/events/processor';
 
 const start = async () => {
   configureDb({ ...config.data, applicationName: 'erxes-core' });
@@ -17,6 +18,7 @@ const start = async () => {
   });
 
   const stopMaintenance = startMaintenance();
+  const stopEvents = startEventProcessor();
 
   server.keepAliveTimeout = 120_000;
   server.headersTimeout = 121_000;
@@ -24,6 +26,7 @@ const start = async () => {
   for (const signal of ['SIGINT', 'SIGTERM'] as const) {
     process.once(signal, () => {
       stopMaintenance();
+      stopEvents();
       server.close();
       closeDb().finally(() => process.exit(0));
     });

@@ -1,5 +1,17 @@
 import { sql } from 'drizzle-orm';
-import { bigint, check, foreignKey, index, jsonb, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
+import {
+  bigint,
+  bigserial,
+  check,
+  customType,
+  foreignKey,
+  index,
+  integer,
+  jsonb,
+  text,
+  timestamp,
+  uniqueIndex,
+} from 'drizzle-orm/pg-core';
 import { pgTable } from '../table';
 import { createdAt, updatedAt } from './common';
 import { organizations } from './organizations';
@@ -135,10 +147,17 @@ export const activities = pgTable(
     actorType: text({ enum: ACTOR_TYPES }).notNull(),
     actorId: text(),
     dedupeKey: text(),
+    /** Notes: pinned to the top of the timeline. */
+    pinnedAt: timestamptz(),
+    /** Notes: last edited. */
+    editedAt: timestamptz(),
     occurredAt: timestamptz().defaultNow().notNull(),
     createdAt: createdAt(),
   },
   (table) => [
+    index('core_activities_pinned_idx')
+      .on(table.orgId, table.targetType, table.targetId)
+      .where(sql`${table.pinnedAt} IS NOT NULL`),
     index('core_activities_target_idx').on(
       table.orgId,
       table.targetType,
@@ -183,9 +202,21 @@ export const auditLogs = pgTable(
     metadata: jsonb().$type<Record<string, unknown>>(),
     ip: text(),
     userAgent: text(),
+    /** `core` or the plugin that recorded it. */
+    source: text().default('core').notNull(),
+    /**
+     * Tamper evidence: entries of an organisation form a hash chain
+     * (`hash` = sha256 of the previous hash and this entry), set by a database
+     * trigger. Editing or removing an entry breaks the chain.
+     */
+    chainSeq: bigint({ mode: 'number' }),
+    prevHash: text(),
+    hash: text(),
     createdAt: createdAt(),
   },
   (table) => [
+    index('core_audit_logs_org_source_idx').on(table.orgId, table.source, table.createdAt.desc()),
+    uniqueIndex('core_audit_logs_chain_key').on(table.orgId, table.chainSeq),
     index('core_audit_logs_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
     index('core_audit_logs_target_idx').on(table.orgId, table.targetType, table.targetId),
     index('core_audit_logs_actor_idx').on(table.orgId, table.actorId),
@@ -196,3 +227,70 @@ export const auditLogs = pgTable(
     }).onDelete('cascade'),
   ],
 );
+
+// ─── Event stream ───────────────────────────────────────────────────────────
+
+/** Postgres `xid8`: the id of the transaction that wrote a row. */
+const xid8 = customType<{ data: string; driverData: string }>({ dataType: () => 'xid8' });
+
+export const SUBJECT_TYPES = ['customer', 'company'] as const;
+
+/**
+ * Every domain event, from core and plugins: the transactional outbox.
+ * Written in the same transaction as the change (`core_publish_event()` for
+ * plugins on this database, `POST /events` otherwise), so an event exists if
+ * and only if its change was committed. Consumers read in commit order
+ * (`tx_id`, `seq`) and turn events into timeline entries, notifications and,
+ * later, automations and webhooks.
+ */
+export const events = pgTable(
+  'events',
+  {
+    id: text().primaryKey(),
+    seq: bigserial({ mode: 'number' }).notNull(),
+    /** Transaction that wrote it: consumers only read finished transactions. */
+    txId: xid8().default(sql`pg_current_xact_id()`).notNull(),
+    orgId: text().notNull(),
+    /** `core` or the plugin that published it. */
+    source: text().notNull(),
+    /** Namespaced by source: `core.customer.created`, `hr.leave.approved`. */
+    type: text().notNull(),
+    version: integer().default(1).notNull(),
+    /** The customer or company it concerns, if any (its timeline). */
+    subjectType: text({ enum: SUBJECT_TYPES }),
+    subjectId: text(),
+    entityType: text(),
+    entityId: text(),
+    actorType: text({ enum: ACTOR_TYPES }).notNull(),
+    actorId: text(),
+    payload: jsonb().$type<Record<string, unknown>>().default({}).notNull(),
+    /** With a subject: the timeline line (`Paid order #1042`). */
+    summary: text(),
+    link: text(),
+    /** Who to notify: `{ userIds, title, body?, link?, priority? }`. */
+    notify: jsonb().$type<Record<string, unknown>>(),
+    dedupeKey: text(),
+    occurredAt: timestamptz().defaultNow().notNull(),
+    createdAt: createdAt(),
+  },
+  (table) => [
+    uniqueIndex('core_events_seq_key').on(table.seq),
+    index('core_events_commit_order_idx').on(table.txId, table.seq),
+    index('core_events_org_created_idx').on(table.orgId, table.createdAt.desc(), table.id.desc()),
+    index('core_events_subject_idx').on(table.orgId, table.subjectType, table.subjectId),
+    uniqueIndex('core_events_dedupe_key')
+      .on(table.orgId, table.source, table.dedupeKey)
+      .where(sql`${table.dedupeKey} IS NOT NULL`),
+    foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_events_org_id_fkey' }).onDelete(
+      'cascade',
+    ),
+  ],
+);
+
+/** How far each consumer has read the stream, in commit order. */
+export const eventConsumers = pgTable('event_consumers', {
+  name: text().primaryKey(),
+  lastTxId: xid8().default(sql`'0'::xid8`).notNull(),
+  lastSeq: bigint({ mode: 'number' }).default(0).notNull(),
+  updatedAt: updatedAt(),
+});
