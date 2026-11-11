@@ -6,12 +6,13 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
 ### Owns
 
+- App-scoped member identity and private messaging under `src/modules/messaging/`.
 - Inbox conversations, conversation messages, and the Elasticsearch/Mongo
   conversation query builders.
 - Channels and channel membership, including channel scope (`team` vs
@@ -97,6 +98,23 @@
 - Other plugins' collections or service implementations.
 
 ## Current Capabilities
+
+- Private messaging app admission uses deployment-owned `FRONTLINE_MESSAGING_APPS`
+  JSON, with distinct issuer/audience pairs and pinned RSA public keys. The
+  authenticated app and subject select tenant and member scope. DIRECT pair
+  uniqueness, GROUP owner/admin/member management, transactional sends and
+  idempotency, join-history boundaries, unread counts, read positions, typing,
+  retained event synchronization, single-use subscription tickets, private
+  attachment upload/download and app-specific FCM delivery are implemented.
+  Messaging contracts and application configuration are documented in
+  `src/modules/messaging/README.md` and `operations.graphql`.
+  The canonical 21 messaging root fields retain the `frontlineMessaging*`
+  namespace and `FrontlineMessaging*` types. `cp*` is the Client Portal namespace,
+  not a universal public-API requirement. The naming compatibility policy and
+  known limitations are in `src/modules/messaging/README.md`.
+  Private attachment storage accepts an optional deployment-owned S3-compatible
+  `storage.endpoint`; custom endpoints use path-style addressing. Credentials
+  and endpoint selection are never accepted from messaging clients.
 
 - Telegram bot setup and webhook status; private chats, groups, channels and
   forum topics; text, files, media, polls, edits, observed reactions and visible
@@ -695,6 +713,7 @@ The root router mounts its authenticated webhook at `/telegram`.
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Bootstrap                | `src/main.ts`                                                                                                                                                    | `startPlugin({ name: 'frontline', port: 3304 })`, wires tRPC, routes, meta, and every surface                                                                                                                          |
+| Private member messaging | `src/modules/messaging/`                                                                                                                                         | App credentials, independent models, GraphQL, file routes and durable delivery                                                                                                                                         |
 | Models                   | `src/connectionResolvers.ts`                                                                                                                                     | Per-subdomain model container for all modules                                                                                                                                                                          |
 | GraphQL                  | `src/apollo/`                                                                                                                                                    | Aggregated `typeDefs` and `resolvers` across modules                                                                                                                                                                   |
 | Schema print             | `scripts/print-subgraph-schema.ts`                                                                                                                               | Prints the subgraph schema for `frontline_ui` codegen (`generated/`, gitignored)                                                                                                                                       |
@@ -776,6 +795,21 @@ The root router mounts its authenticated webhook at `/telegram`.
 ## Contracts
 
 ### Provides
+
+- `frontlineMessagingRegister`, `frontlineMessagingMe` and
+  `frontlineMessagingMembers` and the other `frontlineMessaging*` HTTP fields
+  use the `x-frontline-messaging-token` header. `frontlineMessagingWake`
+  accepts an opaque single-use ticket and emits only an invalidation Boolean.
+  The subscription completes explicitly when the access token behind the ticket
+  expires. Clients fetch durable events through `frontlineMessagingSync`.
+- `frontlineMessagingSend`, `frontlineMessagingCreateGroup`,
+  `frontlineMessagingPrepareAttachment`, `frontlineMessagingSubscriptionTicket`
+  and `frontlineMessagingRegisterDevice` enforce per-member limits from
+  `src/modules/messaging/limits.ts` and fail with `RATE_LIMITED` (with
+  `retryAfter`) or `SERVICE_UNAVAILABLE` when Redis cannot count the request.
+- Private file PUT/GET routes are `/messaging/attachments/:id` on the plugin
+  router. Both verify app credentials and conversation membership. Dedicated
+  S3 credentials and private object keys stay server-side.
 
 - Internal `contactFields.sync` tRPC mutation (`TContactFieldsSync`) — core broadcasts contact merges and removals to every plugin declaring `meta.contactFields` (frontline declares `frontline:ticket` in `main.ts`); applied with `applyContactFieldsSync`. Not agent-callable.
 - `createTicket` / `updateTicket` accept `customerId` / `companyId` (one of each) and save them on the ticket; `getTickets` filters by them. Tickets made elsewhere save their customer the same way: mail (`createTicketFromMail`), the messenger widget, client portal (`cpCreateTicket`) and the create-ticket automation. No core relation and no conversation link is kept on a ticket: there is no conversation convert, tickets have no `sourceConversationIds` field, and a ticket made from a conversation (the create-ticket automation) only gets the conversation's customer. Open-ticket facts (`findOpenConversationTickets`) list the conversation's customer's open tickets, the ticket source-channel report groups the tickets' customers' conversations by integration, and the conversation's form submissions are logged on the new ticket or deal directly (`inbox/utils/conversationFormSubmission.ts`). `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` gives tickets and deals still without a customer the customer of their old source conversation (relations, the old field or `customerFieldData.sourceConversationIds`); stored `sourceConversationIds` values are left in place but nothing reads them. The `customer.tickets` / `company.tickets` segments and the ticket `customers` reference join on `customerId` / `companyId`.
@@ -1486,6 +1520,17 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 
 ## Data and State
 
+- `frontline_messaging_identities` is independent of the Inbox model
+  registry and indexed by tenant, app, issuer and subject. All messaging
+  collections have the `frontline_messaging_` prefix and are generated
+  independently from the legacy service model container. Messages, memberships,
+  conversation sequencing and per-recipient events commit in Mongo transactions.
+  Events retain 30 days. Per-app pollers recover leased event/device work through
+  durable Mongo rows, publish wake-ups through the shared `graphqlPubsub`
+  (never raw `redis.publish`) and retry FCM delivery. A failed publish leaves
+  the event undispatched until its lease expires; clients recover missed events
+  through `frontlineMessagingSync`.
+
 - `frontline_tickets` owns one customer and one company as `customerId` / `companyId` (indexed, `default: null`; read only from the record — the migration must run before deploy, there is no relation fallback); frontline saves them itself and makes no core relation for them. Core's contact merge / remove reaches them through tRPC `contactFields.sync`. `backend/saas-migrations/core/commands/migrateRelationsToContactFields.ts` backfills tickets linked before: the first of old `customerIds` / `companyIds` arrays (kept as they are; only their indexes are dropped), else the oldest related contact; extra contacts are dropped. The create-ticket automation action saves `companyId` (old actions' `companyIds` give their first). `conversations` keep their single `customerId` and are not migrated.
 - Models are generated per request subdomain. Telegram owns `telegram_bots`,
   `customers_telegram`, `conversations_telegram`, `conversation_messages_telegram`
@@ -1496,6 +1541,18 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   tenant, integration and chat, with topic identity included where applicable.
 
 ## Local Invariants
+
+- Private messaging must derive tenant and app scope from a verified app
+  access token. Keep messaging models outside the legacy tRPC model registry.
+  Legacy public tRPC, broad SUPPORT reads and subscriptions, and forwarded
+  tenant routing headers are known independent risks. These routes and headers
+  cannot establish a messaging actor or authorize access to private records.
+- A messaging ticket is consumed atomically when its subscription starts and
+  admits only that subscription. The subscription ends with an explicit
+  `complete` at the stored access-token expiry; never filter an expired
+  subscription into silence.
+- Messaging rate limits are keyed by verified tenant, app, member and operation,
+  count atomically in Redis, and fail closed when Redis is unavailable.
 
 - A call leg or CTI event that names a queue belongs to the peer call
   integration whose `queues` contains it, and only to that one: when several

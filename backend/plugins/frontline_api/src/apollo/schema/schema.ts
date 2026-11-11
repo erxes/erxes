@@ -1,3 +1,8 @@
+import {
+  messagingTypes,
+  messagingQueryFields,
+  messagingMutationFields,
+} from '@/messaging/graphql';
 import { types as ConversationsTypes } from '@/inbox/graphql/schemas/conversationTypes';
 import {
   mutations as ChannelsMutations,
@@ -146,6 +151,7 @@ export const types = `
     ${KnowledgeBaseTypes}
     ${HelpCenterConfigTypes}
     ${CustomDomainTypes}
+    ${messagingTypes}
   `;
 
 export const queries = `
@@ -174,6 +180,7 @@ export const queries = `
     ${HelpCenterConfigQueries}
     ${CustomDomainQueries}
     ${CpInboxQueries}
+    ${messagingQueryFields}
   `;
 
 export const mutations = `
@@ -197,6 +204,7 @@ export const mutations = `
    ${HelpCenterConfigMutations}
    ${CustomDomainMutations}
    ${CpInboxMutations}
+   ${messagingMutationFields}
    ${ReportChartMutations}
    ${ReportFacebookMutations}
 `;

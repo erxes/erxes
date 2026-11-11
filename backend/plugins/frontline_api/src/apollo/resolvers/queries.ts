@@ -1,3 +1,4 @@
+import { messagingQueries } from '@/messaging/graphql';
 import { channelQueries } from '@/channel/graphql/resolvers/queries/channel';
 import { conversationQueries } from '@/inbox/graphql/resolvers/queries/conversations';
 import { integrationQueries } from '@/inbox/graphql/resolvers/queries/integrations';
@@ -28,6 +29,7 @@ import { cpSurveyQueries } from '~/modules/survey/graphql/resolvers/queries/clie
 import { responseTemplateQueries } from '~/modules/response/graphql/responseTemplateQueries';
 
 export const queries = {
+  ...messagingQueries,
   ...channelQueries,
   ...conversationQueries,
   ...integrationQueries,

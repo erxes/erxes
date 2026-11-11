@@ -1,3 +1,4 @@
+import { messagingMutations } from '@/messaging/graphql';
 import { channelMutations } from '@/channel/graphql/resolvers/mutations/channel';
 import { conversationMutations } from '@/inbox/graphql/resolvers/mutations/conversations';
 import { integrationMutations } from '@/inbox/graphql/resolvers/mutations/integrations';
@@ -24,6 +25,7 @@ import { responseTemplateMutations } from '~/modules/response/graphql/responseTe
 import ticketMutations from '~/modules/ticket/graphql/resolvers/mutations';
 
 export const mutations = {
+  ...messagingMutations,
   ...channelMutations,
   ...conversationMutations,
   ...integrationMutations,

@@ -1,0 +1,266 @@
+# Canonical root fields use frontlineMessaging*, not the Client Portal cp* namespace.
+# Names following query/mutation/subscription are client document labels;
+# fields inside the selection sets are the public schema contract.
+# All 8 queries, 12 mutations and 1 subscription are covered below.
+# See README.md for variables, responses and the compatibility policy.
+
+query frontlineMessagingProfileExample {
+  frontlineMessagingMe {
+    app {
+      id
+      direct
+      group
+      attachments
+      push
+    }
+    member {
+      id
+      displayName
+    }
+  }
+}
+
+query frontlineMessagingMemberDirectoryExample($first: Int, $after: ID) {
+  frontlineMessagingMembers(first: $first, after: $after) {
+    items {
+      id
+      displayName
+    }
+    nextCursor
+  }
+}
+
+query frontlineMessagingConversationListExample($first: Int, $after: String) {
+  frontlineMessagingConversations(first: $first, after: $after) {
+    items {
+      id
+      kind
+      title
+      role
+      lastSequence
+      lastReadSequence
+      unreadCount
+    }
+    nextCursor
+  }
+}
+
+query frontlineMessagingConversationDetailExample($id: ID!) {
+  frontlineMessagingConversation(id: $id) {
+    id
+    kind
+    title
+    role
+    lastSequence
+    lastReadSequence
+    unreadCount
+  }
+}
+
+query frontlineMessagingHistoryExample(
+  $conversationId: ID!
+  $first: Int
+  $before: Int
+) {
+  frontlineMessagingMessages(
+    conversationId: $conversationId
+    first: $first
+    before: $before
+  ) {
+    items {
+      id
+      conversationId
+      senderId
+      clientMessageId
+      sequence
+      text
+      attachmentIds
+      mentionMemberIds
+      createdAt
+    }
+    nextCursor
+  }
+}
+
+query frontlineMessagingGroupParticipantsExample($conversationId: ID!) {
+  frontlineMessagingParticipants(conversationId: $conversationId) {
+    member {
+      id
+      displayName
+    }
+    role
+    lastReadSequence
+    typingUntil
+  }
+}
+
+query frontlineMessagingOfflineSyncExample($after: Int!, $first: Int) {
+  frontlineMessagingSync(after: $after, first: $first) {
+    cursor
+    hasMore
+    resetRequired
+    items {
+      id
+      cursor
+      conversationId
+      kind
+      message {
+        id
+        conversationId
+        senderId
+        clientMessageId
+        sequence
+        text
+        attachmentIds
+        mentionMemberIds
+        createdAt
+      }
+    }
+  }
+}
+
+query frontlineMessagingBadgeExample {
+  frontlineMessagingUnreadCount
+}
+
+mutation frontlineMessagingEnrollExample($displayName: String!) {
+  frontlineMessagingRegister(displayName: $displayName) {
+    app {
+      id
+      direct
+      group
+      attachments
+      push
+    }
+    member {
+      id
+      displayName
+    }
+  }
+}
+
+mutation frontlineMessagingStartDirectExample($peerId: ID!) {
+  frontlineMessagingOpenDirect(peerId: $peerId) {
+    id
+    kind
+    role
+    lastSequence
+    lastReadSequence
+    unreadCount
+  }
+}
+
+mutation frontlineMessagingNewGroupExample(
+  $title: String!
+  $memberIds: [ID!]!
+) {
+  frontlineMessagingCreateGroup(title: $title, memberIds: $memberIds) {
+    id
+    kind
+    title
+    role
+    lastSequence
+    lastReadSequence
+    unreadCount
+  }
+}
+
+mutation frontlineMessagingGroupMembershipExample(
+  $conversationId: ID!
+  $action: FrontlineMessagingGroupAction!
+  $memberId: ID
+) {
+  frontlineMessagingChangeGroup(
+    conversationId: $conversationId
+    action: $action
+    memberId: $memberId
+  )
+}
+
+mutation frontlineMessagingSendMessageExample(
+  $input: FrontlineMessagingSendInput!
+) {
+  frontlineMessagingSend(input: $input) {
+    id
+    conversationId
+    senderId
+    clientMessageId
+    sequence
+    text
+    attachmentIds
+    mentionMemberIds
+    createdAt
+  }
+}
+
+mutation frontlineMessagingReadPositionExample(
+  $conversationId: ID!
+  $through: Int!
+) {
+  frontlineMessagingMarkRead(conversationId: $conversationId, through: $through)
+}
+
+mutation frontlineMessagingTypingStatusExample(
+  $conversationId: ID!
+  $typing: Boolean!
+) {
+  frontlineMessagingTyping(conversationId: $conversationId, typing: $typing)
+}
+
+mutation frontlineMessagingPrepareFileExample(
+  $conversationId: ID!
+  $name: String!
+  $mimeType: String!
+  $size: Int!
+) {
+  frontlineMessagingPrepareAttachment(
+    conversationId: $conversationId
+    name: $name
+    mimeType: $mimeType
+    size: $size
+  ) {
+    id
+    uploadPath
+  }
+}
+
+mutation frontlineMessagingDeviceRegistrationExample(
+  $installationId: String!
+  $platform: FrontlineMessagingPlatform!
+  $token: String!
+) {
+  frontlineMessagingRegisterDevice(
+    installationId: $installationId
+    platform: $platform
+    token: $token
+  ) {
+    id
+    installationId
+    platform
+  }
+}
+
+mutation frontlineMessagingDeviceLogoutExample($installationId: String!) {
+  frontlineMessagingRevokeDevice(installationId: $installationId)
+}
+
+mutation frontlineMessagingNotificationPreferenceExample(
+  $conversationId: ID!
+  $preference: FrontlineMessagingPreference!
+) {
+  frontlineMessagingPreference(
+    conversationId: $conversationId
+    preference: $preference
+  )
+}
+
+mutation frontlineMessagingSocketTicketExample {
+  frontlineMessagingSubscriptionTicket {
+    ticket
+    expiresAt
+  }
+}
+
+subscription frontlineMessagingLiveExample($ticket: String!) {
+  frontlineMessagingWake(ticket: $ticket)
+}
