@@ -135,6 +135,16 @@ export const ACCESS = {
   'users.disable': needs('team.manage'),
   'users.enable': needs('team.manage'),
 
+  'webhooks.eventTypes': MEMBER,
+  'webhooks.list': needs('webhooks.manage'),
+  'webhooks.create': needs('webhooks.manage'),
+  'webhooks.update': needs('webhooks.manage'),
+  'webhooks.remove': needs('webhooks.manage'),
+  'webhooks.rotateSecret': needs('webhooks.manage'),
+  'webhooks.test': needs('webhooks.manage'),
+  'webhooks.deliveries': needs('webhooks.manage'),
+  'webhooks.redeliver': needs('webhooks.manage'),
+
   'roles.list': MEMBER,
   'roles.permissions': MEMBER,
   'roles.create': needs('roles.manage'),

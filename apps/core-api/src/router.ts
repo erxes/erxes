@@ -4,6 +4,17 @@ import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
+import {
+  createWebhook,
+  eventTypeCatalog,
+  listDeliveries,
+  listWebhooks,
+  redeliver,
+  removeWebhook,
+  rotateWebhookSecret,
+  testWebhook,
+  updateWebhook,
+} from '~/modules/webhooks/webhooks.service';
 import { createRole, listRoles, permissionCatalog, removeRole, updateRole } from '~/modules/roles/roles.service';
 import { HttpError } from '~/http/errors';
 import {
@@ -316,6 +327,17 @@ export const coreRouter = pub.router({
       return result;
     }),
     signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
+  },
+  webhooks: {
+    eventTypes: authed.webhooks.eventTypes.handler(async ({ context }) => ({ data: await eventTypeCatalog(db(), context.actor.orgId) })),
+    list: authed.webhooks.list.handler(({ context }) => listWebhooks(db(), context.actor)),
+    create: authed.webhooks.create.handler(({ input, context }) => createWebhook(db(), context.actor, input)),
+    update: authed.webhooks.update.handler(({ input: { id, ...changes }, context }) => updateWebhook(db(), context.actor, id, changes)),
+    remove: authed.webhooks.remove.handler(({ input, context }) => removeWebhook(db(), context.actor, input.id)),
+    rotateSecret: authed.webhooks.rotateSecret.handler(({ input, context }) => rotateWebhookSecret(db(), context.actor, input.id)),
+    test: authed.webhooks.test.handler(({ input, context }) => testWebhook(db(), context.actor, input.id)),
+    deliveries: authed.webhooks.deliveries.handler(({ input, context }) => listDeliveries(db(), context.actor, input)),
+    redeliver: authed.webhooks.redeliver.handler(({ input, context }) => redeliver(db(), context.actor, input.deliveryId)),
   },
   roles: {
     list: authed.roles.list.handler(({ context }) => listRoles(db(), context.actor)),

@@ -49,6 +49,11 @@ class LiveHub extends EventEmitter {
         return;
       }
 
+      if (message.channel === 'core_jobs') {
+        this.emit('jobs');
+        return;
+      }
+
       try {
         this.emit('signal', JSON.parse(message.payload ?? '') as LiveSignal);
       } catch {
@@ -66,6 +71,7 @@ class LiveHub extends EventEmitter {
       await client.connect();
       await client.query('LISTEN core_live');
       await client.query('LISTEN core_events');
+      await client.query('LISTEN core_jobs');
       this.client = client;
 
       const reconnected = this.attempt > 0;

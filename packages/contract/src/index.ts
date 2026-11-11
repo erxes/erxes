@@ -12,6 +12,7 @@ import { pluginsContract } from './plugins';
 import { rolesContract } from './roles';
 import { tagsContract } from './tags';
 import { usersContract } from './users';
+import { webhooksContract } from './webhooks';
 
 export const CORE_API_VERSION = 'v1';
 
@@ -35,6 +36,7 @@ export const coreContract = {
   roles: rolesContract,
   tags: tagsContract,
   users: usersContract,
+  webhooks: webhooksContract,
 };
 
 export * from './activities';
@@ -53,3 +55,4 @@ export * from './plugins';
 export * from './roles';
 export * from './tags';
 export * from './users';
+export * from './webhooks';

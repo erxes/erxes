@@ -17,6 +17,8 @@ export {
   SUBJECT_TYPES,
   FILE_STATUSES,
   files,
+  JOB_STATUSES,
+  jobs,
   NOTIFICATION_PRIORITIES,
   notifications,
   CONTENT_TYPES,
@@ -37,7 +39,11 @@ export {
   plugins,
   tags,
   users,
+  WEBHOOK_DELIVERY_STATUSES,
+  WEBHOOK_STATUSES,
+  webhookDeliveries,
+  webhooks,
   USER_ROLES,
   USER_STATUSES,
 } from './schema';
-export type { ActorType, EventFailureStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';
+export type { ActorType, EventFailureStatus, JobStatus, PluginStatus, StoredPluginManifest, ContentType, CustomValue, OrganizationSettings } from './schema';

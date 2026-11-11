@@ -219,7 +219,8 @@
     "notifications": "Notifications",
     "event-delivery": "Event delivery",
     "plugins": "Plugins",
-    "roles": "Roles"
+    "roles": "Roles",
+    "webhooks": "Webhooks"
   },
   "plugin": {
     "_": "Plugin",

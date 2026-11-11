@@ -160,6 +160,15 @@ export const config = {
     signingKeyFile: process.env.CORE_SIGNING_KEY_DEV_FILE?.trim() || './data/keys/signing-key.pem',
     /** Previous keys (PEM, public or private), still published so older signatures verify. */
     retiredSigningKeys: readSecret('CORE_SIGNING_KEYS_RETIRED'),
+    /** Seals secrets core reads back (webhook secrets, gateway keys); default: derived from CORE_JWT_SECRET. */
+    encryptionKey: readSecret('CORE_ENCRYPTION_KEY'),
+  },
+  outbound: {
+    /**
+     * Webhooks and automation calls may reach http and private addresses
+     * (development only: refused in production, against SSRF).
+     */
+    allowPrivate: (process.env.OUTBOUND_ALLOW_PRIVATE ?? (isProduction ? 'false' : 'true')) === 'true',
   },
   /** Secret → plugin name. */
   pluginKeys: readPluginKeys(),

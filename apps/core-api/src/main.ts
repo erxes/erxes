@@ -5,6 +5,8 @@ import { startMaintenance } from '~/lib/maintenance';
 import { startDraining } from '~/lib/lifecycle';
 import { loadSigningKeys } from '~/lib/signing';
 import { startEventProcessor } from '~/modules/events/processor';
+import { startJobWorker } from '~/modules/jobs/jobs';
+import { JOBS } from '~/modules/jobs/registry';
 import { liveHub } from '~/modules/live/hub';
 import { syncPluginSecrets } from '~/modules/plugins/plugins.service';
 import { log } from '~/lib/log';
@@ -46,6 +48,7 @@ const start = async () => {
   liveHub.start();
 
   const stopEvents = startEventProcessor();
+  const stopJobs = startJobWorker(JOBS);
 
   server.keepAliveTimeout = 120_000;
   server.headersTimeout = 121_000;
@@ -68,7 +71,7 @@ const start = async () => {
 
     forced.unref();
     server.close(() => {
-      Promise.all([stopEvents(), liveHub.stop()])
+      Promise.all([stopEvents(), stopJobs(), liveHub.stop()])
         .then(() => closeDb())
         .catch((error: unknown) => log.error('shutdown failed', { error }))
         .finally(() => process.exit(0));

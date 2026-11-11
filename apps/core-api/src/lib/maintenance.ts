@@ -6,6 +6,7 @@ import { pruneEvents } from '~/modules/events/events.service';
 import { CONSUMERS } from '~/modules/events/processor';
 import { pruneUploads, purgeDeletedFiles } from '~/modules/files/files.service';
 import { storage } from '~/modules/files/storage';
+import { pruneDeliveries } from '~/modules/webhooks/webhooks.service';
 import { pruneNotifications } from '~/modules/notifications/notifications.service';
 import { log } from '~/lib/log';
 
@@ -27,6 +28,7 @@ export const startMaintenance = () => {
       const read = await withSystem('cleanup: notifications', (tx) =>
         pruneNotifications(tx, config.retention.readNotificationDays),
       );
+      await withSystem('cleanup: webhook deliveries', (tx) => pruneDeliveries(tx, config.retention.eventDays));
       const handled = await withSystem('cleanup: events', (tx) =>
         pruneEvents(tx, config.retention.eventDays, CONSUMERS.map((consumer) => consumer.name)),
       );

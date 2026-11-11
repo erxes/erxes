@@ -6,6 +6,7 @@ import { FileUploadSettingsPage } from './file-upload/FileUploadSettingsPage';
 import { NotificationSettingsPage } from './notifications/NotificationSettingsPage';
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
+import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { PropertiesSettingsRoutes } from './properties/PropertiesSettingsRoutes';
 import { SettingsLayout } from './SettingsLayout';
@@ -25,6 +26,7 @@ export const SettingsRoutes = () => (
       <Route path="event-delivery" element={<EventDeliveryPage />} />
       <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="roles" element={<RolesSettingsPage />} />
+      <Route path="webhooks" element={<WebhooksSettingsPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />

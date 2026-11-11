@@ -220,7 +220,8 @@
     "notifications": "Мэдэгдэл",
     "event-delivery": "Үйл явдлын хүргэлт",
     "plugins": "Плагинууд",
-    "roles": "Үүргүүд"
+    "roles": "Үүргүүд",
+    "webhooks": "Вэбхүүк"
   },
   "plugin": {
     "_": "Плагин",

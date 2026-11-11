@@ -133,6 +133,21 @@ it is built.
   `bye`). Sign-in is limited per address (20/min) and per account (10
   failures in 15 minutes → 429, counted from the audit log, so it holds
   across replicas). Postgres TLS is verified (`DATA_SSL_CA`).
+- **Jobs** (`core_jobs`, `src/modules/jobs`): `enqueueJob(tx, …)` in the
+  business transaction (rolled back = never runs); dedupe keys; the worker
+  claims with `SKIP LOCKED` and a lease (a dead worker's job is claimed again
+  once the lease passes), retries with backoff, then `dead` (`retryDeadJobs`).
+  `atomic` jobs commit their effects with their completion; others (HTTP)
+  must be idempotent. Woken by NOTIFY `core_jobs`, polled every 2 s for
+  delays. Register definitions in `jobs/registry.ts`.
+- **Webhooks** (`core_webhooks`, `core_webhook_deliveries`): the `core.webhooks`
+  event consumer queues a delivery per matching endpoint (`x.y.z`, `x.*`, `*`);
+  `webhook.deliver` POSTs JSON signed `Erxes-Signature: t=…,v1=HMAC-SHA256(secret,
+  "t.body")`, retries ~1 day, logs every attempt, turns an endpoint off after
+  50 failures in a row. Secrets are sealed (`src/lib/secrets.ts`, AES-GCM,
+  `CORE_ENCRYPTION_KEY`). Outbound calls go through `src/lib/outbound.ts`:
+  https only and no private addresses outside development (SSRF; checked on
+  the resolved address). `/events/types` lists core's and plugins' events.
 - **Concurrency.** Read-modify-write takes row locks in the request's
   transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
   contact custom fields, field changes vs. values (`FOR SHARE`), team changes

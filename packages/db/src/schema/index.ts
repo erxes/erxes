@@ -7,3 +7,5 @@ export * from './tags';
 export * from './users';
 export * from './platform';
 export * from './plugins';
+export * from './jobs';
+export * from './webhooks';
