@@ -11,7 +11,6 @@ import {
   sendMessagingTyping,
   syncMessaging,
 } from './events';
-import { getMessagingCredential } from './auth';
 import {
   createGroup,
   openDirect,
@@ -27,11 +26,12 @@ import type {
   MessagingMembership,
   MessagingMessage,
 } from './models';
-import type { MessagingActor } from './auth';
 import { markResolvers } from 'erxes-api-shared/utils';
 import {
+  getMessagingCredential,
   loadMessagingAccount,
   requireMessagingActor,
+  type MessagingActor,
   type MessagingRequest,
 } from './auth';
 import { messagingError } from './errors';
@@ -480,11 +480,12 @@ export const messagingMutations = {
     { conversationId, typing }: { conversationId: string; typing: boolean },
     request: MessagingRequest,
   ) {
-    return sendMessagingTyping(
+    await sendMessagingTyping(
       await requireMessagingActor(request),
       conversationId,
       typing,
     );
+    return true;
   },
   async frontlineMessagingOpenDirect(
     _root: unknown,

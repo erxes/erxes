@@ -1553,6 +1553,13 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
   subscription into silence.
 - Messaging rate limits are keyed by verified tenant, app, member and operation,
   count atomically in Redis, and fail closed when Redis is unavailable.
+- Messaging IDs use explicit UTF-16 ordering for DIRECT pair keys and send
+  idempotency; locale-based sorting would change existing keys. Recipient
+  counters use ordered bulk writes on the transaction session, followed by
+  event inserts on that same session. Never parallelize transaction commands.
+  Each worker claims and finalizes one leased event/delivery before the next;
+  independent cleanup tasks settle before releasing the poller's running guard.
+  Push retry jitter uses `node:crypto.randomInt` without changing its bounds.
 
 - A call leg or CTI event that names a queue belongs to the peer call
   integration whose `queues` contains it, and only to that one: when several

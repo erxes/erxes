@@ -12,6 +12,13 @@ import type {
 const MAX_GROUP_SIZE = 50;
 const MAX_MESSAGE_LENGTH = 8000;
 
+// IDs are opaque, case-sensitive keys, not display names. Preserve the UTF-16
+// ordering used by existing DIRECT keys and idempotency comparisons.
+const compareMessagingIds = (left: string, right: string): number => {
+  if (left === right) return 0;
+  return left < right ? -1 : 1;
+};
+
 type Thread = {
   conversation: MessagingConversation;
   membership: MessagingMembership;
@@ -129,7 +136,7 @@ export const openDirect = async (
   requireKind(actor, 'DIRECT');
   if (!peerId || peerId === actor.member._id)
     throw messagingError('Select another member');
-  const memberIds = [actor.member._id, peerId].sort();
+  const memberIds = [actor.member._id, peerId].sort(compareMessagingIds);
   const directPair = JSON.stringify(memberIds);
   const selector = { ...actor.scope, kind: 'DIRECT', directPair };
   const open = () =>
@@ -211,6 +218,46 @@ export type GroupAction =
 const forbid = () =>
   messagingError('Group role does not permit this action', 'FORBIDDEN');
 
+const leaveGroup = async (
+  actor: MessagingActor,
+  conversationId: string,
+  role: MemberRole,
+  session: ClientSession,
+) => {
+  if (role === 'OWNER')
+    throw messagingError('Transfer ownership before leaving');
+  await actor.models.Memberships.updateOne(
+    { ...actor.scope, conversationId, memberId: actor.member._id },
+    { $set: { active: false, unreadCount: 0 } },
+    { session },
+  );
+};
+
+const addGroupMember = async (
+  actor: MessagingActor,
+  conversation: MessagingConversation,
+  peerId: string,
+  session: ClientSession,
+) => {
+  await requireMembers(actor, [peerId], session);
+  const selector = { ...actor.scope, conversationId: conversation._id };
+  const count = await actor.models.Memberships.countDocuments({
+    ...selector,
+    active: true,
+  }).session(session);
+  if (count >= MAX_GROUP_SIZE) throw messagingError('Too many group members');
+  await actor.models.Memberships.updateOne(
+    { ...selector, memberId: peerId },
+    { $set: makeMembership(actor, conversation, peerId) },
+    { upsert: true, session },
+  );
+};
+
+const roleForAction = (action: GroupAction): MemberRole => {
+  if (action === 'TRANSFER') return 'OWNER';
+  return action === 'PROMOTE' ? 'ADMIN' : 'MEMBER';
+};
+
 const applyGroupChangeInSession = async (
   actor: MessagingActor,
   id: string,
@@ -224,13 +271,7 @@ const applyGroupChangeInSession = async (
   const selector = { ...actor.scope, conversationId: id };
 
   if (action === 'LEAVE') {
-    if (membership.role === 'OWNER')
-      throw messagingError('Transfer ownership before leaving');
-    await Memberships.updateOne(
-      { ...selector, memberId: actor.member._id },
-      { $set: { active: false, unreadCount: 0 } },
-      { session },
-    );
+    await leaveGroup(actor, id, membership.role, session);
     return true;
   }
 
@@ -242,17 +283,7 @@ const applyGroupChangeInSession = async (
 
   if (action === 'ADD') {
     if (peer?.active) return true;
-    await requireMembers(actor, [peerId], session);
-    const count = await Memberships.countDocuments({
-      ...selector,
-      active: true,
-    }).session(session);
-    if (count >= MAX_GROUP_SIZE) throw messagingError('Too many group members');
-    await Memberships.updateOne(
-      target,
-      { $set: makeMembership(actor, conversation, peerId) },
-      { upsert: true, session },
-    );
+    await addGroupMember(actor, conversation, peerId, session);
     return true;
   }
 
@@ -277,8 +308,7 @@ const applyGroupChangeInSession = async (
       { session },
     );
   }
-  const role =
-    action === 'TRANSFER' ? 'OWNER' : action === 'PROMOTE' ? 'ADMIN' : 'MEMBER';
+  const role = roleForAction(action);
   await Memberships.updateOne(target, { $set: { role } }, { session });
   return true;
 };
@@ -292,17 +322,16 @@ export const changeGroup = async (
   updateThread(actor, id, async ({ session }) => {
     // Membership authorization and changes share the same transaction.
     await applyGroupChangeInSession(actor, id, action, peerId, session);
+    let includeMemberId: string | undefined;
+    if (action === 'LEAVE') includeMemberId = actor.member._id;
+    if (action === 'REMOVE') includeMemberId = peerId ?? undefined;
     await recordMessagingEvent(
       actor,
       id,
       session,
       'CHANGED',
       undefined,
-      action === 'LEAVE'
-        ? actor.member._id
-        : action === 'REMOVE'
-        ? peerId ?? undefined
-        : undefined,
+      includeMemberId,
     );
     return true;
   });
@@ -317,8 +346,12 @@ export interface SendInput {
 
 export const sendMessage = (actor: MessagingActor, input: SendInput) => {
   const text = input.text?.trim() || '';
-  const mentions = [...new Set(input.mentionMemberIds ?? [])].sort();
-  const attachmentIds = [...new Set(input.attachmentIds ?? [])].sort();
+  const mentions = [...new Set(input.mentionMemberIds ?? [])].sort(
+    compareMessagingIds,
+  );
+  const attachmentIds = [...new Set(input.attachmentIds ?? [])].sort(
+    compareMessagingIds,
+  );
   if (!input.clientMessageId || input.clientMessageId.length > 128)
     throw messagingError('Invalid client message ID');
   if (

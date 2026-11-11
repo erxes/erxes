@@ -22,7 +22,7 @@ const shouldDeliverConversationMessage = (
 
 const MESSAGING_TICKET_PREFIX = 'frontline:messaging:ticket:';
 const MESSAGING_WAKE_PREFIX = 'frontline:messaging:wake:';
-const MESSAGING_MAX_SUBSCRIPTION_MS = 3600_000;
+const MESSAGING_MAX_SUBSCRIPTION_MS = 3_600_000;
 
 // Reading and deleting in one script lets exactly one subscriber across all
 // gateway instances consume a ticket. GETDEL would need Redis 6.2.

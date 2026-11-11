@@ -60,13 +60,14 @@ export const prepareAttachment = async (
   const policy = app.storage;
   if (!policy) throw messagingError('Attachments are disabled', 'FORBIDDEN');
   const name = input.name.trim();
+  const allowedMimeTypes: readonly string[] = policy.mimeTypes;
   if (
     !name ||
     name.length > 200 ||
     !Number.isInteger(input.size) ||
     input.size < 1 ||
     input.size > policy.maxBytes ||
-    !policy.mimeTypes.some((mime) => mime === input.mimeType)
+    !allowedMimeTypes.includes(input.mimeType)
   ) {
     throw messagingError('Attachment exceeds the app file policy');
   }
@@ -139,7 +140,9 @@ const uploadAttachment = async (req: Request, res: Response) => {
       .promise();
     await models.Attachments.updateOne(
       { ...scope, _id: attachment._id, state: 'UPLOADING' },
-      { $set: { state: 'READY', expiresAt: new Date(Date.now() + 86400_000) } },
+      {
+        $set: { state: 'READY', expiresAt: new Date(Date.now() + 86_400_000) },
+      },
     );
   } catch (error) {
     await models.Attachments.updateOne(
@@ -188,10 +191,11 @@ const downloadAttachment = async (req: Request, res: Response) => {
     'Content-Type': attachment.mimeType,
     'Content-Disposition':
       "attachment; filename*=UTF-8''" +
-      encodeURIComponent(attachment.name).replace(
-        /['()*]/g,
-        (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase(),
-      ),
+      encodeURIComponent(attachment.name)
+        .replaceAll("'", '%27')
+        .replaceAll('(', '%28')
+        .replaceAll(')', '%29')
+        .replaceAll('*', '%2A'),
     'Cache-Control': 'private, no-store',
     'X-Content-Type-Options': 'nosniff',
   });

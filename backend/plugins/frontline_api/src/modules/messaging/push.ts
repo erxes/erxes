@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from 'node:crypto';
+import { createHash, randomInt, randomUUID } from 'node:crypto';
 import { sign } from 'jsonwebtoken';
 import { z } from 'zod';
 import type { MessagingActor } from './auth';
@@ -9,7 +9,14 @@ import {
   updateThread,
 } from './conversations';
 import { messagingError } from './errors';
-import { generateMessagingModels, type MessagingEvent } from './models';
+import {
+  generateMessagingModels,
+  type MessagingDelivery,
+  type MessagingEvent,
+  type MessagingMembership,
+  type MessagingMessage,
+  type MessagingModels,
+} from './models';
 
 const serviceAccountSchema = z.object({
   project_id: z.string(),
@@ -152,27 +159,32 @@ export const queueMessagingPush = async (
     memberId: event.memberId,
     active: true,
   }).lean();
-  for (const device of devices) {
-    const selector = {
-      ...scope,
-      eventId: event._id,
-      memberId: event.memberId,
-      installationId: device.installationId,
-    };
-    await models.Deliveries.updateOne(
-      selector,
-      {
-        $setOnInsert: {
-          ...selector,
-          memberId: event.memberId,
-          conversationId: event.conversationId,
-          messageId: message._id,
-          expiresAt: new Date(Date.now() + 30 * 86400_000),
+  if (!devices.length) return;
+  await models.Deliveries.bulkWrite(
+    devices.map((device) => {
+      const selector = {
+        ...scope,
+        eventId: event._id,
+        memberId: event.memberId,
+        installationId: device.installationId,
+      };
+      return {
+        updateOne: {
+          filter: selector,
+          update: {
+            $setOnInsert: {
+              ...selector,
+              conversationId: event.conversationId,
+              messageId: message._id,
+              expiresAt: new Date(Date.now() + 30 * 86_400_000),
+            },
+          },
+          upsert: true,
         },
-      },
-      { upsert: true },
-    );
-  }
+      };
+    }),
+    { ordered: true },
+  );
 };
 
 const getFirebaseAccessToken = async (app: MessagingApp) => {
@@ -289,70 +301,79 @@ export const sendMessagingFcm = async (
   return { status: 'FAILED' };
 };
 
-export const dispatchMessagingPush = async (
+const canReceivePush = (
   app: MessagingApp,
-  send: typeof sendMessagingFcm = sendMessagingFcm,
+  delivery: MessagingDelivery,
+  membership: MessagingMembership,
+  message: MessagingMessage,
+): boolean => {
+  if (
+    message.createdAt.getTime() < Date.now() - 86_400_000 ||
+    message.sequence < membership.joinedSequence ||
+    message.sequence <= membership.lastReadSequence ||
+    membership.preference === 'NONE'
+  )
+    return false;
+  if (
+    membership.preference === 'MENTIONS' &&
+    !message.mentionMemberIds.includes(delivery.memberId)
+  )
+    return false;
+  return enabledKinds({ app }).includes(membership.kind);
+};
+
+const loadPushRecipient = async (
+  app: MessagingApp,
+  models: MessagingModels,
+  delivery: MessagingDelivery,
 ) => {
-  if (!app.push) return;
-  const models = await generateMessagingModels(app.tenant);
   const scope = { tenant: app.tenant, appId: app.appId };
-  await models.Deliveries.init();
-  for (let count = 0; count < 10; count++) {
-    const leaseId = randomUUID();
-    const delivery = await models.Deliveries.findOneAndUpdate(
-      {
-        ...scope,
-        state: 'PENDING',
-        dueAt: { $lte: new Date() },
-        leaseUntil: { $lte: new Date() },
-      },
-      {
-        $set: { leaseId, leaseUntil: new Date(Date.now() + 60_000) },
-        $inc: { attempts: 1 },
-      },
-      { new: true },
-    ).lean();
-    if (!delivery) break;
-    const filter = { ...scope, _id: delivery._id, leaseId };
-    const device = await models.Devices.findOne({
+  const [device, member, membership, message] = await Promise.all([
+    models.Devices.findOne({
       ...scope,
       memberId: delivery.memberId,
       installationId: delivery.installationId,
       active: true,
-    }).lean();
-    const member = await models.Identities.exists({
+    }).lean(),
+    models.Identities.exists({
       ...scope,
       _id: delivery.memberId,
       active: true,
-    });
-    const membership = await models.Memberships.findOne({
+    }),
+    models.Memberships.findOne({
       ...scope,
       conversationId: delivery.conversationId,
       memberId: delivery.memberId,
       active: true,
-    }).lean();
-    const message = await models.Messages.findOne({
-      ...scope,
-      _id: delivery.messageId,
-    }).lean();
-    if (
-      !device ||
-      !member ||
-      !membership ||
-      !message ||
-      message.createdAt.getTime() < Date.now() - 86400_000 ||
-      message.sequence < membership.joinedSequence ||
-      message.sequence <= membership.lastReadSequence ||
-      membership.preference === 'NONE' ||
-      (membership.preference === 'MENTIONS' &&
-        !message.mentionMemberIds.includes(delivery.memberId)) ||
-      (!app.direct && membership.kind === 'DIRECT') ||
-      (!app.group && membership.kind === 'GROUP')
-    ) {
-      await models.Deliveries.updateOne(filter, { $set: { state: 'SKIPPED' } });
-      continue;
-    }
-    const unread = await models.Memberships.aggregate<{ total: number }>([
+    }).lean(),
+    models.Messages.findOne({ ...scope, _id: delivery.messageId }).lean(),
+  ]);
+  if (!device || !member || !membership || !message) return null;
+  if (!canReceivePush(app, delivery, membership, message)) return null;
+  return device;
+};
+
+const deliveryState = (retry: boolean, status: PushResult['status']) => {
+  if (retry) return 'PENDING';
+  return status === 'SENT' ? 'SENT' : 'FAILED';
+};
+
+const processPushDelivery = async (
+  app: MessagingApp,
+  models: MessagingModels,
+  delivery: MessagingDelivery,
+  send: typeof sendMessagingFcm,
+) => {
+  if (!app.push) return;
+  const scope = { tenant: app.tenant, appId: app.appId };
+  const filter = { ...scope, _id: delivery._id, leaseId: delivery.leaseId };
+  const device = await loadPushRecipient(app, models, delivery);
+  if (!device) {
+    await models.Deliveries.updateOne(filter, { $set: { state: 'SKIPPED' } });
+    return;
+  }
+  const [unread, identity] = await Promise.all([
+    models.Memberships.aggregate<{ total: number }>([
       {
         $match: {
           ...scope,
@@ -362,47 +383,83 @@ export const dispatchMessagingPush = async (
         },
       },
       { $group: { _id: null, total: { $sum: '$unreadCount' } } },
-    ]);
-    const badge = unread[0]?.total ?? 0;
-    const identity = await models.Identities.findOne({
-      ...scope,
-      _id: delivery.memberId,
-    }).lean();
-    const url = new URL(app.push.deepLinkBase);
-    url.searchParams.set('conversationId', delivery.conversationId);
-    const data = {
-      notificationId: delivery._id,
-      conversationId: delivery.conversationId,
-      messageId: delivery.messageId,
+    ]),
+    models.Identities.findOne({ ...scope, _id: delivery.memberId }).lean(),
+  ]);
+  const badge = unread[0]?.total ?? 0;
+  const url = new URL(app.push.deepLinkBase);
+  url.searchParams.set('conversationId', delivery.conversationId);
+  const data = {
+    notificationId: delivery._id,
+    conversationId: delivery.conversationId,
+    messageId: delivery.messageId,
+    appId: app.appId,
+    cursor: String(identity?.eventSequence ?? 0),
+    badge: String(badge),
+    url: url.toString(),
+  };
+  let result: PushResult;
+  try {
+    result = await send(app, device.token, data, badge);
+  } catch {
+    result = { status: 'RETRY' };
+  }
+  if (result.status === 'REVOKE') {
+    await models.Devices.updateOne(
+      { ...scope, _id: device._id, generation: device.generation },
+      { $set: { active: false } },
+    );
+  }
+  const retry = result.status === 'RETRY' && delivery.attempts < 8;
+  const delay =
+    Math.max(
+      result.retryAfter ?? 0,
+      Math.min(3_600_000, 60_000 * 2 ** (delivery.attempts - 1)),
+    ) + randomInt(1000);
+  await models.Deliveries.updateOne(filter, {
+    $set: {
+      state: deliveryState(retry, result.status),
+      dueAt: new Date(Date.now() + delay),
+      leaseUntil: new Date(0),
+    },
+  });
+};
+
+const dispatchNextPush = async (
+  app: MessagingApp,
+  models: MessagingModels,
+  send: typeof sendMessagingFcm,
+): Promise<boolean> => {
+  const leaseId = randomUUID();
+  const delivery = await models.Deliveries.findOneAndUpdate(
+    {
+      tenant: app.tenant,
       appId: app.appId,
-      cursor: String(identity?.eventSequence ?? 0),
-      badge: String(badge),
-      url: url.toString(),
-    };
-    let result: PushResult;
-    try {
-      result = await send(app, device.token, data, badge);
-    } catch {
-      result = { status: 'RETRY' };
-    }
-    if (result.status === 'REVOKE') {
-      await models.Devices.updateOne(
-        { ...scope, _id: device._id, generation: device.generation },
-        { $set: { active: false } },
-      );
-    }
-    const retry = result.status === 'RETRY' && delivery.attempts < 8;
-    const delay =
-      Math.max(
-        result.retryAfter ?? 0,
-        Math.min(3600_000, 60_000 * 2 ** (delivery.attempts - 1)),
-      ) + Math.floor(Math.random() * 1000);
-    await models.Deliveries.updateOne(filter, {
-      $set: {
-        state: retry ? 'PENDING' : result.status === 'SENT' ? 'SENT' : 'FAILED',
-        dueAt: new Date(Date.now() + delay),
-        leaseUntil: new Date(0),
-      },
-    });
+      state: 'PENDING',
+      dueAt: { $lte: new Date() },
+      leaseUntil: { $lte: new Date() },
+    },
+    {
+      $set: { leaseId, leaseUntil: new Date(Date.now() + 60_000) },
+      $inc: { attempts: 1 },
+    },
+    { new: true },
+  ).lean();
+  if (!delivery) return false;
+  await processPushDelivery(app, models, delivery, send);
+  return true;
+};
+
+export const dispatchMessagingPush = async (
+  app: MessagingApp,
+  send: typeof sendMessagingFcm = sendMessagingFcm,
+) => {
+  if (!app.push) return;
+  const models = await generateMessagingModels(app.tenant);
+  await models.Deliveries.init();
+  // Lease, send and finalize one delivery before claiming another. This bounds
+  // provider load and keeps the current per-app retry and lease semantics.
+  for (let count = 0; count < 10; count++) {
+    if (!(await dispatchNextPush(app, models, send))) break;
   }
 };

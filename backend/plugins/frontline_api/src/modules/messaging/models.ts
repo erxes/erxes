@@ -360,8 +360,10 @@ const configureMessagingModels = () =>
 
 let generate: ReturnType<typeof configureMessagingModels> | undefined;
 
-export const generateMessagingModels = (tenant: string) =>
-  (generate ??= configureMessagingModels())(tenant);
+export const generateMessagingModels = (tenant: string) => {
+  generate ??= configureMessagingModels();
+  return generate(tenant);
+};
 
 export type MessagingModels = Awaited<
   ReturnType<typeof generateMessagingModels>

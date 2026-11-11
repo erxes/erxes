@@ -25,14 +25,15 @@ export const authenticateMessagingToken = (
       typeof decoded.payload !== 'object' ||
       typeof decoded.header.kid !== 'string'
     ) {
-      throw new Error();
+      throw new TypeError('Invalid messaging access-token header');
     }
     const { iss, aud } = decoded.payload;
     const app = apps.find(
       ({ issuer, audience }) => issuer === iss && audience === aud,
     );
     const key = app?.keys.get(decoded.header.kid);
-    if (!app || !key) throw new Error();
+    if (!app || !key)
+      throw new Error('No matching messaging app or signing key');
 
     const claims = verify(token, key, {
       algorithms: ['RS256'],
@@ -53,7 +54,7 @@ export const authenticateMessagingToken = (
       !claims.sub.trim() ||
       claims.sub.length > 255
     ) {
-      throw new Error();
+      throw new TypeError('Invalid messaging access-token claims');
     }
 
     return {

@@ -42,7 +42,10 @@ const countRequest = async (key: string, windowMs: number) => {
     const result = await Promise.race([
       redis.eval(FIXED_WINDOW, 1, key, windowMs),
       new Promise<never>((_resolve, reject) => {
-        timer = setTimeout(() => reject(new Error()), REDIS_TIMEOUT_MS);
+        timer = setTimeout(
+          () => reject(new Error('Messaging rate-limit counter timed out')),
+          REDIS_TIMEOUT_MS,
+        );
       }),
     ]);
     if (
@@ -50,7 +53,7 @@ const countRequest = async (key: string, windowMs: number) => {
       typeof result[0] !== 'number' ||
       typeof result[1] !== 'number'
     ) {
-      throw new Error();
+      throw new TypeError('Invalid messaging rate-limit counter response');
     }
     return { count: result[0], ttl: result[1] };
   } catch {

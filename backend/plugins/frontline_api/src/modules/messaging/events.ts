@@ -4,7 +4,7 @@ import type { ClientSession } from 'mongoose';
 import type { MessagingActor } from './auth';
 import { requireThread, updateThread, enabledKinds } from './conversations';
 import { messagingError } from './errors';
-import type { MessagingEvent, MessagingMessage } from './models';
+import type { MessagingEvent } from './models';
 
 export const messagingTopic = (
   tenant: string,
@@ -30,28 +30,40 @@ export const recordMessagingEvent = async (
     .session(session)
     .sort({ memberId: 1 })
     .lean();
-  for (const { memberId } of members) {
-    const recipient = await actor.models.Identities.findOneAndUpdate(
-      { ...actor.scope, _id: memberId, active: true },
-      { $inc: { eventSequence: 1 } },
-      { session, new: true },
-    ).lean();
-    if (!recipient) continue;
-    await actor.models.Events.create(
-      [
-        {
-          ...actor.scope,
-          memberId,
-          conversationId,
-          kind,
-          messageId,
-          sequence: recipient.eventSequence,
-          expiresAt: new Date(Date.now() + 30 * 86400_000),
-        },
-      ],
-      { session },
-    );
-  }
+  const memberIds = members.map(({ memberId }) => memberId);
+  if (!memberIds.length) return;
+  // Ordered bulk writes preserve recipient lock order without running parallel
+  // commands on a transaction session. Counters and events still commit together.
+  await actor.models.Identities.bulkWrite(
+    memberIds.map((memberId) => ({
+      updateOne: {
+        filter: { ...actor.scope, _id: memberId, active: true },
+        update: { $inc: { eventSequence: 1 } },
+      },
+    })),
+    { session, ordered: true },
+  );
+  const recipients = await actor.models.Identities.find({
+    ...actor.scope,
+    _id: { $in: memberIds },
+    active: true,
+  })
+    .session(session)
+    .sort({ _id: 1 })
+    .lean();
+  if (!recipients.length) return;
+  await actor.models.Events.insertMany(
+    recipients.map((recipient) => ({
+      ...actor.scope,
+      memberId: recipient._id,
+      conversationId,
+      kind,
+      messageId,
+      sequence: recipient.eventSequence,
+      expiresAt: new Date(Date.now() + 30 * 86_400_000),
+    })),
+    { session, ordered: true },
+  );
 };
 
 export const issueMessagingTicket = async (
@@ -104,40 +116,52 @@ export const syncMessaging = async (
   const resetRequired =
     after < actor.member.eventSequence &&
     (!rows.length || rows[0].sequence !== after + 1);
-  const items: Array<{
-    id: string;
-    cursor: number;
-    conversationId: string;
-    kind: MessagingEvent['kind'];
-    message: (MessagingMessage & { id: string }) | null;
-  }> = [];
-  for (const row of rows) {
-    const membership = await actor.models.Memberships.findOne({
-      ...actor.scope,
-      conversationId: row.conversationId,
-      memberId: actor.member._id,
-      active: true,
-      kind: { $in: enabledKinds(actor) },
-    }).lean();
-    if (!membership) continue;
-    let message: MessagingMessage | null = null;
-    if (row.messageId) {
-      message = await actor.models.Messages.findOne({
-        ...actor.scope,
+  const memberships = await actor.models.Memberships.find({
+    ...actor.scope,
+    conversationId: { $in: rows.map((row) => row.conversationId) },
+    memberId: actor.member._id,
+    active: true,
+    kind: { $in: enabledKinds(actor) },
+  }).lean();
+  const byConversation = new Map(
+    memberships.map((membership) => [membership.conversationId, membership]),
+  );
+  const messageFilters = rows.flatMap((row) => {
+    const membership = byConversation.get(row.conversationId);
+    if (!membership || !row.messageId) return [];
+    return [
+      {
         _id: row.messageId,
         conversationId: row.conversationId,
         sequence: { $gte: membership.joinedSequence },
-      }).lean();
-      if (!message) continue;
-    }
-    items.push({
-      id: row._id,
-      cursor: row.sequence,
-      conversationId: row.conversationId,
-      kind: row.kind,
-      message: message ? { ...message, id: message._id } : null,
-    });
-  }
+      },
+    ];
+  });
+  const messages = messageFilters.length
+    ? await actor.models.Messages.find({
+        ...actor.scope,
+        $or: messageFilters,
+      }).lean()
+    : [];
+  const byMessage = new Map(messages.map((message) => [message._id, message]));
+  const items = rows.flatMap((row) => {
+    if (!byConversation.has(row.conversationId)) return [];
+    const message = row.messageId ? byMessage.get(row.messageId) : undefined;
+    if (
+      row.messageId &&
+      (!message || message.conversationId !== row.conversationId)
+    )
+      return [];
+    return [
+      {
+        id: row._id,
+        cursor: row.sequence,
+        conversationId: row.conversationId,
+        kind: row.kind,
+        message: message ? { ...message, id: message._id } : null,
+      },
+    ];
+  });
   return {
     items,
     cursor: resetRequired
@@ -198,7 +222,7 @@ export const sendMessagingTyping = async (
       actor.member._id,
     ]);
   const accepted = await redis.set(key, typing ? '1' : '0', 'EX', 2, 'NX');
-  if (!accepted) return true;
+  if (!accepted) return;
   const members = await actor.models.Memberships.find({
     ...actor.scope,
     conversationId,
@@ -215,11 +239,12 @@ export const sendMessagingTyping = async (
     },
     { $set: { typingUntil: typing ? expiresAt : new Date(0) } },
   );
-  for (const { memberId } of members) {
-    await graphqlPubsub.publish(
-      messagingTopic(actor.scope.tenant, actor.scope.appId, memberId),
-      { frontlineMessagingWake: true },
-    );
-  }
-  return true;
+  await Promise.all(
+    members.map(({ memberId }) =>
+      graphqlPubsub.publish(
+        messagingTopic(actor.scope.tenant, actor.scope.appId, memberId),
+        { frontlineMessagingWake: true },
+      ),
+    ),
+  );
 };
