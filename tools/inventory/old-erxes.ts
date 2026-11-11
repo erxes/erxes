@@ -380,6 +380,6 @@ mkdirSync(dirname(output), { recursive: true });
 
 writeFileSync(output, JSON.stringify(inventory, null, 2) + '\n');
 
-console.info(inventory.counts);
-
-console.info(`wrote ${output} in ${Math.round(performance.now() - started)} ms`);
+process.stdout.write(
+  `${JSON.stringify(inventory.counts, null, 2)}\nwrote ${output} in ${Math.round(performance.now() - started)} ms\n`,
+);

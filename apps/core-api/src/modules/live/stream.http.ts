@@ -60,6 +60,14 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   const send = (event: string, data: unknown = {}) =>
     res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
 
+  const bye = (reason: 'session-expired' | 'member-inactive' | 'session-ended') => {
+    req.log.info({ reason }, 'stream ended by the server');
+    send('bye', { reason });
+    res.end();
+  };
+
+  req.log.info('stream opened');
+
   let inbox = false;
   let resync = false;
   const pluginTopics = new Map<string, Set<string>>();
@@ -129,8 +137,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   const revalidate = setInterval(() => {
     // A cookie session can expire while the stream is open.
     if (!req.headers.authorization && !sessionClaims(req)) {
-      send('bye', { reason: 'session-expired' });
-      res.end();
+      bye('session-expired');
 
       return;
     }
@@ -141,16 +148,14 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
       .where(and(eq(users.id, actor.userId), eq(users.orgId, actor.orgId)))
       .limit(1)
       .then(([user]) => {
-        if (user?.status !== 'active') {
-          send('bye', { reason: 'member-inactive' });
-          res.end();
-        } else if (user.sessionVersion !== req.sessionVersion) {
-          // Password changed, reset, or signed out everywhere.
-          send('bye', { reason: 'session-ended' });
-          res.end();
-        }
+        if (user?.status !== 'active') bye('member-inactive');
+        // Password changed, reset, or signed out everywhere.
+        else if (user.sessionVersion !== req.sessionVersion) bye('session-ended');
       })
-      .catch(() => undefined);
+      // The next check tries again; the stream stays open meanwhile.
+      .catch((error: unknown) =>
+        req.log.warn({ err: error }, 'stream: could not re-check the member'),
+      );
   }, REVALIDATE_MS);
 
   req.on('close', () => {

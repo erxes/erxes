@@ -7,6 +7,7 @@ import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { parseArgs } from 'node:util';
 import { config } from '~/config';
 import { signAccessToken } from '~/http/auth';
+import { logger } from '~/logger';
 import { hashPassword } from '~/modules/auth/password';
 import { createOrganization } from '~/modules/organizations/organizations.service';
 
@@ -32,7 +33,10 @@ const main = async () => {
     );
   }
 
-  configureDb(config.data);
+  configureDb({
+    ...config.data,
+    onError: (error) => logger.error({ err: error }, 'idle postgres client error'),
+  });
   await runMigrations();
 
   const { organization, owner } = await createOrganization({
@@ -45,16 +49,21 @@ const main = async () => {
     },
   });
 
-  console.info(`organization ${organization.id} (${organization.subdomain})`);
-  console.info(`owner        ${owner.id} <${owner.email}>`);
-  console.info(`token        ${signAccessToken(owner.id, organization.id)}`);
+  process.stdout.write(
+    [
+      `organization ${organization.id} (${organization.subdomain})`,
+      `owner        ${owner.id} <${owner.email}>`,
+      `token        ${signAccessToken(owner.id, organization.id)}`,
+      '',
+    ].join('\n'),
+  );
 };
 
 const run = async () => {
   try {
     await main();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   } finally {
     await closeDb();

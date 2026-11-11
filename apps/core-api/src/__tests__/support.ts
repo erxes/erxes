@@ -7,6 +7,7 @@ import { randomBytes } from 'node:crypto';
 import { once } from 'node:events';
 import type { Server } from 'node:http';
 import { Client } from 'pg';
+import type { Logger } from 'pino';
 import { afterAll, beforeAll } from 'vite-plus/test';
 import { createApp } from '~/app';
 import { signAccessToken } from '~/http/auth';
@@ -58,7 +59,13 @@ export const useTestDatabase = () => {
     url.pathname = `/${name}`;
     address = url.toString();
 
-    configureDb({ url: address, applicationName: 'erxes-core-test' });
+    configureDb({
+      url: address,
+      applicationName: 'erxes-core-test',
+      onError: (error) => {
+        throw error;
+      },
+    });
     await runMigrations();
     // Registers the test plugin `hr` (CORE_PLUGIN_KEYS in vite.config.ts).
     await syncPluginSecrets();
@@ -104,15 +111,16 @@ const bearer = (token: string) => ({ authorization: `Bearer ${token}` });
  * Serves the app on a free port for this test file. `client(caller)` is the
  * typed contract client plugins and the UI use: calls return the output or
  * throw an `ORPCError` with `status`, `code` and `data`. `url(path)` and
- * `headers(token)` are for raw HTTP (cookies, CSRF, downloads).
+ * `headers(token)` are for raw HTTP (cookies, CSRF, downloads). `log` replaces
+ * the process logger, to read what a request logs.
  */
-export const useTestServer = () => {
+export const useTestServer = (log?: Logger) => {
   let server: Server | undefined;
   let base = '';
   let lastStatus = 0;
 
   beforeAll(async () => {
-    const listening = createApp().listen(0);
+    const listening = createApp(log).listen(0);
 
     await once(listening, 'listening');
 

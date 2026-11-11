@@ -11,10 +11,13 @@ import {
 } from '@erxes/core-db';
 import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
+import { logger, traced } from '~/logger';
 import { liveHub } from '~/modules/live/hub';
 import { notify } from '~/modules/notifications/notifications.service';
 
 type EventRow = typeof events.$inferSelect;
+
+const log = logger.child({ component: 'events' });
 
 /** A consumer turns events into something; it must be idempotent (keyed by event id). */
 export interface EventConsumer {
@@ -143,12 +146,26 @@ const describe = (error: unknown): string => {
   return messages.join(' — ').slice(0, 2000);
 };
 
+/**
+ * Handles one event in a savepoint. A failure is logged with the event and
+ * comes back described for `core_event_failures`.
+ */
 const handleOnce = async (tx: Db, consumer: EventConsumer, event: EventRow) => {
+  const eventLog = log.child({
+    consumer: consumer.name,
+    eventId: event.id,
+    eventType: event.type,
+    orgId: event.orgId,
+  });
+
   try {
     await tx.transaction((savepoint) => consumer.handle(savepoint, event));
+    eventLog.info('event handled');
 
     return null;
   } catch (error) {
+    eventLog.error({ err: error }, 'event failed');
+
     return describe(error);
   }
 };
@@ -168,23 +185,25 @@ const afterAttempt = (attempts: number) =>
  * event committed late is never skipped. The consumer's row is locked
  * (`SKIP LOCKED`), so on several replicas one runs while the others move on.
  * The cursor and the consumer's writes commit together; an event that fails
- * goes to `core_event_failures` (retried with backoff) so it can't block the stream.
+ * goes to `core_event_failures` (retried with backoff) so it can't block the
+ * stream. Each run is one span, so its queries and log lines share a trace.
  */
 export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Promise<number> =>
-  db().transaction(async (tx) => {
-    await tx.insert(eventConsumers).values({ name: consumer.name }).onConflictDoNothing();
+  traced(`events ${consumer.name}`, () =>
+    db().transaction(async (tx) => {
+      await tx.insert(eventConsumers).values({ name: consumer.name }).onConflictDoNothing();
 
-    const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
-      sql`select last_tx_id::text, last_seq from ${eventConsumers} where name = ${consumer.name} for update skip locked`,
-    );
+      const cursor = await tx.execute<{ last_tx_id: string; last_seq: number }>(
+        sql`select last_tx_id::text, last_seq from ${eventConsumers} where name = ${consumer.name} for update skip locked`,
+      );
 
-    const position = cursor.rows[0];
+      const position = cursor.rows[0];
 
-    if (!position) {
-      return 0;
-    }
+      if (!position) {
+        return 0;
+      }
 
-    const batch = await tx.execute<{ id: string; tx_id: string; seq: number }>(sql`
+      const batch = await tx.execute<{ id: string; tx_id: string; seq: number }>(sql`
       select id, tx_id::text, seq from ${events}
       where (tx_id, seq) > (${position.last_tx_id}::xid8, ${position.last_seq})
         and tx_id < pg_snapshot_xmin(pg_current_snapshot())
@@ -192,52 +211,49 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
       limit ${batchSize}
     `);
 
-    if (!batch.rows.length) {
-      return 0;
-    }
+      if (!batch.rows.length) {
+        return 0;
+      }
 
-    const rows = await tx
-      .select()
-      .from(events)
-      .where(
-        sql`${events.id} in (${sql.join(
-          batch.rows.map((row) => sql`${row.id}`),
-          sql`, `,
-        )})`,
+      const rows = await tx
+        .select()
+        .from(events)
+        .where(
+          sql`${events.id} in (${sql.join(
+            batch.rows.map((row) => sql`${row.id}`),
+            sql`, `,
+          )})`,
+        );
+
+      const byId = new Map(rows.map((row) => [row.id, row]));
+
+      for (const { id } of batch.rows) {
+        const event = byId.get(id)!;
+        const error = await handleOnce(tx, consumer, event);
+
+        if (error) {
+          await tx
+            .insert(eventFailures)
+            .values({
+              consumer: consumer.name,
+              eventId: event.id,
+              orgId: event.orgId,
+              lastError: error,
+              ...afterAttempt(1),
+            })
+            .onConflictDoNothing();
+        }
+      }
+
+      const last = batch.rows[batch.rows.length - 1]!;
+
+      await tx.execute(
+        sql`update ${eventConsumers} set last_tx_id = ${last.tx_id}::xid8, last_seq = ${last.seq}, updated_at = now() where name = ${consumer.name}`,
       );
 
-    const byId = new Map(rows.map((row) => [row.id, row]));
-
-    for (const { id } of batch.rows) {
-      const event = byId.get(id)!;
-
-      const error = await handleOnce(tx, consumer, event);
-
-      if (error) {
-        console.error(
-          `[core] ${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`,
-        );
-        await tx
-          .insert(eventFailures)
-          .values({
-            consumer: consumer.name,
-            eventId: event.id,
-            orgId: event.orgId,
-            lastError: error,
-            ...afterAttempt(1),
-          })
-          .onConflictDoNothing();
-      }
-    }
-
-    const last = batch.rows[batch.rows.length - 1]!;
-
-    await tx.execute(
-      sql`update ${eventConsumers} set last_tx_id = ${last.tx_id}::xid8, last_seq = ${last.seq}, updated_at = now() where name = ${consumer.name}`,
-    );
-
-    return batch.rows.length;
-  });
+      return batch.rows.length;
+    }),
+  );
 
 /**
  * Retries a consumer's failed events that are due. Rows are locked
@@ -245,8 +261,9 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
  * another error schedules the next attempt or marks the event dead.
  */
 export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Promise<number> =>
-  db().transaction(async (tx) => {
-    const due = await tx.execute<{ event_id: string; attempts: number }>(sql`
+  traced(`events retry ${consumer.name}`, () =>
+    db().transaction(async (tx) => {
+      const due = await tx.execute<{ event_id: string; attempts: number }>(sql`
       select event_id, attempts from ${eventFailures}
       where consumer = ${consumer.name} and status = 'retrying' and next_attempt_at <= now()
       order by next_attempt_at
@@ -254,52 +271,54 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
       for update skip locked
     `);
 
-    if (!due.rows.length) return 0;
+      if (!due.rows.length) return 0;
 
-    const rows = await tx
-      .select()
-      .from(events)
-      .where(
-        sql`${events.id} in (${sql.join(
-          due.rows.map((row) => sql`${row.event_id}`),
-          sql`, `,
-        )})`,
-      );
-
-    const byId = new Map(rows.map((row) => [row.id, row]));
-
-    for (const failure of due.rows) {
-      const event = byId.get(failure.event_id);
-
-      const where = and(
-        eq(eventFailures.consumer, consumer.name),
-        eq(eventFailures.eventId, failure.event_id),
-      );
-
-      const error = event ? await handleOnce(tx, consumer, event) : null;
-
-      if (!error) {
-        await tx.delete(eventFailures).where(where);
-        continue;
-      }
-
-      const attempts = failure.attempts + 1;
-      const next = afterAttempt(attempts);
-
-      if (next.status === 'dead') {
-        console.error(
-          `[core] ${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`,
+      const rows = await tx
+        .select()
+        .from(events)
+        .where(
+          sql`${events.id} in (${sql.join(
+            due.rows.map((row) => sql`${row.event_id}`),
+            sql`, `,
+          )})`,
         );
+
+      const byId = new Map(rows.map((row) => [row.id, row]));
+
+      for (const failure of due.rows) {
+        const event = byId.get(failure.event_id);
+
+        const where = and(
+          eq(eventFailures.consumer, consumer.name),
+          eq(eventFailures.eventId, failure.event_id),
+        );
+
+        const error = event ? await handleOnce(tx, consumer, event) : null;
+
+        if (!error) {
+          await tx.delete(eventFailures).where(where);
+          continue;
+        }
+
+        const attempts = failure.attempts + 1;
+        const next = afterAttempt(attempts);
+
+        if (next.status === 'dead') {
+          log.error(
+            { consumer: consumer.name, eventId: failure.event_id, attempts },
+            'event dead after the last attempt',
+          );
+        }
+
+        await tx
+          .update(eventFailures)
+          .set({ attempts, lastError: error, ...next, updatedAt: sql`now()` })
+          .where(where);
       }
 
-      await tx
-        .update(eventFailures)
-        .set({ attempts, lastError: error, ...next, updatedAt: sql`now()` })
-        .where(where);
-    }
-
-    return due.rows.length;
-  });
+      return due.rows.length;
+    }),
+  );
 
 /** Runs every consumer until the stream is caught up, then due retries (tests, and each tick). */
 export const processEvents = async () => {
@@ -344,7 +363,7 @@ export const startEventProcessor = () => {
 
     current = processEvents()
       .then(() => undefined)
-      .catch((error: unknown) => console.error('[core] event processing failed', error))
+      .catch((error: unknown) => log.error({ err: error }, 'event processing failed'))
       .finally(() => {
         current = null;
 

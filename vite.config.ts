@@ -32,6 +32,7 @@ const inheritedUi = {
   rules: {
     'import/no-cycle': 'warn',
     'import/no-default-export': 'warn',
+    'no-console': 'warn',
     'no-shadow': 'warn',
     'no-underscore-dangle': 'warn',
     'no-unsafe-optional-chaining': 'warn',
@@ -187,7 +188,8 @@ export default defineConfig({
       // `const { secret, ...rest } = row` drops a field on purpose; Express
       // error handlers need all four parameters (`_next`).
       'no-unused-vars': ['error', { ignoreRestSiblings: true, argsIgnorePattern: '^_' }],
-      'no-console': ['error', { allow: ['info', 'warn', 'error'] }],
+      // Servers log through pino (apps/core-api/src/logger.ts); CLIs write to process.stdout.
+      'no-console': 'error',
       'no-debugger': 'error',
       'no-restricted-imports': ['error', { paths: [routerBuilder] }],
       'import/no-default-export': 'error',
@@ -235,6 +237,11 @@ export default defineConfig({
             { paths: [routerBuilder], patterns: [noApps, serverOnly] },
           ],
         },
+      },
+      {
+        // The browser's console is where a page's problems show up.
+        files: ['apps/core-ui/src/**'],
+        rules: { 'no-console': ['error', { allow: ['warn', 'error'] }] },
       },
       {
         files: ['apps/core-api/src/router.ts'],
@@ -299,6 +306,8 @@ export default defineConfig({
               import.meta.dirname,
               'apps/core-api/.test-files/keys/signing-key.pem',
             ),
+            // logging.test.ts logs to its own destination.
+            LOG_LEVEL: 'silent',
           },
           // Generous: tests may run against a remote Postgres (each query is a round trip).
           testTimeout: 60_000,

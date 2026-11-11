@@ -10,6 +10,7 @@ import { dirname } from 'node:path';
 import { type JWK, type JWTPayload, jwtVerify, SignJWT } from 'jose';
 import type { z } from 'zod';
 import { config } from '~/config';
+import { logger } from '~/logger';
 
 /**
  * Core's signing keys (ES256). The private key signs plugin tokens and audit
@@ -64,7 +65,7 @@ const devKey = (): string => {
 
   mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, pem, { mode: 0o600 });
-  console.info(`[core] generated a development signing key in ${file}`);
+  logger.info({ file }, 'generated a development signing key');
 
   return pem;
 };

@@ -1,18 +1,21 @@
 import { coreContract, CORE_API_PREFIX } from '@erxes/core-contract';
 import { OpenAPIGenerator } from '@orpc/openapi';
+import { CONTEXT_LOGGER_SYMBOL, LoggingHandlerPlugin } from '@orpc/experimental-pino';
 import { OpenAPIHandler } from '@orpc/openapi/node';
 import { onError, ORPCError, ValidationError } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod';
 import type { RequestHandler } from 'express';
+import { logger } from '~/logger';
 import { coreRouter } from '~/router';
 
 const handler = new OpenAPIHandler(coreRouter, {
-  interceptors: [
-    onError((error) => {
-      // Expected errors (4xx) are answers, not failures.
-      if (!(error instanceof ORPCError) || error.status >= 500) {
-        console.error('[core] unhandled error', error);
-      }
+  plugins: [
+    // Procedures log through a child of `req.log` (see CoreContext), with the
+    // request's id as `rpc.id`. The plugin logs what procedures throw; 4xx at
+    // info (the hook in src/logger.ts).
+    new LoggingHandlerPlugin({
+      logger,
+      generateId: ({ context }) => (typeof context.req.id === 'string' ? context.req.id : ''),
     }),
   ],
   clientInterceptors: [
@@ -37,7 +40,10 @@ const handler = new OpenAPIHandler(coreRouter, {
 /** Serves `/core/v1/*` from the contract (oRPC's OpenAPI handler, plain REST + JSON). */
 export const coreApi: RequestHandler = (req, res, next) => {
   handler
-    .handle(req, res, { prefix: CORE_API_PREFIX, context: { req, res } })
+    .handle(req, res, {
+      prefix: CORE_API_PREFIX,
+      context: { req, res, [CONTEXT_LOGGER_SYMBOL]: req.log },
+    })
     .then(({ matched }) => {
       if (!matched) next();
     })

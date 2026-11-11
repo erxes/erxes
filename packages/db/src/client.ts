@@ -31,6 +31,8 @@ export interface DbOptions {
   poolMax?: number;
   statementTimeoutMs?: number;
   applicationName?: string;
+  /** An idle pooled connection failed (the server restarted, the network dropped). */
+  onError: (error: Error) => void;
 }
 
 /** pg's TLS options: verified unless explicitly insecure. */
@@ -63,9 +65,7 @@ export const getPool = (): Pool => {
       ssl: sslOptions(options),
     });
 
-    pool.on('error', (error) => {
-      console.error('[core] idle postgres client error', error.message);
-    });
+    pool.on('error', options.onError);
   }
 
   return pool;

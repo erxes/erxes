@@ -143,7 +143,14 @@ auditExportRouter.get('/audit/export', (req: Request, res: Response, next) => {
   };
 
   run().catch((error: unknown) => {
-    if (!res.headersSent) next(error);
-    else res.destroy(error instanceof Error ? error : undefined);
+    if (!res.headersSent) {
+      next(error);
+
+      return;
+    }
+
+    // Rows already went out: cut the download short so it can't pass for complete.
+    req.log.error({ err: error }, 'audit export failed midway');
+    res.destroy(error instanceof Error ? error : undefined);
   });
 });

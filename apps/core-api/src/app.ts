@@ -1,15 +1,71 @@
 import { db } from '@erxes/core-db';
 import { sql } from 'drizzle-orm';
 import express, { type Express, type NextFunction, type Request, type Response } from 'express';
+import { randomUUID } from 'node:crypto';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { Logger, SerializedRequest } from 'pino';
+import { pinoHttp } from 'pino-http';
 import { authenticate } from '~/http/auth';
 import { signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
+import { logger } from '~/logger';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
 import { publicJwks } from '~/lib/signing';
 import { coreApi, openApiDocument } from '~/rpc';
+
+const REQUEST_ID = /^[\w.:-]{1,128}$/;
+
+/** The caller's `X-Request-Id` when it is a plain token, else a new one. Echoed on the response. */
+const requestId = (req: IncomingMessage, res: ServerResponse) => {
+  const incoming = req.headers['x-request-id'];
+  const id = typeof incoming === 'string' && REQUEST_ID.test(incoming) ? incoming : randomUUID();
+
+  res.setHeader('x-request-id', id);
+
+  return id;
+};
+
+/** A signed file link is the permission itself, so its token stays out of the logs. */
+const SIGNED_LINK = /^(\/core\/v1\/files\/signed\/)[^/?]+/;
+
+/**
+ * One line per request when it ends, plus `req.log` for the route: a child
+ * logger with `requestId`, and `orgId` and `actorId` once `authenticate`
+ * resolved the caller. Load balancer probes are not logged.
+ */
+const requestLogger = (log: Logger) =>
+  pinoHttp({
+    logger: log,
+    genReqId: requestId,
+    quietReqLogger: true,
+    quietResLogger: true,
+    customAttributeKeys: { reqId: 'requestId' },
+    autoLogging: { ignore: (req) => req.url === '/health' || req.url === '/ready' },
+    customLogLevel: (_req, res, error) => {
+      if (error || res.statusCode >= 500) return 'error';
+
+      return res.statusCode >= 400 ? 'warn' : 'info';
+    },
+    serializers: {
+      // oRPC's logging plugin binds a `req` too, with `url` as a URL.
+      req: ({
+        method,
+        url,
+        headers,
+        remoteAddress,
+      }: Omit<SerializedRequest, 'url'> & { url: string | URL }) => ({
+        method,
+        url: String(url).replace(SIGNED_LINK, '$1[Redacted]'),
+        headers,
+        remoteAddress,
+      }),
+    },
+    customSuccessObject: (req, _res, line: Record<string, unknown>) => ({ ...line, req }),
+    customErrorObject: (req, _res, _error, line: Record<string, unknown>) => ({ ...line, req }),
+  });
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
 const errorBody = (status: number, code: string, message: string, data?: unknown) => ({
@@ -20,11 +76,12 @@ const errorBody = (status: number, code: string, message: string, data?: unknown
   ...(data === undefined ? {} : { data }),
 });
 
-export const createApp = (): Express => {
+export const createApp = (log: Logger = logger): Express => {
   const app = express();
 
   app.disable('x-powered-by');
   app.set('trust proxy', 'loopback, linklocal, uniquelocal');
+  app.use(requestLogger(log));
   app.use(requestContext);
 
   // Signed file links stream bytes: before the JSON parser and sign-in.
@@ -40,11 +97,14 @@ export const createApp = (): Express => {
     res.json({ status: 'ok' });
   });
 
-  app.get('/ready', (_req, res) => {
+  app.get('/ready', (req, res) => {
     db()
       .execute(sql`SELECT 1`)
       .then(() => res.json({ status: 'ok' }))
-      .catch(() => res.status(503).json({ status: 'unavailable' }));
+      .catch((error: unknown) => {
+        req.log.warn({ err: error }, 'not ready: the database does not answer');
+        res.status(503).json({ status: 'unavailable' });
+      });
   });
 
   app.get('/core/v1/openapi.json', openApiDocument);
@@ -62,7 +122,7 @@ export const createApp = (): Express => {
     res.status(404).json(errorBody(404, 'NOT_FOUND', 'No such route'));
   });
 
-  app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((error: unknown, req: Request, res: Response, _next: NextFunction) => {
     if (error instanceof HttpError) {
       res.status(error.status).json(errorBody(error.status, error.code, error.message, error.data));
 
@@ -75,7 +135,7 @@ export const createApp = (): Express => {
       return;
     }
 
-    console.error('[core] unhandled error', error);
+    req.log.error({ err: error }, 'unhandled error');
     res.status(500).json(errorBody(500, 'INTERNAL', 'Something went wrong'));
   });
 

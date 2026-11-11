@@ -6,6 +6,7 @@
  */
 import { closeDb, configureDb, runMigrations } from '@erxes/core-db';
 import { config } from '~/config';
+import { logger } from '~/logger';
 import { rotatePluginSecret } from '~/modules/plugins/plugins.service';
 
 const name = process.argv.slice(2).find((arg) => arg !== '--');
@@ -15,16 +16,23 @@ const main = async () => {
     throw new Error('Usage: pnpm plugin:secret -- <plugin name>');
   }
 
-  configureDb(config.data);
+  configureDb({
+    ...config.data,
+    onError: (error) => logger.error({ err: error }, 'idle postgres client error'),
+  });
   await runMigrations();
 
   const secret = await rotatePluginSecret(name);
 
-  console.info(
-    `Client secret for ${name} (shown once; the previous one works 24 more hours):\n\n  ${secret}\n`,
-  );
-  console.info(
-    `The plugin exchanges it for tokens: POST /core/v1/plugins/token { grant_type: "client_credentials", client_id: "${name}", client_secret, org }`,
+  process.stdout.write(
+    [
+      `Client secret for ${name} (shown once; the previous one works 24 more hours):`,
+      '',
+      `  ${secret}`,
+      '',
+      `The plugin exchanges it for tokens: POST /core/v1/plugins/token { grant_type: "client_credentials", client_id: "${name}", client_secret, org }`,
+      '',
+    ].join('\n'),
   );
 };
 
@@ -32,7 +40,7 @@ const run = async () => {
   try {
     await main();
   } catch (error) {
-    console.error(error instanceof Error ? error.message : error);
+    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
     process.exitCode = 1;
   } finally {
     await closeDb();

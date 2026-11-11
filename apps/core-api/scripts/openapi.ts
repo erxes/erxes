@@ -8,7 +8,7 @@ const target = resolve(import.meta.dirname, '../../../packages/contract/openapi.
 
 const run = async () => {
   await writeFile(target, `${JSON.stringify(await generateOpenApi(), null, 2)}\n`);
-  console.info(`wrote ${target}`);
+  process.stdout.write(`wrote ${target}\n`);
 };
 
 void run();

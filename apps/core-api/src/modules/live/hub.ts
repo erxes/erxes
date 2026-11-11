@@ -3,6 +3,9 @@ import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
 import { z } from 'zod';
 import { config } from '~/config';
+import { logger } from '~/logger';
+
+const log = logger.child({ component: 'live' });
 
 /** What a committed change announces on `core_live` (migrations 0008, 0009 and 0010). */
 const LiveSignal = z.discriminatedUnion('k', [
@@ -41,7 +44,7 @@ class LiveHub extends EventEmitter {
 
   start(url: string | undefined = config.live.listenUrl) {
     if (!url) {
-      console.info('[core] live updates: off (no listen connection; browsers poll)');
+      log.info('live updates off: no listen connection, browsers poll');
 
       return;
     }
@@ -69,12 +72,12 @@ class LiveHub extends EventEmitter {
         const signal = LiveSignal.safeParse(JSON.parse(message.payload ?? ''));
 
         if (signal.success) this.emit('signal', signal.data);
-      } catch {
-        // Not JSON, so not ours.
+      } catch (error) {
+        log.debug({ err: error, channel: message.channel }, 'ignored a notification: not JSON');
       }
     });
     client.on('error', (error) => {
-      console.error('[core] live updates: listen connection error', error.message);
+      log.error({ err: error }, 'listen connection error');
     });
     client.on('end', () => {
       if (this.client === client) this.lost(url);
@@ -90,19 +93,22 @@ class LiveHub extends EventEmitter {
 
       this.attempt = 0;
       this.setConnected(true);
-      console.info('[core] live updates: listening');
+      log.info({ reconnected }, 'listening');
 
       if (reconnected) this.emit('resync');
       // Events published while nobody listened.
       this.emit('events');
     } catch (error) {
-      console.error(
-        '[core] live updates: could not listen',
-        error instanceof Error ? error.message : error,
-      );
-      await client.end().catch(() => undefined);
+      log.error({ err: error, attempt: this.attempt }, 'could not listen');
+      await this.close(client);
       this.lost(url);
     }
+  }
+
+  private async close(client: Client) {
+    await client
+      .end()
+      .catch((error: unknown) => log.warn({ err: error }, 'could not close the listen connection'));
   }
 
   private lost(url: string) {
@@ -115,6 +121,10 @@ class LiveHub extends EventEmitter {
     const delay = Math.min(30_000, 1000 * 2 ** this.attempt) * (0.75 + Math.random() / 2);
 
     this.attempt += 1;
+    log.warn(
+      { attempt: this.attempt, retryInMs: Math.round(delay) },
+      'no listen connection; reconnecting',
+    );
     setTimeout(() => void this.connect(url), delay).unref();
   }
 
@@ -132,7 +142,8 @@ class LiveHub extends EventEmitter {
 
     this.client = null;
     this.setConnected(false);
-    await client?.end().catch(() => undefined);
+
+    if (client) await this.close(client);
   }
 }
 

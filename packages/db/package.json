@@ -13,6 +13,7 @@
     "db:check": "drizzle-kit check"
   },
   "dependencies": {
+    "@opentelemetry/api": "^1.10.0",
     "drizzle-orm": "0.45.4",
     "pg": "^8.13.1",
     "zod": "3.25.76"

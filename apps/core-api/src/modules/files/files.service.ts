@@ -2,6 +2,7 @@ import type { FileInfo, FileSettings } from '@erxes/core-contract';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
+import type { Logger } from 'pino';
 import { config } from '~/config';
 import { type Actor, type Caller, isManager, requireManager } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
@@ -331,7 +332,13 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
 };
 
 /** The uploader can delete a file; so can owners and admins (members only). */
-export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
+export const removeFile = async (
+  client: Db,
+  caller: Caller,
+  actor: Actor | null,
+  id: string,
+  log: Logger,
+) => {
   const row = await findFile(client, caller.orgId, id);
 
   if (!isUploader(row, caller) && !(actor && isManager(actor))) {
@@ -359,14 +366,14 @@ export const removeFile = async (client: Db, caller: Caller, actor: Actor | null
   await storage()
     .remove(row.key)
     .catch((error: unknown) =>
-      console.error('[core] could not delete stored file', row.key, error),
+      log.error({ err: error, key: row.key }, 'could not delete a stored file'),
     );
 
   return { ok: true as const };
 };
 
 /** Removes uploads that were started but never finished (all organisations). */
-export const pruneUploads = async (client: Db, hours: number) => {
+export const pruneUploads = async (client: Db, hours: number, log: Logger) => {
   const stale = await client
     .select({ id: files.id, key: files.key })
     .from(files)
@@ -381,7 +388,9 @@ export const pruneUploads = async (client: Db, hours: number) => {
   for (const row of stale) {
     await storage()
       .remove(row.key)
-      .catch(() => undefined);
+      .catch((error: unknown) =>
+        log.warn({ err: error, key: row.key }, 'could not delete an unfinished upload'),
+      );
     await client.delete(files).where(and(eq(files.id, row.id), eq(files.status, 'pending')));
   }
 

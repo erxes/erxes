@@ -1,6 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { z } from 'zod';
 
 const isProduction = process.env.NODE_ENV === 'production';
+
+const LogLevel = z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']);
 
 /** A secret from NAME or the file named by NAME_FILE. */
 const readSecret = (name: string): string | undefined => {
@@ -101,6 +104,19 @@ const listenUrl = (dataUrl: string): string | undefined => {
 export const config = {
   isProduction,
   port: readNumber('PORT', 3400),
+  log: {
+    level: LogLevel.parse(process.env.LOG_LEVEL?.trim() || 'info'),
+    /** Readable lines (pino-pretty) instead of JSON, for a terminal. */
+    pretty: process.env.NODE_ENV === 'development',
+  },
+  otel: {
+    /** Where traces go (OTLP over HTTP). Unset: traces stay in the process. */
+    endpoint: z
+      .string()
+      .url()
+      .optional()
+      .parse(process.env.OTEL_EXPORTER_OTLP_ENDPOINT?.trim() || undefined),
+  },
   data: {
     url: required(
       'DATA_URL',

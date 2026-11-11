@@ -169,7 +169,8 @@ const isCrossSiteWrite = (req: Request) => {
  * Requires a valid access token (Bearer header, or the session cookie set at
  * sign-in) whose user is still active in the token's organisation. Role and
  * status are read from the database, so a disabled member or a role change
- * applies on the next request.
+ * applies on the next request. The caller's `orgId` and `actorId` (user id or
+ * plugin name) go on `req.log`.
  */
 export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
   if (PUBLIC_PATHS.has(req.path) || isSignedFilePath(req.path)) {
@@ -221,6 +222,7 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
 
       req.actor = { userId: user.id, orgId: user.orgId, role: user.role };
       req.sessionVersion = claims.sv;
+      req.log.setBindings({ orgId: user.orgId, actorId: user.id });
 
       return next();
     })
@@ -251,6 +253,7 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
 
       if (!payload.org) {
         req.pluginService = { plugin: payload.sub };
+        req.log.setBindings({ actorId: payload.sub });
 
         return next();
       }
@@ -278,6 +281,7 @@ const authenticatePlugin = (req: Request, token: string, next: NextFunction) => 
         orgId: payload.org,
         scopes: (payload.scope ?? '').split(' ').filter((scope) => granted.has(scope)),
       };
+      req.log.setBindings({ orgId: payload.org, actorId: payload.sub });
 
       return next();
     })

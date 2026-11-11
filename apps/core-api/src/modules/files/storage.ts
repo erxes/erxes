@@ -157,8 +157,10 @@ const localStorage: Storage = {
       const info = await stat(localPath(key));
 
       return info.isFile() ? { size: info.size } : null;
-    } catch {
-      return null;
+    } catch (error) {
+      if (error instanceof Error && 'code' in error && error.code === 'ENOENT') return null;
+
+      throw error;
     }
   },
   async downloadUrl(key, request) {

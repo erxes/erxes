@@ -1,5 +1,6 @@
 import { coreContract } from '@erxes/core-contract';
 import { db, type Transaction, withTransaction } from '@erxes/core-db';
+import { getLogger, type LoggerContext } from '@orpc/experimental-pino';
 import { implement } from '@orpc/server';
 import type { Request, Response } from 'express';
 import { config } from '~/config';
@@ -127,22 +128,28 @@ import {
   updateUser,
 } from '~/modules/users/users.service';
 
-/** What every procedure gets: the Express request (actor, host) and response (cookies). */
-export interface CoreContext {
+/**
+ * What the handler passes in: the Express request (actor, host), the response
+ * (cookies) and the request's logger for oRPC's logging plugin.
+ */
+export interface CoreContext extends LoggerContext {
   req: Request;
   res: Response;
 }
 
 /**
+
  * Every procedure first passes the access map (`~/http/access`): the caller
- * must be allowed by the procedure's policy before its handler runs.
+ * must be allowed by the procedure's policy before its handler runs. It gets
+ * `context.log`: the request's logger with its `requestId`, `orgId`,
+ * `actorId` and the procedure (`rpc.method`).
  */
 const pub = implement(coreContract)
   .$context<CoreContext>()
   .use(({ context, path, next }) => {
     enforceAccess(path.join('.'), context.req);
 
-    return next();
+    return next({ context: { log: getLogger(context) ?? context.req.log } });
   });
 
 /**
@@ -276,7 +283,7 @@ export const coreRouter = pub.router({
       listFiles(db(), context.caller, input.ids),
     ),
     remove: anyone.files.remove.handler(({ input, context }) =>
-      removeFile(db(), context.caller, context.actor, input.id),
+      removeFile(db(), context.caller, context.actor, input.id, context.log),
     ),
     settings: authed.files.settings.handler(({ context }) => getFileSettings(db(), context.actor)),
     updateSettings: authed.files.updateSettings.handler(({ input, context }) =>

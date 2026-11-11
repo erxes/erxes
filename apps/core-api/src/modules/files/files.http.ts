@@ -66,7 +66,8 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
       await rename(partial, target);
       res.status(204).end();
     })
-    .catch(async () => {
+    .catch(async (error: unknown) => {
+      req.log.warn({ err: error, key: grant.key }, 'upload failed');
       await rm(partial, { force: true });
 
       if (!res.headersSent) {
@@ -86,7 +87,9 @@ signedFilesRouter.get('/:token', (req: Request, res: Response) => {
 
   const stream = createReadStream(localPath(grant.key));
 
-  stream.on('error', () => {
+  stream.on('error', (error) => {
+    req.log.warn({ err: error, key: grant.key }, 'could not read a stored file');
+
     if (!res.headersSent) {
       fail(res, 404, 'NOT_FOUND', 'File not found');
     }
