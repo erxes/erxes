@@ -12,14 +12,18 @@ import { ITransactionGroupForm } from '@/transactions/transaction-form/types/Jou
 export const FxaOutAccountWarning = ({
   form,
   index,
+  sale = false,
 }: {
   form: ITransactionGroupForm;
   index: number;
+  sale?: boolean;
 }) => {
   const { t } = useTranslation('accounting');
   const accountId = useWatch({
     control: form.control,
-    name: `trDocs.${index}.details.0.accountId`,
+    name: sale
+      ? `trDocs.${index}.followInfos.saleOutAccountId`
+      : `trDocs.${index}.details.0.accountId`,
   });
   const currentDepreciationAccountId = useWatch({
     control: form.control,

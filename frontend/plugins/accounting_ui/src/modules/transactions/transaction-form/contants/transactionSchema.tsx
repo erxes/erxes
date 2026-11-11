@@ -514,7 +514,7 @@ export const fxaOutFollowInfosSchema = fxaFollowInfosSchema.extend({
   ),
 });
 
-export const fxaSaleFollowInfosSchema = fxaOutFollowInfosSchema.extend({
+export const fxaSaleFollowInfosSchema = fxaFollowInfosSchema.extend({
   saleOutAccountId: z.string().refine(
     (val) => val?.length,
     () => ({

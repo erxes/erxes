@@ -137,6 +137,7 @@ export const getFxaCapitalValuation = async (
     models,
     endDate,
     excludeTransactionId,
+    [fixedAssetId],
   );
   const rules = getFxaRulesAtDate(asset, corrections, atDate);
   const previous = await getPreviousFxaAdjustment(models, atDate);

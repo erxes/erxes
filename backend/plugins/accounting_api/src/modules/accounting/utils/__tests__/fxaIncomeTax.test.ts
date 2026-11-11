@@ -51,7 +51,7 @@ const source = (
       },
     ],
   } as ITransactionDocument);
-const fixture = (existing: ITransactionDocument[] = []) => {
+const fixture = (existing: ITransactionDocument[] = [], withExpense = true) => {
   const raw = {
     Configs: {
       getConfigs: jest.fn(async () => [
@@ -60,7 +60,7 @@ const fixture = (existing: ITransactionDocument[] = []) => {
           value: {
             taxAssetAccountId: 'dta',
             taxLiabilityAccountId: 'dtl',
-            TaxExpenseAccountId: 'tax-expense',
+            ...(withExpense ? { TaxExpenseAccountId: 'tax-expense' } : {}),
           },
         },
       ]),
@@ -97,11 +97,11 @@ const signed = (docs: ITransaction[], accountId: string) =>
 beforeEach(() => jest.clearAllMocks());
 
 test.each([
-  [1000, 600, 40, 0, -40],
-  [600, 1000, 0, -40, 40],
+  [1000, 600, 40, 0],
+  [600, 1000, 0, -40],
 ])(
   'opening book %s and tax %s generate correct deferred tax without multiplying quantity',
-  async (book, tax, dta, dtl, expense) => {
+  async (book, tax, dta, dtl) => {
     const { models } = fixture();
     const { docs } = await getFxaIncomeTaxDocuments(
       models,
@@ -110,7 +110,7 @@ test.each([
     );
     expect(signed(docs, 'dta')).toBe(dta);
     expect(signed(docs, 'dtl')).toBe(dtl);
-    expect(signed(docs, 'tax-expense')).toBe(expense);
+    expect(signed(docs, 'tax-expense')).toBe(0);
     expect(
       docs.every(
         (doc) =>
@@ -136,6 +136,68 @@ test.each([
     expect(assertCanWriteTransactionAccounts).toHaveBeenCalled();
   },
 );
+
+test('opening tax does not require an income tax expense account', async () => {
+  const { models } = fixture([], false);
+  const { docs } = await getFxaIncomeTaxDocuments(models, 'user', source());
+  expect(docs).toHaveLength(1);
+  expect(signed(docs, 'dta')).toBe(40);
+  expect(signed(docs, 'tax-expense')).toBe(0);
+});
+
+test('opening tax still requires its deferred tax balance account', async () => {
+  const { models, raw } = fixture([], false);
+  raw.Configs.getConfigs.mockResolvedValueOnce([]);
+  await expect(
+    getFxaIncomeTaxDocuments(models, 'user', source()),
+  ).rejects.toThrow('Configure deferred tax asset/liability accounts');
+  expect(raw.Transactions.createTransaction).not.toHaveBeenCalled();
+});
+
+test('resaving removes a legacy automatic expense counterpart and preserves manual balancing roots', async () => {
+  const initial = fixture();
+  const { docs } = await getFxaIncomeTaxDocuments(
+    initial.models,
+    'user',
+    source(),
+  );
+  const asset = {
+    ...docs[0],
+    _id: 'old-dt',
+    details: docs[0].details.map((row) => ({ ...row, _id: 'asset-detail' })),
+  } as ITransactionDocument;
+  const expense = {
+    ...asset,
+    _id: 'old-expense',
+    side: TR_SIDES.CREDIT,
+    details: asset.details.map((row) => ({ ...row, accountId: 'tax-expense' })),
+  };
+  const manual = {
+    ...expense,
+    _id: 'manual',
+    originId: undefined,
+    originType: undefined,
+  };
+  const { models, raw } = fixture([asset, expense, manual]);
+  await syncFxaIncomeDeferredTax(models, 'user', source());
+  expect(raw.Transactions.updateTransaction).toHaveBeenCalledTimes(1);
+  expect(raw.Transactions.updateTransaction).toHaveBeenCalledWith(
+    'old-dt',
+    expect.objectContaining({
+      details: [
+        expect.objectContaining({
+          _id: 'asset-detail',
+          accountId: 'dta',
+          amount: 40,
+        }),
+      ],
+    }),
+    'user',
+  );
+  expect(raw.Transactions.deleteMany).toHaveBeenCalledWith({
+    _id: { $in: ['old-expense'] },
+  });
+});
 
 test.each([false, undefined])(
   'inactive toggle %s ignores different hidden tax opening totals',
@@ -195,7 +257,7 @@ test('income edit updates existing sides and detail ids without creating duplica
   const { models, raw } = fixture(existing);
   await syncFxaIncomeDeferredTax(models, 'user', source(1200, 600));
   expect(raw.Transactions.createTransaction).not.toHaveBeenCalled();
-  expect(raw.Transactions.updateTransaction).toHaveBeenCalledTimes(2);
+  expect(raw.Transactions.updateTransaction).toHaveBeenCalledTimes(1);
   expect(raw.Transactions.updateTransaction).toHaveBeenCalledWith(
     'old-dt',
     expect.objectContaining({
@@ -206,7 +268,7 @@ test('income edit updates existing sides and detail ids without creating duplica
   expect(raw.Transactions.deleteMany).not.toHaveBeenCalled();
 });
 
-test('turning off the toggle removes both source-owned opening tax sides', async () => {
+test('turning off the toggle removes source-owned opening tax rows', async () => {
   const initial = fixture();
   const { docs } = await getFxaIncomeTaxDocuments(
     initial.models,
@@ -220,7 +282,7 @@ test('turning off the toggle removes both source-owned opening tax sides', async
   const { models, raw } = fixture(existing);
   await syncFxaIncomeDeferredTax(models, 'user', source(1000, 600, false));
   expect(raw.Transactions.deleteMany).toHaveBeenCalledWith({
-    _id: { $in: ['old-dt', 'old-ct'] },
+    _id: { $in: ['old-dt'] },
   });
   expect(raw.Transactions.createTransaction).not.toHaveBeenCalled();
   expect(assertCanWriteTransactionAccounts).toHaveBeenCalledWith(
@@ -287,12 +349,10 @@ test('next adjustment subtracts the already recognized opening deferred tax inst
     { _id: 'adjust', date: new Date('2026-01-31') },
     [
       {
-        adjustId: 'adjust',
         fixedAssetId: 'asset',
         accountId: 'cost',
         branchId: 'branch',
         departmentId: 'department',
-        originalCost: 5000,
         accumulatedDepreciation: 1000,
         taxAccumulatedDepreciation: 550,
         incomeTaxRate: 10,

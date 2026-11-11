@@ -97,19 +97,29 @@ export const getFxaCorrections = async (
   models: IModels,
   endDate: Date,
   excludeId?: string,
+  fixedAssetIds?: string[],
 ): Promise<TFxaCorrection[]> => {
+  const selectedIds = fixedAssetIds ? new Set(fixedAssetIds) : undefined;
+  if (selectedIds?.size === 0) return [];
   const transactions = await models.Transactions.find({
     journal: { $in: [JOURNALS.FXA_REVALUATION, JOURNALS.FXA_CAPITAL] },
     date: { $lt: endDate },
     status: { $in: TR_INVENTORY_STATUS_TYPES.REAL_STATUSES },
     ...(excludeId ? { _id: { $ne: excludeId } } : {}),
+    ...(fixedAssetIds
+      ? { 'details.fixedAssetId': { $in: fixedAssetIds } }
+      : {}),
   })
     .sort({ date: 1, createdAt: 1, _id: 1 })
     .lean();
   return transactions.flatMap((transaction) => {
     const byAsset = new Map<string, IFxaDepreciationRules>();
     for (const detail of transaction.details) {
-      if (!detail.fixedAssetId) continue;
+      if (
+        !detail.fixedAssetId ||
+        (selectedIds && !selectedIds.has(detail.fixedAssetId))
+      )
+        continue;
       const rules = readFxaCapitalRules(detail.followInfos);
       if (transaction.journal !== JOURNALS.FXA_CAPITAL) {
         delete rules.incomeTaxRate;

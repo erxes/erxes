@@ -1,4 +1,5 @@
 import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
+import { getFxaSourceTaxDetail } from './fxaTaxValues';
 import { IModels } from '~/connectionResolvers';
 import {
   ACCOUNT_JOURNALS,
@@ -351,26 +352,15 @@ const prepareCapital = async (
     );
   const documents = buildFxaCapitalDocuments(doc, valuations);
   if (doc.journal === JOURNALS.FXA_CAPITAL) {
+    const taxEnabledIds = new Set(
+      valuations
+        .filter((row) => row.hasTaxDepreciation)
+        .map((row) => row.fixedAssetId),
+    );
     const taxDetails = documents.main.details.flatMap((detail) => {
-      const valuation = valuations.find(
-        (row) => row.fixedAssetId === detail.fixedAssetId,
-      );
-      if (!valuation?.hasTaxDepreciation) return [];
-      const info = detail.followInfos || {};
-      return [
-        {
-          adjustId: doc._id || '',
-          fixedAssetId: detail.fixedAssetId,
-          transactionDetailId: detail._id,
-          accountId: detail.accountId,
-          branchId: detail.branchId,
-          departmentId: detail.departmentId,
-          originalCost: detail.amount,
-          accumulatedDepreciation: info.preDeprecation ?? 0,
-          taxAccumulatedDepreciation: info.taxPreDeprecation ?? 0,
-          incomeTaxRate: info.incomeTaxRate,
-        },
-      ];
+      return detail.fixedAssetId && taxEnabledIds.has(detail.fixedAssetId)
+        ? [getFxaSourceTaxDetail(detail)]
+        : [];
     });
     if (taxDetails.length)
       documents.follows.push(

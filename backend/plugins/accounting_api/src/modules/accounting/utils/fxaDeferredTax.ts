@@ -1,6 +1,5 @@
 import type { IModels } from '~/connectionResolvers';
-import { getFxaTaxValues } from './fxaTaxValues';
-import type { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
+import { getFxaTaxValues, type TFxaTaxDetail } from './fxaTaxValues';
 import type { ITransaction, ITrDetail } from '../@types/transaction';
 import {
   JOURNALS,
@@ -13,6 +12,36 @@ import {
 
 const roundAmount = (amount: number): number =>
   Math.round(amount * 10000) / 10000;
+
+const taxBalanceKey = (
+  accountId: string,
+  detail: Pick<TFxaTaxDetail, 'fixedAssetId' | 'branchId' | 'departmentId'>,
+): string =>
+  JSON.stringify([
+    accountId,
+    detail.fixedAssetId,
+    detail.branchId || '',
+    detail.departmentId || '',
+  ]);
+
+const indexTaxBalances = (
+  transactions: ITransaction[],
+): Map<string, number> => {
+  const balances = new Map<string, number>();
+  for (const transaction of transactions) {
+    const sign = transaction.side === TR_SIDES.DEBIT ? 1 : -1;
+    for (const detail of transaction.details) {
+      if (!detail.accountId) continue;
+      const key = taxBalanceKey(detail.accountId, {
+        fixedAssetId: detail.fixedAssetId,
+        branchId: detail.branchId ?? transaction.branchId,
+        departmentId: detail.departmentId ?? transaction.departmentId,
+      });
+      balances.set(key, (balances.get(key) ?? 0) + detail.amount * sign);
+    }
+  }
+  return balances;
+};
 
 export type TFxaTaxAccounts = {
   asset?: string;
@@ -62,7 +91,7 @@ export const getFxaDeferredTaxTransactions = async (
     | 'contentType'
     | 'contentId'
   > & { _id: string },
-  details: (IAdjustFxaDetail & { incomeTaxRate?: number })[],
+  details: TFxaTaxDetail[],
   options: { openingIncome?: boolean; sourceTransaction?: boolean } = {},
 ): Promise<ITransaction[]> => {
   const { openingIncome = false } = options;
@@ -98,6 +127,7 @@ export const getFxaDeferredTaxTransactions = async (
               ],
         }).lean()
       : [];
+  const balances = indexTaxBalances(posted);
   const debit: ITrDetail[] = [];
   const credit: ITrDetail[] = [];
   for (const detail of details) {
@@ -114,25 +144,7 @@ export const getFxaDeferredTaxTransactions = async (
       );
     const mapping = mappings.get(detail.accountId || '');
     const balance = (accountId?: string): number =>
-      !accountId
-        ? 0
-        : posted.reduce(
-            (total, tr) =>
-              total +
-              tr.details.reduce(
-                (sum, row) =>
-                  row.accountId === accountId &&
-                  row.fixedAssetId === detail.fixedAssetId &&
-                  (row.branchId ?? tr.branchId ?? '') ===
-                    (detail.branchId || '') &&
-                  (row.departmentId ?? tr.departmentId ?? '') ===
-                    (detail.departmentId || '')
-                    ? sum + row.amount * (tr.side === TR_SIDES.DEBIT ? 1 : -1)
-                    : sum,
-                0,
-              ),
-            0,
-          );
+      accountId ? balances.get(taxBalanceKey(accountId, detail)) ?? 0 : 0;
     const assetDelta = roundAmount(
       (target.deferredTaxAsset || 0) - balance(mapping?.asset),
     );
@@ -142,18 +154,20 @@ export const getFxaDeferredTaxTransactions = async (
     if (Math.abs(assetDelta) < 0.0001 && Math.abs(liabilityDelta) < 0.0001)
       continue;
     if (
-      !mapping?.expense ||
-      (assetDelta && !mapping.asset) ||
-      (liabilityDelta && !mapping.liability)
+      (!openingIncome && !mapping?.expense) ||
+      (assetDelta && !mapping?.asset) ||
+      (liabilityDelta && !mapping?.liability)
     ) {
       throw new Error(
-        'Configure deferred tax asset/liability and income tax expense accounts for the fixed asset account.',
+        openingIncome
+          ? 'Configure deferred tax asset/liability accounts for the fixed asset account.'
+          : 'Configure deferred tax asset/liability and income tax expense accounts for the fixed asset account.',
       );
     }
     for (const [accountId, signedDebit] of [
-      [mapping.asset, assetDelta],
-      [mapping.liability, -liabilityDelta],
-      [mapping.expense, liabilityDelta - assetDelta],
+      [mapping?.asset, assetDelta],
+      [mapping?.liability, -liabilityDelta],
+      [mapping?.expense, openingIncome ? 0 : liabilityDelta - assetDelta],
     ] as const) {
       if (!signedDebit || !accountId) continue;
       (signedDebit > 0 ? debit : credit).push({

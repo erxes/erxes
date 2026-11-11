@@ -154,6 +154,34 @@ test('income tax rates stay asset-specific and change only on dated capitalizati
   ).toBe(0);
 });
 
+test('rate lookup scopes correction reads and ignores unrelated details in a mixed-asset transaction', async () => {
+  const { models, capital, selectors } = fixture();
+  capital.details[0].followInfos = {
+    ...capital.details[0].followInfos,
+    incomeTaxRate: 20,
+  };
+  capital.details.push({
+    ...capital.details[0],
+    fixedAssetId: 'unrelated',
+    followInfos: { incomeTaxRate: NaN },
+  });
+  const rates = await getFxaIncomeTaxRates(models, new Date('2026-02-01'), [
+    {
+      fixedAssetId: 'asset',
+      accumulatedDepreciation: 1000,
+      taxAccumulatedDepreciation: 600,
+    },
+  ]);
+  expect(rates.get('asset')).toBe(20);
+  expect(rates.has('unrelated')).toBe(false);
+  expect(selectors).toContainEqual(
+    expect.objectContaining({
+      journal: { $in: [JOURNALS.FXA_REVALUATION, JOURNALS.FXA_CAPITAL] },
+      'details.fixedAssetId': { $in: ['asset'] },
+    }),
+  );
+});
+
 test('historical valuation excludes future capitalized cost and depreciation', async () => {
   const { models } = fixture();
   const result = await getFxaCapitalValuation(

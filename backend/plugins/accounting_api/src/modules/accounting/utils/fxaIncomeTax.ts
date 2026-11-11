@@ -1,5 +1,5 @@
 import type { IModels } from '~/connectionResolvers';
-import type { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
+import { getFxaSourceTaxDetail } from './fxaTaxValues';
 import type { ITransaction, ITransactionDocument } from '../@types/transaction';
 import { TR_FOLLOW_TYPES } from '../@types/constants';
 import { getFxaDeferredTaxTransactions } from './fxaDeferredTax';
@@ -36,28 +36,14 @@ export const getFxaIncomeTaxDocuments = async (
   transaction: ITransaction,
 ): Promise<{ docs: ITransaction[]; existing: ITransactionDocument[] }> => {
   validateFxaIncomeTax(transaction);
-  const details: (IAdjustFxaDetail & { incomeTaxRate?: number })[] =
-    transaction.details.flatMap((detail) => {
-      const info = detail.followInfos;
-      if (!info?.hasTaxDepreciation || (detail.count || 0) <= 0) return [];
-      const difference =
-        (info.taxPreDeprecation ?? 0) - (info.preDeprecation ?? 0);
-      if (Math.abs(difference) <= 0.005) return [];
-      return [
-        {
-          adjustId: transaction._id || '',
-          fixedAssetId: detail.fixedAssetId,
-          transactionDetailId: detail._id,
-          accountId: detail.accountId,
-          branchId: detail.branchId || transaction.branchId,
-          departmentId: detail.departmentId || transaction.departmentId,
-          originalCost: detail.amount,
-          accumulatedDepreciation: info.preDeprecation ?? 0,
-          taxAccumulatedDepreciation: info.taxPreDeprecation ?? 0,
-          incomeTaxRate: info.incomeTaxRate,
-        },
-      ];
-    });
+  const details = transaction.details.flatMap((detail) => {
+    const info = detail.followInfos;
+    if (!info?.hasTaxDepreciation || (detail.count || 0) <= 0) return [];
+    const difference =
+      (info.taxPreDeprecation ?? 0) - (info.preDeprecation ?? 0);
+    if (Math.abs(difference) <= 0.005) return [];
+    return [getFxaSourceTaxDetail(detail, transaction)];
+  });
   const existing = transaction._id
     ? (
         await models.Transactions.find({

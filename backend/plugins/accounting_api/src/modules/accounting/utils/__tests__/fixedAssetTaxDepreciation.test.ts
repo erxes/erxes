@@ -269,6 +269,60 @@ test('unchanged balance produces no duplicate journal', async () => {
   ).toEqual([]);
 });
 
+test('tax balances remain isolated by asset and detail location, including explicit unassigned locations', async () => {
+  const row = {
+    fixedAssetId: 'asset',
+    accountId: 'dta',
+    amount: 35,
+    count: 0,
+    unitPrice: 0,
+  };
+  const posted: ITransaction[] = [
+    {
+      date: adjust.date,
+      journal: JOURNALS.MAIN,
+      side: TR_SIDES.DEBIT,
+      branchId: 'a',
+      details: [
+        row,
+        { ...row, fixedAssetId: 'other', amount: 500 },
+        { ...row, branchId: 'b', amount: 500 },
+        { ...row, departmentId: 'team', amount: 500 },
+        { ...row, branchId: '', departmentId: '', amount: 8 },
+      ],
+    },
+    {
+      date: adjust.date,
+      journal: JOURNALS.MAIN,
+      side: TR_SIDES.CREDIT,
+      branchId: 'a',
+      details: [{ ...row, amount: 5 }],
+    },
+  ];
+  const docs = await getFxaDeferredTaxTransactions(fixtures(posted), adjust, [
+    {
+      ...detail,
+      accumulatedDepreciation: 1000,
+      taxAccumulatedDepreciation: 600,
+    },
+    {
+      ...detail,
+      branchId: '',
+      departmentId: '',
+      accumulatedDepreciation: 200,
+      taxAccumulatedDepreciation: 0,
+    },
+  ]);
+  const assets = docs
+    .flatMap((doc) => doc.details)
+    .filter((detail) => detail.accountId === 'dta');
+  expect(assets).toEqual([
+    expect.objectContaining({ branchId: 'a', amount: 10 }),
+    expect.objectContaining({ branchId: '', departmentId: '', amount: 12 }),
+  ]);
+  expect(signed(docs, 'expense')).toBe(-22);
+});
+
 test('posting ignores contradictory legacy cached tax targets', async () => {
   const legacy = {
     ...detail,

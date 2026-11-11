@@ -2,6 +2,14 @@ import type { TFunction } from 'i18next';
 import { getI18n } from 'react-i18next';
 
 const labels: Record<string, { en: string; mn: string }> = {
+  'fxa-income-tax-rate-required': {
+    en: 'Enter an income tax rate between 0 and 100 on the acquisition rules.',
+    mn: 'Орлогын дүрэмд ААНОАТ-ын хувийг 0–100 хооронд оруулна уу.',
+  },
+  'fxa-income-tax-accounts-required': {
+    en: 'Configure the deferred tax asset/liability account for this fixed asset account.',
+    mn: 'Хөрөнгийн дансанд хойшлогдсон татварын хөрөнгө/өглөгийн дансыг тохируулна уу.',
+  },
   'fxa-capital-income-tax-rate-required': {
     en: 'Enter an income tax rate for the capitalization depreciation difference.',
     mn: 'Капиталжуулалтын элэгдлийн зөрүүнд хэрэглэх ААНОАТ-ын хувийг оруулна уу.',

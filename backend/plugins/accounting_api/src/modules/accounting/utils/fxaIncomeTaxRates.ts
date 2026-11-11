@@ -1,4 +1,4 @@
-import type { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
+import type { TFxaTaxDetail } from './fxaTaxValues';
 import type { IModels } from '~/connectionResolvers';
 import { getFxaLedgerAssets } from './fxaLedger';
 import { getFxaCorrections, getFxaRulesAtDate } from './fxaRules';
@@ -7,7 +7,7 @@ export const getFxaIncomeTaxRates = async (
   models: IModels,
   date: Date,
   details: Pick<
-    IAdjustFxaDetail,
+    TFxaTaxDetail,
     'fixedAssetId' | 'accumulatedDepreciation' | 'taxAccumulatedDepreciation'
   >[],
 ): Promise<Map<string, number | undefined>> => {
@@ -28,7 +28,7 @@ export const getFxaIncomeTaxRates = async (
   endDate.setHours(23, 59, 59, 999);
   const [assets, corrections] = await Promise.all([
     getFxaLedgerAssets(models, endDate, fixedAssetIds),
-    getFxaCorrections(models, endDate),
+    getFxaCorrections(models, endDate, undefined, fixedAssetIds),
   ]);
   return new Map(
     assets.map((asset) => [

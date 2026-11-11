@@ -107,6 +107,35 @@ test('uses the configured assigned depreciation account instead of a manual over
   );
 });
 
+test('sale uses its asset disposal account mapping rather than its revenue account and clears stale links', () => {
+  const { result } = renderHook(useFixture);
+  act(() => {
+    result.current.setValue('trDocs.0.journal', TrJournalEnum.FXA_SALE);
+    result.current.setValue('trDocs.0.details.0.accountId', 'revenue');
+    result.current.setValue('trDocs.0.followInfos.saleOutAccountId', 'asset-a');
+  });
+  render(<FxaOutAccountWarning form={result.current} index={0} sale />);
+  expect(
+    result.current.getValues(
+      'trDocs.0.followInfos.accumulatedDepreciationAccountId',
+    ),
+  ).toBe('dep-a');
+  expect(useAccountsInline).toHaveBeenCalledWith(
+    expect.objectContaining({
+      variables: { ids: ['asset-a', 'dep-a'], permissionMode: 'write' },
+    }),
+  );
+  act(() =>
+    result.current.setValue('trDocs.0.followInfos.saleOutAccountId', 'asset-b'),
+  );
+  expect(
+    result.current.getValues(
+      'trDocs.0.followInfos.accumulatedDepreciationAccountId',
+    ),
+  ).toBe('');
+  expect(screen.getByRole('alert')).toBeDefined();
+});
+
 test('changing to an unconfigured account clears stale depreciation and offers a settings link', () => {
   const { result } = renderHook(useFixture);
   render(<FxaOutAccountWarning form={result.current} index={0} />);

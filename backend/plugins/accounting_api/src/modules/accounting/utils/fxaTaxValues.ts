@@ -1,12 +1,37 @@
-import type { IAdjustFxaDetail } from '../@types/adjustFixedAsset';
+import type { ITransaction, ITrDetail } from '../@types/transaction';
 
-export const getFxaTaxValues = (
-  detail: Pick<
-    IAdjustFxaDetail,
-    'accumulatedDepreciation' | 'taxAccumulatedDepreciation'
-  >,
-  taxRate?: number,
-) => {
+export type TFxaTaxTotals = {
+  accumulatedDepreciation?: number;
+  taxAccumulatedDepreciation?: number;
+};
+
+export type TFxaTaxDetail = TFxaTaxTotals &
+  Partial<
+    Pick<ITrDetail, 'fixedAssetId' | 'accountId' | 'branchId' | 'departmentId'>
+  > & {
+    transactionDetailId?: string;
+    incomeTaxRate?: number;
+  };
+
+export const getFxaSourceTaxDetail = (
+  detail: ITrDetail,
+  transaction?: Pick<ITransaction, 'branchId' | 'departmentId'>,
+): TFxaTaxDetail => ({
+  fixedAssetId: detail.fixedAssetId,
+  transactionDetailId: detail._id,
+  accountId: detail.accountId,
+  branchId: transaction
+    ? detail.branchId || transaction.branchId
+    : detail.branchId,
+  departmentId: transaction
+    ? detail.departmentId || transaction.departmentId
+    : detail.departmentId,
+  accumulatedDepreciation: detail.followInfos?.preDeprecation ?? 0,
+  taxAccumulatedDepreciation: detail.followInfos?.taxPreDeprecation ?? 0,
+  incomeTaxRate: detail.followInfos?.incomeTaxRate,
+});
+
+export const getFxaTaxValues = (detail: TFxaTaxTotals, taxRate?: number) => {
   const temporaryDifference =
     detail.taxAccumulatedDepreciation === undefined
       ? undefined
