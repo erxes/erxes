@@ -162,6 +162,13 @@
       "when": 1794433199281,
       "tag": "0022_oauth",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1794433494590,
+      "tag": "0023_payments",
+      "breakpoints": true
     }
   ]
 }

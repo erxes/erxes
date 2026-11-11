@@ -1,5 +1,6 @@
 import {
   IconBellCog,
+  IconCash,
   IconChevronLeft,
   IconCloudUpload,
   IconApps,
@@ -37,6 +38,7 @@ export const useSettingsWorkspacePaths = (): SettingsPath[] => {
     { name: t('properties', 'Properties'), path: 'properties', icon: IconHierarchy2 },
     { name: t('file-upload', 'File upload'), path: 'file-upload', icon: IconCloudUpload },
     { name: t('plugins', 'Plugins'), path: 'plugins', icon: IconApps },
+    ...(can('payments.manage') ? [{ name: t('payments', 'Payments'), path: 'payments', icon: IconCash }] : []),
     ...(can('webhooks.manage') ? [{ name: t('webhooks', 'Webhooks'), path: 'webhooks', icon: IconWebhook }] : []),
     ...(can('audit.view') ? [{ name: t('audit-log', 'Audit log'), path: 'audit-log', icon: IconShieldCheck }] : []),
     ...(can('events.view') ? [{ name: t('event-delivery', 'Event delivery'), path: 'event-delivery', icon: IconPlugConnected }] : []),

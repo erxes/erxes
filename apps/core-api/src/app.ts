@@ -16,6 +16,7 @@ import { HttpError } from '~/http/errors';
 import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { oauthRouter, openidConfiguration } from '~/modules/oauth/oauth.http';
+import { paymentCallbackRouter } from '~/modules/payments/payments.service';
 import { coreApi, openApiDocument } from '~/rpc';
 import { log } from '~/lib/log';
 
@@ -71,6 +72,9 @@ export const createApp = (): Express => {
   app.get('/core/v1/.well-known/jwks.json', (_req, res) => {
     res.set('Cache-Control', 'public, max-age=300').json(publicJwks());
   });
+
+  // Payment gateways call back here: signed addresses, confirmed with the gateway.
+  app.use('/core/v1', paymentCallbackRouter);
 
   // "Sign in with erxes" (OAuth 2.1 / OpenID Connect): its own authentication.
   app.use('/core/v1/oauth', tokenLimit, oauthRouter);

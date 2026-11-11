@@ -25,6 +25,8 @@ export const PLUGIN_SCOPES = [
   'files:write',
   'live:write',
   'notifications:write',
+  'payments:read',
+  'payments:write',
 ] as const;
 export const PluginScope = z.enum(PLUGIN_SCOPES);
 export type PluginScope = z.infer<typeof PluginScope>;

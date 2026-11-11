@@ -221,7 +221,8 @@
     "event-delivery": "Үйл явдлын хүргэлт",
     "plugins": "Плагинууд",
     "roles": "Үүргүүд",
-    "webhooks": "Вэбхүүк"
+    "webhooks": "Вэбхүүк",
+    "payments": "Төлбөр"
   },
   "plugin": {
     "_": "Плагин",

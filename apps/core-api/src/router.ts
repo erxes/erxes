@@ -5,6 +5,17 @@ import type { Request, Response } from 'express';
 import { config } from '~/config';
 import { enforceAccess } from '~/http/access';
 import {
+  addGateway,
+  cancelInvoice,
+  createInvoice,
+  getInvoice,
+  listGateways,
+  listInvoices,
+  payTestInvoice,
+  removeGateway,
+  updateGateway,
+} from '~/modules/payments/payments.service';
+import {
   completeTwoFactor,
   disableTwoFactor,
   enableTwoFactor,
@@ -413,6 +424,19 @@ export const coreRouter = pub.router({
     run: authed.automations.run.handler(({ input, context }) => getRun(db(), context.actor, input.runId)),
     retryRun: authed.automations.retryRun.handler(({ input, context }) => retryAutomationRun(db(), context.actor, input.runId)),
     cancelRun: authed.automations.cancelRun.handler(({ input, context }) => cancelAutomationRun(db(), context.actor, input.runId)),
+  },
+  payments: {
+    gateways: authed.payments.gateways.handler(({ context }) => listGateways(db(), context.actor)),
+    addGateway: authed.payments.addGateway.handler(({ input, context }) => addGateway(db(), context.actor, input)),
+    updateGateway: authed.payments.updateGateway.handler(({ input: { id, ...changes }, context }) =>
+      updateGateway(db(), context.actor, id, changes),
+    ),
+    removeGateway: authed.payments.removeGateway.handler(({ input, context }) => removeGateway(db(), context.actor, input.id)),
+    createInvoice: anyone.payments.createInvoice.handler(({ input, context }) => createInvoice(db(), context.caller, input)),
+    getInvoice: anyone.payments.getInvoice.handler(({ input, context }) => getInvoice(db(), context.caller, input.id)),
+    cancelInvoice: anyone.payments.cancelInvoice.handler(({ input, context }) => cancelInvoice(db(), context.caller, input.id)),
+    invoices: authed.payments.invoices.handler(({ input, context }) => listInvoices(db(), context.actor, input)),
+    payTestInvoice: authed.payments.payTestInvoice.handler(({ input, context }) => payTestInvoice(db(), context.actor, input.id)),
   },
   webhooks: {
     eventTypes: authed.webhooks.eventTypes.handler(async ({ context }) => ({ data: await eventTypeCatalog(db(), context.actor.orgId) })),

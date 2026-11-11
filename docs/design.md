@@ -33,20 +33,22 @@
 | 28 | Permissions: actions (core's catalog plus plugin manifests) grouped into per-organisation roles — Owner, Admin (`*`), Member and custom ones; one role per member, no per-user grants; nobody grants beyond their own permissions; the access map names the permission of every procedure. (Not old erxes's permission groups: old groups become custom roles when organisations are imported.) | Agreed |
 | 29 | One job queue in Postgres (`core_jobs`): enqueued in the business transaction, leased with SKIP LOCKED, retried with backoff, dead-lettered; webhooks and automations run on it (no Redis, no separate worker service). Outgoing webhooks are signed like Stripe's and protected against SSRF. | Agreed |
 | 30 | Automation engine on the event stream and the job queue: versioned definitions (trigger + conditions, steps with actions/delays/branches), one atomic job per step, retries then a failed run that can be resumed, run and step logs; actions as the activating member; loop protection by causation; plugin actions over HTTP with core tokens and idempotency keys. No segments gate. | Agreed |
+| 31 | Email through the job queue (SMTP or log); single-use links (hashed) for invitations and password resets; TOTP two-factor sign-in with recovery codes; "Sign in with erxes" as an OAuth 2.1 / OIDC provider for plugins' own apps (PKCE, rotating refresh tokens with reuse detection). | Agreed |
+| 32 | Payments: gateway connections and gateway invoices in core (QPay first), confirmed only by asking the gateway; plugins keep their business payment records and learn of payments from `core.payment.paid`. | Agreed |
 | 15 | Core UI keeps old core-ui's UX (top bar with app tabs, per-app sidebars, RecordTable pages) and stays the Module Federation host, sharing `erxes-ui` and the old singletons so existing plugin UIs load. | Agreed |
 
 ## Slices
 
 1. Foundation + organisations + team members — **done**.
-2. Sign-in: password — **done**; next: 2FA, OAuth server (authorize/token/JWKS,
-   platform clients), RS256 access tokens, service tokens — port from old core.
+2. Sign-in: password, 2FA, password reset, invitations, OAuth/OIDC server
+   (Sign in with erxes), plugin service tokens — **done**.
 3. Core UI: shell (top bar, apps, plugin host), Team members, Organization —
    **done**.
 4. Customers and companies — **done**: dedupe, links, tags, custom fields,
    merge, detail panel, first-run setup. Next: find-or-create for plugins,
    consent, activity timeline (with events).
 5. SaaS sync: create/update `core_organizations` from the SaaS side.
-6. Files, notifications — **done**; payments next.
+6. Files, notifications — **done**; payments (QPay) — **done**.
 7. Activity timeline (notes, filters, rollup), audit log (plugins, hash chain,
    export) and the event stream — **done**; next: webhooks from the stream,
    plugin keys → registry OAuth clients, then the automation engine on events.

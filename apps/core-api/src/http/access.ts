@@ -159,6 +159,16 @@ export const ACCESS = {
   'automations.retryRun': needs('automations.manage'),
   'automations.cancelRun': needs('automations.manage'),
 
+  'payments.gateways': needs('payments.manage'),
+  'payments.addGateway': needs('payments.manage'),
+  'payments.updateGateway': needs('payments.manage'),
+  'payments.removeGateway': needs('payments.manage'),
+  'payments.createInvoice': { member: 'payments.manage', plugin: 'payments:write' },
+  'payments.getInvoice': { member: 'payments.manage', plugin: 'payments:read' },
+  'payments.cancelInvoice': { member: 'payments.manage', plugin: 'payments:write' },
+  'payments.invoices': needs('payments.manage'),
+  'payments.payTestInvoice': needs('payments.manage'),
+
   'webhooks.eventTypes': MEMBER,
   'webhooks.list': needs('webhooks.manage'),
   'webhooks.create': needs('webhooks.manage'),

@@ -220,7 +220,8 @@
     "event-delivery": "Event delivery",
     "plugins": "Plugins",
     "roles": "Roles",
-    "webhooks": "Webhooks"
+    "webhooks": "Webhooks",
+    "payments": "Payments"
   },
   "plugin": {
     "_": "Plugin",

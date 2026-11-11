@@ -163,6 +163,15 @@ it is built.
   in `actions.ts`; plugin actions come from manifests and are POSTed to
   `<api.url>/automations/actions/<type>` with a core token
   (`verifyCoreCall`) and `Idempotency-Key`.
+- **Payments** (`src/modules/payments`, `core_payment_gateways`,
+  `core_payment_invoices`): gateway connections per organisation (QPay v2,
+  `test` for development; credentials sealed, checked on connect); invoices
+  for a plugin's record (`payments:write`; dedupe key; amounts in hundredths).
+  Paid is only ever decided by asking the gateway: signed callbacks
+  (`/payments/callback/:id?sig=`) and the `payment.check` job (30 s, then 2
+  min, until expiry) both do; paid once (conditional update) →
+  `core.payment.paid` event (webhooks, automations). Plugins keep their own
+  payment records.
 - **Sign in with erxes** (`src/modules/oauth/oauth.http.ts`, OAuth 2.1 + OIDC):
   plugins are clients; their manifest's `oauth.redirectUris` (exact, with
   `{subdomain}`) are the only places codes go. Code + PKCE S256 only; codes

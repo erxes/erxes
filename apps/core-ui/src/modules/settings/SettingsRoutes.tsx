@@ -7,6 +7,7 @@ import { NotificationSettingsPage } from './notifications/NotificationSettingsPa
 import { PluginsSettingsPage } from './plugins/PluginsSettingsPage';
 import { RolesSettingsPage } from './roles/RolesSettingsPage';
 import { WebhooksSettingsPage } from './webhooks/WebhooksSettingsPage';
+import { PaymentsSettingsPage } from './payments/PaymentsSettingsPage';
 import { ProfileSettingsPage } from './profile/ProfileSettingsPage';
 import { PropertiesSettingsRoutes } from './properties/PropertiesSettingsRoutes';
 import { SettingsLayout } from './SettingsLayout';
@@ -27,6 +28,7 @@ export const SettingsRoutes = () => (
       <Route path="plugins" element={<PluginsSettingsPage />} />
       <Route path="roles" element={<RolesSettingsPage />} />
       <Route path="webhooks" element={<WebhooksSettingsPage />} />
+      <Route path="payments" element={<PaymentsSettingsPage />} />
       <Route path="notifications" element={<NotificationSettingsPage />} />
       <Route path="profile" element={<ProfileSettingsPage />} />
       <Route path="*" element={<NotFoundPage />} />
