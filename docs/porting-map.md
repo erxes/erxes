@@ -3,6 +3,12 @@
 What happens to each old core module. "Port" = bring the logic and its tests,
 rewrite data access; "rewrite" = new design; "drop" = not in core.
 
+`docs/inventory/old-erxes.json` lists old erxes at a fixed commit: core modules, plugins, every
+`sendTRPCMessage` call with caller and target, event helper calls, `ui-modules` imports per plugin
+and worker files. `pnpm inventory -- --repo <path to an old erxes checkout>` regenerates it from
+git objects only, without touching that checkout's working tree. `--repo` is required; `--ref`
+defaults to `origin/main`.
+
 | Old (erxes `main`)                                                                | New                                                      | How                                              | Status                                    |
 | --------------------------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------ | ----------------------------------------- |
 | `core-api/modules/organization` (team members)                                    | `apps/core-api/src/modules/users`                        | Rewrite (roles simplified to owner/admin/member) | Done (slice 1)                            |

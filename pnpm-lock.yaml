@@ -12,12 +12,18 @@ importers:
 
   .:
     devDependencies:
+      '@ast-grep/napi':
+        specifier: ^0.51.2
+        version: 0.51.2
       '@types/node':
         specifier: ^24.19.2
         version: 24.19.2
       knip:
         specifier: ^6.45.1
         version: 6.45.1
+      tsx:
+        specifier: ^4.19.2
+        version: 4.23.15
       typescript:
         specifier: ~7.0.2
         version: 7.0.2
@@ -481,6 +487,64 @@ packages:
         optional: true
       subscriptions-transport-ws:
         optional: true
+
+  '@ast-grep/napi-darwin-arm64@0.51.2':
+    resolution: {integrity: sha512-5Pbv6QYqNJ9+EQs1A0Kc7AfKx6zuvxJcEjb1pb6mWj2ZJvQoLAG6+o+6bKxKixF/7HoHsOKkg7rbQha+iMOK/w==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@ast-grep/napi-darwin-x64@0.51.2':
+    resolution: {integrity: sha512-2gzdlf9+rSb9WX8XTQfTbyJw4vDpzAl//oe+H6VWOl6InNlYvwEjaXE1YvzRwyAaRtvAZ/TmIBhdbrKhTZzHnQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@ast-grep/napi-linux-arm64-gnu@0.51.2':
+    resolution: {integrity: sha512-R/G/U3KLjuRxj0cI4XDlt1pZJ99X1ipd6fAU6wtAyqc1VyTsdtGvwqbqU5yipumhJdUguOkAXILFIixE+iJDLw==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@ast-grep/napi-linux-arm64-musl@0.51.2':
+    resolution: {integrity: sha512-3B9zAinG7A9vXZnz1S0xWt/F6TEl0uf1tPb0JR8D6892v9tbPVWG2sUFGEWeZQhuiv5UZVF+/c4UAI5Nn+5bCg==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@ast-grep/napi-linux-x64-gnu@0.51.2':
+    resolution: {integrity: sha512-u5Stxu8RTvcDOQ2AchCmvA67HKpbupyvM2Qnju6VF/MiaSrUVsbfVXhBRtsy4vf3jpuREdwHcjprMq5NAcYHdA==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@ast-grep/napi-linux-x64-musl@0.51.2':
+    resolution: {integrity: sha512-CVChFFX5rCiEpLSwtw3BnA2oloEjez8c/mp4brxW39/iHRqx3dA+7PihYihGhrleZPgE5OuTQ6JjaCGuTUq7hw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@ast-grep/napi-win32-arm64-msvc@0.51.2':
+    resolution: {integrity: sha512-iA8Pzu+/kf3bZx+cQHMggTQAmV1SNZu+SkU/5RVXcIS/66Cpievin//WL49sKs33U5Qg2bgcsQtePgTPTGBbOw==}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@ast-grep/napi-win32-ia32-msvc@0.51.2':
+    resolution: {integrity: sha512-L6rjJ/eN67UAOD+jtpbRZ2nBSPT8pub4ji5wWb+idWIRQOtb+4Sm7iaXpKQNbIECb68G5VQBaZdHowlIumuLaQ==}
+    engines: {node: '>= 10'}
+    cpu: [ia32]
+    os: [win32]
+
+  '@ast-grep/napi-win32-x64-msvc@0.51.2':
+    resolution: {integrity: sha512-6Kn9wKF+vfNh0PFt9x0xMZsI0mZqKjt4RMC9GPWRyavvWRCns73KubtY5Gp+WImfBE2CYvSyRpFqkivR3z5rKw==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
+  '@ast-grep/napi@0.51.2':
+    resolution: {integrity: sha512-bMyr6naywreBBsqW3uv0yc4gC+ghxSSxGYcGvsVjEx3NaQUosp1o8z3tEEqrgtJhtjkT+RNd7R3YLm1+0niaig==}
+    engines: {node: '>= 10'}
 
   '@aws-sdk/checksums@3.1002.5':
     resolution: {integrity: sha512-OHlfkNzDFjYnwNPABhwAkDTUi0HPjfsKUHJDR0bSMORpCXNzRpInPCNCIT08xKDhjaPlcLJ+2Av+Sk7hHnuC8A==}
@@ -7958,6 +8022,45 @@ snapshots:
       subscriptions-transport-ws: 0.9.19(graphql@16.15.0)
     transitivePeerDependencies:
       - '@types/react'
+
+  '@ast-grep/napi-darwin-arm64@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-darwin-x64@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-linux-arm64-gnu@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-linux-arm64-musl@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-linux-x64-gnu@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-linux-x64-musl@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-win32-arm64-msvc@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-win32-ia32-msvc@0.51.2':
+    optional: true
+
+  '@ast-grep/napi-win32-x64-msvc@0.51.2':
+    optional: true
+
+  '@ast-grep/napi@0.51.2':
+    optionalDependencies:
+      '@ast-grep/napi-darwin-arm64': 0.51.2
+      '@ast-grep/napi-darwin-x64': 0.51.2
+      '@ast-grep/napi-linux-arm64-gnu': 0.51.2
+      '@ast-grep/napi-linux-arm64-musl': 0.51.2
+      '@ast-grep/napi-linux-x64-gnu': 0.51.2
+      '@ast-grep/napi-linux-x64-musl': 0.51.2
+      '@ast-grep/napi-win32-arm64-msvc': 0.51.2
+      '@ast-grep/napi-win32-ia32-msvc': 0.51.2
+      '@ast-grep/napi-win32-x64-msvc': 0.51.2
 
   '@aws-sdk/checksums@3.1002.5':
     dependencies:

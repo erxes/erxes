@@ -4,7 +4,7 @@ import type { KnipConfig } from 'knip';
 const config: KnipConfig = {
   workspaces: {
     '.': {
-      entry: ['tools/lint/*/rules/*.test.ts'],
+      entry: ['tools/lint/*/rules/*.test.ts', 'tools/inventory/*.ts'],
       project: ['tools/**/*.ts'],
       // Copied from the HR plugin as a whole, with its vendored ESLint Stylistic rule.
       ignore: ['tools/lint/anti-slop/**'],

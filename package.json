@@ -16,11 +16,14 @@
     "fix": "vp check --fix",
     "prepare": "vp config --no-agent",
     "openapi": "pnpm --filter @erxes/core-api openapi",
-    "check:generated": "tools/check-generated.sh"
+    "check:generated": "tools/check-generated.sh",
+    "inventory": "tsx tools/inventory/old-erxes.ts"
   },
   "devDependencies": {
+    "@ast-grep/napi": "^0.51.2",
     "@types/node": "^24.19.2",
     "knip": "^6.45.1",
+    "tsx": "^4.19.2",
     "typescript": "~7.0.2",
     "vite-plus": "1.6.0"
   },
