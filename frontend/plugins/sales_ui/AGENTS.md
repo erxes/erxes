@@ -6,7 +6,7 @@
 - **Project:** `sales_ui`
 - **Layer:** `Frontend UI`
 - **Path:** `frontend/plugins/sales_ui`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -24,6 +24,11 @@
   plugin routes.
 
 ## Current Capabilities
+
+- The automations POS module answers the template requirement kind
+  `sales:pos.pos` through its `templateRequirement` entry
+  (`PosTemplateRequirement`, `SelectPos`); the answer is the POS id a Create POS
+  order step takes as `posId`.
 
 - Deals and POS orders export to CSV through the shared `ui-modules`
   `Export` button: the deals action bar exports the current pipeline, stage

@@ -150,6 +150,18 @@ export const socialCommentActionConfigSchema = z
     { path: ['texts'], message: 'Add at least one reply' },
   );
 
+export const telegramMessageActionConfigSchema = z
+  .object({
+    content: described(
+      z.string(),
+      'Message text sent as the bot to the triggering chat; {{ }} placeholders allowed.',
+    ).optional(),
+  })
+  .refine(({ content }) => !!content?.trim(), {
+    path: ['content'],
+    message: 'Add the message text',
+  });
+
 export const discordMessageActionConfigSchema = z
   .object({
     target: described(

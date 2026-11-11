@@ -236,6 +236,7 @@ const DEAL_DOCUMENT_AMOUNT_RESOLVERS = Object.fromEntries(
 );
 
 export const SALES_DEAL_FIND_OBJECT_TYPE = 'sales:sales.deals';
+export const SALES_POS_ORDER_FIND_OBJECT_TYPE = 'sales:pos.orders';
 
 const SALES_DEAL_SET_PROPERTY_TARGETS: TAutomationSetPropertyTarget[] = [
   {
@@ -453,6 +454,44 @@ const SALES_FIND_OBJECT_TARGETS: TAutomationFindObjectTargetDefinition[] = [
       { value: 'number', label: 'Number' },
     ],
     output: SALES_DEAL_TRIGGER_OUTPUT,
+  },
+  {
+    value: SALES_POS_ORDER_FIND_OBJECT_TYPE,
+    label: 'POS order',
+    lookupFields: [
+      { value: '_id', label: 'ID' },
+      { value: 'number', label: 'Number' },
+    ],
+    output: {
+      variables: [
+        { key: '_id', label: 'POS order ID', field: '_id' },
+        { key: 'number', label: 'POS order Number', field: 'number' },
+        { key: 'status', label: 'POS order Status', field: 'status' },
+        { key: 'createdAt', label: 'POS order Created At', field: 'createdAt' },
+        { key: 'paidDate', label: 'POS order Paid Date', field: 'paidDate' },
+        { key: 'dueDate', label: 'POS order Due Date', field: 'dueDate' },
+        {
+          key: 'totalAmount',
+          label: 'POS order Total Amount',
+          field: 'totalAmount',
+        },
+        {
+          key: 'finalAmount',
+          label: 'POS order Final Amount',
+          field: 'finalAmount',
+        },
+        { key: 'type', label: 'POS order Type', field: 'type' },
+      ],
+    },
+    lookup: {
+      description:
+        "The customer's own POS orders as they are now. status: new = accepted, " +
+        'doing/reDoing = being prepared, done = ready, complete = handed over, ' +
+        'pending = waiting, return = returned; a paidDate means it is paid. ' +
+        'A new order may show only once it is paid.',
+      customerField: 'customerId',
+      byFields: ['number'],
+    },
   },
 ];
 

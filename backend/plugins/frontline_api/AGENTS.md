@@ -6,7 +6,7 @@
 - **Project:** `frontline_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/frontline_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -248,6 +248,17 @@
   campaign, whose steps run against a customer. The ticket one declares
   `frontline:tickets.channel|pipeline|status` requirements that are answered
   before it can be installed.
+- One template for core's Templates page ships through
+  `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
+  `frontline.complaint-employee`. One Messenger journey: an AI agent part
+  (Customer lookup, instructions with the `{{ answers.policy }}` text) replies,
+  or through its handoff tools files a ticket (`file_ticket`) or hands over (`escalate`): `pickMember` takes turns among the chosen
+  team members who are available, then the handoff assigns that one (nobody
+  available leaves it unassigned). Requirements: `frontline:facebook.bot`
+  (trigger `botId`), an existing AI agent's connection, `frontline:tickets.status`
+  and `core:team.members`. Ticket status notifications are left out: nothing
+  writes to Messenger from a ticket trigger. `src/meta/templates/__tests__`
+  runs `validateTemplate` over every template.
 - The Facebook/Instagram comment reply action resolves placeholders in the
   picked text variant with the same two passes as the message action
   (`replaceOutputPlaceholders`, then `{{ prevAction.* }}`) before queueing it;
@@ -740,6 +751,22 @@ Telegram lives in `src/modules/integrations/telegram/`: `controller/` ingests,
 reconciles and sends messages; `db/` owns provider mappings; `client.ts` owns
 Bot API calls; `graphql/` owns bot setup, status, chat labels and link previews.
 The root router mounts its authenticated webhook at `/telegram`.
+
+Telegram automation lives in `meta/automation/`: trigger
+`frontline:telegram.messages` ("Telegram Message") and action
+`frontline:telegram.messages.create` ("Send Telegram Message").
+`receiveTelegramMessage` enrols only a new, unedited customer message that was
+not already linked (a retried webhook does not re-enrol); the target
+(`TTelegramTriggerTarget`) carries the inbox `conversationId`, so handoff,
+open tickets and AI memory work unchanged. `checkCustomTrigger` answers private
+chats unless `chatTypes: 'all'`, applies the comma keyword filter, stays out of
+a conversation a person took over (`isAutomatedReplyPaused`) and sends a
+typing action. The send action calls `sendTelegramReply` with `fromBot: true`
+(no `userId`; the inbox reply path forces `fromBot: false`), stores
+`fromBot` on the Telegram message and mirrors the reply into the inbox flagged
+`fromBot`. AI context: last 12 older messages (bot / agent / customer),
+memory scope `frontline:telegram.conversation`, `openTickets`. Text only: no
+buttons, files or proactive sends.
 
 | Area                     | Path                                                                                                                                                             | Responsibility                                                                                                                                                                                                         |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1638,6 +1665,10 @@ tagIds, propertiesData: JSON)` (the customer comes from the widget session) — 
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
+- Ticket Manage properties re-reads each written ticket (after the SLA sync)
+  and publishes `ticketChanged:<id>` and `ticketListChanged` through
+  `ticket/utils/publishTicketChanged.ts`, so open screens update without a
+  refresh. Any new server-side ticket write must publish the same way.
 
 - A media id (`<messageId>-<index>`, `facebook/meta/automation/utils/turnTaking.ts`)
   is the only way automation media reaches a ticket; `resolveConversationMedia`

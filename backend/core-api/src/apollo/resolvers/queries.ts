@@ -42,7 +42,7 @@ import { activityLogQueries } from '@/logs/graphql/resolvers/activityLogQueries'
 import { broadcastQueries } from '~/modules/broadcast/graphql/resolvers/queries';
 import { propertiesQueries } from '~/modules/properties/graphql/resolvers/queries';
 import { bundleQueries } from '@/bundle/graphql/resolvers/queries';
-import { templateQueries } from '@/template/graphql/queries';
+import { templateQueries } from '@/template/graphql/resolvers';
 import { globalSearchQueries } from '@/search/graphql/resolvers/queries/globalSearch';
 import { referenceQueries } from '~/meta/references/graphql/queries';
 import { agentsConnectionsQueries } from '@/agents/graphql/resolvers/queries/connection';

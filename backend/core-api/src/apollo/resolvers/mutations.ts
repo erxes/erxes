@@ -42,7 +42,7 @@ import { cpUserMutations } from '@/clientportal/graphql/resolvers/mutations/cpUs
 import { commentMutations } from '@/clientportal/graphql/resolvers/mutations/comment';
 import { cpNotificationMutations } from '@/clientportal/graphql/resolvers/mutations/cpNotification';
 import { bundleMutations } from '@/bundle/graphql/resolvers/mutations';
-import { templateMutations } from '@/template/graphql/mutations';
+import { templateMutations } from '@/template/graphql/resolvers';
 import { agentsConnectionMutations } from '@/agents/graphql/resolvers/mutations/connection';
 import { agentsThreadMutations } from '@/agents/graphql/resolvers/mutations/threads';
 import { agentsSettingsMutations } from '@/agents/graphql/resolvers/mutations/settings';

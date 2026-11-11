@@ -194,15 +194,6 @@ export type TAiKnowledgeSourceConfig = {
   supportsFullScope?: boolean;
 };
 
-export type TAiToolConfig = {
-  pluginName: string;
-  moduleName: string;
-  key: string;
-  label: string;
-  input: string;
-  output: string;
-};
-
 export type TAiKnowledgeSourceSelection = {
   pluginName: string;
   moduleName: string;

@@ -8,6 +8,7 @@ import {
   createFormLinkActionConfigSchema,
   socialCommentActionConfigSchema,
   socialMessageActionConfigSchema,
+  telegramMessageActionConfigSchema,
   ticketCreateActionConfigSchema,
 } from '../automationConfigSchemas';
 
@@ -20,6 +21,7 @@ const schemas: Record<string, TAutomationConfigSchema> = {
   'frontline:facebook.messages.create': socialMessageActionConfigSchema,
   'frontline:facebook.comments.create': socialCommentActionConfigSchema,
   'frontline:form.links.create': createFormLinkActionConfigSchema,
+  'frontline:telegram.messages.create': telegramMessageActionConfigSchema,
 };
 
 const builderConfigs: Record<string, unknown[]> = JSON.parse(

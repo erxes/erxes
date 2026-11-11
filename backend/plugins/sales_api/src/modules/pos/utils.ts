@@ -836,7 +836,9 @@ export const syncOrderFromClient = async ({
     }
   }
 
-  if (pos.isOnline && newOrder.subBranchId) {
+  // Only a paid order goes on to the sub-branch's offline POS; an unpaid one
+  // is synced here so people and AI agents can see it.
+  if (pos.isOnline && newOrder.subBranchId && newOrder.paidDate) {
     const toPos = await models.Pos.findOne({
       branchId: newOrder.subBranchId,
       _id: { $ne: pos._id },

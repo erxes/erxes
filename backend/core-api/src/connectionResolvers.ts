@@ -206,6 +206,11 @@ import {
   loadAutomationWorkflowTemplateClass,
 } from './modules/automations/db/models/AutomationWorkflowTemplates';
 import {
+  ITemplateInstallationDocument,
+  ITemplateInstallationModel,
+  loadTemplateInstallationClass,
+} from './modules/template/db/models/Installations';
+import {
   IAutomationModel,
   loadClass as loadAutomationClass,
 } from './modules/automations/db/models/Automations';
@@ -394,18 +399,6 @@ import {
   loadFileShareClass,
 } from '@/files/db/models/FileShares';
 import {
-  ITemplateCategoryModal,
-  loadTemplateCategoryClass,
-} from '@/template/db/models/Category';
-import {
-  ITemplateModal,
-  loadTemplateClass,
-} from '@/template/db/models/Template';
-import {
-  ITemplateCategoryDocument,
-  ITemplateDocument,
-} from '@/template/@types';
-import {
   IActivityLogsModel,
   loadActivityLogsClass,
 } from '@/logs/db/models/ActivityLogs';
@@ -469,6 +462,7 @@ export interface IModels {
   NotificationTemplates: INotificationTemplateModel;
   CurrencyRates: ICurrencyRateModel;
   AutomationWorkflowTemplates: IAutomationWorkflowTemplateModel;
+  TemplateInstallations: ITemplateInstallationModel;
   Logs: ILogModel;
   Imports: IImportModel;
   Exports: IExportModel;
@@ -512,8 +506,6 @@ export interface IModels {
 
   NotificationSettings: Model<NotificationSettings>;
 
-  Template: ITemplateModal;
-  TemplateCategory: ITemplateCategoryModal;
   OAuthDeviceCodes: Model<IOAuthDeviceCodeDocument>;
   OAuthRefreshTokens: Model<IOAuthRefreshTokenDocument>;
   LdapConfigs: ILdapConfigModel;
@@ -815,6 +807,11 @@ export const loadClasses = (
     loadAutomationWorkflowTemplateClass(models),
   );
 
+  models.TemplateInstallations = db.model<
+    ITemplateInstallationDocument,
+    ITemplateInstallationModel
+  >('template_installations', loadTemplateInstallationClass(models));
+
   models.Notifications = db.model<
     INotificationDocument,
     Model<INotificationDocument>
@@ -1008,16 +1005,6 @@ export const loadClasses = (
     'file_shares',
     loadFileShareClass(models),
   );
-
-  models.Template = db.model<ITemplateDocument, ITemplateModal>(
-    'templates',
-    loadTemplateClass(models, subdomain),
-  );
-
-  models.TemplateCategory = db.model<
-    ITemplateCategoryDocument,
-    ITemplateCategoryModal
-  >('template_categories', loadTemplateCategoryClass(models));
 
   models.OAuthDeviceCodes = db.model<
     IOAuthDeviceCodeDocument,

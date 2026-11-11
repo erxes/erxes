@@ -81,7 +81,8 @@
     "delete": "Устгах",
     "save": "Хадгалах",
     "settings": "Тохиргоо",
-    "data-extensions": "Өгөгдлийн өргөтгөл"
+    "data-extensions": "Өгөгдлийн өргөтгөл",
+    "workflow-templates": "Workflow загварууд"
   },
   "filter": {
     "_": "Шүүлтүүр",

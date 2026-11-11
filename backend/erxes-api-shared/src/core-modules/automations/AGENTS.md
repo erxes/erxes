@@ -152,6 +152,32 @@ without saving.
 - Every `{{ … }}` in a node config is stored as the builder writes it,
   `{{ key }}`, whoever authored it; every reader accepts any spacing, and a
   spacing-only difference is not a config change.
+- AI agent lookups: a find object target with `lookup`
+  (`TAutomationAiLookup`: `description`, `customerField`, `byFields`) can be
+  turned on per agent (`context.lookups`, objectType list, default empty; UI
+  step "Lookup"). The engine (`services/automations/src/ai/lookup`) builds one
+  read-only tool per enabled target, only when the run has
+  `facts.customerId`. The customer is never a parameter: without a value it
+  asks FIND_OBJECT for `customerField = customerId` with `newest`; with a
+  `byFields` value it checks `record[customerField] === customerId`
+  (`belongsToLookupCustomer`), and a record of another customer reads as
+  `{ found: false }`. The agent sees only the target's `output.variables`
+  (`projectLookupRecord`). Lookups are declared by core (customer, product), sales
+  (POS order) and loyalty (account). A lookup without `customerField` is
+  organization data (`isPublicLookup`): offered without a customer, found
+  only by a `byFields` value, never "mine". Core's product lookup reads price
+  and stock by code (`toProductStockView`: total, by branch name,
+  `stockTracked` false when no inventory exists; cost never leaves). A lookup result outranks context
+  documents and conversation history (tool instruction in `run.ts`), and the
+  number check (`shouldCheckGrounding`) runs whenever knowledge is loaded or a
+  lookup was called, with `facts` counted as a source. `lookupAiTool`, `ai.tools` and agent `context.tools` were removed;
+  do not bring back a parallel read contract.
+- A find object target may declare `projection` (fields to leave out). Core's
+  team member target leaves out every credential
+  (`SECRET_USER_FIELDS_PROJECTION`, `team-member/loggedUser.ts`): a found
+  record is stored in run history and can reach an AI agent. Team member
+  trigger targets come from user event logs, which `toLoggedUser` strips the
+  same way.
 - Branch links are `if` `config.yes/no`, findObject `config.isExists/notExists`,
   approval `config.approved/rejected`, waitEvent `config.met/timedOut`
   and `config.optionalConnects[].actionId` (AI agent topics and tools, split
@@ -164,10 +190,28 @@ without saving.
   shows them as its preflight. Reach and owners only warn.
 - Nodes inside workflows are left to `validateWorkflowBindings`.
 
+## Workflow for-each
+
+- `workflow.config.forEach = { items, itemInput, onItemError }` runs the
+  workflow once per list item, one child execution after another; the item
+  becomes the value of the declared input `itemInput`, whose own binding is
+  ignored. Read it through `readWorkflowForEach`; incomplete settings mean a
+  plain single run, and `validateWorkflowBindings` blocks activation.
+- The list is frozen when the node is entered; at most
+  `WORKFLOW_FOR_EACH_MAX_ITEMS` (100) items, more fails the node with
+  `CONFIG_INVALID` instead of cutting the list. An empty list starts no child
+  and continues at once.
+- Progress lives on the waiting exec action as `result.forEach` (engine
+  `executions/workflowForEach.ts`); a resume for a child that is not
+  `currentChildId` is ignored. When done the result is
+  `{ total, succeeded, failed[] }`; `onItemError: 'stop'` fails the run on the
+  first failed item, `continue` (default) never fails the node.
+
 ## Validation
 
 - `pnpm nx test erxes-api-shared` (`configSchema.test.ts`,
-  `coreActionConfigSchemas.test.ts`, `builderConfigContract.test.ts`)
+  `coreActionConfigSchemas.test.ts`, `builderConfigContract.test.ts`,
+  `workflowValidation.test.ts`)
 - `pnpm nx test core-api` (`modules/automations/utils/__tests__`)
 - After changing a schema: restart the declaring service, then core-api, which
   caches plugin meta until restart.

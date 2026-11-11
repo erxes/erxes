@@ -47,16 +47,13 @@ export const executeCoreActions = async (
   let actionResponse: any = null;
 
   // Entering a workflow pauses this execution; the child execution resumes
-  // it from the workflow node's nextActionId when it completes.
+  // it from the workflow node's nextActionId when it completes. An empty
+  // for-each list starts no child and continues straight away.
   if (actionType === AUTOMATION_CORE_ACTIONS.WORKFLOW) {
-    actionResponse = await startWorkflowExecution(
-      subdomain,
-      execution,
-      action,
-    );
-    execAction.childExecutionId = actionResponse?.childExecutionId;
+    const started = await startWorkflowExecution(subdomain, execution, action);
+    execAction.childExecutionId = started.result.childExecutionId;
 
-    return { actionResponse, shouldBreak: true };
+    return { actionResponse: started.result, shouldBreak: started.shouldBreak };
   }
 
   if (actionType === AUTOMATION_CORE_ACTIONS.DELAY) {

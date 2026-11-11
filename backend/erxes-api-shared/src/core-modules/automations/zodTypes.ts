@@ -124,6 +124,8 @@ export const FindObjectInputData = z.object({
   objectType: z.string(),
   field: z.string(),
   value: z.string(),
+  // Several records match (a customer's orders): the most recent one
+  newest: z.boolean().optional(),
 });
 
 export const ResolveOutputPathsInputData = z.object({
@@ -170,14 +172,6 @@ export const LoadAiKnowledgeDocumentBatchInputData = z.object({
   skipTotalCount: z.boolean().optional(),
 });
 
-export const LookupAiToolInputData = z.object({
-  moduleName: z.string(),
-  toolKey: z.string(),
-  query: z.string().default(''),
-  limit: z.number().int().min(1).max(20).optional(),
-  filters: z.record(z.unknown()).optional(),
-});
-
 export const ValidateConfigsInputData = z.object({
   nodes: z
     .array(
@@ -218,10 +212,6 @@ export const LoadAiKnowledgeDocumentBatchInput = AutomationBaseInput.extend({
   data: LoadAiKnowledgeDocumentBatchInputData,
 });
 
-export const LookupAiToolInput = AutomationBaseInput.extend({
-  data: LookupAiToolInputData,
-});
-
 export const ValidateConfigsInput = AutomationBaseInput.extend({
   data: ValidateConfigsInputData,
 });
@@ -248,7 +238,6 @@ export type TAutomationProducersInput = {
   [TAutomationProducers.LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH]: z.infer<
     typeof LoadAiKnowledgeDocumentBatchInputData
   >;
-  [TAutomationProducers.LOOKUP_AI_TOOL]: z.infer<typeof LookupAiToolInputData>;
   [TAutomationProducers.VALIDATE_CONFIGS]: z.infer<
     typeof ValidateConfigsInputData
   >;

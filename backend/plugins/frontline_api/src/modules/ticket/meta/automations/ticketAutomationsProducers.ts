@@ -8,6 +8,7 @@ import {
   TAutomationProducersInput,
 } from 'erxes-api-shared/core-modules';
 import { IModels } from '~/connectionResolvers';
+import { publishTicketChanged } from '~/modules/ticket/utils/publishTicketChanged';
 import { prepareTicketPropertyWrite } from '~/modules/ticket/meta/automations/ticketPropertyWrites';
 import { createTicketAction } from '~/modules/ticket/meta/automations/actions/createTicketAction';
 import {
@@ -97,6 +98,12 @@ export const ticketAutomationProducers = {
             (error) =>
               console.error(`Ticket ${item._id} SLA sync failed:`, error),
           );
+
+          const updated = await models.Ticket.findOne({ _id: item._id }).lean();
+
+          if (updated) {
+            publishTicketChanged(updated, 'update');
+          }
         }
 
         return result;

@@ -4,7 +4,6 @@ import {
   CheckCustomTriggerInput,
   FindObjectInput,
   LoadAiKnowledgeDocumentBatchInput,
-  LookupAiToolInput,
   ReceiveActionsInput,
   ResolveOutputPathsInput,
   ResolveOutputVariablesInput,
@@ -99,11 +98,29 @@ export type TAutomationFindObjectLookupFieldDefinition = {
   label: string;
 };
 
+/**
+ * A find object target an AI agent may read. With `customerField` it is the
+ * customer's own record: the engine fills the customer, never the model.
+ * Without it the record is organization data (a product's stock) found only
+ * by a `byFields` value. Either way the agent gets only the output variables.
+ */
+export type TAutomationAiLookup = {
+  // Tells the model when to call it
+  description: string;
+  // Which field of the record holds the id of the customer it belongs to;
+  // absent for organization data anyone may ask about
+  customerField?: string;
+  // Lookup fields the model may search by, e.g. an order number; empty means
+  // only the customer's own newest record
+  byFields?: string[];
+};
+
 export type TAutomationFindObjectTargetDefinition = {
   value: string;
   label: string;
   lookupFields: TAutomationFindObjectLookupFieldDefinition[];
   output?: TAutomationRuntimeOutputDefinition;
+  lookup?: TAutomationAiLookup;
 };
 
 /**
@@ -283,24 +300,8 @@ export type TAiKnowledgeSourceConfig = {
   supportsFullScope?: boolean;
 };
 
-export type TAiToolConfig = {
-  key: string;
-  label: string;
-  moduleName: string;
-  input: string;
-  output: string;
-};
-
 export type TAutomationAiConfig = {
   knowledgeSources?: TAiKnowledgeSourceConfig[];
-  tools?: TAiToolConfig[];
-};
-
-export type TAiToolLookupResult = {
-  toolKey: string;
-  title: string;
-  items: Record<string, unknown>[];
-  summary?: string;
 };
 
 export type TAiKnowledgeDocumentBatchResult = {
@@ -386,6 +387,13 @@ export type TAutomationBuiltInTemplateStep = {
    * `{ isExists: 2, notExists: 3 }` for `findObject`).
    */
   next?: number | Record<string, number>;
+  /**
+   * Branches kept in `optionalConnects`: an AI agent tool id or a split
+   * option id (or `fallback`) mapped to the step it leads to.
+   */
+  connects?: Record<string, number>;
+  // The step whose result this one reads instead of the target (a split)
+  target?: number;
 };
 
 /**
@@ -412,6 +420,8 @@ export type TAutomationBuiltInTemplateRequirement = {
   fills?: { order: number; path: string; from?: string }[];
   /** Stays unanswerable until that requirement has a value (stage needs its pipeline). */
   dependsOn?: string;
+  // For `core:text`
+  input?: { multiline?: boolean; placeholder?: string };
 };
 
 export type TAutomationBuiltInTemplate = {
@@ -420,14 +430,12 @@ export type TAutomationBuiltInTemplate = {
   name: string;
   description?: string;
   flow: TAutomationBuiltInTemplateStep[];
-  requirements?: TAutomationBuiltInTemplateRequirement[];
   /**
-   * Fields the template deliberately leaves empty because only the
-   * organization can write them — its own name in a signature, the wording of
-   * an offer. Unlike a requirement these never block installing; they are
-   * listed so the flow is not installed and then quietly left unfinished.
+   * Answered in order before installing. Wording only the organization can
+   * write is a requirement too (`core:text`, `core:emails.content`), so it
+   * keeps installing closed instead of being left for later.
    */
-  mustConfigure?: { order: number; label: string }[];
+  requirements?: TAutomationBuiltInTemplateRequirement[];
 };
 
 export type TAutomationFindObjectResult = {
@@ -488,11 +496,6 @@ export interface AutomationProducers {
     args: z.infer<typeof LoadAiKnowledgeDocumentBatchInput>,
     context: IAutomationContext,
   ) => Promise<TAiKnowledgeDocumentBatchResult>;
-
-  lookupAiTool?: (
-    args: z.infer<typeof LookupAiToolInput>,
-    context: IAutomationContext,
-  ) => Promise<TAiToolLookupResult>;
 
   resolveOutputVariables?: (
     args: z.infer<typeof ResolveOutputVariablesInput>,
@@ -654,7 +657,6 @@ export enum TAutomationProducers {
   SET_PROPERTIES = 'setProperties',
   GENERATE_AI_CONTEXT = 'generateAiContext',
   LOAD_AI_KNOWLEDGE_DOCUMENT_BATCH = 'loadAiKnowledgeDocumentBatch',
-  LOOKUP_AI_TOOL = 'lookupAiTool',
   VALIDATE_CONFIGS = 'validateConfigs',
 }
 

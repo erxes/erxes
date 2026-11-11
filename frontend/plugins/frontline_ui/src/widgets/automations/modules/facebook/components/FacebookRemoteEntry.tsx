@@ -14,6 +14,7 @@ import { AutomationHistoryResult } from '~/widgets/automations/modules/facebook/
 import { CommentTriggerForm } from '~/widgets/automations/modules/facebook/components/trigger/components/comment/CommentTriggerForm';
 import { CommentActionForm } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/CommentActionForm';
 import { ActionCommentConfigContent } from '~/widgets/automations/modules/facebook/components/action/components/replyComment/ActionCommentConfigContent';
+import { FacebookTemplateRequirement } from '~/widgets/automations/modules/facebook/components/template/FacebookTemplateRequirement';
 
 export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
   return (
@@ -27,6 +28,7 @@ export const FacebookRemoteEntry = (props: AutomationRemoteEntryProps) => {
         automationBotsContent: AutomationBotsRecordTable,
         historyName: AutomationHistoryName,
         historyActionResult: AutomationHistoryResult,
+        templateRequirement: FacebookTemplateRequirement,
       }}
     />
   );

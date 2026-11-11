@@ -7,6 +7,8 @@ import { inboxAutomationConstants } from '@/inbox/meta/automation/constants';
 import { inboxAutomationWorkers } from '@/inbox/meta/automation/workers';
 import { discordConstants } from '@/integrations/discord/meta/automation/constants';
 import { discordAutomationWorkers } from '@/integrations/discord/meta/automation/workers';
+import { telegramConstants } from '@/integrations/telegram/meta/automation/constants';
+import { telegramAutomationWorkers } from '@/integrations/telegram/meta/automation/workers';
 import { mailConstants } from '@/integrations/mail/meta/automation/constants';
 import { mailAutomationWorkers } from '@/integrations/mail/meta/automation/workers';
 import { formAutomationConstants } from '@/form/meta/automation/constants';
@@ -32,6 +34,7 @@ const modules = {
   inbox: inboxAutomationWorkers,
   tickets: ticketAutomationProducers,
   discord: discordAutomationWorkers,
+  telegram: telegramAutomationWorkers,
   mail: mailAutomationWorkers,
   form: formAutomationWorkers,
   knowledgebase: frontlineAiKnowledgeProvider,
@@ -45,6 +48,7 @@ export const automations = {
       ...instagramConstants.actions,
       ...ticketsAutomationContants.actions,
       ...discordConstants.actions,
+      ...telegramConstants.actions,
       ...mailConstants.actions,
       ...formAutomationConstants.actions,
     ],
@@ -55,6 +59,7 @@ export const automations = {
       ...instagramConstants.triggers,
       ...ticketsAutomationContants.triggers,
       ...discordConstants.triggers,
+      ...telegramConstants.triggers,
       ...mailConstants.triggers,
       ...formAutomationConstants.triggers,
     ],

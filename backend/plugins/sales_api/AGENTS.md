@@ -6,7 +6,7 @@
 - **Project:** `sales_api`
 - **Layer:** `Backend API`
 - **Path:** `backend/plugins/sales_api`
-- **Last synchronized:** `2026-11-09`
+- **Last synchronized:** `2026-11-11`
 
 ## Scope
 
@@ -31,6 +31,20 @@
   published GraphQL, tRPC, HTTP, event, or federation contracts.
 
 ## Current Capabilities
+
+- One template for core's Templates page ships through
+  `startPlugin({ meta: { templates } })` (`src/meta/templates/`):
+  `sales.sales-employee`. One Messenger journey (frontline node types, so it
+  is hidden without frontline): an AI agent part (Product, Customer, POS order
+  and Loyalty account lookups, instructions with `{{ answers.offer }}`)
+  replies; its `order` tool makes a POS order from captured `[{code, count}]`
+  lines, sends `onlinePaymentUrl`, waits 2 hours, reads the order again and
+  reminds once when `paidDate` is unset; `escalate` hands over: `pickMember` takes turns among the chosen
+  available team members, then the handoff assigns that one. `src/meta/templates/__tests__` runs `validateTemplate`.
+- The Create POS order action accepts an order line by product `code` as well
+  as `productId` (`action/resolveProductCodes.ts`, core `products.find`); an
+  unknown code fails the step instead of dropping the line. Prices stay with
+  posclient, which sets each line from the product's POS price.
 
 - Pipelines persist `productIds`, `tagIds`, and `excludeTagIds` for deal product selection. Core reads them through the existing tenant-scoped `pipeline.findOne` contract.
 
@@ -421,6 +435,17 @@ day|week|month, timezone, …same filters)` (`utils/dealScoreLogTimeline.ts`)
 - Set property handlers pass `targetActionId: action.targetActionId` to
   `getSetPropertySelector`, so a Manage properties action targeting an earlier
   action (Find object, Create) updates that action's record, not the trigger's.
+- Find object targets (`findSalesObject`, `sales/meta/automations/findObject.ts`):
+  deal (`_id`, `name`, `number`) and POS order `sales:pos.orders` (`_id`,
+  `number`; `customerId` only for customer-owned orders, `customerType`
+  empty or `customer`). `newest` sorts by `createdAt`. The POS order target
+  declares an AI agent `lookup` (`customerField: 'customerId'`, by
+  `number`) with its own narrow output (number, status, dates, amounts,
+  type), never the POS order trigger output with tokens and register numbers.
+  Orders an automation creates are synced unpaid from posclient at once, so
+  they are found before payment. `syncOrderFromClient` runs paid-only work
+  (Order paid trigger, loyalty, deal) only with `paidDate`, and pushes an
+  order to a sub-branch's offline POS only once paid.
 
 - POS configuration, order items/payments, and aggregate report values remain
   JSON scalar outputs. Order details return an items array; item reports unwind

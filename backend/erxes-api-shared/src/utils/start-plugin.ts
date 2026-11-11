@@ -19,6 +19,7 @@ import * as path from 'path';
 import rateLimit from 'express-rate-limit';
 import { startPayments } from '../common-modules/payment/worker';
 import type { IContactFieldsMeta } from '../core-modules/contact-fields';
+import type { TTemplate } from '../core-modules/templates/types';
 import {
   type IAgentPluginMeta,
   validateAgentPluginMeta,
@@ -103,6 +104,10 @@ type IMeta = {
   // Text-only skills and agent-hidden GraphQL operations for the core AI
   // assistant; core re-validates them when it reads service discovery.
   agent?: IAgentPluginMeta;
+  // Solutions installed in one go (an AI employee): what to ask, what to
+  // create and which automations to build. Core's template module lists and
+  // installs them.
+  templates?: TTemplate[];
 };
 
 type ApiHandler = {

@@ -4278,6 +4278,23 @@
       "mail-trigger-inboxes-description": "Only enroll mail that arrives in the checked inboxes. Leave every inbox unchecked to cover all of them.",
       "mail-trigger-unverified": "Include unverified senders",
       "mail-trigger-unverified-description": "Mail whose envelope sender does not match its From address is skipped unless this is on. Send Email never answers such mail; Draft Email Reply leaves it for a teammate to review."
+    },
+    "automations-telegram": {
+      "trigger": {
+        "form-name": "Telegram Message Trigger",
+        "chats": "Chats",
+        "chats-private": "Private chats only",
+        "chats-all": "Private chats and groups",
+        "chats-description": "In groups the bot would answer every matching message, so groups are off unless you turn them on.",
+        "keywords": "Keyword filter (optional)",
+        "keywords-placeholder": "e.g. price, order — leave blank for every message",
+        "keywords-description": "Only start when the message contains one of these comma-separated keywords."
+      },
+      "action": {
+        "form-name": "Send Telegram Message",
+        "message": "Message",
+        "message-description": "Sent as the bot to the chat that triggered the workflow. Insert an AI Agent output to reply with its answer."
+      }
     }
   },
   "messenger-message-action-form-name": "Messenger Message Action Form",

@@ -32,6 +32,7 @@ import {
 } from '~/meta/import-export/export/exportHandlers';
 import { frontlineReferences } from '~/meta/references';
 import segments from '~/meta/segments';
+import { templates } from '~/meta/templates';
 
 const ticketImportTypes = [
   {
@@ -104,6 +105,7 @@ startPlugin({
   },
 
   meta: {
+    templates,
     // Tickets keep their own customerId / companyId; core tells frontline
     // when a contact is merged or removed.
     contactFields: { contentTypes: ['frontline:ticket'] },

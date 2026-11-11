@@ -27,6 +27,7 @@ export const defaultI18nOptions: InitOptions = {
     'importExport',
     'settings',
     'broadcasts',
+    'templates',
     'sales',
     'dataExtensions',
   ],

@@ -35,6 +35,7 @@ import {
   generateUserInvitationActivityLog,
 } from '../../meta/activity-log';
 import { buildProfilePatch, IProfilePatch } from '../utils/profilePatch';
+import { toLoggedUser } from '../../loggedUser';
 
 const SALT_WORK_FACTOR = 10;
 
@@ -225,8 +226,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: _id,
-          currentDocument: updated.toObject(),
-          prevDocument: prev.toObject(),
+          currentDocument: toLoggedUser(updated),
+          prevDocument: toLoggedUser(prev),
         });
       }
 
@@ -412,7 +413,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -492,8 +493,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         // Generate activity logs for changed activity fields
@@ -552,7 +553,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       createActivityLog(generateUserInvitationActivityLog(user));
@@ -597,7 +598,7 @@ export const loadUserClass = (
       sendDbEventLog({
         action: 'create',
         docId: user._id,
-        currentDocument: user.toObject(),
+        currentDocument: toLoggedUser(user),
       });
 
       return user;
@@ -696,8 +697,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
 
         await generateUserUpdateActivityLogs(
@@ -786,8 +787,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -806,8 +807,8 @@ export const loadUserClass = (
           sendDbEventLog({
             action: 'update',
             docId: updatedUser._id,
-            currentDocument: updatedUser.toObject(),
-            prevDocument: user.toObject(),
+            currentDocument: toLoggedUser(updatedUser),
+            prevDocument: toLoggedUser(user),
           });
           await generateUserUpdateActivityLogs(
             { models, subdomain },
@@ -1226,8 +1227,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
         await generateUserUpdateActivityLogs(
           { models, subdomain },
@@ -1289,8 +1290,8 @@ export const loadUserClass = (
         sendDbEventLog({
           action: 'update',
           docId: updatedUser._id,
-          currentDocument: updatedUser.toObject(),
-          prevDocument: user.toObject(),
+          currentDocument: toLoggedUser(updatedUser),
+          prevDocument: toLoggedUser(user),
         });
       }
 

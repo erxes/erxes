@@ -9,6 +9,7 @@ import {
   IconFolders,
   IconLayoutGrid,
   IconMagnet,
+  IconPackage,
   IconTrash,
   IconUser,
   IconUsersGroup,
@@ -71,7 +72,7 @@ export const GET_CORE_MODULES = (
           icon: IconAffiliate,
         },
         {
-          name: t('templates'),
+          name: t('workflow-templates'),
           path: AutomationsAbsolutePath.Templates.slice(1),
           icon: IconLayoutGrid,
         },
@@ -86,6 +87,11 @@ export const GET_CORE_MODULES = (
       name: t('broadcasts'),
       icon: IconBroadcast,
       path: 'broadcasts',
+    },
+    {
+      name: t('templates'),
+      icon: IconPackage,
+      path: 'templates',
     },
     {
       name: t('documents'),

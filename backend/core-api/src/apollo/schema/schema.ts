@@ -229,16 +229,16 @@ import {
 } from '@/broadcast/graphql/schemas';
 
 import {
-  types as bundleTypes,
-  queries as bundleQueries,
-  mutations as bundleMutations,
-} from '@/bundle/graphql/schemas';
-
-import {
   types as templateTypes,
   queries as templateQueries,
   mutations as templateMutations,
 } from '@/template/graphql/schemas';
+
+import {
+  types as bundleTypes,
+  queries as bundleQueries,
+  mutations as bundleMutations,
+} from '@/bundle/graphql/schemas';
 
 import {
   types as searchTypes,

@@ -178,6 +178,10 @@ is still honored when present.
   writes to the wrong DB.
 - **Conflicts → merge** (not blind overwrite): field-level diff + `resolutions`
   (`restore`/`keep`/`custom`); `force` (admin only) blind-restores.
+- **No credentials in user logs**: the users model logs `toLoggedUser(...)`
+  (`team-member/loggedUser.ts`), never `user.toObject()`, so `password` and the
+  reset/registration tokens are not stored, and a revert of a user change never
+  restores a password. Entries written before 2026-11-10 may still hold them.
 - **Idempotent**: complete revert writes `payload.complete` marker; re-runs return
   `alreadyReverted`; re-inserts are idempotent. Dedup collapses exact duplicates
   (manual + auto double-logging).

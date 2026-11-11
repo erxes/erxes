@@ -716,6 +716,26 @@ export const permissions: IPermissionConfig = {
       ],
     },
     {
+      name: 'templates',
+      description: 'Templates that install solutions such as AI employees',
+      scopeField: null,
+      ownerFields: ['createdBy'],
+      scopes: [{ name: 'all', description: 'All installations' }],
+      actions: [
+        {
+          title: 'View templates',
+          name: 'templatesRead',
+          description: 'View templates and their installations',
+          always: true,
+        },
+        {
+          title: 'Install templates',
+          name: 'templatesInstall',
+          description: 'Install a template or remove an installation',
+        },
+      ],
+    },
+    {
       name: 'automations',
       description: 'Automation management',
       scopeField: null,

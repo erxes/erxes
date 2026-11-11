@@ -10,6 +10,7 @@ export * from './configSchema';
 export * from './aiAgentActionConfigSchema';
 export * from './coreActionConfigSchemas';
 export * from './workflowValidation';
+export * from './aiLookup';
 export * from './zodTypes';
 export * from './sendAutomationMessage';
 export * from './segmentMembership';

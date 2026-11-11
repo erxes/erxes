@@ -8,6 +8,10 @@ import { IModels } from '~/connectionResolvers';
 import { sendPosclientMessage } from '~/initWorker';
 import { IPosOrderItem } from '~/modules/pos/@types/orders';
 import { IPosDocument } from '~/modules/pos/@types/pos';
+import {
+  findProductsByCodes,
+  resolveItemProductCodes,
+} from './resolveProductCodes';
 
 type TReceiveActionInput =
   TAutomationProducersInput[TAutomationProducers.RECEIVE_ACTIONS];
@@ -297,6 +301,11 @@ export const createPosOrderAction = async ({
   if (!pos) {
     throw new Error('Create POS order action requires a valid POS');
   }
+  config.items = await resolveItemProductCodes(
+    config.items,
+    findProductsByCodes(subdomain),
+  );
+
   const orderDoc = buildPosOrderInput({ config, execution, pos });
   const order = await sendPosclientMessage({
     subdomain,
