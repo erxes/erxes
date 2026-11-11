@@ -7,6 +7,7 @@ import express, {
   type Response,
 } from 'express';
 import { authenticate } from '~/http/auth';
+import { signInLimit, tokenLimit, uploadLimit } from '~/http/rateLimit';
 import { requestContext } from '~/http/requestContext';
 import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
@@ -32,7 +33,11 @@ export const createApp = (): Express => {
   app.use(requestContext);
 
   // Signed file links stream bytes: before the JSON parser and sign-in.
-  app.use('/core/v1/files/signed', signedFilesRouter);
+  app.use('/core/v1/files/signed', uploadLimit, signedFilesRouter);
+
+  // Guessing passwords and secrets: limited per address before anything else.
+  app.use(['/core/v1/auth/sign-in', '/core/v1/setup'], signInLimit);
+  app.use('/core/v1/plugins/token', tokenLimit);
 
   app.use(express.json({ limit: '1mb' }));
 

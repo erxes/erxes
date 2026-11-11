@@ -1,5 +1,5 @@
 import { recordAudit } from "~/modules/audit/audit.service";
-import { db, organizations, users } from "@erxes/core-db";
+import { auditLogs, db, organizations, users } from "@erxes/core-db";
 import { and, eq, sql } from "drizzle-orm";
 import { config } from "~/config";
 import { HttpError } from "~/http/errors";
@@ -60,6 +60,30 @@ export const signIn = async (
   }
 
   const match = rows[0];
+
+  // Lockout per account, across replicas: 10 failures in 15 minutes.
+  if (match) {
+    const [recent] = await db()
+      .select({ failures: sql<number>`count(*)::int` })
+      .from(auditLogs)
+      .where(
+        and(
+          eq(auditLogs.orgId, match.user.orgId),
+          eq(auditLogs.targetId, match.user.id),
+          eq(auditLogs.action, "auth.sign_in_failed"),
+          sql`${auditLogs.createdAt} > now() - interval '15 minutes'`
+        )
+      );
+
+    if ((recent?.failures ?? 0) >= 10) {
+      throw new HttpError(
+        429,
+        "TOO_MANY_ATTEMPTS",
+        "Too many failed sign-ins for this account: try again in 15 minutes"
+      );
+    }
+  }
+
   const valid = await verifyPassword(
     input.password,
     match?.user.passwordHash ?? null

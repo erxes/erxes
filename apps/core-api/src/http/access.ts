@@ -46,6 +46,7 @@ export const ACCESS = {
   'auth.setup': PUBLIC,
   'auth.signIn': PUBLIC,
   'auth.signOut': PUBLIC,
+  'auth.signOutEverywhere': MEMBER,
   'auth.me': MEMBER,
   'auth.changePassword': MEMBER,
   'auth.signIns': MEMBER,

@@ -52,11 +52,18 @@ export const useSession = (): Session => {
   return session;
 };
 
+/**
+ * Signs out. The UI clears only after the server has cleared the HttpOnly
+ * session cookie: otherwise the cookie would still work while the page says
+ * "signed out". A failure throws, for the caller to show (and retry).
+ */
 export const useSignOut = () => {
   const client = useQueryClient();
 
-  return async () => {
-    await api.auth.signOut().catch(() => undefined);
+  return async (options: { everywhere?: boolean } = {}) => {
+    if (options.everywhere) await api.auth.signOutEverywhere();
+    else await api.auth.signOut();
+
     client.clear();
     client.setQueryData(SESSION_KEY, null);
   };

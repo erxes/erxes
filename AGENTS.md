@@ -113,6 +113,12 @@ it is built.
   the stored object. `/files/:id/download` is the stable address (session or
   plugin key, then a short-lived link); risky types are only ever downloads.
   erxes-ui's upload hooks use core's storage through `setFileStorage`.
+- **Sessions** carry the member's `sessionVersion`; password change (other
+  sessions), admin reset, disable, enable and `POST /auth/sign-out-everywhere`
+  raise it, so older tokens fail on the next request (and open streams get
+  `bye`). Sign-in is limited per address (20/min) and per account (10
+  failures in 15 minutes → 429, counted from the audit log, so it holds
+  across replicas). Postgres TLS is verified (`DATA_SSL_CA`).
 - **Access map** (`src/http/access.ts`): every procedure has a policy —
   `public`, `member: any | manager | owner`, `plugin: <scope>` (or `manifest`)
   — checked by one oRPC middleware before the handler. `ACCESS satisfies

@@ -32,7 +32,7 @@ export const changeOwnPassword = async (
   await db().transaction(async (tx) => {
     await tx
       .update(users)
-      .set({ passwordHash, updatedAt: sql`now()` })
+      .set({ passwordHash, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
     await recordAudit(tx, userCaller(actor), {
       action: 'auth.password_changed',
@@ -42,7 +42,36 @@ export const changeOwnPassword = async (
     });
   });
 
+  // Every other session ends; the caller re-issues this browser's.
   return { ok: true as const };
+};
+
+/** Ends every session of the member, on every device (this one included). */
+export const signOutEverywhere = async (actor: Actor) => {
+  await db().transaction(async (tx) => {
+    await tx
+      .update(users)
+      .set({ sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
+      .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)));
+    await recordAudit(tx, userCaller(actor), {
+      action: 'auth.signed_out_everywhere',
+      targetType: 'user',
+      targetId: actor.userId,
+    });
+  });
+
+  return { ok: true as const };
+};
+
+/** The member's current session version (to sign a session that survives a change). */
+export const sessionVersionOf = async (orgId: string, userId: string) => {
+  const [row] = await db()
+    .select({ sessionVersion: users.sessionVersion })
+    .from(users)
+    .where(and(eq(users.orgId, orgId), eq(users.id, userId)))
+    .limit(1);
+
+  return row?.sessionVersion ?? 1;
 };
 
 /** The member's last sign-ins and failed attempts, from the audit log. */

@@ -50,7 +50,7 @@ import {
   verifyAudit,
 } from '~/modules/audit/audit.service';
 import { SESSION_COOKIE, sessionCookieOptions } from '~/http/cookies';
-import { changeOwnPassword, mySignIns } from '~/modules/auth/account.service';
+import { changeOwnPassword, mySignIns, sessionVersionOf, signOutEverywhere } from '~/modules/auth/account.service';
 import { getSession, signIn } from '~/modules/auth/auth.service';
 import {
   createCompany,
@@ -185,11 +185,15 @@ const recordOf = (targetType: string, action: string, id: string, result?: unkno
 });
 
 /** Signs the member in on this browser (HttpOnly session cookie). */
-const startSession = (context: CoreContext, userId: string, orgId: string) => {
-  const token = signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60);
+const startSession = async (context: CoreContext, userId: string, orgId: string) => {
+  const version = await sessionVersionOf(orgId, userId);
+  const token = signAccessToken(userId, orgId, config.auth.sessionHours * 60 * 60, version);
 
   context.res.cookie(SESSION_COOKIE, token, sessionCookieOptions(context.req));
 };
+
+const endSession = (context: CoreContext) =>
+  context.res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions(context.req), maxAge: undefined });
 
 /** Implements `@erxes/core-contract`; inputs are already validated by its schemas. */
 export const coreRouter = pub.router({
@@ -262,14 +266,14 @@ export const coreRouter = pub.router({
     setup: pub.auth.setup.handler(async ({ input, context }) => {
       const { organization, owner } = await runSetup(input);
 
-      startSession(context, owner.id, organization.id);
+      await startSession(context, owner.id, organization.id);
 
       return getSession(organization.id, owner.id);
     }),
     signIn: pub.auth.signIn.handler(async ({ input, context }) => {
       const session = await signIn(input, context.req.get('host'));
 
-      startSession(context, session.user.id, session.organization.id);
+      await startSession(context, session.user.id, session.organization.id);
 
       return session;
     }),
@@ -284,12 +288,26 @@ export const coreRouter = pub.router({
         );
       }
 
-      context.res.clearCookie(SESSION_COOKIE, { ...sessionCookieOptions(context.req), maxAge: undefined });
+      endSession(context);
 
       return { ok: true as const };
     }),
     me: authed.auth.me.handler(({ context }) => getSession(context.actor.orgId, context.actor.userId)),
-    changePassword: authed.auth.changePassword.handler(({ input, context }) => changeOwnPassword(context.actor, input)),
+    changePassword: authed.auth.changePassword.handler(async ({ input, context }) => {
+      const result = await changeOwnPassword(context.actor, input);
+
+      // Other sessions ended; this browser stays signed in (bearer callers get a fresh token next sign-in).
+      if (!context.req.headers.authorization) await startSession(context, context.actor.userId, context.actor.orgId);
+
+      return result;
+    }),
+    signOutEverywhere: authed.auth.signOutEverywhere.handler(async ({ context }) => {
+      const result = await signOutEverywhere(context.actor);
+
+      endSession(context);
+
+      return result;
+    }),
     signIns: authed.auth.signIns.handler(({ context }) => mySignIns(context.actor)),
   },
   plugins: {

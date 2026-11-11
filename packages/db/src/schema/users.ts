@@ -5,6 +5,7 @@ import {
   date,
   foreignKey,
   index,
+  integer,
   jsonb,
   text,
   timestamp,
@@ -43,6 +44,11 @@ export const users = pgTable(
     status: text({ enum: USER_STATUSES }).default('invited').notNull(),
     /** Set by the sign-in slice; never returned by the API. */
     passwordHash: text(),
+    /**
+     * Sessions carry this number; raising it (password change or reset,
+     * disable, enable, "sign out everywhere") ends every session issued before.
+     */
+    sessionVersion: integer().default(1).notNull(),
     invitedBy: text(),
     isSupport: boolean().default(false).notNull(),
     /**

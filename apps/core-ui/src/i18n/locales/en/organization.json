@@ -45,5 +45,7 @@
     "something-went-wrong": "Uh oh! Something went wrong.",
     "initial-configuration-steps": "Initial Configuration Steps",
     "fill-out-form": "Please fill out the following form to complete your installation"
-  }
+  },
+  "logout-failed": "Could not sign out",
+  "logout-retry": "You are still signed in: try again."
 }

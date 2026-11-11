@@ -107,6 +107,10 @@ export const config = {
       'postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes',
     ),
     ssl: process.env.DATA_SSL === 'true',
+    /** CA for the Postgres certificate (PEM), e.g. Supabase's root CA. */
+    sslCa: readSecret('DATA_SSL_CA'),
+    /** Skip certificate verification: development only (refused in production). */
+    sslInsecure: process.env.DATA_SSL_INSECURE === 'true',
     poolMax: readNumber('DATA_POOL_MAX', 10),
     statementTimeoutMs: readNumber('DATA_STATEMENT_TIMEOUT_MS', 15_000),
   },
@@ -187,6 +191,10 @@ export const config = {
     eventDays: readNumber('EVENTS_RETENTION_DAYS', 30),
   },
 };
+
+if (isProduction && config.data.sslInsecure) {
+  throw new Error('DATA_SSL_INSECURE is for development only: give the database CA with DATA_SSL_CA(_FILE)');
+}
 
 if (isProduction && !config.auth.signingKey) {
   throw new Error('CORE_SIGNING_KEY (or CORE_SIGNING_KEY_FILE) must be set in production: openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256');

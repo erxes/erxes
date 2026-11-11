@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import { sslOptions } from '@erxes/core-db';
 import { Client } from 'pg';
 import { config } from '~/config';
 
@@ -36,7 +37,7 @@ class LiveHub extends EventEmitter {
   private async connect(url: string) {
     const client = new Client({
       connectionString: url,
-      ssl: config.data.ssl ? { rejectUnauthorized: false } : undefined,
+      ssl: sslOptions(config.data),
       application_name: 'erxes-core-live',
       keepAlive: true,
     });

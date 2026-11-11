@@ -23,11 +23,20 @@ export type Db = Database | Transaction;
 
 export interface DbOptions {
   url: string;
+  /** TLS to Postgres. The server's certificate is verified (against `sslCa` when given). */
   ssl?: boolean;
+  /** CA certificate(s), PEM (e.g. Supabase's or RDS's root CA). */
+  sslCa?: string;
+  /** Development only: TLS without verifying the certificate. */
+  sslInsecure?: boolean;
   poolMax?: number;
   statementTimeoutMs?: number;
   applicationName?: string;
 }
+
+/** pg's TLS options: verified unless explicitly insecure. */
+export const sslOptions = (value: Pick<DbOptions, 'ssl' | 'sslCa' | 'sslInsecure'>) =>
+  value.ssl ? { rejectUnauthorized: !value.sslInsecure, ...(value.sslCa ? { ca: value.sslCa } : {}) } : undefined;
 
 let options: DbOptions | null = null;
 let pool: Pool | null = null;
@@ -50,7 +59,7 @@ export const getPool = (): Pool => {
       idleTimeoutMillis: 30_000,
       statement_timeout: options.statementTimeoutMs ?? 15_000,
       application_name: options.applicationName ?? 'erxes-core',
-      ssl: options.ssl ? { rejectUnauthorized: false } : undefined,
+      ssl: sslOptions(options),
     });
 
     pool.on('error', (error) => {

@@ -5,7 +5,7 @@ import { ORPCError } from '@orpc/server';
  * Services throw it; clients branch on `code`.
  */
 export class HttpError extends ORPCError<string, unknown> {
-  constructor(status: 400 | 401 | 403 | 404 | 409, code: string, message: string, data?: unknown) {
+  constructor(status: 400 | 401 | 403 | 404 | 409 | 429, code: string, message: string, data?: unknown) {
     super(code, { status, message, data });
   }
 }

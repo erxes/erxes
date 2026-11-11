@@ -33,7 +33,7 @@ import { useTranslation } from 'react-i18next';
 import { PageHeader } from 'ui-modules';
 import { AppBreadcrumb } from '~/components/AppBreadcrumb';
 import { api, isApiError, messageOf } from '~/lib/api';
-import { SESSION_KEY, useSession } from '~/modules/auth/session';
+import { SESSION_KEY, useSession, useSignOut } from '~/modules/auth/session';
 
 const LINK_ICONS: Record<UserLinkName, Icon> = {
   facebook: IconBrandFacebook,
@@ -396,7 +396,30 @@ const SignIns = () => {
           ))}
         </ul>
       )}
+      <SignOutEverywhere />
     </Section>
+  );
+};
+
+/** Ends every session on every device, this one too (a lost laptop, a shared computer). */
+const SignOutEverywhere = () => {
+  const { t } = useTranslation('settings', { keyPrefix: 'profile' });
+  const { toast } = useToast();
+  const signOut = useSignOut();
+  const run = useMutation({
+    mutationFn: () => signOut({ everywhere: true }),
+    onError: (error) => toast({ variant: 'destructive', title: t('sign-out-everywhere-failed', 'Could not sign out'), description: messageOf(error) }),
+  });
+
+  return (
+    <div className="mt-4 flex items-center justify-between gap-4 rounded-md border p-3">
+      <p className="text-sm text-muted-foreground">
+        {t('sign-out-everywhere-description', 'Lost a device or signed in on a shared computer? End every session, this one included.')}
+      </p>
+      <Button variant="outline" disabled={run.isPending} onClick={() => run.mutate()}>
+        {t('sign-out-everywhere', 'Sign out of all devices')}
+      </Button>
+    </div>
   );
 };
 

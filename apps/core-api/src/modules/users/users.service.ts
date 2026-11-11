@@ -422,6 +422,8 @@ export const setUserPassword = async (actor: Actor, id: string, password: string
       .update(users)
       .set({
         passwordHash,
+        // Their sessions end: whoever had the old password is out.
+        sessionVersion: sql`${users.sessionVersion} + 1`,
         // Someone invited can sign in now; a disabled member stays disabled.
         ...(target.status === 'invited' ? { status: 'active' as const } : {}),
         updatedAt: sql`now()`,
@@ -480,7 +482,8 @@ export const setUserDisabled = async (actor: Actor, id: string, disabled: boolea
 
     const [row] = await tx
       .update(users)
-      .set({ status, updatedAt: sql`now()` })
+      // Either way old sessions end: enabling doesn't bring back tokens issued before.
+      .set({ status, sessionVersion: sql`${users.sessionVersion} + 1`, updatedAt: sql`now()` })
       .where(and(eq(users.orgId, actor.orgId), eq(users.id, id)))
       .returning();
 

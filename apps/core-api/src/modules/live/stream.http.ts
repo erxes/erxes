@@ -112,22 +112,25 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
 
   // A stream outlives requests: re-check the session and the member.
   const revalidate = setInterval(() => {
-    const session = req.headers.authorization ? { userId: actor.userId, orgId: actor.orgId } : sessionClaims(req);
-
-    if (!session) {
+    // A cookie session can expire while the stream is open.
+    if (!req.headers.authorization && !sessionClaims(req)) {
       send('bye', { reason: 'session-expired' });
       res.end();
       return;
     }
 
     db()
-      .select({ status: users.status })
+      .select({ status: users.status, sessionVersion: users.sessionVersion })
       .from(users)
       .where(and(eq(users.id, actor.userId), eq(users.orgId, actor.orgId)))
       .limit(1)
       .then(([user]) => {
         if (user?.status !== 'active') {
           send('bye', { reason: 'member-inactive' });
+          res.end();
+        } else if (user.sessionVersion !== req.sessionVersion) {
+          // Password changed, reset, or signed out everywhere.
+          send('bye', { reason: 'session-ended' });
           res.end();
         }
       })

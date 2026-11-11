@@ -49,6 +49,8 @@ declare global {
       actor?: Actor;
       plugin?: PluginCaller;
       pluginService?: PluginService;
+      /** The member token's session version. */
+      sessionVersion?: number;
     }
   }
 }
@@ -80,6 +82,8 @@ interface AccessClaims {
   typ: 'core_access';
   sub: string;
   org: string;
+  /** The member's session version when it was issued (see `users.sessionVersion`). */
+  sv: number;
 }
 
 const AUDIENCE = 'erxes-core';
@@ -92,8 +96,9 @@ export const signAccessToken = (
   userId: string,
   orgId: string,
   ttlSeconds = config.auth.accessTokenTtlSeconds,
+  sessionVersion = 1,
 ): string =>
-  jwt.sign({ typ: 'core_access', org: orgId }, config.auth.jwtSecret, {
+  jwt.sign({ typ: 'core_access', org: orgId, sv: sessionVersion }, config.auth.jwtSecret, {
     algorithm: 'HS256',
     subject: userId,
     audience: AUDIENCE,
@@ -106,7 +111,7 @@ const verifyAccessToken = (token: string): AccessClaims => {
     audience: AUDIENCE,
   }) as Partial<AccessClaims>;
 
-  if (claims.typ !== 'core_access' || !claims.sub || !claims.org) {
+  if (claims.typ !== 'core_access' || !claims.sub || !claims.org || typeof claims.sv !== 'number') {
     throw new Error('not a core access token');
   }
 
@@ -194,16 +199,18 @@ export const authenticate = (req: Request, _res: Response, next: NextFunction) =
   }
 
   db()
-    .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status })
+    .select({ id: users.id, orgId: users.orgId, role: users.role, status: users.status, sessionVersion: users.sessionVersion })
     .from(users)
     .where(and(eq(users.id, claims.sub), eq(users.orgId, claims.org)))
     .limit(1)
     .then(([user]) => {
-      if (!user || user.status !== 'active') {
+      // Disabled, or the session predates a password change, reset or sign-out everywhere.
+      if (!user || user.status !== 'active' || user.sessionVersion !== claims.sv) {
         return next(unauthorized());
       }
 
       req.actor = { userId: user.id, orgId: user.orgId, role: user.role };
+      req.sessionVersion = claims.sv;
       return next();
     })
     .catch(next);
@@ -275,7 +282,7 @@ export const callerOf = (req: { plugin?: PluginCaller; actor?: Actor }): Caller 
 };
 
 /** Who a session cookie belongs to, if it is still valid (for sign-out). */
-export const sessionClaims = (req: Request): { userId: string; orgId: string } | null => {
+export const sessionClaims = (req: Request): { userId: string; orgId: string; sessionVersion: number } | null => {
   const token = readCookies(req.headers.cookie)[SESSION_COOKIE];
 
   if (!token) return null;
@@ -283,7 +290,7 @@ export const sessionClaims = (req: Request): { userId: string; orgId: string } |
   try {
     const claims = verifyAccessToken(token);
 
-    return { userId: claims.sub, orgId: claims.org };
+    return { userId: claims.sub, orgId: claims.org, sessionVersion: claims.sv };
   } catch {
     return null;
   }

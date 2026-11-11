@@ -52,7 +52,16 @@ const NameFields = {
     .optional(),
 };
 
-const DateOnly = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD');
+/** A real calendar date, `YYYY-MM-DD` (2026-02-30 and 2026-99-99 are refused). */
+export const DateOnly = z
+  .string()
+  .regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD')
+  .refine((value) => {
+    const [year, month, day] = value.split('-').map(Number) as [number, number, number];
+    const date = new Date(Date.UTC(year, month - 1, day));
+
+    return year >= 1 && date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+  }, 'not a real date');
 
 /** Profile details (old erxes `users.details`); `null` clears one. */
 const DetailFields = {

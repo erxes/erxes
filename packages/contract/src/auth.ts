@@ -63,6 +63,9 @@ export const authContract = {
       }),
     )
     .output(Session),
+  signOutEverywhere: oc
+    .route({ method: 'POST', path: '/auth/sign-out-everywhere', summary: 'End every session of the signed-in member, on every device' })
+    .output(z.object({ ok: z.literal(true) })),
   signOut: oc
     .route({ method: 'POST', path: '/auth/sign-out', summary: 'Sign out; clears the session cookie' })
     .output(z.object({ ok: z.literal(true) })),

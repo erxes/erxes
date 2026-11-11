@@ -1,10 +1,11 @@
 import { IconChevronRight, IconDeviceLaptop, IconMoon, IconSun } from '@tabler/icons-react';
-import { Avatar, Button, cn, DropdownMenu, type ThemeOption, themeState, ToggleGroup, Tooltip } from 'erxes-ui';
+import { Avatar, Button, cn, DropdownMenu, type ThemeOption, themeState, ToggleGroup, Tooltip, useToast } from 'erxes-ui';
 import { INTL_LANGUAGES } from 'erxes-ui/constants/IntlLanguages';
 import { useAtom } from 'jotai';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { LANGUAGES, type LanguageCode } from '~/i18n';
+import { messageOf } from '~/lib/api';
 import { useSession, useSignOut } from '~/modules/auth/session';
 import { coreTabIconClassName } from './coreTabClassName';
 import { CoreTabTooltip } from './CoreTabTooltip';
@@ -102,6 +103,7 @@ const SelectLanguages = () => {
 export const CoreTabUserMenu = () => {
   const { user } = useSession();
   const signOut = useSignOut();
+  const { toast } = useToast();
   const { t } = useTranslation('organization');
   const { t: sidebarT } = useTranslation('common', { keyPrefix: 'sidebar' });
   const userName = user.fullName || sidebarT('profile');
@@ -129,7 +131,18 @@ export const CoreTabUserMenu = () => {
         <ThemeSelector />
         <SelectLanguages />
         <DropdownMenu.Separator />
-        <DropdownMenu.Item className="h-7 py-0 text-sm" onClick={() => void signOut()}>
+        <DropdownMenu.Item
+          className="h-7 py-0 text-sm"
+          onClick={() =>
+            void signOut().catch((error: unknown) =>
+              toast({
+                variant: 'destructive',
+                title: t('logout-failed', 'Could not sign out'),
+                description: `${messageOf(error)} ${t('logout-retry', 'You are still signed in: try again.')}`,
+              }),
+            )
+          }
+        >
           {t('logout')}
         </DropdownMenu.Item>
       </DropdownMenu.Content>

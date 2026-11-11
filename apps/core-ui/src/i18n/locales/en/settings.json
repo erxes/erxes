@@ -43,7 +43,10 @@
     "profile-updated-successfully": "Successfully updated profile",
     "error-updating-profile": "Error updating profile",
     "unexpected-error": "An unexpected error occurred.",
-    "enter-email": "Enter email"
+    "enter-email": "Enter email",
+    "sign-out-everywhere": "Sign out of all devices",
+    "sign-out-everywhere-description": "Lost a device or signed in on a shared computer? End every session, this one included.",
+    "sign-out-everywhere-failed": "Could not sign out"
   },
   "change-password": {
     "_": "Change Password",
