@@ -1,39 +1,19 @@
-import { ProjectBreadCrumb } from '@/project/components/breadcumb/ProjectBreadCrumb';
-import { ProjectDetailBreadCrumb } from '@/project/components/breadcumb/ProjectDetailBreadCrumb';
 import { ProjectsSideWidget } from '@/project/components/details/ProjectsSideWidget';
 import { AddTaskButton } from '@/task/components/add-task/AddTaskButton';
-import { TeamBreadCrumb } from '@/team/components/breadcrumb/TeamBreadCrumb';
-import { Breadcrumb, Separator } from 'erxes-ui';
+import { ProjectPageBreadcrumb } from '@/project/components/breadcumb/ProjectPageBreadcrumb';
 import { Outlet, useParams } from 'react-router-dom';
 import { Can, PageHeader } from 'ui-modules';
 
 export const ProjectLayout = () => {
-  const { teamId, projectId } = useParams<{
-    teamId?: string;
-    projectId: string;
-  }>();
+  const { projectId } = useParams<{ projectId: string }>();
+
+  if (!projectId) return null;
 
   return (
     <>
       <PageHeader>
         <PageHeader.Start>
-          <Breadcrumb>
-            <Breadcrumb.List className="gap-1">
-              {teamId ? (
-                <>
-                  <TeamBreadCrumb />
-                  <Separator.Inline />
-                  <ProjectBreadCrumb
-                    link={`/operation/team/${teamId}/projects`}
-                  />
-                </>
-              ) : (
-                <ProjectBreadCrumb link={`/operation/projects`} />
-              )}
-              <Separator.Inline />
-              <ProjectDetailBreadCrumb />
-            </Breadcrumb.List>
-          </Breadcrumb>
+          <ProjectPageBreadcrumb />
         </PageHeader.Start>
         <PageHeader.End>
           <Can action="taskCreate">
@@ -43,7 +23,7 @@ export const ProjectLayout = () => {
       </PageHeader>
       <div className="flex overflow-hidden w-full h-full">
         <Outlet />
-        <ProjectsSideWidget projectId={projectId || ''} />
+        <ProjectsSideWidget projectId={projectId} />
       </div>
     </>
   );
