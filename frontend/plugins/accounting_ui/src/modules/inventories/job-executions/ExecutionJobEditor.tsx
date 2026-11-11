@@ -204,7 +204,7 @@ export const ExecutionJobEditor = ({
         {removeDisabled ? (
           <Tooltip>
             <Tooltip.Trigger asChild>
-              <span tabIndex={0}>{removeButton}</span>
+              <span>{removeButton}</span>
             </Tooltip.Trigger>
             <Tooltip.Content side="bottom">
               {t('production-remove-job')}

@@ -1,16 +1,11 @@
 import type { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import {
-  IconCalculator,
   IconBuilding,
   IconCurrencyDollar,
-  IconPlayerPlay,
-  IconTrashX,
-  IconEdit,
   IconUser,
 } from '@tabler/icons-react';
 import {
-  Button,
   InfoCard,
   RecordTable,
   RecordTableInlineCell,
@@ -42,6 +37,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { useTransactionsDetail } from '@/transactions/transaction-form/hooks/useTransactionsDetail';
 import { getTransactionNumbers } from '@/adjustments/utils/getTransactionNumbers';
 import { AdjustDetailField } from '@/adjustments/components/AdjustDetailField';
+import { AdjustRateDetailHeader } from '@/adjustments/components/AdjustRateDetailHeader';
 import { AdjustStatusBadge } from '@/adjustments/components/AdjustStatusBadge';
 import { AccountsInline } from '@/settings/account/components/AccountsInline';
 
@@ -252,35 +248,16 @@ export const AdjustDebtRateDetail = () => {
 
   return (
     <div className="m-3 flex flex-col gap-3">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="text-lg font-bold">{t('debt-rate-adjustment')}</h3>
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button onClick={handleCalculate} disabled={calculateLoading}>
-            {calculateLoading ? <Spinner /> : <IconCalculator size={16} />}
-            {t('Calculate')}
-          </Button>
-          <Button onClick={handleRun} disabled={runLoading}>
-            {runLoading ? <Spinner /> : <IconPlayerPlay size={16} />}
-            {t('run')}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => openDetail(adjustDebtRate._id)}
-          >
-            <IconEdit size={16} />
-            {t('edit')}
-          </Button>
-          <Button
-            variant="outline"
-            className="text-destructive"
-            onClick={handleDelete}
-            disabled={removeLoading}
-          >
-            <IconTrashX size={16} />
-            {t('delete')}
-          </Button>
-        </div>
-      </div>
+      <AdjustRateDetailHeader
+        title={t('debt-rate-adjustment')}
+        calculateLoading={calculateLoading}
+        runLoading={runLoading}
+        removeLoading={removeLoading}
+        onCalculate={handleCalculate}
+        onRun={handleRun}
+        onEdit={() => openDetail(adjustDebtRate._id)}
+        onDelete={handleDelete}
+      />
 
       <InfoCard title={t('details')}>
         <InfoCard.Content className="grid grid-cols-2 gap-x-6 gap-y-3 md:grid-cols-4 xl:grid-cols-6">
