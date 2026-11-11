@@ -1,6 +1,7 @@
 import { auditCheckpoints, type Db } from '@erxes/core-db';
 import { and, asc, eq, gt, sql } from 'drizzle-orm';
 import { currentKeyId, signJwt, verifyJwt } from '~/lib/signing';
+import { log } from '~/lib/log';
 
 const CHECKPOINT_TYP = 'erxes-audit-checkpoint+jwt';
 
@@ -80,7 +81,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
       // The last signed entry was changed: don't sign over it. (If retention
       // removed it, the walk below starts from the oldest entry kept.)
       if (anchor && anchor.hash !== head.last_hash) {
-        console.error(`[core] audit chain of ${head.org_id} no longer matches checkpoint #${head.last_seq}; not signing`);
+        log.error(`audit chain of ${head.org_id} no longer matches checkpoint #${head.last_seq}; not signing`);
         continue;
       }
     }
@@ -88,7 +89,7 @@ export const signAuditCheckpoints = async (client: Db, orgId?: string) => {
     const walk = await findChainBreak(client, head.org_id, head.last_seq ?? undefined);
 
     if (walk.brokenAt !== null) {
-      console.error(`[core] audit chain of ${head.org_id} breaks at #${walk.brokenAt}; not signing`);
+      log.error(`audit chain of ${head.org_id} breaks at #${walk.brokenAt}; not signing`);
       continue;
     }
 

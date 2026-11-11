@@ -133,6 +133,19 @@ it is built.
   `bye`). Sign-in is limited per address (20/min) and per account (10
   failures in 15 minutes → 429, counted from the audit log, so it holds
   across replicas). Postgres TLS is verified (`DATA_SSL_CA`).
+- **Concurrency.** Read-modify-write takes row locks in the request's
+  transaction (`src/lib/locks.ts`: `lockRows`, `lockOrganization`, `lockKey`):
+  contact custom fields, field changes vs. values (`FOR SHARE`), team changes
+  (one per organisation, caller re-read inside), notification collapse.
+  Files: uploads go to `uploads/<org>/<id>/<nonce>`; completion locks the row,
+  checks and promotes exactly those bytes to the file's own key; cleanup claims
+  with conditional updates; deletes leave a `deleting` tombstone purged when
+  storage confirms. `races.test.ts` runs both sides of each race at once.
+- **Operations.** `src/lib/log.ts`: JSON lines in production (`LOG_FORMAT`,
+  `LOG_LEVEL`), secrets redacted, `requestId` on every line (`X-Request-Id`,
+  echoed); one access line per request (path without query). `/health`
+  (alive), `/ready` (database, and 503 while draining). SIGTERM: drain, end
+  live streams, finish requests (15 s), stop jobs, close the pool.
 - **Access map** (`src/http/access.ts`): every procedure has a policy —
   `public`, `member: 'any' | <permission>`, `plugin: <scope>` (or `manifest`)
   — checked by one oRPC middleware before the handler. `ACCESS satisfies

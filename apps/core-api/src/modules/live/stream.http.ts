@@ -103,6 +103,10 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
   res.write('retry: 3000\n\n');
   send('hello', { mode: liveHub.connected ? 'live' : 'polling' });
 
+  // The server is shutting down: end the stream; the browser reconnects (to another server).
+  const onClosing = () => res.end();
+
+  liveHub.on('closing', onClosing);
   liveHub.on('signal', onSignal);
   liveHub.on('state', onState);
   liveHub.on('resync', onResync);
@@ -143,6 +147,7 @@ streamRouter.get('/stream', (req: Request, res: Response) => {
     clearInterval(heartbeat);
     clearInterval(revalidate);
     if (flushTimer) clearTimeout(flushTimer);
+    liveHub.off('closing', onClosing);
     liveHub.off('signal', onSignal);
     liveHub.off('state', onState);
     liveHub.off('resync', onResync);

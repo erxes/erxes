@@ -3,6 +3,7 @@ import { and, eq, sql } from 'drizzle-orm';
 import type { Caller } from '~/http/auth';
 import { liveHub } from '~/modules/live/hub';
 import { notify } from '~/modules/notifications/notifications.service';
+import { log } from '~/lib/log';
 
 type EventRow = typeof events.$inferSelect;
 
@@ -184,7 +185,7 @@ export const runConsumer = async (consumer: EventConsumer, batchSize = 200): Pro
       const error = await handleOnce(tx, consumer, event);
 
       if (error) {
-        console.error(`[core] ${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`);
+        log.error(`${consumer.name} could not handle event ${event.id} (${event.type}): ${error}; retrying later`);
         await tx
           .insert(eventFailures)
           .values({ consumer: consumer.name, eventId: event.id, orgId: event.orgId, lastError: error, ...afterAttempt(1) })
@@ -238,7 +239,7 @@ export const retryFailures = async (consumer: EventConsumer, batchSize = 50): Pr
       const next = afterAttempt(attempts);
 
       if (next.status === 'dead') {
-        console.error(`[core] ${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`);
+        log.error(`${consumer.name} gave up on event ${failure.event_id} after ${attempts} attempts: ${error}`);
       }
 
       await tx
@@ -292,7 +293,7 @@ export const startEventProcessor = () => {
 
     current = processEvents()
       .then(() => undefined)
-      .catch((error: unknown) => console.error('[core] event processing failed', error))
+      .catch((error: unknown) => log.error('event processing failed', { error }))
       .finally(() => {
         current = null;
 

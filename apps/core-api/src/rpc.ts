@@ -5,13 +5,14 @@ import { onError, ORPCError, ValidationError } from '@orpc/server';
 import { ZodToJsonSchemaConverter } from '@orpc/zod';
 import type { RequestHandler } from 'express';
 import { coreRouter } from '~/router';
+import { log } from '~/lib/log';
 
 const handler = new OpenAPIHandler(coreRouter, {
   interceptors: [
     onError((error) => {
       // Expected errors (4xx) are answers, not failures.
       if (!(error instanceof ORPCError) || error.status >= 500) {
-        console.error('[core] unhandled error', error);
+        log.error('unhandled error', { error });
       }
     }),
   ],

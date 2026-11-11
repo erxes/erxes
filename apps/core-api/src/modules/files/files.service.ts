@@ -1,4 +1,5 @@
 import type { FileInfo, FileSettings } from '@erxes/core-contract';
+import { randomBytes } from 'node:crypto';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { type Db, files, newId, organizations, type OrganizationSettings } from '@erxes/core-db';
 import { and, eq, inArray, lt, sql } from 'drizzle-orm';
@@ -6,8 +7,10 @@ import { config } from '~/config';
 import { type Actor, type Caller, can, requirePermission } from '~/http/auth';
 import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { lockRows } from '~/lib/locks';
 import { recordAudit } from '~/modules/audit/audit.service';
 import { canShowInline, storage } from './storage';
+import { log } from '~/lib/log';
 
 type FileRow = typeof files.$inferSelect;
 
@@ -28,7 +31,8 @@ export const toFileDto = (row: FileRow): FileInfo => ({
   name: row.name,
   contentType: row.contentType,
   size: row.size,
-  status: row.status,
+  // Deleting files are never listed; to callers they are gone.
+  status: row.status === 'ready' ? 'ready' : 'pending',
   source: row.source,
   uploadedBy: { type: row.actorType, id: row.actorId },
   url: downloadPath(row.id),
@@ -118,6 +122,9 @@ export const updateFileSettings = async (
   return settingsOf(client, actor.orgId);
 };
 
+/** Where an upload's bytes wait until core has checked them: a fresh name per upload. */
+const uploadKey = (orgId: string, id: string) => `uploads/${orgId}/${id}/${randomBytes(12).toString('hex')}`;
+
 /** `<org>/<yyyy>/<mm>/<id>`: grouped by organisation and month, never from user input. */
 const storageKey = (orgId: string, id: string) => {
   const now = new Date();
@@ -152,7 +159,8 @@ export const createUpload = async (
   }
 
   const id = newId();
-  const key = storageKey(caller.orgId, id);
+  // The upload link writes here; the file's own key is only written by core, after checking.
+  const key = uploadKey(caller.orgId, id);
   const expiresIn = config.files.linkTtlSeconds;
   const target = await storage().uploadTarget(key, { contentType: input.contentType, size: input.size, expiresIn });
 
@@ -200,36 +208,48 @@ const findFile = async (client: Db, orgId: string, id: string) => {
 const isUploader = (row: FileRow, caller: Caller) => row.actorType === caller.actorType && row.actorId === caller.actorId;
 
 /**
- * Step 2: once the bytes are sent, core checks the stored object and marks
- * the file ready. Only whoever started the upload can finish it.
+ * Step 2: once the bytes are sent, core checks them and promotes exactly
+ * those bytes to the file's own key, then marks it ready. The row is locked:
+ * a second completion waits and returns the ready file (one audit entry), and
+ * the cleanup of unfinished uploads can't take a file being completed.
  */
-export const completeUpload = async (client: Db, caller: Caller, id: string) => {
-  const row = await findFile(client, caller.orgId, id);
+export const completeUpload = async (client: Db, caller: Caller, id: string) =>
+  client.transaction(async (tx) => {
+    await lockRows(tx, 'core_files', caller.orgId, [id]);
 
-  if (!isUploader(row, caller)) {
-    throw notFound('File');
-  }
+    const row = await findFile(tx, caller.orgId, id);
 
-  if (row.status === 'ready') {
-    return toFileDto(row);
-  }
+    if (!isUploader(row, caller) || row.status === 'deleting') {
+      throw notFound('File');
+    }
 
-  const stored = await storage().stat(row.key);
+    if (row.status === 'ready') {
+      return toFileDto(row);
+    }
 
-  if (!stored) {
-    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
-  }
+    const stored = await storage().stat(row.key);
 
-  if (stored.size !== row.size) {
-    await storage().remove(row.key);
-    throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The uploaded file does not match the declared size; upload it again');
-  }
+    if (!stored) {
+      throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The file has not been uploaded yet');
+    }
 
-  return client.transaction(async (tx) => {
+    if (stored.size !== row.size) {
+      await storage().remove(row.key);
+      throw new HttpError(409, 'UPLOAD_INCOMPLETE', 'The uploaded file does not match the declared size; upload it again');
+    }
+
+    const finalKey = storageKey(caller.orgId, id);
+
+    try {
+      await storage().promote(row.key, finalKey, stored);
+    } catch {
+      throw new HttpError(409, 'UPLOAD_CHANGED', 'The file changed while it was being checked; upload it again');
+    }
+
     const [ready] = await tx
       .update(files)
-      .set({ status: 'ready', updatedAt: sql`now()` })
-      .where(and(eq(files.orgId, caller.orgId), eq(files.id, id)))
+      .set({ status: 'ready', key: finalKey, updatedAt: sql`now()` })
+      .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), eq(files.status, 'pending')))
       .returning();
 
     await recordAudit(tx, caller, {
@@ -242,11 +262,12 @@ export const completeUpload = async (client: Db, caller: Caller, id: string) => 
 
     return toFileDto(ready!);
   });
-};
 
 /** A ready file and a short-lived link to read it. */
 export const getFile = async (client: Db, caller: Caller, id: string) => {
   const row = await findFile(client, caller.orgId, id);
+
+  if (row.status === 'deleting') throw notFound('File');
 
   if (row.status !== 'ready') {
     return { ...toFileDto(row), downloadUrl: null };
@@ -290,49 +311,83 @@ export const listFiles = async (client: Db, caller: Caller, ids: string[]) => {
   return { data: wanted.flatMap((id) => (byId.has(id) ? [toFileDto(byId.get(id)!)] : [])) };
 };
 
-/** The uploader can delete a file; so can owners and admins (members only). */
+/**
+ * The uploader can delete a file; so can members allowed to moderate files.
+ * The row is kept as a tombstone (`deleting`) until storage confirms the
+ * bytes are gone; a failed removal is retried by the cleanup, never lost.
+ */
 export const removeFile = async (client: Db, caller: Caller, actor: Actor | null, id: string) => {
   const row = await findFile(client, caller.orgId, id);
 
+  if (row.status === 'deleting') throw notFound('File');
+
   if (!isUploader(row, caller) && !(actor && can(actor, 'files.moderate'))) {
-    throw new HttpError(403, 'NOT_ALLOWED', 'Only the uploader or an owner or admin can delete this file');
+    throw new HttpError(403, 'NOT_ALLOWED', 'Only the uploader or someone who moderates files can delete this file');
   }
 
-  await client.transaction(async (tx) => {
-    await tx.delete(files).where(and(eq(files.orgId, caller.orgId), eq(files.id, id)));
+  const [claimed] = await client
+    .update(files)
+    .set({ status: 'deleting', updatedAt: sql`now()` })
+    .where(and(eq(files.orgId, caller.orgId), eq(files.id, id), sql`${files.status} <> 'deleting'`))
+    .returning();
 
-    if (row.status === 'ready') {
-      await recordAudit(tx, caller, {
-        action: 'file.deleted',
-        targetType: 'file',
-        targetId: id,
-        targetLabel: row.name,
-      });
-    }
-  });
+  if (!claimed) throw notFound('File');
 
-  // After the row is gone: a failure here leaves an orphan object, never a broken record.
-  await storage()
-    .remove(row.key)
-    .catch((error: unknown) => console.error('[core] could not delete stored file', row.key, error));
+  if (row.status === 'ready') {
+    await recordAudit(client, caller, {
+      action: 'file.deleted',
+      targetType: 'file',
+      targetId: id,
+      targetLabel: row.name,
+    });
+  }
 
   return { ok: true as const };
 };
 
-/** Removes uploads that were started but never finished (all organisations). */
-export const pruneUploads = async (client: Db, hours: number) => {
-  const stale = await client
+/**
+ * Finishes deletions: removes the bytes of `deleting` files, then their rows.
+ * A storage failure leaves the tombstone for the next run (all organisations).
+ */
+export const purgeDeletedFiles = async (client: Db, olderThanSeconds = 0) => {
+  const rows = await client
     .select({ id: files.id, key: files.key })
     .from(files)
-    .where(and(eq(files.status, 'pending'), lt(files.createdAt, sql`now() - make_interval(hours => ${hours})`)))
+    .where(and(eq(files.status, 'deleting'), lt(files.updatedAt, sql`now() - make_interval(secs => ${olderThanSeconds})`)))
     .limit(500);
+  let purged = 0;
 
-  for (const row of stale) {
-    await storage()
-      .remove(row.key)
-      .catch(() => undefined);
-    await client.delete(files).where(and(eq(files.id, row.id), eq(files.status, 'pending')));
+  for (const row of rows) {
+    try {
+      await storage().remove(row.key);
+    } catch (error) {
+      log.error('could not delete stored file; will retry', { key: row.key, error: (error as Error).message });
+      continue;
+    }
+
+    await client.delete(files).where(and(eq(files.id, row.id), eq(files.status, 'deleting')));
+    purged += 1;
   }
 
-  return stale.length;
+  return purged;
+};
+
+/**
+ * Unfinished uploads past their time are claimed (`pending` → `deleting`, a
+ * conditional update a completion in progress blocks), then purged.
+ */
+export const pruneUploads = async (client: Db, hours: number) => {
+  const claimed = await client.execute(sql`
+    update ${files} set status = 'deleting', updated_at = now()
+    where id in (
+      select id from ${files}
+      where status = 'pending' and created_at < now() - make_interval(hours => ${hours})
+      limit 500
+      for update skip locked
+    )
+  `);
+
+  await purgeDeletedFiles(client);
+
+  return claimed.rowCount ?? 0;
 };

@@ -2,7 +2,8 @@ import { notify } from '~/modules/notifications/notifications.service';
 import { userCaller } from '~/http/auth';
 import { diffRows } from '~/lib/changes';
 import { recordAudit } from '~/modules/audit/audit.service';
-import { db, Db, newId, users, withTransaction } from '@erxes/core-db';
+import { db, Db, newId, roles, users, withTransaction } from '@erxes/core-db';
+import { lockOrganization } from '~/lib/locks';
 import type { CursorQuery, UserLinkName } from '@erxes/core-contract';
 import { and, count, eq, ilike, inArray, ne, or, SQL, sql } from 'drizzle-orm';
 import { type Actor, type Role, requirePermission } from '~/http/auth';
@@ -146,6 +147,28 @@ interface InviteInput {
 
 const requireTeamManager = (actor: Actor, action: 'team.manage' | 'team.invite' = 'team.manage') =>
   requirePermission(actor, action);
+
+/**
+ * Team changes run one at a time per organisation (a lock on its row), with
+ * the caller's role read again inside: two owners demoting each other at the
+ * same moment can't both win and leave nobody in charge.
+ */
+const lockTeam = async (tx: Db, actor: Actor): Promise<Actor> => {
+  await lockOrganization(tx, actor.orgId);
+
+  const [me] = await tx
+    .select({ role: users.role, status: users.status, permissions: roles.permissions })
+    .from(users)
+    .innerJoin(roles, and(eq(roles.orgId, users.orgId), eq(roles.key, users.role)))
+    .where(and(eq(users.orgId, actor.orgId), eq(users.id, actor.userId)))
+    .limit(1);
+
+  if (!me || me.status !== 'active') {
+    throw new HttpError(401, 'UNAUTHORIZED', 'Sign in to continue');
+  }
+
+  return { ...actor, role: me.role, permissions: me.permissions };
+};
 
 /** Unique email or username in the organisation → 409 with the field. */
 const conflictFrom = (error: unknown): never => {
@@ -329,8 +352,9 @@ export const inviteUsers = async (actor: Actor, entries: InviteInput[]) => {
   });
 };
 
-export const updateUser = async (actor: Actor, id: string, input: UserChanges) =>
+export const updateUser = async (caller: Actor, id: string, input: UserChanges) =>
   withTransaction(async (tx) => {
+    const actor = await lockTeam(tx, caller);
     const target = await findUser(tx, actor.orgId, id, true);
     const self = target.id === actor.userId;
 
@@ -411,12 +435,16 @@ export const updateUser = async (actor: Actor, id: string, input: UserChanges) =
   });
 
 /** Old erxes "Reset password": a manager sets another member's password. */
-export const setUserPassword = async (actor: Actor, id: string, password: string) => {
-  requireTeamManager(actor);
+export const setUserPassword = async (caller: Actor, id: string, password: string) => {
+  requireTeamManager(caller);
 
   const passwordHash = await hashPassword(password);
 
   return withTransaction(async (tx) => {
+    const actor = await lockTeam(tx, caller);
+
+    requireTeamManager(actor);
+
     const target = await findUser(tx, actor.orgId, id, true);
 
     if (target.id === actor.userId) {
@@ -459,8 +487,10 @@ export const setUserPassword = async (actor: Actor, id: string, password: string
   });
 };
 
-export const setUserDisabled = async (actor: Actor, id: string, disabled: boolean) =>
+export const setUserDisabled = async (caller: Actor, id: string, disabled: boolean) =>
   withTransaction(async (tx) => {
+    const actor = await lockTeam(tx, caller);
+
     requireTeamManager(actor);
 
     const target = await findUser(tx, actor.orgId, id, true);

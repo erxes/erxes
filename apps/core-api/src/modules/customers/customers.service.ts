@@ -18,6 +18,7 @@ import {
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
+import { lockRows } from '~/lib/locks';
 
 type CustomerRow = typeof customers.$inferSelect & { tagIds: string[] };
 type State = CustomerRow['state'];
@@ -245,6 +246,9 @@ export const createCustomer = async (client: Db, actor: Actor, input: CustomerIn
 };
 
 export const updateCustomer = async (client: Db, actor: Actor, id: string, input: CustomerInput) => {
+  // Custom fields are merged from what is stored: concurrent edits wait, then build on each other.
+  await lockRows(client, 'core_customers', actor.orgId, [id]);
+
   const current = await findCustomer(client, actor.orgId, id);
 
   await assertOwner(client, actor.orgId, input.ownerId);

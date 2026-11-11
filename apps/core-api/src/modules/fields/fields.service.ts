@@ -12,6 +12,7 @@ import { and, asc, eq, inArray, isNotNull, isNull, or, type SQL, sql } from 'dri
 import { type Actor, requirePermission } from '~/http/auth';
 import { HttpError, notFound, pgCode, pgConstraint } from '~/http/errors';
 import { unique } from '~/lib/contacts';
+import { lockRows } from '~/lib/locks';
 
 type FieldRow = typeof fields.$inferSelect;
 type GroupRow = typeof fieldGroups.$inferSelect;
@@ -320,6 +321,8 @@ export const updateField = async (
   },
 ) => {
   requireFieldManager(actor);
+  // Type changes wait for values being written against this field, and the other way round.
+  await lockRows(client, 'core_fields', actor.orgId, [id]);
 
   const field = await findField(client, actor.orgId, id);
   const type = input.type ?? field.type;
@@ -398,6 +401,7 @@ export const reorderFields = (client: Db, actor: Actor, orders: { id: string; or
 
 export const archiveFields = async (client: Db, actor: Actor, ids: string[]) => {
   requireFieldManager(actor);
+  await lockRows(client, 'core_fields', actor.orgId, ids);
 
   await client
     .update(fields)
@@ -428,6 +432,8 @@ export const removeUnusedFields = async (client: Db, actor: Actor, ids: string[]
   requireFieldManager(actor);
 
   return client.transaction(async (tx) => {
+    await lockRows(tx, 'core_fields', actor.orgId, ids);
+
     const rows = await tx
       .select()
       .from(fields)
@@ -452,6 +458,8 @@ export const removeField = async (client: Db, actor: Actor, id: string) => {
   requireFieldManager(actor);
 
   return client.transaction(async (tx) => {
+    await lockRows(tx, 'core_fields', actor.orgId, [id]);
+
     const field = await findField(tx, actor.orgId, id);
     const table = recordsTable(field.contentType);
 
@@ -691,7 +699,9 @@ export const applyCustomFields = async (
     .select({ field: fields, groupArchivedAt: fieldGroups.archivedAt })
     .from(fields)
     .leftJoin(fieldGroups, eq(fieldGroups.id, fields.groupId))
-    .where(and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)));
+    .where(and(eq(fields.orgId, orgId), eq(fields.contentType, contentType), inArray(fields.id, ids)))
+    // A field can't change type or go away while a value is being checked against it.
+    .for('share', { of: fields });
   const byId = new Map(definitions.map((row) => [row.field.id, row]));
   const next = { ...current };
 

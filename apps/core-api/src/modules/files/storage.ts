@@ -1,4 +1,5 @@
 import {
+  CopyObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
@@ -8,8 +9,8 @@ import {
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { CORE_API_PREFIX } from '@erxes/core-contract';
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { mkdir, rm, stat } from 'node:fs/promises';
-import { dirname, resolve, sep } from 'node:path';
+import { link, mkdir, readdir, rm, rmdir, stat, unlink } from 'node:fs/promises';
+import { dirname, join, resolve, sep } from 'node:path';
 import { config } from '~/config';
 
 export interface UploadRequest {
@@ -26,15 +27,30 @@ export interface DownloadRequest {
   expiresIn: number;
 }
 
-/** Where file bytes live. Keys are made by core (`<org>/<yyyy>/<mm>/<id>`), never by users. */
+/**
+ * Where file bytes live. Keys are made by core, never by users: uploads go to
+ * a temporary key (`uploads/<org>/<id>/<nonce>`), and only bytes core has
+ * checked are promoted to the file's own key (`<org>/<yyyy>/<mm>/<id>`), which
+ * nobody holds an upload link for — so checked bytes can't be replaced.
+ */
 export interface Storage {
   /** A link the client PUTs the bytes to, and the headers it must send. */
   uploadTarget(key: string, request: UploadRequest): Promise<{ url: string; headers: Record<string, string> }>;
-  /** The stored object's size, or null when nothing is stored under the key. */
-  stat(key: string): Promise<{ size: number } | null>;
+  /** The stored object's size (and version tag), or null when nothing is stored under the key. */
+  stat(key: string): Promise<{ size: number; etag?: string } | null>;
+  /**
+   * Moves the object at `from` to `to` — exactly the version `stat` saw (S3:
+   * copy if the ETag still matches). Throws if it changed or `to` exists.
+   */
+  promote(from: string, to: string, seen: { size: number; etag?: string }): Promise<void>;
   /** A short-lived link to read the object. */
   downloadUrl(key: string, request: DownloadRequest): Promise<string>;
   remove(key: string): Promise<void>;
+  /**
+   * Removes leftovers under `uploads/` older than `olderThanMs` (a link used
+   * after its file was finished). S3: use a lifecycle rule on `uploads/` instead.
+   */
+  sweepUploads?(olderThanMs: number): Promise<number>;
 }
 
 /**
@@ -67,7 +83,8 @@ export interface LocalGrant {
   inline?: boolean;
 }
 
-const KEY = /^[A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+$/;
+/** A file's own key, or an upload's temporary one. */
+const KEY = /^([A-Za-z0-9]+\/\d{4}\/\d{2}\/[A-Za-z0-9]+|uploads\/[A-Za-z0-9]+\/[A-Za-z0-9]+\/[a-f0-9]+)$/;
 
 const signingKey = () => createHmac('sha256', config.auth.jwtSecret).update('core-files-v1').digest();
 
@@ -162,8 +179,42 @@ const localStorage: Storage = {
       }),
     );
   },
+  async promote(from, to, seen) {
+    const source = localPath(from);
+    const info = await stat(source);
+
+    if (info.size !== seen.size) throw new Error('the upload changed while it was being checked');
+
+    await mkdir(dirname(localPath(to)), { recursive: true });
+    // A hard link never replaces an existing file (EEXIST), then the temporary name goes.
+    await link(source, localPath(to));
+    await unlink(source);
+  },
   async remove(key) {
     await rm(localPath(key), { force: true });
+  },
+  async sweepUploads(olderThanMs) {
+    const root = resolve(config.files.localDir, 'uploads');
+    let removed = 0;
+    const walk = async (dir: string): Promise<void> => {
+      const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+
+      for (const entry of entries) {
+        const path = join(dir, entry.name);
+
+        if (entry.isDirectory()) {
+          await walk(path);
+          await rmdir(path).catch(() => undefined);
+        } else if (Date.now() - (await stat(path)).mtimeMs > olderThanMs) {
+          await rm(path, { force: true });
+          removed += 1;
+        }
+      }
+    };
+
+    await walk(root);
+
+    return removed;
   },
 };
 
@@ -185,8 +236,9 @@ const s3Storage = (): Storage => {
     async uploadTarget(key, request) {
       const url = await getSignedUrl(
         client,
-        new PutObjectCommand({ Bucket: s3.bucket, Key: key, ContentType: request.contentType }),
-        { expiresIn: request.expiresIn, signableHeaders: new Set(['content-type']) },
+        // The size is part of the signature: S3 refuses a body of any other length.
+        new PutObjectCommand({ Bucket: s3.bucket, Key: key, ContentType: request.contentType, ContentLength: request.size }),
+        { expiresIn: request.expiresIn, signableHeaders: new Set(['content-type', 'content-length']) },
       );
 
       return { url, headers: { 'Content-Type': request.contentType } };
@@ -195,7 +247,7 @@ const s3Storage = (): Storage => {
       try {
         const head = await client.send(new HeadObjectCommand({ Bucket: s3.bucket, Key: key }));
 
-        return { size: head.ContentLength ?? 0 };
+        return { size: head.ContentLength ?? 0, etag: head.ETag };
       } catch (error) {
         const status = (error as { $metadata?: { httpStatusCode?: number } }).$metadata?.httpStatusCode;
 
@@ -217,6 +269,18 @@ const s3Storage = (): Storage => {
         }),
         { expiresIn: request.expiresIn },
       );
+    },
+    async promote(from, to, seen) {
+      await client.send(
+        new CopyObjectCommand({
+          Bucket: s3.bucket,
+          Key: to,
+          CopySource: `${s3.bucket}/${from.split('/').map(encodeURIComponent).join('/')}`,
+          // Exactly the bytes that were checked: a later PUT to the upload link changes the ETag.
+          CopySourceIfMatch: seen.etag,
+        }),
+      );
+      await client.send(new DeleteObjectCommand({ Bucket: s3.bucket, Key: from }));
     },
     async remove(key) {
       await client.send(new DeleteObjectCommand({ Bucket: s3.bucket, Key: key }));

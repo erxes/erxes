@@ -1,6 +1,7 @@
 import { withOrg } from '@erxes/core-db';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { rename, rm } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { link, rm } from 'node:fs/promises';
 import { pipeline } from 'node:stream/promises';
 import { Router, type Request, type Response } from 'express';
 import { config } from '~/config';
@@ -37,7 +38,8 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
   }
 
   const target = localPath(grant.key);
-  const partial = `${target}.${process.pid}.part`;
+  // One partial file per attempt: two PUTs on one link never write into each other.
+  const partial = `${target}.${randomUUID()}.part`;
   let received = 0;
 
   req.on('data', (chunk: Buffer) => {
@@ -48,14 +50,22 @@ signedFilesRouter.put('/:token', (req: Request, res: Response) => {
     }
   });
 
-  pipeline(req, createWriteStream(partial, { flags: 'w' }))
+  pipeline(req, createWriteStream(partial, { flags: 'wx' }))
     .then(async () => {
       if (received !== grant.size) {
         await rm(partial, { force: true });
         return fail(res, 400, 'SIZE_MISMATCH', 'The file size differs from the one declared');
       }
 
-      await rename(partial, target);
+      // Uploaded once: the link can't replace bytes already sent (a hard link never overwrites).
+      try {
+        await link(partial, target);
+      } catch {
+        await rm(partial, { force: true });
+        return fail(res, 409, 'ALREADY_UPLOADED', 'This upload link was already used');
+      }
+
+      await rm(partial, { force: true });
       res.status(204).end();
     })
     .catch(async () => {

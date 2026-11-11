@@ -1,0 +1,2 @@
+CREATE INDEX "core_users_email_idx" ON "core_users" USING btree (lower("email"));--> statement-breakpoint
+CREATE INDEX "core_notifications_read_at_idx" ON "core_notifications" USING btree ("read_at") WHERE "core_notifications"."read_at" IS NOT NULL;

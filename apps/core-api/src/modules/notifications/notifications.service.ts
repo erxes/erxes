@@ -7,6 +7,7 @@ import { HttpError, notFound } from '~/http/errors';
 import { unique } from '~/lib/contacts';
 import { keysetPage } from '~/lib/keyset';
 import { assertMember, assertPluginNamespace } from '~/lib/guards';
+import { lockKey } from '~/lib/locks';
 
 type NotificationRow = typeof notifications.$inferSelect;
 
@@ -97,6 +98,9 @@ export const notify = async (client: Db, caller: Caller, input: NotifyInput) => 
   let collapsed = 0;
 
   if (input.collapseMinutes && input.entity) {
+    // One collapse at a time per entity and actor: changes combine, none is lost.
+    await lockKey(client, `notify:${caller.orgId}:${input.kind}:${input.entity.type}:${input.entity.id}:${actorId}`);
+
     const recent = await client
       .select()
       .from(notifications)
@@ -289,9 +293,23 @@ export const removeNotification = async (client: Db, actor: Actor, id: string) =
 
 /** Deletes read notifications past the retention period (all organisations). */
 export const pruneNotifications = async (client: Db, days: number) => {
-  const result = await client
-    .delete(notifications)
-    .where(and(isNotNull(notifications.readAt), lt(notifications.readAt, sql`now() - make_interval(days => ${days})`)));
+  let removed = 0;
 
-  return result.rowCount ?? 0;
+  // In batches, oldest first.
+  for (let round = 0; round < 200; round += 1) {
+    const result = await client.execute(sql`
+      delete from ${notifications} where id in (
+        select id from ${notifications}
+        where read_at is not null and read_at < now() - make_interval(days => ${days})
+        limit 5000
+      )
+    `);
+    const count = result.rowCount ?? 0;
+
+    removed += count;
+
+    if (count < 5000) break;
+  }
+
+  return removed;
 };

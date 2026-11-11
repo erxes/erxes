@@ -158,16 +158,28 @@ export const pruneAudit = (client: Db, maxDays: number) =>
   client.transaction(async (tx) => {
     await tx.execute(sql`set local core.audit_prune = 'on'`);
 
-    const result = await tx.execute(sql`
-      delete from ${auditLogs} a using ${organizations} o
-      where o.id = a.org_id
-        and a.created_at < now() - make_interval(days => least(
-          ${maxDays}::int,
-          coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
-        ))
-    `);
+    let removed = 0;
 
-    return result.rowCount ?? 0;
+    // In batches: a long backlog never becomes one huge delete.
+    for (let round = 0; round < 200; round += 1) {
+      const result = await tx.execute(sql`
+        delete from ${auditLogs} where id in (
+          select a.id from ${auditLogs} a join ${organizations} o on o.id = a.org_id
+          where a.created_at < now() - make_interval(days => least(
+            ${maxDays}::int,
+            coalesce((o.settings -> 'audit' ->> 'retentionDays')::int, ${maxDays}::int)
+          ))
+          limit 5000
+        )
+      `);
+      const count = result.rowCount ?? 0;
+
+      removed += count;
+
+      if (count < 5000) break;
+    }
+
+    return removed;
   });
 
 /** Plugins record their own actions in the organisation's one audit log. */

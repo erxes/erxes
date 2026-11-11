@@ -13,8 +13,10 @@ import { auditExportRouter } from '~/modules/audit/audit.http';
 import { downloadRouter, signedFilesRouter } from '~/modules/files/files.http';
 import { streamRouter } from '~/modules/live/stream.http';
 import { HttpError } from '~/http/errors';
+import { isDraining } from '~/lib/lifecycle';
 import { publicJwks } from '~/lib/signing';
 import { coreApi, openApiDocument } from '~/rpc';
+import { log } from '~/lib/log';
 
 /** Errors outside oRPC (auth, unknown routes) in the same shape as oRPC's. */
 const errorBody = (status: number, code: string, message: string, data?: unknown) => ({
@@ -45,7 +47,13 @@ export const createApp = (): Express => {
     res.json({ status: 'ok' });
   });
 
+  // Ready for traffic: the database answers and the server isn't shutting down.
   app.get('/ready', (_req, res) => {
+    if (isDraining()) {
+      res.status(503).json({ status: 'draining' });
+      return;
+    }
+
     db()
       .execute(sql`SELECT 1`)
       .then(() => res.json({ status: 'ok' }))
@@ -78,7 +86,7 @@ export const createApp = (): Express => {
       return;
     }
 
-    console.error('[core] unhandled error', error);
+    log.error('unhandled error', { error });
     res.status(500).json(errorBody(500, 'INTERNAL', 'Something went wrong'));
   });
 

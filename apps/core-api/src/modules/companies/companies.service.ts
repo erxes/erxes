@@ -17,6 +17,7 @@ import {
 import { applyCustomFields } from '~/modules/fields/fields.service';
 import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
 import { checkTagIds } from '~/modules/tags/tags.service';
+import { lockRows } from '~/lib/locks';
 
 type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
 
@@ -225,6 +226,8 @@ export const createCompany = async (
 };
 
 export const updateCompany = async (client: Db, actor: Actor, id: string, input: CompanyInput) => {
+  await lockRows(client, 'core_companies', actor.orgId, [id]);
+
   const current = await findCompany(client, actor.orgId, id);
 
   await assertOwner(client, actor.orgId, input.ownerId);

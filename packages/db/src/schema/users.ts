@@ -96,6 +96,8 @@ export const users = pgTable(
       .notNull(),
   },
   (table) => [
+    // Sign-in finds a member by email before the organisation is known.
+    index('core_users_email_idx').on(sql`lower(${table.email})`),
     uniqueIndex('core_users_org_email_key').on(
       table.orgId,
       sql`lower(${table.email})`,

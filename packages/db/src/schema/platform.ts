@@ -29,7 +29,8 @@ const timestamptz = () => timestamp({ withTimezone: true, mode: 'date' });
 
 // ─── Files ──────────────────────────────────────────────────────────────────
 
-export const FILE_STATUSES = ['pending', 'ready'] as const;
+/** `deleting`: removed, waiting for storage to confirm the bytes are gone (retried until it does). */
+export const FILE_STATUSES = ['pending', 'ready', 'deleting'] as const;
 
 /**
  * Uploaded files: metadata only, the bytes live in the storage driver
@@ -62,7 +63,8 @@ export const files = pgTable(
     foreignKey({ columns: [table.orgId], foreignColumns: [organizations.id], name: 'core_files_org_id_fkey' }).onDelete(
       'cascade',
     ),
-    check('core_files_status_check', sql`${table.status} IN ('pending', 'ready')`),
+    check('core_files_status_check', sql`${table.status} IN ('pending', 'ready', 'deleting')`),
+    index('core_files_deleting_idx').on(table.updatedAt).where(sql`${table.status} = 'deleting'`),
     check('core_files_size_check', sql`${table.size} >= 0`),
   ],
 );
@@ -111,6 +113,8 @@ export const notifications = pgTable(
       foreignColumns: [organizations.id],
       name: 'core_notifications_org_id_fkey',
     }).onDelete('cascade'),
+    // Retention removes read notifications by age.
+    index('core_notifications_read_at_idx').on(table.readAt).where(sql`${table.readAt} IS NOT NULL`),
     foreignKey({ columns: [table.userId], foreignColumns: [users.id], name: 'core_notifications_user_id_fkey' }).onDelete(
       'cascade',
     ),
