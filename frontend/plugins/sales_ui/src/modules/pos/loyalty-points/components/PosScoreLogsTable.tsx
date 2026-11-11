@@ -9,6 +9,7 @@ import { RecordTable } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 import { BranchesInline, useSidePanel } from 'ui-modules';
 import { POS_ORDER_CONTENT_TYPE } from '@/pos/constants/posPanel';
+import { useLoyaltyDrill } from '@/loyalty-points/drill';
 import {
   Cell,
   OpenableCell,
@@ -20,8 +21,10 @@ import { TPosScoreLogRow, usePosScoreLogs } from '../hooks/usePosScoreLogs';
 const OrderCell = ({ row }: { row: TPosScoreLogRow }) => {
   const { t } = useTranslation('sales');
   const { openRecord } = useSidePanel();
+  const drill = useLoyaltyDrill();
 
   const open = () => {
+    drill?.close();
     openRecord({ contentType: POS_ORDER_CONTENT_TYPE, contentId: row.orderId });
   };
 
