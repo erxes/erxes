@@ -15,6 +15,10 @@ import { normalizeProductUomInfo } from '~/modules/sales/utils/productUom';
 import { validateProductDataInput } from '~/modules/sales/utils/productDataInput';
 import { assertDealUpdatesAllowed } from '~/modules/sales/utils/archiveGuard';
 import {
+  changesUnitPrices,
+  removesProducts,
+} from '~/modules/sales/utils/productPricePermissions';
+import {
   checkAssignedUserFromPData,
   copyChecklists,
   subscriptionWrapper,
@@ -34,10 +38,6 @@ export const dealMutations: Record<string, Resolver> = {
   ) {
     await checkPermission('dealsAdd');
 
-    if (doc.productsData !== undefined) {
-      await checkPermission('dealsProductsEdit');
-    }
-
     return await addDeal({ models, subdomain, user, doc });
   },
 
@@ -52,7 +52,15 @@ export const dealMutations: Record<string, Resolver> = {
     await checkPermission('dealsEdit');
 
     if (doc.productsData !== undefined) {
-      await checkPermission('dealsProductsEdit');
+      const deal = await models.Deals.getDeal(_id);
+
+      if (changesUnitPrices(doc.productsData, deal.productsData)) {
+        await checkPermission('dealsProductsEdit');
+      }
+
+      if (removesProducts(doc.productsData, deal.productsData)) {
+        await checkPermission('dealsProductsDelete');
+      }
     }
 
     return await editDeal({ models, subdomain, _id, processId, doc, user });
@@ -176,10 +184,6 @@ export const dealMutations: Record<string, Resolver> = {
       throw new Error('No Item Found');
     }
 
-    if (item.productsData?.length) {
-      await checkPermission('dealsProductsEdit');
-    }
-
     const doc = {
       ...item,
       _id: undefined,
@@ -290,7 +294,6 @@ export const dealMutations: Record<string, Resolver> = {
     { models, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
     return createProductsData({ models, subdomain, processId, dealId, docs });
   },
 
@@ -310,7 +313,6 @@ export const dealMutations: Record<string, Resolver> = {
     { models, user, subdomain, checkPermission }: IContext,
   ) {
     await checkPermission('dealsEdit');
-    await checkPermission('dealsProductsEdit');
     if (!dealId || !dataId) {
       throw new Error('dealId and dataId are required');
     }
@@ -331,6 +333,10 @@ export const dealMutations: Record<string, Resolver> = {
 
     if (!oldPData) {
       throw new Error('Deals productData not found');
+    }
+
+    if (changesUnitPrices([{ ...doc, _id: dataId }], [oldPData])) {
+      await checkPermission('dealsProductsEdit');
     }
 
     const productsData = await normalizeProductCurrencies(
