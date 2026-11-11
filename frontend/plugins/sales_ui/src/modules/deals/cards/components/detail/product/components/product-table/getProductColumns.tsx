@@ -58,13 +58,46 @@ export const ProductNumberField = ({
   children?: React.ReactNode;
 }) => {
   const { updateRecord } = useUpdateProductRecord();
+  const { toast } = useToast();
+  const { t } = useTranslation('sales');
 
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canEditPrice = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canDiscount = isLoaded && hasActionPermission('dealsEdit');
+  const discountsPrice = field === 'unitPrice' && !canEditPrice;
 
-  if (field === 'unitPrice' && !canEdit) {
+  if (discountsPrice && !canDiscount) {
     return <TextOverflowTooltip value={formatAmount(value)} />;
   }
+
+  const saveAsDiscount = (price: number) => {
+    const unitPrice = Number(product.unitPrice) || 0;
+
+    if (!Number.isFinite(price) || price < 0 || price > unitPrice) {
+      toast({
+        variant: 'destructive',
+        title: t('invalid-value', 'Invalid value'),
+        description: t(
+          'unit-price-discount-only',
+          'Only Sales Admin can raise the unit price. Enter a price between 0 and the current unit price.',
+        ),
+      });
+      return;
+    }
+
+    const updatedProduct = applyRowDiscount(
+      product,
+      (unitPrice - price) * (Number(product.quantity) || 0),
+    );
+
+    updateRecord(product, {
+      discountInfos: updatedProduct.discountInfos,
+      discount: updatedProduct.discount,
+      discountPercent: updatedProduct.discountPercent,
+      tax: updatedProduct.tax,
+      amount: updatedProduct.amount,
+    });
+  };
 
   return (
     <NumberField
@@ -73,7 +106,9 @@ export const ProductNumberField = ({
       scope={`product-${_id}-${field}`}
       formatValue={formatValue}
       onSave={(value) => {
-        if (calculateProduct) {
+        if (discountsPrice) {
+          saveAsDiscount(value);
+        } else if (calculateProduct) {
           const base = { ...product, [field]: value };
           const updates = calculateProductValues(field, base);
           const fullUpdate = { [field]: value, ...updates };
@@ -239,7 +274,7 @@ export const ProductDiscountNumberField = ({
   };
 
   const { isLoaded, hasActionPermission } = usePermissionCheck();
-  const canEdit = isLoaded && hasActionPermission('dealsProductsEdit');
+  const canEdit = isLoaded && hasActionPermission('dealsEdit');
 
   if (!canEdit) {
     return <TextOverflowTooltip value={formatAmount(value)} />;
