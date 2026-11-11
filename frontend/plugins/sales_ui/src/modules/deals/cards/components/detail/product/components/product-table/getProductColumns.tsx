@@ -64,11 +64,14 @@ export const ProductNumberField = ({
   const { isLoaded, hasActionPermission } = usePermissionCheck();
   const canEditPrice = isLoaded && hasActionPermission('dealsProductsEdit');
   const canDiscount = isLoaded && hasActionPermission('dealsEdit');
-  const discountsPrice = field === 'unitPrice' && !canEditPrice;
+  const isUnitPrice = field === 'unitPrice';
 
-  if (discountsPrice && !canDiscount) {
+  if (isUnitPrice && !canEditPrice && !canDiscount) {
     return <TextOverflowTooltip value={formatAmount(value)} />;
   }
+
+  const savesAsDiscount = (price: number) =>
+    isUnitPrice && (!canEditPrice || price < (Number(product.unitPrice) || 0));
 
   const saveAsDiscount = (price: number) => {
     const unitPrice = Number(product.unitPrice) || 0;
@@ -106,7 +109,7 @@ export const ProductNumberField = ({
       scope={`product-${_id}-${field}`}
       formatValue={formatValue}
       onSave={(value) => {
-        if (discountsPrice) {
+        if (savesAsDiscount(value)) {
           saveAsDiscount(value);
         } else if (calculateProduct) {
           const base = { ...product, [field]: value };
