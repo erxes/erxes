@@ -1,33 +1,18 @@
 {
-  "compileOnSave": false,
   "compilerOptions": {
-    "rootDir": ".",
-    "sourceMap": true,
-    "declaration": false,
-    "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "importHelpers": true,
+    "target": "ES2022",
+    "lib": ["ES2023"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es2015",
-    "module": "esnext",
-    "lib": ["es2021", "dom"],
-    "jsx": "react-jsx",
     "skipLibCheck": true,
-    "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
-    "strictNullChecks": true,
-    "useUnknownInCatchVariables": false,
-    "allowJs": true,
-    "checkJs": false,
-    "baseUrl": ".",
-    "paths": {
-      "erxes-ui": ["frontend/libs/erxes-ui/src/index.ts"],
-      "ui-modules": ["frontend/libs/ui-modules/src/index.ts"],
-      "erxes-api-shared": ["backend/erxes-api-shared/src/index.ts"],
-      "erxes-api-shared/*": ["backend/erxes-api-shared/src/*"]
-    }
-  },
-  "exclude": ["node_modules", "tmp"]
+    "isolatedModules": true,
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+    "types": ["node"]
+  }
 }

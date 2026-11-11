@@ -1,0 +1,391 @@
+import type { CompanyInput, CursorQuery } from '@erxes/core-contract';
+import { companies, customerCompanies, Db, newId, users, withTransaction } from '@erxes/core-db';
+import { and, arrayContains, asc, eq, getTableColumns, ilike, inArray, or, SQL, sql } from 'drizzle-orm';
+import { type Actor, requireManager } from '~/http/auth';
+import { HttpError, notFound, pgCode } from '~/http/errors';
+import { normalizeEmail, normalizeName, normalizePhone, resolveContacts, unique } from '~/lib/contacts';
+import { containsPattern, keysetPage } from '~/lib/keyset';
+import { combineContacts, combineCustomFields, fillEmpty } from '~/lib/merge';
+import { applyCustomFields } from '~/modules/fields/fields.service';
+import { changeTags, copyTags, hasAnyTag, setRecordTags, tagIdsColumn } from '~/modules/tags/tagLinks';
+import { checkTagIds } from '~/modules/tags/tags.service';
+
+type CompanyRow = typeof companies.$inferSelect & { tagIds: string[] };
+
+export const toCompanyDto = (row: CompanyRow) => ({
+  id: row.id,
+  primaryName: row.primaryName,
+  names: row.names,
+  avatarUrl: row.avatarUrl,
+  primaryEmail: row.primaryEmail,
+  emails: row.emails,
+  primaryPhone: row.primaryPhone,
+  phones: row.phones,
+  website: row.website,
+  industry: row.industry,
+  size: row.size,
+  businessType: row.businessType,
+  code: row.code,
+  description: row.description,
+  ownerId: row.ownerId,
+  tagIds: row.tagIds,
+  customFields: row.customFields,
+  createdAt: row.createdAt.toISOString(),
+  updatedAt: row.updatedAt.toISOString(),
+});
+
+const inOrg = (orgId: string, id: string) => and(eq(companies.orgId, orgId), eq(companies.id, id));
+
+/** Companies with their tag ids. */
+const selectCompanies = (client: Db) =>
+  client.select({ ...getTableColumns(companies), tagIds: tagIdsColumn('company', companies.id) }).from(companies);
+
+const findCompany = async (client: Db, orgId: string, id: string, followMerges = false) => {
+  const [row] = await selectCompanies(client)
+    .where(
+      followMerges
+        ? and(eq(companies.orgId, orgId), or(eq(companies.id, id), arrayContains(companies.mergedIds, [id])))
+        : inOrg(orgId, id),
+    )
+    .orderBy(sql`${companies.id} = ${id} DESC`)
+    .limit(1);
+
+  if (!row) {
+    throw notFound('Company');
+  }
+
+  return row;
+};
+
+const assertOwner = async (client: Db, orgId: string, ownerId: string | null | undefined) => {
+  if (!ownerId) {
+    return;
+  }
+
+  const [owner] = await client
+    .select({ id: users.id })
+    .from(users)
+    .where(and(eq(users.orgId, orgId), eq(users.id, ownerId)))
+    .limit(1);
+
+  if (!owner) {
+    throw new HttpError(400, 'INVALID_OWNER', 'The owner is not a team member of this organisation');
+  }
+};
+
+/** A taken name → 409 naming the company that has it. */
+const conflictFrom = async (client: Db, orgId: string, error: unknown, name: string): Promise<never> => {
+  if (pgCode(error) !== '23505') {
+    throw error;
+  }
+
+  const [existing] = await client
+    .select({ id: companies.id })
+    .from(companies)
+    .where(and(eq(companies.orgId, orgId), sql`lower(${companies.primaryName}) = lower(${name})`))
+    .limit(1);
+
+  throw new HttpError(409, 'COMPANY_EXISTS', 'A company with this name already exists', {
+    field: 'primaryName',
+    id: existing?.id ?? null,
+  });
+};
+
+export const listCompanies = async (
+  client: Db,
+  actor: Actor,
+  query: CursorQuery & {
+    search?: string;
+    ownerId?: string;
+    tagIds?: string[];
+    customerId?: string;
+    ids?: string[];
+  },
+) => {
+  const filters: (SQL | undefined)[] = [];
+
+  if (query.ownerId) {
+    filters.push(eq(companies.ownerId, query.ownerId));
+  }
+
+  if (query.tagIds?.length) {
+    filters.push(hasAnyTag('company', companies.id, query.tagIds));
+  }
+
+  if (query.customerId) {
+    filters.push(
+      inArray(
+        companies.id,
+        client
+          .select({ id: customerCompanies.companyId })
+          .from(customerCompanies)
+          .where(
+            and(eq(customerCompanies.orgId, actor.orgId), eq(customerCompanies.customerId, query.customerId)),
+          ),
+      ),
+    );
+  }
+
+  if (query.ids) {
+    filters.push(inArray(companies.id, query.ids.length ? query.ids : ['']));
+  }
+
+  if (query.search) {
+    const pattern = containsPattern(query.search);
+    filters.push(
+      or(
+        sql`array_to_string(${companies.names}, ' ') ILIKE ${pattern}`,
+        ilike(companies.primaryName, pattern),
+        ilike(companies.primaryEmail, pattern),
+        ilike(companies.primaryPhone, containsPattern(normalizePhone(query.search))),
+        ilike(companies.website, pattern),
+        ilike(companies.code, pattern),
+      ),
+    );
+  }
+
+  const page = await keysetPage(
+    client,
+    {
+      table: companies,
+      id: companies.id,
+      createdAt: companies.createdAt,
+      scope: eq(companies.orgId, actor.orgId),
+    },
+    and(...filters),
+    query,
+    (where, orderBy, limit) => selectCompanies(client).where(where).orderBy(...orderBy).limit(limit),
+  );
+
+  return { ...page, data: page.data.map(toCompanyDto) };
+};
+
+export const getCompany = async (client: Db, actor: Actor, id: string) =>
+  toCompanyDto(await findCompany(client, actor.orgId, id, true));
+
+const scalarFields = (input: CompanyInput) => {
+  const { primaryName, names, primaryEmail, emails, primaryPhone, phones, tagIds, customFields, ...rest } = input;
+
+  return rest;
+};
+
+export const createCompany = async (
+  client: Db,
+  actor: Actor,
+  input: CompanyInput & { primaryName: string },
+) => {
+  await assertOwner(client, actor.orgId, input.ownerId);
+
+  const none = { primary: null, list: [] };
+  const name = resolveContacts(input.primaryName, input.names, none, normalizeName);
+  const email = resolveContacts(input.primaryEmail, input.emails, none, normalizeEmail);
+  const phone = resolveContacts(input.primaryPhone, input.phones, none, normalizePhone);
+  const tagIds = await checkTagIds(client, actor.orgId, 'company', input.tagIds ?? []);
+  const customFields = await applyCustomFields(client, actor.orgId, 'company', {}, input.customFields);
+
+  try {
+    const id = await client.transaction(async (tx) => {
+      const [row] = await tx
+        .insert(companies)
+        .values({
+          ...scalarFields(input),
+          id: newId(),
+          orgId: actor.orgId,
+          primaryName: name.primary!,
+          names: name.list,
+          primaryEmail: email.primary,
+          emails: email.list,
+          primaryPhone: phone.primary,
+          phones: phone.list,
+          customFields,
+          createdBy: actor.userId,
+        })
+        .returning({ id: companies.id });
+
+      await setRecordTags(tx, actor.orgId, 'company', row!.id, tagIds);
+
+      return row!.id;
+    });
+
+    return toCompanyDto(await findCompany(client, actor.orgId, id));
+  } catch (error) {
+    return conflictFrom(client, actor.orgId, error, name.primary!);
+  }
+};
+
+export const updateCompany = async (client: Db, actor: Actor, id: string, input: CompanyInput) => {
+  const current = await findCompany(client, actor.orgId, id);
+
+  await assertOwner(client, actor.orgId, input.ownerId);
+
+  const changes: Partial<typeof companies.$inferInsert> = {};
+  const tagIds = input.tagIds === undefined ? undefined : await checkTagIds(client, actor.orgId, 'company', input.tagIds);
+
+  if (input.primaryName !== undefined || input.names !== undefined) {
+    const name = resolveContacts(
+      input.primaryName,
+      input.names,
+      { primary: current.primaryName, list: current.names },
+      normalizeName,
+    );
+
+    if (!name.primary) {
+      throw new HttpError(400, 'INVALID_INPUT', 'A company needs a name');
+    }
+
+    changes.primaryName = name.primary;
+    changes.names = name.list;
+  }
+
+  if (input.primaryEmail !== undefined || input.emails !== undefined) {
+    const email = resolveContacts(
+      input.primaryEmail,
+      input.emails,
+      { primary: current.primaryEmail, list: current.emails },
+      normalizeEmail,
+    );
+    changes.primaryEmail = email.primary;
+    changes.emails = email.list;
+  }
+
+  if (input.primaryPhone !== undefined || input.phones !== undefined) {
+    const phone = resolveContacts(
+      input.primaryPhone,
+      input.phones,
+      { primary: current.primaryPhone, list: current.phones },
+      normalizePhone,
+    );
+    changes.primaryPhone = phone.primary;
+    changes.phones = phone.list;
+  }
+
+  if (input.customFields !== undefined) {
+    changes.customFields = await applyCustomFields(
+      client,
+      actor.orgId,
+      'company',
+      current.customFields,
+      input.customFields,
+    );
+  }
+
+  try {
+    await client.transaction(async (tx) => {
+      const updated = await tx
+        .update(companies)
+        .set({ ...scalarFields(input), ...changes, updatedAt: sql`now()` })
+        .where(inOrg(actor.orgId, id))
+        .returning({ id: companies.id });
+
+      if (!updated.length) {
+        throw notFound('Company');
+      }
+
+      if (tagIds) {
+        await setRecordTags(tx, actor.orgId, 'company', id, tagIds);
+      }
+    });
+
+    return toCompanyDto(await findCompany(client, actor.orgId, id));
+  } catch (error) {
+    return conflictFrom(client, actor.orgId, error, changes.primaryName ?? current.primaryName);
+  }
+};
+
+export const removeCompanies = async (client: Db, actor: Actor, ids: string[]) => {
+  requireManager(actor, 'Only owners and admins can delete companies');
+
+  const removed = await client
+    .delete(companies)
+    .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+    .returning({ id: companies.id });
+
+  return { removed: removed.length };
+};
+
+export const tagCompanies = async (
+  client: Db,
+  actor: Actor,
+  input: { ids: string[]; add: string[]; remove: string[] },
+) => {
+  const add = await checkTagIds(client, actor.orgId, 'company', input.add);
+  const updated = await client.transaction((tx) =>
+    changeTags(tx, actor.orgId, 'company', input.ids, { add, remove: unique(input.remove) }),
+  );
+
+  return { updated };
+};
+
+const MERGE_FILLED = [
+  'avatarUrl',
+  'website',
+  'industry',
+  'size',
+  'businessType',
+  'code',
+  'description',
+  'ownerId',
+] as const;
+
+/** Merges companies into `keepId`, as `mergeCustomers` does; the others' names become extra names. */
+export const mergeCompanies = async (actor: Actor, input: { ids: string[]; keepId: string }) => {
+  requireManager(actor, 'Only owners and admins can merge companies');
+
+  const ids = unique(input.ids);
+
+  if (ids.length < 2) {
+    throw new HttpError(400, 'INVALID_INPUT', 'Choose at least two companies to merge');
+  }
+
+  return withTransaction(async (tx) => {
+    const rows = await selectCompanies(tx)
+      .where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, ids)))
+      .orderBy(asc(companies.createdAt))
+      .for('update');
+
+    if (rows.length !== ids.length) {
+      throw notFound('Company');
+    }
+
+    const keep = rows.find((row) => row.id === input.keepId)!;
+    const others = ids.filter((id) => id !== keep.id).map((id) => rows.find((row) => row.id === id)!);
+    const otherIds = others.map((other) => other.id);
+    const contacts = (pick: (row: CompanyRow) => { primary: string | null; list: string[] }) =>
+      combineContacts(pick(keep), others.map(pick));
+    const name = contacts((row) => ({ primary: row.primaryName, list: row.names }));
+    const email = contacts((row) => ({ primary: row.primaryEmail, list: row.emails }));
+    const phone = contacts((row) => ({ primary: row.primaryPhone, list: row.phones }));
+
+    await tx.execute(sql`
+      INSERT INTO ${customerCompanies} (org_id, customer_id, company_id)
+      SELECT ${actor.orgId}, customer_id, ${keep.id} FROM ${customerCompanies}
+      WHERE company_id IN (${sql.join(
+        otherIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})
+      ON CONFLICT DO NOTHING
+    `);
+    await copyTags(tx, actor.orgId, 'company', otherIds, keep.id);
+    await tx.delete(companies).where(and(eq(companies.orgId, actor.orgId), inArray(companies.id, otherIds)));
+
+    await tx
+      .update(companies)
+      .set({
+        ...fillEmpty(keep, others, MERGE_FILLED),
+        names: name.list,
+        primaryEmail: email.primary,
+        emails: email.list,
+        primaryPhone: phone.primary,
+        phones: phone.list,
+        customFields: combineCustomFields(
+          keep.customFields,
+          others.map((other) => other.customFields),
+        ),
+        mergedIds: unique([...keep.mergedIds, ...otherIds, ...others.flatMap((other) => other.mergedIds)]),
+        updatedAt: sql`now()`,
+      })
+      .where(inOrg(actor.orgId, keep.id));
+
+    return toCompanyDto(await findCompany(tx, actor.orgId, keep.id));
+  });
+};

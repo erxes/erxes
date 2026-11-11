@@ -1,1 +1,0 @@
-export { DeliveryConfig } from './DeliveryConfig';

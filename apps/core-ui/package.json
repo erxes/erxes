@@ -1,0 +1,46 @@
+{
+  "name": "@erxes/core-ui",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@erxes/core-contract": "workspace:*",
+    "@hookform/resolvers": "3.10.0",
+    "@module-federation/enhanced": "0.6.16",
+    "@orpc/client": "1.16.2",
+    "@orpc/contract": "1.16.2",
+    "@orpc/openapi-client": "1.16.2",
+    "@tabler/icons-react": "3.34.0",
+    "@tanstack/react-query": "^5.62.0",
+    "@tanstack/react-table": "8.21.2",
+    "erxes-ui": "workspace:*",
+    "graphql": "^16.10.0",
+    "i18next": "^24.2.0",
+    "jotai": "^2.12.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-hook-form": "7.55.0",
+    "react-i18next": "^15.1.1",
+    "react-router-dom": "^7.1.1",
+    "ui-modules": "workspace:*",
+    "zod": "3.25.76"
+  },
+  "devDependencies": {
+    "@module-federation/rsbuild-plugin": "0.6.16",
+    "@rsbuild/core": "^1.1.0",
+    "@rsbuild/plugin-react": "^1.1.0",
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.0",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^4.0.0"
+  }
+}

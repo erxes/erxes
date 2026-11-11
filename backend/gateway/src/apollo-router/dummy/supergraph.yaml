@@ -1,6 +1,0 @@
-federation_version: =2.9.3
-subgraphs:
-  subgraph:
-    routing_url: http://localhost
-    schema:
-      file: ./subgraph.graphql

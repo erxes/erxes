@@ -1,1 +1,0 @@
-export const CONVERSATIONS_LIMIT = 24;

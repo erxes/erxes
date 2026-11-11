@@ -1,0 +1,14 @@
+# Local Postgres for erxes core. Never publish this port in production.
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: erxes
+      POSTGRES_PASSWORD: erxes_local_dev
+      POSTGRES_DB: erxes
+    ports:
+      - '127.0.0.1:5434:5432'
+    volumes:
+      - erxes-core-pg:/var/lib/postgresql/data
+volumes:
+  erxes-core-pg:

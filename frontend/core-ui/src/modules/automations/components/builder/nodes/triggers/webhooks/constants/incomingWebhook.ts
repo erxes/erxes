@@ -1,6 +1,0 @@
-export const AUTOMATION_INCOMING_WEBHOOK_API_METHODS = [
-  'GET',
-  'POST',
-  'PUT',
-  'PATCH',
-];

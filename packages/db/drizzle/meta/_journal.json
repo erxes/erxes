@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794389224565,
+      "tag": "0000_organizations_users",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794390917436,
+      "tag": "0001_customers",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794394615151,
+      "tag": "0002_tags_fields_companies",
+      "breakpoints": true
+    }
+  ]
+}

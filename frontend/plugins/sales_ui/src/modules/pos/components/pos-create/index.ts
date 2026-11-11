@@ -1,1 +1,0 @@
-export { PosCreate } from './PosCreate';

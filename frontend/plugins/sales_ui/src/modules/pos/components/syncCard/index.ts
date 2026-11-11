@@ -1,1 +1,0 @@
-export { SyncCard } from './SyncCard';

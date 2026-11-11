@@ -1,77 +1,8 @@
-# See http://help.github.com/ignore-files/ for more about ignoring files.
-
-# compiled output
-dist
-tmp
-/out-tsc
-
-# dependencies
-node_modules
-
-# pnpm is the recommended package manager across the project
-**/**/.package-lock.json
-**/**/.yarn.lock
-
-
-# IDEs and editors
-/.idea
-.project
-.classpath
-.c9/
-*.launch
-.settings/
-*.sublime-workspace
-
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-
-# misc
-/.sass-cache
-/connect.lock
-/coverage
-/libpeerconnection.log
-npm-debug.log
-yarn-error.log
-testem.log
-/typings
-
-# System Files
-.DS_Store
-Thumbs.db
-
-.nx/cache
-.nx/workspace-data
-.nx
+node_modules/
+dist/
+coverage/
 .env
-
-# Local personal notes (untracked)
-.personal/
-.claude/*
-!.claude/skills
-
-storybook-static
-backend/plugins/payment_api/src/public/widget/
-
-# Redis dump file
-dump.rdb
-
-# Local runtime upload artifacts
-backend/core-api/src/utils/private/uploads/
-
-# Sentry CLI local auth (token set via SENTRY_AUTH_TOKEN env var)
-.sentryclirc
-cloudflare/mail-worker/bridge.config
-cloudflare/mail-worker/.dev.vars
-cloudflare/mail-worker/node_modules/
-cloudflare/mail-worker/.wrangler/
-
-# Agent tool session state
-.agents/*
-!.agents/skills/
-
-# printed and composed GraphQL schemas (schema:print, gateway:schema:compose)
-backend/**/generated/
+.env.*
+!.env.example
+*.log
+.DS_Store
