@@ -1,9 +1,11 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import enAutomations from './locales/en/automations.json';
 import enCommon from './locales/en/common.json';
 import enContact from './locales/en/contact.json';
 import enOrganization from './locales/en/organization.json';
 import enSettings from './locales/en/settings.json';
+import mnAutomations from './locales/mn/automations.json';
 import mnCommon from './locales/mn/common.json';
 import mnContact from './locales/mn/contact.json';
 import mnOrganization from './locales/mn/organization.json';
@@ -32,12 +34,12 @@ const savedLanguage = (): LanguageCode => {
 void i18n.use(initReactI18next).init({
   // Old erxes namespaces, so ported components keep their useTranslation('contact'|…) calls.
   resources: {
-    en: { common: enCommon, contact: enContact, settings: enSettings, organization: enOrganization },
-    mn: { common: mnCommon, contact: mnContact, settings: mnSettings, organization: mnOrganization },
+    en: { common: enCommon, contact: enContact, settings: enSettings, organization: enOrganization, automations: enAutomations },
+    mn: { common: mnCommon, contact: mnContact, settings: mnSettings, organization: mnOrganization, automations: mnAutomations },
   },
   lng: savedLanguage(),
   fallbackLng: 'en',
-  ns: ['common', 'contact', 'settings', 'organization'],
+  ns: ['common', 'contact', 'settings', 'organization', 'automations'],
   defaultNS: 'common',
   fallbackNS: 'common',
   interpolation: { escapeValue: false },

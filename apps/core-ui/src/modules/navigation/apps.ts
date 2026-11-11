@@ -1,5 +1,6 @@
-import { IconAddressBook, IconApps, IconSettings } from '@tabler/icons-react';
+import { IconAddressBook, IconApps, IconBolt, IconSettings } from '@tabler/icons-react';
 import type { ComponentType } from 'react';
+import { useCan } from '~/modules/auth/session';
 import { usePlugins } from '~/modules/plugins/usePlugins';
 
 /** Something the top bar can open: a core app or a plugin. */
@@ -22,6 +23,7 @@ export const SETTINGS_APP: NavApp = {
 
 export const CORE_APPS: NavApp[] = [
   { id: 'contacts', label: 'Contacts', icon: IconAddressBook, path: 'contacts', kind: 'core' },
+  { id: 'automations', label: 'Automations', icon: IconBolt, path: 'automations', kind: 'core' },
 ];
 
 const label = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
@@ -29,9 +31,10 @@ const label = (name: string) => name.charAt(0).toUpperCase() + name.slice(1);
 /** Core apps and the plugins the member can use (settings has its own button). */
 export const useNavApps = (): NavApp[] => {
   const { plugins } = usePlugins();
+  const can = useCan();
 
   return [
-    ...CORE_APPS,
+    ...CORE_APPS.filter((app) => app.id !== 'automations' || can('automations.view')),
     ...plugins.map(
       ({ remote, config }): NavApp => ({
         id: `plugin:${remote}`,

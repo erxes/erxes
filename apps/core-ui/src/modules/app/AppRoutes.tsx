@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { PluginPage } from '~/modules/plugins/PluginPage';
 import { SettingsRoutes } from '~/modules/settings/SettingsRoutes';
 import { usePlugins } from '~/modules/plugins/usePlugins';
+import { AutomationsRoutes } from '~/modules/automations/AutomationsRoutes';
 import { ContactsRoutes } from '~/modules/contacts/ContactsRoutes';
 import { HomePage } from '~/modules/home/HomePage';
 import { NotificationsPage } from '~/modules/notifications/NotificationsPage';
@@ -53,6 +54,7 @@ export const AppRoutes = () => (
     >
       <Route index element={<HomePage />} />
       <Route path="contacts/*" element={<ContactsRoutes notFound={<NotFoundPage />} />} />
+      <Route path="automations/*" element={<AutomationsRoutes />} />
       <Route path="settings/*" element={<SettingsRoutes />} />
       <Route path="notifications" element={<NotificationsPage />} />
       <Route path="notifications/:source" element={<NotificationsPage />} />
