@@ -3,10 +3,8 @@ import { ProgressByMember } from '@/project/components/details/ProgressByMember'
 import { ProgressByTeam } from '@/project/components/details/ProgressByTeam';
 import { ProgressChart } from '@/project/components/details/ProgressChart';
 import ProjectMilestone from '@/project/components/details/ProjectMilestone';
-import { PropertiesSidePanel } from '@/operation/components/PropertiesSidePanel';
+import { ProjectProperties } from './ProjectProperties';
 import { useGetProject } from '@/project/hooks/useGetProject';
-import { useProjectCustomFieldEdit } from '@/project/hooks/useProjectCustomFieldEdit';
-import { isRecord } from '@/operation/utils/isRecord';
 import {
   IconCaretRightFilled,
   IconChartHistogram,
@@ -48,15 +46,43 @@ const ProjectPropertiesSidePanel = ({ projectId }: { projectId: string }) => {
     );
   }
 
+  return <ProjectProperties project={project} />;
+};
+
+export const ProjectReport = ({ projectId }: { projectId: string }) => {
+  const { t } = useTranslation('operation');
   return (
-    <PropertiesSidePanel
-      contentType="operation:project"
-      contentId={projectId}
-      propertiesData={
-        isRecord(project.propertiesData) ? project.propertiesData : undefined
-      }
-      mutateHook={useProjectCustomFieldEdit}
-    />
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="p-4 border-b">
+        <Collapsible className="group/collapsible-menu" defaultOpen>
+          <Collapsible.Trigger asChild>
+            <Button
+              variant="secondary"
+              className="w-min text-accent-foreground justify-start text-left"
+              size="sm"
+            >
+              <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
+              {t('progress')}
+            </Button>
+          </Collapsible.Trigger>
+          <Collapsible.Content>
+            <Progress projectId={projectId} />
+            <ProgressChart projectId={projectId} />
+          </Collapsible.Content>
+        </Collapsible>
+      </div>
+      <ProjectsSideWidgetTabs>
+        <Tabs.Content value={ProjectsSideWidgetTabsEnum.Assignees}>
+          <ProgressByMember projectId={projectId} />
+        </Tabs.Content>
+        <Tabs.Content value={ProjectsSideWidgetTabsEnum.Teams}>
+          <ProgressByTeam projectId={projectId} />
+        </Tabs.Content>
+        <Tabs.Content value={ProjectsSideWidgetTabsEnum.Milestones}>
+          <ProjectMilestone projectId={projectId} />
+        </Tabs.Content>
+      </ProjectsSideWidgetTabs>
+    </div>
   );
 };
 
@@ -70,37 +96,7 @@ export const ProjectsSideWidget = ({ projectId }: { projectId: string }) => {
           Icon={IconChartHistogram}
           label={t('project-report')}
         />
-        <>
-          <div className="p-4 border-b">
-            <Collapsible className="group/collapsible-menu" defaultOpen>
-              <Collapsible.Trigger asChild>
-                <Button
-                  variant="secondary"
-                  className="w-min text-accent-foreground justify-start text-left"
-                  size="sm"
-                >
-                  <IconCaretRightFilled className="transition-transform group-data-[state=open]/collapsible-menu:rotate-90" />
-                  {t('progress')}
-                </Button>
-              </Collapsible.Trigger>
-              <Collapsible.Content>
-                <Progress projectId={projectId} />
-                <ProgressChart projectId={projectId} />
-              </Collapsible.Content>
-            </Collapsible>
-          </div>
-          <ProjectsSideWidgetTabs>
-            <Tabs.Content value={ProjectsSideWidgetTabsEnum.Assignees}>
-              <ProgressByMember projectId={projectId} />
-            </Tabs.Content>
-            <Tabs.Content value={ProjectsSideWidgetTabsEnum.Teams}>
-              <ProgressByTeam projectId={projectId} />
-            </Tabs.Content>
-            <Tabs.Content value={ProjectsSideWidgetTabsEnum.Milestones}>
-              <ProjectMilestone projectId={projectId} />
-            </Tabs.Content>
-          </ProjectsSideWidgetTabs>
-        </>
+        <ProjectReport projectId={projectId} />
       </SideMenu.Content>
       <SideMenu.Content value={PROPERTIES_TAB}>
         <ProjectPropertiesSidePanel projectId={projectId} />
