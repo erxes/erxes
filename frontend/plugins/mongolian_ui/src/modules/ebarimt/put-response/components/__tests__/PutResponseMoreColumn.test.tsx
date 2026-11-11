@@ -81,42 +81,42 @@ const renderCell = (row: IPutResponse) =>
     />,
   );
 
-const readReceipt = (blob: Blob) =>
-  new Promise<string>((resolve) => {
+const printedReceiptHtml = () => {
+  const [[blob]] = jest.mocked(URL.createObjectURL).mock.calls;
+
+  return new Promise<string>((resolve) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.readAsText(blob);
+    reader.addEventListener('load', () => resolve(String(reader.result)));
+    reader.readAsText(blob as Blob);
   });
+};
+
+const openReceiptWindow = (receiptWindow: Window | null) =>
+  jest.spyOn(window, 'open').mockReturnValue(receiptWindow);
 
 describe('PutResponseMoreColumnCell', () => {
-  const originalOpen = window.open;
-  const createObjectURL = jest.fn<string, [Blob]>(() => 'blob:receipt');
-  const revokeObjectURL = jest.fn();
-
   beforeEach(() => {
-    URL.createObjectURL = createObjectURL;
-    URL.revokeObjectURL = revokeObjectURL;
+    URL.createObjectURL = jest.fn(() => 'blob:receipt');
+    URL.revokeObjectURL = jest.fn();
   });
 
   afterEach(() => {
-    window.open = originalOpen;
-    createObjectURL.mockClear();
-    revokeObjectURL.mockClear();
+    jest.restoreAllMocks();
     mockToast.mockReset();
   });
 
   it('prints the filled eBarimt receipt of the clicked row', async () => {
-    window.open = jest.fn(() => ({}) as Window);
+    const receiptWindow = openReceiptWindow({} as Window);
 
     renderCell(putResponse({}));
     fireEvent.click(screen.getByText('print'));
 
-    expect(window.open).toHaveBeenCalledWith(
+    expect(receiptWindow).toHaveBeenCalledWith(
       'blob:receipt',
       '_blank',
       'width=800, height=800',
     );
-    const html = await readReceipt(createObjectURL.mock.calls[0][0]);
+    const html = await printedReceiptHtml();
     expect(html).toContain('ДДТД: 112502020902001012345678901234567');
     expect(html).toContain('Огноо: 2026-11-11 10:14:09');
     expect(html).toContain('Сугалаа: QW 87654321');
@@ -127,7 +127,7 @@ describe('PutResponseMoreColumnCell', () => {
   });
 
   it('asks to allow pop-ups when the browser blocks the receipt window', () => {
-    window.open = jest.fn(() => null);
+    openReceiptWindow(null);
 
     renderCell(putResponse({}));
     fireEvent.click(screen.getByText('print'));
@@ -138,11 +138,11 @@ describe('PutResponseMoreColumnCell', () => {
         variant: 'destructive',
       }),
     );
-    expect(revokeObjectURL).toHaveBeenCalledWith('blob:receipt');
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:receipt');
   });
 
   it('does not print a returned receipt', () => {
-    window.open = jest.fn();
+    const receiptWindow = openReceiptWindow(null);
 
     renderCell(putResponse({ state: 'inactive' }));
     const button = screen
@@ -151,11 +151,11 @@ describe('PutResponseMoreColumnCell', () => {
     fireEvent.click(button);
 
     expect(button.disabled).toBe(true);
-    expect(window.open).not.toHaveBeenCalled();
+    expect(receiptWindow).not.toHaveBeenCalled();
   });
 
   it('does not print a failed send that never got a bill id', () => {
-    window.open = jest.fn();
+    const receiptWindow = openReceiptWindow(null);
 
     renderCell(
       putResponse({
@@ -169,6 +169,6 @@ describe('PutResponseMoreColumnCell', () => {
       (screen.getByText('print').closest('button') as HTMLButtonElement)
         .disabled,
     ).toBe(true);
-    expect(window.open).not.toHaveBeenCalled();
+    expect(receiptWindow).not.toHaveBeenCalled();
   });
 });
