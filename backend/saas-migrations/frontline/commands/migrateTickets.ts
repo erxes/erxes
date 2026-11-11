@@ -4,6 +4,7 @@ dotenv.config();
 
 import { Collection, Db, MongoClient } from 'mongodb';
 import { findOrganization } from '../../findOrganization';
+import { requireChannelId, resolveChannelId } from './_channel';
 
 const {
   MONGO_URL = 'mongodb://localhost:27017/erxes?directConnection=true',
@@ -28,6 +29,8 @@ function extractDbName(url: string): string {
 }
 
 const client = new MongoClient(CORE_MONGO_URL || MONGO_URL);
+
+let channelId: string | undefined;
 let db: Db;
 
 let OLD_PIPELINES: Collection;
@@ -141,7 +144,7 @@ async function loadExistingIds(col: Collection): Promise<Set<string>> {
 
 async function migratePipelines(): Promise<void> {
   console.log('\n🚀 Step 1 — tickets_pipelines → frontline_tickets_pipelines');
-  console.log(`   Channel  : ${STATIC_CHANNEL_ID}`);
+  console.log(`   Channel  : ${channelId}`);
 
   const existingIds = await loadExistingIds(NEW_PIPELINES);
   console.log(`📋 Existing : ${existingIds.size}`);
@@ -165,7 +168,7 @@ async function migratePipelines(): Promise<void> {
         document: {
           _id: doc._id,
           name: doc.name || 'Untitled Pipeline',
-          channelId: STATIC_CHANNEL_ID,
+          channelId,
           userId: doc.userId,
           order: doc.order ?? 0,
           state: doc.status === 'archived' ? 'archived' : 'active',
@@ -352,7 +355,7 @@ async function migrateTickets(): Promise<void> {
           _id: doc._id,
           name: doc.name || 'Untitled',
           description: doc.description,
-          channelId: STATIC_CHANNEL_ID,
+          channelId,
           pipelineId,
           statusId: doc.stageId,
           stageId: doc.stageId,
@@ -581,7 +584,14 @@ const command = async () => {
 
   console.log('═══════════════════════════════════════════════');
   console.log('  Frontline ticket migration');
-  console.log(`  STATIC_CHANNEL_ID : ${STATIC_CHANNEL_ID}`);
+  const sourceCount =
+    (await OLD_PIPELINES.countDocuments({ type: 'ticket' })) +
+    (await OLD_TICKETS.countDocuments());
+
+  channelId =
+    sourceCount > 0 ? await requireChannelId(db) : await resolveChannelId(db);
+
+  console.log(`  Channel : ${channelId}`);
   console.log('═══════════════════════════════════════════════');
 
   await migratePipelines().catch((e) =>

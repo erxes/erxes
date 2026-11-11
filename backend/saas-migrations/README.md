@@ -149,6 +149,17 @@ same `_id` or email); the new organization is added to that user's
 organization stops the run before any data is copied. `DRY_RUN=true` only
 prints what would be created.
 
+## Frontline channel
+
+`frontline/commands/migrateChannel.ts` creates a team channel (named
+`DEFAULT_CHANNEL_NAME`, default `Support`) when the target has none, with the
+target's users as members and its owner as admin. `migrateForms.ts`,
+`migrateTickets.ts` and `migrateResponseTemplates.ts` then assign
+`STATIC_CHANNEL_ID` when it is set, otherwise the target's only team channel;
+with several team channels and no `STATIC_CHANNEL_ID` they stop instead of
+writing an empty `channelId`. Response templates whose `channelId` is empty
+from an earlier run are assigned again.
+
 ## Knowledge Base to CMS
 
 The explicit [Knowledge Base importer](content/knowledgebase/README.md) converts
