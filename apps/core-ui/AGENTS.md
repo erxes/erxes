@@ -1,0 +1,40 @@
+# core-ui
+
+The core React app (React 18, Rsbuild, React Query) and the Module Federation host for plugin UIs.
+
+## Layout
+
+- `src/main.tsx` only imports `src/bootstrap.tsx`: that async boundary lets Module Federation agree
+  on shared libraries before anything runs.
+- `src/modules/<feature>/` holds a feature's pages, components and hooks (`useTags.ts`). Only
+  cross-feature parts live in `src/components` and `src/lib`.
+- `src/lib/api.ts` is the typed contract client `api`, plus `isApiError(error, code)`,
+  `errorData(error, schema)` and `messageOf(error)`.
+- `src/lib/cursorList.ts` reads keyset lists (`useCursorList`) into `RecordTable.CursorProvider`.
+- `src/modules/plugins/usePlugins.ts` loads plugin UIs from the installed plugins' manifests (`ui`,
+  `GET /plugins`), plus `PUBLIC_PLUGINS` for development (`<remote>@<remoteEntry url>`,
+  comma-separated, parsed in `remotes.ts`; it wins for the same remote).
+- `src/bootstrap.tsx` gives erxes-ui the plugin runtime (`setPluginRuntime`): plugin UIs call their
+  own API with a per-plugin session token (`pluginFetch`) and hear their live signals
+  (`useLiveSignal`, fed by `pluginLive` in `src/lib/live.ts`).
+
+## Rules
+
+- Call core only through `api` from `~/lib/api`, inside React Query: reads with `useQuery`, writes
+  with `useMutation` that update or invalidate the module's query key, as in
+  `src/modules/tags/useTags.ts`. Generated query options (`@orpc/tanstack-query`) are Phase 2 (future).
+- Read error details with `isApiError` and `errorData`, never by casting `error.data`.
+- Browser code never imports `@erxes/core-db`, `pg`, `drizzle-orm` or `node:*` (`no-restricted-imports`).
+- The UI follows old core-ui: the top bar (`CoreTab`), one `AppLayout` sidebar per app, pages from
+  `PageContainer`, `PageHeader`, `Filter` and `RecordTable`. Reuse erxes-ui parts before writing new ones.
+- `SHARED` in `rsbuild.config.ts` lists the singletons plugin UIs expect from the host. Old plugins
+  declare them with `import: false`, so the names stay and the host provides each one.
+- A plugin's `./config` exports `CONFIG` (`name`, `path`, `icon`, `modules`). Its first module
+  renders under `/<path>/*`.
+- React compiler rules run at error: derive state while rendering, reset with a `key`, `void` a
+  promise only when nothing waits for it.
+
+## Check
+
+`pnpm check` and `pnpm build`. For a visible change, follow `.agents/skills/verify-feature/SKILL.md`
+and say what you saw in the browser.

@@ -1,229 +1,113 @@
-# erxes core (new, Postgres) — agent and contributor guide
+# erxes core (Postgres)
 
-The new thin erxes core. It owns only what every plugin shares: organisations,
-team members, sign-in, customers and companies, files, notifications,
-payments, events, activity, automation and the plugin registry. Business
-features (catalog products, orders, rooms, employees, tickets) belong to
-plugins, which live in their own repos. Read `docs/design.md` before changing
-anything structural.
+The new thin erxes core. It owns only what every plugin shares: organisations, team members,
+sign-in, customers and companies, tags and custom fields, files, notifications, activity, audit
+and events. Business features belong to plugins, each in its own repo. `docs/design.md` has the
+decisions, `docs/porting-map.md` what exists and what old erxes code it replaces.
 
-## Layout
+## Packages and import direction
 
-- `apps/core-api` — the core API (`/core/v1`), Express + oRPC (OpenAPI handler: plain REST + JSON), bundled with tsup.
-  Code by feature in `src/modules/<feature>/<feature>.service.ts`; routes in
-  `src/router.ts`; shared HTTP pieces in `src/http`, helpers in `src/lib`.
-- `apps/core-ui` — the core UI (Rsbuild, React 18, React Query) and the Module
-  Federation host for plugin UIs. Code by feature in `src/modules/<feature>/`
-  (`app`, `auth`, `navigation`, `contacts`, `settings`, `plugins`); only
-  cross-feature pieces live in `src/components` and `src/lib`.
-- `packages/ui` — `erxes-ui`, copied from erxes `main` and compiled from source;
-  shared with plugins as a Module Federation singleton. Keep changes
-  backward-compatible: old plugins load against it.
-- `packages/ui-modules` — the small part of old `ui-modules` that old plugin UIs
-  import from the host (`PageHeader`). New code should not grow it.
-- `packages/contract` — `@erxes/core-contract`: the API contract (zod + `@orpc/contract`)
-  and event schemas. Core implements it; plugins call it with a typed client.
-- `packages/db` — `@erxes/core-db`: Drizzle schema, client, migrator,
-  `newId()`. Migrations in `packages/db/drizzle`.
-- `docs/` — design decisions and the porting map from old erxes.
+| Path                  | Package                | Owns                                                                                        |
+| --------------------- | ---------------------- | ------------------------------------------------------------------------------------------- |
+| `apps/core-api`       | `@erxes/core-api`      | Express + oRPC server for `/core/v1`. Guide: `apps/core-api/AGENTS.md`                      |
+| `apps/core-ui`        | `@erxes/core-ui`       | React app and Module Federation host for plugin UIs. Guide: `apps/core-ui/AGENTS.md`        |
+| `packages/contract`   | `@erxes/core-contract` | zod + `@orpc/contract` API contract and event schemas. Guide: `packages/contract/AGENTS.md` |
+| `packages/db`         | `@erxes/core-db`       | Drizzle schema, client, migrations. Guide: `packages/db/AGENTS.md`                          |
+| `packages/ui`         | `erxes-ui`             | Copied from old erxes and shared with plugin UIs. Rewritten in Phase 2 (future)             |
+| `packages/ui-modules` | `ui-modules`           | The part of old `ui-modules` that old plugin UIs import from the host                       |
 
-Apps import packages; packages never import apps. Add `apps/worker` only when
-it is built.
+Apps import packages. Packages never import apps. `apps/core-ui`, `packages/ui` and
+`packages/ui-modules` never import `@erxes/core-db`, `pg`, `drizzle-orm` or `node:*`. Only
+`apps/core-api/src/router.ts` uses `implement`/`os` from `@orpc/server`. `no-restricted-imports`
+in `vite.config.ts` enforces all three.
 
-## Rules
-
-- **Thin core.** No business feature goes into core. If only one plugin needs
-  it, it belongs in that plugin.
-- **Contract first.** Every endpoint is declared in `packages/contract` with
-  `oc.route({ method, path })` (paths are under `/core/v1`), zod input/output
-  and stable error codes, then implemented in `apps/core-api/src/router.ts`
-  (`authed.<group>.<name>.handler`, typed `context.actor`). Inputs are one
-  object: path params, query or body merged (`{ id, ...changes }`). The
-  OpenAPI document is served at `/core/v1/openapi.json`. Additive changes stay in v1; breaking changes go to
-  `/core/v2`.
-- **Tenancy.** Every core table has `org_id` (= the SaaS organisation `_id`).
-  Every query filters by the caller's organisation (`req.actor.orgId`); never
-  trust an organisation id from the body.
-- **Ids are text** (`newId()`, 17 chars), so records imported from old erxes
-  keep their Mongo `_id`.
-- **Database.** Tables are `core_<name>` (`pgTable` from `packages/db/src/table.ts`);
-  index and constraint names repeat the full table name. The database is shared
-  with plugins (`<plugin>_<name>`): never read or write a plugin's tables.
-  Schema change → edit `packages/db/src/schema`, run `pnpm db:generate`, commit
-  the SQL. Never edit a released migration; never use `drizzle-kit push`.
-- **Migrations** run at API startup in one transaction under
-  `pg_advisory_xact_lock(hashtext('core:migrate'))`, tracked in
-  `public.__drizzle_migrations_core`. Only transaction-scoped locks (poolers).
-- **Responses never carry credentials or `org_id`**: map rows to DTOs
-  (`toUserDto`, …).
-- **Errors** are oRPC's `{ code, status, message, data? }`: services throw
-  `HttpError` (an `ORPCError`); invalid input is `INVALID_INPUT` with zod
-  `issues`. Clients branch on `code` (`isApiError(error, 'CUSTOMER_EXISTS')`).
-- **Settings** are read only in `apps/core-api/src/config.ts`. Names are unprefixed
-  (`DATA_URL`, `PORT`, `CORE_JWT_SECRET`); secrets also accept `<NAME>_FILE`.
-  Production throws on missing secrets.
-- **Lists** use keyset paging (`CursorQuery` → `{ data, pageInfo, totalCount }`,
-  newest first; `src/lib/keyset.ts`). The cursor is a record id. The UI reads
-  them with `useCursorList` into `RecordTable.CursorProvider`.
-- **UI parity.** Core UI follows old core-ui: the top bar (`CoreTab`: brand,
-  app switcher, open-app tabs, settings, user menu), one `AppLayout` sidebar per
-  app, pages built from `PageContainer` / `PageHeader` / `PageSubHeader` /
-  `Filter` / `RecordTable`. Reuse erxes-ui parts before writing new ones.
-- **Plugin UIs** load at runtime from the installed plugins' manifests (`ui`),
-  plus `PUBLIC_PLUGINS` for development (`<remote>@<remoteEntry url>`,
-  comma-separated; wins for the same remote): `./config` exports `CONFIG`
-  (`name`, `path`, `icon`, `modules`), and the first module renders under
-  `/<path>/*` (default export, or the PascalCase name: `./hr` → `Hr`).
-- **Tests** run against a real Postgres: each test file creates and drops its
-  own database (`apps/core-api/src/__tests__/db.ts`) when `DATA_TEST_URL` is set.
-
-## Current state
-
-- Organisations (`core_organizations`) and team members (`core_users`):
-  list (keyset; search, status, role, ids), get, invite, update,
-  disable/enable, with owner/admin/member rules (no self role change or self
-  disable, only owners change owner rights, the organisation always keeps an
-  active owner).
-- Sign-in: email + password (scrypt) → HttpOnly `erxes_session` cookie or Bearer
-  token (HS256 for now); status and role are re-read on every request; CSRF
-  check for cookie writes. `pnpm bootstrap` creates an organisation and owner.
-- First run: while the database has no organisation, `GET /setup` says so and
-  `POST /setup` creates the organisation and its owner and signs in (the UI
-  shows "Initial Configuration Steps"). `CORE_SETUP=false` turns it off where
-  the SaaS side creates organisations.
-- Customers (`core_customers`) and companies (`core_companies`): list (keyset;
-  search, tag, owner, linked record, ids), get (merged ids resolve to the kept
-  record), create, update, remove and merge (owners/admins), bulk tagging.
-  One customer per primary email / phone and one company per name in an
-  organisation (409 `CUSTOMER_EXISTS` / `COMPANY_EXISTS` names the existing
-  one). Customers and companies link many-to-many (`core_customer_companies`).
-- Tags (`core_tags`, per type) link through `core_customer_tags` /
-  `core_company_tags` with foreign keys both ways, so deleting a tag or a record
-  removes its links. Records still return `tagIds`.
-- Custom fields (`core_fields`, "properties"): text, long text, number, date,
-  yes/no, select, multi-select. Values live in each record's `custom_fields`
-  JSON keyed by field id and are checked against the field on every write;
-  deleting a field removes its values.
-- Files (`core_files`): metadata in core, bytes in the storage driver
-  (`FILES_STORAGE=local|s3`; S3, R2, MinIO). Upload in two steps:
-  `POST /files` checks name, type and size against the organisation's settings
-  (Settings › File upload, below the deployment's `FILES_MAX_SIZE_MB`; programs
-  are always refused) and returns a signed PUT link; the client sends the bytes
-  there (straight to the bucket for S3), then `POST /files/:id/complete` checks
-  the stored object. `/files/:id/download` is the stable address (session or
-  plugin key, then a short-lived link); risky types are only ever downloads.
-  erxes-ui's upload hooks use core's storage through `setFileStorage`.
-- **Sessions** carry the member's `sessionVersion`; password change (other
-  sessions), admin reset, disable, enable and `POST /auth/sign-out-everywhere`
-  raise it, so older tokens fail on the next request (and open streams get
-  `bye`). Sign-in is limited per address (20/min) and per account (10
-  failures in 15 minutes → 429, counted from the audit log, so it holds
-  across replicas). Postgres TLS is verified (`DATA_SSL_CA`).
-- **Access map** (`src/http/access.ts`): every procedure has a policy —
-  `public`, `member: any | manager | owner`, `plugin: <scope>` (or `manifest`)
-  — checked by one oRPC middleware before the handler. `ACCESS satisfies
-  Record<ProcedurePath, Policy>`: a procedure without an entry doesn't compile.
-- **Plugin connection** (`src/modules/plugins`, `@erxes/plugin-sdk`):
-  - Registry `core_plugins` (client secret hashed; `CORE_PLUGIN_KEYS` registers
-    them at startup, `pnpm plugin:secret -- <name>` rotates with 24 h overlap)
-    and per-organisation `core_plugin_installations` with granted scopes
-    (owners install/uninstall/approve in Settings › Plugins; auto-install for
-    self-hosted and development, `PLUGINS_AUTO_INSTALL`).
-  - Plugin servers: `POST /plugins/token` (client credentials, + `org`) → a
-    15-minute ES256 token with the granted scopes; every request re-checks
-    the installation, so uninstalling cuts a plugin off at once. Without `org`
-    the token only updates the manifest (`PUT /plugins/manifest`: ui, api
-    url, scopes, permissions, notification kinds, events). The secret itself
-    is never accepted on API calls.
-  - Plugin UIs: erxes-ui's `pluginFetch('hr', path)` / `pluginJson` call the
-    plugin's API (manifest `api.url`) with a 5-minute session token (`POST
-    /plugins/{name}/session`, `aud` = the plugin, `typ`
-    `erxes-plugin-session+jwt`) that the plugin verifies with the JWKS
-    (`verifyPluginSession`). Core's session cookie never leaves core.
-  - Live: plugins call `core_live_signal(org, plugin, topic, user_ids)` in
-    their transaction (or `POST /plugins/live`, `live:write`); the stream sends
-    `plugin { plugin, topics }`; plugin UIs use erxes-ui's `useLiveSignal`.
-- `context.caller` / `pluginOf` in the router. Plugin-only:
-  `POST /notifications`, `POST /activities`; both take a `dedupeKey` (retry-safe)
-  and a kind/type namespaced by the plugin (`hr.leave.requested`).
-- Notifications (`core_notifications`): one inbox per source, like Atlassian —
-  `core` and each plugin — gathered at `/notifications` (sidebar per inbox,
-  unread counts per source) and `/notifications/<plugin>` for one plugin's
-  inbox. Core notifies owners about records others assign, change (quick edits
-  collapse into one, with `data.changes`), merge or delete, and about plugin
-  events on their records; members about role and password changes (can't be
-  muted). Each member mutes kinds or whole plugins (Settings › Notifications).
-  Counts refresh every 30 s (no LISTEN/NOTIFY behind poolers).
-- Activity (`core_activities`): the customer/company timeline (Activity tab):
-  created, updated (with changes), tagged, merged, linked, plus plugin entries;
-  moved on merge, deleted with the record. Plugin history stays in the plugin.
-- Audit (`core_audit_logs`): sign-ins, team, contacts, tags, properties, files
-  and settings with before/after values, IP and user agent, written in the same
-  transaction as the change (`recordAudit`); Settings › Audit log for owners
-  and admins. Hourly cleanup prunes old entries, unfinished uploads and old
-  read notifications (`src/lib/maintenance.ts`).
-- Event stream (`core_events`, transactional outbox): plugins on core's
-  database publish with `SELECT core_publish_event(org, plugin, type, payload,
-  subject_type, subject_id, summary, link, notify, dedupe_key, …)` inside their
-  own transaction; others use `POST /events`. Core publishes `core.*` events in
-  the same transaction as its changes. `src/modules/events/processor.ts` reads
-  in commit order (`tx_id`, `seq`; only finished transactions) with a cursor
-  per consumer (`core_event_consumers`, `FOR UPDATE SKIP LOCKED`), polling every
-  second: subject + summary → timeline entry (+ owner notification in the
-  plugin's inbox); `notify` → notifications. Consumers must be idempotent.
-  A failing event doesn't block the stream: it goes to `core_event_failures`
-  and is retried after 1 min, 5 min, 30 min, 2 h, 12 h, then is `dead`
-  (Settings › Event delivery: retry or dismiss; `/events/failures`). Events are
-  pruned after `EVENTS_RETENTION_DAYS` once every consumer passed them and none
-  still retries them.
-- Signing keys (`src/lib/signing.ts`): one ES256 key (`CORE_SIGNING_KEY`, PEM;
-  development generates `data/keys/signing-key.pem`), public keys at
-  `/core/v1/.well-known/jwks.json` (kid = RFC 7638 thumbprint; rotate through
-  `CORE_SIGNING_KEYS_RETIRED`). Every token type has its own JOSE `typ`.
-- Audit checkpoints (`core_audit_checkpoints`, append-only): every 10 minutes
-  (and on `/audit/verify`) core checks the entries added since the last
-  checkpoint and signs the chain head. Verify checks signatures and that each
-  checkpoint's entry still has the signed hash — catching a consistently
-  rewritten chain and entries cut off its end. `/audit/checkpoints` exports them.
-- Audit log hardening: one log for core and plugins (`POST /audit`, or
-  `core_record_audit()` in the plugin's transaction; `source` column); a
-  per-organisation hash chain set by a trigger (`GET /audit/verify`);
-  append-only in the database (updates, deletes and TRUNCATE raise; only the
-  retention cleanup with `core.audit_prune` and organisation deletes remove
-  rows); per-organisation retention (owners, ≤ AUDIT_RETENTION_DAYS); filters
-  for dates, IP, source and text; counts capped at 10,000; CSV/JSON export
-  (`GET /audit/export`, audited, formulas defused).
-- Timeline notes: `customer.note` / `company.note` entries with @mentions
-  (notify `core.note.mentioned`), attachments and pinning; the timeline filters
-  by kind (notes, changes, plugins) and a company can include its customers'.
-- Live updates: committed changes `NOTIFY` (migration 0008 triggers on
-  notifications, activities, events); each API server holds one `LISTEN`
-  connection (`src/modules/live/hub.ts`; `DATA_LISTEN_URL`, derived for Supabase
-  as the session pooler on 5432) and serves `GET /core/v1/stream` (Server-Sent
-  Events: `hello { mode }`, `inbox`, `timeline { targets }`, `resync`, `bye`;
-  signals only, never data; coalesced, heartbeats, session re-checked, capped
-  per member). The event processor runs on `NOTIFY` (30 s safety poll; 1 s
-  without a listener). core-ui (`src/lib/live.ts`) keeps one stream per
-  browser (Web Locks leader + BroadcastChannel), reopens it with backoff,
-  refetches what changed, and polls only while the stream is down.
-- Profile (Settings › Account › Profile, `/settings/profile`): the member's own
-  picture (core file service), names, contact details, about and links through
-  `users.update` on themselves; `POST /auth/password` changes their password with
-  the current one; `GET /auth/sign-ins` lists their sign-ins from the audit log.
-  Avatars accept a URL or a core file address (`ImageAddress`).
-- Core UI: setup and sign-in (old core-ui look); Contacts (Customers, Leads,
-  Companies) on RecordTable with inline editing, tag and custom field columns,
-  filters, bulk tag / merge / delete, a detail side panel (`?customerId=`,
-  `?companyId=`) and add forms (`=new`); Settings (Team members, Tags,
-  Properties, Organization); theme and language in the user menu; plugin UIs
-  through Module Federation.
-
-## Validation
+## Setup from a fresh clone
 
 ```sh
-pnpm install
-pnpm typecheck
-DATA_TEST_URL=postgres://… pnpm test
-pnpm build
-pnpm db:check
+pnpm install                 # Node 24 (.node-version), pnpm from packageManager; installs the pre-commit hook
+docker compose up -d         # Postgres 16 on 127.0.0.1:5434
+cp .env.example .env
+pnpm dev                     # API http://localhost:3400, UI http://localhost:3500
 ```
+
+## Commands
+
+- `pnpm check`: oxfmt, type-aware oxlint, the TypeScript 7 type check (tsgolint) and knip. Config
+  in `vite.config.ts` and `knip.ts`. Vite+ docs: `node_modules/vite-plus/docs`.
+- `pnpm fix`: formats and applies lint autofixes.
+- `pnpm test`: every vitest project in `vite.config.ts`. The API tests need `DATA_TEST_URL` and fail
+  without it, e.g. `DATA_TEST_URL=postgres://erxes:erxes_local_dev@127.0.0.1:5434/erxes pnpm test`.
+- `pnpm build`: the API bundle (tsup) and the UI (Rsbuild).
+- `pnpm check:generated`: regenerates migrations and `packages/contract/openapi.json` and fails on drift.
+- `pnpm db:generate`, `pnpm openapi`, `pnpm bootstrap` (an organisation and owner from the command line),
+  `pnpm plugin:secret -- <name>` (registers a plugin or rotates its client secret; the old one works 24 h more).
+- The pre-commit hook runs `vp staged` (`vp check --fix` on staged files). CI
+  (`.github/workflows/ci.yml`) runs everything above; the `Check` job is the one to require.
+
+## Task to skill
+
+| Task                                                                   | Skill                                     |
+| ---------------------------------------------------------------------- | ----------------------------------------- |
+| Add or change an endpoint in the contract, router or a service         | `.agents/skills/core-endpoint/SKILL.md`   |
+| Add or change a table, column, index or migration                      | `.agents/skills/schema-change/SKILL.md`   |
+| Show a behaviour change works in the running app                       | `.agents/skills/verify-feature/SKILL.md`  |
+| Change what plugins see: contract, events, OpenAPI, federation exports | `.agents/skills/plugin-contract/SKILL.md` |
+
+## Invariants
+
+- Thin core. If only one plugin needs a feature, it belongs in that plugin.
+- Contract first. Every endpoint is declared in `packages/contract` and implemented in
+  `apps/core-api/src/router.ts`. Types flow from the contract; never hand-write an API shape.
+  `pnpm check:generated` fails when `openapi.json` is stale.
+- Tenancy. Every table with an organisation's data has `org_id`. Every query filters by the caller's organisation
+  (`context.actor.orgId`, or `context.plugin.orgId` from the plugin's token). Never trust an organisation id from input.
+- Responses never carry credentials or `org_id`: services map rows to DTOs.
+- Tables are `core_<name>` (the database is shared with plugins). Migrations are generated, never
+  edited after release, and committed with the schema change.
+- Ids are text (`newId()`, 17 characters), so records imported from old erxes keep their Mongo `_id`.
+
+## Handoff
+
+A handoff names: the commits, the tail of `pnpm check`, `pnpm test` (with the test count) and
+`pnpm build`, `pnpm check:generated` when the schema or contract changed, what was checked in a
+browser for UI changes, and anything deferred with the reason.
+
+## How to work
+
+Agents write and test every line here, and the next agent builds on what you leave.
+Judge a change by the codebase it leaves behind: fewest concepts, files and moving parts.
+
+- Build what the task asks and no more. Simple, direct code. No speculative options.
+- Merge repeated code and fix nearby problems you find, even if the diff grows.
+- No backward-compat shims or stopgaps inside this repo. Make the long-term choice.
+  The published contract and SDK follow the versioning policy in `packages/contract/AGENTS.md`.
+- Prefer an established, maintained library over writing your own.
+- Start from the current `postgre` branch. Commit early and often.
+
+### TypeScript
+
+- Types come from Drizzle → contract (drizzle-zod arrives in Phase 2). Never hand-write an API shape.
+- No `any`, no `as` over a real mismatch, no `as unknown as` (`typescript/no-explicit-any`,
+  `no-unsafe-*` and `no-unsafe-type-assertion` in `pnpm check`). Parse unknown input with zod.
+- Lean on inference. Explicit return types only on exported contract and SDK functions. No one-line cast wrappers.
+- Add packages with `pnpm add`, never by editing package.json (CI installs with `--frozen-lockfile`).
+- Run `pnpm check` before you say you're done (CI `static` job). `pnpm fix` formats and autofixes.
+
+### Tests
+
+- Test observable behavior through the public caller: HTTP, the typed contract client, the rendered page.
+  API tests use `useTestServer()` from `apps/core-api/src/__tests__/support.ts`.
+- Never assert source strings, implementation shapes, or that a test exists.
+- Run the existing suites before adding new ones (CI `integration` job runs them all on Postgres).
+
+### Shell and edits
+
+- Search with `rg -n` and `fd`. Cap output with `--max-count` or `head`.
+- Change code with your editor tool, or `ast-grep` when many matches change the same way. Never rewrite source with `sed -i`, python or `cat >`.
+- Put `set -o pipefail` before any piped command that gates a commit.
+- Throwaway scripts go in `.scratch/`, which git ignores.
+
+### Writing (docs, PRs, product copy)
+
+- Plain words, short sentences, active voice. Say what it does or give the number.
+- No em dashes, no filler, no puffery.
