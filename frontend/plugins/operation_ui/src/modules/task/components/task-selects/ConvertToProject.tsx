@@ -1,24 +1,21 @@
-import { AddProjectForm } from '@/project/components/add-project/AddProjectForm';
+import { useCreateProjectRecord } from '@/project/hooks/useCreateProjectRecord';
 import { useGetConvertedProject } from '@/project/hooks/getConvertedProject';
-import { ITask } from '@/task/types';
+import { useProjectDetailSheet } from '@/project/hooks/useProjectDetailSheet';
+import { ITaskDetail } from '@/task/types';
 import { IconClipboard } from '@tabler/icons-react';
-import { Command, Sheet } from 'erxes-ui';
-import { useNavigate } from 'react-router';
+import { Command } from 'erxes-ui';
 import { useTranslation } from 'react-i18next';
 
-// The task's actions menu item: convert it to a project, or go to the
-// project it already became.
 export const ConvertToProjectTrigger = ({
   task,
   setOpen,
-  onConvert,
 }: {
-  task: ITask;
+  task: ITaskDetail;
   setOpen: (open: boolean) => void;
-  onConvert: () => void;
 }) => {
   const { t } = useTranslation('operation');
-  const navigate = useNavigate();
+  const { openProjectDraft } = useCreateProjectRecord();
+  const [, setActiveProject] = useProjectDetailSheet();
   const { project, loading } = useGetConvertedProject({
     variables: { convertedFromId: task._id },
   });
@@ -28,41 +25,29 @@ export const ConvertToProjectTrigger = ({
       disabled={loading}
       onSelect={() => {
         setOpen(false);
-
         if (project) {
-          navigate(`/operation/projects/${project._id}/overview`);
+          setActiveProject(project._id, { stack: true });
           return;
         }
-
-        onConvert();
+        openProjectDraft(
+          {
+            name: task.name || '',
+            teamIds: task.teamId ? [task.teamId] : undefined,
+            priority: task.priority ?? 0,
+            leadId: task.assigneeId ?? undefined,
+            startDate: task.startDate ? new Date(task.startDate) : undefined,
+            targetDate: task.targetDate ? new Date(task.targetDate) : undefined,
+            convertedFromId: task._id,
+            description: task.description ?? undefined,
+            customerId: task.customerId,
+            companyId: task.companyId,
+          },
+          { stack: true },
+        );
       }}
     >
       <IconClipboard className="size-4" />
-      <div className="flex items-center">
-        {project ? t('go-to-project-btn') : t('convert-to-project')}
-      </div>
+      {project ? t('go-to-project-btn') : t('convert-to-project')}
     </Command.Item>
   );
 };
-
-// The new-project form a task is converted with; it outlives the menu.
-export const ConvertToProjectSheet = ({
-  task,
-  open,
-  onOpenChange,
-}: {
-  task: ITask;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}) => (
-  <Sheet open={open} onOpenChange={onOpenChange}>
-    <Sheet.View
-      className="sm:max-w-3xl w-full p-0"
-      onEscapeKeyDown={(e) => {
-        e.preventDefault();
-      }}
-    >
-      <AddProjectForm task={task} onClose={() => onOpenChange(false)} />
-    </Sheet.View>
-  </Sheet>
-);
