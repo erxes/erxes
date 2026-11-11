@@ -1169,24 +1169,6 @@ importers:
         specifier: ^1.13.7
         version: 1.13.7
 
-  backend/plugins/communication_api:
-    dependencies:
-      aws-sdk:
-        specifier: ^2.1692.0
-        version: 2.1692.0
-      erxes-api-shared:
-        specifier: workspace:^
-        version: link:../../erxes-api-shared
-      graphql-tag:
-        specifier: ^2.12.6
-        version: 2.12.6(graphql@16.10.0)
-      jsonwebtoken:
-        specifier: ^9.0.2
-        version: 9.0.2
-      zod:
-        specifier: ^3.25.76
-        version: 3.25.76
-
   backend/plugins/content_api:
     dependencies:
       erxes-api-shared:
